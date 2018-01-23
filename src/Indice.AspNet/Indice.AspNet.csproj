@@ -1,5 +1,4 @@
 <Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
     <Description>Indice.AspNet Class Library</Description>
     <Copyright>Copyright (c) 2018 Indice</Copyright>
@@ -10,21 +9,21 @@
     <TargetFrameworks>net40;net45;net461;net47</TargetFrameworks>
     <AssemblyName>Indice.AspNet</AssemblyName>
     <AssemblyTitle>Indice.AspNet</AssemblyTitle>
-    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <!--<GenerateDocumentationFile>true</GenerateDocumentationFile>-->
   </PropertyGroup>
   <PropertyGroup Label="Package">
     <PackageId>Indice.AspNet</PackageId>
     <PackageTags>AspNet;HtmlHelpers;Grid</PackageTags>
     <PackageReleaseNotes>
-      The best html helpers in town
+      A complete Html Helper for creating a Grid.
     </PackageReleaseNotes>
-    <PackageIconUrl>https://github.com/indice-co/Indice.AspNet/blob/master/design/icon-128.png?raw=true</PackageIconUrl>
+    <PackageIconUrl>https://raw.githubusercontent.com/indice-co/Indice.AspNet/master/icon/icon-128.png</PackageIconUrl>
     <PackageProjectUrl>https://github.com/indice-co/Indice.AspNet</PackageProjectUrl>
     <PackageLicenseUrl>https://github.com/indice-co/Indice.AspNet/blob/master/LICENSE</PackageLicenseUrl>
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>https://github.com/indice-co/Indice.AspNet</RepositoryUrl>
     <Company>Indice</Company>
-    <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
   </PropertyGroup>
   <PropertyGroup Condition="'$(TargetFramework)' == 'net40'">
     <AssemblyTitle>Edi.Net .NET 4.0</AssemblyTitle>
@@ -35,5 +34,22 @@
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' != 'net40'">
     <PackageReference Include="Microsoft.AspNet.Mvc" Version="5.2.3" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="System.Web" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Update="Resources\PagerStrings.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>PagerStrings.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Update="Resources\PagerStrings.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>PagerStrings.Designer.cs</LastGenOutput>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
   </ItemGroup>
 </Project>
