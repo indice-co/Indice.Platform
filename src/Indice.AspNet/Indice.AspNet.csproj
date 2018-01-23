@@ -1,0 +1,39 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <Description>Indice.AspNet Class Library</Description>
+    <Copyright>Copyright (c) 2018 Indice</Copyright>
+    <AssemblyTitle>Indice.AspNet</AssemblyTitle>
+    <VersionPrefix>1.0.0</VersionPrefix>
+    <!--<VersionSuffix>beta1</VersionSuffix>-->
+    <Authors>c.leftheris, g.manoltzas</Authors>
+    <TargetFrameworks>net40;net45;net461;net47</TargetFrameworks>
+    <AssemblyName>Indice.AspNet</AssemblyName>
+    <AssemblyTitle>Indice.AspNet</AssemblyTitle>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+  </PropertyGroup>
+  <PropertyGroup Label="Package">
+    <PackageId>Indice.AspNet</PackageId>
+    <PackageTags>AspNet;HtmlHelpers;Grid</PackageTags>
+    <PackageReleaseNotes>
+      The best html helpers in town
+    </PackageReleaseNotes>
+    <PackageIconUrl>https://github.com/indice-co/Indice.AspNet/blob/master/design/icon-128.png?raw=true</PackageIconUrl>
+    <PackageProjectUrl>https://github.com/indice-co/Indice.AspNet</PackageProjectUrl>
+    <PackageLicenseUrl>https://github.com/indice-co/Indice.AspNet/blob/master/LICENSE</PackageLicenseUrl>
+    <RepositoryType>git</RepositoryType>
+    <RepositoryUrl>https://github.com/indice-co/Indice.AspNet</RepositoryUrl>
+    <Company>Indice</Company>
+    <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(TargetFramework)' == 'net40'">
+    <AssemblyTitle>Edi.Net .NET 4.0</AssemblyTitle>
+    <DefineConstants>$(DefineConstants);net40</DefineConstants>
+  </PropertyGroup>
+  <ItemGroup Condition="'$(TargetFramework)' == 'net40'">
+    <PackageReference Include="Microsoft.AspNet.Mvc" Version="4.0.40804" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)' != 'net40'">
+    <PackageReference Include="Microsoft.AspNet.Mvc" Version="5.2.3" />
+  </ItemGroup>
+</Project>
