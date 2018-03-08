@@ -500,7 +500,7 @@ namespace Indice.AspNet.HtmlHelpers
         }
         #endregion
 
-        #region internal helpers
+        #region Internal helpers
         internal static RouteValueDictionary CurrentRouteData(this UrlHelper helper) {
             // Get the route data for the current URL e.g. /Research/InvestmentModelling/RiskComparison.
             // This is needed because unlike UrlHelper.Action, UrlHelper.RouteUrl sets includeImplicitMvcValues to false which causes it to ignore current 
