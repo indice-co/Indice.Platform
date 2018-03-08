@@ -1,0 +1,35 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <Description>Indice.AspNetCore Class Library</Description>
+    <Copyright>Copyright (c) 2018 Indice</Copyright>
+    <AssemblyTitle>Indice.AspNetCore</AssemblyTitle>
+    <VersionPrefix>1.0.1</VersionPrefix>
+    <!--<VersionSuffix>beta1</VersionSuffix>-->
+    <Authors>c.leftheris, g.manoltzas</Authors>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <AssemblyName>Indice.AspNetCore</AssemblyName>
+    <AssemblyTitle>Indice.AspNetCore</AssemblyTitle>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+  </PropertyGroup>
+  <PropertyGroup Label="Package">
+    <PackageId>Indice.AspNetCore</PackageId>
+    <PackageTags>AspNetCore;TagHelpers;Grid;Sorting;Paging</PackageTags>
+    <PackageReleaseNotes>
+      Indice Aspnet tag helpers and more.
+    </PackageReleaseNotes>
+    <PackageIconUrl>https://raw.githubusercontent.com/indice-co/Indice.AspNet/master/icon/icon-128.png</PackageIconUrl>
+    <PackageProjectUrl>https://github.com/indice-co/Indice.AspNet</PackageProjectUrl>
+    <PackageLicenseUrl>https://github.com/indice-co/Indice.AspNet/blob/master/LICENSE</PackageLicenseUrl>
+    <RepositoryType>git</RepositoryType>
+    <RepositoryUrl>https://github.com/indice-co/Indice.AspNet</RepositoryUrl>
+    <Company>Indice</Company>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.TagHelpers" Version="2.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Routing.Abstractions" Version="2.0.0" />
+  </ItemGroup>
+
+</Project>
