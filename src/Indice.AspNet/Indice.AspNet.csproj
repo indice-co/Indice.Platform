@@ -3,9 +3,9 @@
     <Description>Indice.AspNet Class Library</Description>
     <Copyright>Copyright (c) 2018 Indice</Copyright>
     <AssemblyTitle>Indice.AspNet</AssemblyTitle>
-    <VersionPrefix>1.0.0</VersionPrefix>
+    <VersionPrefix>1.0.3</VersionPrefix>
     <!--<VersionSuffix>beta1</VersionSuffix>-->
-    <Authors>c.leftheris, g.manoltzas</Authors>
+    <Authors>Constantinos Leftheris, Giorgos Manoltzas</Authors>
     <TargetFrameworks>net40;net45;net461;net47</TargetFrameworks>
     <AssemblyName>Indice.AspNet</AssemblyName>
     <AssemblyTitle>Indice.AspNet</AssemblyTitle>
@@ -15,7 +15,7 @@
     <PackageId>Indice.AspNet</PackageId>
     <PackageTags>AspNet;HtmlHelpers;Grid</PackageTags>
     <PackageReleaseNotes>
-      A complete Html Helper for creating a Grid.
+      Add ability to hide column based on predicate.
     </PackageReleaseNotes>
     <PackageIconUrl>https://raw.githubusercontent.com/indice-co/Indice.AspNet/master/icon/icon-128.png</PackageIconUrl>
     <PackageProjectUrl>https://github.com/indice-co/Indice.AspNet</PackageProjectUrl>
