@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Indice.AspNetCore.Types
+namespace Indice.Types
 {
     /// <summary>
     /// List params used to navigate through collections. Contains parameters such as sort, search, page number and page size.
@@ -71,6 +71,7 @@ namespace Indice.AspNetCore.Types
             }
         }
 
+        private readonly Dictionary<string, string> SortRedirects;
         /// <summary>
         /// Creates instance with default parameters
         /// </summary>
@@ -78,6 +79,7 @@ namespace Indice.AspNetCore.Types
             Page = 1;
             Size = 100;
             Sort = string.Empty;
+            SortRedirects = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
         }
 
         /// <summary>
@@ -119,10 +121,17 @@ namespace Indice.AspNetCore.Types
                 if (string.IsNullOrWhiteSpace(item)) {
                     continue;
                 }
+                var sorting = Sorting.Parse(item);
+
+                if (SortRedirects.ContainsKey(sorting.Path)) {
+                    sorting.Path = SortRedirects[sorting.Path];
+                }
 
                 yield return Sorting.Parse(item);
             }
         }
+
+        public void AddSortRedirect(string from, string to) => SortRedirects.Add(from, to);
 
         /// <summary>
         /// Convert all the list parameters into

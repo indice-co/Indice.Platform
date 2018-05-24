@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Indice.AspNetCore.Types
+namespace Indice.Types
 {
     /// <summary>
     /// Custom dictionary for representing querystring parameters.

@@ -1,22 +1,22 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <Description>Indice.AspNetCore Class Library</Description>
+    <Description>Indice.Common Class Library</Description>
     <Copyright>Copyright (c) 2018 Indice</Copyright>
-    <AssemblyTitle>Indice.AspNetCore</AssemblyTitle>
-    <VersionPrefix>1.0.2</VersionPrefix>
+    <AssemblyTitle>Indice.Common</AssemblyTitle>
+    <VersionPrefix>1.0.0</VersionPrefix>
     <!--<VersionSuffix>beta1</VersionSuffix>-->
-    <Authors>c.leftheris, g.manoltzas</Authors>
+    <Authors>c.leftheris</Authors>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <AssemblyName>Indice.AspNetCore</AssemblyName>
-    <AssemblyTitle>Indice.AspNetCore</AssemblyTitle>
+    <AssemblyName>Indice.Common</AssemblyName>
+    <AssemblyTitle>Indice.Common</AssemblyTitle>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <RootNamespace>Indice</RootNamespace>
   </PropertyGroup>
   <PropertyGroup Label="Package">
-    <PackageId>Indice.AspNetCore</PackageId>
-    <PackageTags>AspNetCore;TagHelpers;Grid;Sorting;Paging</PackageTags>
+    <PackageId>Indice.Common</PackageId>
+    <PackageTags>AspNet;Api;Utilities</PackageTags>
     <PackageReleaseNotes>
-      Indice Aspnet tag helpers and more.
     </PackageReleaseNotes>
     <PackageIconUrl>https://raw.githubusercontent.com/indice-co/Indice.AspNet/master/icon/icon-128.png</PackageIconUrl>
     <PackageProjectUrl>https://github.com/indice-co/Indice.AspNet</PackageProjectUrl>
@@ -26,11 +26,7 @@
     <Company>Indice</Company>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
   </PropertyGroup>
-
   <ItemGroup>
-    <PackageReference Include="Indice.Common" Version="1.0.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.TagHelpers" Version="2.0.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Routing.Abstractions" Version="2.0.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="9.0.1" />
   </ItemGroup>
-
 </Project>

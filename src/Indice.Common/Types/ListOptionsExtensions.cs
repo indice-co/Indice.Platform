@@ -2,9 +2,10 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 
-namespace Indice.AspNetCore.Types
+namespace Indice.Types
 {
     public static class ListOptionsExtensions
     {
@@ -140,6 +141,25 @@ namespace Indice.AspNetCore.Types
         public static string ToFormUrlEncodedString(this IDictionary<string, object> values) {
             var parameters = values.AsRouteValues();
             return string.Join("&", parameters.Select(kv => $"{kv.Key}={kv.Value}"));
+        }
+
+
+        public static void AddSortRedirect<TSource, TDestination>(this ListOptions options, Expression<Func<TSource, object>> from, Expression<Func<TDestination, object>> to) {
+            string GetExpressionMemberName(Expression expression, string parentPropertyName = null) {
+                var isProperty = expression.NodeType == ExpressionType.MemberAccess && expression is MemberExpression;
+
+                if (isProperty) {
+                    var memberExpression = (MemberExpression)expression;
+                    parentPropertyName = $"{memberExpression.Member.Name}{(parentPropertyName != null ? $".{parentPropertyName}" : string.Empty)}";
+                    return GetExpressionMemberName(memberExpression.Expression, parentPropertyName);
+                }
+
+                return parentPropertyName;
+            }
+
+            var fromExpressionName = GetExpressionMemberName(from.Body);
+            var toExpressionName = GetExpressionMemberName(to.Body);
+            options.AddSortRedirect(fromExpressionName, toExpressionName);
         }
     }
 }
