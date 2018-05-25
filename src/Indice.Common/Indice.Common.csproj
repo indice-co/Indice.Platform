@@ -4,7 +4,7 @@
     <Description>Indice.Common Class Library</Description>
     <Copyright>Copyright (c) 2018 Indice</Copyright>
     <AssemblyTitle>Indice.Common</AssemblyTitle>
-    <VersionPrefix>1.0.0</VersionPrefix>
+    <VersionPrefix>1.0.1</VersionPrefix>
     <!--<VersionSuffix>beta1</VersionSuffix>-->
     <Authors>c.leftheris</Authors>
     <TargetFramework>netstandard2.0</TargetFramework>
@@ -16,8 +16,7 @@
   <PropertyGroup Label="Package">
     <PackageId>Indice.Common</PackageId>
     <PackageTags>AspNet;Api;Utilities</PackageTags>
-    <PackageReleaseNotes>
-    </PackageReleaseNotes>
+    <PackageReleaseNotes>Add useful extension methods on string.</PackageReleaseNotes>
     <PackageIconUrl>https://raw.githubusercontent.com/indice-co/Indice.AspNet/master/icon/icon-128.png</PackageIconUrl>
     <PackageProjectUrl>https://github.com/indice-co/Indice.AspNet</PackageProjectUrl>
     <PackageLicenseUrl>https://github.com/indice-co/Indice.AspNet/blob/master/LICENSE</PackageLicenseUrl>

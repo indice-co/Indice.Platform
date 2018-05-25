@@ -4,7 +4,7 @@
     <Description>Indice.AspNetCore Class Library</Description>
     <Copyright>Copyright (c) 2018 Indice</Copyright>
     <AssemblyTitle>Indice.AspNetCore</AssemblyTitle>
-    <VersionPrefix>1.0.3</VersionPrefix>
+    <VersionPrefix>1.0.4</VersionPrefix>
     <!--<VersionSuffix>beta1</VersionSuffix>-->
     <Authors>c.leftheris, g.manoltzas</Authors>
     <TargetFramework>netstandard2.0</TargetFramework>
@@ -29,6 +29,7 @@
 
   <ItemGroup>
     <PackageReference Include="Indice.Common" Version="1.0.0" />
+    <PackageReference Include="Markdig" Version="0.15.0" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.TagHelpers" Version="2.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.Routing.Abstractions" Version="2.0.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="2.0.0" />

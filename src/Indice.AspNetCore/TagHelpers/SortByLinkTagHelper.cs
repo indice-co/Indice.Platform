@@ -1,20 +1,17 @@
-﻿using Microsoft.AspNetCore.Mvc.TagHelpers;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading.Tasks;
+using Indice.Types;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.AspNetCore.Mvc.TagHelpers;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Razor.TagHelpers;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Indice.Types;
 
 namespace Indice.AspNetCore.TagHelpers
 {
     [HtmlTargetElement("a", Attributes = "sort-by")]
     public class SortByLinkTagHelper : AnchorTagHelper
     {
-        public SortByLinkTagHelper(IHtmlGenerator generator) 
-            : base(generator) {
-
-        }
+        public SortByLinkTagHelper(IHtmlGenerator generator) : base(generator) { }
 
         public ModelExpression SortBy { get; set; }
         public ListOptions ListOptions { get; set; }
@@ -26,8 +23,8 @@ namespace Indice.AspNetCore.TagHelpers
 
         public async override Task ProcessAsync(TagHelperContext context, TagHelperOutput output) {
             await base.ProcessAsync(context, output);
-            
             var childContent = await output.GetChildContentAsync();
+
             if (childContent.IsEmptyOrWhiteSpace) {
                 var spanTag = new TagBuilder("span");
                 spanTag.InnerHtml.Append(SortBy.Metadata.GetDisplayName());
