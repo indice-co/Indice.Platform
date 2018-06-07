@@ -26,7 +26,6 @@ namespace Indice.Types
             /// </summary>
             public string Direction { get; set; }
 
-
             /// <summary>
             /// Gets the string representation. ex Name+
             /// </summary>

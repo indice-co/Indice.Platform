@@ -103,8 +103,12 @@ namespace Indice.Types
              || type == typeof(double?)
              || type == typeof(Guid)
              || type == typeof(Guid?)
-             || type.GetTypeInfo().IsEnum
-             || Nullable.GetUnderlyingType(type)?.IsEnum == true) {
+             ||
+#if NETSTANDARD14
+                type.GetTypeInfo().IsEnum || Nullable.GetUnderlyingType(type)?.GetTypeInfo().IsEnum == true) {
+#else
+                type.IsEnum || Nullable.GetUnderlyingType(type)?.IsEnum == true) {
+#endif
                 textValue = string.Format(System.Globalization.CultureInfo.InvariantCulture, "{0}", value);
             }
 

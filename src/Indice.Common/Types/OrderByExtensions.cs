@@ -34,7 +34,11 @@ namespace Indice.Types
 
             foreach (var prop in props) {
                 // Use reflection (not ComponentModel) to mirror LINQ.
+#if NETSTANDARD14
+                var pi = type.GetRuntimeProperty(prop);
+#else
                 var pi = type.GetProperty(prop, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
+#endif
                 expr = Expression.Property(expr, pi);
                 type = pi.PropertyType;
             }
@@ -42,11 +46,17 @@ namespace Indice.Types
             var delegateType = typeof(Func<,>).MakeGenericType(typeof(T), type);
             var lambda = Expression.Lambda(delegateType, expr, arg);
 
+#if NETSTANDARD14
+            var result = typeof(IQueryable).GetRuntimeMethods()
+                                           .Single(method => method.Name == methodName && method.IsGenericMethodDefinition && method.GetGenericArguments().Length == 2 && method.GetParameters().Length == 2)
+                                           .MakeGenericMethod(typeof(T), type)
+                                           .Invoke(null, new object[] { source, lambda });
+#else
             var result = typeof(Queryable).GetMethods()
                                           .Single(method => method.Name == methodName && method.IsGenericMethodDefinition && method.GetGenericArguments().Length == 2 && method.GetParameters().Length == 2)
                                           .MakeGenericMethod(typeof(T), type)
                                           .Invoke(null, new object[] { source, lambda });
-
+#endif
             return (IOrderedQueryable<T>)result;
         }
     }
