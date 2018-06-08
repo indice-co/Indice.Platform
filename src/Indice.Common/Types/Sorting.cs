@@ -127,6 +127,12 @@ namespace Indice.Types
                                     match.Groups[4].Value == "-" ? DESC : ASC,
                                     dataType);
         }
+
+
+        public static implicit operator string(SortByClause value) => value.ToString();
+        
+        public static explicit operator SortByClause(string value) => Parse(value);
+        
     }
 
 

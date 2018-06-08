@@ -105,6 +105,9 @@ namespace Indice.Types
             return new FilterClause();
         }
 
+        public static implicit operator string(FilterClause value) => value.ToString();
+
+        public static explicit operator FilterClause(string value) => Parse(value);
     }
 
     /// <summary>

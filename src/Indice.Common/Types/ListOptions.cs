@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Indice.Types
 {
@@ -67,6 +68,38 @@ namespace Indice.Types
 
                 yield return sortBy;
             }
+        }
+
+        /// <summary>
+        /// Add a <see cref="SortByClause"/> to the current <seealso cref="Sort"/> string. 
+        /// The clauses are searched by their <seealso cref="SortByClause.Path"/>. 
+        /// If a clause with the same path is found it will be updated. 
+        /// </summary>
+        /// <param name="sort"></param>
+        public void AddSort(SortByClause sort) {
+            if (string.IsNullOrWhiteSpace(Sort)) {
+                Sort = sort;
+            } else {
+                var parts = (Sort ?? string.Empty).Split(',');
+                var paths = parts.Select(x => ((SortByClause)x).Path).ToList();
+                var index = paths.IndexOf(sort.Path);
+                if (index > -1) {
+                    parts[index] = sort;
+                    Sort = string.Join(",", parts);
+                } else {
+                    Sort = string.Join(",", parts.Concat(new[] { (string)sort }).ToArray());
+                }
+            }
+            
+        }
+        /// <summary>
+        /// Remove a <see cref="SortByClause"/> to the current <seealso cref="Sort"/> string.
+        /// The clauses are searched by their <seealso cref="SortByClause.Path"/>.
+        /// </summary>
+        /// <param name="sort"></param>
+        public void RemoveSort(SortByClause sort) {
+            var parts = (Sort ?? string.Empty).Split(',');
+            Sort = string.Join(",", parts.Where(x => ((SortByClause)x).Path != sort.Path).ToArray());
         }
 
         /// <summary>

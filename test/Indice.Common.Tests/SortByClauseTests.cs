@@ -31,5 +31,20 @@ namespace Indice.Common.Tests
             var sortBy = SortByClause.Parse(input);
             Assert.Equal(input, sortBy.ToString(), ignoreCase:true);
         }
+
+        [Fact]
+        public void SortByClauseListOptionsAddTest() {
+            var options = new ListOptions() {
+                Sort = "code-"
+            };
+            options.AddSort((SortByClause)"total-");
+            Assert.Equal("code-,total-", options.Sort);
+            options.AddSort((SortByClause)"date");
+            Assert.Equal("code-,total-,date+", options.Sort);
+            options.RemoveSort((SortByClause)"total-");
+            Assert.Equal("code-,date+", options.Sort);
+            options.AddSort((SortByClause)"date-");
+            Assert.Equal("code-,date-", options.Sort);
+        }
     }
 }
