@@ -8,67 +8,6 @@ namespace Indice.Types
     /// </summary>
     public class ListOptions
     {
-        /// <summary>
-        /// Object Representation for a sort by clause
-        /// </summary>
-        public class Sorting
-        {
-            const string ASC = nameof(ASC);
-            const string DESC = nameof(DESC);
-
-            /// <summary>
-            /// the property path
-            /// </summary>
-            public string Path { get; set; }
-
-            /// <summary>
-            /// the sort direction (ASC, DESC)
-            /// </summary>
-            public string Direction { get; set; }
-
-            /// <summary>
-            /// Gets the string representation. ex Name+
-            /// </summary>
-            /// <returns></returns>
-            public override string ToString() => $"{Path} ({Direction})";
-
-            /// <summary>
-            /// Moves the current state of this sort clause to the next state.
-            /// Say if we had sort by "Name ASC" it cycles between ASC DESC and none each time it is called.
-            /// It returns a new <see cref="Sorting"/> and does not change the current reference.
-            /// </summary>
-            /// <returns></returns>
-            public Sorting NextState() {
-                switch (Direction) {
-                    case ASC:
-                        return new Sorting { Direction = DESC, Path = Path };
-                    case DESC:
-                        return null;
-                    default:
-                        throw new Exception($"unexpected direction {Direction}");
-                }
-            }
-
-            /// <summary>
-            /// Parse the string representation  for a sort path with direction into a <see cref="Sorting"/>
-            /// </summary>
-            /// <param name="text">a property path (case agnostic) followed by a sing '+' or '-'.</param>
-            /// <returns></returns>
-            public static Sorting Parse(string text) {
-                if (string.IsNullOrWhiteSpace(text)) {
-                    throw new ArgumentOutOfRangeException(nameof(text));
-                }
-
-                var raw = text.Trim();
-
-                var sort = new Sorting {
-                    Path = raw.TrimEnd('-', '+'),
-                    Direction = raw.EndsWith("-", StringComparison.OrdinalIgnoreCase) ? DESC : ASC
-                };
-
-                return sort;
-            }
-        }
 
         private readonly Dictionary<string, string> SortRedirects;
         /// <summary>
@@ -102,7 +41,7 @@ namespace Indice.Types
         public string Search { get; set; }
 
         /// <summary>
-        /// Retrieves the number of pages for a total of <see cref="count"/> results.
+        /// Retrieves the number of pages for a total of <paramref name="count"/> results.
         /// </summary>
         /// <param name="count">The number of results</param>
         /// <returns></returns>
@@ -113,23 +52,29 @@ namespace Indice.Types
         /// Takes the Name-,Date+ etc... and enumerates it.
         /// </summary>
         /// <returns></returns>
-        public IEnumerable<Sorting> GetSortings() {
+        public IEnumerable<SortByClause> GetSortings() {
             var list = (Sort ?? string.Empty).Split(',');
 
             foreach (var item in list) {
                 if (string.IsNullOrWhiteSpace(item)) {
                     continue;
                 }
-                var sorting = Sorting.Parse(item);
+                var sortBy = SortByClause.Parse(item);
 
-                if (SortRedirects.ContainsKey(sorting.Path)) {
-                    sorting.Path = SortRedirects[sorting.Path];
+                if (SortRedirects.ContainsKey(sortBy.Path)) {
+                    sortBy = new SortByClause(SortRedirects[sortBy.Path], sortBy.Direction, sortBy.DataType);
                 }
 
-                yield return Sorting.Parse(item);
+                yield return SortByClause.Parse(item);
             }
         }
 
+        /// <summary>
+        /// Adds a redirect mapping in order to handle server side scenarios where the sort field property path 
+        /// could be in a different location than the display mamber path.
+        /// </summary>
+        /// <param name="from">Client side member path</param>
+        /// <param name="to">Server side member path</param>
         public void AddSortRedirect(string from, string to) => SortRedirects.Add(from, to);
 
         /// <summary>
@@ -161,10 +106,22 @@ namespace Indice.Types
     /// <typeparam name="TFilter"></typeparam>
     public class ListOptions<TFilter> : ListOptions where TFilter : class, new()
     {
+        /// <summary>
+        /// Creates instance with default parameters 
+        /// and initializes the Filter using the default constructor. 
+        /// </summary>
         public ListOptions() : base() => Filter = new TFilter();
 
+        /// <summary>
+        /// The custom filter options.
+        /// </summary>
         public TFilter Filter { get; set; }
 
+        /// <summary>
+        /// Converts the options to a dictionary of key value pairs suitable for use 
+        /// as Route parameters and / or querystring parameters depending on client or server use.
+        /// </summary>
+        /// <returns></returns>
         public override IDictionary<string, object> ToDictionary() {
             var dictionary = base.ToDictionary();
             return dictionary.Merge(Filter, typeof(TFilter), "filter.");

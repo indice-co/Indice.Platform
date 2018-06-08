@@ -3,7 +3,7 @@
     <Description>Indice.Common Class Library</Description>
     <Copyright>Copyright (c) 2018 Indice</Copyright>
     <AssemblyTitle>Indice.Common</AssemblyTitle>
-    <VersionPrefix>1.0.2</VersionPrefix>
+    <VersionPrefix>1.1.0</VersionPrefix>
     <!--<VersionSuffix>beta1</VersionSuffix>-->
     <Authors>c.leftheris</Authors>
     <TargetFrameworks>net452;netstandard1.4;netstandard2.0</TargetFrameworks>
@@ -42,6 +42,9 @@
   <ItemGroup Condition="'$(TargetFramework)' == 'net452'">
     <Reference Include="System" />
     <Reference Include="System.Core" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard1.4'">
+    <PackageReference Include="System.ComponentModel.TypeConverter" Version="4.3.0" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="9.0.1" />

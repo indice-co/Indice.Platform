@@ -7,8 +7,20 @@ using System.Reflection;
 
 namespace Indice.Types
 {
+
+    /// <summary>
+    /// Extension methods to manipulate ListOptions.
+    /// </summary>
     public static class ListOptionsExtensions
     {
+        /// <summary>
+        /// Convert <see cref="ListOptions"/> to dictionary for use in a route value parameter scenario. This overload substitutes existing values with the ones 
+        /// found inside the replacements object.
+        /// </summary>
+        /// <typeparam name="TReplacements"></typeparam>
+        /// <param name="options"></param>
+        /// <param name="replacements"></param>
+        /// <returns></returns>
         public static IDictionary<string, object> ToDictionary<TReplacements>(this ListOptions options, TReplacements replacements) where TReplacements : class {
             if (null == replacements) {
                 throw new ArgumentNullException(nameof(replacements));
@@ -22,15 +34,18 @@ namespace Indice.Types
                 var sort = overrides[sortKey].ToString();
 
                 if (sortings.Any(s => s.Path.Equals(sort))) {
-                    overrides[sortKey] = sortings.Select(s => s.Path.Equals(sort) ? s.NextState() : s).Where(s => s != null).ToUriString();
+                    overrides[sortKey] = sortings.Select(s => s.Path.Equals(sort) ? s.NextState() : s).Where(s => s.HasValue).Select(s => s.Value).ToUriString();
                 } else {
-                    overrides[sortKey] = sortings.Union(new[] { ListOptions.Sorting.Parse(sort) }).ToUriString();
+                    overrides[sortKey] = sortings.Union(new[] { SortByClause.Parse(sort) }).ToUriString();
                 }
             }
 
             return options.ToDictionary().Merge(overrides, null);
         }
 
+        /// <summary>
+        /// Merge a <paramref name="dictionary"/> of route data with the values found inside the <paramref name="instance"/>.
+        /// </summary>
         public static IDictionary<string, object> Merge(this IDictionary<string, object> dictionary, object instance, Type type = null, string prefix = null) {
             if (instance is IDictionary<string, object> other) {
                 foreach (var keyValue in other) {
@@ -84,7 +99,12 @@ namespace Indice.Types
             return dictionary;
         }
 
-        public static string ToUriString(this IEnumerable<ListOptions.Sorting> source) => string.Join(",", source.Select(s => $"{s.Path}{(s.Direction == "DESC" ? "-" : "")}"));
+        /// <summary>
+        /// Converts the <paramref name="source"/> <see cref="IEnumerable"/> of <seealso cref="SortByClause"/> to a value switable to use on the <seealso cref="ListOptions.Sort"/> property.
+        /// </summary>
+        /// <param name="source"></param>
+        /// <returns></returns>
+        public static string ToUriString(this IEnumerable<SortByClause> source) => string.Join(",", source.Select(s => s.ToString()));
 
         private static string GetStructValue(Type type, object value) {
             var textValue = string.Empty;
