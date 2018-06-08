@@ -65,7 +65,7 @@ namespace Indice.Types
                     sortBy = new SortByClause(SortRedirects[sortBy.Path], sortBy.Direction, sortBy.DataType);
                 }
 
-                yield return SortByClause.Parse(item);
+                yield return sortBy;
             }
         }
 

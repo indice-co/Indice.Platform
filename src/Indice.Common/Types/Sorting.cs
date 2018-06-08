@@ -124,7 +124,7 @@ namespace Indice.Types
             if (Enum.TryParse<JsonDataType>(match.Groups[2].Value, true, out var dt)) {
                 dataType = dt;
             }
-            return new SortByClause(match.Groups[2].Value,
+            return new SortByClause(match.Groups[3].Value,
                                     match.Groups[4].Value == "-" ? DESC : ASC,
                                     dataType);
         }
