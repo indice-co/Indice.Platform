@@ -13,7 +13,6 @@ namespace Indice.Types
     {
         const string REGEX_PATTERN = @"^\s*(\(({0})\))?([A-Za-z_][A-Za-z0-9_\.]+)(\+|-)?\s*$";
         static readonly Regex parseRegex = new Regex(string.Format(REGEX_PATTERN,
-                                                                   string.Join("|", Enum.GetNames(typeof(FilterOperator))).ToLowerInvariant(),
                                                                    string.Join("|", Enum.GetNames(typeof(JsonDataType))).ToLowerInvariant()
                                                      ), RegexOptions.IgnoreCase);
         /// <summary>

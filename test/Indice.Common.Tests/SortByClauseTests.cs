@@ -22,9 +22,14 @@ namespace Indice.Common.Tests
 
         [Theory]
         [InlineData("(number)total-")]
+        [InlineData("(datetime)total-")]
+        [InlineData("(String)total-")]
+        [InlineData("(number)total+")]
+        [InlineData("total+")]
+        [InlineData("total-")]
         public void SortByClauseParsingTest(string input) {
             var sortBy = SortByClause.Parse(input);
-            Assert.Equal(input, sortBy.ToString());
+            Assert.Equal(input, sortBy.ToString(), ignoreCase:true);
         }
     }
 }
