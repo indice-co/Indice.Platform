@@ -4,7 +4,7 @@
     <Description>Indice.AspNetCore Class Library</Description>
     <Copyright>Copyright (c) 2018 Indice</Copyright>
     <AssemblyTitle>Indice.AspNetCore</AssemblyTitle>
-    <VersionPrefix>1.1.2</VersionPrefix>
+    <VersionPrefix>1.2.1</VersionPrefix>
     <!--<VersionSuffix>beta1</VersionSuffix>-->
     <Authors>c.leftheris, g.manoltzas</Authors>
     <TargetFramework>netstandard2.0</TargetFramework>
@@ -16,7 +16,7 @@
     <PackageId>Indice.AspNetCore</PackageId>
     <PackageTags>AspNetCore;TagHelpers;Grid;Sorting;Paging</PackageTags>
     <PackageReleaseNotes>
-      Indice Aspnet tag helpers and more.
+      Added services and default implementations for Files, Emails, Sms.
     </PackageReleaseNotes>
     <PackageIconUrl>https://raw.githubusercontent.com/indice-co/Indice.AspNet/master/icon/icon-128.png</PackageIconUrl>
     <PackageProjectUrl>https://github.com/indice-co/Indice.AspNet</PackageProjectUrl>
@@ -28,11 +28,21 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Indice.Common" Version="1.1.2" />
+    <PackageReference Include="FluentValidation" Version="7.6.100" />
+    <PackageReference Include="Humanizer.Core" Version="2.3.3" />
+    <PackageReference Include="Indice.Common" Version="1.2.0" />
+    <PackageReference Include="Indice.Services" Version="1.0.0" />
     <PackageReference Include="Markdig" Version="0.15.0" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.TagHelpers" Version="2.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.Routing.Abstractions" Version="2.0.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="2.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="2.1.0" />
+    <PackageReference Include="Swashbuckle.AspNetCore.Swagger" Version="2.5.0" />
+    <PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" Version="2.5.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Configuration\" />
   </ItemGroup>
 
 </Project>

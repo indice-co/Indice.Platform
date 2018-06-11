@@ -1,0 +1,34 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <Description>Indice.Services Class Library</Description>
+    <Copyright>Copyright (c) 2018 Indice</Copyright>
+    <AssemblyTitle>Indice.Services</AssemblyTitle>
+    <VersionPrefix>1.0.1</VersionPrefix>
+    <!--<VersionSuffix>beta1</VersionSuffix>-->
+    <Authors>c.leftheris, g.manoltzas</Authors>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <AssemblyName>Indice.Services</AssemblyName>
+    <AssemblyTitle>Indice.Services</AssemblyTitle>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+  </PropertyGroup>
+  <PropertyGroup Label="Package">
+    <PackageId>Indice.Services</PackageId>
+    <PackageTags>dotnetcore;Files;Emails;Sms</PackageTags>
+    <PackageReleaseNotes>
+      Added services and default implementations for Files, Emails, Sms.
+    </PackageReleaseNotes>
+    <PackageIconUrl>https://raw.githubusercontent.com/indice-co/Indice.AspNet/master/icon/icon-128.png</PackageIconUrl>
+    <PackageProjectUrl>https://github.com/indice-co/Indice.AspNet</PackageProjectUrl>
+    <PackageLicenseUrl>https://github.com/indice-co/Indice.AspNet/blob/master/LICENSE</PackageLicenseUrl>
+    <RepositoryType>git</RepositoryType>
+    <RepositoryUrl>https://github.com/indice-co/Indice.AspNet</RepositoryUrl>
+    <Company>Indice</Company>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Indice.Common" Version="1.2.0" />
+    <PackageReference Include="MailKit" Version="2.0.4" />
+    <PackageReference Include="WindowsAzure.Storage" Version="9.0.0" />
+  </ItemGroup>
+
+</Project>
