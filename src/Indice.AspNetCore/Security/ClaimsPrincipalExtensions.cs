@@ -2,6 +2,7 @@
 using System.Globalization;
 using System.Reflection;
 using System.Security.Claims;
+using Indice.Security;
 
 namespace Indice.AspNetCore.Security
 {

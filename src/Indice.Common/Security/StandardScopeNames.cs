@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Indice.AspNetCore.Security
+namespace Indice.Security
 {
     /// <summary>
     /// Statndaed Scope names
