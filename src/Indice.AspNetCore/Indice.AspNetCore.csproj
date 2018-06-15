@@ -4,7 +4,7 @@
     <Description>Indice.AspNetCore Class Library</Description>
     <Copyright>Copyright (c) 2018 Indice</Copyright>
     <AssemblyTitle>Indice.AspNetCore</AssemblyTitle>
-    <VersionPrefix>1.2.3</VersionPrefix>
+    <VersionPrefix>1.2.4</VersionPrefix>
     <!--<VersionSuffix>beta1</VersionSuffix>-->
     <Authors>c.leftheris, g.manoltzas</Authors>
     <TargetFramework>netstandard2.0</TargetFramework>
@@ -30,7 +30,7 @@
   <ItemGroup>
     <PackageReference Include="FluentValidation" Version="7.6.100" />
     <PackageReference Include="Humanizer.Core" Version="2.3.3" />
-    <PackageReference Include="Indice.Common" Version="1.2.3" />
+    <PackageReference Include="Indice.Common" Version="1.2.4" />
     <PackageReference Include="Indice.Services" Version="1.0.1" />
     <PackageReference Include="Markdig" Version="0.15.0" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.TagHelpers" Version="2.0.0" />

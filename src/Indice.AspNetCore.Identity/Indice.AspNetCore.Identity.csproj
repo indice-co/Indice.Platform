@@ -1,0 +1,32 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <Description>Indice.AspNetCore.Ideintity Class Library</Description>
+    <Copyright>Copyright (c) 2018 Indice</Copyright>
+    <AssemblyTitle>Indice.AspNetCore.Ideintity</AssemblyTitle>
+    <VersionPrefix>1.2.3</VersionPrefix>
+    <!--<VersionSuffix>beta1</VersionSuffix>-->
+    <Authors>c.leftheris, g.manoltzas</Authors>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <AssemblyName>Indice.AspNetCore.Ideintity</AssemblyName>
+    <AssemblyTitle>Indice.AspNetCore.Ideintity</AssemblyTitle>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+  </PropertyGroup>
+  <PropertyGroup Label="Package">
+    <PackageId>Indice.AspNetCore.Ideintity</PackageId>
+    <PackageTags>AspNetCore;IdentityServer;</PackageTags>
+    <PackageReleaseNotes>
+      Security stuff.
+    </PackageReleaseNotes>
+    <PackageIconUrl>https://raw.githubusercontent.com/indice-co/Indice.AspNet/master/icon/icon-128.png</PackageIconUrl>
+    <PackageProjectUrl>https://github.com/indice-co/Indice.AspNet</PackageProjectUrl>
+    <PackageLicenseUrl>https://github.com/indice-co/Indice.AspNet/blob/master/LICENSE</PackageLicenseUrl>
+    <RepositoryType>git</RepositoryType>
+    <RepositoryUrl>https://github.com/indice-co/Indice.AspNet</RepositoryUrl>
+    <Company>Indice</Company>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Indice.AspNetCore" Version="1.2.3" />
+  </ItemGroup>
+</Project>

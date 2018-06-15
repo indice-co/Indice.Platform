@@ -18,11 +18,11 @@ namespace Indice.Types
     {
 
         const string REGEX_PATTERN = @"^\s*([A-Za-z_][A-Za-z0-9_\.]+)::({0})::(\(({1})\))?(.+)\s*$";
-        static readonly Regex parseRegex = new Regex(string.Format(REGEX_PATTERN, 
+        static readonly Regex parseRegex = new Regex(string.Format(REGEX_PATTERN,
                                                                    string.Join("|", Enum.GetNames(typeof(FilterOperator))).ToLowerInvariant(),
                                                                    string.Join("|", Enum.GetNames(typeof(JsonDataType))).ToLowerInvariant()
                                                      ), RegexOptions.IgnoreCase);
-        
+
         /// <summary>
         /// Member path to compare
         /// </summary>
@@ -105,18 +105,26 @@ namespace Indice.Types
             return new FilterClause();
         }
 
+        /// <summary>
+        /// Implicit cast from <see cref="FilterClause"/> to <seealso cref="string"/>
+        /// </summary>
+        /// <param name="value">The value to convert</param>
         public static implicit operator string(FilterClause value) => value.ToString();
 
+        /// <summary>
+        /// Explicit cast from <see cref="string"/> to <seealso cref="FilterClause"/>
+        /// </summary>
+        /// <param name="value">The value to convert</param>
         public static explicit operator FilterClause(string value) => Parse(value);
     }
 
     /// <summary>
-    /// <see cref="FilterClause"/> <seealso cref="TypeConverter"/> is used for aspnet rout binding to work from.
+    /// <see cref="FilterClause"/> <seealso cref="TypeConverter"/> is used for aspnet route binding to work from.
     /// </summary>
     public class FilterClauseTypeConverter : TypeConverter
     {
         /// <summary>
-        /// Overrides the ConvertTo method of TypeConverter.
+        /// Overrides can convert to declare support for string conversion.
         /// </summary>
         /// <param name="context"></param>
         /// <param name="sourceType"></param>
@@ -130,7 +138,7 @@ namespace Indice.Types
         }
 
         /// <summary>
-        /// Overrides the ConvertFrom method of TypeConverter.
+        /// Supply conversion from <see cref="string"/> to <seealso cref="FilterClause"/> otherwise use default implementation
         /// </summary>
         /// <param name="context"></param>
         /// <param name="culture"></param>
@@ -145,7 +153,7 @@ namespace Indice.Types
         }
 
         /// <summary>
-        /// Overrides the ConvertTo method of TypeConverter.
+        /// Supply conversion from <see cref="FilterClause"/> to <seealso cref="string"/> otherwise use default implementation
         /// </summary>
         /// <param name="context"></param>
         /// <param name="culture"></param>

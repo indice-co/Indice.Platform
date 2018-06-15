@@ -2,13 +2,16 @@
 using System.IO;
 using System.Net.Http;
 using System.Threading.Tasks;
-using Indice.Abstractions;
+using Indice.Services;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Razor.TagHelpers;
 using Microsoft.Extensions.Logging;
 
 namespace Indice.AspNetCore.TagHelpers
 {
+    /// <summary>
+    /// Markdown tag helper.
+    /// </summary>
     public class MdTagHelper : TagHelper
     {
         private IHostingEnvironment env;

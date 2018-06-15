@@ -1,8 +1,10 @@
-﻿using Indice.Abstractions;
-using Markdig;
+﻿using Markdig;
 
 namespace Indice.Services
 {
+    /// <summary>
+    /// Implementation for <see cref="IMarkdownProcessor"/> using markdig lib.
+    /// </summary>
     public class MarkdigProcessor : IMarkdownProcessor
     {
         public MarkdownPipeline Pipeline { get; } = new MarkdownPipelineBuilder().UseAdvancedExtensions().Build();

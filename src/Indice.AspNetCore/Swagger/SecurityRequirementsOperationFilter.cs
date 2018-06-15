@@ -20,16 +20,11 @@ namespace Indice.AspNetCore.Swagger
 
         public void Apply(Operation operation, OperationFilterContext context) {
             // Policy names map to scopes
-            var controllerScopes = context.ApiDescription.ControllerAttributes()
+            
+            var requireScopes = context.ControllerActionDescriptor.GetControllerAndActionAttributes(true)
                 .OfType<AuthorizeAttribute>()
                 .Select(attr => attr.Policy);
-
-            var actionScopes = context.ApiDescription.ActionAttributes()
-                .OfType<AuthorizeAttribute>()
-                .Select(attr => attr.Policy);
-
-            var requireScopes = controllerScopes.Union(actionScopes).Distinct();
-
+            
             if (requireScopes.Any()) {
                 operation.Responses.Add("401", new Response { Description = "Unauthorized" });
                 operation.Responses.Add("403", new Response { Description = "Forbidden" });
