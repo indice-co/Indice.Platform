@@ -7,6 +7,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Indice.AspNet", "src\Indice
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{B8EB253B-A436-4F17-BFFC-C0E975FB0D48}"
 	ProjectSection(SolutionItems) = preProject
+		appveyor.yml = appveyor.yml
 		LICENSE = LICENSE
 		README.md = README.md
 	EndProjectSection
@@ -21,7 +22,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{613A1373-9
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{643960D9-48C5-4EA3-BED5-486CCC694947}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Indice.Services", "src\Indice.Services\Indice.Services.csproj", "{59D4AEFD-FF4C-48A0-B7FE-51CD965DCD8E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Indice.Services", "src\Indice.Services\Indice.Services.csproj", "{59D4AEFD-FF4C-48A0-B7FE-51CD965DCD8E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -1,0 +1,7 @@
+version: 1.0.{build}
+image: Visual Studio 2017
+before_build:
+- cmd: dotnet restore
+build:
+  publish_core_console: true
+  verbosity: minimal

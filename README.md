@@ -1,3 +1,5 @@
+[![Build status](https://ci.appveyor.com/api/projects/status/xku1y5ndxccw3vs6?svg=true)](https://ci.appveyor.com/project/cleftheris/indice-aspnet)
+
 # Indice.AspNet ![alt text](icon/icon-64.png "Indice logo")
 Asp.Net addons and helpers
 
