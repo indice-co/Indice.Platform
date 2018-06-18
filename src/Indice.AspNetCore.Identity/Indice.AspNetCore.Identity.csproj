@@ -1,19 +1,19 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <Description>Indice.AspNetCore.Ideintity Class Library</Description>
+    <Description>Indice.AspNetCore.Identity Class Library</Description>
     <Copyright>Copyright (c) 2018 Indice</Copyright>
-    <AssemblyTitle>Indice.AspNetCore.Ideintity</AssemblyTitle>
+    <AssemblyTitle>Indice.AspNetCore.Identity</AssemblyTitle>
     <VersionPrefix>1.2.3</VersionPrefix>
     <!--<VersionSuffix>beta1</VersionSuffix>-->
     <Authors>c.leftheris, g.manoltzas</Authors>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <AssemblyName>Indice.AspNetCore.Ideintity</AssemblyName>
-    <AssemblyTitle>Indice.AspNetCore.Ideintity</AssemblyTitle>
+    <AssemblyName>Indice.AspNetCore.Identity</AssemblyName>
+    <AssemblyTitle>Indice.AspNetCore.Identity</AssemblyTitle>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
   <PropertyGroup Label="Package">
-    <PackageId>Indice.AspNetCore.Ideintity</PackageId>
+    <PackageId>Indice.AspNetCore.Identity</PackageId>
     <PackageTags>AspNetCore;IdentityServer;</PackageTags>
     <PackageReleaseNotes>
       Security stuff.
