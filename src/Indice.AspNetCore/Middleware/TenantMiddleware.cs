@@ -153,7 +153,7 @@ namespace Indice.AspNetCore.Middleware
         public static IApplicationBuilder UseTenantFromRoute<TDbContext, TTenant>(this IApplicationBuilder applicationBuilder, string routeBase)
             where TDbContext : DbContext
             where TTenant : class, ITenant {
-            applicationBuilder.UseMiddleware<TenantMiddleware<TDbContext, TTenant>>();
+            applicationBuilder.UseMiddleware<TenantMiddleware<TDbContext, TTenant>>(routeBase);
 
             return applicationBuilder;
         }
