@@ -19,12 +19,18 @@ namespace Indice.AspNetCore.Identity.Extensions
         /// Setup the identityserver store configuration and operations
         /// </summary>
         /// <param name="app"></param>
+        /// <param name="clients"></param>
+        /// <param name="identityResources"></param>
+        /// <param name="apis"></param>
         /// <returns></returns>
-        public static IApplicationBuilder IdentityServerStoreSetup(this IApplicationBuilder app) {
+        public static IApplicationBuilder IdentityServerStoreSetup(this IApplicationBuilder app,
+            IEnumerable<IdentityServer4.Models.Client> clients = null,
+            IEnumerable<IdentityServer4.Models.IdentityResource> identityResources = null,
+            IEnumerable<IdentityServer4.Models.ApiResource> apis = null) {
             using (var serviceScope = app.ApplicationServices.GetRequiredService<IServiceScopeFactory>().CreateScope()) {
-                serviceScope.ServiceProvider.GetService<ConfigurationDbContext>().Database.EnsureCreated();
+                var config = serviceScope.ServiceProvider.GetService<ConfigurationDbContext>();
+                config.SeedData(clients, identityResources, apis);
                 serviceScope.ServiceProvider.GetService<PersistedGrantDbContext>().Database.EnsureCreated();
-                //EnsureSeedData(serviceScope.ServiceProvider.GetService<ConfigurationDbContext>());
             }
 
             return app;
