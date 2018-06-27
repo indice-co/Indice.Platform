@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 using Microsoft.AspNetCore.Identity;
 
 namespace Indice.AspNetCore.Identity.Models
@@ -48,6 +47,11 @@ namespace Indice.AspNetCore.Identity.Models
         /// System Administrator Indicator
         /// </summary>
         public bool Admin { get; set; }
+
+        /// <summary>
+        /// Indicates if the user is enabled or not.
+        /// </summary>
+        public bool Enabled { get; set; }
 
         /// <summary>
         /// Navigation property for the roles this user belongs to.

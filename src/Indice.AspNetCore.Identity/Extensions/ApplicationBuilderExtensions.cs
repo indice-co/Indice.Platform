@@ -45,9 +45,10 @@ namespace Indice.AspNetCore.Identity.Extensions
         /// <param name="identityResources"></param>
         /// <param name="apis"></param>
         public static void SeedData(this ConfigurationDbContext context,
-            IEnumerable<IdentityServer4.Models.Client> clients,
-            IEnumerable<IdentityServer4.Models.IdentityResource> identityResources,
-            IEnumerable<IdentityServer4.Models.ApiResource> apis) {
+            IEnumerable<Client> clients,
+            IEnumerable<IdentityResource> identityResources,
+            IEnumerable<ApiResource> apis) {
+
             if (!context.Clients.Any() && clients != null) {
                 foreach (var client in clients) {
                     context.Clients.Add(client.ToEntity());
