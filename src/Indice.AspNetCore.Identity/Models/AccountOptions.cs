@@ -5,7 +5,7 @@ using System;
 namespace Indice.AspNetCore.Identity.Models
 {
     /// <summary>
-    /// Account options used to configure account behavior
+    /// Account options used to configure account behavior.
     /// </summary>
     public static class AccountOptions
     {
@@ -17,8 +17,20 @@ namespace Indice.AspNetCore.Identity.Models
         // To enable windows authentication, the host (IIS or IIS Express) also must have windows auth enabled.
         public static bool WindowsAuthenticationEnabled = true;
         public static bool IncludeWindowsGroups = false;
-        // Specify the Windows authentication scheme and display name.
+
+        /// <summary>
+        /// Windows authentication scheme and display name.
+        /// </summary>
         public static readonly string WindowsAuthenticationSchemeName = "Windows";
+
+        /// <summary>
+        /// Error message when user enters invalid credentials.
+        /// </summary>
         public static string InvalidCredentialsErrorMessage = "Invalid username or password.";
+
+        /// <summary>
+        /// Error message when user is not enabled.
+        /// </summary>
+        public static string NotEnabledErrorMessage = "Your account is not enabled.";
     }
 }
