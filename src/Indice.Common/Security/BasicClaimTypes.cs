@@ -33,6 +33,36 @@ namespace Indice.Security
         /// Alternate key for the current tenant
         /// </summary>
         public const string TenantAlias = "tenantAlias";
+        
+        /// <summary>
+        /// User id
+        /// </summary>
+        public const string Subject = "sub";
+        
+        /// <summary>
+        /// User email
+        /// </summary>
+        public const string Email = "email";
+
+        /// <summary>
+        /// User last name
+        /// </summary>
+        public const string FamilyName = "family_name";
+
+        /// <summary>
+        /// User first name
+        /// </summary>
+        public const string GivenName= "given_name";
+        
+        /// <summary>
+        /// Full name
+        /// </summary>
+        public const string Name = "name";
+        
+        /// <summary>
+        /// Client Id (calling application)
+        /// </summary>
+        public const string ClientId = "client_id";
 
         /// <summary>
         /// All possible user related claims

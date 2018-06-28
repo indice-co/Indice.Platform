@@ -20,7 +20,10 @@ namespace Indice.AspNetCore.Security
 
             return displayName;
         }
-        
+        public static string GetSubjectId(this ClaimsPrincipal principal) {
+            return principal.FindFirst("sub")?.Value;
+        }
+
         private static bool TryFindFirstValue<T>(this ClaimsPrincipal principal, string claimType, out T result) where T : struct {
             result = default(T);
             var valueString = principal.FindFirst(c => c.Type == claimType)?.Value;
