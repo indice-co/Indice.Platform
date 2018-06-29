@@ -1,27 +1,32 @@
 ﻿using System;
 using System.Globalization;
 using System.Reflection;
-using System.Security.Claims;
 using Indice.Security;
 
-namespace Indice.AspNetCore.Security
+namespace System.Security.Claims
 {
 
     public static class ClaimsPrincipalExtensions
     {
         public static string GetDisplayName(this ClaimsPrincipal principal) {
             var displayName = default(string);
-            var firstName = principal.FindFirst("given_name")?.Value;
-            var lastName = principal.FindFirst("family_name")?.Value;
+            var name = principal.FindFirst(BasicClaimTypes.Name)?.Value;
+            var firstName = principal.FindFirst(BasicClaimTypes.GivenName)?.Value;
+            var lastName = principal.FindFirst(BasicClaimTypes.FamilyName)?.Value;
+            var email = principal.FindFirst(BasicClaimTypes.Email)?.Value;
 
             if (!string.IsNullOrEmpty(firstName) || !string.IsNullOrEmpty(lastName)) {
                 displayName = $"{firstName} {lastName}".Trim();
+            } else if (!string.IsNullOrEmpty(name)) {
+                displayName = name;
+            } else if (!string.IsNullOrEmpty(email)) {
+                displayName = email;
             }
 
             return displayName;
         }
         public static string GetSubjectId(this ClaimsPrincipal principal) {
-            return principal.FindFirst("sub")?.Value;
+            return principal.FindFirst(BasicClaimTypes.Subject)?.Value;
         }
 
         private static bool TryFindFirstValue<T>(this ClaimsPrincipal principal, string claimType, out T result) where T : struct {
