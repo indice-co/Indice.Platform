@@ -9,7 +9,6 @@ namespace Indice.AspNetCore.Identity.Models
     /// </summary>
     public class User : IdentityUser
     {
-
         /// <summary>
         /// Initializes a new instance of <see cref="IdentityUser"/>.
         /// </summary>
@@ -44,9 +43,19 @@ namespace Indice.AspNetCore.Identity.Models
         public DateTime RegisteredAt { get; set; }
 
         /// <summary>
-        /// System Administrator Indicator
+        /// System administrator Indicator.
         /// </summary>
         public bool Admin { get; set; }
+
+        /// <summary>
+        /// First name.
+        /// </summary>
+        public bool FirstName { get; set; }
+
+        /// <summary>
+        /// Last name.
+        /// </summary>
+        public bool LastName { get; set; }
 
         /// <summary>
         /// Navigation property for the roles this user belongs to.

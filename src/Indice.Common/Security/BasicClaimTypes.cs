@@ -15,12 +15,12 @@ namespace Indice.Security
         public const string Prefix = "indice_";
 
         /// <summary>
-        /// Identiyfies a physical user principal as a trusted account with administrative priviledges.
+        /// Identifies a physical user principal as a trusted account with administrative priviledges.
         /// </summary>
         public const string Admin = "admin";
 
         /// <summary>
-        /// Identiyfies a machine (worker) principal as a trusted system account with administrative priviledges.
+        /// Identifies a machine (worker) principal as a trusted system account with administrative priviledges.
         /// </summary>
         public const string System = "system";
 
@@ -30,35 +30,40 @@ namespace Indice.Security
         public const string TenantId = "tenantId";
 
         /// <summary>
-        /// Alternate key for the current tenant
+        /// Alternate key for the current tenant.
         /// </summary>
         public const string TenantAlias = "tenantAlias";
         
         /// <summary>
-        /// User id
+        /// User id.
         /// </summary>
         public const string Subject = "sub";
         
         /// <summary>
-        /// User email
+        /// User email.
         /// </summary>
         public const string Email = "email";
 
         /// <summary>
-        /// User last name
+        /// User last name.
         /// </summary>
         public const string FamilyName = "family_name";
 
         /// <summary>
-        /// User first name
+        /// User first name.
         /// </summary>
         public const string GivenName= "given_name";
         
         /// <summary>
-        /// Full name
+        /// Username.
         /// </summary>
         public const string Name = "name";
-        
+
+        /// <summary>
+        /// Full name.
+        /// </summary>
+        public const string FullName = "full_name";
+
         /// <summary>
         /// Client Id (calling application)
         /// </summary>

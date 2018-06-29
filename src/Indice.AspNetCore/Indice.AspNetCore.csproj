@@ -30,7 +30,7 @@
   <ItemGroup>
     <PackageReference Include="FluentValidation" Version="7.6.103" />
     <PackageReference Include="Humanizer.Core" Version="2.3.3" />
-    <PackageReference Include="Indice.Common" Version="1.2.6" />
+    <PackageReference Include="Indice.Common" Version="1.2.7" />
     <PackageReference Include="Indice.Services" Version="1.0.2" />
     <PackageReference Include="Markdig" Version="0.15.0" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.TagHelpers" Version="2.0.0" />
