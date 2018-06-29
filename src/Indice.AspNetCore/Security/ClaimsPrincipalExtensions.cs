@@ -1,13 +1,21 @@
 ﻿using System;
 using System.Globalization;
 using System.Reflection;
+using System.Security.Claims;
 using Indice.Security;
 
-namespace System.Security.Claims
+namespace Indice.AspNetCore.Security
 {
-
+    /// <summary>
+    /// Extension methods on <see cref="ClaimsPrincipal"/>.
+    /// </summary>
     public static class ClaimsPrincipalExtensions
     {
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="principal"></param>
+        /// <returns></returns>
         public static string GetDisplayName(this ClaimsPrincipal principal) {
             var displayName = default(string);
             var name = principal.FindFirst(BasicClaimTypes.Name)?.Value;
@@ -25,6 +33,12 @@ namespace System.Security.Claims
 
             return displayName;
         }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="principal"></param>
+        /// <returns></returns>
         public static string GetSubjectId(this ClaimsPrincipal principal) {
             return principal.FindFirst(BasicClaimTypes.Subject)?.Value;
         }
@@ -60,6 +74,13 @@ namespace System.Security.Claims
             return true;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="principal"></param>
+        /// <param name="claimType"></param>
+        /// <returns></returns>
         public static T? FindFirstValue<T>(this ClaimsPrincipal principal, string claimType) where T : struct {
             if (TryFindFirstValue(principal, claimType, out T value))
                 return value;
@@ -67,13 +88,28 @@ namespace System.Security.Claims
                 return null;
         }
         
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="principal"></param>
+        /// <returns></returns>
         public static bool IsSystem(this ClaimsPrincipal principal) {
             var isSystem = FindFirstValue<bool>(principal, $"client_{BasicClaimTypes.System}");
             return isSystem ?? false;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="principal"></param>
+        /// <returns></returns>
         public static bool IsAdmin(this ClaimsPrincipal principal) => FindFirstValue<bool>(principal, BasicClaimTypes.Admin) ?? principal.HasClaim("role", "Administrator");
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="principal"></param>
+        /// <returns></returns>
         public static bool IsExternal(this ClaimsPrincipal principal) => principal.FindFirst("idp")?.Value != "local";
     }
 }
