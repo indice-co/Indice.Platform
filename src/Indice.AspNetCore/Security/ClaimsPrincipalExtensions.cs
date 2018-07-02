@@ -16,30 +16,30 @@ namespace Indice.AspNetCore.Security
         /// </summary>
         /// <param name="principal"></param>
         /// <returns></returns>
-        //public static string GetDisplayName(this ClaimsPrincipal principal) {
-        //    var displayName = default(string);
-        //    var name = principal.FindFirst(BasicClaimTypes.Name)?.Value;
-        //    var firstName = principal.FindFirst(BasicClaimTypes.GivenName)?.Value;
-        //    var lastName = principal.FindFirst(BasicClaimTypes.FamilyName)?.Value;
-        //    var email = principal.FindFirst(BasicClaimTypes.Email)?.Value;
+        public static string FindDisplayName(this ClaimsPrincipal principal) {
+            var displayName = default(string);
+            var name = principal.FindFirst(BasicClaimTypes.Name)?.Value;
+            var firstName = principal.FindFirst(BasicClaimTypes.GivenName)?.Value;
+            var lastName = principal.FindFirst(BasicClaimTypes.FamilyName)?.Value;
+            var email = principal.FindFirst(BasicClaimTypes.Email)?.Value;
 
-        //    if (!string.IsNullOrEmpty(firstName) || !string.IsNullOrEmpty(lastName)) {
-        //        displayName = $"{firstName} {lastName}".Trim();
-        //    } else if (!string.IsNullOrEmpty(name)) {
-        //        displayName = name;
-        //    } else if (!string.IsNullOrEmpty(email)) {
-        //        displayName = email;
-        //    }
+            if (!string.IsNullOrEmpty(firstName) || !string.IsNullOrEmpty(lastName)) {
+                displayName = $"{firstName} {lastName}".Trim();
+            } else if (!string.IsNullOrEmpty(name)) {
+                displayName = name;
+            } else if (!string.IsNullOrEmpty(email)) {
+                displayName = email;
+            }
 
-        //    return displayName;
-        //}
+            return displayName;
+        }
 
         /// <summary>
         /// 
         /// </summary>
         /// <param name="principal"></param>
         /// <returns></returns>
-        public static string GetSubjectId(this ClaimsPrincipal principal) {
+        public static string FindSubjectId(this ClaimsPrincipal principal) {
             return principal.FindFirst(BasicClaimTypes.Subject)?.Value;
         }
 

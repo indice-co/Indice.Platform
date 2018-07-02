@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.DataProtection.AuthenticatedEncryption.ConfigurationM
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
 using Microsoft.WindowsAzure.Storage;
 
@@ -107,6 +108,7 @@ namespace Indice.AspNetCore.Extensions
         /// <param name="containerName">The name of the container that will be used within the data protection system.</param>
         /// <param name="applicationName">Sets the unique name of this application within the data protection system.</param>
         public static void AddAzureDataProtection(this IServiceCollection services, string storageConnectionString, string containerName, string applicationName) {
+            services.TryAddSingleton(typeof(IDataProtectionEncryptor<>), typeof(DataProtectionEncryptor<>));
             var storageAccount = CloudStorageAccount.Parse(storageConnectionString);
             var blobClient = storageAccount.CreateCloudBlobClient();
             var container = blobClient.GetContainerReference(containerName);
@@ -140,6 +142,8 @@ namespace Indice.AspNetCore.Extensions
             if (!Directory.Exists(path)) {
                 throw new ArgumentException($"The specified path '{path}' does not exist.", nameof(path));
             }
+
+            services.TryAddSingleton(typeof(IDataProtectionEncryptor<>), typeof(DataProtectionEncryptor<>));
 
             // Enables data protection services to the specified IServiceCollection.
             services.AddDataProtection()

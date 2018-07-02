@@ -48,6 +48,6 @@
         /// <summary>
         /// The landing page for accepting invitations, if application has an invitation system at it's disposal.
         /// </summary>
-        public int InvitationUrlTemplate { get; set; }
+        public string InvitationUrlTemplate { get; set; }
     }
 }
