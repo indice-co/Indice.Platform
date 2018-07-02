@@ -4,7 +4,7 @@
     <Description>Indice.AspNetCore Class Library</Description>
     <Copyright>Copyright (c) 2018 Indice</Copyright>
     <AssemblyTitle>Indice.AspNetCore</AssemblyTitle>
-    <VersionPrefix>1.2.11</VersionPrefix>
+    <VersionPrefix>1.2.12</VersionPrefix>
     <!--<VersionSuffix>beta1</VersionSuffix>-->
     <Authors>c.leftheris, g.manoltzas</Authors>
     <TargetFramework>netstandard2.0</TargetFramework>
@@ -16,7 +16,7 @@
     <PackageId>Indice.AspNetCore</PackageId>
     <PackageTags>AspNetCore;TagHelpers;Grid;Sorting;Paging</PackageTags>
     <PackageReleaseNotes>
-      Try to remove conflicting library.
+      Add methods for configuring the Data Protection API.
     </PackageReleaseNotes>
     <PackageIconUrl>https://raw.githubusercontent.com/indice-co/Indice.AspNet/master/icon/icon-128.png</PackageIconUrl>
     <PackageProjectUrl>https://github.com/indice-co/Indice.AspNet</PackageProjectUrl>
@@ -33,6 +33,8 @@
     <PackageReference Include="Indice.Common" Version="1.2.7" />
     <PackageReference Include="Indice.Services" Version="1.0.2" />
     <PackageReference Include="Markdig" Version="0.15.0" />
+    <PackageReference Include="Microsoft.AspNetCore.DataProtection.AzureStorage" Version="2.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.DataProtection.Extensions" Version="2.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.TagHelpers" Version="2.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.Routing.Abstractions" Version="2.0.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="2.0.0" />
@@ -40,10 +42,6 @@
     <PackageReference Include="Swashbuckle.AspNetCore.Swagger" Version="2.5.0" />
     <PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" Version="2.5.0" />
     <PackageReference Include="System.Security.Claims" Version="4.3.0" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Configuration\" />
   </ItemGroup>
 
 </Project>
