@@ -1,11 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Indice.Configuration
+﻿namespace Indice.Configuration
 {
     /// <summary>
-    /// General settings for an ASP net core app
+    /// General settings for an ASP.NET Core application.
     /// </summary>
     public class GeneralSettings
     {
@@ -15,7 +11,7 @@ namespace Indice.Configuration
         public static readonly string Name = "General";
 
         /// <summary>
-        /// Url that the app is Hosed under
+        /// Url that the app is Hosted under.
         /// </summary>
         public string Host { get; set; }
 
@@ -25,14 +21,14 @@ namespace Indice.Configuration
         public string Authority { get; set; }
 
         /// <summary>
-        /// The name of the app. Usualy used for the Layout page Title inside an Html header. 
+        /// The name of the app. Usually used for the Layout page Title inside an Html header. 
         /// </summary>
         public string ApplicationName { get; set; } = "My App name";
 
         /// <summary>
         /// A descritpion for the app.
         /// </summary>
-        public string ApplicationDescription { get; set; } = "My App does this and that.";
+        public string ApplicationDescription { get; set; } = "My App description.";
 
         /// <summary>
         /// Client credentials for machine to machine configuration.
@@ -40,13 +36,18 @@ namespace Indice.Configuration
         public ClientSettings Client { get; set; }
 
         /// <summary>
-        /// Api settings if Api is present.
+        /// API settings if API is present.
         /// </summary>
         public ApiSettings Api { get; set; }
 
         /// <summary>
-        /// Swagger endpoint toggle
+        /// Swagger endpoint toggle.
         /// </summary>
         public bool EnableSwagger { get; set; }
+
+        /// <summary>
+        /// The landing page for accepting invitations, if application has an invitation system at it's disposal.
+        /// </summary>
+        public int InvitationUrlTemplate { get; set; }
     }
 }
