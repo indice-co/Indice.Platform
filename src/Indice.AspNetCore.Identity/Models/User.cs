@@ -50,12 +50,12 @@ namespace Indice.AspNetCore.Identity.Models
         /// <summary>
         /// First name.
         /// </summary>
-        public bool FirstName { get; set; }
+        public string FirstName { get; set; }
 
         /// <summary>
         /// Last name.
         /// </summary>
-        public bool LastName { get; set; }
+        public string LastName { get; set; }
 
         /// <summary>
         /// Navigation property for the roles this user belongs to.
