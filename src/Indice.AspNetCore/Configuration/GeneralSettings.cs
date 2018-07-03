@@ -33,7 +33,7 @@
         /// <summary>
         /// Client credentials for machine to machine configuration.
         /// </summary>
-        public ClientSettings Client { get; set; }
+        public ClientSettings Auth { get; set; }
 
         /// <summary>
         /// API settings if API is present.
@@ -49,5 +49,16 @@
         /// The landing page for accepting invitations, if application has an invitation system at it's disposal.
         /// </summary>
         public string InvitationUrlTemplate { get; set; }
+    }
+
+    /// <summary>
+    /// Auth settings for external providers.
+    /// </summary>
+    public class AuthSettings
+    {
+        /// <summary>
+        /// Auth settings for Microsoft login.
+        /// </summary>
+        public ClientSettings Microsoft { get; set; }
     }
 }
