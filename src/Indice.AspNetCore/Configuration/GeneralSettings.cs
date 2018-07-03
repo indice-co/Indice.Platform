@@ -31,11 +31,6 @@
         public string ApplicationDescription { get; set; } = "My App description.";
 
         /// <summary>
-        /// Client credentials for machine to machine configuration.
-        /// </summary>
-        public ClientSettings Auth { get; set; }
-
-        /// <summary>
         /// API settings if API is present.
         /// </summary>
         public ApiSettings Api { get; set; }
@@ -56,6 +51,11 @@
     /// </summary>
     public class AuthSettings
     {
+        /// <summary>
+        /// The name is used to mark the section found inside a configuration file.
+        /// </summary>
+        public static readonly string Name = "Auth";
+
         /// <summary>
         /// Auth settings for Microsoft login.
         /// </summary>
