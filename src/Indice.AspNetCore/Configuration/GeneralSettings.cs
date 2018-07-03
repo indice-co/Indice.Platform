@@ -39,26 +39,5 @@
         /// Swagger endpoint toggle.
         /// </summary>
         public bool EnableSwagger { get; set; }
-
-        /// <summary>
-        /// The landing page for accepting invitations, if application has an invitation system at it's disposal.
-        /// </summary>
-        public string InvitationUrlTemplate { get; set; }
-    }
-
-    /// <summary>
-    /// Auth settings for external providers.
-    /// </summary>
-    public class AuthSettings
-    {
-        /// <summary>
-        /// The name is used to mark the section found inside a configuration file.
-        /// </summary>
-        public static readonly string Name = "Auth";
-
-        /// <summary>
-        /// Auth settings for Microsoft login.
-        /// </summary>
-        public ClientSettings Microsoft { get; set; }
     }
 }
