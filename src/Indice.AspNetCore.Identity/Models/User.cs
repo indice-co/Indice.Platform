@@ -48,16 +48,6 @@ namespace Indice.AspNetCore.Identity.Models
         public bool Admin { get; set; }
 
         /// <summary>
-        /// First name.
-        /// </summary>
-        public string FirstName { get; set; }
-
-        /// <summary>
-        /// Last name.
-        /// </summary>
-        public string LastName { get; set; }
-
-        /// <summary>
         /// Navigation property for the roles this user belongs to.
         /// </summary>
         public virtual ICollection<IdentityUserRole<string>> Roles { get; } = new List<IdentityUserRole<string>>();

@@ -150,14 +150,6 @@ namespace Indice.AspNetCore.Identity.Services
                 if (customUser.Admin) {
                     claims.Add(new Claim(BasicClaimTypes.Admin, $"{customUser.Admin}".ToLower(), ClaimValueTypes.Boolean));
                 }
-
-                if (!string.IsNullOrEmpty(customUser.FirstName)) {
-                    claims.Add(new Claim(BasicClaimTypes.GivenName, customUser.FirstName, ClaimValueTypes.Boolean));
-                }
-
-                if (!string.IsNullOrEmpty(customUser.LastName)) {
-                    claims.Add(new Claim(BasicClaimTypes.FamilyName, customUser.LastName, ClaimValueTypes.Boolean));
-                }
             }
 
             return claims;
