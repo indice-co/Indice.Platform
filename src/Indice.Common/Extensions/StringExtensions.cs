@@ -1,11 +1,21 @@
 ﻿using System;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 
 namespace Indice.Extensions
 {
+    /// <summary>
+    /// Usful string method Extension
+    /// </summary>
     public static class StringExtensions
     {
+        /// <summary>
+        /// Gets a random string. Nice for password generation.
+        /// </summary>
+        /// <param name="random">random instance</param>
+        /// <param name="length">The length of the string</param>
+        /// <returns></returns>
         public static string NextCode(this Random random, short length = 12) {
             var chars = "0123456789abcdefghijklmnopqrstuvwxyz";
             var builder = new StringBuilder(length);
@@ -16,9 +26,7 @@ namespace Indice.Extensions
 
             return builder.ToString();
         }
-
-        public static bool Contains(this string source, string toCheck, StringComparison stringComparison) => source?.IndexOf(toCheck, stringComparison) >= 0;
-
+        
         /// <summary>Transliterate Unicode string to ASCII string.</summary>
         /// <param name="input">String you want to transliterate into ASCII</param>
         /// <param name="tempStringBuilderCapacity">If you know the length of the result, pass the value for StringBuilder capacity. InputString.Length * 2 is used by default.</param>
@@ -74,6 +82,25 @@ namespace Indice.Extensions
             return result;
         }
 
-        public static byte[] ToByteArray(this string input) => Encoding.ASCII.GetBytes(input);
+#if !NETSTANDARD14
+        /// <summary>
+        /// Removes accent but keeps encoding.
+        /// </summary>
+        /// <param name="input">The string to manipulate</param>
+        /// <returns></returns>
+        public static string RemoveDiacritics(this string input) {
+            var normalizedString = input.Normalize(NormalizationForm.FormD);
+            var stringBuilder = new StringBuilder();
+
+            foreach (var c in normalizedString) {
+                var unicodeCategory = CharUnicodeInfo.GetUnicodeCategory(c);
+                if (unicodeCategory != UnicodeCategory.NonSpacingMark) {
+                    stringBuilder.Append(c);
+                }
+            }
+
+            return stringBuilder.ToString().Normalize(NormalizationForm.FormC);
+        }
     }
+#endif
 }
