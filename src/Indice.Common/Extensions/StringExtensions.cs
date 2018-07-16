@@ -101,6 +101,6 @@ namespace Indice.Extensions
 
             return stringBuilder.ToString().Normalize(NormalizationForm.FormC);
         }
-    }
 #endif
+    }
 }
