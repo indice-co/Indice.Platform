@@ -1,21 +1,19 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
 
 namespace Indice.Configuration
 {
     /// <summary>
-    /// Settings related to APIs
+    /// Settings related to APIs.
     /// </summary>
     public class ApiSettings
     {
         /// <summary>
-        /// Secutiry wise the name of the api. Used for identifing the api as a resource in oAuth2 as well as the main scope.
+        /// Security wise the name of the api. Used for identifyinh the api as a resource in oAuth2 as well as the main scope.
         /// </summary>
         public string ResourceName { get; set; } = "api1";
 
         /// <summary>
-        /// The sub scopes avialable for the api
+        /// The sub scopes avialable for the api.
         /// </summary>
         public Dictionary<string, string> Scopes { get; set; } = new Dictionary<string, string>();
 

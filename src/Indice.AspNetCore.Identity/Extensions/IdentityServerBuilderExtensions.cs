@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using IdentityServer4.EntityFramework.Entities;
+﻿using IdentityServer4.EntityFramework.Entities;
 using IdentityServer4.EntityFramework.Options;
 using IdentityServer4.Services;
 using IdentityServer4.Validation;
@@ -14,12 +11,12 @@ namespace Indice.AspNetCore.Identity.Extensions
 {
 
     /// <summary>
-    /// Extension methods to configure the IdentityServer
+    /// Extension methods to configure the IdentityServer.
     /// </summary>
     public static class IdentityServerBuilderExtensions
     {
         /// <summary>
-        /// Setup Users store
+        /// Setup Users store.
         /// </summary>
         /// <typeparam name="TUser"></typeparam>
         /// <param name="builder"></param>
@@ -28,11 +25,12 @@ namespace Indice.AspNetCore.Identity.Extensions
         public static IIdentityServerBuilder AddIdentityUsersStore<TUser>(this IIdentityServerBuilder builder, IConfiguration configuration) where TUser : class, new() {
             builder.Services.AddTransient<IProfileService, ProfileService<User>>();
             builder.Services.AddTransient<IResourceOwnerPasswordValidator, ResourceOwnerPasswordValidator<User>>();
+
             return builder;
         }
 
         /// <summary>
-        /// Setup configureation store
+        /// Setup Configuration store.
         /// </summary>
         /// <param name="options"></param>
         public static void SetupTables(this ConfigurationStoreOptions options) {
@@ -56,7 +54,7 @@ namespace Indice.AspNetCore.Identity.Extensions
         }
 
         /// <summary>
-        /// Setup Operational store
+        /// Setup Operational store.
         /// </summary>
         /// <param name="options"></param>
         public static void SetupTables(this OperationalStoreOptions options) {

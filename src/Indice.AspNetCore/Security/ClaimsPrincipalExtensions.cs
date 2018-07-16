@@ -6,21 +6,43 @@ using Indice.Security;
 
 namespace Indice.AspNetCore.Security
 {
-
+    /// <summary>
+    /// Extension methods on <see cref="ClaimsPrincipal"/>.
+    /// </summary>
     public static class ClaimsPrincipalExtensions
     {
-        public static string GetDisplayName(this ClaimsPrincipal principal) {
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="principal"></param>
+        /// <returns></returns>
+        public static string FindDisplayName(this ClaimsPrincipal principal) {
             var displayName = default(string);
-            var firstName = principal.FindFirst("given_name")?.Value;
-            var lastName = principal.FindFirst("family_name")?.Value;
+            var name = principal.FindFirst(BasicClaimTypes.Name)?.Value;
+            var firstName = principal.FindFirst(BasicClaimTypes.GivenName)?.Value;
+            var lastName = principal.FindFirst(BasicClaimTypes.FamilyName)?.Value;
+            var email = principal.FindFirst(BasicClaimTypes.Email)?.Value;
 
             if (!string.IsNullOrEmpty(firstName) || !string.IsNullOrEmpty(lastName)) {
                 displayName = $"{firstName} {lastName}".Trim();
+            } else if (!string.IsNullOrEmpty(name)) {
+                displayName = name;
+            } else if (!string.IsNullOrEmpty(email)) {
+                displayName = email;
             }
 
             return displayName;
         }
-        
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="principal"></param>
+        /// <returns></returns>
+        public static string FindSubjectId(this ClaimsPrincipal principal) {
+            return principal.FindFirst(BasicClaimTypes.Subject)?.Value;
+        }
+
         private static bool TryFindFirstValue<T>(this ClaimsPrincipal principal, string claimType, out T result) where T : struct {
             result = default(T);
             var valueString = principal.FindFirst(c => c.Type == claimType)?.Value;
@@ -52,6 +74,13 @@ namespace Indice.AspNetCore.Security
             return true;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="principal"></param>
+        /// <param name="claimType"></param>
+        /// <returns></returns>
         public static T? FindFirstValue<T>(this ClaimsPrincipal principal, string claimType) where T : struct {
             if (TryFindFirstValue(principal, claimType, out T value))
                 return value;
@@ -59,13 +88,28 @@ namespace Indice.AspNetCore.Security
                 return null;
         }
         
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="principal"></param>
+        /// <returns></returns>
         public static bool IsSystem(this ClaimsPrincipal principal) {
             var isSystem = FindFirstValue<bool>(principal, $"client_{BasicClaimTypes.System}");
             return isSystem ?? false;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="principal"></param>
+        /// <returns></returns>
         public static bool IsAdmin(this ClaimsPrincipal principal) => FindFirstValue<bool>(principal, BasicClaimTypes.Admin) ?? principal.HasClaim("role", "Administrator");
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="principal"></param>
+        /// <returns></returns>
         public static bool IsExternal(this ClaimsPrincipal principal) => principal.FindFirst("idp")?.Value != "local";
     }
 }

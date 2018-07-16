@@ -13,6 +13,9 @@ using Microsoft.AspNetCore.Identity;
 
 namespace Indice.AspNetCore.Identity.Services
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public class UserProfileService : ProfileService<User>
     {
         /// <summary>
@@ -21,6 +24,11 @@ namespace Indice.AspNetCore.Identity.Services
         /// <param name="userManager">The AspNet Identity user manager.</param>
         public UserProfileService(UserManager<User> userManager) : base(userManager) { }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="user"></param>
+        /// <returns></returns>
         protected override async Task<List<Claim>> GetClaimsAsync(User user) {
             var claims = await base.GetClaimsAsync(user);
 
@@ -94,6 +102,11 @@ namespace Indice.AspNetCore.Identity.Services
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="user"></param>
+        /// <returns></returns>
         protected virtual async Task<List<Claim>> GetClaimsAsync(TUser user) {
             var claims = new List<Claim> {
                 new Claim(JwtClaimTypes.Subject, await _userManager.GetUserIdAsync(user)),
@@ -131,9 +144,10 @@ namespace Indice.AspNetCore.Identity.Services
                 claims.AddRange(roles.Select(role => new Claim(JwtClaimTypes.Role, role)));
             }
 
-            if (user is User) {
-                var customUser = user as User;
-                if (customUser != null && customUser.Admin) {
+            var customUser = user as User;
+
+            if (customUser != null) {
+                if (customUser.Admin) {
                     claims.Add(new Claim(BasicClaimTypes.Admin, $"{customUser.Admin}".ToLower(), ClaimValueTypes.Boolean));
                 }
             }

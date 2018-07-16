@@ -1,15 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using IdentityServer4.EntityFramework.DbContexts;
 using IdentityServer4.EntityFramework.Mappers;
+using IdentityServer4.Models;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Indice.AspNetCore.Identity.Extensions
 {
-
     /// <summary>
     /// ApplicationBuilder Extensions
     /// </summary>
@@ -19,12 +17,20 @@ namespace Indice.AspNetCore.Identity.Extensions
         /// Setup the identityserver store configuration and operations
         /// </summary>
         /// <param name="app"></param>
+        /// <param name="clients"></param>
+        /// <param name="identityResources"></param>
+        /// <param name="apis"></param>
         /// <returns></returns>
-        public static IApplicationBuilder IdentityServerStoreSetup(this IApplicationBuilder app) {
+        public static IApplicationBuilder IdentityServerStoreSetup(this IApplicationBuilder app,
+            IEnumerable<Client> clients = null,
+            IEnumerable<IdentityResource> identityResources = null,
+            IEnumerable<ApiResource> apis = null) {
+
             using (var serviceScope = app.ApplicationServices.GetRequiredService<IServiceScopeFactory>().CreateScope()) {
-                serviceScope.ServiceProvider.GetService<ConfigurationDbContext>().Database.EnsureCreated();
+                var config = serviceScope.ServiceProvider.GetService<ConfigurationDbContext>();
+                config.Database.EnsureCreated();
                 serviceScope.ServiceProvider.GetService<PersistedGrantDbContext>().Database.EnsureCreated();
-                //EnsureSeedData(serviceScope.ServiceProvider.GetService<ConfigurationDbContext>());
+                config.SeedData(clients, identityResources, apis);
             }
 
             return app;
@@ -38,10 +44,11 @@ namespace Indice.AspNetCore.Identity.Extensions
         /// <param name="clients"></param>
         /// <param name="identityResources"></param>
         /// <param name="apis"></param>
-        public static void SeedData(this ConfigurationDbContext context, 
-            IEnumerable<IdentityServer4.Models.Client> clients, 
-            IEnumerable<IdentityServer4.Models.IdentityResource> identityResources, 
-            IEnumerable<IdentityServer4.Models.ApiResource> apis) {
+        public static void SeedData(this ConfigurationDbContext context,
+            IEnumerable<Client> clients,
+            IEnumerable<IdentityResource> identityResources,
+            IEnumerable<ApiResource> apis) {
+
             if (!context.Clients.Any() && clients != null) {
                 foreach (var client in clients) {
                     context.Clients.Add(client.ToEntity());

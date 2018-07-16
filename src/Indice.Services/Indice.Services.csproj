@@ -26,7 +26,7 @@
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Indice.Common" Version="1.2.5" />
+    <PackageReference Include="Indice.Common" Version="1.2.7" />
     <PackageReference Include="MailKit" Version="2.0.4" />
     <PackageReference Include="WindowsAzure.Storage" Version="9.2.0" />
   </ItemGroup>

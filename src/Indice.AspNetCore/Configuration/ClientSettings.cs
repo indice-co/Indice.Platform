@@ -6,11 +6,6 @@
     public class ClientSettings
     {
         /// <summary>
-        /// The name is used to mark the section found inside a configuration file.
-        /// </summary>
-        public static readonly string Name = "Client";
-
-        /// <summary>
         /// The client id
         /// </summary>
         public string ClientId { get; set; }
