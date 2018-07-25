@@ -3,14 +3,14 @@
     <Description>Indice.Common Class Library</Description>
     <Copyright>Copyright (c) 2018 Indice</Copyright>
     <AssemblyTitle>Indice.Common</AssemblyTitle>
-    <VersionPrefix>1.2.8</VersionPrefix>
+    <VersionPrefix>1.2.10</VersionPrefix>
     <!--<VersionSuffix>beta1</VersionSuffix>-->
     <Authors>c.leftheris</Authors>
     <TargetFrameworks>net452;netstandard1.4;netstandard2.0</TargetFrameworks>
     <AssemblyName>Indice.Common</AssemblyName>
     <AssemblyTitle>Indice.Common</AssemblyTitle>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <RootNamespace>Indice</RootNamespace>
+    <RootNamespace>Indice</RootNamespace> 
   </PropertyGroup>
   <PropertyGroup Label="Package">
     <PackageId>Indice.Common</PackageId>
@@ -23,6 +23,10 @@
     <RepositoryUrl>https://github.com/indice-co/Indice.AspNet</RepositoryUrl>
     <Company>Indice</Company>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <!-- including PDB files in NuGet for source link because symbolsource.org does not support portable PDBs -->
+    <PublishRepositoryUrl>true</PublishRepositoryUrl> 
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder> 
   </PropertyGroup>
   <PropertyGroup Condition="'$(TargetFramework)' == 'net452'">
     <AssemblyTitle>Indice.Common .NET Framework 4.5.2</AssemblyTitle>
@@ -36,9 +40,6 @@
   <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net452|AnyCPU'">
     <NoWarn>1701;1702;1705;1591</NoWarn>
   </PropertyGroup>
-  <PropertyGroup>
-    <RootNamespace>Indice</RootNamespace>
-  </PropertyGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'net452'">
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -48,5 +49,6 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="9.0.1" />
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0-beta-63102-01" PrivateAssets="All" />
   </ItemGroup>
 </Project>
