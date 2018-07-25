@@ -20,12 +20,21 @@ namespace Indice.AspNetCore.Identity.Extensions
         /// </summary>
         /// <typeparam name="TUser"></typeparam>
         /// <param name="builder"></param>
-        /// <param name="configuration"></param>
         /// <returns></returns>
-        public static IIdentityServerBuilder AddIdentityUsersStore<TUser>(this IIdentityServerBuilder builder, IConfiguration configuration) where TUser : class, new() {
+        public static IIdentityServerBuilder AddIdentityUsersStore<TUser>(this IIdentityServerBuilder builder) where TUser : class, new() {
             builder.Services.AddTransient<IProfileService, ProfileService<User>>();
             builder.Services.AddTransient<IResourceOwnerPasswordValidator, ResourceOwnerPasswordValidator<User>>();
+            return builder;
+        }
 
+        /// <summary>
+        /// Setup an Event sink to filter login events and potentially log them into a persistent store like a db or a file.
+        /// </summary>
+        /// <typeparam name="TEventSink"></typeparam>
+        /// <param name="builder"></param>
+        /// <returns></returns>
+        public static IIdentityServerBuilder AddEventSink<TEventSink>(this IIdentityServerBuilder builder) where TEventSink : class, IEventSink {
+            builder.Services.AddTransient<IEventSink, TEventSink>();
             return builder;
         }
 
