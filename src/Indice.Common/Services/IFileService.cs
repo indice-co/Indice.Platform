@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Indice.Services
@@ -17,24 +14,17 @@ namespace Indice.Services
 
     public class FileServiceException : Exception
     {
-        public FileServiceException(string message) : base(message) {
+        public FileServiceException(string message) : base(message) { }
 
-        }
-
-        public FileServiceException(string message, Exception inner) : base(message, inner) {
-
-        }
+        public FileServiceException(string message, Exception inner) : base(message, inner) { }
     }
 
     public class FileNotFoundServiceException : FileServiceException
     {
-        public FileNotFoundServiceException(string message) : base(message) {
-        }
+        public FileNotFoundServiceException(string message) : base(message) { }
 
-        public FileNotFoundServiceException(string message, Exception inner) : base(message, inner) {
-        }
+        public FileNotFoundServiceException(string message, Exception inner) : base(message, inner) { }
     }
-
 
     public class FileProperties
     {
