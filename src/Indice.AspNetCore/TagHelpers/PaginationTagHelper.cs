@@ -141,9 +141,7 @@ namespace Indice.AspNetCore.TagHelpers
                 container.AddCssClass(cssClass);
             if (null != title)
                 container.MergeAttribute("title", title);
-            if (!enabled) { 
-                container.AddCssClass("disabled");
-            }
+            
             var anchorTag = Generator.GenerateActionLink(ViewContext,
                                                          string.Empty, null, null, null, null, null,
                                                          routeValues.ToRouteValueDictionary(),
@@ -152,7 +150,11 @@ namespace Indice.AspNetCore.TagHelpers
             if (active) {
                 container.AddCssClass("active");
                 anchorTag.MergeAttribute("href", "", true);
-            } 
+            }
+            if (!enabled) { 
+                container.AddCssClass("disabled");
+                anchorTag.MergeAttribute("href", "", true);
+            }
             var spanTag = new TagBuilder("span");
             spanTag.InnerHtml.SetContent(content);
             anchorTag.InnerHtml.AppendHtml(spanTag);

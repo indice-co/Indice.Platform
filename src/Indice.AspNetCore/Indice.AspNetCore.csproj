@@ -3,7 +3,7 @@
     <Description>Indice.AspNetCore Class Library</Description>
     <Copyright>Copyright (c) 2018 Indice</Copyright>
     <AssemblyTitle>Indice.AspNetCore</AssemblyTitle>
-    <VersionPrefix>1.2.25</VersionPrefix>
+    <VersionPrefix>1.2.26</VersionPrefix>
     <!--<VersionSuffix>beta1</VersionSuffix>-->
     <Authors>c.leftheris, g.manoltzas</Authors>
     <TargetFramework>netstandard2.0</TargetFramework>
