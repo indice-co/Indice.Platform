@@ -80,7 +80,7 @@ namespace Indice.AspNetCore.TagHelpers
                 var nearEnd = Pages - Options.Page - windowFactor < 3;
 
                 if (Pages < MINUMUM_PAGES) {
-                    pages = Enumerable.Range(2, Pages - 2);
+                    pages = Enumerable.Range(2, Math.Max(Pages - 2, 0)); // this removes the first and last pages because they are included anyway.
 
                     foreach (var page in pages) {
                         output.Content.AppendHtml(PageLink(Options.Page != page, $"{page}", page, $"{page}"));
