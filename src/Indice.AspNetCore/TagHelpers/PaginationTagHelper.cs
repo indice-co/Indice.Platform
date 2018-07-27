@@ -121,8 +121,9 @@ namespace Indice.AspNetCore.TagHelpers
                         output.Content.AppendHtml(PageLink(false, $"...", Options.Page, $"more pages"));
                     }
                 }
-
-                output.Content.AppendHtml(PageLink(Options.Page != Pages, $"{Pages}", Pages, "last"));
+                if (Pages > 1) { 
+                    output.Content.AppendHtml(PageLink(Options.Page != Pages, $"{Pages}", Pages, "last"));
+                }
                 output.Content.AppendHtml(PageLink(Options.Page != Pages, "»", Options.Page + 1, "next"));
 
                 // append summary if needed.
