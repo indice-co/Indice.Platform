@@ -4,7 +4,7 @@ using System.Reflection;
 using System.Security.Claims;
 using Indice.Security;
 
-namespace Indice.AspNetCore.Security
+namespace Indice.Security
 {
     /// <summary>
     /// Extension methods on <see cref="ClaimsPrincipal"/>.

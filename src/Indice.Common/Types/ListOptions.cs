@@ -46,7 +46,7 @@ namespace Indice.Types
         /// </summary>
         /// <param name="count">The number of results</param>
         /// <returns></returns>
-        public int GetPagesFor(int count) => (int)Math.Ceiling(count / (double)Size);
+        public int GetPagesFor(int count) => (int)Math.Max(Math.Ceiling(count / (double)Size), 1);
 
         /// <summary>
         /// Break the Sort parameter into multiple sort by clauses. 
