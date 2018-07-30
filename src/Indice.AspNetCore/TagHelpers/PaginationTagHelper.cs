@@ -66,7 +66,7 @@ namespace Indice.AspNetCore.TagHelpers
             output.TagName = "ul";
 
             var childContent = await output.GetChildContentAsync();
-            if (childContent.IsEmptyOrWhiteSpace) {
+            if (childContent.IsEmptyOrWhiteSpace && Pages > 0) {
 
                 output.Content.AppendHtml(PageLink(Options.Page != 1, "«", Options.Page - 1, "previous"));
                 output.Content.AppendHtml(PageLink(Options.Page != 1, $"{1}", 1, "first"));
