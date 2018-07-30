@@ -3,7 +3,7 @@
     <Description>Indice.Services Class Library</Description>
     <Copyright>Copyright (c) 2018 Indice</Copyright>
     <AssemblyTitle>Indice.Services</AssemblyTitle>
-    <VersionPrefix>1.0.3</VersionPrefix>
+    <VersionPrefix>1.0.4</VersionPrefix>
     <!--<VersionSuffix>beta1</VersionSuffix>-->
     <Authors>c.leftheris, g.manoltzas</Authors>
     <TargetFramework>netstandard2.0</TargetFramework>
@@ -15,7 +15,7 @@
     <PackageId>Indice.Services</PackageId>
     <PackageTags>dotnetcore;Files;Emails;Sms</PackageTags>
     <PackageReleaseNotes>
-      Added services and default implementations for Files, Emails, Sms.
+      Fix confusion between constructor parameter and private field.
     </PackageReleaseNotes>
     <PackageIconUrl>https://raw.githubusercontent.com/indice-co/Indice.AspNet/master/icon/icon-128.png</PackageIconUrl>
     <PackageProjectUrl>https://github.com/indice-co/Indice.AspNet</PackageProjectUrl>
@@ -34,5 +34,4 @@
     <PackageReference Include="WindowsAzure.Storage" Version="9.2.0" />
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0-beta-63102-01" PrivateAssets="All" />
   </ItemGroup>
-
 </Project>

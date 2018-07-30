@@ -74,7 +74,7 @@ namespace Indice.AspNetCore.Extensions
         /// </summary>
         /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
         public static IServiceCollection AddFilesAzure(this IServiceCollection services) {
-            services.AddTransient<IFileService, FileServiceAzureStorage>((sp) => new FileServiceAzureStorage(sp.GetRequiredService<IConfiguration>().GetConnectionString(FileServiceAzureStorage.CONNECTION_STRING_NAME),
+            services.AddTransient<IFileService, FileServiceAzureStorage>(sp => new FileServiceAzureStorage(sp.GetRequiredService<IConfiguration>().GetConnectionString(FileServiceAzureStorage.CONNECTION_STRING_NAME),
                 sp.GetRequiredService<IHostingEnvironment>().EnvironmentName));
 
             return services;
