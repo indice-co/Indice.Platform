@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Microsoft.WindowsAzure.Storage;
@@ -11,25 +9,26 @@ namespace Indice.Services
 {
     public class FileServiceAzureStorage : IFileService
     {
-        public const string CONNECTION_STRING_NAME = "StorageConnection";
-        private readonly CloudStorageAccount storageAccount;
-        private readonly string environmentName;
+        private readonly CloudStorageAccount _storageAccount;
+        private readonly string _environmentName;
 
         public FileServiceAzureStorage(string connectionString, string environmentName) {
             if (string.IsNullOrEmpty(connectionString)) {
                 throw new ArgumentNullException(nameof(connectionString));
             }
+
             if (string.IsNullOrEmpty(environmentName)) {
-                environmentName = "production";
+                _environmentName = "production";
             }
-            storageAccount = CloudStorageAccount.Parse(connectionString);
-            environmentName = Regex.Replace(environmentName ?? "Development", @"\s+", "-").ToLowerInvariant();
+
+            _storageAccount = CloudStorageAccount.Parse(connectionString);
+            _environmentName = Regex.Replace(environmentName ?? "Development", @"\s+", "-").ToLowerInvariant();
         }
 
         public async Task SaveAsync(string filepath, Stream stream) {
-            var folder = environmentName ?? Path.GetDirectoryName(filepath);
-            var filename = environmentName == null ? filepath.Substring(folder.Length) : filepath;
-            var blobClient = storageAccount.CreateCloudBlobClient();
+            var folder = _environmentName ?? Path.GetDirectoryName(filepath);
+            var filename = _environmentName == null ? filepath.Substring(folder.Length) : filepath;
+            var blobClient = _storageAccount.CreateCloudBlobClient();
             var container = blobClient.GetContainerReference(folder);
             await container.CreateIfNotExistsAsync();
             var blob = container.GetBlockBlobReference(filename);
@@ -37,13 +36,12 @@ namespace Indice.Services
             await blob.UploadFromStreamAsync(stream);
         }
 
-
         // Instead of streaming the blob through your server, you could download it directly from the blob storage.
         // http://stackoverflow.com/questions/24312527/azure-blob-storage-downloadtobytearray-vs-downloadtostream
         public async Task<byte[]> GetAsync(string filepath) {
-            var folder = environmentName ?? Path.GetDirectoryName(filepath);
-            var filename = environmentName == null ? filepath.Substring(folder.Length) : filepath;
-            var blobClient = storageAccount.CreateCloudBlobClient();
+            var folder = _environmentName ?? Path.GetDirectoryName(filepath);
+            var filename = _environmentName == null ? filepath.Substring(folder.Length) : filepath;
+            var blobClient = _storageAccount.CreateCloudBlobClient();
             var container = blobClient.GetContainerReference(folder);
             var exists = await container.ExistsAsync();
 
@@ -73,9 +71,9 @@ namespace Indice.Services
         // Instead of streaming the blob through your server, you could download it directly from the blob storage.
         // http://stackoverflow.com/questions/24312527/azure-blob-storage-downloadtobytearray-vs-downloadtostream
         public async Task<FileProperties> GetPropertiesAsync(string filepath) {
-            var folder = environmentName ?? Path.GetDirectoryName(filepath);
-            var filename = environmentName == null ? filepath.Substring(folder.Length) : filepath;
-            var blobClient = storageAccount.CreateCloudBlobClient();
+            var folder = _environmentName ?? Path.GetDirectoryName(filepath);
+            var filename = _environmentName == null ? filepath.Substring(folder.Length) : filepath;
+            var blobClient = _storageAccount.CreateCloudBlobClient();
             var container = blobClient.GetContainerReference(folder);
             var exists = await container.ExistsAsync();
 
@@ -105,9 +103,9 @@ namespace Indice.Services
         }
 
         public async Task<bool> DeleteAsync(string filepath, bool isDirectory = false) {
-            var folder = environmentName ?? Path.GetDirectoryName(filepath);
-            var filename = environmentName == null ? filepath.Substring(folder.Length) : filepath;
-            var blobClient = storageAccount.CreateCloudBlobClient();
+            var folder = _environmentName ?? Path.GetDirectoryName(filepath);
+            var filename = _environmentName == null ? filepath.Substring(folder.Length) : filepath;
+            var blobClient = _storageAccount.CreateCloudBlobClient();
             var container = blobClient.GetContainerReference(folder);
             var exists = await container.ExistsAsync();
 
