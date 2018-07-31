@@ -70,12 +70,20 @@ namespace Indice.AspNetCore.Extensions
         }
 
         /// <summary>
-        /// Adds FileService using Azre blob storage as the backing store
+        /// Adds FileService using Azre blob storage as the backing store.
         /// </summary>
         /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
-        public static IServiceCollection AddFilesAzure(this IServiceCollection services) {
-            services.AddTransient<IFileService, FileServiceAzureStorage>(sp => new FileServiceAzureStorage(sp.GetRequiredService<IConfiguration>().GetConnectionString(FileServiceAzureStorage.CONNECTION_STRING_NAME),
-                sp.GetRequiredService<IHostingEnvironment>().EnvironmentName));
+        /// <param name="action"></param>
+        public static IServiceCollection AddFilesAzure(this IServiceCollection services, Action<FileServiceAzureStorage.FileServiceOptions> action = null) {
+            var serviceProvider = services.BuildServiceProvider();
+
+            var options = new FileServiceAzureStorage.FileServiceOptions {
+                ConnectionString = serviceProvider.GetRequiredService<IConfiguration>().GetConnectionString(FileServiceAzureStorage.CONNECTION_STRING_NAME),
+                EnvironmentName = serviceProvider.GetRequiredService<IHostingEnvironment>().EnvironmentName
+            };
+
+            action?.Invoke(options);
+            services.AddTransient<IFileService, FileServiceAzureStorage>(sp => new FileServiceAzureStorage(options.ConnectionString, options.EnvironmentName));
 
             return services;
         }

@@ -33,7 +33,7 @@
     <PackageReference Include="IdentityServer4" Version="2.2.0" />
     <PackageReference Include="IdentityServer4.AccessTokenValidation" Version="2.6.0" />
     <PackageReference Include="IdentityServer4.EntityFramework" Version="2.1.0" />
-    <PackageReference Include="Indice.AspNetCore" Version="1.2.25" />
+    <PackageReference Include="Indice.AspNetCore" Version="1.2.28" />
     <PackageReference Include="Microsoft.AspNetCore.Identity" Version="2.1.0" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="2.1.0" />
   </ItemGroup>
