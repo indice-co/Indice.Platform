@@ -18,7 +18,7 @@ namespace Indice.AspNetCore.Swagger
         public void Apply(Schema model, SchemaFilterContext context) {
             var validator = _factory.GetValidator(context.SystemType);
 
-            if (validator != null) {
+            if (validator != null && model.Properties != null) {
                 foreach (var item in model.Properties) {
                     var validators = validator.CreateDescriptor().GetValidatorsForMember(item.Key.Pascalize());
 
