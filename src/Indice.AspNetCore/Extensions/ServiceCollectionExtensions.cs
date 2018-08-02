@@ -182,7 +182,7 @@ namespace Indice.AspNetCore.Extensions
             }
 
             if (!Directory.Exists(path)) {
-                throw new ArgumentException($"The specified path '{path}' does not exist.", nameof(path));
+                Directory.CreateDirectory(path);
             }
 
             services.TryAddSingleton(typeof(IDataProtectionEncryptor<>), typeof(DataProtectionEncryptor<>));
