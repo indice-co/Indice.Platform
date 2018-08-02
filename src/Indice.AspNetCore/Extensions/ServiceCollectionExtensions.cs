@@ -19,8 +19,7 @@ namespace Indice.AspNetCore.Extensions
     /// <summary>
     /// Extensions to configure the IServiceCollection of an ASP.NET Core application.
     /// </summary>
-    public static class ServiceCollectionExtensions
-    {
+    public static class ServiceCollectionExtensions {
         /// <summary>
         /// Adds Indice common services.
         /// </summary>
@@ -95,9 +94,9 @@ namespace Indice.AspNetCore.Extensions
         public static IServiceCollection AddFilesLocal(this IServiceCollection services, string storageContainerPath = null) {
             services.AddTransient<IFileService, FileServiceLocal>(sp => {
 
-                if (storageContainerPath == null) { 
+                if (storageContainerPath == null) {
                     var hostingEnvironment = sp.GetRequiredService<IHostingEnvironment>();
-                    var environmentName = Regex.Replace(hostingEnvironment .EnvironmentName ?? "Development", @"\s+", "-").ToLowerInvariant();
+                    var environmentName = Regex.Replace(hostingEnvironment.EnvironmentName ?? "Development", @"\s+", "-").ToLowerInvariant();
                     storageContainerPath = Path.Combine(hostingEnvironment.ContentRootPath, environmentName);
                 }
                 if (!Directory.Exists(storageContainerPath)) {
@@ -132,14 +131,23 @@ namespace Indice.AspNetCore.Extensions
         /// Configures the Data Protection API for the application by using Azure storage.
         /// </summary>
         /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
-        /// <param name="storageConnectionString">The connection string to your Azure storage account.</param>
-        /// <param name="containerName">The name of the container that will be used within the data protection system.</param>
-        /// <param name="applicationName">Sets the unique name of this application within the data protection system.</param>
-        public static void AddAzureDataProtection(this IServiceCollection services, string storageConnectionString, string containerName, string applicationName) {
+        /// <param name="configure">Configure the available options. Null to use defaults</param>
+        public static void AddAzureDataProtection(this IServiceCollection services, Action<AzureDataProtectionOptions> configure = null) {
             services.TryAddSingleton(typeof(IDataProtectionEncryptor<>), typeof(DataProtectionEncryptor<>));
-            var storageAccount = CloudStorageAccount.Parse(storageConnectionString);
+            var serviceProvider = services.BuildServiceProvider();
+
+            var hostingEnvironment = serviceProvider.GetRequiredService<IHostingEnvironment>();
+            var environmentName = Regex.Replace(hostingEnvironment.EnvironmentName ?? "Development", @"\s+", "-").ToLowerInvariant();
+            var options = new AzureDataProtectionOptions {
+                StorageConnectionString = serviceProvider.GetRequiredService<IConfiguration>().GetConnectionString("StorageConnection"),
+                ContainerName = environmentName,
+                ApplicationName = hostingEnvironment.ApplicationName
+            };
+            configure?.Invoke(options);
+
+            var storageAccount = CloudStorageAccount.Parse(options.StorageConnectionString);
             var blobClient = storageAccount.CreateCloudBlobClient();
-            var container = blobClient.GetContainerReference(containerName);
+            var container = blobClient.GetContainerReference(options.ContainerName);
             container.CreateIfNotExistsAsync().Wait();
 
             // Enables data protection services to the specified IServiceCollection.
@@ -156,7 +164,7 @@ namespace Indice.AspNetCore.Extensions
                     // Configure the system not to automatically roll keys (create new keys) as they approach expiration.
                     //.DisableAutomaticKeyGeneration()
                     // This prevents the apps from understanding each other's protected payloads (e.x Azure slots). To share protected payloads between two apps, use SetApplicationName with the same value for each app.
-                    .SetApplicationName(applicationName);
+                    .SetApplicationName(options.ApplicationName);
         }
 
         /// <summary>
@@ -164,9 +172,15 @@ namespace Indice.AspNetCore.Extensions
         /// </summary>
         /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
         /// <param name="path">The path to the file system that will be used within the data protection system.</param>
-        /// <param name="applicationName">Sets the unique name of this application within the data protection system.</param>
         /// <exception cref="ArgumentException">When the </exception>
-        public static void AddFileSystemDataProtection(this IServiceCollection services, string path, string applicationName) {
+        public static void AddFileSystemDataProtection(this IServiceCollection services, string path = null) {
+            var serviceProvider = services.BuildServiceProvider();
+            var hostingEnvironment = serviceProvider.GetRequiredService<IHostingEnvironment>();
+            if (path == null) {
+                var environmentName = Regex.Replace(hostingEnvironment.EnvironmentName ?? "Development", @"\s+", "-").ToLowerInvariant();
+                path = Path.Combine(hostingEnvironment.ContentRootPath, environmentName);
+            }
+
             if (!Directory.Exists(path)) {
                 throw new ArgumentException($"The specified path '{path}' does not exist.", nameof(path));
             }
@@ -187,7 +201,25 @@ namespace Indice.AspNetCore.Extensions
                     // Configure the system not to automatically roll keys (create new keys) as they approach expiration.
                     //.DisableAutomaticKeyGeneration()
                     // This prevents the apps from understanding each other's protected payloads (e.x Azure slots). To share protected payloads between two apps, use SetApplicationName with the same value for each app.
-                    .SetApplicationName(applicationName);
+                    .SetApplicationName(hostingEnvironment.ApplicationName);
+        }
+
+        /// <summary>
+        /// Options for configuring DataProtection API using azure Blob Storage backend.
+        /// </summary>
+        public class AzureDataProtectionOptions {
+            /// <summary>
+            /// The connection string to your Azure storage account.
+            /// </summary>
+            public string StorageConnectionString { get; set; }
+            /// <summary>
+            /// The name of the container that will be used within the data protection system.
+            /// </summary>
+            public string ContainerName { get; set; }
+            /// <summary>
+            /// Sets the unique name of this application within the data protection system.
+            /// </summary>
+            public string ApplicationName { get; set; }
         }
     }
 }
