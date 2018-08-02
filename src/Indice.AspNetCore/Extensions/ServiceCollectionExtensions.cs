@@ -97,9 +97,12 @@ namespace Indice.AspNetCore.Extensions
                 if (storageContainerPath == null) {
                     var hostingEnvironment = sp.GetRequiredService<IHostingEnvironment>();
                     var environmentName = Regex.Replace(hostingEnvironment.EnvironmentName ?? "Development", @"\s+", "-").ToLowerInvariant();
-                    storageContainerPath = Path.Combine(hostingEnvironment.ContentRootPath, environmentName);
+                    storageContainerPath = Path.Combine(hostingEnvironment.ContentRootPath, "App_Data", environmentName);
                 }
                 if (!Directory.Exists(storageContainerPath)) {
+                    if (!Directory.Exists(Path.GetDirectoryName(storageContainerPath))) {
+                        Directory.CreateDirectory(Path.GetDirectoryName(storageContainerPath));
+                    }
                     Directory.CreateDirectory(storageContainerPath);
                 }
                 return new FileServiceLocal(storageContainerPath);
@@ -132,7 +135,7 @@ namespace Indice.AspNetCore.Extensions
         /// </summary>
         /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
         /// <param name="configure">Configure the available options. Null to use defaults</param>
-        public static void AddAzureDataProtection(this IServiceCollection services, Action<AzureDataProtectionOptions> configure = null) {
+        public static void AddDataProtectionAzure(this IServiceCollection services, Action<AzureDataProtectionOptions> configure = null) {
             services.TryAddSingleton(typeof(IDataProtectionEncryptor<>), typeof(DataProtectionEncryptor<>));
             var serviceProvider = services.BuildServiceProvider();
 
@@ -173,15 +176,18 @@ namespace Indice.AspNetCore.Extensions
         /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
         /// <param name="path">The path to the file system that will be used within the data protection system.</param>
         /// <exception cref="ArgumentException">When the </exception>
-        public static void AddFileSystemDataProtection(this IServiceCollection services, string path = null) {
+        public static void AddDataProtectionLocal(this IServiceCollection services, string path = null) {
             var serviceProvider = services.BuildServiceProvider();
             var hostingEnvironment = serviceProvider.GetRequiredService<IHostingEnvironment>();
             if (path == null) {
                 var environmentName = Regex.Replace(hostingEnvironment.EnvironmentName ?? "Development", @"\s+", "-").ToLowerInvariant();
-                path = Path.Combine(hostingEnvironment.ContentRootPath, environmentName);
+                path = Path.Combine(hostingEnvironment.ContentRootPath, "App_Data", environmentName);
             }
 
             if (!Directory.Exists(path)) {
+                if (!Directory.Exists(Path.GetDirectoryName(path))) {
+                    Directory.CreateDirectory(Path.GetDirectoryName(path));
+                }
                 Directory.CreateDirectory(path);
             }
 
