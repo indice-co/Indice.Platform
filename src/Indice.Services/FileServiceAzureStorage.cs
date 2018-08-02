@@ -9,6 +9,7 @@ namespace Indice.Services
 {
     public class FileServiceAzureStorage : IFileService
     {
+        public const string CONNECTION_STRING_NAME = "StorageConnection";
         private readonly CloudStorageAccount _storageAccount;
         private readonly string _environmentName;
 
@@ -132,6 +133,12 @@ namespace Indice.Services
             }
 
             return deleted;
+        }
+
+        public class FileServiceOptions
+        {
+            public string ConnectionString { get; set; }
+            public string EnvironmentName { get; set; }
         }
     }
 }
