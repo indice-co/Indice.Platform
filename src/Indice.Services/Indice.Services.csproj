@@ -32,6 +32,6 @@
     <PackageReference Include="Indice.Common" Version="1.2.13" />
     <PackageReference Include="MailKit" Version="2.0.4" />
     <PackageReference Include="WindowsAzure.Storage" Version="9.2.0" />
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0-beta-63102-01" PrivateAssets="All" />
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0-beta-63127-02" PrivateAssets="All" />
   </ItemGroup>
 </Project>

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Text.RegularExpressions;
 using Indice.AspNetCore.TagHelpers;
 using Indice.Configuration;
 using Indice.Services;
@@ -70,26 +71,45 @@ namespace Indice.AspNetCore.Extensions
         }
 
         /// <summary>
-        /// Adds FileService using Azre blob storage as the backing store.
+        /// Adds <see cref="IFileService"/> using Azre blob storage as the backing store.
         /// </summary>
         /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
         /// <param name="action"></param>
         public static IServiceCollection AddFilesAzure(this IServiceCollection services, Action<FileServiceAzureStorage.FileServiceOptions> action = null) {
-            var serviceProvider = services.BuildServiceProvider();
-
-            var options = new FileServiceAzureStorage.FileServiceOptions {
-                ConnectionString = serviceProvider.GetRequiredService<IConfiguration>().GetConnectionString(FileServiceAzureStorage.CONNECTION_STRING_NAME),
-                EnvironmentName = serviceProvider.GetRequiredService<IHostingEnvironment>().EnvironmentName
-            };
-
-            action?.Invoke(options);
-            services.AddTransient<IFileService, FileServiceAzureStorage>(sp => new FileServiceAzureStorage(options.ConnectionString, options.EnvironmentName));
-
+            services.AddTransient<IFileService, FileServiceAzureStorage>(sp => {
+                var options = new FileServiceAzureStorage.FileServiceOptions {
+                    ConnectionString = sp.GetRequiredService<IConfiguration>().GetConnectionString(FileServiceAzureStorage.CONNECTION_STRING_NAME),
+                    EnvironmentName = sp.GetRequiredService<IHostingEnvironment>().EnvironmentName
+                };
+                action?.Invoke(options);
+                return new FileServiceAzureStorage(options.ConnectionString, options.EnvironmentName);
+            });
             return services;
         }
 
         /// <summary>
-        /// Adds FileService using in-memory storage as the backing store. Only for testing purposes.
+        /// Adds <see cref="IFileService"/> using Local filesystem as the backing store.
+        /// </summary>
+        /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
+        /// <param name="storageContainerPath"></param>
+        public static IServiceCollection AddFilesLocal(this IServiceCollection services, string storageContainerPath = null) {
+            services.AddTransient<IFileService, FileServiceLocal>(sp => {
+
+                if (storageContainerPath == null) { 
+                    var hostingEnvironment = sp.GetRequiredService<IHostingEnvironment>();
+                    var environmentName = Regex.Replace(hostingEnvironment .EnvironmentName ?? "Development", @"\s+", "-").ToLowerInvariant();
+                    storageContainerPath = Path.Combine(hostingEnvironment.ContentRootPath, environmentName);
+                }
+                if (!Directory.Exists(storageContainerPath)) {
+                    Directory.CreateDirectory(storageContainerPath);
+                }
+                return new FileServiceLocal(storageContainerPath);
+            });
+            return services;
+        }
+
+        /// <summary>
+        /// Adds <see cref="IFileService"/> using in-memory storage as the backing store. Only for testing purposes.
         /// </summary>
         /// <param name="services"></param>
         /// <returns></returns>

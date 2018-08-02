@@ -3,7 +3,7 @@
     <Description>Indice.AspNetCore Class Library</Description>
     <Copyright>Copyright (c) 2018 Indice</Copyright>
     <AssemblyTitle>Indice.AspNetCore</AssemblyTitle>
-    <VersionPrefix>1.2.29</VersionPrefix>
+    <VersionPrefix>1.2.30</VersionPrefix>
     <!--<VersionSuffix>beta1</VersionSuffix>-->
     <Authors>c.leftheris, g.manoltzas</Authors>
     <TargetFramework>netstandard2.0</TargetFramework>
@@ -15,7 +15,7 @@
     <PackageId>Indice.AspNetCore</PackageId>
     <PackageTags>AspNetCore;TagHelpers;Grid;Sorting;Paging</PackageTags>
     <PackageReleaseNotes>
-      Bug fix when Swagger Fluent validation filter encounters Validatior of ValueType.
+      Added support for local filesystem FileSerivice.
     </PackageReleaseNotes>
     <PackageIconUrl>https://raw.githubusercontent.com/indice-co/Indice.AspNet/master/icon/icon-128.png</PackageIconUrl>
     <PackageProjectUrl>https://github.com/indice-co/Indice.AspNet</PackageProjectUrl>
@@ -30,11 +30,11 @@
     <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="FluentValidation" Version="7.6.103" />
-    <PackageReference Include="Humanizer.Core" Version="2.3.3" />
-    <PackageReference Include="Indice.Common" Version="1.2.12" />
-    <PackageReference Include="Indice.Services" Version="1.0.6" />
-    <PackageReference Include="Markdig" Version="0.15.0" />
+    <PackageReference Include="FluentValidation" Version="7.6.104" />
+    <PackageReference Include="Humanizer.Core" Version="2.4.2" />
+    <PackageReference Include="Indice.Common" Version="1.2.13" />
+    <PackageReference Include="Indice.Services" Version="1.0.9" />
+    <PackageReference Include="Markdig" Version="0.15.1" />
     <PackageReference Include="Microsoft.AspNetCore.DataProtection.AzureStorage" Version="2.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.DataProtection.Extensions" Version="2.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.TagHelpers" Version="2.0.0" />
@@ -44,6 +44,6 @@
     <PackageReference Include="Swashbuckle.AspNetCore.Swagger" Version="2.5.0" />
     <PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" Version="2.5.0" />
     <PackageReference Include="System.Security.Claims" Version="4.3.0" />
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0-beta-63102-01" PrivateAssets="All" />
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0-beta-63127-02" PrivateAssets="All" />
   </ItemGroup>
 </Project>
