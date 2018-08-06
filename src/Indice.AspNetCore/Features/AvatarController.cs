@@ -11,12 +11,13 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Net.Http.Headers;
 
-namespace Indice.AspNetCore.Controllers
+namespace Indice.AspNetCore.Features
 {
     /// <summary>
     /// Creates an avatar based on a given name (first and last name) plus parameters
     /// </summary>
-    public class AvatarController : Controller 
+    [Route("avatar")]
+    internal class AvatarController : Controller 
     {
         /// <summary>
         /// avatar controller constructor
@@ -32,7 +33,7 @@ namespace Indice.AspNetCore.Controllers
         /// <param name="fullname"></param>
         /// <param name="size"></param>
         /// <returns></returns>
-        [HttpGet("avatar/{fullname}/{size?}"), ResponseCache(Duration = 345600, Location = ResponseCacheLocation.Any, VaryByQueryKeys = new[] { "v" })]
+        [HttpGet("{fullname}/{size?}"), ResponseCache(Duration = 345600, Location = ResponseCacheLocation.Any, VaryByQueryKeys = new[] { "v" })]
         [AllowAnonymous]
         [ApiExplorerSettings(IgnoreApi = true)]
         public IActionResult GetAvatar([FromRoute] string fullname, [FromRoute] int? size) => GetAvatar(fullname, size, null);
@@ -44,7 +45,7 @@ namespace Indice.AspNetCore.Controllers
         /// <param name="size"></param>
         /// <param name="ext">the file extension (png, jpg)</param>
         /// <returns></returns>
-        [HttpGet("avatar/{fullname}/{size}.{ext?}"), ResponseCache(Duration = 345600, Location = ResponseCacheLocation.Any, VaryByQueryKeys = new[] { "v" })]
+        [HttpGet("{fullname}/{size}.{ext?}"), ResponseCache(Duration = 345600, Location = ResponseCacheLocation.Any, VaryByQueryKeys = new[] { "v" })]
         [AllowAnonymous]
         [ApiExplorerSettings(IgnoreApi = true)]
         public IActionResult GetAvatar([FromRoute] string fullname, [FromRoute] int? size, [FromRoute] string ext) => GetAvatar(fullname, size, null, ext);
@@ -58,20 +59,12 @@ namespace Indice.AspNetCore.Controllers
         /// <param name="background"></param>
         /// <param name="ext"></param>
         /// <returns></returns>
-        [HttpGet("avatar/{fullname}/{size}/{background}.{ext?}"), ResponseCache(Duration = 345600, Location = ResponseCacheLocation.Any, VaryByQueryKeys = new[] { "v" })]
+        [HttpGet("{fullname}/{size}/{background}.{ext?}"), ResponseCache(Duration = 345600, Location = ResponseCacheLocation.Any, VaryByQueryKeys = new[] { "v" })]
         [AllowAnonymous]
         [ApiExplorerSettings(IgnoreApi = true)]
         public IActionResult GetAvatar([FromRoute] string fullname, [FromRoute] int? size, [FromRoute] string background, [FromRoute] string ext) {
             if (string.IsNullOrWhiteSpace(fullname)) {
                 return BadRequest();
-            }
-            if (!size.HasValue) {
-                ModelState.AddModelError(nameof(size), "Size is required");
-                return BadRequest(ModelState);
-            }
-            if (string.IsNullOrWhiteSpace(background)) {
-                ModelState.AddModelError(nameof(background), "Background is required");
-                return BadRequest(ModelState);
             }
 
             var parts = fullname.Trim().Split(' ');
