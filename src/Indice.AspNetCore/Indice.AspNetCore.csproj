@@ -3,7 +3,7 @@
     <Description>Indice.AspNetCore Class Library</Description>
     <Copyright>Copyright (c) 2018 Indice</Copyright>
     <AssemblyTitle>Indice.AspNetCore</AssemblyTitle>
-    <VersionPrefix>1.2.33</VersionPrefix>
+    <VersionPrefix>1.2.34</VersionPrefix>
     <!--<VersionSuffix>beta1</VersionSuffix>-->
     <Authors>c.leftheris, g.manoltzas</Authors>
     <TargetFramework>netstandard2.0</TargetFramework>
@@ -15,7 +15,7 @@
     <PackageId>Indice.AspNetCore</PackageId>
     <PackageTags>AspNetCore;TagHelpers;Grid;Sorting;Paging</PackageTags>
     <PackageReleaseNotes>
-      Added support for local filesystem FileSerivice.
+      Avatar generator.
     </PackageReleaseNotes>
     <PackageIconUrl>https://raw.githubusercontent.com/indice-co/Indice.AspNet/master/icon/icon-128.png</PackageIconUrl>
     <PackageProjectUrl>https://github.com/indice-co/Indice.AspNet</PackageProjectUrl>
@@ -41,6 +41,7 @@
     <PackageReference Include="Microsoft.AspNetCore.Routing.Abstractions" Version="2.0.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="2.0.0" />
     <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="2.0.0" />
+    <PackageReference Include="SixLabors.ImageSharp.Drawing" Version="1.0.0-beta0004" />
     <PackageReference Include="Swashbuckle.AspNetCore.Swagger" Version="2.5.0" />
     <PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" Version="2.5.0" />
     <PackageReference Include="System.Security.Claims" Version="4.3.0" />
