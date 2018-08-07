@@ -97,12 +97,9 @@ namespace Indice.AspNetCore.Extensions
                 if (storageContainerPath == null) {
                     var hostingEnvironment = sp.GetRequiredService<IHostingEnvironment>();
                     var environmentName = Regex.Replace(hostingEnvironment.EnvironmentName ?? "Development", @"\s+", "-").ToLowerInvariant();
-                    storageContainerPath = Path.Combine(hostingEnvironment.ContentRootPath, "App_Data", environmentName);
+                    storageContainerPath = Path.Combine(hostingEnvironment.ContentRootPath, "App_Data");
                 }
                 if (!Directory.Exists(storageContainerPath)) {
-                    if (!Directory.Exists(Path.GetDirectoryName(storageContainerPath))) {
-                        Directory.CreateDirectory(Path.GetDirectoryName(storageContainerPath));
-                    }
                     Directory.CreateDirectory(storageContainerPath);
                 }
                 return new FileServiceLocal(storageContainerPath);
@@ -181,13 +178,10 @@ namespace Indice.AspNetCore.Extensions
             var hostingEnvironment = serviceProvider.GetRequiredService<IHostingEnvironment>();
             if (path == null) {
                 var environmentName = Regex.Replace(hostingEnvironment.EnvironmentName ?? "Development", @"\s+", "-").ToLowerInvariant();
-                path = Path.Combine(hostingEnvironment.ContentRootPath, "App_Data", environmentName);
+                path = Path.Combine(hostingEnvironment.ContentRootPath, "App_Data");
             }
 
             if (!Directory.Exists(path)) {
-                if (!Directory.Exists(Path.GetDirectoryName(path))) {
-                    Directory.CreateDirectory(Path.GetDirectoryName(path));
-                }
                 Directory.CreateDirectory(path);
             }
 
