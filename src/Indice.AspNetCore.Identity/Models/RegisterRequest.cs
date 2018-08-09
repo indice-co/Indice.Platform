@@ -18,6 +18,9 @@ namespace Indice.AspNetCore.Identity.Models
         public string PhoneNumber { get; set; }
         public string ReturnUrl { get; set; }
 
+        public bool? HasReadPrivacyPolicy { get; set; }
+        public bool? HasAcceptedTerms { get; set; }
+
         /// <summary>
         /// List of claims where each item is formatted as claimType:claimValue collection of strings.
         /// </summary>
