@@ -27,7 +27,7 @@ namespace Indice.AspNetCore.Middleware
         /// Route base is the segment of the route that all tenant operations are children. 
         /// Examples of RouteBase for a multitenant api
         /// </summary>
-        protected string RouteBase { get; set; } = "subscriptions";
+        protected string RouteBase { get; set; }
 
         /// <summary>
         /// Constructs a Subscription middleware passing the next request delegate in the pipeline.
@@ -39,7 +39,7 @@ namespace Indice.AspNetCore.Middleware
         /// </param>
         public TenantMiddleware(RequestDelegate next, string routeBase) {
             _next = next;
-            routeBase = RouteBase;
+            RouteBase = routeBase ?? "subscriptions";
         }
 
         /// <summary>
