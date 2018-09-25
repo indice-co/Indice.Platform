@@ -19,7 +19,7 @@ namespace Indice.AspNetCore.Identity.Filters
         /// Constractor Defaults to allowing self origin plus google for fonts and scripts (google cdn) and wildcard for images.
         /// </summary>
         public SecurityHeadersAttribute() : this(null) { }
-        
+
         /// <summary>
         /// Constractor with custom security policy.
         /// </summary>
@@ -148,7 +148,7 @@ namespace Indice.AspNetCore.Identity.Filters
         /// </summary>
         /// <returns></returns>
         public override string ToString() => string.Join("; ", this);
-        
+
         private string GetValueOrDefult(string key) => values.ContainsKey(key) ? values[key] : null;
 
         private void SetValue(string key, string value) {
@@ -159,13 +159,16 @@ namespace Indice.AspNetCore.Identity.Filters
             }
         }
 
-        private string GetUrlCasing(string pascalCasing) => Regex.Replace(pascalCasing, "([A-Z][a-z]+)", "-$1", RegexOptions.Compiled).Trim().ToLowerInvariant();
+        private string GetUrlCasing(string pascalCasing) => Regex.Replace(pascalCasing, "([A-Z][a-z]+)", "-$1", RegexOptions.Compiled).Trim().ToLowerInvariant().TrimStart('-');
 
         /// <summary>
         /// Helper object that represents a browser CSP report request object.
         /// </summary>
         public class ReportRequest
         {
+            /// <summary>
+            /// The CSP report member
+            /// </summary>
             [JsonProperty(PropertyName = "csp-report")]
             public Report CspReport { get; set; }
         }
@@ -175,24 +178,45 @@ namespace Indice.AspNetCore.Identity.Filters
         /// </summary>
         public class Report
         {
+            /// <summary>
+            /// Document uri that the error happened
+            /// </summary>
             [JsonProperty(PropertyName = "document-uri")]
             public string DocumentUri { get; set; }
 
+            /// <summary>
+            /// The referrer
+            /// </summary>
             [JsonProperty(PropertyName = "referrer")]
             public string Referrer { get; set; }
 
+            /// <summary>
+            /// Which directive was violated
+            /// </summary>
             [JsonProperty(PropertyName = "violated-directive")]
             public string ViolatedDirective { get; set; }
 
+            /// <summary>
+            /// Effective directive
+            /// </summary>
             [JsonProperty(PropertyName = "effective-directive")]
             public string EffectiveDirective { get; set; }
 
+            /// <summary>
+            /// Original policy
+            /// </summary>
             [JsonProperty(PropertyName = "original-policy")]
             public string OriginalPolicy { get; set; }
 
+            /// <summary>
+            /// The resource uri that was blocked
+            /// </summary>
             [JsonProperty(PropertyName = "blocked-uri")]
             public string BlockedUri { get; set; }
 
+            /// <summary>
+            /// Status code
+            /// </summary>
             [JsonProperty(PropertyName = "status-code")]
             public int StatusCode { get; set; }
         }
