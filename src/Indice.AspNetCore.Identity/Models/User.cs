@@ -38,9 +38,14 @@ namespace Indice.AspNetCore.Identity.Models
         }
 
         /// <summary>
-        /// Date that the user was registered
+        /// Date that the user was created
         /// </summary>
-        public DateTime RegisteredAt { get; set; }
+        public DateTimeOffset CreateDate { get; set; }
+
+        /// <summary>
+        /// Date that represents the last time the user changed his password.
+        /// </summary>
+        public DateTimeOffset? LastPasswordChange { get; set; }
 
         /// <summary>
         /// System administrator Indicator.

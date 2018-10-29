@@ -4,6 +4,7 @@ using IdentityServer4.Services;
 using IdentityServer4.Validation;
 using Indice.AspNetCore.Identity.Models;
 using Indice.AspNetCore.Identity.Services;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -16,18 +17,6 @@ namespace Indice.AspNetCore.Identity.Extensions
     public static class IdentityServerBuilderExtensions
     {
         /// <summary>
-        /// Setup Users store.
-        /// </summary>
-        /// <typeparam name="TUser"></typeparam>
-        /// <param name="builder"></param>
-        /// <returns></returns>
-        public static IIdentityServerBuilder AddIdentityUsersStore<TUser>(this IIdentityServerBuilder builder) where TUser : class, new() {
-            builder.Services.AddTransient<IProfileService, ProfileService<User>>();
-            builder.Services.AddTransient<IResourceOwnerPasswordValidator, ResourceOwnerPasswordValidator<User>>();
-            return builder;
-        }
-
-        /// <summary>
         /// Setup an Event sink to filter login events and potentially log them into a persistent store like a db or a file.
         /// </summary>
         /// <typeparam name="TEventSink"></typeparam>
@@ -35,6 +24,17 @@ namespace Indice.AspNetCore.Identity.Extensions
         /// <returns></returns>
         public static IIdentityServerBuilder AddEventSink<TEventSink>(this IIdentityServerBuilder builder) where TEventSink : class, IEventSink {
             builder.Services.AddTransient<IEventSink, TEventSink>();
+            return builder;
+        }
+
+        /// <summary>
+        /// Setup an factory that is going to be generating the claims principal.
+        /// </summary>
+        /// <typeparam name="TUserClaimsPrincipalFactory"></typeparam>
+        /// <param name="builder"></param>
+        /// <returns></returns>
+        public static IIdentityServerBuilder AddClaimsTransform<TUserClaimsPrincipalFactory>(this IIdentityServerBuilder builder) where TUserClaimsPrincipalFactory : class, IUserClaimsPrincipalFactory<User> {
+            builder.Services.AddTransient<IUserClaimsPrincipalFactory<User>, TUserClaimsPrincipalFactory>();
             return builder;
         }
 

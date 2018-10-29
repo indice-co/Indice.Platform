@@ -21,6 +21,11 @@ namespace Indice.AspNetCore.Identity.Data
         }
 
         /// <summary>
+        /// Stores all previous passwords of a user for future validation checks.
+        /// </summary>
+        public DbSet<UserPassword> UserPasswordHistory { get; set; }
+
+        /// <summary>
         /// Configures schema needed for the Identity framework
         /// </summary>
         /// <param name="builder"></param>
@@ -33,6 +38,11 @@ namespace Indice.AspNetCore.Identity.Data
             builder.Entity<IdentityUserRole<string>>().ToTable("UserRole", "auth");
             builder.Entity<IdentityUserToken<string>>().ToTable("UserToken", "auth");
             builder.Entity<IdentityUserLogin<string>>().ToTable("UserLogin", "auth");
+            builder.Entity<UserPassword>(b => {
+                b.ToTable(nameof(UserPassword), "auth");
+                b.HasKey(x => x.Id);
+                b.HasOne<User>().WithMany().HasForeignKey(x => x.UserId);
+            });
         }
     }
 }
