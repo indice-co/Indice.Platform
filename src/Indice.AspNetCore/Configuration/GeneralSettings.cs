@@ -26,6 +26,11 @@
         public string ApplicationName { get; set; } = "My App name";
 
         /// <summary>
+        /// The name of the organization or brand.
+        /// </summary>
+        public string Organization { get; set; } = "Indice OE";
+
+        /// <summary>
         /// A descritpion for the app.
         /// </summary>
         public string ApplicationDescription { get; set; } = "My App description.";

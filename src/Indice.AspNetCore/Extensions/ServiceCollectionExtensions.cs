@@ -27,6 +27,7 @@ namespace Indice.AspNetCore.Extensions
         /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
         public static IServiceCollection AddIndiceServices(this IServiceCollection services, IConfiguration configuration) {
             services.Configure<GeneralSettings>(configuration.GetSection(GeneralSettings.Name));
+            services.AddTransient((sp) => sp.GetRequiredService<IOptions<GeneralSettings>>().Value);
             return services;
         }
 
