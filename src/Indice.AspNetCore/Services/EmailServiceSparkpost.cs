@@ -19,36 +19,63 @@ using Newtonsoft.Json;
 
 namespace Indice.Services
 {
-
+    /// <summary>
+    /// Custom settings that are used to send emails via SparkPost
+    /// </summary>
     public class EmailServiceSparkPostSettings
     {
+        /// <summary>
+        /// The config section name.
+        /// </summary>
         public const string Name = "SparkPost";
+
+        /// <summary>
+        /// The default sernder (ie no-reply@indice.gr)
+        /// </summary>
         public string Sender { get; set; }
+
+        /// <summary>
+        /// The SparkPost API key
+        /// </summary>
         public string ApiKey { get; set; }
-        public string Api { get; set; }
+
+        /// <summary>
+        /// The SparkPost API url (ie https://api.sparkpost.com/api/v1/)
+        /// </summary>
+        public string Api { get; set; } = "https://api.sparkpost.com/api/v1/";
     }
 
     /// <summary>
     /// Spark post implementation for the email service abstraction.
     /// https://developers.sparkpost.com/api/transmissions.html
     /// </summary>
-    public class EmailServiceSparkpost : IEmailService
+    public class EmailServiceSparkpost : EmailServiceRazorBase
     {
         private readonly EmailServiceSparkPostSettings _settings;
-        private readonly ICompositeViewEngine _viewEngine;
-        private readonly ITempDataProvider _tempDataProvider;
-        private readonly IHttpContextAccessor _httpContextAccessor;
-
-        public EmailServiceSparkpost(EmailServiceSparkPostSettings settings, ICompositeViewEngine viewEngine, ITempDataProvider tempDataProvider, IHttpContextAccessor httpContextAccessor) {
+        
+        /// <summary>
+        /// constructs the service
+        /// </summary>
+        /// <param name="settings"></param>
+        /// <param name="viewEngine"></param>
+        /// <param name="tempDataProvider"></param>
+        /// <param name="httpContextAccessor"></param>
+        public EmailServiceSparkpost(EmailServiceSparkPostSettings settings, ICompositeViewEngine viewEngine, ITempDataProvider tempDataProvider, IHttpContextAccessor httpContextAccessor)
+            : base(viewEngine, tempDataProvider, httpContextAccessor) {
             _settings = settings ?? throw new ArgumentNullException(nameof(settings));
-            _viewEngine = viewEngine;
-            _tempDataProvider = tempDataProvider;
-            _httpContextAccessor = httpContextAccessor;
         }
 
-        public async Task SendAsync(string[] recipients, string subject, string body) => await SendAsync<object>(recipients, subject, body, "Email", null);
-
-        public async Task SendAsync<TModel>(string[] recipients, string subject, string body, string template, TModel data) where TModel : class {
+        /// <summary>
+        /// Sends an email.
+        /// </summary>
+        /// <typeparam name="TModel">The type of the <paramref name="data"/> that will be applied to the template.</typeparam>
+        /// <param name="recipients">The recipients of the email message.</param>
+        /// <param name="subject">The subject of the email message.</param>
+        /// <param name="body">The body of the email message.</param>
+        /// <param name="template">The template of the email message.</param>
+        /// <param name="data">The data model that contains information to render in the email message.</param>
+        /// <returns></returns>
+        public override async Task SendAsync<TModel>(string[] recipients, string subject, string body, string template, TModel data) {
             using (var httpClient = new HttpClient()) {
                 httpClient.BaseAddress = new Uri(_settings.Api);
                 httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(_settings.ApiKey);
@@ -70,47 +97,5 @@ namespace Indice.Services
                 }
             }
         }
-
-        protected virtual async Task<string> GetHtmlAsync<TModel>(string body, string subject, string template, TModel data) where TModel : class {
-            var html = body;
-            var viewName = template;
-
-            var viewDataDictionary = new ViewDataDictionary(new EmptyModelMetadataProvider(), new ModelStateDictionary()) {
-                { "Subject", subject },
-                { "Body", body }
-            };
-
-            viewDataDictionary.Model = data != null ? ToExpandoObject(data) : null;
-            var actionContext = new ActionContext(_httpContextAccessor.HttpContext, new RouteData(), new ActionDescriptor());
-            var tempDataDictionary = new TempDataDictionary(_httpContextAccessor.HttpContext, _tempDataProvider);
-
-            using (var writer = new System.IO.StringWriter()) {
-                var viewResult = _viewEngine.FindView(actionContext, viewName, false);
-                var viewContext = new ViewContext(actionContext, viewResult.View, viewDataDictionary, tempDataDictionary, writer, new HtmlHelperOptions());
-                await viewResult.View.RenderAsync(viewContext);
-                html = writer.GetStringBuilder().ToString();
-            }
-
-            return html;
-        }
-
-        private static ExpandoObject ToExpandoObject<T>(T value) {
-            var obj = new ExpandoObject() as IDictionary<string, object>;
-
-            foreach (var property in typeof(T).GetProperties(BindingFlags.Public | BindingFlags.Instance)) {
-                obj.Add(property.Name, property.GetValue(value, null));
-            }
-
-            return obj as ExpandoObject;
-        }
-    }
-
-    public static class EmailServiceExtensions
-    {
-        public static async Task SendAsync(this IEmailService emailService, string recipient, string subject, string body) =>
-            await emailService.SendAsync<object>(new string[] { recipient }, subject, body, "Email", null);
-
-        public static async Task SendAsync<TModel>(this IEmailService emailService, string recipient, string subject, string body, string template, TModel data) where TModel : class =>
-            await emailService.SendAsync(new string[] { recipient }, subject, body, template, data);
     }
 }

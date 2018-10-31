@@ -8,10 +8,21 @@ using Newtonsoft.Json;
 
 namespace Indice.Services
 {
+    /// <summary>
+    /// Sms Service implementation using the Yuboto sms service gateway.
+    /// </summary>
     public class SmsServiceYuboto : ISmsService, IDisposable
     {
+        /// <summary>
+        /// The settings required to configure the service
+        /// </summary>
         protected SmsServiceSettings Settings { get; }
         HttpClient _http;
+
+        /// <summary>
+        /// Constructs the <see cref="SmsServiceYuboto"/> using the <seealso cref="SmsServiceSettings"/>
+        /// </summary>
+        /// <param name="settings"></param>
         public SmsServiceYuboto(SmsServiceSettings settings) {
             Settings = settings ?? throw new ArgumentNullException(nameof(settings));
 
@@ -21,6 +32,13 @@ namespace Indice.Services
             //_http.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue(_Settings.ApiKey);
         }
 
+        /// <summary>
+        /// Send an sms to a recipient
+        /// </summary>
+        /// <param name="destination"></param>
+        /// <param name="subject"></param>
+        /// <param name="body"></param>
+        /// <returns></returns>
         public async Task SendAsync(string destination, string subject, string body) {
             HttpResponseMessage httpResponse;
             YubotoResponse response;
@@ -46,6 +64,9 @@ namespace Indice.Services
             }
         }
 
+        /// <summary>
+        /// disposes the http client
+        /// </summary>
         public void Dispose() {
             _http.Dispose();
         }

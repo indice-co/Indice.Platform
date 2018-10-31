@@ -7,12 +7,23 @@ using Microsoft.WindowsAzure.Storage.Blob;
 
 namespace Indice.Services
 {
+    /// <summary>
+    /// Azure storage <see cref="IFileService"/> implementation.
+    /// </summary>
     public class FileServiceAzureStorage : IFileService
     {
+        /// <summary>
+        /// The conection string parameter name. The setting key that will be searched inside the configuration.
+        /// </summary>
         public const string CONNECTION_STRING_NAME = "StorageConnection";
         private readonly CloudStorageAccount _storageAccount;
         private readonly string _environmentName;
 
+        /// <summary>
+        /// Constructs the service
+        /// </summary>
+        /// <param name="connectionString"></param>
+        /// <param name="environmentName"></param>
         public FileServiceAzureStorage(string connectionString, string environmentName) {
             if (string.IsNullOrEmpty(connectionString)) {
                 throw new ArgumentNullException(nameof(connectionString));
@@ -26,6 +37,12 @@ namespace Indice.Services
             _environmentName = Regex.Replace(environmentName ?? "Development", @"\s+", "-").ToLowerInvariant();
         }
 
+        /// <summary>
+        /// Save the file
+        /// </summary>
+        /// <param name="filepath"></param>
+        /// <param name="stream"></param>
+        /// <returns></returns>
         public async Task SaveAsync(string filepath, Stream stream) {
             var folder = _environmentName ?? Path.GetDirectoryName(filepath);
             var filename = _environmentName == null ? filepath.Substring(folder.Length) : filepath;
@@ -39,6 +56,11 @@ namespace Indice.Services
 
         // Instead of streaming the blob through your server, you could download it directly from the blob storage.
         // http://stackoverflow.com/questions/24312527/azure-blob-storage-downloadtobytearray-vs-downloadtostream
+        /// <summary>
+        /// Retrieve the data for a file.
+        /// </summary>
+        /// <param name="filepath"></param>
+        /// <returns></returns>
         public async Task<byte[]> GetAsync(string filepath) {
             var folder = _environmentName ?? Path.GetDirectoryName(filepath);
             var filename = _environmentName == null ? filepath.Substring(folder.Length) : filepath;
@@ -71,6 +93,11 @@ namespace Indice.Services
 
         // Instead of streaming the blob through your server, you could download it directly from the blob storage.
         // http://stackoverflow.com/questions/24312527/azure-blob-storage-downloadtobytearray-vs-downloadtostream
+        /// <summary>
+        /// Get the file's properties (Metadata
+        /// </summary>
+        /// <param name="filepath"></param>
+        /// <returns></returns>
         public async Task<FileProperties> GetPropertiesAsync(string filepath) {
             var folder = _environmentName ?? Path.GetDirectoryName(filepath);
             var filename = _environmentName == null ? filepath.Substring(folder.Length) : filepath;
@@ -102,7 +129,12 @@ namespace Indice.Services
                 LastModified = blob.Properties.LastModified
             };
         }
-
+        /// <summary>
+        /// Delete a file
+        /// </summary>
+        /// <param name="filepath"></param>
+        /// <param name="isDirectory"></param>
+        /// <returns></returns>
         public async Task<bool> DeleteAsync(string filepath, bool isDirectory = false) {
             var folder = _environmentName ?? Path.GetDirectoryName(filepath);
             var filename = _environmentName == null ? filepath.Substring(folder.Length) : filepath;
@@ -135,9 +167,19 @@ namespace Indice.Services
             return deleted;
         }
 
+        /// <summary>
+        /// File service options specific to azure
+        /// </summary>
         public class FileServiceOptions
         {
+            /// <summary>
+            /// The connection string to the azure storage account.
+            /// </summary>
             public string ConnectionString { get; set; }
+
+            /// <summary>
+            /// The environment name (ie Development, Production)
+            /// </summary>
             public string EnvironmentName { get; set; }
         }
     }

@@ -45,6 +45,19 @@ namespace Indice.AspNetCore.Extensions
         }
 
         /// <summary>
+        /// Adds EmailService using SMTP settings in configuration plus Razor email templates.
+        /// </summary>
+        /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
+        /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
+        public static IServiceCollection AddEmailServiceSmtpRazor(this IServiceCollection services, IConfiguration configuration) {
+            services.Configure<EmailServiceSettings>(configuration.GetSection(EmailServiceSettings.Name));
+            services.AddTransient((sp) => sp.GetRequiredService<IOptions<EmailServiceSettings>>().Value);
+            services.AddTransient<IEmailService, EmailServiceSmtpRazor>();
+
+            return services;
+        }
+
+        /// <summary>
         /// Adds EmailService using SMTP settings in configuration.
         /// </summary>
         /// <param name="services">Specifies the contract for a collection of service descriptors.</param>

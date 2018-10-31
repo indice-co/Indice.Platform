@@ -9,16 +9,43 @@ using MailKit.Net.Smtp;
 using MimeKit;
 namespace Indice.Services
 {
+    /// <summary>
+    /// Simple smtp implementation of the <see cref="IEmailService"/> with no templating support.
+    /// </summary>
     public class EmailServiceSmtp : IEmailService
     {
+        /// <summary>
+        /// Smtp Settings 
+        /// </summary>
         protected EmailServiceSettings Settings { get; }
 
+        /// <summary>
+        /// constructs the service.
+        /// </summary>
+        /// <param name="settings"></param>
         public EmailServiceSmtp(EmailServiceSettings settings) {
             Settings = settings ?? throw new ArgumentNullException(nameof(settings));
         }
 
+        /// <summary>
+        /// Send email.
+        /// </summary>
+        /// <param name="recipients"></param>
+        /// <param name="subject"></param>
+        /// <param name="body"></param>
+        /// <returns></returns>
         public async Task SendAsync(string[] recipients, string subject, string body) => await SendAsync<object>(recipients, subject, body, null, null);
 
+        /// <summary>
+        /// Send email.
+        /// </summary>
+        /// <typeparam name="TModel"></typeparam>
+        /// <param name="recipients"></param>
+        /// <param name="subject"></param>
+        /// <param name="body"></param>
+        /// <param name="template"></param>
+        /// <param name="data"></param>
+        /// <returns></returns>
         public async Task SendAsync<TModel>(string[] recipients, string subject, string body, string template, TModel data) where TModel : class {
             var message = new MimeMessage();
             message.From.Add(new MailboxAddress(Settings.SenderName, Settings.Sender));
