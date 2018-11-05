@@ -50,6 +50,11 @@ namespace Indice.Services
         /// This is optional in case we are inside a domain (smtp relay).
         /// </summary>
         public string Password { get; set; }
+
+        /// <summary>
+        /// Optional email addresses that are always added as blind carbon copy recipients.
+        /// </summary>
+        public string BccRecipients { get; set; }
     }
 
     /// <summary>
