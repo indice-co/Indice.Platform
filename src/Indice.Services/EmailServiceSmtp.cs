@@ -50,6 +50,10 @@ namespace Indice.Services
             var message = new MimeMessage();
             message.From.Add(new MailboxAddress(Settings.SenderName, Settings.Sender));
             message.To.AddRange(recipients.Select(recipient => InternetAddress.Parse(recipient)));
+            if (!string.IsNullOrWhiteSpace(Settings.BccRecipients)) {
+                var bccRecipients = Settings.BccRecipients.Split(',', ';');
+                message.Bcc.AddRange(bccRecipients.Select(recipient => InternetAddress.Parse(recipient)));
+            }
             message.Body = new TextPart(MimeKit.Text.TextFormat.Html) { Text = body };
             message.Subject = subject;
 
