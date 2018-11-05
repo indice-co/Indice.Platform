@@ -42,6 +42,10 @@ namespace Indice.Services
             var message = new MimeMessage();
             message.From.Add(new MailboxAddress(_settings.SenderName, _settings.Sender));
             message.To.AddRange(recipients.Select(recipient => InternetAddress.Parse(recipient)));
+            if (!string.IsNullOrWhiteSpace(_settings.BccRecipients)) {
+                var bccRecipients = _settings.BccRecipients.Split(',', ';');
+                message.Bcc.AddRange(bccRecipients.Select(recipient => InternetAddress.Parse(recipient)));
+            }
             message.Body = new TextPart(MimeKit.Text.TextFormat.Html) { Text = await GetHtmlAsync<TModel>(body, subject, template.ToString(), data) };
             message.Subject = subject;
 

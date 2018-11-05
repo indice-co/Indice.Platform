@@ -76,12 +76,13 @@ namespace Indice.AspNetCore.Identity.Services
             return viewModel;
         }
 
-        public async Task<RegisterViewModel> BuildRegisterViewModelAsync(string returnUrl) {
+        public async Task<RegisterViewModel> BuildRegisterViewModelAsync(string returnUrl) => await BuildRegisterViewModelAsync<RegisterViewModel>(returnUrl);
+        public async Task<TRegisterViewModel> BuildRegisterViewModelAsync<TRegisterViewModel>(string returnUrl) where TRegisterViewModel : RegisterViewModel, new() {
             var context = await _interaction.GetAuthorizationContextAsync(returnUrl);
 
             if (context?.IdP != null) {
                 // This is meant to short circuit the UI and only trigger the one external IdP.
-                return new RegisterViewModel {
+                return new TRegisterViewModel {
                     ReturnUrl = returnUrl,
                     Username = context?.LoginHint,
                     ExternalProviders = new ExternalProvider[] { new ExternalProvider { AuthenticationScheme = context.IdP } }
@@ -105,17 +106,17 @@ namespace Indice.AspNetCore.Identity.Services
                 }
             }
 
-            return new RegisterViewModel {
+            return new TRegisterViewModel {
                 ReturnUrl = returnUrl,
                 Username = context?.LoginHint,
                 ExternalProviders = providers.ToArray()
             };
         }
 
-        public async Task<RegisterViewModel> BuildRegisterViewModelAsync(RegisterRequest model) {
-            var viewModel = await BuildRegisterViewModelAsync(model.ReturnUrl);
+        public async Task<RegisterViewModel> BuildRegisterViewModelAsync(RegisterRequest model) => await BuildRegisterViewModelAsync<RegisterViewModel>(model);
+        public async Task<TRegisterViewModel> BuildRegisterViewModelAsync<TRegisterViewModel>(RegisterRequest model) where TRegisterViewModel : RegisterViewModel, new() {
+            var viewModel = await BuildRegisterViewModelAsync<TRegisterViewModel>(model.ReturnUrl);
             viewModel.Username = model.Username;
-
             return viewModel;
         }
 

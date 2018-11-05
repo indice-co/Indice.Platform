@@ -1,4 +1,5 @@
-﻿using Markdig;
+﻿using System.IO;
+using Markdig;
 
 namespace Indice.Services
 {
@@ -9,5 +10,6 @@ namespace Indice.Services
     {
         public MarkdownPipeline Pipeline { get; } = new MarkdownPipelineBuilder().UseAdvancedExtensions().Build();
         public string Convert(string markdown) => Markdown.ToHtml(markdown, Pipeline);
+        public void Convert(string markdown, TextWriter writer) => Markdown.ToHtml(markdown, writer, Pipeline);
     }
 }
