@@ -4,7 +4,7 @@ using System.Text;
 using Indice.Security;
 using Microsoft.AspNetCore.Authorization;
 
-namespace Indice.AspNetCore.Identity.Authorization
+namespace Microsoft.AspNetCore.Authorization
 {
     /// <summary>
     /// Authorization policy extensions for <see cref="AuthorizationPolicyBuilder"/>
