@@ -46,9 +46,6 @@ namespace Indice.AspNetCore.Identity.Services
             if (!identity.HasClaim(x => x.Type == BasicClaimTypes.Admin)) {
                 additionalClaims.Add(new Claim(BasicClaimTypes.Admin, user.Admin.ToString().ToLower(), ClaimValueTypes.Boolean));
             }
-            if (!identity.HasClaim(x => x.Type == JwtClaimTypes.Email)) {
-                additionalClaims.Add(new Claim(JwtClaimTypes.Email, user.Email, ClaimValueTypes.String));
-            }
             identity.AddClaims(additionalClaims);
             return identity;
         }
