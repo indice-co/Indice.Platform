@@ -39,12 +39,13 @@ namespace Indice.AspNetCore.Identity.Services
         protected override async Task<ClaimsIdentity> GenerateClaimsAsync(User user) {
             var identity = await base.GenerateClaimsAsync(user);
             var additionalClaims = new List<Claim>();
-            if (!identity.HasClaim(x => x.Type == JwtClaimTypes.Role)) {
-                var roles = (await _userManager.GetRolesAsync(user)).Select(role => new Claim(JwtClaimTypes.Role, role));
-                additionalClaims.AddRange(roles);
-            }
             if (!identity.HasClaim(x => x.Type == BasicClaimTypes.Admin)) {
-                additionalClaims.Add(new Claim(BasicClaimTypes.Admin, user.Admin.ToString().ToLower(), ClaimValueTypes.Boolean));
+                bool isAdmin = user.Admin;
+                if (!isAdmin) {
+                    var roles = (await _userManager.GetRolesAsync(user)).Select(role => new Claim(JwtClaimTypes.Role, role));
+                    isAdmin = roles.Where(x => x.Value == "Administrator").Any();
+                }
+                additionalClaims.Add(new Claim(BasicClaimTypes.Admin, isAdmin.ToString().ToLower(), ClaimValueTypes.Boolean));
             }
             identity.AddClaims(additionalClaims);
             return identity;
