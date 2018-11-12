@@ -17,7 +17,6 @@ namespace Indice.AspNetCore.Identity.Services
     /// </summary>
     public class ExtendedUserClaimsPrincipalFactory : UserClaimsPrincipalFactory<User, IdentityRole>
     {
-        private readonly UserManager<User> _userManager;
 
         /// <summary>
         /// Constructor for the extender user claims principal factory
@@ -27,8 +26,7 @@ namespace Indice.AspNetCore.Identity.Services
         /// <param name="optionsAccessor"></param>
         public ExtendedUserClaimsPrincipalFactory(UserManager<User> userManager, RoleManager<IdentityRole> roleManager, IOptions<IdentityOptions> optionsAccessor)
             : base(userManager, roleManager, optionsAccessor) {
-
-            _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
+            
         }
 
         /// <summary>
@@ -40,10 +38,14 @@ namespace Indice.AspNetCore.Identity.Services
             var identity = await base.GenerateClaimsAsync(user);
             var additionalClaims = new List<Claim>();
             if (!identity.HasClaim(x => x.Type == BasicClaimTypes.Admin)) {
-                bool isAdmin = user.Admin;
+                var isAdmin = user.Admin;
                 if (!isAdmin) {
-                    var roles = (await _userManager.GetRolesAsync(user)).Select(role => new Claim(JwtClaimTypes.Role, role));
-                    isAdmin = roles.Where(x => x.Value == "Administrator").Any();
+                    if (identity.HasClaim(x => x.Type == JwtClaimTypes.Role)) {
+                        isAdmin = identity.HasClaim(JwtClaimTypes.Role, "Administrator");
+                    } else { 
+                        var roles = (await UserManager.GetRolesAsync(user)).Select(role => new Claim(JwtClaimTypes.Role, role));
+                        isAdmin = roles.Where(x => x.Value == "Administrator").Any();
+                    }
                 }
                 additionalClaims.Add(new Claim(BasicClaimTypes.Admin, isAdmin.ToString().ToLower(), ClaimValueTypes.Boolean));
             }
