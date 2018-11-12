@@ -76,6 +76,7 @@ namespace Indice.AspNetCore.Swagger
 
             options.OperationFilter<SecurityRequirementsOperationFilter>(); // Assign scope requirements to operations based on AuthorizeAttribute.
             options.OperationFilter<SimpleOperationIdFilter>();
+            options.OperationFilter<FormFileOperationFilter>();
             options.OperationFilter<FileOperationFilter>();
             options.SchemaFilter<SchemaFluentValidationFilter>();
 
