@@ -4,14 +4,33 @@ using System.IO;
 using System.Reflection;
 using Indice.Configuration;
 using Indice.Types;
-using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.DependencyInjection;
 using Swashbuckle.AspNetCore.Swagger;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace Indice.AspNetCore.Swagger
 {
+    /// <summary>
+    /// Swagger configuration extensions the Indice way. Exposes usefull defaults for hosting an API. 
+    /// Also leverages appsettings.json configuration through <see cref="GeneralSettings"/> for api setup
+    /// </summary>
     public static class SwaggerConfig
     {
+        /// <summary>
+        /// Since swashbackle 4.0 release the support for for parameters of type IFormFile is out-of-the-box. 
+        /// That is, the generator will automatically detect these and generate the correct Swagger to describe parameters that are passed in formData.
+        /// So this is exported to a seperate operation just in case we still need of it. [Depricated]
+        /// </summary>
+        /// <param name="options">The options to confugure</param>
+        public static void AddFormFileSupport(this SwaggerGenOptions options) {
+            options.OperationFilter<FormFileOperationFilter>();
+        }
+
+        /// <summary>
+        /// A set of defaults for exposing an API
+        /// </summary>
+        /// <param name="options">The options to confugure</param>
+        /// <param name="settings"></param>
         public static void IndiceDefaults(this SwaggerGenOptions options, GeneralSettings settings) {
             var apiSettings = settings?.Api ?? new ApiSettings();
 
@@ -44,7 +63,7 @@ namespace Indice.AspNetCore.Swagger
             var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
             if (File.Exists(xmlPath))
                 options.IncludeXmlComments(xmlPath);
-            
+
             options.DescribeAllEnumsAsStrings();
             options.OrderActionsBy(d => d.RelativePath);
 
@@ -57,7 +76,6 @@ namespace Indice.AspNetCore.Swagger
 
             options.OperationFilter<SecurityRequirementsOperationFilter>(); // Assign scope requirements to operations based on AuthorizeAttribute.
             options.OperationFilter<SimpleOperationIdFilter>();
-            options.OperationFilter<FormFileOperationFilter>();
             options.OperationFilter<FileOperationFilter>();
             options.SchemaFilter<SchemaFluentValidationFilter>();
 
@@ -110,6 +128,6 @@ namespace Indice.AspNetCore.Swagger
                 return t.FullName;
             });
         }
-        
+
     }
 }
