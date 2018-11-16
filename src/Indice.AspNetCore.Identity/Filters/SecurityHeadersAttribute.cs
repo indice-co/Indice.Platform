@@ -28,7 +28,8 @@ namespace Indice.AspNetCore.Identity.Filters
                 DefaultSrc = $"{CSP.Self}",
                 ScriptSrc = $"{CSP.Self} ajax.googleapis.com ajax.aspnetcdn.com",
                 FontSrc = $"{CSP.Self} fonts.googleapis.com",
-                ImgSrc = CSP.Wildcard
+                ImgSrc = CSP.Wildcard,
+                StyleSrc = CSP.UnsafeInline,
             };
         }
 
@@ -86,6 +87,11 @@ namespace Indice.AspNetCore.Identity.Filters
         /// Allows loading resources via the data scheme (eg Base64 encoded images).
         /// </summary>
         public const string Data = "data:";
+
+        /// <summary>
+        /// Allows loading resources via the data scheme (eg Base64 encoded images).
+        /// </summary>
+        public const string UnsafeInline = "unsafe-inline";
 
         /// <summary>
         /// Content Security policy regarding all sources.
