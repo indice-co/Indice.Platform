@@ -29,6 +29,11 @@
         /// The name of the organization or brand.
         /// </summary>
         public string Organization { get; set; } = "Indice OE";
+        
+        /// <summary>
+        /// The address of the organization or office location. Used in emails and website footers.
+        /// </summary>
+        public string OrganizationAddress { get; set; }
 
         /// <summary>
         /// A descritpion for the app.

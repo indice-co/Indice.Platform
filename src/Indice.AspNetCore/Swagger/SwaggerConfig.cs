@@ -27,6 +27,28 @@ namespace Indice.AspNetCore.Swagger
         }
 
         /// <summary>
+        /// Add a new swagger document based on a subscope of the existing api.
+        /// </summary>
+        /// <param name="options">The options to confugure</param>
+        /// <param name="settings"></param>
+        /// <param name="scopeOrGroup">The url segment that the schild scope will live under</param>
+        public static void AddDoc(this SwaggerGenOptions options, GeneralSettings settings, string scopeOrGroup) {
+
+            var apiSettings = settings?.Api ?? new ApiSettings();
+            var version = $"v{apiSettings.DefaultVersion}";
+
+            var scope = scopeOrGroup;
+            var description = $"{apiSettings.FriendlyName}. {scopeOrGroup}";
+            apiSettings.Scopes.TryGetValue(scopeOrGroup, out description);
+            options.SwaggerDoc(scope, new Info {
+                Version = version,
+                Title = description,
+                TermsOfService = apiSettings.TermsOfServiceUrl,
+                License = apiSettings.License == null ? null : new License { Name = apiSettings.License.Name, Url = apiSettings.License.Url }
+            });
+        }
+        
+        /// <summary>
         /// A set of defaults for exposing an API
         /// </summary>
         /// <param name="options">The options to confugure</param>
@@ -54,9 +76,11 @@ namespace Indice.AspNetCore.Swagger
 
             var version = $"v{apiSettings.DefaultVersion}";
 
-            options.SwaggerDoc(version, new Info {
+            options.SwaggerDoc(apiSettings.ResourceName, new Info {
                 Version = version,
-                Title = apiSettings.FriendlyName
+                Title = apiSettings.FriendlyName,
+                TermsOfService = apiSettings.TermsOfServiceUrl,
+                License = apiSettings.License == null ? null : new License { Name = apiSettings.License.Name, Url = apiSettings.License.Url }
             });
 
             var xmlFile = $"{Assembly.GetEntryAssembly().GetName().Name}.xml";

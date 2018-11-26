@@ -26,5 +26,31 @@ namespace Indice.Configuration
         /// The api verison number.
         /// </summary>
         public string DefaultVersion { get; set; } = "1";
+
+        /// <summary>
+        /// The api terms of service url.
+        /// </summary>
+        public string TermsOfServiceUrl { get; set; }
+
+        /// <summary>
+        /// The api licence url.
+        /// </summary>
+        public LegalDocument License { get; set; }
+
+        /// <summary>
+        /// Used to configure a legal document resource name and location
+        /// </summary>
+        public class LegalDocument {
+            
+            /// <summary>
+            /// The name of the document
+            /// </summary>
+            public string Name { get; set; }
+            
+            /// <summary>
+            /// The name of the document
+            /// </summary>
+            public string Url { get; set; }
+        }
     }
 }
