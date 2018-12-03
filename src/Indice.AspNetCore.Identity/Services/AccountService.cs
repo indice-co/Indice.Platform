@@ -52,7 +52,6 @@ namespace Indice.AspNetCore.Identity.Services
 
                 if (client != null) {
                     allowLocal = client.EnableLocalLogin;
-
                     if (client.IdentityProviderRestrictions != null && client.IdentityProviderRestrictions.Any()) {
                         providers = providers.Where(provider => client.IdentityProviderRestrictions.Contains(provider.AuthenticationScheme)).ToList();
                     }
@@ -149,7 +148,8 @@ namespace Indice.AspNetCore.Identity.Services
             var viewModel = new LoggedOutViewModel {
                 AutomaticRedirectAfterSignOut = AccountOptions.AutomaticRedirectAfterSignOut,
                 PostLogoutRedirectUri = logout?.PostLogoutRedirectUri,
-                ClientName = logout?.ClientId,
+                ClientId = logout?.ClientId,
+                ClientName = logout?.ClientName,
                 SignOutIframeUrl = logout?.SignOutIFrameUrl,
                 LogoutId = logoutId
             };
