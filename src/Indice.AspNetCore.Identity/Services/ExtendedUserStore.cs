@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Indice.AspNetCore.Identity.Models;
@@ -11,27 +9,40 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 
 namespace Indice.AspNetCore.Identity.Data
-{ 
+{
     /// <summary>
-    /// Custom UserStore that uses some additional dates relate
+    /// Custom <see cref="UserStore"/> that provides password history features.
+    /// </summary>
+    /// <typeparam name="TContext">The DbContext to use for the Identity framework.</typeparam>
+    public class ExtendedUserStore<TContext> : ExtendedUserStore where TContext : IdentityDbContext
+    {
+        /// <summary>
+        /// Constructs the user store.
+        /// </summary>
+        /// <param name="context">The DbContext to use for the Identity framework.</param>
+        /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
+        /// <param name="describer">Service to enable localization for application facing identity errors.</param>
+        public ExtendedUserStore(TContext context, IConfiguration configuration, IdentityErrorDescriber describer = null) : base(context, configuration, describer) { }
+    }
+
+    /// <summary>
+    /// Custom <see cref="UserStore"/> that provides password history features.
     /// </summary>
     public class ExtendedUserStore : UserStore<User>
     {
         /// <summary>
-        /// Creates the user store
+        /// Constructs the user store.
         /// </summary>
-        /// <param name="context"></param>
-        /// <param name="configuration"></param>
-        /// <param name="describer"></param>
+        /// <param name="context">The DbContext to use for the Identity framework.</param>
+        /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
+        /// <param name="describer">Service to enable localization for application facing identity errors.</param>
         public ExtendedUserStore(IdentityDbContext context, IConfiguration configuration, IdentityErrorDescriber describer = null) : base(context, describer) {
             PasswordHistoryLimit = configuration.GetSection(nameof(PasswordOptions)).GetValue<int?>(nameof(PasswordHistoryLimit));
         }
 
         /// <summary>
-        /// The password history limit is an integer indicating 
-        /// the number of passwords to keep track. 
-        /// Then when a user changes his password these will be check against so that no new password matches 
-        /// any stored in the history table.
+        /// The password history limit is an integer indicating the number of passwords to keep track. 
+        /// Then when a user changes his password these will be check against so that no new password matches any stored in the history table.
         /// </summary>
         protected int? PasswordHistoryLimit { get; }
 
@@ -50,6 +61,7 @@ namespace Indice.AspNetCore.Identity.Data
                 Context.Set<UserPassword>().RemoveRange(toPurge);
                 await Context.Set<UserPassword>().AddAsync(new UserPassword { UserId = user.Id, DateCreated = DateTime.UtcNow, PasswordHash = passwordHash });
             }
+
             user.LastPasswordChange = DateTime.UtcNow;
             await base.SetPasswordHashAsync(user, passwordHash, cancellationToken);
         }
@@ -58,8 +70,7 @@ namespace Indice.AspNetCore.Identity.Data
         /// Creates the specified user in the user store.
         /// </summary>
         /// <param name="user"></param>
-        /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the
-        /// operation should be canceled.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
         /// <returns>The <see cref="IdentityResult"/></returns>
         public override Task<IdentityResult> CreateAsync(User user, CancellationToken cancellationToken = default(CancellationToken)) {
             user.CreateDate = DateTimeOffset.UtcNow;
