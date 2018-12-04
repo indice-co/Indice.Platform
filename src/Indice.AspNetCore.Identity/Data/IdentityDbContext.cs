@@ -15,7 +15,7 @@ namespace Indice.AspNetCore.Identity.Data
         /// Constructs the dbcontext passing the options.
         /// </summary>
         /// <param name="options"></param>
-        public IdentityDbContext(DbContextOptions<IdentityDbContext> options) : base(options) { }
+        public IdentityDbContext(DbContextOptions options) : base(options) { }
 
         /// <summary>
         /// Stores all previous passwords of a user for future validation checks.
@@ -35,6 +35,7 @@ namespace Indice.AspNetCore.Identity.Data
             builder.Entity<IdentityUserRole<string>>().ToTable("UserRole", "auth");
             builder.Entity<IdentityUserToken<string>>().ToTable("UserToken", "auth");
             builder.Entity<IdentityUserLogin<string>>().ToTable("UserLogin", "auth");
+
             builder.Entity<UserPassword>(b => {
                 b.ToTable(nameof(UserPassword), "auth");
                 b.HasKey(x => x.Id);
