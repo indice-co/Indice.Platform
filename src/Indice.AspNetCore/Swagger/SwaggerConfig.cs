@@ -103,6 +103,7 @@ namespace Indice.AspNetCore.Swagger
             options.OperationFilter<FormFileOperationFilter>();
             options.OperationFilter<FileOperationFilter>();
             options.SchemaFilter<SchemaFluentValidationFilter>();
+            options.SchemaFilter<EnumsAsReferencesFilter>();
 
             // Simplifies generics:
             options.CustomSchemaIds(t => {
