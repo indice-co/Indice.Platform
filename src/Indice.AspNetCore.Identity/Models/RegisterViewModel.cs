@@ -17,7 +17,7 @@ namespace Indice.AspNetCore.Identity.Models
         /// <summary>
         /// Visible external providers are those given a <see cref="ExternalProvider.DisplayName"/>
         /// </summary>
-        public IEnumerable<ExternalProvider> VisibleExternalProviders => ExternalProviders.Where(x => !string.IsNullOrWhiteSpace(x.DisplayName));
+        public IEnumerable<ExternalProvider> VisibleExternalProviders => ExternalProviders?.Where(x => !string.IsNullOrWhiteSpace(x.DisplayName));
 
         /// <summary>
         /// Optional flag that should hide the local user registration form and keep only the <see cref="ExternalProviders"/> options.
