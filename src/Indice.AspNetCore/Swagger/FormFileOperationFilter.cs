@@ -5,13 +5,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Dynamic;
+using Microsoft.OpenApi.Models;
 
 namespace Indice.AspNetCore.Swagger
 {
     internal class FormFileOperationFilter : IOperationFilter
     {
-        public void Apply(Operation operation, OperationFilterContext context)
-        {
+
+        public void Apply(OpenApiOperation operation, OperationFilterContext context) {
             if (operation.Parameters == null)
                 return;
 
@@ -31,22 +32,19 @@ namespace Indice.AspNetCore.Swagger
             if (!allFileParamNames.Any())
                 return;
 
-            var paramsToRemove = new List<IParameter>();
-            var formFileNames = typeof(IFormFile).GetProperties().Select(x => x.Name).ToArray();
-            paramsToRemove.AddRange(from param in operation.Parameters where param.In == "formData" && formFileNames.Contains(param.Name) select param);
-            paramsToRemove.ForEach(x => operation.Parameters.Remove(x));
-            foreach (var paramName in allFileParamNames)
-            {
-                var fileParam = new NonBodyParameter
-                {
-                    Type = "file",
-                    Name = paramName,
-                    In = "formData"
-                };
-                operation.Parameters.Add(fileParam);
+            
+            if (!operation.RequestBody.Content.ContainsKey("multipart/form-data")) {
+                return;
             }
-
-            operation.Consumes = new List<string> { "multipart/form-data" };
+            var schemaToChange = operation.RequestBody.Content["multipart/form-data"].Schema;
+            var formFileNames = typeof(IFormFile).GetProperties().Select(x => x.Name).ToArray();
+            var paramsToRemove = schemaToChange.Properties.Where(prop => formFileNames.Contains(prop.Key)).ToList();
+            paramsToRemove.ForEach(x => schemaToChange.Properties.Remove(x));
+            foreach (var paramName in allFileParamNames) {
+                schemaToChange.Properties.Add(paramName, new OpenApiSchema {
+                    Type = "file"
+                });
+            }
         }
     }
 }

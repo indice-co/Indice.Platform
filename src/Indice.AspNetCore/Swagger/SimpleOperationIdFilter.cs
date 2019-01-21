@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc.Controllers;
+using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.Swagger;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
@@ -12,7 +13,7 @@ namespace Indice.AspNetCore.Swagger
         /// </summary>
         /// <param name="operation"></param>
         /// <param name="context"></param>
-        public void Apply(Operation operation, OperationFilterContext context) {
+        public void Apply(OpenApiOperation operation, OperationFilterContext context) {
             var actionDescriptor = context.ApiDescription.ActionDescriptor as ControllerActionDescriptor;
             operation.OperationId = actionDescriptor.ActionName;
         }

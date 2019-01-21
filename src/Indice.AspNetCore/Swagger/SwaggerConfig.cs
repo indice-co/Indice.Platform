@@ -5,6 +5,7 @@ using System.Reflection;
 using Indice.Configuration;
 using Indice.Types;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.Swagger;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
@@ -40,11 +41,11 @@ namespace Indice.AspNetCore.Swagger
             var scope = scopeOrGroup;
             var description = $"{apiSettings.FriendlyName}. {scopeOrGroup}";
             apiSettings.Scopes.TryGetValue(scopeOrGroup, out description);
-            options.SwaggerDoc(scope, new Info {
+            options.SwaggerDoc(scope, new OpenApiInfo {
                 Version = version,
                 Title = description,
-                TermsOfService = apiSettings.TermsOfServiceUrl,
-                License = apiSettings.License == null ? null : new License { Name = apiSettings.License.Name, Url = apiSettings.License.Url }
+                TermsOfService = apiSettings.TermsOfServiceUrl == null ? null : new Uri(apiSettings.TermsOfServiceUrl),
+                License = apiSettings.License == null ? null : new OpenApiLicense { Name = apiSettings.License.Name, Url = new Uri(apiSettings.License.Url) }
             });
         }
         
@@ -64,23 +65,38 @@ namespace Indice.AspNetCore.Swagger
             foreach (var scope in apiSettings.Scopes) {
                 scopes.Add($"{apiSettings.ResourceName}:{scope.Key}", scope.Value);
             }
-
-            options.AddSecurityDefinition("oauth2", new OAuth2Scheme {
-                Type = "oauth2",
-                Flow = "implicit",
-                Description = "Identity Server OAuth2",
-                AuthorizationUrl = settings?.Authority + "/connect/authorize",
-                TokenUrl = settings?.Authority + "/connect/token",
-                Scopes = scopes,
+            //https://swagger.io/docs/specification/authentication/
+            options.AddSecurityDefinition("openId", new OpenApiSecurityScheme {
+                Type = SecuritySchemeType.OpenIdConnect,
+                Description = "Identity Server Openid connect",
+                OpenIdConnectUrl = new Uri(settings?.Authority + "/.well-known/openid-configuration")
+            });
+            options.AddSecurityDefinition("oauth2", new OpenApiSecurityScheme {
+                Type = SecuritySchemeType.OAuth2,
+                Description = "Identity Server oAuth2",
+                Flows = new OpenApiOAuthFlows {
+                    Implicit = new OpenApiOAuthFlow {
+                        TokenUrl = new Uri(settings?.Authority + "/connect/token"),
+                        RefreshUrl = new Uri(settings?.Authority + "/connect/token"),
+                        AuthorizationUrl = new Uri(settings?.Authority + "/connect/authorize"),
+                        Scopes = scopes
+                    },
+                    ClientCredentials = new OpenApiOAuthFlow {
+                        TokenUrl = new Uri(settings?.Authority + "/connect/token"),
+                        RefreshUrl = new Uri(settings?.Authority + "/connect/token"),
+                        AuthorizationUrl = new Uri(settings?.Authority + "/connect/authorize"),
+                        Scopes = scopes
+                    }
+                }
             });
 
             var version = $"v{apiSettings.DefaultVersion}";
 
-            options.SwaggerDoc(apiSettings.ResourceName, new Info {
+            options.SwaggerDoc(apiSettings.ResourceName, new OpenApiInfo {
                 Version = version,
                 Title = apiSettings.FriendlyName,
-                TermsOfService = apiSettings.TermsOfServiceUrl,
-                License = apiSettings.License == null ? null : new License { Name = apiSettings.License.Name, Url = apiSettings.License.Url }
+                TermsOfService = apiSettings.TermsOfServiceUrl == null ? null : new Uri(apiSettings.TermsOfServiceUrl),
+                License = apiSettings.License == null ? null : new OpenApiLicense { Name = apiSettings.License.Name, Url = new Uri(apiSettings.License.Url) }
             });
 
             var xmlFile = $"{Assembly.GetEntryAssembly().GetName().Name}.xml";
@@ -91,10 +107,11 @@ namespace Indice.AspNetCore.Swagger
             options.DescribeAllEnumsAsStrings();
             options.OrderActionsBy(d => d.RelativePath);
 
-            options.MapType<Stream>(() => new Schema {
-                Type = "file"
+            options.MapType<Stream>(() => new OpenApiSchema {
+                Type = "string",
+                Format = "binary"
             });
-            options.MapType<FilterClause>(() => new Schema {
+            options.MapType<FilterClause>(() => new OpenApiSchema {
                 Type = "string"
             });
 

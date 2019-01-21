@@ -1,6 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Microsoft.OpenApi.Any;
+using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.Swagger;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
@@ -14,58 +17,59 @@ namespace Indice.AspNetCore.Swagger
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="model"></param>
+        /// <param name="schema"></param>
         /// <param name="context"></param>
-        public void Apply(Schema model, SchemaFilterContext context) {
-            if (model.Properties == null) {
+        public void Apply(OpenApiSchema schema, SchemaFilterContext context) {
+            if (schema.Properties == null) {
                 return;
             }
 
-            var enumProperties = model.Properties
-                                      .Where(p => p.Value.Enum != null)
-                                      .Union(model.Properties.Where(p => p.Value.Items?.Enum != null))
+            var enumProperties = schema.Properties
+                                      .Where(p => p.Value.Enum?.Count > 0)
+                                      .Union(schema.Properties.Where(p => p.Value.Items?.Enum.Count > 0))
                                       .ToList();
 
             var enums = context.SystemType
                                .GetProperties()
-                               .Select(p => Nullable.GetUnderlyingType(p.PropertyType) ?? p.PropertyType.GetElementType() ?? p.PropertyType.GetGenericArguments().FirstOrDefault() ?? p.PropertyType)
-                               .Where(p => p.GetTypeInfo().IsEnum)
-                               .ToList();
+                               .Select(p => new KeyValuePair<string, Type>(
+                                                    p.Name,
+                                                    Nullable.GetUnderlyingType(p.PropertyType) ?? p.PropertyType.GetElementType() ?? p.PropertyType.GetGenericArguments().FirstOrDefault() ?? p.PropertyType))
+                               .Where(p => p.Value.GetTypeInfo().IsEnum)
+                               .ToDictionary(x => x.Key, x => x.Value, StringComparer.OrdinalIgnoreCase);
 
             foreach (var enumProperty in enumProperties) {
-                var enumPropertyValue = enumProperty.Value.Enum != null ? enumProperty.Value : enumProperty.Value.Items;
-                var enumValues = enumPropertyValue.Enum.Select(e => $"{e}").ToList();
-
-                var enumType = enums.SingleOrDefault(type => {
-                    var enumNames = Enum.GetNames(type);
-
-                    if (enumNames.Except(enumValues, StringComparer.InvariantCultureIgnoreCase).Any()) {
-                        return false;
-                    }
-
-                    if (enumValues.Except(enumNames, StringComparer.InvariantCultureIgnoreCase).Any()) {
-                        return false;
-                    }
-
-                    return true;
-                });
-
+                var enumPropertyValue = enumProperty.Value.Enum?.Count > 0 ? enumProperty.Value : enumProperty.Value.Items;
+                enums.TryGetValue(enumProperty.Key, out var enumType);
                 if (enumType == null) {
                     throw new Exception($"Property {enumProperty} not found in {context.SystemType.Name} Type.");
                 }
 
-                if (context.SchemaRegistry.Definitions.ContainsKey(enumType.Name) == false) {
-                    context.SchemaRegistry.Definitions.Add(enumType.Name, enumPropertyValue);
+                var enumSchema = context.SchemaRegistry.GetOrRegister(enumType);
+                if (!context.SchemaRegistry.Schemas.ContainsKey(enumType.Name)) {
+                    enumSchema.Extensions.Add(
+                        "x-ms-enum",
+                        new OpenApiObject {
+                            ["name"] = new OpenApiString(enumType.Name),
+                            ["modelAsString"] = new OpenApiBoolean(true)
+                        }
+                    );
+                    context.SchemaRegistry.Schemas.Add(enumType.Name, enumSchema);
                 }
 
-                var schema = new Schema {
-                    Ref = $"#/definitions/{enumType.Name}"
+                var valueSchema = new OpenApiSchema {
+                    Reference = new OpenApiReference {
+                        Id = enumType.Name,
+                        Type = ReferenceType.Schema
+                    },
+                    Nullable = enumPropertyValue.Nullable,
+                    Required = enumPropertyValue.Required,
+                    ReadOnly = enumPropertyValue.ReadOnly,
                 };
 
-                if (enumProperty.Value.Enum != null) {
-                    model.Properties[enumProperty.Key] = schema;
+                if (enumProperty.Value.Enum?.Count > 0) {
+                    schema.Properties[enumProperty.Key] = valueSchema;
                 } else if (enumProperty.Value.Items?.Enum != null) {
-                    enumProperty.Value.Items = schema;
+                    schema.Properties[enumProperty.Key].Items = valueSchema;
                 }
             }
         }
