@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -89,6 +90,33 @@ namespace Indice.Services
 
             await blob.DownloadToByteArrayAsync(bytes, 0);
             return bytes;
+        }
+        
+        /// <summary>
+        /// Gets a path list. For a given folder
+        /// </summary>
+        /// <param name="path">The file path</param>
+        /// <returns></returns>
+        public async Task<IEnumerable<string>> SearchAsync(string path) {
+            var folder = _environmentName ?? Path.GetDirectoryName(path);
+            var filename = _environmentName == null ? path.Substring(folder.Length) : path;
+            var blobClient = _storageAccount.CreateCloudBlobClient();
+            var container = blobClient.GetContainerReference(folder);
+            var exists = await container.ExistsAsync();
+
+            if (!exists) {
+                throw new FileNotFoundServiceException($"Container {folder} not found.");
+            }
+            var results = new List<string>();
+            var directory = container.GetDirectoryReference(filename);
+            var list = await directory.ListBlobsSegmentedAsync(true, BlobListingDetails.All, null, null, null, null);
+
+            foreach (var blob in list.Results) {
+                if (blob.GetType() == typeof(CloudBlob) || blob.GetType().BaseType == typeof(CloudBlob)) {
+                    results.Add(blob.Uri.ToString());
+                }
+            }
+            return results;
         }
 
         // Instead of streaming the blob through your server, you could download it directly from the blob storage.

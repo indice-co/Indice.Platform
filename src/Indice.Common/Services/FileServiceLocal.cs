@@ -28,7 +28,13 @@ namespace Indice.Services
                 throw new ArgumentOutOfRangeException(nameof(baseDirectoryPath), $"Path '{baseDirectoryPath}' must be rooted");
             }
         }
-        
+
+        /// <summary>
+        /// Delete from file system
+        /// </summary>
+        /// <param name="filepath"></param>
+        /// <param name="isDirectory"></param>
+        /// <returns></returns>
         public Task<bool> DeleteAsync(string filepath, bool isDirectory = false) {
             filepath = Path.Combine(BaseDirectoryPath, filepath);
             GuardExists(filepath, isDirectory);
@@ -48,12 +54,42 @@ namespace Indice.Services
             return Task.FromResult(true);
         }
 
+        /// <summary>
+        /// Retrieve data
+        /// </summary>
+        /// <param name="filepath"></param>
+        /// <returns></returns>
         public Task<byte[]> GetAsync(string filepath) {
             filepath = Path.Combine(BaseDirectoryPath, filepath);
             GuardExists(filepath);
             return Task.FromResult(File.ReadAllBytes(filepath));
         }
 
+        /// <summary>
+        /// Gets a path list. For a given folder
+        /// </summary>
+        /// <param name="path">The file path</param>
+        /// <returns></returns>
+        public Task<IEnumerable<string>> SearchAsync(string path) {
+            var folderpath = Path.Combine(BaseDirectoryPath, path);
+            GuardExists(folderpath);
+            var results = new List<string>();
+            foreach (var directory in Directory.EnumerateDirectories(folderpath)) {
+                foreach (var file in Directory.EnumerateFiles(directory)) {
+                    results.Add(file.Replace(BaseDirectoryPath, ""));
+                }
+            }
+            foreach (var file in Directory.EnumerateFiles(folderpath)) {
+                results.Add(file.Replace(BaseDirectoryPath, ""));
+            }
+            return Task.FromResult(results.AsEnumerable());
+        }
+
+        /// <summary>
+        /// Gets the file metadata
+        /// </summary>
+        /// <param name="filepath"></param>
+        /// <returns></returns>
         public Task<FileProperties> GetPropertiesAsync(string filepath) {
             filepath = Path.Combine(BaseDirectoryPath, filepath);
             GuardExists(filepath);
