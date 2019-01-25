@@ -7,6 +7,9 @@ using SixLabors.ImageSharp.Processing;
 using SixLabors.Primitives;
 using System.Linq;
 using Indice.Extensions;
+using SixLabors.ImageSharp.Formats.Jpeg;
+using SixLabors.ImageSharp.Formats.Png;
+using SixLabors.ImageSharp.Formats;
 
 namespace Indice.Services
 {
@@ -122,7 +125,7 @@ namespace Indice.Services
                     VerticalAlignment = VerticalAlignment.Center
                 };
                 img.Mutate(i => i.DrawText(textGraphicOptions, avatarText, scaledFont, accentColor.Color, center));
-                img.Save(output, jpeg ? ImageFormats.Jpeg : ImageFormats.Png);
+                img.Save(output, jpeg ? (IImageFormat)JpegFormat.Instance : PngFormat.Instance);
             }
 
             output.Seek(0, SeekOrigin.Begin);

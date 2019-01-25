@@ -24,13 +24,13 @@ namespace Indice.Serialization
         private readonly IDictionary<string, Type> _nameToTypeMap;
         private readonly IDictionary<Type, string> _typeToNameMap;
 
-        /// <summary>Initializes a new instance of the <see cref="PolymorphicJsonConverter"/> class.
+        /// <summary>Initializes a new instance of the <see cref="PolymorphicJsonConverter"/> class.</summary>
         /// <param name="typeMapping">The type names to use when serializing types.</param>
         public PolymorphicJsonConverter(IDictionary<string, Type> typeMapping)
             : this("discriminator", typeMapping) {
         }
 
-        /// <summary>Initializes a new instance of the <see cref="PolymorphicJsonConverter"/> class.
+        /// <summary>Initializes a new instance of the <see cref="PolymorphicJsonConverter"/> class.</summary>
         /// <param name="typePropertyName">The name of the property in which to serialize the type name.</param>
         /// <param name="typeMapping">The type names to use when serializing types.</param>
         public PolymorphicJsonConverter(string typePropertyName, IDictionary<string, Type> typeMapping) {
@@ -105,16 +105,15 @@ namespace Indice.Serialization
         }
 
         /// <summary>Gets all type name mappings in a type hierarchy.</summary>
-        /// <typeparam name="T">The root type of the type hierarchy.</typeparam>
         /// <returns>All type name mappings in the type hierarchy.</returns>
-        public static IDictionary<string, Type> GetTypeMapping<T>(string typePropertyName) {
+        public static IDictionary<string, Type> GetTypeMapping(Type baseType, string typePropertyName) {
             IDictionary<string, Type> typeMapping = new Dictionary<string, Type>();
             var options = new string[0];
 
 #if NETSTANDARD14
-            var discriminator = typeof(T).GetTypeInfo().GetDeclaredProperty(typePropertyName);
+            var discriminator = baseType.GetTypeInfo().GetDeclaredProperty(typePropertyName);
 #else
-            var discriminator = typeof(T).GetProperty(typePropertyName, BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase);
+            var discriminator = baseType.GetProperty(typePropertyName, BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase);
 #endif
             if (discriminator?.PropertyType
 #if NETSTANDARD14
@@ -125,7 +124,7 @@ namespace Indice.Serialization
                 == true) {
                 options = Enum.GetNames(discriminator.PropertyType);
             }
-            foreach (var type in GetTypesInHierarchy<T>()) {
+            foreach (var type in GetTypesInHierarchy(baseType)) {
                 var name = ResolveDiscriminatorValue(type, discriminator, options) ?? GetDeclaredTypeName(type);
                 typeMapping.Add(name, type);
             }
@@ -147,11 +146,10 @@ namespace Indice.Serialization
         /// <summary>
         /// Get the types in this hierarchy
         /// </summary>
-        /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        public static IEnumerable<Type> GetTypesInHierarchy<T>() {
-            var baseType = typeof(T).GetTypeInfo();
-            return baseType.Assembly.DefinedTypes.Where(t => !t.IsAbstract && baseType.IsAssignableFrom(t)).Select(t => t.AsType());
+        public static IEnumerable<Type> GetTypesInHierarchy(Type baseType) {
+            var baseTypeInfo = baseType.GetTypeInfo();
+            return baseTypeInfo.Assembly.DefinedTypes.Where(t => !t.IsAbstract && baseTypeInfo.IsAssignableFrom(t)).Select(t => t.AsType());
         }
 
         private static string GetDeclaredTypeName(Type type) {

@@ -5,6 +5,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Threading.Tasks;
 using Humanizer;
+using Indice.Serialization;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.Swagger;
 using Swashbuckle.AspNetCore.SwaggerGen;
@@ -15,17 +16,51 @@ namespace Indice.AspNetCore.Swagger
     /// Adds all derived types of any given <typeparamref name="TBaseType"/>
     /// </summary>
     /// <typeparam name="TBaseType"></typeparam>
-    public class PolymorphicSchemaFilter<TBaseType> : ISchemaFilter
+    public class PolymorphicSchemaFilter<TBaseType> : PolymorphicSchemaFilter
     {
         /// <summary>
-        /// Derived types of <typeparamref name="TBaseType"/>
+        /// Construcs the schema filter.
         /// </summary>
-        public List<Type> DerivedTypes { get; }
+        public PolymorphicSchemaFilter() 
+            : this(null, null) {
+
+        }
 
         /// <summary>
-        /// Derived types of <typeparamref name="TBaseType"/>
+        /// Construcs the schema filter.
         /// </summary>
-        public Dictionary<string, string> DiscriminatorMap { get; }
+        /// <param name="discriminator">The property that will be used or added to the schema as the Type discriminator</param>
+        /// <param name="map">A dictionary that provides the value to Type name</param>
+        public PolymorphicSchemaFilter(string discriminator, Dictionary<string, Type> map) 
+            : base(typeof(TBaseType), discriminator, map) {
+
+        }
+    }
+
+    /// <summary>
+    /// Adds all derived types of any given base type
+    /// </summary>
+    public class PolymorphicSchemaFilter : ISchemaFilter
+    {
+        /// <summary>
+        /// The base type.
+        /// </summary>
+        public Type BaseType { get; }
+
+        /// <summary>
+        /// Derived types of <see cref="BaseType"/>
+        /// </summary>
+        public List<Type> DerivedTypes { get; }
+        
+        /// <summary>
+        /// Derived types of <see cref="BaseType"/>
+        /// </summary>
+        public IDictionary<string, string> DiscriminatorMap { get; }
+
+        /// <summary>
+        /// AnyOf AllOf List for <see cref="BaseType"/>
+        /// </summary>
+        public IList<OpenApiSchema> AllOfReferences { get; }
 
         /// <summary>
         /// The property name used to determine the type of this object
@@ -33,51 +68,24 @@ namespace Indice.AspNetCore.Swagger
         public string Discriminator { get; }
 
         /// <summary>
-        /// Construcs the schema filter by searching for an Enum which values match the type names.
-        /// </summary>
-        public PolymorphicSchemaFilter() : this(null, null) {
-
-        }
-
-        /// <summary>
         /// Construcs the schema filter
         /// </summary>
-        public PolymorphicSchemaFilter(string discriminator, Dictionary<string, string> map) {
-            var baseType = typeof(TBaseType);
-            DerivedTypes = baseType.Assembly
-                            .GetTypes()
-                            .Where(t =>
-                                t != baseType &&
-                                baseType.IsAssignableFrom(t)
-                                ).ToList();
+        /// <param name="baseType">The base type</param>
+        /// <param name="discriminator">The property that will be used or added to the schema as the Type discriminator</param>
+        /// <param name="map">A dictionary that provides the value to Type name</param>
+        public PolymorphicSchemaFilter(Type baseType, string discriminator, IDictionary<string, Type> map) {
+            BaseType = baseType;
 
-            if (string.IsNullOrEmpty(discriminator)) {
-                var candidate = baseType.GetProperties().Where(x => x.PropertyType.IsEnum).FirstOrDefault() ??
-                                baseType.GetProperties().Where(x => x.PropertyType == typeof(string) && x.Name.IndexOf("type", StringComparison.OrdinalIgnoreCase) > -1).FirstOrDefault() ??
-                                throw new ArgumentNullException(nameof(discriminator));
-
-                discriminator = candidate.Name.Camelize();
-                if (candidate.PropertyType.IsEnum && map == null) {
-                    var enumNames = Enum.GetNames(candidate.PropertyType);
-                    map = DerivedTypes.Select(x => new KeyValuePair<string, string>(x.Name, ResolveDiscriminatorValue(x, candidate, enumNames)))
-                                                   .ToDictionary(x => x.Value, x => new OpenApiReference { Type = ReferenceType.Schema, Id = x.Key }.ReferenceV3);
-                }
-
+            if (discriminator == null) {
+                discriminator = baseType.GetRuntimeProperties().Where(x => x.PropertyType.IsEnum).FirstOrDefault()?.Name;
             }
-            Discriminator = discriminator;
-            DiscriminatorMap = map;
+            discriminator = discriminator ?? "discriminator";
+            map = map ?? PolymorphicJsonConverter.GetTypeMapping(baseType, discriminator);
+            DiscriminatorMap = map.ToDictionary(x => x.Key, x => new OpenApiReference { Type = ReferenceType.Schema, Id = x.Value.Name }.ReferenceV3);
+            DerivedTypes = map.Values.Where(x => x != baseType).ToList();
+            AllOfReferences = map.Values.Where(x => !x.IsAbstract).Select(x => new OpenApiSchema { Reference = new OpenApiReference { Type = ReferenceType.Schema, Id = x.Name } }).ToList();
         }
-
-        private string ResolveDiscriminatorValue(Type type, PropertyInfo discriminator, string[] options) {
-            var value = type.Name;
-            try {
-                value = options.Where(name => type.Name.IndexOf(name, StringComparison.OrdinalIgnoreCase) > -1).Single();
-            } catch {
-                value = discriminator.GetValue(Activator.CreateInstance(type), null).ToString();
-            }
-            return value;
-        }
-
+        
         /// <summary>
         /// 
         /// </summary>
@@ -87,38 +95,28 @@ namespace Indice.AspNetCore.Swagger
             if (DerivedTypes.Count == 0) {
                 return;
             }
-            if (typeof(TBaseType) == context.SystemType) { // when it is the base type
-                //context.SchemaRegistry.Schemas.ContainsKey(enumType.Name)
+            if (BaseType == context.SystemType) { // when it is the base type
                 schema.Discriminator = new OpenApiDiscriminator { PropertyName = Discriminator, Mapping = DiscriminatorMap };
-                if (!context.SchemaRegistry.Schemas.ContainsKey(DerivedTypes[0].Name)) {
-                    foreach (var type in DerivedTypes) {
-                        var derivedSchema = context.SchemaRegistry.GetOrRegister(type);
-                        SubclassSchema(schema, derivedSchema, type, context);
+                foreach (var type in DerivedTypes.Where(x => !context.SchemaRegistry.Schemas.ContainsKey(x.Name))) {
+                    var derivedSchema = context.SchemaRegistry.GetOrRegister(type);
+                    if (derivedSchema.Reference?.Id != null) {
+                        derivedSchema = context.SchemaRegistry.Schemas[derivedSchema.Reference?.Id];
                     }
+                    SubclassSchema(schema, derivedSchema, type, context);
                 }
-            } else if (DerivedTypes.Contains(context.SystemType)) { // when it is the derived type
-                if (schema.AllOf?.Count == 0) { // and it is not altered to indicate inheritance.
-                    var baseSchema = context.SchemaRegistry.GetOrRegister(typeof(TBaseType));
-                    baseSchema.Discriminator = baseSchema.Discriminator ?? new OpenApiDiscriminator { PropertyName = Discriminator, Mapping = DiscriminatorMap };
-                    SubclassSchema(baseSchema, schema, context.SystemType, context);
-                }
-            } else {
+            } else if (!DerivedTypes.Contains(context.SystemType)) { // when it is neither the derived type or base type
                 var baseTypeProperties = schema.Properties
-                                      .Where(p => p.Value.Reference?.Id == typeof(TBaseType).Name)
-                                      .Union(schema.Properties.Where(p => p.Value.Items?.Reference?.Id == typeof(TBaseType).Name))
+                                      .Where(p => p.Value.Reference?.Id == BaseType.Name)
+                                      .Union(schema.Properties.Where(p => p.Value.Items?.Reference?.Id == BaseType.Name))
                                       .ToList();
-
                 foreach (var prop in baseTypeProperties) {
-                    if (prop.Value.Reference?.Id == typeof(TBaseType).Name) {
+                    
+                    if (prop.Value.Reference?.Id == BaseType.Name) {
                         prop.Value.Reference = null;
-                        prop.Value.OneOf = DerivedTypes.Select(x =>
-                            new OpenApiSchema { Reference = new OpenApiReference { Type = ReferenceType.Schema, Id = x.Name } }
-                        ).ToList();
+                        prop.Value.OneOf = AllOfReferences;
                     } else {
                         prop.Value.Items.Reference = null;
-                        prop.Value.Items.AnyOf = DerivedTypes.Select(x =>
-                            new OpenApiSchema { Reference = new OpenApiReference { Type = ReferenceType.Schema, Id = x.Name } }
-                        ).ToList();
+                        prop.Value.Items.AnyOf = AllOfReferences;
                     }
                 }
             }

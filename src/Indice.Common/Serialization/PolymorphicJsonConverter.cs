@@ -26,7 +26,7 @@ namespace Indice.Serialization
         /// 
         /// </summary>
         /// <param name="typePropertName"></param>
-        public PolymorphicJsonConverter(string typePropertName) : base (typePropertName, GetTypeMapping<T>(typePropertName)) {
+        public PolymorphicJsonConverter(string typePropertName) : base (typePropertName, GetTypeMapping(typeof(T), typePropertName)) {
         }
 
     }

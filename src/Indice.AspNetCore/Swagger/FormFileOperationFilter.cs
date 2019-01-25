@@ -36,13 +36,17 @@ namespace Indice.AspNetCore.Swagger
             if (!operation.RequestBody.Content.ContainsKey("multipart/form-data")) {
                 return;
             }
-            var schemaToChange = operation.RequestBody.Content["multipart/form-data"].Schema;
+            var contentToChange = operation.RequestBody.Content["multipart/form-data"];
             var formFileNames = typeof(IFormFile).GetProperties().Select(x => x.Name).ToArray();
-            var paramsToRemove = schemaToChange.Properties.Where(prop => formFileNames.Contains(prop.Key)).ToList();
-            paramsToRemove.ForEach(x => schemaToChange.Properties.Remove(x));
+            var paramsToRemove = contentToChange.Schema.Properties.Where(prop => formFileNames.Contains(prop.Key)).ToList();
+            paramsToRemove.ForEach(x => contentToChange.Schema.Properties.Remove(x));
+            paramsToRemove.ForEach(x => contentToChange.Encoding.Remove(x.Key));
             foreach (var paramName in allFileParamNames) {
-                schemaToChange.Properties.Add(paramName, new OpenApiSchema {
+                contentToChange.Schema.Properties.Add(paramName, new OpenApiSchema {
                     Type = "file"
+                });
+                contentToChange.Encoding.Add(paramName, new OpenApiEncoding {
+                    Style = ParameterStyle.Form
                 });
             }
         }

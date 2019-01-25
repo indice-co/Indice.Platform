@@ -1,11 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using Indice.Configuration;
+using Indice.Serialization;
 using Indice.Types;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OpenApi.Models;
+using Newtonsoft.Json;
 using Swashbuckle.AspNetCore.Swagger;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
@@ -25,6 +28,25 @@ namespace Indice.AspNetCore.Swagger
         /// <param name="options">The options to confugure</param>
         public static void AddFormFileSupport(this SwaggerGenOptions options) {
             options.OperationFilter<FormFileOperationFilter>();
+        }
+
+        /// <summary>
+        /// Since swashbackle 4.0 release the support for for parameters of type IFormFile is out-of-the-box. 
+        /// That is, the generator will automatically detect these and generate the correct Swagger to describe parameters that are passed in formData.
+        /// So this is exported to a seperate operation just in case we still need of it. [Depricated]
+        /// </summary>
+        /// <param name="options">The options to confugure</param>
+        /// <param name="assembliesToScan">Assemblies that will be searched for <see cref="PolymorphicJsonConverter"/> annotations</param>
+        public static void AddPolymorphism(this SwaggerGenOptions options, params Assembly[] assembliesToScan) {
+            var attribute = assembliesToScan.SelectMany(x => x.ExportedTypes).Select(x => x.GetCustomAttribute<JsonConverterAttribute>(false))
+                                                                             .Where(x => x != null && typeof(PolymorphicJsonConverter).IsAssignableFrom(x.ConverterType));
+            foreach (var item in attribute) {
+                var baseType = item.ConverterType.GenericTypeArguments[0];
+                var discriminator = item.ConverterParameters.FirstOrDefault() as string;
+                var mapping = PolymorphicJsonConverter.GetTypeMapping(baseType, discriminator);
+                options.SchemaFilter<PolymorphicSchemaFilter>(baseType, discriminator, mapping);
+                options.OperationFilter<PolymorphicOperationFilter>(new PolymorphicSchemaFilter(baseType, discriminator, mapping));
+            }
         }
 
         /// <summary>
@@ -89,6 +111,7 @@ namespace Indice.AspNetCore.Swagger
                     }
                 }
             });
+
 
             var version = $"v{apiSettings.DefaultVersion}";
 
