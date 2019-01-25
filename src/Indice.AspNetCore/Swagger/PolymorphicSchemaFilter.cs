@@ -84,6 +84,7 @@ namespace Indice.AspNetCore.Swagger
             DiscriminatorMap = map.ToDictionary(x => x.Key, x => new OpenApiReference { Type = ReferenceType.Schema, Id = x.Value.Name }.ReferenceV3);
             DerivedTypes = map.Values.Where(x => x != baseType).ToList();
             AllOfReferences = map.Values.Where(x => !x.IsAbstract).Select(x => new OpenApiSchema { Reference = new OpenApiReference { Type = ReferenceType.Schema, Id = x.Name } }).ToList();
+            Discriminator = discriminator;
         }
         
         /// <summary>
