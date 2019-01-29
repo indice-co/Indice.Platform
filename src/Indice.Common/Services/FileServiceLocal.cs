@@ -72,7 +72,9 @@ namespace Indice.Services
         /// <returns></returns>
         public Task<IEnumerable<string>> SearchAsync(string path) {
             var folderpath = Path.Combine(BaseDirectoryPath, path);
-            GuardExists(folderpath);
+            if (!GuardExists(folderpath, isDirectory: true, throwOnError: false)) {
+                return Task.FromResult(Enumerable.Empty<string>());
+            }
             var results = new List<string>();
             foreach (var directory in Directory.EnumerateDirectories(folderpath)) {
                 foreach (var file in Directory.EnumerateFiles(directory)) {
@@ -104,6 +106,12 @@ namespace Indice.Services
             });
         }
 
+        /// <summary>
+        /// Saves the stream to the file path.
+        /// </summary>
+        /// <param name="filepath">The file path</param>
+        /// <param name="stream">Data Stream</param>
+        /// <returns></returns>
         public async Task SaveAsync(string filepath, Stream stream) {
             filepath = Path.Combine(BaseDirectoryPath, filepath);
             var directory = Path.GetDirectoryName(filepath);
@@ -115,10 +123,11 @@ namespace Indice.Services
             }
         }
 
-        private void GuardExists(string path, bool isDirectory = false) {
+        private bool GuardExists(string path, bool isDirectory = false, bool throwOnError = true) {
             var exists = isDirectory ? Directory.Exists(path) : File.Exists(path);
-            if (!exists)
+            if (!exists && throwOnError)
                 throw new Exception($"file or directory '{path}' not found");
+            return exists;
         }
 
         private void GuardRelative(string path) {
