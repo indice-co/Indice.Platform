@@ -17,22 +17,38 @@ namespace Indice.AspNetCore.Swagger
             if (context.ApiDescription.SupportedResponseTypes.Any(x => x.Type == typeof(Stream))) {
 
                 foreach (var responseType in operation.Responses) {
-                    if (responseType.Value.Content.ContainsKey("application/octet-stream")) {
-                        responseType.Value.Content["application/octet-stream"] = new OpenApiMediaType() {
+                    int.TryParse(responseType.Key, out var responseCode);
+                    if (responseCode >= 200 && responseCode < 300) {
+                        if (responseType.Value.Content.ContainsKey("application/octet-stream")) {
+                            responseType.Value.Content["application/octet-stream"] = new OpenApiMediaType() {
+                                Schema = new OpenApiSchema {
+                                    Type = "file",
+                                    Format = "binary"
+                                }
+                            };
+                        } else {
+                            responseType.Value.Content.Clear();
+                            responseType.Value.Content.Add("application/octet-stream", new OpenApiMediaType() {
+                                Schema = new OpenApiSchema {
+                                    Type = "file",
+                                    Format = "binary"
+                                }
+                            });
+                        }
+                        continue;
+                    } else {
+                        responseType.Value.Content.Clear();
+                        responseType.Value.Content.Add("application/json", new OpenApiMediaType() {
+                            Schema = new OpenApiSchema {
+                                Type = "object",
+                            }
+                        });
+                        responseType.Value.Content.Add("plain/text", new OpenApiMediaType() {
                             Schema = new OpenApiSchema {
                                 Type = "string",
-                                Format = "binary"
                             }
-                        };
-                        continue;
+                        });
                     }
-                    responseType.Value.Content.Clear();
-                    responseType.Value.Content.Add("application/octet-stream", new OpenApiMediaType() {
-                        Schema = new OpenApiSchema {
-                            Type = "string",
-                            Format = "binary"
-                        }
-                    });
                 }
             }
         }

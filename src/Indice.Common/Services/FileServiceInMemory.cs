@@ -82,7 +82,7 @@ namespace Indice.Services
             if (!Cache.ContainsKey(filepath)) {
                 Cache[filepath] = null;
             }
-            using (MemoryStream ms = new MemoryStream()) {
+            using (var ms = new MemoryStream()) {
                 stream.CopyTo(ms);
                 Cache[filepath] = ms.ToArray();
             }
