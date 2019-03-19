@@ -4,6 +4,6 @@ namespace Indice.AspNetCore.Identity.Models
 {
     public class LogoutViewModel : LogoutInputModel
     {
-        public bool ShowLogoutPrompt { get; set; }
+        public bool ShowLogoutPrompt { get; set; } = true;
     }
 }

@@ -30,7 +30,7 @@ namespace Indice.AspNetCore.Identity.Models
         /// <summary>
         /// Setting to skip the loggedout page.
         /// </summary>
-        public bool AutomaticRedirectAfterSignOut { get; set; }
+        public bool AutomaticRedirectAfterSignOut { get; set; } = false;
 
         /// <summary>
         /// The Logut id 
