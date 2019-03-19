@@ -10,10 +10,17 @@ using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace Indice.AspNetCore.Swagger
 {
-    internal class SchemaFluentValidationFilter : ISchemaFilter
+    /// <summary>
+    /// filter that finds required validators searching in FluentValidation
+    /// </summary>
+    public class SchemaFluentValidationFilter : ISchemaFilter
     {
         private readonly IValidatorFactory _factory;
 
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="factory"></param>
         public SchemaFluentValidationFilter(IValidatorFactory factory) => _factory = factory ?? throw new ArgumentNullException(nameof(factory));
         
         /// <summary>
@@ -32,6 +39,10 @@ namespace Indice.AspNetCore.Swagger
                         schema.Required = schema.Required ?? new HashSet<string>();
                         schema.Required.Add(item.Key);
                     }
+                    var patterns = validators.OfType<IRegularExpressionValidator>();
+                    //if (patterns.Any()) {
+                    //    schema.Pattern =  
+                    //}
                 }
             }
         }

@@ -6,7 +6,7 @@ using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace Indice.AspNetCore.Swagger
 {
-    internal class FileOperationFilter : IOperationFilter
+    public class FileOperationFilter : IOperationFilter
     {
         /// <summary>
         /// 
@@ -22,7 +22,7 @@ namespace Indice.AspNetCore.Swagger
                         if (responseType.Value.Content.ContainsKey("application/octet-stream")) {
                             responseType.Value.Content["application/octet-stream"] = new OpenApiMediaType() {
                                 Schema = new OpenApiSchema {
-                                    Type = "file",
+                                    Type = "string",
                                     Format = "binary"
                                 }
                             };
@@ -30,7 +30,7 @@ namespace Indice.AspNetCore.Swagger
                             responseType.Value.Content.Clear();
                             responseType.Value.Content.Add("application/octet-stream", new OpenApiMediaType() {
                                 Schema = new OpenApiSchema {
-                                    Type = "file",
+                                    Type = "string",
                                     Format = "binary"
                                 }
                             });
@@ -41,11 +41,6 @@ namespace Indice.AspNetCore.Swagger
                         responseType.Value.Content.Add("application/json", new OpenApiMediaType() {
                             Schema = new OpenApiSchema {
                                 Type = "object",
-                            }
-                        });
-                        responseType.Value.Content.Add("plain/text", new OpenApiMediaType() {
-                            Schema = new OpenApiSchema {
-                                Type = "string",
                             }
                         });
                     }

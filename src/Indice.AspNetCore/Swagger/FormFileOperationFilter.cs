@@ -9,9 +9,17 @@ using Microsoft.OpenApi.Models;
 
 namespace Indice.AspNetCore.Swagger
 {
-    internal class FormFileOperationFilter : IOperationFilter
+    /// <summary>
+    /// Form file reduces multiple form data params to the one file upload.
+    /// </summary>
+    public class FormFileOperationFilter : IOperationFilter
     {
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="operation"></param>
+        /// <param name="context"></param>
         public void Apply(OpenApiOperation operation, OperationFilterContext context) {
             if (operation.Parameters == null)
                 return;
@@ -43,7 +51,8 @@ namespace Indice.AspNetCore.Swagger
             paramsToRemove.ForEach(x => contentToChange.Encoding.Remove(x.Key));
             foreach (var paramName in allFileParamNames) {
                 contentToChange.Schema.Properties.Add(paramName, new OpenApiSchema {
-                    Type = "file"
+                    Type = "string",
+                    Format = "binary"
                 });
                 contentToChange.Encoding.Add(paramName, new OpenApiEncoding {
                     Style = ParameterStyle.Form

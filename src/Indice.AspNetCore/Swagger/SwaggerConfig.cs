@@ -29,11 +29,72 @@ namespace Indice.AspNetCore.Swagger
         public static void AddFormFileSupport(this SwaggerGenOptions options) {
             options.OperationFilter<FormFileOperationFilter>();
         }
+        
+        /// <summary>
+        /// Adds support for Fluent validation.
+        /// </summary>
+        /// <param name="options">The options to confugure</param>
+        public static void AddFluentValidationSupport(this SwaggerGenOptions options) {
+            options.SchemaFilter<SchemaFluentValidationFilter>();
+        }
 
         /// <summary>
-        /// Since swashbackle 4.0 release the support for for parameters of type IFormFile is out-of-the-box. 
-        /// That is, the generator will automatically detect these and generate the correct Swagger to describe parameters that are passed in formData.
-        /// So this is exported to a seperate operation just in case we still need of it. [Depricated]
+        /// Simplifies generics and removes 'info' suffix
+        /// </summary>
+        /// <param name="options">The options to confugure</param>
+        public static void AddCustomSchemaIds(this SwaggerGenOptions options) {
+            // Simplifies generics:
+            options.CustomSchemaIds(t => {
+                var typeInfo = t.GetTypeInfo();
+
+                var getKeyValueTypeName = new Func<TypeInfo, string>((tInfo) => {
+                    var args = tInfo.GetGenericArguments();
+                    var param = args[1];
+                    var prefix = string.Empty;
+                    var name = "Item";
+                    return $"{prefix}{name}Of{param.Name}";
+                });
+
+                var getGenericTypeName = new Func<TypeInfo, string>((tInfo) => {
+                    var args = tInfo.GetGenericArguments();
+                    var param = args[0];
+                    var prefix = string.Empty;
+                    var name = tInfo.Name.Substring(0, tInfo.Name.IndexOf("`"));
+                    return $"{prefix}{name}Of{param.Name}";
+                });
+
+                if (typeInfo.IsGenericType) {
+                    var args = t.GetGenericArguments();
+
+                    if (args.Length == 2 && t.Name.Contains("KeyValuePair")) {
+                        return getKeyValueTypeName(typeInfo);
+                    } else if (args.Length == 1 || t.Name.Contains("ResultSet")) {
+                        var param = args[0];
+                        var prefix = string.Empty;
+                        var name = t.Name.Substring(0, t.Name.IndexOf("`"));
+                        var paramName = param.Name;
+
+                        if (param.Name.Contains("KeyValuePair")) {
+                            paramName = getKeyValueTypeName(param.GetTypeInfo());
+                        } else if (param.IsGenericType) {
+                            paramName = getGenericTypeName(param.GetTypeInfo());
+                        }
+
+                        return $"{prefix}{name}Of{paramName}";
+                    }
+                } else if (t.Namespace.Contains("Models")) {
+                    var name = t.Name.Replace(t.Namespace, string.Empty);
+                    name = name.Replace("Info", string.Empty);
+
+                    return name;
+                }
+
+                return t.FullName;
+            });
+        }
+
+        /// <summary>
+        /// Adds polymorphism.
         /// </summary>
         /// <param name="options">The options to confugure</param>
         /// <param name="assembliesToScan">Assemblies that will be searched for <see cref="PolymorphicJsonConverter"/> annotations</param>
@@ -127,7 +188,8 @@ namespace Indice.AspNetCore.Swagger
             if (File.Exists(xmlPath))
                 options.IncludeXmlComments(xmlPath);
 
-            options.DescribeAllEnumsAsStrings();
+            options.UseReferencedDefinitionsForEnums();
+
             options.OrderActionsBy(d => d.RelativePath);
 
             options.MapType<Stream>(() => new OpenApiSchema {
@@ -138,61 +200,7 @@ namespace Indice.AspNetCore.Swagger
                 Type = "string"
             });
 
-            options.OperationFilter<SecurityRequirementsOperationFilter>(); // Assign scope requirements to operations based on AuthorizeAttribute.
-            options.OperationFilter<SimpleOperationIdFilter>();
-            options.OperationFilter<FormFileOperationFilter>();
-            options.OperationFilter<FileOperationFilter>();
-            options.SchemaFilter<SchemaFluentValidationFilter>();
-            options.SchemaFilter<EnumsAsReferencesFilter>();
-
-            // Simplifies generics:
-            options.CustomSchemaIds(t => {
-                var typeInfo = t.GetTypeInfo();
-
-                var getKeyValueTypeName = new Func<TypeInfo, string>((tInfo) => {
-                    var args = tInfo.GetGenericArguments();
-                    var param = args[1];
-                    var prefix = string.Empty;
-                    var name = "Item";
-                    return $"{prefix}{name}Of{param.Name}";
-                });
-
-                var getGenericTypeName = new Func<TypeInfo, string>((tInfo) => {
-                    var args = tInfo.GetGenericArguments();
-                    var param = args[0];
-                    var prefix = string.Empty;
-                    var name = tInfo.Name.Substring(0, tInfo.Name.IndexOf("`"));
-                    return $"{prefix}{name}Of{param.Name}";
-                });
-
-                if (typeInfo.IsGenericType) {
-                    var args = t.GetGenericArguments();
-
-                    if (args.Length == 2 && t.Name.Contains("KeyValuePair")) {
-                        return getKeyValueTypeName(typeInfo);
-                    } else if (args.Length == 1 || t.Name.Contains("ResultSet")) {
-                        var param = args[0];
-                        var prefix = string.Empty;
-                        var name = t.Name.Substring(0, t.Name.IndexOf("`"));
-                        var paramName = param.Name;
-
-                        if (param.Name.Contains("KeyValuePair")) {
-                            paramName = getKeyValueTypeName(param.GetTypeInfo());
-                        } else if (param.IsGenericType) {
-                            paramName = getGenericTypeName(param.GetTypeInfo());
-                        }
-
-                        return $"{prefix}{name}Of{paramName}";
-                    }
-                } else if (t.Namespace.Contains("Models")) {
-                    var name = t.Name.Replace(t.Namespace, string.Empty);
-                    name = name.Replace("Info", string.Empty);
-
-                    return name;
-                }
-
-                return t.FullName;
-            });
+            options.OperationFilter<SecurityRequirementsOperationFilter>(); // Assign scope requirements to operations based on AuthorizeAttribute.            
         }
 
     }

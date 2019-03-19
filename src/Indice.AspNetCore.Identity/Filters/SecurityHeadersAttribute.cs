@@ -26,6 +26,10 @@ namespace Indice.AspNetCore.Identity.Filters
         public SecurityHeadersAttribute(CSP scp) {
             _csp = scp ?? new CSP {
                 DefaultSrc = $"{CSP.Self}",
+                ObjectSrc = $"{CSP.None}",
+                BaseUri = $"{CSP.Self}",
+                FrameAncestors = $"{CSP.None}",
+                Sandbox = $"allow-forms allow-same-origin allow-scripts",
                 ScriptSrc = $"{CSP.Self} ajax.googleapis.com ajax.aspnetcdn.com",
                 FontSrc = $"{CSP.Self} fonts.googleapis.com",
                 ImgSrc = CSP.Wildcard,
@@ -56,6 +60,11 @@ namespace Indice.AspNetCore.Identity.Filters
                 // And once again for IE.
                 if (!context.HttpContext.Response.Headers.ContainsKey("X-Content-Security-Policy")) {
                     context.HttpContext.Response.Headers.Add("X-Content-Security-Policy", _csp.ToString());
+                }
+                // https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Referrer-Policy
+                var referrer_policy = "no-referrer";
+                if (!context.HttpContext.Response.Headers.ContainsKey("Referrer-Policy")) {
+                    context.HttpContext.Response.Headers.Add("Referrer-Policy", referrer_policy);
                 }
             }
         }
@@ -134,11 +143,43 @@ namespace Indice.AspNetCore.Identity.Filters
         }
 
         /// <summary>
+        /// Specifies valid sources for the &lt;object&gt;, &lt;embed&gt;, and &lt;applet&gt; elements.
+        /// </summary>
+        public string ObjectSrc {
+            get => GetValueOrDefult(nameof(ObjectSrc));
+            set => SetValue(nameof(ObjectSrc), value);
+        }
+
+        /// <summary>
+        /// Content Security policy regarding frame ancestors. When the current page will be included in an iframe.
+        /// </summary>
+        public string FrameAncestors {
+            get => GetValueOrDefult(nameof(FrameAncestors));
+            set => SetValue(nameof(FrameAncestors), value);
+        }
+
+        /// <summary>
         /// Endpoint to report back the csp report from server.
         /// </summary>
         public string ReportUri {
             get => GetValueOrDefult(nameof(ReportUri));
             set => SetValue(nameof(ReportUri), value);
+        }
+
+        /// <summary>
+        /// Restricts the URLs which can be used in a document's &lt;base&gt; element.
+        /// </summary>
+        public string BaseUri {
+            get => GetValueOrDefult(nameof(BaseUri));
+            set => SetValue(nameof(BaseUri), value);
+        }
+
+        /// <summary>
+        /// Enables a sandbox for the requested resource similar to the &lt;iframe&gt; sandbox attribute.
+        /// </summary>
+        public string Sandbox {
+            get => GetValueOrDefult(nameof(Sandbox));
+            set => SetValue(nameof(Sandbox), value);
         }
 
         /// <summary>

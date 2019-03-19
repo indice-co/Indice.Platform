@@ -33,8 +33,10 @@ namespace Indice.AspNetCore.Swagger
             var requireScopes = authAttributes.Select(attr => attr.Policy);
 
             if (requireScopes.Any()) {
-                operation.Responses.Add("401", new OpenApiResponse { Description = "Unauthorized", Content = new Dictionary<string, OpenApiMediaType> { { "plain/text", new OpenApiMediaType { Schema = new OpenApiSchema { Type = "string" } } } } });
-                operation.Responses.Add("403", new OpenApiResponse { Description = "Forbidden", Content = new Dictionary<string, OpenApiMediaType> { { "plain/text", new OpenApiMediaType { Schema = new OpenApiSchema { Type = "string" } } } } });
+                if (!operation.Responses.ContainsKey("401"))
+                    operation.Responses.Add("401", new OpenApiResponse { Description = "Unauthorized", Content = new Dictionary<string, OpenApiMediaType> { { "application/json", new OpenApiMediaType { Schema = new OpenApiSchema { Type = "object" } } } } });
+                if (!operation.Responses.ContainsKey("403"))
+                    operation.Responses.Add("403", new OpenApiResponse { Description = "Forbidden", Content = new Dictionary<string, OpenApiMediaType> { { "application/json", new OpenApiMediaType { Schema = new OpenApiSchema { Type = "object" } } } } });
                 var scopes = new[] { _ApiSettings.ResourceName }.Union(_ApiSettings.Scopes.Keys.Select(x => $"{_ApiSettings.ResourceName}:{x}"));
                 var oAuthScheme = new OpenApiSecurityScheme {
                     Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "oauth2" }
