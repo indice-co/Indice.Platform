@@ -50,13 +50,15 @@ namespace Indice.AspNetCore.Swagger
             paramsToRemove.ForEach(x => contentToChange.Schema.Properties.Remove(x));
             paramsToRemove.ForEach(x => contentToChange.Encoding.Remove(x.Key));
             foreach (var paramName in allFileParamNames) {
-                contentToChange.Schema.Properties.Add(paramName, new OpenApiSchema {
-                    Type = "string",
-                    Format = "binary"
-                });
-                contentToChange.Encoding.Add(paramName, new OpenApiEncoding {
-                    Style = ParameterStyle.Form
-                });
+                if (!contentToChange.Schema.Properties.ContainsKey(paramName)) { 
+                    contentToChange.Schema.Properties.Add(paramName, new OpenApiSchema {
+                        Type = "string",
+                        Format = "binary"
+                    });
+                    contentToChange.Encoding.Add(paramName, new OpenApiEncoding {
+                        Style = ParameterStyle.Form
+                    });
+                }
             }
         }
     }

@@ -122,16 +122,30 @@ namespace Indice.AspNetCore.Swagger
             var version = $"v{apiSettings.DefaultVersion}";
 
             var scope = scopeOrGroup;
+            var license = apiSettings.License == null ? null : new OpenApiLicense { Name = apiSettings.License.Name, Url = new Uri(apiSettings.License.Url) };
             var description = $"{apiSettings.FriendlyName}. {scopeOrGroup}";
             apiSettings.Scopes.TryGetValue(scopeOrGroup, out description);
-            options.SwaggerDoc(scope, new OpenApiInfo {
+            options.AddDoc(scope, description, version, apiSettings.TermsOfServiceUrl, license);
+        }
+
+        /// <summary>
+        /// Add a new swagger document based on a subscope of the existing api.
+        /// </summary>
+        /// <param name="options">The options to confugure</param>
+        /// <param name="scopeOrGroup">The url segment that the schild scope will live under</param>
+        /// <param name="title"></param>
+        /// <param name="version"></param>
+        /// <param name="termsOfService"></param>
+        /// <param name="license"></param>
+        public static void AddDoc(this SwaggerGenOptions options, string scopeOrGroup, string title, string version = "v1", string termsOfService = null, OpenApiLicense license = null) {
+             options.SwaggerDoc(scopeOrGroup, new OpenApiInfo {
                 Version = version,
-                Title = description,
-                TermsOfService = apiSettings.TermsOfServiceUrl == null ? null : new Uri(apiSettings.TermsOfServiceUrl),
-                License = apiSettings.License == null ? null : new OpenApiLicense { Name = apiSettings.License.Name, Url = new Uri(apiSettings.License.Url) }
+                Title = title,
+                TermsOfService = termsOfService == null ? null : new Uri(termsOfService),
+                License = license
             });
         }
-        
+
         /// <summary>
         /// A set of defaults for exposing an API
         /// </summary>
