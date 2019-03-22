@@ -27,10 +27,12 @@ namespace Indice.AspNetCore.Identity.Extensions
             IEnumerable<ApiResource> apis = null) {
 
             using (var serviceScope = app.ApplicationServices.GetRequiredService<IServiceScopeFactory>().CreateScope()) {
-                var config = serviceScope.ServiceProvider.GetService<ConfigurationDbContext>();
-                config.Database.EnsureCreated();
                 serviceScope.ServiceProvider.GetService<PersistedGrantDbContext>().Database.EnsureCreated();
-                config.SeedData(clients, identityResources, apis);
+                var config = serviceScope.ServiceProvider.GetService<ConfigurationDbContext>();
+                if (config != null) { 
+                    config.Database.EnsureCreated();
+                    config.SeedData(clients, identityResources, apis);
+                }
             }
 
             return app;
