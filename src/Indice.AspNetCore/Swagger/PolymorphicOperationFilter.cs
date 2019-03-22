@@ -24,7 +24,11 @@ namespace Indice.AspNetCore.Swagger
         private PolymorphicSchemaFilter Configuration { get; }   
         private Type EnumerableOfBaseType { get; }
         
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="operation"></param>
+        /// <param name="context"></param>
         public void Apply(OpenApiOperation operation, OperationFilterContext context) {
             //if (context.ApiDescription.SupportedResponseTypes.Any(x => x.Type == Configuration.BaseType || EnumerableOfBaseType.IsAssignableFrom(x.Type))) {
             //    foreach (var contenType in operation.Responses) {
