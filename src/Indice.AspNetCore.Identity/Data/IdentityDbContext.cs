@@ -39,7 +39,7 @@ namespace Indice.AspNetCore.Identity.Data
             builder.Entity<UserPassword>(b => {
                 b.ToTable(nameof(UserPassword), "auth");
                 b.HasKey(x => x.Id);
-                b.HasOne<User>().WithMany().HasForeignKey(x => x.UserId);
+                b.HasOne<User>().WithMany().HasForeignKey(x => x.UserId).OnDelete(DeleteBehavior.Cascade);
             });
         }
     }

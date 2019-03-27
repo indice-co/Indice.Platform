@@ -1,15 +1,20 @@
 ﻿using System.IO;
 using System.Linq;
+using Microsoft.AspNetCore.Http;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.Swagger;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace Indice.AspNetCore.Swagger
 {
+    /// <summary>
+    /// Converts response to string of bytes when an action has a produces response type of <see cref="Stream"/>. 
+    /// This is obsolete use respnse type of <see cref="IFormFile"/> instead.
+    /// </summary>
     public class FileOperationFilter : IOperationFilter
     {
         /// <summary>
-        /// 
+        /// Apply method of the fileter
         /// </summary>
         /// <param name="operation"></param>
         /// <param name="context"></param>
