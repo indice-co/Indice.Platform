@@ -13,6 +13,11 @@ namespace Indice.Configuration
         public string ResourceName { get; set; } = "api1";
 
         /// <summary>
+        /// List of secrets. Usualy here is the apisecret used to communicate with IdSrv in order to exchange the reference tokens with actual info.
+        /// </summary>
+        public Dictionary<string, string> Secrets { get; set; } = new Dictionary<string, string>();
+
+        /// <summary>
         /// The sub scopes avialable for the api.
         /// </summary>
         public Dictionary<string, string> Scopes { get; set; } = new Dictionary<string, string>();
