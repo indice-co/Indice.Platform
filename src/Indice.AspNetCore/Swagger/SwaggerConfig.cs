@@ -6,6 +6,7 @@ using System.Reflection;
 using Indice.Configuration;
 using Indice.Serialization;
 using Indice.Types;
+using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OpenApi.Models;
 using Newtonsoft.Json;
@@ -213,7 +214,10 @@ namespace Indice.AspNetCore.Swagger
             options.MapType<FilterClause>(() => new OpenApiSchema {
                 Type = "string"
             });
-
+            options.MapType<GeoPoint>(() => new OpenApiSchema {
+                Type = "string"
+            });
+            options.CustomOperationIds(x => (x.ActionDescriptor as ControllerActionDescriptor)?.ActionName);
             options.OperationFilter<SecurityRequirementsOperationFilter>(); // Assign scope requirements to operations based on AuthorizeAttribute.            
         }
 
