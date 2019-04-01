@@ -117,16 +117,18 @@ namespace Indice.AspNetCore.Swagger
         /// <param name="options">The options to confugure</param>
         /// <param name="settings"></param>
         /// <param name="scopeOrGroup">The url segment that the schild scope will live under</param>
-        public static void AddDoc(this SwaggerGenOptions options, GeneralSettings settings, string scopeOrGroup) {
+        /// <param name="description"></param>
+        public static OpenApiInfo AddDoc(this SwaggerGenOptions options, GeneralSettings settings, string scopeOrGroup, string description) {
 
             var apiSettings = settings?.Api ?? new ApiSettings();
             var version = $"v{apiSettings.DefaultVersion}";
 
             var scope = scopeOrGroup;
             var license = apiSettings.License == null ? null : new OpenApiLicense { Name = apiSettings.License.Name, Url = new Uri(apiSettings.License.Url) };
-            var description = $"{apiSettings.FriendlyName}. {scopeOrGroup}";
-            apiSettings.Scopes.TryGetValue(scopeOrGroup, out description);
-            options.AddDoc(scope, description, version, apiSettings.TermsOfServiceUrl, license);
+            var contact = apiSettings.Contact == null ? null : new OpenApiContact { Name = apiSettings.Contact.Name, Url = new Uri(apiSettings.Contact.Url), Email = apiSettings.Contact.Email };
+            var title = $"{apiSettings.FriendlyName}. {scopeOrGroup}";
+            apiSettings.Scopes.TryGetValue(scopeOrGroup, out title);
+            return options.AddDoc(scope, title, description, version, apiSettings.TermsOfServiceUrl, license, contact);
         }
 
         /// <summary>
@@ -135,16 +137,22 @@ namespace Indice.AspNetCore.Swagger
         /// <param name="options">The options to confugure</param>
         /// <param name="scopeOrGroup">The url segment that the schild scope will live under</param>
         /// <param name="title"></param>
+        /// <param name="description"></param>
         /// <param name="version"></param>
         /// <param name="termsOfService"></param>
         /// <param name="license"></param>
-        public static void AddDoc(this SwaggerGenOptions options, string scopeOrGroup, string title, string version = "v1", string termsOfService = null, OpenApiLicense license = null) {
-             options.SwaggerDoc(scopeOrGroup, new OpenApiInfo {
+        /// <param name="contact"></param>
+        public static OpenApiInfo AddDoc(this SwaggerGenOptions options, string scopeOrGroup, string title, string description, string version = "v1", string termsOfService = null, OpenApiLicense license = null, OpenApiContact contact = null) {
+            var info = new OpenApiInfo {
                 Version = version,
                 Title = title,
+                Description = description,
                 TermsOfService = termsOfService == null ? null : new Uri(termsOfService),
-                License = license
-            });
+                License = license,
+                Contact = contact,
+            };
+            options.SwaggerDoc(scopeOrGroup, info);
+            return info;
         }
 
         /// <summary>

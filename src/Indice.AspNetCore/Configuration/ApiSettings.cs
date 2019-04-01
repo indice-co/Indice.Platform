@@ -43,6 +43,11 @@ namespace Indice.Configuration
         public LegalDocument License { get; set; }
 
         /// <summary>
+        /// Api contact info. (developer) Will appear usualy on the swagger documentation page.
+        /// </summary>
+        public ApiContact Contact { get; set; }
+
+        /// <summary>
         /// Used to configure a legal document resource name and location
         /// </summary>
         public class LegalDocument {
@@ -56,6 +61,26 @@ namespace Indice.Configuration
             /// The name of the document
             /// </summary>
             public string Url { get; set; }
+        }
+
+        /// <summary>
+        /// Api contact info. (developer) Will appear usualy on the swagger documentation page.
+        /// </summary>
+        public class ApiContact {
+            /// <summary>
+            /// The name of the contact
+            /// </summary>
+            public string Name { get; set; }
+
+            /// <summary>
+            /// A url to the developer portal or github account/repo
+            /// </summary>
+            public string Url { get; set; }
+
+            /// <summary>
+            /// The contact email
+            /// </summary>
+            public string Email { get; set; }
         }
     }
 }
