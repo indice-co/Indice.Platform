@@ -98,12 +98,17 @@ namespace Indice.AspNetCore.Swagger
             }
             if (BaseType == context.Type) { // when it is the base type
                 schema.Discriminator = new OpenApiDiscriminator { PropertyName = Discriminator, Mapping = DiscriminatorMap };
-                foreach (var type in DerivedTypes.Where(x => !context.SchemaRepository.Schemas.ContainsKey(x.Name))) {
-                    
+                foreach (var type in DerivedTypes.Where(x => x.Name != BaseType.Name && !context.SchemaRepository.Schemas.ContainsKey(x.Name))) {
+                    var derivedSchema = default(OpenApiSchema);
                     if (!context.SchemaRepository.TryGetIdFor(type, out var derivedSchemaId)) {
-                        var derivedSchema = context.SchemaGenerator.GenerateSchema(type, context.SchemaRepository);
-                        SubclassSchema(schema, derivedSchema, type, context);
+                        derivedSchema = context.SchemaGenerator.GenerateSchema(type, context.SchemaRepository);
                     }
+                    if (context.SchemaRepository.Schemas.ContainsKey(derivedSchema.Reference?.Id ?? type.Name)) {
+                        derivedSchema = context.SchemaRepository.Schemas[derivedSchema.Reference?.Id ?? type.Name];
+                    } else {
+                        derivedSchema = new OpenApiSchema { Reference = new OpenApiReference { Type = ReferenceType.Schema, Id = type.Name } };
+                    }
+                    SubclassSchema(schema, derivedSchema, type, context);
                 }
             } else if (!DerivedTypes.Contains(context.Type)) { // when it is neither the derived type or base type
                 var baseTypeProperties = schema.Properties
@@ -111,7 +116,7 @@ namespace Indice.AspNetCore.Swagger
                                       .Union(schema.Properties.Where(p => p.Value.Items?.Reference?.Id == BaseType.Name))
                                       .ToList();
                 foreach (var prop in baseTypeProperties) {
-                    
+
                     if (prop.Value.Reference?.Id == BaseType.Name) {
                         prop.Value.Reference = null;
                         prop.Value.OneOf = AllOfReferences;
@@ -120,7 +125,17 @@ namespace Indice.AspNetCore.Swagger
                         prop.Value.Items.AnyOf = AllOfReferences;
                     }
                 }
-            }
+            } /*else if (DerivedTypes.Contains(context.Type)) {
+                var derivedSchema = schema;
+                var baseSchema = default(OpenApiSchema);
+                if (context.SchemaRepository.TryGetIdFor(BaseType, out var baseSchemaId) &&
+                    context.SchemaRepository.Schemas.ContainsKey(baseSchemaId)) {
+                    baseSchema = context.SchemaRepository.Schemas[baseSchemaId];
+                } else {
+                    baseSchema = context.SchemaGenerator.GenerateSchema(BaseType, context.SchemaRepository);
+                }
+                SubclassSchema(schema, derivedSchema, context.Type, context);
+            }*/
         }
 
         private static void SubclassSchema(OpenApiSchema baseSchema, OpenApiSchema derivedSchema, Type derivedType, SchemaFilterContext context) {
