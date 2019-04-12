@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Indice.Configuration;
 using MailKit.Net.Smtp;
 using MailKit.Security;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.ViewEngines;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
+using Microsoft.AspNetCore.StaticFiles;
 using MimeKit;
 using MimeKit.Text;
 
@@ -17,6 +19,7 @@ namespace Indice.Services
     public class EmailServiceSmtpRazor : EmailServiceRazorBase
     {
         private readonly EmailServiceSettings _settings;
+        private readonly FileExtensionContentTypeProvider _fileExtensionContentTypeProvider;
 
         /// <summary>
         /// Constructs the service
@@ -25,11 +28,16 @@ namespace Indice.Services
         /// <param name="viewEngine">Represents an <see cref="IViewEngine"/> that delegates to one of a collection of view engines.></param>
         /// <param name="tempDataProvider">Defines the contract for temporary-data providers that store data that is viewed on the next request.</param>
         /// <param name="httpContextAccessor">Used to access the <see cref="HttpContext"/> through the <see cref="IHttpContextAccessor"/> interface and its default implementation <see cref="HttpContextAccessor"/>.</param>
-        public EmailServiceSmtpRazor(EmailServiceSettings settings, ICompositeViewEngine viewEngine, ITempDataProvider tempDataProvider, IHttpContextAccessor httpContextAccessor)
-            : base(viewEngine, tempDataProvider, httpContextAccessor) => _settings = settings ?? throw new ArgumentNullException(nameof(settings));
+        /// <param name="fileExtensionContentTypeProvider"></param>
+        public EmailServiceSmtpRazor(EmailServiceSettings settings, ICompositeViewEngine viewEngine, ITempDataProvider tempDataProvider, IHttpContextAccessor httpContextAccessor,
+            FileExtensionContentTypeProvider fileExtensionContentTypeProvider) : base(viewEngine, tempDataProvider, httpContextAccessor) {
+
+            _settings = settings ?? throw new ArgumentNullException(nameof(settings));
+            _fileExtensionContentTypeProvider = fileExtensionContentTypeProvider ?? throw new ArgumentNullException(nameof(fileExtensionContentTypeProvider));
+        }
 
         /// <inheritdoc/>
-        public override async Task SendAsync<TModel>(string[] recipients, string subject, string body, string template, TModel data) {
+        public override async Task SendAsync<TModel>(string[] recipients, string subject, string body, string template, TModel data, FileAttachment[] attachments = null) {
             var message = new MimeMessage();
             message.From.Add(new MailboxAddress(_settings.SenderName, _settings.Sender));
             message.To.AddRange(recipients.Select(recipient => InternetAddress.Parse(recipient)));
@@ -37,10 +45,29 @@ namespace Indice.Services
                 var bccRecipients = _settings.BccRecipients.Split(',', ';');
                 message.Bcc.AddRange(bccRecipients.Select(recipient => InternetAddress.Parse(recipient)));
             }
-            message.Body = new TextPart(TextFormat.Html) {
+            message.Subject = subject;
+            var bodyPart = new TextPart(TextFormat.Html) {
                 Text = await GetHtmlAsync(body, subject, template.ToString(), data)
             };
-            message.Subject = subject;
+            if (attachments?.Length > 0) {
+                var multipart = new Multipart("mixed");
+                multipart.Add(bodyPart);
+                foreach (var attachment in attachments) {
+                    if (!_fileExtensionContentTypeProvider.TryGetContentType(attachment.FileName, out var contentType)) {
+                        continue;
+                    }
+                    var contentTypeParts = contentType.Split('/');
+                    var attachmentPart = new MimePart(contentTypeParts[0], contentTypeParts[1]) {
+                        Content = new MimeContent(attachment.Data),
+                        ContentDisposition = new ContentDisposition(ContentDisposition.Attachment),
+                        ContentTransferEncoding = ContentEncoding.Base64,
+                        FileName = attachment.FileName
+                    };
+                    multipart.Add(attachmentPart);
+                }
+            } else {
+                message.Body = bodyPart;
+            }
             using (var client = new SmtpClient()) {
                 // If UseSSL = true then you need to provide certificate in order to send the email. Or else you get security exception.
                 var useSSL = _settings.UseSSL && client.ClientCertificates != null && client.ClientCertificates.Count > 0;

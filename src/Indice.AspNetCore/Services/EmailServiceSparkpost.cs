@@ -4,6 +4,7 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
+using Indice.Configuration;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.ViewEngines;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
@@ -58,7 +59,7 @@ namespace Indice.Services
         }
 
         /// <inheritdoc/>
-        public override async Task SendAsync<TModel>(string[] recipients, string subject, string body, string template, TModel data) {
+        public override async Task SendAsync<TModel>(string[] recipients, string subject, string body, string template, TModel data, FileAttachment[] attachments = null) {
             using (var httpClient = new HttpClient()) {
                 httpClient.BaseAddress = new Uri(_settings.Api);
                 httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(_settings.ApiKey);

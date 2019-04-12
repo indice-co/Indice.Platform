@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Indice.Configuration;
 using MailKit.Net.Smtp;
 using MailKit.Security;
 using MimeKit;
@@ -25,10 +26,10 @@ namespace Indice.Services
         public EmailServiceSmtp(EmailServiceSettings settings) => Settings = settings ?? throw new ArgumentNullException(nameof(settings));
 
         /// <inheritdoc/>
-        public async Task SendAsync(string[] recipients, string subject, string body) => await SendAsync<object>(recipients, subject, body, null, null);
+        public async Task SendAsync(string[] recipients, string subject, string body, FileAttachment[] attachments = null) => await SendAsync<object>(recipients, subject, body, null, null);
 
         /// <inheritdoc/>
-        public async Task SendAsync<TModel>(string[] recipients, string subject, string body, string template, TModel data) where TModel : class {
+        public async Task SendAsync<TModel>(string[] recipients, string subject, string body, string template, TModel data, FileAttachment[] attachments = null) where TModel : class {
             var message = new MimeMessage();
             message.From.Add(new MailboxAddress(Settings.SenderName, Settings.Sender));
             message.To.AddRange(recipients.Select(recipient => InternetAddress.Parse(recipient)));
@@ -57,6 +58,21 @@ namespace Indice.Services
                 await client.SendAsync(message);
                 await client.DisconnectAsync(true);
             }
+        }
+
+        /// <inheritdoc/>
+        public Task SendAsync<TModel>(Action<EmailMessageBuilder<TModel>> configureMessage) where TModel : class {
+            if (configureMessage == null) {
+                throw new ArgumentNullException(nameof(configureMessage));
+            }
+            throw new NotImplementedException();
+        }
+
+        public Task SendAsync(Action<EmailMessageBuilder> configureMessage) {
+            if (configureMessage == null) {
+                throw new ArgumentNullException(nameof(configureMessage));
+            }
+            throw new NotImplementedException();
         }
     }
 }

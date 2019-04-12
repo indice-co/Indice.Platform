@@ -1,4 +1,6 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
+using Indice.Configuration;
 
 namespace Indice.Services
 {
@@ -65,8 +67,9 @@ namespace Indice.Services
         /// <param name="recipients">The recipients of the email message.</param>
         /// <param name="subject">The subject of the email message.</param>
         /// <param name="body">The body of the email message.</param>
+        /// <param name="attachments">The files that will be attached in the email message.</param>
         /// <returns></returns>
-        Task SendAsync(string[] recipients, string subject, string body);
+        Task SendAsync(string[] recipients, string subject, string body, FileAttachment[] attachments = null);
 
         /// <summary>
         /// Sends an email.
@@ -77,8 +80,23 @@ namespace Indice.Services
         /// <param name="body">The body of the email message.</param>
         /// <param name="template">The name of the template used for the message.</param>
         /// <param name="data">The data model that contains information to render in the email message.</param>
+        /// <param name="attachments">The files that will be attached in the email message.</param>
         /// <returns></returns>
-        Task SendAsync<TModel>(string[] recipients, string subject, string body, string template, TModel data) where TModel : class;
+        Task SendAsync<TModel>(string[] recipients, string subject, string body, string template, TModel data, FileAttachment[] attachments = null) where TModel : class;
+
+        /// <summary>
+        /// Sends an email.
+        /// </summary>
+        /// <param name="configureMessage">The delegate that will be used to build the message.</param>
+        /// <returns></returns>
+        Task SendAsync(Action<EmailMessageBuilder> configureMessage);
+
+        /// <summary>
+        /// Sends an email.
+        /// </summary>
+        /// <param name="configureMessage">The delegate that will be used to build the message.</param>
+        /// <returns></returns>
+        Task SendAsync<TModel>(Action<EmailMessageBuilder<TModel>> configureMessage) where TModel : class;
     }
 
     /// <summary>

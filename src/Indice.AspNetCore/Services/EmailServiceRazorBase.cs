@@ -4,6 +4,7 @@ using System.Dynamic;
 using System.IO;
 using System.Reflection;
 using System.Threading.Tasks;
+using Indice.Configuration;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Abstractions;
@@ -37,10 +38,32 @@ namespace Indice.Services
         }
 
         /// <inheritdoc/>
-        public async Task SendAsync(string[] recipients, string subject, string body) => await SendAsync<object>(recipients, subject, body, "Email", null);
+        public async Task SendAsync(string[] recipients, string subject, string body, FileAttachment[] attachments = null) => await SendAsync<object>(recipients, subject, body, "Email", null);
 
         /// <inheritdoc/>
-        public abstract Task SendAsync<TModel>(string[] recipients, string subject, string body, string template, TModel data) where TModel : class;
+        public abstract Task SendAsync<TModel>(string[] recipients, string subject, string body, string template, TModel data, FileAttachment[] attachments = null) where TModel : class;
+
+        /// <inheritdoc/>
+        public async Task SendAsync(Action<EmailMessageBuilder> configureMessage) {
+            if (configureMessage == null) {
+                throw new ArgumentNullException(nameof(configureMessage));
+            }
+            var messageBuilder = new EmailMessageBuilder();
+            configureMessage(messageBuilder);
+            var message = messageBuilder.Build();
+            await SendAsync(message.Recipients.ToArray(), message.Subject, message.Body);
+        }
+
+        /// <inheritdoc/>
+        public async Task SendAsync<TModel>(Action<EmailMessageBuilder<TModel>> configureMessage) where TModel : class {
+            if (configureMessage == null) {
+                throw new ArgumentNullException(nameof(configureMessage));
+            }
+            var messageBuilder = new EmailMessageBuilder<TModel>();
+            configureMessage(messageBuilder);
+            var message = messageBuilder.Build();
+            await SendAsync(message.Recipients.ToArray(), message.Subject, message.Body, message.Template, message.Data);
+        }
 
         /// <summary>
         /// Generates the email body using the Razor engine.
