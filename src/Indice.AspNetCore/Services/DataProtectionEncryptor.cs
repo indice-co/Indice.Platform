@@ -20,7 +20,6 @@ namespace Indice.Services
             if (provider == null) {
                 throw new ArgumentNullException(nameof(provider));
             }
-
             _protector = provider.CreateProtector(typeof(T).FullName);
         }
 
@@ -45,7 +44,7 @@ namespace Indice.Services
                 @object = JsonConvert.DeserializeObject<T>(decryptedText);
                 return true;
             } catch (Exception) {
-                @object = default(T);
+                @object = default;
                 return false;
             }
         }

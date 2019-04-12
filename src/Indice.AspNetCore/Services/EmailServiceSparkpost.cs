@@ -1,20 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Dynamic;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
-using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Abstractions;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.ViewEngines;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
-using Microsoft.AspNetCore.Routing;
 using Newtonsoft.Json;
 
 namespace Indice.Services
@@ -30,29 +22,29 @@ namespace Indice.Services
         public const string Name = "SparkPost";
 
         /// <summary>
-        /// The default sernder (ie no-reply@indice.gr)
+        /// The default sender address (ex. no-reply@indice.gr).
         /// </summary>
         public string Sender { get; set; }
 
         /// <summary>
-        /// The SparkPost API key
+        /// The SparkPost API key.
         /// </summary>
         public string ApiKey { get; set; }
 
         /// <summary>
-        /// The SparkPost API url (ie https://api.sparkpost.com/api/v1/)
+        /// The SparkPost API URL (ex. https://api.sparkpost.com/api/v1/).
         /// </summary>
         public string Api { get; set; } = "https://api.sparkpost.com/api/v1/";
     }
 
     /// <summary>
-    /// Spark post implementation for the email service abstraction.
+    /// SparkPost implementation for the email service abstraction.
     /// https://developers.sparkpost.com/api/transmissions.html
     /// </summary>
     public class EmailServiceSparkpost : EmailServiceRazorBase
     {
         private readonly EmailServiceSparkPostSettings _settings;
-        
+
         /// <summary>
         /// constructs the service
         /// </summary>
@@ -65,33 +57,20 @@ namespace Indice.Services
             _settings = settings ?? throw new ArgumentNullException(nameof(settings));
         }
 
-        /// <summary>
-        /// Sends an email.
-        /// </summary>
-        /// <typeparam name="TModel">The type of the <paramref name="data"/> that will be applied to the template.</typeparam>
-        /// <param name="recipients">The recipients of the email message.</param>
-        /// <param name="subject">The subject of the email message.</param>
-        /// <param name="body">The body of the email message.</param>
-        /// <param name="template">The template of the email message.</param>
-        /// <param name="data">The data model that contains information to render in the email message.</param>
-        /// <returns></returns>
+        /// <inheritdoc/>
         public override async Task SendAsync<TModel>(string[] recipients, string subject, string body, string template, TModel data) {
             using (var httpClient = new HttpClient()) {
                 httpClient.BaseAddress = new Uri(_settings.Api);
                 httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(_settings.ApiKey);
-
                 var request = new {
                     content = new {
                         from = _settings.Sender,
                         subject,
-                        // text = "Testing SparkPost - the most awesomest email service in the world!",
-                        html = await GetHtmlAsync<TModel>(body, subject, template.ToString(), data)
+                        html = await GetHtmlAsync(body, subject, template.ToString(), data)
                     },
                     recipients = recipients.Select(recipient => new { address = recipient }).ToArray()
                 };
-
                 var response = await httpClient.PostAsync("transmissions", new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, "application/json"));
-
                 if (!response.IsSuccessStatusCode) {
                     // Should log something.
                 }
