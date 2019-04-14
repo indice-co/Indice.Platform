@@ -54,6 +54,7 @@ namespace Indice.AspNetCore.Extensions
         public static IServiceCollection AddEmailServiceSmtpRazor(this IServiceCollection services, IConfiguration configuration) {
             services.Configure<EmailServiceSettings>(configuration.GetSection(EmailServiceSettings.Name));
             services.AddTransient(serviceProvider => serviceProvider.GetRequiredService<IOptions<EmailServiceSettings>>().Value);
+            services.TryAddTransient<FileExtensionContentTypeProvider>();
             services.AddTransient<IEmailService, EmailServiceSmtpRazor>();
             return services;
         }
@@ -66,6 +67,7 @@ namespace Indice.AspNetCore.Extensions
         public static IServiceCollection AddEmailService(this IServiceCollection services, IConfiguration configuration) {
             services.Configure<EmailServiceSettings>(configuration.GetSection(EmailServiceSettings.Name));
             services.AddTransient(serviceProvider => serviceProvider.GetRequiredService<IOptions<EmailServiceSettings>>().Value);
+            services.TryAddTransient<FileExtensionContentTypeProvider>();
             services.AddTransient<IEmailService, EmailServiceSmtp>();
             return services;
         }

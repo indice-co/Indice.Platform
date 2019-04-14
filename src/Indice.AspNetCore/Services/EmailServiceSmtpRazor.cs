@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Indice.Configuration;
@@ -24,11 +25,11 @@ namespace Indice.Services
         /// <summary>
         /// Constructs the service
         /// </summary>
-        /// <param name="settings"></param>
-        /// <param name="viewEngine">Represents an <see cref="IViewEngine"/> that delegates to one of a collection of view engines.></param>
+        /// <param name="settings">An instance of <see cref="EmailServiceSettings"/> used to initialize the service.</param>
+        /// <param name="viewEngine">Represents an <see cref="IViewEngine"/> that delegates to one of a collection of view engines.</param>
         /// <param name="tempDataProvider">Defines the contract for temporary-data providers that store data that is viewed on the next request.</param>
         /// <param name="httpContextAccessor">Used to access the <see cref="HttpContext"/> through the <see cref="IHttpContextAccessor"/> interface and its default implementation <see cref="HttpContextAccessor"/>.</param>
-        /// <param name="fileExtensionContentTypeProvider"></param>
+        /// <param name="fileExtensionContentTypeProvider">Provides a mapping between file extensions and MIME types.</param>
         public EmailServiceSmtpRazor(EmailServiceSettings settings, ICompositeViewEngine viewEngine, ITempDataProvider tempDataProvider, IHttpContextAccessor httpContextAccessor,
             FileExtensionContentTypeProvider fileExtensionContentTypeProvider) : base(viewEngine, tempDataProvider, httpContextAccessor) {
 
@@ -50,20 +51,22 @@ namespace Indice.Services
                 Text = await GetHtmlAsync(body, subject, template.ToString(), data)
             };
             if (attachments?.Length > 0) {
-                var multipart = new Multipart("mixed");
-                multipart.Add(bodyPart);
+                var multipart = new Multipart("mixed") {
+                    bodyPart
+                };
                 foreach (var attachment in attachments) {
                     if (!_fileExtensionContentTypeProvider.TryGetContentType(attachment.FileName, out var contentType)) {
                         continue;
                     }
                     var contentTypeParts = contentType.Split('/');
                     var attachmentPart = new MimePart(contentTypeParts[0], contentTypeParts[1]) {
-                        Content = new MimeContent(attachment.Data),
+                        Content = new MimeContent(new MemoryStream(attachment.Data)),
                         ContentDisposition = new ContentDisposition(ContentDisposition.Attachment),
                         ContentTransferEncoding = ContentEncoding.Base64,
                         FileName = attachment.FileName
                     };
                     multipart.Add(attachmentPart);
+                    message.Body = multipart;
                 }
             } else {
                 message.Body = bodyPart;

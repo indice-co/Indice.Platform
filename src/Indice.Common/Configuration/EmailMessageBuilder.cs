@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Indice.Configuration
 {
@@ -12,7 +13,7 @@ namespace Indice.Configuration
             if (recipients?.Length == 0) {
                 throw new ArgumentException("One or more recipients must be declared for the message.", nameof(recipients));
             }
-            foreach (var recipient in recipients) {
+            foreach (var recipient in recipients.Distinct()) {
                 Recipients.Add(recipient);
             }
             return this;
@@ -47,15 +48,24 @@ namespace Indice.Configuration
             return this;
         }
 
+        public new EmailMessageBuilder<TModel> AddAttachments(params FileAttachment[] attachments) {
+            if (attachments?.Length == 0) {
+                throw new ArgumentException("One or more attachments must be declared for the message.", nameof(attachments));
+            }
+            Attachments = attachments;
+            return this;
+        }
+
         public new EmailMessage<TModel> Build() => new EmailMessage<TModel>(Recipients, Subject, Body, Template, Data);
     }
 
     public class EmailMessageBuilder
     {
-        public List<string> Recipients { get; set; } = new List<string>();
+        public IList<string> Recipients { get; set; } = new List<string>();
         public string Subject { get; set; }
         public string Body { get; set; }
         public string Template { get; set; } = "Email";
+        public IList<FileAttachment> Attachments { get; set; } = new List<FileAttachment>();
 
         public EmailMessageBuilder AddRecipients(params string[] recipients) {
             if (recipients?.Length == 0) {
@@ -88,6 +98,14 @@ namespace Indice.Configuration
                 throw new ArgumentException("A template name cannot be null or empty", nameof(template));
             }
             Template = template;
+            return this;
+        }
+
+        public EmailMessageBuilder AddAttachments(params FileAttachment[] attachments) {
+            if (attachments?.Length == 0) {
+                throw new ArgumentException("One or more attachments must be declared for the message.", nameof(attachments));
+            }
+            Attachments = attachments;
             return this;
         }
 
