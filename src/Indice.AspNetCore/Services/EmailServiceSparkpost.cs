@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Mvc.ViewEngines;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.StaticFiles;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 
 namespace Indice.Services
 {
@@ -93,7 +94,10 @@ namespace Indice.Services
                     }
                     request.Content.Attachments = attachmentsList.ToArray();
                 }
-                var response = await httpClient.PostAsync("transmissions", new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, "application/json"));
+                var requestJson = JsonConvert.SerializeObject(request, new JsonSerializerSettings {
+                    ContractResolver = new CamelCasePropertyNamesContractResolver()
+                });
+                var response = await httpClient.PostAsync("transmissions", new StringContent(requestJson, Encoding.UTF8, "application/json"));
                 if (!response.IsSuccessStatusCode) {
                     // Should log something.
                 }

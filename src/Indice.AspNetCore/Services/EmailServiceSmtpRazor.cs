@@ -23,7 +23,7 @@ namespace Indice.Services
         private readonly FileExtensionContentTypeProvider _fileExtensionContentTypeProvider;
 
         /// <summary>
-        /// Constructs the service
+        /// Constructs the service.
         /// </summary>
         /// <param name="settings">An instance of <see cref="EmailServiceSettings"/> used to initialize the service.</param>
         /// <param name="viewEngine">Represents an <see cref="IViewEngine"/> that delegates to one of a collection of view engines.</param>
