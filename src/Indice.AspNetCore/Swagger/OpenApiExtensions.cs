@@ -34,7 +34,7 @@ namespace Indice.AspNetCore.Swagger
 
                 if (value != null) {
                     var openValue = GetStructValue(property.PropertyType, value);
-                    var key = property.Name.Pascalize();
+                    var key = property.Name.Camelize();
 
                     if (openValue != null) {
                         if (result.ContainsKey(key)) {
@@ -52,6 +52,13 @@ namespace Indice.AspNetCore.Swagger
                         } else {
                             result.Add(key, array);
                         }
+                        continue;
+                    }
+                    var openObject = ToOpenApiAny(property.PropertyType, value);
+                    if (result.ContainsKey(key)) {
+                        result[key] = openObject;
+                    } else {
+                        result.Add(key, openObject);
                     }
                 }
             }
