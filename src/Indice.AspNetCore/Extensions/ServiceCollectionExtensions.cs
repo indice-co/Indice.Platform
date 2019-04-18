@@ -8,7 +8,6 @@ using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.DataProtection.AuthenticatedEncryption;
 using Microsoft.AspNetCore.DataProtection.AuthenticatedEncryption.ConfigurationModel;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -41,7 +40,6 @@ namespace Indice.AspNetCore.Extensions
         public static IServiceCollection AddEmailServiceSparkpost(this IServiceCollection services, IConfiguration configuration) {
             services.Configure<EmailServiceSparkPostSettings>(configuration.GetSection(EmailServiceSparkPostSettings.Name));
             services.AddTransient(serviceProvider => serviceProvider.GetRequiredService<IOptions<EmailServiceSparkPostSettings>>().Value);
-            services.TryAddTransient<FileExtensionContentTypeProvider>();
             services.AddTransient<IEmailService, EmailServiceSparkpost>();
             return services;
         }
@@ -54,7 +52,6 @@ namespace Indice.AspNetCore.Extensions
         public static IServiceCollection AddEmailServiceSmtpRazor(this IServiceCollection services, IConfiguration configuration) {
             services.Configure<EmailServiceSettings>(configuration.GetSection(EmailServiceSettings.Name));
             services.AddTransient(serviceProvider => serviceProvider.GetRequiredService<IOptions<EmailServiceSettings>>().Value);
-            services.TryAddTransient<FileExtensionContentTypeProvider>();
             services.AddTransient<IEmailService, EmailServiceSmtpRazor>();
             return services;
         }
@@ -67,7 +64,6 @@ namespace Indice.AspNetCore.Extensions
         public static IServiceCollection AddEmailService(this IServiceCollection services, IConfiguration configuration) {
             services.Configure<EmailServiceSettings>(configuration.GetSection(EmailServiceSettings.Name));
             services.AddTransient(serviceProvider => serviceProvider.GetRequiredService<IOptions<EmailServiceSettings>>().Value);
-            services.TryAddTransient<FileExtensionContentTypeProvider>();
             services.AddTransient<IEmailService, EmailServiceSmtp>();
             return services;
         }

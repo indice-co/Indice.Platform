@@ -3,9 +3,9 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Indice.Configuration;
+using Indice.Extensions;
 using MailKit.Net.Smtp;
 using MailKit.Security;
-using Microsoft.AspNetCore.StaticFiles;
 using MimeKit;
 using MimeKit.Text;
 
@@ -16,18 +16,13 @@ namespace Indice.Services
     /// </summary>
     public class EmailServiceSmtp : IEmailService
     {
-        private readonly FileExtensionContentTypeProvider _fileExtensionContentTypeProvider;
         private readonly EmailServiceSettings _settings;
 
         /// <summary>
         /// Cconstructs the service.
         /// </summary>
         /// <param name="settings">The SMTP settings to use.</param>
-        /// <param name="fileExtensionContentTypeProvider">Provides a mapping between file extensions and MIME types.</param>
-        public EmailServiceSmtp(EmailServiceSettings settings, FileExtensionContentTypeProvider fileExtensionContentTypeProvider) {
-            _settings = settings ?? throw new ArgumentNullException(nameof(settings));
-            _fileExtensionContentTypeProvider = fileExtensionContentTypeProvider ?? throw new ArgumentNullException(nameof(fileExtensionContentTypeProvider));
-        }
+        public EmailServiceSmtp(EmailServiceSettings settings) => _settings = settings ?? throw new ArgumentNullException(nameof(settings));
 
         /// <inheritdoc/>
         public async Task SendAsync(string[] recipients, string subject, string body, FileAttachment[] attachments = null) => await SendAsync<object>(recipients, subject, body, null, null);
@@ -50,9 +45,7 @@ namespace Indice.Services
                     bodyPart
                 };
                 foreach (var attachment in attachments) {
-                    if (!_fileExtensionContentTypeProvider.TryGetContentType(attachment.FileName, out var contentType)) {
-                        continue;
-                    }
+                    var contentType = FileExtensions.GetMimeType(Path.GetExtension(attachment.FileName));
                     var contentTypeParts = contentType.Split('/');
                     var attachmentPart = new MimePart(contentTypeParts[0], contentTypeParts[1]) {
                         Content = new MimeContent(new MemoryStream(attachment.Data)),
@@ -86,18 +79,25 @@ namespace Indice.Services
         }
 
         /// <inheritdoc/>
-        public Task SendAsync<TModel>(Action<EmailMessageBuilder<TModel>> configureMessage) where TModel : class {
+        public async Task SendAsync<TModel>(Action<EmailMessageBuilder<TModel>> configureMessage) where TModel : class {
             if (configureMessage == null) {
                 throw new ArgumentNullException(nameof(configureMessage));
             }
-            throw new NotImplementedException();
+            var messageBuilder = new EmailMessageBuilder<TModel>();
+            configureMessage(messageBuilder);
+            var message = messageBuilder.Build();
+            await SendAsync(message.Recipients.ToArray(), message.Subject, message.Body, message.Template, message.Data, message.Attachments.ToArray());
         }
 
-        public Task SendAsync(Action<EmailMessageBuilder> configureMessage) {
+        /// <inheritdoc/>
+        public async Task SendAsync(Action<EmailMessageBuilder> configureMessage) {
             if (configureMessage == null) {
                 throw new ArgumentNullException(nameof(configureMessage));
             }
-            throw new NotImplementedException();
+            var messageBuilder = new EmailMessageBuilder();
+            configureMessage(messageBuilder);
+            var message = messageBuilder.Build();
+            await SendAsync(message.Recipients.ToArray(), message.Subject, message.Body, message.Attachments.ToArray());
         }
     }
 }
