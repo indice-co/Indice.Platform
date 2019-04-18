@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.DataProtection.AuthenticatedEncryption;
 using Microsoft.AspNetCore.DataProtection.AuthenticatedEncryption.ConfigurationModel;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -19,67 +20,67 @@ namespace Indice.AspNetCore.Extensions
     /// <summary>
     /// Extensions to configure the IServiceCollection of an ASP.NET Core application.
     /// </summary>
-    public static class ServiceCollectionExtensions {
+    public static class ServiceCollectionExtensions
+    {
         /// <summary>
-        /// Adds Indice common services.
+        /// Adds Indice's common services.
         /// </summary>
         /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
         /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
         public static IServiceCollection AddIndiceServices(this IServiceCollection services, IConfiguration configuration) {
             services.Configure<GeneralSettings>(configuration.GetSection(GeneralSettings.Name));
-            services.AddTransient((sp) => sp.GetRequiredService<IOptions<GeneralSettings>>().Value);
+            services.AddTransient(serviceProvider => serviceProvider.GetRequiredService<IOptions<GeneralSettings>>().Value);
             return services;
         }
 
         /// <summary>
-        /// Adds EmailService that uses Sparkpost to send and Razor templates.
+        /// Adds an instance of <see cref="IEmailService"/> that uses Sparkpost to send and Razor templates.
         /// </summary>
         /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
         /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
         public static IServiceCollection AddEmailServiceSparkpost(this IServiceCollection services, IConfiguration configuration) {
             services.Configure<EmailServiceSparkPostSettings>(configuration.GetSection(EmailServiceSparkPostSettings.Name));
-            services.AddTransient((sp) => sp.GetRequiredService<IOptions<EmailServiceSparkPostSettings>>().Value);
+            services.AddTransient(serviceProvider => serviceProvider.GetRequiredService<IOptions<EmailServiceSparkPostSettings>>().Value);
+            services.TryAddTransient<FileExtensionContentTypeProvider>();
             services.AddTransient<IEmailService, EmailServiceSparkpost>();
-
             return services;
         }
 
         /// <summary>
-        /// Adds EmailService using SMTP settings in configuration plus Razor email templates.
+        /// Adds an instance of <see cref="IEmailService"/> using SMTP settings in configuration plus Razor email templates.
         /// </summary>
         /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
         /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
         public static IServiceCollection AddEmailServiceSmtpRazor(this IServiceCollection services, IConfiguration configuration) {
             services.Configure<EmailServiceSettings>(configuration.GetSection(EmailServiceSettings.Name));
-            services.AddTransient((sp) => sp.GetRequiredService<IOptions<EmailServiceSettings>>().Value);
+            services.AddTransient(serviceProvider => serviceProvider.GetRequiredService<IOptions<EmailServiceSettings>>().Value);
+            services.TryAddTransient<FileExtensionContentTypeProvider>();
             services.AddTransient<IEmailService, EmailServiceSmtpRazor>();
-
             return services;
         }
 
         /// <summary>
-        /// Adds EmailService using SMTP settings in configuration.
+        /// Adds an instance of <see cref="IEmailService"/> using SMTP settings in configuration.
         /// </summary>
         /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
         /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
         public static IServiceCollection AddEmailService(this IServiceCollection services, IConfiguration configuration) {
             services.Configure<EmailServiceSettings>(configuration.GetSection(EmailServiceSettings.Name));
-            services.AddTransient((sp) => sp.GetRequiredService<IOptions<EmailServiceSettings>>().Value);
+            services.AddTransient(serviceProvider => serviceProvider.GetRequiredService<IOptions<EmailServiceSettings>>().Value);
+            services.TryAddTransient<FileExtensionContentTypeProvider>();
             services.AddTransient<IEmailService, EmailServiceSmtp>();
-
             return services;
         }
 
         /// <summary>
-        /// Adds SmsService using Youboto.
+        /// Adds an instance of <see cref="ISmsService"/> using Youboto.
         /// </summary>
         /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
         /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
         public static IServiceCollection AddSmsServiceYouboto(this IServiceCollection services, IConfiguration configuration) {
             services.Configure<SmsServiceSettings>(configuration.GetSection(SmsServiceSettings.Name));
-            services.AddTransient((sp) => sp.GetRequiredService<IOptions<SmsServiceSettings>>().Value);
+            services.AddTransient(serviceProvider => serviceProvider.GetRequiredService<IOptions<SmsServiceSettings>>().Value);
             services.AddTransient<ISmsService, SmsServiceYuboto>();
-
             return services;
         }
 
@@ -89,10 +90,10 @@ namespace Indice.AspNetCore.Extensions
         /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
         /// <param name="action"></param>
         public static IServiceCollection AddFilesAzure(this IServiceCollection services, Action<FileServiceAzureStorage.FileServiceOptions> action = null) {
-            services.AddTransient<IFileService, FileServiceAzureStorage>(sp => {
+            services.AddTransient<IFileService, FileServiceAzureStorage>(serviceProvider => {
                 var options = new FileServiceAzureStorage.FileServiceOptions {
-                    ConnectionString = sp.GetRequiredService<IConfiguration>().GetConnectionString(FileServiceAzureStorage.CONNECTION_STRING_NAME),
-                    EnvironmentName = sp.GetRequiredService<IHostingEnvironment>().EnvironmentName
+                    ConnectionString = serviceProvider.GetRequiredService<IConfiguration>().GetConnectionString(FileServiceAzureStorage.CONNECTION_STRING_NAME),
+                    EnvironmentName = serviceProvider.GetRequiredService<IHostingEnvironment>().EnvironmentName
                 };
                 action?.Invoke(options);
                 return new FileServiceAzureStorage(options.ConnectionString, options.EnvironmentName);
@@ -106,10 +107,9 @@ namespace Indice.AspNetCore.Extensions
         /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
         /// <param name="storageContainerPath"></param>
         public static IServiceCollection AddFilesLocal(this IServiceCollection services, string storageContainerPath = null) {
-            services.AddTransient<IFileService, FileServiceLocal>(sp => {
-
+            services.AddTransient<IFileService, FileServiceLocal>(serviceProvider => {
                 if (storageContainerPath == null) {
-                    var hostingEnvironment = sp.GetRequiredService<IHostingEnvironment>();
+                    var hostingEnvironment = serviceProvider.GetRequiredService<IHostingEnvironment>();
                     var environmentName = Regex.Replace(hostingEnvironment.EnvironmentName ?? "Development", @"\s+", "-").ToLowerInvariant();
                     storageContainerPath = Path.Combine(hostingEnvironment.ContentRootPath, "App_Data");
                 }
@@ -149,7 +149,6 @@ namespace Indice.AspNetCore.Extensions
         public static void AddDataProtectionAzure(this IServiceCollection services, Action<AzureDataProtectionOptions> configure = null) {
             services.TryAddSingleton(typeof(IDataProtectionEncryptor<>), typeof(DataProtectionEncryptor<>));
             var serviceProvider = services.BuildServiceProvider();
-
             var hostingEnvironment = serviceProvider.GetRequiredService<IHostingEnvironment>();
             var environmentName = Regex.Replace(hostingEnvironment.EnvironmentName ?? "Development", @"\s+", "-").ToLowerInvariant();
             var options = new AzureDataProtectionOptions {
@@ -158,12 +157,10 @@ namespace Indice.AspNetCore.Extensions
                 ApplicationName = hostingEnvironment.ApplicationName
             };
             configure?.Invoke(options);
-
             var storageAccount = CloudStorageAccount.Parse(options.StorageConnectionString);
             var blobClient = storageAccount.CreateCloudBlobClient();
             var container = blobClient.GetContainerReference(options.ContainerName);
             container.CreateIfNotExistsAsync().Wait();
-
             // Enables data protection services to the specified IServiceCollection.
             services.AddDataProtection()
                     // Configures the data protection system to use the specified cryptographic algorithms by default when generating protected payloads.
@@ -177,7 +174,8 @@ namespace Indice.AspNetCore.Extensions
                     .SetDefaultKeyLifetime(TimeSpan.FromDays(30))
                     // Configure the system not to automatically roll keys (create new keys) as they approach expiration.
                     //.DisableAutomaticKeyGeneration()
-                    // This prevents the apps from understanding each other's protected payloads (e.x Azure slots). To share protected payloads between two apps, use SetApplicationName with the same value for each app.
+                    // This prevents the apps from understanding each other's protected payloads (e.x Azure slots). To share protected payloads between two apps, use SetApplicationName with the 
+                    // same value for each app.
                     .SetApplicationName(options.ApplicationName);
         }
 
@@ -194,13 +192,10 @@ namespace Indice.AspNetCore.Extensions
                 var environmentName = Regex.Replace(hostingEnvironment.EnvironmentName ?? "Development", @"\s+", "-").ToLowerInvariant();
                 path = Path.Combine(hostingEnvironment.ContentRootPath, "App_Data");
             }
-
             if (!Directory.Exists(path)) {
                 Directory.CreateDirectory(path);
             }
-
             services.TryAddSingleton(typeof(IDataProtectionEncryptor<>), typeof(DataProtectionEncryptor<>));
-
             // Enables data protection services to the specified IServiceCollection.
             services.AddDataProtection()
                     // Configures the data protection system to use the specified cryptographic algorithms by default when generating protected payloads.
@@ -214,22 +209,26 @@ namespace Indice.AspNetCore.Extensions
                     .SetDefaultKeyLifetime(TimeSpan.FromDays(30))
                     // Configure the system not to automatically roll keys (create new keys) as they approach expiration.
                     //.DisableAutomaticKeyGeneration()
-                    // This prevents the apps from understanding each other's protected payloads (e.x Azure slots). To share protected payloads between two apps, use SetApplicationName with the same value for each app.
+                    // This prevents the apps from understanding each other's protected payloads (e.x Azure slots). To share protected payloads between two apps, use SetApplicationName with the 
+                    // same value for each app.
                     .SetApplicationName(hostingEnvironment.ApplicationName);
         }
 
         /// <summary>
-        /// Options for configuring DataProtection API using azure Blob Storage backend.
+        /// Options for configuring ASP.NET Core DataProtection API using azure Blob Storage backend.
         /// </summary>
-        public class AzureDataProtectionOptions {
+        public class AzureDataProtectionOptions
+        {
             /// <summary>
             /// The connection string to your Azure storage account.
             /// </summary>
             public string StorageConnectionString { get; set; }
+
             /// <summary>
             /// The name of the container that will be used within the data protection system.
             /// </summary>
             public string ContainerName { get; set; }
+
             /// <summary>
             /// Sets the unique name of this application within the data protection system.
             /// </summary>

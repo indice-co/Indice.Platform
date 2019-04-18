@@ -3,8 +3,8 @@
     <Description>Indice.AspNetCore Class Library</Description>
     <Copyright>Copyright (c) 2018 Indice</Copyright>
     <AssemblyTitle>Indice.AspNetCore</AssemblyTitle>
-    <VersionPrefix>2.2.7</VersionPrefix>
-    <!--<VersionSuffix>beta1</VersionSuffix>-->
+    <VersionPrefix>2.2.8</VersionPrefix>
+    <VersionSuffix>beta2</VersionSuffix>
     <Authors>c.leftheris, g.manoltzas</Authors>
     <TargetFramework>netstandard2.0</TargetFramework>
     <AssemblyName>Indice.AspNetCore</AssemblyName>
@@ -32,7 +32,6 @@
   <ItemGroup>
     <PackageReference Include="FluentValidation.AspNetCore" Version="8.2.0" />
     <PackageReference Include="Humanizer.Core" Version="2.6.2" />
-    <PackageReference Include="Indice.Services" Version="1.3.3" />
     <PackageReference Include="Markdig" Version="0.16.0" />
     <PackageReference Include="Microsoft.AspNetCore.DataProtection.AzureStorage" Version="2.2.0" />
     <PackageReference Include="Microsoft.AspNetCore.DataProtection.Extensions" Version="2.2.0" />
@@ -40,11 +39,13 @@
     <PackageReference Include="Microsoft.AspNetCore.ResponseCaching" Version="2.2.0" />
     <PackageReference Include="Microsoft.AspNetCore.Rewrite" Version="2.2.0" />
     <PackageReference Include="Microsoft.AspNetCore.Routing.Abstractions" Version="2.2.0" />
+    <PackageReference Include="Microsoft.AspNetCore.StaticFiles" Version="2.2.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="2.2.3" />
     <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="2.2.0" />
     <PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" Version="5.0.0-rc2" />
     <PackageReference Include="SixLabors.ImageSharp.Drawing" Version="1.0.0-beta0006" />
     <PackageReference Include="System.Security.Claims" Version="4.3.0" />
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0-beta2-18618-05" PrivateAssets="All" />
+    <PackageReference Include="Indice.Services" Version="1.3.4-beta2" />
   </ItemGroup>
 </Project>

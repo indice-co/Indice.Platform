@@ -14,6 +14,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\src\Indice.AspNetCore\Indice.AspNetCore.csproj" />
     <ProjectReference Include="..\..\src\Indice.Common\Indice.Common.csproj" />
   </ItemGroup>
 
