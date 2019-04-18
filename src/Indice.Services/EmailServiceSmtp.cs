@@ -25,7 +25,7 @@ namespace Indice.Services
         public EmailServiceSmtp(EmailServiceSettings settings) => _settings = settings ?? throw new ArgumentNullException(nameof(settings));
 
         /// <inheritdoc/>
-        public async Task SendAsync(string[] recipients, string subject, string body, FileAttachment[] attachments = null) => await SendAsync<object>(recipients, subject, body, null, null);
+        public async Task SendAsync(string[] recipients, string subject, string body, FileAttachment[] attachments = null) => await SendAsync<object>(recipients, subject, body, null, null, attachments);
 
         /// <inheritdoc/>
         public async Task SendAsync<TModel>(string[] recipients, string subject, string body, string template, TModel data, FileAttachment[] attachments = null) where TModel : class {
