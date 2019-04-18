@@ -20,7 +20,6 @@ namespace Indice.Services
             if (provider == null) {
                 throw new ArgumentNullException(nameof(provider));
             }
-
             _protector = provider.CreateProtector(typeof(T).FullName);
         }
 
