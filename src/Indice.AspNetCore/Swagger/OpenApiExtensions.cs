@@ -97,6 +97,8 @@ namespace Indice.AspNetCore.Swagger
                 openValue = new OpenApiDouble((double)(decimal)value);
             } else if (type == typeof(double) || type == typeof(double?)) {
                 openValue = new OpenApiDouble((double)value);
+            } else if (type == typeof(bool) || type == typeof(bool?)) {
+                openValue = new OpenApiBoolean((bool)value);
             } else if (type == typeof(Guid) || type == typeof(Guid?)) {
                 openValue = new OpenApiString($"{value}");
             } else if (type == typeof(byte) || type == typeof(byte?)) {
