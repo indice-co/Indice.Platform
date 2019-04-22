@@ -33,32 +33,34 @@ namespace Indice.AspNetCore.Swagger
                 var value = property.GetValue(instance);
 
                 if (value != null) {
-                    var openValue = GetStructValue(property.PropertyType, value);
-                    var key = property.Name.Camelize();
+                    var key = char.ToLower(property.Name[0]) + property.Name.Substring(1);
+                    if (IsPrimitive(property.PropertyType)) {
+                        var openValue = GetStructValue(property.PropertyType, value);
 
-                    if (openValue != null) {
-                        if (result.ContainsKey(key)) {
-                            result[key] = openValue;
-                        } else {
-                            result.Add(key, openValue);
+                        if (openValue != null) {
+                            if (result.ContainsKey(key)) {
+                                result[key] = openValue;
+                            } else {
+                                result.Add(key, openValue);
+                            }
+                            continue;
                         }
-                        continue;
-                    }
-
-                    var array = default(OpenApiArray);
-                    if ((array = ToOpenApiArray(property.PropertyType, value)) != null) {
-                        if (result.ContainsKey(key)) {
-                            result[key] = array;
-                        } else {
-                            result.Add(key, array);
-                        }
-                        continue;
-                    }
-                    var openObject = ToOpenApiAny(property.PropertyType, value);
-                    if (result.ContainsKey(key)) {
-                        result[key] = openObject;
                     } else {
-                        result.Add(key, openObject);
+                        var array = default(OpenApiArray);
+                        if ((array = ToOpenApiArray(property.PropertyType, value)) != null) {
+                            if (result.ContainsKey(key)) {
+                                result[key] = array;
+                            } else {
+                                result.Add(key, array);
+                            }
+                            continue;
+                        }
+                        var openObject = ToOpenApiAny(property.PropertyType, value);
+                        if (result.ContainsKey(key)) {
+                            result[key] = openObject;
+                        } else {
+                            result.Add(key, openObject);
+                        }
                     }
                 }
             }
@@ -74,6 +76,10 @@ namespace Indice.AspNetCore.Swagger
                 array.AddRange(((IEnumerable)instance).Cast<object>().Select(x => GetStructValue(itemType ?? x.GetType(), x) ?? ToOpenApiAny(itemType ?? x.GetType(), x)));
             }
             return array;
+        }
+
+        private static bool IsPrimitive(Type type) {
+            return type.IsValueType || type.IsPrimitive || type.Namespace.StartsWith("System") || type.IsEnum || type == typeof(string);
         }
 
         private static IOpenApiPrimitive GetStructValue(Type type, object value) {
