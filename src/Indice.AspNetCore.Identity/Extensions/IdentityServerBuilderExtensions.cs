@@ -28,17 +28,6 @@ namespace Indice.AspNetCore.Identity.Extensions
         }
 
         /// <summary>
-        /// Setup an factory that is going to be generating the claims principal.
-        /// </summary>
-        /// <typeparam name="TUserClaimsPrincipalFactory"></typeparam>
-        /// <param name="builder"></param>
-        /// <returns></returns>
-        public static IIdentityServerBuilder AddClaimsTransform<TUserClaimsPrincipalFactory>(this IIdentityServerBuilder builder) where TUserClaimsPrincipalFactory : class, IUserClaimsPrincipalFactory<User> {
-            builder.Services.AddTransient<IUserClaimsPrincipalFactory<User>, TUserClaimsPrincipalFactory>();
-            return builder;
-        }
-
-        /// <summary>
         /// Setup Configuration store.
         /// </summary>
         /// <param name="options"></param>

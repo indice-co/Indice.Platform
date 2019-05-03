@@ -3,10 +3,9 @@ using System.Linq;
 using IdentityServer4.EntityFramework.DbContexts;
 using IdentityServer4.EntityFramework.Mappers;
 using IdentityServer4.Models;
-using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Indice.AspNetCore.Identity.Extensions
+namespace Microsoft.AspNetCore.Builder
 {
     /// <summary>
     /// ApplicationBuilder Extensions

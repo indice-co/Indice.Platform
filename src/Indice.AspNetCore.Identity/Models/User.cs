@@ -43,14 +43,24 @@ namespace Indice.AspNetCore.Identity.Models
         public DateTimeOffset CreateDate { get; set; }
 
         /// <summary>
+        /// Gets or sets the date and time, in UTC, when the user last signed in.
+        /// </summary>
+        public DateTimeOffset? LastSignInDate { get; set; }
+
+        /// <summary>
         /// Date that represents the last time the user changed his password.
         /// </summary>
-        public DateTimeOffset? LastPasswordChange { get; set; }
+        public DateTimeOffset? LastPasswordChangeDate { get; set; }
 
         /// <summary>
         /// System administrator Indicator.
         /// </summary>
         public bool Admin { get; set; }
+
+        /// <summary>
+        /// System administrator Indicator.
+        /// </summary>
+        public bool Blocked { get; set; }
 
         /// <summary>
         /// Navigation property for the roles this user belongs to.

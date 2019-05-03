@@ -4,6 +4,7 @@ using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
+using Indice.AspNetCore.Identity.Models;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -75,5 +76,36 @@ namespace Indice.AspNetCore.Identity.Services
             };
         }
 
+        /// <summary>
+        /// Signs in the specified user.
+        /// </summary>
+        /// <param name="user"></param>
+        /// <param name="authenticationProperties"></param>
+        /// <param name="authenticationMethod"></param>
+        /// <returns></returns>
+        public override async Task SignInAsync(TUser user, AuthenticationProperties authenticationProperties, string authenticationMethod = null) {
+            await base.SignInAsync(user, authenticationProperties, authenticationMethod);
+            if (user is User) {
+                (user as User).LastSignInDate = DateTimeOffset.UtcNow;
+                await UserManager.UpdateAsync(user);
+            }
+            
+        }
+
+        /// <summary>
+        /// Returns a flag indicating whether the specified user can sign in.
+        /// </summary>
+        /// <param name="user">The user whose sign-in status should be returned.</param>
+        /// <returns>
+        /// The task object representing the asynchronous operation, containing a flag that is true
+        /// if the specified user can sign-in, otherwise false.
+        /// </returns>
+        public override async Task<bool> CanSignInAsync(TUser user) {
+            if (user is User && (user as User).Blocked) {
+                Logger.LogWarning(0, "User {userId} cannot sign in. User is blocked by the administrator.", await UserManager.GetUserIdAsync(user));
+                return false;
+            }
+            return await base.CanSignInAsync(user);
+        }
     }
 }

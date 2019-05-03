@@ -62,7 +62,7 @@ namespace Indice.AspNetCore.Identity.Data
                 await Context.Set<UserPassword>().AddAsync(new UserPassword { UserId = user.Id, DateCreated = DateTime.UtcNow, PasswordHash = passwordHash });
             }
 
-            user.LastPasswordChange = DateTime.UtcNow;
+            user.LastPasswordChangeDate = DateTime.UtcNow;
             await base.SetPasswordHashAsync(user, passwordHash, cancellationToken);
         }
 
@@ -76,5 +76,6 @@ namespace Indice.AspNetCore.Identity.Data
             user.CreateDate = DateTimeOffset.UtcNow;
             return base.CreateAsync(user, cancellationToken);
         }
+
     }
 }
