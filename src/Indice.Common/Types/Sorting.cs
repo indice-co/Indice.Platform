@@ -128,9 +128,16 @@ namespace Indice.Types
                                     dataType);
         }
 
-
+        /// <summary>
+        /// Implicit cast from <see cref="SortByClause"/> to <see cref="string" />
+        /// </summary>
+        /// <param name="value"></param>
         public static implicit operator string(SortByClause value) => value.ToString();
-        
+
+        /// <summary>
+        /// Explicit cast from <see cref="string "/> to <see cref="SortByClause" />
+        /// </summary>
+        /// <param name="value"></param>
         public static explicit operator SortByClause(string value) => Parse(value);
         
     }
