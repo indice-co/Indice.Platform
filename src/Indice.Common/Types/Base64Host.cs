@@ -73,7 +73,7 @@ namespace Indice.Types
         public override string ToString() {
             var host = new Uri(Host, UriKind.Absolute);
             var schemeByte = host.Scheme == UriSchemeHttps ? (byte)1 : (byte)0;
-            FromShort((short)host.Port, out var portByte1, out var portByte2);
+            FromShort((ushort)host.Port, out var portByte1, out var portByte2);
             var data = new List<byte> {
                 schemeByte,
                 portByte1,
@@ -108,10 +108,10 @@ namespace Indice.Types
                 return new Base64Host();
             }
         }
-        static short ToShort(byte byte1, byte byte2) {   // using Int32 because that is what all the operations return anyway...
-            return (short)((((int)byte1) << 8) | (int)byte2);
+        static ushort ToShort(byte byte1, byte byte2) {   // using Int32 because that is what all the operations return anyway...
+            return (ushort)((((int)byte1) << 8) | (int)byte2);
         }
-        static void FromShort(short number, out byte byte1, out byte byte2) {
+        static void FromShort(ushort number, out byte byte1, out byte byte2) {
             byte1 = (byte)(number >> 8); // to treat as same byte 1 from above
             byte2 = (byte)number;
         }
