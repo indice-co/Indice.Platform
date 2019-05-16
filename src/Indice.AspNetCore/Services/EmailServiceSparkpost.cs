@@ -55,11 +55,11 @@ namespace Indice.Services
         /// constructs the service
         /// </summary>
         /// <param name="settings">An instance of <see cref="EmailServiceSparkPostSettings"/> used to initialize the service.</param>
-        /// <param name="httpClient">The http client to use (DI managed)</param>
         /// <param name="viewEngine">Represents an <see cref="IViewEngine"/> that delegates to one of a collection of view engines.</param>
         /// <param name="tempDataProvider">Defines the contract for temporary-data providers that store data that is viewed on the next request.</param>
         /// <param name="httpContextAccessor">Used to access the <see cref="HttpContext"/> through the <see cref="IHttpContextAccessor"/> interface and its default implementation <see cref="HttpContextAccessor"/>.</param>
-        public EmailServiceSparkpost(EmailServiceSparkPostSettings settings, HttpClient httpClient, ICompositeViewEngine viewEngine, ITempDataProvider tempDataProvider, IHttpContextAccessor httpContextAccessor)
+        /// <param name="httpClient">The http client to use (DI managed)</param>
+        public EmailServiceSparkpost(EmailServiceSparkPostSettings settings, ICompositeViewEngine viewEngine, ITempDataProvider tempDataProvider, IHttpContextAccessor httpContextAccessor, HttpClient httpClient)
             : base(viewEngine, tempDataProvider, httpContextAccessor) {
             _settings = settings ?? throw new ArgumentNullException(nameof(settings));
             _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));

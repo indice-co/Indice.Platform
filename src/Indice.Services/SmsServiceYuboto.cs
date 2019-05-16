@@ -23,7 +23,11 @@ namespace Indice.Services
         /// The http client
         /// </summary>
         protected HttpClient Http { get; }
-        public ILogger<SmsServiceYuboto> Logger { get; }
+
+        /// <summary>
+        /// logger
+        /// </summary>
+        protected ILogger<SmsServiceYuboto> Logger { get; }
 
         private bool _shouldDispose = false;
 
@@ -33,7 +37,7 @@ namespace Indice.Services
         /// <param name="settings"></param>
         /// <param name="httpClient">Injected http client managed by the DI</param>
         /// <param name="logger"></param>
-        public SmsServiceYuboto(SmsServiceSettings settings, HttpClient httpClient, ILogger<SmsServiceYuboto> logger) {
+        public SmsServiceYuboto(SmsServiceSettings settings, ILogger<SmsServiceYuboto> logger, HttpClient httpClient) {
             Settings = settings ?? throw new ArgumentNullException(nameof(settings));
             if (httpClient == null) {
                 _shouldDispose = true;

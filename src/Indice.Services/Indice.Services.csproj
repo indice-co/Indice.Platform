@@ -3,7 +3,7 @@
     <Description>Indice.Services Class Library</Description>
     <Copyright>Copyright (c) 2018 Indice</Copyright>
     <AssemblyTitle>Indice.Services</AssemblyTitle>
-    <VersionPrefix>1.3.8</VersionPrefix>
+    <VersionPrefix>1.3.9</VersionPrefix>
     <!--<VersionSuffix>beta2</VersionSuffix>-->
     <Authors>c.leftheris, g.manoltzas</Authors>
     <TargetFramework>netstandard2.0</TargetFramework>
@@ -34,5 +34,8 @@
     <PackageReference Include="Microsoft.AspNetCore.StaticFiles" Version="2.2.0" />
     <PackageReference Include="WindowsAzure.Storage" Version="9.3.3" />
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0-beta2-18618-05" PrivateAssets="All" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Indice.Common\Indice.Common.csproj" />
   </ItemGroup>
 </Project>
