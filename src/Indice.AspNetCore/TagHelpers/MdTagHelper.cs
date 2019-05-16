@@ -18,18 +18,36 @@ namespace Indice.AspNetCore.TagHelpers
         private ILogger<MdTagHelper> logger;
         private IMarkdownProcessor markdownProcessor;
 
+        /// <summary>
+        /// constructs the helper
+        /// </summary>
+        /// <param name="env"></param>
+        /// <param name="logger"></param>
+        /// <param name="markdownProcessor"></param>
         public MdTagHelper(IHostingEnvironment env, ILogger<MdTagHelper> logger, IMarkdownProcessor markdownProcessor) {
             this.env = env ?? throw new ArgumentNullException(paramName: nameof(env));
             this.logger = logger ?? throw new ArgumentNullException(paramName: nameof(logger));
             this.markdownProcessor = markdownProcessor ?? throw new ArgumentNullException(paramName: nameof(markdownProcessor));
         }
 
+        /// <summary>
+        /// local server path
+        /// </summary>
         [HtmlAttributeName(name: "path")]
         public string Path { get; set; }
 
+        /// <summary>
+        /// Used to download markdown from the web
+        /// </summary>
         [HtmlAttributeName(name: "href")]
         public string HRef { get; set; }
 
+        /// <summary>
+        /// Process
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="output"></param>
+        /// <returns></returns>
         public override async Task ProcessAsync(TagHelperContext context, TagHelperOutput output) {
             var md = string.Empty;
 

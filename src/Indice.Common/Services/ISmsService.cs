@@ -3,9 +3,15 @@ using System.Threading.Tasks;
 
 namespace Indice.Services
 {
-
+    /// <summary>
+    /// Exception for sms service failure
+    /// </summary>
     public class SmsServiceException : Exception
     {
+        /// <summary>
+        /// constructs an <see cref="SmsServiceException"/>
+        /// </summary>
+        /// <param name="message"></param>
         public SmsServiceException(string message) : base(message) {
         }
     }
@@ -15,11 +21,30 @@ namespace Indice.Services
     /// </summary>
     public class SmsServiceSettings
     {
-
+        /// <summary>
+        /// Key in the configureation
+        /// </summary>
         public static readonly string Name = "Sms";
+
+        /// <summary>
+        /// The api key 
+        /// </summary>
         public string ApiKey { get; set; }
+
+        /// <summary>
+        /// The default sender
+        /// </summary>
         public string Sender { get; set; }
+
+        /// <summary>
+        /// The sender display name
+        /// </summary>
         public string SenderName { get; set; }
+
+        /// <summary>
+        /// If true then test mode should not charge any credits.
+        /// </summary>
+        public bool TestMode { get; set; }
     }
 
     /// <summary>

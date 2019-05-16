@@ -3,6 +3,9 @@ using System.Collections.Generic;
 
 namespace Indice.AspNetCore.TagHelpers
 {
+    /// <summary>
+    /// Tag helper extensions
+    /// </summary>
     public static class TagHelperExtensions
     {
         internal static RouteValueDictionary ToRouteValueDictionary(this IEnumerable<KeyValuePair<string, string>> routeValues) {

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 
 namespace Indice.Services
@@ -17,19 +18,32 @@ namespace Indice.Services
         /// The settings required to configure the service
         /// </summary>
         protected SmsServiceSettings Settings { get; }
-        HttpClient _http;
+
+        /// <summary>
+        /// The http client
+        /// </summary>
+        protected HttpClient Http { get; }
+        public ILogger<SmsServiceYuboto> Logger { get; }
+
+        private bool _shouldDispose = false;
 
         /// <summary>
         /// Constructs the <see cref="SmsServiceYuboto"/> using the <seealso cref="SmsServiceSettings"/>
         /// </summary>
         /// <param name="settings"></param>
-        public SmsServiceYuboto(SmsServiceSettings settings) {
+        /// <param name="httpClient">Injected http client managed by the DI</param>
+        /// <param name="logger"></param>
+        public SmsServiceYuboto(SmsServiceSettings settings, HttpClient httpClient, ILogger<SmsServiceYuboto> logger) {
             Settings = settings ?? throw new ArgumentNullException(nameof(settings));
-
-            _http = new HttpClient();
-            var uri = "https://services.yuboto.com/web2sms/api/v2/smsc.aspx";
-            _http.BaseAddress = new Uri(uri);
-            //_http.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue(_Settings.ApiKey);
+            if (httpClient == null) {
+                _shouldDispose = true;
+            }
+            Http = httpClient ?? new HttpClient();
+            Logger = logger;
+            if (Http.BaseAddress == null) {
+                var uri = "https://services.yuboto.com/web2sms/api/v2/smsc.aspx";
+                Http.BaseAddress = new Uri(uri);
+            }
         }
 
         /// <summary>
@@ -51,24 +65,25 @@ namespace Indice.Services
                 throw new ArgumentException("Invalid recipients. Recipients cannot contain letters.", nameof(recipients));
 
             var request = new YubotoRequestHelper(Settings.ApiKey, (Settings.Sender ?? Settings.SenderName), recipients, body) {
-#if DEBUG
-                IsSmsTest = true,
-#endif
+                IsSmsTest = Settings.TestMode,
             }.CreateStringRequest();
-
-            httpResponse = await _http.GetAsync(request);
+            httpResponse = await Http.GetAsync(request);
             var stringifyResponse = await httpResponse.Content.ReadAsStringAsync();
             response = JsonConvert.DeserializeObject<YubotoResponse>(stringifyResponse);
+
             if (response.HasError) {
                 throw new SmsServiceException($"SMS Delivery failed. {response}");
+            } else {
+                Logger?.LogInformation("Sent sms message ok. {1}", response.OK.FirstOrDefault());
             }
         }
 
         /// <summary>
-        /// disposes the http client
+        /// disposes the http client if not managed by the DI
         /// </summary>
         public void Dispose() {
-            _http.Dispose();
+            if (_shouldDispose)
+                Http.Dispose();
         }
 
     }

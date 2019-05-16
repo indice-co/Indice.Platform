@@ -10,6 +10,14 @@ namespace Indice.Types
     /// </summary>
     public static class OrderByExtensions
     {
+        /// <summary>
+        /// Order an <see cref="IQueryable{T}"/> by string member path (<paramref name="key"/>) and <paramref name="direction"/> ASC, DESC
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="collection">The source</param>
+        /// <param name="key">member path</param>
+        /// <param name="direction">ASC or DESC</param>
+        /// <returns></returns>
         public static IOrderedQueryable<T> OrderBy<T>(this IQueryable<T> collection, string key, string direction) {
             if (direction.ToUpper() == "ASC") {
                 return collection.OrderBy(key);
@@ -18,8 +26,22 @@ namespace Indice.Types
             }
         }
 
+        /// <summary>
+        /// Order by ascending
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="source"></param>
+        /// <param name="property"></param>
+        /// <returns></returns>
         public static IOrderedQueryable<T> OrderBy<T>(this IQueryable<T> source, string property) => ApplyOrder(source, property, "OrderBy");
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="source"></param>
+        /// <param name="property"></param>
+        /// <returns></returns>
         public static IOrderedQueryable<T> OrderByDescending<T>(this IQueryable<T> source, string property) => ApplyOrder(source, property, "OrderByDescending");
 
         public static IOrderedQueryable<T> ThenBy<T>(this IOrderedQueryable<T> source, string property) => ApplyOrder(source, property, "ThenBy");

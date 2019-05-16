@@ -9,12 +9,11 @@ using Microsoft.AspNetCore.DataProtection.AuthenticatedEncryption;
 using Microsoft.AspNetCore.DataProtection.AuthenticatedEncryption.ConfigurationModel;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
 using Microsoft.WindowsAzure.Storage;
 
-namespace Indice.AspNetCore.Extensions
+namespace Microsoft.Extensions.DependencyInjection
 {
     /// <summary>
     /// Extensions to configure the IServiceCollection of an ASP.NET Core application.
@@ -41,6 +40,8 @@ namespace Indice.AspNetCore.Extensions
             services.Configure<EmailServiceSparkPostSettings>(configuration.GetSection(EmailServiceSparkPostSettings.Name));
             services.AddTransient(serviceProvider => serviceProvider.GetRequiredService<IOptions<EmailServiceSparkPostSettings>>().Value);
             services.AddTransient<IEmailService, EmailServiceSparkpost>();
+            services.AddHttpClient<IEmailService, EmailServiceSparkpost>()
+                                .SetHandlerLifetime(TimeSpan.FromMinutes(5));
             return services;
         }
 
@@ -77,6 +78,8 @@ namespace Indice.AspNetCore.Extensions
             services.Configure<SmsServiceSettings>(configuration.GetSection(SmsServiceSettings.Name));
             services.AddTransient(serviceProvider => serviceProvider.GetRequiredService<IOptions<SmsServiceSettings>>().Value);
             services.AddTransient<ISmsService, SmsServiceYuboto>();
+            services.AddHttpClient<ISmsService, SmsServiceYuboto>()
+                                .SetHandlerLifetime(TimeSpan.FromMinutes(5));
             return services;
         }
 
