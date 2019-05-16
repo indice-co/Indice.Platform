@@ -55,10 +55,20 @@ namespace Indice.AspNetCore.TagHelpers
         /// </summary>
         protected int Pages => Options.GetPagesFor(Count);
 
+        /// <summary>
+        /// constructor
+        /// </summary>
+        /// <param name="generator"></param>
         public PaginationTagHelper(IHtmlGenerator generator) {
             Generator = generator ?? throw new ArgumentNullException(nameof(generator));
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="output"></param>
+        /// <returns></returns>
         public async override Task ProcessAsync(TagHelperContext context, TagHelperOutput output) {
             if (Options == null) {
                 throw new InvalidOperationException($"The list options must be provided.");

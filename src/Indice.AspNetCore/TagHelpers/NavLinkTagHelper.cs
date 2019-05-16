@@ -6,12 +6,24 @@ using System.Linq;
 
 namespace Indice.AspNetCore.TagHelpers
 {
+    /// <summary>
+    /// Anchor link with active trail support (active cssclass)
+    /// </summary>
     public class NavLinkTagHelper : AnchorTagHelper
     {
+        /// <summary>
+        /// constructor
+        /// </summary>
+        /// <param name="generator"></param>
         public NavLinkTagHelper(IHtmlGenerator generator)
             : base(generator) {
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="output"></param>
         public async override void Process(TagHelperContext context, TagHelperOutput output) {
             base.Process(context, output);
             var childContent = await output.GetChildContentAsync();

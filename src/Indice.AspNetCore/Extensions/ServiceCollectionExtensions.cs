@@ -39,7 +39,6 @@ namespace Microsoft.Extensions.DependencyInjection
         public static IServiceCollection AddEmailServiceSparkpost(this IServiceCollection services, IConfiguration configuration) {
             services.Configure<EmailServiceSparkPostSettings>(configuration.GetSection(EmailServiceSparkPostSettings.Name));
             services.AddTransient(serviceProvider => serviceProvider.GetRequiredService<IOptions<EmailServiceSparkPostSettings>>().Value);
-            services.AddTransient<IEmailService, EmailServiceSparkpost>();
             services.AddHttpClient<IEmailService, EmailServiceSparkpost>()
                                 .SetHandlerLifetime(TimeSpan.FromMinutes(5));
             return services;
@@ -77,7 +76,6 @@ namespace Microsoft.Extensions.DependencyInjection
         public static IServiceCollection AddSmsServiceYouboto(this IServiceCollection services, IConfiguration configuration) {
             services.Configure<SmsServiceSettings>(configuration.GetSection(SmsServiceSettings.Name));
             services.AddTransient(serviceProvider => serviceProvider.GetRequiredService<IOptions<SmsServiceSettings>>().Value);
-            services.AddTransient<ISmsService, SmsServiceYuboto>();
             services.AddHttpClient<ISmsService, SmsServiceYuboto>()
                                 .SetHandlerLifetime(TimeSpan.FromMinutes(5));
             return services;
