@@ -21,6 +21,6 @@ namespace Indice.AspNetCore.Identity.Models
         /// <summary>
         /// A boolean indicating the the sca method can generate TOTP codes or only validate them.
         /// </summary>
-        public string CanGenerateTotp { get; set; }
+        public bool CanGenerateTotp { get; set; }
     }
 }
