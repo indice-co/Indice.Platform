@@ -111,7 +111,7 @@ namespace Indice.AspNetCore.Identity.Services
         /// Signs in the specified <paramref name="user"/> if <paramref name="bypassTwoFactor"/> is set to false.
         /// Otherwise stores the <paramref name="user"/> for use after a two factor check.
         /// </summary>
-        /// <param name="user"></param>
+        /// <param name="user">The user to sign in.</param>
         /// <param name="isPersistent">Flag indicating whether the sign-in cookie should persist after the browser is closed.</param>
         /// <param name="loginProvider">The login provider to use. Default is null</param>
         /// <param name="bypassTwoFactor">Flag indicating whether to bypass two factor authentication. Default is false.</param>
@@ -122,10 +122,29 @@ namespace Indice.AspNetCore.Identity.Services
             if ((!isEmailConfirmed || !isPhoneConfirmed) && (RequirePostSigninConfirmedEmail || RequirePostSigninConfirmedPhoneNumber)) {
                 // Store the userId for use after two factor check.
                 var userId = await UserManager.GetUserIdAsync(user);
-                await Context.SignInAsync(ExtendedIdentityConstants.ExtendedValidationUserIdScheme, StoreValidationInfo(userId, isEmailConfirmed, isPhoneConfirmed));
+                var returnUrl = Context.Request.Query["ReturnUrl"];
+                await Context.SignInAsync(ExtendedIdentityConstants.ExtendedValidationUserIdScheme, StoreValidationInfo(userId, isEmailConfirmed, isPhoneConfirmed), new AuthenticationProperties {
+                    RedirectUri = returnUrl,
+                    IsPersistent = isPersistent
+                });
                 return new ExtendedSigninResult(!isEmailConfirmed && RequirePostSigninConfirmedEmail, !isPhoneConfirmed && RequirePostSigninConfirmedPhoneNumber);
             }
             return await base.SignInOrTwoFactorAsync(user, isPersistent, loginProvider, bypassTwoFactor);
+        }
+
+        /// <summary>
+        /// Creates a claims principal for the specified 2fa information.
+        /// </summary>
+        /// <param name="userId">The user whose is logging in via 2fa.</param>
+        /// <param name="loginProvider">The 2fa provider.</param>
+        /// <returns>A <see cref="ClaimsPrincipal"/> containing the user 2fa information.</returns>
+        internal ClaimsPrincipal StoreTwoFactorInfo(string userId, string loginProvider) {
+            var identity = new ClaimsIdentity(IdentityConstants.TwoFactorUserIdScheme);
+            identity.AddClaim(new Claim(ClaimTypes.Name, userId));
+            if (loginProvider != null) {
+                identity.AddClaim(new Claim(ClaimTypes.AuthenticationMethod, loginProvider));
+            }
+            return new ClaimsPrincipal(identity);
         }
 
         /// <summary>
@@ -142,6 +161,8 @@ namespace Indice.AspNetCore.Identity.Services
             identity.AddClaim(new Claim(JwtClaimTypes.PhoneNumberVerified, isPhoneConfirmed.ToString().ToLower()));
             return new ClaimsPrincipal(identity);
         }
+
+        private async Task<bool> IsTfaEnabled(TUser user) => UserManager.SupportsUserTwoFactor && await UserManager.GetTwoFactorEnabledAsync(user) && (await UserManager.GetValidTwoFactorProvidersAsync(user)).Count > 0;
     }
 
     /// <summary>
