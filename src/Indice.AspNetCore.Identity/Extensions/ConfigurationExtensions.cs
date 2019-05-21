@@ -6,6 +6,7 @@ using IdentityServer4.EntityFramework.Mappers;
 using IdentityServer4.Models;
 using Indice.AspNetCore.Identity.Filters;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.Configuration;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
@@ -21,9 +22,9 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <param name="configureAction"></param>
         /// <returns></returns>
         public static IServiceCollection AddCsp(this IServiceCollection services, Action<CSP> configureAction = null) {
-            services.ConfigureOptions<CSP>();
-            if (configureAction != null)
-                services.Configure(configureAction);
+            var policy = CSP.DefaultPolicy.Clone();
+            configureAction?.Invoke(policy);
+            services.AddSingleton(policy);
             return services;
         }
 

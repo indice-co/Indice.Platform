@@ -29,8 +29,8 @@ namespace Indice.AspNetCore.Identity.Filters
         /// <param name="context"></param>
         public override void OnResultExecuting(ResultExecutingContext context) {
             var result = context.Result;
-            var requestPolicy = (IOptions<CSP>)context.HttpContext.RequestServices.GetService(typeof(IOptions<CSP>));
-            var policy = requestPolicy?.Value ?? CSP.DefaultPolicy;
+            var requestPolicy = (CSP)context.HttpContext.RequestServices.GetService(typeof(CSP));
+            var policy = requestPolicy ?? CSP.DefaultPolicy;
             if (result is ViewResult) {
                 if (!context.HttpContext.Response.Headers.ContainsKey("X-Content-Type-Options")) {
                     context.HttpContext.Response.Headers.Add("X-Content-Type-Options", "nosniff");
