@@ -70,8 +70,7 @@ namespace Indice.AspNetCore.Identity.Services
                 }
             }
             var providerKey = auth.Principal.FindFirstValue(Options.ClaimsIdentity.UserIdClaimType);
-            var provider = items[LoginProviderKey] as string;
-            if (providerKey == null || provider == null) {
+            if (providerKey == null || !(items[LoginProviderKey] is string provider)) {
                 return null;
             }
             var providerDisplayName = (await GetExternalAuthenticationSchemesAsync()).FirstOrDefault(p => p.Name == provider)?.DisplayName ?? provider;
