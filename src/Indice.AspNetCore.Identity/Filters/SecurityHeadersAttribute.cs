@@ -1,9 +1,11 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
+using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 
 namespace Indice.AspNetCore.Identity.Filters
@@ -13,28 +15,12 @@ namespace Indice.AspNetCore.Identity.Filters
     /// </summary>
     public class SecurityHeadersAttribute : ActionFilterAttribute
     {
-        private readonly CSP _csp;
 
         /// <summary>
         /// Constractor Defaults to allowing self origin plus google for fonts and scripts (google cdn) and wildcard for images.
         /// </summary>
-        public SecurityHeadersAttribute() : this(null) { }
+        public SecurityHeadersAttribute() {
 
-        /// <summary>
-        /// Constractor with custom security policy.
-        /// </summary>
-        public SecurityHeadersAttribute(CSP scp) {
-            _csp = scp ?? new CSP {
-                DefaultSrc = $"{CSP.Self}",
-                ObjectSrc = $"{CSP.None}",
-                BaseUri = $"{CSP.Self}",
-                FrameAncestors = $"{CSP.None}",
-                Sandbox = $"allow-forms allow-same-origin allow-scripts",
-                ScriptSrc = $"{CSP.Self} ajax.googleapis.com ajax.aspnetcdn.com stackpath.bootstrapcdn.com",
-                FontSrc = $"{CSP.Self} fonts.googleapis.com",
-                ImgSrc = CSP.Wildcard,
-                StyleSrc = $"{CSP.Self} {CSP.UnsafeInline} fonts.googleapis.com stackpath.bootstrapcdn.com use.fontawesome.com",
-            };
         }
 
         /// <summary>
@@ -43,7 +29,8 @@ namespace Indice.AspNetCore.Identity.Filters
         /// <param name="context"></param>
         public override void OnResultExecuting(ResultExecutingContext context) {
             var result = context.Result;
-
+            var requestPolicy = (IOptions<CSP>)context.HttpContext.RequestServices.GetService(typeof(IOptions<CSP>));
+            var policy = requestPolicy?.Value ?? CSP.DefaultPolicy;
             if (result is ViewResult) {
                 if (!context.HttpContext.Response.Headers.ContainsKey("X-Content-Type-Options")) {
                     context.HttpContext.Response.Headers.Add("X-Content-Type-Options", "nosniff");
@@ -54,12 +41,12 @@ namespace Indice.AspNetCore.Identity.Filters
 
                 // Once for standards compliant browsers.
                 if (!context.HttpContext.Response.Headers.ContainsKey("Content-Security-Policy")) {
-                    context.HttpContext.Response.Headers.Add("Content-Security-Policy", _csp.ToString());
+                    context.HttpContext.Response.Headers.Add("Content-Security-Policy", policy.ToString());
                 }
 
                 // And once again for IE.
                 if (!context.HttpContext.Response.Headers.ContainsKey("X-Content-Security-Policy")) {
-                    context.HttpContext.Response.Headers.Add("X-Content-Security-Policy", _csp.ToString());
+                    context.HttpContext.Response.Headers.Add("X-Content-Security-Policy", policy.ToString());
                 }
                 // https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Referrer-Policy
                 var referrer_policy = "no-referrer";
@@ -73,8 +60,23 @@ namespace Indice.AspNetCore.Identity.Filters
     /// <summary>
     /// https://content-security-policy.com/
     /// </summary>
-    public class CSP : IEnumerable<string>
+    public class CSP : IEnumerable<string>, ICloneable
     {
+        /// <summary>
+        /// Default policy
+        /// </summary>
+        public static readonly CSP DefaultPolicy = new CSP {
+            DefaultSrc = $"{Self}",
+            ObjectSrc = $"{None}",
+            BaseUri = $"{Self}",
+            FrameAncestors = $"{None}",
+            Sandbox = $"allow-forms allow-same-origin allow-scripts",
+            ScriptSrc = $"{Self} ajax.googleapis.com ajax.aspnetcdn.com stackpath.bootstrapcdn.com",
+            FontSrc = $"{Self} fonts.googleapis.com",
+            ImgSrc = $"{Wildcard} {Data}",
+            StyleSrc = $"{Self} {UnsafeInline} fonts.googleapis.com stackpath.bootstrapcdn.com use.fontawesome.com",
+        };
+
         private readonly Dictionary<string, string> values = new Dictionary<string, string>();
 
         /// <summary>
@@ -151,6 +153,19 @@ namespace Indice.AspNetCore.Identity.Filters
         }
 
         /// <summary>
+        /// connect-src directive restricts the URLs which can be loaded using script interfaces. The APIs that are restricted are:
+        /// ping,
+        /// Fetch,
+        /// XMLHttpRequest,
+        /// WebSocket, and
+        /// EventSource.
+        /// </summary>
+        public string ContentSrc {
+            get => GetValueOrDefult(nameof(ContentSrc));
+            set => SetValue(nameof(ContentSrc), value);
+        }
+
+        /// <summary>
         /// Content Security policy regarding frame ancestors. When the current page will be included in an iframe.
         /// </summary>
         public string FrameAncestors {
@@ -183,6 +198,34 @@ namespace Indice.AspNetCore.Identity.Filters
         }
 
         /// <summary>
+        /// Adds an entry to the current CSP policy at the specified key (ie script-src etc.)
+        /// </summary>
+        /// <param name="key">The key to ammend</param>
+        /// <param name="value">The value to add</param>
+        /// <returns></returns>
+        public CSP Add(string key, string value) {
+            if (key.Contains('-')) {
+                // this is url casing.
+                key = GetPascalCasing(key);
+            }
+            if (values.ContainsKey(key)) {
+                values[key] += $" {value}";
+            } else {
+                values.Add(key, value);
+            }
+            return this;
+        }
+
+        /// <summary>
+        /// Adds an entry to the current CSP policy
+        /// </summary>
+        /// <param name="value">The value to add</param>
+        /// <returns></returns>
+        public CSP AddScriptSrc(string value) {
+            return Add(nameof(ScriptSrc), value);
+        }
+
+        /// <summary>
         /// Gets the <see cref="IEnumerator{T}"/> to iterate the underliing values for each policy part.
         /// </summary>
         /// <returns></returns>
@@ -207,6 +250,27 @@ namespace Indice.AspNetCore.Identity.Filters
         }
 
         private string GetUrlCasing(string pascalCasing) => Regex.Replace(pascalCasing, "([A-Z][a-z]+)", "-$1", RegexOptions.Compiled).Trim().ToLowerInvariant().TrimStart('-');
+        private string GetPascalCasing(string urlCasing) => string.Join("", urlCasing.ToLowerInvariant().Split('-').Select(x => char.ToUpperInvariant(x[0]) + x.Substring(1)));
+
+        /// <summary>
+        /// Clone the CSP into a new instance
+        /// </summary>
+        /// <returns></returns>
+        public CSP Clone() {
+            return new CSP {
+                DefaultSrc = DefaultSrc,
+                ObjectSrc = ObjectSrc,
+                BaseUri = BaseUri,
+                FrameAncestors = FrameAncestors,
+                Sandbox = Sandbox,
+                ScriptSrc = ScriptSrc,
+                FontSrc = FontSrc,
+                ImgSrc = ImgSrc,
+                StyleSrc = StyleSrc,
+            };
+        }
+
+        object ICloneable.Clone() => Clone();
 
         /// <summary>
         /// Helper object that represents a browser CSP report request object.
