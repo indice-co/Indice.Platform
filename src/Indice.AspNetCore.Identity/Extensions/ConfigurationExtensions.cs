@@ -1,17 +1,34 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using IdentityServer4.EntityFramework.DbContexts;
 using IdentityServer4.EntityFramework.Mappers;
 using IdentityServer4.Models;
-using Microsoft.Extensions.DependencyInjection;
+using Indice.AspNetCore.Identity.Filters;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.Configuration;
 
-namespace Microsoft.AspNetCore.Builder
+namespace Microsoft.Extensions.DependencyInjection
 {
     /// <summary>
     /// ApplicationBuilder Extensions
     /// </summary>
-    public static class ApplicationBuilderExtensions
+    public static class ConfigurationExtensions
     {
+        /// <summary>
+        /// Adds content security policy. See also <see cref="SecurityHeadersAttribute"/> that enables the policy on a specific action
+        /// </summary>
+        /// <param name="services"></param>
+        /// <param name="configureAction"></param>
+        /// <returns></returns>
+        public static IServiceCollection AddCsp(this IServiceCollection services, Action<CSP> configureAction = null) {
+            var policy = CSP.DefaultPolicy.Clone();
+            configureAction?.Invoke(policy);
+            services.AddSingleton(policy);
+            return services;
+        }
+
+
         /// <summary>
         /// Setup the identityserver store configuration and operations
         /// </summary>
