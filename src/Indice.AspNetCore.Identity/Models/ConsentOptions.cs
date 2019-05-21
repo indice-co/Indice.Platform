@@ -4,13 +4,33 @@
 
 namespace Indice.AspNetCore.Identity.Models
 {
+    /// <summary>
+    /// Consent options
+    /// </summary>
     public class ConsentOptions
     {
+        /// <summary>
+        /// Setting for enabling offline access
+        /// </summary>
         public static bool EnableOfflineAccess = true;
+
+        /// <summary>
+        /// Offline access permission display name
+        /// </summary>
         public static string OfflineAccessDisplayName = "Offline Access";
+        /// <summary>
+        /// Offline access permission description
+        /// </summary>
         public static string OfflineAccessDescription = "Access to your applications and resources, even when you are offline";
 
+        /// <summary>
+        /// You must pick at least one permission error text
+        /// </summary>
         public static readonly string MustChooseOneErrorMessage = "You must pick at least one permission";
+
+        /// <summary>
+        /// Invalid selection error text
+        /// </summary>
         public static readonly string InvalidSelectionErrorMessage = "Invalid selection";
     }
 }

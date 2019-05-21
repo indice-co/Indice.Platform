@@ -30,10 +30,10 @@ namespace Indice.AspNetCore.Identity.Filters
                 BaseUri = $"{CSP.Self}",
                 FrameAncestors = $"{CSP.None}",
                 Sandbox = $"allow-forms allow-same-origin allow-scripts",
-                ScriptSrc = $"{CSP.Self} ajax.googleapis.com ajax.aspnetcdn.com",
+                ScriptSrc = $"{CSP.Self} ajax.googleapis.com ajax.aspnetcdn.com stackpath.bootstrapcdn.com",
                 FontSrc = $"{CSP.Self} fonts.googleapis.com",
                 ImgSrc = CSP.Wildcard,
-                StyleSrc = $"{CSP.Self} {CSP.UnsafeInline} fonts.googleapis.com",
+                StyleSrc = $"{CSP.Self} {CSP.UnsafeInline} fonts.googleapis.com stackpath.bootstrapcdn.com use.fontawesome.com",
             };
         }
 
