@@ -11,11 +11,28 @@ namespace Indice.AspNetCore.Identity.Models
     /// </summary>
     public class AccountOptions
     {
+        /// <summary>
+        /// Allow local login or only external
+        /// </summary>
         public static bool AllowLocalLogin = true;
+        /// <summary>
+        /// Allow remember me in login screen
+        /// </summary>
         public static bool AllowRememberLogin = true;
+
+        /// <summary>
+        /// Remember me duration
+        /// </summary>
         public static TimeSpan RememberMeLoginDuration = TimeSpan.FromDays(30);
 
+        /// <summary>
+        /// Should show the logout prompt or logout immediately
+        /// </summary>
         public static bool ShowLogoutPrompt = true;
+
+        /// <summary>
+        /// Automatic redirect after sign out
+        /// </summary>
         public static bool AutomaticRedirectAfterSignOut = false;
 
         /// <summary>
@@ -27,6 +44,9 @@ namespace Indice.AspNetCore.Identity.Models
         /// </summary>
         public static bool IncludeWindowsGroups = false;
 
+        /// <summary>
+        /// Invalid username or password
+        /// </summary>
         public static string InvalidCredentialsErrorMessage = "Invalid username or password";
 
         /// <summary>
