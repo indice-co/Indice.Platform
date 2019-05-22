@@ -43,13 +43,21 @@ namespace Indice.AspNetCore.Identity.Models
         /// <summary>
         /// Available Sca Methods
         /// </summary>
-        public IEnumerable<ScaMethodViewModel> ScaMethods { get; set; }
+        public Dictionary<string, ScaMethodViewModel> ScaMethods { get; set; }
 
         /// <summary>
-        /// Strong customer authentication code sent show the input.
+        /// The selected sca method bound
         /// </summary>
-        public bool ShowScaCodeInput { get; set; }
-
+        public ScaMethodViewModel SelectedScaMethod {
+            get {
+                var method = default(ScaMethodViewModel);
+                if (ScaMethods?.ContainsKey(ScaMethod) == true) {
+                    method = ScaMethods[ScaMethod];
+                }
+                return method;
+            }
+        }
+        
         /// <summary>
         /// Requires Strong customer authentication
         /// </summary>
