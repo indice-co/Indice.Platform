@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Text.RegularExpressions;
+using Indice.AspNetCore.Filters;
 using Indice.AspNetCore.TagHelpers;
 using Indice.Configuration;
 using Indice.Services;
@@ -20,6 +21,18 @@ namespace Microsoft.Extensions.DependencyInjection
     /// </summary>
     public static class ServiceCollectionExtensions
     {
+        /// <summary>
+         /// Adds content security policy. See also <see cref="SecurityHeadersAttribute"/> that enables the policy on a specific action
+         /// </summary>
+         /// <param name="services"></param>
+         /// <param name="configureAction"></param>
+         /// <returns></returns>
+        public static IServiceCollection AddCsp(this IServiceCollection services, Action<CSP> configureAction = null) {
+            var policy = CSP.DefaultPolicy.Clone();
+            configureAction?.Invoke(policy);
+            services.AddSingleton(policy);
+            return services;
+        }
         /// <summary>
         /// Adds Indice's common services.
         /// </summary>
