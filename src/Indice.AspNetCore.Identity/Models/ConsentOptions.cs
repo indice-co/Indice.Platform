@@ -32,5 +32,20 @@ namespace Indice.AspNetCore.Identity.Models
         /// Invalid selection error text
         /// </summary>
         public static readonly string InvalidSelectionErrorMessage = "Invalid selection";
+
+        /// <summary>
+        /// You must pick a strong customer authentication method.
+        /// </summary>
+        public static readonly string MustChooseOneScaMethod = "You must pick a strong customer authentication method.";
+
+        /// <summary>
+        /// You must enter a valid authentication code.
+        /// </summary>
+        public static readonly string MustEnterAuthenticationCode = "You must enter a valid authentication code.";
+
+        /// <summary>
+        /// Invalid authentication code.
+        /// </summary>
+        public static readonly string InvalidAuthenticationCode = "Invalid authentication code.";
     }
 }
