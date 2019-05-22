@@ -161,8 +161,6 @@ namespace Indice.AspNetCore.Identity.Services
             identity.AddClaim(new Claim(JwtClaimTypes.PhoneNumberVerified, isPhoneConfirmed.ToString().ToLower()));
             return new ClaimsPrincipal(identity);
         }
-
-        private async Task<bool> IsTfaEnabled(TUser user) => UserManager.SupportsUserTwoFactor && await UserManager.GetTwoFactorEnabledAsync(user) && (await UserManager.GetValidTwoFactorProvidersAsync(user)).Count > 0;
     }
 
     /// <summary>
