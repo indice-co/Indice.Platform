@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 
-namespace Indice.AspNetCore.Identity.Filters
+namespace Indice.AspNetCore.Filters
 {
     /// <summary>
     /// Sets the Content Security policy header for the current action.
@@ -58,7 +58,7 @@ namespace Indice.AspNetCore.Identity.Filters
     }
 
     /// <summary>
-    /// https://content-security-policy.com/
+    /// Content Security Policy https://content-security-policy.com/
     /// </summary>
     public class CSP : IEnumerable<string>, ICloneable
     {
@@ -160,9 +160,9 @@ namespace Indice.AspNetCore.Identity.Filters
         /// WebSocket, and
         /// EventSource.
         /// </summary>
-        public string ContentSrc {
-            get => GetValueOrDefult(nameof(ContentSrc));
-            set => SetValue(nameof(ContentSrc), value);
+        public string ConnectSrc {
+            get => GetValueOrDefult(nameof(ConnectSrc));
+            set => SetValue(nameof(ConnectSrc), value);
         }
 
         /// <summary>
@@ -198,7 +198,7 @@ namespace Indice.AspNetCore.Identity.Filters
         }
 
         /// <summary>
-        /// Adds an entry to the current CSP policy at the specified key (ie script-src etc.)
+        /// Appends an entry to the current CSP policy at the specified key (ie script-src etc.)
         /// </summary>
         /// <param name="key">The key to ammend</param>
         /// <param name="value">The value to add</param>
@@ -217,13 +217,25 @@ namespace Indice.AspNetCore.Identity.Filters
         }
 
         /// <summary>
-        /// Adds an entry to the current CSP policy
+        /// Appends an entry to the current CSP policy
         /// </summary>
         /// <param name="value">The value to add</param>
         /// <returns></returns>
-        public CSP AddScriptSrc(string value) {
-            return Add(nameof(ScriptSrc), value);
-        }
+        public CSP AddScriptSrc(string value) => Add(nameof(ScriptSrc), value);
+
+        /// <summary>
+        /// Appends an entry to the current CSP policy
+        /// </summary>
+        /// <param name="value">The value to add</param>
+        /// <returns></returns>
+        public CSP AddConnectSrc(string value) => Add(nameof(ConnectSrc), value);
+
+        /// <summary>
+        /// Appends an entry to the current CSP policy
+        /// </summary>
+        /// <param name="value">The value to add</param>
+        /// <returns></returns>
+        public CSP AddSandbox(string value) => Add(nameof(Sandbox), value);
 
         /// <summary>
         /// Gets the <see cref="IEnumerator{T}"/> to iterate the underliing values for each policy part.
@@ -267,6 +279,7 @@ namespace Indice.AspNetCore.Identity.Filters
                 FontSrc = FontSrc,
                 ImgSrc = ImgSrc,
                 StyleSrc = StyleSrc,
+                ConnectSrc = ConnectSrc
             };
         }
 
