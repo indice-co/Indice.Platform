@@ -28,6 +28,9 @@ namespace Indice.AspNetCore.TagHelpers
         public override void Process(TagHelperContext context, TagHelperOutput output) {
             base.Process(context, output);
             var area = GetUrlCasing($"{ViewContext.RouteData.Values["area"]}");
+            if (!string.IsNullOrEmpty(area)) {
+                area = $"area-{area}";
+            }
             var controller = GetUrlCasing($"{ViewContext.RouteData.Values["controller"]}");
             var action = GetUrlCasing($"{ViewContext.RouteData.Values["action"]}");
             var classList = new List<string>();
