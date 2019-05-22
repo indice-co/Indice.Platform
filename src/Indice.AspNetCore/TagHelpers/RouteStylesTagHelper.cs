@@ -33,12 +33,15 @@ namespace Indice.AspNetCore.TagHelpers
             }
             var controller = GetUrlCasing($"{ViewContext.RouteData.Values["controller"]}");
             var action = GetUrlCasing($"{ViewContext.RouteData.Values["action"]}");
+            if (action == "index") {
+                action = string.Empty;
+            }
             var classList = new List<string>();
             if (output.Attributes.TryGetAttribute("class", out var css)) {
                 classList = css.Value.ToString().Split(' ').ToList();
             }
             var pageSpecificClasses = new List<string> { area, controller, action };
-            classList.AddRange(pageSpecificClasses.Where(x => !string.IsNullOrEmpty(x)));
+            classList.AddRange(pageSpecificClasses.Where(x => !string.IsNullOrEmpty(x)).Distinct());
             output.Attributes.SetAttribute("class", string.Join(" ", classList));
         }
 
