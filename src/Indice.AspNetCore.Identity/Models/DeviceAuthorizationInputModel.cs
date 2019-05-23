@@ -4,8 +4,14 @@
 
 namespace Indice.AspNetCore.Identity.Models
 {
+    /// <summary>
+    /// Device authorization input model (request model)
+    /// </summary>
     public class DeviceAuthorizationInputModel : ConsentInputModel
     {
+        /// <summary>
+        /// User code
+        /// </summary>
         public string UserCode { get; set; }
     }
 }

@@ -6,8 +6,15 @@ using Newtonsoft.Json;
 
 namespace Indice.AspNetCore.Identity.Models
 {
+    /// <summary>
+    /// Diagnostics view model
+    /// </summary>
     public class DiagnosticsViewModel
     {
+        /// <summary>
+        /// constructs the viewmodel
+        /// </summary>
+        /// <param name="result"></param>
         public DiagnosticsViewModel(AuthenticateResult result) {
             AuthenticateResult = result;
 
@@ -19,7 +26,14 @@ namespace Indice.AspNetCore.Identity.Models
             }
         }
 
+        /// <summary>
+        /// The authenticate result to debug
+        /// </summary>
         public AuthenticateResult AuthenticateResult { get; }
+
+        /// <summary>
+        /// List of clients.
+        /// </summary>
         public IEnumerable<string> Clients { get; } = new List<string>();
     }
 }

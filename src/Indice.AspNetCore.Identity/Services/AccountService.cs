@@ -11,6 +11,9 @@ using Microsoft.AspNetCore.Http;
 
 namespace Indice.AspNetCore.Identity.Services
 {
+    /// <summary>
+    /// Account service wraps account controllers operations regarding creating and validating viewmodels.
+    /// </summary>
     public class AccountService
     {
         private readonly IClientStore _clientStore;
@@ -18,6 +21,13 @@ namespace Indice.AspNetCore.Identity.Services
         private readonly IHttpContextAccessor _httpContextAccessor;
         private IAuthenticationSchemeProvider _schemeProvider;
 
+        /// <summary>
+        /// Constructs the <see cref="AccountService"/>
+        /// </summary>
+        /// <param name="interaction"></param>
+        /// <param name="httpContextAccessor"></param>
+        /// <param name="schemeProvider"></param>
+        /// <param name="clientStore"></param>
         public AccountService(IIdentityServerInteractionService interaction, IHttpContextAccessor httpContextAccessor, IAuthenticationSchemeProvider schemeProvider, IClientStore clientStore) {
             _interaction = interaction;
             _httpContextAccessor = httpContextAccessor;
@@ -25,6 +35,11 @@ namespace Indice.AspNetCore.Identity.Services
             _clientStore = clientStore;
         }
 
+        /// <summary>
+        /// Build the <see cref="LoginViewModel"/>
+        /// </summary>
+        /// <param name="returnUrl">The return url to go to after successful login</param>
+        /// <returns></returns>
         public async Task<LoginViewModel> BuildLoginViewModelAsync(string returnUrl) {
             var context = await _interaction.GetAuthorizationContextAsync(returnUrl);
 
@@ -78,6 +93,11 @@ namespace Indice.AspNetCore.Identity.Services
             };
         }
 
+        /// <summary>
+        /// Builds the <see cref="LoginViewModel"/> from the posted request <see cref="LoginInputModel"/>
+        /// </summary>
+        /// <param name="model">the request model</param>
+        /// <returns></returns>
         public async Task<LoginViewModel> BuildLoginViewModelAsync(LoginInputModel model) {
             var viewModel = await BuildLoginViewModelAsync(model.ReturnUrl);
             viewModel.Username = model.Username;
@@ -86,7 +106,20 @@ namespace Indice.AspNetCore.Identity.Services
             return viewModel;
         }
 
+
+        /// <summary>
+        /// Builds the <see cref="RegisterViewModel"/>
+        /// </summary>
+        /// <param name="returnUrl"></param>
+        /// <returns></returns>
         public async Task<RegisterViewModel> BuildRegisterViewModelAsync(string returnUrl) => await BuildRegisterViewModelAsync<RegisterViewModel>(returnUrl);
+
+        /// <summary>
+        /// Generic counterpart in case someone extends the basic <see cref="RegisterViewModel"/> with extra properties
+        /// </summary>
+        /// <typeparam name="TRegisterViewModel"></typeparam>
+        /// <param name="returnUrl"></param>
+        /// <returns></returns>
         public async Task<TRegisterViewModel> BuildRegisterViewModelAsync<TRegisterViewModel>(string returnUrl) where TRegisterViewModel : RegisterViewModel, new() {
             var context = await _interaction.GetAuthorizationContextAsync(returnUrl);
 
@@ -134,13 +167,31 @@ namespace Indice.AspNetCore.Identity.Services
             };
         }
 
+        /// <summary>
+        /// Builds the <see cref="RegisterViewModel"/> from the posted request <see cref="RegisterRequest"/>
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
         public async Task<RegisterViewModel> BuildRegisterViewModelAsync(RegisterRequest model) => await BuildRegisterViewModelAsync<RegisterViewModel>(model);
+
+        /// <summary>
+        ///  Builds the <see cref="RegisterViewModel"/> from the posted request <see cref="RegisterRequest"/>.
+        ///  Generic counterpart in case someone extends the basic <see cref="RegisterViewModel"/> with extra properties
+        /// </summary>
+        /// <typeparam name="TRegisterViewModel"></typeparam>
+        /// <param name="model"></param>
+        /// <returns></returns>
         public async Task<TRegisterViewModel> BuildRegisterViewModelAsync<TRegisterViewModel>(RegisterRequest model) where TRegisterViewModel : RegisterViewModel, new() {
             var viewModel = await BuildRegisterViewModelAsync<TRegisterViewModel>(model.ReturnUrl);
             viewModel.Username = model.Username;
             return viewModel;
         }
 
+        /// <summary>
+        /// Build the logout viewmodel
+        /// </summary>
+        /// <param name="logoutId"></param>
+        /// <returns></returns>
         public async Task<LogoutViewModel> BuildLogoutViewModelAsync(string logoutId) {
             var user = _httpContextAccessor.HttpContext.User;
             var vm = new LogoutViewModel { LogoutId = logoutId, ShowLogoutPrompt = AccountOptions.ShowLogoutPrompt };
@@ -163,6 +214,11 @@ namespace Indice.AspNetCore.Identity.Services
             return vm;
         }
 
+        /// <summary>
+        /// Build the post logout viewmodel. <see cref="LoggedOutViewModel"/>
+        /// </summary>
+        /// <param name="logoutId"></param>
+        /// <returns></returns>
         public async Task<LoggedOutViewModel> BuildLoggedOutViewModelAsync(string logoutId) {
             // Get context information (client name, post logout redirect URI and iframe for federated signout).
             var logout = await _interaction.GetLogoutContextAsync(logoutId);

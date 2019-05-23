@@ -4,9 +4,19 @@
 
 namespace Indice.AspNetCore.Identity.Models
 {
+    /// <summary>
+    /// Viewmodel for the external provider
+    /// </summary>
     public class ExternalProvider
     {
+        /// <summary>
+        /// The display name
+        /// </summary>
         public string DisplayName { get; set; }
+
+        /// <summary>
+        /// The authentication scheme for the cookie
+        /// </summary>
         public string AuthenticationScheme { get; set; }
     }
 }
