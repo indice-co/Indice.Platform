@@ -133,6 +133,14 @@ namespace Indice.AspNetCore.Identity.Services
         }
 
         /// <summary>
+        /// Signs the current user out of the application.
+        /// </summary>
+        public async override Task SignOutAsync() {
+            await Context.SignOutAsync(ExtendedIdentityConstants.ExtendedValidationUserIdScheme);
+            await base.SignOutAsync();
+        }
+
+        /// <summary>
         /// Creates a claims principal for the specified 2fa information.
         /// </summary>
         /// <param name="userId">The user whose is logging in via 2fa.</param>
@@ -161,8 +169,6 @@ namespace Indice.AspNetCore.Identity.Services
             identity.AddClaim(new Claim(JwtClaimTypes.PhoneNumberVerified, isPhoneConfirmed.ToString().ToLower()));
             return new ClaimsPrincipal(identity);
         }
-
-        private async Task<bool> IsTfaEnabled(TUser user) => UserManager.SupportsUserTwoFactor && await UserManager.GetTwoFactorEnabledAsync(user) && (await UserManager.GetValidTwoFactorProvidersAsync(user)).Count > 0;
     }
 
     /// <summary>
