@@ -42,7 +42,4 @@
   <ItemGroup>
     <ProjectReference Include="..\Indice.AspNetCore\Indice.AspNetCore.csproj" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Scopes\" />
-  </ItemGroup>
 </Project>
