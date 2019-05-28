@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Razor.TagHelpers;
 namespace Indice.AspNetCore.TagHelpers
 {
     /// <summary>
-    /// Tag helper that adds area, controller and action name as CSS classes to html or boady tags.
+    /// Tag helper that adds area, controller and action name as CSS classes to html or body tags.
     /// </summary>
     [HtmlTargetElement("body", Attributes = "[route-styles]")]
     [HtmlTargetElement("html", Attributes = "[route-styles]")]
