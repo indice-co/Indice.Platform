@@ -20,8 +20,7 @@ namespace Indice.AspNetCore.Identity.Scopes
         /// <summary>
         /// Initializes a new instance of the <see cref="IntrospectionResponseGenerator" /> class.
         /// </summary>
-        /// <param name="events">The events.</param>
-        /// <param name="logger">The logger.</param>
+        /// <param name="inner">The decorated generator</param>
         public DynamicScopeIntrospectionResponseGenerator(T inner) {
             _inner = inner;
         }
@@ -37,9 +36,9 @@ namespace Indice.AspNetCore.Identity.Scopes
             var scopeNames = validationResult.Claims.Where(c => c.Type == JwtClaimTypes.Scope).Select(x => x.Value);
             var scopes = validationResult.Api.Scopes.FindMatches(scopeNames).Select(x => x.Name);
             if (response.ContainsKey("scope")) {
-                response["scope"] = string.Join(' ', scopes);
+                response["scope"] = string.Join(" ", scopes);
             } else {
-                response.Add("scope", string.Join(' ', scopes));
+                response.Add("scope", string.Join(" ", scopes));
             }
             return response;
         }

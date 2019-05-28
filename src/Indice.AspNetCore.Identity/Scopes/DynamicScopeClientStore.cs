@@ -16,7 +16,7 @@ namespace Indice.AspNetCore.Identity.Scopes
         /// <summary>
         /// Initializes a new instance of the <see cref="DynamicScopeClientStore{T}"/> class.
         /// </summary>
-        /// <param name="clients">The clients.</param>
+        /// <param name="inner">The decorated client store</param>
         public DynamicScopeClientStore(T inner) {
             _innerStore = inner;
         }
