@@ -11,7 +11,7 @@ namespace Indice.Configuration
     public class EmailMessageBuilder<TModel> : EmailMessageBuilder where TModel : class
     {
         /// <summary>
-        /// Data that are paased to the email template.
+        /// Data that are passed to the email template.
         /// </summary>
         public TModel Data { get; set; }
 
@@ -59,7 +59,7 @@ namespace Indice.Configuration
         /// <summary>
         /// Adds a model that is passed to the email template.
         /// </summary>
-        /// <param name="data">Data that are paased to the email template.</param>
+        /// <param name="data">Data that are passed to the email template.</param>
         /// <returns></returns>
         public EmailMessageBuilder<TModel> WithData(TModel data) {
             Data = data;

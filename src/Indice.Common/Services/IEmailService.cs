@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Indice.Configuration;
 
@@ -83,20 +84,6 @@ namespace Indice.Services
         /// <param name="attachments">The files that will be attached in the email message.</param>
         /// <returns></returns>
         Task SendAsync<TModel>(string[] recipients, string subject, string body, string template, TModel data, FileAttachment[] attachments = null) where TModel : class;
-
-        /// <summary>
-        /// Sends an email.
-        /// </summary>
-        /// <param name="configureMessage">The delegate that will be used to build the message.</param>
-        /// <returns></returns>
-        Task SendAsync(Action<EmailMessageBuilder> configureMessage);
-
-        /// <summary>
-        /// Sends an email.
-        /// </summary>
-        /// <param name="configureMessage">The delegate that will be used to build the message.</param>
-        /// <returns></returns>
-        Task SendAsync<TModel>(Action<EmailMessageBuilder<TModel>> configureMessage) where TModel : class;
     }
 
     /// <summary>
@@ -105,18 +92,17 @@ namespace Indice.Services
     public static class EmailServiceExtensions
     {
         /// <summary>
-        /// Send and email using a single recipient and default template with the name of "Email".
+        /// Send an email using a single recipient and default template with the name of "Email".
         /// </summary>
         /// <param name="emailService"></param>
         /// <param name="recipient">The recipient of the email message.</param>
         /// <param name="subject">The subject of the email message.</param>
         /// <param name="body">The body of the email message.</param>
-        /// <returns></returns>
         public static async Task SendAsync(this IEmailService emailService, string recipient, string subject, string body) =>
             await emailService.SendAsync<object>(new string[] { recipient }, subject, body, "Email", null);
 
         /// <summary>
-        /// Send and email using a single recipient.
+        /// Send an email using a single recipient.
         /// </summary>
         /// <typeparam name="TModel">The type of the <paramref name="data"/> that will be applied to the template.</typeparam>
         /// <param name="emailService"></param>
@@ -125,8 +111,38 @@ namespace Indice.Services
         /// <param name="body">The body of the email message.</param>
         /// <param name="template">The name of the template used for the message.</param>
         /// <param name="data">The data model that contains information to render in the email message.</param>
-        /// <returns></returns>
         public static async Task SendAsync<TModel>(this IEmailService emailService, string recipient, string subject, string body, string template, TModel data) where TModel : class =>
             await emailService.SendAsync(new string[] { recipient }, subject, body, template, data);
+
+        /// <summary>
+        /// Sends an email by using a fluent configuration.
+        /// </summary>
+        /// <param name="emailService">Abstraction for sending email through different providers and implementations. SMTP, SparkPost, Mailchimp etc.</param>
+        /// <param name="configureMessage">The delegate that will be used to build the message.</param>
+        public static async Task SendAsync(this IEmailService emailService, Action<EmailMessageBuilder> configureMessage) {
+            if (configureMessage == null) {
+                throw new ArgumentNullException(nameof(configureMessage));
+            }
+            var messageBuilder = new EmailMessageBuilder();
+            configureMessage(messageBuilder);
+            var message = messageBuilder.Build();
+            await emailService.SendAsync(message.Recipients.ToArray(), message.Subject, message.Body, message.Attachments.ToArray());
+        }
+
+        /// <summary>
+        /// Sends an email, along with template data, by using a fluent configuration.
+        /// </summary>
+        /// <typeparam name="TModel">The type of the data that will be applied to the template.</typeparam>
+        /// <param name="emailService">Abstraction for sending email through different providers and implementations. SMTP, SparkPost, Mailchimp etc.</param>
+        /// <param name="configureMessage">The delegate that will be used to build the message.</param>
+        public static async Task SendAsync<TModel>(this IEmailService emailService, Action<EmailMessageBuilder<TModel>> configureMessage) where TModel : class {
+            if (configureMessage == null) {
+                throw new ArgumentNullException(nameof(configureMessage));
+            }
+            var messageBuilder = new EmailMessageBuilder<TModel>();
+            configureMessage(messageBuilder);
+            var message = messageBuilder.Build();
+            await emailService.SendAsync(message.Recipients.ToArray(), message.Subject, message.Body, message.Template, message.Data, message.Attachments.ToArray());
+        }
     }
 }

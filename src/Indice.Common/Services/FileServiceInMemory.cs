@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Indice.Extensions;
 
@@ -20,7 +19,6 @@ namespace Indice.Services
         /// </summary>
         /// <param name="filepath">The file path</param>
         /// <param name="isDirectory"></param>
-        /// <returns></returns>
         public Task<bool> DeleteAsync(string filepath, bool isDirectory = false) {
             GuardExists(filepath);
             if (!isDirectory)
@@ -35,8 +33,7 @@ namespace Indice.Services
         /// <summary>
         /// Gets the file data in bytes
         /// </summary>
-        /// <param name="filepath">The file path</param>
-        /// <returns></returns>
+        /// <param name="filepath">The file path.</param>
         public Task<byte[]> GetAsync(string filepath) {
             GuardExists(filepath);
             return Task.FromResult(Cache[filepath]);
@@ -45,8 +42,7 @@ namespace Indice.Services
         /// <summary>
         /// Gets a path list. For a given folder
         /// </summary>
-        /// <param name="path">The file path</param>
-        /// <returns></returns>
+        /// <param name="path">The file path.</param>
         public Task<IEnumerable<string>> SearchAsync(string path) {
             if (string.IsNullOrWhiteSpace(path)) {
                 return Task.FromResult(Cache.Keys.AsEnumerable());
@@ -57,12 +53,10 @@ namespace Indice.Services
         /// <summary>
         /// Gets metadata for a file.
         /// </summary>
-        /// <param name="filepath"></param>
-        /// <returns></returns>
+        /// <param name="filepath">The file path.</param>
         public Task<FileProperties> GetPropertiesAsync(string filepath) {
             GuardExists(filepath);
             var data = Cache[filepath];
-            
             var props = new FileProperties {
                 Length = data.Length,
                 LastModified = DateTime.UtcNow,
@@ -75,7 +69,7 @@ namespace Indice.Services
         /// <summary>
         /// Save a file to store. Update or create the resource.
         /// </summary>
-        /// <param name="filepath"></param>
+        /// <param name="filepath">The file path.</param>
         /// <param name="stream"></param>
         /// <returns></returns>
         public Task SaveAsync(string filepath, Stream stream) {
@@ -94,8 +88,9 @@ namespace Indice.Services
         }
 
         private void GuardExists(string filepath) {
-            if (!Cache.ContainsKey(filepath))
+            if (!Cache.ContainsKey(filepath)) {
                 throw new Exception($"file '{filepath}' not found");
+            }
         }
     }
 }

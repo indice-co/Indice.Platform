@@ -17,7 +17,7 @@ using Newtonsoft.Json.Serialization;
 namespace Indice.Services
 {
     /// <summary>
-    /// Custom settings that are used to send emails via SparkPost
+    /// Custom settings that are used to send emails via SparkPost.
     /// </summary>
     public class EmailServiceSparkPostSettings
     {
