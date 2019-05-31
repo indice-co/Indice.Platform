@@ -52,7 +52,8 @@ namespace Indice.AspNetCore.Identity.Extensions
         public static void SetupTables(this OperationalStoreOptions options) {
             options.DefaultSchema = "auth";
             options.PersistedGrants = new TableConfiguration(nameof(PersistedGrant));
-            options.DeviceFlowCodes = new TableConfiguration(nameof(IdentityServer4.Models.DeviceCode));
+            // Enable it for naming consistensy.
+            //options.DeviceFlowCodes = new TableConfiguration(nameof(IdentityServer4.Models.DeviceCode));
         }
     }
 }
