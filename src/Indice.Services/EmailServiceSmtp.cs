@@ -77,27 +77,5 @@ namespace Indice.Services
                 await client.DisconnectAsync(true);
             }
         }
-
-        /// <inheritdoc/>
-        public async Task SendAsync<TModel>(Action<EmailMessageBuilder<TModel>> configureMessage) where TModel : class {
-            if (configureMessage == null) {
-                throw new ArgumentNullException(nameof(configureMessage));
-            }
-            var messageBuilder = new EmailMessageBuilder<TModel>();
-            configureMessage(messageBuilder);
-            var message = messageBuilder.Build();
-            await SendAsync(message.Recipients.ToArray(), message.Subject, message.Body, message.Template, message.Data, message.Attachments.ToArray());
-        }
-
-        /// <inheritdoc/>
-        public async Task SendAsync(Action<EmailMessageBuilder> configureMessage) {
-            if (configureMessage == null) {
-                throw new ArgumentNullException(nameof(configureMessage));
-            }
-            var messageBuilder = new EmailMessageBuilder();
-            configureMessage(messageBuilder);
-            var message = messageBuilder.Build();
-            await SendAsync(message.Recipients.ToArray(), message.Subject, message.Body, message.Attachments.ToArray());
-        }
     }
 }

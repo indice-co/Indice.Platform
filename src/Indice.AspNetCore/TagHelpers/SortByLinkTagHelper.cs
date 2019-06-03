@@ -24,7 +24,6 @@ namespace Indice.AspNetCore.TagHelpers
         public async override Task ProcessAsync(TagHelperContext context, TagHelperOutput output) {
             await base.ProcessAsync(context, output);
             var childContent = await output.GetChildContentAsync();
-
             if (childContent.IsEmptyOrWhiteSpace) {
                 var spanTag = new TagBuilder("span");
                 spanTag.InnerHtml.Append(SortBy.Metadata.GetDisplayName());

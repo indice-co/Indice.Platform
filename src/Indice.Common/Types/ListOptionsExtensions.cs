@@ -7,9 +7,8 @@ using System.Reflection;
 
 namespace Indice.Types
 {
-
     /// <summary>
-    /// Extension methods to manipulate ListOptions.
+    /// Extension methods to manipulate <see cref="ListOptions"/>.
     /// </summary>
     public static class ListOptionsExtensions
     {

@@ -24,7 +24,7 @@ namespace Indice.Extensions
             return builder.ToString();
         }
 
-        /// <summary>Transliterate Unicode string to ASCII string.</summary>
+        /// <summary>Transliterate unicode string to ASCII string.</summary>
         /// <param name="input">String you want to transliterate into ASCII.</param>
         /// <param name="tempStringBuilderCapacity">If you know the length of the result, pass the value for <see cref="StringBuilder"/> capacity. <paramref name="input"/>.Length * 2 is used by default.</param>
         /// <returns>ASCII string. There are [?] (3 characters) in places of some unknown(?) unicode characters. It is this way in Python code as well.</returns>
@@ -52,7 +52,7 @@ namespace Indice.Extensions
             return stringBuilder.ToString();
         }
 
-        /// <summary>Transliterate Unicode character to ASCII string.</summary>
+        /// <summary>Transliterate unicode character to ASCII string.</summary>
         /// <param name="character">Character you want to transliterate into ASCII.</param>
         /// <returns>ASCII string. Unknown(?) unicode characters will return [?] (3 characters). It is this way in Python code as well.</returns>
         public static string Unidecode(this char character) {
