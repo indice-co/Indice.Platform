@@ -2,7 +2,7 @@
   <PropertyGroup>
     <Description>Indice.Hosting Class Library</Description>
     <Copyright>Copyright (c) 2019 Indice</Copyright>
-    <VersionPrefix>1.0.0</VersionPrefix>
+    <VersionPrefix>2.2.0</VersionPrefix>
     <!--<VersionSuffix>beta2</VersionSuffix>-->
     <Authors>c.leftheris</Authors>
     <TargetFramework>netstandard2.0</TargetFramework>
@@ -14,7 +14,7 @@
     <PackageId>Indice.Hosting</PackageId>
     <PackageTags>dotnetcore;Hosting</PackageTags>
     <PackageReleaseNotes>
-      Windows service worker style.
+      Quartz Jobs support.
     </PackageReleaseNotes>
     <PackageIconUrl>https://raw.githubusercontent.com/indice-co/Indice.AspNet/master/icon/icon-128.png</PackageIconUrl>
     <PackageProjectUrl>https://github.com/indice-co/Indice.AspNet</PackageProjectUrl>
@@ -38,5 +38,6 @@
     <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="2.2.0" />
     <PackageReference Include="Microsoft.Extensions.Logging.EventLog" Version="2.2.0" />
     <PackageReference Include="System.ServiceProcess.ServiceController" Version="4.5.0" />
+    <PackageReference Include="Quartz" Version="3.0.7" />
   </ItemGroup>
 </Project>
