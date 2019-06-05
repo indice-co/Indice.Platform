@@ -229,5 +229,16 @@ namespace Indice.AspNetCore.Swagger
             options.OperationFilter<SecurityRequirementsOperationFilter>(); // Assign scope requirements to operations based on AuthorizeAttribute.            
         }
 
+        /// <summary>
+        /// Include xml comments from an external assembly. 
+        /// Useful when models are located in more than one assembly
+        /// </summary>
+        /// <param name="options">The options to confugure</param>
+        /// <param name="assembly"></param>
+        public static void IncludeXmlComments(this SwaggerGenOptions options, Assembly assembly) {
+            var xmlPath = Path.Combine(AppContext.BaseDirectory, $"{assembly.GetName().Name}.xml");
+            if (File.Exists(xmlPath))
+                options.IncludeXmlComments(xmlPath);
+        }
     }
 }
