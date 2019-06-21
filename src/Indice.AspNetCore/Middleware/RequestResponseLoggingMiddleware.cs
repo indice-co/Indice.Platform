@@ -65,9 +65,22 @@ namespace Indice.AspNetCore.Middleware
             }
         }
 
-        private static void DefaultLoggingHandler(ILogger<RequestProfilerModel> logger, RequestProfilerModel model) {
-            logger.LogInformation(model.Request);
-            logger.LogInformation(model.Response);
+        /// <summary>
+        /// Default logging handler implementation. Adds two info log entries to the <see cref="ILogger"/>. One for the request and the other for the response.
+        /// </summary>
+        /// <param name="logger"></param>
+        /// <param name="model"></param>
+        public static void DefaultLoggingHandler(ILogger<RequestProfilerModel> logger, RequestProfilerModel model) {
+            if (model.Context.Response.StatusCode >= 500) {
+                logger.LogError(model.Request);
+                logger.LogError(model.Response);
+            } else if (model.Context.Response.StatusCode >= 400) {
+                logger.LogWarning(model.Request);
+                logger.LogWarning(model.Response);
+            } else {
+                logger.LogInformation(model.Request);
+                logger.LogInformation(model.Response);
+            }
         }
 
         private string FormatResponse(HttpContext context, MemoryStream newResponseBody) {

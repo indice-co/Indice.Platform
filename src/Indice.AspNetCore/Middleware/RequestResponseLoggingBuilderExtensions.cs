@@ -20,7 +20,7 @@ namespace Microsoft.AspNetCore.Builder
         /// <param name="logHandler"></param>
         /// <returns>The builder</returns>
         public static IApplicationBuilder UseRequestResponseLogging(this IApplicationBuilder builder, Action<ILogger<RequestProfilerModel>, RequestProfilerModel> logHandler = null) {
-            return builder.UseMiddleware<RequestResponseLoggingMiddleware>(logHandler);
+            return builder.UseMiddleware<RequestResponseLoggingMiddleware>(logHandler ?? RequestResponseLoggingMiddleware.DefaultLoggingHandler);
         }
     }
 }
