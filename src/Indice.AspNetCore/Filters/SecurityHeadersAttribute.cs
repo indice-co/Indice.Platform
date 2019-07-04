@@ -108,7 +108,7 @@ namespace Indice.AspNetCore.Filters
         /// Content Security policy regarding all sources.
         /// </summary>
         public string DefaultSrc {
-            get => GetValueOrDefult(nameof(DefaultSrc));
+            get => GetValueOrDefault(nameof(DefaultSrc));
             set => SetValue(nameof(DefaultSrc), value);
         }
 
@@ -116,7 +116,7 @@ namespace Indice.AspNetCore.Filters
         /// Content Security policy regarding script sources.
         /// </summary>
         public string ScriptSrc {
-            get => GetValueOrDefult(nameof(ScriptSrc));
+            get => GetValueOrDefault(nameof(ScriptSrc));
             set => SetValue(nameof(ScriptSrc), value);
         }
 
@@ -124,7 +124,7 @@ namespace Indice.AspNetCore.Filters
         /// Content Security policy regarding cascading stylesheets.
         /// </summary>
         public string StyleSrc {
-            get => GetValueOrDefult(nameof(StyleSrc));
+            get => GetValueOrDefault(nameof(StyleSrc));
             set => SetValue(nameof(StyleSrc), value);
         }
 
@@ -132,7 +132,7 @@ namespace Indice.AspNetCore.Filters
         /// Content Security policy regarding image sources.
         /// </summary>
         public string ImgSrc {
-            get => GetValueOrDefult(nameof(ImgSrc));
+            get => GetValueOrDefault(nameof(ImgSrc));
             set => SetValue(nameof(ImgSrc), value);
         }
 
@@ -140,7 +140,7 @@ namespace Indice.AspNetCore.Filters
         /// Content Security policy regarding font sources.
         /// </summary>
         public string FontSrc {
-            get => GetValueOrDefult(nameof(FontSrc));
+            get => GetValueOrDefault(nameof(FontSrc));
             set => SetValue(nameof(FontSrc), value);
         }
 
@@ -148,7 +148,7 @@ namespace Indice.AspNetCore.Filters
         /// Specifies valid sources for the &lt;object&gt;, &lt;embed&gt;, and &lt;applet&gt; elements.
         /// </summary>
         public string ObjectSrc {
-            get => GetValueOrDefult(nameof(ObjectSrc));
+            get => GetValueOrDefault(nameof(ObjectSrc));
             set => SetValue(nameof(ObjectSrc), value);
         }
 
@@ -161,7 +161,7 @@ namespace Indice.AspNetCore.Filters
         /// EventSource.
         /// </summary>
         public string ConnectSrc {
-            get => GetValueOrDefult(nameof(ConnectSrc));
+            get => GetValueOrDefault(nameof(ConnectSrc));
             set => SetValue(nameof(ConnectSrc), value);
         }
 
@@ -169,7 +169,7 @@ namespace Indice.AspNetCore.Filters
         /// Content Security policy regarding frame ancestors. When the current page will be included in an iframe.
         /// </summary>
         public string FrameAncestors {
-            get => GetValueOrDefult(nameof(FrameAncestors));
+            get => GetValueOrDefault(nameof(FrameAncestors));
             set => SetValue(nameof(FrameAncestors), value);
         }
 
@@ -177,7 +177,7 @@ namespace Indice.AspNetCore.Filters
         /// Endpoint to report back the csp report from server.
         /// </summary>
         public string ReportUri {
-            get => GetValueOrDefult(nameof(ReportUri));
+            get => GetValueOrDefault(nameof(ReportUri));
             set => SetValue(nameof(ReportUri), value);
         }
 
@@ -185,7 +185,7 @@ namespace Indice.AspNetCore.Filters
         /// Restricts the URLs which can be used in a document's &lt;base&gt; element.
         /// </summary>
         public string BaseUri {
-            get => GetValueOrDefult(nameof(BaseUri));
+            get => GetValueOrDefault(nameof(BaseUri));
             set => SetValue(nameof(BaseUri), value);
         }
 
@@ -193,7 +193,7 @@ namespace Indice.AspNetCore.Filters
         /// Enables a sandbox for the requested resource similar to the &lt;iframe&gt; sandbox attribute.
         /// </summary>
         public string Sandbox {
-            get => GetValueOrDefult(nameof(Sandbox));
+            get => GetValueOrDefault(nameof(Sandbox));
             set => SetValue(nameof(Sandbox), value);
         }
 
@@ -210,6 +210,9 @@ namespace Indice.AspNetCore.Filters
             }
             if (values.ContainsKey(key)) {
                 values[key] += $" {value}";
+                // If the directive contains 'none' but a value is allowed then we have to remove the 'none' value.
+                // To do: Maybe we should consider removing all existing value if 'none' is added.
+                values[key] = values[key].Replace($"{None} ", string.Empty);
             } else {
                 values.Add(key, value);
             }
@@ -238,6 +241,12 @@ namespace Indice.AspNetCore.Filters
         public CSP AddSandbox(string value) => Add(nameof(Sandbox), value);
 
         /// <summary>
+        /// Appends an entry to the current CSP policy.
+        /// </summary>
+        /// <param name="value">The value to add.</param>
+        public CSP AddFrameAncestors(string value) => Add(nameof(FrameAncestors), value);
+
+        /// <summary>
         /// Gets the <see cref="IEnumerator{T}"/> to iterate the underliing values for each policy part.
         /// </summary>
         /// <returns></returns>
@@ -251,7 +260,7 @@ namespace Indice.AspNetCore.Filters
         /// <returns></returns>
         public override string ToString() => string.Join("; ", this);
 
-        private string GetValueOrDefult(string key) => values.ContainsKey(key) ? values[key] : null;
+        private string GetValueOrDefault(string key) => values.ContainsKey(key) ? values[key] : null;
 
         private void SetValue(string key, string value) {
             if (values.ContainsKey(key)) {
