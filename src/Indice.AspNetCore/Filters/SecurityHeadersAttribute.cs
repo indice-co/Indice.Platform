@@ -188,11 +188,11 @@ namespace Indice.AspNetCore.Filters
                 // this is url casing.
                 key = GetPascalCasing(key);
             }
-            if (values.ContainsKey(key)) {
-                values[key] += $" {value}";
+            if (_values.ContainsKey(key)) {
+                _values[key] += $" {value}";
                 // If the directive contains 'none' but a value is allowed then we have to remove the 'none' value.
                 // To do: Maybe we should consider removing all existing value if 'none' is added.
-                values[key] = values[key].Replace($"{None} ", string.Empty);
+                _values[key] = _values[key].Replace($"{None} ", string.Empty);
             } else {
                 _values.Add(key, value);
             }
@@ -240,7 +240,7 @@ namespace Indice.AspNetCore.Filters
         /// <returns></returns>
         public override string ToString() => string.Join("; ", this);
 
-        private string GetValueOrDefault(string key) => values.ContainsKey(key) ? values[key] : null;
+        private string GetValueOrDefault(string key) => _values.ContainsKey(key) ? _values[key] : null;
 
         private void SetValue(string key, string value) {
             if (_values.ContainsKey(key)) {
