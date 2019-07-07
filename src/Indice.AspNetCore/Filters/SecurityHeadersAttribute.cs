@@ -5,7 +5,6 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
-using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 
 namespace Indice.AspNetCore.Filters
@@ -15,18 +14,15 @@ namespace Indice.AspNetCore.Filters
     /// </summary>
     public class SecurityHeadersAttribute : ActionFilterAttribute
     {
+        /// <summary>
+        /// Constructor defaults to allowing self origin, plus Google for fonts and scripts (Google cdn) and wildcard for images.
+        /// </summary>
+        public SecurityHeadersAttribute() { }
 
         /// <summary>
-        /// Constractor Defaults to allowing self origin plus google for fonts and scripts (google cdn) and wildcard for images.
+        /// Code that executes before an action is executed.
         /// </summary>
-        public SecurityHeadersAttribute() {
-
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="context"></param>
+        /// <param name="context">A context for result filters, specifically <see cref="IResultFilter.OnResultExecuting(ResultExecutingContext)"/></param>
         public override void OnResultExecuting(ResultExecutingContext context) {
             var result = context.Result;
             var requestPolicy = (CSP)context.HttpContext.RequestServices.GetService(typeof(CSP));
@@ -38,12 +34,10 @@ namespace Indice.AspNetCore.Filters
                 if (!context.HttpContext.Response.Headers.ContainsKey("X-Frame-Options")) {
                     context.HttpContext.Response.Headers.Add("X-Frame-Options", "SAMEORIGIN");
                 }
-
                 // Once for standards compliant browsers.
                 if (!context.HttpContext.Response.Headers.ContainsKey("Content-Security-Policy")) {
                     context.HttpContext.Response.Headers.Add("Content-Security-Policy", policy.ToString());
                 }
-
                 // And once again for IE.
                 if (!context.HttpContext.Response.Headers.ContainsKey("X-Content-Security-Policy")) {
                     context.HttpContext.Response.Headers.Add("X-Content-Security-Policy", policy.ToString());
@@ -63,7 +57,7 @@ namespace Indice.AspNetCore.Filters
     public class CSP : IEnumerable<string>, ICloneable
     {
         /// <summary>
-        /// Default policy
+        /// Default policy.
         /// </summary>
         public static readonly CSP DefaultPolicy = new CSP {
             DefaultSrc = $"{Self}",
@@ -77,73 +71,64 @@ namespace Indice.AspNetCore.Filters
             StyleSrc = $"{Self} {UnsafeInline} fonts.googleapis.com stackpath.bootstrapcdn.com use.fontawesome.com",
         };
 
-        private readonly Dictionary<string, string> values = new Dictionary<string, string>();
+        private readonly Dictionary<string, string> _values = new Dictionary<string, string>();
 
         /// <summary>
         /// Wildcard, allows any URL except data: blob: filesystem: schemes.
         /// </summary>
         public const string Wildcard = "*";
-
         /// <summary>
         /// Allows loading resources from the same origin (same scheme, host and port).
         /// </summary>
         public const string Self = "'self'";
-
         /// <summary>
         /// Prevents loading resources from any source.
         /// </summary>
         public const string None = "'none'";
-
         /// <summary>
-        /// Allows loading resources via the data scheme (eg Base64 encoded images).
+        /// Allows loading resources via the data scheme (eg. Base64 encoded images).
         /// </summary>
         public const string Data = "data:";
-
         /// <summary>
-        /// Allows loading resources via the data scheme (eg Base64 encoded images).
+        /// Allows execution of unsafe in-page scripts and event handlers.
         /// </summary>
         public const string UnsafeInline = "'unsafe-inline'";
 
         /// <summary>
-        /// Content Security policy regarding all sources.
+        /// Content Security Policy regarding all sources.
         /// </summary>
         public string DefaultSrc {
             get => GetValueOrDefult(nameof(DefaultSrc));
             set => SetValue(nameof(DefaultSrc), value);
         }
-
         /// <summary>
-        /// Content Security policy regarding script sources.
+        /// Content Security Policy regarding script sources.
         /// </summary>
         public string ScriptSrc {
             get => GetValueOrDefult(nameof(ScriptSrc));
             set => SetValue(nameof(ScriptSrc), value);
         }
-
         /// <summary>
-        /// Content Security policy regarding cascading stylesheets.
+        /// Content Security Policy regarding cascading stylesheets.
         /// </summary>
         public string StyleSrc {
             get => GetValueOrDefult(nameof(StyleSrc));
             set => SetValue(nameof(StyleSrc), value);
         }
-
         /// <summary>
-        /// Content Security policy regarding image sources.
+        /// Content Security pPolicy regarding image sources.
         /// </summary>
         public string ImgSrc {
             get => GetValueOrDefult(nameof(ImgSrc));
             set => SetValue(nameof(ImgSrc), value);
         }
-
         /// <summary>
-        /// Content Security policy regarding font sources.
+        /// Content Security Policy regarding font sources.
         /// </summary>
         public string FontSrc {
             get => GetValueOrDefult(nameof(FontSrc));
             set => SetValue(nameof(FontSrc), value);
         }
-
         /// <summary>
         /// Specifies valid sources for the &lt;object&gt;, &lt;embed&gt;, and &lt;applet&gt; elements.
         /// </summary>
@@ -151,7 +136,6 @@ namespace Indice.AspNetCore.Filters
             get => GetValueOrDefult(nameof(ObjectSrc));
             set => SetValue(nameof(ObjectSrc), value);
         }
-
         /// <summary>
         /// connect-src directive restricts the URLs which can be loaded using script interfaces. The APIs that are restricted are:
         /// ping,
@@ -164,7 +148,6 @@ namespace Indice.AspNetCore.Filters
             get => GetValueOrDefult(nameof(ConnectSrc));
             set => SetValue(nameof(ConnectSrc), value);
         }
-
         /// <summary>
         /// Content Security policy regarding frame ancestors. When the current page will be included in an iframe.
         /// </summary>
@@ -172,7 +155,6 @@ namespace Indice.AspNetCore.Filters
             get => GetValueOrDefult(nameof(FrameAncestors));
             set => SetValue(nameof(FrameAncestors), value);
         }
-
         /// <summary>
         /// Endpoint to report back the csp report from server.
         /// </summary>
@@ -180,7 +162,6 @@ namespace Indice.AspNetCore.Filters
             get => GetValueOrDefult(nameof(ReportUri));
             set => SetValue(nameof(ReportUri), value);
         }
-
         /// <summary>
         /// Restricts the URLs which can be used in a document's &lt;base&gt; element.
         /// </summary>
@@ -188,7 +169,6 @@ namespace Indice.AspNetCore.Filters
             get => GetValueOrDefult(nameof(BaseUri));
             set => SetValue(nameof(BaseUri), value);
         }
-
         /// <summary>
         /// Enables a sandbox for the requested resource similar to the &lt;iframe&gt; sandbox attribute.
         /// </summary>
@@ -198,50 +178,50 @@ namespace Indice.AspNetCore.Filters
         }
 
         /// <summary>
-        /// Appends an entry to the current CSP policy at the specified key (ie script-src etc.)
+        /// Appends an entry to the current CSP policy at the specified key (ie script-src etc.).
         /// </summary>
-        /// <param name="key">The key to ammend</param>
-        /// <param name="value">The value to add</param>
-        /// <returns></returns>
+        /// <param name="key">The key to ammend.</param>
+        /// <param name="value">The value to add.</param>
+        /// <returns>Returns the current instance of the Content Security Policy.</returns>
         public CSP Add(string key, string value) {
             if (key.Contains('-')) {
                 // this is url casing.
                 key = GetPascalCasing(key);
             }
-            if (values.ContainsKey(key)) {
-                values[key] += $" {value}";
+            if (_values.ContainsKey(key)) {
+                _values[key] += $" {value}";
             } else {
-                values.Add(key, value);
+                _values.Add(key, value);
             }
             return this;
         }
 
         /// <summary>
-        /// Appends an entry to the current CSP policy
+        /// Appends an entry to the current CSP policy.
         /// </summary>
-        /// <param name="value">The value to add</param>
-        /// <returns></returns>
+        /// <param name="value">The value to add.</param>
+        /// <returns>Returns the current instance of the Content Security Policy.</returns>
         public CSP AddScriptSrc(string value) => Add(nameof(ScriptSrc), value);
 
         /// <summary>
-        /// Appends an entry to the current CSP policy
+        /// Appends an entry to the current CSP policy.
         /// </summary>
-        /// <param name="value">The value to add</param>
-        /// <returns></returns>
+        /// <param name="value">The value to add.</param>
+        /// <returns>Returns the current instance of the Content Security Policy.</returns>
         public CSP AddConnectSrc(string value) => Add(nameof(ConnectSrc), value);
 
         /// <summary>
-        /// Appends an entry to the current CSP policy
+        /// Appends an entry to the current CSP policy.
         /// </summary>
-        /// <param name="value">The value to add</param>
-        /// <returns></returns>
+        /// <param name="value">The value to add<./param>
+        /// <returns>Returns the current instance of the Content Security Policy.</returns>
         public CSP AddSandbox(string value) => Add(nameof(Sandbox), value);
 
         /// <summary>
-        /// Gets the <see cref="IEnumerator{T}"/> to iterate the underliing values for each policy part.
+        /// Gets the <see cref="IEnumerator{T}"/> to iterate the underlying values for each policy part.
         /// </summary>
         /// <returns></returns>
-        public IEnumerator<string> GetEnumerator() => values.Where(x => x.Value != null).Select(x => $"{GetUrlCasing(x.Key)} {x.Value}").GetEnumerator();
+        public IEnumerator<string> GetEnumerator() => _values.Where(x => x.Value != null).Select(x => $"{GetUrlCasing(x.Key)} {x.Value}").GetEnumerator();
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
@@ -251,13 +231,13 @@ namespace Indice.AspNetCore.Filters
         /// <returns></returns>
         public override string ToString() => string.Join("; ", this);
 
-        private string GetValueOrDefult(string key) => values.ContainsKey(key) ? values[key] : null;
+        private string GetValueOrDefult(string key) => _values.ContainsKey(key) ? _values[key] : null;
 
         private void SetValue(string key, string value) {
-            if (values.ContainsKey(key)) {
-                values[key] = value;
+            if (_values.ContainsKey(key)) {
+                _values[key] = value;
             } else {
-                values.Add(key, value);
+                _values.Add(key, value);
             }
         }
 
@@ -265,7 +245,7 @@ namespace Indice.AspNetCore.Filters
         private string GetPascalCasing(string urlCasing) => string.Join("", urlCasing.ToLowerInvariant().Split('-').Select(x => char.ToUpperInvariant(x[0]) + x.Substring(1)));
 
         /// <summary>
-        /// Clone the CSP into a new instance
+        /// Clone the CSP into a new instance.
         /// </summary>
         /// <returns></returns>
         public CSP Clone() {
@@ -291,7 +271,7 @@ namespace Indice.AspNetCore.Filters
         public class ReportRequest
         {
             /// <summary>
-            /// The CSP report member
+            /// The CSP report member.
             /// </summary>
             [JsonProperty(PropertyName = "csp-report")]
             public Report CspReport { get; set; }
@@ -303,43 +283,43 @@ namespace Indice.AspNetCore.Filters
         public class Report
         {
             /// <summary>
-            /// Document uri that the error happened
+            /// Document uri that the error happened.
             /// </summary>
             [JsonProperty(PropertyName = "document-uri")]
             public string DocumentUri { get; set; }
 
             /// <summary>
-            /// The referrer
+            /// The referrer.
             /// </summary>
             [JsonProperty(PropertyName = "referrer")]
             public string Referrer { get; set; }
 
             /// <summary>
-            /// Which directive was violated
+            /// Which directive was violated.
             /// </summary>
             [JsonProperty(PropertyName = "violated-directive")]
             public string ViolatedDirective { get; set; }
 
             /// <summary>
-            /// Effective directive
+            /// Effective directive.
             /// </summary>
             [JsonProperty(PropertyName = "effective-directive")]
             public string EffectiveDirective { get; set; }
 
             /// <summary>
-            /// Original policy
+            /// Original policy.
             /// </summary>
             [JsonProperty(PropertyName = "original-policy")]
             public string OriginalPolicy { get; set; }
 
             /// <summary>
-            /// The resource uri that was blocked
+            /// The resource uri that was blocked.
             /// </summary>
             [JsonProperty(PropertyName = "blocked-uri")]
             public string BlockedUri { get; set; }
 
             /// <summary>
-            /// Status code
+            /// Status code.
             /// </summary>
             [JsonProperty(PropertyName = "status-code")]
             public int StatusCode { get; set; }
