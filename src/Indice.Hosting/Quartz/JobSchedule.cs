@@ -19,6 +19,7 @@ namespace Indice.Hosting.Quartz
         public JobSchedule(Type jobType, string cronExpression, string group, string description) {
             JobType = jobType;
             CronExpression = cronExpression;
+            Group = group;
             Description = description;
         }
 
