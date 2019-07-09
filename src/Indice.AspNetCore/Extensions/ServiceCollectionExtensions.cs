@@ -22,11 +22,11 @@ namespace Microsoft.Extensions.DependencyInjection
     public static class ServiceCollectionExtensions
     {
         /// <summary>
-         /// Adds content security policy. See also <see cref="SecurityHeadersAttribute"/> that enables the policy on a specific action
-         /// </summary>
-         /// <param name="services"></param>
-         /// <param name="configureAction"></param>
-         /// <returns></returns>
+        /// Adds content security policy. See also <see cref="SecurityHeadersAttribute"/> that enables the policy on a specific action
+        /// </summary>
+        /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
+        /// <param name="configureAction"></param>
+        /// <returns></returns>
         public static IServiceCollection AddCsp(this IServiceCollection services, Action<CSP> configureAction = null) {
             var policy = CSP.DefaultPolicy.Clone();
             configureAction?.Invoke(policy);
@@ -93,7 +93,7 @@ namespace Microsoft.Extensions.DependencyInjection
         }
 
         /// <summary>
-        /// Adds <see cref="IFileService"/> using Azre blob storage as the backing store.
+        /// Adds <see cref="IFileService"/> using Azure Blob Storage as the backing store.
         /// </summary>
         /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
         /// <param name="action"></param>
@@ -110,21 +110,21 @@ namespace Microsoft.Extensions.DependencyInjection
         }
 
         /// <summary>
-        /// Adds <see cref="IFileService"/> using Local filesystem as the backing store.
+        /// Adds <see cref="IFileService"/> using local filesystem as the backing store.
         /// </summary>
         /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
-        /// <param name="storageContainerPath"></param>
-        public static IServiceCollection AddFilesLocal(this IServiceCollection services, string storageContainerPath = null) {
+        /// <param name="path"></param>
+        public static IServiceCollection AddFilesLocal(this IServiceCollection services, string path = null) {
             services.AddTransient<IFileService, FileServiceLocal>(serviceProvider => {
-                if (storageContainerPath == null) {
+                if (path == null) {
                     var hostingEnvironment = serviceProvider.GetRequiredService<IHostingEnvironment>();
                     var environmentName = Regex.Replace(hostingEnvironment.EnvironmentName ?? "Development", @"\s+", "-").ToLowerInvariant();
-                    storageContainerPath = Path.Combine(hostingEnvironment.ContentRootPath, "App_Data");
+                    path = Path.Combine(hostingEnvironment.ContentRootPath, "App_Data");
                 }
-                if (!Directory.Exists(storageContainerPath)) {
-                    Directory.CreateDirectory(storageContainerPath);
+                if (!Directory.Exists(path)) {
+                    Directory.CreateDirectory(path);
                 }
-                return new FileServiceLocal(storageContainerPath);
+                return new FileServiceLocal(path);
             });
             return services;
         }
@@ -150,10 +150,10 @@ namespace Microsoft.Extensions.DependencyInjection
         }
 
         /// <summary>
-        /// Configures the Data Protection API for the application by using Azure storage.
+        /// Configures the Data Protection API for the application by using Azure Storage.
         /// </summary>
         /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
-        /// <param name="configure">Configure the available options. Null to use defaults</param>
+        /// <param name="configure">Configure the available options. Null to use defaults.</param>
         public static void AddDataProtectionAzure(this IServiceCollection services, Action<AzureDataProtectionOptions> configure = null) {
             services.TryAddSingleton(typeof(IDataProtectionEncryptor<>), typeof(DataProtectionEncryptor<>));
             var serviceProvider = services.BuildServiceProvider();
@@ -192,7 +192,6 @@ namespace Microsoft.Extensions.DependencyInjection
         /// </summary>
         /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
         /// <param name="path">The path to the file system that will be used within the data protection system.</param>
-        /// <exception cref="ArgumentException">When the </exception>
         public static void AddDataProtectionLocal(this IServiceCollection services, string path = null) {
             var serviceProvider = services.BuildServiceProvider();
             var hostingEnvironment = serviceProvider.GetRequiredService<IHostingEnvironment>();
@@ -231,12 +230,10 @@ namespace Microsoft.Extensions.DependencyInjection
             /// The connection string to your Azure storage account.
             /// </summary>
             public string StorageConnectionString { get; set; }
-
             /// <summary>
             /// The name of the container that will be used within the data protection system.
             /// </summary>
             public string ContainerName { get; set; }
-
             /// <summary>
             /// Sets the unique name of this application within the data protection system.
             /// </summary>
