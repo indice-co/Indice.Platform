@@ -77,10 +77,14 @@ namespace Indice.Hosting.Quartz
 
         private static IJobDetail CreateJob(JobSchedule schedule) {
             var jobType = schedule.JobType;
+            var jobId = jobType.FullName;
+            if (schedule.Description != null) {
+                jobId = $"{schedule.Description} ({jobType.FullName})";
+            }
             return JobBuilder
                 .Create(jobType)
-                .WithIdentity(jobType.FullName)
-                .WithDescription(jobType.Name)
+                .WithIdentity(jobId, schedule.Group)
+                .WithDescription(schedule.Description ?? jobType.Name)
                 .Build();
         }
     }

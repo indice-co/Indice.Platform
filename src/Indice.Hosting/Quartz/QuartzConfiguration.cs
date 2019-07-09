@@ -33,13 +33,17 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <typeparam name="TJob"></typeparam>
         /// <param name="builder"></param>
         /// <param name="cronExpression"></param>
+        /// <param name="group">Job group</param>
+        /// <param name="description">The job description</param>
         /// <returns></returns>
-        public static QuartzBuilder AddJob<TJob>(this QuartzBuilder builder, string cronExpression) where TJob : class, IJob {
+        public static QuartzBuilder AddJob<TJob>(this QuartzBuilder builder, string cronExpression, string group = null, string description = null) where TJob : class, IJob {
             // Add our job
             builder.Services.AddScoped<TJob>();
             builder.Services.AddSingleton(new JobSchedule(
                 jobType: typeof(TJob),
-                cronExpression: cronExpression));
+                cronExpression: cronExpression,
+                group: group,
+                description: description));
 
             return builder;
         }

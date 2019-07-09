@@ -14,9 +14,12 @@ namespace Indice.Hosting.Quartz
         /// </summary>
         /// <param name="jobType"></param>
         /// <param name="cronExpression"></param>
-        public JobSchedule(Type jobType, string cronExpression) {
+        /// <param name="group">Job group</param>
+        /// <param name="description">The job description</param>
+        public JobSchedule(Type jobType, string cronExpression, string group, string description) {
             JobType = jobType;
             CronExpression = cronExpression;
+            Description = description;
         }
 
         /// <summary>
@@ -28,5 +31,15 @@ namespace Indice.Hosting.Quartz
         /// The cron expression
         /// </summary>
         public string CronExpression { get; }
+
+        /// <summary>
+        /// The job description
+        /// </summary>
+        public string Description { get; }
+
+        /// <summary>
+        /// The job group
+        /// </summary>
+        public string Group { get; }
     }
 }
