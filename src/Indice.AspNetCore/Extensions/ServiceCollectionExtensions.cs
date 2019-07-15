@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.IO;
 using System.Text.RegularExpressions;
 using Indice.AspNetCore.Filters;
@@ -9,6 +10,7 @@ using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.DataProtection.AuthenticatedEncryption;
 using Microsoft.AspNetCore.DataProtection.AuthenticatedEncryption.ConfigurationModel;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
@@ -22,7 +24,7 @@ namespace Microsoft.Extensions.DependencyInjection
     public static class ServiceCollectionExtensions
     {
         /// <summary>
-        /// Adds content security policy. See also <see cref="SecurityHeadersAttribute"/> that enables the policy on a specific action
+        /// Adds content security policy. See also <see cref="SecurityHeadersAttribute"/> that enables the policy on a specific action.
         /// </summary>
         /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
         /// <param name="configureAction"></param>
@@ -33,6 +35,7 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddSingleton(policy);
             return services;
         }
+
         /// <summary>
         /// Adds Indice's common services.
         /// </summary>
@@ -96,16 +99,43 @@ namespace Microsoft.Extensions.DependencyInjection
         /// Adds <see cref="IFileService"/> using Azure Blob Storage as the backing store.
         /// </summary>
         /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
-        /// <param name="action"></param>
-        public static IServiceCollection AddFilesAzure(this IServiceCollection services, Action<FileServiceAzureStorage.FileServiceOptions> action = null) {
+        /// <param name="configure">Configure the available options. Null to use defaults.</param>
+        public static IServiceCollection AddFilesAzure(this IServiceCollection services, Action<FileServiceAzureStorage.FileServiceOptions> configure = null) {
             services.AddTransient<IFileService, FileServiceAzureStorage>(serviceProvider => {
                 var options = new FileServiceAzureStorage.FileServiceOptions {
                     ConnectionString = serviceProvider.GetRequiredService<IConfiguration>().GetConnectionString(FileServiceAzureStorage.CONNECTION_STRING_NAME),
                     EnvironmentName = serviceProvider.GetRequiredService<IHostingEnvironment>().EnvironmentName
                 };
-                action?.Invoke(options);
+                configure?.Invoke(options);
                 return new FileServiceAzureStorage(options.ConnectionString, options.EnvironmentName);
             });
+            return services;
+        }
+
+        /// <summary>
+        /// Adds <see cref="IEventDispatcher"/> using Azure Storage as a queuing mechanism.
+        /// </summary>
+        /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
+        /// <param name="configure">Configure the available options. Null to use defaults.</param>
+        public static IServiceCollection AddEventDispatcherAzure(this IServiceCollection services, Action<EventDispatcherOptions> configure = null) {
+            services.AddTransient<IEventDispatcher, EventDispatcherAzure>(serviceProvider => {
+                var options = new EventDispatcherOptions {
+                    ConnectionString = serviceProvider.GetRequiredService<IConfiguration>().GetConnectionString(EventDispatcherAzure.CONNECTION_STRING_NAME),
+                    Enabled = true,
+                    EnvironmentName = serviceProvider.GetRequiredService<IHostingEnvironment>().EnvironmentName
+                };
+                configure?.Invoke(options);
+                return new EventDispatcherAzure(options.ConnectionString, options.EnvironmentName, options.Enabled, serviceProvider.GetRequiredService<IHttpContextAccessor>());
+            });
+            return services;
+        }
+
+        /// <summary>
+        /// Adds <see cref="IEventDispatcher"/> using an in-memory <seealso cref="Queue"/> as a backing store.
+        /// </summary>
+        /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
+        public static IServiceCollection AddEventDispatcherInMemory(this IServiceCollection services) {
+            services.AddTransient<IEventDispatcher, EventDispatcherInMemory>();
             return services;
         }
 
@@ -113,7 +143,7 @@ namespace Microsoft.Extensions.DependencyInjection
         /// Adds <see cref="IFileService"/> using local filesystem as the backing store.
         /// </summary>
         /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
-        /// <param name="path"></param>
+        /// <param name="path">The path to use save.</param>
         public static IServiceCollection AddFilesLocal(this IServiceCollection services, string path = null) {
             services.AddTransient<IFileService, FileServiceLocal>(serviceProvider => {
                 if (path == null) {
@@ -132,8 +162,7 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <summary>
         /// Adds <see cref="IFileService"/> using in-memory storage as the backing store. Only for testing purposes.
         /// </summary>
-        /// <param name="services"></param>
-        /// <returns></returns>
+        /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
         public static IServiceCollection AddFilesInMemory(this IServiceCollection services) {
             services.AddTransient<IFileService, FileServiceInMemory>();
             return services;
@@ -142,8 +171,7 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <summary>
         /// Adds Markdig as a Markdown processor. Needed to use with ASP.NET <see cref="MdTagHelper"/>.
         /// </summary>
-        /// <param name="services"></param>
-        /// <returns></returns>
+        /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
         public static IServiceCollection AddMarkdown(this IServiceCollection services) {
             services.AddTransient<IMarkdownProcessor, MarkdigProcessor>();
             return services;

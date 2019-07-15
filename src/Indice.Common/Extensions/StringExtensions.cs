@@ -2,6 +2,7 @@
 using System.Globalization;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace Indice.Extensions
 {
@@ -69,6 +70,25 @@ namespace Indice.Extensions
                 }
             }
             return result;
+        }
+
+        /// <summary>
+        /// Converts a string to kebab case.
+        /// </summary>
+        /// <param name="value">The string to kebaberize.</param>
+        public static string ToKebabCase(this string value) { // Credits to https://gist.github.com/wsloth/5e9f0e83bdd0c3c9341da7d83ffb8dbb
+            // Replace all non-alphanumeric characters with a dash.
+            value = Regex.Replace(value, @"[^0-9a-zA-Z]", "-");
+            // Replace all subsequent dashes with a single dash.
+            value = Regex.Replace(value, @"[-]{2,}", "-");
+            // Remove any trailing dashes.
+            value = Regex.Replace(value, @"-+$", string.Empty);
+            // Remove any dashes in position zero.
+            if (value.StartsWith("-")) {
+                value = value.Substring(1);
+            }
+            // Lowercase and return.
+            return value.ToLower();
         }
 
 #if !NETSTANDARD14
