@@ -61,6 +61,8 @@ namespace Microsoft.Extensions.Hosting
                        optional: true);
                     configApp.AddEnvironmentVariables(prefix: "NETCORE_");
                     configApp.AddCommandLine(args);
+                    //var environmentName = hostContext.Configuration["NETCORE_ENVIRONMENT"] ?? hostContext.Configuration["ASPNETCORE_ENVIRONMENT"];
+                    //hostContext.HostingEnvironment.EnvironmentName = environmentName;
                 })
                 .ConfigureServices((hostContext, services) => {
                     services.AddLogging();

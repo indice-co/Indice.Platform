@@ -67,9 +67,14 @@ namespace Indice.Hosting.Quartz
         }
 
         private static ITrigger CreateTrigger(JobSchedule schedule) {
+            var jobType = schedule.JobType;
+            var jobId = jobType.FullName;
+            if (schedule.Description != null) {
+                jobId = $"{schedule.Description} ({jobType.FullName})";
+            }
             return TriggerBuilder
                 .Create()
-                .WithIdentity($"{schedule.JobType.FullName}.trigger")
+                .WithIdentity($"{jobId}.trigger", schedule.Group)
                 .WithCronSchedule(schedule.CronExpression)
                 .WithDescription(schedule.CronExpression)
                 .Build();
