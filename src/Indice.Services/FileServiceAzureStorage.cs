@@ -23,8 +23,8 @@ namespace Indice.Services
         /// <summary>
         /// Constructs the service.
         /// </summary>
-        /// <param name="connectionString">The connection string to Azure Storage.</param>
-        /// <param name="environmentName">The name of the environment.</param>
+        /// <param name="connectionString">The connection string to the Azure Storage account.</param>
+        /// <param name="environmentName">The environment name (ex. Development, Production).</param>
         public FileServiceAzureStorage(string connectionString, string environmentName) {
             if (string.IsNullOrEmpty(connectionString)) {
                 throw new ArgumentNullException(nameof(connectionString));
@@ -175,11 +175,11 @@ namespace Indice.Services
         public class FileServiceOptions
         {
             /// <summary>
-            /// The connection string to the azure storage account.
+            /// The connection string to the Azure Storage account.
             /// </summary>
             public string ConnectionString { get; set; }
             /// <summary>
-            /// The environment name (ie Development, Production)
+            /// The environment name (ex. Development, Production).
             /// </summary>
             public string EnvironmentName { get; set; }
         }
