@@ -95,41 +95,57 @@ namespace Microsoft.Extensions.DependencyInjection
         }
 
         /// <summary>
-        /// Provides the functionality to notify an API when a grant is manually removed or updated on IdentityServer.
+        /// Adds the scope metadata endpoint that will resolve the scope displayname/description. Default configuration.
         /// </summary>
+        /// <typeparam name="TDynamicScopeNotificationService"></typeparam>
         /// <param name="builder">The <see cref="IIdentityServerBuilder"/> builder.</param>
         /// <param name="configureAction">Configures options for <see cref="IDynamicScopeNotificationService"/>.</param>
-        /// <returns>The modified <see cref="IIdentityServerBuilder"/> interface.</returns>
         public static IIdentityServerBuilder AddDynamicScopeNotifications<TDynamicScopeNotificationService>(this IIdentityServerBuilder builder, Action<DynamicScopeNotificationOptions> configureAction = null)
             where TDynamicScopeNotificationService : class, IDynamicScopeNotificationService {
-            var serviceProvider = builder.Services.BuildServiceProvider();
-            var configuration = serviceProvider.GetRequiredService<IConfiguration>();
-            var options = new DynamicScopeNotificationOptions {
-                Endpoint = configuration["IdentityServer:ScopeNotificationEndpoint"]
-            };
-            configureAction?.Invoke(options);
-            if (string.IsNullOrEmpty(options.Endpoint)) {
-                throw new Exception($"Configuration for {nameof(IDynamicScopeNotificationService)} failed. Must provide a 'IdentityServer:ScopeNotificationEndpoint' setting.");
+            var existingService = builder.Services.Where(x => x.ServiceType == typeof(IDynamicScopeNotificationService)).LastOrDefault();
+            if (existingService == null) {
+                var configuration = builder.Services.BuildServiceProvider().GetRequiredService<IConfiguration>();
+                var options = new DynamicScopeNotificationOptions {
+                    Endpoint = configuration["IdentityServer:ScopeNotificationEndpoint"]
+                };
+                configureAction?.Invoke(options);
+                if (string.IsNullOrEmpty(options.Endpoint)) {
+                    throw new Exception($"Configuration for {nameof(AddDynamicScopeNotifications)} failed. Must provide a IdentityServer:ScopeNotificationEndpoint setting");
+                }
+                builder.Services.AddSingleton(options);
+                builder.AddConsentServiceWithDynamicScopeNotifications();
+                builder.AddPersistedGrantServiceWithDynamicScopeNotifications();
+                builder.Services.AddHttpClient<IDynamicScopeNotificationService, TDynamicScopeNotificationService>()
+                                .SetHandlerLifetime(TimeSpan.FromMinutes(5));
             }
-            builder.Services.AddSingleton(options);
-            builder.Services.TryAddTransient<IDynamicScopeNotificationService, TDynamicScopeNotificationService>();
-            var loggerFactory = serviceProvider.GetRequiredService<ILoggerFactory>();
-            // Register required services for notifying API when grant is revoked.
-            builder.Services.TryAddTransient<PersistentGrantSerializer>();
-            builder.Services.TryAddTransient<DefaultPersistedGrantService>();
-            builder.Services.AddTransient<IPersistedGrantService>(provider => new DynamicScopePersistedGrantService(
-                provider.GetRequiredService<DefaultPersistedGrantService>(),
-                provider.GetRequiredService<IPersistedGrantDbContext>(),
-                provider.GetRequiredService<IDynamicScopeNotificationService>(),
-                loggerFactory.CreateLogger<DynamicScopePersistedGrantService>(),
-                provider.GetRequiredService<PersistentGrantSerializer>())
-            );
-            // Register required services for notifying API when consent is updated.
-            builder.Services.TryAddTransient<DefaultConsentService>();
-            builder.Services.AddTransient<IConsentService>(provider => new DynamicScopeConsentService(
-                provider.GetRequiredService<DefaultConsentService>(),
-                provider.GetRequiredService<IDynamicScopeNotificationService>())
-            );
+            return builder;
+        }
+
+        /// <summary>
+        /// Adds dynamic scope notifications support to the current consent service.
+        /// </summary>
+        /// <param name="builder">The <see cref="IIdentityServerBuilder"/> builder.</param>
+        private static IIdentityServerBuilder AddConsentServiceWithDynamicScopeNotifications(this IIdentityServerBuilder builder) {
+            var implementation = builder.Services.Where(x => x.ServiceType == typeof(IConsentService)).LastOrDefault()?.ImplementationType;
+            if (implementation != null) {
+                var decoratorType = typeof(DynamicScopeConsentService<>).MakeGenericType(implementation);
+                builder.Services.TryAddTransient(implementation);
+                builder.Services.AddTransient(typeof(IConsentService), decoratorType);
+            }
+            return builder;
+        }
+
+        /// <summary>
+        /// Adds dynamic scope notifications support to the current persisted grant service.
+        /// </summary>
+        /// <param name="builder">The <see cref="IIdentityServerBuilder"/> builder.</param>
+        private static IIdentityServerBuilder AddPersistedGrantServiceWithDynamicScopeNotifications(this IIdentityServerBuilder builder) {
+            var implementation = builder.Services.Where(x => x.ServiceType == typeof(IPersistedGrantService)).LastOrDefault()?.ImplementationType;
+            if (implementation != null) {
+                var decoratorType = typeof(DynamicScopePersistedGrantService<>).MakeGenericType(implementation);
+                builder.Services.TryAddTransient(implementation);
+                builder.Services.AddTransient(typeof(IPersistedGrantService), decoratorType);
+            }
             return builder;
         }
     }
