@@ -23,6 +23,7 @@ namespace Indice.AspNetCore.Identity.Services
     {
         private const string LoginProviderKey = "LoginProvider";
         private const string XsrfKey = "XsrfId";
+        private readonly IAuthenticationSchemeProvider _authenticationSchemeProvider;
 
         /// <summary>
         /// Creates a new instance of <see cref="SignInManager{TUser}" />
@@ -34,10 +35,13 @@ namespace Indice.AspNetCore.Identity.Services
         /// <param name="logger">The logger used to log messages, warnings and errors.</param>
         /// <param name="schemes">The scheme provider that is used enumerate the authentication schemes.</param>
         /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
+        /// <param name="authenticationSchemeProvider">Responsible for managing what authenticationSchemes are supported.</param>
         public ExtendedSignInManager(UserManager<TUser> userManager, IHttpContextAccessor contextAccessor, IUserClaimsPrincipalFactory<TUser> claimsFactory, IOptions<IdentityOptions> optionsAccessor,
-            ILogger<SignInManager<TUser>> logger, IAuthenticationSchemeProvider schemes, IConfiguration configuration) : base(userManager, contextAccessor, claimsFactory, optionsAccessor, logger, schemes) {
+            ILogger<SignInManager<TUser>> logger, IAuthenticationSchemeProvider schemes, IConfiguration configuration, IAuthenticationSchemeProvider authenticationSchemeProvider)
+            : base(userManager, contextAccessor, claimsFactory, optionsAccessor, logger, schemes) {
             RequirePostSigninConfirmedEmail = configuration.GetSection(nameof(SignInOptions)).GetValue<bool?>(nameof(RequirePostSigninConfirmedEmail)) == true;
             RequirePostSigninConfirmedPhoneNumber = configuration.GetSection(nameof(SignInOptions)).GetValue<bool?>(nameof(RequirePostSigninConfirmedPhoneNumber)) == true;
+            _authenticationSchemeProvider = authenticationSchemeProvider ?? throw new ArgumentNullException(nameof(authenticationSchemeProvider));
         }
 
         /// <summary>
@@ -136,7 +140,11 @@ namespace Indice.AspNetCore.Identity.Services
         /// Signs the current user out of the application.
         /// </summary>
         public async override Task SignOutAsync() {
-            await Context.SignOutAsync(ExtendedIdentityConstants.ExtendedValidationUserIdScheme);
+            var schemes = await _authenticationSchemeProvider.GetAllSchemesAsync();
+            // Check if authentication scheme is registered before trying to signout out, to avoid errors.
+            if (schemes.Any(x => x.Name == ExtendedIdentityConstants.ExtendedValidationUserIdScheme)) {
+                await Context.SignOutAsync(ExtendedIdentityConstants.ExtendedValidationUserIdScheme);
+            }
             await base.SignOutAsync();
         }
 
