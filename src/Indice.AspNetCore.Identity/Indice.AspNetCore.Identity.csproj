@@ -3,8 +3,8 @@
     <Description>Indice.AspNetCore.Identity Class Library</Description>
     <Copyright>Copyright (c) 2018 Indice</Copyright>
     <AssemblyTitle>Indice.AspNetCore.Identity</AssemblyTitle>
-    <VersionPrefix>2.2.46</VersionPrefix>
-    <!--<VersionSuffix>beta2</VersionSuffix>-->
+    <VersionPrefix>2.2.47</VersionPrefix>
+    <VersionSuffix>beta1</VersionSuffix>
     <Authors>c.leftheris, g.manoltzas</Authors>
     <TargetFramework>netstandard2.0</TargetFramework>
     <AssemblyName>Indice.AspNetCore.Identity</AssemblyName>
@@ -15,7 +15,7 @@
     <PackageId>Indice.AspNetCore.Identity</PackageId>
     <PackageTags>AspNetCore;IdentityServer;</PackageTags>
     <PackageReleaseNotes>
-      Improve implementation of dynamic scope notifications feature.
+      Add generic parameter to IdentityDbContext to support custom role.
     </PackageReleaseNotes>
     <PackageIconUrl>https://raw.githubusercontent.com/indice-co/Indice.AspNet/master/icon/icon-128.png</PackageIconUrl>
     <PackageProjectUrl>https://github.com/indice-co/Indice.AspNet</PackageProjectUrl>

@@ -9,13 +9,27 @@ namespace Indice.AspNetCore.Identity.Data
     /// <summary>
     /// <see cref="DbContext"/> for the Identity Framework.
     /// </summary>
-    public class IdentityDbContext : IdentityDbContext<User>
+    public class IdentityDbContext : IdentityDbContext<IdentityRole>
     {
         /// <summary>
         /// Constructs the <see cref="DbContext"/> passing the options.
         /// </summary>
         /// <param name="options">The options to be used by a <see cref="DbContext"/>.</param>
         public IdentityDbContext(DbContextOptions options) : base(options) { }
+    }
+
+    /// <summary>
+    /// <see cref="DbContext"/> for the Identity Framework, supporting custom role type.
+    /// </summary>
+    /// <typeparam name="TRole">The type of the role to use.</typeparam>
+    public class IdentityDbContext<TRole> : IdentityDbContext<User, TRole, string> where TRole : IdentityRole
+    {
+        /// <summary>
+        /// Constructs the <see cref="DbContext"/> passing the options.
+        /// </summary>
+        /// <param name="options">The options to be used by a <see cref="DbContext"/>.</param>
+        public IdentityDbContext(DbContextOptions options) : base(options) { }
+
         /// <summary>
         /// Stores all previous passwords of a user for future validation checks.
         /// </summary>
@@ -28,16 +42,16 @@ namespace Indice.AspNetCore.Identity.Data
         protected override void OnModelCreating(ModelBuilder builder) {
             base.OnModelCreating(builder);
             builder.ApplyConfiguration(new UserMap());
-            builder.Entity<IdentityRole>().ToTable("Role", "auth");
+            builder.Entity<TRole>().ToTable("Role", "auth");
             builder.Entity<IdentityUserClaim<string>>().ToTable("UserClaim", "auth");
             builder.Entity<IdentityRoleClaim<string>>().ToTable("RoleClaim", "auth");
             builder.Entity<IdentityUserRole<string>>().ToTable("UserRole", "auth");
             builder.Entity<IdentityUserToken<string>>().ToTable("UserToken", "auth");
             builder.Entity<IdentityUserLogin<string>>().ToTable("UserLogin", "auth");
-            builder.Entity<UserPassword>(b => {
-                b.ToTable(nameof(UserPassword), "auth");
-                b.HasKey(x => x.Id);
-                b.HasOne<User>().WithMany().HasForeignKey(x => x.UserId).OnDelete(DeleteBehavior.Cascade);
+            builder.Entity<UserPassword>(innerBuilder => {
+                innerBuilder.ToTable(nameof(UserPassword), "auth");
+                innerBuilder.HasKey(x => x.Id);
+                innerBuilder.HasOne<User>().WithMany().HasForeignKey(x => x.UserId).OnDelete(DeleteBehavior.Cascade);
             });
         }
     }
