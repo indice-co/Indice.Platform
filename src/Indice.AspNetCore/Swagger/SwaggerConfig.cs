@@ -211,7 +211,7 @@ namespace Indice.AspNetCore.Swagger
             if (File.Exists(xmlPath))
                 options.IncludeXmlComments(xmlPath);
 
-            options.UseReferencedDefinitionsForEnums();
+            //options.UseReferencedDefinitionsForEnums();
 
             options.OrderActionsBy(d => d.RelativePath);
 

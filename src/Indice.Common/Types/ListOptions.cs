@@ -104,7 +104,9 @@ namespace Indice.Types
 
         /// <summary>
         /// Adds a redirect mapping in order to handle server side scenarios where the sort field property path 
-        /// could be in a different location than the display mamber path.
+        /// could be in a different location than the display mamber path. This redirects an incoming property/field path to the one 
+        /// corresponding to the underlying storage provider model. Usually if the undelying storage provider is EF or dapper 
+        /// it will map to to DataBase model property path or column name respectfully. 
         /// </summary>
         /// <param name="from">Client side member path</param>
         /// <param name="to">Server side member path</param>

@@ -134,6 +134,11 @@ namespace Indice.Types
             return textValue;
         }
 
+        /// <summary>
+        /// Converts an object dictionary of route values to a collection of text keyvalue pairs
+        /// </summary>
+        /// <param name="values"></param>
+        /// <returns></returns>
         public static IEnumerable<KeyValuePair<string, string>> AsRouteValues(this IDictionary<string, object> values) {
             return values.SelectMany(kv => {
                 if (kv.Value == null) {
@@ -166,7 +171,15 @@ namespace Indice.Types
             return string.Join("&", parameters.Select(kv => $"{kv.Key}={kv.Value}"));
         }
 
-
+        /// <summary>
+        /// Redirects an incoming property/field path to the one corresponding to the underlying storage provider model. 
+        /// Usually if the undelying storage provider is EF or dapper it will map to to DataBase model property path or column name respectfully. 
+        /// </summary>
+        /// <typeparam name="TSource"></typeparam>
+        /// <typeparam name="TDestination"></typeparam>
+        /// <param name="options"></param>
+        /// <param name="from"></param>
+        /// <param name="to"></param>
         public static void AddSortRedirect<TSource, TDestination>(this ListOptions options, Expression<Func<TSource, object>> from, Expression<Func<TDestination, object>> to) {
             string GetExpressionMemberName(Expression expression, string parentPropertyName = null) {
                 var isProperty = expression.NodeType == ExpressionType.MemberAccess && expression is MemberExpression;

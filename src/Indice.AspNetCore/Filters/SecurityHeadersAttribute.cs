@@ -216,7 +216,7 @@ namespace Indice.AspNetCore.Filters
         /// <summary>
         /// Appends an entry to the current CSP policy.
         /// </summary>
-        /// <param name="value">The value to add<./param>
+        /// <param name="value">The value to add</param>
         /// <returns>Returns the current instance of the Content Security Policy.</returns>
         public CSP AddSandbox(string value) => Add(nameof(Sandbox), value);
 

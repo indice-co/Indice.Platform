@@ -14,7 +14,7 @@ namespace Indice.AspNetCore.TagHelpers
     /// </summary>
     public class MdTagHelper : TagHelper
     {
-        private IHostingEnvironment env;
+        private IWebHostEnvironment env;
         private ILogger<MdTagHelper> logger;
         private IMarkdownProcessor markdownProcessor;
 
@@ -24,7 +24,7 @@ namespace Indice.AspNetCore.TagHelpers
         /// <param name="env"></param>
         /// <param name="logger"></param>
         /// <param name="markdownProcessor"></param>
-        public MdTagHelper(IHostingEnvironment env, ILogger<MdTagHelper> logger, IMarkdownProcessor markdownProcessor) {
+        public MdTagHelper(IWebHostEnvironment env, ILogger<MdTagHelper> logger, IMarkdownProcessor markdownProcessor) {
             this.env = env ?? throw new ArgumentNullException(paramName: nameof(env));
             this.logger = logger ?? throw new ArgumentNullException(paramName: nameof(logger));
             this.markdownProcessor = markdownProcessor ?? throw new ArgumentNullException(paramName: nameof(markdownProcessor));

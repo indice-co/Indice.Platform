@@ -3,10 +3,10 @@
     <Description>Indice.AspNetCore.Identity Class Library</Description>
     <Copyright>Copyright (c) 2018 Indice</Copyright>
     <AssemblyTitle>Indice.AspNetCore.Identity</AssemblyTitle>
-    <VersionPrefix>2.2.47</VersionPrefix>
+    <VersionPrefix>3.0.0</VersionPrefix>
     <VersionSuffix>beta1</VersionSuffix>
     <Authors>c.leftheris, g.manoltzas</Authors>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFramework>netcoreapp3.0</TargetFramework>
     <AssemblyName>Indice.AspNetCore.Identity</AssemblyName>
     <AssemblyTitle>Indice.AspNetCore.Identity</AssemblyTitle>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
@@ -17,7 +17,7 @@
     <PackageReleaseNotes>
       Add generic parameter to IdentityDbContext to support custom role.
     </PackageReleaseNotes>
-    <PackageIconUrl>https://raw.githubusercontent.com/indice-co/Indice.AspNet/master/icon/icon-128.png</PackageIconUrl>
+    <PackageIcon>icon-128.png</PackageIcon>
     <PackageProjectUrl>https://github.com/indice-co/Indice.AspNet</PackageProjectUrl>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <RepositoryType>git</RepositoryType>
@@ -30,14 +30,17 @@
     <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="IdentityServer4" Version="2.4.0" />
-    <PackageReference Include="IdentityServer4.AccessTokenValidation" Version="2.7.0" />
-    <PackageReference Include="IdentityServer4.EntityFramework" Version="2.4.0" />    
-    <PackageReference Include="Indice.AspNetCore" Version="2.2.31" />
+    <None Include="..\..\icon\icon-128.png" Pack="true" Visible="false" PackagePath="" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="IdentityServer4" Version="3.0.1" />
+    <PackageReference Include="IdentityServer4.AccessTokenValidation" Version="3.0.1" />
+    <PackageReference Include="IdentityServer4.EntityFramework" Version="3.0.1" />    
+    <PackageReference Include="Indice.AspNetCore" Version="3.0.0-beta1" />
     <PackageReference Include="Microsoft.AspNetCore.Identity" Version="2.2.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="2.2.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="3.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.Server.IISIntegration" Version="2.2.1" />
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0-beta2-18618-05" PrivateAssets="All" />
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0-beta2-19367-01" PrivateAssets="All" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Indice.AspNetCore\Indice.AspNetCore.csproj" />

@@ -3,10 +3,10 @@
     <Description>Indice.AspNet Class Library</Description>
     <Copyright>Copyright (c) 2018 Indice</Copyright>
     <AssemblyTitle>Indice.AspNet</AssemblyTitle>
-    <VersionPrefix>1.0.3</VersionPrefix>
+    <VersionPrefix>1.0.4</VersionPrefix>
     <!--<VersionSuffix>beta1</VersionSuffix>-->
     <Authors>Constantinos Leftheris, Giorgos Manoltzas</Authors>
-    <TargetFrameworks>net40;net45;net461;net47</TargetFrameworks>
+    <TargetFrameworks>net40;net45;net461</TargetFrameworks>
     <AssemblyName>Indice.AspNet</AssemblyName>
     <AssemblyTitle>Indice.AspNet</AssemblyTitle>
     <!--<GenerateDocumentationFile>true</GenerateDocumentationFile>-->
@@ -17,7 +17,7 @@
     <PackageReleaseNotes>
       Add ability to hide column based on predicate.
     </PackageReleaseNotes>
-    <PackageIconUrl>https://raw.githubusercontent.com/indice-co/Indice.AspNet/master/icon/icon-128.png</PackageIconUrl>
+    <PackageIcon>icon-128.png</PackageIcon>
     <PackageProjectUrl>https://github.com/indice-co/Indice.AspNet</PackageProjectUrl>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <RepositoryType>git</RepositoryType>
@@ -25,6 +25,9 @@
     <Company>Indice</Company>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
   </PropertyGroup>
+  <ItemGroup>
+    <None Include="..\..\icon\icon-128.png" Pack="true" Visible="false" PackagePath="" />
+  </ItemGroup>
   <PropertyGroup Condition="'$(TargetFramework)' == 'net40'">
     <AssemblyTitle>Edi.Net .NET 4.0</AssemblyTitle>
     <DefineConstants>$(DefineConstants);net40</DefineConstants>

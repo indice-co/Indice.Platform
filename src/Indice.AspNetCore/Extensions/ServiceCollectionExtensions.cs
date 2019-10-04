@@ -11,10 +11,11 @@ using Microsoft.AspNetCore.DataProtection.AuthenticatedEncryption;
 using Microsoft.AspNetCore.DataProtection.AuthenticatedEncryption.ConfigurationModel;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Azure.Storage;
+using Microsoft.Azure.Storage.Blob;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
-using Microsoft.WindowsAzure.Storage;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
@@ -104,7 +105,7 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddTransient<IFileService, FileServiceAzureStorage>(serviceProvider => {
                 var options = new FileServiceAzureStorage.FileServiceOptions {
                     ConnectionString = serviceProvider.GetRequiredService<IConfiguration>().GetConnectionString(FileServiceAzureStorage.CONNECTION_STRING_NAME),
-                    EnvironmentName = serviceProvider.GetRequiredService<IHostingEnvironment>().EnvironmentName
+                    EnvironmentName = serviceProvider.GetRequiredService<IWebHostEnvironment>().EnvironmentName
                 };
                 configure?.Invoke(options);
                 return new FileServiceAzureStorage(options.ConnectionString, options.EnvironmentName);
@@ -122,7 +123,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 var options = new EventDispatcherOptions {
                     ConnectionString = serviceProvider.GetRequiredService<IConfiguration>().GetConnectionString(EventDispatcherAzure.CONNECTION_STRING_NAME),
                     Enabled = true,
-                    EnvironmentName = serviceProvider.GetRequiredService<IHostingEnvironment>().EnvironmentName
+                    EnvironmentName = serviceProvider.GetRequiredService<IWebHostEnvironment>().EnvironmentName
                 };
                 configure?.Invoke(options);
                 return new EventDispatcherAzure(options.ConnectionString, options.EnvironmentName, options.Enabled, serviceProvider.GetRequiredService<IHttpContextAccessor>());
@@ -147,7 +148,7 @@ namespace Microsoft.Extensions.DependencyInjection
         public static IServiceCollection AddFilesLocal(this IServiceCollection services, string path = null) {
             services.AddTransient<IFileService, FileServiceLocal>(serviceProvider => {
                 if (path == null) {
-                    var hostingEnvironment = serviceProvider.GetRequiredService<IHostingEnvironment>();
+                    var hostingEnvironment = serviceProvider.GetRequiredService<IWebHostEnvironment>();
                     var environmentName = Regex.Replace(hostingEnvironment.EnvironmentName ?? "Development", @"\s+", "-").ToLowerInvariant();
                     path = Path.Combine(hostingEnvironment.ContentRootPath, "App_Data");
                 }
@@ -185,7 +186,7 @@ namespace Microsoft.Extensions.DependencyInjection
         public static void AddDataProtectionAzure(this IServiceCollection services, Action<AzureDataProtectionOptions> configure = null) {
             services.TryAddSingleton(typeof(IDataProtectionEncryptor<>), typeof(DataProtectionEncryptor<>));
             var serviceProvider = services.BuildServiceProvider();
-            var hostingEnvironment = serviceProvider.GetRequiredService<IHostingEnvironment>();
+            var hostingEnvironment = serviceProvider.GetRequiredService<IWebHostEnvironment>();
             var environmentName = Regex.Replace(hostingEnvironment.EnvironmentName ?? "Development", @"\s+", "-").ToLowerInvariant();
             var options = new AzureDataProtectionOptions {
                 StorageConnectionString = serviceProvider.GetRequiredService<IConfiguration>().GetConnectionString("StorageConnection"),
@@ -222,7 +223,7 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <param name="path">The path to the file system that will be used within the data protection system.</param>
         public static void AddDataProtectionLocal(this IServiceCollection services, string path = null) {
             var serviceProvider = services.BuildServiceProvider();
-            var hostingEnvironment = serviceProvider.GetRequiredService<IHostingEnvironment>();
+            var hostingEnvironment = serviceProvider.GetRequiredService<IWebHostEnvironment>();
             if (path == null) {
                 var environmentName = Regex.Replace(hostingEnvironment.EnvironmentName ?? "Development", @"\s+", "-").ToLowerInvariant();
                 path = Path.Combine(hostingEnvironment.ContentRootPath, "App_Data");

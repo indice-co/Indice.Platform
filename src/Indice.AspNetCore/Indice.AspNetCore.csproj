@@ -3,10 +3,10 @@
     <Description>Indice.AspNetCore Class Library</Description>
     <Copyright>Copyright (c) 2018 Indice</Copyright>
     <AssemblyTitle>Indice.AspNetCore</AssemblyTitle>
-    <VersionPrefix>2.2.31</VersionPrefix>
-    <!--<VersionSuffix>beta2</VersionSuffix>-->
+    <VersionPrefix>3.0.0</VersionPrefix>
+    <VersionSuffix>beta1</VersionSuffix>
     <Authors>c.leftheris, g.manoltzas</Authors>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFramework>netcoreapp3.0</TargetFramework>
     <AssemblyName>Indice.AspNetCore</AssemblyName>
     <AssemblyTitle>Indice.AspNetCore</AssemblyTitle>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
@@ -15,9 +15,9 @@
     <PackageId>Indice.AspNetCore</PackageId>
     <PackageTags>AspNetCore;TagHelpers;Grid;Sorting;Paging</PackageTags>
     <PackageReleaseNotes>
-      Add EventDispatcherAzure.
+      .NetCore 3.0
     </PackageReleaseNotes>
-    <PackageIconUrl>https://raw.githubusercontent.com/indice-co/Indice.AspNet/master/icon/icon-128.png</PackageIconUrl>
+    <PackageIcon>icon-128.png</PackageIcon>
     <PackageProjectUrl>https://github.com/indice-co/Indice.AspNet</PackageProjectUrl>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <RepositoryType>git</RepositoryType>
@@ -30,23 +30,22 @@
     <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="FluentValidation.AspNetCore" Version="8.4.0" />
-    <PackageReference Include="Humanizer.Core" Version="2.6.2" />
-    <PackageReference Include="Indice.Services" Version="1.3.11" />
-    <PackageReference Include="Markdig" Version="0.17.0" />
-    <PackageReference Include="Microsoft.AspNetCore.DataProtection.AzureStorage" Version="2.2.0" />
-    <PackageReference Include="Microsoft.AspNetCore.DataProtection.Extensions" Version="2.2.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.TagHelpers" Version="2.2.0" />
-    <PackageReference Include="Microsoft.AspNetCore.ResponseCaching" Version="2.2.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Rewrite" Version="2.2.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Routing.Abstractions" Version="2.2.0" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="2.2.4" />
-    <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="2.2.0" />
-    <PackageReference Include="Microsoft.Extensions.Http" Version="2.2.0" />
-    <PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" Version="5.0.0-rc2" />
-    <PackageReference Include="SixLabors.ImageSharp.Drawing" Version="1.0.0-beta0006" />
+    <None Include="..\..\icon\icon-128.png" Pack="true" Visible="false" PackagePath="" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="FluentValidation.AspNetCore" Version="8.5.0" />
+    <PackageReference Include="Humanizer.Core" Version="2.7.9" />
+    <PackageReference Include="Indice.Services" Version="1.4.0" />
+    <PackageReference Include="Markdig" Version="0.17.1" />
+    <PackageReference Include="Microsoft.AspNetCore.DataProtection.AzureStorage" Version="3.0.0" />
+    <PackageReference Include="Microsoft.Azure.Storage.Queue" Version="11.1.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="3.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Http" Version="3.0.0" />
+    <PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" Version="5.0.0-rc4" />
+    <PackageReference Include="SixLabors.ImageSharp.Drawing" Version="1.0.0-beta0007" />
     <PackageReference Include="System.Security.Claims" Version="4.3.0" />
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0-beta2-18618-05" PrivateAssets="All" />
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0-beta2-19367-01" PrivateAssets="All" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Indice.Services\Indice.Services.csproj" />

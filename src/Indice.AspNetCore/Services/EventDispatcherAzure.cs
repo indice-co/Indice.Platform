@@ -5,8 +5,8 @@ using System.Threading.Tasks;
 using Indice.Extensions;
 using Indice.Types;
 using Microsoft.AspNetCore.Http;
-using Microsoft.WindowsAzure.Storage;
-using Microsoft.WindowsAzure.Storage.Queue;
+using Microsoft.Azure.Storage;
+using Microsoft.Azure.Storage.Queue;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 

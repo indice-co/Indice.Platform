@@ -3,7 +3,6 @@ using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.Internal;
 using Microsoft.Extensions.Logging;
 
 namespace Indice.AspNetCore.Middleware
@@ -109,7 +108,7 @@ namespace Indice.AspNetCore.Middleware
 
         private async Task<string> GetRequestBody(HttpRequest request) {
             request.EnableBuffering();
-            request.EnableRewind();
+
             using (var requestStream = new MemoryStream()) {
                 await request.Body.CopyToAsync(requestStream);
                 request.Body.Seek(0, SeekOrigin.Begin);

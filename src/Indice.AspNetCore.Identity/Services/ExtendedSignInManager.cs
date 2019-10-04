@@ -34,11 +34,12 @@ namespace Indice.AspNetCore.Identity.Services
         /// <param name="optionsAccessor">The accessor used to access the <see cref="IdentityOptions"/>.</param>
         /// <param name="logger">The logger used to log messages, warnings and errors.</param>
         /// <param name="schemes">The scheme provider that is used enumerate the authentication schemes.</param>
+        /// <param name="confirmation">The <see cref="IUserConfirmation{TUser}"/> used check whether a user account is confirmed.</param>
         /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
         /// <param name="authenticationSchemeProvider">Responsible for managing what authenticationSchemes are supported.</param>
         public ExtendedSignInManager(UserManager<TUser> userManager, IHttpContextAccessor contextAccessor, IUserClaimsPrincipalFactory<TUser> claimsFactory, IOptions<IdentityOptions> optionsAccessor,
-            ILogger<SignInManager<TUser>> logger, IAuthenticationSchemeProvider schemes, IConfiguration configuration, IAuthenticationSchemeProvider authenticationSchemeProvider)
-            : base(userManager, contextAccessor, claimsFactory, optionsAccessor, logger, schemes) {
+            ILogger<SignInManager<TUser>> logger, IAuthenticationSchemeProvider schemes, IUserConfirmation<TUser> confirmation, IConfiguration configuration, IAuthenticationSchemeProvider authenticationSchemeProvider)
+            : base(userManager, contextAccessor, claimsFactory, optionsAccessor, logger, schemes, confirmation) {
             RequirePostSigninConfirmedEmail = configuration.GetSection(nameof(SignInOptions)).GetValue<bool?>(nameof(RequirePostSigninConfirmedEmail)) == true;
             RequirePostSigninConfirmedPhoneNumber = configuration.GetSection(nameof(SignInOptions)).GetValue<bool?>(nameof(RequirePostSigninConfirmedPhoneNumber)) == true;
             _authenticationSchemeProvider = authenticationSchemeProvider ?? throw new ArgumentNullException(nameof(authenticationSchemeProvider));
