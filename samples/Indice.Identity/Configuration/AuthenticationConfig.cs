@@ -15,7 +15,6 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
         public static AuthenticationBuilder AddAuthenticationConfig(this IServiceCollection services) {
             var builder = services.AddAuthentication()
-                                  .AddCookie()
                                   .AddLocalApi(options => {
                                       options.ExpectedScope = IdentityServerApi.Scope;
                                   });

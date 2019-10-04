@@ -18,7 +18,7 @@ namespace Indice.Identity.Models
         /// <summary>
         /// Optional expiration of client secret.
         /// </summary>
-        public DateTimeOffset? Expiration { get; set; }
+        public DateTime? Expiration { get; set; }
         /// <summary>
         /// The type of client secret.
         /// </summary>

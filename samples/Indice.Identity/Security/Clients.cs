@@ -147,6 +147,14 @@ namespace Indice.Identity.Security
                     }
                 };
             }
+            if (clientRequest.Secrets.Any()) {
+                client.ClientSecrets = clientRequest.Secrets.Select(x => new Entities.ClientSecret { 
+                   Type = $"{x.Type}",
+                   Description = x.Description,
+                   Expiration = x.Expiration,
+                   Value = x.Value
+                }).ToList();
+            }
             switch (clientType) {
                 case ClientType.SPA:
                     client.AllowedGrantTypes = new List<Entities.ClientGrantType> {
@@ -160,7 +168,7 @@ namespace Indice.Identity.Security
                             Origin = clientRequest.ClientUri ?? authorityUri
                         }
                     };
-                    return client;
+                    break;
                 case ClientType.WebApp:
                     client.AllowedGrantTypes = new List<Entities.ClientGrantType> {
                         new Entities.ClientGrantType {
