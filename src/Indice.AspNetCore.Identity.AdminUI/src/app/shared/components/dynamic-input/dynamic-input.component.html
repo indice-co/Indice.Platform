@@ -1,0 +1,14 @@
+<!-- String -->
+<input *ngIf="modelType === 'String' || modelType === undefined" class="form-control" type="text" [id]="id" [name]="name" [(ngModel)]="value" [placeholder]="placeholder || ''" 
+    (ngModelChange)="updateChanges()" required />
+<!-- Boolean -->
+<select *ngIf="modelType === 'Boolean'" class="form-control custom-select" [id]="id" [name]="name" [(ngModel)]="value" (ngModelChange)="updateChanges()" required>
+    <option value="" disabled>Please select a suitable value</option>
+    <option value="true">Yes</option>
+    <option value="false">No</option>
+</select>
+<!-- Int -->
+<input *ngIf="modelType === 'Int'" class="form-control" type="number" [id]="id"  [(ngModel)]="value" [placeholder]="placeholder || ''" (ngModelChange)="updateChanges()" required />
+<!-- DateTime -->
+<input *ngIf="modelType === 'DateTime'" class="form-control" [id]="id" [name]="name" [placeholder]="placeholder || 'mm-dd-yyyy'" [(ngModel)]="value" (ngModelChange)="updateChanges()" 
+    (focus)="datePicker.toggle()" ngbDatepicker required #datePicker="ngbDatepicker" />

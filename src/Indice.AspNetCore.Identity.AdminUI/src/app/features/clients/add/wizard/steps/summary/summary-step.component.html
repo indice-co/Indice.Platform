@@ -1,0 +1,72 @@
+<form novalidate>
+    <div class="form-group row">
+        <label class="col-sm-2 col-form-label">Client Id</label>
+        <div class="col-sm-10 col-form-label">
+            <span class="col-form-label" id="client-id" name="client-id">{{ summary.clientId ? summary.clientId : '-' }}</span>
+        </div>
+    </div>
+    <div class="form-group row">
+        <label class="col-sm-2 col-form-label">Client Name</label>
+        <div class="col-sm-10 col-form-label">
+            <span class="col-form-label" id="client-name" name="client-name">{{ summary.clientName ? summary.clientName : '-' }}</span>
+        </div>
+    </div>
+    <div class="form-group row">
+        <label class="col-sm-2 col-form-label">Require Consent</label>
+        <div class="col-sm-10 col-form-label">
+            <span class="col-form-label" id="client-require-consent" name="client-require-consent">{{ summary.requireConsent ? 'Yes' : 'No' }}</span>
+        </div>
+    </div>
+    <div class="form-group row" *ngIf="summary.clientUri">
+        <label class="col-sm-2 col-form-label">Client URI</label>
+        <div class="col-sm-10 col-form-label">
+            <span class="col-form-label" id="client-uri" name="client-uri">{{ summary.clientUri }}</span>
+        </div>
+    </div>
+    <div class="form-group row" *ngIf="summary.logoUri">
+        <label class="col-sm-2 col-form-label">Logo URI</label>
+        <div class="col-sm-10 col-form-label">
+            <span class="col-form-label" id="client-logo-uri" name="client-logo-uri">{{ summary.logoUri }}</span>
+        </div>
+    </div>
+    <div class="form-group row">
+        <label class="col-sm-2 col-form-label">Description</label>
+        <div class="col-sm-10 col-form-label">
+            <span class="col-form-label" id="client-description" name="client-description">{{ summary.description ? summary.description : '-' }}</span>
+        </div>
+    </div>
+    <div class="form-group row" *ngIf="summary.redirectUri">
+        <label class="col-sm-2 col-form-label">Callback URL</label>
+        <div class="col-sm-10 col-form-label">
+            <span class="col-form-label" id="client-callback-url" name="client-callback-url">{{ summary.redirectUri }}</span>
+        </div>
+    </div>
+    <div class="form-group row" *ngIf="summary.postLogoutRedirectUri">
+        <label class="col-sm-2 col-form-label">Post Logout URL</label>
+        <div class="col-sm-10 col-form-label">
+            <span class="col-form-label" id="client-post-logout-redirect-uri" name="client-post-logout-redirect-uri">{{ summary.postLogoutRedirectUri }}</span>
+        </div>
+    </div>
+    <div class="form-group row" *ngIf="summary.secrets">
+        <label class="col-sm-2 col-form-label">Secrets</label>
+        <div class="col-sm-10 col-form-label">
+            <span class="col-form-label" id="client-secrets" name="client-secrets">{{ summary.secrets.length }} configured secrets.</span>
+        </div>
+    </div>
+    <div class="form-group row" *ngIf="summary.identityResources">
+        <label class="col-sm-2 col-form-label">Identity Resources</label>
+        <div class="col-sm-10 col-form-label">
+            <h6 *ngFor="let resource of summary.identityResources" class="d-inline-block mt-0">
+                <span class="badge badge-warning mr-1">{{ resource }}</span>
+            </h6>
+        </div>
+    </div>
+    <div class="form-group row" *ngIf="summary.apiResources">
+        <label class="col-sm-2 col-form-label">API Resources</label>
+        <div class="col-sm-10 col-form-label">
+            <h6 *ngFor="let resource of summary.apiResources" class="d-inline-block mt-0">
+                <span class="badge badge-warning mr-1">{{ resource }}</span>
+            </h6>
+        </div>
+    </div>
+</form>

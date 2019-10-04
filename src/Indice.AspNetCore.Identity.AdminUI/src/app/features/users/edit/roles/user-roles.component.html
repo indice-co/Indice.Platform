@@ -1,0 +1,17 @@
+<p *ngIf="!availableRoles">Loading user roles...</p>
+<app-transfer-lists 
+    *ngIf="availableRoles" 
+    [source]="availableRoles" 
+    [destination]="userRoles" 
+    [titlePropertyName]="'name'" 
+    [subtitlePropertyName]="'description'" 
+    (itemAdded)="addRole($event)"
+    (itemRemoved)="removeRole($event)" 
+    [options]="{ 
+        sourceListTitle: 'Available Roles', 
+        emptySourceListMessage: 'There are no available roles to assign.',
+        destinationListTitle: 'Assigned Roles',
+        emptyDestinationListMessage: 'There are no roles assigned to this user.'
+    }" 
+    #transferList>
+</app-transfer-lists>

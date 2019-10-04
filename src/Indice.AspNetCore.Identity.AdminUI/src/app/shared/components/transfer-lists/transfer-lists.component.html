@@ -1,0 +1,36 @@
+<div class="row container m-auto">
+    <div class="col-xl-6 ">
+        <h4 class="font-16 mt-0 text-center">{{ options?.sourceListTitle }}</h4>
+        <div class="card m-b-30 shadow">
+            <div class="card-body">
+                <p *ngIf="source?.length === 0">{{ options?.emptySourceListMessage }}</p>
+                <ul class="list-group list-group-flush" *ngIf="source?.length > 0">
+                    <li *ngFor="let item of source" (click)="addItem(item)" class="list-group-item d-flex justify-content-between align-items-center">
+                        <div>
+                            <span class="d-block">{{ item[titlePropertyName] }}</span>
+                            <small class="text-muted">{{ item[subtitlePropertyName] }}</small>
+                        </div>
+                        <span class="action-text text-success">Add</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-6 ">
+        <h4 class="font-16 mt-0 text-center">{{ options?.destinationListTitle }}</h4>
+        <div class="card m-b-30 shadow">
+            <div class="card-body">
+                <p *ngIf="destination?.length === 0">{{ options?.emptyDestinationListMessage }}</p>
+                <ul class="list-group list-group-flush" *ngIf="destination?.length > 0">
+                    <li *ngFor="let item of destination" (click)="removeItem(item)" class="list-group-item d-flex justify-content-between align-items-center">
+                        <div>
+                            <span class="d-block">{{ item[titlePropertyName] }}</span>
+                            <small class="text-muted">{{ item[subtitlePropertyName] }}</small>
+                        </div>
+                        <span class="action-text text-muted">Remove</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>

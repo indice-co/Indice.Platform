@@ -1,0 +1,25 @@
+.d-hover {
+    display:none;
+    &:hover{
+        display:inherit;        
+    }
+}
+
+.list-group-item {
+    cursor: pointer;
+    > div {
+        text-align: justify;
+    }
+    .action-text {
+        visibility: hidden;
+        opacity: 0;
+        transition: all .2s;
+        padding-left: 1.25rem;
+    }
+    &:hover {
+        .action-text {
+            visibility: visible;
+            opacity:1;
+        }
+    }
+}

@@ -1,0 +1,31 @@
+{
+  "dependencies": {
+    "bootstrap": "3.3.5",
+    "jquery": "3.4.1"
+  },
+  "devDependencies": {
+    "css-loader": "0.28.11",
+    "del": "3.0.0",
+    "file-loader": "1.1.11",
+    "gulp": "3.9.1",
+    "gulp-concat": "2.6.1",
+    "gulp-cssbeautify": "1.0.0",
+    "gulp-cssmin": "0.2.0",
+    "gulp-npm-dist": "1.0.2",
+    "gulp-sass": "3.1.0",
+    "gulp-uglify": "3.0.0",
+    "gulp-yarn": "2.0.0",
+    "isomorphic-fetch": "2.2.1",
+    "node-sass": "4.9.0",
+    "rimraf": "2.6.2",
+    "style-loader": "0.21.0",
+    "url-loader": "1.0.1"
+  },
+  "name": "indice-idsrv",
+  "private": true,
+  "scripts": {
+    "clean": "rimraf wwwroot/dist/*",
+    "npm:install": "npm install"
+  },
+  "version": "1.0.0"
+}
