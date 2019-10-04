@@ -2,6 +2,7 @@
 using Hellang.Middleware.ProblemDetails;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Hosting;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
@@ -15,7 +16,7 @@ namespace Microsoft.Extensions.DependencyInjection
         /// </summary>
         /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
         /// <param name="hostingEnvironment">Provides information about the web hosting environment an application is running in.</param>
-        public static IServiceCollection AddProblemDetailsConfig(this IServiceCollection services, IHostingEnvironment hostingEnvironment) {
+        public static IServiceCollection AddProblemDetailsConfig(this IServiceCollection services, IWebHostEnvironment hostingEnvironment) {
             services.AddProblemDetails(options => {
                 // This is the default behavior. Only include exception details in a development environment.
                 options.IncludeExceptionDetails = _ => hostingEnvironment.IsDevelopment();

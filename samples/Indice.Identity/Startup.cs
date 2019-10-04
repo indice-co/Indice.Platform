@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
-using AutoMapper;
 using Hellang.Middleware.ProblemDetails;
 using Indice.AspNetCore.Swagger;
 using Indice.Configuration;
@@ -13,6 +11,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Swashbuckle.AspNetCore.SwaggerUI;
 
 namespace Indice.Identity
@@ -27,7 +26,7 @@ namespace Indice.Identity
         /// </summary>
         /// <param name="hostingEnvironment">Provides information about the web hosting environment an application is running in.</param>
         /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
-        public Startup(IHostingEnvironment hostingEnvironment, IConfiguration configuration) {
+        public Startup(IWebHostEnvironment hostingEnvironment, IConfiguration configuration) {
             HostingEnvironment = hostingEnvironment ?? throw new ArgumentNullException(nameof(hostingEnvironment));
             Configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
             Settings = Configuration.GetSection(GeneralSettings.Name).Get<GeneralSettings>();
@@ -36,7 +35,7 @@ namespace Indice.Identity
         /// <summary>
         /// Provides information about the web hosting environment an application is running in.
         /// </summary>
-        public IHostingEnvironment HostingEnvironment { get; }
+        public IWebHostEnvironment HostingEnvironment { get; }
         /// <summary>
         /// Represents a set of key/value application configuration properties.
         /// </summary>
@@ -55,7 +54,7 @@ namespace Indice.Identity
             services.AddCorsConfig(Configuration);
             services.AddCookiePolicyConfig();
             services.AddAuthorizationConfig();
-            services.AddDbContextConfig(Configuration, HostingEnvironment);
+            services.AddDbContextConfig(Configuration);
             services.AddIdentityConfig(Configuration);
             services.AddIdentityServerConfig(HostingEnvironment, Configuration, Settings);
             services.AddAuthenticationConfig();
@@ -83,7 +82,7 @@ namespace Indice.Identity
         public void Configure(IApplicationBuilder app) {
             if (HostingEnvironment.IsDevelopment()) {
                 app.UseDeveloperExceptionPage();
-                app.UseDatabaseErrorPage();
+                //app.UseDatabaseErrorPage();
                 app.IdentityServerStoreSetup(Clients.Get(), Resources.GetIdentityResources(), Resources.GetApiResources());
             } else {
                 app.UseHsts();
@@ -103,9 +102,11 @@ namespace Indice.Identity
                 SupportedCultures = SupportedCultures.Get().ToList(),
                 SupportedUICultures = SupportedCultures.Get().ToList()
             });
+            app.UseRouting();
             app.UseIdentityServer();
             app.UseCors();
             app.UseAuthentication();
+            app.UseAuthorization();
             app.UseStaticFiles();
             app.UseSpaStaticFiles();
             app.UseResponseCaching();
@@ -125,8 +126,8 @@ namespace Indice.Identity
                     swaggerOptions.DocExpansion(DocExpansion.List);
                 });
             }
-            app.UseMvc(routes => {
-                routes.MapRoute("default", "{controller=Welcome}/{action=Index}/{id?}");
+            app.UseEndpoints(endpoints => {
+                endpoints.MapControllerRoute("default", "{controller=Welcome}/{action=Index}/{id?}");
             });
             app.UseSpa(builder => {
                 builder.Options.SourcePath = "wwwroot/admin-ui";

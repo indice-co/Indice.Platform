@@ -9,6 +9,7 @@ using Indice.Identity.Security;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Logging;
 
 namespace Microsoft.Extensions.DependencyInjection
@@ -26,7 +27,7 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
         /// <param name="settings">General settings for an ASP.NET Core application.</param>
         /// <returns>The modified <see cref="IServiceCollection"/>.</returns>
-        public static IIdentityServerBuilder AddIdentityServerConfig(this IServiceCollection services, IHostingEnvironment hostingEnvironment, IConfiguration configuration, GeneralSettings settings) {
+        public static IIdentityServerBuilder AddIdentityServerConfig(this IServiceCollection services, IWebHostEnvironment hostingEnvironment, IConfiguration configuration, GeneralSettings settings) {
             var migrationsAssembly = typeof(Startup).GetTypeInfo().Assembly.GetName().Name;
             var identityServerBuilder = services.AddIdentityServer(options => {
                 options.Events.RaiseErrorEvents = true;

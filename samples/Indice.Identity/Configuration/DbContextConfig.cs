@@ -1,7 +1,5 @@
 ﻿using Indice.Identity.Data;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Configuration;
 
 namespace Microsoft.Extensions.DependencyInjection
@@ -16,15 +14,10 @@ namespace Microsoft.Extensions.DependencyInjection
         /// </summary>
         /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
         /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
-        /// <param name="hostingEnvironment">Provides information about the web hosting environment an application is running in.</param>
-        public static IServiceCollection AddDbContextConfig(this IServiceCollection services, IConfiguration configuration, IHostingEnvironment hostingEnvironment) {
+        public static IServiceCollection AddDbContextConfig(this IServiceCollection services, IConfiguration configuration) {
             return services.AddEntityFrameworkSqlServer()
                            .AddDbContext<ExtendedIdentityDbContext>((serviceProvider, options) => {
                                options.UseSqlServer(configuration.GetConnectionString("IdentityDb"));
-                               if (hostingEnvironment.IsDevelopment()) {
-                                   // During development throw an exception when EF query is evaluated on the client.
-                                   options.ConfigureWarnings(warnings => warnings.Throw(RelationalEventId.QueryClientEvaluationWarning));
-                               }
                            });
         }
     }
