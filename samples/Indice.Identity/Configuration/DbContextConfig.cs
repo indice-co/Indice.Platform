@@ -1,4 +1,4 @@
-﻿using Indice.Identity.Data;
+﻿using Indice.AspNetCore.Identity.Features;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 

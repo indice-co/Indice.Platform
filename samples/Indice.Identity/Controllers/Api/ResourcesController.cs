@@ -2,8 +2,9 @@
 using System.Linq;
 using System.Net.Mime;
 using System.Threading.Tasks;
+using IdentityServer4;
 using IdentityServer4.EntityFramework.Interfaces;
-using Indice.Identity.Models;
+using Indice.AspNetCore.Identity.Features;
 using Indice.Identity.Security;
 using Indice.Types;
 using Microsoft.AspNetCore.Authorization;
@@ -20,7 +21,7 @@ namespace Indice.Identity.Controllers.Api
     [ApiController]
     [Produces(MediaTypeNames.Application.Json)]
     [Consumes(MediaTypeNames.Application.Json)]
-    [Authorize(Policy = IdentityServerApi.SubScopes.Users)]
+    [Authorize(AuthenticationSchemes = IdentityServerConstants.LocalApi.AuthenticationScheme, Policy = IdentityServerApi.Admin)]
     public sealed class ResourcesController : ControllerBase
     {
         private readonly IConfigurationDbContext _configurationDbContext;

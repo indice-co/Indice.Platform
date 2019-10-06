@@ -4,7 +4,7 @@ using System.Linq;
 using IdentityModel;
 using IdentityServer4;
 using IdentityServer4.Models;
-using Indice.Identity.Models;
+using Indice.AspNetCore.Identity.Features;
 using Entities = IdentityServer4.EntityFramework.Entities;
 
 namespace Indice.Identity.Security
@@ -84,7 +84,7 @@ namespace Indice.Identity.Security
             new Client {
                 ClientId = "swagger-ui",
                 ClientName = "Swagger UI",
-                AccessTokenType = AccessTokenType.Reference,
+                AccessTokenType = AccessTokenType.Jwt,
                 AllowAccessTokensViaBrowser = true,
                 AllowedCorsOrigins = {
                     "https://localhost:5000",

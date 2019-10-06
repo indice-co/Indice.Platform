@@ -58,7 +58,10 @@ export class ClientsWizardService {
             ]]
         }, {
             key: Type.Machine, steps: [...[
-                new WizardStepDescriptor('Basic details', BasicInfoStepComponent)
+                new WizardStepDescriptor('Basic details', BasicInfoStepComponent),
+                new WizardStepDescriptor('Access to API resources', ApiResourcesStepComponent),
+                new WizardStepDescriptor('Secrets', SecretsStepComponent),
+                new WizardStepDescriptor('Summary', SummaryStepComponent)
             ]]
         }, {
             key: Type.Device, steps: [...[

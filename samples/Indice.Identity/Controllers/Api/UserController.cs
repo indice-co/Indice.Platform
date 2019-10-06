@@ -5,14 +5,13 @@ using System.Net.Mime;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using IdentityModel;
+using IdentityServer4;
 using IdentityServer4.Services;
 using IdentityServer4.Stores;
+using Indice.AspNetCore.Identity.Features;
 using Indice.AspNetCore.Identity.Models;
 using Indice.Identity.Configuration;
-using Indice.Identity.Data;
-using Indice.Identity.Data.Models;
 using Indice.Identity.Infrastructure.Extensions;
-using Indice.Identity.Models;
 using Indice.Identity.Security;
 using Indice.Types;
 using Microsoft.AspNetCore.Authorization;
@@ -31,7 +30,7 @@ namespace Indice.Identity.Controllers.Api
     [ApiController]
     [Produces(MediaTypeNames.Application.Json)]
     [Consumes(MediaTypeNames.Application.Json)]
-    [Authorize(Policy = IdentityServerApi.SubScopes.Users)]
+    [Authorize(AuthenticationSchemes = IdentityServerConstants.LocalApi.AuthenticationScheme, Policy = IdentityServerApi.SubScopes.Users)]
     public sealed class UserController : ControllerBase
     {
         private readonly UserManager<User> _userManager;

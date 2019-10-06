@@ -9,13 +9,15 @@ import { IdentityResourcesComponent } from './identity/identity-resources.compon
 import { IdentityResourceEditComponent } from './identity/edit/identity-resource-edit.component';
 import { IdentityResourceDetailsComponent } from './identity/edit/details/identity-resource-details.component';
 import { IdentityResourceClaimsComponent } from './identity/edit/claims/identity-resource-claims.component';
+import { IdentityResourceAddComponent } from './identity/add/identity-resource-add.component';
 
 @NgModule({
     declarations: [
         IdentityResourcesComponent,
         IdentityResourceEditComponent,
         IdentityResourceDetailsComponent,
-        IdentityResourceClaimsComponent
+        IdentityResourceClaimsComponent,
+        IdentityResourceAddComponent
     ],
     imports: [
         CommonModule,

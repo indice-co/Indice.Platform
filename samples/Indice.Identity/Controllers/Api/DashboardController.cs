@@ -5,12 +5,14 @@ using System.Net.Mime;
 using System.ServiceModel.Syndication;
 using System.Threading.Tasks;
 using System.Xml;
+using IdentityServer4;
 using IdentityServer4.EntityFramework.Interfaces;
+using Indice.AspNetCore.Identity.Features;
 using Indice.AspNetCore.Identity.Models;
 using Indice.Identity.Configuration;
 using Indice.Identity.Infrastructure.Extensions;
-using Indice.Identity.Models;
 using Indice.Types;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -59,7 +61,7 @@ namespace Indice.Identity.Controllers.Api
         [ProducesResponseType(statusCode: StatusCodes.Status403Forbidden, type: typeof(ProblemDetails))]
         [ResponseCache(VaryByQueryKeys = new[] { "page", "size" }, Duration = 3600/* 1 hour */, Location = ResponseCacheLocation.Client)]
         public ActionResult<ResultSet<BlogItemInfo>> GetNews([FromQuery]int page = 1, [FromQuery]int size = 100) {
-            List<BlogItemInfo> GetFeed() {
+            static List<BlogItemInfo> GetFeed() {
                 const string url = "https://www.identityserver.com/rss";
                 var blogItems = new List<BlogItemInfo>();
                 using (var reader = XmlReader.Create(url)) {
@@ -88,6 +90,7 @@ namespace Indice.Identity.Controllers.Api
         [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest, type: typeof(ValidationProblemDetails))]
         [ProducesResponseType(statusCode: StatusCodes.Status401Unauthorized, type: typeof(ProblemDetails))]
         [ProducesResponseType(statusCode: StatusCodes.Status403Forbidden, type: typeof(ProblemDetails))]
+        [Authorize(AuthenticationSchemes = IdentityServerConstants.LocalApi.AuthenticationScheme)]
         public async Task<ActionResult<SummaryInfo>> GetSystemSummary() {
             async Task<SummaryInfo> GetSummary() {
                 var getUsersNumberTask = _userManager.Users.CountAsync();

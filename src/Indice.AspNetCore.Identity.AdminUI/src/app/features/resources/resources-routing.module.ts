@@ -5,10 +5,12 @@ import { IdentityResourcesComponent } from './identity/identity-resources.compon
 import { IdentityResourceEditComponent } from './identity/edit/identity-resource-edit.component';
 import { IdentityResourceDetailsComponent } from './identity/edit/details/identity-resource-details.component';
 import { IdentityResourceClaimsComponent } from './identity/edit/claims/identity-resource-claims.component';
+import { IdentityResourceAddComponent } from './identity/add/identity-resource-add.component';
 
 const routes: Routes = [
     { path: '', redirectTo: 'identity', pathMatch: 'full' },
     { path: 'identity', component: IdentityResourcesComponent },
+    { path: 'identity/add', component: IdentityResourceAddComponent },
     {
         path: 'identity/:id', component: IdentityResourceEditComponent, children: [
             { path: '', redirectTo: 'details', pathMatch: 'full' },

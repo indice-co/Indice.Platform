@@ -21,6 +21,16 @@ namespace Microsoft.Extensions.DependencyInjection
                           .RequireAuthenticatedUser()
                           .RequireAssertion(x => x.User.HasClaim(JwtClaimTypes.Scope, IdentityServerApi.SubScopes.Users) || x.User.IsAdmin());
                 });
+                options.AddPolicy(IdentityServerApi.SubScopes.Clients, policy => {
+                    policy.AddAuthenticationSchemes(IdentityServerConstants.LocalApi.AuthenticationScheme)
+                          .RequireAuthenticatedUser()
+                          .RequireAssertion(x => x.User.HasClaim(JwtClaimTypes.Scope, IdentityServerApi.SubScopes.Clients) || x.User.IsAdmin());
+                });
+                options.AddPolicy(IdentityServerApi.Admin, policy => {
+                    policy.AddAuthenticationSchemes(IdentityServerConstants.LocalApi.AuthenticationScheme)
+                          .RequireAuthenticatedUser()
+                          .RequireAssertion(x => x.User.IsAdmin());
+                });
             });
         }
     }

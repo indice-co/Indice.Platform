@@ -1,1 +1,35 @@
-<h1>Client Basic Info</h1>
+<div [formGroup]="data.form">
+    <div class="form-group row">
+        <label for="client-id" class="col-sm-2 col-form-label">
+            <i class="dripicons-information align-middle" title="The unique identifier for this application."></i> Client Id (*)
+        </label>
+        <div class="col-sm-10">
+            <div class="input-group">
+                <span class="input-group-prepend cursor-pointer" title="Generate a random name." (click)="generateName()">
+                    <span class="input-group-text">
+                        <i class="dripicons-plus align-middle font-12"></i>
+                    </span>
+                </span>
+                <input class="form-control" type="text" id="client-id" name="client-id" [ngClass]="{ 'invalid': hostFormValidated && clientId.invalid }" [formControlName]="'clientId'" 
+                    required maxlength="200" />
+            </div>
+            <div *ngIf="hostFormValidated && clientId.invalid" class="form-control-feedback text-danger">Field 'Client Id' is required.</div>
+        </div>
+    </div>
+    <div class="form-group row">
+        <label for="client-name" class="col-sm-2 col-form-label">
+            <i class="dripicons-information align-middle" title="Application name that will be seen on consent screens."></i> Client Name (*)
+        </label>
+        <div class="col-sm-10">
+            <input class="form-control" type="text" id="client-name" name="client-name" [ngClass]="{ 'invalid': hostFormValidated && clientName.invalid }"  [formControlName]="'clientName'"
+                required maxlength="200" />
+            <div *ngIf="hostFormValidated && clientName.invalid" class="form-control-feedback text-danger">Field 'Client Name' is required.</div>
+        </div>
+    </div>
+    <div class="form-group row">
+        <label for="description" class="col-sm-2 col-form-label">Description</label>
+        <div class="col-sm-10">
+            <textarea class="form-control" rows="3" type="text" id="description" name="description" [formControlName]="'description'"></textarea>
+        </div>
+    </div>
+</div>

@@ -2,10 +2,10 @@
 using System.Linq;
 using System.Net.Mime;
 using System.Threading.Tasks;
+using IdentityServer4;
 using IdentityServer4.EntityFramework.Interfaces;
-using IdentityServer4.Stores;
+using Indice.AspNetCore.Identity.Features;
 using Indice.Configuration;
-using Indice.Identity.Models;
 using Indice.Identity.Security;
 using Indice.Types;
 using Microsoft.AspNetCore.Authorization;
@@ -23,10 +23,9 @@ namespace Indice.Identity.Controllers.Api
     [ApiController]
     [Produces(MediaTypeNames.Application.Json)]
     [Consumes(MediaTypeNames.Application.Json)]
-    [Authorize(Policy = IdentityServerApi.SubScopes.Users)]
+    [Authorize(AuthenticationSchemes = IdentityServerConstants.LocalApi.AuthenticationScheme, Policy = IdentityServerApi.SubScopes.Clients)]
     public sealed class ClientController : ControllerBase
     {
-        private readonly IClientStore _clientStore;
         private readonly IConfigurationDbContext _configurationDbContext;
         private readonly GeneralSettings _generalSettings;
         /// <summary>
@@ -37,11 +36,9 @@ namespace Indice.Identity.Controllers.Api
         /// <summary>
         /// Creates an instance of <see cref="ClientController"/>.
         /// </summary>
-        /// <param name="clientStore">Retrieval of client configuration.</param>
         /// <param name="configurationDbContext">Abstraction for the configuration context.</param>
         /// <param name="generalSettings">Applications general settings.</param>
-        public ClientController(IClientStore clientStore, IConfigurationDbContext configurationDbContext, IOptions<GeneralSettings> generalSettings) {
-            _clientStore = clientStore ?? throw new ArgumentNullException(nameof(clientStore));
+        public ClientController(IConfigurationDbContext configurationDbContext, IOptions<GeneralSettings> generalSettings) {
             _configurationDbContext = configurationDbContext ?? throw new ArgumentNullException(nameof(configurationDbContext));
             _generalSettings = generalSettings?.Value ?? throw new ArgumentNullException(nameof(generalSettings));
         }

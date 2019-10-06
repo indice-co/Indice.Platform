@@ -2,9 +2,8 @@
 using System.Linq;
 using System.Net.Mime;
 using System.Threading.Tasks;
-using Indice.Identity.Data;
-using Indice.Identity.Data.Models;
-using Indice.Identity.Models;
+using IdentityServer4;
+using Indice.AspNetCore.Identity.Features;
 using Indice.Identity.Security;
 using Indice.Types;
 using Microsoft.AspNetCore.Authorization;
@@ -21,7 +20,7 @@ namespace Indice.Identity.Controllers.Api
     [ApiController]
     [Produces(MediaTypeNames.Application.Json)]
     [Consumes(MediaTypeNames.Application.Json)]
-    [Authorize(Policy = IdentityServerApi.SubScopes.Users)]
+    [Authorize(AuthenticationSchemes = IdentityServerConstants.LocalApi.AuthenticationScheme, Policy = IdentityServerApi.Admin)]
     public sealed class ClaimTypeController : ControllerBase
     {
         private readonly ExtendedIdentityDbContext _dbContext;

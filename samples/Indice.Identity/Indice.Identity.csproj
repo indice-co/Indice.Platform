@@ -8,15 +8,21 @@
     <PackageReference Include="Bogus" Version="28.3.1" />
     <PackageReference Include="Hellang.Middleware.ProblemDetails" Version="3.1.0" />
     <PackageReference Include="IdentityServer4.AspNetIdentity" Version="3.0.1" />
-    <PackageReference Include="Indice.AspNetCore.Identity" Version="3.0.0-beta1" />
+    <!--<PackageReference Include="Indice.AspNetCore.Identity" Version="3.0.0-beta1" />-->
     <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" Version="5.0.0-rc4" />
     <PackageReference Include="System.ServiceModel.Syndication" Version="4.6.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="3.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.SpaServices.Extensions" Version="3.0.0" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Indice.AspNetCore.Identity\Indice.AspNetCore.Identity.csproj" />
+  </ItemGroup>
   <ItemGroup Label="Content">
     <None Update="indice-idsrv.pfx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Models\" />
   </ItemGroup>
 </Project>

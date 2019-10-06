@@ -1,7 +1,6 @@
 ﻿using System;
 using FluentValidation.AspNetCore;
-using Indice.Identity.Data;
-using Indice.Identity.Models.Validators;
+using Indice.AspNetCore.Identity.Features;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Microsoft.Extensions.DependencyInjection

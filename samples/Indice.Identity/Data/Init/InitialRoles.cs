@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using Indice.Identity.Data.Models;
+using Indice.AspNetCore.Identity.Features;
 
 namespace Indice.Identity.Data.Init
 {

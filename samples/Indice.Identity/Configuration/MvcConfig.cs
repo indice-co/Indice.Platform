@@ -1,4 +1,6 @@
-﻿using FluentValidation.AspNetCore;
+﻿using System.Text.Json;
+using System.Text.Json.Serialization;
+using FluentValidation.AspNetCore;
 using Indice.Identity;
 using Microsoft.AspNetCore.Mvc;
 
@@ -42,8 +44,8 @@ namespace Microsoft.Extensions.DependencyInjection
                                options.FormatterMappings.SetMediaTypeMappingForFormat("xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
                            })
                            .AddJsonOptions(options => {
-                               options.JsonSerializerOptions.PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase;
-                               options.JsonSerializerOptions.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter());
+                               options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+                               options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
                                options.JsonSerializerOptions.IgnoreNullValues = false;
                            })
                            .AddFluentValidation(options => {

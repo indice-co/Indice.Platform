@@ -45,4 +45,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Indice.AspNetCore\Indice.AspNetCore.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Features\Api\Controllers\" />
+  </ItemGroup>
 </Project>

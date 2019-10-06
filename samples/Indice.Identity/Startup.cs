@@ -129,9 +129,11 @@ namespace Indice.Identity
             app.UseEndpoints(endpoints => {
                 endpoints.MapControllerRoute("default", "{controller=Welcome}/{action=Index}/{id?}");
             });
-            app.UseSpa(builder => {
-                builder.Options.SourcePath = "wwwroot/admin-ui";
-            });
+            if (!HostingEnvironment.IsDevelopment()) {
+                app.UseSpa(builder => {
+                    builder.Options.SourcePath = "wwwroot/admin-ui";
+                });
+            }
         }
     }
 }

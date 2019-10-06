@@ -1,8 +1,8 @@
 ﻿using System;
 using IdentityModel;
+using Indice.AspNetCore.Identity.Features;
 using Indice.AspNetCore.Identity.Models;
-using Indice.Identity.Data;
-using Indice.Identity.Data.Models;
+using Indice.AspNetCore.Identity.Services;
 using Indice.Identity.Security;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
@@ -45,8 +45,9 @@ namespace Microsoft.Extensions.DependencyInjection
                 options.Password = passwordOptions;
                 options.User.RequireUniqueEmail = true;
             })
-           .AddEntityFrameworkStores<ExtendedIdentityDbContext>()
-           .AddDefaultTokenProviders();
+            .AddClaimsTransform<ExtendedUserClaimsPrincipalFactory<User, Role>>()
+            .AddEntityFrameworkStores<ExtendedIdentityDbContext>()
+            .AddDefaultTokenProviders();
         }
     }
 }
