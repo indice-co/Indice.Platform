@@ -1,4 +1,4 @@
-﻿using Indice.Identity.Security;
+﻿using Indice.AspNetCore.Identity.Features;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
 

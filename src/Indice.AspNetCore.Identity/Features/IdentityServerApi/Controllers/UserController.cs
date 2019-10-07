@@ -8,11 +8,8 @@ using IdentityModel;
 using IdentityServer4;
 using IdentityServer4.Services;
 using IdentityServer4.Stores;
-using Indice.AspNetCore.Identity.Features;
+using Indice.AspNetCore.Extensions;
 using Indice.AspNetCore.Identity.Models;
-using Indice.Identity.Configuration;
-using Indice.Identity.Infrastructure.Extensions;
-using Indice.Identity.Security;
 using Indice.Types;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -21,17 +18,18 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Distributed;
 
-namespace Indice.Identity.Controllers.Api
+namespace Indice.AspNetCore.Identity.Features
 {
     /// <summary>
     /// Contains operations for managing application's users.
     /// </summary>
     [Route("api/users")]
     [ApiController]
+    [ApiExplorerSettings(GroupName = "identity")]
     [Produces(MediaTypeNames.Application.Json)]
     [Consumes(MediaTypeNames.Application.Json)]
     [Authorize(AuthenticationSchemes = IdentityServerConstants.LocalApi.AuthenticationScheme, Policy = IdentityServerApi.SubScopes.Users)]
-    public sealed class UserController : ControllerBase
+    internal class UserController : ControllerBase
     {
         private readonly UserManager<User> _userManager;
         private readonly RoleManager<Role> _roleManager;

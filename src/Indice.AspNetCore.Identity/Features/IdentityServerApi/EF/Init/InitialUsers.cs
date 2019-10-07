@@ -6,12 +6,12 @@ using IdentityModel;
 using Indice.AspNetCore.Identity.Models;
 using Microsoft.AspNetCore.Identity;
 
-namespace Indice.Identity.Data.Init
+namespace Indice.AspNetCore.Identity.Features
 {
     /// <summary>
     /// Provides functionality to generate test users for development purposes.
     /// </summary>
-    public class InitialUsers
+    internal class InitialUsers
     {
         private const int DefaultNumberOfUsers = 100;
 

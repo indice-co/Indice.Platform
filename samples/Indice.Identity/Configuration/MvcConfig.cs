@@ -1,8 +1,13 @@
-﻿using System.Text.Json;
+﻿using System.Reflection;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 using FluentValidation.AspNetCore;
+using Indice.AspNetCore.Identity.Features;
 using Indice.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
+using Newtonsoft.Json.Serialization;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
@@ -17,6 +22,20 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
         public static IMvcBuilder AddMvcConfig(this IServiceCollection services) {
             return services.AddControllersWithViews()
+                           .AddIdentityServerApiEndpoints<ExtendedIdentityDbContext>(options => {
+                               options.UseInitialData = true;
+                           })
+                           .AddNewtonsoftJson(options => {
+                               options.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver {
+                                   NamingStrategy = new CamelCaseNamingStrategy {
+                                       ProcessDictionaryKeys = false,
+                                       OverrideSpecifiedNames = false
+                                   }
+                               };
+                               options.SerializerSettings.Converters.Add(new StringEnumConverter());
+                               options.SerializerSettings.DateTimeZoneHandling = DateTimeZoneHandling.Utc;
+                               options.SerializerSettings.DefaultValueHandling = DefaultValueHandling.Include;
+                           })
                            .SetCompatibilityVersion(CompatibilityVersion.Latest)
                            .ConfigureApiBehaviorOptions(options => {
                                options.ClientErrorMapping[400].Link = "https://httpstatuses.com/400";
@@ -44,12 +63,13 @@ namespace Microsoft.Extensions.DependencyInjection
                                options.FormatterMappings.SetMediaTypeMappingForFormat("xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
                            })
                            .AddJsonOptions(options => {
-                               options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
-                               options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
-                               options.JsonSerializerOptions.IgnoreNullValues = false;
+                               //options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+                               //options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+                               //options.JsonSerializerOptions.IgnoreNullValues = false;
                            })
                            .AddFluentValidation(options => {
                                options.RegisterValidatorsFromAssemblyContaining<Startup>();
+                               options.RegisterValidatorsFromAssembly(Assembly.Load($"Indice.AspNetCore.Identity"));
                                options.ConfigureClientsideValidation();
                                options.RunDefaultMvcValidationAfterFluentValidationExecutes = false;
                            });

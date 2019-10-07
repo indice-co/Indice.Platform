@@ -3,8 +3,6 @@ using System.Linq;
 using System.Net.Mime;
 using System.Threading.Tasks;
 using IdentityServer4;
-using Indice.AspNetCore.Identity.Features;
-using Indice.Identity.Security;
 using Indice.Types;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -12,17 +10,18 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
-namespace Indice.Identity.Controllers.Api
+namespace Indice.AspNetCore.Identity.Features
 {
     /// <summary>
     /// Contains operations for managing application roles.
     /// </summary>
     [Route("api/roles")]
     [ApiController]
+    [ApiExplorerSettings(GroupName = "identity")]
     [Produces(MediaTypeNames.Application.Json)]
     [Consumes(MediaTypeNames.Application.Json)]
     [Authorize(AuthenticationSchemes = IdentityServerConstants.LocalApi.AuthenticationScheme, Policy = IdentityServerApi.Admin)]
-    public sealed class RoleController : ControllerBase
+    internal class RoleController : ControllerBase
     {
         private readonly RoleManager<Role> _roleManager;
         /// <summary>
@@ -31,7 +30,7 @@ namespace Indice.Identity.Controllers.Api
         public const string Name = "Role";
 
         /// <summary>
-        /// Creates an instance of <see cref="UserController"/>.
+        /// Creates an instance of <see cref="RoleController"/>.
         /// </summary>
         /// <param name="roleManager">Provides the APIs for managing roles in a persistence store.</param>
         public RoleController(RoleManager<Role> roleManager) {
@@ -115,7 +114,7 @@ namespace Indice.Identity.Controllers.Api
                 Name = request.Name,
                 Description = request.Description
             };
-            await _roleManager.CreateAsync(role);
+            var result = await _roleManager.CreateAsync(role);
             return CreatedAtAction(nameof(GetRole), Name, new { id = role.Id }, new RoleInfo {
                 Id = role.Id,
                 Name = role.Name,

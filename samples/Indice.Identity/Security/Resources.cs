@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using IdentityModel;
 using IdentityServer4.Models;
+using Indice.AspNetCore.Identity.Features;
 using Indice.Security;
 
 namespace Indice.Identity.Security

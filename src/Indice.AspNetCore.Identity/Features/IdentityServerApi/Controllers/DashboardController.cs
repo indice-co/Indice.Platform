@@ -7,10 +7,8 @@ using System.Threading.Tasks;
 using System.Xml;
 using IdentityServer4;
 using IdentityServer4.EntityFramework.Interfaces;
-using Indice.AspNetCore.Identity.Features;
+using Indice.AspNetCore.Extensions;
 using Indice.AspNetCore.Identity.Models;
-using Indice.Identity.Configuration;
-using Indice.Identity.Infrastructure.Extensions;
 using Indice.Types;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -19,16 +17,17 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Distributed;
 
-namespace Indice.Identity.Controllers.Api
+namespace Indice.AspNetCore.Identity.Features
 {
     /// <summary>
     /// A controller that provides useful information for the users.
     /// </summary>
     [Route("api/dashboard")]
     [ApiController]
+    [ApiExplorerSettings(GroupName = "identity")]
     [Produces(MediaTypeNames.Application.Json)]
     [Consumes(MediaTypeNames.Application.Json)]
-    public sealed class DashboardController : ControllerBase
+    internal class DashboardController : ControllerBase
     {
         private readonly IDistributedCache _cache;
         private readonly UserManager<User> _userManager;

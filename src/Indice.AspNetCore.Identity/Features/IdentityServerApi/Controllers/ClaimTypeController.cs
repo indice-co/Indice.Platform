@@ -3,25 +3,24 @@ using System.Linq;
 using System.Net.Mime;
 using System.Threading.Tasks;
 using IdentityServer4;
-using Indice.AspNetCore.Identity.Features;
-using Indice.Identity.Security;
 using Indice.Types;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
-namespace Indice.Identity.Controllers.Api
+namespace Indice.AspNetCore.Identity.Features
 {
     /// <summary>
     /// Contains operations for managing application claim types.
     /// </summary>
     [Route("api/claim-types")]
     [ApiController]
+    [ApiExplorerSettings(GroupName = "identity")]
     [Produces(MediaTypeNames.Application.Json)]
     [Consumes(MediaTypeNames.Application.Json)]
     [Authorize(AuthenticationSchemes = IdentityServerConstants.LocalApi.AuthenticationScheme, Policy = IdentityServerApi.Admin)]
-    public sealed class ClaimTypeController : ControllerBase
+    internal class ClaimTypeController : ControllerBase
     {
         private readonly ExtendedIdentityDbContext _dbContext;
         /// <summary>
@@ -30,7 +29,7 @@ namespace Indice.Identity.Controllers.Api
         public const string Name = "ClaimType";
 
         /// <summary>
-        /// Creates an instance of <see cref="UserController"/>.
+        /// Creates an instance of <see cref="ClaimTypeController"/>.
         /// </summary>
         /// <param name="dbContext"><see cref="DbContext"/> for the Identity Framework.</param>
         public ClaimTypeController(ExtendedIdentityDbContext dbContext) {

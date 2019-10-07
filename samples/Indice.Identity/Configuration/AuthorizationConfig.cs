@@ -1,6 +1,6 @@
 ﻿using IdentityModel;
 using IdentityServer4;
-using Indice.Identity.Security;
+using Indice.AspNetCore.Identity.Features;
 using Indice.Security;
 
 namespace Microsoft.Extensions.DependencyInjection

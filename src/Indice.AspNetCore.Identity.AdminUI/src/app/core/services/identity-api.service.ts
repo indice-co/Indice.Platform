@@ -16,7 +16,7 @@ export const API_BASE_URL = new InjectionToken<string>('API_BASE_URL');
 
 export interface IIdentityApiService {
     /**
-     * Returns a list of Indice.Identity.Models.ClaimTypeInfo objects containing the total number of claim types in the database and the data filtered according to the provided Indice.Types.ListOptions.
+     * Returns a list of Indice.AspNetCore.Identity.Features.ClaimTypeInfo objects containing the total number of claim types in the database and the data filtered according to the provided Indice.Types.ListOptions.
      * @param filter_Required (optional) Determines whether this claim is required to create new users.
      * @param page (optional) 
      * @param size (optional) 
@@ -24,10 +24,10 @@ export interface IIdentityApiService {
      * @param search (optional) 
      * @return OK
      */
-    getClaimTypes(filter_Required?: boolean | null | undefined, page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined): Observable<ClaimTypeInfoResultSet>;
+    getClaimTypes(filter_Required?: boolean | undefined, page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined): Observable<ClaimTypeInfoResultSet>;
     /**
      * Creates a new claim type.
-     * @param body (optional) 
+     * @param body (optional) Contains info about the claim to be created.
      * @return Created
      */
     createClaimType(body?: CreateClaimTypeRequest | undefined): Observable<ClaimTypeInfo>;
@@ -40,7 +40,7 @@ export interface IIdentityApiService {
     /**
      * Updates an existing claim type.
      * @param id The id of the claim to update.
-     * @param body (optional) 
+     * @param body (optional) Contains info about the claim to update.
      * @return OK
      */
     updateClaimType(id: string, body?: UpdateClaimTypeRequest | undefined): Observable<ClaimTypeInfo>;
@@ -51,7 +51,7 @@ export interface IIdentityApiService {
      */
     deleteClaimType(id: string): Observable<void>;
     /**
-     * Returns a list of Indice.Identity.Models.ClientInfo objects containing the total number of clients in the database and the data filtered according to the provided Indice.Types.ListOptions.
+     * Returns a list of Indice.AspNetCore.Identity.Features.ClientInfo objects containing the total number of clients in the database and the data filtered according to the provided Indice.Types.ListOptions.
      * @param page (optional) 
      * @param size (optional) 
      * @param sort (optional) 
@@ -61,7 +61,7 @@ export interface IIdentityApiService {
     getClients(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined): Observable<ClientInfoResultSet>;
     /**
      * Creates a new client.
-     * @param body (optional) 
+     * @param body (optional) Contains info about the client to be created.
      * @return Created
      */
     createClient(body?: CreateClientRequest | undefined): Observable<ClientInfo>;
@@ -84,7 +84,7 @@ export interface IIdentityApiService {
      */
     getSystemSummary(): Observable<SummaryInfo>;
     /**
-     * Returns a list of Indice.Identity.Models.IdentityResourceInfo objects containing the total number of identity resources in the database and the data filtered according to the provided Indice.Types.ListOptions.
+     * Returns a list of Indice.AspNetCore.Identity.Features.IdentityResourceInfo objects containing the total number of identity resources in the database and the data filtered according to the provided Indice.Types.ListOptions.
      * @param page (optional) 
      * @param size (optional) 
      * @param sort (optional) 
@@ -105,7 +105,7 @@ export interface IIdentityApiService {
      */
     deleteIdentityResource(id: number): Observable<void>;
     /**
-     * Returns a list of Indice.Identity.Models.ApiResourceInfo objects containing the total number of API resources in the database and the data filtered according to the provided Indice.Types.ListOptions.
+     * Returns a list of Indice.AspNetCore.Identity.Features.ApiResourceInfo objects containing the total number of API resources in the database and the data filtered according to the provided Indice.Types.ListOptions.
      * @param page (optional) 
      * @param size (optional) 
      * @param sort (optional) 
@@ -114,7 +114,7 @@ export interface IIdentityApiService {
      */
     getProtectedResources(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined): Observable<ApiResourceInfoResultSet>;
     /**
-     * Returns a list of Indice.Identity.Models.RoleInfo objects containing the total number of roles in the database and the data filtered according to the provided Indice.Types.ListOptions.
+     * Returns a list of Indice.AspNetCore.Identity.Features.RoleInfo objects containing the total number of roles in the database and the data filtered according to the provided Indice.Types.ListOptions.
      * @param page (optional) 
      * @param size (optional) 
      * @param sort (optional) 
@@ -124,7 +124,7 @@ export interface IIdentityApiService {
     getRoles(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined): Observable<RoleInfoResultSet>;
     /**
      * Creates a new role.
-     * @param body (optional) 
+     * @param body (optional) Contains info about the role to be created.
      * @return Created
      */
     createRole(body?: CreateRoleRequest | undefined): Observable<RoleInfo>;
@@ -137,7 +137,7 @@ export interface IIdentityApiService {
     /**
      * Updates an existing role.
      * @param id The id of the role to update.
-     * @param body (optional) 
+     * @param body (optional) Contains info about the role to update.
      * @return OK
      */
     updateRole(id: string, body?: UpdateRoleRequest | undefined): Observable<RoleInfo>;
@@ -148,7 +148,7 @@ export interface IIdentityApiService {
      */
     deleteRole(id: string): Observable<void>;
     /**
-     * Returns a list of Indice.Identity.Models.UserInfo objects containing the total number of users in the database and the data filtered according to the provided Indice.Types.ListOptions.
+     * Returns a list of Indice.AspNetCore.Identity.Features.UserInfo objects containing the total number of users in the database and the data filtered according to the provided Indice.Types.ListOptions.
      * @param page (optional) 
      * @param size (optional) 
      * @param sort (optional) 
@@ -158,7 +158,7 @@ export interface IIdentityApiService {
     getUsers(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined): Observable<UserInfoResultSet>;
     /**
      * Creates a new user.
-     * @param body (optional) 
+     * @param body (optional) Contains info about the user to be created.
      * @return Created
      */
     createUser(body?: CreateUserRequest | undefined): Observable<SingleUserInfo>;
@@ -171,7 +171,7 @@ export interface IIdentityApiService {
     /**
      * Updates an existing user.
      * @param userId The id of the user to update.
-     * @param body (optional) 
+     * @param body (optional) Contains info about the user to update.
      * @return OK
      */
     updateUser(userId: string, body?: UpdateUserRequest | undefined): Observable<SingleUserInfo>;
@@ -184,7 +184,7 @@ export interface IIdentityApiService {
     /**
      * Adds or updates a claim for the specified user.
      * @param userId The id of the user.
-     * @param body (optional) 
+     * @param body (optional) The claim to add or update.
      * @return Created
      */
     addUserClaim(userId: string, body?: CreateUserClaimRequest | undefined): Observable<UserClaimInfo>;
@@ -199,7 +199,7 @@ export interface IIdentityApiService {
      * Updates an existing user claim.
      * @param userId The id of the user.
      * @param claimId The id of the user claim.
-     * @param body (optional) 
+     * @param body (optional) Contains info about the user claim to update.
      * @return OK
      */
     updateUserClaim(userId: string, claimId: number, body?: UpdateUserClaimRequest | undefined): Observable<UserClaimInfo>;
@@ -240,7 +240,7 @@ export class IdentityApiService implements IIdentityApiService {
     }
 
     /**
-     * Returns a list of Indice.Identity.Models.ClaimTypeInfo objects containing the total number of claim types in the database and the data filtered according to the provided Indice.Types.ListOptions.
+     * Returns a list of Indice.AspNetCore.Identity.Features.ClaimTypeInfo objects containing the total number of claim types in the database and the data filtered according to the provided Indice.Types.ListOptions.
      * @param filter_Required (optional) Determines whether this claim is required to create new users.
      * @param page (optional) 
      * @param size (optional) 
@@ -248,9 +248,11 @@ export class IdentityApiService implements IIdentityApiService {
      * @param search (optional) 
      * @return OK
      */
-    getClaimTypes(filter_Required?: boolean | null | undefined, page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined): Observable<ClaimTypeInfoResultSet> {
+    getClaimTypes(filter_Required?: boolean | undefined, page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined): Observable<ClaimTypeInfoResultSet> {
         let url_ = this.baseUrl + "/api/claim-types?";
-        if (filter_Required !== undefined)
+        if (filter_Required === null)
+            throw new Error("The parameter 'filter_Required' cannot be null.");
+        else if (filter_Required !== undefined)
             url_ += "Filter.Required=" + encodeURIComponent("" + filter_Required) + "&"; 
         if (page === null)
             throw new Error("The parameter 'page' cannot be null.");
@@ -341,7 +343,7 @@ export class IdentityApiService implements IIdentityApiService {
 
     /**
      * Creates a new claim type.
-     * @param body (optional) 
+     * @param body (optional) Contains info about the claim to be created.
      * @return Created
      */
     createClaimType(body?: CreateClaimTypeRequest | undefined): Observable<ClaimTypeInfo> {
@@ -492,7 +494,10 @@ export class IdentityApiService implements IIdentityApiService {
             }));
         } else if (status === 403) {
             return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            return throwException("Forbidden", status, _responseText, _headers);
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = resultData403 !== undefined ? resultData403 : <any>null;
+            return throwException("Forbidden", status, _responseText, _headers, result403);
             }));
         } else if (status === 500) {
             return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
@@ -509,7 +514,7 @@ export class IdentityApiService implements IIdentityApiService {
     /**
      * Updates an existing claim type.
      * @param id The id of the claim to update.
-     * @param body (optional) 
+     * @param body (optional) Contains info about the claim to update.
      * @return OK
      */
     updateClaimType(id: string, body?: UpdateClaimTypeRequest | undefined): Observable<ClaimTypeInfo> {
@@ -684,7 +689,7 @@ export class IdentityApiService implements IIdentityApiService {
     }
 
     /**
-     * Returns a list of Indice.Identity.Models.ClientInfo objects containing the total number of clients in the database and the data filtered according to the provided Indice.Types.ListOptions.
+     * Returns a list of Indice.AspNetCore.Identity.Features.ClientInfo objects containing the total number of clients in the database and the data filtered according to the provided Indice.Types.ListOptions.
      * @param page (optional) 
      * @param size (optional) 
      * @param sort (optional) 
@@ -782,7 +787,7 @@ export class IdentityApiService implements IIdentityApiService {
 
     /**
      * Creates a new client.
-     * @param body (optional) 
+     * @param body (optional) Contains info about the client to be created.
      * @return Created
      */
     createClient(body?: CreateClientRequest | undefined): Observable<ClientInfo> {
@@ -933,7 +938,10 @@ export class IdentityApiService implements IIdentityApiService {
             }));
         } else if (status === 403) {
             return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            return throwException("Forbidden", status, _responseText, _headers);
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = resultData403 !== undefined ? resultData403 : <any>null;
+            return throwException("Forbidden", status, _responseText, _headers, result403);
             }));
         } else if (status === 500) {
             return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
@@ -1108,7 +1116,7 @@ export class IdentityApiService implements IIdentityApiService {
     }
 
     /**
-     * Returns a list of Indice.Identity.Models.IdentityResourceInfo objects containing the total number of identity resources in the database and the data filtered according to the provided Indice.Types.ListOptions.
+     * Returns a list of Indice.AspNetCore.Identity.Features.IdentityResourceInfo objects containing the total number of identity resources in the database and the data filtered according to the provided Indice.Types.ListOptions.
      * @param page (optional) 
      * @param size (optional) 
      * @param sort (optional) 
@@ -1275,7 +1283,10 @@ export class IdentityApiService implements IIdentityApiService {
             }));
         } else if (status === 403) {
             return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            return throwException("Forbidden", status, _responseText, _headers);
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = resultData403 !== undefined ? resultData403 : <any>null;
+            return throwException("Forbidden", status, _responseText, _headers, result403);
             }));
         } else if (status === 500) {
             return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
@@ -1374,7 +1385,7 @@ export class IdentityApiService implements IIdentityApiService {
     }
 
     /**
-     * Returns a list of Indice.Identity.Models.ApiResourceInfo objects containing the total number of API resources in the database and the data filtered according to the provided Indice.Types.ListOptions.
+     * Returns a list of Indice.AspNetCore.Identity.Features.ApiResourceInfo objects containing the total number of API resources in the database and the data filtered according to the provided Indice.Types.ListOptions.
      * @param page (optional) 
      * @param size (optional) 
      * @param sort (optional) 
@@ -1471,7 +1482,7 @@ export class IdentityApiService implements IIdentityApiService {
     }
 
     /**
-     * Returns a list of Indice.Identity.Models.RoleInfo objects containing the total number of roles in the database and the data filtered according to the provided Indice.Types.ListOptions.
+     * Returns a list of Indice.AspNetCore.Identity.Features.RoleInfo objects containing the total number of roles in the database and the data filtered according to the provided Indice.Types.ListOptions.
      * @param page (optional) 
      * @param size (optional) 
      * @param sort (optional) 
@@ -1569,7 +1580,7 @@ export class IdentityApiService implements IIdentityApiService {
 
     /**
      * Creates a new role.
-     * @param body (optional) 
+     * @param body (optional) Contains info about the role to be created.
      * @return Created
      */
     createRole(body?: CreateRoleRequest | undefined): Observable<RoleInfo> {
@@ -1740,7 +1751,7 @@ export class IdentityApiService implements IIdentityApiService {
     /**
      * Updates an existing role.
      * @param id The id of the role to update.
-     * @param body (optional) 
+     * @param body (optional) Contains info about the role to update.
      * @return OK
      */
     updateRole(id: string, body?: UpdateRoleRequest | undefined): Observable<RoleInfo> {
@@ -1915,7 +1926,7 @@ export class IdentityApiService implements IIdentityApiService {
     }
 
     /**
-     * Returns a list of Indice.Identity.Models.UserInfo objects containing the total number of users in the database and the data filtered according to the provided Indice.Types.ListOptions.
+     * Returns a list of Indice.AspNetCore.Identity.Features.UserInfo objects containing the total number of users in the database and the data filtered according to the provided Indice.Types.ListOptions.
      * @param page (optional) 
      * @param size (optional) 
      * @param sort (optional) 
@@ -2013,7 +2024,7 @@ export class IdentityApiService implements IIdentityApiService {
 
     /**
      * Creates a new user.
-     * @param body (optional) 
+     * @param body (optional) Contains info about the user to be created.
      * @return Created
      */
     createUser(body?: CreateUserRequest | undefined): Observable<SingleUserInfo> {
@@ -2184,7 +2195,7 @@ export class IdentityApiService implements IIdentityApiService {
     /**
      * Updates an existing user.
      * @param userId The id of the user to update.
-     * @param body (optional) 
+     * @param body (optional) Contains info about the user to update.
      * @return OK
      */
     updateUser(userId: string, body?: UpdateUserRequest | undefined): Observable<SingleUserInfo> {
@@ -2358,7 +2369,7 @@ export class IdentityApiService implements IIdentityApiService {
     /**
      * Adds or updates a claim for the specified user.
      * @param userId The id of the user.
-     * @param body (optional) 
+     * @param body (optional) The claim to add or update.
      * @return Created
      */
     addUserClaim(userId: string, body?: CreateUserClaimRequest | undefined): Observable<UserClaimInfo> {
@@ -2537,7 +2548,7 @@ export class IdentityApiService implements IIdentityApiService {
      * Updates an existing user claim.
      * @param userId The id of the user.
      * @param claimId The id of the user claim.
-     * @param body (optional) 
+     * @param body (optional) Contains info about the user claim to update.
      * @return OK
      */
     updateUserClaim(userId: string, claimId: number, body?: UpdateUserClaimRequest | undefined): Observable<UserClaimInfo> {
@@ -2888,6 +2899,7 @@ export class IdentityApiService implements IIdentityApiService {
     }
 }
 
+/** Describes value type names. */
 export enum ValueType {
     Boolean = "Boolean",
     DateTime = "DateTime",
@@ -2898,13 +2910,13 @@ export enum ValueType {
 /** Models an application claim type. */
 export class ClaimTypeInfo implements IClaimTypeInfo {
     /** The unique id of the claim. */
-    id?: string;
+    id?: string | undefined;
     /** The name. */
-    name?: string;
+    name?: string | undefined;
     /** The name used for display purposes. */
-    displayName?: string;
+    displayName?: string | undefined;
     /** A description. */
-    description?: string;
+    description?: string | undefined;
     /** Determines whether this claim is required to create new users. */
     required?: boolean;
     /** Determines whether this is a system reserved claim. */
@@ -2912,7 +2924,7 @@ export class ClaimTypeInfo implements IClaimTypeInfo {
     /** Determines whether this claim will be editable by a user if exposed through a public API. */
     userEditable?: boolean;
     /** A regex rule that constraints the values of the claim. */
-    rule?: string;
+    rule?: string | undefined;
     valueType?: ValueType;
 
     constructor(data?: IClaimTypeInfo) {
@@ -2963,13 +2975,13 @@ export class ClaimTypeInfo implements IClaimTypeInfo {
 /** Models an application claim type. */
 export interface IClaimTypeInfo {
     /** The unique id of the claim. */
-    id?: string;
+    id?: string | undefined;
     /** The name. */
-    name?: string;
+    name?: string | undefined;
     /** The name used for display purposes. */
-    displayName?: string;
+    displayName?: string | undefined;
     /** A description. */
-    description?: string;
+    description?: string | undefined;
     /** Determines whether this claim is required to create new users. */
     required?: boolean;
     /** Determines whether this is a system reserved claim. */
@@ -2977,13 +2989,13 @@ export interface IClaimTypeInfo {
     /** Determines whether this claim will be editable by a user if exposed through a public API. */
     userEditable?: boolean;
     /** A regex rule that constraints the values of the claim. */
-    rule?: string;
+    rule?: string | undefined;
     valueType?: ValueType;
 }
 
 export class ClaimTypeInfoResultSet implements IClaimTypeInfoResultSet {
     count?: number;
-    items?: ClaimTypeInfo[];
+    items?: ClaimTypeInfo[] | undefined;
 
     constructor(data?: IClaimTypeInfoResultSet) {
         if (data) {
@@ -3026,16 +3038,17 @@ export class ClaimTypeInfoResultSet implements IClaimTypeInfoResultSet {
 
 export interface IClaimTypeInfoResultSet {
     count?: number;
-    items?: ClaimTypeInfo[];
+    items?: ClaimTypeInfo[] | undefined;
 }
 
 export class ValidationProblemDetails implements IValidationProblemDetails {
-    readonly errors?: { [key: string]: string[]; };
-    type?: string;
-    title?: string;
+    readonly errors?: { [key: string]: string[]; } | undefined;
+    type?: string | undefined;
+    title?: string | undefined;
     status?: number | undefined;
-    detail?: string;
-    instance?: string;
+    detail?: string | undefined;
+    instance?: string | undefined;
+    readonly extensions?: { [key: string]: any; } | undefined;
 
     constructor(data?: IValidationProblemDetails) {
         if (data) {
@@ -3060,6 +3073,13 @@ export class ValidationProblemDetails implements IValidationProblemDetails {
             this.status = data["status"];
             this.detail = data["detail"];
             this.instance = data["instance"];
+            if (data["extensions"]) {
+                (<any>this).extensions = {} as any;
+                for (let key in data["extensions"]) {
+                    if (data["extensions"].hasOwnProperty(key))
+                        (<any>this).extensions![key] = data["extensions"][key];
+                }
+            }
         }
     }
 
@@ -3084,25 +3104,34 @@ export class ValidationProblemDetails implements IValidationProblemDetails {
         data["status"] = this.status;
         data["detail"] = this.detail;
         data["instance"] = this.instance;
+        if (this.extensions) {
+            data["extensions"] = {};
+            for (let key in this.extensions) {
+                if (this.extensions.hasOwnProperty(key))
+                    data["extensions"][key] = this.extensions[key];
+            }
+        }
         return data; 
     }
 }
 
 export interface IValidationProblemDetails {
-    errors?: { [key: string]: string[]; };
-    type?: string;
-    title?: string;
+    errors?: { [key: string]: string[]; } | undefined;
+    type?: string | undefined;
+    title?: string | undefined;
     status?: number | undefined;
-    detail?: string;
-    instance?: string;
+    detail?: string | undefined;
+    instance?: string | undefined;
+    extensions?: { [key: string]: any; } | undefined;
 }
 
 export class ProblemDetails implements IProblemDetails {
-    type?: string;
-    title?: string;
+    type?: string | undefined;
+    title?: string | undefined;
     status?: number | undefined;
-    detail?: string;
-    instance?: string;
+    detail?: string | undefined;
+    instance?: string | undefined;
+    readonly extensions?: { [key: string]: any; } | undefined;
 
     constructor(data?: IProblemDetails) {
         if (data) {
@@ -3120,6 +3149,13 @@ export class ProblemDetails implements IProblemDetails {
             this.status = data["status"];
             this.detail = data["detail"];
             this.instance = data["instance"];
+            if (data["extensions"]) {
+                (<any>this).extensions = {} as any;
+                for (let key in data["extensions"]) {
+                    if (data["extensions"].hasOwnProperty(key))
+                        (<any>this).extensions![key] = data["extensions"][key];
+                }
+            }
         }
     }
 
@@ -3137,32 +3173,40 @@ export class ProblemDetails implements IProblemDetails {
         data["status"] = this.status;
         data["detail"] = this.detail;
         data["instance"] = this.instance;
+        if (this.extensions) {
+            data["extensions"] = {};
+            for (let key in this.extensions) {
+                if (this.extensions.hasOwnProperty(key))
+                    data["extensions"][key] = this.extensions[key];
+            }
+        }
         return data; 
     }
 }
 
 export interface IProblemDetails {
-    type?: string;
-    title?: string;
+    type?: string | undefined;
+    title?: string | undefined;
     status?: number | undefined;
-    detail?: string;
-    instance?: string;
+    detail?: string | undefined;
+    instance?: string | undefined;
+    extensions?: { [key: string]: any; } | undefined;
 }
 
 /** Models a claim type that will be created on the server. */
 export class CreateClaimTypeRequest implements ICreateClaimTypeRequest {
     /** The name. */
-    name?: string;
-    /** The name used for display purposes. If not set, Indice.Identity.Models.CreateClaimTypeRequest.Name is used. */
-    displayName?: string;
+    name?: string | undefined;
+    /** The name used for display purposes. If not set, Indice.AspNetCore.Identity.Features.CreateClaimTypeRequest.Name is used. */
+    displayName?: string | undefined;
     /** A description. */
-    description?: string;
+    description?: string | undefined;
     /** Determines whether this claim is required to create new users. */
     required?: boolean;
     /** Determines whether this claim will be editable by a user if exposed through a public API. */
     userEditable?: boolean;
     /** A regex rule that constraints the values of the claim. */
-    rule?: string;
+    rule?: string | undefined;
     valueType?: ValueType;
 
     constructor(data?: ICreateClaimTypeRequest) {
@@ -3209,32 +3253,32 @@ export class CreateClaimTypeRequest implements ICreateClaimTypeRequest {
 /** Models a claim type that will be created on the server. */
 export interface ICreateClaimTypeRequest {
     /** The name. */
-    name?: string;
-    /** The name used for display purposes. If not set, Indice.Identity.Models.CreateClaimTypeRequest.Name is used. */
-    displayName?: string;
+    name?: string | undefined;
+    /** The name used for display purposes. If not set, Indice.AspNetCore.Identity.Features.CreateClaimTypeRequest.Name is used. */
+    displayName?: string | undefined;
     /** A description. */
-    description?: string;
+    description?: string | undefined;
     /** Determines whether this claim is required to create new users. */
     required?: boolean;
     /** Determines whether this claim will be editable by a user if exposed through a public API. */
     userEditable?: boolean;
     /** A regex rule that constraints the values of the claim. */
-    rule?: string;
+    rule?: string | undefined;
     valueType?: ValueType;
 }
 
 /** Models a claim type that will be updated on the server. */
 export class UpdateClaimTypeRequest implements IUpdateClaimTypeRequest {
     /** The name used for display purposes. */
-    displayName?: string;
+    displayName?: string | undefined;
     /** A description. */
-    description?: string;
+    description?: string | undefined;
     /** Determines whether this claim is required to create new users. */
     required?: boolean;
     /** Determines whether this claim will be editable by a user if exposed through a public API. */
     userEditable?: boolean;
     /** A regex rule that constraints the values of the claim. */
-    rule?: string;
+    rule?: string | undefined;
     valueType?: ValueType;
 
     constructor(data?: IUpdateClaimTypeRequest) {
@@ -3279,26 +3323,26 @@ export class UpdateClaimTypeRequest implements IUpdateClaimTypeRequest {
 /** Models a claim type that will be updated on the server. */
 export interface IUpdateClaimTypeRequest {
     /** The name used for display purposes. */
-    displayName?: string;
+    displayName?: string | undefined;
     /** A description. */
-    description?: string;
+    description?: string | undefined;
     /** Determines whether this claim is required to create new users. */
     required?: boolean;
     /** Determines whether this claim will be editable by a user if exposed through a public API. */
     userEditable?: boolean;
     /** A regex rule that constraints the values of the claim. */
-    rule?: string;
+    rule?: string | undefined;
     valueType?: ValueType;
 }
 
 /** Models a system client. */
 export class ClientInfo implements IClientInfo {
     /** The unique identifier for this application. */
-    clientId?: string;
+    clientId?: string | undefined;
     /** Application name that will be seen on consent screens. */
-    clientName?: string;
+    clientName?: string | undefined;
     /** Application description. */
-    description?: string;
+    description?: string | undefined;
     /** Determines whether this application is enabled or not. */
     enabled?: boolean;
     /** Specifies whether a consent screen is required. */
@@ -3306,9 +3350,9 @@ export class ClientInfo implements IClientInfo {
     /** Specifies whether consent screen is remembered after having been given. */
     allowRememberConsent?: boolean;
     /** Application logo that will be seen on consent screens. */
-    logoUri?: string;
+    logoUri?: string | undefined;
     /** Application URL that will be seen on consent screens. */
-    clientUri?: string;
+    clientUri?: string | undefined;
 
     constructor(data?: IClientInfo) {
         if (data) {
@@ -3356,11 +3400,11 @@ export class ClientInfo implements IClientInfo {
 /** Models a system client. */
 export interface IClientInfo {
     /** The unique identifier for this application. */
-    clientId?: string;
+    clientId?: string | undefined;
     /** Application name that will be seen on consent screens. */
-    clientName?: string;
+    clientName?: string | undefined;
     /** Application description. */
-    description?: string;
+    description?: string | undefined;
     /** Determines whether this application is enabled or not. */
     enabled?: boolean;
     /** Specifies whether a consent screen is required. */
@@ -3368,14 +3412,14 @@ export interface IClientInfo {
     /** Specifies whether consent screen is remembered after having been given. */
     allowRememberConsent?: boolean;
     /** Application logo that will be seen on consent screens. */
-    logoUri?: string;
+    logoUri?: string | undefined;
     /** Application URL that will be seen on consent screens. */
-    clientUri?: string;
+    clientUri?: string | undefined;
 }
 
 export class ClientInfoResultSet implements IClientInfoResultSet {
     count?: number;
-    items?: ClientInfo[];
+    items?: ClientInfo[] | undefined;
 
     constructor(data?: IClientInfoResultSet) {
         if (data) {
@@ -3418,9 +3462,10 @@ export class ClientInfoResultSet implements IClientInfoResultSet {
 
 export interface IClientInfoResultSet {
     count?: number;
-    items?: ClientInfo[];
+    items?: ClientInfo[] | undefined;
 }
 
+/** Models an OAuth client type. */
 export enum ClientType {
     SPA = "SPA",
     WebApp = "WebApp",
@@ -3430,6 +3475,7 @@ export enum ClientType {
     SPALegacy = "SPALegacy",
 }
 
+/** The type of client secret. */
 export enum ClientSecretType {
     X509Thumbprint = "X509Thumbprint",
     SharedSecret = "SharedSecret",
@@ -3438,9 +3484,9 @@ export enum ClientSecretType {
 /** Models a client secret that will be created on the server. */
 export class ClientSecretRequest implements IClientSecretRequest {
     /** Description of client secret. */
-    description?: string;
+    description?: string | undefined;
     /** The value of client secret. */
-    value?: string;
+    value?: string | undefined;
     /** Optional expiration of client secret. */
     expiration?: Date | undefined;
     type?: ClientSecretType;
@@ -3483,9 +3529,9 @@ export class ClientSecretRequest implements IClientSecretRequest {
 /** Models a client secret that will be created on the server. */
 export interface IClientSecretRequest {
     /** Description of client secret. */
-    description?: string;
+    description?: string | undefined;
     /** The value of client secret. */
-    value?: string;
+    value?: string | undefined;
     /** Optional expiration of client secret. */
     expiration?: Date | undefined;
     type?: ClientSecretType;
@@ -3495,27 +3541,27 @@ export interface IClientSecretRequest {
 export class CreateClientRequest implements ICreateClientRequest {
     clientType?: ClientType;
     /** The unique identifier for this application. */
-    clientId?: string;
+    clientId?: string | undefined;
     /** Application name that will be seen on consent screens. */
-    clientName?: string;
+    clientName?: string | undefined;
     /** Application URL that will be seen on consent screens. */
-    clientUri?: string;
+    clientUri?: string | undefined;
     /** Application logo that will be seen on consent screens. */
-    logoUri?: string;
+    logoUri?: string | undefined;
     /** Application description. */
-    description?: string;
+    description?: string | undefined;
     /** Specifies whether a consent screen is required. */
     requireConsent?: boolean;
     /** The list of identity resources allowed by the client. */
-    identityResources?: string[];
+    identityResources?: string[] | undefined;
     /** The list of API resources allowed by the client. */
-    apiResources?: string[];
+    apiResources?: string[] | undefined;
     /** Allowed URL to return after logging in. */
-    redirectUri?: string;
+    redirectUri?: string | undefined;
     /** Allowed URL to return after logout. */
-    postLogoutRedirectUri?: string;
+    postLogoutRedirectUri?: string | undefined;
     /** The client secrets. */
-    secrets?: ClientSecretRequest[];
+    secrets?: ClientSecretRequest[] | undefined;
 
     constructor(data?: ICreateClientRequest) {
         if (data) {
@@ -3596,39 +3642,39 @@ export class CreateClientRequest implements ICreateClientRequest {
 export interface ICreateClientRequest {
     clientType?: ClientType;
     /** The unique identifier for this application. */
-    clientId?: string;
+    clientId?: string | undefined;
     /** Application name that will be seen on consent screens. */
-    clientName?: string;
+    clientName?: string | undefined;
     /** Application URL that will be seen on consent screens. */
-    clientUri?: string;
+    clientUri?: string | undefined;
     /** Application logo that will be seen on consent screens. */
-    logoUri?: string;
+    logoUri?: string | undefined;
     /** Application description. */
-    description?: string;
+    description?: string | undefined;
     /** Specifies whether a consent screen is required. */
     requireConsent?: boolean;
     /** The list of identity resources allowed by the client. */
-    identityResources?: string[];
+    identityResources?: string[] | undefined;
     /** The list of API resources allowed by the client. */
-    apiResources?: string[];
+    apiResources?: string[] | undefined;
     /** Allowed URL to return after logging in. */
-    redirectUri?: string;
+    redirectUri?: string | undefined;
     /** Allowed URL to return after logout. */
-    postLogoutRedirectUri?: string;
+    postLogoutRedirectUri?: string | undefined;
     /** The client secrets. */
-    secrets?: ClientSecretRequest[];
+    secrets?: ClientSecretRequest[] | undefined;
 }
 
 /** Describes a blog post item. */
 export class BlogItemInfo implements IBlogItemInfo {
     /** Title of the post. */
-    title?: string;
+    title?: string | undefined;
     /** Original link to the post. */
-    link?: string;
+    link?: string | undefined;
     /** The datetime that the post was published. */
     publishDate?: Date;
     /** A small description for the post. */
-    description?: string;
+    description?: string | undefined;
 
     constructor(data?: IBlogItemInfo) {
         if (data) {
@@ -3668,18 +3714,18 @@ export class BlogItemInfo implements IBlogItemInfo {
 /** Describes a blog post item. */
 export interface IBlogItemInfo {
     /** Title of the post. */
-    title?: string;
+    title?: string | undefined;
     /** Original link to the post. */
-    link?: string;
+    link?: string | undefined;
     /** The datetime that the post was published. */
     publishDate?: Date;
     /** A small description for the post. */
-    description?: string;
+    description?: string | undefined;
 }
 
 export class BlogItemInfoResultSet implements IBlogItemInfoResultSet {
     count?: number;
-    items?: BlogItemInfo[];
+    items?: BlogItemInfo[] | undefined;
 
     constructor(data?: IBlogItemInfoResultSet) {
         if (data) {
@@ -3722,7 +3768,7 @@ export class BlogItemInfoResultSet implements IBlogItemInfoResultSet {
 
 export interface IBlogItemInfoResultSet {
     count?: number;
-    items?: BlogItemInfo[];
+    items?: BlogItemInfo[] | undefined;
 }
 
 /** Contains summary information about the system. */
@@ -3776,11 +3822,11 @@ export class IdentityResourceInfo implements IIdentityResourceInfo {
     /** Unique identifier for the identity resource. */
     id?: number;
     /** The name of the resource. */
-    name?: string;
+    name?: string | undefined;
     /** The display name of the resource. */
-    displayName?: string;
+    displayName?: string | undefined;
     /** The description of the resource. */
-    description?: string;
+    description?: string | undefined;
     /** Determines whether this resource is enabled or not. */
     enabled?: boolean;
     /** Determines whether this resource is required or not. */
@@ -3792,7 +3838,7 @@ export class IdentityResourceInfo implements IIdentityResourceInfo {
     /** Determines whether this resource is editable or not. */
     nonEditable?: boolean;
     /** List of accociated claims that should be included when this resource is requested. */
-    allowedClaims?: string[];
+    allowedClaims?: string[] | undefined;
 
     constructor(data?: IIdentityResourceInfo) {
         if (data) {
@@ -3854,11 +3900,11 @@ export interface IIdentityResourceInfo {
     /** Unique identifier for the identity resource. */
     id?: number;
     /** The name of the resource. */
-    name?: string;
+    name?: string | undefined;
     /** The display name of the resource. */
-    displayName?: string;
+    displayName?: string | undefined;
     /** The description of the resource. */
-    description?: string;
+    description?: string | undefined;
     /** Determines whether this resource is enabled or not. */
     enabled?: boolean;
     /** Determines whether this resource is required or not. */
@@ -3870,12 +3916,12 @@ export interface IIdentityResourceInfo {
     /** Determines whether this resource is editable or not. */
     nonEditable?: boolean;
     /** List of accociated claims that should be included when this resource is requested. */
-    allowedClaims?: string[];
+    allowedClaims?: string[] | undefined;
 }
 
 export class IdentityResourceInfoResultSet implements IIdentityResourceInfoResultSet {
     count?: number;
-    items?: IdentityResourceInfo[];
+    items?: IdentityResourceInfo[] | undefined;
 
     constructor(data?: IIdentityResourceInfoResultSet) {
         if (data) {
@@ -3918,7 +3964,7 @@ export class IdentityResourceInfoResultSet implements IIdentityResourceInfoResul
 
 export interface IIdentityResourceInfoResultSet {
     count?: number;
-    items?: IdentityResourceInfo[];
+    items?: IdentityResourceInfo[] | undefined;
 }
 
 /** Models access to an API resource. */
@@ -3926,11 +3972,11 @@ export class ScopeInfo implements IScopeInfo {
     /** Unique identifier for the scope. */
     id?: number;
     /** The name of the scope. */
-    name?: string;
+    name?: string | undefined;
     /** The display name of the scope. */
-    displayName?: string;
+    displayName?: string | undefined;
     /** The description of the resource. */
-    description?: string;
+    description?: string | undefined;
     /** Determines whether this scope is required or not. */
     required?: boolean;
     /** Determines whether this scope should be displayed emphasized or not. */
@@ -3938,7 +3984,7 @@ export class ScopeInfo implements IScopeInfo {
     /** Determines whether this scope should be displayed in the discovery document or not. */
     showInDiscoveryDocument?: boolean;
     /** List of accociated user claims that should be included when this resource is requested. */
-    userClaims?: string[];
+    userClaims?: string[] | undefined;
 
     constructor(data?: IScopeInfo) {
         if (data) {
@@ -3996,11 +4042,11 @@ export interface IScopeInfo {
     /** Unique identifier for the scope. */
     id?: number;
     /** The name of the scope. */
-    name?: string;
+    name?: string | undefined;
     /** The display name of the scope. */
-    displayName?: string;
+    displayName?: string | undefined;
     /** The description of the resource. */
-    description?: string;
+    description?: string | undefined;
     /** Determines whether this scope is required or not. */
     required?: boolean;
     /** Determines whether this scope should be displayed emphasized or not. */
@@ -4008,7 +4054,7 @@ export interface IScopeInfo {
     /** Determines whether this scope should be displayed in the discovery document or not. */
     showInDiscoveryDocument?: boolean;
     /** List of accociated user claims that should be included when this resource is requested. */
-    userClaims?: string[];
+    userClaims?: string[] | undefined;
 }
 
 /** Models an API resource for the application. */
@@ -4016,18 +4062,18 @@ export class ApiResourceInfo implements IApiResourceInfo {
     /** Unique identifier for the API resource. */
     id?: number;
     /** The name of the resource. */
-    name?: string;
+    name?: string | undefined;
     /** The display name of the resource. */
-    displayName?: string;
+    displayName?: string | undefined;
     /** The description of the resource. */
-    description?: string;
+    description?: string | undefined;
     /** Determines whether this resource is enabled or not. */
     enabled?: boolean;
     /** Determines whether this resource is editable or not. */
     nonEditable?: boolean;
     /** List of accociated claims that should be included when this resource is requested. */
-    allowedClaims?: string[];
-    scopes?: ScopeInfo[];
+    allowedClaims?: string[] | undefined;
+    scopes?: ScopeInfo[] | undefined;
 
     constructor(data?: IApiResourceInfo) {
         if (data) {
@@ -4093,23 +4139,23 @@ export interface IApiResourceInfo {
     /** Unique identifier for the API resource. */
     id?: number;
     /** The name of the resource. */
-    name?: string;
+    name?: string | undefined;
     /** The display name of the resource. */
-    displayName?: string;
+    displayName?: string | undefined;
     /** The description of the resource. */
-    description?: string;
+    description?: string | undefined;
     /** Determines whether this resource is enabled or not. */
     enabled?: boolean;
     /** Determines whether this resource is editable or not. */
     nonEditable?: boolean;
     /** List of accociated claims that should be included when this resource is requested. */
-    allowedClaims?: string[];
-    scopes?: ScopeInfo[];
+    allowedClaims?: string[] | undefined;
+    scopes?: ScopeInfo[] | undefined;
 }
 
 export class ApiResourceInfoResultSet implements IApiResourceInfoResultSet {
     count?: number;
-    items?: ApiResourceInfo[];
+    items?: ApiResourceInfo[] | undefined;
 
     constructor(data?: IApiResourceInfoResultSet) {
         if (data) {
@@ -4152,17 +4198,17 @@ export class ApiResourceInfoResultSet implements IApiResourceInfoResultSet {
 
 export interface IApiResourceInfoResultSet {
     count?: number;
-    items?: ApiResourceInfo[];
+    items?: ApiResourceInfo[] | undefined;
 }
 
 /** Models an system role. */
 export class RoleInfo implements IRoleInfo {
     /** The id of the role. */
-    id?: string;
+    id?: string | undefined;
     /** The name of the role. */
-    name?: string;
+    name?: string | undefined;
     /** A description for the role. */
-    description?: string;
+    description?: string | undefined;
 
     constructor(data?: IRoleInfo) {
         if (data) {
@@ -4200,16 +4246,16 @@ export class RoleInfo implements IRoleInfo {
 /** Models an system role. */
 export interface IRoleInfo {
     /** The id of the role. */
-    id?: string;
+    id?: string | undefined;
     /** The name of the role. */
-    name?: string;
+    name?: string | undefined;
     /** A description for the role. */
-    description?: string;
+    description?: string | undefined;
 }
 
 export class RoleInfoResultSet implements IRoleInfoResultSet {
     count?: number;
-    items?: RoleInfo[];
+    items?: RoleInfo[] | undefined;
 
     constructor(data?: IRoleInfoResultSet) {
         if (data) {
@@ -4252,15 +4298,15 @@ export class RoleInfoResultSet implements IRoleInfoResultSet {
 
 export interface IRoleInfoResultSet {
     count?: number;
-    items?: RoleInfo[];
+    items?: RoleInfo[] | undefined;
 }
 
 /** Models a role that will be created on the server. */
 export class CreateRoleRequest implements ICreateRoleRequest {
     /** The name of the role. */
-    name?: string;
+    name?: string | undefined;
     /** A description for the role. */
-    description?: string;
+    description?: string | undefined;
 
     constructor(data?: ICreateRoleRequest) {
         if (data) {
@@ -4296,15 +4342,15 @@ export class CreateRoleRequest implements ICreateRoleRequest {
 /** Models a role that will be created on the server. */
 export interface ICreateRoleRequest {
     /** The name of the role. */
-    name?: string;
+    name?: string | undefined;
     /** A description for the role. */
-    description?: string;
+    description?: string | undefined;
 }
 
 /** Models a role that will be updated on the server. */
 export class UpdateRoleRequest implements IUpdateRoleRequest {
     /** A description for the role. */
-    description?: string;
+    description?: string | undefined;
 
     constructor(data?: IUpdateRoleRequest) {
         if (data) {
@@ -4338,17 +4384,17 @@ export class UpdateRoleRequest implements IUpdateRoleRequest {
 /** Models a role that will be updated on the server. */
 export interface IUpdateRoleRequest {
     /** A description for the role. */
-    description?: string;
+    description?: string | undefined;
 }
 
 /** Models an application user when retrieving a list. */
 export class UserInfo implements IUserInfo {
     /** User's first name. */
-    firstName?: string;
+    firstName?: string | undefined;
     /** User's last name. */
-    lastName?: string;
+    lastName?: string | undefined;
     /** User's unique identifier. */
-    id?: string;
+    id?: string | undefined;
     /** Indicates whether a user's email is confirmed or not. */
     emailConfirmed?: boolean;
     /** Indicates whether lockout feature is enabled for the user. */
@@ -4362,11 +4408,11 @@ export class UserInfo implements IUserInfo {
     /** The datetime where the lockout period ends. */
     lockoutEnd?: Date | undefined;
     /** User's email address. */
-    email?: string;
+    email?: string | undefined;
     /** User's phone number. */
-    phoneNumber?: string;
+    phoneNumber?: string | undefined;
     /** The username. */
-    userName?: string;
+    userName?: string | undefined;
 
     constructor(data?: IUserInfo) {
         if (data) {
@@ -4422,11 +4468,11 @@ export class UserInfo implements IUserInfo {
 /** Models an application user when retrieving a list. */
 export interface IUserInfo {
     /** User's first name. */
-    firstName?: string;
+    firstName?: string | undefined;
     /** User's last name. */
-    lastName?: string;
+    lastName?: string | undefined;
     /** User's unique identifier. */
-    id?: string;
+    id?: string | undefined;
     /** Indicates whether a user's email is confirmed or not. */
     emailConfirmed?: boolean;
     /** Indicates whether lockout feature is enabled for the user. */
@@ -4440,16 +4486,16 @@ export interface IUserInfo {
     /** The datetime where the lockout period ends. */
     lockoutEnd?: Date | undefined;
     /** User's email address. */
-    email?: string;
+    email?: string | undefined;
     /** User's phone number. */
-    phoneNumber?: string;
+    phoneNumber?: string | undefined;
     /** The username. */
-    userName?: string;
+    userName?: string | undefined;
 }
 
 export class UserInfoResultSet implements IUserInfoResultSet {
     count?: number;
-    items?: UserInfo[];
+    items?: UserInfo[] | undefined;
 
     constructor(data?: IUserInfoResultSet) {
         if (data) {
@@ -4492,21 +4538,21 @@ export class UserInfoResultSet implements IUserInfoResultSet {
 
 export interface IUserInfoResultSet {
     count?: number;
-    items?: UserInfo[];
+    items?: UserInfo[] | undefined;
 }
 
 /** Models a new user that will be created on the server. */
 export class CreateUserRequest implements ICreateUserRequest {
     /** The first name of the user. */
-    firstName?: string;
+    firstName?: string | undefined;
     /** The last name of the user. */
-    lastName?: string;
+    lastName?: string | undefined;
     /** The username used to login. */
-    userName?: string;
+    userName?: string | undefined;
     /** The email of the user. */
-    email?: string;
+    email?: string | undefined;
     /** The initial password of the user. */
-    password?: string;
+    password?: string | undefined;
 
     constructor(data?: ICreateUserRequest) {
         if (data) {
@@ -4548,15 +4594,15 @@ export class CreateUserRequest implements ICreateUserRequest {
 /** Models a new user that will be created on the server. */
 export interface ICreateUserRequest {
     /** The first name of the user. */
-    firstName?: string;
+    firstName?: string | undefined;
     /** The last name of the user. */
-    lastName?: string;
+    lastName?: string | undefined;
     /** The username used to login. */
-    userName?: string;
+    userName?: string | undefined;
     /** The email of the user. */
-    email?: string;
+    email?: string | undefined;
     /** The initial password of the user. */
-    password?: string;
+    password?: string | undefined;
 }
 
 /** Models a user's claim. */
@@ -4564,9 +4610,9 @@ export class UserClaimInfo implements IUserClaimInfo {
     /** The id of the user claim entry. */
     id?: number;
     /** The type of the claim. */
-    claimType?: string;
+    claimType?: string | undefined;
     /** The value of the claim. */
-    claimValue?: string;
+    claimValue?: string | undefined;
 
     constructor(data?: IUserClaimInfo) {
         if (data) {
@@ -4606,19 +4652,19 @@ export interface IUserClaimInfo {
     /** The id of the user claim entry. */
     id?: number;
     /** The type of the claim. */
-    claimType?: string;
+    claimType?: string | undefined;
     /** The value of the claim. */
-    claimValue?: string;
+    claimValue?: string | undefined;
 }
 
 /** Models an application user when API provides info for a single user. */
 export class SingleUserInfo implements ISingleUserInfo {
     /** User metadata expressed as claims. */
-    claims?: UserClaimInfo[];
+    claims?: UserClaimInfo[] | undefined;
     /** The names of the roles that the user belongs to. */
-    roles?: string[];
+    roles?: string[] | undefined;
     /** User's unique identifier. */
-    id?: string;
+    id?: string | undefined;
     /** Indicates whether a user's email is confirmed or not. */
     emailConfirmed?: boolean;
     /** Indicates whether lockout feature is enabled for the user. */
@@ -4632,11 +4678,11 @@ export class SingleUserInfo implements ISingleUserInfo {
     /** The datetime where the lockout period ends. */
     lockoutEnd?: Date | undefined;
     /** User's email address. */
-    email?: string;
+    email?: string | undefined;
     /** User's phone number. */
-    phoneNumber?: string;
+    phoneNumber?: string | undefined;
     /** The username. */
-    userName?: string;
+    userName?: string | undefined;
 
     constructor(data?: ISingleUserInfo) {
         if (data) {
@@ -4708,11 +4754,11 @@ export class SingleUserInfo implements ISingleUserInfo {
 /** Models an application user when API provides info for a single user. */
 export interface ISingleUserInfo {
     /** User metadata expressed as claims. */
-    claims?: UserClaimInfo[];
+    claims?: UserClaimInfo[] | undefined;
     /** The names of the roles that the user belongs to. */
-    roles?: string[];
+    roles?: string[] | undefined;
     /** User's unique identifier. */
-    id?: string;
+    id?: string | undefined;
     /** Indicates whether a user's email is confirmed or not. */
     emailConfirmed?: boolean;
     /** Indicates whether lockout feature is enabled for the user. */
@@ -4726,19 +4772,19 @@ export interface ISingleUserInfo {
     /** The datetime where the lockout period ends. */
     lockoutEnd?: Date | undefined;
     /** User's email address. */
-    email?: string;
+    email?: string | undefined;
     /** User's phone number. */
-    phoneNumber?: string;
+    phoneNumber?: string | undefined;
     /** The username. */
-    userName?: string;
+    userName?: string | undefined;
 }
 
 /** Models a user's claim. */
 export class BasicUserClaimInfo implements IBasicUserClaimInfo {
     /** The type of the claim. */
-    claimType?: string;
+    claimType?: string | undefined;
     /** The value of the claim. */
-    claimValue?: string;
+    claimValue?: string | undefined;
 
     constructor(data?: IBasicUserClaimInfo) {
         if (data) {
@@ -4774,9 +4820,9 @@ export class BasicUserClaimInfo implements IBasicUserClaimInfo {
 /** Models a user's claim. */
 export interface IBasicUserClaimInfo {
     /** The type of the claim. */
-    claimType?: string;
+    claimType?: string | undefined;
     /** The value of the claim. */
-    claimValue?: string;
+    claimValue?: string | undefined;
 }
 
 /** Models a user that will be updated on the server. */
@@ -4788,13 +4834,13 @@ export class UpdateUserRequest implements IUpdateUserRequest {
     /** The datetime where the lockout period ends. */
     lockoutEnd?: Date | undefined;
     /** User's email address. */
-    email?: string;
+    email?: string | undefined;
     /** User's phone number. */
-    phoneNumber?: string;
+    phoneNumber?: string | undefined;
     /** The username. */
-    userName?: string;
+    userName?: string | undefined;
     /** Dynamic claims that have been marked as required. */
-    claims?: BasicUserClaimInfo[];
+    claims?: BasicUserClaimInfo[] | undefined;
 
     constructor(data?: IUpdateUserRequest) {
         if (data) {
@@ -4854,13 +4900,13 @@ export interface IUpdateUserRequest {
     /** The datetime where the lockout period ends. */
     lockoutEnd?: Date | undefined;
     /** User's email address. */
-    email?: string;
+    email?: string | undefined;
     /** User's phone number. */
-    phoneNumber?: string;
+    phoneNumber?: string | undefined;
     /** The username. */
-    userName?: string;
+    userName?: string | undefined;
     /** Dynamic claims that have been marked as required. */
-    claims?: BasicUserClaimInfo[];
+    claims?: BasicUserClaimInfo[] | undefined;
 }
 
 /** Models a system client that a user has given consent to or currently has IdentityServer side tokens for. */
@@ -4870,13 +4916,13 @@ export class UserClientInfo implements IUserClientInfo {
     /** Expiration of grant. */
     expiresAt?: Date | undefined;
     /** Resources/scopes accessible by the application. */
-    scopes?: string[];
+    scopes?: string[] | undefined;
     /** The unique identifier for this application. */
-    clientId?: string;
+    clientId?: string | undefined;
     /** Application name that will be seen on consent screens. */
-    clientName?: string;
+    clientName?: string | undefined;
     /** Application description. */
-    description?: string;
+    description?: string | undefined;
     /** Determines whether this application is enabled or not. */
     enabled?: boolean;
     /** Specifies whether a consent screen is required. */
@@ -4884,9 +4930,9 @@ export class UserClientInfo implements IUserClientInfo {
     /** Specifies whether consent screen is remembered after having been given. */
     allowRememberConsent?: boolean;
     /** Application logo that will be seen on consent screens. */
-    logoUri?: string;
+    logoUri?: string | undefined;
     /** Application URL that will be seen on consent screens. */
-    clientUri?: string;
+    clientUri?: string | undefined;
 
     constructor(data?: IUserClientInfo) {
         if (data) {
@@ -4952,13 +4998,13 @@ export interface IUserClientInfo {
     /** Expiration of grant. */
     expiresAt?: Date | undefined;
     /** Resources/scopes accessible by the application. */
-    scopes?: string[];
+    scopes?: string[] | undefined;
     /** The unique identifier for this application. */
-    clientId?: string;
+    clientId?: string | undefined;
     /** Application name that will be seen on consent screens. */
-    clientName?: string;
+    clientName?: string | undefined;
     /** Application description. */
-    description?: string;
+    description?: string | undefined;
     /** Determines whether this application is enabled or not. */
     enabled?: boolean;
     /** Specifies whether a consent screen is required. */
@@ -4966,14 +5012,14 @@ export interface IUserClientInfo {
     /** Specifies whether consent screen is remembered after having been given. */
     allowRememberConsent?: boolean;
     /** Application logo that will be seen on consent screens. */
-    logoUri?: string;
+    logoUri?: string | undefined;
     /** Application URL that will be seen on consent screens. */
-    clientUri?: string;
+    clientUri?: string | undefined;
 }
 
 export class UserClientInfoResultSet implements IUserClientInfoResultSet {
     count?: number;
-    items?: UserClientInfo[];
+    items?: UserClientInfo[] | undefined;
 
     constructor(data?: IUserClientInfoResultSet) {
         if (data) {
@@ -5016,15 +5062,15 @@ export class UserClientInfoResultSet implements IUserClientInfoResultSet {
 
 export interface IUserClientInfoResultSet {
     count?: number;
-    items?: UserClientInfo[];
+    items?: UserClientInfo[] | undefined;
 }
 
 /** Models a user's claim. */
 export class CreateUserClaimRequest implements ICreateUserClaimRequest {
     /** The type of the claim. */
-    claimType?: string;
+    claimType?: string | undefined;
     /** The value of the claim. */
-    claimValue?: string;
+    claimValue?: string | undefined;
 
     constructor(data?: ICreateUserClaimRequest) {
         if (data) {
@@ -5060,15 +5106,15 @@ export class CreateUserClaimRequest implements ICreateUserClaimRequest {
 /** Models a user's claim. */
 export interface ICreateUserClaimRequest {
     /** The type of the claim. */
-    claimType?: string;
+    claimType?: string | undefined;
     /** The value of the claim. */
-    claimValue?: string;
+    claimValue?: string | undefined;
 }
 
 /** Models a user claim that will be updated on the server. */
 export class UpdateUserClaimRequest implements IUpdateUserClaimRequest {
     /** The value of the claim. */
-    claimValue?: string;
+    claimValue?: string | undefined;
 
     constructor(data?: IUpdateUserClaimRequest) {
         if (data) {
@@ -5102,7 +5148,7 @@ export class UpdateUserClaimRequest implements IUpdateUserClaimRequest {
 /** Models a user claim that will be updated on the server. */
 export interface IUpdateUserClaimRequest {
     /** The value of the claim. */
-    claimValue?: string;
+    claimValue?: string | undefined;
 }
 
 export class SwaggerException extends Error {

@@ -9,7 +9,7 @@ namespace Indice.AspNetCore.Identity.Features
     /// <summary>
     /// Used to provide hooks that will be called before and after MVC validation occurs.
     /// </summary>
-    public class ValidatorInterceptor : IValidatorInterceptor
+    internal class ValidatorInterceptor : IValidatorInterceptor
     {
         /// <summary>
         /// Invoked after MVC validation takes place which allows the result to be customized. It should return a ValidationResult.

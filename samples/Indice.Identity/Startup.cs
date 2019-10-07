@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using Hellang.Middleware.ProblemDetails;
+using Indice.AspNetCore.Identity.Features;
 using Indice.AspNetCore.Swagger;
 using Indice.Configuration;
 using Indice.Identity.Configuration;
@@ -9,6 +11,7 @@ using Indice.Identity.Security;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Localization;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -63,8 +66,10 @@ namespace Indice.Identity
             services.AddDistributedMemoryCache();
             services.AddIndiceServices(Configuration);
             services.AddEmailServiceSparkpost(Configuration);
-            services.AddCustomServices();
-            services.AddSwaggerGen(options => options.IndiceDefaults(Settings));
+            services.AddSwaggerGen(options => {
+                options.IndiceDefaults(Settings);
+                options.IncludeXmlComments(Assembly.Load($"Indice.AspNetCore.Identity"));
+            });
             services.AddResponseCaching();
             services.AddCsp(options => {
                 options.AddSandbox("allow-popups");
@@ -82,7 +87,6 @@ namespace Indice.Identity
         public void Configure(IApplicationBuilder app) {
             if (HostingEnvironment.IsDevelopment()) {
                 app.UseDeveloperExceptionPage();
-                //app.UseDatabaseErrorPage();
                 app.IdentityServerStoreSetup(Clients.Get(), Resources.GetIdentityResources(), Resources.GetApiResources());
             } else {
                 app.UseHsts();
@@ -119,7 +123,7 @@ namespace Indice.Identity
             if (enableSwagger) {
                 app.UseSwaggerUI(swaggerOptions => {
                     swaggerOptions.RoutePrefix = "docs";
-                    swaggerOptions.SwaggerEndpoint($"/swagger/{IdentityServerApi.Scope}/swagger.json", Settings.Api?.FriendlyName ?? HostingEnvironment.ApplicationName);
+                    swaggerOptions.SwaggerEndpoint($"/swagger/{IdentityServerApi.Scope}/swagger.json", IdentityServerApi.Scope);
                     swaggerOptions.OAuth2RedirectUrl($"{Settings.Host}/docs/oauth2-redirect.html");
                     swaggerOptions.OAuthClientId("swagger-ui");
                     swaggerOptions.OAuthAppName("Swagger UI");

@@ -7,7 +7,7 @@ namespace Indice.AspNetCore.Identity.Features
     /// <summary>
     /// Extension methods on <see cref="IRuleBuilder{T, TProperty}"/>.
     /// </summary>
-    public static class ValidatorExtensions
+    internal static class ValidatorExtensions
     {
         /// <summary>
         /// Validates a string for being a valid regular expression.

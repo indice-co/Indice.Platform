@@ -1,16 +1,14 @@
 ﻿using System;
 using IdentityModel;
-using Indice.AspNetCore.Identity.Features;
 using Indice.AspNetCore.Identity.Models;
-using Indice.Identity.Data.Init;
 using Microsoft.AspNetCore.Identity;
 
-namespace Indice.Identity.Data
+namespace Indice.AspNetCore.Identity.Features
 {
     /// <summary>
     /// Extensions on type <see cref="ExtendedIdentityDbContext"/>.
     /// </summary>
-    public static class IndiceIdentityDbContextExtensions
+    internal static class IndiceIdentityDbContextExtensions
     {
         /// <summary>
         /// A method that seeds the database with initial realistic data.

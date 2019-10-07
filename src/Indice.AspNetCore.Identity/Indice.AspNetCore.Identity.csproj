@@ -33,6 +33,7 @@
     <None Include="..\..\icon\icon-128.png" Pack="true" Visible="false" PackagePath="" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="Bogus" Version="28.3.2" />
     <PackageReference Include="IdentityServer4" Version="3.0.1" />
     <PackageReference Include="IdentityServer4.AccessTokenValidation" Version="3.0.1" />
     <PackageReference Include="IdentityServer4.EntityFramework" Version="3.0.1" />    
@@ -41,11 +42,9 @@
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="3.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.Server.IISIntegration" Version="2.2.1" />
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0-beta2-19367-01" PrivateAssets="All" />
+    <PackageReference Include="System.ServiceModel.Syndication" Version="4.6.0" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Indice.AspNetCore\Indice.AspNetCore.csproj" />
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Features\Api\Controllers\" />
   </ItemGroup>
 </Project>

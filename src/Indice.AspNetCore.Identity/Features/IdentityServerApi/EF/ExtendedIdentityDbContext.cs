@@ -7,16 +7,17 @@ namespace Indice.AspNetCore.Identity.Features
     /// <summary>
     /// An extended <see cref="DbContext"/> for the Identity framework.
     /// </summary>
-    public sealed class ExtendedIdentityDbContext : IdentityDbContext<User, Role>
+    public class ExtendedIdentityDbContext : IdentityDbContext<User, Role>
     {
         /// <summary>
         /// Creates a new instance of <see cref="ExtendedIdentityDbContext"/>.
         /// </summary>
-        /// <param name="options">The options to be used by a <see cref="DbContext"/>.</param>
-        public ExtendedIdentityDbContext(DbContextOptions<ExtendedIdentityDbContext> options) : base(options) {
+        /// <param name="dbContextOptions">The options to be used by a <see cref="DbContext"/>.</param>
+        /// <param name="identityServerApiEndpointsOptions">Options for configuring the IdentityServer API feature.</param>
+        public ExtendedIdentityDbContext(DbContextOptions<ExtendedIdentityDbContext> dbContextOptions, IdentityServerApiEndpointsOptions identityServerApiEndpointsOptions) : base(dbContextOptions) {
 #if DEBUG
-            if (Database.EnsureCreated()) {
-                //this.Seed();
+            if (Database.EnsureCreated() && identityServerApiEndpointsOptions.UseInitialData) {
+                this.Seed();
             }
 #endif
         }

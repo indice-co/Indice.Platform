@@ -50,13 +50,10 @@ namespace Indice.AspNetCore.Identity.Features
     /// </summary>
     public class UpdateClaimTypeRequestValidator : AbstractValidator<UpdateClaimTypeRequest>
     {
-        private readonly Func<ExtendedIdentityDbContext> _getDbContext;
-
         /// <summary>
         /// Creates a new instance of <see cref="UpdateClaimTypeRequestValidator"/>.
         /// </summary>
         public UpdateClaimTypeRequestValidator(Func<ExtendedIdentityDbContext> getDbContext) {
-            _getDbContext = getDbContext ?? throw new ArgumentNullException(nameof(getDbContext));
             RuleFor(x => x.Description)
                 .MaximumLength(TextSizePresets.L1024)
                 .WithMessage($"Claim name cannot be greater than {TextSizePresets.L1024} characters.");

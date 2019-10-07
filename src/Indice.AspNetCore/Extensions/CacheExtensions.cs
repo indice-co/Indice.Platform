@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Caching.Distributed;
 using Newtonsoft.Json;
 
-namespace Indice.Identity.Infrastructure.Extensions
+namespace Indice.AspNetCore.Extensions
 {
     /// <summary>
     /// Extension methods on <see cref="IDistributedCache"/>.

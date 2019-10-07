@@ -5,7 +5,7 @@ namespace Indice.AspNetCore.Identity.Features
     /// <summary>
     /// Extended version of the <see cref="IdentityRole"/> class.
     /// </summary>
-    public sealed class Role : IdentityRole
+    public class Role : IdentityRole
     {
         /// <summary>
         /// Creates a new instance of <see cref="Role"/>.

@@ -4,25 +4,24 @@ using System.Net.Mime;
 using System.Threading.Tasks;
 using IdentityServer4;
 using IdentityServer4.EntityFramework.Interfaces;
-using Indice.AspNetCore.Identity.Features;
-using Indice.Identity.Security;
 using Indice.Types;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
-namespace Indice.Identity.Controllers.Api
+namespace Indice.AspNetCore.Identity.Features
 {
     /// <summary>
     /// Contains operations for managing application's identity and API resources.
     /// </summary>
     [Route("api/resources")]
     [ApiController]
+    [ApiExplorerSettings(GroupName = "identity")]
     [Produces(MediaTypeNames.Application.Json)]
     [Consumes(MediaTypeNames.Application.Json)]
     [Authorize(AuthenticationSchemes = IdentityServerConstants.LocalApi.AuthenticationScheme, Policy = IdentityServerApi.Admin)]
-    public sealed class ResourcesController : ControllerBase
+    internal class ResourcesController : ControllerBase
     {
         private readonly IConfigurationDbContext _configurationDbContext;
 

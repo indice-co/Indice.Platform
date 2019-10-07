@@ -1,13 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using Indice.AspNetCore.Identity.Features;
 
-namespace Indice.Identity.Data.Init
+namespace Indice.AspNetCore.Identity.Features
 {
     /// <summary>
     /// Provides functionality to generate test claim types for development purposes.
     /// </summary>
-    public class InitialRoles
+    internal class InitialRoles
     {
         private static readonly List<Role> Roles = new List<Role> {
             new Role {

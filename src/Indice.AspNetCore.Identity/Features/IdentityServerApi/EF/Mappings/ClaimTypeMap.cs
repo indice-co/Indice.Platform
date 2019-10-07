@@ -8,7 +8,7 @@ namespace Indice.AspNetCore.Identity.Features
     /// <summary>
     /// Entity Framework mapping for type <see cref="ClaimType"/>.
     /// </summary>
-    public class ClaimTypeMap : IEntityTypeConfiguration<ClaimType>
+    internal class ClaimTypeMap : IEntityTypeConfiguration<ClaimType>
     {
         /// <summary>
         /// Configure Entity Framework mapping for type <see cref="ClaimType"/>.
