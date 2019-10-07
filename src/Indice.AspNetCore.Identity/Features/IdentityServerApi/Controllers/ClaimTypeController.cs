@@ -14,27 +14,26 @@ namespace Indice.AspNetCore.Identity.Features
     /// <summary>
     /// Contains operations for managing application claim types.
     /// </summary>
+    [GenericControllerNameConvention]
     [Route("api/claim-types")]
     [ApiController]
     [ApiExplorerSettings(GroupName = "identity")]
     [Produces(MediaTypeNames.Application.Json)]
     [Consumes(MediaTypeNames.Application.Json)]
     [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme, Policy = IdentityServerApi.Admin)]
-    internal class ClaimTypeController<TUser, TRole> : ControllerBase
-        where TUser : User, new()
-        where TRole : Role, new()
+    internal class ClaimTypeController<TIdentityDbContext> : ControllerBase where TIdentityDbContext : ExtendedIdentityDbContext<User, Role>
     {
-        private readonly ExtendedIdentityDbContext<TUser, TRole> _dbContext;
+        private readonly TIdentityDbContext _dbContext;
         /// <summary>
         /// The name of the controller.
         /// </summary>
         public const string Name = "ClaimType";
 
         /// <summary>
-        /// Creates an instance of <see cref="ClaimTypeController{TUser, TRole}"/>.
+        /// Creates an instance of <see cref="ClaimTypeController{TIdentityDbContext}"/>.
         /// </summary>
         /// <param name="dbContext"><see cref="DbContext"/> for the Identity Framework.</param>
-        public ClaimTypeController(ExtendedIdentityDbContext<TUser, TRole> dbContext) {
+        public ClaimTypeController(TIdentityDbContext dbContext) {
             _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
         }
 

@@ -13,7 +13,7 @@ namespace Indice.AspNetCore.Identity.Features
     internal class IdentityServerApiFeatureProvider : IApplicationFeatureProvider<ControllerFeature>
     {
         private static IReadOnlyList<TypeInfo> ControllerTypes => new List<TypeInfo>() {
-            typeof(ClaimTypeController<User, Role>).GetTypeInfo(),
+            typeof(ClaimTypeController<ExtendedIdentityDbContext<User, Role>>).GetTypeInfo(),
             typeof(ClientController).GetTypeInfo(),
             typeof(DashboardController<User>).GetTypeInfo(),
             typeof(ResourcesController).GetTypeInfo(),
@@ -27,9 +27,9 @@ namespace Indice.AspNetCore.Identity.Features
         /// <param name="parts">The list of <see cref="ApplicationPart"/> instances in the application.</param>
         /// <param name="feature">The feature instance to populate.</param>
         public void PopulateFeature(IEnumerable<ApplicationPart> parts, ControllerFeature feature) {
-            foreach (var controllerType in ControllerTypes) {
-                if (!feature.Controllers.Any(x => x.Name == controllerType.Name)) {
-                    feature.Controllers.Add(controllerType);
+            foreach (var type in ControllerTypes) {
+                if (!feature.Controllers.Any(x => x.Name == type.Name)) {
+                    feature.Controllers.Add(type);
                 }
             }
         }

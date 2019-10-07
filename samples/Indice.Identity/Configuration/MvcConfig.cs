@@ -21,9 +21,7 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
         public static IMvcBuilder AddMvcConfig(this IServiceCollection services) {
             return services.AddControllersWithViews()
-                           .AddIdentityServerApiEndpoints<ExtendedIdentityDbContext<User, Role>>(options => {
-                               options.UseInitialData = true;
-                           })
+                           .AddIdentityServerApiEndpoints<ExtendedIdentityDbContext<User, Role>>(options => options.UseInitialData = true)
                            .AddNewtonsoftJson(options => {
                                options.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver {
                                    NamingStrategy = new CamelCaseNamingStrategy {

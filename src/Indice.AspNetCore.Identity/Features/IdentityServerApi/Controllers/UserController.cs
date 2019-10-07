@@ -22,6 +22,7 @@ namespace Indice.AspNetCore.Identity.Features
     /// <summary>
     /// Contains operations for managing application's users.
     /// </summary>
+    [GenericControllerNameConvention]
     [Route("api/users")]
     [ApiController]
     [ApiExplorerSettings(GroupName = "identity")]

@@ -44,8 +44,8 @@ namespace Indice.AspNetCore.Swagger
         /// <param name="options">The options to configure.</param>
         public static void AddCustomSchemaIds(this SwaggerGenOptions options) {
             // Simplifies generics:
-            options.CustomSchemaIds(t => {
-                var typeInfo = t.GetTypeInfo();
+            options.CustomSchemaIds(type => {
+                var typeInfo = type.GetTypeInfo();
                 var getKeyValueTypeName = new Func<TypeInfo, string>((tInfo) => {
                     var args = tInfo.GetGenericArguments();
                     var param = args[1];
@@ -61,13 +61,13 @@ namespace Indice.AspNetCore.Swagger
                     return $"{prefix}{name}Of{param.Name}";
                 });
                 if (typeInfo.IsGenericType) {
-                    var args = t.GetGenericArguments();
-                    if (args.Length == 2 && t.Name.Contains("KeyValuePair")) {
+                    var args = type.GetGenericArguments();
+                    if (args.Length == 2 && type.Name.Contains("KeyValuePair")) {
                         return getKeyValueTypeName(typeInfo);
-                    } else if (args.Length == 1 || t.Name.Contains("ResultSet")) {
+                    } else if (args.Length == 1 || type.Name.Contains("ResultSet")) {
                         var param = args[0];
                         var prefix = string.Empty;
-                        var name = t.Name.Substring(0, t.Name.IndexOf("`"));
+                        var name = type.Name.Substring(0, type.Name.IndexOf("`"));
                         var paramName = param.Name;
                         if (param.Name.Contains("KeyValuePair")) {
                             paramName = getKeyValueTypeName(param.GetTypeInfo());
@@ -76,12 +76,12 @@ namespace Indice.AspNetCore.Swagger
                         }
                         return $"{prefix}{name}Of{paramName}";
                     }
-                } else if (t.Namespace.Contains("Models")) {
-                    var name = t.Name.Replace(t.Namespace, string.Empty);
+                } else if (type.Namespace.Contains("Models")) {
+                    var name = type.Name.Replace(type.Namespace, string.Empty);
                     name = name.Replace("Info", string.Empty);
                     return name;
                 }
-                return t.FullName;
+                return type.FullName;
             });
         }
 

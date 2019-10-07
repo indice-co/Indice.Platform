@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using Hellang.Middleware.ProblemDetails;
 using Indice.AspNetCore.Identity.Features;
+using Indice.AspNetCore.Identity.Models;
 using Indice.AspNetCore.Swagger;
 using Indice.Configuration;
 using Indice.Identity.Configuration;
@@ -12,6 +13,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Localization;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -54,9 +56,19 @@ namespace Indice.Identity
         /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
         public void ConfigureServices(IServiceCollection services) {
             services.AddMvcConfig();
-            services.AddCorsConfig(Configuration);
-            services.AddCookiePolicyConfig();
-            services.AddDbContextConfig(Configuration);
+            services.AddCors(options => options.AddDefaultPolicy(builder => {
+                builder.WithOrigins(Configuration.GetSection("AllowedHosts").Get<string[]>())
+                       .WithMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+                       .WithHeaders("Authorization", "Content-Type")
+                       .WithExposedHeaders("Content-Disposition");
+            }));
+            services.Configure<CookiePolicyOptions>(options => {
+                options.CheckConsentNeeded = context => false;
+                options.MinimumSameSitePolicy = SameSiteMode.None;
+            });
+            services.AddDbContext<ExtendedIdentityDbContext<User, Role>>((serviceProvider, options) => {
+                options.UseSqlServer(Configuration.GetConnectionString("IdentityDb"));
+            });
             services.AddIdentityConfig(Configuration);
             services.AddIdentityServerConfig(HostingEnvironment, Configuration, Settings);
             services.ConfigureApplicationCookie(options => {

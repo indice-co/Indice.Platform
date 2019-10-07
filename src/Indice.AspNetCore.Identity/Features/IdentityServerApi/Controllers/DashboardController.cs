@@ -21,6 +21,7 @@ namespace Indice.AspNetCore.Identity.Features
     /// <summary>
     /// A controller that provides useful information for the users.
     /// </summary>
+    [GenericControllerNameConvention]
     [Route("api/dashboard")]
     [ApiController]
     [ApiExplorerSettings(GroupName = "identity")]

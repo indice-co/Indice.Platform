@@ -22,7 +22,8 @@ namespace Indice.AspNetCore.Identity.Features
             where TIdentityDbContext : ExtendedIdentityDbContext<User, Role> {
             var genericArguments = typeof(TIdentityDbContext).GetGenericArguments();
             mvcBuilder.ConfigureApplicationPartManager(x => x.FeatureProviders.Add(new IdentityServerApiFeatureProvider())); // Use the IdentityServerApiFeatureProvider to register IdentityServer API controllers.
-            var options = new IdentityServerApiEndpointsOptions(); // Initialize default options.
+            var options = new IdentityServerApiEndpointsOptions();
+            // Initialize default options.
             configureAction?.Invoke(options); // Invoke action provided by developer to override default options.
             mvcBuilder.Services.AddSingleton(options); // Register option in DI mechanism for later use.
             mvcBuilder.Services.TryAddTransient<Func<TIdentityDbContext>>(provider => provider.GetService<TIdentityDbContext>); // Used extensively in validators.

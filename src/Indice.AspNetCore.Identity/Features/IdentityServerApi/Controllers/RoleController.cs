@@ -14,6 +14,7 @@ namespace Indice.AspNetCore.Identity.Features
     /// <summary>
     /// Contains operations for managing application roles.
     /// </summary>
+    [GenericControllerNameConvention]
     [Route("api/roles")]
     [ApiController]
     [ApiExplorerSettings(GroupName = "identity")]
