@@ -1,4 +1,5 @@
 ﻿using Indice.AspNetCore.Identity.Features;
+using Indice.AspNetCore.Identity.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 
@@ -16,7 +17,7 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
         public static IServiceCollection AddDbContextConfig(this IServiceCollection services, IConfiguration configuration) {
             return services.AddEntityFrameworkSqlServer()
-                           .AddDbContext<ExtendedIdentityDbContext>((serviceProvider, options) => {
+                           .AddDbContext<ExtendedIdentityDbContext<User, Role>>((serviceProvider, options) => {
                                options.UseSqlServer(configuration.GetConnectionString("IdentityDb"));
                            });
         }

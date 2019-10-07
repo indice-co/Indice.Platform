@@ -11,11 +11,11 @@ namespace Indice.AspNetCore.Identity.Features
     /// <summary>
     /// Provides functionality to generate test users for development purposes.
     /// </summary>
-    internal class InitialUsers
+    internal class InitialUsers<TUser> where TUser : User
     {
         private const int DefaultNumberOfUsers = 100;
 
-        private static readonly Faker<User> UserFaker = new Faker<User>()
+        private static readonly Faker<TUser> UserFaker = new Faker<TUser>()
             .RuleFor(x => x.Id, faker => $"{Guid.NewGuid()}")
             .RuleFor(x => x.Admin, faker => false)
             .RuleFor(x => x.ConcurrencyStamp, faker => $"{Guid.NewGuid()}")
@@ -49,7 +49,7 @@ namespace Indice.AspNetCore.Identity.Features
         /// Gets a collection of test users.
         /// </summary>
         /// <param name="numberOfUsers">The number of test users to generate. Default is 100.</param>
-        public static IReadOnlyCollection<User> Get(int? numberOfUsers = null) {
+        public static IReadOnlyCollection<TUser> Get(int? numberOfUsers = null) {
             var random = new Random(1);
             Randomizer.Seed = random;
             return UserFaker.Generate(numberOfUsers ?? DefaultNumberOfUsers).ToList();

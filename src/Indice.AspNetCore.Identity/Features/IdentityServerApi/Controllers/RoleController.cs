@@ -2,7 +2,6 @@
 using System.Linq;
 using System.Net.Mime;
 using System.Threading.Tasks;
-using IdentityServer4;
 using Indice.Types;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -20,20 +19,20 @@ namespace Indice.AspNetCore.Identity.Features
     [ApiExplorerSettings(GroupName = "identity")]
     [Produces(MediaTypeNames.Application.Json)]
     [Consumes(MediaTypeNames.Application.Json)]
-    [Authorize(AuthenticationSchemes = IdentityServerConstants.LocalApi.AuthenticationScheme, Policy = IdentityServerApi.Admin)]
-    internal class RoleController : ControllerBase
+    [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme, Policy = IdentityServerApi.Admin)]
+    internal class RoleController<TRole> : ControllerBase where TRole : Role, new()
     {
-        private readonly RoleManager<Role> _roleManager;
+        private readonly RoleManager<TRole> _roleManager;
         /// <summary>
         /// The name of the controller.
         /// </summary>
         public const string Name = "Role";
 
         /// <summary>
-        /// Creates an instance of <see cref="RoleController"/>.
+        /// Creates an instance of <see cref="RoleController{TRole}"/>.
         /// </summary>
         /// <param name="roleManager">Provides the APIs for managing roles in a persistence store.</param>
-        public RoleController(RoleManager<Role> roleManager) {
+        public RoleController(RoleManager<TRole> roleManager) {
             _roleManager = roleManager ?? throw new ArgumentNullException(nameof(roleManager));
         }
 
@@ -109,7 +108,7 @@ namespace Indice.AspNetCore.Identity.Features
         [ProducesResponseType(statusCode: StatusCodes.Status401Unauthorized, type: typeof(ProblemDetails))]
         [ProducesResponseType(statusCode: StatusCodes.Status403Forbidden, type: typeof(ProblemDetails))]
         public async Task<ActionResult<RoleInfo>> CreateRole([FromBody]CreateRoleRequest request) {
-            var role = new Role {
+            var role = new TRole {
                 Id = $"{Guid.NewGuid()}",
                 Name = request.Name,
                 Description = request.Description

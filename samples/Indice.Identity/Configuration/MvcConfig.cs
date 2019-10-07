@@ -1,8 +1,7 @@
 ﻿using System.Reflection;
-using System.Text.Json;
-using System.Text.Json.Serialization;
 using FluentValidation.AspNetCore;
 using Indice.AspNetCore.Identity.Features;
+using Indice.AspNetCore.Identity.Models;
 using Indice.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
@@ -22,7 +21,7 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
         public static IMvcBuilder AddMvcConfig(this IServiceCollection services) {
             return services.AddControllersWithViews()
-                           .AddIdentityServerApiEndpoints<ExtendedIdentityDbContext>(options => {
+                           .AddIdentityServerApiEndpoints<ExtendedIdentityDbContext<User, Role>>(options => {
                                options.UseInitialData = true;
                            })
                            .AddNewtonsoftJson(options => {
@@ -63,6 +62,7 @@ namespace Microsoft.Extensions.DependencyInjection
                                options.FormatterMappings.SetMediaTypeMappingForFormat("xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
                            })
                            .AddJsonOptions(options => {
+                               // Support for OpenAPI / Swagger when using System.Text.Json is ongoing and unlikely to be available as part of the 3.0 release.
                                //options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
                                //options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
                                //options.JsonSerializerOptions.IgnoreNullValues = false;

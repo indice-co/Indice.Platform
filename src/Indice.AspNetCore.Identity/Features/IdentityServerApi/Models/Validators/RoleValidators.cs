@@ -2,6 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 using FluentValidation;
+using Indice.AspNetCore.Identity.Models;
 using Indice.Configuration;
 using Microsoft.EntityFrameworkCore;
 
@@ -10,14 +11,16 @@ namespace Indice.AspNetCore.Identity.Features
     /// <summary>
     /// Validator for <see cref="CreateRoleRequest"/> model.
     /// </summary>
-    public class CreateRoleRequestValidator : AbstractValidator<CreateRoleRequest>
+    public class CreateRoleRequestValidator<TUser, TRole> : AbstractValidator<CreateRoleRequest>
+        where TUser : User, new()
+        where TRole : Role, new()
     {
-        private readonly Func<ExtendedIdentityDbContext> _getDbContext;
+        private readonly Func<ExtendedIdentityDbContext<TUser, TRole>> _getDbContext;
 
         /// <summary>
-        /// Creates a new instance of <see cref="CreateClaimTypeRequestValidator"/>.
+        /// Creates a new instance of <see cref="CreateClaimTypeRequestValidator{TUser, TRole}"/>.
         /// </summary>
-        public CreateRoleRequestValidator(Func<ExtendedIdentityDbContext> getDbContext) {
+        public CreateRoleRequestValidator(Func<ExtendedIdentityDbContext<TUser, TRole>> getDbContext) {
             _getDbContext = getDbContext ?? throw new ArgumentNullException(nameof(getDbContext));
             RuleFor(x => x.Description)
                 .MaximumLength(TextSizePresets.M512)

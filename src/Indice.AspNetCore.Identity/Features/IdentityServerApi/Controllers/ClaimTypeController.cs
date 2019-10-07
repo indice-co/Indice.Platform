@@ -2,7 +2,7 @@
 using System.Linq;
 using System.Net.Mime;
 using System.Threading.Tasks;
-using IdentityServer4;
+using Indice.AspNetCore.Identity.Models;
 using Indice.Types;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -19,20 +19,22 @@ namespace Indice.AspNetCore.Identity.Features
     [ApiExplorerSettings(GroupName = "identity")]
     [Produces(MediaTypeNames.Application.Json)]
     [Consumes(MediaTypeNames.Application.Json)]
-    [Authorize(AuthenticationSchemes = IdentityServerConstants.LocalApi.AuthenticationScheme, Policy = IdentityServerApi.Admin)]
-    internal class ClaimTypeController : ControllerBase
+    [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme, Policy = IdentityServerApi.Admin)]
+    internal class ClaimTypeController<TUser, TRole> : ControllerBase
+        where TUser : User, new()
+        where TRole : Role, new()
     {
-        private readonly ExtendedIdentityDbContext _dbContext;
+        private readonly ExtendedIdentityDbContext<TUser, TRole> _dbContext;
         /// <summary>
         /// The name of the controller.
         /// </summary>
         public const string Name = "ClaimType";
 
         /// <summary>
-        /// Creates an instance of <see cref="ClaimTypeController"/>.
+        /// Creates an instance of <see cref="ClaimTypeController{TUser, TRole}"/>.
         /// </summary>
         /// <param name="dbContext"><see cref="DbContext"/> for the Identity Framework.</param>
-        public ClaimTypeController(ExtendedIdentityDbContext dbContext) {
+        public ClaimTypeController(ExtendedIdentityDbContext<TUser, TRole> dbContext) {
             _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
         }
 

@@ -46,7 +46,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 options.User.RequireUniqueEmail = true;
             })
             .AddClaimsTransform<ExtendedUserClaimsPrincipalFactory<User, Role>>()
-            .AddEntityFrameworkStores<ExtendedIdentityDbContext>()
+            .AddEntityFrameworkStores<ExtendedIdentityDbContext<User, Role>>()
             .AddDefaultTokenProviders();
         }
     }

@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Identity;
 namespace Indice.AspNetCore.Identity.Features
 {
     /// <summary>
-    /// Extensions on type <see cref="ExtendedIdentityDbContext"/>.
+    /// Extensions on type <see cref="ExtendedIdentityDbContext{TUser, TRole}"/>.
     /// </summary>
     internal static class IndiceIdentityDbContextExtensions
     {
@@ -14,10 +14,13 @@ namespace Indice.AspNetCore.Identity.Features
         /// A method that seeds the database with initial realistic data.
         /// </summary>
         /// <param name="dbContext"></param>
-        public static void Seed(this ExtendedIdentityDbContext dbContext) {
+        public static void Seed<TUser, TRole>(this ExtendedIdentityDbContext<TUser, TRole> dbContext)
+            where TUser : User, new()
+            where TRole : Role, new() {
             // Create an admin account.
             const string adminEmail = "company@indice.gr";
-            var admin = new User(adminEmail, "ab9769f1-d532-4b7d-9922-3da003157ebd") {
+            var admin = new TUser() {
+                Id = "ab9769f1-d532-4b7d-9922-3da003157ebd",
                 Admin = true,
                 ConcurrencyStamp = $"{Guid.NewGuid()}",
                 CreateDate = DateTime.UtcNow,
@@ -43,9 +46,9 @@ namespace Indice.AspNetCore.Identity.Features
                 ClaimValue = "Company",
                 UserId = admin.Id
             });
-            dbContext.Users.AddRange(InitialUsers.Get(2000));
+            dbContext.Users.AddRange(InitialUsers<TUser>.Get(2000));
             dbContext.ClaimTypes.AddRange(InitialClaimTypes.Get());
-            dbContext.Roles.AddRange(InitialRoles.Get());
+            dbContext.Roles.AddRange(InitialRoles<TRole>.Get());
             dbContext.SaveChanges();
         }
     }

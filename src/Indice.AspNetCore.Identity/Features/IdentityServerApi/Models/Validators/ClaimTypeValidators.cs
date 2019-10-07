@@ -2,6 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 using FluentValidation;
+using Indice.AspNetCore.Identity.Models;
 using Indice.Configuration;
 using Microsoft.EntityFrameworkCore;
 
@@ -10,14 +11,16 @@ namespace Indice.AspNetCore.Identity.Features
     /// <summary>
     /// Validator for <see cref="CreateClaimTypeRequest"/> model.
     /// </summary>
-    public class CreateClaimTypeRequestValidator : AbstractValidator<CreateClaimTypeRequest>
+    public class CreateClaimTypeRequestValidator<TUser, TRole> : AbstractValidator<CreateClaimTypeRequest>
+        where TUser : User, new()
+        where TRole : Role, new()
     {
-        private readonly Func<ExtendedIdentityDbContext> _getDbContext;
+        private readonly Func<ExtendedIdentityDbContext<TUser, TRole>> _getDbContext;
 
         /// <summary>
-        /// Creates a new instance of <see cref="CreateClaimTypeRequestValidator"/>.
+        /// Creates a new instance of <see cref="CreateClaimTypeRequestValidator{TUser, TRole}"/>.
         /// </summary>
-        public CreateClaimTypeRequestValidator(Func<ExtendedIdentityDbContext> getDbContext) {
+        public CreateClaimTypeRequestValidator(Func<ExtendedIdentityDbContext<TUser, TRole>> getDbContext) {
             _getDbContext = getDbContext ?? throw new ArgumentNullException(nameof(getDbContext));
             RuleFor(x => x.Description)
                 .MaximumLength(TextSizePresets.L1024)
@@ -53,7 +56,7 @@ namespace Indice.AspNetCore.Identity.Features
         /// <summary>
         /// Creates a new instance of <see cref="UpdateClaimTypeRequestValidator"/>.
         /// </summary>
-        public UpdateClaimTypeRequestValidator(Func<ExtendedIdentityDbContext> getDbContext) {
+        public UpdateClaimTypeRequestValidator() {
             RuleFor(x => x.Description)
                 .MaximumLength(TextSizePresets.L1024)
                 .WithMessage($"Claim name cannot be greater than {TextSizePresets.L1024} characters.");

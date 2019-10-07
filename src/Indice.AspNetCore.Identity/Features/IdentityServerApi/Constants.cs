@@ -6,6 +6,10 @@
     public class IdentityServerApi
     {
         /// <summary>
+        /// Authentication scheme name used by IdentityServer local API.
+        /// </summary>
+        public const string AuthenticationScheme = "IdentityServerApiAccessToken";
+        /// <summary>
         /// Identity API scope.
         /// </summary>
         public const string Scope = "identity";

@@ -6,10 +6,10 @@ namespace Indice.AspNetCore.Identity.Features
     /// <summary>
     /// Provides functionality to generate test claim types for development purposes.
     /// </summary>
-    internal class InitialRoles
+    internal class InitialRoles<TRole> where TRole : Role, new()
     {
-        private static readonly List<Role> Roles = new List<Role> {
-            new Role {
+        private static readonly List<TRole> Roles = new List<TRole> {
+            new TRole {
                 Id = $"{Guid.NewGuid()}",
                 Name = "Administrator",
                 NormalizedName = "ADMINISTRATOR",
@@ -20,6 +20,6 @@ namespace Indice.AspNetCore.Identity.Features
         /// <summary>
         /// Gets a collection of test claim types.
         /// </summary>
-        public static IReadOnlyCollection<Role> Get() => Roles;
+        public static IReadOnlyCollection<TRole> Get() => Roles;
     }
 }

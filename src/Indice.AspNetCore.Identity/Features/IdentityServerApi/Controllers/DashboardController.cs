@@ -5,7 +5,6 @@ using System.Net.Mime;
 using System.ServiceModel.Syndication;
 using System.Threading.Tasks;
 using System.Xml;
-using IdentityServer4;
 using IdentityServer4.EntityFramework.Interfaces;
 using Indice.AspNetCore.Extensions;
 using Indice.AspNetCore.Identity.Models;
@@ -27,19 +26,20 @@ namespace Indice.AspNetCore.Identity.Features
     [ApiExplorerSettings(GroupName = "identity")]
     [Produces(MediaTypeNames.Application.Json)]
     [Consumes(MediaTypeNames.Application.Json)]
-    internal class DashboardController : ControllerBase
+    [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme)]
+    internal class DashboardController<TUser> : ControllerBase where TUser : User, new()
     {
         private readonly IDistributedCache _cache;
-        private readonly UserManager<User> _userManager;
+        private readonly UserManager<TUser> _userManager;
         private readonly IConfigurationDbContext _configurationDbContext;
 
         /// <summary>
-        /// Creates a new instance of <see cref="DashboardController"/>.
+        /// Creates a new instance of <see cref="DashboardController{TUser}"/>.
         /// </summary>
         /// <param name="cache">Represents a distributed cache of serialized values.</param>
         /// <param name="userManager">Provides the APIs for managing user in a persistence store.</param>
         /// <param name="configurationDbContext">Abstraction for the configuration context.</param>
-        public DashboardController(IDistributedCache cache, UserManager<User> userManager, IConfigurationDbContext configurationDbContext) {
+        public DashboardController(IDistributedCache cache, UserManager<TUser> userManager, IConfigurationDbContext configurationDbContext) {
             _cache = cache ?? throw new ArgumentNullException(nameof(cache));
             _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
             _configurationDbContext = configurationDbContext ?? throw new ArgumentNullException(nameof(configurationDbContext));
@@ -59,6 +59,7 @@ namespace Indice.AspNetCore.Identity.Features
         [ProducesResponseType(statusCode: StatusCodes.Status401Unauthorized, type: typeof(ProblemDetails))]
         [ProducesResponseType(statusCode: StatusCodes.Status403Forbidden, type: typeof(ProblemDetails))]
         [ResponseCache(VaryByQueryKeys = new[] { "page", "size" }, Duration = 3600/* 1 hour */, Location = ResponseCacheLocation.Client)]
+        [AllowAnonymous]
         public ActionResult<ResultSet<BlogItemInfo>> GetNews([FromQuery]int page = 1, [FromQuery]int size = 100) {
             static List<BlogItemInfo> GetFeed() {
                 const string url = "https://www.identityserver.com/rss";
@@ -89,7 +90,6 @@ namespace Indice.AspNetCore.Identity.Features
         [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest, type: typeof(ValidationProblemDetails))]
         [ProducesResponseType(statusCode: StatusCodes.Status401Unauthorized, type: typeof(ProblemDetails))]
         [ProducesResponseType(statusCode: StatusCodes.Status403Forbidden, type: typeof(ProblemDetails))]
-        [Authorize(AuthenticationSchemes = IdentityServerConstants.LocalApi.AuthenticationScheme)]
         public async Task<ActionResult<SummaryInfo>> GetSystemSummary() {
             async Task<SummaryInfo> GetSummary() {
                 var getUsersNumberTask = _userManager.Users.CountAsync();

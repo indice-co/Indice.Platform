@@ -5,7 +5,6 @@ using System.Net.Mime;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using IdentityModel;
-using IdentityServer4;
 using IdentityServer4.Services;
 using IdentityServer4.Stores;
 using Indice.AspNetCore.Extensions;
@@ -28,13 +27,15 @@ namespace Indice.AspNetCore.Identity.Features
     [ApiExplorerSettings(GroupName = "identity")]
     [Produces(MediaTypeNames.Application.Json)]
     [Consumes(MediaTypeNames.Application.Json)]
-    [Authorize(AuthenticationSchemes = IdentityServerConstants.LocalApi.AuthenticationScheme, Policy = IdentityServerApi.SubScopes.Users)]
-    internal class UserController : ControllerBase
+    [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme, Policy = IdentityServerApi.SubScopes.Users)]
+    internal class UserController<TUser, TRole> : ControllerBase
+        where TUser : User, new()
+        where TRole : Role, new()
     {
-        private readonly UserManager<User> _userManager;
-        private readonly RoleManager<Role> _roleManager;
+        private readonly UserManager<TUser> _userManager;
+        private readonly RoleManager<TRole> _roleManager;
         private readonly IDistributedCache _cache;
-        private readonly ExtendedIdentityDbContext _dbContext;
+        private readonly ExtendedIdentityDbContext<TUser, TRole> _dbContext;
         private readonly IPersistedGrantService _persistedGrantService;
         private readonly IClientStore _clientStore;
         /// <summary>
@@ -43,7 +44,7 @@ namespace Indice.AspNetCore.Identity.Features
         public const string Name = "User";
 
         /// <summary>
-        /// Creates an instance of <see cref="UserController"/>.
+        /// Creates an instance of <see cref="UserController{TUser, TRole}"/>.
         /// </summary>
         /// <param name="userManager">Provides the APIs for managing user in a persistence store.</param>
         /// <param name="roleManager">Provides the APIs for managing roles in a persistence store.</param>
@@ -51,7 +52,7 @@ namespace Indice.AspNetCore.Identity.Features
         /// <param name="dbContext">Class for the Entity Framework database context used for identity.</param>
         /// <param name="persistedGrantService">Implements persisted grant logic.</param>
         /// <param name="clientStore">Retrieval of client configuration.</param>
-        public UserController(UserManager<User> userManager, RoleManager<Role> roleManager, IDistributedCache cache, ExtendedIdentityDbContext dbContext, IPersistedGrantService persistedGrantService, IClientStore clientStore) {
+        public UserController(UserManager<TUser> userManager, RoleManager<TRole> roleManager, IDistributedCache cache, ExtendedIdentityDbContext<TUser, TRole> dbContext, IPersistedGrantService persistedGrantService, IClientStore clientStore) {
             _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
             _roleManager = roleManager ?? throw new ArgumentNullException(nameof(roleManager));
             _cache = cache ?? throw new ArgumentNullException(nameof(cache));
@@ -187,7 +188,7 @@ namespace Indice.AspNetCore.Identity.Features
         [ProducesResponseType(statusCode: StatusCodes.Status401Unauthorized, type: typeof(ProblemDetails))]
         [ProducesResponseType(statusCode: StatusCodes.Status403Forbidden, type: typeof(ProblemDetails))]
         public async Task<ActionResult<SingleUserInfo>> CreateUser([FromBody]CreateUserRequest request) {
-            var user = new User {
+            var user = new TUser {
                 Id = $"{Guid.NewGuid()}",
                 UserName = request.UserName,
                 Email = request.Email,

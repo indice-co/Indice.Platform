@@ -2,7 +2,6 @@
 using System.Linq;
 using System.Net.Mime;
 using System.Threading.Tasks;
-using IdentityServer4;
 using IdentityServer4.EntityFramework.Interfaces;
 using Indice.Types;
 using Microsoft.AspNetCore.Authorization;
@@ -20,7 +19,7 @@ namespace Indice.AspNetCore.Identity.Features
     [ApiExplorerSettings(GroupName = "identity")]
     [Produces(MediaTypeNames.Application.Json)]
     [Consumes(MediaTypeNames.Application.Json)]
-    [Authorize(AuthenticationSchemes = IdentityServerConstants.LocalApi.AuthenticationScheme, Policy = IdentityServerApi.Admin)]
+    [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme, Policy = IdentityServerApi.Admin)]
     internal class ResourcesController : ControllerBase
     {
         private readonly IConfigurationDbContext _configurationDbContext;

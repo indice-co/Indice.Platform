@@ -10,8 +10,8 @@ using Indice.Identity.Configuration;
 using Indice.Identity.Security;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Localization;
-using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -56,11 +56,14 @@ namespace Indice.Identity
             services.AddMvcConfig();
             services.AddCorsConfig(Configuration);
             services.AddCookiePolicyConfig();
-            services.AddAuthorizationConfig();
             services.AddDbContextConfig(Configuration);
             services.AddIdentityConfig(Configuration);
             services.AddIdentityServerConfig(HostingEnvironment, Configuration, Settings);
-            services.AddAuthenticationConfig();
+            services.ConfigureApplicationCookie(options => {
+                options.AccessDeniedPath = new PathString("/access-denied");
+                options.LoginPath = new PathString("/login");
+                options.LogoutPath = new PathString("/logout");
+            });
             services.AddOptions();
             services.AddLogging();
             services.AddDistributedMemoryCache();
