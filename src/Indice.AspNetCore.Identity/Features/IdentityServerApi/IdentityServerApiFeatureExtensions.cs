@@ -4,7 +4,6 @@ using IdentityModel;
 using Indice.AspNetCore.Identity.Models;
 using Indice.Security;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Indice.AspNetCore.Identity.Features
 {
@@ -14,19 +13,28 @@ namespace Indice.AspNetCore.Identity.Features
     public static class IdentityServerApiFeatureExtensions
     {
         /// <summary>
+        /// Adds the IdentityServer API endpoints to MVC with default user and role types.
+        /// </summary>
+        /// <param name="mvcBuilder">An interface for configuring MVC services.</param>
+        /// <param name="configureAction">Configuration options for IdentityServer API feature.</param>
+        /// <returns></returns>
+        public static IMvcBuilder AddIdentityServerApiEndpoints(this IMvcBuilder mvcBuilder, Action<IdentityServerApiEndpointsOptions> configureAction = null) =>
+            mvcBuilder.AddIdentityServerApiEndpoints<User, Role>(configureAction);
+
+        /// <summary>
         /// Adds the IdentityServer API endpoints to MVC.
         /// </summary>
         /// <param name="mvcBuilder">An interface for configuring MVC services.</param>
         /// <param name="configureAction">Configuration options for IdentityServer API feature.</param>
-        public static IMvcBuilder AddIdentityServerApiEndpoints<TIdentityDbContext>(this IMvcBuilder mvcBuilder, Action<IdentityServerApiEndpointsOptions> configureAction = null)
-            where TIdentityDbContext : ExtendedIdentityDbContext<User, Role> {
-            var genericArguments = typeof(TIdentityDbContext).GetGenericArguments();
+        public static IMvcBuilder AddIdentityServerApiEndpoints<TUser, TRole>(this IMvcBuilder mvcBuilder, Action<IdentityServerApiEndpointsOptions> configureAction = null)
+            where TUser : User, new()
+            where TRole : Role, new() {
             mvcBuilder.ConfigureApplicationPartManager(x => x.FeatureProviders.Add(new IdentityServerApiFeatureProvider())); // Use the IdentityServerApiFeatureProvider to register IdentityServer API controllers.
             var options = new IdentityServerApiEndpointsOptions();
             // Initialize default options.
             configureAction?.Invoke(options); // Invoke action provided by developer to override default options.
             mvcBuilder.Services.AddSingleton(options); // Register option in DI mechanism for later use.
-            mvcBuilder.Services.TryAddTransient<Func<TIdentityDbContext>>(provider => provider.GetService<TIdentityDbContext>); // Used extensively in validators.
+            mvcBuilder.Services.AddTransient<Func<ExtendedIdentityDbContext<TUser, TRole>>>(provider => provider.GetService<ExtendedIdentityDbContext<TUser, TRole>>); // Used extensively in validators.
             mvcBuilder.Services.AddTransient<IValidatorInterceptor, ValidatorInterceptor>();
             // Add authorization policies that are used by the IdentityServer API.
             mvcBuilder.Services.AddAuthorization(options => {

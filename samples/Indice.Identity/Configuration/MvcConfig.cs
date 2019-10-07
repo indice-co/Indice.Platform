@@ -1,7 +1,6 @@
 ﻿using System.Reflection;
 using FluentValidation.AspNetCore;
 using Indice.AspNetCore.Identity.Features;
-using Indice.AspNetCore.Identity.Models;
 using Indice.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
@@ -21,7 +20,7 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
         public static IMvcBuilder AddMvcConfig(this IServiceCollection services) {
             return services.AddControllersWithViews()
-                           .AddIdentityServerApiEndpoints<ExtendedIdentityDbContext<User, Role>>(options => options.UseInitialData = true)
+                           .AddIdentityServerApiEndpoints(options => options.UseInitialData = true)
                            .AddNewtonsoftJson(options => {
                                options.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver {
                                    NamingStrategy = new CamelCaseNamingStrategy {
