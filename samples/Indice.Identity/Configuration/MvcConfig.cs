@@ -24,7 +24,7 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
         public static IMvcBuilder AddMvcConfig(this IServiceCollection services, IConfiguration configuration) {
             return services.AddControllersWithViews()
-                           .AddIdentityServerApiEndpoints<User, Role>(options => {
+                           .AddIdentityServerApiEndpoints(options => {
                                options.UseInitialData = true;
                                options.AddDbContext(identityOptions => {
                                    identityOptions.ConfigureDbContext = builder => {
