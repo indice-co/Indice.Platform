@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using System;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Indice.AspNetCore.Identity.Features
 {
@@ -7,6 +8,7 @@ namespace Indice.AspNetCore.Identity.Features
     /// </summary>
     public class IdentityServerApiEndpointsOptions
     {
+        internal IServiceCollection Services;
         /// <summary>
         /// Use true it seeds the database with some initial data for users, roles etc. Works only on Debug mode. Default is false.
         /// </summary>

@@ -55,7 +55,7 @@ namespace Indice.Identity
         /// </summary>
         /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
         public void ConfigureServices(IServiceCollection services) {
-            services.AddMvcConfig();
+            services.AddMvcConfig(Configuration);
             services.AddCors(options => options.AddDefaultPolicy(builder => {
                 builder.WithOrigins(Configuration.GetSection("AllowedHosts").Get<string[]>())
                        .WithMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
@@ -65,9 +65,6 @@ namespace Indice.Identity
             services.Configure<CookiePolicyOptions>(options => {
                 options.CheckConsentNeeded = context => false;
                 options.MinimumSameSitePolicy = SameSiteMode.None;
-            });
-            services.AddDbContext<ExtendedIdentityDbContext<User, Role>>((serviceProvider, options) => {
-                options.UseSqlServer(Configuration.GetConnectionString("IdentityDb"));
             });
             services.AddIdentityConfig(Configuration);
             services.AddIdentityServerConfig(HostingEnvironment, Configuration, Settings);

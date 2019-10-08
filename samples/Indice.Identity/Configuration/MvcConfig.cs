@@ -1,8 +1,11 @@
 ﻿using System.Reflection;
 using FluentValidation.AspNetCore;
 using Indice.AspNetCore.Identity.Features;
+using Indice.AspNetCore.Identity.Models;
 using Indice.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Serialization;
@@ -18,9 +21,17 @@ namespace Microsoft.Extensions.DependencyInjection
         /// Configures the core MVC services for the application.
         /// </summary>
         /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
-        public static IMvcBuilder AddMvcConfig(this IServiceCollection services) {
+        /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
+        public static IMvcBuilder AddMvcConfig(this IServiceCollection services, IConfiguration configuration) {
             return services.AddControllersWithViews()
-                           .AddIdentityServerApiEndpoints(options => options.UseInitialData = true)
+                           .AddIdentityServerApiEndpoints<User, Role>(options => {
+                               options.UseInitialData = true;
+                               options.AddDbContext(identityOptions => {
+                                   identityOptions.ConfigureDbContext = builder => {
+                                       builder.UseSqlServer(configuration.GetConnectionString("IdentityDb"));
+                                   };
+                               });
+                           })
                            .AddNewtonsoftJson(options => {
                                options.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver {
                                    NamingStrategy = new CamelCaseNamingStrategy {

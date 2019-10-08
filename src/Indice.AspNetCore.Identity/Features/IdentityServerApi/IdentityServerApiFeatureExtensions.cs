@@ -30,9 +30,12 @@ namespace Indice.AspNetCore.Identity.Features
             where TUser : User, new()
             where TRole : Role, new() {
             mvcBuilder.ConfigureApplicationPartManager(x => x.FeatureProviders.Add(new IdentityServerApiFeatureProvider())); // Use the IdentityServerApiFeatureProvider to register IdentityServer API controllers.
-            var options = new IdentityServerApiEndpointsOptions();
+            var options = new IdentityServerApiEndpointsOptions {
+                Services = mvcBuilder.Services
+            };
             // Initialize default options.
             configureAction?.Invoke(options); // Invoke action provided by developer to override default options.
+            options.Services = null;
             mvcBuilder.Services.AddSingleton(options); // Register option in DI mechanism for later use.
             mvcBuilder.Services.AddTransient<Func<ExtendedIdentityDbContext<TUser, TRole>>>(provider => provider.GetService<ExtendedIdentityDbContext<TUser, TRole>>); // Used extensively in validators.
             mvcBuilder.Services.AddTransient<IValidatorInterceptor, ValidatorInterceptor>();
@@ -60,6 +63,32 @@ namespace Indice.AspNetCore.Identity.Features
                                    options.ExpectedScope = IdentityServerApi.Scope;
                                });
             return mvcBuilder;
+        }
+
+        /// <summary>
+        /// Registers the DbContext to be used by the Identity system with default user and role types..
+        /// </summary>
+        /// <param name="options">Options for configuring the IdentityServer API feature.</param>
+        /// <param name="configureAction">Configuration for <see cref="ExtendedIdentityDbContext{TUser, TRole}"/>.</param>
+        public static void AddDbContext(this IdentityServerApiEndpointsOptions options, Action<IdentityDbContextOptions> configureAction) => 
+            options.AddDbContext<User, Role>(configureAction);
+
+        /// <summary>
+        /// Registers the DbContext to be used by the Identity system.
+        /// </summary>
+        /// <param name="options">Options for configuring the IdentityServer API feature.</param>
+        /// <param name="configureAction">Configuration for <see cref="ExtendedIdentityDbContext{TUser, TRole}"/>.</param>
+        public static void AddDbContext<TUser, TRole>(this IdentityServerApiEndpointsOptions options, Action<IdentityDbContextOptions> configureAction)
+            where TUser : User, new()
+            where TRole : Role, new() {
+            var contextOptions = new IdentityDbContextOptions();
+            configureAction?.Invoke(contextOptions);
+            options.Services.AddSingleton(contextOptions);
+            if (contextOptions.ResolveDbContextOptions != null) {
+                options.Services.AddDbContext<ExtendedIdentityDbContext<TUser, TRole>>(contextOptions.ResolveDbContextOptions);
+            } else {
+                options.Services.AddDbContext<ExtendedIdentityDbContext<TUser, TRole>>(contextOptions.ConfigureDbContext);
+            }
         }
     }
 }
