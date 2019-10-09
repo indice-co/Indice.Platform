@@ -103,7 +103,6 @@ namespace Indice.AspNetCore.Identity.Features
             async Task<SingleClientInfo> GetClientAsync() {
                 // Load client from the database.
                 var foundClient = await _configurationDbContext.Clients
-                                                               .Include(x => x.allo)
                                                                .AsNoTracking()
                                                                .Select(x => new SingleClientInfo {
                                                                    ClientId = x.ClientId,
