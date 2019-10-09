@@ -9,7 +9,7 @@ namespace Indice.AspNetCore.Identity.Data
     /// <summary>
     /// <see cref="DbContext"/> for the Identity Framework.
     /// </summary>
-    public class IdentityDbContext : IdentityDbContext<IdentityRole>
+    public class IdentityDbContext : IdentityDbContext<User, IdentityRole>
     {
         /// <summary>
         /// Constructs the <see cref="DbContext"/> passing the options.
@@ -21,8 +21,11 @@ namespace Indice.AspNetCore.Identity.Data
     /// <summary>
     /// <see cref="DbContext"/> for the Identity Framework, supporting custom role type.
     /// </summary>
+    /// <typeparam name="TUser">The type of the user to use.</typeparam>
     /// <typeparam name="TRole">The type of the role to use.</typeparam>
-    public class IdentityDbContext<TRole> : IdentityDbContext<User, TRole, string> where TRole : IdentityRole
+    public class IdentityDbContext<TUser, TRole> : IdentityDbContext<TUser, TRole, string>
+        where TUser : User 
+        where TRole : IdentityRole
     {
         /// <summary>
         /// Constructs the <see cref="DbContext"/> passing the options.
@@ -41,7 +44,7 @@ namespace Indice.AspNetCore.Identity.Data
         /// <param name="builder">Class used to create and apply a set of data model conventions.</param>
         protected override void OnModelCreating(ModelBuilder builder) {
             base.OnModelCreating(builder);
-            builder.ApplyConfiguration(new UserMap());
+            builder.ApplyConfiguration(new UserMap<TUser>());
             builder.Entity<TRole>().ToTable("Role", "auth");
             builder.Entity<IdentityUserClaim<string>>().ToTable("UserClaim", "auth");
             builder.Entity<IdentityRoleClaim<string>>().ToTable("RoleClaim", "auth");
@@ -51,7 +54,7 @@ namespace Indice.AspNetCore.Identity.Data
             builder.Entity<UserPassword>(innerBuilder => {
                 innerBuilder.ToTable(nameof(UserPassword), "auth");
                 innerBuilder.HasKey(x => x.Id);
-                innerBuilder.HasOne<User>().WithMany().HasForeignKey(x => x.UserId).OnDelete(DeleteBehavior.Cascade);
+                innerBuilder.HasOne<TUser>().WithMany().HasForeignKey(x => x.UserId).OnDelete(DeleteBehavior.Cascade);
             });
         }
     }

@@ -1,0 +1,40 @@
+<swal title="Delete?" [text]="'Claim \'' + claim?.name + '\' will be deleted permanently. This action cannot be reversed.'" type="warning" [showCancelButton]="true" (confirm)="delete()" 
+    #deleteAlert></swal>
+<div class="row">
+    <div class="col-12">
+        <div class="card m-b-30">
+            <div class="card-body">
+                <h4 class="mt-0 header-title">Edit Claim</h4>
+                <p class="text-muted m-b-30 font-14">
+                    Here you can modify a claim of the specified user.
+                </p>
+                <form class="needs-validation" *ngIf="claim" [ngClass]="{ 'was-validated': form.submitted }" (ngSubmit)="form.form.valid && update()" novalidate #form="ngForm">
+                    <div class="form-group row">
+                        <label for="claim-type" class="col-sm-2 col-form-label">
+                            <i class="dripicons-information align-middle" [title]="claim.description"></i> Type
+                        </label>
+                        <div class="col-sm-10 col-form-label">
+                            <span class="col-form-label" id="claim-type" name="claim-type">{{ claim.name }}</span>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label for="claim-value" class="col-sm-2 col-form-label">Value (*)</label>
+                        <div class="col-sm-10">
+                            <app-dynamic-input [id]="'claim-value'" [name]="'claim-value'" [pattern]="claim.rule" [modelType]="claim.valueType" [(ngModel)]="claim.value" 
+                                required #claimValue="ngModel">
+                            </app-dynamic-input>
+                            <div *ngIf="form.submitted && claimValue.invalid && claimValue.errors['required']" class="form-control-feedback text-danger">Field '{{ claim.displayName || claim.name }}' is required.</div>
+                            <div *ngIf="form.submitted && claimValue.invalid && claimValue.errors['pattern']" class="form-control-feedback text-danger">Pattern not correct.</div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div>
+                            <button type="submit" class="btn btn-primary waves-effect waves-light m-r-5">Update</button>
+                            <button type="button" class="btn btn-danger waves-effect m-r-5 float-right" (click)="deletePrompt()">Delete</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

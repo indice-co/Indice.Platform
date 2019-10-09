@@ -1,0 +1,39 @@
+<div class="row">
+    <div class="col-12">
+        <div class="card m-b-30 m-t-30">
+            <div class="card-body">
+                <h4 class="mt-0 header-title">Edit User - {{ userId }}</h4>
+                <p class="text-muted m-b-30 font-14">
+                    Here you can modify some properties of a system user.
+                </p>
+                <ul role="tablist" class="nav nav-tabs justify-content-start">
+                    <li class="nav-item">
+                        <a class="nav-link" [routerLink]="['details']" routerLinkActive="active" role="tab" id="user-details-tab">
+                            Details
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" [routerLink]="['roles']" routerLinkActive="active" role="tab" id="user-roles-tab">
+                            Roles
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" [routerLink]="['additional-details']" routerLinkActive="active" role="tab" id="user-additional-details-tab">
+                            Additional Details
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" [routerLink]="['applications']" routerLinkActive="active" role="tab" id="user-applications-tab">
+                            Applications
+                        </a>
+                    </li>
+                </ul>
+                <div class="tab-content">
+                    <div role="tabpanel" class="tab-pane active">
+                        <router-outlet></router-outlet>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

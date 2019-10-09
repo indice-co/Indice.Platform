@@ -1,0 +1,51 @@
+<ng-template #content let-modal>
+    <div class="modal-header">
+        <h4 class="modal-title" id="modal-basic-title">{{ selectedUserClient?.clientName }}</h4>
+        <button type="button" class="close" aria-label="Close" (click)="modal.dismiss()">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="modal-body">
+        <div class="table-responsive">
+            <table class="table table-striped mb-0">
+                <tbody>
+                    <tr>
+                        <th scope="row">Id</th>
+                        <td>{{ selectedUserClient?.clientId }}</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Description</th>
+                        <td>{{ selectedUserClient?.description }}</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">URL</th>
+                        <td>{{ selectedUserClient?.clientUri }}</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Created</th>
+                        <td>{{ selectedUserClient?.createdAt | date:'medium' }}</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Expires</th>
+                        <td>{{ selectedUserClient?.expiresAt ? (selectedUserClient?.expiresAt | date:'medium') : 'Never' }}</td>
+                    </tr>
+                </tbody>
+            </table>
+            <hr />
+            <p class="text-muted font-14">Resources & scopes accessible by client:</p>
+            <h6 *ngFor="let scope of selectedUserClient?.scopes" class="d-inline-block mt-0">
+                <span class="badge badge-warning mr-1">{{ scope }}</span>
+            </h6>
+        </div>
+    </div>
+</ng-template>
+<div class="row mt-3">
+    <div class="col-12">
+        <app-list-view [clientSide]="true" [rowsPerPage]="10" [canFilter]="false" [columns]="columns" [rows]="rows" [defaultSortField]="'clientId'" [defaultSortDirection]="'Asc'" 
+            #userApplicationsList>
+        </app-list-view>
+    </div>
+</div>
+<ng-template let-row="row" let-value="value" #actionsTemplate>
+    <button class="btn btn-success" (click)="showDetails(row, content)">Details</button>
+</ng-template>

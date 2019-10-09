@@ -1,0 +1,17 @@
+<p *ngIf="!availableClaims">Loading identity resource claims...</p>
+<app-transfer-lists 
+    *ngIf="availableClaims" 
+    [source]="availableClaims" 
+    [destination]="identityResourceClaims" 
+    [titlePropertyName]="'name'" 
+    [subtitlePropertyName]="'description'" 
+    (itemAdded)="addClaim($event)" 
+    (itemRemoved)="removeClaim($event)"
+    [options]="{ 
+        sourceListTitle: 'Available Claims', 
+        emptySourceListMessage: 'There are no available claims to assign.',
+        destinationListTitle: 'Assigned Claims',
+        emptyDestinationListMessage: 'There are no claims assigned to this identity resource.'
+    }" 
+    #transferList>
+</app-transfer-lists>
