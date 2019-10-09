@@ -44,6 +44,17 @@
     /// </summary>
     public class SingleClientInfo : ClientInfo
     {
-
+        /// <summary>
+        /// Cors origins allowed.
+        /// </summary>
+        public string[] AllowedCorsOrigins { get; set; }
+        /// <summary>
+        /// Allowed URIs to redirect after logout.
+        /// </summary>
+        public string[] PostLogoutRedirectUris { get; set; }
+        /// <summary>
+        /// Allowed URIs to redirect after successful login.
+        /// </summary>
+        public string[] RedirectUris { get; set; }
     }
 }

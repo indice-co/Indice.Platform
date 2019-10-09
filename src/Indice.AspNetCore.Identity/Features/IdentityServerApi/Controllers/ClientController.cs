@@ -103,6 +103,9 @@ namespace Indice.AspNetCore.Identity.Features
             async Task<SingleClientInfo> GetClientAsync() {
                 // Load client from the database.
                 var foundClient = await _configurationDbContext.Clients
+                                                               .Include(x => x.AllowedCorsOrigins)
+                                                               .Include(x => x.PostLogoutRedirectUris)
+                                                               .Include(x => x.RedirectUris)
                                                                .AsNoTracking()
                                                                .Select(x => new SingleClientInfo {
                                                                    ClientId = x.ClientId,
@@ -112,7 +115,10 @@ namespace Indice.AspNetCore.Identity.Features
                                                                    Description = x.Description,
                                                                    AllowRememberConsent = x.AllowRememberConsent,
                                                                    Enabled = x.Enabled,
-                                                                   RequireConsent = x.RequireConsent
+                                                                   RequireConsent = x.RequireConsent,
+                                                                   AllowedCorsOrigins = x.AllowedCorsOrigins.Select(x => x.Origin).ToArray(),
+                                                                   PostLogoutRedirectUris = x.PostLogoutRedirectUris.Select(x => x.PostLogoutRedirectUri).ToArray(),
+                                                                   RedirectUris = x.RedirectUris.Select(x => x.RedirectUri).ToArray()
                                                                })
                                                                .SingleOrDefaultAsync(x => x.ClientId == id);
                 if (foundClient == null) {
@@ -173,9 +179,7 @@ namespace Indice.AspNetCore.Identity.Features
                 ClientUri = clientRequest.ClientUri,
                 LogoUri = clientRequest.LogoUri,
                 RequireConsent = clientRequest.RequireConsent,
-                AllowedScopes = clientRequest.IdentityResources
-                                             .Union(clientRequest.ApiResources)
-                                             .Select(scope => new ClientScope {
+                AllowedScopes = clientRequest.IdentityResources.Union(clientRequest.ApiResources).Select(scope => new ClientScope {
                                                  Scope = scope
                                              })
                                              .ToList()

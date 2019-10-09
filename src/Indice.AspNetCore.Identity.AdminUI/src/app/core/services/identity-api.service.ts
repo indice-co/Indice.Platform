@@ -70,7 +70,7 @@ export interface IIdentityApiService {
      * @param id The identifier of the client.
      * @return OK
      */
-    getClient(id: string): Observable<ClientInfo>;
+    getClient(id: string): Observable<SingleClientInfo>;
     /**
      * Displays blog posts from the official IdentityServer blog.
      * @param page (optional) 
@@ -872,7 +872,7 @@ export class IdentityApiService implements IIdentityApiService {
      * @param id The identifier of the client.
      * @return OK
      */
-    getClient(id: string): Observable<ClientInfo> {
+    getClient(id: string): Observable<SingleClientInfo> {
         let url_ = this.baseUrl + "/api/clients/{id}";
         if (id === undefined || id === null)
             throw new Error("The parameter 'id' must be defined.");
@@ -894,14 +894,14 @@ export class IdentityApiService implements IIdentityApiService {
                 try {
                     return this.processGetClient(<any>response_);
                 } catch (e) {
-                    return <Observable<ClientInfo>><any>_observableThrow(e);
+                    return <Observable<SingleClientInfo>><any>_observableThrow(e);
                 }
             } else
-                return <Observable<ClientInfo>><any>_observableThrow(response_);
+                return <Observable<SingleClientInfo>><any>_observableThrow(response_);
         }));
     }
 
-    protected processGetClient(response: HttpResponseBase): Observable<ClientInfo> {
+    protected processGetClient(response: HttpResponseBase): Observable<SingleClientInfo> {
         const status = response.status;
         const responseBlob = 
             response instanceof HttpResponse ? response.body : 
@@ -912,7 +912,7 @@ export class IdentityApiService implements IIdentityApiService {
             return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = ClientInfo.fromJS(resultData200);
+            result200 = SingleClientInfo.fromJS(resultData200);
             return _observableOf(result200);
             }));
         } else if (status === 400) {
@@ -952,7 +952,7 @@ export class IdentityApiService implements IIdentityApiService {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             }));
         }
-        return _observableOf<ClientInfo>(<any>null);
+        return _observableOf<SingleClientInfo>(<any>null);
     }
 
     /**
@@ -3663,6 +3663,130 @@ export interface ICreateClientRequest {
     postLogoutRedirectUri?: string | undefined;
     /** The client secrets. */
     secrets?: ClientSecretRequest[] | undefined;
+}
+
+/** Models a system client when API provides info for a single client. */
+export class SingleClientInfo implements ISingleClientInfo {
+    /** Cors origins allowed. */
+    allowedCorsOrigins?: string[] | undefined;
+    /** Allowed URIs to redirect after logout. */
+    postLogoutRedirectUris?: string[] | undefined;
+    /** Allowed URIs to redirect after successful login. */
+    redirectUris?: string[] | undefined;
+    /** The unique identifier for this application. */
+    clientId?: string | undefined;
+    /** Application name that will be seen on consent screens. */
+    clientName?: string | undefined;
+    /** Application description. */
+    description?: string | undefined;
+    /** Determines whether this application is enabled or not. */
+    enabled?: boolean;
+    /** Specifies whether a consent screen is required. */
+    requireConsent?: boolean;
+    /** Specifies whether consent screen is remembered after having been given. */
+    allowRememberConsent?: boolean;
+    /** Application logo that will be seen on consent screens. */
+    logoUri?: string | undefined;
+    /** Application URL that will be seen on consent screens. */
+    clientUri?: string | undefined;
+
+    constructor(data?: ISingleClientInfo) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(data?: any) {
+        if (data) {
+            if (Array.isArray(data["allowedCorsOrigins"])) {
+                this.allowedCorsOrigins = [] as any;
+                for (let item of data["allowedCorsOrigins"])
+                    this.allowedCorsOrigins!.push(item);
+            }
+            if (Array.isArray(data["postLogoutRedirectUris"])) {
+                this.postLogoutRedirectUris = [] as any;
+                for (let item of data["postLogoutRedirectUris"])
+                    this.postLogoutRedirectUris!.push(item);
+            }
+            if (Array.isArray(data["redirectUris"])) {
+                this.redirectUris = [] as any;
+                for (let item of data["redirectUris"])
+                    this.redirectUris!.push(item);
+            }
+            this.clientId = data["clientId"];
+            this.clientName = data["clientName"];
+            this.description = data["description"];
+            this.enabled = data["enabled"];
+            this.requireConsent = data["requireConsent"];
+            this.allowRememberConsent = data["allowRememberConsent"];
+            this.logoUri = data["logoUri"];
+            this.clientUri = data["clientUri"];
+        }
+    }
+
+    static fromJS(data: any): SingleClientInfo {
+        data = typeof data === 'object' ? data : {};
+        let result = new SingleClientInfo();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.allowedCorsOrigins)) {
+            data["allowedCorsOrigins"] = [];
+            for (let item of this.allowedCorsOrigins)
+                data["allowedCorsOrigins"].push(item);
+        }
+        if (Array.isArray(this.postLogoutRedirectUris)) {
+            data["postLogoutRedirectUris"] = [];
+            for (let item of this.postLogoutRedirectUris)
+                data["postLogoutRedirectUris"].push(item);
+        }
+        if (Array.isArray(this.redirectUris)) {
+            data["redirectUris"] = [];
+            for (let item of this.redirectUris)
+                data["redirectUris"].push(item);
+        }
+        data["clientId"] = this.clientId;
+        data["clientName"] = this.clientName;
+        data["description"] = this.description;
+        data["enabled"] = this.enabled;
+        data["requireConsent"] = this.requireConsent;
+        data["allowRememberConsent"] = this.allowRememberConsent;
+        data["logoUri"] = this.logoUri;
+        data["clientUri"] = this.clientUri;
+        return data; 
+    }
+}
+
+/** Models a system client when API provides info for a single client. */
+export interface ISingleClientInfo {
+    /** Cors origins allowed. */
+    allowedCorsOrigins?: string[] | undefined;
+    /** Allowed URIs to redirect after logout. */
+    postLogoutRedirectUris?: string[] | undefined;
+    /** Allowed URIs to redirect after successful login. */
+    redirectUris?: string[] | undefined;
+    /** The unique identifier for this application. */
+    clientId?: string | undefined;
+    /** Application name that will be seen on consent screens. */
+    clientName?: string | undefined;
+    /** Application description. */
+    description?: string | undefined;
+    /** Determines whether this application is enabled or not. */
+    enabled?: boolean;
+    /** Specifies whether a consent screen is required. */
+    requireConsent?: boolean;
+    /** Specifies whether consent screen is remembered after having been given. */
+    allowRememberConsent?: boolean;
+    /** Application logo that will be seen on consent screens. */
+    logoUri?: string | undefined;
+    /** Application URL that will be seen on consent screens. */
+    clientUri?: string | undefined;
 }
 
 /** Describes a blog post item. */

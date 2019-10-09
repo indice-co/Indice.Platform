@@ -2,7 +2,7 @@ import { Component, OnInit, ViewChild, OnDestroy } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
 import { SwalComponent } from '@sweetalert2/ngx-sweetalert2';
-import { ClientInfo } from 'src/app/core/services/identity-api.service';
+import { SingleClientInfo } from 'src/app/core/services/identity-api.service';
 import { ClientStore } from '../client-store.service';
 import { Subscription } from 'rxjs';
 
@@ -16,11 +16,11 @@ export class ClientDetailsComponent implements OnInit, OnDestroy {
 
     constructor(private _route: ActivatedRoute, private _clientStore: ClientStore) { }
 
-    public client: ClientInfo;
+    public client: SingleClientInfo;
 
     public ngOnInit(): void {
         const clientId = this._route.parent.snapshot.params.id;
-        this._getDataSubscription = this._clientStore.getClient(clientId).subscribe((client: ClientInfo) => {
+        this._getDataSubscription = this._clientStore.getClient(clientId).subscribe((client: SingleClientInfo) => {
             this.client = client;
         });
     }
