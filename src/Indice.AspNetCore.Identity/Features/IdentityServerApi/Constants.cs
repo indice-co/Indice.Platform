@@ -49,6 +49,11 @@
         /// <param name="userId">The user id.</param>
         public static string User(string userId) => $"user_{userId.ToLower()}";
         /// <summary>
+        /// Specified client.
+        /// </summary>
+        /// <param name="clientId">The client id.</param>
+        public static string Client(string clientId) => $"client_{clientId.ToLower()}";
+        /// <summary>
         /// Dashboard summary.
         /// </summary>
         public const string Summary = "summary";

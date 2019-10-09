@@ -137,19 +137,19 @@ namespace Indice.AspNetCore.Identity.Features
                 var foundUser = await _dbContext.Users
                                                 .Include(x => x.Claims)
                                                 .AsNoTracking()
-                                                .Where(user => user.Id == userId)
-                                                .Select(user => new SingleUserInfo {
+                                                .Where(x => x.Id == userId)
+                                                .Select(x => new SingleUserInfo {
                                                     Id = userId,
-                                                    CreateDate = user.CreateDate,
-                                                    Email = user.Email,
-                                                    EmailConfirmed = user.EmailConfirmed,
-                                                    LockoutEnabled = user.LockoutEnabled,
-                                                    LockoutEnd = user.LockoutEnd,
-                                                    PhoneNumber = user.PhoneNumber,
-                                                    PhoneNumberConfirmed = user.PhoneNumberConfirmed,
-                                                    TwoFactorEnabled = user.TwoFactorEnabled,
-                                                    UserName = user.UserName,
-                                                    Claims = user.Claims.Select(x => new UserClaimInfo {
+                                                    CreateDate = x.CreateDate,
+                                                    Email = x.Email,
+                                                    EmailConfirmed = x.EmailConfirmed,
+                                                    LockoutEnabled = x.LockoutEnabled,
+                                                    LockoutEnd = x.LockoutEnd,
+                                                    PhoneNumber = x.PhoneNumber,
+                                                    PhoneNumberConfirmed = x.PhoneNumberConfirmed,
+                                                    TwoFactorEnabled = x.TwoFactorEnabled,
+                                                    UserName = x.UserName,
+                                                    Claims = x.Claims.Select(x => new UserClaimInfo {
                                                         Id = x.Id,
                                                         ClaimType = x.ClaimType,
                                                         ClaimValue = x.ClaimValue
@@ -166,12 +166,12 @@ namespace Indice.AspNetCore.Identity.Features
                 return foundUser;
             }
             // Retrieve the user by either the cache or the database.
-            var result = await _cache.TryGetOrSetAsync(CacheKeys.User(userId), GetUserAsync, TimeSpan.FromDays(7));
-            if (result == null) {
+            var user = await _cache.TryGetOrSetAsync(CacheKeys.User(userId), GetUserAsync, TimeSpan.FromDays(7));
+            if (user == null) {
                 return NotFound();
             }
             // Return 200 status code containing the user information.
-            return Ok(result);
+            return Ok(user);
         }
 
         /// <summary>

@@ -1,8 +1,8 @@
 ﻿using System;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Caching.Distributed;
-using Newtonsoft.Json;
 
 namespace Indice.AspNetCore.Extensions
 {
@@ -24,13 +24,13 @@ namespace Indice.AspNetCore.Extensions
         public static async Task<T> TryGetOrSetAsync<T>(this IDistributedCache cache, string cacheKey, Func<Task<T>> getSourceAsync, DistributedCacheEntryOptions options, CancellationToken cancellationToken = default) {
             var itemJson = await cache.GetStringAsync(cacheKey, cancellationToken);
             if (!string.IsNullOrEmpty(itemJson)) {
-                return JsonConvert.DeserializeObject<T>(itemJson);
+                return JsonSerializer.Deserialize<T>(itemJson);
             }
             var result = await getSourceAsync();
             if (result == null) {
                 return await Task.FromResult(default(T));
             }
-            itemJson = JsonConvert.SerializeObject(result);
+            itemJson = JsonSerializer.Serialize(result);
             await cache.SetStringAsync(cacheKey, itemJson, options, cancellationToken);
             return result;
         }
@@ -47,13 +47,13 @@ namespace Indice.AspNetCore.Extensions
         public static T TryGetOrSet<T>(this IDistributedCache cache, string cacheKey, Func<T> getSource, DistributedCacheEntryOptions options) {
             var itemJson = cache.GetString(cacheKey);
             if (!string.IsNullOrEmpty(itemJson)) {
-                return JsonConvert.DeserializeObject<T>(itemJson);
+                return JsonSerializer.Deserialize<T>(itemJson);
             }
             var result = getSource();
             if (result == null) {
                 return default;
             }
-            itemJson = JsonConvert.SerializeObject(result);
+            itemJson = JsonSerializer.Serialize(result);
             cache.SetString(cacheKey, itemJson, options);
             return result;
         }

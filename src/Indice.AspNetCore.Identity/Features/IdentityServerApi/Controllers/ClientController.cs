@@ -6,12 +6,14 @@ using System.Threading.Tasks;
 using IdentityServer4.EntityFramework.Entities;
 using IdentityServer4.EntityFramework.Interfaces;
 using IdentityServer4.Models;
+using Indice.AspNetCore.Extensions;
 using Indice.Configuration;
 using Indice.Types;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Options;
 using Entities = IdentityServer4.EntityFramework.Entities;
 
@@ -31,6 +33,7 @@ namespace Indice.AspNetCore.Identity.Features
     {
         private readonly IConfigurationDbContext _configurationDbContext;
         private readonly GeneralSettings _generalSettings;
+        private readonly IDistributedCache _cache;
         /// <summary>
         /// The name of the controller.
         /// </summary>
@@ -41,9 +44,10 @@ namespace Indice.AspNetCore.Identity.Features
         /// </summary>
         /// <param name="configurationDbContext">Abstraction for the configuration context.</param>
         /// <param name="generalSettings">Applications general settings.</param>
-        public ClientController(IConfigurationDbContext configurationDbContext, IOptions<GeneralSettings> generalSettings) {
+        public ClientController(IConfigurationDbContext configurationDbContext, IOptions<GeneralSettings> generalSettings, IDistributedCache cache) {
             _configurationDbContext = configurationDbContext ?? throw new ArgumentNullException(nameof(configurationDbContext));
             _generalSettings = generalSettings?.Value ?? throw new ArgumentNullException(nameof(generalSettings));
+            _cache = cache ?? throw new ArgumentNullException(nameof(cache));
         }
 
         /// <summary>
@@ -90,28 +94,39 @@ namespace Indice.AspNetCore.Identity.Features
         /// <response code="403">Forbidden</response>
         /// <response code="404">Not Found</response>
         /// <response code="500">Internal Server Error</response>
-        [ProducesResponseType(statusCode: StatusCodes.Status200OK, type: typeof(ClientInfo))]
+        [ProducesResponseType(statusCode: StatusCodes.Status200OK, type: typeof(SingleClientInfo))]
         [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest, type: typeof(ValidationProblemDetails))]
         [ProducesResponseType(statusCode: StatusCodes.Status401Unauthorized, type: typeof(ProblemDetails))]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
         [HttpGet("{id}")]
-        public async Task<ActionResult<ClientInfo>> GetClient([FromRoute]string id) {
-            var client = await _configurationDbContext.Clients
-                                                      .AsNoTracking()
-                                                      .Select(x => new ClientInfo {
-                                                          ClientId = x.ClientId,
-                                                          ClientName = x.ClientName,
-                                                          ClientUri = x.ClientUri,
-                                                          LogoUri = x.LogoUri,
-                                                          Description = x.Description,
-                                                          AllowRememberConsent = x.AllowRememberConsent,
-                                                          Enabled = x.Enabled,
-                                                          RequireConsent = x.RequireConsent
-                                                      })
-                                                      .SingleOrDefaultAsync(x => x.ClientId == id);
+        public async Task<ActionResult<SingleClientInfo>> GetClient([FromRoute]string id) {
+            async Task<SingleClientInfo> GetClientAsync() {
+                // Load client from the database.
+                var foundClient = await _configurationDbContext.Clients
+                                                               .Include(x => x.allo)
+                                                               .AsNoTracking()
+                                                               .Select(x => new SingleClientInfo {
+                                                                   ClientId = x.ClientId,
+                                                                   ClientName = x.ClientName,
+                                                                   ClientUri = x.ClientUri,
+                                                                   LogoUri = x.LogoUri,
+                                                                   Description = x.Description,
+                                                                   AllowRememberConsent = x.AllowRememberConsent,
+                                                                   Enabled = x.Enabled,
+                                                                   RequireConsent = x.RequireConsent
+                                                               })
+                                                               .SingleOrDefaultAsync(x => x.ClientId == id);
+                if (foundClient == null) {
+                    return null;
+                }
+                return foundClient;
+            }
+            // Retrieve the client by either the cache or the database.
+            var client = await _cache.TryGetOrSetAsync(CacheKeys.Client(id), GetClientAsync, TimeSpan.FromDays(7));
             if (client == null) {
                 return NotFound();
             }
+            // Return 200 status code containing the client information.
             return Ok(client);
         }
 
@@ -168,10 +183,10 @@ namespace Indice.AspNetCore.Identity.Features
             };
             if (!string.IsNullOrEmpty(clientRequest.RedirectUri)) {
                 client.RedirectUris = new List<ClientRedirectUri> {
-                        new ClientRedirectUri {
-                            RedirectUri = clientRequest.RedirectUri
-                        }
-                    };
+                    new ClientRedirectUri {
+                        RedirectUri = clientRequest.RedirectUri
+                    }
+                };
             }
             if (!string.IsNullOrEmpty(clientRequest.PostLogoutRedirectUri)) {
                 client.PostLogoutRedirectUris = new List<ClientPostLogoutRedirectUri> {

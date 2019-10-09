@@ -16,6 +16,9 @@ import { IdentityResourcesStepComponent } from './add/wizard/steps/identity-reso
 import { ApiResourcesStepComponent } from './add/wizard/steps/api-resources/api-resources-step.component';
 import { SummaryStepComponent } from './add/wizard/steps/summary/summary-step.component';
 import { SecretsStepComponent } from './add/wizard/steps/secrets/secrets-step.component';
+import { ClientEditComponent } from './edit/client-edit.component';
+import { ClientDetailsComponent } from './edit/details/client-details.component';
+import { ClientUrlsComponent } from './edit/urls/client-urls.component';
 
 @NgModule({
     declarations: [
@@ -28,6 +31,9 @@ import { SecretsStepComponent } from './add/wizard/steps/secrets/secrets-step.co
         ApiResourcesStepComponent,
         SecretsStepComponent,
         SummaryStepComponent,
+        ClientEditComponent,
+        ClientDetailsComponent,
+        ClientUrlsComponent,
         WizardStepDirective
     ],
     imports: [

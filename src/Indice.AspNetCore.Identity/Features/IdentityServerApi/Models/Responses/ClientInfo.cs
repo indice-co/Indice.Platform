@@ -38,4 +38,12 @@
         /// </summary>
         public string ClientUri { get; set; }
     }
+
+    /// <summary>
+    /// Models a system client when API provides info for a single client.
+    /// </summary>
+    public class SingleClientInfo : ClientInfo
+    {
+
+    }
 }
