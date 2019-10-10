@@ -5,8 +5,15 @@
         </app-list-view>
     </div>
 </div>
+<form class="mt-3">
+    <div class="form-group">
+        <div>
+            <button type="submit" class="btn btn-primary waves-effect waves-light m-r-5">Update</button>
+        </div>
+    </div>
+</form>
 <ng-template let-row="row" let-column="column" let-value="value" #checkboxTemplate>
     <div class="form-check">
-        <input type="checkbox" class="form-check-input" [checked]="value" (change)="checkboxChanged($event, column)" />
+        <input type="checkbox" class="form-check-input" [checked]="value" (change)="checkboxChanged($event, column, row)" />
     </div>
 </ng-template>

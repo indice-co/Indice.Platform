@@ -77,7 +77,7 @@ namespace Indice.AspNetCore.Identity.Features
         [ProducesResponseType(statusCode: StatusCodes.Status401Unauthorized, type: typeof(ProblemDetails))]
         [ProducesResponseType(statusCode: StatusCodes.Status403Forbidden, type: typeof(ProblemDetails))]
         public async Task<ActionResult<ResultSet<UserInfo>>> GetUsers([FromQuery]ListOptions options) {
-            var query = _userManager.Users.Include(x => x.Claims).AsNoTracking();
+            var query = _userManager.Users.AsNoTracking();
             if (!string.IsNullOrEmpty(options.Search)) {
                 var searchTerm = options.Search.ToLower();
                 query = query.Where(x => x.Email.ToLower().Contains(searchTerm)
@@ -135,7 +135,6 @@ namespace Indice.AspNetCore.Identity.Features
             async Task<SingleUserInfo> GetUserAsync() {
                 // Load user with his claims and roles from the database.
                 var foundUser = await _dbContext.Users
-                                                .Include(x => x.Claims)
                                                 .AsNoTracking()
                                                 .Where(x => x.Id == userId)
                                                 .Select(x => new SingleUserInfo {

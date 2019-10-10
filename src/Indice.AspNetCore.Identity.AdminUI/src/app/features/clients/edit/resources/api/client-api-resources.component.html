@@ -1,0 +1,17 @@
+<p *ngIf="!availableResources">Loading client resources...</p>
+<app-transfer-lists 
+    *ngIf="availableResources" 
+    [source]="availableResources" 
+    [destination]="clientResources" 
+    [titlePropertyName]="'name'" 
+    [subtitlePropertyName]="'description'" 
+    (itemAdded)="addResource($event)"
+    (itemRemoved)="removeResource($event)" 
+    [options]="{ 
+        sourceListTitle: 'Available Resources', 
+        emptySourceListMessage: 'There are no available resources to assign.',
+        destinationListTitle: 'Assigned Resources',
+        emptyDestinationListMessage: 'There are no resources assigned to this client.'
+    }" 
+    #transferList>
+</app-transfer-lists>

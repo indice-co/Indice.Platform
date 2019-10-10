@@ -48,7 +48,7 @@ namespace Indice.AspNetCore.Identity.Features
         [ProducesResponseType(statusCode: StatusCodes.Status401Unauthorized, type: typeof(ProblemDetails))]
         [ProducesResponseType(statusCode: StatusCodes.Status403Forbidden, type: typeof(ProblemDetails))]
         public async Task<ActionResult<ResultSet<IdentityResourceInfo>>> GetIdentityResources([FromQuery]ListOptions options) {
-            var query = _configurationDbContext.IdentityResources.Include(x => x.UserClaims).AsNoTracking();
+            var query = _configurationDbContext.IdentityResources.AsNoTracking();
             if (!string.IsNullOrEmpty(options.Search)) {
                 var searchTerm = options.Search.ToLower();
                 query = query.Where(x => x.Name.ToLower().Contains(searchTerm) || x.Description.Contains(searchTerm));
@@ -143,7 +143,7 @@ namespace Indice.AspNetCore.Identity.Features
         [ProducesResponseType(statusCode: StatusCodes.Status401Unauthorized, type: typeof(ProblemDetails))]
         [ProducesResponseType(statusCode: StatusCodes.Status403Forbidden, type: typeof(ProblemDetails))]
         public async Task<ActionResult<ResultSet<ApiResourceInfo>>> GetProtectedResources([FromQuery]ListOptions options) {
-            var query = _configurationDbContext.ApiResources.Include(x => x.UserClaims).Include(x => x.Scopes).ThenInclude(x => x.UserClaims).AsNoTracking();
+            var query = _configurationDbContext.ApiResources.AsNoTracking();
             if (!string.IsNullOrEmpty(options.Search)) {
                 var searchTerm = options.Search.ToLower();
                 query = query.Where(x => x.Name.ToLower().Contains(searchTerm) || x.Description.ToLower().Contains(searchTerm));

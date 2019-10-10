@@ -103,24 +103,39 @@ namespace Indice.AspNetCore.Identity.Features
             async Task<SingleClientInfo> GetClientAsync() {
                 // Load client from the database.
                 var foundClient = await _configurationDbContext.Clients
-                                                               .Include(x => x.AllowedCorsOrigins)
-                                                               .Include(x => x.PostLogoutRedirectUris)
-                                                               .Include(x => x.RedirectUris)
                                                                .AsNoTracking()
-                                                               .Select(x => new SingleClientInfo {
-                                                                   ClientId = x.ClientId,
-                                                                   ClientName = x.ClientName,
-                                                                   ClientUri = x.ClientUri,
-                                                                   LogoUri = x.LogoUri,
-                                                                   Description = x.Description,
-                                                                   AllowRememberConsent = x.AllowRememberConsent,
-                                                                   Enabled = x.Enabled,
-                                                                   RequireConsent = x.RequireConsent,
-                                                                   AllowedCorsOrigins = x.AllowedCorsOrigins.Select(x => x.Origin).ToArray(),
-                                                                   PostLogoutRedirectUris = x.PostLogoutRedirectUris.Select(x => x.PostLogoutRedirectUri).ToArray(),
-                                                                   RedirectUris = x.RedirectUris.Select(x => x.RedirectUri).ToArray()
+                                                               .Select(client => new SingleClientInfo {
+                                                                   ClientId = client.ClientId,
+                                                                   ClientName = client.ClientName,
+                                                                   ClientUri = client.ClientUri,
+                                                                   LogoUri = client.LogoUri,
+                                                                   Description = client.Description,
+                                                                   AllowRememberConsent = client.AllowRememberConsent,
+                                                                   Enabled = client.Enabled,
+                                                                   RequireConsent = client.RequireConsent,
+                                                                   AllowedCorsOrigins = client.AllowedCorsOrigins.Select(uri => uri.Origin).ToArray(),
+                                                                   PostLogoutRedirectUris = client.PostLogoutRedirectUris.Select(uri => uri.PostLogoutRedirectUri).ToArray(),
+                                                                   RedirectUris = client.RedirectUris.Select(uri => uri.RedirectUri).ToArray(),
+                                                                   ApiResources = client.AllowedScopes
+                                                                                        .Join(
+                                                                                            _configurationDbContext.ApiResources.SelectMany(x => x.Scopes),
+                                                                                            clientScope => clientScope.Scope,
+                                                                                            resource => resource.Name,
+                                                                                            (clientScope, resource) => resource.Name
+                                                                                        )
+                                                                                        .Select(scope => scope)
+                                                                                        .ToArray(),
+                                                                   IdentityResources = client.AllowedScopes
+                                                                                             .Join(
+                                                                                                _configurationDbContext.IdentityResources,
+                                                                                                clientScope => clientScope.Scope,
+                                                                                                resource => resource.Name,
+                                                                                                (clientScope, resource) => resource.Name
+                                                                                             )
+                                                                                             .Select(scope => scope)
+                                                                                             .ToArray()
                                                                })
-                                                               .SingleOrDefaultAsync(x => x.ClientId == id);
+                                                               .SingleOrDefaultAsync(client => client.ClientId == id);
                 if (foundClient == null) {
                     return null;
                 }
@@ -180,8 +195,8 @@ namespace Indice.AspNetCore.Identity.Features
                 LogoUri = clientRequest.LogoUri,
                 RequireConsent = clientRequest.RequireConsent,
                 AllowedScopes = clientRequest.IdentityResources.Union(clientRequest.ApiResources).Select(scope => new ClientScope {
-                                                 Scope = scope
-                                             })
+                    Scope = scope
+                })
                                              .ToList()
             };
             if (!string.IsNullOrEmpty(clientRequest.RedirectUri)) {

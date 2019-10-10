@@ -5,6 +5,7 @@ using Indice.AspNetCore.Identity.Models;
 using Indice.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;

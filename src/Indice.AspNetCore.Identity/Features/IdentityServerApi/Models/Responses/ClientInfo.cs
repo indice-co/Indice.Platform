@@ -56,5 +56,13 @@
         /// Allowed URIs to redirect after successful login.
         /// </summary>
         public string[] RedirectUris { get; set; }
+        /// <summary>
+        /// The API resources that the client has access to.
+        /// </summary>
+        public string[] ApiResources { get; set; }
+        /// <summary>
+        /// The identity resources that the client has access to.
+        /// </summary>
+        public string[] IdentityResources { get; set; }
     }
 }
