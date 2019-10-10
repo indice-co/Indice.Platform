@@ -9,6 +9,8 @@ import { ClientUrlsComponent } from './edit/urls/client-urls.component';
 import { ClientApiResourcesComponent } from './edit/resources/api/client-api-resources.component';
 import { ClientResourcesComponent } from './edit/resources/client-resources.component';
 import { ClientIdentityResourcesComponent } from './edit/resources/identity/client-identity-resources.component';
+import { ClientAdvancedComponent } from './edit/advanced/client-advanced.component';
+import { ClientTokensComponent } from './edit/advanced/tokens/client-tokens.component';
 
 const routes: Routes = [
   { path: '', component: ClientsComponent },
@@ -23,6 +25,12 @@ const routes: Routes = [
           { path: '', redirectTo: 'api', pathMatch: 'full' },
           { path: 'api', component: ClientApiResourcesComponent },
           { path: 'identity', component: ClientIdentityResourcesComponent }
+        ]
+      },
+      {
+        path: 'advanced', component: ClientAdvancedComponent, children: [
+          { path: '', redirectTo: 'tokens', pathMatch: 'full' },
+          { path: 'tokens', component: ClientTokensComponent }
         ]
       }
     ]

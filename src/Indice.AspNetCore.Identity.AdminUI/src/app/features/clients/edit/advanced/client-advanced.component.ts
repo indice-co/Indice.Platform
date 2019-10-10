@@ -1,14 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
-import { ClientStore } from './client-store.service';
-
 @Component({
-    selector: 'app-client-edit',
-    templateUrl: './client-edit.component.html',
-    providers: [ClientStore]
+    selector: 'app-client-advanced',
+    templateUrl: './client-advanced.component.html'
 })
-export class ClientEditComponent implements OnInit {
+export class ClientAdvancedComponent implements OnInit {
     constructor(private _route: ActivatedRoute) { }
 
     public clientId = '';

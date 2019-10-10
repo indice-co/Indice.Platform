@@ -12,7 +12,7 @@ export class UtilitiesService {
         return !isNaN(this.toInteger(value));
     }
 
-    public padNumber(value: number) {
+    public padNumber(value: number): string {
         return this.isNumber(value) ? `0${value}`.slice(-2) : '';
     }
 
@@ -24,5 +24,26 @@ export class UtilitiesService {
             const value = char === 'x' ? random : (random & 0x3 | 0x8);
             return value.toString(16);
         });
+    }
+
+    public weeksToSeconds(weeks: number): number {
+        if (weeks <= 0) {
+            throw new Error(`Parameter ${weeks} must be a non-negative value.`);
+        }
+        return weeks * 604800;
+    }
+
+    public monthsToSeconds(months: number): number {
+        if (months <= 0) {
+            throw new Error(`Parameter ${months} must be a non-negative value.`);
+        }
+        return this.weeksToSeconds(months * 4);
+    }
+
+    public yearsToSeconds(years: number): number {
+        if (years <= 0) {
+            throw new Error(`Parameter ${years} must be a non-negative value.`);
+        }
+        return this.monthsToSeconds(years * 12);
     }
 }

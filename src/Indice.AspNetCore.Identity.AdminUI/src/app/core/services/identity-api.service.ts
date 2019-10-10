@@ -3665,6 +3665,11 @@ export interface ICreateClientRequest {
     secrets?: ClientSecretRequest[] | undefined;
 }
 
+export enum AccessTokenType {
+    Jwt = "Jwt",
+    Reference = "Reference",
+}
+
 /** Models a system client when API provides info for a single client. */
 export class SingleClientInfo implements ISingleClientInfo {
     /** Cors origins allowed. */
@@ -3677,6 +3682,29 @@ export class SingleClientInfo implements ISingleClientInfo {
     apiResources?: string[] | undefined;
     /** The identity resources that the client has access to. */
     identityResources?: string[] | undefined;
+    /** Lifetime of identity token in seconds. */
+    identityTokenLifetime?: number;
+    /** Lifetime of access token in seconds */
+    accessTokenLifetime?: number;
+    /** Lifetime of a user consent in seconds. */
+    consentLifetime?: number | undefined;
+    /** The maximum duration (in seconds) since the last time the user authenticated. */
+    userSsoLifetime?: number | undefined;
+    /** Specifies logout URI at client for HTTP front-channel based logout. */
+    frontChannelLogoutUri?: string | undefined;
+    /** Gets or sets a salt value used in pair-wise subjectId generation for users of this client. */
+    pairWiseSubjectSalt?: string | undefined;
+    accessTokenType?: AccessTokenType;
+    /** Specifies is the user's session id should be sent to the FrontChannelLogoutUri. */
+    frontChannelLogoutSessionRequired?: boolean;
+    /** Gets or sets a value indicating whether JWT access tokens should include an identifier. */
+    includeJwtId?: boolean;
+    /** Controls whether access tokens are transmitted via the browser for this client. This can prevent accidental leakage of access tokens when multiple response types are allowed. */
+    allowAccessTokensViaBrowser?: boolean;
+    /** When requesting both an id token and access token, should the user claims always be added to the id token instead of requring the client to use the userinfo endpoint. */
+    alwaysIncludeUserClaimsInIdToken?: boolean;
+    /** Gets or sets a value indicating whether client claims should be always included in the access tokens - or only for client credentials flow. */
+    alwaysSendClientClaims?: boolean;
     /** The unique identifier for this application. */
     clientId?: string | undefined;
     /** Application name that will be seen on consent screens. */
@@ -3730,6 +3758,18 @@ export class SingleClientInfo implements ISingleClientInfo {
                 for (let item of _data["identityResources"])
                     this.identityResources!.push(item);
             }
+            this.identityTokenLifetime = _data["identityTokenLifetime"];
+            this.accessTokenLifetime = _data["accessTokenLifetime"];
+            this.consentLifetime = _data["consentLifetime"];
+            this.userSsoLifetime = _data["userSsoLifetime"];
+            this.frontChannelLogoutUri = _data["frontChannelLogoutUri"];
+            this.pairWiseSubjectSalt = _data["pairWiseSubjectSalt"];
+            this.accessTokenType = _data["accessTokenType"];
+            this.frontChannelLogoutSessionRequired = _data["frontChannelLogoutSessionRequired"];
+            this.includeJwtId = _data["includeJwtId"];
+            this.allowAccessTokensViaBrowser = _data["allowAccessTokensViaBrowser"];
+            this.alwaysIncludeUserClaimsInIdToken = _data["alwaysIncludeUserClaimsInIdToken"];
+            this.alwaysSendClientClaims = _data["alwaysSendClientClaims"];
             this.clientId = _data["clientId"];
             this.clientName = _data["clientName"];
             this.description = _data["description"];
@@ -3775,6 +3815,18 @@ export class SingleClientInfo implements ISingleClientInfo {
             for (let item of this.identityResources)
                 data["identityResources"].push(item);
         }
+        data["identityTokenLifetime"] = this.identityTokenLifetime;
+        data["accessTokenLifetime"] = this.accessTokenLifetime;
+        data["consentLifetime"] = this.consentLifetime;
+        data["userSsoLifetime"] = this.userSsoLifetime;
+        data["frontChannelLogoutUri"] = this.frontChannelLogoutUri;
+        data["pairWiseSubjectSalt"] = this.pairWiseSubjectSalt;
+        data["accessTokenType"] = this.accessTokenType;
+        data["frontChannelLogoutSessionRequired"] = this.frontChannelLogoutSessionRequired;
+        data["includeJwtId"] = this.includeJwtId;
+        data["allowAccessTokensViaBrowser"] = this.allowAccessTokensViaBrowser;
+        data["alwaysIncludeUserClaimsInIdToken"] = this.alwaysIncludeUserClaimsInIdToken;
+        data["alwaysSendClientClaims"] = this.alwaysSendClientClaims;
         data["clientId"] = this.clientId;
         data["clientName"] = this.clientName;
         data["description"] = this.description;
@@ -3799,6 +3851,29 @@ export interface ISingleClientInfo {
     apiResources?: string[] | undefined;
     /** The identity resources that the client has access to. */
     identityResources?: string[] | undefined;
+    /** Lifetime of identity token in seconds. */
+    identityTokenLifetime?: number;
+    /** Lifetime of access token in seconds */
+    accessTokenLifetime?: number;
+    /** Lifetime of a user consent in seconds. */
+    consentLifetime?: number | undefined;
+    /** The maximum duration (in seconds) since the last time the user authenticated. */
+    userSsoLifetime?: number | undefined;
+    /** Specifies logout URI at client for HTTP front-channel based logout. */
+    frontChannelLogoutUri?: string | undefined;
+    /** Gets or sets a salt value used in pair-wise subjectId generation for users of this client. */
+    pairWiseSubjectSalt?: string | undefined;
+    accessTokenType?: AccessTokenType;
+    /** Specifies is the user's session id should be sent to the FrontChannelLogoutUri. */
+    frontChannelLogoutSessionRequired?: boolean;
+    /** Gets or sets a value indicating whether JWT access tokens should include an identifier. */
+    includeJwtId?: boolean;
+    /** Controls whether access tokens are transmitted via the browser for this client. This can prevent accidental leakage of access tokens when multiple response types are allowed. */
+    allowAccessTokensViaBrowser?: boolean;
+    /** When requesting both an id token and access token, should the user claims always be added to the id token instead of requring the client to use the userinfo endpoint. */
+    alwaysIncludeUserClaimsInIdToken?: boolean;
+    /** Gets or sets a value indicating whether client claims should be always included in the access tokens - or only for client credentials flow. */
+    alwaysSendClientClaims?: boolean;
     /** The unique identifier for this application. */
     clientId?: string | undefined;
     /** Application name that will be seen on consent screens. */

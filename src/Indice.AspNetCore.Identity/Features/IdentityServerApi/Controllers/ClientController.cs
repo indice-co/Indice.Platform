@@ -116,6 +116,18 @@ namespace Indice.AspNetCore.Identity.Features
                                                                    AllowedCorsOrigins = client.AllowedCorsOrigins.Select(uri => uri.Origin).ToArray(),
                                                                    PostLogoutRedirectUris = client.PostLogoutRedirectUris.Select(uri => uri.PostLogoutRedirectUri).ToArray(),
                                                                    RedirectUris = client.RedirectUris.Select(uri => uri.RedirectUri).ToArray(),
+                                                                   IdentityTokenLifetime = client.IdentityTokenLifetime,
+                                                                   AccessTokenLifetime = client.AccessTokenLifetime,
+                                                                   ConsentLifetime = client.ConsentLifetime,
+                                                                   UserSsoLifetime = client.UserSsoLifetime,
+                                                                   FrontChannelLogoutUri = client.FrontChannelLogoutUri,
+                                                                   PairWiseSubjectSalt = client.PairWiseSubjectSalt,
+                                                                   AccessTokenType = client.AccessTokenType == 0 ? AccessTokenType.Jwt : AccessTokenType.Reference,
+                                                                   FrontChannelLogoutSessionRequired = client.FrontChannelLogoutSessionRequired,
+                                                                   IncludeJwtId = client.IncludeJwtId,
+                                                                   AllowAccessTokensViaBrowser = client.AllowAccessTokensViaBrowser,
+                                                                   AlwaysIncludeUserClaimsInIdToken = client.AlwaysIncludeUserClaimsInIdToken,
+                                                                   AlwaysSendClientClaims = client.AlwaysSendClientClaims,
                                                                    ApiResources = client.AllowedScopes
                                                                                         .Join(
                                                                                             _configurationDbContext.ApiResources.SelectMany(x => x.Scopes),

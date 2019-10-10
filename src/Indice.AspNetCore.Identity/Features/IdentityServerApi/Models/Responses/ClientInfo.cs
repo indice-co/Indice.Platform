@@ -1,4 +1,6 @@
-﻿namespace Indice.AspNetCore.Identity.Features
+﻿using IdentityServer4.Models;
+
+namespace Indice.AspNetCore.Identity.Features
 {
     /// <summary>
     /// Models a system client.
@@ -64,5 +66,53 @@
         /// The identity resources that the client has access to.
         /// </summary>
         public string[] IdentityResources { get; set; }
+        /// <summary>
+        /// Lifetime of identity token in seconds.
+        /// </summary>
+        public int IdentityTokenLifetime { get; set; }
+        /// <summary>
+        /// Lifetime of access token in seconds
+        /// </summary>
+        public int AccessTokenLifetime { get; set; }
+        /// <summary>
+        /// Lifetime of a user consent in seconds.
+        /// </summary>
+        public int? ConsentLifetime { get; set; }
+        /// <summary>
+        /// The maximum duration (in seconds) since the last time the user authenticated.
+        /// </summary>
+        public int? UserSsoLifetime { get; set; }
+        /// <summary>
+        /// Specifies logout URI at client for HTTP front-channel based logout.
+        /// </summary>
+        public string FrontChannelLogoutUri { get; set; }
+        /// <summary>
+        /// Gets or sets a salt value used in pair-wise subjectId generation for users of this client.
+        /// </summary>
+        public string PairWiseSubjectSalt { get; set; }
+        /// <summary>
+        /// Specifies whether the access token is a reference token or a self contained JWT token.
+        /// </summary>
+        public AccessTokenType AccessTokenType { get; set; }
+        /// <summary>
+        /// Specifies is the user's session id should be sent to the FrontChannelLogoutUri.
+        /// </summary>
+        public bool FrontChannelLogoutSessionRequired { get; set; }
+        /// <summary>
+        /// Gets or sets a value indicating whether JWT access tokens should include an identifier.
+        /// </summary>
+        public bool IncludeJwtId { get; set; }
+        /// <summary>
+        /// Controls whether access tokens are transmitted via the browser for this client. This can prevent accidental leakage of access tokens when multiple response types are allowed.
+        /// </summary>
+        public bool AllowAccessTokensViaBrowser { get; set; }
+        /// <summary>
+        /// When requesting both an id token and access token, should the user claims always be added to the id token instead of requring the client to use the userinfo endpoint.
+        /// </summary>
+        public bool AlwaysIncludeUserClaimsInIdToken { get; set; }
+        /// <summary>
+        /// Gets or sets a value indicating whether client claims should be always included in the access tokens - or only for client credentials flow.
+        /// </summary>
+        public bool AlwaysSendClientClaims { get; set; }
     }
 }
