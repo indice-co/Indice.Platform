@@ -3,6 +3,7 @@ using FluentValidation.AspNetCore;
 using IdentityModel;
 using Indice.AspNetCore.Identity.Models;
 using Indice.Security;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Indice.AspNetCore.Identity.Features
@@ -30,28 +31,33 @@ namespace Indice.AspNetCore.Identity.Features
             where TUser : User, new()
             where TRole : Role, new() {
             mvcBuilder.ConfigureApplicationPartManager(x => x.FeatureProviders.Add(new IdentityServerApiFeatureProvider())); // Use the IdentityServerApiFeatureProvider to register IdentityServer API controllers.
-            var options = new IdentityServerApiEndpointsOptions {
+            var apiEndpointsOptions = new IdentityServerApiEndpointsOptions {
                 Services = mvcBuilder.Services
             };
             // Initialize default options.
-            configureAction?.Invoke(options); // Invoke action provided by developer to override default options.
-            options.Services = null;
-            mvcBuilder.Services.AddSingleton(options); // Register option in DI mechanism for later use.
+            configureAction?.Invoke(apiEndpointsOptions); // Invoke action provided by developer to override default options.
+            apiEndpointsOptions.Services = null;
+            var serviceProvider = mvcBuilder.Services.BuildServiceProvider();
+            var configuration = serviceProvider.GetRequiredService<IConfiguration>();
+            mvcBuilder.Services.AddSingleton(apiEndpointsOptions); // Register option in DI mechanism for later use.
             mvcBuilder.Services.AddTransient<Func<ExtendedIdentityDbContext<TUser, TRole>>>(provider => provider.GetService<ExtendedIdentityDbContext<TUser, TRole>>); // Used extensively in validators.
             mvcBuilder.Services.AddTransient<IValidatorInterceptor, ValidatorInterceptor>();
+            mvcBuilder.Services.AddIndiceServices(configuration);
+            mvcBuilder.Services.AddDistributedMemoryCache();
+            mvcBuilder.Services.AddTransient<IEventService, EventService>();
             // Add authorization policies that are used by the IdentityServer API.
-            mvcBuilder.Services.AddAuthorization(options => {
-                options.AddPolicy(IdentityServerApi.SubScopes.Users, policy => {
+            mvcBuilder.Services.AddAuthorization(authOptions => {
+                authOptions.AddPolicy(IdentityServerApi.SubScopes.Users, policy => {
                     policy.AddAuthenticationSchemes(IdentityServerApi.AuthenticationScheme)
                           .RequireAuthenticatedUser()
                           .RequireAssertion(x => x.User.HasClaim(JwtClaimTypes.Scope, IdentityServerApi.SubScopes.Users) || x.User.IsAdmin());
                 });
-                options.AddPolicy(IdentityServerApi.SubScopes.Clients, policy => {
+                authOptions.AddPolicy(IdentityServerApi.SubScopes.Clients, policy => {
                     policy.AddAuthenticationSchemes(IdentityServerApi.AuthenticationScheme)
                           .RequireAuthenticatedUser()
                           .RequireAssertion(x => x.User.HasClaim(JwtClaimTypes.Scope, IdentityServerApi.SubScopes.Clients) || x.User.IsAdmin());
                 });
-                options.AddPolicy(IdentityServerApi.Admin, policy => {
+                authOptions.AddPolicy(IdentityServerApi.Admin, policy => {
                     policy.AddAuthenticationSchemes(IdentityServerApi.AuthenticationScheme)
                           .RequireAuthenticatedUser()
                           .RequireAssertion(x => x.User.IsAdmin());
@@ -70,7 +76,7 @@ namespace Indice.AspNetCore.Identity.Features
         /// </summary>
         /// <param name="options">Options for configuring the IdentityServer API feature.</param>
         /// <param name="configureAction">Configuration for <see cref="ExtendedIdentityDbContext{TUser, TRole}"/>.</param>
-        public static void AddDbContext(this IdentityServerApiEndpointsOptions options, Action<IdentityDbContextOptions> configureAction) => 
+        public static void AddDbContext(this IdentityServerApiEndpointsOptions options, Action<IdentityDbContextOptions> configureAction) =>
             options.AddDbContext<User, Role>(configureAction);
 
         /// <summary>
@@ -90,5 +96,16 @@ namespace Indice.AspNetCore.Identity.Features
                 options.Services.AddDbContext<ExtendedIdentityDbContext<TUser, TRole>>(contextOptions.ConfigureDbContext);
             }
         }
+
+        /// <summary>
+        /// Registers an <see cref="IIdentityServerApiEventHandler{TEvent}"/> for the specified event type.
+        /// </summary>
+        /// <typeparam name="TEvent">The implementation of <see cref="IIdentityServerApiEventHandler{TEvent}"/> to register.</typeparam>
+        /// <typeparam name="THandler">The implementation of <see cref="IIdentityServerApiEventHandler{TEvent}"/> to register.</typeparam>
+        /// <param name="options">Options for configuring the IdentityServer API feature.</param>
+        public static void AddEventHandler<TEvent, THandler>(this IdentityServerApiEndpointsOptions options)
+            where TEvent : IIdentityServerApiEvent
+            where THandler : class, IIdentityServerApiEventHandler<TEvent> =>
+            options.Services.AddTransient(typeof(IIdentityServerApiEventHandler<TEvent>), typeof(THandler));
     }
 }

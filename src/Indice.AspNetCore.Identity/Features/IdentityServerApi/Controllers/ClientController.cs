@@ -34,6 +34,9 @@ namespace Indice.AspNetCore.Identity.Features
         private readonly IConfigurationDbContext _configurationDbContext;
         private readonly GeneralSettings _generalSettings;
         private readonly IDistributedCache _cache;
+        private readonly IEventService _eventService;
+        private readonly IdentityServerApiEndpointsOptions _apiEndpointsOptions;
+
         /// <summary>
         /// The name of the controller.
         /// </summary>
@@ -44,10 +47,15 @@ namespace Indice.AspNetCore.Identity.Features
         /// </summary>
         /// <param name="configurationDbContext">Abstraction for the configuration context.</param>
         /// <param name="generalSettings">Applications general settings.</param>
-        public ClientController(IConfigurationDbContext configurationDbContext, IOptions<GeneralSettings> generalSettings, IDistributedCache cache) {
+        /// <param name="cache">Represents a distributed cache of serialized values.</param>
+        /// <param name="eventService">Models the event mechanism used to raise events inside the IdentityServer API.</param>
+        /// <param name="apiEndpointsOptions">Options for configuring the IdentityServer API feature.</param>
+        public ClientController(IConfigurationDbContext configurationDbContext, IOptions<GeneralSettings> generalSettings, IDistributedCache cache, IEventService eventService, IdentityServerApiEndpointsOptions apiEndpointsOptions) {
             _configurationDbContext = configurationDbContext ?? throw new ArgumentNullException(nameof(configurationDbContext));
             _generalSettings = generalSettings?.Value ?? throw new ArgumentNullException(nameof(generalSettings));
             _cache = cache ?? throw new ArgumentNullException(nameof(cache));
+            _eventService = eventService ?? throw new ArgumentNullException(nameof(eventService));
+            _apiEndpointsOptions = apiEndpointsOptions ?? throw new ArgumentNullException(nameof(apiEndpointsOptions));
         }
 
         /// <summary>
@@ -180,7 +188,7 @@ namespace Indice.AspNetCore.Identity.Features
             var client = CreateForType(request.ClientType, _generalSettings.Authority, request);
             _configurationDbContext.Clients.Add(client);
             await _configurationDbContext.SaveChangesAsync();
-            return CreatedAtAction(nameof(GetClient), new { id = client.ClientId }, new ClientInfo {
+            var response = new ClientInfo {
                 ClientId = client.ClientId,
                 ClientName = client.ClientName,
                 ClientUri = client.ClientUri,
@@ -189,7 +197,11 @@ namespace Indice.AspNetCore.Identity.Features
                 Enabled = client.Enabled,
                 LogoUri = client.LogoUri,
                 RequireConsent = client.RequireConsent
-            });
+            };
+            if (_apiEndpointsOptions.RaiseEvents) {
+                await _eventService.Raise(new ClientCreatedEvent(response));
+            }
+            return CreatedAtAction(nameof(GetClient), new { id = client.ClientId }, response);
         }
 
         /// <summary>
@@ -209,7 +221,7 @@ namespace Indice.AspNetCore.Identity.Features
                 AllowedScopes = clientRequest.IdentityResources.Union(clientRequest.ApiResources).Select(scope => new ClientScope {
                     Scope = scope
                 })
-                                             .ToList()
+                .ToList()
             };
             if (!string.IsNullOrEmpty(clientRequest.RedirectUri)) {
                 client.RedirectUris = new List<ClientRedirectUri> {

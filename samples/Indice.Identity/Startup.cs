@@ -8,6 +8,7 @@ using Indice.AspNetCore.Swagger;
 using Indice.Configuration;
 using Indice.Identity.Configuration;
 using Indice.Identity.Security;
+using Indice.Identity.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -73,8 +74,6 @@ namespace Indice.Identity
             });
             services.AddOptions();
             services.AddLogging();
-            services.AddDistributedMemoryCache();
-            services.AddIndiceServices(Configuration);
             services.AddEmailServiceSparkpost(Configuration);
             services.AddSwaggerGen(options => {
                 options.IndiceDefaults(Settings);

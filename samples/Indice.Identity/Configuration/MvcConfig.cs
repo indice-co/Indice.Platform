@@ -1,11 +1,10 @@
 ﻿using System.Reflection;
 using FluentValidation.AspNetCore;
 using Indice.AspNetCore.Identity.Features;
-using Indice.AspNetCore.Identity.Models;
 using Indice.Identity;
+using Indice.Identity.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
@@ -32,6 +31,8 @@ namespace Microsoft.Extensions.DependencyInjection
                                        builder.UseSqlServer(configuration.GetConnectionString("IdentityDb"));
                                    };
                                });
+                               options.RaiseEvents = true;
+                               options.AddEventHandler<ClientCreatedEvent, ClientCreatedEventHandler>();
                            })
                            .AddNewtonsoftJson(options => {
                                options.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver {

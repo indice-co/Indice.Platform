@@ -1,5 +1,4 @@
-﻿using System;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 
 namespace Indice.AspNetCore.Identity.Features
 {
@@ -10,8 +9,12 @@ namespace Indice.AspNetCore.Identity.Features
     {
         internal IServiceCollection Services;
         /// <summary>
-        /// Use true it seeds the database with some initial data for users, roles etc. Works only on Debug mode. Default is false.
+        /// If true, it seeds the database with some initial data for users, roles etc. Works only on Debug mode. Default is false.
         /// </summary>
         public bool UseInitialData { get; set; } = false;
+        /// <summary>
+        /// If true, various events (user or client created etc.) are raised from the API. Default is false.
+        /// </summary>
+        public bool RaiseEvents { get; set; } = false;
     }
 }
