@@ -93,20 +93,18 @@ namespace Indice.AspNetCore.Identity.Features
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
         [HttpGet("{id}")]
         public async Task<ActionResult<ClaimTypeInfo>> GetClaimType([FromRoute]string id) {
-            var claimType = await _dbContext.ClaimTypes
-                                            .AsNoTracking()
-                                            .Select(x => new ClaimTypeInfo {
-                                                Id = x.Id,
-                                                Name = x.Name,
-                                                DisplayName = x.DisplayName,
-                                                Description = x.Description,
-                                                Rule = x.Rule,
-                                                ValueType = x.ValueType,
-                                                Required = x.Required,
-                                                Reserved = x.Reserved,
-                                                UserEditable = x.UserEditable
-                                            })
-                                            .SingleOrDefaultAsync(x => x.Id == id);
+            var claimType = await _dbContext.ClaimTypes.AsNoTracking().Select(x => new ClaimTypeInfo {
+                Id = x.Id,
+                Name = x.Name,
+                DisplayName = x.DisplayName,
+                Description = x.Description,
+                Rule = x.Rule,
+                ValueType = x.ValueType,
+                Required = x.Required,
+                Reserved = x.Reserved,
+                UserEditable = x.UserEditable
+            })
+            .SingleOrDefaultAsync(x => x.Id == id);
             if (claimType == null) {
                 return NotFound();
             }

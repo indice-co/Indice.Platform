@@ -3705,6 +3705,8 @@ export class SingleClientInfo implements ISingleClientInfo {
     alwaysIncludeUserClaimsInIdToken?: boolean;
     /** Gets or sets a value indicating whether client claims should be always included in the access tokens - or only for client credentials flow. */
     alwaysSendClientClaims?: boolean;
+    /** Lifetime of authorization code in seconds. */
+    authorizationCodeLifetime?: number;
     /** The unique identifier for this application. */
     clientId?: string | undefined;
     /** Application name that will be seen on consent screens. */
@@ -3770,6 +3772,7 @@ export class SingleClientInfo implements ISingleClientInfo {
             this.allowAccessTokensViaBrowser = _data["allowAccessTokensViaBrowser"];
             this.alwaysIncludeUserClaimsInIdToken = _data["alwaysIncludeUserClaimsInIdToken"];
             this.alwaysSendClientClaims = _data["alwaysSendClientClaims"];
+            this.authorizationCodeLifetime = _data["authorizationCodeLifetime"];
             this.clientId = _data["clientId"];
             this.clientName = _data["clientName"];
             this.description = _data["description"];
@@ -3827,6 +3830,7 @@ export class SingleClientInfo implements ISingleClientInfo {
         data["allowAccessTokensViaBrowser"] = this.allowAccessTokensViaBrowser;
         data["alwaysIncludeUserClaimsInIdToken"] = this.alwaysIncludeUserClaimsInIdToken;
         data["alwaysSendClientClaims"] = this.alwaysSendClientClaims;
+        data["authorizationCodeLifetime"] = this.authorizationCodeLifetime;
         data["clientId"] = this.clientId;
         data["clientName"] = this.clientName;
         data["description"] = this.description;
@@ -3874,6 +3878,8 @@ export interface ISingleClientInfo {
     alwaysIncludeUserClaimsInIdToken?: boolean;
     /** Gets or sets a value indicating whether client claims should be always included in the access tokens - or only for client credentials flow. */
     alwaysSendClientClaims?: boolean;
+    /** Lifetime of authorization code in seconds. */
+    authorizationCodeLifetime?: number;
     /** The unique identifier for this application. */
     clientId?: string | undefined;
     /** Application name that will be seen on consent screens. */

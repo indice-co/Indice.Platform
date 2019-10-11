@@ -39,11 +39,11 @@ namespace Indice.AspNetCore.Identity.Features
             apiEndpointsOptions.Services = null;
             var serviceProvider = mvcBuilder.Services.BuildServiceProvider();
             var configuration = serviceProvider.GetRequiredService<IConfiguration>();
+            mvcBuilder.Services.AddDistributedMemoryCache();
             mvcBuilder.Services.AddSingleton(apiEndpointsOptions); // Register option in DI mechanism for later use.
             mvcBuilder.Services.AddTransient<Func<ExtendedIdentityDbContext<TUser, TRole>>>(provider => provider.GetService<ExtendedIdentityDbContext<TUser, TRole>>); // Used extensively in validators.
             mvcBuilder.Services.AddTransient<IValidatorInterceptor, ValidatorInterceptor>();
             mvcBuilder.Services.AddIndiceServices(configuration);
-            mvcBuilder.Services.AddDistributedMemoryCache();
             mvcBuilder.Services.AddTransient<IEventService, EventService>();
             // Add authorization policies that are used by the IdentityServer API.
             mvcBuilder.Services.AddAuthorization(authOptions => {

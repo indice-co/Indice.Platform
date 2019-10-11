@@ -26,11 +26,32 @@ export class UtilitiesService {
         });
     }
 
+    public minutesToSeconds(minutes: number): number {
+        if (minutes <= 0) {
+            throw new Error(`Parameter ${minutes} must be a non-negative value.`);
+        }
+        return minutes * 60;
+    }
+
+    public hoursToSeconds(hours: number): number {
+        if (hours <= 0) {
+            throw new Error(`Parameter ${hours} must be a non-negative value.`);
+        }
+        return this.minutesToSeconds(hours * 60);
+    }
+
+    public daysToSeconds(days: number): number {
+        if (days <= 0) {
+            throw new Error(`Parameter ${days} must be a non-negative value.`);
+        }
+        return this.hoursToSeconds(days * 24);
+    }
+
     public weeksToSeconds(weeks: number): number {
         if (weeks <= 0) {
             throw new Error(`Parameter ${weeks} must be a non-negative value.`);
         }
-        return weeks * 604800;
+        return this.daysToSeconds(weeks * 7);
     }
 
     public monthsToSeconds(months: number): number {
@@ -45,5 +66,16 @@ export class UtilitiesService {
             throw new Error(`Parameter ${years} must be a non-negative value.`);
         }
         return this.monthsToSeconds(years * 12);
+    }
+
+    public secondsToText(totalSeconds: number): string {
+        const hours = Math.floor(totalSeconds / 3600);
+        const minutes = Math.floor((totalSeconds - (hours * 3600)) / 60);
+        const seconds = totalSeconds - (hours * 3600) - (minutes * 60);
+        return `
+            ${hours > 0 ? `${hours < 10 ? `0${hours}` : hours} hr${minutes > 0 || seconds > 0 ? ',' : ''}` : ''}
+            ${minutes > 0 ? `${minutes < 10 ? `0${minutes}` : minutes} min${seconds > 0 ? ',' : ''}` : ''}
+            ${seconds > 0 ? `${seconds < 10 ? `0${seconds}` : seconds} secs` : ''}
+        `;
     }
 }

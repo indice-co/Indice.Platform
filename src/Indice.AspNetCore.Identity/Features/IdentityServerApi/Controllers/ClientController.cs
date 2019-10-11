@@ -110,52 +110,50 @@ namespace Indice.AspNetCore.Identity.Features
         public async Task<ActionResult<SingleClientInfo>> GetClient([FromRoute]string id) {
             async Task<SingleClientInfo> GetClientAsync() {
                 // Load client from the database.
-                var foundClient = await _configurationDbContext.Clients
-                                                               .AsNoTracking()
-                                                               .Select(client => new SingleClientInfo {
-                                                                   ClientId = client.ClientId,
-                                                                   ClientName = client.ClientName,
-                                                                   ClientUri = client.ClientUri,
-                                                                   LogoUri = client.LogoUri,
-                                                                   Description = client.Description,
-                                                                   AllowRememberConsent = client.AllowRememberConsent,
-                                                                   Enabled = client.Enabled,
-                                                                   RequireConsent = client.RequireConsent,
-                                                                   AllowedCorsOrigins = client.AllowedCorsOrigins.Select(uri => uri.Origin).ToArray(),
-                                                                   PostLogoutRedirectUris = client.PostLogoutRedirectUris.Select(uri => uri.PostLogoutRedirectUri).ToArray(),
-                                                                   RedirectUris = client.RedirectUris.Select(uri => uri.RedirectUri).ToArray(),
-                                                                   IdentityTokenLifetime = client.IdentityTokenLifetime,
-                                                                   AccessTokenLifetime = client.AccessTokenLifetime,
-                                                                   ConsentLifetime = client.ConsentLifetime,
-                                                                   UserSsoLifetime = client.UserSsoLifetime,
-                                                                   FrontChannelLogoutUri = client.FrontChannelLogoutUri,
-                                                                   PairWiseSubjectSalt = client.PairWiseSubjectSalt,
-                                                                   AccessTokenType = client.AccessTokenType == 0 ? AccessTokenType.Jwt : AccessTokenType.Reference,
-                                                                   FrontChannelLogoutSessionRequired = client.FrontChannelLogoutSessionRequired,
-                                                                   IncludeJwtId = client.IncludeJwtId,
-                                                                   AllowAccessTokensViaBrowser = client.AllowAccessTokensViaBrowser,
-                                                                   AlwaysIncludeUserClaimsInIdToken = client.AlwaysIncludeUserClaimsInIdToken,
-                                                                   AlwaysSendClientClaims = client.AlwaysSendClientClaims,
-                                                                   ApiResources = client.AllowedScopes
-                                                                                        .Join(
-                                                                                            _configurationDbContext.ApiResources.SelectMany(x => x.Scopes),
-                                                                                            clientScope => clientScope.Scope,
-                                                                                            resource => resource.Name,
-                                                                                            (clientScope, resource) => resource.Name
-                                                                                        )
-                                                                                        .Select(scope => scope)
-                                                                                        .ToArray(),
-                                                                   IdentityResources = client.AllowedScopes
-                                                                                             .Join(
-                                                                                                _configurationDbContext.IdentityResources,
-                                                                                                clientScope => clientScope.Scope,
-                                                                                                resource => resource.Name,
-                                                                                                (clientScope, resource) => resource.Name
-                                                                                             )
-                                                                                             .Select(scope => scope)
-                                                                                             .ToArray()
-                                                               })
-                                                               .SingleOrDefaultAsync(client => client.ClientId == id);
+                var query = _configurationDbContext.Clients.AsNoTracking();
+                var foundClient = await query.Select(client => new SingleClientInfo {
+                    ClientId = client.ClientId,
+                    ClientName = client.ClientName,
+                    ClientUri = client.ClientUri,
+                    LogoUri = client.LogoUri,
+                    Description = client.Description,
+                    AllowRememberConsent = client.AllowRememberConsent,
+                    Enabled = client.Enabled,
+                    RequireConsent = client.RequireConsent,
+                    AllowedCorsOrigins = client.AllowedCorsOrigins.Select(uri => uri.Origin).ToArray(),
+                    PostLogoutRedirectUris = client.PostLogoutRedirectUris.Select(uri => uri.PostLogoutRedirectUri).ToArray(),
+                    RedirectUris = client.RedirectUris.Select(uri => uri.RedirectUri).ToArray(),
+                    IdentityTokenLifetime = client.IdentityTokenLifetime,
+                    AccessTokenLifetime = client.AccessTokenLifetime,
+                    ConsentLifetime = client.ConsentLifetime,
+                    UserSsoLifetime = client.UserSsoLifetime,
+                    FrontChannelLogoutUri = client.FrontChannelLogoutUri,
+                    PairWiseSubjectSalt = client.PairWiseSubjectSalt,
+                    AccessTokenType = client.AccessTokenType == 0 ? AccessTokenType.Jwt : AccessTokenType.Reference,
+                    FrontChannelLogoutSessionRequired = client.FrontChannelLogoutSessionRequired,
+                    IncludeJwtId = client.IncludeJwtId,
+                    AllowAccessTokensViaBrowser = client.AllowAccessTokensViaBrowser,
+                    AlwaysIncludeUserClaimsInIdToken = client.AlwaysIncludeUserClaimsInIdToken,
+                    AlwaysSendClientClaims = client.AlwaysSendClientClaims,
+                    AuthorizationCodeLifetime = client.AuthorizationCodeLifetime,
+                    ApiResources = client.AllowedScopes.Join(
+                        _configurationDbContext.ApiResources.SelectMany(apiResource => apiResource.Scopes),
+                        clientScope => clientScope.Scope,
+                        apiScope => apiScope.Name,
+                        (clientScope, apiScope) => apiScope.Name
+                    )
+                    .Select(name => name)
+                    .ToArray(),
+                    IdentityResources = client.AllowedScopes.Join(
+                        _configurationDbContext.IdentityResources,
+                        clientScope => clientScope.Scope,
+                        identityResource => identityResource.Name,
+                        (clientScope, identityResource) => identityResource.Name
+                    )
+                    .Select(name => name)
+                    .ToArray()
+                })
+                .SingleOrDefaultAsync(client => client.ClientId == id);
                 if (foundClient == null) {
                     return null;
                 }

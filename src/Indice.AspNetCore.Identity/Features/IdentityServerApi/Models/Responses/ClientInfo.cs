@@ -114,5 +114,9 @@ namespace Indice.AspNetCore.Identity.Features
         /// Gets or sets a value indicating whether client claims should be always included in the access tokens - or only for client credentials flow.
         /// </summary>
         public bool AlwaysSendClientClaims { get; set; }
+        /// <summary>
+        /// Lifetime of authorization code in seconds.
+        /// </summary>
+        public int AuthorizationCodeLifetime { get; set; }
     }
 }

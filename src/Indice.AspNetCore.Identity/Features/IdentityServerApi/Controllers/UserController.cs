@@ -39,6 +39,9 @@ namespace Indice.AspNetCore.Identity.Features
         private readonly ExtendedIdentityDbContext<TUser, TRole> _dbContext;
         private readonly IPersistedGrantService _persistedGrantService;
         private readonly IClientStore _clientStore;
+        private readonly IdentityServerApiEndpointsOptions _apiEndpointsOptions;
+        private readonly IEventService _eventService;
+
         /// <summary>
         /// The name of the controller.
         /// </summary>
@@ -53,13 +56,18 @@ namespace Indice.AspNetCore.Identity.Features
         /// <param name="dbContext">Class for the Entity Framework database context used for identity.</param>
         /// <param name="persistedGrantService">Implements persisted grant logic.</param>
         /// <param name="clientStore">Retrieval of client configuration.</param>
-        public UserController(UserManager<TUser> userManager, RoleManager<TRole> roleManager, IDistributedCache cache, ExtendedIdentityDbContext<TUser, TRole> dbContext, IPersistedGrantService persistedGrantService, IClientStore clientStore) {
+        /// <param name="apiEndpointsOptions">Options for configuring the IdentityServer API feature.</param>
+        /// <param name="eventService">Models the event mechanism used to raise events inside the IdentityServer API.</param>
+        public UserController(UserManager<TUser> userManager, RoleManager<TRole> roleManager, IDistributedCache cache, ExtendedIdentityDbContext<TUser, TRole> dbContext, IPersistedGrantService persistedGrantService, IClientStore clientStore,
+            IdentityServerApiEndpointsOptions apiEndpointsOptions, IEventService eventService) {
             _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
             _roleManager = roleManager ?? throw new ArgumentNullException(nameof(roleManager));
             _cache = cache ?? throw new ArgumentNullException(nameof(cache));
             _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
             _persistedGrantService = persistedGrantService ?? throw new ArgumentNullException(nameof(persistedGrantService));
             _clientStore = clientStore ?? throw new ArgumentNullException(nameof(clientStore));
+            _apiEndpointsOptions = apiEndpointsOptions ?? throw new ArgumentNullException(nameof(apiEndpointsOptions));
+            _eventService = eventService ?? throw new ArgumentNullException(nameof(eventService));
         }
 
         /// <summary>
@@ -85,25 +93,10 @@ namespace Indice.AspNetCore.Identity.Features
                                       || x.UserName.ToLower().Contains(searchTerm));
             }
             // Creating a new 'UserInfo' object at this point will result in evaluating the query in-memory.
-            var users = await query.Select(x => new {
-                x.Id,
+            var users = await query.Select(x => new UserInfo {
+                Id = x.Id,
                 FirstName = x.Claims.FirstOrDefault(claim => claim.ClaimType == JwtClaimTypes.GivenName).ClaimValue,
                 LastName = x.Claims.FirstOrDefault(claim => claim.ClaimType == JwtClaimTypes.FamilyName).ClaimValue,
-                x.Email,
-                x.EmailConfirmed,
-                x.PhoneNumber,
-                x.PhoneNumberConfirmed,
-                x.UserName,
-                x.CreateDate,
-                x.LockoutEnabled,
-                x.LockoutEnd,
-                x.TwoFactorEnabled
-            })
-            .ToResultSetAsync(options);
-            return Ok(new ResultSet<UserInfo>(users.Items.Select(x => new UserInfo {
-                Id = x.Id,
-                FirstName = x.FirstName,
-                LastName = x.LastName,
                 Email = x.Email,
                 EmailConfirmed = x.EmailConfirmed,
                 PhoneNumber = x.PhoneNumber,
@@ -111,8 +104,11 @@ namespace Indice.AspNetCore.Identity.Features
                 UserName = x.UserName,
                 CreateDate = x.CreateDate,
                 LockoutEnabled = x.LockoutEnabled,
+                LockoutEnd = x.LockoutEnd,
                 TwoFactorEnabled = x.TwoFactorEnabled
-            }), users.Count));
+            })
+            .ToResultSetAsync(options);
+            return Ok(users);
         }
 
         /// <summary>
@@ -134,31 +130,33 @@ namespace Indice.AspNetCore.Identity.Features
         public async Task<ActionResult<SingleUserInfo>> GetUser([FromRoute]string userId) {
             async Task<SingleUserInfo> GetUserAsync() {
                 // Load user with his claims and roles from the database.
-                var foundUser = await _dbContext.Users
-                                                .AsNoTracking()
-                                                .Where(x => x.Id == userId)
-                                                .Select(x => new SingleUserInfo {
-                                                    Id = userId,
-                                                    CreateDate = x.CreateDate,
-                                                    Email = x.Email,
-                                                    EmailConfirmed = x.EmailConfirmed,
-                                                    LockoutEnabled = x.LockoutEnabled,
-                                                    LockoutEnd = x.LockoutEnd,
-                                                    PhoneNumber = x.PhoneNumber,
-                                                    PhoneNumberConfirmed = x.PhoneNumberConfirmed,
-                                                    TwoFactorEnabled = x.TwoFactorEnabled,
-                                                    UserName = x.UserName,
-                                                    Claims = x.Claims.Select(x => new UserClaimInfo {
-                                                        Id = x.Id,
-                                                        ClaimType = x.ClaimType,
-                                                        ClaimValue = x.ClaimValue
-                                                    }).ToList(),
-                                                    Roles = _dbContext.UserRoles
-                                                                      .Where(x => x.UserId == userId)
-                                                                      .Join(_dbContext.Roles, userRole => userRole.RoleId, role => role.Id, (userRole, role) => role.Name)
-                                                                      .ToList()
-                                                })
-                                                .SingleOrDefaultAsync();
+                var query = _dbContext.Users.AsNoTracking();
+                var foundUser = await query.Where(x => x.Id == userId).Select(x => new SingleUserInfo {
+                    Id = userId,
+                    CreateDate = x.CreateDate,
+                    Email = x.Email,
+                    EmailConfirmed = x.EmailConfirmed,
+                    LockoutEnabled = x.LockoutEnabled,
+                    LockoutEnd = x.LockoutEnd,
+                    PhoneNumber = x.PhoneNumber,
+                    PhoneNumberConfirmed = x.PhoneNumberConfirmed,
+                    TwoFactorEnabled = x.TwoFactorEnabled,
+                    UserName = x.UserName,
+                    Claims = x.Claims.Select(userClaim => new UserClaimInfo {
+                        Id = userClaim.Id,
+                        ClaimType = userClaim.ClaimType,
+                        ClaimValue = userClaim.ClaimValue
+                    })
+                    .ToList(),
+                    Roles = _dbContext.UserRoles.Where(userRole => userRole.UserId == userId).Join(
+                        _dbContext.Roles,
+                        userRole => userRole.RoleId,
+                        role => role.Id,
+                        (userRole, role) => role.Name
+                    )
+                    .ToList()
+                })
+                .SingleOrDefaultAsync();
                 if (foundUser == null) {
                     return null;
                 }
@@ -208,11 +206,15 @@ namespace Indice.AspNetCore.Identity.Features
             if (claims.Any()) {
                 await _userManager.AddClaimsAsync(user, claims);
             }
-            return CreatedAtAction(nameof(GetUser), Name, new { userId = user.Id }, new SingleUserInfo {
+            var response = new SingleUserInfo {
                 Id = user.Id,
                 UserName = user.UserName,
                 Email = user.Email
-            });
+            };
+            if (_apiEndpointsOptions.RaiseEvents) {
+                await _eventService.Raise(new UserCreatedEvent(response));
+            }
+            return CreatedAtAction(nameof(GetUser), Name, new { userId = user.Id }, response);
         }
 
         /// <summary>
@@ -259,11 +261,13 @@ namespace Indice.AspNetCore.Identity.Features
             // Update user and his claims.
             await _userManager.UpdateAsync(foundUser);
             // Retrieve user roles from database to prepare the response.
-            var roles = await _dbContext.UserRoles
-                                        .AsNoTracking()
-                                        .Where(x => x.UserId == userId)
-                                        .Join(_dbContext.Roles, userRole => userRole.RoleId, role => role.Id, (userRole, role) => role.Name)
-                                        .ToListAsync();
+            var roles = await _dbContext.UserRoles.AsNoTracking().Where(x => x.UserId == userId).Join(
+                _dbContext.Roles,
+                userRole => userRole.RoleId,
+                role => role.Id,
+                (userRole, role) => role.Name
+            )
+            .ToListAsync();
             // Remove user entry from the cache, since the user is updated.
             await _cache.RemoveAsync(CacheKeys.User(userId));
             // Return 200 status code containing the updated user information.
@@ -282,7 +286,8 @@ namespace Indice.AspNetCore.Identity.Features
                     Id = x.Id,
                     ClaimType = x.ClaimType,
                     ClaimValue = x.ClaimValue
-                }).ToList(),
+                })
+                .ToList(),
                 Roles = roles
             });
         }

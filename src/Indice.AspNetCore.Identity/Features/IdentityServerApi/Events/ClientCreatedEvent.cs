@@ -14,24 +14,24 @@ namespace Indice.AspNetCore.Identity.Features
         public ClientCreatedEvent(ClientInfo client) => Client = client;
 
         /// <summary>
-        /// The instance of client that was created.
+        /// The instance of the client that was created.
         /// </summary>
         public ClientInfo Client { get; private set; }
 
         /// <summary>
-        /// Creates a string implementation of <see cref="ClientCreatedEvent"/>.
+        /// Creates a detailed string representation implementation of <see cref="ClientCreatedEvent"/>.
         /// </summary>
         public override string ToString() {
             var builder = new StringBuilder();
-            builder.Append("Client | ");
-            builder.Append($"Id: {Client.ClientId}, ");
-            builder.Append($"Name: {Client.ClientName}, ");
-            builder.Append($"Description: {Client.Description}, ");
-            builder.Append($"Enabled: {Client.Enabled}, ");
-            builder.Append($"AllowRememberConsent: {Client.AllowRememberConsent}, ");
-            builder.Append($"ClientUri: {Client.ClientUri}, ");
-            builder.Append($"LogoUri: {Client.LogoUri}, ");
-            builder.Append($"RequireConsent: {Client.RequireConsent}");
+            builder.AppendLine("A client was created in IdentityServer API.")
+                   .AppendLine($"Id: {Client.ClientId}, ")
+                   .AppendLine($"Name: {Client.ClientName}, ")
+                   .AppendLine($"Description: {Client.Description}, ")
+                   .AppendLine($"Enabled: {Client.Enabled}, ")
+                   .AppendLine($"AllowRememberConsent: {Client.AllowRememberConsent}, ")
+                   .AppendLine($"ClientUri: {Client.ClientUri}, ")
+                   .AppendLine($"LogoUri: {Client.LogoUri}, ")
+                   .AppendLine($"RequireConsent: {Client.RequireConsent}");
             return builder.ToString();
         }
     }

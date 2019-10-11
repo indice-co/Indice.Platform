@@ -31,6 +31,7 @@ namespace Microsoft.Extensions.DependencyInjection
                                        builder.UseSqlServer(configuration.GetConnectionString("IdentityDb"));
                                    };
                                });
+                               // Enable events and register handlers.
                                options.RaiseEvents = true;
                                options.AddEventHandler<ClientCreatedEvent, ClientCreatedEventHandler>();
                            })
