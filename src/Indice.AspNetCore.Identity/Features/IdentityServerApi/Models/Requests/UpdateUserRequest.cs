@@ -35,6 +35,6 @@ namespace Indice.AspNetCore.Identity.Features
         /// <summary>
         /// Dynamic claims that have been marked as required.
         /// </summary>
-        public List<BasicUserClaimInfo> Claims { get; set; } = new List<BasicUserClaimInfo>();
+        public List<BasicClaimInfo> Claims { get; set; } = new List<BasicClaimInfo>();
     }
 }

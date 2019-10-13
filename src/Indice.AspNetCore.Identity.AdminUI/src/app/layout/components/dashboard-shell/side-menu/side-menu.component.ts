@@ -19,4 +19,8 @@ export class SideMenuComponent {
     public toggleMenuItem(menuItem: MenuItem): void {
         this._menuService.toggleMenuItem(menuItem);
     }
+
+    public toggleMenu(): void {
+        this._menuService.toggleSideMenu();
+    }
 }

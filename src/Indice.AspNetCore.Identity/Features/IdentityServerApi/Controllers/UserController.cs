@@ -142,10 +142,10 @@ namespace Indice.AspNetCore.Identity.Features
                     PhoneNumberConfirmed = x.PhoneNumberConfirmed,
                     TwoFactorEnabled = x.TwoFactorEnabled,
                     UserName = x.UserName,
-                    Claims = x.Claims.Select(userClaim => new UserClaimInfo {
+                    Claims = x.Claims.Select(userClaim => new ClaimInfo {
                         Id = userClaim.Id,
-                        ClaimType = userClaim.ClaimType,
-                        ClaimValue = userClaim.ClaimValue
+                        Type = userClaim.ClaimType,
+                        Value = userClaim.ClaimValue
                     })
                     .ToList(),
                     Roles = _dbContext.UserRoles.Where(userRole => userRole.UserId == userId).Join(
@@ -247,14 +247,14 @@ namespace Indice.AspNetCore.Identity.Features
             foundUser.LockoutEnd = request.LockoutEnd;
             // Modify user required claims.
             foreach (var requiredClaim in request.Claims) {
-                var claim = foundUser.Claims.SingleOrDefault(x => x.ClaimType == requiredClaim.ClaimType);
+                var claim = foundUser.Claims.SingleOrDefault(x => x.ClaimType == requiredClaim.Type);
                 if (claim != null) {
-                    claim.ClaimValue = requiredClaim.ClaimValue;
+                    claim.ClaimValue = requiredClaim.Value;
                 } else {
                     foundUser.Claims.Add(new IdentityUserClaim<string> {
                         UserId = userId,
-                        ClaimType = requiredClaim.ClaimType,
-                        ClaimValue = requiredClaim.ClaimValue
+                        ClaimType = requiredClaim.Type,
+                        ClaimValue = requiredClaim.Value
                     });
                 }
             }
@@ -282,10 +282,10 @@ namespace Indice.AspNetCore.Identity.Features
                 PhoneNumberConfirmed = foundUser.PhoneNumberConfirmed,
                 TwoFactorEnabled = foundUser.TwoFactorEnabled,
                 UserName = foundUser.UserName,
-                Claims = foundUser.Claims.Select(x => new UserClaimInfo {
+                Claims = foundUser.Claims.Select(x => new ClaimInfo {
                     Id = x.Id,
-                    ClaimType = x.ClaimType,
-                    ClaimValue = x.ClaimValue
+                    Type = x.ClaimType,
+                    Value = x.ClaimValue
                 })
                 .ToList(),
                 Roles = roles
@@ -342,7 +342,7 @@ namespace Indice.AspNetCore.Identity.Features
         [ProducesResponseType(statusCode: StatusCodes.Status401Unauthorized, type: typeof(ProblemDetails))]
         [ProducesResponseType(statusCode: StatusCodes.Status403Forbidden, type: typeof(ProblemDetails))]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
-        public async Task<IActionResult> RemoveUserRole([FromRoute]string userId, [FromRoute]string roleId) {
+        public async Task<IActionResult> DeleteUserRole([FromRoute]string userId, [FromRoute]string roleId) {
             var user = await _userManager.FindByIdAsync(userId);
             if (user == null) {
                 return NotFound();
@@ -373,19 +373,19 @@ namespace Indice.AspNetCore.Identity.Features
         /// <response code="404">Not Found</response>
         /// <response code="500">Internal Server Error</response>
         [HttpGet("{userId}/claims/{claimId}")]
-        [ProducesResponseType(statusCode: StatusCodes.Status200OK, type: typeof(BasicUserClaimInfo))]
+        [ProducesResponseType(statusCode: StatusCodes.Status200OK, type: typeof(BasicClaimInfo))]
         [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest, type: typeof(ValidationProblemDetails))]
         [ProducesResponseType(statusCode: StatusCodes.Status401Unauthorized, type: typeof(ProblemDetails))]
         [ProducesResponseType(statusCode: StatusCodes.Status403Forbidden, type: typeof(ProblemDetails))]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
-        public async Task<ActionResult<BasicUserClaimInfo>> GetUserClaim([FromRoute]string userId, [FromRoute]int claimId) {
+        public async Task<ActionResult<BasicClaimInfo>> GetUserClaim([FromRoute]string userId, [FromRoute]int claimId) {
             var claim = await _dbContext.UserClaims.AsNoTracking().SingleOrDefaultAsync(x => x.UserId == userId && x.Id == claimId);
             if (claim == null) {
                 return NotFound();
             }
-            return Ok(new BasicUserClaimInfo {
-                ClaimType = claim.ClaimType,
-                ClaimValue = claim.ClaimValue
+            return Ok(new BasicClaimInfo {
+                Type = claim.ClaimType,
+                Value = claim.ClaimValue
             });
         }
 
@@ -400,11 +400,11 @@ namespace Indice.AspNetCore.Identity.Features
         /// <response code="403">Forbidden</response>
         /// <response code="500">Internal Server Error</response>
         [HttpPost("{userId}/claims")]
-        [ProducesResponseType(statusCode: StatusCodes.Status201Created, type: typeof(UserClaimInfo))]
+        [ProducesResponseType(statusCode: StatusCodes.Status201Created, type: typeof(ClaimInfo))]
         [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest, type: typeof(ValidationProblemDetails))]
         [ProducesResponseType(statusCode: StatusCodes.Status401Unauthorized, type: typeof(ProblemDetails))]
         [ProducesResponseType(statusCode: StatusCodes.Status403Forbidden, type: typeof(ProblemDetails))]
-        public async Task<ActionResult<UserClaimInfo>> AddUserClaim([FromRoute]string userId, [FromBody]CreateUserClaimRequest request) {
+        public async Task<ActionResult<ClaimInfo>> AddUserClaim([FromRoute]string userId, [FromBody]CreateUserClaimRequest request) {
             var user = await _dbContext.Users.AsNoTracking().SingleOrDefaultAsync(x => x.Id == userId);
             if (user == null) {
                 return NotFound();
@@ -417,10 +417,10 @@ namespace Indice.AspNetCore.Identity.Features
             _dbContext.UserClaims.Add(claimToAdd);
             await _dbContext.SaveChangesAsync();
             await _cache.RemoveAsync(CacheKeys.User(userId));
-            return CreatedAtAction(nameof(GetUserClaim), Name, new { userId, claimId = claimToAdd.Id }, new UserClaimInfo {
+            return CreatedAtAction(nameof(GetUserClaim), Name, new { userId, claimId = claimToAdd.Id }, new ClaimInfo {
                 Id = claimToAdd.Id,
-                ClaimType = claimToAdd.ClaimType,
-                ClaimValue = claimToAdd.ClaimValue
+                Type = claimToAdd.ClaimType,
+                Value = claimToAdd.ClaimValue
             });
         }
 
@@ -437,12 +437,12 @@ namespace Indice.AspNetCore.Identity.Features
         /// <response code="404">Not Found</response>
         /// <response code="500">Internal Server Error</response>
         [HttpPut("{userId}/claims/{claimId}")]
-        [ProducesResponseType(statusCode: StatusCodes.Status200OK, type: typeof(UserClaimInfo))]
+        [ProducesResponseType(statusCode: StatusCodes.Status200OK, type: typeof(ClaimInfo))]
         [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest, type: typeof(ValidationProblemDetails))]
         [ProducesResponseType(statusCode: StatusCodes.Status401Unauthorized, type: typeof(ProblemDetails))]
         [ProducesResponseType(statusCode: StatusCodes.Status403Forbidden, type: typeof(ProblemDetails))]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
-        public async Task<ActionResult<UserClaimInfo>> UpdateUserClaim([FromRoute]string userId, [FromRoute]int claimId, [FromBody]UpdateUserClaimRequest request) {
+        public async Task<ActionResult<ClaimInfo>> UpdateUserClaim([FromRoute]string userId, [FromRoute]int claimId, [FromBody]UpdateUserClaimRequest request) {
             var userClaim = await _dbContext.UserClaims.SingleOrDefaultAsync(x => x.UserId == userId && x.Id == claimId);
             if (userClaim == null) {
                 return NotFound();
@@ -450,10 +450,10 @@ namespace Indice.AspNetCore.Identity.Features
             userClaim.ClaimValue = request.ClaimValue;
             await _dbContext.SaveChangesAsync();
             await _cache.RemoveAsync(CacheKeys.User(userId));
-            return Ok(new UserClaimInfo {
+            return Ok(new ClaimInfo {
                 Id = userClaim.Id,
-                ClaimType = userClaim.ClaimType,
-                ClaimValue = request.ClaimValue
+                Type = userClaim.ClaimType,
+                Value = request.ClaimValue
             });
         }
 

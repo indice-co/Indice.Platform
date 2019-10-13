@@ -11,7 +11,7 @@ namespace Indice.AspNetCore.Identity.Features
         /// <summary>
         /// User metadata expressed as claims.
         /// </summary>
-        public List<UserClaimInfo> Claims { get; set; } = new List<UserClaimInfo>();
+        public List<ClaimInfo> Claims { get; set; } = new List<ClaimInfo>();
         /// <summary>
         /// The names of the roles that the user belongs to.
         /// </summary>

@@ -21,8 +21,12 @@
 }
 
 /************** datatables ***************/
-.dataTables_wrapper.container-fluid{
+.dataTables_wrapper.container-fluid {
   width: auto;
+}
+
+.ngx-datatable .datatable-footer .page-count {
+  display: none;
 }
 
 /* == Responsive Table ==*/

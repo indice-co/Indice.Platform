@@ -1,10 +1,8 @@
-
-
 /* =========== */
 /* Sweet Alert2 */
 /* =========== */
 
-.swal2-modal {
+.swal2-container {
   font-family: $font-primary;
 
   .swal2-title {
@@ -29,9 +27,21 @@
 }
 
 .swal2-popup{
-  .swal2-styled{
+  .swal2-styled {
     &:focus{
       box-shadow: none;
+    }
+    &.swal2-confirm {
+      background-color: $primary;
+      color: #ffffff;
+      border: 1px solid $primary;
+      font-size: 14px;
+    }
+    &.swal2-cancel {
+      background-color: #545b62;
+      color: #ffffff;
+      border: 1px solid #545b62;
+      font-size: 14px;
     }
   }
 }

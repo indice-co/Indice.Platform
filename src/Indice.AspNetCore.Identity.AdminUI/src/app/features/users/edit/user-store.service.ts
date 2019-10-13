@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 
 import { Observable, AsyncSubject } from 'rxjs';
 import {
-    IdentityApiService, SingleUserInfo, RoleInfoResultSet, RoleInfo, ClaimTypeInfo, ClaimTypeInfoResultSet, UpdateUserRequest, UserClaimInfo, CreateUserClaimRequest, BasicUserClaimInfo,
+    IdentityApiService, SingleUserInfo, RoleInfoResultSet, RoleInfo, ClaimTypeInfo, ClaimTypeInfoResultSet, UpdateUserRequest, ClaimInfo, CreateUserClaimRequest, BasicClaimInfo,
     UserClientInfo, UserClientInfoResultSet, UpdateUserClaimRequest
 } from 'src/app/core/services/identity-api.service';
 import { ClaimType } from './details/models/claim-type.model';
@@ -31,9 +31,9 @@ export class UserStore {
     public updateUser(user: SingleUserInfo, requiredClaims: ClaimType[]): Observable<void> {
         const claims = requiredClaims.map((claim: ClaimType) => {
             return {
-                claimType: claim.name,
-                claimValue: claim.value
-            } as BasicUserClaimInfo;
+                type: claim.name,
+                value: claim.value
+            } as BasicClaimInfo;
         });
         return this._api.updateUser(user.id, {
             email: user.email,
@@ -68,14 +68,14 @@ export class UserStore {
             this._user.next(user);
             this._user.complete();
         });
-        return this._api.removeUserRole(userId, role.id);
+        return this._api.deleteUserRole(userId, role.id);
     }
 
-    public addUserClaim(userId: string, claim: UserClaimInfo): Observable<void> {
+    public addUserClaim(userId: string, claim: ClaimInfo): Observable<void> {
         return this._api.addUserClaim(userId, {
-            claimType: claim.claimType,
-            claimValue: claim.claimValue
-        } as CreateUserClaimRequest).pipe(map((createdClaim: UserClaimInfo) => {
+            claimType: claim.type,
+            claimValue: claim.value
+        } as CreateUserClaimRequest).pipe(map((createdClaim: ClaimInfo) => {
             this.getUser(userId).subscribe((user: SingleUserInfo) => {
                 user.claims.push(createdClaim);
                 this._user.next(user);
@@ -87,10 +87,10 @@ export class UserStore {
     public updateUserClaim(userId: string, claimId: number, value: string): Observable<void> {
         return this._api.updateUserClaim(userId, claimId, {
             claimValue: value
-        } as UpdateUserClaimRequest).pipe(map((updatedClaim: UserClaimInfo) => {
+        } as UpdateUserClaimRequest).pipe(map((updatedClaim: ClaimInfo) => {
             this.getUser(userId).subscribe((user: SingleUserInfo) => {
                 const claim = user.claims.find(x => x.id === claimId);
-                claim.claimValue = value;
+                claim.value = value;
                 this._user.next(user);
                 this._user.complete();
             });

@@ -11,6 +11,7 @@ import { ClientResourcesComponent } from './edit/resources/client-resources.comp
 import { ClientIdentityResourcesComponent } from './edit/resources/identity/client-identity-resources.component';
 import { ClientAdvancedComponent } from './edit/advanced/client-advanced.component';
 import { ClientTokensComponent } from './edit/advanced/tokens/client-tokens.component';
+import { ClientClaimsComponent } from './edit/advanced/claims/client-claims.component';
 
 const routes: Routes = [
   { path: '', component: ClientsComponent },
@@ -30,7 +31,8 @@ const routes: Routes = [
       {
         path: 'advanced', component: ClientAdvancedComponent, children: [
           { path: '', redirectTo: 'tokens', pathMatch: 'full' },
-          { path: 'tokens', component: ClientTokensComponent }
+          { path: 'tokens', component: ClientTokensComponent },
+          { path: 'claims', component: ClientClaimsComponent }
         ]
       }
     ]

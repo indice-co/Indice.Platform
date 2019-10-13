@@ -1,9 +1,9 @@
 ﻿namespace Indice.AspNetCore.Identity.Features
 {
     /// <summary>
-    /// Models a user's claim.
+    /// Models a claim.
     /// </summary>
-    public class UserClaimInfo : BasicUserClaimInfo
+    public class ClaimInfo : BasicClaimInfo
     {
         /// <summary>
         /// The id of the user claim entry.
@@ -12,17 +12,17 @@
     }
 
     /// <summary>
-    /// Models a user's claim.
+    /// Models a claim.
     /// </summary>
-    public class BasicUserClaimInfo
+    public class BasicClaimInfo
     {
         /// <summary>
         /// The type of the claim.
         /// </summary>
-        public string ClaimType { get; set; }
+        public string Type { get; set; }
         /// <summary>
         /// The value of the claim.
         /// </summary>
-        public string ClaimValue { get; set; }
+        public string Value { get; set; }
     }
 }

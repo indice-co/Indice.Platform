@@ -37,10 +37,10 @@ export class AdditionalDetailEditComponent implements OnInit, OnDestroy {
             };
         })).subscribe((result: { user: SingleUserInfo, claims: ClaimType[] }) => {
             const userClaim = result.user.claims.find(x => x.id === this._claimId);
-            const claimType = userClaim && result.claims.find(x => x.name === userClaim.claimType);
+            const claimType = userClaim && result.claims.find(x => x.name === userClaim.type);
             if (claimType) {
                 const claim = claimType as ClaimType;
-                claim.value = claim.valueType === ValueType.DateTime ? this._dateParser.parse(userClaim.claimValue) : userClaim.claimValue;
+                claim.value = claim.valueType === ValueType.DateTime ? this._dateParser.parse(userClaim.value) : userClaim.value;
                 this.claim = claim;
             }
         });

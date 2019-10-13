@@ -27,45 +27,23 @@ export class UtilitiesService {
     }
 
     public minutesToSeconds(minutes: number): number {
-        if (minutes <= 0) {
-            throw new Error(`Parameter ${minutes} must be a non-negative value.`);
-        }
         return minutes * 60;
     }
 
     public hoursToSeconds(hours: number): number {
-        if (hours <= 0) {
-            throw new Error(`Parameter ${hours} must be a non-negative value.`);
-        }
-        return this.minutesToSeconds(hours * 60);
+        return hours * 3600;
     }
 
     public daysToSeconds(days: number): number {
-        if (days <= 0) {
-            throw new Error(`Parameter ${days} must be a non-negative value.`);
-        }
-        return this.hoursToSeconds(days * 24);
-    }
-
-    public weeksToSeconds(weeks: number): number {
-        if (weeks <= 0) {
-            throw new Error(`Parameter ${weeks} must be a non-negative value.`);
-        }
-        return this.daysToSeconds(weeks * 7);
+        return days * 86400;
     }
 
     public monthsToSeconds(months: number): number {
-        if (months <= 0) {
-            throw new Error(`Parameter ${months} must be a non-negative value.`);
-        }
-        return this.weeksToSeconds(months * 4);
+        return months * 2629744;
     }
 
     public yearsToSeconds(years: number): number {
-        if (years <= 0) {
-            throw new Error(`Parameter ${years} must be a non-negative value.`);
-        }
-        return this.monthsToSeconds(years * 12);
+        return years * 31556926;
     }
 
     public secondsToText(totalSeconds: number): string {

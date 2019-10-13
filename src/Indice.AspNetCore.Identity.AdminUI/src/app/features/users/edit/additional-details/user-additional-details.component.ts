@@ -7,7 +7,7 @@ import { map } from 'rxjs/operators';
 import { TableColumn } from '@swimlane/ngx-datatable';
 import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 import { UserStore } from '../user-store.service';
-import { ClaimTypeInfo, UserClaimInfo, SingleUserInfo, ValueType } from 'src/app/core/services/identity-api.service';
+import { ClaimTypeInfo, SingleUserInfo, ValueType, ClaimInfo } from 'src/app/core/services/identity-api.service';
 import { ClaimType } from '../details/models/claim-type.model';
 import { NgbDateCustomParserFormatter } from 'src/app/shared/services/custom-parser-formatter.service';
 import { ToastService } from 'src/app/layout/services/app-toast.service';
@@ -31,12 +31,12 @@ export class UserAdditionalDetailsComponent implements OnInit, OnDestroy {
     public selectedClaimRule = '';
     public selectedClaimValueType = ValueType.String;
     public columns: TableColumn[] = [];
-    public rows: UserClaimInfo[] = [];
+    public rows: ClaimInfo[] = [];
 
     public ngOnInit(): void {
         this.columns = [
-            { prop: 'claimType', name: 'Type', draggable: false, canAutoResize: true, sortable: true, resizeable: false },
-            { prop: 'claimValue', name: 'Value', draggable: false, canAutoResize: true, sortable: true, resizeable: false },
+            { prop: 'type', name: 'Type', draggable: false, canAutoResize: true, sortable: true, resizeable: false },
+            { prop: 'value', name: 'Value', draggable: false, canAutoResize: true, sortable: true, resizeable: false },
             { prop: 'id', name: 'Actions', draggable: false, canAutoResize: true, sortable: false, resizeable: false, cellTemplate: this._actionsTemplate, cellClass: 'd-flex align-items-center' }
         ];
         const userId = this._route.parent.snapshot.params.id;
@@ -72,9 +72,9 @@ export class UserAdditionalDetailsComponent implements OnInit, OnDestroy {
 
     public addClaim(): void {
         this._userStore.addUserClaim(this._user.id, {
-            claimType: this.selectedClaimName,
-            claimValue: this.selectedClaimValueType === ValueType.DateTime ? this._dateParser.format(this.selectedClaimValue as NgbDateStruct) : this.selectedClaimValue
-        } as UserClaimInfo).subscribe(_ => {
+            type: this.selectedClaimName,
+            value: this.selectedClaimValueType === ValueType.DateTime ? this._dateParser.format(this.selectedClaimValue as NgbDateStruct) : this.selectedClaimValue
+        } as ClaimInfo).subscribe(_ => {
             this._toast.showSuccess(`Claim '${this.selectedClaimName}' was successfully added to the user.`);
             this._form.resetForm({
                 'claims-select': '',

@@ -1,9 +1,8 @@
-import { Component, ViewChild, OnInit, OnDestroy } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { Component, OnInit, OnDestroy } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 
 import { Subscription, forkJoin } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { SwalComponent } from '@sweetalert2/ngx-sweetalert2';
 import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 import { SingleUserInfo, ClaimTypeInfo, ValueType } from 'src/app/core/services/identity-api.service';
 import { ClaimType } from './models/claim-type.model';
@@ -20,7 +19,6 @@ export class UserDetailsComponent implements OnInit, OnDestroy {
     private _updateUserSubscription: Subscription;
     private _routeDataSubscription: Subscription;
     private _getDataSubscription: Subscription;
-    @ViewChild('deleteAlert', { static: false }) private _deleteAlert: SwalComponent;
 
     constructor(private _route: ActivatedRoute, private _userStore: UserStore, private _dateParser: NgbDateCustomParserFormatter, public _toast: ToastService) { }
 
@@ -40,9 +38,9 @@ export class UserDetailsComponent implements OnInit, OnDestroy {
             this.user = result.user;
             const requiredClaims = result.claims.filter(x => x.required === true);
             requiredClaims.forEach((claim: ClaimType) => {
-                const userClaim = this.user.claims.find(x => x.claimType === claim.name);
+                const userClaim = this.user.claims.find(x => x.type === claim.name);
                 if (userClaim) {
-                    claim.value = claim.valueType === ValueType.DateTime ? this._dateParser.parse(userClaim.claimValue) : userClaim.claimValue;
+                    claim.value = claim.valueType === ValueType.DateTime ? this._dateParser.parse(userClaim.value) : userClaim.value;
                 }
             });
             this.requiredClaims = requiredClaims;
@@ -59,10 +57,6 @@ export class UserDetailsComponent implements OnInit, OnDestroy {
         if (this._routeDataSubscription) {
             this._routeDataSubscription.unsubscribe();
         }
-    }
-
-    public deletePrompt(): void {
-        this._deleteAlert.fire();
     }
 
     public delete(): void { }

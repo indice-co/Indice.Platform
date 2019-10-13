@@ -72,6 +72,12 @@ export interface IIdentityApiService {
      */
     getClient(id: string): Observable<SingleClientInfo>;
     /**
+     * Permanently deletes an existing client.
+     * @param id The id of the client to delete.
+     * @return OK
+     */
+    deleteClient(id: string): Observable<void>;
+    /**
      * Displays blog posts from the official IdentityServer blog.
      * @param page (optional) 
      * @param size (optional) 
@@ -187,14 +193,14 @@ export interface IIdentityApiService {
      * @param body (optional) The claim to add or update.
      * @return Created
      */
-    addUserClaim(userId: string, body?: CreateUserClaimRequest | undefined): Observable<UserClaimInfo>;
+    addUserClaim(userId: string, body?: CreateUserClaimRequest | undefined): Observable<ClaimInfo>;
     /**
      * Gets a specified claim for a given user.
      * @param userId The id of the user.
      * @param claimId The id of the claim.
      * @return OK
      */
-    getUserClaim(userId: string, claimId: number): Observable<BasicUserClaimInfo>;
+    getUserClaim(userId: string, claimId: number): Observable<BasicClaimInfo>;
     /**
      * Updates an existing user claim.
      * @param userId The id of the user.
@@ -202,7 +208,7 @@ export interface IIdentityApiService {
      * @param body (optional) Contains info about the user claim to update.
      * @return OK
      */
-    updateUserClaim(userId: string, claimId: number, body?: UpdateUserClaimRequest | undefined): Observable<UserClaimInfo>;
+    updateUserClaim(userId: string, claimId: number, body?: UpdateUserClaimRequest | undefined): Observable<ClaimInfo>;
     /**
      * Permanently deletes a specified claim from a user.
      * @param userId The id of the user.
@@ -223,7 +229,7 @@ export interface IIdentityApiService {
      * @param roleId The id of the role.
      * @return OK
      */
-    removeUserRole(userId: string, roleId: string): Observable<void>;
+    deleteUserRole(userId: string, roleId: string): Observable<void>;
 }
 
 @Injectable({
@@ -953,6 +959,90 @@ export class IdentityApiService implements IIdentityApiService {
             }));
         }
         return _observableOf<SingleClientInfo>(<any>null);
+    }
+
+    /**
+     * Permanently deletes an existing client.
+     * @param id The id of the client to delete.
+     * @return OK
+     */
+    deleteClient(id: string): Observable<void> {
+        let url_ = this.baseUrl + "/api/clients/{id}";
+        if (id === undefined || id === null)
+            throw new Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id)); 
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+            })
+        };
+
+        return this.http.request("delete", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processDeleteClient(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processDeleteClient(<any>response_);
+                } catch (e) {
+                    return <Observable<void>><any>_observableThrow(e);
+                }
+            } else
+                return <Observable<void>><any>_observableThrow(response_);
+        }));
+    }
+
+    protected processDeleteClient(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob = 
+            response instanceof HttpResponse ? response.body : 
+            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }};
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return _observableOf<void>(<any>null);
+            }));
+        } else if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ValidationProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            }));
+        } else if (status === 404) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = ProblemDetails.fromJS(resultData404);
+            return throwException("Not Found", status, _responseText, _headers, result404);
+            }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("Internal Server Error", status, _responseText, _headers);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<void>(<any>null);
     }
 
     /**
@@ -2372,7 +2462,7 @@ export class IdentityApiService implements IIdentityApiService {
      * @param body (optional) The claim to add or update.
      * @return Created
      */
-    addUserClaim(userId: string, body?: CreateUserClaimRequest | undefined): Observable<UserClaimInfo> {
+    addUserClaim(userId: string, body?: CreateUserClaimRequest | undefined): Observable<ClaimInfo> {
         let url_ = this.baseUrl + "/api/users/{userId}/claims";
         if (userId === undefined || userId === null)
             throw new Error("The parameter 'userId' must be defined.");
@@ -2398,14 +2488,14 @@ export class IdentityApiService implements IIdentityApiService {
                 try {
                     return this.processAddUserClaim(<any>response_);
                 } catch (e) {
-                    return <Observable<UserClaimInfo>><any>_observableThrow(e);
+                    return <Observable<ClaimInfo>><any>_observableThrow(e);
                 }
             } else
-                return <Observable<UserClaimInfo>><any>_observableThrow(response_);
+                return <Observable<ClaimInfo>><any>_observableThrow(response_);
         }));
     }
 
-    protected processAddUserClaim(response: HttpResponseBase): Observable<UserClaimInfo> {
+    protected processAddUserClaim(response: HttpResponseBase): Observable<ClaimInfo> {
         const status = response.status;
         const responseBlob = 
             response instanceof HttpResponse ? response.body : 
@@ -2416,7 +2506,7 @@ export class IdentityApiService implements IIdentityApiService {
             return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
             let result201: any = null;
             let resultData201 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result201 = UserClaimInfo.fromJS(resultData201);
+            result201 = ClaimInfo.fromJS(resultData201);
             return _observableOf(result201);
             }));
         } else if (status === 400) {
@@ -2449,7 +2539,7 @@ export class IdentityApiService implements IIdentityApiService {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             }));
         }
-        return _observableOf<UserClaimInfo>(<any>null);
+        return _observableOf<ClaimInfo>(<any>null);
     }
 
     /**
@@ -2458,7 +2548,7 @@ export class IdentityApiService implements IIdentityApiService {
      * @param claimId The id of the claim.
      * @return OK
      */
-    getUserClaim(userId: string, claimId: number): Observable<BasicUserClaimInfo> {
+    getUserClaim(userId: string, claimId: number): Observable<BasicClaimInfo> {
         let url_ = this.baseUrl + "/api/users/{userId}/claims/{claimId}";
         if (userId === undefined || userId === null)
             throw new Error("The parameter 'userId' must be defined.");
@@ -2483,14 +2573,14 @@ export class IdentityApiService implements IIdentityApiService {
                 try {
                     return this.processGetUserClaim(<any>response_);
                 } catch (e) {
-                    return <Observable<BasicUserClaimInfo>><any>_observableThrow(e);
+                    return <Observable<BasicClaimInfo>><any>_observableThrow(e);
                 }
             } else
-                return <Observable<BasicUserClaimInfo>><any>_observableThrow(response_);
+                return <Observable<BasicClaimInfo>><any>_observableThrow(response_);
         }));
     }
 
-    protected processGetUserClaim(response: HttpResponseBase): Observable<BasicUserClaimInfo> {
+    protected processGetUserClaim(response: HttpResponseBase): Observable<BasicClaimInfo> {
         const status = response.status;
         const responseBlob = 
             response instanceof HttpResponse ? response.body : 
@@ -2501,7 +2591,7 @@ export class IdentityApiService implements IIdentityApiService {
             return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = BasicUserClaimInfo.fromJS(resultData200);
+            result200 = BasicClaimInfo.fromJS(resultData200);
             return _observableOf(result200);
             }));
         } else if (status === 400) {
@@ -2541,7 +2631,7 @@ export class IdentityApiService implements IIdentityApiService {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             }));
         }
-        return _observableOf<BasicUserClaimInfo>(<any>null);
+        return _observableOf<BasicClaimInfo>(<any>null);
     }
 
     /**
@@ -2551,7 +2641,7 @@ export class IdentityApiService implements IIdentityApiService {
      * @param body (optional) Contains info about the user claim to update.
      * @return OK
      */
-    updateUserClaim(userId: string, claimId: number, body?: UpdateUserClaimRequest | undefined): Observable<UserClaimInfo> {
+    updateUserClaim(userId: string, claimId: number, body?: UpdateUserClaimRequest | undefined): Observable<ClaimInfo> {
         let url_ = this.baseUrl + "/api/users/{userId}/claims/{claimId}";
         if (userId === undefined || userId === null)
             throw new Error("The parameter 'userId' must be defined.");
@@ -2580,14 +2670,14 @@ export class IdentityApiService implements IIdentityApiService {
                 try {
                     return this.processUpdateUserClaim(<any>response_);
                 } catch (e) {
-                    return <Observable<UserClaimInfo>><any>_observableThrow(e);
+                    return <Observable<ClaimInfo>><any>_observableThrow(e);
                 }
             } else
-                return <Observable<UserClaimInfo>><any>_observableThrow(response_);
+                return <Observable<ClaimInfo>><any>_observableThrow(response_);
         }));
     }
 
-    protected processUpdateUserClaim(response: HttpResponseBase): Observable<UserClaimInfo> {
+    protected processUpdateUserClaim(response: HttpResponseBase): Observable<ClaimInfo> {
         const status = response.status;
         const responseBlob = 
             response instanceof HttpResponse ? response.body : 
@@ -2598,7 +2688,7 @@ export class IdentityApiService implements IIdentityApiService {
             return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = UserClaimInfo.fromJS(resultData200);
+            result200 = ClaimInfo.fromJS(resultData200);
             return _observableOf(result200);
             }));
         } else if (status === 400) {
@@ -2638,7 +2728,7 @@ export class IdentityApiService implements IIdentityApiService {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             }));
         }
-        return _observableOf<UserClaimInfo>(<any>null);
+        return _observableOf<ClaimInfo>(<any>null);
     }
 
     /**
@@ -2816,7 +2906,7 @@ export class IdentityApiService implements IIdentityApiService {
      * @param roleId The id of the role.
      * @return OK
      */
-    removeUserRole(userId: string, roleId: string): Observable<void> {
+    deleteUserRole(userId: string, roleId: string): Observable<void> {
         let url_ = this.baseUrl + "/api/users/{userId}/roles/{roleId}";
         if (userId === undefined || userId === null)
             throw new Error("The parameter 'userId' must be defined.");
@@ -2834,11 +2924,11 @@ export class IdentityApiService implements IIdentityApiService {
         };
 
         return this.http.request("delete", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processRemoveUserRole(response_);
+            return this.processDeleteUserRole(response_);
         })).pipe(_observableCatch((response_: any) => {
             if (response_ instanceof HttpResponseBase) {
                 try {
-                    return this.processRemoveUserRole(<any>response_);
+                    return this.processDeleteUserRole(<any>response_);
                 } catch (e) {
                     return <Observable<void>><any>_observableThrow(e);
                 }
@@ -2847,7 +2937,7 @@ export class IdentityApiService implements IIdentityApiService {
         }));
     }
 
-    protected processRemoveUserRole(response: HttpResponseBase): Observable<void> {
+    protected processDeleteUserRole(response: HttpResponseBase): Observable<void> {
         const status = response.status;
         const responseBlob = 
             response instanceof HttpResponse ? response.body : 
@@ -3670,6 +3760,58 @@ export enum AccessTokenType {
     Reference = "Reference",
 }
 
+/** Models a claim. */
+export class ClaimInfo implements IClaimInfo {
+    /** The id of the user claim entry. */
+    id?: number;
+    /** The type of the claim. */
+    type?: string | undefined;
+    /** The value of the claim. */
+    value?: string | undefined;
+
+    constructor(data?: IClaimInfo) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.type = _data["type"];
+            this.value = _data["value"];
+        }
+    }
+
+    static fromJS(data: any): ClaimInfo {
+        data = typeof data === 'object' ? data : {};
+        let result = new ClaimInfo();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["type"] = this.type;
+        data["value"] = this.value;
+        return data; 
+    }
+}
+
+/** Models a claim. */
+export interface IClaimInfo {
+    /** The id of the user claim entry. */
+    id?: number;
+    /** The type of the claim. */
+    type?: string | undefined;
+    /** The value of the claim. */
+    value?: string | undefined;
+}
+
 /** Models a system client when API provides info for a single client. */
 export class SingleClientInfo implements ISingleClientInfo {
     /** Cors origins allowed. */
@@ -3707,6 +3849,14 @@ export class SingleClientInfo implements ISingleClientInfo {
     alwaysSendClientClaims?: boolean;
     /** Lifetime of authorization code in seconds. */
     authorizationCodeLifetime?: number;
+    /** Specifies whether a proof key is required for authorization code based token requests. */
+    requirePkce?: boolean;
+    /** Specifies whether a proof key can be sent using plain method. */
+    allowPlainTextPkce?: boolean;
+    /** Gets or sets a value to prefix it on client claim types. */
+    clientClaimsPrefix?: string | undefined;
+    /** List of client claims. */
+    claims?: ClaimInfo[] | undefined;
     /** The unique identifier for this application. */
     clientId?: string | undefined;
     /** Application name that will be seen on consent screens. */
@@ -3773,6 +3923,14 @@ export class SingleClientInfo implements ISingleClientInfo {
             this.alwaysIncludeUserClaimsInIdToken = _data["alwaysIncludeUserClaimsInIdToken"];
             this.alwaysSendClientClaims = _data["alwaysSendClientClaims"];
             this.authorizationCodeLifetime = _data["authorizationCodeLifetime"];
+            this.requirePkce = _data["requirePkce"];
+            this.allowPlainTextPkce = _data["allowPlainTextPkce"];
+            this.clientClaimsPrefix = _data["clientClaimsPrefix"];
+            if (Array.isArray(_data["claims"])) {
+                this.claims = [] as any;
+                for (let item of _data["claims"])
+                    this.claims!.push(ClaimInfo.fromJS(item));
+            }
             this.clientId = _data["clientId"];
             this.clientName = _data["clientName"];
             this.description = _data["description"];
@@ -3831,6 +3989,14 @@ export class SingleClientInfo implements ISingleClientInfo {
         data["alwaysIncludeUserClaimsInIdToken"] = this.alwaysIncludeUserClaimsInIdToken;
         data["alwaysSendClientClaims"] = this.alwaysSendClientClaims;
         data["authorizationCodeLifetime"] = this.authorizationCodeLifetime;
+        data["requirePkce"] = this.requirePkce;
+        data["allowPlainTextPkce"] = this.allowPlainTextPkce;
+        data["clientClaimsPrefix"] = this.clientClaimsPrefix;
+        if (Array.isArray(this.claims)) {
+            data["claims"] = [];
+            for (let item of this.claims)
+                data["claims"].push(item.toJSON());
+        }
         data["clientId"] = this.clientId;
         data["clientName"] = this.clientName;
         data["description"] = this.description;
@@ -3880,6 +4046,14 @@ export interface ISingleClientInfo {
     alwaysSendClientClaims?: boolean;
     /** Lifetime of authorization code in seconds. */
     authorizationCodeLifetime?: number;
+    /** Specifies whether a proof key is required for authorization code based token requests. */
+    requirePkce?: boolean;
+    /** Specifies whether a proof key can be sent using plain method. */
+    allowPlainTextPkce?: boolean;
+    /** Gets or sets a value to prefix it on client claim types. */
+    clientClaimsPrefix?: string | undefined;
+    /** List of client claims. */
+    claims?: ClaimInfo[] | undefined;
     /** The unique identifier for this application. */
     clientId?: string | undefined;
     /** Application name that will be seen on consent screens. */
@@ -4838,62 +5012,10 @@ export interface ICreateUserRequest {
     password?: string | undefined;
 }
 
-/** Models a user's claim. */
-export class UserClaimInfo implements IUserClaimInfo {
-    /** The id of the user claim entry. */
-    id?: number;
-    /** The type of the claim. */
-    claimType?: string | undefined;
-    /** The value of the claim. */
-    claimValue?: string | undefined;
-
-    constructor(data?: IUserClaimInfo) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.id = _data["id"];
-            this.claimType = _data["claimType"];
-            this.claimValue = _data["claimValue"];
-        }
-    }
-
-    static fromJS(data: any): UserClaimInfo {
-        data = typeof data === 'object' ? data : {};
-        let result = new UserClaimInfo();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["id"] = this.id;
-        data["claimType"] = this.claimType;
-        data["claimValue"] = this.claimValue;
-        return data; 
-    }
-}
-
-/** Models a user's claim. */
-export interface IUserClaimInfo {
-    /** The id of the user claim entry. */
-    id?: number;
-    /** The type of the claim. */
-    claimType?: string | undefined;
-    /** The value of the claim. */
-    claimValue?: string | undefined;
-}
-
 /** Models an application user when API provides info for a single user. */
 export class SingleUserInfo implements ISingleUserInfo {
     /** User metadata expressed as claims. */
-    claims?: UserClaimInfo[] | undefined;
+    claims?: ClaimInfo[] | undefined;
     /** The names of the roles that the user belongs to. */
     roles?: string[] | undefined;
     /** User's unique identifier. */
@@ -4931,7 +5053,7 @@ export class SingleUserInfo implements ISingleUserInfo {
             if (Array.isArray(_data["claims"])) {
                 this.claims = [] as any;
                 for (let item of _data["claims"])
-                    this.claims!.push(UserClaimInfo.fromJS(item));
+                    this.claims!.push(ClaimInfo.fromJS(item));
             }
             if (Array.isArray(_data["roles"])) {
                 this.roles = [] as any;
@@ -4987,7 +5109,7 @@ export class SingleUserInfo implements ISingleUserInfo {
 /** Models an application user when API provides info for a single user. */
 export interface ISingleUserInfo {
     /** User metadata expressed as claims. */
-    claims?: UserClaimInfo[] | undefined;
+    claims?: ClaimInfo[] | undefined;
     /** The names of the roles that the user belongs to. */
     roles?: string[] | undefined;
     /** User's unique identifier. */
@@ -5012,14 +5134,14 @@ export interface ISingleUserInfo {
     userName?: string | undefined;
 }
 
-/** Models a user's claim. */
-export class BasicUserClaimInfo implements IBasicUserClaimInfo {
+/** Models a claim. */
+export class BasicClaimInfo implements IBasicClaimInfo {
     /** The type of the claim. */
-    claimType?: string | undefined;
+    type?: string | undefined;
     /** The value of the claim. */
-    claimValue?: string | undefined;
+    value?: string | undefined;
 
-    constructor(data?: IBasicUserClaimInfo) {
+    constructor(data?: IBasicClaimInfo) {
         if (data) {
             for (var property in data) {
                 if (data.hasOwnProperty(property))
@@ -5030,32 +5152,32 @@ export class BasicUserClaimInfo implements IBasicUserClaimInfo {
 
     init(_data?: any) {
         if (_data) {
-            this.claimType = _data["claimType"];
-            this.claimValue = _data["claimValue"];
+            this.type = _data["type"];
+            this.value = _data["value"];
         }
     }
 
-    static fromJS(data: any): BasicUserClaimInfo {
+    static fromJS(data: any): BasicClaimInfo {
         data = typeof data === 'object' ? data : {};
-        let result = new BasicUserClaimInfo();
+        let result = new BasicClaimInfo();
         result.init(data);
         return result;
     }
 
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
-        data["claimType"] = this.claimType;
-        data["claimValue"] = this.claimValue;
+        data["type"] = this.type;
+        data["value"] = this.value;
         return data; 
     }
 }
 
-/** Models a user's claim. */
-export interface IBasicUserClaimInfo {
+/** Models a claim. */
+export interface IBasicClaimInfo {
     /** The type of the claim. */
-    claimType?: string | undefined;
+    type?: string | undefined;
     /** The value of the claim. */
-    claimValue?: string | undefined;
+    value?: string | undefined;
 }
 
 /** Models a user that will be updated on the server. */
@@ -5073,7 +5195,7 @@ export class UpdateUserRequest implements IUpdateUserRequest {
     /** The username. */
     userName?: string | undefined;
     /** Dynamic claims that have been marked as required. */
-    claims?: BasicUserClaimInfo[] | undefined;
+    claims?: BasicClaimInfo[] | undefined;
 
     constructor(data?: IUpdateUserRequest) {
         if (data) {
@@ -5095,7 +5217,7 @@ export class UpdateUserRequest implements IUpdateUserRequest {
             if (Array.isArray(_data["claims"])) {
                 this.claims = [] as any;
                 for (let item of _data["claims"])
-                    this.claims!.push(BasicUserClaimInfo.fromJS(item));
+                    this.claims!.push(BasicClaimInfo.fromJS(item));
             }
         }
     }
@@ -5139,7 +5261,7 @@ export interface IUpdateUserRequest {
     /** The username. */
     userName?: string | undefined;
     /** Dynamic claims that have been marked as required. */
-    claims?: BasicUserClaimInfo[] | undefined;
+    claims?: BasicClaimInfo[] | undefined;
 }
 
 /** Models a system client that a user has given consent to or currently has IdentityServer side tokens for. */

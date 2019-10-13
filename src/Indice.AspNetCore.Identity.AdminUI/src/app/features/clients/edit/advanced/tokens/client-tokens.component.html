@@ -75,8 +75,8 @@
         <label for="client-consent-token-lifetime" class="col-sm-2 col-form-label">Consent Token Lifetime (seconds)</label>
         <div class="col-sm-10">
             <div class="input-group">
-                <span class="input-group-prepend cursor-pointer" (click)="client.consentLifetime = utilities.weeksToSeconds(1)">
-                    <span [ngClass]="{ 'active': client.consentLifetime === utilities.weeksToSeconds(1) }" class="input-group-text btn btn-secondary" 
+                <span class="input-group-prepend cursor-pointer" (click)="client.consentLifetime = utilities.daysToSeconds(7)">
+                    <span [ngClass]="{ 'active': client.consentLifetime === utilities.daysToSeconds(7) }" class="input-group-text btn btn-secondary" 
                         style="font-size: 12px;">1 wk</span>
                 </span>
                 <span class="input-group-prepend cursor-pointer" (click)="client.consentLifetime = utilities.monthsToSeconds(1)">
@@ -94,6 +94,96 @@
                     #consentTokenLifetime="ngModel" />
             </div>
             <ng-container [ngTemplateOutlet]="secondsTextContent" [ngTemplateOutletContext]="{ value: client.consentLifetime }"></ng-container>
+        </div>
+    </div>
+    <div class="form-group row">
+        <label for="client-sso-lifetime" class="col-sm-2 col-form-label">SSO Lifetime (seconds)</label>
+        <div class="col-sm-10">
+            <div class="input-group">
+                <span class="input-group-prepend cursor-pointer" (click)="client.userSsoLifetime = utilities.hoursToSeconds(1)">
+                    <span [ngClass]="{ 'active': client.userSsoLifetime === utilities.hoursToSeconds(1) }" class="input-group-text btn btn-secondary" 
+                        style="font-size: 12px;">1 hr</span>
+                </span>
+                <span class="input-group-prepend cursor-pointer" (click)="client.userSsoLifetime = utilities.hoursToSeconds(12)">
+                    <span [ngClass]="{ 'active': client.userSsoLifetime === utilities.hoursToSeconds(12) }" class="input-group-text btn btn-secondary" 
+                        style="font-size: 12px;">12 hr</span>
+                </span>
+                <span class="input-group-prepend cursor-pointer" (click)="client.userSsoLifetime = utilities.daysToSeconds(1)">
+                    <span [ngClass]="{ 'active': client.userSsoLifetime === utilities.daysToSeconds(1) }" class="input-group-text btn btn-secondary" 
+                        style="font-size: 12px;">1 d</span>
+                </span>
+                <input class="form-control" type="number" id="client-sso-lifetime" name="client-sso-lifetime" [(ngModel)]="client.userSsoLifetime" 
+                    #userSsoLifetime="ngModel" />
+            </div>
+            <ng-container [ngTemplateOutlet]="secondsTextContent" [ngTemplateOutletContext]="{ value: client.userSsoLifetime }"></ng-container>
+        </div>
+    </div>
+    <div class="form-group row">
+        <label for="client-front-channel-logout-uri" class="col-sm-2 col-form-label">Front Channel Logout URI</label>
+        <div class="col-sm-10">
+            <input class="form-control" type="text" id="client-front-channel-logout-uri" name="client-front-channel-logout-uri" [(ngModel)]="client.frontChannelLogoutUri" 
+                #frontChannelLogoutUri="ngModel" />
+        </div>
+    </div>
+    <div class="form-group row">
+        <label for="client-pair-wise-subject-salt" class="col-sm-2 col-form-label">Pair Wise Subject Salt</label>
+        <div class="col-sm-10">
+            <input class="form-control" type="text" id="client-pair-wise-subject-salt" name="client-pair-wise-subject-salt" [(ngModel)]="client.pairWiseSubjectSalt" 
+                #pairWiseSubjectSalt="ngModel" />
+        </div>
+    </div>
+    <div class="form-group row">
+        <label for="client-access-token-type" class="col-sm-2 col-form-label">Access Token Type</label>
+        <div class="col-sm-10">
+            <select class="form-control custom-select" id="client-access-token-type" name="client-access-token-type" [(ngModel)]="client.accessTokenType" required 
+                #accessTokenType="ngModel">
+                <option value="Jwt">Jwt</option>
+                <option value="Reference">Reference</option>
+            </select>
+            <div *ngIf="form.submitted && accessTokenType.invalid" class="form-control-feedback text-danger">Field 'Access Token Type' is required.</div>
+        </div>
+    </div>
+    <div class="form-group row">
+        <label for="client-front-channel-logout-session-required" class="col-sm-2 col-form-label">Front Channel Logout Session Required</label>
+        <div class="col-sm-10">
+            <div class="form-check col-form-label">
+                <input class="form-check-input" type="checkbox" id="client-front-channel-logout-session-required" name="client-front-channel-logout-session-required" 
+                    [checked]="client.frontChannelLogoutSessionRequired" />
+            </div>
+        </div>
+    </div>
+    <div class="form-group row">
+        <label for="client-require-pkce" class="col-sm-2 col-form-label">Require PKCE</label>
+        <div class="col-sm-10">
+            <div class="form-check col-form-label">
+                <input class="form-check-input" type="checkbox" id="client-require-pkce" name="client-require-pkce" [checked]="client.requirePkce" />
+            </div>
+        </div>
+    </div>
+    <div class="form-group row">
+        <label for="client-include-user-claims-in-id-token" class="col-sm-2 col-form-label">Always Include User Claims In Id Token</label>
+        <div class="col-sm-10">
+            <div class="form-check col-form-label">
+                <input class="form-check-input" type="checkbox" id="client-include-user-claims-in-id-token" name="client-include-user-claims-in-id-token" 
+                    [checked]="client.alwaysIncludeUserClaimsInIdToken" />
+            </div>
+        </div>
+    </div>
+    <div class="form-group row">
+        <label for="client-include-jwt-id" class="col-sm-2 col-form-label">Include Jwt Id</label>
+        <div class="col-sm-10">
+            <div class="form-check col-form-label">
+                <input class="form-check-input" type="checkbox" id="client-include-jwt-id" name="client-include-jwt-id" [checked]="client.includeJwtId" />
+            </div>
+        </div>
+    </div>
+    <div class="form-group row">
+        <label for="client-allow-plain-text-pkce" class="col-sm-2 col-form-label">Allow PlainText PKCE</label>
+        <div class="col-sm-10">
+            <div class="form-check col-form-label">
+                <input class="form-check-input" type="checkbox" id="client-allow-plain-text-pkce" name="client-allow-plain-text-pkce" 
+                    [checked]="client.allowPlainTextPkce" />
+            </div>
         </div>
     </div>
     <div class="form-group">

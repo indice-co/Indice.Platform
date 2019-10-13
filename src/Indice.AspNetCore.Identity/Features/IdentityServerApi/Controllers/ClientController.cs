@@ -136,21 +136,28 @@ namespace Indice.AspNetCore.Identity.Features
                     AlwaysIncludeUserClaimsInIdToken = client.AlwaysIncludeUserClaimsInIdToken,
                     AlwaysSendClientClaims = client.AlwaysSendClientClaims,
                     AuthorizationCodeLifetime = client.AuthorizationCodeLifetime,
+                    RequirePkce = client.RequirePkce,
+                    AllowPlainTextPkce = client.AllowPlainTextPkce,
+                    ClientClaimsPrefix = client.ClientClaimsPrefix,
                     ApiResources = client.AllowedScopes.Join(
                         _configurationDbContext.ApiResources.SelectMany(apiResource => apiResource.Scopes),
                         clientScope => clientScope.Scope,
                         apiScope => apiScope.Name,
                         (clientScope, apiScope) => apiScope.Name
                     )
-                    .Select(name => name)
-                    .ToArray(),
+                    .Select(name => name).ToArray(),
                     IdentityResources = client.AllowedScopes.Join(
                         _configurationDbContext.IdentityResources,
                         clientScope => clientScope.Scope,
                         identityResource => identityResource.Name,
                         (clientScope, identityResource) => identityResource.Name
                     )
-                    .Select(name => name)
+                    .Select(name => name).ToArray(),
+                    Claims = client.Claims.Select(claim => new ClaimInfo {
+                        Id = claim.Id,
+                        Type = claim.Type,
+                        Value = claim.Value
+                    })
                     .ToArray()
                 })
                 .SingleOrDefaultAsync(client => client.ClientId == id);
@@ -200,6 +207,32 @@ namespace Indice.AspNetCore.Identity.Features
                 await _eventService.Raise(new ClientCreatedEvent(response));
             }
             return CreatedAtAction(nameof(GetClient), new { id = client.ClientId }, response);
+        }
+
+        /// <summary>
+        /// Permanently deletes an existing client.
+        /// </summary>
+        /// <param name="id">The id of the client to delete.</param>
+        /// <response code="200">OK</response>
+        /// <response code="400">Bad Request</response>
+        /// <response code="401">Unauthorized</response>
+        /// <response code="403">Forbidden</response>
+        /// <response code="404">Not Found</response>
+        /// <response code="500">Internal Server Error</response>
+        [HttpDelete("{id}")]
+        [ProducesResponseType(statusCode: StatusCodes.Status200OK)]
+        [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest, type: typeof(ValidationProblemDetails))]
+        [ProducesResponseType(statusCode: StatusCodes.Status401Unauthorized, type: typeof(ProblemDetails))]
+        [ProducesResponseType(statusCode: StatusCodes.Status403Forbidden, type: typeof(ProblemDetails))]
+        [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
+        public async Task<IActionResult> DeleteClient([FromRoute]string id) {
+            var client = await _configurationDbContext.Clients.AsNoTracking().SingleOrDefaultAsync(x => x.ClientId == id);
+            if (client == null) {
+                return NotFound();
+            }
+            _configurationDbContext.Clients.Remove(client);
+            await _configurationDbContext.SaveChangesAsync();
+            return Ok();
         }
 
         /// <summary>

@@ -118,5 +118,21 @@ namespace Indice.AspNetCore.Identity.Features
         /// Lifetime of authorization code in seconds.
         /// </summary>
         public int AuthorizationCodeLifetime { get; set; }
+        /// <summary>
+        /// Specifies whether a proof key is required for authorization code based token requests.
+        /// </summary>
+        public bool RequirePkce { get; set; }
+        /// <summary>
+        /// Specifies whether a proof key can be sent using plain method.
+        /// </summary>
+        public bool AllowPlainTextPkce { get; set; }
+        /// <summary>
+        /// Gets or sets a value to prefix it on client claim types.
+        /// </summary>
+        public string ClientClaimsPrefix { get; set; }
+        /// <summary>
+        /// List of client claims.
+        /// </summary>
+        public ClaimInfo[] Claims { get; set; }
     }
 }
