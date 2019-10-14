@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 
 import { Observable, AsyncSubject } from 'rxjs';
 import {
-    IdentityApiService, SingleUserInfo, RoleInfoResultSet, RoleInfo, ClaimTypeInfo, ClaimTypeInfoResultSet, UpdateUserRequest, ClaimInfo, CreateUserClaimRequest, BasicClaimInfo,
+    IdentityApiService, SingleUserInfo, RoleInfoResultSet, RoleInfo, ClaimTypeInfo, ClaimTypeInfoResultSet, UpdateUserRequest, ClaimInfo, CreateClaimRequest, BasicClaimInfo,
     UserClientInfo, UserClientInfoResultSet, UpdateUserClaimRequest
 } from 'src/app/core/services/identity-api.service';
 import { ClaimType } from './details/models/claim-type.model';
@@ -71,11 +71,11 @@ export class UserStore {
         return this._api.deleteUserRole(userId, role.id);
     }
 
-    public addUserClaim(userId: string, claim: ClaimInfo): Observable<void> {
+    public addClaim(userId: string, claim: ClaimInfo): Observable<void> {
         return this._api.addUserClaim(userId, {
-            claimType: claim.type,
-            claimValue: claim.value
-        } as CreateUserClaimRequest).pipe(map((createdClaim: ClaimInfo) => {
+            type: claim.type,
+            value: claim.value
+        } as CreateClaimRequest).pipe(map((createdClaim: ClaimInfo) => {
             this.getUser(userId).subscribe((user: SingleUserInfo) => {
                 user.claims.push(createdClaim);
                 this._user.next(user);

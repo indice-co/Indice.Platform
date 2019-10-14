@@ -1,7 +1,6 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 
-import { SwalComponent } from '@sweetalert2/ngx-sweetalert2';
 import { UpdateClaimTypeRequest, ValueType, IdentityApiService, ClaimTypeInfo } from 'src/app/core/services/identity-api.service';
 import { ToastService } from 'src/app/layout/services/app-toast.service';
 
@@ -10,8 +9,6 @@ import { ToastService } from 'src/app/layout/services/app-toast.service';
     templateUrl: './claim-type-edit.component.html'
 })
 export class ClaimTypeEditComponent implements OnInit {
-    @ViewChild('deleteAlert', { static: false }) private _deleteAlert: SwalComponent;
-
     constructor(private _api: IdentityApiService, private _router: Router, private _route: ActivatedRoute, public _toast: ToastService) { }
 
     public claimType: ClaimTypeInfo = new ClaimTypeInfo();
@@ -26,10 +23,6 @@ export class ClaimTypeEditComponent implements OnInit {
                 this.valueTypes.push(type);
             }
         }
-    }
-
-    public deletePrompt(): void {
-        this._deleteAlert.fire();
     }
 
     public delete(): void {

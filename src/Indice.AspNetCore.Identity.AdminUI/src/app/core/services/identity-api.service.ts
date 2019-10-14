@@ -78,6 +78,13 @@ export interface IIdentityApiService {
      */
     deleteClient(id: string): Observable<void>;
     /**
+     * Adds a claim for the specified client.
+     * @param id The id of the client.
+     * @param body (optional) The claim to add.
+     * @return Created
+     */
+    addClientClaim(id: string, body?: CreateClaimRequest | undefined): Observable<ClaimInfo>;
+    /**
      * Displays blog posts from the official IdentityServer blog.
      * @param page (optional) 
      * @param size (optional) 
@@ -188,12 +195,12 @@ export interface IIdentityApiService {
      */
     getUserApplications(userId: string): Observable<UserClientInfoResultSet>;
     /**
-     * Adds or updates a claim for the specified user.
+     * Adds a claim for the specified user.
      * @param userId The id of the user.
-     * @param body (optional) The claim to add or update.
+     * @param body (optional) The claim to add.
      * @return Created
      */
-    addUserClaim(userId: string, body?: CreateUserClaimRequest | undefined): Observable<ClaimInfo>;
+    addUserClaim(userId: string, body?: CreateClaimRequest | undefined): Observable<ClaimInfo>;
     /**
      * Gets a specified claim for a given user.
      * @param userId The id of the user.
@@ -1043,6 +1050,92 @@ export class IdentityApiService implements IIdentityApiService {
             }));
         }
         return _observableOf<void>(<any>null);
+    }
+
+    /**
+     * Adds a claim for the specified client.
+     * @param id The id of the client.
+     * @param body (optional) The claim to add.
+     * @return Created
+     */
+    addClientClaim(id: string, body?: CreateClaimRequest | undefined): Observable<ClaimInfo> {
+        let url_ = this.baseUrl + "/api/clients/{id}/claims";
+        if (id === undefined || id === null)
+            throw new Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id)); 
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json", 
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processAddClientClaim(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processAddClientClaim(<any>response_);
+                } catch (e) {
+                    return <Observable<ClaimInfo>><any>_observableThrow(e);
+                }
+            } else
+                return <Observable<ClaimInfo>><any>_observableThrow(response_);
+        }));
+    }
+
+    protected processAddClientClaim(response: HttpResponseBase): Observable<ClaimInfo> {
+        const status = response.status;
+        const responseBlob = 
+            response instanceof HttpResponse ? response.body : 
+            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }};
+        if (status === 201) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result201: any = null;
+            let resultData201 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result201 = ClaimInfo.fromJS(resultData201);
+            return _observableOf(result201);
+            }));
+        } else if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ValidationProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("Internal Server Error", status, _responseText, _headers);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<ClaimInfo>(<any>null);
     }
 
     /**
@@ -2457,12 +2550,12 @@ export class IdentityApiService implements IIdentityApiService {
     }
 
     /**
-     * Adds or updates a claim for the specified user.
+     * Adds a claim for the specified user.
      * @param userId The id of the user.
-     * @param body (optional) The claim to add or update.
+     * @param body (optional) The claim to add.
      * @return Created
      */
-    addUserClaim(userId: string, body?: CreateUserClaimRequest | undefined): Observable<ClaimInfo> {
+    addUserClaim(userId: string, body?: CreateClaimRequest | undefined): Observable<ClaimInfo> {
         let url_ = this.baseUrl + "/api/users/{userId}/claims";
         if (userId === undefined || userId === null)
             throw new Error("The parameter 'userId' must be defined.");
@@ -4072,6 +4165,52 @@ export interface ISingleClientInfo {
     clientUri?: string | undefined;
 }
 
+/** Models a request to create a claim for an entity (e.x user or client). */
+export class CreateClaimRequest implements ICreateClaimRequest {
+    /** The type of the claim. */
+    type?: string | undefined;
+    /** The value of the claim. */
+    value?: string | undefined;
+
+    constructor(data?: ICreateClaimRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.type = _data["type"];
+            this.value = _data["value"];
+        }
+    }
+
+    static fromJS(data: any): CreateClaimRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new CreateClaimRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["type"] = this.type;
+        data["value"] = this.value;
+        return data; 
+    }
+}
+
+/** Models a request to create a claim for an entity (e.x user or client). */
+export interface ICreateClaimRequest {
+    /** The type of the claim. */
+    type?: string | undefined;
+    /** The value of the claim. */
+    value?: string | undefined;
+}
+
 /** Describes a blog post item. */
 export class BlogItemInfo implements IBlogItemInfo {
     /** Title of the post. */
@@ -5418,52 +5557,6 @@ export class UserClientInfoResultSet implements IUserClientInfoResultSet {
 export interface IUserClientInfoResultSet {
     count?: number;
     items?: UserClientInfo[] | undefined;
-}
-
-/** Models a user's claim. */
-export class CreateUserClaimRequest implements ICreateUserClaimRequest {
-    /** The type of the claim. */
-    claimType?: string | undefined;
-    /** The value of the claim. */
-    claimValue?: string | undefined;
-
-    constructor(data?: ICreateUserClaimRequest) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.claimType = _data["claimType"];
-            this.claimValue = _data["claimValue"];
-        }
-    }
-
-    static fromJS(data: any): CreateUserClaimRequest {
-        data = typeof data === 'object' ? data : {};
-        let result = new CreateUserClaimRequest();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["claimType"] = this.claimType;
-        data["claimValue"] = this.claimValue;
-        return data; 
-    }
-}
-
-/** Models a user's claim. */
-export interface ICreateUserClaimRequest {
-    /** The type of the claim. */
-    claimType?: string | undefined;
-    /** The value of the claim. */
-    claimValue?: string | undefined;
 }
 
 /** Models a user claim that will be updated on the server. */

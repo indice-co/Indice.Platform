@@ -27,8 +27,8 @@
     <div class="form-row">
         <div class="col">
             <label class="sr-only" for="claim-name">Claim</label>
-            <input class="form-control" id="claim-name" name="claim-name" [(ngModel)]="selectedClaimName" [placeholder]="'Please provide a name...'" required #claim="ngModel" />
-            <div *ngIf="claimsform.submitted && claim.invalid" class="form-control-feedback text-danger">Please select a claim.</div>
+            <input class="form-control" id="claim-name" name="claim-name" [(ngModel)]="selectedClaimName" [placeholder]="'Please provide a claim...'" required #claim="ngModel" />
+            <div *ngIf="claimsform.submitted && claim.invalid" class="form-control-feedback text-danger">Please provider a claim.</div>
         </div>
         <div class="col">
             <label class="sr-only" for="claim-value">Value</label>

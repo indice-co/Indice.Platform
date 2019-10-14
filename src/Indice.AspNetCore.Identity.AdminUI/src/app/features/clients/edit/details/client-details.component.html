@@ -1,4 +1,4 @@
-<swal title="Delete?" text="Client will be deleted permanently. This action cannot be reversed." type="warning" [showCancelButton]="true" (confirm)="delete()" #deleteAlert></swal>
+<swal title="Delete?" [text]="'Client \'' + client?.clientId + '\' will be deleted permanently. This action cannot be reversed.'" type="warning" [showCancelButton]="true" (confirm)="delete()" #deleteAlert></swal>
 <p *ngIf="!client">Loading client data...</p>
 <form class="needs-validation" *ngIf="client" [ngClass]="{ 'was-validated': form.submitted }" (ngSubmit)="form.form.valid && update()" novalidate #form="ngForm">
     <div class="form-group row">
@@ -59,7 +59,7 @@
     <div class="form-group">
         <div>
             <button type="submit" class="btn btn-primary waves-effect waves-light m-r-5">Update</button>
-            <button type="button" class="btn btn-danger waves-effect m-r-5 float-right" (click)="deletePrompt()">Delete</button>
+            <button type="button" class="btn btn-danger waves-effect m-r-5 float-right" (click)="deleteAlert.fire()">Delete</button>
         </div>
     </div>
 </form>

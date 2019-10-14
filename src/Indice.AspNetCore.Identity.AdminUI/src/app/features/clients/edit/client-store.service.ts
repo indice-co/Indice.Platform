@@ -1,7 +1,11 @@
 import { Injectable } from '@angular/core';
 
 import { AsyncSubject, Observable } from 'rxjs';
-import { IdentityApiService, SingleClientInfo, IdentityResourceInfoResultSet, IdentityResourceInfo, ApiResourceInfo, ApiResourceInfoResultSet } from 'src/app/core/services/identity-api.service';
+import { map } from 'rxjs/operators';
+import {
+    IdentityApiService, SingleClientInfo, IdentityResourceInfoResultSet, IdentityResourceInfo, ApiResourceInfo, ApiResourceInfoResultSet, CreateClaimRequest,
+    ClaimInfo
+} from 'src/app/core/services/identity-api.service';
 import { UrlType } from './urls/models/urlType';
 
 @Injectable()
@@ -84,5 +88,22 @@ export class ClientStore {
             });
         }
         return this._apiResources;
+    }
+
+    public addClaim(clientId: string, claim: ClaimInfo): Observable<void> {
+        return this._api.addClientClaim(clientId, {
+            type: claim.type,
+            value: claim.value
+        } as CreateClaimRequest).pipe(map((createdClaim: ClaimInfo) => {
+            this.getClient(clientId).subscribe((client: SingleClientInfo) => {
+                client.claims.push(createdClaim);
+                this._client.next(client);
+                this._client.complete();
+            });
+        }));
+    }
+
+    public deleteClient(clientId: string): Observable<void> {
+        return this._api.deleteClient(clientId);
     }
 }

@@ -1,20 +1,19 @@
-import { Component, OnInit, ViewChild, OnDestroy } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { Component, OnInit, OnDestroy } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
 
-import { SwalComponent } from '@sweetalert2/ngx-sweetalert2';
+import { Subscription } from 'rxjs';
 import { SingleClientInfo } from 'src/app/core/services/identity-api.service';
 import { ClientStore } from '../client-store.service';
-import { Subscription } from 'rxjs';
+import { ToastService } from 'src/app/layout/services/app-toast.service';
 
 @Component({
     selector: 'app-client-details',
     templateUrl: './client-details.component.html'
 })
 export class ClientDetailsComponent implements OnInit, OnDestroy {
-    @ViewChild('deleteAlert', { static: false }) private _deleteAlert: SwalComponent;
     private _getDataSubscription: Subscription;
 
-    constructor(private _route: ActivatedRoute, private _clientStore: ClientStore) { }
+    constructor(private _route: ActivatedRoute, private _clientStore: ClientStore, public _toast: ToastService, private _router: Router) { }
 
     public client: SingleClientInfo;
 
@@ -31,11 +30,12 @@ export class ClientDetailsComponent implements OnInit, OnDestroy {
         }
     }
 
-    public deletePrompt(): void {
-        this._deleteAlert.fire();
+    public delete(): void {
+        this._clientStore.deleteClient(this.client.clientId).subscribe(_ => {
+            this._toast.showSuccess(`Client '${this.client.clientName}' was deleted successfully.`);
+            this._router.navigate(['../../'], { relativeTo: this._route });
+        });
     }
-
-    public delete(): void { }
 
     public update(): void { }
 }

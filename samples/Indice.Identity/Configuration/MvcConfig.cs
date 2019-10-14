@@ -33,7 +33,7 @@ namespace Microsoft.Extensions.DependencyInjection
                                });
                                // Enable events and register handlers.
                                options.RaiseEvents = true;
-                               options.AddEventHandler<ClientCreatedEvent, ClientCreatedEventHandler>();
+                               options.AddEventHandler<ClientCreatedEventHandler, ClientCreatedEvent>();
                            })
                            .AddNewtonsoftJson(options => {
                                options.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver {

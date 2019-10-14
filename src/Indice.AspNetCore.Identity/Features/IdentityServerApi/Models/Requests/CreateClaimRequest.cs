@@ -1,17 +1,17 @@
 ﻿namespace Indice.AspNetCore.Identity.Features
 {
     /// <summary>
-    /// Models a user's claim.
+    /// Models a request to create a claim for an entity (e.x user or client).
     /// </summary>
-    public class CreateUserClaimRequest
+    public class CreateClaimRequest
     {
         /// <summary>
         /// The type of the claim.
         /// </summary>
-        public string ClaimType { get; set; }
+        public string Type { get; set; }
         /// <summary>
         /// The value of the claim.
         /// </summary>
-        public string ClaimValue { get; set; }
+        public string Value { get; set; }
     }
 }

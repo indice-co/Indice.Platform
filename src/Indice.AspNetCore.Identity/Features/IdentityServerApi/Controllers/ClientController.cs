@@ -210,6 +210,43 @@ namespace Indice.AspNetCore.Identity.Features
         }
 
         /// <summary>
+        /// Adds a claim for the specified client.
+        /// </summary>
+        /// <param name="id">The id of the client.</param>
+        /// <param name="request">The claim to add.</param>
+        /// <response code="201">Created</response>
+        /// <response code="400">Bad Request</response>
+        /// <response code="401">Unauthorized</response>
+        /// <response code="403">Forbidden</response>
+        /// <response code="500">Internal Server Error</response>
+        [HttpPost("{id}/claims")]
+        [ProducesResponseType(statusCode: StatusCodes.Status201Created, type: typeof(ClaimInfo))]
+        [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest, type: typeof(ValidationProblemDetails))]
+        [ProducesResponseType(statusCode: StatusCodes.Status401Unauthorized, type: typeof(ProblemDetails))]
+        [ProducesResponseType(statusCode: StatusCodes.Status403Forbidden, type: typeof(ProblemDetails))]
+        public async Task<ActionResult<ClaimInfo>> AddClientClaim([FromRoute]string id, [FromBody]CreateClaimRequest request) {
+            var client = await _configurationDbContext.Clients.SingleOrDefaultAsync(x => x.ClientId == id);
+            if (client == null) {
+                return NotFound();
+            }
+            var claimToAdd = new ClientClaim {
+                Client = client,
+                ClientId = client.Id,
+                Type = request.Type,
+                Value = request.Value
+            };
+            client.Claims = new List<ClientClaim>();
+            client.Claims.Add(claimToAdd);
+            await _configurationDbContext.SaveChangesAsync();
+            await _cache.RemoveAsync(CacheKeys.Client(id));
+            return Created(string.Empty, new ClaimInfo {
+                Id = claimToAdd.Id,
+                Type = claimToAdd.Type,
+                Value = claimToAdd.Value
+            });
+        }
+
+        /// <summary>
         /// Permanently deletes an existing client.
         /// </summary>
         /// <param name="id">The id of the client to delete.</param>
@@ -232,6 +269,7 @@ namespace Indice.AspNetCore.Identity.Features
             }
             _configurationDbContext.Clients.Remove(client);
             await _configurationDbContext.SaveChangesAsync();
+            await _cache.RemoveAsync(CacheKeys.Client(id));
             return Ok();
         }
 

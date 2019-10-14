@@ -390,10 +390,10 @@ namespace Indice.AspNetCore.Identity.Features
         }
 
         /// <summary>
-        /// Adds or updates a claim for the specified user.
+        /// Adds a claim for the specified user.
         /// </summary>
         /// <param name="userId">The id of the user.</param>
-        /// <param name="request">The claim to add or update.</param>
+        /// <param name="request">The claim to add.</param>
         /// <response code="201">Created</response>
         /// <response code="400">Bad Request</response>
         /// <response code="401">Unauthorized</response>
@@ -404,15 +404,15 @@ namespace Indice.AspNetCore.Identity.Features
         [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest, type: typeof(ValidationProblemDetails))]
         [ProducesResponseType(statusCode: StatusCodes.Status401Unauthorized, type: typeof(ProblemDetails))]
         [ProducesResponseType(statusCode: StatusCodes.Status403Forbidden, type: typeof(ProblemDetails))]
-        public async Task<ActionResult<ClaimInfo>> AddUserClaim([FromRoute]string userId, [FromBody]CreateUserClaimRequest request) {
+        public async Task<ActionResult<ClaimInfo>> AddUserClaim([FromRoute]string userId, [FromBody]CreateClaimRequest request) {
             var user = await _dbContext.Users.AsNoTracking().SingleOrDefaultAsync(x => x.Id == userId);
             if (user == null) {
                 return NotFound();
             }
             var claimToAdd = new IdentityUserClaim<string> {
                 UserId = userId,
-                ClaimType = request.ClaimType,
-                ClaimValue = request.ClaimValue
+                ClaimType = request.Type,
+                ClaimValue = request.Value
             };
             _dbContext.UserClaims.Add(claimToAdd);
             await _dbContext.SaveChangesAsync();

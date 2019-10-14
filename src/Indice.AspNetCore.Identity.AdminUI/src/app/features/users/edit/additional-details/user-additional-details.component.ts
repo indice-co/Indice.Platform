@@ -71,7 +71,7 @@ export class UserAdditionalDetailsComponent implements OnInit, OnDestroy {
     }
 
     public addClaim(): void {
-        this._userStore.addUserClaim(this._user.id, {
+        this._userStore.addClaim(this._user.id, {
             type: this.selectedClaimName,
             value: this.selectedClaimValueType === ValueType.DateTime ? this._dateParser.format(this.selectedClaimValue as NgbDateStruct) : this.selectedClaimValue
         } as ClaimInfo).subscribe(_ => {
