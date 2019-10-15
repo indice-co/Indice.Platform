@@ -134,5 +134,9 @@ namespace Indice.AspNetCore.Identity.Features
         /// List of client claims.
         /// </summary>
         public ClaimInfo[] Claims { get; set; }
+        /// <summary>
+        /// List of configured grant types.
+        /// </summary>
+        public string[] GrantTypes { get; set; }
     }
 }

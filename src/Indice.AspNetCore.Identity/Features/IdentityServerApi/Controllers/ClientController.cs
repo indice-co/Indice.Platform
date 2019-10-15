@@ -139,6 +139,7 @@ namespace Indice.AspNetCore.Identity.Features
                     RequirePkce = client.RequirePkce,
                     AllowPlainTextPkce = client.AllowPlainTextPkce,
                     ClientClaimsPrefix = client.ClientClaimsPrefix,
+                    GrantTypes = client.AllowedGrantTypes.Select(x => x.GrantType).ToArray(),
                     ApiResources = client.AllowedScopes.Join(
                         _configurationDbContext.ApiResources.SelectMany(apiResource => apiResource.Scopes),
                         clientScope => clientScope.Scope,

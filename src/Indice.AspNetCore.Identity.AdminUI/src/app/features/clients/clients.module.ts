@@ -25,6 +25,7 @@ import { ClientIdentityResourcesComponent } from './edit/resources/identity/clie
 import { ClientAdvancedComponent } from './edit/advanced/client-advanced.component';
 import { ClientTokensComponent } from './edit/advanced/tokens/client-tokens.component';
 import { ClientClaimsComponent } from './edit/advanced/claims/client-claims.component';
+import { ClientGrantTypesComponent } from './edit/advanced/grant-types/client-grant-types.component';
 
 @NgModule({
     declarations: [
@@ -46,6 +47,7 @@ import { ClientClaimsComponent } from './edit/advanced/claims/client-claims.comp
         ClientAdvancedComponent,
         ClientTokensComponent,
         ClientClaimsComponent,
+        ClientGrantTypesComponent,
         WizardStepDirective
     ],
     imports: [

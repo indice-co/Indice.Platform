@@ -3950,6 +3950,8 @@ export class SingleClientInfo implements ISingleClientInfo {
     clientClaimsPrefix?: string | undefined;
     /** List of client claims. */
     claims?: ClaimInfo[] | undefined;
+    /** List of configured grant types. */
+    grantTypes?: string[] | undefined;
     /** The unique identifier for this application. */
     clientId?: string | undefined;
     /** Application name that will be seen on consent screens. */
@@ -4024,6 +4026,11 @@ export class SingleClientInfo implements ISingleClientInfo {
                 for (let item of _data["claims"])
                     this.claims!.push(ClaimInfo.fromJS(item));
             }
+            if (Array.isArray(_data["grantTypes"])) {
+                this.grantTypes = [] as any;
+                for (let item of _data["grantTypes"])
+                    this.grantTypes!.push(item);
+            }
             this.clientId = _data["clientId"];
             this.clientName = _data["clientName"];
             this.description = _data["description"];
@@ -4090,6 +4097,11 @@ export class SingleClientInfo implements ISingleClientInfo {
             for (let item of this.claims)
                 data["claims"].push(item.toJSON());
         }
+        if (Array.isArray(this.grantTypes)) {
+            data["grantTypes"] = [];
+            for (let item of this.grantTypes)
+                data["grantTypes"].push(item);
+        }
         data["clientId"] = this.clientId;
         data["clientName"] = this.clientName;
         data["description"] = this.description;
@@ -4147,6 +4159,8 @@ export interface ISingleClientInfo {
     clientClaimsPrefix?: string | undefined;
     /** List of client claims. */
     claims?: ClaimInfo[] | undefined;
+    /** List of configured grant types. */
+    grantTypes?: string[] | undefined;
     /** The unique identifier for this application. */
     clientId?: string | undefined;
     /** Application name that will be seen on consent screens. */
