@@ -1,20 +1,20 @@
 import { Component, ViewChild, TemplateRef, OnInit } from '@angular/core';
 
 import { TableColumn } from '@swimlane/ngx-datatable';
-import { IdentityResourceInfo, IdentityApiService, IdentityResourceInfoResultSet } from 'src/app/core/services/identity-api.service';
+import { IdentityApiService, ApiResourceInfoResultSet, ApiResourceInfo } from 'src/app/core/services/identity-api.service';
 import { SearchEvent } from 'src/app/shared/components/list-view/models/search-event';
 
 @Component({
-    selector: 'app-identity-resources',
-    templateUrl: './identity-resources.component.html'
+    selector: 'app-api-resources',
+    templateUrl: './api-resources.component.html'
 })
-export class IdentityResourcesComponent implements OnInit {
+export class ApiResourcesComponent implements OnInit {
     @ViewChild('actionsTemplate', { static: true }) private _actionsTemplate: TemplateRef<HTMLElement>;
 
     constructor(private _api: IdentityApiService) { }
 
     public count = 0;
-    public rows: IdentityResourceInfo[] = [];
+    public rows: ApiResourceInfo[] = [];
     public columns: TableColumn[] = [];
 
     public ngOnInit(): void {
@@ -26,8 +26,8 @@ export class IdentityResourcesComponent implements OnInit {
         ];
     }
 
-    public getIdentityResources(event: SearchEvent): void {
-        this._api.getIdentityResources(event.page, event.pageSize, event.sortField, event.searchTerm).subscribe((resources: IdentityResourceInfoResultSet) => {
+    public getApiResources(event: SearchEvent): void {
+        this._api.getProtectedResources(event.page, event.pageSize, event.sortField, event.searchTerm).subscribe((resources: ApiResourceInfoResultSet) => {
             this.count = resources.count;
             this.rows = resources.items;
         });

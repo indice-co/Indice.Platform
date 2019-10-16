@@ -1,0 +1,24 @@
+<div class="row">
+    <div class="col-sm-12">
+        <div class="page-title-box">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h4 class="page-title m-0">API Resources List ({{ count }})</h4>
+                    <p class="text-muted font-14">
+                        Get a list of all API resources.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-12">
+        <app-list-view [clientSide]="false" [columns]="columns" [rows]="rows" [count]="count" [rowsPerPage]="15" [defaultSortField]="'name'" [defaultSortDirection]="'Asc'" 
+            (search)="getApiResources($event)" #apiResourcesList>
+        </app-list-view>
+    </div>
+</div>
+<ng-template let-row="row" let-value="value" #actionsTemplate>
+    <a class="btn btn-success" href="#" role="button" *ngIf="value" [routerLink]="value + '/details'">Edit</a>
+</ng-template>

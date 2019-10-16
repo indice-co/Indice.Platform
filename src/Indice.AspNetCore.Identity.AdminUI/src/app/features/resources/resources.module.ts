@@ -10,6 +10,7 @@ import { IdentityResourceEditComponent } from './identity/edit/identity-resource
 import { IdentityResourceDetailsComponent } from './identity/edit/details/identity-resource-details.component';
 import { IdentityResourceClaimsComponent } from './identity/edit/claims/identity-resource-claims.component';
 import { IdentityResourceAddComponent } from './identity/add/identity-resource-add.component';
+import { ApiResourcesComponent } from './api/api-resources.component';
 
 @NgModule({
     declarations: [
@@ -17,7 +18,8 @@ import { IdentityResourceAddComponent } from './identity/add/identity-resource-a
         IdentityResourceEditComponent,
         IdentityResourceDetailsComponent,
         IdentityResourceClaimsComponent,
-        IdentityResourceAddComponent
+        IdentityResourceAddComponent,
+        ApiResourcesComponent
     ],
     imports: [
         CommonModule,
