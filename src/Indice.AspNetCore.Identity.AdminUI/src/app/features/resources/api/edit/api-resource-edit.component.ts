@@ -1,16 +1,32 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
+
+import { Subscription } from 'rxjs';
+import { ApiResourceStore } from './api-resource-store.service';
+import { ApiResourceInfo } from 'src/app/core/services/identity-api.service';
 
 @Component({
     selector: 'app-api-resource-edit',
-    templateUrl: './api-resource-edit.component.html'
+    templateUrl: './api-resource-edit.component.html',
+    providers: [ApiResourceStore]
 })
-export class ApiResourceEditComponent implements OnInit {
-    constructor(private _route: ActivatedRoute) { }
+export class ApiResourceEditComponent implements OnInit, OnDestroy {
+    private _getDataSubscription: Subscription;
 
-    public clientId = '';
+    constructor(private _route: ActivatedRoute, private _apiResourceStore: ApiResourceStore) { }
+
+    public apiResourceName = '';
 
     public ngOnInit(): void {
-        this.clientId = this._route.snapshot.params.id;
+        const apiResourceId = +this._route.snapshot.params.id;
+        this._getDataSubscription = this._apiResourceStore.getApiResource(apiResourceId).subscribe((apiResource: ApiResourceInfo) => {
+            this.apiResourceName = apiResource.displayName || apiResource.name;
+        });
+    }
+
+    public ngOnDestroy(): void {
+        if (this._getDataSubscription) {
+            this._getDataSubscription.unsubscribe();
+        }
     }
 }

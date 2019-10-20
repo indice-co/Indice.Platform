@@ -26,17 +26,17 @@ namespace Indice.AspNetCore.Identity.Features
         /// <summary>
         /// Determines whether this scope is required or not.
         /// </summary>
-        public bool Required { get; set; }
+        public bool? Required { get; set; }
         /// <summary>
         /// Determines whether this scope should be displayed emphasized or not.
         /// </summary>
-        public bool Emphasize { get; set; }
+        public bool? Emphasize { get; set; }
         /// <summary>
         /// Determines whether this scope should be displayed in the discovery document or not.
         /// </summary>
-        public bool ShowInDiscoveryDocument { get; set; }
+        public bool? ShowInDiscoveryDocument { get; set; }
         /// <summary>
-        /// List of accociated user claims that should be included when this resource is requested.
+        /// List of accociated user claims that should be included when a resource is requested.
         /// </summary>
         public IEnumerable<string> UserClaims { get; set; }
     }

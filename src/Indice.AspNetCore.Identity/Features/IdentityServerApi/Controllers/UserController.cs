@@ -95,8 +95,8 @@ namespace Indice.AspNetCore.Identity.Features
             // Creating a new 'UserInfo' object at this point will result in evaluating the query in-memory.
             var users = await query.Select(x => new UserInfo {
                 Id = x.Id,
-                FirstName = x.Claims.FirstOrDefault(claim => claim.ClaimType == JwtClaimTypes.GivenName).ClaimValue,
-                LastName = x.Claims.FirstOrDefault(claim => claim.ClaimType == JwtClaimTypes.FamilyName).ClaimValue,
+                FirstName = x.Claims.FirstOrDefault(x => x.ClaimType == JwtClaimTypes.GivenName).ClaimValue,
+                LastName = x.Claims.FirstOrDefault(x => x.ClaimType == JwtClaimTypes.FamilyName).ClaimValue,
                 Email = x.Email,
                 EmailConfirmed = x.EmailConfirmed,
                 PhoneNumber = x.PhoneNumber,
@@ -142,13 +142,13 @@ namespace Indice.AspNetCore.Identity.Features
                     PhoneNumberConfirmed = x.PhoneNumberConfirmed,
                     TwoFactorEnabled = x.TwoFactorEnabled,
                     UserName = x.UserName,
-                    Claims = x.Claims.Select(userClaim => new ClaimInfo {
-                        Id = userClaim.Id,
-                        Type = userClaim.ClaimType,
-                        Value = userClaim.ClaimValue
+                    Claims = x.Claims.Select(x => new ClaimInfo {
+                        Id = x.Id,
+                        Type = x.ClaimType,
+                        Value = x.ClaimValue
                     })
                     .ToList(),
-                    Roles = _dbContext.UserRoles.Where(userRole => userRole.UserId == userId).Join(
+                    Roles = _dbContext.UserRoles.Where(x => x.UserId == userId).Join(
                         _dbContext.Roles,
                         userRole => userRole.RoleId,
                         role => role.Id,

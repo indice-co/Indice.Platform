@@ -8,7 +8,7 @@ namespace Indice.AspNetCore.Identity.Features
     /// <summary>
     /// Extensions on type <see cref="ExtendedIdentityDbContext{TUser, TRole}"/>.
     /// </summary>
-    internal static class IndiceIdentityDbContextExtensions
+    internal static class ExtendedIdentityDbContextExtensions
     {
         /// <summary>
         /// A method that seeds the database with initial realistic data.

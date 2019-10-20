@@ -127,6 +127,12 @@ export interface IIdentityApiService {
      */
     getProtectedResources(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined): Observable<ApiResourceInfoResultSet>;
     /**
+     * Gets an API resource by it's unique id.
+     * @param id The identifier of the API resource.
+     * @return OK
+     */
+    getApiResource(id: number): Observable<ApiResourceInfo>;
+    /**
      * Returns a list of Indice.AspNetCore.Identity.Features.RoleInfo objects containing the total number of roles in the database and the data filtered according to the provided Indice.Types.ListOptions.
      * @param page (optional) 
      * @param size (optional) 
@@ -1662,6 +1668,94 @@ export class IdentityApiService implements IIdentityApiService {
             }));
         }
         return _observableOf<ApiResourceInfoResultSet>(<any>null);
+    }
+
+    /**
+     * Gets an API resource by it's unique id.
+     * @param id The identifier of the API resource.
+     * @return OK
+     */
+    getApiResource(id: number): Observable<ApiResourceInfo> {
+        let url_ = this.baseUrl + "/api/resources/protected/{id}";
+        if (id === undefined || id === null)
+            throw new Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id)); 
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetApiResource(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetApiResource(<any>response_);
+                } catch (e) {
+                    return <Observable<ApiResourceInfo>><any>_observableThrow(e);
+                }
+            } else
+                return <Observable<ApiResourceInfo>><any>_observableThrow(response_);
+        }));
+    }
+
+    protected processGetApiResource(response: HttpResponseBase): Observable<ApiResourceInfo> {
+        const status = response.status;
+        const responseBlob = 
+            response instanceof HttpResponse ? response.body : 
+            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }};
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = ApiResourceInfo.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ValidationProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 404) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = ProblemDetails.fromJS(resultData404);
+            return throwException("Not Found", status, _responseText, _headers, result404);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = resultData403 !== undefined ? resultData403 : <any>null;
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("Internal Server Error", status, _responseText, _headers);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<ApiResourceInfo>(<any>null);
     }
 
     /**
@@ -3659,7 +3753,7 @@ export enum ClientType {
 }
 
 /** The type of client secret. */
-export enum ClientSecretType {
+export enum SecretType {
     X509Thumbprint = "X509Thumbprint",
     SharedSecret = "SharedSecret",
 }
@@ -3672,7 +3766,7 @@ export class ClientSecretRequest implements IClientSecretRequest {
     value?: string | undefined;
     /** Optional expiration of client secret. */
     expiration?: Date | undefined;
-    type?: ClientSecretType;
+    type?: SecretType;
 
     constructor(data?: IClientSecretRequest) {
         if (data) {
@@ -3717,7 +3811,7 @@ export interface IClientSecretRequest {
     value?: string | undefined;
     /** Optional expiration of client secret. */
     expiration?: Date | undefined;
-    type?: ClientSecretType;
+    type?: SecretType;
 }
 
 /** Models a client that will be created on the server. */
@@ -3905,6 +3999,68 @@ export interface IClaimInfo {
     value?: string | undefined;
 }
 
+/** Models an Client secret used in flows that require this. */
+export class ClientSecretInfo implements IClientSecretInfo {
+    /** The identifier for the API secret. */
+    id?: number;
+    /** Description of client secret. */
+    description?: string | undefined;
+    /** The value of client secret. */
+    value?: string | undefined;
+    /** Optional expiration of client secret. */
+    expiration?: Date | undefined;
+    type?: SecretType;
+
+    constructor(data?: IClientSecretInfo) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.description = _data["description"];
+            this.value = _data["value"];
+            this.expiration = _data["expiration"] ? new Date(_data["expiration"].toString()) : <any>undefined;
+            this.type = _data["type"];
+        }
+    }
+
+    static fromJS(data: any): ClientSecretInfo {
+        data = typeof data === 'object' ? data : {};
+        let result = new ClientSecretInfo();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["description"] = this.description;
+        data["value"] = this.value;
+        data["expiration"] = this.expiration ? this.expiration.toISOString() : <any>undefined;
+        data["type"] = this.type;
+        return data; 
+    }
+}
+
+/** Models an Client secret used in flows that require this. */
+export interface IClientSecretInfo {
+    /** The identifier for the API secret. */
+    id?: number;
+    /** Description of client secret. */
+    description?: string | undefined;
+    /** The value of client secret. */
+    value?: string | undefined;
+    /** Optional expiration of client secret. */
+    expiration?: Date | undefined;
+    type?: SecretType;
+}
+
 /** Models a system client when API provides info for a single client. */
 export class SingleClientInfo implements ISingleClientInfo {
     /** Cors origins allowed. */
@@ -3952,6 +4108,8 @@ export class SingleClientInfo implements ISingleClientInfo {
     claims?: ClaimInfo[] | undefined;
     /** List of configured grant types. */
     grantTypes?: string[] | undefined;
+    /** List of available client secrets. */
+    secrets?: ClientSecretInfo[] | undefined;
     /** The unique identifier for this application. */
     clientId?: string | undefined;
     /** Application name that will be seen on consent screens. */
@@ -4031,6 +4189,11 @@ export class SingleClientInfo implements ISingleClientInfo {
                 for (let item of _data["grantTypes"])
                     this.grantTypes!.push(item);
             }
+            if (Array.isArray(_data["secrets"])) {
+                this.secrets = [] as any;
+                for (let item of _data["secrets"])
+                    this.secrets!.push(ClientSecretInfo.fromJS(item));
+            }
             this.clientId = _data["clientId"];
             this.clientName = _data["clientName"];
             this.description = _data["description"];
@@ -4102,6 +4265,11 @@ export class SingleClientInfo implements ISingleClientInfo {
             for (let item of this.grantTypes)
                 data["grantTypes"].push(item);
         }
+        if (Array.isArray(this.secrets)) {
+            data["secrets"] = [];
+            for (let item of this.secrets)
+                data["secrets"].push(item.toJSON());
+        }
         data["clientId"] = this.clientId;
         data["clientName"] = this.clientName;
         data["description"] = this.description;
@@ -4161,6 +4329,8 @@ export interface ISingleClientInfo {
     claims?: ClaimInfo[] | undefined;
     /** List of configured grant types. */
     grantTypes?: string[] | undefined;
+    /** List of available client secrets. */
+    secrets?: ClientSecretInfo[] | undefined;
     /** The unique identifier for this application. */
     clientId?: string | undefined;
     /** Application name that will be seen on consent screens. */
@@ -4543,7 +4713,7 @@ export class ScopeInfo implements IScopeInfo {
     emphasize?: boolean;
     /** Determines whether this scope should be displayed in the discovery document or not. */
     showInDiscoveryDocument?: boolean;
-    /** List of accociated user claims that should be included when this resource is requested. */
+    /** List of accociated user claims that should be included when a resource is requested. */
     userClaims?: string[] | undefined;
 
     constructor(data?: IScopeInfo) {
@@ -4613,8 +4783,70 @@ export interface IScopeInfo {
     emphasize?: boolean;
     /** Determines whether this scope should be displayed in the discovery document or not. */
     showInDiscoveryDocument?: boolean;
-    /** List of accociated user claims that should be included when this resource is requested. */
+    /** List of accociated user claims that should be included when a resource is requested. */
     userClaims?: string[] | undefined;
+}
+
+/** Models an API secret used for the introspection endpoint. The API can authenticate with introspection using the API name and secret. */
+export class ApiSecretInfo implements IApiSecretInfo {
+    /** The identifier for the API secret. */
+    id?: number;
+    /** Description of client secret. */
+    description?: string | undefined;
+    /** The value of client secret. */
+    value?: string | undefined;
+    /** Optional expiration of client secret. */
+    expiration?: Date | undefined;
+    type?: SecretType;
+
+    constructor(data?: IApiSecretInfo) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.description = _data["description"];
+            this.value = _data["value"];
+            this.expiration = _data["expiration"] ? new Date(_data["expiration"].toString()) : <any>undefined;
+            this.type = _data["type"];
+        }
+    }
+
+    static fromJS(data: any): ApiSecretInfo {
+        data = typeof data === 'object' ? data : {};
+        let result = new ApiSecretInfo();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["description"] = this.description;
+        data["value"] = this.value;
+        data["expiration"] = this.expiration ? this.expiration.toISOString() : <any>undefined;
+        data["type"] = this.type;
+        return data; 
+    }
+}
+
+/** Models an API secret used for the introspection endpoint. The API can authenticate with introspection using the API name and secret. */
+export interface IApiSecretInfo {
+    /** The identifier for the API secret. */
+    id?: number;
+    /** Description of client secret. */
+    description?: string | undefined;
+    /** The value of client secret. */
+    value?: string | undefined;
+    /** Optional expiration of client secret. */
+    expiration?: Date | undefined;
+    type?: SecretType;
 }
 
 /** Models an API resource for the application. */
@@ -4633,7 +4865,9 @@ export class ApiResourceInfo implements IApiResourceInfo {
     nonEditable?: boolean;
     /** List of accociated claims that should be included when this resource is requested. */
     allowedClaims?: string[] | undefined;
+    /** List of all scopes included in the resource. At least one scope must be included. */
     scopes?: ScopeInfo[] | undefined;
+    secrets?: ApiSecretInfo[] | undefined;
 
     constructor(data?: IApiResourceInfo) {
         if (data) {
@@ -4661,6 +4895,11 @@ export class ApiResourceInfo implements IApiResourceInfo {
                 this.scopes = [] as any;
                 for (let item of _data["scopes"])
                     this.scopes!.push(ScopeInfo.fromJS(item));
+            }
+            if (Array.isArray(_data["secrets"])) {
+                this.secrets = [] as any;
+                for (let item of _data["secrets"])
+                    this.secrets!.push(ApiSecretInfo.fromJS(item));
             }
         }
     }
@@ -4690,6 +4929,11 @@ export class ApiResourceInfo implements IApiResourceInfo {
             for (let item of this.scopes)
                 data["scopes"].push(item.toJSON());
         }
+        if (Array.isArray(this.secrets)) {
+            data["secrets"] = [];
+            for (let item of this.secrets)
+                data["secrets"].push(item.toJSON());
+        }
         return data; 
     }
 }
@@ -4710,7 +4954,9 @@ export interface IApiResourceInfo {
     nonEditable?: boolean;
     /** List of accociated claims that should be included when this resource is requested. */
     allowedClaims?: string[] | undefined;
+    /** List of all scopes included in the resource. At least one scope must be included. */
     scopes?: ScopeInfo[] | undefined;
+    secrets?: ApiSecretInfo[] | undefined;
 }
 
 export class ApiResourceInfoResultSet implements IApiResourceInfoResultSet {

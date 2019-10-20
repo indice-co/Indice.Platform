@@ -4,7 +4,7 @@ import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 import { StepBaseComponent } from '../step-base.component';
 import { UtilitiesService } from 'src/app/core/services/utilities.services';
 import { TableColumn } from '@swimlane/ngx-datatable';
-import { ClientSecretRequest, IClientSecretRequest, ClientSecretType } from 'src/app/core/services/identity-api.service';
+import { ClientSecretRequest, IClientSecretRequest, SecretType } from 'src/app/core/services/identity-api.service';
 import { NgbDateCustomParserFormatter } from 'src/app/shared/services/custom-parser-formatter.service';
 import { ListViewComponent } from 'src/app/shared/components/list-view/list-view.component';
 
@@ -26,7 +26,7 @@ export class SecretsStepComponent extends StepBaseComponent implements OnInit {
     public columns: TableColumn[] = [];
     public rows: ClientSecretRequest[] = [];
     public clientSecret: ClientSecretRequest = new ClientSecretRequest({
-        type: ClientSecretType.SharedSecret
+        type: SecretType.SharedSecret
     } as IClientSecretRequest);
 
     public ngOnInit(): void {
@@ -56,7 +56,7 @@ export class SecretsStepComponent extends StepBaseComponent implements OnInit {
         this.data.form.get('secrets').setValue(this.rows);
         this.formValidated.emit(false);
         this.clientSecret = new ClientSecretRequest({
-            type: ClientSecretType.SharedSecret
+            type: SecretType.SharedSecret
         } as IClientSecretRequest);
     }
 

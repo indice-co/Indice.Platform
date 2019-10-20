@@ -30,7 +30,7 @@ namespace Indice.AspNetCore.Identity.Features
         public static IMvcBuilder AddIdentityServerApiEndpoints<TUser, TRole>(this IMvcBuilder mvcBuilder, Action<IdentityServerApiEndpointsOptions> configureAction = null)
             where TUser : User, new()
             where TRole : Role, new() {
-            mvcBuilder.ConfigureApplicationPartManager(x => x.FeatureProviders.Add(new IdentityServerApiFeatureProvider())); // Use the IdentityServerApiFeatureProvider to register IdentityServer API controllers.
+            mvcBuilder.ConfigureApplicationPartManager(x => x.FeatureProviders.Add(new IdentityServerApiFeatureProvider()));
             var apiEndpointsOptions = new IdentityServerApiEndpointsOptions {
                 Services = mvcBuilder.Services
             };

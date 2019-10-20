@@ -9,6 +9,7 @@ import { IdentityResourceAddComponent } from './identity/add/identity-resource-a
 import { ApiResourcesComponent } from './api/api-resources.component';
 import { ApiResourceEditComponent } from './api/edit/api-resource-edit.component';
 import { ApiResourceDetailsComponent } from './api/edit/details/api-resource-details.component';
+import { ApiResourceScopesComponent } from './api/edit/scopes/api-resource-scopes.component';
 
 const routes: Routes = [
     { path: '', redirectTo: 'identity', pathMatch: 'full' },
@@ -26,7 +27,7 @@ const routes: Routes = [
         path: 'api/:id', component: ApiResourceEditComponent, children: [
             { path: '', redirectTo: 'details', pathMatch: 'full' },
             { path: 'details', component: ApiResourceDetailsComponent },
-            { path: 'scopes' },
+            { path: 'scopes', component: ApiResourceScopesComponent },
             { path: 'claims' },
             { path: 'secrets' }
         ]

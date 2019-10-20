@@ -2,61 +2,34 @@
     (confirm)="delete()" #deleteAlert></swal>
 <p *ngIf="!apiResource">Loading API resource data...</p>
 <form class="needs-validation" *ngIf="apiResource" [ngClass]="{ 'was-validated': form.submitted }" (ngSubmit)="form.form.valid && update()" novalidate #form="ngForm">
-    <!-- <div class="form-group row">
-        <label for="client-id" class="col-sm-2 col-form-label">Client Id</label>
+    <div class="form-group row">
+        <label for="api-resource-id" class="col-sm-2 col-form-label">Client Id</label>
         <div class="col-sm-10 col-form-label">
-            <span class="col-form-label" id="client-id" name="client-id">{{ client.clientId }}</span>
+            <span class="col-form-label" id="api-resource-id" name="api-resource-id">{{ apiResource.name }}</span>
         </div>
     </div>
     <div class="form-group row">
-        <label for="client-display-name" class="col-sm-2 col-form-label">Display Name (*)</label>
+        <label for="api-resource-display-name" class="col-sm-2 col-form-label">Display Name</label>
         <div class="col-sm-10">
-            <input class="form-control" type="text" id="client-display-name" name="client-display-name" [(ngModel)]="client.clientName" maxlength="200" required #clientName="ngModel" />
-            <div *ngIf="form.submitted && clientName.invalid" class="form-control-feedback text-danger">Field 'Display Name' is required.</div>
+            <input class="form-control" type="text" id="api-resource-display-name" name="api-resource-display-name" [(ngModel)]="apiResource.displayName" maxlength="200" 
+                #apiResourceName="ngModel" />
         </div>
     </div>
     <div class="form-group row">
-        <label for="client-description" class="col-sm-2 col-form-label">Description</label>
+        <label for="api-resource-description" class="col-sm-2 col-form-label">Description</label>
         <div class="col-sm-10">
-            <textarea id="client-description" name="client-description" class="form-control" rows="3" maxlength="10" [(ngModel)]="client.description" #description="ngModel"></textarea>
+            <textarea id="api-resource-description" name="api-resource-description" class="form-control" rows="3" maxlength="1000" [(ngModel)]="apiResource.description" 
+                #description="ngModel"></textarea>
         </div>
     </div>
     <div class="form-group row">
-        <label for="client-display-url" class="col-sm-2 col-form-label">Display URL</label>
-        <div class="col-sm-10">
-            <input class="form-control" type="text" id="client-display-url" name="client-display-url" [(ngModel)]="client.clientUri" maxlength="2000" required #clientUrl="ngModel" />
-        </div>
-    </div>
-    <div class="form-group row">
-        <label for="client-logo-url" class="col-sm-2 col-form-label">Logo URL</label>
-        <div class="col-sm-10">
-            <input class="form-control" type="text" id="client-logo-url" name="client-logo-url" [(ngModel)]="client.logoUri" maxlength="2000" required #logoUrl="ngModel" />
-        </div>
-    </div>
-    <div class="form-group row">
-        <label for="client-enabled" class="col-sm-2 col-form-label">Enabled</label>
+        <label for="api-resource-enabled" class="col-sm-2 col-form-label">Enabled</label>
         <div class="col-sm-10">
             <div class="form-check col-form-label">
-                <input class="form-check-input" type="checkbox" id="client-enabled" name="client-enabled" [checked]="client.enabled" />
+                <input class="form-check-input" type="checkbox" id="api-resource-enabled" name="api-resource-enabled" [checked]="apiResource.enabled" />
             </div>
         </div>
     </div>
-    <div class="form-group row">
-        <label for="client-require-consent" class="col-sm-2 col-form-label">Require Consent</label>
-        <div class="col-sm-10">
-            <div class="form-check col-form-label">
-                <input class="form-check-input" type="checkbox" id="client-require-consent" name="client-require-consent" [checked]="client.requireConsent" />
-            </div>
-        </div>
-    </div>
-    <div class="form-group row">
-        <label for="client-remember-consent" class="col-sm-2 col-form-label">Remember Consent</label>
-        <div class="col-sm-10">
-            <div class="form-check col-form-label">
-                <input class="form-check-input" type="checkbox" id="client-remember-consent" name="client-remember-consent" [checked]="client.allowRememberConsent" />
-            </div>
-        </div>
-    </div> -->
     <div class="form-group">
         <div>
             <button type="submit" class="btn btn-primary waves-effect waves-light m-r-5">Update</button>

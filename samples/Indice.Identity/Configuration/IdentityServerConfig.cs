@@ -2,6 +2,7 @@
 using System.Reflection;
 using System.Security.Cryptography.X509Certificates;
 using Indice.AspNetCore.Identity.Extensions;
+using Indice.AspNetCore.Identity.Features;
 using Indice.AspNetCore.Identity.Models;
 using Indice.Configuration;
 using Indice.Identity;
@@ -46,7 +47,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 options.ConfigureDbContext = builder => builder.UseSqlServer(configuration.GetConnectionString("OperationalDb"), sqlServerOptions => sqlServerOptions.MigrationsAssembly(migrationsAssembly));
                 options.EnableTokenCleanup = true;
             })
-            .AddConfigurationStore(options => {
+            .AddConfigurationStore<ExtendedConfigurationDbContext>(options => {
                 options.SetupTables();
                 options.ConfigureDbContext = builder => builder.UseSqlServer(configuration.GetConnectionString("ConfigurationDb"), sqlServerOptions => sqlServerOptions.MigrationsAssembly(migrationsAssembly));
             })

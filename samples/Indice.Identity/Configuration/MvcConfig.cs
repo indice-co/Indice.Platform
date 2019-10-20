@@ -44,7 +44,7 @@ namespace Microsoft.Extensions.DependencyInjection
                                };
                                options.SerializerSettings.Converters.Add(new StringEnumConverter());
                                options.SerializerSettings.DateTimeZoneHandling = DateTimeZoneHandling.Utc;
-                               options.SerializerSettings.DefaultValueHandling = DefaultValueHandling.Include;
+                               options.SerializerSettings.DefaultValueHandling = DefaultValueHandling.IgnoreAndPopulate;
                            })
                            .SetCompatibilityVersion(CompatibilityVersion.Latest)
                            .ConfigureApiBehaviorOptions(options => {
@@ -80,7 +80,7 @@ namespace Microsoft.Extensions.DependencyInjection
                            })
                            .AddFluentValidation(options => {
                                options.RegisterValidatorsFromAssemblyContaining<Startup>();
-                               options.RegisterValidatorsFromAssembly(Assembly.Load($"Indice.AspNetCore.Identity"));
+                               options.RegisterValidatorsFromAssembly(Assembly.Load(IdentityServerApi.AssemblyName));
                                options.ConfigureClientsideValidation();
                                options.RunDefaultMvcValidationAfterFluentValidationExecutes = false;
                            });

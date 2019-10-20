@@ -1,10 +1,16 @@
-﻿namespace Indice.AspNetCore.Identity.Features
+﻿using System.Reflection;
+
+namespace Indice.AspNetCore.Identity.Features
 {
     /// <summary>
-    /// Constants that describe IdentityServer API scopes.
+    /// Constants for IdentityServer API feature.
     /// </summary>
     public class IdentityServerApi
     {
+        /// <summary>
+        /// The assembly name.
+        /// </summary>
+        public static readonly string AssemblyName = Assembly.GetExecutingAssembly().GetName().Name;
         /// <summary>
         /// Authentication scheme name used by IdentityServer local API.
         /// </summary>

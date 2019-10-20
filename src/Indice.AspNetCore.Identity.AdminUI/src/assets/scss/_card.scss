@@ -1,10 +1,11 @@
-/* ==============
-  Card
-===================*/
 .card {
   border: none;
   box-shadow: $shadow;
   margin-bottom: 30px;
+}
+
+.api-resource-scopes .accordion .card {
+  margin-bottom: 0px !important;
 }
 
 .card-primary {

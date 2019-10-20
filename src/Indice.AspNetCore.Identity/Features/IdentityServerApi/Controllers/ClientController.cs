@@ -2,12 +2,14 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Mime;
+using System.Security.Claims;
 using System.Threading.Tasks;
+using IdentityModel;
 using IdentityServer4.EntityFramework.Entities;
-using IdentityServer4.EntityFramework.Interfaces;
 using IdentityServer4.Models;
 using Indice.AspNetCore.Extensions;
 using Indice.Configuration;
+using Indice.Security;
 using Indice.Types;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -31,12 +33,11 @@ namespace Indice.AspNetCore.Identity.Features
     [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme, Policy = IdentityServerApi.SubScopes.Clients)]
     internal class ClientController : ControllerBase
     {
-        private readonly IConfigurationDbContext _configurationDbContext;
+        private readonly ExtendedConfigurationDbContext _configurationDbContext;
         private readonly GeneralSettings _generalSettings;
         private readonly IDistributedCache _cache;
         private readonly IEventService _eventService;
         private readonly IdentityServerApiEndpointsOptions _apiEndpointsOptions;
-
         /// <summary>
         /// The name of the controller.
         /// </summary>
@@ -50,13 +51,15 @@ namespace Indice.AspNetCore.Identity.Features
         /// <param name="cache">Represents a distributed cache of serialized values.</param>
         /// <param name="eventService">Models the event mechanism used to raise events inside the IdentityServer API.</param>
         /// <param name="apiEndpointsOptions">Options for configuring the IdentityServer API feature.</param>
-        public ClientController(IConfigurationDbContext configurationDbContext, IOptions<GeneralSettings> generalSettings, IDistributedCache cache, IEventService eventService, IdentityServerApiEndpointsOptions apiEndpointsOptions) {
+        public ClientController(ExtendedConfigurationDbContext configurationDbContext, IOptions<GeneralSettings> generalSettings, IDistributedCache cache, IEventService eventService, IdentityServerApiEndpointsOptions apiEndpointsOptions) {
             _configurationDbContext = configurationDbContext ?? throw new ArgumentNullException(nameof(configurationDbContext));
             _generalSettings = generalSettings?.Value ?? throw new ArgumentNullException(nameof(generalSettings));
             _cache = cache ?? throw new ArgumentNullException(nameof(cache));
             _eventService = eventService ?? throw new ArgumentNullException(nameof(eventService));
             _apiEndpointsOptions = apiEndpointsOptions ?? throw new ArgumentNullException(nameof(apiEndpointsOptions));
         }
+
+        public string UserId => User.FindFirstValue(JwtClaimTypes.Subject);
 
         /// <summary>
         /// Returns a list of <see cref="ClientInfo"/> objects containing the total number of clients in the database and the data filtered according to the provided <see cref="ListOptions"/>.
@@ -73,7 +76,17 @@ namespace Indice.AspNetCore.Identity.Features
         [ProducesResponseType(statusCode: StatusCodes.Status401Unauthorized, type: typeof(ProblemDetails))]
         [ProducesResponseType(statusCode: StatusCodes.Status403Forbidden, type: typeof(ProblemDetails))]
         public async Task<ActionResult<ResultSet<ClientInfo>>> GetClients([FromQuery]ListOptions options) {
-            var query = _configurationDbContext.Clients.AsQueryable();
+            IQueryable<Entities.Client> query = null;
+            if (User.IsAdmin()) {
+                query = _configurationDbContext.Clients.AsQueryable();
+            }
+            if (!User.IsAdmin() && !string.IsNullOrEmpty(UserId)) {
+                query = _configurationDbContext.ClientUsers.Include(x => x.Client).Where(x => x.UserId == UserId).Select(x => x.Client);
+            }
+            // If user is not an admin and user subject is not present in claims, then there is nothing to send.
+            if (query == null) {
+                return Ok(new ResultSet<ClientInfo>());
+            }
             if (!string.IsNullOrEmpty(options.Search)) {
                 var searchTerm = options.Search.ToLower();
                 query = query.Where(x => x.ClientId.ToLower().Contains(searchTerm) || x.ClientName.Contains(searchTerm));
@@ -111,57 +124,65 @@ namespace Indice.AspNetCore.Identity.Features
             async Task<SingleClientInfo> GetClientAsync() {
                 // Load client from the database.
                 var query = _configurationDbContext.Clients.AsNoTracking();
-                var foundClient = await query.Select(client => new SingleClientInfo {
-                    ClientId = client.ClientId,
-                    ClientName = client.ClientName,
-                    ClientUri = client.ClientUri,
-                    LogoUri = client.LogoUri,
-                    Description = client.Description,
-                    AllowRememberConsent = client.AllowRememberConsent,
-                    Enabled = client.Enabled,
-                    RequireConsent = client.RequireConsent,
-                    AllowedCorsOrigins = client.AllowedCorsOrigins.Select(uri => uri.Origin).ToArray(),
-                    PostLogoutRedirectUris = client.PostLogoutRedirectUris.Select(uri => uri.PostLogoutRedirectUri).ToArray(),
-                    RedirectUris = client.RedirectUris.Select(uri => uri.RedirectUri).ToArray(),
-                    IdentityTokenLifetime = client.IdentityTokenLifetime,
-                    AccessTokenLifetime = client.AccessTokenLifetime,
-                    ConsentLifetime = client.ConsentLifetime,
-                    UserSsoLifetime = client.UserSsoLifetime,
-                    FrontChannelLogoutUri = client.FrontChannelLogoutUri,
-                    PairWiseSubjectSalt = client.PairWiseSubjectSalt,
-                    AccessTokenType = client.AccessTokenType == 0 ? AccessTokenType.Jwt : AccessTokenType.Reference,
-                    FrontChannelLogoutSessionRequired = client.FrontChannelLogoutSessionRequired,
-                    IncludeJwtId = client.IncludeJwtId,
-                    AllowAccessTokensViaBrowser = client.AllowAccessTokensViaBrowser,
-                    AlwaysIncludeUserClaimsInIdToken = client.AlwaysIncludeUserClaimsInIdToken,
-                    AlwaysSendClientClaims = client.AlwaysSendClientClaims,
-                    AuthorizationCodeLifetime = client.AuthorizationCodeLifetime,
-                    RequirePkce = client.RequirePkce,
-                    AllowPlainTextPkce = client.AllowPlainTextPkce,
-                    ClientClaimsPrefix = client.ClientClaimsPrefix,
-                    GrantTypes = client.AllowedGrantTypes.Select(x => x.GrantType).ToArray(),
-                    ApiResources = client.AllowedScopes.Join(
-                        _configurationDbContext.ApiResources.SelectMany(apiResource => apiResource.Scopes),
+                var foundClient = await query.Select(x => new SingleClientInfo {
+                    ClientId = x.ClientId,
+                    ClientName = x.ClientName,
+                    ClientUri = x.ClientUri,
+                    LogoUri = x.LogoUri,
+                    Description = x.Description,
+                    AllowRememberConsent = x.AllowRememberConsent,
+                    Enabled = x.Enabled,
+                    RequireConsent = x.RequireConsent,
+                    AllowedCorsOrigins = x.AllowedCorsOrigins.Select(x => x.Origin).ToArray(),
+                    PostLogoutRedirectUris = x.PostLogoutRedirectUris.Select(x => x.PostLogoutRedirectUri).ToArray(),
+                    RedirectUris = x.RedirectUris.Select(x => x.RedirectUri).ToArray(),
+                    IdentityTokenLifetime = x.IdentityTokenLifetime,
+                    AccessTokenLifetime = x.AccessTokenLifetime,
+                    ConsentLifetime = x.ConsentLifetime,
+                    UserSsoLifetime = x.UserSsoLifetime,
+                    FrontChannelLogoutUri = x.FrontChannelLogoutUri,
+                    PairWiseSubjectSalt = x.PairWiseSubjectSalt,
+                    AccessTokenType = x.AccessTokenType == 0 ? AccessTokenType.Jwt : AccessTokenType.Reference,
+                    FrontChannelLogoutSessionRequired = x.FrontChannelLogoutSessionRequired,
+                    IncludeJwtId = x.IncludeJwtId,
+                    AllowAccessTokensViaBrowser = x.AllowAccessTokensViaBrowser,
+                    AlwaysIncludeUserClaimsInIdToken = x.AlwaysIncludeUserClaimsInIdToken,
+                    AlwaysSendClientClaims = x.AlwaysSendClientClaims,
+                    AuthorizationCodeLifetime = x.AuthorizationCodeLifetime,
+                    RequirePkce = x.RequirePkce,
+                    AllowPlainTextPkce = x.AllowPlainTextPkce,
+                    ClientClaimsPrefix = x.ClientClaimsPrefix,
+                    GrantTypes = x.AllowedGrantTypes.Select(x => x.GrantType).ToArray(),
+                    ApiResources = x.AllowedScopes.Join(
+                        _configurationDbContext.ApiResources.SelectMany(x => x.Scopes),
                         clientScope => clientScope.Scope,
                         apiScope => apiScope.Name,
                         (clientScope, apiScope) => apiScope.Name
                     )
-                    .Select(name => name).ToArray(),
-                    IdentityResources = client.AllowedScopes.Join(
+                    .Select(x => x)
+                    .ToArray(),
+                    IdentityResources = x.AllowedScopes.Join(
                         _configurationDbContext.IdentityResources,
                         clientScope => clientScope.Scope,
                         identityResource => identityResource.Name,
                         (clientScope, identityResource) => identityResource.Name
                     )
-                    .Select(name => name).ToArray(),
-                    Claims = client.Claims.Select(claim => new ClaimInfo {
-                        Id = claim.Id,
-                        Type = claim.Type,
-                        Value = claim.Value
+                    .Select(x => x)
+                    .ToArray(),
+                    Claims = x.Claims.Select(x => new ClaimInfo {
+                        Id = x.Id,
+                        Type = x.Type,
+                        Value = x.Value
+                    }),
+                    Secrets = x.ClientSecrets.Select(x => new ClientSecretInfo {
+                        Id = x.Id,
+                        Type = x.Type == nameof(SecretType.SharedSecret) ? SecretType.SharedSecret : SecretType.X509Thumbprint,
+                        Value = "*****",
+                        Description = x.Description,
+                        Expiration = x.Expiration
                     })
-                    .ToArray()
                 })
-                .SingleOrDefaultAsync(client => client.ClientId == id);
+                .SingleOrDefaultAsync(x => x.ClientId == id);
                 if (foundClient == null) {
                     return null;
                 }
@@ -236,8 +257,9 @@ namespace Indice.AspNetCore.Identity.Features
                 Type = request.Type,
                 Value = request.Value
             };
-            client.Claims = new List<ClientClaim>();
-            client.Claims.Add(claimToAdd);
+            client.Claims = new List<ClientClaim> {
+                claimToAdd
+            };
             await _configurationDbContext.SaveChangesAsync();
             await _cache.RemoveAsync(CacheKeys.Client(id));
             return Created(string.Empty, new ClaimInfo {

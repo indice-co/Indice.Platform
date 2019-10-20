@@ -32,7 +32,7 @@ namespace Indice.AspNetCore.Identity.Features
     {
         private readonly IDistributedCache _cache;
         private readonly UserManager<TUser> _userManager;
-        private readonly IConfigurationDbContext _configurationDbContext;
+        private readonly ExtendedConfigurationDbContext _configurationDbContext;
 
         /// <summary>
         /// Creates a new instance of <see cref="DashboardController{TUser}"/>.
@@ -40,7 +40,7 @@ namespace Indice.AspNetCore.Identity.Features
         /// <param name="cache">Represents a distributed cache of serialized values.</param>
         /// <param name="userManager">Provides the APIs for managing user in a persistence store.</param>
         /// <param name="configurationDbContext">Abstraction for the configuration context.</param>
-        public DashboardController(IDistributedCache cache, UserManager<TUser> userManager, IConfigurationDbContext configurationDbContext) {
+        public DashboardController(IDistributedCache cache, UserManager<TUser> userManager, ExtendedConfigurationDbContext configurationDbContext) {
             _cache = cache ?? throw new ArgumentNullException(nameof(cache));
             _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
             _configurationDbContext = configurationDbContext ?? throw new ArgumentNullException(nameof(configurationDbContext));

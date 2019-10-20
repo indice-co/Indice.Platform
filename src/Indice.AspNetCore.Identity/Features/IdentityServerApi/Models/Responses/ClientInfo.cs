@@ -1,4 +1,5 @@
-﻿using IdentityServer4.Models;
+﻿using System.Collections.Generic;
+using IdentityServer4.Models;
 
 namespace Indice.AspNetCore.Identity.Features
 {
@@ -133,10 +134,14 @@ namespace Indice.AspNetCore.Identity.Features
         /// <summary>
         /// List of client claims.
         /// </summary>
-        public ClaimInfo[] Claims { get; set; }
+        public IEnumerable<ClaimInfo> Claims { get; set; }
         /// <summary>
         /// List of configured grant types.
         /// </summary>
         public string[] GrantTypes { get; set; }
+        /// <summary>
+        /// List of available client secrets.
+        /// </summary>
+        public IEnumerable<ClientSecretInfo> Secrets { get; set; }
     }
 }

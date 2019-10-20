@@ -36,8 +36,12 @@ namespace Indice.AspNetCore.Identity.Features
         /// </summary>
         public IEnumerable<string> AllowedClaims { get; set; }
         /// <summary>
-        /// 
+        /// List of all scopes included in the resource. At least one scope must be included. 
         /// </summary>
         public IEnumerable<ScopeInfo> Scopes { get; set; }
+        /// <summary>
+        /// 
+        /// </summary>
+        public IEnumerable<ApiSecretInfo> Secrets { get; set; }
     }
 }

@@ -3,10 +3,14 @@
 namespace Indice.AspNetCore.Identity.Features
 {
     /// <summary>
-    /// Models a client secret that will be created on the server.
+    /// Models a secret value used for a client or API.
     /// </summary>
-    public class ClientSecretRequest
+    public class SecretInfo
     {
+        /// <summary>
+        /// The identifier for the API secret.
+        /// </summary>
+        public int Id { get; set; }
         /// <summary>
         /// Description of client secret.
         /// </summary>
@@ -26,17 +30,12 @@ namespace Indice.AspNetCore.Identity.Features
     }
 
     /// <summary>
-    /// The type of client secret.
+    /// Models an API secret used for the introspection endpoint. The API can authenticate with introspection using the API name and secret.
     /// </summary>
-    public enum SecretType
-    {
-        /// <summary>
-        /// X509 Thumbprint.
-        /// </summary>
-        X509Thumbprint,
-        /// <summary>
-        /// Shared Secret.
-        /// </summary>
-        SharedSecret
-    }
+    public class ApiSecretInfo : SecretInfo { }
+
+    /// <summary>
+    /// Models an Client secret used in flows that require this.
+    /// </summary>
+    public class ClientSecretInfo : SecretInfo { }
 }

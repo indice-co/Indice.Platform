@@ -23,13 +23,13 @@ namespace Indice.AspNetCore.Identity.Features
     [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme, Policy = IdentityServerApi.Admin)]
     internal class ResourcesController : ControllerBase
     {
-        private readonly IConfigurationDbContext _configurationDbContext;
+        private readonly ExtendedConfigurationDbContext _configurationDbContext;
 
         /// <summary>
         /// Creates an instance of <see cref="ResourcesController"/>.
         /// </summary>
         /// <param name="configurationDbContext">Abstraction for the configuration context.</param>
-        public ResourcesController(IConfigurationDbContext configurationDbContext) {
+        public ResourcesController(ExtendedConfigurationDbContext configurationDbContext) {
             _configurationDbContext = configurationDbContext ?? throw new ArgumentNullException(nameof(configurationDbContext));
         }
 
@@ -64,7 +64,8 @@ namespace Indice.AspNetCore.Identity.Features
                 NonEditable = resource.NonEditable,
                 ShowInDiscoveryDocument = resource.ShowInDiscoveryDocument,
                 AllowedClaims = resource.UserClaims.Select(claim => claim.Type)
-            }).ToResultSetAsync(options);
+            })
+            .ToResultSetAsync(options);
             return Ok(identityResources);
         }
 
@@ -84,7 +85,10 @@ namespace Indice.AspNetCore.Identity.Features
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
         [HttpGet("identity/{id:int}")]
         public async Task<ActionResult<IdentityResourceInfo>> GetIdentityResource([FromRoute]int id) {
-            var identityResource = await _configurationDbContext.IdentityResources.Include(x => x.UserClaims).AsNoTracking().SingleOrDefaultAsync(x => x.Id == id);
+            var identityResource = await _configurationDbContext.IdentityResources
+                                                                .Include(x => x.UserClaims)
+                                                                .AsNoTracking()
+                                                                .SingleOrDefaultAsync(x => x.Id == id);
             if (identityResource == null) {
                 return NotFound();
             }
@@ -155,20 +159,64 @@ namespace Indice.AspNetCore.Identity.Features
                 Description = resource.Description,
                 Enabled = resource.Enabled,
                 NonEditable = resource.NonEditable,
-                AllowedClaims = resource.UserClaims.Select(e => e.Type),
-                Scopes = resource.Scopes.Select(scope => new ScopeInfo {
-                    Id = scope.Id,
-                    Name = scope.Name,
-                    DisplayName = scope.DisplayName,
-                    Description = scope.Description,
-                    Required = scope.Required,
-                    Emphasize = scope.Emphasize,
-                    ShowInDiscoveryDocument = scope.ShowInDiscoveryDocument,
-                    UserClaims = scope.UserClaims.Select(scopeClaim => scopeClaim.Type)
-                })
+                AllowedClaims = resource.UserClaims.Select(e => e.Type)
             })
             .ToResultSetAsync(options);
             return Ok(apiResources);
+        }
+
+        /// <summary>
+        /// Gets an API resource by it's unique id.
+        /// </summary>
+        /// <param name="id">The identifier of the API resource.</param>
+        /// <response code="200">OK</response>
+        /// <response code="400">Bad Request</response>
+        /// <response code="401">Unauthorized</response>
+        /// <response code="403">Forbidden</response>
+        /// <response code="404">Not Found</response>
+        /// <response code="500">Internal Server Error</response>
+        [ProducesResponseType(statusCode: StatusCodes.Status200OK, type: typeof(ApiResourceInfo))]
+        [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest, type: typeof(ValidationProblemDetails))]
+        [ProducesResponseType(statusCode: StatusCodes.Status401Unauthorized, type: typeof(ProblemDetails))]
+        [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
+        [HttpGet("protected/{id:int}")]
+        public async Task<ActionResult<ApiResourceInfo>> GetApiResource([FromRoute]int id) {
+            var apiResource = await _configurationDbContext.ApiResources
+                                                           .Include(x => x.UserClaims)
+                                                           .Include(x => x.Secrets)
+                                                           .Include(x => x.Scopes)
+                                                           .ThenInclude(x => x.UserClaims)
+                                                           .AsNoTracking()
+                                                           .SingleOrDefaultAsync(x => x.Id == id);
+            if (apiResource == null) {
+                return NotFound();
+            }
+            return Ok(new ApiResourceInfo {
+                Id = apiResource.Id,
+                Name = apiResource.Name,
+                DisplayName = apiResource.DisplayName,
+                Description = apiResource.Description,
+                Enabled = apiResource.Enabled,
+                NonEditable = apiResource.NonEditable,
+                AllowedClaims = apiResource.UserClaims.Select(claim => claim.Type),
+                Scopes = apiResource.Scopes.Any() ? apiResource.Scopes.Select(x => new ScopeInfo {
+                    Id = x.Id,
+                    Name = x.Name,
+                    DisplayName = x.DisplayName,
+                    Description = x.Description,
+                    Required = x.Required,
+                    Emphasize = x.Emphasize,
+                    ShowInDiscoveryDocument = x.ShowInDiscoveryDocument,
+                    UserClaims = x.UserClaims.Any() ? x.UserClaims.Select(x => x.Type) : default
+                }) : default,
+                Secrets = apiResource.Secrets.Any() ? apiResource.Secrets.Select(x => new ApiSecretInfo { 
+                    Id = x.Id,
+                    Type = x.Type == nameof(SecretType.SharedSecret) ? SecretType.SharedSecret : SecretType.X509Thumbprint,
+                    Value = "*****",
+                    Description = x.Description,
+                    Expiration = x.Expiration
+                }) : default
+            });
         }
     }
 }

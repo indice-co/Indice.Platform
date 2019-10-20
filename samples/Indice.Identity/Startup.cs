@@ -77,7 +77,7 @@ namespace Indice.Identity
             services.AddEmailServiceSparkpost(Configuration);
             services.AddSwaggerGen(options => {
                 options.IndiceDefaults(Settings);
-                options.IncludeXmlComments(Assembly.Load($"Indice.AspNetCore.Identity"));
+                options.IncludeXmlComments(Assembly.Load(IdentityServerApi.AssemblyName));
             });
             services.AddResponseCaching();
             services.AddCsp(options => {
@@ -96,7 +96,7 @@ namespace Indice.Identity
         public void Configure(IApplicationBuilder app) {
             if (HostingEnvironment.IsDevelopment()) {
                 app.UseDeveloperExceptionPage();
-                app.IdentityServerStoreSetup(Clients.Get(), Resources.GetIdentityResources(), Resources.GetApiResources());
+                app.IdentityServerStoreSetup<ExtendedConfigurationDbContext>(Clients.Get(), Resources.GetIdentityResources(), Resources.GetApiResources());
             } else {
                 app.UseHsts();
                 app.UseHttpsRedirection();
