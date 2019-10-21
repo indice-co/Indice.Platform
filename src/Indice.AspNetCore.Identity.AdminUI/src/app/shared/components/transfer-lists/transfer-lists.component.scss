@@ -5,6 +5,11 @@
     }
 }
 
+.card.m-b-30.shadow {
+    height: 500px;
+    overflow-y: scroll;
+}
+
 .list-group-item {
     cursor: pointer;
     > div {

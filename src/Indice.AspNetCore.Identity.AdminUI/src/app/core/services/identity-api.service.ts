@@ -107,16 +107,16 @@ export interface IIdentityApiService {
     getIdentityResources(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined): Observable<IdentityResourceInfoResultSet>;
     /**
      * Gets an identity resource by it's unique id.
-     * @param id The identifier of the identity resource.
+     * @param resourceId The identifier of the identity resource.
      * @return OK
      */
-    getIdentityResource(id: number): Observable<IdentityResourceInfo>;
+    getIdentityResource(resourceId: number): Observable<IdentityResourceInfo>;
     /**
      * Permanently deletes an identity resource.
-     * @param id The id of the identity resource to delete.
+     * @param resourceId The id of the identity resource to delete.
      * @return OK
      */
-    deleteIdentityResource(id: number): Observable<void>;
+    deleteIdentityResource(resourceId: number): Observable<void>;
     /**
      * Returns a list of Indice.AspNetCore.Identity.Features.ApiResourceInfo objects containing the total number of API resources in the database and the data filtered according to the provided Indice.Types.ListOptions.
      * @param page (optional) 
@@ -128,10 +128,15 @@ export interface IIdentityApiService {
     getProtectedResources(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined): Observable<ApiResourceInfoResultSet>;
     /**
      * Gets an API resource by it's unique id.
-     * @param id The identifier of the API resource.
+     * @param resourceId The identifier of the API resource.
      * @return OK
      */
-    getApiResource(id: number): Observable<ApiResourceInfo>;
+    getApiResource(resourceId: number): Observable<ApiResourceInfo>;
+    /**
+     * @param body (optional) 
+     * @return Success
+     */
+    addProtectedResourceScopeClaims(resourceId: number, scopeId: number, body?: string[] | undefined): Observable<void>;
     /**
      * Returns a list of Indice.AspNetCore.Identity.Features.RoleInfo objects containing the total number of roles in the database and the data filtered according to the provided Indice.Types.ListOptions.
      * @param page (optional) 
@@ -1403,14 +1408,14 @@ export class IdentityApiService implements IIdentityApiService {
 
     /**
      * Gets an identity resource by it's unique id.
-     * @param id The identifier of the identity resource.
+     * @param resourceId The identifier of the identity resource.
      * @return OK
      */
-    getIdentityResource(id: number): Observable<IdentityResourceInfo> {
-        let url_ = this.baseUrl + "/api/resources/identity/{id}";
-        if (id === undefined || id === null)
-            throw new Error("The parameter 'id' must be defined.");
-        url_ = url_.replace("{id}", encodeURIComponent("" + id)); 
+    getIdentityResource(resourceId: number): Observable<IdentityResourceInfo> {
+        let url_ = this.baseUrl + "/api/resources/identity/{resourceId}";
+        if (resourceId === undefined || resourceId === null)
+            throw new Error("The parameter 'resourceId' must be defined.");
+        url_ = url_.replace("{resourceId}", encodeURIComponent("" + resourceId)); 
         url_ = url_.replace(/[?&]$/, "");
 
         let options_ : any = {
@@ -1491,14 +1496,14 @@ export class IdentityApiService implements IIdentityApiService {
 
     /**
      * Permanently deletes an identity resource.
-     * @param id The id of the identity resource to delete.
+     * @param resourceId The id of the identity resource to delete.
      * @return OK
      */
-    deleteIdentityResource(id: number): Observable<void> {
-        let url_ = this.baseUrl + "/api/resources/identity/{id}";
-        if (id === undefined || id === null)
-            throw new Error("The parameter 'id' must be defined.");
-        url_ = url_.replace("{id}", encodeURIComponent("" + id)); 
+    deleteIdentityResource(resourceId: number): Observable<void> {
+        let url_ = this.baseUrl + "/api/resources/identity/{resourceId}";
+        if (resourceId === undefined || resourceId === null)
+            throw new Error("The parameter 'resourceId' must be defined.");
+        url_ = url_.replace("{resourceId}", encodeURIComponent("" + resourceId)); 
         url_ = url_.replace(/[?&]$/, "");
 
         let options_ : any = {
@@ -1672,14 +1677,14 @@ export class IdentityApiService implements IIdentityApiService {
 
     /**
      * Gets an API resource by it's unique id.
-     * @param id The identifier of the API resource.
+     * @param resourceId The identifier of the API resource.
      * @return OK
      */
-    getApiResource(id: number): Observable<ApiResourceInfo> {
-        let url_ = this.baseUrl + "/api/resources/protected/{id}";
-        if (id === undefined || id === null)
-            throw new Error("The parameter 'id' must be defined.");
-        url_ = url_.replace("{id}", encodeURIComponent("" + id)); 
+    getApiResource(resourceId: number): Observable<ApiResourceInfo> {
+        let url_ = this.baseUrl + "/api/resources/protected/{resourceId}";
+        if (resourceId === undefined || resourceId === null)
+            throw new Error("The parameter 'resourceId' must be defined.");
+        url_ = url_.replace("{resourceId}", encodeURIComponent("" + resourceId)); 
         url_ = url_.replace(/[?&]$/, "");
 
         let options_ : any = {
@@ -1756,6 +1761,85 @@ export class IdentityApiService implements IIdentityApiService {
             }));
         }
         return _observableOf<ApiResourceInfo>(<any>null);
+    }
+
+    /**
+     * @param body (optional) 
+     * @return Success
+     */
+    addProtectedResourceScopeClaims(resourceId: number, scopeId: number, body?: string[] | undefined): Observable<void> {
+        let url_ = this.baseUrl + "/api/resources/protected/{resourceId}/scopes/{scopeId}/claims";
+        if (resourceId === undefined || resourceId === null)
+            throw new Error("The parameter 'resourceId' must be defined.");
+        url_ = url_.replace("{resourceId}", encodeURIComponent("" + resourceId)); 
+        if (scopeId === undefined || scopeId === null)
+            throw new Error("The parameter 'scopeId' must be defined.");
+        url_ = url_.replace("{scopeId}", encodeURIComponent("" + scopeId)); 
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json", 
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processAddProtectedResourceScopeClaims(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processAddProtectedResourceScopeClaims(<any>response_);
+                } catch (e) {
+                    return <Observable<void>><any>_observableThrow(e);
+                }
+            } else
+                return <Observable<void>><any>_observableThrow(response_);
+        }));
+    }
+
+    protected processAddProtectedResourceScopeClaims(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob = 
+            response instanceof HttpResponse ? response.body : 
+            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }};
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return _observableOf<void>(<any>null);
+            }));
+        } else if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ValidationProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<void>(<any>null);
     }
 
     /**
@@ -4708,11 +4792,11 @@ export class ScopeInfo implements IScopeInfo {
     /** The description of the resource. */
     description?: string | undefined;
     /** Determines whether this scope is required or not. */
-    required?: boolean;
+    required?: boolean | undefined;
     /** Determines whether this scope should be displayed emphasized or not. */
-    emphasize?: boolean;
+    emphasize?: boolean | undefined;
     /** Determines whether this scope should be displayed in the discovery document or not. */
-    showInDiscoveryDocument?: boolean;
+    showInDiscoveryDocument?: boolean | undefined;
     /** List of accociated user claims that should be included when a resource is requested. */
     userClaims?: string[] | undefined;
 
@@ -4778,11 +4862,11 @@ export interface IScopeInfo {
     /** The description of the resource. */
     description?: string | undefined;
     /** Determines whether this scope is required or not. */
-    required?: boolean;
+    required?: boolean | undefined;
     /** Determines whether this scope should be displayed emphasized or not. */
-    emphasize?: boolean;
+    emphasize?: boolean | undefined;
     /** Determines whether this scope should be displayed in the discovery document or not. */
-    showInDiscoveryDocument?: boolean;
+    showInDiscoveryDocument?: boolean | undefined;
     /** List of accociated user claims that should be included when a resource is requested. */
     userClaims?: string[] | undefined;
 }

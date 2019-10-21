@@ -25,6 +25,15 @@ export class ApiResourceStore {
         return this._apiResource;
     }
 
+    public addApiResourceScopeClaim(apiResourceId: number, scopeId: number, claim: ClaimTypeInfo): Observable<void> {
+        this.getApiResource(apiResourceId).subscribe((apiResource: ApiResourceInfo) => {
+            apiResource.scopes.find(x => x.id === scopeId).userClaims.push(claim.name);
+            this._apiResource.next(apiResource);
+            this._apiResource.complete();
+        });
+        return this._api.addProtectedResourceScopeClaims(apiResourceId, scopeId, [claim.name]);
+    }
+
     public getAllClaims(): Observable<ClaimTypeInfo[]> {
         if (!this._allClaims) {
             this._allClaims = new AsyncSubject<ClaimTypeInfo[]>();

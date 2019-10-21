@@ -1,7 +1,7 @@
 <div class="row container m-auto">
     <div class="col-xl-6 ">
         <h4 class="font-16 mt-0 text-center">{{ options?.sourceListTitle }}</h4>
-        <div class="card m-b-30 shadow">
+        <div class="card m-b-30 shadow text-center">
             <div class="card-body">
                 <p *ngIf="source?.length === 0">{{ options?.emptySourceListMessage }}</p>
                 <ul class="list-group list-group-flush" *ngIf="source?.length > 0">
@@ -18,7 +18,7 @@
     </div>
     <div class="col-xl-6 ">
         <h4 class="font-16 mt-0 text-center">{{ options?.destinationListTitle }}</h4>
-        <div class="card m-b-30 shadow">
+        <div class="card m-b-30 shadow text-center">
             <div class="card-body">
                 <p *ngIf="destination?.length === 0">{{ options?.emptyDestinationListMessage }}</p>
                 <ul class="list-group list-group-flush" *ngIf="destination?.length > 0">

@@ -22,6 +22,9 @@ export class ApiResourceScopesComponent implements OnInit, OnDestroy {
         const apiResourceId = +this._route.parent.snapshot.params.id;
         this._getDataSubscription = this._apiResourceStore.getApiResource(apiResourceId).subscribe((apiResource: ApiResourceInfo) => {
             this.apiResource = apiResource;
+            apiResource.scopes.forEach((value: ScopeInfo, index: number) => {
+                (value as any).isOpen = index === 0 ? true : false;
+            });
         });
     }
 

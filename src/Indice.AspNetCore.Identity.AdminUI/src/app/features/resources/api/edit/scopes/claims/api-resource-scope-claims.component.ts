@@ -11,6 +11,8 @@ import { ApiResourceStore } from '../../api-resource-store.service';
 })
 export class ApiResourceScopeClaimsComponent implements OnInit, OnDestroy {
     private _getDataSubscription: Subscription;
+    private _addApiResourceScopeClaim: Subscription;
+    private _apiResourceId: number;
 
     constructor(private _route: ActivatedRoute, private _apiResourceStore: ApiResourceStore) { }
 
@@ -19,6 +21,7 @@ export class ApiResourceScopeClaimsComponent implements OnInit, OnDestroy {
     public selectedClaims: ClaimTypeInfo[];
 
     public ngOnInit(): void {
+        this._apiResourceId = +this._route.parent.snapshot.params.id;
         this._apiResourceStore.getAllClaims().subscribe((allClaims: ClaimTypeInfo[]) => {
             const scopeClaims = this.scope.userClaims || [];
             this.availableClaims = allClaims.filter(x => !scopeClaims.includes(x.name));
@@ -30,9 +33,14 @@ export class ApiResourceScopeClaimsComponent implements OnInit, OnDestroy {
         if (this._getDataSubscription) {
             this._getDataSubscription.unsubscribe();
         }
+        if (this._addApiResourceScopeClaim) {
+            this._addApiResourceScopeClaim.unsubscribe();
+        }
     }
 
-    public addClaim(claim: ClaimTypeInfo): void { }
+    public addClaim(claim: ClaimTypeInfo): void {
+        this._addApiResourceScopeClaim = this._apiResourceStore.addApiResourceScopeClaim(this._apiResourceId, this.scope.id, claim).subscribe();
+    }
 
     public removeClaim(claim: ClaimTypeInfo): void { }
 }
