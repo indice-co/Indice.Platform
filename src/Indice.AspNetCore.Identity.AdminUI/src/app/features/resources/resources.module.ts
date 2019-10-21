@@ -3,7 +3,6 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
 import { SweetAlert2Module } from '@sweetalert2/ngx-sweetalert2';
-import { NgbAccordionModule } from '@ng-bootstrap/ng-bootstrap';
 import { SharedModule } from 'src/app/shared/shared.module';
 import { ResourcesRoutingModule } from './resources-routing.module';
 import { IdentityResourcesComponent } from './identity/identity-resources.component';
@@ -15,6 +14,8 @@ import { ApiResourcesComponent } from './api/api-resources.component';
 import { ApiResourceEditComponent } from './api/edit/api-resource-edit.component';
 import { ApiResourceDetailsComponent } from './api/edit/details/api-resource-details.component';
 import { ApiResourceScopesComponent } from './api/edit/scopes/api-resource-scopes.component';
+import { ApiResourceScopeDetailsComponent } from './api/edit/scopes/details/api-resource-scope-details.component';
+import { ApiResourceScopeClaimsComponent } from './api/edit/scopes/claims/api-resource-scope-claims.component';
 
 @NgModule({
     declarations: [
@@ -26,15 +27,16 @@ import { ApiResourceScopesComponent } from './api/edit/scopes/api-resource-scope
         ApiResourcesComponent,
         ApiResourceEditComponent,
         ApiResourceDetailsComponent,
-        ApiResourceScopesComponent
+        ApiResourceScopesComponent,
+        ApiResourceScopeDetailsComponent,
+        ApiResourceScopeClaimsComponent
     ],
     imports: [
         CommonModule,
         FormsModule,
         ResourcesRoutingModule,
         SharedModule,
-        SweetAlert2Module,
-        NgbAccordionModule
+        SweetAlert2Module
     ]
 })
 export class ResourcesModule { }

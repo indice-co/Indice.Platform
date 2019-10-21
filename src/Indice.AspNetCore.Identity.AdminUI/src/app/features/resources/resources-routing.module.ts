@@ -10,6 +10,8 @@ import { ApiResourcesComponent } from './api/api-resources.component';
 import { ApiResourceEditComponent } from './api/edit/api-resource-edit.component';
 import { ApiResourceDetailsComponent } from './api/edit/details/api-resource-details.component';
 import { ApiResourceScopesComponent } from './api/edit/scopes/api-resource-scopes.component';
+import { ApiResourceScopeDetailsComponent } from './api/edit/scopes/details/api-resource-scope-details.component';
+import { ApiResourceScopeClaimsComponent } from './api/edit/scopes/claims/api-resource-scope-claims.component';
 
 const routes: Routes = [
     { path: '', redirectTo: 'identity', pathMatch: 'full' },

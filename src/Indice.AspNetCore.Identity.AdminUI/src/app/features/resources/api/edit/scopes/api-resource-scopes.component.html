@@ -1,64 +1,25 @@
-<swal title="Delete?" [text]="'Scope \'' + activeScope?.name + '\' will be deleted permanently. This action cannot be reversed.'" type="warning" [showCancelButton]="true" 
-    (confirm)="delete()" #deleteAlert></swal>
 <p *ngIf="!apiResource">Loading API resource scopes...</p>
-<div class="api-resource-scopes" *ngIf="apiResource">
-    <ngb-accordion [closeOthers]="true" activeIds="static-0" (panelChange)="panelChanged($event)">
-        <ngb-panel *ngFor="let scope of apiResource?.scopes; let i = index;" [id]="'static-' + i"
-            [title]="scope.displayName || scope.name">
-            <ng-template ngbPanelContent>
-                <form class="needs-validation" [ngClass]="{ 'was-validated': form.submitted }" (ngSubmit)="form.form.valid && update(scope)" novalidate #form="ngForm">
-                    <div class="form-group row">
-                        <label for="scope-id" class="col-sm-2 col-form-label">Scope Id</label>
-                        <div class="col-sm-10 col-form-label">
-                            <span class="col-form-label" id="scope-id" name="scope-id">{{ scope.name }}</span>
-                        </div>
-                    </div>
-                    <div class="form-group row">
-                        <label for="scope-display-name" class="col-sm-2 col-form-label">Display Name</label>
-                        <div class="col-sm-10">
-                            <input class="form-control" type="text" id="scope-display-name" name="scope-display-name" [(ngModel)]="scope.displayName" maxlength="200"
-                                #scopeName="ngModel" />
-                        </div>
-                    </div>
-                    <div class="form-group row">
-                        <label for="scope-description" class="col-sm-2 col-form-label">Description</label>
-                        <div class="col-sm-10">
-                            <textarea id="scope-description" name="scope-description" class="form-control" rows="3" maxlength="1000" [(ngModel)]="scope.description"
-                                #description="ngModel"></textarea>
-                        </div>
-                    </div>
-                    <div class="form-group row">
-                        <label for="scope-required" class="col-sm-2 col-form-label">Required</label>
-                        <div class="col-sm-10">
-                            <div class="form-check col-form-label">
-                                <input class="form-check-input" type="checkbox" id="scope-required" name="scope-required" [checked]="scope.required" />
-                            </div>
-                        </div>
-                    </div>
-                    <div class="form-group row">
-                        <label for="scope-show-in-dd" class="col-sm-2 col-form-label">Show in Discovery Document</label>
-                        <div class="col-sm-10">
-                            <div class="form-check col-form-label">
-                                <input class="form-check-input" type="checkbox" id="scope-show-in-dd" name="scope-show-in-dd" [checked]="scope.showInDiscoveryDocument" />
-                            </div>
-                        </div>
-                    </div>
-                    <div class="form-group row">
-                        <label for="scope-emphasize" class="col-sm-2 col-form-label">Emphasize</label>
-                        <div class="col-sm-10">
-                            <div class="form-check col-form-label">
-                                <input class="form-check-input" type="checkbox" id="scope-emphasize" name="scope-emphasize" [checked]="scope.emphasize" />
-                            </div>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <div>
-                            <button type="submit" class="btn btn-primary waves-effect waves-light m-r-5">Update</button>
-                            <button type="button" class="btn btn-danger waves-effect m-r-5 float-right" (click)="deletePrompt(scope)">Delete</button>
-                        </div>
-                    </div>
-                </form>
-            </ng-template>
-        </ngb-panel>
-    </ngb-accordion>
+<div class="api-resource-scopes accordion" id="scopes-accordion">
+    <div class="card" *ngFor="let scope of apiResource?.scopes; let i = index">
+        <div class="card-header" [id]="'heading' + scope.id">
+            <button class="btn btn-link" type="button" data-toggle="collapse" [ngClass]="{ 'collapsed': !scope.isOpen }" [attr.data-target]="'#collapse-' + scope.id" 
+                [attr.aria-expanded]="scope['isOpen']" [attr.aria-controls]="'collapse-' + scope.id" (click)="openPanel(i)">
+                {{ scope.displayName || scope.name }}
+            </button>
+        </div>
+        <div [id]="'collapse-' + scope.id" class="collapse" [ngClass]="{ 'show': scope.isOpen }" [attr.aria-labelledby]="'heading' + scope.id" data-parent="#scopes-accordion">
+            <div class="card-body">
+                <ul class="nav nav-pills">
+                    <li class="nav-item">
+                        <a href="javascript:void(0);" [ngClass]="{ 'active btn btn-secondary': detailsActive }" class="nav-link" (click)="detailsActive = true">Details</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="javascript:void(0);" [ngClass]="{ 'active btn btn-secondary': !detailsActive }" class="nav-link" (click)="detailsActive = false">Claims</a>
+                    </li>
+                </ul>
+                <app-api-resource-scope-details *ngIf="detailsActive" [scope]="scope"></app-api-resource-scope-details>
+                <app-api-resource-scope-claims *ngIf="!detailsActive" [scope]="scope"></app-api-resource-scope-claims>
+            </div>
+        </div>
+    </div>
 </div>

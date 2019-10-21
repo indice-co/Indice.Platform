@@ -15,12 +15,12 @@ export class ApiResourceEditComponent implements OnInit, OnDestroy {
 
     constructor(private _route: ActivatedRoute, private _apiResourceStore: ApiResourceStore) { }
 
-    public apiResourceName = '';
+    public apiResource: ApiResourceInfo;
 
     public ngOnInit(): void {
         const apiResourceId = +this._route.snapshot.params.id;
         this._getDataSubscription = this._apiResourceStore.getApiResource(apiResourceId).subscribe((apiResource: ApiResourceInfo) => {
-            this.apiResourceName = apiResource.displayName || apiResource.name;
+            this.apiResource = apiResource;
         });
     }
 
