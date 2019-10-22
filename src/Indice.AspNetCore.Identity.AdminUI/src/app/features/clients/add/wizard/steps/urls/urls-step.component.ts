@@ -1,13 +1,14 @@
 import { Component, OnInit } from '@angular/core';
 import { AbstractControl } from '@angular/forms';
 
-import { StepBaseComponent } from '../step-base.component';
+import { StepBaseComponent } from 'src/app/shared/components/step-base/step-base.component';
+import { ClientWizardModel } from '../../models/client-wizard-model';
 
 @Component({
     selector: 'app-urls-step',
     templateUrl: './urls-step.component.html'
 })
-export class UrlsStepComponent extends StepBaseComponent implements OnInit {
+export class UrlsStepComponent extends StepBaseComponent<ClientWizardModel> implements OnInit {
     constructor() {
         super();
     }

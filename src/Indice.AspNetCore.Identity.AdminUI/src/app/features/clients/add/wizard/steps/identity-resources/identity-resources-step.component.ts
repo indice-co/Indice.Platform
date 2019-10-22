@@ -1,15 +1,16 @@
 import { Component, OnInit } from '@angular/core';
+import { AbstractControl } from '@angular/forms';
 
-import { StepBaseComponent } from '../step-base.component';
+import { StepBaseComponent } from 'src/app/shared/components/step-base/step-base.component';
 import { IdentityResourceInfo } from 'src/app/core/services/identity-api.service';
 import { ClientsWizardService } from '../../clients-wizard.service';
-import { AbstractControl } from '@angular/forms';
+import { ClientWizardModel } from '../../models/client-wizard-model';
 
 @Component({
     selector: 'app-identity-resources-step',
     templateUrl: './identity-resources-step.component.html'
 })
-export class IdentityResourcesStepComponent extends StepBaseComponent implements OnInit {
+export class IdentityResourcesStepComponent extends StepBaseComponent<ClientWizardModel> implements OnInit {
     private _selectedResourcesControl: AbstractControl;
 
     constructor(private _wizardService: ClientsWizardService) {

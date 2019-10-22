@@ -9,8 +9,7 @@
                 <div class="container m-auto" *ngIf="!clientConfigurationStarted">
                     <div class="row m-t-20">
                         <div class="col-md-6 cursor-pointer" *ngFor="let clientType of clientTypes" (click)="selectClientType(clientType)">
-                            <div class="card mb-3 card-body shadow"
-                                [ngStyle]="{ 'background': selectedClientType?.key === clientType.key ? '#46cd93' : '' }">
+                            <div class="card mb-3 card-body shadow" [ngStyle]="{ 'background': selectedClientType?.key === clientType.key ? '#46cd93' : '' }">
                                 <div class="row no-gutters">
                                     <div class="col-sm-10">
                                         <h3 class="card-title font-14 m-0">{{ clientType.name }}</h3>

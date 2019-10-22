@@ -1,0 +1,29 @@
+<div [formGroup]="data.form">
+    <div class="form-group row">
+        <label for="resource-name" class="col-sm-2 col-form-label">
+            <i class="dripicons-information align-middle" title="The unique identifier for this resource."></i> Id (*)
+        </label>
+        <div class="col-sm-10">
+            <div class="input-group">
+                <input class="form-control" type="text" id="resource-name" name="resource-name" [ngClass]="{ 'invalid': hostFormValidated && name.invalid }" 
+                    [formControlName]="'name'" required maxlength="200" />
+            </div>
+            <div *ngIf="hostFormValidated && name.invalid" class="form-control-feedback text-danger">Field 'Id' is required.</div>
+        </div>
+    </div>
+    <div class="form-group row">
+        <label for="resource-display-name" class="col-sm-2 col-form-label">
+            <i class="dripicons-information align-middle" title="Application name that will be seen on consent screens."></i> Display Name
+        </label>
+        <div class="col-sm-10">
+            <input class="form-control" type="text" id="resource-display-name" name="resource-display-name" [ngClass]="{ 'invalid': hostFormValidated && displayName.invalid }" 
+                [formControlName]="'displayName'" maxlength="200" />
+        </div>
+    </div>
+    <div class="form-group row">
+        <label for="description" class="col-sm-2 col-form-label">Description</label>
+        <div class="col-sm-10">
+            <textarea class="form-control" rows="3" type="text" id="description" name="description" [formControlName]="'description'" maxlength="1000"></textarea>
+        </div>
+    </div>
+</div>

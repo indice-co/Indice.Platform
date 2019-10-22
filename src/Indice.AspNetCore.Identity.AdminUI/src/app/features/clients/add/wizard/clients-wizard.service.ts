@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 
 import { AsyncSubject, Observable } from 'rxjs';
 import { ClientType } from './models/client-type';
-import { WizardStepDescriptor } from './models/wizard-step-descriptor';
+import { WizardStepDescriptor } from '../../../../shared/components/step-base/models/wizard-step-descriptor';
 import { ExtendedInfoStepComponent } from './steps/extended-info/extended-info-step.component';
 import { BasicInfoStepComponent } from './steps/basic-info/basic-info-step.component';
 import { UrlsStepComponent } from './steps/urls/urls-step.component';

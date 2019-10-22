@@ -257,9 +257,10 @@ namespace Indice.AspNetCore.Identity.Features
                 Type = request.Type,
                 Value = request.Value
             };
-            client.Claims = new List<ClientClaim> {
-                claimToAdd
-            };
+            if (client.Claims == null) {
+                client.Claims = new List<ClientClaim>();
+            }
+            client.Claims.Add(claimToAdd);
             await _configurationDbContext.SaveChangesAsync();
             await _cache.RemoveAsync(CacheKeys.Client(id));
             return Created(string.Empty, new ClaimInfo {
@@ -267,6 +268,38 @@ namespace Indice.AspNetCore.Identity.Features
                 Type = claimToAdd.Type,
                 Value = claimToAdd.Value
             });
+        }
+
+        /// <summary>
+        /// Adds an identity resource to the specified client.
+        /// </summary>
+        /// <param name="id">The id of the client.</param>
+        /// <param name="resources">The API or identity resources to add.</param>
+        /// <response code="201">Created</response>
+        /// <response code="400">Bad Request</response>
+        /// <response code="401">Unauthorized</response>
+        /// <response code="403">Forbidden</response>
+        /// <response code="500">Internal Server Error</response>
+        [HttpPost("{id}/resources")]
+        [ProducesResponseType(statusCode: StatusCodes.Status200OK)]
+        [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest, type: typeof(ValidationProblemDetails))]
+        [ProducesResponseType(statusCode: StatusCodes.Status401Unauthorized, type: typeof(ProblemDetails))]
+        [ProducesResponseType(statusCode: StatusCodes.Status403Forbidden, type: typeof(ProblemDetails))]
+        public async Task<ActionResult> AddClientResources([FromRoute]string id, [FromBody]string[] resources) {
+            var client = await _configurationDbContext.Clients.SingleOrDefaultAsync(x => x.ClientId == id);
+            if (client == null) {
+                return NotFound();
+            }
+            if (client.AllowedScopes == null) {
+                client.AllowedScopes = new List<ClientScope>();
+            }
+            client.AllowedScopes.AddRange(resources.Select(x => new ClientScope {
+                ClientId = client.Id,
+                Scope = x
+            }));
+            await _configurationDbContext.SaveChangesAsync();
+            await _cache.RemoveAsync(CacheKeys.Client(id));
+            return Ok();
         }
 
         /// <summary>

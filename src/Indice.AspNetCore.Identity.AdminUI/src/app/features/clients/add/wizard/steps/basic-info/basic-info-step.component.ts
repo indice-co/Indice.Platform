@@ -1,14 +1,15 @@
 import { Component, OnInit } from '@angular/core';
 import { AbstractControl } from '@angular/forms';
 
-import { StepBaseComponent } from '../step-base.component';
+import { StepBaseComponent } from '../../../../../../shared/components/step-base/step-base.component';
 import { UtilitiesService } from 'src/app/core/services/utilities.services';
+import { ClientWizardModel } from '../../models/client-wizard-model';
 
 @Component({
   selector: 'app-basic-info-step',
   templateUrl: './basic-info-step.component.html'
 })
-export class BasicInfoStepComponent extends StepBaseComponent implements OnInit {
+export class BasicInfoStepComponent extends StepBaseComponent<ClientWizardModel> implements OnInit {
   constructor(private _utilities: UtilitiesService) {
     super();
   }

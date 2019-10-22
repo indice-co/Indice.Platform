@@ -25,6 +25,10 @@ namespace Indice.AspNetCore.Identity.Features
     internal class ResourcesController : ControllerBase
     {
         private readonly ExtendedConfigurationDbContext _configurationDbContext;
+        /// <summary>
+        /// The name of the controller.
+        /// </summary>
+        public const string Name = "Resources";
 
         /// <summary>
         /// Creates an instance of <see cref="ResourcesController"/>.
@@ -103,7 +107,49 @@ namespace Indice.AspNetCore.Identity.Features
                 Emphasize = identityResource.Emphasize,
                 NonEditable = identityResource.NonEditable,
                 ShowInDiscoveryDocument = identityResource.ShowInDiscoveryDocument,
-                AllowedClaims = identityResource.UserClaims.Select(claim => claim.Type)
+                AllowedClaims = identityResource.UserClaims.Select(x => x.Type)
+            });
+        }
+
+        /// <summary>
+        /// Creates a new identity resource.
+        /// </summary>
+        /// <param name="request">Contains info about the identity resource to be created.</param>
+        /// <response code="201">Created</response>
+        /// <response code="400">Bad Request</response>
+        /// <response code="401">Unauthorized</response>
+        /// <response code="403">Forbidden</response>
+        /// <response code="500">Internal Server Error</response>
+        [HttpPost("identity")]
+        [ProducesResponseType(statusCode: StatusCodes.Status201Created, type: typeof(IdentityResourceInfo))]
+        [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest, type: typeof(ValidationProblemDetails))]
+        [ProducesResponseType(statusCode: StatusCodes.Status401Unauthorized, type: typeof(ProblemDetails))]
+        [ProducesResponseType(statusCode: StatusCodes.Status403Forbidden, type: typeof(ProblemDetails))]
+        public async Task<ActionResult<IdentityResourceInfo>> CreateIdentityResource([FromBody]CreateResourceRequest request) {
+            var resource = new IdentityResource {
+                Name = request.Name,
+                DisplayName = request.DisplayName,
+                Description = request.Description,
+                Enabled = true,
+                ShowInDiscoveryDocument = true,
+                UserClaims = request.UserClaims.Select(x => new IdentityClaim {
+                    Type = x
+                })
+                .ToList()
+            };
+            _configurationDbContext.IdentityResources.Add(resource);
+            await _configurationDbContext.SaveChangesAsync();
+            return CreatedAtAction(nameof(GetIdentityResource), Name, new { resourceId = resource.Id }, new IdentityResourceInfo {
+                Id = resource.Id,
+                Name = resource.Name,
+                DisplayName = resource.DisplayName,
+                Description = resource.Description,
+                Enabled = resource.Enabled,
+                Required = resource.Required,
+                Emphasize = resource.Emphasize,
+                NonEditable = resource.NonEditable,
+                ShowInDiscoveryDocument = resource.ShowInDiscoveryDocument,
+                AllowedClaims = resource.UserClaims.Select(x => x.Type)
             });
         }
 
@@ -199,7 +245,7 @@ namespace Indice.AspNetCore.Identity.Features
                 Description = apiResource.Description,
                 Enabled = apiResource.Enabled,
                 NonEditable = apiResource.NonEditable,
-                AllowedClaims = apiResource.UserClaims.Select(claim => claim.Type),
+                AllowedClaims = apiResource.UserClaims.Select(x => x.Type),
                 Scopes = apiResource.Scopes.Any() ? apiResource.Scopes.Select(x => new ScopeInfo {
                     Id = x.Id,
                     Name = x.Name,
@@ -220,6 +266,59 @@ namespace Indice.AspNetCore.Identity.Features
             });
         }
 
+        /// <summary>
+        /// Creates a new API resource.
+        /// </summary>
+        /// <param name="request">Contains info about the API resource to be created.</param>
+        /// <response code="201">Created</response>
+        /// <response code="400">Bad Request</response>
+        /// <response code="401">Unauthorized</response>
+        /// <response code="403">Forbidden</response>
+        /// <response code="500">Internal Server Error</response>
+        [HttpPost("protected")]
+        [ProducesResponseType(statusCode: StatusCodes.Status201Created, type: typeof(ApiResourceInfo))]
+        [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest, type: typeof(ValidationProblemDetails))]
+        [ProducesResponseType(statusCode: StatusCodes.Status401Unauthorized, type: typeof(ProblemDetails))]
+        [ProducesResponseType(statusCode: StatusCodes.Status403Forbidden, type: typeof(ProblemDetails))]
+        public async Task<ActionResult<ApiResourceInfo>> CreateProtectedResource([FromBody]CreateResourceRequest request) {
+            var resource = new ApiResource {
+                Name = request.Name,
+                DisplayName = request.DisplayName,
+                Description = request.Description,
+                Enabled = true,
+                UserClaims = request.UserClaims.Select(x => new ApiResourceClaim {
+                    Type = x
+                })
+                .ToList(),
+                Scopes = new List<ApiScope> {
+                    new ApiScope {
+                        Name = request.Name,
+                        DisplayName = request.DisplayName,
+                        Description = request.Description,
+                        ShowInDiscoveryDocument = true
+                    }
+                }
+            };
+            _configurationDbContext.ApiResources.Add(resource);
+            await _configurationDbContext.SaveChangesAsync();
+            return CreatedAtAction(nameof(GetApiResource), Name, new { resourceId = resource.Id }, new ApiResourceInfo {
+                Id = resource.Id,
+                Name = resource.Name,
+                DisplayName = resource.DisplayName,
+                Description = resource.Description,
+                Enabled = resource.Enabled,
+                NonEditable = resource.NonEditable,
+                AllowedClaims = resource.UserClaims.Select(x => x.Type),
+                Scopes = resource.Scopes.Select(x => new ScopeInfo {
+                    Id = x.Id,
+                    Name = x.Name,
+                    DisplayName = x.DisplayName,
+                    Description = x.Description,
+                    ShowInDiscoveryDocument = x.ShowInDiscoveryDocument
+                })
+            });
+        }
+
         [HttpPost("protected/{resourceId:int}/scopes/{scopeId:int}/claims")]
         [ProducesResponseType(statusCode: StatusCodes.Status200OK)]
         [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest, type: typeof(ValidationProblemDetails))]
@@ -227,7 +326,6 @@ namespace Indice.AspNetCore.Identity.Features
         [ProducesResponseType(statusCode: StatusCodes.Status403Forbidden, type: typeof(ProblemDetails))]
         public async Task<ActionResult> AddProtectedResourceScopeClaims([FromRoute]int resourceId, [FromRoute]int scopeId, [FromBody]string[] claims) {
             var apiResourceScope = await _configurationDbContext.ApiResources
-                                                                .Include(x => x.UserClaims)
                                                                 .Where(x => x.Id == resourceId)
                                                                 .SelectMany(x => x.Scopes)
                                                                 .Where(x => x.Id == scopeId)

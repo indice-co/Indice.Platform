@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 import { SweetAlert2Module } from '@sweetalert2/ngx-sweetalert2';
 import { SharedModule } from 'src/app/shared/shared.module';
@@ -16,6 +16,10 @@ import { ApiResourceDetailsComponent } from './api/edit/details/api-resource-det
 import { ApiResourceScopesComponent } from './api/edit/scopes/api-resource-scopes.component';
 import { ApiResourceScopeDetailsComponent } from './api/edit/scopes/details/api-resource-scope-details.component';
 import { ApiResourceScopeClaimsComponent } from './api/edit/scopes/claims/api-resource-scope-claims.component';
+import { ApiResourceAddComponent } from './api/add/api-resource-add.component';
+import { BasicInfoStepComponent } from './api/add/wizard/steps/basic-info/basic-info-step.component';
+import { UserClaimsStepComponent } from './api/add/wizard/steps/user-claims/user-claims-step.component';
+import { IdentityResourcesStepComponent } from '../clients/add/wizard/steps/identity-resources/identity-resources-step.component';
 
 @NgModule({
     declarations: [
@@ -29,14 +33,22 @@ import { ApiResourceScopeClaimsComponent } from './api/edit/scopes/claims/api-re
         ApiResourceDetailsComponent,
         ApiResourceScopesComponent,
         ApiResourceScopeDetailsComponent,
-        ApiResourceScopeClaimsComponent
+        ApiResourceScopeClaimsComponent,
+        ApiResourceAddComponent,
+        BasicInfoStepComponent,
+        UserClaimsStepComponent
     ],
     imports: [
         CommonModule,
         FormsModule,
+        ReactiveFormsModule,
         ResourcesRoutingModule,
         SharedModule,
         SweetAlert2Module
+    ],
+    entryComponents: [
+        BasicInfoStepComponent,
+        UserClaimsStepComponent
     ]
 })
 export class ResourcesModule { }

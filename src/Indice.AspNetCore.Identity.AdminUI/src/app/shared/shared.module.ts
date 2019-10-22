@@ -11,6 +11,7 @@ import { DynamicInputComponent } from './components/dynamic-input/dynamic-input.
 import { NgbDateCustomParserFormatter } from './services/custom-parser-formatter.service';
 import { TransferListsComponent } from './components/transfer-lists/transfer-lists.component';
 import { ValidationSummaryComponent } from './components/validation-summary/validation-summary.component';
+import { WizardStepDirective } from './components/step-base/wizard-step.directive';
 
 @NgModule({
     declarations: [
@@ -18,7 +19,8 @@ import { ValidationSummaryComponent } from './components/validation-summary/vali
         DynamicInputComponent,
         TransferListsComponent,
         ValidationSummaryComponent,
-        RouterLinkMatchDirective
+        RouterLinkMatchDirective,
+        WizardStepDirective
     ],
     imports: [
         CommonModule,
@@ -32,7 +34,8 @@ import { ValidationSummaryComponent } from './components/validation-summary/vali
         DynamicInputComponent,
         TransferListsComponent,
         ValidationSummaryComponent,
-        RouterLinkMatchDirective
+        RouterLinkMatchDirective,
+        WizardStepDirective
     ],
     providers: [
         NgbDatepickerConfig,

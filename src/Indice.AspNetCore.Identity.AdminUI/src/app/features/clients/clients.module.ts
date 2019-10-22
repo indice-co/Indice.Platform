@@ -9,7 +9,6 @@ import { ClientsComponent } from './clients.component';
 import { ClientsRoutingModule } from './clients-routing.module';
 import { ClientAddComponent } from './add/client-add.component';
 import { ExtendedInfoStepComponent } from './add/wizard/steps/extended-info/extended-info-step.component';
-import { WizardStepDirective } from './add/wizard/wizard-step.directive';
 import { BasicInfoStepComponent } from './add/wizard/steps/basic-info/basic-info-step.component';
 import { UrlsStepComponent } from './add/wizard/steps/urls/urls-step.component';
 import { IdentityResourcesStepComponent } from './add/wizard/steps/identity-resources/identity-resources-step.component';
@@ -47,8 +46,7 @@ import { ClientGrantTypesComponent } from './edit/advanced/grant-types/client-gr
         ClientAdvancedComponent,
         ClientTokensComponent,
         ClientClaimsComponent,
-        ClientGrantTypesComponent,
-        WizardStepDirective
+        ClientGrantTypesComponent
     ],
     imports: [
         CommonModule,

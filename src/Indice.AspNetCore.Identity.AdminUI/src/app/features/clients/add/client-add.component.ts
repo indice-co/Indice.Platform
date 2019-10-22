@@ -2,15 +2,15 @@ import { Component, OnInit, ChangeDetectorRef, ViewChild, ComponentFactoryResolv
 import { FormBuilder, FormGroup, Validators, FormControl } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 
+import { Subscription } from 'rxjs';
 import { ClientsWizardService } from './wizard/clients-wizard.service';
 import { ClientType } from './wizard/models/client-type';
-import { WizardStepDescriptor } from './wizard/models/wizard-step-descriptor';
-import { WizardStepDirective } from './wizard/wizard-step.directive';
+import { WizardStepDescriptor } from 'src/app/shared/components/step-base/models/wizard-step-descriptor';
+import { WizardStepDirective } from '../../../shared/components/step-base/wizard-step.directive';
 import { CreateClientRequest, IdentityApiService, ClientInfo } from 'src/app/core/services/identity-api.service';
-import { WizardFormModel } from './wizard/models/wizard-form-model';
-import { StepBaseComponent } from './wizard/steps/step-base.component';
+import { ClientWizardModel } from './wizard/models/client-wizard-model';
+import { StepBaseComponent } from 'src/app/shared/components/step-base/step-base.component';
 import { ToastService } from 'src/app/layout/services/app-toast.service';
-import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-client-add',
@@ -20,7 +20,7 @@ import { Subscription } from 'rxjs';
 })
 export class ClientAddComponent implements OnInit {
   @ViewChild(WizardStepDirective, { static: false }) private _wizardStepHost: WizardStepDirective;
-  private _loadedStepInstance: StepBaseComponent;
+  private _loadedStepInstance: StepBaseComponent<ClientWizardModel>;
   private _formValidatedSubscription: Subscription;
 
   constructor(private _wizardService: ClientsWizardService, private _changeDetectionRef: ChangeDetectorRef, private _componentFactoryResolver: ComponentFactoryResolver,
@@ -106,7 +106,20 @@ export class ClientAddComponent implements OnInit {
   }
 
   public saveClient(): void {
-    this._api.createClient(this._loadedStepInstance.getSummary()).subscribe((client: ClientInfo) => {
+    this._api.createClient({
+      clientType: this.form.get('clientType').value,
+      clientId: this.form.get('clientId').value,
+      clientName: this.form.get('clientName').value,
+      requireConsent: this.form.get('requireConsent').value,
+      clientUri: this.form.get('clientUrl').value,
+      logoUri: this.form.get('logoUrl').value,
+      description: this.form.get('description').value,
+      redirectUri: this.form.get('callbackUrl').value,
+      postLogoutRedirectUri: this.form.get('postLogoutUrl').value,
+      identityResources: this.form.get('identityResources').value,
+      apiResources: this.form.get('apiResources').value,
+      secrets: this.form.get('secrets').value
+    } as CreateClientRequest).subscribe((client: ClientInfo) => {
       this._toast.showSuccess(`Client '${client.clientId}' was created successfully.`);
       this._router.navigate(['../'], { relativeTo: this._route });
     });
@@ -129,12 +142,12 @@ export class ClientAddComponent implements OnInit {
     viewContainerRef.clear();
     const componentRef = viewContainerRef.createComponent(componentFactory);
     // Keep a reference of the instance of the step component.
-    this._loadedStepInstance = componentRef.instance as StepBaseComponent;
+    this._loadedStepInstance = componentRef.instance as StepBaseComponent<ClientWizardModel>;
     // Pass data to the dynamically loaded component.
     this._loadedStepInstance.data = {
       client: this.client,
       form: this.form
-    } as WizardFormModel;
+    } as ClientWizardModel;
     if (this._formValidatedSubscription) {
       this._formValidatedSubscription.unsubscribe();
     }
