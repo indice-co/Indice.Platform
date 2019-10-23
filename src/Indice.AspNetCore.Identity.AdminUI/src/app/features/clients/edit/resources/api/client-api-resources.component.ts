@@ -12,6 +12,8 @@ import { ClientStore } from '../../client-store.service';
 })
 export class ClientApiResourcesComponent implements OnInit, OnDestroy {
     private _getDataSubscription: Subscription;
+    private _addClientApiResourceSubscription: Subscription;
+    private _deleteClientApiResourceSubscription: Subscription;
 
     constructor(private _route: ActivatedRoute, private _clientStore: ClientStore) { }
 
@@ -40,9 +42,19 @@ export class ClientApiResourcesComponent implements OnInit, OnDestroy {
         if (this._getDataSubscription) {
             this._getDataSubscription.unsubscribe();
         }
+        if (this._addClientApiResourceSubscription) {
+            this._addClientApiResourceSubscription.unsubscribe();
+        }
+        if (this._deleteClientApiResourceSubscription) {
+            this._deleteClientApiResourceSubscription.unsubscribe();
+        }
     }
 
-    public addResource(resource: ApiResourceInfo): void { }
+    public addResource(resource: ApiResourceInfo): void {
+        this._addClientApiResourceSubscription = this._clientStore.addApiResource(this.clientId, resource).subscribe();
+    }
 
-    public removeResource(resource: ApiResourceInfo): void { }
+    public removeResource(resource: ApiResourceInfo): void {
+        this._deleteClientApiResourceSubscription = this._clientStore.deleteApiResource(this.clientId, resource).subscribe();
+    }
 }

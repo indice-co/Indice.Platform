@@ -103,6 +103,36 @@ export class ClientStore {
         }));
     }
 
+    public addApiResource(clientId: string, resource: ApiResourceInfo): Observable<void> {
+        this.getClient(clientId).subscribe((client: SingleClientInfo) => {
+            client.apiResources.push(resource.name);
+            this._client.next(client);
+            this._client.complete();
+        });
+        return this._api.addClientResources(clientId, [resource.name]);
+    }
+
+    public deleteApiResource(clientId: string, resource: ApiResourceInfo): Observable<void> {
+        this.getClient(clientId).subscribe((client: SingleClientInfo) => {
+            const index = client.apiResources.findIndex(x => x === resource.name);
+            if (index > -1) {
+                client.apiResources.splice(index, 1);
+            }
+            this._client.next(client);
+            this._client.complete();
+        });
+        return this._api.deleteClientResource(clientId, resource.name);
+    }
+
+    public addIdentityResource(clientId: string, resource: IdentityResourceInfo): Observable<void> {
+        this.getClient(clientId).subscribe((client: SingleClientInfo) => {
+            client.identityResources.push(resource.name);
+            this._client.next(client);
+            this._client.complete();
+        });
+        return this._api.addClientResources(clientId, [resource.name]);
+    }
+
     public deleteClient(clientId: string): Observable<void> {
         return this._api.deleteClient(clientId);
     }

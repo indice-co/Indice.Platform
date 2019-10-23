@@ -12,6 +12,7 @@ import { ClientStore } from '../../client-store.service';
 })
 export class ClientIdentityResourcesComponent implements OnInit, OnDestroy {
     private _getDataSubscription: Subscription;
+    private _addClientIdentityResourceSubscription: Subscription;
 
     constructor(private _route: ActivatedRoute, private _clientStore: ClientStore) { }
 
@@ -40,9 +41,14 @@ export class ClientIdentityResourcesComponent implements OnInit, OnDestroy {
         if (this._getDataSubscription) {
             this._getDataSubscription.unsubscribe();
         }
+        if (this._addClientIdentityResourceSubscription) {
+            this._addClientIdentityResourceSubscription.unsubscribe();
+        }
     }
 
-    public addResource(resource: IdentityResourceInfo): void { }
+    public addResource(resource: IdentityResourceInfo): void {
+        this._addClientIdentityResourceSubscription = this._clientStore.addIdentityResource(this.clientId, resource).subscribe();
+    }
 
     public removeResource(resource: IdentityResourceInfo): void { }
 }

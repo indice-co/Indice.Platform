@@ -109,7 +109,7 @@ namespace Indice.AspNetCore.Identity.Features
         /// <summary>
         /// Gets a client by it's unique id.
         /// </summary>
-        /// <param name="id">The identifier of the client.</param>
+        /// <param name="clientId">The identifier of the client.</param>
         /// <response code="200">OK</response>
         /// <response code="400">Bad Request</response>
         /// <response code="401">Unauthorized</response>
@@ -120,8 +120,8 @@ namespace Indice.AspNetCore.Identity.Features
         [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest, type: typeof(ValidationProblemDetails))]
         [ProducesResponseType(statusCode: StatusCodes.Status401Unauthorized, type: typeof(ProblemDetails))]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
-        [HttpGet("{id}")]
-        public async Task<ActionResult<SingleClientInfo>> GetClient([FromRoute]string id) {
+        [HttpGet("{clientId}")]
+        public async Task<ActionResult<SingleClientInfo>> GetClient([FromRoute]string clientId) {
             async Task<SingleClientInfo> GetClientAsync() {
                 // Load client from the database.
                 var query = _configurationDbContext.Clients.AsNoTracking();
@@ -181,14 +181,14 @@ namespace Indice.AspNetCore.Identity.Features
                         Expiration = x.Expiration
                     })
                 })
-                .SingleOrDefaultAsync(x => x.ClientId == id);
+                .SingleOrDefaultAsync(x => x.ClientId == clientId);
                 if (foundClient == null) {
                     return null;
                 }
                 return foundClient;
             }
             // Retrieve the client by either the cache or the database.
-            var client = await _cache.TryGetOrSetAsync(CacheKeys.Client(id), GetClientAsync, TimeSpan.FromDays(7));
+            var client = await _cache.TryGetOrSetAsync(CacheKeys.Client(clientId), GetClientAsync, TimeSpan.FromDays(7));
             if (client == null) {
                 return NotFound();
             }
@@ -227,26 +227,26 @@ namespace Indice.AspNetCore.Identity.Features
             if (_apiEndpointsOptions.RaiseEvents) {
                 await _eventService.Raise(new ClientCreatedEvent(response));
             }
-            return CreatedAtAction(nameof(GetClient), new { id = client.ClientId }, response);
+            return CreatedAtAction(nameof(GetClient), new { clientId = client.ClientId }, response);
         }
 
         /// <summary>
         /// Adds a claim for the specified client.
         /// </summary>
-        /// <param name="id">The id of the client.</param>
+        /// <param name="clientId">The id of the client.</param>
         /// <param name="request">The claim to add.</param>
         /// <response code="201">Created</response>
         /// <response code="400">Bad Request</response>
         /// <response code="401">Unauthorized</response>
         /// <response code="403">Forbidden</response>
         /// <response code="500">Internal Server Error</response>
-        [HttpPost("{id}/claims")]
+        [HttpPost("{clientId}/claims")]
         [ProducesResponseType(statusCode: StatusCodes.Status201Created, type: typeof(ClaimInfo))]
         [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest, type: typeof(ValidationProblemDetails))]
         [ProducesResponseType(statusCode: StatusCodes.Status401Unauthorized, type: typeof(ProblemDetails))]
         [ProducesResponseType(statusCode: StatusCodes.Status403Forbidden, type: typeof(ProblemDetails))]
-        public async Task<ActionResult<ClaimInfo>> AddClientClaim([FromRoute]string id, [FromBody]CreateClaimRequest request) {
-            var client = await _configurationDbContext.Clients.SingleOrDefaultAsync(x => x.ClientId == id);
+        public async Task<ActionResult<ClaimInfo>> AddClientClaim([FromRoute]string clientId, [FromBody]CreateClaimRequest request) {
+            var client = await _configurationDbContext.Clients.SingleOrDefaultAsync(x => x.ClientId == clientId);
             if (client == null) {
                 return NotFound();
             }
@@ -261,7 +261,7 @@ namespace Indice.AspNetCore.Identity.Features
             }
             client.Claims.Add(claimToAdd);
             await _configurationDbContext.SaveChangesAsync();
-            await _cache.RemoveAsync(CacheKeys.Client(id));
+            await _cache.RemoveAsync(CacheKeys.Client(clientId));
             return Created(string.Empty, new ClaimInfo {
                 Id = claimToAdd.Id,
                 Type = claimToAdd.Type,
@@ -272,20 +272,20 @@ namespace Indice.AspNetCore.Identity.Features
         /// <summary>
         /// Adds an identity resource to the specified client.
         /// </summary>
-        /// <param name="id">The id of the client.</param>
+        /// <param name="clientId">The id of the client.</param>
         /// <param name="resources">The API or identity resources to add.</param>
         /// <response code="201">Created</response>
         /// <response code="400">Bad Request</response>
         /// <response code="401">Unauthorized</response>
         /// <response code="403">Forbidden</response>
         /// <response code="500">Internal Server Error</response>
-        [HttpPost("{id}/resources")]
+        [HttpPost("{clientId}/resources")]
         [ProducesResponseType(statusCode: StatusCodes.Status200OK)]
         [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest, type: typeof(ValidationProblemDetails))]
         [ProducesResponseType(statusCode: StatusCodes.Status401Unauthorized, type: typeof(ProblemDetails))]
         [ProducesResponseType(statusCode: StatusCodes.Status403Forbidden, type: typeof(ProblemDetails))]
-        public async Task<ActionResult> AddClientResources([FromRoute]string id, [FromBody]string[] resources) {
-            var client = await _configurationDbContext.Clients.SingleOrDefaultAsync(x => x.ClientId == id);
+        public async Task<ActionResult> AddClientResources([FromRoute]string clientId, [FromBody]string[] resources) {
+            var client = await _configurationDbContext.Clients.SingleOrDefaultAsync(x => x.ClientId == clientId);
             if (client == null) {
                 return NotFound();
             }
@@ -297,34 +297,67 @@ namespace Indice.AspNetCore.Identity.Features
                 Scope = x
             }));
             await _configurationDbContext.SaveChangesAsync();
-            await _cache.RemoveAsync(CacheKeys.Client(id));
+            await _cache.RemoveAsync(CacheKeys.Client(clientId));
+            return Ok();
+        }
+
+        /// <summary>
+        /// Removes an identity resource from the specified client.
+        /// </summary>
+        /// <param name="clientId">The id of the client.</param>
+        /// <param name="resource">The id of the resource to delete.</param>
+        /// <response code="201">Created</response>
+        /// <response code="400">Bad Request</response>
+        /// <response code="401">Unauthorized</response>
+        /// <response code="403">Forbidden</response>
+        /// <response code="500">Internal Server Error</response>
+        [HttpDelete("{clientId}/resources/{resource}")]
+        [ProducesResponseType(statusCode: StatusCodes.Status200OK)]
+        [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest, type: typeof(ValidationProblemDetails))]
+        [ProducesResponseType(statusCode: StatusCodes.Status401Unauthorized, type: typeof(ProblemDetails))]
+        [ProducesResponseType(statusCode: StatusCodes.Status403Forbidden, type: typeof(ProblemDetails))]
+        public async Task<ActionResult> DeleteClientResource([FromRoute]string clientId, [FromRoute]string resource) {
+            var client = await _configurationDbContext.Clients.Include(x => x.AllowedScopes).SingleOrDefaultAsync(x => x.ClientId == clientId);
+            if (client == null) {
+                return NotFound();
+            }
+            if (client.AllowedScopes == null) {
+                client.AllowedScopes = new List<ClientScope>();
+            }
+            var resourceToRemove = client.AllowedScopes.SingleOrDefault(x => x.Scope == resource);
+            if (resourceToRemove == null) {
+                return NotFound();
+            }
+            client.AllowedScopes.Remove(resourceToRemove);
+            await _configurationDbContext.SaveChangesAsync();
+            await _cache.RemoveAsync(CacheKeys.Client(clientId));
             return Ok();
         }
 
         /// <summary>
         /// Permanently deletes an existing client.
         /// </summary>
-        /// <param name="id">The id of the client to delete.</param>
+        /// <param name="clientId">The id of the client to delete.</param>
         /// <response code="200">OK</response>
         /// <response code="400">Bad Request</response>
         /// <response code="401">Unauthorized</response>
         /// <response code="403">Forbidden</response>
         /// <response code="404">Not Found</response>
         /// <response code="500">Internal Server Error</response>
-        [HttpDelete("{id}")]
+        [HttpDelete("{clientId}")]
         [ProducesResponseType(statusCode: StatusCodes.Status200OK)]
         [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest, type: typeof(ValidationProblemDetails))]
         [ProducesResponseType(statusCode: StatusCodes.Status401Unauthorized, type: typeof(ProblemDetails))]
         [ProducesResponseType(statusCode: StatusCodes.Status403Forbidden, type: typeof(ProblemDetails))]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
-        public async Task<IActionResult> DeleteClient([FromRoute]string id) {
-            var client = await _configurationDbContext.Clients.AsNoTracking().SingleOrDefaultAsync(x => x.ClientId == id);
+        public async Task<IActionResult> DeleteClient([FromRoute]string clientId) {
+            var client = await _configurationDbContext.Clients.AsNoTracking().SingleOrDefaultAsync(x => x.ClientId == clientId);
             if (client == null) {
                 return NotFound();
             }
             _configurationDbContext.Clients.Remove(client);
             await _configurationDbContext.SaveChangesAsync();
-            await _cache.RemoveAsync(CacheKeys.Client(id));
+            await _cache.RemoveAsync(CacheKeys.Client(clientId));
             return Ok();
         }
 

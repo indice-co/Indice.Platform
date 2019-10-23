@@ -5,7 +5,6 @@ import { Subscription, forkJoin } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { RoleInfo, SingleUserInfo } from 'src/app/core/services/identity-api.service';
 import { UserStore } from '../user-store.service';
-import { TransferListsComponent } from 'src/app/shared/components/transfer-lists/transfer-lists.component';
 
 @Component({
     selector: 'app-user-roles',
