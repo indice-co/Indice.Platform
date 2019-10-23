@@ -12,6 +12,7 @@ import { ApiResourceStore } from '../../api-resource-store.service';
 export class ApiResourceScopeClaimsComponent implements OnInit, OnDestroy {
     private _getDataSubscription: Subscription;
     private _addApiResourceScopeClaim: Subscription;
+    private _deleteApiResourceScopeClaim: Subscription;
     private _apiResourceId: number;
 
     constructor(private _route: ActivatedRoute, private _apiResourceStore: ApiResourceStore) { }
@@ -36,11 +37,16 @@ export class ApiResourceScopeClaimsComponent implements OnInit, OnDestroy {
         if (this._addApiResourceScopeClaim) {
             this._addApiResourceScopeClaim.unsubscribe();
         }
+        if (this._deleteApiResourceScopeClaim) {
+            this._deleteApiResourceScopeClaim.unsubscribe();
+        }
     }
 
     public addClaim(claim: ClaimTypeInfo): void {
         this._addApiResourceScopeClaim = this._apiResourceStore.addApiResourceScopeClaim(this._apiResourceId, this.scope.id, claim).subscribe();
     }
 
-    public removeClaim(claim: ClaimTypeInfo): void { }
+    public removeClaim(claim: ClaimTypeInfo): void {
+        this._deleteApiResourceScopeClaim = this._apiResourceStore.deleteApiResourceScopeClaim(this._apiResourceId, this.scope.id, claim).subscribe();
+    }
 }

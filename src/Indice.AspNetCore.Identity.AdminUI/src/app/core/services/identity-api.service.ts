@@ -159,10 +159,42 @@ export interface IIdentityApiService {
      */
     getApiResource(resourceId: number): Observable<ApiResourceInfo>;
     /**
-     * @param body (optional) 
-     * @return Success
+     * Adds claims to an API resource.
+     * @param resourceId The identifier of the API resource.
+     * @param body (optional) The API or identity resources to add.
+     * @return Ok
+     */
+    addProtectedResourceClaims(resourceId: number, body?: string[] | undefined): Observable<void>;
+    /**
+     * Removes a specified claim from an API resource.
+     * @param resourceId The identifier of the API resource.
+     * @param claim The identifier of the API resource claim to remove.
+     * @return Ok
+     */
+    deleteProtectedResourceClaim(resourceId: number, claim: string): Observable<void>;
+    /**
+     * Adds claims to an API resource.
+     * @param resourceId The identifier of the API resource.
+     * @param body (optional) Contains info about the API scope to be created.
+     * @return Ok
+     */
+    addProtectedResourceScope(resourceId: number, body?: CreateResourceRequest | undefined): Observable<void>;
+    /**
+     * Adds claims to an API scope of a protected resource.
+     * @param resourceId The identifier of the API resource.
+     * @param scopeId The identifier of the API resource scope.
+     * @param body (optional) The claims to add to the scope.
+     * @return Ok
      */
     addProtectedResourceScopeClaims(resourceId: number, scopeId: number, body?: string[] | undefined): Observable<void>;
+    /**
+     * Deletes a claim from an API scope of a protected resource.
+     * @param resourceId The identifier of the API resource.
+     * @param scopeId The identifier of the API resource scope.
+     * @param claim The claim to remove from the scope.
+     * @return Ok
+     */
+    deleteProtectedResourceScopeClaim(resourceId: number, scopeId: number, claim: string): Observable<void>;
     /**
      * Returns a list of Indice.AspNetCore.Identity.Features.RoleInfo objects containing the total number of roles in the database and the data filtered according to the provided Indice.Types.ListOptions.
      * @param page (optional) 
@@ -2125,8 +2157,256 @@ export class IdentityApiService implements IIdentityApiService {
     }
 
     /**
-     * @param body (optional) 
-     * @return Success
+     * Adds claims to an API resource.
+     * @param resourceId The identifier of the API resource.
+     * @param body (optional) The API or identity resources to add.
+     * @return Ok
+     */
+    addProtectedResourceClaims(resourceId: number, body?: string[] | undefined): Observable<void> {
+        let url_ = this.baseUrl + "/api/resources/protected/{resourceId}/claims";
+        if (resourceId === undefined || resourceId === null)
+            throw new Error("The parameter 'resourceId' must be defined.");
+        url_ = url_.replace("{resourceId}", encodeURIComponent("" + resourceId)); 
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json", 
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processAddProtectedResourceClaims(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processAddProtectedResourceClaims(<any>response_);
+                } catch (e) {
+                    return <Observable<void>><any>_observableThrow(e);
+                }
+            } else
+                return <Observable<void>><any>_observableThrow(response_);
+        }));
+    }
+
+    protected processAddProtectedResourceClaims(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob = 
+            response instanceof HttpResponse ? response.body : 
+            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }};
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return _observableOf<void>(<any>null);
+            }));
+        } else if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ValidationProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("Internal Server Error", status, _responseText, _headers);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<void>(<any>null);
+    }
+
+    /**
+     * Removes a specified claim from an API resource.
+     * @param resourceId The identifier of the API resource.
+     * @param claim The identifier of the API resource claim to remove.
+     * @return Ok
+     */
+    deleteProtectedResourceClaim(resourceId: number, claim: string): Observable<void> {
+        let url_ = this.baseUrl + "/api/resources/protected/{resourceId}/claims/{claim}";
+        if (resourceId === undefined || resourceId === null)
+            throw new Error("The parameter 'resourceId' must be defined.");
+        url_ = url_.replace("{resourceId}", encodeURIComponent("" + resourceId)); 
+        if (claim === undefined || claim === null)
+            throw new Error("The parameter 'claim' must be defined.");
+        url_ = url_.replace("{claim}", encodeURIComponent("" + claim)); 
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+            })
+        };
+
+        return this.http.request("delete", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processDeleteProtectedResourceClaim(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processDeleteProtectedResourceClaim(<any>response_);
+                } catch (e) {
+                    return <Observable<void>><any>_observableThrow(e);
+                }
+            } else
+                return <Observable<void>><any>_observableThrow(response_);
+        }));
+    }
+
+    protected processDeleteProtectedResourceClaim(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob = 
+            response instanceof HttpResponse ? response.body : 
+            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }};
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return _observableOf<void>(<any>null);
+            }));
+        } else if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ValidationProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("Internal Server Error", status, _responseText, _headers);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<void>(<any>null);
+    }
+
+    /**
+     * Adds claims to an API resource.
+     * @param resourceId The identifier of the API resource.
+     * @param body (optional) Contains info about the API scope to be created.
+     * @return Ok
+     */
+    addProtectedResourceScope(resourceId: number, body?: CreateResourceRequest | undefined): Observable<void> {
+        let url_ = this.baseUrl + "/api/resources/protected/{resourceId}/scopes";
+        if (resourceId === undefined || resourceId === null)
+            throw new Error("The parameter 'resourceId' must be defined.");
+        url_ = url_.replace("{resourceId}", encodeURIComponent("" + resourceId)); 
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json", 
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processAddProtectedResourceScope(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processAddProtectedResourceScope(<any>response_);
+                } catch (e) {
+                    return <Observable<void>><any>_observableThrow(e);
+                }
+            } else
+                return <Observable<void>><any>_observableThrow(response_);
+        }));
+    }
+
+    protected processAddProtectedResourceScope(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob = 
+            response instanceof HttpResponse ? response.body : 
+            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }};
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return _observableOf<void>(<any>null);
+            }));
+        } else if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ValidationProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("Internal Server Error", status, _responseText, _headers);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<void>(<any>null);
+    }
+
+    /**
+     * Adds claims to an API scope of a protected resource.
+     * @param resourceId The identifier of the API resource.
+     * @param scopeId The identifier of the API resource scope.
+     * @param body (optional) The claims to add to the scope.
+     * @return Ok
      */
     addProtectedResourceScopeClaims(resourceId: number, scopeId: number, body?: string[] | undefined): Observable<void> {
         let url_ = this.baseUrl + "/api/resources/protected/{resourceId}/scopes/{scopeId}/claims";
@@ -2194,6 +2474,95 @@ export class IdentityApiService implements IIdentityApiService {
             let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result403 = ProblemDetails.fromJS(resultData403);
             return throwException("Forbidden", status, _responseText, _headers, result403);
+            }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("Internal Server Error", status, _responseText, _headers);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<void>(<any>null);
+    }
+
+    /**
+     * Deletes a claim from an API scope of a protected resource.
+     * @param resourceId The identifier of the API resource.
+     * @param scopeId The identifier of the API resource scope.
+     * @param claim The claim to remove from the scope.
+     * @return Ok
+     */
+    deleteProtectedResourceScopeClaim(resourceId: number, scopeId: number, claim: string): Observable<void> {
+        let url_ = this.baseUrl + "/api/resources/protected/{resourceId}/scopes/{scopeId}/claims/{claim}";
+        if (resourceId === undefined || resourceId === null)
+            throw new Error("The parameter 'resourceId' must be defined.");
+        url_ = url_.replace("{resourceId}", encodeURIComponent("" + resourceId)); 
+        if (scopeId === undefined || scopeId === null)
+            throw new Error("The parameter 'scopeId' must be defined.");
+        url_ = url_.replace("{scopeId}", encodeURIComponent("" + scopeId)); 
+        if (claim === undefined || claim === null)
+            throw new Error("The parameter 'claim' must be defined.");
+        url_ = url_.replace("{claim}", encodeURIComponent("" + claim)); 
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+            })
+        };
+
+        return this.http.request("delete", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processDeleteProtectedResourceScopeClaim(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processDeleteProtectedResourceScopeClaim(<any>response_);
+                } catch (e) {
+                    return <Observable<void>><any>_observableThrow(e);
+                }
+            } else
+                return <Observable<void>><any>_observableThrow(response_);
+        }));
+    }
+
+    protected processDeleteProtectedResourceScopeClaim(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob = 
+            response instanceof HttpResponse ? response.body : 
+            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }};
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return _observableOf<void>(<any>null);
+            }));
+        } else if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ValidationProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("Internal Server Error", status, _responseText, _headers);
             }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
@@ -4066,15 +4435,17 @@ export class ClientInfo implements IClientInfo {
     /** Application description. */
     description?: string | undefined;
     /** Determines whether this application is enabled or not. */
-    enabled?: boolean;
+    enabled?: boolean | undefined;
     /** Specifies whether a consent screen is required. */
-    requireConsent?: boolean;
+    requireConsent?: boolean | undefined;
     /** Specifies whether consent screen is remembered after having been given. */
-    allowRememberConsent?: boolean;
+    allowRememberConsent?: boolean | undefined;
     /** Application logo that will be seen on consent screens. */
     logoUri?: string | undefined;
     /** Application URL that will be seen on consent screens. */
     clientUri?: string | undefined;
+    /** Specifies whether the client can be edited or not. */
+    nonEditable?: boolean;
 
     constructor(data?: IClientInfo) {
         if (data) {
@@ -4095,6 +4466,7 @@ export class ClientInfo implements IClientInfo {
             this.allowRememberConsent = _data["allowRememberConsent"];
             this.logoUri = _data["logoUri"];
             this.clientUri = _data["clientUri"];
+            this.nonEditable = _data["nonEditable"];
         }
     }
 
@@ -4115,6 +4487,7 @@ export class ClientInfo implements IClientInfo {
         data["allowRememberConsent"] = this.allowRememberConsent;
         data["logoUri"] = this.logoUri;
         data["clientUri"] = this.clientUri;
+        data["nonEditable"] = this.nonEditable;
         return data; 
     }
 }
@@ -4128,15 +4501,17 @@ export interface IClientInfo {
     /** Application description. */
     description?: string | undefined;
     /** Determines whether this application is enabled or not. */
-    enabled?: boolean;
+    enabled?: boolean | undefined;
     /** Specifies whether a consent screen is required. */
-    requireConsent?: boolean;
+    requireConsent?: boolean | undefined;
     /** Specifies whether consent screen is remembered after having been given. */
-    allowRememberConsent?: boolean;
+    allowRememberConsent?: boolean | undefined;
     /** Application logo that will be seen on consent screens. */
     logoUri?: string | undefined;
     /** Application URL that will be seen on consent screens. */
     clientUri?: string | undefined;
+    /** Specifies whether the client can be edited or not. */
+    nonEditable?: boolean;
 }
 
 export class ClientInfoResultSet implements IClientInfoResultSet {
@@ -4519,9 +4894,9 @@ export class SingleClientInfo implements ISingleClientInfo {
     /** The identity resources that the client has access to. */
     identityResources?: string[] | undefined;
     /** Lifetime of identity token in seconds. */
-    identityTokenLifetime?: number;
+    identityTokenLifetime?: number | undefined;
     /** Lifetime of access token in seconds */
-    accessTokenLifetime?: number;
+    accessTokenLifetime?: number | undefined;
     /** Lifetime of a user consent in seconds. */
     consentLifetime?: number | undefined;
     /** The maximum duration (in seconds) since the last time the user authenticated. */
@@ -4532,21 +4907,21 @@ export class SingleClientInfo implements ISingleClientInfo {
     pairWiseSubjectSalt?: string | undefined;
     accessTokenType?: AccessTokenType;
     /** Specifies is the user's session id should be sent to the FrontChannelLogoutUri. */
-    frontChannelLogoutSessionRequired?: boolean;
+    frontChannelLogoutSessionRequired?: boolean | undefined;
     /** Gets or sets a value indicating whether JWT access tokens should include an identifier. */
-    includeJwtId?: boolean;
+    includeJwtId?: boolean | undefined;
     /** Controls whether access tokens are transmitted via the browser for this client. This can prevent accidental leakage of access tokens when multiple response types are allowed. */
-    allowAccessTokensViaBrowser?: boolean;
+    allowAccessTokensViaBrowser?: boolean | undefined;
     /** When requesting both an id token and access token, should the user claims always be added to the id token instead of requring the client to use the userinfo endpoint. */
-    alwaysIncludeUserClaimsInIdToken?: boolean;
+    alwaysIncludeUserClaimsInIdToken?: boolean | undefined;
     /** Gets or sets a value indicating whether client claims should be always included in the access tokens - or only for client credentials flow. */
-    alwaysSendClientClaims?: boolean;
+    alwaysSendClientClaims?: boolean | undefined;
     /** Lifetime of authorization code in seconds. */
-    authorizationCodeLifetime?: number;
+    authorizationCodeLifetime?: number | undefined;
     /** Specifies whether a proof key is required for authorization code based token requests. */
-    requirePkce?: boolean;
+    requirePkce?: boolean | undefined;
     /** Specifies whether a proof key can be sent using plain method. */
-    allowPlainTextPkce?: boolean;
+    allowPlainTextPkce?: boolean | undefined;
     /** Gets or sets a value to prefix it on client claim types. */
     clientClaimsPrefix?: string | undefined;
     /** List of client claims. */
@@ -4562,15 +4937,17 @@ export class SingleClientInfo implements ISingleClientInfo {
     /** Application description. */
     description?: string | undefined;
     /** Determines whether this application is enabled or not. */
-    enabled?: boolean;
+    enabled?: boolean | undefined;
     /** Specifies whether a consent screen is required. */
-    requireConsent?: boolean;
+    requireConsent?: boolean | undefined;
     /** Specifies whether consent screen is remembered after having been given. */
-    allowRememberConsent?: boolean;
+    allowRememberConsent?: boolean | undefined;
     /** Application logo that will be seen on consent screens. */
     logoUri?: string | undefined;
     /** Application URL that will be seen on consent screens. */
     clientUri?: string | undefined;
+    /** Specifies whether the client can be edited or not. */
+    nonEditable?: boolean;
 
     constructor(data?: ISingleClientInfo) {
         if (data) {
@@ -4647,6 +5024,7 @@ export class SingleClientInfo implements ISingleClientInfo {
             this.allowRememberConsent = _data["allowRememberConsent"];
             this.logoUri = _data["logoUri"];
             this.clientUri = _data["clientUri"];
+            this.nonEditable = _data["nonEditable"];
         }
     }
 
@@ -4723,6 +5101,7 @@ export class SingleClientInfo implements ISingleClientInfo {
         data["allowRememberConsent"] = this.allowRememberConsent;
         data["logoUri"] = this.logoUri;
         data["clientUri"] = this.clientUri;
+        data["nonEditable"] = this.nonEditable;
         return data; 
     }
 }
@@ -4740,9 +5119,9 @@ export interface ISingleClientInfo {
     /** The identity resources that the client has access to. */
     identityResources?: string[] | undefined;
     /** Lifetime of identity token in seconds. */
-    identityTokenLifetime?: number;
+    identityTokenLifetime?: number | undefined;
     /** Lifetime of access token in seconds */
-    accessTokenLifetime?: number;
+    accessTokenLifetime?: number | undefined;
     /** Lifetime of a user consent in seconds. */
     consentLifetime?: number | undefined;
     /** The maximum duration (in seconds) since the last time the user authenticated. */
@@ -4753,21 +5132,21 @@ export interface ISingleClientInfo {
     pairWiseSubjectSalt?: string | undefined;
     accessTokenType?: AccessTokenType;
     /** Specifies is the user's session id should be sent to the FrontChannelLogoutUri. */
-    frontChannelLogoutSessionRequired?: boolean;
+    frontChannelLogoutSessionRequired?: boolean | undefined;
     /** Gets or sets a value indicating whether JWT access tokens should include an identifier. */
-    includeJwtId?: boolean;
+    includeJwtId?: boolean | undefined;
     /** Controls whether access tokens are transmitted via the browser for this client. This can prevent accidental leakage of access tokens when multiple response types are allowed. */
-    allowAccessTokensViaBrowser?: boolean;
+    allowAccessTokensViaBrowser?: boolean | undefined;
     /** When requesting both an id token and access token, should the user claims always be added to the id token instead of requring the client to use the userinfo endpoint. */
-    alwaysIncludeUserClaimsInIdToken?: boolean;
+    alwaysIncludeUserClaimsInIdToken?: boolean | undefined;
     /** Gets or sets a value indicating whether client claims should be always included in the access tokens - or only for client credentials flow. */
-    alwaysSendClientClaims?: boolean;
+    alwaysSendClientClaims?: boolean | undefined;
     /** Lifetime of authorization code in seconds. */
-    authorizationCodeLifetime?: number;
+    authorizationCodeLifetime?: number | undefined;
     /** Specifies whether a proof key is required for authorization code based token requests. */
-    requirePkce?: boolean;
+    requirePkce?: boolean | undefined;
     /** Specifies whether a proof key can be sent using plain method. */
-    allowPlainTextPkce?: boolean;
+    allowPlainTextPkce?: boolean | undefined;
     /** Gets or sets a value to prefix it on client claim types. */
     clientClaimsPrefix?: string | undefined;
     /** List of client claims. */
@@ -4783,15 +5162,17 @@ export interface ISingleClientInfo {
     /** Application description. */
     description?: string | undefined;
     /** Determines whether this application is enabled or not. */
-    enabled?: boolean;
+    enabled?: boolean | undefined;
     /** Specifies whether a consent screen is required. */
-    requireConsent?: boolean;
+    requireConsent?: boolean | undefined;
     /** Specifies whether consent screen is remembered after having been given. */
-    allowRememberConsent?: boolean;
+    allowRememberConsent?: boolean | undefined;
     /** Application logo that will be seen on consent screens. */
     logoUri?: string | undefined;
     /** Application URL that will be seen on consent screens. */
     clientUri?: string | undefined;
+    /** Specifies whether the client can be edited or not. */
+    nonEditable?: boolean;
 }
 
 /** Models a request to create a claim for an entity (e.x user or client). */
@@ -6189,15 +6570,17 @@ export class UserClientInfo implements IUserClientInfo {
     /** Application description. */
     description?: string | undefined;
     /** Determines whether this application is enabled or not. */
-    enabled?: boolean;
+    enabled?: boolean | undefined;
     /** Specifies whether a consent screen is required. */
-    requireConsent?: boolean;
+    requireConsent?: boolean | undefined;
     /** Specifies whether consent screen is remembered after having been given. */
-    allowRememberConsent?: boolean;
+    allowRememberConsent?: boolean | undefined;
     /** Application logo that will be seen on consent screens. */
     logoUri?: string | undefined;
     /** Application URL that will be seen on consent screens. */
     clientUri?: string | undefined;
+    /** Specifies whether the client can be edited or not. */
+    nonEditable?: boolean;
 
     constructor(data?: IUserClientInfo) {
         if (data) {
@@ -6225,6 +6608,7 @@ export class UserClientInfo implements IUserClientInfo {
             this.allowRememberConsent = _data["allowRememberConsent"];
             this.logoUri = _data["logoUri"];
             this.clientUri = _data["clientUri"];
+            this.nonEditable = _data["nonEditable"];
         }
     }
 
@@ -6252,6 +6636,7 @@ export class UserClientInfo implements IUserClientInfo {
         data["allowRememberConsent"] = this.allowRememberConsent;
         data["logoUri"] = this.logoUri;
         data["clientUri"] = this.clientUri;
+        data["nonEditable"] = this.nonEditable;
         return data; 
     }
 }
@@ -6271,15 +6656,17 @@ export interface IUserClientInfo {
     /** Application description. */
     description?: string | undefined;
     /** Determines whether this application is enabled or not. */
-    enabled?: boolean;
+    enabled?: boolean | undefined;
     /** Specifies whether a consent screen is required. */
-    requireConsent?: boolean;
+    requireConsent?: boolean | undefined;
     /** Specifies whether consent screen is remembered after having been given. */
-    allowRememberConsent?: boolean;
+    allowRememberConsent?: boolean | undefined;
     /** Application logo that will be seen on consent screens. */
     logoUri?: string | undefined;
     /** Application URL that will be seen on consent screens. */
     clientUri?: string | undefined;
+    /** Specifies whether the client can be edited or not. */
+    nonEditable?: boolean;
 }
 
 export class UserClientInfoResultSet implements IUserClientInfoResultSet {

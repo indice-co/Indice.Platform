@@ -453,5 +453,40 @@ namespace Indice.AspNetCore.Identity.Features
             await _configurationDbContext.SaveChangesAsync();
             return Ok();
         }
+
+        /// <summary>
+        /// Deletes a claim from an API scope of a protected resource.
+        /// </summary>
+        /// <param name="resourceId">The identifier of the API resource.</param>
+        /// <param name="scopeId">The identifier of the API resource scope.</param>
+        /// <param name="claim">The claim to remove from the scope.</param>
+        /// <response code="200">Ok</response>
+        /// <response code="400">Bad Request</response>
+        /// <response code="401">Unauthorized</response>
+        /// <response code="403">Forbidden</response>
+        /// <response code="500">Internal Server Error</response>
+        [HttpDelete("protected/{resourceId:int}/scopes/{scopeId:int}/claims/{claim}")]
+        [ProducesResponseType(statusCode: StatusCodes.Status200OK)]
+        [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest, type: typeof(ValidationProblemDetails))]
+        [ProducesResponseType(statusCode: StatusCodes.Status401Unauthorized, type: typeof(ProblemDetails))]
+        [ProducesResponseType(statusCode: StatusCodes.Status403Forbidden, type: typeof(ProblemDetails))]
+        public async Task<ActionResult> DeleteProtectedResourceScopeClaim([FromRoute]int resourceId, [FromRoute]int scopeId, [FromRoute]string claim) {
+            var scope = await _configurationDbContext.ApiResources
+                                                     .Include(x => x.Scopes)
+                                                     .ThenInclude(x => x.UserClaims)
+                                                     .Where(x => x.Id == resourceId)
+                                                     .SelectMany(x => x.Scopes)
+                                                     .SingleOrDefaultAsync(x => x.Id == scopeId);
+            if (scope == null) {
+                return NotFound();
+            }
+            var claimToRemove = scope.UserClaims.SingleOrDefault(x => x.Type == claim);
+            if (claimToRemove == null) {
+                return NotFound();
+            }
+            scope.UserClaims.Remove(claimToRemove);
+            await _configurationDbContext.SaveChangesAsync();
+            return Ok();
+        }
     }
 }

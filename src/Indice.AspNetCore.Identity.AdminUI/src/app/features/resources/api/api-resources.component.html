@@ -14,11 +14,36 @@
 </div>
 <div class="row">
     <div class="col-12">
-        <app-list-view [clientSide]="false" [columns]="columns" [rows]="rows" [count]="count" [rowsPerPage]="15" [defaultSortField]="'name'" [defaultSortDirection]="'Asc'" 
-            (search)="getApiResources($event)" #apiResourcesList>
+        <app-list-view [clientSide]="false"
+                       [columns]="columns"
+                       [rows]="rows"
+                       [count]="count"
+                       [rowsPerPage]="15"
+                       [defaultSortField]="'name'"
+                       [defaultSortDirection]="'Asc'"
+                       (search)="getApiResources($event)"
+                       #apiResourcesList>
         </app-list-view>
     </div>
 </div>
-<ng-template let-row="row" let-value="value" #actionsTemplate>
-    <a class="btn btn-success" href="#" role="button" *ngIf="value" [routerLink]="value + '/details'">Edit</a>
+<ng-template let-row="row"
+             let-value="value"
+             #actionsTemplate>
+    <a class="btn btn-success"
+       href="#"
+       role="button"
+       *ngIf="value"
+       [routerLink]="value + '/details'">
+        Edit
+    </a>
+</ng-template>
+<ng-template let-row="row"
+             let-value="value"
+             #idTemplate>
+    <span [title]="value">{{ value }}</span>
+    &nbsp;
+    <span *ngIf="row.nonEditable"
+          class="badge badge-warning">
+        reserved
+    </span>
 </ng-template>

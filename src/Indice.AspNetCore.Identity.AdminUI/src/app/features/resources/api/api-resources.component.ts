@@ -10,6 +10,7 @@ import { SearchEvent } from 'src/app/shared/components/list-view/models/search-e
 })
 export class ApiResourcesComponent implements OnInit {
     @ViewChild('actionsTemplate', { static: true }) private _actionsTemplate: TemplateRef<HTMLElement>;
+    @ViewChild('idTemplate', { static: true }) public _idTemplate: TemplateRef<HTMLElement>;
 
     constructor(private _api: IdentityApiService) { }
 
@@ -19,7 +20,7 @@ export class ApiResourcesComponent implements OnInit {
 
     public ngOnInit(): void {
         this.columns = [
-            { prop: 'name', name: 'Id', draggable: false, canAutoResize: true, sortable: true, resizeable: false },
+            { prop: 'name', name: 'Id', draggable: false, canAutoResize: true, sortable: true, resizeable: false, cellTemplate: this._idTemplate },
             { prop: 'displayName', name: 'Name', draggable: false, canAutoResize: true, sortable: true, resizeable: false },
             { prop: 'description', name: 'Description', draggable: false, canAutoResize: true, sortable: true, resizeable: false },
             { prop: 'id', name: 'Actions', draggable: false, canAutoResize: true, sortable: false, resizeable: false, cellTemplate: this._actionsTemplate, cellClass: 'd-flex align-items-center' }

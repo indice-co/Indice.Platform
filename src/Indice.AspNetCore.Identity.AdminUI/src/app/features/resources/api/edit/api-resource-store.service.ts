@@ -17,6 +17,7 @@ export class ApiResourceStore {
                 apiResource.scopes = apiResource.scopes.sort((left: ScopeInfo, right: ScopeInfo) => (left.name > right.name ? 1 : -1));
                 apiResource.scopes.forEach((value: ScopeInfo) => {
                     (value as any).isOpen = false;
+                    value.userClaims = value.userClaims || [];
                 });
                 this._apiResource.next(apiResource);
                 this._apiResource.complete();
@@ -48,11 +49,25 @@ export class ApiResourceStore {
 
     public addApiResourceScopeClaim(apiResourceId: number, scopeId: number, claim: ClaimTypeInfo): Observable<void> {
         this.getApiResource(apiResourceId).subscribe((apiResource: ApiResourceInfo) => {
-            apiResource.scopes.find(x => x.id === scopeId).userClaims.push(claim.name);
+            const scopeClaims = apiResource.scopes.find(x => x.id === scopeId).userClaims || [];
+            scopeClaims.push(claim.name);
             this._apiResource.next(apiResource);
             this._apiResource.complete();
         });
         return this._api.addProtectedResourceScopeClaims(apiResourceId, scopeId, [claim.name]);
+    }
+
+    public deleteApiResourceScopeClaim(apiResourceId: number, scopeId: number, claim: ClaimTypeInfo): Observable<void> {
+        this.getApiResource(apiResourceId).subscribe((apiResource: ApiResourceInfo) => {
+            const scope = apiResource.scopes.find(x => x.id === scopeId);
+            const index = scope.userClaims.indexOf(claim.name);
+            if (index > -1) {
+                scope.userClaims.splice(index, 1);
+            }
+            this._apiResource.next(apiResource);
+            this._apiResource.complete();
+        });
+        return this._api.deleteProtectedResourceScopeClaim(apiResourceId, scopeId, claim.name);
     }
 
     public getAllClaims(): Observable<ClaimTypeInfo[]> {
