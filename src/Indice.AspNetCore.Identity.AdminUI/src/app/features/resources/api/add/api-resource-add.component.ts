@@ -8,10 +8,10 @@ import { WizardStepDirective } from 'src/app/shared/components/step-base/wizard-
 import { StepBaseComponent } from 'src/app/shared/components/step-base/step-base.component';
 import { ApiResourceWizardModel } from '../models/api-resource-wizard-model';
 import { CreateResourceRequest, IdentityApiService, ApiResourceInfo } from 'src/app/core/services/identity-api.service';
-import { BasicInfoStepComponent } from './wizard/steps/basic-info/basic-info-step.component';
-import { UserClaimsStepComponent } from './wizard/steps/user-claims/user-claims-step.component';
-import { ApiResourceWizardService } from './wizard/api-resource-wizard.service';
 import { ToastService } from 'src/app/layout/services/app-toast.service';
+import { ApiResourceWizardService } from '../wizard/api-resource-wizard.service';
+import { BasicInfoStepComponent } from '../wizard/steps/basic-info/basic-info-step.component';
+import { UserClaimsStepComponent } from '../wizard/steps/user-claims/user-claims-step.component';
 
 @Component({
     selector: 'app-api-resource-add',

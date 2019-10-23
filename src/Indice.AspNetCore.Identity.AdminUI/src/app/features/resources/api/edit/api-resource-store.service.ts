@@ -49,7 +49,7 @@ export class ApiResourceStore {
 
     public addApiResourceScopeClaim(apiResourceId: number, scopeId: number, claim: ClaimTypeInfo): Observable<void> {
         this.getApiResource(apiResourceId).subscribe((apiResource: ApiResourceInfo) => {
-            const scopeClaims = apiResource.scopes.find(x => x.id === scopeId).userClaims || [];
+            const scopeClaims = apiResource.scopes.find(x => x.id === scopeId).userClaims;
             scopeClaims.push(claim.name);
             this._apiResource.next(apiResource);
             this._apiResource.complete();

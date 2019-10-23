@@ -10,9 +10,9 @@ import { CreateResourceRequest, IdentityApiService } from 'src/app/core/services
 import { ToastService } from 'src/app/layout/services/app-toast.service';
 import { ApiResourceStore } from '../../api-resource-store.service';
 import { ApiResourceWizardModel } from '../../../models/api-resource-wizard-model';
-import { BasicInfoStepComponent } from 'src/app/features/clients/add/wizard/steps/basic-info/basic-info-step.component';
-import { UserClaimsStepComponent } from '../../../add/wizard/steps/user-claims/user-claims-step.component';
-import { ApiResourceWizardService } from '../../../add/wizard/api-resource-wizard.service';
+import { ApiResourceWizardService } from '../../../wizard/api-resource-wizard.service';
+import { UserClaimsStepComponent } from '../../../wizard/steps/user-claims/user-claims-step.component';
+import { BasicInfoStepComponent } from '../../../wizard/steps/basic-info/basic-info-step.component';
 
 @Component({
     selector: 'app-api-resource-scope-add',

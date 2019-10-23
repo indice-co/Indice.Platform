@@ -17,10 +17,10 @@ import { ApiResourceScopesComponent } from './api/edit/scopes/api-resource-scope
 import { ApiResourceScopeDetailsComponent } from './api/edit/scopes/details/api-resource-scope-details.component';
 import { ApiResourceScopeClaimsComponent } from './api/edit/scopes/claims/api-resource-scope-claims.component';
 import { ApiResourceAddComponent } from './api/add/api-resource-add.component';
-import { BasicInfoStepComponent } from './api/add/wizard/steps/basic-info/basic-info-step.component';
-import { UserClaimsStepComponent } from './api/add/wizard/steps/user-claims/user-claims-step.component';
 import { ApiResourceClaimsComponent } from './api/edit/claims/api-resource-claims.component';
 import { ApiResourceScopeAddComponent } from './api/edit/scopes/add/api-resource-scope-add.component';
+import { UserClaimsStepComponent } from './api/wizard/steps/user-claims/user-claims-step.component';
+import { BasicInfoStepComponent } from './api/wizard/steps/basic-info/basic-info-step.component';
 
 @NgModule({
     declarations: [

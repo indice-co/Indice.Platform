@@ -1,8 +1,8 @@
 import { Component } from '@angular/core';
 import { AbstractControl } from '@angular/forms';
 
-import { ApiResourceWizardModel } from '../../../../models/api-resource-wizard-model';
 import { StepBaseComponent } from 'src/app/shared/components/step-base/step-base.component';
+import { ApiResourceWizardModel } from '../../../models/api-resource-wizard-model';
 
 @Component({
   selector: 'app-basic-info-step',
