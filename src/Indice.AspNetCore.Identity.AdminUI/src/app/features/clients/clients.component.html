@@ -20,5 +20,10 @@
     </div>
 </div>
 <ng-template let-row="row" let-value="value" #actionsTemplate>
-    <a class="btn btn-success" href="#" role="button" *ngIf="value" [routerLink]="value + '/details'">Edit</a>
+    <a class="btn btn-success" href="#" role="button" [routerLink]="value + '/details'">Edit</a>
+</ng-template>
+<ng-template let-row="row" let-value="value" #clientIdTemplate>
+    <span [title]="value">{{ value }}</span>
+    &nbsp;
+    <span *ngIf="row.nonEditable" class="badge badge-warning">reserved</span>
 </ng-template>

@@ -319,6 +319,116 @@ namespace Indice.AspNetCore.Identity.Features
             });
         }
 
+        /// <summary>
+        /// Adds claims to an API resource.
+        /// </summary>
+        /// <param name="resourceId">The identifier of the API resource.</param>
+        /// <param name="claims">The API or identity resources to add.</param>
+        /// <response code="200">Ok</response>
+        /// <response code="400">Bad Request</response>
+        /// <response code="401">Unauthorized</response>
+        /// <response code="403">Forbidden</response>
+        /// <response code="500">Internal Server Error</response>
+        [HttpPost("protected/{resourceId:int}/claims")]
+        [ProducesResponseType(statusCode: StatusCodes.Status200OK)]
+        [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest, type: typeof(ValidationProblemDetails))]
+        [ProducesResponseType(statusCode: StatusCodes.Status401Unauthorized, type: typeof(ProblemDetails))]
+        [ProducesResponseType(statusCode: StatusCodes.Status403Forbidden, type: typeof(ProblemDetails))]
+        public async Task<ActionResult> AddProtectedResourceClaims([FromRoute]int resourceId, [FromBody]string[] claims) {
+            var apiResource = await _configurationDbContext.ApiResources.SingleOrDefaultAsync(x => x.Id == resourceId);
+            if (apiResource == null) {
+                return NotFound();
+            }
+            if (apiResource.UserClaims == null) {
+                apiResource.UserClaims = new List<ApiResourceClaim>();
+            }
+            apiResource.UserClaims.AddRange(claims.Select(x => new ApiResourceClaim {
+                ApiResourceId = resourceId,
+                Type = x
+            }));
+            await _configurationDbContext.SaveChangesAsync();
+            return Ok();
+        }
+
+        /// <summary>
+        /// Removes a specified claim from an API resource.
+        /// </summary>
+        /// <param name="resourceId">The identifier of the API resource.</param>
+        /// <param name="claim">The identifier of the API resource claim to remove.</param>
+        /// <response code="200">Ok</response>
+        /// <response code="400">Bad Request</response>
+        /// <response code="401">Unauthorized</response>
+        /// <response code="403">Forbidden</response>
+        /// <response code="500">Internal Server Error</response>
+        [HttpDelete("protected/{resourceId:int}/claims/{claim}")]
+        [ProducesResponseType(statusCode: StatusCodes.Status200OK)]
+        [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest, type: typeof(ValidationProblemDetails))]
+        [ProducesResponseType(statusCode: StatusCodes.Status401Unauthorized, type: typeof(ProblemDetails))]
+        [ProducesResponseType(statusCode: StatusCodes.Status403Forbidden, type: typeof(ProblemDetails))]
+        public async Task<ActionResult> DeleteProtectedResourceClaim([FromRoute]int resourceId, [FromRoute]string claim) {
+            var apiResource = await _configurationDbContext.ApiResources.Include(x => x.UserClaims).SingleOrDefaultAsync(x => x.Id == resourceId);
+            if (apiResource == null) {
+                return NotFound();
+            }
+            if (apiResource.UserClaims == null) {
+                apiResource.UserClaims = new List<ApiResourceClaim>();
+            }
+            var claimToRemove = apiResource.UserClaims.Select(x => x.Type == claim).ToList();
+            if (claimToRemove?.Count == 0) {
+                return NotFound();
+            }
+            apiResource.UserClaims.RemoveAll(x => x.Type == claim);
+            await _configurationDbContext.SaveChangesAsync();
+            return Ok();
+        }
+
+        /// <summary>
+        /// Adds claims to an API resource.
+        /// </summary>
+        /// <param name="resourceId">The identifier of the API resource.</param>
+        /// <param name="request">Contains info about the API scope to be created.</param>
+        /// <response code="200">Ok</response>
+        /// <response code="400">Bad Request</response>
+        /// <response code="401">Unauthorized</response>
+        /// <response code="403">Forbidden</response>
+        /// <response code="500">Internal Server Error</response>
+        [HttpPost("protected/{resourceId:int}/scopes")]
+        [ProducesResponseType(statusCode: StatusCodes.Status200OK)]
+        [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest, type: typeof(ValidationProblemDetails))]
+        [ProducesResponseType(statusCode: StatusCodes.Status401Unauthorized, type: typeof(ProblemDetails))]
+        [ProducesResponseType(statusCode: StatusCodes.Status403Forbidden, type: typeof(ProblemDetails))]
+        public async Task<ActionResult> AddProtectedResourceScope([FromRoute]int resourceId, [FromBody]CreateResourceRequest request) {
+            var apiResource = await _configurationDbContext.ApiResources.SingleOrDefaultAsync(x => x.Id == resourceId);
+            if (apiResource == null) {
+                return NotFound();
+            }
+            if (apiResource.Scopes == null) {
+                apiResource.Scopes = new List<ApiScope>();
+            }
+            apiResource.Scopes.Add(new ApiScope {
+                Name = request.Name,
+                DisplayName = request.DisplayName,
+                Description = request.Description,
+                UserClaims = request.UserClaims.Select(x => new ApiScopeClaim {
+                    Type = x
+                })
+                .ToList()
+            });
+            await _configurationDbContext.SaveChangesAsync();
+            return Ok();
+        }
+
+        /// <summary>
+        /// Adds claims to an API scope of a protected resource.
+        /// </summary>
+        /// <param name="resourceId">The identifier of the API resource.</param>
+        /// <param name="scopeId">The identifier of the API resource scope.</param>
+        /// <param name="claims">The claims to add to the scope.</param>
+        /// <response code="200">Ok</response>
+        /// <response code="400">Bad Request</response>
+        /// <response code="401">Unauthorized</response>
+        /// <response code="403">Forbidden</response>
+        /// <response code="500">Internal Server Error</response>
         [HttpPost("protected/{resourceId:int}/scopes/{scopeId:int}/claims")]
         [ProducesResponseType(statusCode: StatusCodes.Status200OK)]
         [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest, type: typeof(ValidationProblemDetails))]

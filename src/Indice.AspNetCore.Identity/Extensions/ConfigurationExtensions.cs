@@ -54,19 +54,27 @@ namespace Microsoft.Extensions.DependencyInjection
             where TConfigurationDbContext : ConfigurationDbContext<TConfigurationDbContext> {
             if (!context.Clients.Any() && clients != null) {
                 foreach (var client in clients) {
-                    context.Clients.Add(client.ToEntity());
+                    var clientEntity = client.ToEntity();
+                    // Make initial system clients non-editable.
+                    clientEntity.NonEditable = true;
+                    context.Clients.Add(clientEntity);
                 }
                 context.SaveChanges();
             }
             if (!context.IdentityResources.Any() && identityResources != null) {
                 foreach (var resource in identityResources) {
-                    context.IdentityResources.Add(resource.ToEntity());
+                    var resourceEntity = resource.ToEntity();
+                    // Make initial system resources non-editable.
+                    resourceEntity.NonEditable = true;
+                    context.IdentityResources.Add(resourceEntity);
                 }
                 context.SaveChanges();
             }
             if (!context.ApiResources.Any() && apiResources != null) {
                 foreach (var resource in apiResources) {
-                    context.ApiResources.Add(resource.ToEntity());
+                    var resourceEntity = resource.ToEntity();
+                    resourceEntity.NonEditable = true;
+                    context.ApiResources.Add(resourceEntity);
                 }
                 context.SaveChanges();
             }

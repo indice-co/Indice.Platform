@@ -99,7 +99,8 @@ namespace Indice.AspNetCore.Identity.Features
                 Description = x.Description,
                 AllowRememberConsent = x.AllowRememberConsent,
                 Enabled = x.Enabled,
-                RequireConsent = x.RequireConsent
+                RequireConsent = x.RequireConsent,
+                NonEditable = x.NonEditable
             })
             .ToResultSetAsync(options);
             return Ok(clients);
@@ -133,9 +134,9 @@ namespace Indice.AspNetCore.Identity.Features
                     AllowRememberConsent = x.AllowRememberConsent,
                     Enabled = x.Enabled,
                     RequireConsent = x.RequireConsent,
-                    AllowedCorsOrigins = x.AllowedCorsOrigins.Select(x => x.Origin).ToArray(),
-                    PostLogoutRedirectUris = x.PostLogoutRedirectUris.Select(x => x.PostLogoutRedirectUri).ToArray(),
-                    RedirectUris = x.RedirectUris.Select(x => x.RedirectUri).ToArray(),
+                    AllowedCorsOrigins = x.AllowedCorsOrigins.Select(x => x.Origin),
+                    PostLogoutRedirectUris = x.PostLogoutRedirectUris.Select(x => x.PostLogoutRedirectUri),
+                    RedirectUris = x.RedirectUris.Select(x => x.RedirectUri),
                     IdentityTokenLifetime = x.IdentityTokenLifetime,
                     AccessTokenLifetime = x.AccessTokenLifetime,
                     ConsentLifetime = x.ConsentLifetime,
@@ -152,23 +153,21 @@ namespace Indice.AspNetCore.Identity.Features
                     RequirePkce = x.RequirePkce,
                     AllowPlainTextPkce = x.AllowPlainTextPkce,
                     ClientClaimsPrefix = x.ClientClaimsPrefix,
-                    GrantTypes = x.AllowedGrantTypes.Select(x => x.GrantType).ToArray(),
+                    GrantTypes = x.AllowedGrantTypes.Select(x => x.GrantType),
                     ApiResources = x.AllowedScopes.Join(
                         _configurationDbContext.ApiResources.SelectMany(x => x.Scopes),
                         clientScope => clientScope.Scope,
                         apiScope => apiScope.Name,
                         (clientScope, apiScope) => apiScope.Name
                     )
-                    .Select(x => x)
-                    .ToArray(),
+                    .Select(x => x),
                     IdentityResources = x.AllowedScopes.Join(
                         _configurationDbContext.IdentityResources,
                         clientScope => clientScope.Scope,
                         identityResource => identityResource.Name,
                         (clientScope, identityResource) => identityResource.Name
                     )
-                    .Select(x => x)
-                    .ToArray(),
+                    .Select(x => x),
                     Claims = x.Claims.Select(x => new ClaimInfo {
                         Id = x.Id,
                         Type = x.Type,

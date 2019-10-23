@@ -3,7 +3,7 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { ClaimTypeInfo } from 'src/app/core/services/identity-api.service';
 import { StepBaseComponent } from 'src/app/shared/components/step-base/step-base.component';
-import { ApiResourceWizardModel } from '../../models/api-resource-wizard-model';
+import { ApiResourceWizardModel } from '../../../../models/api-resource-wizard-model';
 import { ApiResourceWizardService } from '../../api-resource-wizard.service';
 import { AbstractControl } from '@angular/forms';
 

@@ -19,7 +19,8 @@ import { ApiResourceScopeClaimsComponent } from './api/edit/scopes/claims/api-re
 import { ApiResourceAddComponent } from './api/add/api-resource-add.component';
 import { BasicInfoStepComponent } from './api/add/wizard/steps/basic-info/basic-info-step.component';
 import { UserClaimsStepComponent } from './api/add/wizard/steps/user-claims/user-claims-step.component';
-import { IdentityResourcesStepComponent } from '../clients/add/wizard/steps/identity-resources/identity-resources-step.component';
+import { ApiResourceClaimsComponent } from './api/edit/claims/api-resource-claims.component';
+import { ApiResourceScopeAddComponent } from './api/edit/scopes/add/api-resource-scope-add.component';
 
 @NgModule({
     declarations: [
@@ -36,7 +37,9 @@ import { IdentityResourcesStepComponent } from '../clients/add/wizard/steps/iden
         ApiResourceScopeClaimsComponent,
         ApiResourceAddComponent,
         BasicInfoStepComponent,
-        UserClaimsStepComponent
+        UserClaimsStepComponent,
+        ApiResourceClaimsComponent,
+        ApiResourceScopeAddComponent
     ],
     imports: [
         CommonModule,

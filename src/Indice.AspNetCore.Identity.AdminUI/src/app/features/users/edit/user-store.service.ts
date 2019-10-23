@@ -1,12 +1,12 @@
 import { Injectable } from '@angular/core';
 
 import { Observable, AsyncSubject } from 'rxjs';
+import { map } from 'rxjs/operators';
 import {
     IdentityApiService, SingleUserInfo, RoleInfoResultSet, RoleInfo, ClaimTypeInfo, ClaimTypeInfoResultSet, UpdateUserRequest, ClaimInfo, CreateClaimRequest, BasicClaimInfo,
     UserClientInfo, UserClientInfoResultSet, UpdateUserClaimRequest
 } from 'src/app/core/services/identity-api.service';
 import { ClaimType } from './details/models/claim-type.model';
-import { map } from 'rxjs/operators';
 
 @Injectable()
 export class UserStore {

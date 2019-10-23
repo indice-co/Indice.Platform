@@ -6,24 +6,25 @@ import { Subscription } from 'rxjs';
 import { WizardStepDescriptor } from 'src/app/shared/components/step-base/models/wizard-step-descriptor';
 import { WizardStepDirective } from 'src/app/shared/components/step-base/wizard-step.directive';
 import { StepBaseComponent } from 'src/app/shared/components/step-base/step-base.component';
-import { ApiResourceWizardModel } from '../models/api-resource-wizard-model';
-import { CreateResourceRequest, IdentityApiService, ApiResourceInfo } from 'src/app/core/services/identity-api.service';
-import { BasicInfoStepComponent } from './wizard/steps/basic-info/basic-info-step.component';
-import { UserClaimsStepComponent } from './wizard/steps/user-claims/user-claims-step.component';
-import { ApiResourceWizardService } from './wizard/api-resource-wizard.service';
+import { CreateResourceRequest, IdentityApiService } from 'src/app/core/services/identity-api.service';
 import { ToastService } from 'src/app/layout/services/app-toast.service';
+import { ApiResourceStore } from '../../api-resource-store.service';
+import { ApiResourceWizardModel } from '../../../models/api-resource-wizard-model';
+import { BasicInfoStepComponent } from 'src/app/features/clients/add/wizard/steps/basic-info/basic-info-step.component';
+import { UserClaimsStepComponent } from '../../../add/wizard/steps/user-claims/user-claims-step.component';
+import { ApiResourceWizardService } from '../../../add/wizard/api-resource-wizard.service';
 
 @Component({
-    selector: 'app-api-resource-add',
-    templateUrl: './api-resource-add.component.html',
-    providers: [ApiResourceWizardService]
+    selector: 'app-api-resource-scope-add',
+    templateUrl: './api-resource-scope-add.component.html',
+    providers: [ApiResourceStore, ApiResourceWizardService]
 })
-export class ApiResourceAddComponent implements OnInit {
+export class ApiResourceScopeAddComponent implements OnInit {
     @ViewChild(WizardStepDirective, { static: false }) private _wizardStepHost: WizardStepDirective;
     private _loadedStepInstance: StepBaseComponent<ApiResourceWizardModel>;
     private _formValidatedSubscription: Subscription;
 
-    constructor(private _componentFactoryResolver: ComponentFactoryResolver, private _formBuilder: FormBuilder, private _changeDetectionRef: ChangeDetectorRef, 
+    constructor(private _componentFactoryResolver: ComponentFactoryResolver, private _formBuilder: FormBuilder, private _changeDetectionRef: ChangeDetectorRef,
                 private _api: IdentityApiService, private _toast: ToastService, private _router: Router, private _route: ActivatedRoute) { }
 
     public wizardStepIndex = 0;
@@ -83,16 +84,8 @@ export class ApiResourceAddComponent implements OnInit {
         this.loadStep(this.apiResourceSteps[this.wizardStepIndex]);
     }
 
-    public saveApiResource(): void {
-        this._api.createProtectedResource({
-            name: this.form.get('name').value,
-            displayName: this.form.get('displayName').value,
-            description: this.form.get('description').value,
-            userClaims: this.form.get('userClaims').value
-        } as CreateResourceRequest).subscribe((resource: ApiResourceInfo) => {
-            this._toast.showSuccess(`API resource '${resource.name}' was created successfully.`);
-            this._router.navigate(['../'], { relativeTo: this._route });
-        });
+    public saveApiResourceScope(): void {
+        alert('save');
     }
 
     private validateFormFields(formGroup: FormGroup) {

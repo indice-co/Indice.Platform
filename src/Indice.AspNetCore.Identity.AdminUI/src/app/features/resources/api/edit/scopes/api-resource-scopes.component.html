@@ -1,25 +1,56 @@
 <p *ngIf="!apiResource">Loading API resource scopes...</p>
-<div class="api-resource-scopes accordion" id="scopes-accordion">
-    <div class="card" *ngFor="let scope of apiResource?.scopes; let i = index">
-        <div class="card-header" [id]="'heading' + scope.id">
-            <button class="btn btn-link" type="button" data-toggle="collapse" [ngClass]="{ 'collapsed': !scope.isOpen }" [attr.data-target]="'#collapse-' + scope.id" 
-                [attr.aria-expanded]="scope['isOpen']" [attr.aria-controls]="'collapse-' + scope.id" (click)="openPanel(i)">
+<div class="api-resource-scopes accordion mb-3"
+     id="scopes-accordion">
+    <div class="card"
+         *ngFor="let scope of apiResource?.scopes; let i = index">
+        <div class="card-header"
+             [id]="'heading' + scope.id">
+            <button class="btn btn-link"
+                    type="button"
+                    data-toggle="collapse"
+                    [ngClass]="{ 'collapsed': !scope.isOpen }"
+                    [attr.data-target]="'#collapse-' + scope.id"
+                    [attr.aria-expanded]="scope['isOpen']"
+                    [attr.aria-controls]="'collapse-' + scope.id"
+                    (click)="openPanel(i)">
                 {{ scope.displayName || scope.name }}
             </button>
         </div>
-        <div [id]="'collapse-' + scope.id" class="collapse" [ngClass]="{ 'show': scope.isOpen }" [attr.aria-labelledby]="'heading' + scope.id" data-parent="#scopes-accordion">
+        <div [id]="'collapse-' + scope.id"
+             class="collapse"
+             [ngClass]="{ 'show': scope.isOpen }"
+             [attr.aria-labelledby]="'heading' + scope.id"
+             data-parent="#scopes-accordion">
             <div class="card-body">
                 <ul class="nav nav-pills">
                     <li class="nav-item">
-                        <a href="javascript:void(0);" [ngClass]="{ 'active btn btn-secondary': detailsActive }" class="nav-link" (click)="detailsActive = true">Details</a>
+                        <a href="javascript:void(0);"
+                           [ngClass]="{ 'active btn btn-secondary': detailsActive }"
+                           class="nav-link"
+                           (click)="detailsActive = true">
+                            Details
+                        </a>
                     </li>
                     <li class="nav-item">
-                        <a href="javascript:void(0);" [ngClass]="{ 'active btn btn-secondary': !detailsActive }" class="nav-link" (click)="detailsActive = false">Claims</a>
+                        <a href="javascript:void(0);"
+                           [ngClass]="{ 'active btn btn-secondary': !detailsActive }"
+                           class="nav-link"
+                           (click)="detailsActive = false">
+                            Claims
+                        </a>
                     </li>
                 </ul>
-                <app-api-resource-scope-details *ngIf="detailsActive" [scope]="scope"></app-api-resource-scope-details>
-                <app-api-resource-scope-claims *ngIf="!detailsActive" [scope]="scope"></app-api-resource-scope-claims>
+                <app-api-resource-scope-details *ngIf="detailsActive"
+                                                [scope]="scope">
+                </app-api-resource-scope-details>
+                <app-api-resource-scope-claims *ngIf="!detailsActive"
+                                               [scope]="scope">
+                </app-api-resource-scope-claims>
             </div>
         </div>
     </div>
 </div>
+<a [routerLink]="['add']"
+   class="btn btn-primary waves-effect waves-light m-r-5">
+    Add Scope
+</a>

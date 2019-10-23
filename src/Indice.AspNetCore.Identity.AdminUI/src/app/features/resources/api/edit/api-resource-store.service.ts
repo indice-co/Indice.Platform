@@ -14,7 +14,7 @@ export class ApiResourceStore {
         if (!this._apiResource) {
             this._apiResource = new AsyncSubject<ApiResourceInfo>();
             this._api.getApiResource(apiResourceId).subscribe((apiResource: ApiResourceInfo) => {
-                apiResource.scopes = apiResource.scopes.sort((x: ScopeInfo, y: ScopeInfo) => (x.name > y.name ? 1 : -1));
+                apiResource.scopes = apiResource.scopes.sort((left: ScopeInfo, right: ScopeInfo) => (left.name > right.name ? 1 : -1));
                 apiResource.scopes.forEach((value: ScopeInfo) => {
                     (value as any).isOpen = false;
                 });
@@ -23,6 +23,27 @@ export class ApiResourceStore {
             });
         }
         return this._apiResource;
+    }
+
+    public addApiResourceClaim(apiResourceId: number, claim: ClaimTypeInfo): Observable<void> {
+        this.getApiResource(apiResourceId).subscribe((apiResource: ApiResourceInfo) => {
+            apiResource.allowedClaims.push(claim.name);
+            this._apiResource.next(apiResource);
+            this._apiResource.complete();
+        });
+        return this._api.addProtectedResourceClaims(apiResourceId, [claim.name]);
+    }
+
+    public deleteApiResourceClaim(apiResourceId: number, claim: ClaimTypeInfo): Observable<void> {
+        this.getApiResource(apiResourceId).subscribe((apiResource: ApiResourceInfo) => {
+            const index = apiResource.allowedClaims.indexOf(claim.name);
+            if (index > -1) {
+                apiResource.allowedClaims.splice(index, 1);
+            }
+            this._apiResource.next(apiResource);
+            this._apiResource.complete();
+        });
+        return this._api.deleteProtectedResourceClaim(apiResourceId, claim.name);
     }
 
     public addApiResourceScopeClaim(apiResourceId: number, scopeId: number, claim: ClaimTypeInfo): Observable<void> {

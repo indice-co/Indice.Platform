@@ -33,7 +33,6 @@ namespace Indice.Identity.Security
                 Name = JwtClaimTypes.Role,
                 Required = true,
                 UserClaims = {
-
                     JwtClaimTypes.Role,
                     BasicClaimTypes.Admin,
                     BasicClaimTypes.System
