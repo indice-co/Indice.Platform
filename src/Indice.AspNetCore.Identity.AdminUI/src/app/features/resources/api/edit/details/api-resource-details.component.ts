@@ -4,7 +4,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { ApiResourceInfo } from 'src/app/core/services/identity-api.service';
 import { ToastService } from 'src/app/layout/services/app-toast.service';
-import { ApiResourceStore } from '../api-resource-store.service';
+import { ApiResourceStore } from '../../api-resource-store.service';
 
 @Component({
     selector: 'app-api-resource-details',

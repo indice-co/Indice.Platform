@@ -14,21 +14,45 @@
 </div>
 <div class="row">
     <div class="col-12">
-        <app-list-view [clientSide]="false" [columns]="columns" [rows]="rows" [count]="count" [rowsPerPage]="15" [defaultSortField]="'name'" [defaultSortDirection]="'Asc'" 
-            (search)="getClaimTypes($event)" #claimTypesList>
+        <app-list-view [clientSide]="false"
+                       [columns]="columns"
+                       [rows]="rows"
+                       [count]="count"
+                       [rowsPerPage]="15"
+                       [defaultSortField]="'name'"
+                       [defaultSortDirection]="'Asc'"
+                       (search)="getClaimTypes($event)"
+                       #claimTypesList>
         </app-list-view>
     </div>
 </div>
-<ng-template let-row="row" let-value="value" #actionsTemplate>
-    <a class="btn btn-success" href="#" role="button" *ngIf="!row.reserved" [routerLink]="value + '/edit'">Edit</a>
-    <span *ngIf="row.reserved" class="badge badge-warning">system reserved</span>
+<ng-template let-row="row"
+             let-value="value"
+             #actionsTemplate>
+    <a class="btn btn-success"
+       href="#"
+       role="button"
+       *ngIf="!row.reserved"
+       [routerLink]="value + '/edit'">
+        Edit
+    </a>
+    <span *ngIf="row.reserved"
+          class="badge badge-warning">
+        system reserved
+    </span>
 </ng-template>
-<ng-template let-row="row" let-value="value" #valueTypeTemplate>
+<ng-template let-row="row"
+             let-value="value"
+             #valueTypeTemplate>
     <code class="highlighter-rouge">{{ value }}</code>
 </ng-template>
-<ng-template let-row="row" let-value="value" #nameTemplate>
+<ng-template let-row="row"
+             let-value="value"
+             #nameTemplate>
     <span *ngIf="row.description">
-        <i class="dripicons-information align-middle" [title]="row.description"></i>
+        <i class="dripicons-information align-middle"
+           [title]="row.description">
+        </i>
         {{ value }}
     </span>
     <span *ngIf="!row.description">{{ value }}</span>

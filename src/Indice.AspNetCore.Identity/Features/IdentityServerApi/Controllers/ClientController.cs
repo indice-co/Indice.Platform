@@ -213,6 +213,10 @@ namespace Indice.AspNetCore.Identity.Features
         public async Task<ActionResult<ClientInfo>> CreateClient([FromBody]CreateClientRequest request) {
             var client = CreateForType(request.ClientType, _generalSettings.Authority, request);
             _configurationDbContext.Clients.Add(client);
+            _configurationDbContext.ClientUsers.Add(new ClientUser {
+                Client = client,
+                UserId = UserId
+            });
             await _configurationDbContext.SaveChangesAsync();
             var response = new ClientInfo {
                 ClientId = client.ClientId,
@@ -400,7 +404,8 @@ namespace Indice.AspNetCore.Identity.Features
                     Description = x.Description,
                     Expiration = x.Expiration,
                     Value = x.Value
-                }).ToList();
+                })
+                .ToList();
             }
             switch (clientType) {
                 case ClientType.SPA:
@@ -410,6 +415,7 @@ namespace Indice.AspNetCore.Identity.Features
                         }
                     };
                     client.RequirePkce = true;
+                    client.RequireClientSecret = false;
                     client.AllowedCorsOrigins = new List<ClientCorsOrigin> {
                         new ClientCorsOrigin {
                             Origin = clientRequest.ClientUri ?? authorityUri
@@ -439,6 +445,14 @@ namespace Indice.AspNetCore.Identity.Features
                     client.AllowedGrantTypes = new List<ClientGrantType> {
                         new ClientGrantType {
                             GrantType = GrantType.Implicit
+                        }
+                    };
+                    client.RequirePkce = false;
+                    client.RequireClientSecret = false;
+                    client.AllowAccessTokensViaBrowser = true;
+                    client.AllowedCorsOrigins = new List<ClientCorsOrigin> {
+                        new ClientCorsOrigin {
+                            Origin = clientRequest.ClientUri ?? authorityUri
                         }
                     };
                     break;

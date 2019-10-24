@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
 
-import { AsyncSubject, Observable } from 'rxjs';
-import { ApiResourceInfo, IdentityApiService, ScopeInfo, ClaimTypeInfo, ClaimTypeInfoResultSet } from 'src/app/core/services/identity-api.service';
+import { AsyncSubject, Observable, forkJoin } from 'rxjs';
+import { ApiResourceInfo, IdentityApiService, ScopeInfo, ClaimTypeInfo, ClaimTypeInfoResultSet, CreateResourceRequest, IScopeInfo, ApiResourceInfoResultSet } from 'src/app/core/services/identity-api.service';
+import { map } from 'rxjs/operators';
 
 @Injectable()
 export class ApiResourceStore {
@@ -45,6 +46,33 @@ export class ApiResourceStore {
             this._apiResource.complete();
         });
         return this._api.deleteProtectedResourceClaim(apiResourceId, claim.name);
+    }
+
+    public addApiResourceScope(apiResourceId: number, scope: CreateResourceRequest): Observable<void> {
+        const getApiResource = this.getApiResource(apiResourceId);
+        const addScope = this._api.addProtectedResourceScope(apiResourceId, scope);
+        return forkJoin([getApiResource, addScope]).pipe(map((responses: [ApiResourceInfo, ScopeInfo]) => {
+            return {
+                apiResource: responses[0],
+                addedScope: responses[1]
+            };
+        })).pipe(map((result: { apiResource: ApiResourceInfo, addedScope: ScopeInfo }) => {
+            result.apiResource.scopes.push(result.addedScope);
+            this._apiResource.next(result.apiResource);
+            this._apiResource.complete();
+        }));
+    }
+
+    public deleteApiResourceScope(apiResourceId: number, scopeId: number): Observable<void> {
+        this.getApiResource(apiResourceId).subscribe((apiResource: ApiResourceInfo) => {
+            const index = apiResource.scopes.findIndex(x => x.id === scopeId);
+            if (index > -1) {
+                apiResource.scopes.splice(index, 1);
+            }
+            this._apiResource.next(apiResource);
+            this._apiResource.complete();
+        });
+        return this._api.deleteProtectedResourceScope(apiResourceId, scopeId);
     }
 
     public addApiResourceScopeClaim(apiResourceId: number, scopeId: number, claim: ClaimTypeInfo): Observable<void> {

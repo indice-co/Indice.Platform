@@ -6,65 +6,145 @@
                 <p class="text-muted m-b-30 font-14">
                     Add a custom claim type.
                 </p>
-                <form class="needs-validation" [ngClass]="{ 'was-validated': form.submitted }" (ngSubmit)="form.form.valid && save()" novalidate #form="ngForm">
-                    <app-validation-summary [problemDetails]="problemDetails" #validationSummary></app-validation-summary>
+                <form class="needs-validation"
+                      [ngClass]="{ 'was-validated': form.submitted }"
+                      (ngSubmit)="form.form.valid && save()"
+                      novalidate
+                      #form="ngForm">
+                    <app-validation-summary [problemDetails]="problemDetails"
+                                            #validationSummary>
+                    </app-validation-summary>
                     <div class="form-group row">
-                        <label for="claim-type-name" class="col-sm-2 col-form-label">Name (*)</label>
+                        <label for="claim-type-name"
+                               class="col-sm-2 col-form-label">
+                            Name (*)
+                        </label>
                         <div class="col-sm-10">
-                            <input id="claim-type-name" name="claim-type-name" type="text" class="form-control" [ngClass]="{ 'invalid': form.submitted && name.invalid }" [(ngModel)]="claimType.name" 
-                                required maxlength="64" #name="ngModel" />
-                            <div *ngIf="form.submitted && name.invalid" class="form-control-feedback text-danger">Field 'Name' is required.</div>
-                        </div>
-                    </div>
-                    <div class="form-group row">
-                        <label for="claim-type-display-name" class="col-sm-2 col-form-label">Display Name</label>
-                        <div class="col-sm-10">
-                            <input id="claim-type-display-name" name="claim-type-display-name" type="text" class="form-control" [ngClass]="{ 'invalid': form.submitted && displayName.invalid }" 
-                                [(ngModel)]="claimType.displayName" maxlength="128" #displayName="ngModel" />
-                        </div>
-                    </div>
-                    <div class="form-group row">
-                        <label for="claim-type-description" class="col-sm-2 col-form-label">Description</label>
-                        <div class="col-sm-10">
-                            <textarea id="claim-type-description" name="claim-type-description" class="form-control" rows="3" maxlength="1024" [(ngModel)]="claimType.description"></textarea>
-                        </div>
-                    </div>
-                    <div class="form-group row">
-                        <label for="claim-type" class="col-sm-2 col-form-label">Type (*)</label>
-                        <div class="col-sm-10">
-                            <select id="claim-type" name="claim-type" class="form-control custom-select" [ngClass]="{ 'invalid': form.submitted && type.invalid }" [(ngModel)]="claimValueType" 
-                                required #type="ngModel">
-                                <option value="" selected disabled>Please select a suitable type</option>
-                                <option *ngFor="let type of valueTypes" [value]="type">{{ type }}</option>
-                            </select>
-                            <div *ngIf="form.submitted && type.invalid" class="form-control-feedback text-danger">Field 'Type' is required.</div>
-                        </div>
-                    </div>
-                    <div class="form-group row">
-                        <label for="claim-type-rule" class="col-sm-2 col-form-label">Regex Rule</label>
-                        <div class="col-sm-10">
-                            <input id="claim-type-rule" name="claim-type-rule" type="text" class="form-control" maxlength="512" [(ngModel)]="claimType.rule" />
-                        </div>
-                    </div>
-                    <div class="form-group row">
-                        <label for="claim-type-confirmed" class="col-sm-2 col-form-label">Required Claim</label>
-                        <div class="col-sm-10">
-                            <div class="form-check col-form-label">
-                                <input id="claim-type-confirmed" name="claim-type-confirmed" type="checkbox" class="form-check-input" [(ngModel)]="claimType.required" />
+                            <input id="claim-type-name"
+                                   name="claim-type-name"
+                                   type="text"
+                                   class="form-control"
+                                   [ngClass]="{ 'invalid': form.submitted && name.invalid }"
+                                   [(ngModel)]="claimType.name"
+                                   required
+                                   maxlength="64"
+                                   #name="ngModel" />
+                            <div *ngIf="form.submitted && name.invalid"
+                                 class="form-control-feedback text-danger">
+                                Field 'Name' is required.
                             </div>
                         </div>
                     </div>
                     <div class="form-group row">
-                        <label for="claim-type-editable" class="col-sm-2 col-form-label">User Editable</label>
+                        <label for="claim-type-display-name"
+                               class="col-sm-2 col-form-label">
+                            Display Name
+                        </label>
+                        <div class="col-sm-10">
+                            <input id="claim-type-display-name"
+                                   name="claim-type-display-name"
+                                   type="text"
+                                   class="form-control"
+                                   [ngClass]="{ 'invalid': form.submitted && displayName.invalid }"
+                                   [(ngModel)]="claimType.displayName"
+                                   maxlength="128"
+                                   #displayName="ngModel" />
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label for="claim-type-description"
+                               class="col-sm-2 col-form-label">
+                            Description
+                        </label>
+                        <div class="col-sm-10">
+                            <textarea id="claim-type-description"
+                                      name="claim-type-description"
+                                      class="form-control"
+                                      rows="3"
+                                      maxlength="1024"
+                                      [(ngModel)]="claimType.description">
+                            </textarea>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label for="claim-type"
+                               class="col-sm-2 col-form-label">
+                            Type (*)
+                        </label>
+                        <div class="col-sm-10">
+                            <select id="claim-type"
+                                    name="claim-type"
+                                    class="form-control custom-select"
+                                    [ngClass]="{ 'invalid': form.submitted && type.invalid }"
+                                    [(ngModel)]="claimValueType"
+                                    required
+                                    #type="ngModel">
+                                <option value=""
+                                        selected
+                                        disabled>
+                                    Please select a suitable type
+                                </option>
+                                <option *ngFor="let type of valueTypes"
+                                        [value]="type">
+                                    {{ type }}
+                                </option>
+                            </select>
+                            <div *ngIf="form.submitted && type.invalid"
+                                 class="form-control-feedback text-danger">
+                                Field 'Type' is required.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label for="claim-type-rule"
+                               class="col-sm-2 col-form-label">
+                            Regex Rule
+                        </label>
+                        <div class="col-sm-10">
+                            <input id="claim-type-rule"
+                                   name="claim-type-rule"
+                                   type="text"
+                                   class="form-control"
+                                   maxlength="512"
+                                   [(ngModel)]="claimType.rule" />
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label for="claim-type-confirmed"
+                               class="col-sm-2 col-form-label">
+                            Required Claim
+                        </label>
                         <div class="col-sm-10">
                             <div class="form-check col-form-label">
-                                <input id="claim-type-editable" name="claim-type-editable" type="checkbox" class="form-check-input" [(ngModel)]="claimType.userEditable" />
+                                <input id="claim-type-confirmed"
+                                       name="claim-type-confirmed"
+                                       type="checkbox"
+                                       class="form-check-input"
+                                       [(ngModel)]="claimType.required" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label for="claim-type-editable"
+                               class="col-sm-2 col-form-label">
+                            User Editable
+                        </label>
+                        <div class="col-sm-10">
+                            <div class="form-check col-form-label">
+                                <input id="claim-type-editable"
+                                       name="claim-type-editable"
+                                       type="checkbox"
+                                       class="form-check-input"
+                                       [(ngModel)]="claimType.userEditable" />
                             </div>
                         </div>
                     </div>
                     <div class="form-group">
                         <div>
-                            <button type="submit" class="btn btn-primary waves-effect waves-light m-r-5">Submit</button>
+                            <button type="submit"
+                                    class="btn btn-primary waves-effect waves-light m-r-5">
+                                Submit
+                            </button>
                         </div>
                     </div>
                 </form>

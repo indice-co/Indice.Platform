@@ -7,7 +7,7 @@ namespace Indice.AspNetCore.Identity.Features
     /// Fixes name of a controller that has generic type parameters.
     /// </summary>
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = true)]
-    internal class GenericControllerNameConvention : Attribute, IControllerModelConvention
+    internal sealed class GenericControllerNameConvention : Attribute, IControllerModelConvention
     {
         public void Apply(ControllerModel controller) {
             if (!controller.ControllerType.IsGenericType) {

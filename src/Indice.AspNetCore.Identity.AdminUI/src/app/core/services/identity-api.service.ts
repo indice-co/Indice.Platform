@@ -176,9 +176,16 @@ export interface IIdentityApiService {
      * Adds claims to an API resource.
      * @param resourceId The identifier of the API resource.
      * @param body (optional) Contains info about the API scope to be created.
+     * @return Created
+     */
+    addProtectedResourceScope(resourceId: number, body?: CreateResourceRequest | undefined): Observable<ScopeInfo>;
+    /**
+     * Deletes a specified scope from an API resource.
+     * @param resourceId The identifier of the API resource.
+     * @param scopeId The identifier of the API resource scope.
      * @return Ok
      */
-    addProtectedResourceScope(resourceId: number, body?: CreateResourceRequest | undefined): Observable<void>;
+    deleteProtectedResourceScope(resourceId: number, scopeId: number): Observable<void>;
     /**
      * Adds claims to an API scope of a protected resource.
      * @param resourceId The identifier of the API resource.
@@ -2323,9 +2330,9 @@ export class IdentityApiService implements IIdentityApiService {
      * Adds claims to an API resource.
      * @param resourceId The identifier of the API resource.
      * @param body (optional) Contains info about the API scope to be created.
-     * @return Ok
+     * @return Created
      */
-    addProtectedResourceScope(resourceId: number, body?: CreateResourceRequest | undefined): Observable<void> {
+    addProtectedResourceScope(resourceId: number, body?: CreateResourceRequest | undefined): Observable<ScopeInfo> {
         let url_ = this.baseUrl + "/api/resources/protected/{resourceId}/scopes";
         if (resourceId === undefined || resourceId === null)
             throw new Error("The parameter 'resourceId' must be defined.");
@@ -2340,6 +2347,7 @@ export class IdentityApiService implements IIdentityApiService {
             responseType: "blob",
             headers: new HttpHeaders({
                 "Content-Type": "application/json", 
+                "Accept": "application/json"
             })
         };
 
@@ -2350,23 +2358,26 @@ export class IdentityApiService implements IIdentityApiService {
                 try {
                     return this.processAddProtectedResourceScope(<any>response_);
                 } catch (e) {
-                    return <Observable<void>><any>_observableThrow(e);
+                    return <Observable<ScopeInfo>><any>_observableThrow(e);
                 }
             } else
-                return <Observable<void>><any>_observableThrow(response_);
+                return <Observable<ScopeInfo>><any>_observableThrow(response_);
         }));
     }
 
-    protected processAddProtectedResourceScope(response: HttpResponseBase): Observable<void> {
+    protected processAddProtectedResourceScope(response: HttpResponseBase): Observable<ScopeInfo> {
         const status = response.status;
         const responseBlob = 
             response instanceof HttpResponse ? response.body : 
             (<any>response).error instanceof Blob ? (<any>response).error : undefined;
 
         let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }};
-        if (status === 200) {
+        if (status === 201) {
             return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            return _observableOf<void>(<any>null);
+            let result201: any = null;
+            let resultData201 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result201 = ScopeInfo.fromJS(resultData201);
+            return _observableOf(result201);
             }));
         } else if (status === 400) {
             return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
@@ -2388,6 +2399,94 @@ export class IdentityApiService implements IIdentityApiService {
             let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result403 = ProblemDetails.fromJS(resultData403);
             return throwException("Forbidden", status, _responseText, _headers, result403);
+            }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("Internal Server Error", status, _responseText, _headers);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<ScopeInfo>(<any>null);
+    }
+
+    /**
+     * Deletes a specified scope from an API resource.
+     * @param resourceId The identifier of the API resource.
+     * @param scopeId The identifier of the API resource scope.
+     * @return Ok
+     */
+    deleteProtectedResourceScope(resourceId: number, scopeId: number): Observable<void> {
+        let url_ = this.baseUrl + "/api/resources/protected/{resourceId}/scopes/{scopeId}";
+        if (resourceId === undefined || resourceId === null)
+            throw new Error("The parameter 'resourceId' must be defined.");
+        url_ = url_.replace("{resourceId}", encodeURIComponent("" + resourceId)); 
+        if (scopeId === undefined || scopeId === null)
+            throw new Error("The parameter 'scopeId' must be defined.");
+        url_ = url_.replace("{scopeId}", encodeURIComponent("" + scopeId)); 
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+            })
+        };
+
+        return this.http.request("delete", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processDeleteProtectedResourceScope(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processDeleteProtectedResourceScope(<any>response_);
+                } catch (e) {
+                    return <Observable<void>><any>_observableThrow(e);
+                }
+            } else
+                return <Observable<void>><any>_observableThrow(response_);
+        }));
+    }
+
+    protected processDeleteProtectedResourceScope(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob = 
+            response instanceof HttpResponse ? response.body : 
+            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }};
+        if (status === 201) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result201: any = null;
+            let resultData201 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result201 = ScopeInfo.fromJS(resultData201);
+            return throwException("Success", status, _responseText, _headers, result201);
+            }));
+        } else if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ValidationProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            }));
+        } else if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return _observableOf<void>(<any>null);
             }));
         } else if (status === 500) {
             return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {

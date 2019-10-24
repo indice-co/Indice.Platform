@@ -6,13 +6,13 @@ import { IdentityApiService, ClaimTypeInfo } from 'src/app/core/services/identit
 
 @Injectable()
 export class ClaimTypeResolverService implements Resolve<ClaimTypeInfo> {
-    constructor(private api: IdentityApiService) { }
+    constructor(private _api: IdentityApiService) { }
 
     resolve(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<ClaimTypeInfo> {
         const claimTypeId = route.params.id;
         if (!claimTypeId) {
             return of(new ClaimTypeInfo());
         }
-        return this.api.getClaimType(claimTypeId);
+        return this._api.getClaimType(claimTypeId);
     }
 }

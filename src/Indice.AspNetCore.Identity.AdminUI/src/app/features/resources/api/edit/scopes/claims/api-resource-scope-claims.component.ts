@@ -3,7 +3,7 @@ import { ActivatedRoute } from '@angular/router';
 
 import { Subscription } from 'rxjs';
 import { ClaimTypeInfo, ScopeInfo } from 'src/app/core/services/identity-api.service';
-import { ApiResourceStore } from '../../api-resource-store.service';
+import { ApiResourceStore } from '../../../api-resource-store.service';
 
 @Component({
     selector: 'app-api-resource-scope-claims',

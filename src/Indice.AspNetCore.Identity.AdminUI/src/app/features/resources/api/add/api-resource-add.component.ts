@@ -9,21 +9,21 @@ import { StepBaseComponent } from 'src/app/shared/components/step-base/step-base
 import { ApiResourceWizardModel } from '../models/api-resource-wizard-model';
 import { CreateResourceRequest, IdentityApiService, ApiResourceInfo } from 'src/app/core/services/identity-api.service';
 import { ToastService } from 'src/app/layout/services/app-toast.service';
-import { ApiResourceWizardService } from '../wizard/api-resource-wizard.service';
 import { BasicInfoStepComponent } from '../wizard/steps/basic-info/basic-info-step.component';
 import { UserClaimsStepComponent } from '../wizard/steps/user-claims/user-claims-step.component';
+import { ApiResourceStore } from '../api-resource-store.service';
 
 @Component({
     selector: 'app-api-resource-add',
     templateUrl: './api-resource-add.component.html',
-    providers: [ApiResourceWizardService]
+    providers: [ApiResourceStore]
 })
 export class ApiResourceAddComponent implements OnInit {
     @ViewChild(WizardStepDirective, { static: false }) private _wizardStepHost: WizardStepDirective;
     private _loadedStepInstance: StepBaseComponent<ApiResourceWizardModel>;
     private _formValidatedSubscription: Subscription;
 
-    constructor(private _componentFactoryResolver: ComponentFactoryResolver, private _formBuilder: FormBuilder, private _changeDetectionRef: ChangeDetectorRef, 
+    constructor(private _componentFactoryResolver: ComponentFactoryResolver, private _formBuilder: FormBuilder, private _changeDetectionRef: ChangeDetectorRef,
                 private _api: IdentityApiService, private _toast: ToastService, private _router: Router, private _route: ActivatedRoute) { }
 
     public wizardStepIndex = 0;

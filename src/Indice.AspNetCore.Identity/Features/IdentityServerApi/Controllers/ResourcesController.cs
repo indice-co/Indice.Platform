@@ -387,13 +387,13 @@ namespace Indice.AspNetCore.Identity.Features
         /// </summary>
         /// <param name="resourceId">The identifier of the API resource.</param>
         /// <param name="request">Contains info about the API scope to be created.</param>
-        /// <response code="200">Ok</response>
+        /// <response code="201">Created</response>
         /// <response code="400">Bad Request</response>
         /// <response code="401">Unauthorized</response>
         /// <response code="403">Forbidden</response>
         /// <response code="500">Internal Server Error</response>
         [HttpPost("protected/{resourceId:int}/scopes")]
-        [ProducesResponseType(statusCode: StatusCodes.Status200OK)]
+        [ProducesResponseType(statusCode: StatusCodes.Status201Created, type: typeof(ScopeInfo))]
         [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest, type: typeof(ValidationProblemDetails))]
         [ProducesResponseType(statusCode: StatusCodes.Status401Unauthorized, type: typeof(ProblemDetails))]
         [ProducesResponseType(statusCode: StatusCodes.Status403Forbidden, type: typeof(ProblemDetails))]
@@ -405,7 +405,7 @@ namespace Indice.AspNetCore.Identity.Features
             if (apiResource.Scopes == null) {
                 apiResource.Scopes = new List<ApiScope>();
             }
-            apiResource.Scopes.Add(new ApiScope {
+            var scopeToAdd = new ApiScope {
                 Name = request.Name,
                 DisplayName = request.DisplayName,
                 Description = request.Description,
@@ -413,7 +413,49 @@ namespace Indice.AspNetCore.Identity.Features
                     Type = x
                 })
                 .ToList()
+            };
+            apiResource.Scopes.Add(scopeToAdd);
+            await _configurationDbContext.SaveChangesAsync();
+            return CreatedAtAction(string.Empty, new ScopeInfo {
+                Id = scopeToAdd.Id,
+                Name = scopeToAdd.Name,
+                DisplayName = scopeToAdd.DisplayName,
+                Description = scopeToAdd.Description,
+                UserClaims = scopeToAdd.UserClaims.Select(x => x.Type),
+                Emphasize = scopeToAdd.Emphasize,
+                Required = scopeToAdd.Required,
+                ShowInDiscoveryDocument = scopeToAdd.ShowInDiscoveryDocument
             });
+        }
+
+        /// <summary>
+        /// Deletes a specified scope from an API resource.
+        /// </summary>
+        /// <param name="resourceId">The identifier of the API resource.</param>
+        /// <param name="scopeId">The identifier of the API resource scope.</param>
+        /// <response code="200">Ok</response>
+        /// <response code="400">Bad Request</response>
+        /// <response code="401">Unauthorized</response>
+        /// <response code="403">Forbidden</response>
+        /// <response code="500">Internal Server Error</response>
+        [HttpDelete("protected/{resourceId:int}/scopes/{scopeId:int}")]
+        [ProducesResponseType(statusCode: StatusCodes.Status201Created, type: typeof(ScopeInfo))]
+        [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest, type: typeof(ValidationProblemDetails))]
+        [ProducesResponseType(statusCode: StatusCodes.Status401Unauthorized, type: typeof(ProblemDetails))]
+        [ProducesResponseType(statusCode: StatusCodes.Status403Forbidden, type: typeof(ProblemDetails))]
+        public async Task<ActionResult> DeleteProtectedResourceScope([FromRoute]int resourceId, [FromRoute]int scopeId) {
+            var apiResource = await _configurationDbContext.ApiResources.Include(x => x.Scopes).SingleOrDefaultAsync(x => x.Id == resourceId);
+            if (apiResource == null) {
+                return NotFound();
+            }
+            if (apiResource.Scopes == null) {
+                apiResource.Scopes = new List<ApiScope>();
+            }
+            var scopeToRemove = apiResource.Scopes.SingleOrDefault(x => x.Id == scopeId);
+            if (scopeToRemove == null) {
+                return NotFound();
+            }
+            apiResource.Scopes.Remove(scopeToRemove);
             await _configurationDbContext.SaveChangesAsync();
             return Ok();
         }

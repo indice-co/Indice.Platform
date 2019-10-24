@@ -6,26 +6,25 @@ import { Subscription } from 'rxjs';
 import { WizardStepDescriptor } from 'src/app/shared/components/step-base/models/wizard-step-descriptor';
 import { WizardStepDirective } from 'src/app/shared/components/step-base/wizard-step.directive';
 import { StepBaseComponent } from 'src/app/shared/components/step-base/step-base.component';
-import { CreateResourceRequest, IdentityApiService } from 'src/app/core/services/identity-api.service';
+import { CreateResourceRequest, ScopeInfo } from 'src/app/core/services/identity-api.service';
 import { ToastService } from 'src/app/layout/services/app-toast.service';
-import { ApiResourceStore } from '../../api-resource-store.service';
 import { ApiResourceWizardModel } from '../../../models/api-resource-wizard-model';
-import { ApiResourceWizardService } from '../../../wizard/api-resource-wizard.service';
 import { UserClaimsStepComponent } from '../../../wizard/steps/user-claims/user-claims-step.component';
 import { BasicInfoStepComponent } from '../../../wizard/steps/basic-info/basic-info-step.component';
+import { ApiResourceStore } from '../../../api-resource-store.service';
 
 @Component({
     selector: 'app-api-resource-scope-add',
-    templateUrl: './api-resource-scope-add.component.html',
-    providers: [ApiResourceStore, ApiResourceWizardService]
+    templateUrl: './api-resource-scope-add.component.html'
 })
 export class ApiResourceScopeAddComponent implements OnInit {
     @ViewChild(WizardStepDirective, { static: false }) private _wizardStepHost: WizardStepDirective;
     private _loadedStepInstance: StepBaseComponent<ApiResourceWizardModel>;
     private _formValidatedSubscription: Subscription;
+    private _apiResourceId: number;
 
     constructor(private _componentFactoryResolver: ComponentFactoryResolver, private _formBuilder: FormBuilder, private _changeDetectionRef: ChangeDetectorRef,
-                private _api: IdentityApiService, private _toast: ToastService, private _router: Router, private _route: ActivatedRoute) { }
+        private _apiResourceStore: ApiResourceStore, private _toast: ToastService, private _router: Router, private _route: ActivatedRoute) { }
 
     public wizardStepIndex = 0;
     public apiResourceSteps: WizardStepDescriptor[] = [];
@@ -46,6 +45,7 @@ export class ApiResourceScopeAddComponent implements OnInit {
     }
 
     public ngOnInit(): void {
+        this._apiResourceId = +this._route.parent.snapshot.params.id;
         this.form = this._formBuilder.group({
             name: ['', [Validators.required, Validators.maxLength(200)]],
             displayName: ['', [Validators.maxLength(200)]],
@@ -85,7 +85,16 @@ export class ApiResourceScopeAddComponent implements OnInit {
     }
 
     public saveApiResourceScope(): void {
-        alert('save');
+        const resourceName = this.form.get('name').value;
+        this._apiResourceStore.addApiResourceScope(this._apiResourceId, {
+            name: resourceName,
+            displayName: this.form.get('displayName').value,
+            description: this.form.get('description').value,
+            userClaims: this.form.get('userClaims').value
+        } as CreateResourceRequest).subscribe(_ => {
+            this._toast.showSuccess(`API scope '${resourceName}' was created successfully.`);
+            this._router.navigate(['../'], { relativeTo: this._route });
+        });
     }
 
     private validateFormFields(formGroup: FormGroup) {

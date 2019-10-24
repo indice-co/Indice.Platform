@@ -3,7 +3,7 @@ import { ActivatedRoute } from '@angular/router';
 
 import { Subscription, forkJoin } from 'rxjs';
 import { ClaimTypeInfo, ApiResourceInfo } from 'src/app/core/services/identity-api.service';
-import { ApiResourceStore } from '../api-resource-store.service';
+import { ApiResourceStore } from '../../api-resource-store.service';
 import { map } from 'rxjs/operators';
 
 @Component({
