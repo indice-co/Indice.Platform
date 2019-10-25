@@ -28,7 +28,7 @@ export class ApiResourcesComponent implements OnInit {
     }
 
     public getApiResources(event: SearchEvent): void {
-        this._api.getProtectedResources(event.page, event.pageSize, event.sortField, event.searchTerm).subscribe((resources: ApiResourceInfoResultSet) => {
+        this._api.getApiResources(event.page, event.pageSize, event.sortField, event.searchTerm).subscribe((resources: ApiResourceInfoResultSet) => {
             this.count = resources.count;
             this.rows = resources.items;
         });

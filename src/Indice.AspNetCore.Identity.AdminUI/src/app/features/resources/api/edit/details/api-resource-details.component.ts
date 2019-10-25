@@ -37,5 +37,9 @@ export class ApiResourceDetailsComponent implements OnInit, OnDestroy {
         // });
     }
 
-    public update(): void { }
+    public update(): void {
+        this._apiResourceStore.updateApiResource(this.apiResource).subscribe(_ => {
+            this._toast.showSuccess(`API resource '${this.apiResource.name}' was updated successfully.`);
+        });
+    }
 }

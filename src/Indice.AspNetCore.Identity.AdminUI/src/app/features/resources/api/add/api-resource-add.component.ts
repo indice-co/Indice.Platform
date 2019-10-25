@@ -7,7 +7,7 @@ import { WizardStepDescriptor } from 'src/app/shared/components/step-base/models
 import { WizardStepDirective } from 'src/app/shared/components/step-base/wizard-step.directive';
 import { StepBaseComponent } from 'src/app/shared/components/step-base/step-base.component';
 import { ApiResourceWizardModel } from '../models/api-resource-wizard-model';
-import { CreateResourceRequest, IdentityApiService, ApiResourceInfo } from 'src/app/core/services/identity-api.service';
+import { IdentityApiService, ApiResourceInfo, CreateApiResourceRequest } from 'src/app/core/services/identity-api.service';
 import { ToastService } from 'src/app/layout/services/app-toast.service';
 import { BasicInfoStepComponent } from '../wizard/steps/basic-info/basic-info-step.component';
 import { UserClaimsStepComponent } from '../wizard/steps/user-claims/user-claims-step.component';
@@ -30,7 +30,7 @@ export class ApiResourceAddComponent implements OnInit {
     public apiResourceSteps: WizardStepDescriptor[] = [];
     public form: FormGroup;
     public hostFormValidated = false;
-    public resource: CreateResourceRequest = new CreateResourceRequest();
+    public resource: CreateApiResourceRequest = new CreateApiResourceRequest();
 
     public get canGoFront(): boolean {
         return this.wizardStepIndex >= 0 && this.wizardStepIndex < this.apiResourceSteps.length - 1;
@@ -84,12 +84,12 @@ export class ApiResourceAddComponent implements OnInit {
     }
 
     public saveApiResource(): void {
-        this._api.createProtectedResource({
+        this._api.createApiResource({
             name: this.form.get('name').value,
             displayName: this.form.get('displayName').value,
             description: this.form.get('description').value,
             userClaims: this.form.get('userClaims').value
-        } as CreateResourceRequest).subscribe((resource: ApiResourceInfo) => {
+        } as CreateApiResourceRequest).subscribe((resource: ApiResourceInfo) => {
             this._toast.showSuccess(`API resource '${resource.name}' was created successfully.`);
             this._router.navigate(['../'], { relativeTo: this._route });
         });

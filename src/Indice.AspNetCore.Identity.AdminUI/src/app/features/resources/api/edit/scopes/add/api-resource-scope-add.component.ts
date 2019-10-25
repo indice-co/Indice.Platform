@@ -6,7 +6,7 @@ import { Subscription } from 'rxjs';
 import { WizardStepDescriptor } from 'src/app/shared/components/step-base/models/wizard-step-descriptor';
 import { WizardStepDirective } from 'src/app/shared/components/step-base/wizard-step.directive';
 import { StepBaseComponent } from 'src/app/shared/components/step-base/step-base.component';
-import { CreateResourceRequest, ScopeInfo } from 'src/app/core/services/identity-api.service';
+import { ScopeInfo, CreateApiScopeRequest } from 'src/app/core/services/identity-api.service';
 import { ToastService } from 'src/app/layout/services/app-toast.service';
 import { ApiResourceWizardModel } from '../../../models/api-resource-wizard-model';
 import { UserClaimsStepComponent } from '../../../wizard/steps/user-claims/user-claims-step.component';
@@ -24,13 +24,13 @@ export class ApiResourceScopeAddComponent implements OnInit {
     private _apiResourceId: number;
 
     constructor(private _componentFactoryResolver: ComponentFactoryResolver, private _formBuilder: FormBuilder, private _changeDetectionRef: ChangeDetectorRef,
-        private _apiResourceStore: ApiResourceStore, private _toast: ToastService, private _router: Router, private _route: ActivatedRoute) { }
+                private _apiResourceStore: ApiResourceStore, private _toast: ToastService, private _router: Router, private _route: ActivatedRoute) { }
 
     public wizardStepIndex = 0;
     public apiResourceSteps: WizardStepDescriptor[] = [];
     public form: FormGroup;
     public hostFormValidated = false;
-    public resource: CreateResourceRequest = new CreateResourceRequest();
+    public resource: CreateApiScopeRequest = new CreateApiScopeRequest();
 
     public get canGoFront(): boolean {
         return this.wizardStepIndex >= 0 && this.wizardStepIndex < this.apiResourceSteps.length - 1;
@@ -91,7 +91,7 @@ export class ApiResourceScopeAddComponent implements OnInit {
             displayName: this.form.get('displayName').value,
             description: this.form.get('description').value,
             userClaims: this.form.get('userClaims').value
-        } as CreateResourceRequest).subscribe(_ => {
+        } as CreateApiScopeRequest).subscribe(_ => {
             this._toast.showSuccess(`API scope '${resourceName}' was created successfully.`);
             this._router.navigate(['../'], { relativeTo: this._route });
         });

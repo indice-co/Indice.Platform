@@ -42,7 +42,11 @@ export class ApiResourceScopeDetailsComponent implements OnInit, OnDestroy {
         });
     }
 
-    public update(scope: ScopeInfo): void { }
+    public update(): void {
+        this._apiResourceStore.updateApiResourceScope(this._apiResourceId, this.scope).subscribe(_ => {
+            this._toast.showSuccess(`API scope '${this.scope.name}' was updated successfully.`);
+        });
+    }
 
     public panelChanged(event: NgbPanelChangeEvent): void { }
 }

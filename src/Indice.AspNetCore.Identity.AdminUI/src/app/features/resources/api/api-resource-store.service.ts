@@ -1,8 +1,11 @@
 import { Injectable } from '@angular/core';
 
 import { AsyncSubject, Observable, forkJoin } from 'rxjs';
-import { ApiResourceInfo, IdentityApiService, ScopeInfo, ClaimTypeInfo, ClaimTypeInfoResultSet, CreateResourceRequest, IScopeInfo, ApiResourceInfoResultSet } from 'src/app/core/services/identity-api.service';
 import { map } from 'rxjs/operators';
+import {
+    ApiResourceInfo, IdentityApiService, ScopeInfo, ClaimTypeInfo, ClaimTypeInfoResultSet, UpdateApiResourceRequest, IUpdateApiResourceRequest, CreateApiScopeRequest,
+    UpdateApiScopeRequest, IUpdateApiScopeRequest
+} from 'src/app/core/services/identity-api.service';
 
 @Injectable()
 export class ApiResourceStore {
@@ -27,13 +30,24 @@ export class ApiResourceStore {
         return this._apiResource;
     }
 
+    public updateApiResource(apiResource: ApiResourceInfo): Observable<void> {
+        return this._api.updateApiResource(apiResource.id, new UpdateApiResourceRequest({
+            displayName: apiResource.displayName,
+            description: apiResource.description,
+            enabled: apiResource.enabled
+        } as IUpdateApiResourceRequest)).pipe(map(_ => {
+            this._apiResource.next(apiResource);
+            this._apiResource.complete();
+        }));
+    }
+
     public addApiResourceClaim(apiResourceId: number, claim: ClaimTypeInfo): Observable<void> {
         this.getApiResource(apiResourceId).subscribe((apiResource: ApiResourceInfo) => {
             apiResource.allowedClaims.push(claim.name);
             this._apiResource.next(apiResource);
             this._apiResource.complete();
         });
-        return this._api.addProtectedResourceClaims(apiResourceId, [claim.name]);
+        return this._api.addApiResourceClaims(apiResourceId, [claim.name]);
     }
 
     public deleteApiResourceClaim(apiResourceId: number, claim: ClaimTypeInfo): Observable<void> {
@@ -45,12 +59,12 @@ export class ApiResourceStore {
             this._apiResource.next(apiResource);
             this._apiResource.complete();
         });
-        return this._api.deleteProtectedResourceClaim(apiResourceId, claim.name);
+        return this._api.deleteApiResourceClaim(apiResourceId, claim.name);
     }
 
-    public addApiResourceScope(apiResourceId: number, scope: CreateResourceRequest): Observable<void> {
+    public addApiResourceScope(apiResourceId: number, scope: CreateApiScopeRequest): Observable<void> {
         const getApiResource = this.getApiResource(apiResourceId);
-        const addScope = this._api.addProtectedResourceScope(apiResourceId, scope);
+        const addScope = this._api.addApiResourceScope(apiResourceId, scope);
         return forkJoin([getApiResource, addScope]).pipe(map((responses: [ApiResourceInfo, ScopeInfo]) => {
             return {
                 apiResource: responses[0],
@@ -58,6 +72,30 @@ export class ApiResourceStore {
             };
         })).pipe(map((result: { apiResource: ApiResourceInfo, addedScope: ScopeInfo }) => {
             result.apiResource.scopes.push(result.addedScope);
+            this._apiResource.next(result.apiResource);
+            this._apiResource.complete();
+        }));
+    }
+
+    public updateApiResourceScope(apiResourceId: number, scope: ScopeInfo) {
+        const getApiResource = this.getApiResource(apiResourceId);
+        const updateScope = this._api.updateApiResourceScope(apiResourceId, scope.id, new UpdateApiScopeRequest({
+            displayName: scope.displayName,
+            description: scope.description,
+            emphasize: scope.emphasize,
+            required: scope.required,
+            showInDiscoveryDocument: scope.showInDiscoveryDocument
+        } as IUpdateApiScopeRequest));
+        return forkJoin([getApiResource, updateScope]).pipe(map((responses: [ApiResourceInfo, null]) => {
+            return {
+                apiResource: responses[0],
+                updatedScope: responses[1]
+            };
+        })).pipe(map((result: { apiResource: ApiResourceInfo }) => {
+            let foundScope = result.apiResource.scopes.find(x => x.id === scope.id);
+            if (foundScope) {
+                foundScope = scope;
+            }
             this._apiResource.next(result.apiResource);
             this._apiResource.complete();
         }));
@@ -72,7 +110,7 @@ export class ApiResourceStore {
             this._apiResource.next(apiResource);
             this._apiResource.complete();
         });
-        return this._api.deleteProtectedResourceScope(apiResourceId, scopeId);
+        return this._api.deleteApiResourceScope(apiResourceId, scopeId);
     }
 
     public addApiResourceScopeClaim(apiResourceId: number, scopeId: number, claim: ClaimTypeInfo): Observable<void> {
@@ -82,7 +120,7 @@ export class ApiResourceStore {
             this._apiResource.next(apiResource);
             this._apiResource.complete();
         });
-        return this._api.addProtectedResourceScopeClaims(apiResourceId, scopeId, [claim.name]);
+        return this._api.addApiResourceScopeClaims(apiResourceId, scopeId, [claim.name]);
     }
 
     public deleteApiResourceScopeClaim(apiResourceId: number, scopeId: number, claim: ClaimTypeInfo): Observable<void> {
@@ -95,7 +133,7 @@ export class ApiResourceStore {
             this._apiResource.next(apiResource);
             this._apiResource.complete();
         });
-        return this._api.deleteProtectedResourceScopeClaim(apiResourceId, scopeId, claim.name);
+        return this._api.deleteApiResourceScopeClaim(apiResourceId, scopeId, claim.name);
     }
 
     public getAllClaims(): Observable<ClaimTypeInfo[]> {

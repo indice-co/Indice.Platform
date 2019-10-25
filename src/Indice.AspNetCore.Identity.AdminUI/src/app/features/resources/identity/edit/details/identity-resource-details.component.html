@@ -1,73 +1,153 @@
-<swal title="Great" text="User was updated successfully." type="success" #updateSuccessAlert></swal>
-<swal title="Great" text="User was deleted successfully." type="success" (confirm)="goToList()" #deleteSuccessAlert></swal>
-<swal title="Delete?" text="User will be deleted permanently. This action cannot be reversed." type="warning" [showCancelButton]="true" (confirm)="delete()" #deleteAlert></swal>
+<swal title="Great"
+      text="User was updated successfully."
+      type="success"
+      #updateSuccessAlert>
+</swal>
+<swal title="Great"
+      text="User was deleted successfully."
+      type="success"
+      (confirm)="goToList()"
+      #deleteSuccessAlert>
+</swal>
+<swal title="Delete?"
+      text="User will be deleted permanently. This action cannot be reversed."
+      type="warning"
+      [showCancelButton]="true"
+      (confirm)="delete()"
+      #deleteAlert>
+</swal>
 <p *ngIf="!identityResource">Loading identity resource...</p>
-<form class="needs-validation" *ngIf="identityResource" [ngClass]="{ 'was-validated': form.submitted }" (ngSubmit)="form.form.valid && update()" novalidate #form="ngForm">
+<form class="needs-validation"
+      *ngIf="identityResource"
+      [ngClass]="{ 'was-validated': form.submitted }"
+      (ngSubmit)="form.form.valid && update()"
+      novalidate
+      #form="ngForm">
     <div class="form-group row">
-        <label for="resource-id" class="col-sm-2 col-form-label">Resource Id</label>
+        <label for="resource-id"
+               class="col-sm-2 col-form-label">
+            Resource Id
+        </label>
         <div class="col-sm-10 col-form-label">
-            <span class="col-form-label" id="resource-id" name="resource-id">{{ identityResource.name }}</span>
+            <span class="col-form-label"
+                  id="resource-id"
+                  name="resource-id">
+                {{ identityResource.name }}
+            </span>
         </div>
     </div>
     <div class="form-group row">
-        <label for="resource-display-name" class="col-sm-2 col-form-label">Display Name</label>
+        <label for="resource-display-name"
+               class="col-sm-2 col-form-label">
+            Display Name
+        </label>
         <div class="col-sm-10">
-            <input class="form-control" type="text" id="resource-display-name" name="resource-display-name" [(ngModel)]="identityResource.displayName" maxlength="200" 
-                #resourceDisplayName="ngModel" />
-            <div *ngIf="form.submitted && resourceDisplayName.invalid && resourceDisplayName.errors['maxLength']" class="form-control-feedback text-danger">
+            <input class="form-control"
+                   type="text"
+                   id="resource-display-name"
+                   name="resource-display-name"
+                   [(ngModel)]="identityResource.displayName"
+                   maxlength="200"
+                   #resourceDisplayName="ngModel" />
+            <div *ngIf="form.submitted && resourceDisplayName.invalid && resourceDisplayName.errors['maxLength']"
+                 class="form-control-feedback text-danger">
                 Field 'Display Name' must be up to 200 characters.
             </div>
         </div>
     </div>
     <div class="form-group row">
-        <label for="resource-description" class="col-sm-2 col-form-label">Description</label>
+        <label for="resource-description"
+               class="col-sm-2 col-form-label">
+            Description
+        </label>
         <div class="col-sm-10">
-            <textarea class="form-control" id="resource-description" name="resource-description" [(ngModel)]="identityResource.description" rows="3" maxlength="1000" 
-                #resourceDescription="ngModel">
+            <textarea class="form-control"
+                      id="resource-description"
+                      name="resource-description"
+                      [(ngModel)]="identityResource.description"
+                      rows="3"
+                      maxlength="1000"
+                      #resourceDescription="ngModel">
             </textarea>
             <div *ngIf="form.submitted && resourceDescription.invalid && resourceDescription.errors['maxLength']"
-                class="form-control-feedback text-danger">
+                 class="form-control-feedback text-danger">
                 Field 'Display Name' must be up to 1000 characters.
             </div>
         </div>
     </div>
     <div class="form-group row">
-        <label for="resource-required" class="col-sm-2 col-form-label">Required</label>
+        <label for="resource-required"
+               class="col-sm-2 col-form-label">
+            Required
+        </label>
         <div class="col-sm-10">
             <div class="form-check col-form-label">
-                <input class="form-check-input" type="checkbox" id="resource-required" name="resource-required" [checked]="identityResource.required" />
+                <input class="form-check-input"
+                       type="checkbox"
+                       id="resource-required"
+                       name="resource-required"
+                       [(ngModel)]="identityResource.required"
+                       #required="ngModel" />
             </div>
         </div>
     </div>
     <div class="form-group row">
-        <label for="resource-in-discovery-document" class="col-sm-2 col-form-label">Show in Discovery Document</label>
+        <label for="resource-in-discovery-document"
+               class="col-sm-2 col-form-label">
+            Show in Discovery Document
+        </label>
         <div class="col-sm-10">
             <div class="form-check col-form-label">
-                <input class="form-check-input" type="checkbox" id="resource-in-discovery-document" name="resource-in-discovery-document" 
-                    [checked]="identityResource.showInDiscoveryDocument" />
+                <input class="form-check-input"
+                       type="checkbox"
+                       id="resource-in-discovery-document"
+                       name="resource-in-discovery-document"
+                       [(ngModel)]="identityResource.showInDiscoveryDocument"
+                       #showInDiscoveryDocument="ngModel" />
             </div>
         </div>
     </div>
     <div class="form-group row">
-        <label for="resource-emphasize" class="col-sm-2 col-form-label">Emphasize</label>
+        <label for="resource-emphasize"
+               class="col-sm-2 col-form-label">
+            Emphasize
+        </label>
         <div class="col-sm-10">
             <div class="form-check col-form-label">
-                <input class="form-check-input" type="checkbox" id="resource-emphasize" name="resource-emphasize" [checked]="identityResource.emphasize" />
+                <input class="form-check-input"
+                       type="checkbox"
+                       id="resource-emphasize"
+                       name="resource-emphasize"
+                       [(ngModel)]="identityResource.emphasize"
+                       #emphasize="ngModel" />
             </div>
         </div>
     </div>
     <div class="form-group row">
-        <label for="resource-enabled" class="col-sm-2 col-form-label">Enabled</label>
+        <label for="resource-enabled"
+               class="col-sm-2 col-form-label">Enabled</label>
         <div class="col-sm-10">
             <div class="form-check col-form-label">
-                <input class="form-check-input" type="checkbox" id="resource-enabled" name="resource-enabled" [checked]="identityResource.enabled" />
+                <input class="form-check-input"
+                       type="checkbox"
+                       id="resource-enabled"
+                       name="resource-enabled"
+                       [(ngModel)]="identityResource.enabled"
+                       #enabled="ngModel" />
             </div>
         </div>
     </div>
     <div class="form-group">
         <div>
-            <button type="submit" class="btn btn-primary waves-effect waves-light m-r-5">Update</button>
-            <button type="button" class="btn btn-danger waves-effect m-r-5 float-right" (click)="deletePrompt()">Delete</button>
+            <button type="submit"
+                    class="btn btn-primary waves-effect waves-light m-r-5">
+                Update
+            </button>
+            <button type="button"
+                    class="btn btn-danger waves-effect m-r-5 float-right"
+                    (click)="deletePrompt()">
+                Delete
+            </button>
         </div>
     </div>
 </form>

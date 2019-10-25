@@ -82,7 +82,7 @@ export class ClientStore {
     public getApiResources(): Observable<ApiResourceInfo[]> {
         if (!this._apiResources) {
             this._apiResources = new AsyncSubject<ApiResourceInfo[]>();
-            this._api.getProtectedResources(1, 2147483647, 'name+', undefined).subscribe((response: ApiResourceInfoResultSet) => {
+            this._api.getApiResources(1, 2147483647, 'name+', undefined).subscribe((response: ApiResourceInfoResultSet) => {
                 this._apiResources.next(response.items);
                 this._apiResources.complete();
             });
