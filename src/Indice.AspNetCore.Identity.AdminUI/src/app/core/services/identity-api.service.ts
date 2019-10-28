@@ -118,6 +118,11 @@ export interface IIdentityApiService {
      */
     getSystemSummary(): Observable<SummaryInfo>;
     /**
+     * Returns a list of the available grant types that a client can own.
+     * @return OK
+     */
+    getGrantTypes(): Observable<string[]>;
+    /**
      * Returns a list of Indice.AspNetCore.Identity.Features.IdentityResourceInfo objects containing the total number of identity resources in the database and the data filtered according to the provided Indice.Types.ListOptions.
      * @param page (optional) 
      * @param size (optional) 
@@ -1656,6 +1661,87 @@ export class IdentityApiService implements IIdentityApiService {
             }));
         }
         return _observableOf<SummaryInfo>(<any>null);
+    }
+
+    /**
+     * Returns a list of the available grant types that a client can own.
+     * @return OK
+     */
+    getGrantTypes(): Observable<string[]> {
+        let url_ = this.baseUrl + "/api/grant-types";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetGrantTypes(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetGrantTypes(<any>response_);
+                } catch (e) {
+                    return <Observable<string[]>><any>_observableThrow(e);
+                }
+            } else
+                return <Observable<string[]>><any>_observableThrow(response_);
+        }));
+    }
+
+    protected processGetGrantTypes(response: HttpResponseBase): Observable<string[]> {
+        const status = response.status;
+        const responseBlob = 
+            response instanceof HttpResponse ? response.body : 
+            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }};
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(item);
+            }
+            return _observableOf(result200);
+            }));
+        } else if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ValidationProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("Internal Server Error", status, _responseText, _headers);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<string[]>(<any>null);
     }
 
     /**
@@ -4764,7 +4850,7 @@ export interface IProblemDetails {
 /** Models a claim type that will be created on the server. */
 export class CreateClaimTypeRequest implements ICreateClaimTypeRequest {
     /** The name. */
-    name?: string | undefined;
+    name!: string | undefined;
     /** The name used for display purposes. If not set, Indice.AspNetCore.Identity.Features.CreateClaimTypeRequest.Name is used. */
     displayName?: string | undefined;
     /** A description. */
@@ -4821,7 +4907,7 @@ export class CreateClaimTypeRequest implements ICreateClaimTypeRequest {
 /** Models a claim type that will be created on the server. */
 export interface ICreateClaimTypeRequest {
     /** The name. */
-    name?: string | undefined;
+    name: string | undefined;
     /** The name used for display purposes. If not set, Indice.AspNetCore.Identity.Features.CreateClaimTypeRequest.Name is used. */
     displayName?: string | undefined;
     /** A description. */
@@ -6891,7 +6977,7 @@ export interface IRoleInfoResultSet {
 /** Models a role that will be created on the server. */
 export class CreateRoleRequest implements ICreateRoleRequest {
     /** The name of the role. */
-    name?: string | undefined;
+    name!: string | undefined;
     /** A description for the role. */
     description?: string | undefined;
 
@@ -6929,7 +7015,7 @@ export class CreateRoleRequest implements ICreateRoleRequest {
 /** Models a role that will be created on the server. */
 export interface ICreateRoleRequest {
     /** The name of the role. */
-    name?: string | undefined;
+    name: string | undefined;
     /** A description for the role. */
     description?: string | undefined;
 }

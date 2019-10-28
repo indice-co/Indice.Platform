@@ -21,7 +21,7 @@ namespace Indice.AspNetCore.Identity.Features
     [Produces(MediaTypeNames.Application.Json)]
     [Consumes(MediaTypeNames.Application.Json)]
     [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme, Policy = IdentityServerApi.Admin)]
-    internal class ResourcesController : ControllerBase
+    internal class ResourceController : ControllerBase
     {
         private readonly ExtendedConfigurationDbContext _configurationDbContext;
         /// <summary>
@@ -30,10 +30,10 @@ namespace Indice.AspNetCore.Identity.Features
         public const string Name = "Resources";
 
         /// <summary>
-        /// Creates an instance of <see cref="ResourcesController"/>.
+        /// Creates an instance of <see cref="ResourceController"/>.
         /// </summary>
         /// <param name="configurationDbContext">Abstraction for the configuration context.</param>
-        public ResourcesController(ExtendedConfigurationDbContext configurationDbContext) {
+        public ResourceController(ExtendedConfigurationDbContext configurationDbContext) {
             _configurationDbContext = configurationDbContext ?? throw new ArgumentNullException(nameof(configurationDbContext));
         }
 

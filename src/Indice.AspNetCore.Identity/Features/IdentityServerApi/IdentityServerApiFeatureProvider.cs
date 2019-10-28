@@ -15,7 +15,7 @@ namespace Indice.AspNetCore.Identity.Features
             typeof(ClaimTypeController).GetTypeInfo(),
             typeof(ClientController).GetTypeInfo(),
             typeof(DashboardController).GetTypeInfo(),
-            typeof(ResourcesController).GetTypeInfo(),
+            typeof(ResourceController).GetTypeInfo(),
             typeof(RoleController).GetTypeInfo(),
             typeof(UserController).GetTypeInfo()
         };

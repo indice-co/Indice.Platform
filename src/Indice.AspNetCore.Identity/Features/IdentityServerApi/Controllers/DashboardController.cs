@@ -5,7 +5,6 @@ using System.Net.Mime;
 using System.ServiceModel.Syndication;
 using System.Threading.Tasks;
 using System.Xml;
-using IdentityServer4.EntityFramework.Interfaces;
 using Indice.AspNetCore.Extensions;
 using Indice.AspNetCore.Identity.Models;
 using Indice.Types;
