@@ -4,69 +4,61 @@ using IdentityServer4.Models;
 namespace Indice.AspNetCore.Identity.Features
 {
     /// <summary>
-    /// Models a system client.
+    /// Models a client that will be created on the server.
     /// </summary>
-    public class ClientInfo
+    public class CreateClientRequest : BaseClientRequest
     {
+        /// <summary>
+        /// Describes the type of the client.
+        /// </summary>
+        public ClientType ClientType { get; set; }
         /// <summary>
         /// The unique identifier for this application.
         /// </summary>
         public string ClientId { get; set; }
         /// <summary>
-        /// Application name that will be seen on consent screens.
+        /// Allowed URL to return after logging in.
         /// </summary>
-        public string ClientName { get; set; }
+        public string RedirectUri { get; set; }
         /// <summary>
-        /// Application description.
+        /// Allowed URL to return after logout.
         /// </summary>
-        public string Description { get; set; }
+        public string PostLogoutRedirectUri { get; set; }
         /// <summary>
-        /// Determines whether this application is enabled or not.
+        /// The client secrets.
         /// </summary>
-        public bool? Enabled { get; set; }
+        public List<ClientSecretRequest> Secrets { get; set; } = new List<ClientSecretRequest>();
         /// <summary>
-        /// Specifies whether a consent screen is required.
+        /// The list of identity resources allowed by the client.
         /// </summary>
-        public bool? RequireConsent { get; set; }
+        public IEnumerable<string> IdentityResources { get; set; } = new List<string>();
         /// <summary>
-        /// Specifies whether consent screen is remembered after having been given.
+        /// The list of API resources allowed by the client.
         /// </summary>
-        public bool? AllowRememberConsent { get; set; }
-        /// <summary>
-        /// Application logo that will be seen on consent screens.
-        /// </summary>
-        public string LogoUri { get; set; }
-        /// <summary>
-        /// Application URL that will be seen on consent screens.
-        /// </summary>
-        public string ClientUri { get; set; }
-        /// <summary>
-        /// Specifies whether the client can be edited or not.
-        /// </summary>
-        public bool NonEditable { get; set; }
+        public IEnumerable<string> ApiResources { get; set; } = new List<string>();
     }
 
     /// <summary>
-    /// Models a system client when API provides info for a single client.
+    /// Models a client that will be updated on the server.
     /// </summary>
-    public class SingleClientInfo : ClientInfo
+    public class UpdateClientRequest : BaseClientRequest
     {
         /// <summary>
         /// Lifetime of identity token in seconds.
         /// </summary>
-        public int? IdentityTokenLifetime { get; set; }
+        public int IdentityTokenLifetime { get; set; }
         /// <summary>
         /// Lifetime of access token in seconds
         /// </summary>
-        public int? AccessTokenLifetime { get; set; }
+        public int AccessTokenLifetime { get; set; }
         /// <summary>
         /// Lifetime of a user consent in seconds.
         /// </summary>
-        public int? ConsentLifetime { get; set; }
+        public int ConsentLifetime { get; set; }
         /// <summary>
         /// The maximum duration (in seconds) since the last time the user authenticated.
         /// </summary>
-        public int? UserSsoLifetime { get; set; }
+        public int UserSsoLifetime { get; set; }
         /// <summary>
         /// Specifies logout URI at client for HTTP front-channel based logout.
         /// </summary>
@@ -82,70 +74,100 @@ namespace Indice.AspNetCore.Identity.Features
         /// <summary>
         /// Specifies is the user's session id should be sent to the FrontChannelLogoutUri.
         /// </summary>
-        public bool? FrontChannelLogoutSessionRequired { get; set; }
+        public bool FrontChannelLogoutSessionRequired { get; set; }
         /// <summary>
         /// Gets or sets a value indicating whether JWT access tokens should include an identifier.
         /// </summary>
-        public bool? IncludeJwtId { get; set; }
+        public bool IncludeJwtId { get; set; }
         /// <summary>
         /// Controls whether access tokens are transmitted via the browser for this client. This can prevent accidental leakage of access tokens when multiple response types are allowed.
         /// </summary>
-        public bool? AllowAccessTokensViaBrowser { get; set; }
+        public bool AllowAccessTokensViaBrowser { get; set; }
         /// <summary>
         /// When requesting both an id token and access token, should the user claims always be added to the id token instead of requring the client to use the userinfo endpoint.
         /// </summary>
-        public bool? AlwaysIncludeUserClaimsInIdToken { get; set; }
+        public bool AlwaysIncludeUserClaimsInIdToken { get; set; }
         /// <summary>
         /// Gets or sets a value indicating whether client claims should be always included in the access tokens - or only for client credentials flow.
         /// </summary>
-        public bool? AlwaysSendClientClaims { get; set; }
+        public bool AlwaysSendClientClaims { get; set; }
         /// <summary>
         /// Lifetime of authorization code in seconds.
         /// </summary>
-        public int? AuthorizationCodeLifetime { get; set; }
+        public int AuthorizationCodeLifetime { get; set; }
         /// <summary>
         /// Specifies whether a proof key is required for authorization code based token requests.
         /// </summary>
-        public bool? RequirePkce { get; set; }
+        public bool RequirePkce { get; set; }
         /// <summary>
         /// Specifies whether a proof key can be sent using plain method.
         /// </summary>
-        public bool? AllowPlainTextPkce { get; set; }
+        public bool AllowPlainTextPkce { get; set; }
         /// <summary>
         /// Gets or sets a value to prefix it on client claim types.
         /// </summary>
         public string ClientClaimsPrefix { get; set; }
         /// <summary>
-        /// List of client claims.
+        /// Specifies whether consent screen is remembered after having been given.
         /// </summary>
-        public IEnumerable<ClaimInfo> Claims { get; set; }
+        public bool AllowRememberConsent { get; set; }
+    }
+
+    /// <summary>
+    /// Models a client request.
+    /// </summary>
+    public class BaseClientRequest
+    {
         /// <summary>
-        /// List of configured grant types.
+        /// Application name that will be seen on consent screens.
         /// </summary>
-        public IEnumerable<string> GrantTypes { get; set; }
+        public string ClientName { get; set; }
         /// <summary>
-        /// List of available client secrets.
+        /// Application URL that will be seen on consent screens.
         /// </summary>
-        public IEnumerable<ClientSecretInfo> Secrets { get; set; }
+        public string ClientUri { get; set; }
         /// <summary>
-        /// Cors origins allowed.
+        /// Application logo that will be seen on consent screens.
         /// </summary>
-        public IEnumerable<string> AllowedCorsOrigins { get; set; }
+        public string LogoUri { get; set; }
         /// <summary>
-        /// Allowed URIs to redirect after logout.
+        /// Application description.
         /// </summary>
-        public IEnumerable<string> PostLogoutRedirectUris { get; set; }
+        public string Description { get; set; }
         /// <summary>
-        /// Allowed URIs to redirect after successful login.
+        /// Specifies whether a consent screen is required.
         /// </summary>
-        public IEnumerable<string> RedirectUris { get; set; }
+        public bool RequireConsent { get; set; }
+    }
+
+    /// <summary>
+    /// Models an OAuth client type.
+    /// </summary>
+    public enum ClientType
+    {
         /// <summary>
-        /// The API resources that the client has access to.
+        /// Single page application supporting authorization code.
         /// </summary>
-        public IEnumerable<string> ApiResources { get; set; }
+        SPA,
         /// <summary>
-        /// The identity resources that the client has access to.
+        /// Classic web application.
         /// </summary>
-        public IEnumerable<string> IdentityResources { get; set; }
+        WebApp,
+        /// <summary>
+        /// A desktop or mobile application running on a user's device.
+        /// </summary>
+        Native,
+        /// <summary>
+        /// A server to server application.
+        /// </summary>
+        Machine,
+        /// <summary>
+        /// IoT application or otherwise browserless or input constrained device.
+        /// </summary>
+        Device,
+        /// <summary>
+        /// Single page application supporting implicit flow.
+        /// </summary>
+        SPALegacy
     }
 }

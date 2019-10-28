@@ -1,3 +1,10 @@
+<swal title="Delete?"
+      [text]="'Client claim \'' + claimToDelete?.type + '\' will be deleted permanently. This action cannot be reversed.'"
+      type="warning"
+      [showCancelButton]="true"
+      (confirm)="delete()"
+      #deleteAlert>
+</swal>
 <p class="mt-3"
    *ngIf="!client">
     Loading client claims...
@@ -112,10 +119,10 @@
 <ng-template let-row="row"
              let-value="value"
              #actionsTemplate>
-    <a class="btn btn-success"
-       href="#"
-       role="button"
-       [routerLink]="value + '/edit'">
-        Edit
+    <a class="btn btn-danger waves-effect m-r-5"
+       href="javascript:void(0)"
+       role="button" 
+       (click)="showDeleteAlert(row.id)">
+        Delete
     </a>
 </ng-template>

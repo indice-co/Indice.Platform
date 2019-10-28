@@ -1,4 +1,7 @@
-﻿namespace Indice.AspNetCore.Identity.Features
+﻿using System.ComponentModel.DataAnnotations;
+using Indice.Configuration;
+
+namespace Indice.AspNetCore.Identity.Features
 {
     /// <summary>
     /// Models a role that will be created on the server.
@@ -8,10 +11,13 @@
         /// <summary>
         /// The name of the role.
         /// </summary>
+        [Required]
+        [MaxLength(TextSizePresets.S64)]
         public string Name { get; set; }
         /// <summary>
         /// A description for the role.
         /// </summary>
+        [MaxLength(TextSizePresets.M512)]
         public string Description { get; set; }
     }
 }

@@ -37,5 +37,9 @@ export class ClientDetailsComponent implements OnInit, OnDestroy {
         });
     }
 
-    public update(): void { }
+    public update(): void {
+        this._clientStore.updateClient(this.client).subscribe(_ => {
+            this._toast.showSuccess(`Client '${this.client.clientName}' was updated successfully.`);
+        });
+    }
 }

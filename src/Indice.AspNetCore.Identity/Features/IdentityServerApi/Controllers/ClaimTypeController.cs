@@ -14,28 +14,26 @@ namespace Indice.AspNetCore.Identity.Features
     /// <summary>
     /// Contains operations for managing application claim types.
     /// </summary>
-    [GenericControllerNameConvention]
     [Route("api/claim-types")]
     [ApiController]
     [ApiExplorerSettings(GroupName = "identity")]
     [Produces(MediaTypeNames.Application.Json)]
     [Consumes(MediaTypeNames.Application.Json)]
     [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme, Policy = IdentityServerApi.Admin)]
-    internal class ClaimTypeController<TUser, TRole> : ControllerBase
-        where TUser : User, new()
-        where TRole : Role, new()
+    [ProblemDetailsExceptionFilter]
+    internal class ClaimTypeController : ControllerBase
     {
-        private readonly ExtendedIdentityDbContext<TUser, TRole> _dbContext;
+        private readonly ExtendedIdentityDbContext<User, Role> _dbContext;
         /// <summary>
         /// The name of the controller.
         /// </summary>
         public const string Name = "ClaimType";
 
         /// <summary>
-        /// Creates an instance of <see cref="ClaimTypeController{TUser, TRole}"/>.
+        /// Creates an instance of <see cref="ClaimTypeController"/>.
         /// </summary>
         /// <param name="dbContext"><see cref="DbContext"/> for the Identity Framework.</param>
-        public ClaimTypeController(ExtendedIdentityDbContext<TUser, TRole> dbContext) {
+        public ClaimTypeController(ExtendedIdentityDbContext<User, Role> dbContext) {
             _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
         }
 
@@ -121,6 +119,7 @@ namespace Indice.AspNetCore.Identity.Features
         /// <response code="403">Forbidden</response>
         /// <response code="500">Internal Server Error</response>
         [HttpPost]
+        [ServiceFilter(type: typeof(CreateClaimTypeRequestValidationFilter))]
         [ProducesResponseType(statusCode: StatusCodes.Status201Created, type: typeof(ClaimTypeInfo))]
         [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest, type: typeof(ValidationProblemDetails))]
         [ProducesResponseType(statusCode: StatusCodes.Status401Unauthorized, type: typeof(ProblemDetails))]
@@ -137,6 +136,8 @@ namespace Indice.AspNetCore.Identity.Features
                 Reserved = false,
                 UserEditable = request.UserEditable
             };
+            var x = 3;
+            var y = x / 0;
             _dbContext.ClaimTypes.Add(claimType);
             await _dbContext.SaveChangesAsync();
             return CreatedAtAction(nameof(GetClaimType), Name, new { id = claimType.Id }, new ClaimTypeInfo {

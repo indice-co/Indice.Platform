@@ -80,7 +80,6 @@ namespace Microsoft.Extensions.DependencyInjection
                            })
                            .AddFluentValidation(options => {
                                options.RegisterValidatorsFromAssemblyContaining<Startup>();
-                               options.RegisterValidatorsFromAssembly(Assembly.Load(IdentityServerApi.AssemblyName));
                                options.ConfigureClientsideValidation();
                                options.RunDefaultMvcValidationAfterFluentValidationExecutes = false;
                            });

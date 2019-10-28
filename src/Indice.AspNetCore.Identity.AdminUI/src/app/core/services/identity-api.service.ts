@@ -72,6 +72,13 @@ export interface IIdentityApiService {
      */
     getClient(clientId: string): Observable<SingleClientInfo>;
     /**
+     * Updates an existing client.
+     * @param clientId The id of the client.
+     * @param body (optional) Contains info about the client to be updated.
+     * @return Ok
+     */
+    updateClient(clientId: string, body?: UpdateClientRequest | undefined): Observable<void>;
+    /**
      * Permanently deletes an existing client.
      * @param clientId The id of the client to delete.
      * @return OK
@@ -217,6 +224,15 @@ export interface IIdentityApiService {
      * @return Ok
      */
     deleteApiResourceScopeClaim(resourceId: number, scopeId: number, claim: string): Observable<void>;
+    /**
+     * Returns a list of Indice.AspNetCore.Identity.Features.ScopeInfo objects containing the total number of API scopes in the database and the data filtered according to the provided Indice.Types.ListOptions.
+     * @param page (optional) 
+     * @param size (optional) 
+     * @param sort (optional) 
+     * @param search (optional) 
+     * @return OK
+     */
+    getApiScopes(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined): Observable<ScopeInfoResultSet>;
     /**
      * Returns a list of Indice.AspNetCore.Identity.Features.RoleInfo objects containing the total number of roles in the database and the data filtered according to the provided Indice.Types.ListOptions.
      * @param page (optional) 
@@ -1057,6 +1073,88 @@ export class IdentityApiService implements IIdentityApiService {
             }));
         }
         return _observableOf<SingleClientInfo>(<any>null);
+    }
+
+    /**
+     * Updates an existing client.
+     * @param clientId The id of the client.
+     * @param body (optional) Contains info about the client to be updated.
+     * @return Ok
+     */
+    updateClient(clientId: string, body?: UpdateClientRequest | undefined): Observable<void> {
+        let url_ = this.baseUrl + "/api/clients/{clientId}";
+        if (clientId === undefined || clientId === null)
+            throw new Error("The parameter 'clientId' must be defined.");
+        url_ = url_.replace("{clientId}", encodeURIComponent("" + clientId)); 
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json", 
+            })
+        };
+
+        return this.http.request("put", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processUpdateClient(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processUpdateClient(<any>response_);
+                } catch (e) {
+                    return <Observable<void>><any>_observableThrow(e);
+                }
+            } else
+                return <Observable<void>><any>_observableThrow(response_);
+        }));
+    }
+
+    protected processUpdateClient(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob = 
+            response instanceof HttpResponse ? response.body : 
+            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }};
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return _observableOf<void>(<any>null);
+            }));
+        } else if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ValidationProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("Internal Server Error", status, _responseText, _headers);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<void>(<any>null);
     }
 
     /**
@@ -2852,6 +2950,103 @@ export class IdentityApiService implements IIdentityApiService {
             }));
         }
         return _observableOf<void>(<any>null);
+    }
+
+    /**
+     * Returns a list of Indice.AspNetCore.Identity.Features.ScopeInfo objects containing the total number of API scopes in the database and the data filtered according to the provided Indice.Types.ListOptions.
+     * @param page (optional) 
+     * @param size (optional) 
+     * @param sort (optional) 
+     * @param search (optional) 
+     * @return OK
+     */
+    getApiScopes(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined): Observable<ScopeInfoResultSet> {
+        let url_ = this.baseUrl + "/api/resources/protected/scopes?";
+        if (page === null)
+            throw new Error("The parameter 'page' cannot be null.");
+        else if (page !== undefined)
+            url_ += "Page=" + encodeURIComponent("" + page) + "&"; 
+        if (size === null)
+            throw new Error("The parameter 'size' cannot be null.");
+        else if (size !== undefined)
+            url_ += "Size=" + encodeURIComponent("" + size) + "&"; 
+        if (sort === null)
+            throw new Error("The parameter 'sort' cannot be null.");
+        else if (sort !== undefined)
+            url_ += "Sort=" + encodeURIComponent("" + sort) + "&"; 
+        if (search === null)
+            throw new Error("The parameter 'search' cannot be null.");
+        else if (search !== undefined)
+            url_ += "Search=" + encodeURIComponent("" + search) + "&"; 
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetApiScopes(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetApiScopes(<any>response_);
+                } catch (e) {
+                    return <Observable<ScopeInfoResultSet>><any>_observableThrow(e);
+                }
+            } else
+                return <Observable<ScopeInfoResultSet>><any>_observableThrow(response_);
+        }));
+    }
+
+    protected processGetApiScopes(response: HttpResponseBase): Observable<ScopeInfoResultSet> {
+        const status = response.status;
+        const responseBlob = 
+            response instanceof HttpResponse ? response.body : 
+            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }};
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = ScopeInfoResultSet.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ValidationProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("Internal Server Error", status, _responseText, _headers);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<ScopeInfoResultSet>(<any>null);
     }
 
     /**
@@ -4921,6 +5116,16 @@ export class CreateClientRequest implements ICreateClientRequest {
     clientType?: ClientType;
     /** The unique identifier for this application. */
     clientId?: string | undefined;
+    /** Allowed URL to return after logging in. */
+    redirectUri?: string | undefined;
+    /** Allowed URL to return after logout. */
+    postLogoutRedirectUri?: string | undefined;
+    /** The client secrets. */
+    secrets?: ClientSecretRequest[] | undefined;
+    /** The list of identity resources allowed by the client. */
+    identityResources?: string[] | undefined;
+    /** The list of API resources allowed by the client. */
+    apiResources?: string[] | undefined;
     /** Application name that will be seen on consent screens. */
     clientName?: string | undefined;
     /** Application URL that will be seen on consent screens. */
@@ -4931,16 +5136,6 @@ export class CreateClientRequest implements ICreateClientRequest {
     description?: string | undefined;
     /** Specifies whether a consent screen is required. */
     requireConsent?: boolean;
-    /** The list of identity resources allowed by the client. */
-    identityResources?: string[] | undefined;
-    /** The list of API resources allowed by the client. */
-    apiResources?: string[] | undefined;
-    /** Allowed URL to return after logging in. */
-    redirectUri?: string | undefined;
-    /** Allowed URL to return after logout. */
-    postLogoutRedirectUri?: string | undefined;
-    /** The client secrets. */
-    secrets?: ClientSecretRequest[] | undefined;
 
     constructor(data?: ICreateClientRequest) {
         if (data) {
@@ -4955,11 +5150,13 @@ export class CreateClientRequest implements ICreateClientRequest {
         if (_data) {
             this.clientType = _data["clientType"];
             this.clientId = _data["clientId"];
-            this.clientName = _data["clientName"];
-            this.clientUri = _data["clientUri"];
-            this.logoUri = _data["logoUri"];
-            this.description = _data["description"];
-            this.requireConsent = _data["requireConsent"];
+            this.redirectUri = _data["redirectUri"];
+            this.postLogoutRedirectUri = _data["postLogoutRedirectUri"];
+            if (Array.isArray(_data["secrets"])) {
+                this.secrets = [] as any;
+                for (let item of _data["secrets"])
+                    this.secrets!.push(ClientSecretRequest.fromJS(item));
+            }
             if (Array.isArray(_data["identityResources"])) {
                 this.identityResources = [] as any;
                 for (let item of _data["identityResources"])
@@ -4970,13 +5167,11 @@ export class CreateClientRequest implements ICreateClientRequest {
                 for (let item of _data["apiResources"])
                     this.apiResources!.push(item);
             }
-            this.redirectUri = _data["redirectUri"];
-            this.postLogoutRedirectUri = _data["postLogoutRedirectUri"];
-            if (Array.isArray(_data["secrets"])) {
-                this.secrets = [] as any;
-                for (let item of _data["secrets"])
-                    this.secrets!.push(ClientSecretRequest.fromJS(item));
-            }
+            this.clientName = _data["clientName"];
+            this.clientUri = _data["clientUri"];
+            this.logoUri = _data["logoUri"];
+            this.description = _data["description"];
+            this.requireConsent = _data["requireConsent"];
         }
     }
 
@@ -4991,11 +5186,13 @@ export class CreateClientRequest implements ICreateClientRequest {
         data = typeof data === 'object' ? data : {};
         data["clientType"] = this.clientType;
         data["clientId"] = this.clientId;
-        data["clientName"] = this.clientName;
-        data["clientUri"] = this.clientUri;
-        data["logoUri"] = this.logoUri;
-        data["description"] = this.description;
-        data["requireConsent"] = this.requireConsent;
+        data["redirectUri"] = this.redirectUri;
+        data["postLogoutRedirectUri"] = this.postLogoutRedirectUri;
+        if (Array.isArray(this.secrets)) {
+            data["secrets"] = [];
+            for (let item of this.secrets)
+                data["secrets"].push(item.toJSON());
+        }
         if (Array.isArray(this.identityResources)) {
             data["identityResources"] = [];
             for (let item of this.identityResources)
@@ -5006,13 +5203,11 @@ export class CreateClientRequest implements ICreateClientRequest {
             for (let item of this.apiResources)
                 data["apiResources"].push(item);
         }
-        data["redirectUri"] = this.redirectUri;
-        data["postLogoutRedirectUri"] = this.postLogoutRedirectUri;
-        if (Array.isArray(this.secrets)) {
-            data["secrets"] = [];
-            for (let item of this.secrets)
-                data["secrets"].push(item.toJSON());
-        }
+        data["clientName"] = this.clientName;
+        data["clientUri"] = this.clientUri;
+        data["logoUri"] = this.logoUri;
+        data["description"] = this.description;
+        data["requireConsent"] = this.requireConsent;
         return data; 
     }
 }
@@ -5022,6 +5217,16 @@ export interface ICreateClientRequest {
     clientType?: ClientType;
     /** The unique identifier for this application. */
     clientId?: string | undefined;
+    /** Allowed URL to return after logging in. */
+    redirectUri?: string | undefined;
+    /** Allowed URL to return after logout. */
+    postLogoutRedirectUri?: string | undefined;
+    /** The client secrets. */
+    secrets?: ClientSecretRequest[] | undefined;
+    /** The list of identity resources allowed by the client. */
+    identityResources?: string[] | undefined;
+    /** The list of API resources allowed by the client. */
+    apiResources?: string[] | undefined;
     /** Application name that will be seen on consent screens. */
     clientName?: string | undefined;
     /** Application URL that will be seen on consent screens. */
@@ -5032,16 +5237,6 @@ export interface ICreateClientRequest {
     description?: string | undefined;
     /** Specifies whether a consent screen is required. */
     requireConsent?: boolean;
-    /** The list of identity resources allowed by the client. */
-    identityResources?: string[] | undefined;
-    /** The list of API resources allowed by the client. */
-    apiResources?: string[] | undefined;
-    /** Allowed URL to return after logging in. */
-    redirectUri?: string | undefined;
-    /** Allowed URL to return after logout. */
-    postLogoutRedirectUri?: string | undefined;
-    /** The client secrets. */
-    secrets?: ClientSecretRequest[] | undefined;
 }
 
 export enum AccessTokenType {
@@ -5165,16 +5360,6 @@ export interface IClientSecretInfo {
 
 /** Models a system client when API provides info for a single client. */
 export class SingleClientInfo implements ISingleClientInfo {
-    /** Cors origins allowed. */
-    allowedCorsOrigins?: string[] | undefined;
-    /** Allowed URIs to redirect after logout. */
-    postLogoutRedirectUris?: string[] | undefined;
-    /** Allowed URIs to redirect after successful login. */
-    redirectUris?: string[] | undefined;
-    /** The API resources that the client has access to. */
-    apiResources?: string[] | undefined;
-    /** The identity resources that the client has access to. */
-    identityResources?: string[] | undefined;
     /** Lifetime of identity token in seconds. */
     identityTokenLifetime?: number | undefined;
     /** Lifetime of access token in seconds */
@@ -5212,6 +5397,16 @@ export class SingleClientInfo implements ISingleClientInfo {
     grantTypes?: string[] | undefined;
     /** List of available client secrets. */
     secrets?: ClientSecretInfo[] | undefined;
+    /** Cors origins allowed. */
+    allowedCorsOrigins?: string[] | undefined;
+    /** Allowed URIs to redirect after logout. */
+    postLogoutRedirectUris?: string[] | undefined;
+    /** Allowed URIs to redirect after successful login. */
+    redirectUris?: string[] | undefined;
+    /** The API resources that the client has access to. */
+    apiResources?: string[] | undefined;
+    /** The identity resources that the client has access to. */
+    identityResources?: string[] | undefined;
     /** The unique identifier for this application. */
     clientId?: string | undefined;
     /** Application name that will be seen on consent screens. */
@@ -5242,31 +5437,6 @@ export class SingleClientInfo implements ISingleClientInfo {
 
     init(_data?: any) {
         if (_data) {
-            if (Array.isArray(_data["allowedCorsOrigins"])) {
-                this.allowedCorsOrigins = [] as any;
-                for (let item of _data["allowedCorsOrigins"])
-                    this.allowedCorsOrigins!.push(item);
-            }
-            if (Array.isArray(_data["postLogoutRedirectUris"])) {
-                this.postLogoutRedirectUris = [] as any;
-                for (let item of _data["postLogoutRedirectUris"])
-                    this.postLogoutRedirectUris!.push(item);
-            }
-            if (Array.isArray(_data["redirectUris"])) {
-                this.redirectUris = [] as any;
-                for (let item of _data["redirectUris"])
-                    this.redirectUris!.push(item);
-            }
-            if (Array.isArray(_data["apiResources"])) {
-                this.apiResources = [] as any;
-                for (let item of _data["apiResources"])
-                    this.apiResources!.push(item);
-            }
-            if (Array.isArray(_data["identityResources"])) {
-                this.identityResources = [] as any;
-                for (let item of _data["identityResources"])
-                    this.identityResources!.push(item);
-            }
             this.identityTokenLifetime = _data["identityTokenLifetime"];
             this.accessTokenLifetime = _data["accessTokenLifetime"];
             this.consentLifetime = _data["consentLifetime"];
@@ -5298,6 +5468,31 @@ export class SingleClientInfo implements ISingleClientInfo {
                 for (let item of _data["secrets"])
                     this.secrets!.push(ClientSecretInfo.fromJS(item));
             }
+            if (Array.isArray(_data["allowedCorsOrigins"])) {
+                this.allowedCorsOrigins = [] as any;
+                for (let item of _data["allowedCorsOrigins"])
+                    this.allowedCorsOrigins!.push(item);
+            }
+            if (Array.isArray(_data["postLogoutRedirectUris"])) {
+                this.postLogoutRedirectUris = [] as any;
+                for (let item of _data["postLogoutRedirectUris"])
+                    this.postLogoutRedirectUris!.push(item);
+            }
+            if (Array.isArray(_data["redirectUris"])) {
+                this.redirectUris = [] as any;
+                for (let item of _data["redirectUris"])
+                    this.redirectUris!.push(item);
+            }
+            if (Array.isArray(_data["apiResources"])) {
+                this.apiResources = [] as any;
+                for (let item of _data["apiResources"])
+                    this.apiResources!.push(item);
+            }
+            if (Array.isArray(_data["identityResources"])) {
+                this.identityResources = [] as any;
+                for (let item of _data["identityResources"])
+                    this.identityResources!.push(item);
+            }
             this.clientId = _data["clientId"];
             this.clientName = _data["clientName"];
             this.description = _data["description"];
@@ -5319,31 +5514,6 @@ export class SingleClientInfo implements ISingleClientInfo {
 
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
-        if (Array.isArray(this.allowedCorsOrigins)) {
-            data["allowedCorsOrigins"] = [];
-            for (let item of this.allowedCorsOrigins)
-                data["allowedCorsOrigins"].push(item);
-        }
-        if (Array.isArray(this.postLogoutRedirectUris)) {
-            data["postLogoutRedirectUris"] = [];
-            for (let item of this.postLogoutRedirectUris)
-                data["postLogoutRedirectUris"].push(item);
-        }
-        if (Array.isArray(this.redirectUris)) {
-            data["redirectUris"] = [];
-            for (let item of this.redirectUris)
-                data["redirectUris"].push(item);
-        }
-        if (Array.isArray(this.apiResources)) {
-            data["apiResources"] = [];
-            for (let item of this.apiResources)
-                data["apiResources"].push(item);
-        }
-        if (Array.isArray(this.identityResources)) {
-            data["identityResources"] = [];
-            for (let item of this.identityResources)
-                data["identityResources"].push(item);
-        }
         data["identityTokenLifetime"] = this.identityTokenLifetime;
         data["accessTokenLifetime"] = this.accessTokenLifetime;
         data["consentLifetime"] = this.consentLifetime;
@@ -5375,6 +5545,31 @@ export class SingleClientInfo implements ISingleClientInfo {
             for (let item of this.secrets)
                 data["secrets"].push(item.toJSON());
         }
+        if (Array.isArray(this.allowedCorsOrigins)) {
+            data["allowedCorsOrigins"] = [];
+            for (let item of this.allowedCorsOrigins)
+                data["allowedCorsOrigins"].push(item);
+        }
+        if (Array.isArray(this.postLogoutRedirectUris)) {
+            data["postLogoutRedirectUris"] = [];
+            for (let item of this.postLogoutRedirectUris)
+                data["postLogoutRedirectUris"].push(item);
+        }
+        if (Array.isArray(this.redirectUris)) {
+            data["redirectUris"] = [];
+            for (let item of this.redirectUris)
+                data["redirectUris"].push(item);
+        }
+        if (Array.isArray(this.apiResources)) {
+            data["apiResources"] = [];
+            for (let item of this.apiResources)
+                data["apiResources"].push(item);
+        }
+        if (Array.isArray(this.identityResources)) {
+            data["identityResources"] = [];
+            for (let item of this.identityResources)
+                data["identityResources"].push(item);
+        }
         data["clientId"] = this.clientId;
         data["clientName"] = this.clientName;
         data["description"] = this.description;
@@ -5390,16 +5585,6 @@ export class SingleClientInfo implements ISingleClientInfo {
 
 /** Models a system client when API provides info for a single client. */
 export interface ISingleClientInfo {
-    /** Cors origins allowed. */
-    allowedCorsOrigins?: string[] | undefined;
-    /** Allowed URIs to redirect after logout. */
-    postLogoutRedirectUris?: string[] | undefined;
-    /** Allowed URIs to redirect after successful login. */
-    redirectUris?: string[] | undefined;
-    /** The API resources that the client has access to. */
-    apiResources?: string[] | undefined;
-    /** The identity resources that the client has access to. */
-    identityResources?: string[] | undefined;
     /** Lifetime of identity token in seconds. */
     identityTokenLifetime?: number | undefined;
     /** Lifetime of access token in seconds */
@@ -5437,6 +5622,16 @@ export interface ISingleClientInfo {
     grantTypes?: string[] | undefined;
     /** List of available client secrets. */
     secrets?: ClientSecretInfo[] | undefined;
+    /** Cors origins allowed. */
+    allowedCorsOrigins?: string[] | undefined;
+    /** Allowed URIs to redirect after logout. */
+    postLogoutRedirectUris?: string[] | undefined;
+    /** Allowed URIs to redirect after successful login. */
+    redirectUris?: string[] | undefined;
+    /** The API resources that the client has access to. */
+    apiResources?: string[] | undefined;
+    /** The identity resources that the client has access to. */
+    identityResources?: string[] | undefined;
     /** The unique identifier for this application. */
     clientId?: string | undefined;
     /** Application name that will be seen on consent screens. */
@@ -5455,6 +5650,170 @@ export interface ISingleClientInfo {
     clientUri?: string | undefined;
     /** Specifies whether the client can be edited or not. */
     nonEditable?: boolean;
+}
+
+/** Models a client that will be updated on the server. */
+export class UpdateClientRequest implements IUpdateClientRequest {
+    /** Lifetime of identity token in seconds. */
+    identityTokenLifetime?: number;
+    /** Lifetime of access token in seconds */
+    accessTokenLifetime?: number;
+    /** Lifetime of a user consent in seconds. */
+    consentLifetime?: number;
+    /** The maximum duration (in seconds) since the last time the user authenticated. */
+    userSsoLifetime?: number;
+    /** Specifies logout URI at client for HTTP front-channel based logout. */
+    frontChannelLogoutUri?: string | undefined;
+    /** Gets or sets a salt value used in pair-wise subjectId generation for users of this client. */
+    pairWiseSubjectSalt?: string | undefined;
+    accessTokenType?: AccessTokenType;
+    /** Specifies is the user's session id should be sent to the FrontChannelLogoutUri. */
+    frontChannelLogoutSessionRequired?: boolean;
+    /** Gets or sets a value indicating whether JWT access tokens should include an identifier. */
+    includeJwtId?: boolean;
+    /** Controls whether access tokens are transmitted via the browser for this client. This can prevent accidental leakage of access tokens when multiple response types are allowed. */
+    allowAccessTokensViaBrowser?: boolean;
+    /** When requesting both an id token and access token, should the user claims always be added to the id token instead of requring the client to use the userinfo endpoint. */
+    alwaysIncludeUserClaimsInIdToken?: boolean;
+    /** Gets or sets a value indicating whether client claims should be always included in the access tokens - or only for client credentials flow. */
+    alwaysSendClientClaims?: boolean;
+    /** Lifetime of authorization code in seconds. */
+    authorizationCodeLifetime?: number;
+    /** Specifies whether a proof key is required for authorization code based token requests. */
+    requirePkce?: boolean;
+    /** Specifies whether a proof key can be sent using plain method. */
+    allowPlainTextPkce?: boolean;
+    /** Gets or sets a value to prefix it on client claim types. */
+    clientClaimsPrefix?: string | undefined;
+    /** Specifies whether consent screen is remembered after having been given. */
+    allowRememberConsent?: boolean;
+    /** Application name that will be seen on consent screens. */
+    clientName?: string | undefined;
+    /** Application URL that will be seen on consent screens. */
+    clientUri?: string | undefined;
+    /** Application logo that will be seen on consent screens. */
+    logoUri?: string | undefined;
+    /** Application description. */
+    description?: string | undefined;
+    /** Specifies whether a consent screen is required. */
+    requireConsent?: boolean;
+
+    constructor(data?: IUpdateClientRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.identityTokenLifetime = _data["identityTokenLifetime"];
+            this.accessTokenLifetime = _data["accessTokenLifetime"];
+            this.consentLifetime = _data["consentLifetime"];
+            this.userSsoLifetime = _data["userSsoLifetime"];
+            this.frontChannelLogoutUri = _data["frontChannelLogoutUri"];
+            this.pairWiseSubjectSalt = _data["pairWiseSubjectSalt"];
+            this.accessTokenType = _data["accessTokenType"];
+            this.frontChannelLogoutSessionRequired = _data["frontChannelLogoutSessionRequired"];
+            this.includeJwtId = _data["includeJwtId"];
+            this.allowAccessTokensViaBrowser = _data["allowAccessTokensViaBrowser"];
+            this.alwaysIncludeUserClaimsInIdToken = _data["alwaysIncludeUserClaimsInIdToken"];
+            this.alwaysSendClientClaims = _data["alwaysSendClientClaims"];
+            this.authorizationCodeLifetime = _data["authorizationCodeLifetime"];
+            this.requirePkce = _data["requirePkce"];
+            this.allowPlainTextPkce = _data["allowPlainTextPkce"];
+            this.clientClaimsPrefix = _data["clientClaimsPrefix"];
+            this.allowRememberConsent = _data["allowRememberConsent"];
+            this.clientName = _data["clientName"];
+            this.clientUri = _data["clientUri"];
+            this.logoUri = _data["logoUri"];
+            this.description = _data["description"];
+            this.requireConsent = _data["requireConsent"];
+        }
+    }
+
+    static fromJS(data: any): UpdateClientRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new UpdateClientRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["identityTokenLifetime"] = this.identityTokenLifetime;
+        data["accessTokenLifetime"] = this.accessTokenLifetime;
+        data["consentLifetime"] = this.consentLifetime;
+        data["userSsoLifetime"] = this.userSsoLifetime;
+        data["frontChannelLogoutUri"] = this.frontChannelLogoutUri;
+        data["pairWiseSubjectSalt"] = this.pairWiseSubjectSalt;
+        data["accessTokenType"] = this.accessTokenType;
+        data["frontChannelLogoutSessionRequired"] = this.frontChannelLogoutSessionRequired;
+        data["includeJwtId"] = this.includeJwtId;
+        data["allowAccessTokensViaBrowser"] = this.allowAccessTokensViaBrowser;
+        data["alwaysIncludeUserClaimsInIdToken"] = this.alwaysIncludeUserClaimsInIdToken;
+        data["alwaysSendClientClaims"] = this.alwaysSendClientClaims;
+        data["authorizationCodeLifetime"] = this.authorizationCodeLifetime;
+        data["requirePkce"] = this.requirePkce;
+        data["allowPlainTextPkce"] = this.allowPlainTextPkce;
+        data["clientClaimsPrefix"] = this.clientClaimsPrefix;
+        data["allowRememberConsent"] = this.allowRememberConsent;
+        data["clientName"] = this.clientName;
+        data["clientUri"] = this.clientUri;
+        data["logoUri"] = this.logoUri;
+        data["description"] = this.description;
+        data["requireConsent"] = this.requireConsent;
+        return data; 
+    }
+}
+
+/** Models a client that will be updated on the server. */
+export interface IUpdateClientRequest {
+    /** Lifetime of identity token in seconds. */
+    identityTokenLifetime?: number;
+    /** Lifetime of access token in seconds */
+    accessTokenLifetime?: number;
+    /** Lifetime of a user consent in seconds. */
+    consentLifetime?: number;
+    /** The maximum duration (in seconds) since the last time the user authenticated. */
+    userSsoLifetime?: number;
+    /** Specifies logout URI at client for HTTP front-channel based logout. */
+    frontChannelLogoutUri?: string | undefined;
+    /** Gets or sets a salt value used in pair-wise subjectId generation for users of this client. */
+    pairWiseSubjectSalt?: string | undefined;
+    accessTokenType?: AccessTokenType;
+    /** Specifies is the user's session id should be sent to the FrontChannelLogoutUri. */
+    frontChannelLogoutSessionRequired?: boolean;
+    /** Gets or sets a value indicating whether JWT access tokens should include an identifier. */
+    includeJwtId?: boolean;
+    /** Controls whether access tokens are transmitted via the browser for this client. This can prevent accidental leakage of access tokens when multiple response types are allowed. */
+    allowAccessTokensViaBrowser?: boolean;
+    /** When requesting both an id token and access token, should the user claims always be added to the id token instead of requring the client to use the userinfo endpoint. */
+    alwaysIncludeUserClaimsInIdToken?: boolean;
+    /** Gets or sets a value indicating whether client claims should be always included in the access tokens - or only for client credentials flow. */
+    alwaysSendClientClaims?: boolean;
+    /** Lifetime of authorization code in seconds. */
+    authorizationCodeLifetime?: number;
+    /** Specifies whether a proof key is required for authorization code based token requests. */
+    requirePkce?: boolean;
+    /** Specifies whether a proof key can be sent using plain method. */
+    allowPlainTextPkce?: boolean;
+    /** Gets or sets a value to prefix it on client claim types. */
+    clientClaimsPrefix?: string | undefined;
+    /** Specifies whether consent screen is remembered after having been given. */
+    allowRememberConsent?: boolean;
+    /** Application name that will be seen on consent screens. */
+    clientName?: string | undefined;
+    /** Application URL that will be seen on consent screens. */
+    clientUri?: string | undefined;
+    /** Application logo that will be seen on consent screens. */
+    logoUri?: string | undefined;
+    /** Application description. */
+    description?: string | undefined;
+    /** Specifies whether a consent screen is required. */
+    requireConsent?: boolean;
 }
 
 /** Models a request to create a claim for an entity (e.x user or client). */
@@ -6379,6 +6738,54 @@ export interface IUpdateApiScopeRequest {
     displayName?: string | undefined;
     /** Description of the resource. */
     description?: string | undefined;
+}
+
+export class ScopeInfoResultSet implements IScopeInfoResultSet {
+    count?: number;
+    items?: ScopeInfo[] | undefined;
+
+    constructor(data?: IScopeInfoResultSet) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.count = _data["count"];
+            if (Array.isArray(_data["items"])) {
+                this.items = [] as any;
+                for (let item of _data["items"])
+                    this.items!.push(ScopeInfo.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): ScopeInfoResultSet {
+        data = typeof data === 'object' ? data : {};
+        let result = new ScopeInfoResultSet();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["count"] = this.count;
+        if (Array.isArray(this.items)) {
+            data["items"] = [];
+            for (let item of this.items)
+                data["items"].push(item.toJSON());
+        }
+        return data; 
+    }
+}
+
+export interface IScopeInfoResultSet {
+    count?: number;
+    items?: ScopeInfo[] | undefined;
 }
 
 /** Models an system role. */

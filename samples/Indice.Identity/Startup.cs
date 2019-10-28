@@ -2,13 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using Hellang.Middleware.ProblemDetails;
 using Indice.AspNetCore.Identity.Features;
 using Indice.AspNetCore.Swagger;
 using Indice.Configuration;
 using Indice.Identity.Configuration;
 using Indice.Identity.Security;
-using Indice.Identity.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -83,7 +81,6 @@ namespace Indice.Identity
             services.AddCsp(options => {
                 options.AddSandbox("allow-popups");
             });
-            services.AddProblemDetailsConfig(HostingEnvironment);
             services.AddSpaStaticFiles(options => {
                 options.RootPath = "wwwroot/admin-ui";
             });
@@ -124,9 +121,6 @@ namespace Indice.Identity
             app.UseSpaStaticFiles();
             app.UseResponseCaching();
             app.UseCookiePolicy();
-            app.UseWhen(context => context.Request.Path.StartsWithSegments("/api"), branch => {
-                branch.UseProblemDetails();
-            });
             app.UseSwagger();
             var enableSwagger = HostingEnvironment.IsDevelopment() || Configuration.GetValue<bool>($"{GeneralSettings.Name}:SwaggerUI");
             if (enableSwagger) {

@@ -67,7 +67,7 @@ namespace Indice.AspNetCore.Identity.Features
     }
 
     /// <summary>
-    /// Models a resource (identity or API).
+    /// Models a resource request (identity or API).
     /// </summary>
     public class BasicResourceRequest
     {

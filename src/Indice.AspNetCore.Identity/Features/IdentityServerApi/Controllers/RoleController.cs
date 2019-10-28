@@ -14,26 +14,25 @@ namespace Indice.AspNetCore.Identity.Features
     /// <summary>
     /// Contains operations for managing application roles.
     /// </summary>
-    [GenericControllerNameConvention]
     [Route("api/roles")]
     [ApiController]
     [ApiExplorerSettings(GroupName = "identity")]
     [Produces(MediaTypeNames.Application.Json)]
     [Consumes(MediaTypeNames.Application.Json)]
     [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme, Policy = IdentityServerApi.Admin)]
-    internal class RoleController<TRole> : ControllerBase where TRole : Role, new()
+    internal class RoleController : ControllerBase
     {
-        private readonly RoleManager<TRole> _roleManager;
+        private readonly RoleManager<Role> _roleManager;
         /// <summary>
         /// The name of the controller.
         /// </summary>
         public const string Name = "Role";
 
         /// <summary>
-        /// Creates an instance of <see cref="RoleController{TRole}"/>.
+        /// Creates an instance of <see cref="RoleController"/>.
         /// </summary>
         /// <param name="roleManager">Provides the APIs for managing roles in a persistence store.</param>
-        public RoleController(RoleManager<TRole> roleManager) {
+        public RoleController(RoleManager<Role> roleManager) {
             _roleManager = roleManager ?? throw new ArgumentNullException(nameof(roleManager));
         }
 
@@ -104,12 +103,13 @@ namespace Indice.AspNetCore.Identity.Features
         /// <response code="403">Forbidden</response>
         /// <response code="500">Internal Server Error</response>
         [HttpPost]
+        [ServiceFilter(type: typeof(CreateRoleRequestValidationFilter))]
         [ProducesResponseType(statusCode: StatusCodes.Status201Created, type: typeof(RoleInfo))]
         [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest, type: typeof(ValidationProblemDetails))]
         [ProducesResponseType(statusCode: StatusCodes.Status401Unauthorized, type: typeof(ProblemDetails))]
         [ProducesResponseType(statusCode: StatusCodes.Status403Forbidden, type: typeof(ProblemDetails))]
         public async Task<ActionResult<RoleInfo>> CreateRole([FromBody]CreateRoleRequest request) {
-            var role = new TRole {
+            var role = new Role {
                 Id = $"{Guid.NewGuid()}",
                 Name = request.Name,
                 Description = request.Description

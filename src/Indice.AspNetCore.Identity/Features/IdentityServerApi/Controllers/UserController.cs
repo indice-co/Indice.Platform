@@ -22,21 +22,18 @@ namespace Indice.AspNetCore.Identity.Features
     /// <summary>
     /// Contains operations for managing application's users.
     /// </summary>
-    [GenericControllerNameConvention]
     [Route("api/users")]
     [ApiController]
     [ApiExplorerSettings(GroupName = "identity")]
     [Produces(MediaTypeNames.Application.Json)]
     [Consumes(MediaTypeNames.Application.Json)]
     [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme, Policy = IdentityServerApi.SubScopes.Users)]
-    internal class UserController<TUser, TRole> : ControllerBase
-        where TUser : User, new()
-        where TRole : Role, new()
+    internal class UserController : ControllerBase
     {
-        private readonly UserManager<TUser> _userManager;
-        private readonly RoleManager<TRole> _roleManager;
+        private readonly UserManager<User> _userManager;
+        private readonly RoleManager<Role> _roleManager;
         private readonly IDistributedCache _cache;
-        private readonly ExtendedIdentityDbContext<TUser, TRole> _dbContext;
+        private readonly ExtendedIdentityDbContext<User, Role> _dbContext;
         private readonly IPersistedGrantService _persistedGrantService;
         private readonly IClientStore _clientStore;
         private readonly IdentityServerApiEndpointsOptions _apiEndpointsOptions;
@@ -48,7 +45,7 @@ namespace Indice.AspNetCore.Identity.Features
         public const string Name = "User";
 
         /// <summary>
-        /// Creates an instance of <see cref="UserController{TUser, TRole}"/>.
+        /// Creates an instance of <see cref="UserController"/>.
         /// </summary>
         /// <param name="userManager">Provides the APIs for managing user in a persistence store.</param>
         /// <param name="roleManager">Provides the APIs for managing roles in a persistence store.</param>
@@ -58,7 +55,7 @@ namespace Indice.AspNetCore.Identity.Features
         /// <param name="clientStore">Retrieval of client configuration.</param>
         /// <param name="apiEndpointsOptions">Options for configuring the IdentityServer API feature.</param>
         /// <param name="eventService">Models the event mechanism used to raise events inside the IdentityServer API.</param>
-        public UserController(UserManager<TUser> userManager, RoleManager<TRole> roleManager, IDistributedCache cache, ExtendedIdentityDbContext<TUser, TRole> dbContext, IPersistedGrantService persistedGrantService, IClientStore clientStore,
+        public UserController(UserManager<User> userManager, RoleManager<Role> roleManager, IDistributedCache cache, ExtendedIdentityDbContext<User, Role> dbContext, IPersistedGrantService persistedGrantService, IClientStore clientStore,
             IdentityServerApiEndpointsOptions apiEndpointsOptions, IEventService eventService) {
             _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
             _roleManager = roleManager ?? throw new ArgumentNullException(nameof(roleManager));
@@ -186,7 +183,7 @@ namespace Indice.AspNetCore.Identity.Features
         [ProducesResponseType(statusCode: StatusCodes.Status401Unauthorized, type: typeof(ProblemDetails))]
         [ProducesResponseType(statusCode: StatusCodes.Status403Forbidden, type: typeof(ProblemDetails))]
         public async Task<ActionResult<SingleUserInfo>> CreateUser([FromBody]CreateUserRequest request) {
-            var user = new TUser {
+            var user = new User {
                 Id = $"{Guid.NewGuid()}",
                 UserName = request.UserName,
                 Email = request.Email,

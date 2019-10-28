@@ -9,7 +9,7 @@ namespace Indice.Identity.Security
     /// <summary>
     /// Contains methods to get the system's predefined identity and API resources.
     /// </summary>
-    public class Resources
+    public static class Resources
     {
         /// <summary>
         /// Gets the system's predefined identity resources.

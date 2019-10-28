@@ -3,8 +3,8 @@ import { Injectable } from '@angular/core';
 import { AsyncSubject, Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import {
-    IdentityApiService, SingleClientInfo, IdentityResourceInfoResultSet, IdentityResourceInfo, ApiResourceInfo, ApiResourceInfoResultSet, CreateClaimRequest,
-    ClaimInfo
+    IdentityApiService, SingleClientInfo, IdentityResourceInfoResultSet, IdentityResourceInfo, ApiResourceInfo, CreateClaimRequest, ClaimInfo, UpdateClientRequest, IUpdateClientRequest, 
+    ScopeInfo, ScopeInfoResultSet
 } from 'src/app/core/services/identity-api.service';
 import { UrlType } from './urls/models/urlType';
 
@@ -12,7 +12,7 @@ import { UrlType } from './urls/models/urlType';
 export class ClientStore {
     private _client: AsyncSubject<SingleClientInfo>;
     private _identityResources: AsyncSubject<IdentityResourceInfo[]>;
-    private _apiResources: AsyncSubject<IdentityResourceInfo[]>;
+    private _apiScopes: AsyncSubject<ScopeInfo[]>;
 
     constructor(private _api: IdentityApiService) { }
 
@@ -25,6 +25,36 @@ export class ClientStore {
             });
         }
         return this._client;
+    }
+
+    public updateClient(client: SingleClientInfo): Observable<void> {
+        return this._api.updateClient(client.clientId, new UpdateClientRequest({
+            accessTokenLifetime: client.accessTokenLifetime,
+            accessTokenType: client.accessTokenType,
+            allowAccessTokensViaBrowser: client.allowAccessTokensViaBrowser,
+            allowPlainTextPkce: client.allowPlainTextPkce,
+            allowRememberConsent: client.allowRememberConsent,
+            alwaysIncludeUserClaimsInIdToken: client.alwaysIncludeUserClaimsInIdToken,
+            alwaysSendClientClaims: client.alwaysSendClientClaims,
+            authorizationCodeLifetime: client.authorizationCodeLifetime,
+            clientClaimsPrefix: client.clientClaimsPrefix,
+            clientName: client.clientName,
+            clientUri: client.clientUri,
+            consentLifetime: client.consentLifetime,
+            description: client.description,
+            frontChannelLogoutSessionRequired: client.frontChannelLogoutSessionRequired,
+            frontChannelLogoutUri: client.frontChannelLogoutUri,
+            identityTokenLifetime: client.identityTokenLifetime,
+            includeJwtId: client.includeJwtId,
+            logoUri: client.logoUri,
+            pairWiseSubjectSalt: client.pairWiseSubjectSalt,
+            requireConsent: client.requireConsent,
+            requirePkce: client.requirePkce,
+            userSsoLifetime: client.userSsoLifetime
+        } as IUpdateClientRequest)).pipe(map(_ => {
+            this._client.next(client);
+            this._client.complete();
+        }));
     }
 
     public updateClientUrl(clientId: string, url: string, added: boolean, urlType: UrlType): void {
@@ -79,15 +109,15 @@ export class ClientStore {
         return this._identityResources;
     }
 
-    public getApiResources(): Observable<ApiResourceInfo[]> {
-        if (!this._apiResources) {
-            this._apiResources = new AsyncSubject<ApiResourceInfo[]>();
-            this._api.getApiResources(1, 2147483647, 'name+', undefined).subscribe((response: ApiResourceInfoResultSet) => {
-                this._apiResources.next(response.items);
-                this._apiResources.complete();
+    public getApiScopes(): Observable<ScopeInfo[]> {
+        if (!this._apiScopes) {
+            this._apiScopes = new AsyncSubject<ApiResourceInfo[]>();
+            this._api.getApiScopes(1, 2147483647, 'name+', undefined).subscribe((response: ScopeInfoResultSet) => {
+                this._apiScopes.next(response.items);
+                this._apiScopes.complete();
             });
         }
-        return this._apiResources;
+        return this._apiScopes;
     }
 
     public addClaim(clientId: string, claim: ClaimInfo): Observable<void> {

@@ -5,6 +5,7 @@ import { Subscription } from 'rxjs';
 import { ClientStore } from '../../client-store.service';
 import { SingleClientInfo } from 'src/app/core/services/identity-api.service';
 import { UtilitiesService } from 'src/app/core/services/utilities.services';
+import { ToastService } from 'src/app/layout/services/app-toast.service';
 
 @Component({
     selector: 'app-client-tokens',
@@ -13,7 +14,7 @@ import { UtilitiesService } from 'src/app/core/services/utilities.services';
 export class ClientTokensComponent implements OnInit, OnDestroy {
     private _getDataSubscription: Subscription;
 
-    constructor(private _route: ActivatedRoute, private _clientStore: ClientStore, public utilities: UtilitiesService) { }
+    constructor(private _route: ActivatedRoute, private _clientStore: ClientStore, public utilities: UtilitiesService, public _toast: ToastService) { }
 
     public client: SingleClientInfo;
 
@@ -30,5 +31,9 @@ export class ClientTokensComponent implements OnInit, OnDestroy {
         }
     }
 
-    public update(): void { }
+    public update(): void {
+        this._clientStore.updateClient(this.client).subscribe(_ => {
+            this._toast.showSuccess(`Client '${this.client.clientName}' was updated successfully.`);
+        });
+    }
 }

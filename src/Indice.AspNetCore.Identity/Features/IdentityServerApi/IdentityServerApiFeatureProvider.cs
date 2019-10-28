@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using Indice.AspNetCore.Identity.Models;
 using Microsoft.AspNetCore.Mvc.ApplicationParts;
 using Microsoft.AspNetCore.Mvc.Controllers;
 
@@ -13,12 +12,12 @@ namespace Indice.AspNetCore.Identity.Features
     internal class IdentityServerApiFeatureProvider : IApplicationFeatureProvider<ControllerFeature>
     {
         private static IReadOnlyList<TypeInfo> ControllerTypes => new List<TypeInfo>() {
-            typeof(ClaimTypeController<User, Role>).GetTypeInfo(),
+            typeof(ClaimTypeController).GetTypeInfo(),
             typeof(ClientController).GetTypeInfo(),
-            typeof(DashboardController<User>).GetTypeInfo(),
+            typeof(DashboardController).GetTypeInfo(),
             typeof(ResourcesController).GetTypeInfo(),
-            typeof(RoleController<Role>).GetTypeInfo(),
-            typeof(UserController<User, Role>).GetTypeInfo()
+            typeof(RoleController).GetTypeInfo(),
+            typeof(UserController).GetTypeInfo()
         };
 
         /// <summary>

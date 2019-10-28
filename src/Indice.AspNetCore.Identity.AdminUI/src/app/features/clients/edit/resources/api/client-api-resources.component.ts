@@ -24,15 +24,15 @@ export class ClientApiResourcesComponent implements OnInit, OnDestroy {
     public ngOnInit(): void {
         this.clientId = this._route.parent.parent.snapshot.params.id;
         const getClient = this._clientStore.getClient(this.clientId);
-        const getApiResources = this._clientStore.getApiResources();
-        this._getDataSubscription = forkJoin([getClient, getApiResources]).pipe(map((responses: [SingleClientInfo, ApiResourceInfo[]]) => {
+        const getApiScopes = this._clientStore.getApiScopes();
+        this._getDataSubscription = forkJoin([getClient, getApiScopes]).pipe(map((responses: [SingleClientInfo, ApiResourceInfo[]]) => {
             return {
                 client: responses[0],
-                apiResources: responses[1]
+                apiScopes: responses[1]
             };
-        })).subscribe((result: { client: SingleClientInfo, apiResources: ApiResourceInfo[] }) => {
+        })).subscribe((result: { client: SingleClientInfo, apiScopes: ApiResourceInfo[] }) => {
             const clientApiResources = result.client.apiResources;
-            const allApiResources = result.apiResources;
+            const allApiResources = result.apiScopes;
             this.availableResources = allApiResources.filter(x => !clientApiResources.includes(x.name));
             this.clientResources = allApiResources.filter(x => clientApiResources.includes(x.name));
         });

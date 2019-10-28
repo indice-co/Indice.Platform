@@ -24,7 +24,6 @@ namespace Indice.AspNetCore.Identity.Features
     /// <summary>
     /// Contains operations for managing application clients.
     /// </summary>
-    [GenericControllerNameConvention]
     [Route("api/clients")]
     [ApiController]
     [ApiExplorerSettings(GroupName = "identity")]
@@ -232,6 +231,53 @@ namespace Indice.AspNetCore.Identity.Features
                 await _eventService.Raise(new ClientCreatedEvent(response));
             }
             return CreatedAtAction(nameof(GetClient), new { clientId = client.ClientId }, response);
+        }
+
+        /// <summary>
+        /// Updates an existing client.
+        /// </summary>
+        /// <param name="clientId">The id of the client.</param>
+        /// <param name="request">Contains info about the client to be updated.</param>
+        /// <response code="200">Ok</response>
+        /// <response code="400">Bad Request</response>
+        /// <response code="401">Unauthorized</response>
+        /// <response code="403">Forbidden</response>
+        /// <response code="500">Internal Server Error</response>
+        [HttpPut("{clientId}")]
+        [ProducesResponseType(statusCode: StatusCodes.Status200OK)]
+        [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest, type: typeof(ValidationProblemDetails))]
+        [ProducesResponseType(statusCode: StatusCodes.Status401Unauthorized, type: typeof(ProblemDetails))]
+        [ProducesResponseType(statusCode: StatusCodes.Status403Forbidden, type: typeof(ProblemDetails))]
+        public async Task<IActionResult> UpdateClient([FromRoute]string clientId, [FromBody]UpdateClientRequest request) {
+            var client = await _configurationDbContext.Clients.SingleOrDefaultAsync(x => x.ClientId == clientId);
+            if (client == null) {
+                return NotFound();
+            }
+            client.ClientName = request.ClientName;
+            client.ClientUri = request.ClientUri;
+            client.LogoUri = request.LogoUri;
+            client.Description = request.Description;
+            client.RequireConsent = request.RequireConsent;
+            client.AllowRememberConsent = request.AllowRememberConsent;
+            client.IdentityTokenLifetime = request.IdentityTokenLifetime;
+            client.AccessTokenLifetime = request.AccessTokenLifetime;
+            client.ConsentLifetime = request.ConsentLifetime;
+            client.UserSsoLifetime = request.UserSsoLifetime;
+            client.FrontChannelLogoutUri = request.FrontChannelLogoutUri;
+            client.PairWiseSubjectSalt = request.PairWiseSubjectSalt;
+            client.AccessTokenType = (int)request.AccessTokenType;
+            client.FrontChannelLogoutSessionRequired = request.FrontChannelLogoutSessionRequired;
+            client.IncludeJwtId = request.IncludeJwtId;
+            client.AllowAccessTokensViaBrowser = request.AllowAccessTokensViaBrowser;
+            client.AlwaysIncludeUserClaimsInIdToken = request.AlwaysIncludeUserClaimsInIdToken;
+            client.AlwaysSendClientClaims = request.AlwaysSendClientClaims;
+            client.AuthorizationCodeLifetime = request.AuthorizationCodeLifetime;
+            client.RequirePkce = request.RequirePkce;
+            client.AllowPlainTextPkce = request.AllowPlainTextPkce;
+            client.ClientClaimsPrefix = request.ClientClaimsPrefix;
+            await _configurationDbContext.SaveChangesAsync();
+            await _cache.RemoveAsync(CacheKeys.Client(clientId));
+            return Ok();
         }
 
         /// <summary>

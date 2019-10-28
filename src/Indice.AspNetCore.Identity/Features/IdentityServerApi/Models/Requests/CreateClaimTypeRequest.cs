@@ -1,4 +1,7 @@
-﻿namespace Indice.AspNetCore.Identity.Features
+﻿using System.ComponentModel.DataAnnotations;
+using Indice.Configuration;
+
+namespace Indice.AspNetCore.Identity.Features
 {
     /// <summary>
     /// Models a claim type that will be created on the server.
@@ -8,14 +11,18 @@
         /// <summary>
         /// The name.
         /// </summary>
+        [Required]
+        [MaxLength(TextSizePresets.S64)]
         public string Name { get; set; }
         /// <summary>
         /// The name used for display purposes. If not set, <see cref="Name"/> is used.
         /// </summary>
+        [MaxLength(TextSizePresets.M128)]
         public string DisplayName { get; set; }
         /// <summary>
         /// A description.
         /// </summary>
+        [MaxLength(TextSizePresets.L1024)]
         public string Description { get; set; }
         /// <summary>
         /// Determines whether this claim is required to create new users.
@@ -28,6 +35,8 @@
         /// <summary>
         /// A regex rule that constraints the values of the claim.
         /// </summary>
+        [ValidRegularExpression]
+        [MaxLength(TextSizePresets.M512)]
         public string Rule { get; set; }
         /// <summary>
         /// The value type of the claim. 

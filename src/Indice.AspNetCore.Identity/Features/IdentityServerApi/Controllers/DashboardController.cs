@@ -21,26 +21,25 @@ namespace Indice.AspNetCore.Identity.Features
     /// <summary>
     /// A controller that provides useful information for the users.
     /// </summary>
-    [GenericControllerNameConvention]
     [Route("api/dashboard")]
     [ApiController]
     [ApiExplorerSettings(GroupName = "identity")]
     [Produces(MediaTypeNames.Application.Json)]
     [Consumes(MediaTypeNames.Application.Json)]
     [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme)]
-    internal class DashboardController<TUser> : ControllerBase where TUser : User, new()
+    internal class DashboardController : ControllerBase
     {
         private readonly IDistributedCache _cache;
-        private readonly UserManager<TUser> _userManager;
+        private readonly UserManager<User> _userManager;
         private readonly ExtendedConfigurationDbContext _configurationDbContext;
 
         /// <summary>
-        /// Creates a new instance of <see cref="DashboardController{TUser}"/>.
+        /// Creates a new instance of <see cref="DashboardController"/>.
         /// </summary>
         /// <param name="cache">Represents a distributed cache of serialized values.</param>
         /// <param name="userManager">Provides the APIs for managing user in a persistence store.</param>
         /// <param name="configurationDbContext">Abstraction for the configuration context.</param>
-        public DashboardController(IDistributedCache cache, UserManager<TUser> userManager, ExtendedConfigurationDbContext configurationDbContext) {
+        public DashboardController(IDistributedCache cache, UserManager<User> userManager, ExtendedConfigurationDbContext configurationDbContext) {
             _cache = cache ?? throw new ArgumentNullException(nameof(cache));
             _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
             _configurationDbContext = configurationDbContext ?? throw new ArgumentNullException(nameof(configurationDbContext));

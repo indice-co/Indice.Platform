@@ -9,7 +9,7 @@ namespace Indice.Identity.Security
     /// <summary>
     /// Contains helper methods to work with system clients.
     /// </summary>
-    public class Clients
+    public static class Clients
     {
         /// <summary>
         /// Get system's predefined clients.

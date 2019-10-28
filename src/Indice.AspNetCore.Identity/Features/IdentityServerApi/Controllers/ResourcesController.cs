@@ -15,7 +15,6 @@ namespace Indice.AspNetCore.Identity.Features
     /// <summary>
     /// Contains operations for managing application's identity and API resources.
     /// </summary>
-    [GenericControllerNameConvention]
     [Route("api/resources")]
     [ApiController]
     [ApiExplorerSettings(GroupName = "identity")]
@@ -199,17 +198,51 @@ namespace Indice.AspNetCore.Identity.Features
                 var searchTerm = options.Search.ToLower();
                 query = query.Where(x => x.Name.ToLower().Contains(searchTerm) || x.Description.ToLower().Contains(searchTerm));
             }
-            var apiResources = await query.Select(resource => new ApiResourceInfo {
-                Id = resource.Id,
-                Name = resource.Name,
-                DisplayName = resource.DisplayName,
-                Description = resource.Description,
-                Enabled = resource.Enabled,
-                NonEditable = resource.NonEditable,
-                AllowedClaims = resource.UserClaims.Select(e => e.Type)
+            var apiResources = await query.Select(x => new ApiResourceInfo {
+                Id = x.Id,
+                Name = x.Name,
+                DisplayName = x.DisplayName,
+                Description = x.Description,
+                Enabled = x.Enabled,
+                NonEditable = x.NonEditable,
+                AllowedClaims = x.UserClaims.Select(x => x.Type)
             })
             .ToResultSetAsync(options);
             return Ok(apiResources);
+        }
+
+        /// <summary>
+        /// Returns a list of <see cref="ScopeInfo"/> objects containing the total number of API scopes in the database and the data filtered according to the provided <see cref="ListOptions"/>.
+        /// </summary>
+        /// <param name="options">List params used to navigate through collections. Contains parameters such as sort, search, page number and page size.</param>
+        /// <response code="200">OK</response>
+        /// <response code="400">Bad Request</response>
+        /// <response code="401">Unauthorized</response>
+        /// <response code="403">Forbidden</response>
+        /// <response code="500">Internal Server Error</response>
+        [HttpGet("protected/scopes")]
+        [ProducesResponseType(statusCode: StatusCodes.Status200OK, type: typeof(ResultSet<ScopeInfo>))]
+        [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest, type: typeof(ValidationProblemDetails))]
+        [ProducesResponseType(statusCode: StatusCodes.Status401Unauthorized, type: typeof(ProblemDetails))]
+        [ProducesResponseType(statusCode: StatusCodes.Status403Forbidden, type: typeof(ProblemDetails))]
+        public async Task<ActionResult<ResultSet<ScopeInfo>>> GetApiScopes([FromQuery]ListOptions options) {
+            var query = _configurationDbContext.ApiResources.AsNoTracking();
+            if (!string.IsNullOrEmpty(options.Search)) {
+                var searchTerm = options.Search.ToLower();
+                query = query.Where(x => x.Name.ToLower().Contains(searchTerm) || x.Description.ToLower().Contains(searchTerm));
+            }
+            var apiScopes = await query.SelectMany(x => x.Scopes).Select(x => new ScopeInfo {
+                Id = x.Id,
+                Name = x.Name,
+                DisplayName = x.DisplayName,
+                Description = x.Description,
+                Emphasize = x.Emphasize,
+                Required = x.Required,
+                ShowInDiscoveryDocument = x.ShowInDiscoveryDocument,
+                UserClaims = x.UserClaims.Select(x => x.Type)
+            })
+            .ToResultSetAsync(options);
+            return Ok(apiScopes);
         }
 
         /// <summary>
