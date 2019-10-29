@@ -1,5 +1,6 @@
 ﻿using System;
 using IdentityModel;
+using Indice.AspNetCore.Identity.Data;
 using Indice.AspNetCore.Identity.Features;
 using Indice.AspNetCore.Identity.Models;
 using Indice.AspNetCore.Identity.Services;
@@ -47,6 +48,7 @@ namespace Microsoft.Extensions.DependencyInjection
             })
             .AddClaimsTransform<ExtendedUserClaimsPrincipalFactory<User, Role>>()
             .AddEntityFrameworkStores<ExtendedIdentityDbContext<User, Role>>()
+            .AddUserStore<ExtendedUserStore<ExtendedIdentityDbContext<User, Role>, User, Role>>()
             .AddDefaultTokenProviders();
         }
     }

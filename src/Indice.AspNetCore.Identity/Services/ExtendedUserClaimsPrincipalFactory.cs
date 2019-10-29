@@ -35,7 +35,9 @@ namespace Indice.AspNetCore.Identity.Services
     /// <summary>
     /// Generate the claims for a user. Extends the default principal created by the IdentityServer with custom claims.
     /// </summary>
-    public class ExtendedUserClaimsPrincipalFactory<TUser, TRole> : UserClaimsPrincipalFactory<TUser, TRole> where TUser : User where TRole : IdentityRole
+    public class ExtendedUserClaimsPrincipalFactory<TUser, TRole> : UserClaimsPrincipalFactory<TUser, TRole>
+        where TUser : User
+        where TRole : IdentityRole
     {
         /// <summary>
         /// Constructor for the extender user claims principal factory.

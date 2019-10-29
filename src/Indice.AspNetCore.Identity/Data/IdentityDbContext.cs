@@ -32,7 +32,6 @@ namespace Indice.AspNetCore.Identity.Data
         /// </summary>
         /// <param name="options">The options to be used by a <see cref="DbContext"/>.</param>
         public IdentityDbContext(DbContextOptions options) : base(options) { }
-
         /// <summary>
         /// Stores all previous passwords of a user for future validation checks.
         /// </summary>

@@ -13,11 +13,24 @@ namespace Indice.AspNetCore.Identity.Data
     /// <summary>
     /// Custom <see cref="UserStore"/> that provides password history features.
     /// </summary>
-    /// <typeparam name="TContext">The DbContext to use for the Identity framework.</typeparam>
-    public class ExtendedUserStore<TContext> : ExtendedUserStore where TContext : IdentityDbContext
+    public class ExtendedUserStore : ExtendedUserStore<IdentityDbContext, User, IdentityRole>
     {
         /// <summary>
-        /// Constructs the user store.
+        /// Creates a new instance of <see cref="ExtendedUserStore"/>.
+        /// </summary>
+        /// <param name="context">The DbContext to use for the Identity framework.</param>
+        /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
+        /// <param name="describer">Service to enable localization for application facing identity errors.</param>
+        public ExtendedUserStore(IdentityDbContext context, IConfiguration configuration, IdentityErrorDescriber describer = null) : base(context, configuration, describer) { }
+    }
+
+    /// <summary>
+    /// Custom <see cref="UserStore"/> that provides password history features.
+    /// </summary>
+    public class ExtendedUserStore<TContext> : ExtendedUserStore<TContext, User, IdentityRole> where TContext : IdentityDbContext<User, IdentityRole>
+    {
+        /// <summary>
+        /// Creates a new instance of <see cref="ExtendedUserStore"/>.
         /// </summary>
         /// <param name="context">The DbContext to use for the Identity framework.</param>
         /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
@@ -28,15 +41,18 @@ namespace Indice.AspNetCore.Identity.Data
     /// <summary>
     /// Custom <see cref="UserStore"/> that provides password history features.
     /// </summary>
-    public class ExtendedUserStore : UserStore<User>
+    public class ExtendedUserStore<TContext, TUser, TRole> : UserStore<TUser, TRole, TContext>
+        where TContext : IdentityDbContext<TUser, TRole>
+        where TUser : User
+        where TRole : IdentityRole
     {
         /// <summary>
-        /// Constructs the user store.
+        /// Creates a new instance of <see cref="ExtendedUserStore{TContext, TUser, TRole}"/>.
         /// </summary>
         /// <param name="context">The DbContext to use for the Identity framework.</param>
         /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
         /// <param name="describer">Service to enable localization for application facing identity errors.</param>
-        public ExtendedUserStore(IdentityDbContext context, IConfiguration configuration, IdentityErrorDescriber describer = null) : base(context, describer) {
+        public ExtendedUserStore(TContext context, IConfiguration configuration, IdentityErrorDescriber describer = null) : base(context, describer) {
             PasswordHistoryLimit = configuration.GetSection(nameof(PasswordOptions)).GetValue<int?>(nameof(PasswordHistoryLimit));
         }
 
@@ -54,14 +70,13 @@ namespace Indice.AspNetCore.Identity.Data
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the
         /// operation should be canceled.</param>
         /// <returns>The <see cref="Task"/> that represents the asynchronous operation.</returns>
-        public override async Task SetPasswordHashAsync(User user, string passwordHash, CancellationToken cancellationToken = default(CancellationToken)) {
+        public override async Task SetPasswordHashAsync(TUser user, string passwordHash, CancellationToken cancellationToken = default(CancellationToken)) {
             if (PasswordHistoryLimit.HasValue && !string.IsNullOrWhiteSpace(passwordHash)) {
                 var numberOfPasswordsToKeep = Math.Max(PasswordHistoryLimit.Value, 0);
                 var toPurge = await Context.Set<UserPassword>().Where(x => x.UserId == user.Id).OrderByDescending(x => x.DateCreated).Skip(numberOfPasswordsToKeep).ToArrayAsync();
                 Context.Set<UserPassword>().RemoveRange(toPurge);
                 await Context.Set<UserPassword>().AddAsync(new UserPassword { UserId = user.Id, DateCreated = DateTime.UtcNow, PasswordHash = passwordHash });
             }
-
             user.LastPasswordChangeDate = DateTime.UtcNow;
             await base.SetPasswordHashAsync(user, passwordHash, cancellationToken);
         }
@@ -72,7 +87,7 @@ namespace Indice.AspNetCore.Identity.Data
         /// <param name="user"></param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
         /// <returns>The <see cref="IdentityResult"/></returns>
-        public override Task<IdentityResult> CreateAsync(User user, CancellationToken cancellationToken = default(CancellationToken)) {
+        public override Task<IdentityResult> CreateAsync(TUser user, CancellationToken cancellationToken = default(CancellationToken)) {
             user.CreateDate = DateTimeOffset.UtcNow;
             return base.CreateAsync(user, cancellationToken);
         }
