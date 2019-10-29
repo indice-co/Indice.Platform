@@ -46,7 +46,7 @@ namespace Indice.Identity.Security
                 ClientId = "idsrv-admin-ui",
                 ClientName = "IdentityServer Management Tool",
                 AccessTokenType = AccessTokenType.Reference,
-                AllowAccessTokensViaBrowser = true,
+                AllowAccessTokensViaBrowser = false,
                 AllowedCorsOrigins = {
                     "http://localhost:4200",
                     "https://idsrv-admin-ui.azurewebsites.net"
