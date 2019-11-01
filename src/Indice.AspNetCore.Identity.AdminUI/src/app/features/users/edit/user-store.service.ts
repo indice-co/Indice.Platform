@@ -50,6 +50,10 @@ export class UserStore {
         }));
     }
 
+    public deleteUser(userId: string): Observable<void> {
+        return this._api.deleteUser(userId);
+    }
+
     public addUserRole(userId: string, role: RoleInfo): Observable<void> {
         this.getUser(userId).subscribe((user: SingleUserInfo) => {
             user.roles.push(role.name);

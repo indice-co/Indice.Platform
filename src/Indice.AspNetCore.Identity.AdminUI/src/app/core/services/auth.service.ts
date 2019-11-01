@@ -47,6 +47,10 @@ export class AuthService {
         return this.user.profile.email;
     }
 
+    public getSubjectId(): string {
+        return this.user.profile.sub;
+    }
+
     public getDisplayName(): string {
         if (this.user.profile.given_name && this.user.profile.family_name) {
             return `${this.user.profile.given_name} ${this.user.profile.family_name}`;
@@ -74,7 +78,7 @@ export class AuthService {
                 url: location
             }
         })
-            .catch(error => this.logger.log(error));
+        .catch(error => this.logger.log(error));
     }
 
     public async signinRedirectCallback(): Promise<User> {

@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 
 import { Subscription, forkJoin } from 'rxjs';
 import { map } from 'rxjs/operators';
@@ -9,6 +9,7 @@ import { ClaimType } from './models/claim-type.model';
 import { UserStore } from '../user-store.service';
 import { NgbDateCustomParserFormatter } from 'src/app/shared/services/custom-parser-formatter.service';
 import { ToastService } from 'src/app/layout/services/app-toast.service';
+import { AuthService } from 'src/app/core/services/auth.service';
 
 @Component({
     selector: 'app-user-details',
@@ -20,12 +21,15 @@ export class UserDetailsComponent implements OnInit, OnDestroy {
     private _routeDataSubscription: Subscription;
     private _getDataSubscription: Subscription;
 
-    constructor(private _route: ActivatedRoute, private _userStore: UserStore, private _dateParser: NgbDateCustomParserFormatter, public _toast: ToastService) { }
+    constructor(private _route: ActivatedRoute, private _userStore: UserStore, private _dateParser: NgbDateCustomParserFormatter, public _toast: ToastService,
+                private _router: Router, private _authService: AuthService) { }
 
     public user: SingleUserInfo;
     public requiredClaims: ClaimType[];
+    public currentUserId: string;
 
     public ngOnInit(): void {
+        this.currentUserId = this._authService.getSubjectId();
         const userId = this._route.parent.snapshot.params.id;
         const getUser = this._userStore.getUser(userId);
         const getClaims = this._userStore.getAllClaims();
@@ -59,7 +63,12 @@ export class UserDetailsComponent implements OnInit, OnDestroy {
         }
     }
 
-    public delete(): void { }
+    public delete(): void {
+        this._userStore.deleteUser(this.user.id).subscribe(_ => {
+            this._toast.showSuccess(`User '${this.user.userName}' was deleted successfully.`);
+            this._router.navigate(['../../'], { relativeTo: this._route });
+        });
+    }
 
     public update(): void {
         const requiredClaims = this.requiredClaims.map(x => Object.assign({}, x));

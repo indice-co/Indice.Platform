@@ -449,7 +449,7 @@ namespace Indice.AspNetCore.Identity.Features
                     Type = $"{x.Type}",
                     Description = x.Description,
                     Expiration = x.Expiration,
-                    Value = x.Value
+                    Value = x.Value.ToSha256()
                 })
                 .ToList();
             }

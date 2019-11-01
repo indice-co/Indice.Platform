@@ -25,5 +25,9 @@
         /// The initial password of the user.
         /// </summary>
         public string Password { get; set; }
+        /// <summary>
+        /// User's phone number.
+        /// </summary>
+        public string PhoneNumber { get; set; }
     }
 }

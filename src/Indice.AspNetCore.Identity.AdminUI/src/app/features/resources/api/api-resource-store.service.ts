@@ -64,6 +64,7 @@ export class ApiResourceStore {
 
     public addApiResourceScope(apiResourceId: number, scope: CreateApiScopeRequest): Observable<void> {
         const getApiResource = this.getApiResource(apiResourceId);
+        scope.showInDiscoveryDocument = true;
         const addScope = this._api.addApiResourceScope(apiResourceId, scope);
         return forkJoin([getApiResource, addScope]).pipe(map((responses: [ApiResourceInfo, ScopeInfo]) => {
             return {
@@ -72,6 +73,7 @@ export class ApiResourceStore {
             };
         })).pipe(map((result: { apiResource: ApiResourceInfo, addedScope: ScopeInfo }) => {
             result.apiResource.scopes.push(result.addedScope);
+            result.apiResource.scopes = result.apiResource.scopes.sort((left: ScopeInfo, right: ScopeInfo) => (left.name > right.name ? 1 : -1));
             this._apiResource.next(result.apiResource);
             this._apiResource.complete();
         }));

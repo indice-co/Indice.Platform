@@ -22,11 +22,18 @@ namespace Indice.AspNetCore.Identity.Features
     /// <summary>
     /// Contains operations for managing application's users.
     /// </summary>
+    /// <response code="400">Bad Request</response>
+    /// <response code="401">Unauthorized</response>
+    /// <response code="403">Forbidden</response>
+    /// <response code="500">Internal Server Error</response>
     [Route("api/users")]
     [ApiController]
     [ApiExplorerSettings(GroupName = "identity")]
     [Produces(MediaTypeNames.Application.Json)]
     [Consumes(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest, type: typeof(ValidationProblemDetails))]
+    [ProducesResponseType(statusCode: StatusCodes.Status401Unauthorized, type: typeof(ProblemDetails))]
+    [ProducesResponseType(statusCode: StatusCodes.Status403Forbidden, type: typeof(ProblemDetails))]
     [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme, Policy = IdentityServerApi.SubScopes.Users)]
     internal class UserController : ControllerBase
     {
@@ -72,15 +79,8 @@ namespace Indice.AspNetCore.Identity.Features
         /// </summary>
         /// <param name="options">List params used to navigate through collections. Contains parameters such as sort, search, page number and page size.</param>
         /// <response code="200">OK</response>
-        /// <response code="400">Bad Request</response>
-        /// <response code="401">Unauthorized</response>
-        /// <response code="403">Forbidden</response>
-        /// <response code="500">Internal Server Error</response>
         [HttpGet]
         [ProducesResponseType(statusCode: StatusCodes.Status200OK, type: typeof(ResultSet<UserInfo>))]
-        [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest, type: typeof(ValidationProblemDetails))]
-        [ProducesResponseType(statusCode: StatusCodes.Status401Unauthorized, type: typeof(ProblemDetails))]
-        [ProducesResponseType(statusCode: StatusCodes.Status403Forbidden, type: typeof(ProblemDetails))]
         public async Task<ActionResult<ResultSet<UserInfo>>> GetUsers([FromQuery]ListOptions options) {
             var query = _userManager.Users.AsNoTracking();
             if (!string.IsNullOrEmpty(options.Search)) {
@@ -113,16 +113,9 @@ namespace Indice.AspNetCore.Identity.Features
         /// </summary>
         /// <param name="userId">The identifier of the user.</param>
         /// <response code="200">OK</response>
-        /// <response code="400">Bad Request</response>
-        /// <response code="401">Unauthorized</response>
-        /// <response code="403">Forbidden</response>
         /// <response code="404">Not Found</response>
-        /// <response code="500">Internal Server Error</response>
         [HttpGet("{userId}")]
         [ProducesResponseType(statusCode: StatusCodes.Status200OK, type: typeof(SingleUserInfo))]
-        [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest, type: typeof(ValidationProblemDetails))]
-        [ProducesResponseType(statusCode: StatusCodes.Status401Unauthorized, type: typeof(ProblemDetails))]
-        [ProducesResponseType(statusCode: StatusCodes.Status403Forbidden, type: typeof(ProblemDetails))]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
         public async Task<ActionResult<SingleUserInfo>> GetUser([FromRoute]string userId) {
             async Task<SingleUserInfo> GetUserAsync() {
@@ -173,23 +166,22 @@ namespace Indice.AspNetCore.Identity.Features
         /// </summary>
         /// <param name="request">Contains info about the user to be created.</param>
         /// <response code="201">Created</response>
-        /// <response code="400">Bad Request</response>
-        /// <response code="401">Unauthorized</response>
-        /// <response code="403">Forbidden</response>
-        /// <response code="500">Internal Server Error</response>
         [HttpPost]
         [ProducesResponseType(statusCode: StatusCodes.Status201Created, type: typeof(SingleUserInfo))]
-        [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest, type: typeof(ValidationProblemDetails))]
-        [ProducesResponseType(statusCode: StatusCodes.Status401Unauthorized, type: typeof(ProblemDetails))]
-        [ProducesResponseType(statusCode: StatusCodes.Status403Forbidden, type: typeof(ProblemDetails))]
         public async Task<ActionResult<SingleUserInfo>> CreateUser([FromBody]CreateUserRequest request) {
             var user = new User {
                 Id = $"{Guid.NewGuid()}",
                 UserName = request.UserName,
                 Email = request.Email,
-                CreateDate = DateTime.UtcNow
+                CreateDate = DateTime.UtcNow,
+                PhoneNumber = request.PhoneNumber
             };
-            var result = await _userManager.CreateAsync(user, request.Password);
+            IdentityResult result = null;
+            if (string.IsNullOrEmpty(request.Password)) {
+                result = await _userManager.CreateAsync(user);
+            } else {
+                result = await _userManager.CreateAsync(user, request.Password);
+            }
             if (!result.Succeeded) {
                 return BadRequest(new ValidationProblemDetails(result.Errors.ToDictionary(x => x.Code, x => new[] { x.Description })));
             }
@@ -206,7 +198,8 @@ namespace Indice.AspNetCore.Identity.Features
             var response = new SingleUserInfo {
                 Id = user.Id,
                 UserName = user.UserName,
-                Email = user.Email
+                Email = user.Email,
+                PhoneNumber = user.PhoneNumber
             };
             if (_apiEndpointsOptions.RaiseEvents) {
                 await _eventService.Raise(new UserCreatedEvent(response));
@@ -220,15 +213,10 @@ namespace Indice.AspNetCore.Identity.Features
         /// <param name="userId">The id of the user to update.</param>
         /// <param name="request">Contains info about the user to update.</param>
         /// <response code="200">OK</response>
-        /// <response code="400">Bad Request</response>
-        /// <response code="401">Unauthorized</response>
-        /// <response code="403">Forbidden</response>
-        /// <response code="500">Internal Server Error</response>
+        /// <response code="404">Not Found</response>
         [HttpPut("{userId}")]
         [ProducesResponseType(statusCode: StatusCodes.Status200OK, type: typeof(SingleUserInfo))]
-        [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest, type: typeof(ValidationProblemDetails))]
-        [ProducesResponseType(statusCode: StatusCodes.Status401Unauthorized, type: typeof(ProblemDetails))]
-        [ProducesResponseType(statusCode: StatusCodes.Status403Forbidden, type: typeof(ProblemDetails))]
+        [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
         public async Task<ActionResult<SingleUserInfo>> UpdateUser([FromRoute]string userId, [FromBody]UpdateUserRequest request) {
             // Load user with his claims from the database.
             var foundUser = await _dbContext.Users.Include(x => x.Claims).SingleOrDefaultAsync(x => x.Id == userId);
@@ -290,20 +278,33 @@ namespace Indice.AspNetCore.Identity.Features
         }
 
         /// <summary>
+        /// Permanently deletes a user.
+        /// </summary>
+        /// <param name="userId">The id of the user to delete.</param>
+        /// <response code="200">OK</response>
+        /// <response code="404">Not Found</response>
+        [HttpDelete("{userId}")]
+        [ProducesResponseType(statusCode: StatusCodes.Status200OK)]
+        [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
+        public async Task<IActionResult> DeleteUser([FromRoute]string userId) {
+            var user = await _dbContext.Users.SingleOrDefaultAsync(x => x.Id == userId);
+            if (user == null) {
+                return NotFound();
+            }
+            await _userManager.DeleteAsync(user);
+            return Ok();
+        }
+
+        /// <summary>
         /// Adds a new role to the specified user.
         /// </summary>
         /// <param name="userId">The id of the user.</param>
         /// <param name="roleId">The id of the role.</param>
         /// <response code="200">OK</response>
-        /// <response code="400">Bad Request</response>
-        /// <response code="401">Unauthorized</response>
-        /// <response code="403">Forbidden</response>
-        /// <response code="500">Internal Server Error</response>
+        /// <response code="404">Not Found</response>
         [HttpPost("{userId}/roles/{roleId}")]
         [ProducesResponseType(statusCode: StatusCodes.Status200OK)]
-        [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest, type: typeof(ValidationProblemDetails))]
-        [ProducesResponseType(statusCode: StatusCodes.Status401Unauthorized, type: typeof(ProblemDetails))]
-        [ProducesResponseType(statusCode: StatusCodes.Status403Forbidden, type: typeof(ProblemDetails))]
+        [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
         public async Task<IActionResult> AddUserRole([FromRoute]string userId, [FromRoute]string roleId) {
             var user = await _userManager.FindByIdAsync(userId);
             if (user == null) {
@@ -329,15 +330,9 @@ namespace Indice.AspNetCore.Identity.Features
         /// <param name="userId">The id of the user.</param>
         /// <param name="roleId">The id of the role.</param>
         /// <response code="200">OK</response>
-        /// <response code="400">Bad Request</response>
-        /// <response code="401">Unauthorized</response>
-        /// <response code="403">Forbidden</response>
-        /// <response code="500">Internal Server Error</response>
+        /// <response code="404">Not Found</response>
         [HttpDelete("{userId}/roles/{roleId}")]
         [ProducesResponseType(statusCode: StatusCodes.Status200OK)]
-        [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest, type: typeof(ValidationProblemDetails))]
-        [ProducesResponseType(statusCode: StatusCodes.Status401Unauthorized, type: typeof(ProblemDetails))]
-        [ProducesResponseType(statusCode: StatusCodes.Status403Forbidden, type: typeof(ProblemDetails))]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
         public async Task<IActionResult> DeleteUserRole([FromRoute]string userId, [FromRoute]string roleId) {
             var user = await _userManager.FindByIdAsync(userId);
@@ -364,16 +359,9 @@ namespace Indice.AspNetCore.Identity.Features
         /// <param name="userId">The id of the user.</param>
         /// <param name="claimId">The id of the claim.</param>
         /// <response code="200">OK</response>
-        /// <response code="400">Bad Request</response>
-        /// <response code="401">Unauthorized</response>
-        /// <response code="403">Forbidden</response>
         /// <response code="404">Not Found</response>
-        /// <response code="500">Internal Server Error</response>
         [HttpGet("{userId}/claims/{claimId}")]
         [ProducesResponseType(statusCode: StatusCodes.Status200OK, type: typeof(BasicClaimInfo))]
-        [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest, type: typeof(ValidationProblemDetails))]
-        [ProducesResponseType(statusCode: StatusCodes.Status401Unauthorized, type: typeof(ProblemDetails))]
-        [ProducesResponseType(statusCode: StatusCodes.Status403Forbidden, type: typeof(ProblemDetails))]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
         public async Task<ActionResult<BasicClaimInfo>> GetUserClaim([FromRoute]string userId, [FromRoute]int claimId) {
             var claim = await _dbContext.UserClaims.AsNoTracking().SingleOrDefaultAsync(x => x.UserId == userId && x.Id == claimId);
@@ -392,15 +380,10 @@ namespace Indice.AspNetCore.Identity.Features
         /// <param name="userId">The id of the user.</param>
         /// <param name="request">The claim to add.</param>
         /// <response code="201">Created</response>
-        /// <response code="400">Bad Request</response>
-        /// <response code="401">Unauthorized</response>
-        /// <response code="403">Forbidden</response>
-        /// <response code="500">Internal Server Error</response>
+        /// <response code="404">Not Found</response>
         [HttpPost("{userId}/claims")]
         [ProducesResponseType(statusCode: StatusCodes.Status201Created, type: typeof(ClaimInfo))]
-        [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest, type: typeof(ValidationProblemDetails))]
-        [ProducesResponseType(statusCode: StatusCodes.Status401Unauthorized, type: typeof(ProblemDetails))]
-        [ProducesResponseType(statusCode: StatusCodes.Status403Forbidden, type: typeof(ProblemDetails))]
+        [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
         public async Task<ActionResult<ClaimInfo>> AddUserClaim([FromRoute]string userId, [FromBody]CreateClaimRequest request) {
             var user = await _dbContext.Users.AsNoTracking().SingleOrDefaultAsync(x => x.Id == userId);
             if (user == null) {
@@ -428,16 +411,9 @@ namespace Indice.AspNetCore.Identity.Features
         /// <param name="claimId">The id of the user claim.</param>
         /// <param name="request">Contains info about the user claim to update.</param>
         /// <response code="200">OK</response>
-        /// <response code="400">Bad Request</response>
-        /// <response code="401">Unauthorized</response>
-        /// <response code="403">Forbidden</response>
         /// <response code="404">Not Found</response>
-        /// <response code="500">Internal Server Error</response>
         [HttpPut("{userId}/claims/{claimId}")]
         [ProducesResponseType(statusCode: StatusCodes.Status200OK, type: typeof(ClaimInfo))]
-        [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest, type: typeof(ValidationProblemDetails))]
-        [ProducesResponseType(statusCode: StatusCodes.Status401Unauthorized, type: typeof(ProblemDetails))]
-        [ProducesResponseType(statusCode: StatusCodes.Status403Forbidden, type: typeof(ProblemDetails))]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
         public async Task<ActionResult<ClaimInfo>> UpdateUserClaim([FromRoute]string userId, [FromRoute]int claimId, [FromBody]UpdateUserClaimRequest request) {
             var userClaim = await _dbContext.UserClaims.SingleOrDefaultAsync(x => x.UserId == userId && x.Id == claimId);
@@ -460,16 +436,9 @@ namespace Indice.AspNetCore.Identity.Features
         /// <param name="userId">The id of the user.</param>
         /// <param name="claimId">The id of the claim to delete.</param>
         /// <response code="200">OK</response>
-        /// <response code="400">Bad Request</response>
-        /// <response code="401">Unauthorized</response>
-        /// <response code="403">Forbidden</response>
         /// <response code="404">Not Found</response>
-        /// <response code="500">Internal Server Error</response>
         [HttpDelete("{userId}/claims/{claimId}")]
         [ProducesResponseType(statusCode: StatusCodes.Status200OK)]
-        [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest, type: typeof(ValidationProblemDetails))]
-        [ProducesResponseType(statusCode: StatusCodes.Status401Unauthorized, type: typeof(ProblemDetails))]
-        [ProducesResponseType(statusCode: StatusCodes.Status403Forbidden, type: typeof(ProblemDetails))]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
         public async Task<IActionResult> DeleteUserClaim([FromRoute]string userId, [FromRoute]int claimId) {
             var userClaim = await _dbContext.UserClaims.SingleOrDefaultAsync(x => x.UserId == userId && x.Id == claimId);
@@ -487,16 +456,9 @@ namespace Indice.AspNetCore.Identity.Features
         /// </summary>
         /// <param name="userId">The id of the user.</param>
         /// <response code="200">OK</response>
-        /// <response code="400">Bad Request</response>
-        /// <response code="401">Unauthorized</response>
-        /// <response code="403">Forbidden</response>
         /// <response code="404">Not Found</response>
-        /// <response code="500">Internal Server Error</response>
         [HttpGet("{userId}/applications")]
         [ProducesResponseType(statusCode: StatusCodes.Status200OK, type: typeof(ResultSet<UserClientInfo>))]
-        [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest, type: typeof(ValidationProblemDetails))]
-        [ProducesResponseType(statusCode: StatusCodes.Status401Unauthorized, type: typeof(ProblemDetails))]
-        [ProducesResponseType(statusCode: StatusCodes.Status403Forbidden, type: typeof(ProblemDetails))]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
         public async Task<ActionResult<ResultSet<UserClientInfo>>> GetUserApplications([FromRoute]string userId) {
             var userGrants = await _persistedGrantService.GetAllGrantsAsync(userId);

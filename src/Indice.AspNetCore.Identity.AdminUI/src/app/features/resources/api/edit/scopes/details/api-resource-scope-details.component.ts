@@ -20,6 +20,7 @@ export class ApiResourceScopeDetailsComponent implements OnInit, OnDestroy {
     constructor(private _route: ActivatedRoute, private _apiResourceStore: ApiResourceStore, public _toast: ToastService, private _router: Router) { }
 
     @Input() public scope = new ScopeInfo();
+    @Input() public editable = false;
 
     public ngOnInit(): void {
         this._apiResourceId = +this._route.parent.snapshot.params.id;

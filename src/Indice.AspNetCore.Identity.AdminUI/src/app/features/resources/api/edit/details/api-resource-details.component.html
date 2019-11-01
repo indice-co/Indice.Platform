@@ -78,7 +78,8 @@
             </button>
             <button type="button"
                     class="btn btn-danger waves-effect m-r-5 float-right"
-                    (click)="deleteAlert.fire()">
+                    (click)="deleteAlert.fire()" 
+                    *ngIf="!apiResource.nonEditable">
                 Delete
             </button>
         </div>

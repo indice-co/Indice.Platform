@@ -99,12 +99,14 @@
     <div class="form-group">
         <div>
             <button type="submit"
-                    class="btn btn-primary waves-effect waves-light m-r-5">
+                    class="btn btn-primary waves-effect waves-light m-r-5" 
+                    *ngIf="editable">
                 Update
             </button>
             <button type="button"
                     class="btn btn-danger waves-effect m-r-5 float-right"
-                    (click)="deletePrompt(scope)">
+                    (click)="deletePrompt(scope)" 
+                    *ngIf="editable">
                 Delete
             </button>
         </div>
