@@ -120,78 +120,68 @@ namespace Indice.AspNetCore.Identity.Features
         [ProducesResponseType(statusCode: StatusCodes.Status401Unauthorized, type: typeof(ProblemDetails))]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
         [HttpGet("{clientId}")]
+        [CacheResourceFilter]
         public async Task<ActionResult<SingleClientInfo>> GetClient([FromRoute]string clientId) {
-            async Task<SingleClientInfo> GetClientAsync() {
-                // Load client from the database.
-                var query = _configurationDbContext.Clients.AsNoTracking();
-                var foundClient = await query.Select(x => new SingleClientInfo {
-                    ClientId = x.ClientId,
-                    ClientName = x.ClientName,
-                    ClientUri = x.ClientUri,
-                    LogoUri = x.LogoUri,
+            var client = await _configurationDbContext.Clients.AsNoTracking().Select(x => new SingleClientInfo {
+                ClientId = x.ClientId,
+                ClientName = x.ClientName,
+                ClientUri = x.ClientUri,
+                LogoUri = x.LogoUri,
+                Description = x.Description,
+                AllowRememberConsent = x.AllowRememberConsent,
+                Enabled = x.Enabled,
+                RequireConsent = x.RequireConsent,
+                AllowedCorsOrigins = x.AllowedCorsOrigins.Select(x => x.Origin),
+                PostLogoutRedirectUris = x.PostLogoutRedirectUris.Select(x => x.PostLogoutRedirectUri),
+                RedirectUris = x.RedirectUris.Select(x => x.RedirectUri),
+                IdentityTokenLifetime = x.IdentityTokenLifetime,
+                AccessTokenLifetime = x.AccessTokenLifetime,
+                ConsentLifetime = x.ConsentLifetime,
+                UserSsoLifetime = x.UserSsoLifetime,
+                FrontChannelLogoutUri = x.FrontChannelLogoutUri,
+                PairWiseSubjectSalt = x.PairWiseSubjectSalt,
+                AccessTokenType = x.AccessTokenType == 0 ? AccessTokenType.Jwt : AccessTokenType.Reference,
+                FrontChannelLogoutSessionRequired = x.FrontChannelLogoutSessionRequired,
+                IncludeJwtId = x.IncludeJwtId,
+                AllowAccessTokensViaBrowser = x.AllowAccessTokensViaBrowser,
+                AlwaysIncludeUserClaimsInIdToken = x.AlwaysIncludeUserClaimsInIdToken,
+                AlwaysSendClientClaims = x.AlwaysSendClientClaims,
+                AuthorizationCodeLifetime = x.AuthorizationCodeLifetime,
+                RequirePkce = x.RequirePkce,
+                AllowPlainTextPkce = x.AllowPlainTextPkce,
+                ClientClaimsPrefix = x.ClientClaimsPrefix,
+                GrantTypes = x.AllowedGrantTypes.Select(x => x.GrantType),
+                ApiResources = x.AllowedScopes.Join(
+                    _configurationDbContext.ApiResources.SelectMany(x => x.Scopes),
+                    clientScope => clientScope.Scope,
+                    apiScope => apiScope.Name,
+                    (clientScope, apiScope) => apiScope.Name
+                )
+                .Select(x => x),
+                IdentityResources = x.AllowedScopes.Join(
+                    _configurationDbContext.IdentityResources,
+                    clientScope => clientScope.Scope,
+                    identityResource => identityResource.Name,
+                    (clientScope, identityResource) => identityResource.Name
+                )
+                .Select(x => x),
+                Claims = x.Claims.Select(x => new ClaimInfo {
+                    Id = x.Id,
+                    Type = x.Type,
+                    Value = x.Value
+                }),
+                Secrets = x.ClientSecrets.Select(x => new ClientSecretInfo {
+                    Id = x.Id,
+                    Type = x.Type == nameof(SecretType.SharedSecret) ? SecretType.SharedSecret : SecretType.X509Thumbprint,
+                    Value = "*****",
                     Description = x.Description,
-                    AllowRememberConsent = x.AllowRememberConsent,
-                    Enabled = x.Enabled,
-                    RequireConsent = x.RequireConsent,
-                    AllowedCorsOrigins = x.AllowedCorsOrigins.Select(x => x.Origin),
-                    PostLogoutRedirectUris = x.PostLogoutRedirectUris.Select(x => x.PostLogoutRedirectUri),
-                    RedirectUris = x.RedirectUris.Select(x => x.RedirectUri),
-                    IdentityTokenLifetime = x.IdentityTokenLifetime,
-                    AccessTokenLifetime = x.AccessTokenLifetime,
-                    ConsentLifetime = x.ConsentLifetime,
-                    UserSsoLifetime = x.UserSsoLifetime,
-                    FrontChannelLogoutUri = x.FrontChannelLogoutUri,
-                    PairWiseSubjectSalt = x.PairWiseSubjectSalt,
-                    AccessTokenType = x.AccessTokenType == 0 ? AccessTokenType.Jwt : AccessTokenType.Reference,
-                    FrontChannelLogoutSessionRequired = x.FrontChannelLogoutSessionRequired,
-                    IncludeJwtId = x.IncludeJwtId,
-                    AllowAccessTokensViaBrowser = x.AllowAccessTokensViaBrowser,
-                    AlwaysIncludeUserClaimsInIdToken = x.AlwaysIncludeUserClaimsInIdToken,
-                    AlwaysSendClientClaims = x.AlwaysSendClientClaims,
-                    AuthorizationCodeLifetime = x.AuthorizationCodeLifetime,
-                    RequirePkce = x.RequirePkce,
-                    AllowPlainTextPkce = x.AllowPlainTextPkce,
-                    ClientClaimsPrefix = x.ClientClaimsPrefix,
-                    GrantTypes = x.AllowedGrantTypes.Select(x => x.GrantType),
-                    ApiResources = x.AllowedScopes.Join(
-                        _configurationDbContext.ApiResources.SelectMany(x => x.Scopes),
-                        clientScope => clientScope.Scope,
-                        apiScope => apiScope.Name,
-                        (clientScope, apiScope) => apiScope.Name
-                    )
-                    .Select(x => x),
-                    IdentityResources = x.AllowedScopes.Join(
-                        _configurationDbContext.IdentityResources,
-                        clientScope => clientScope.Scope,
-                        identityResource => identityResource.Name,
-                        (clientScope, identityResource) => identityResource.Name
-                    )
-                    .Select(x => x),
-                    Claims = x.Claims.Select(x => new ClaimInfo {
-                        Id = x.Id,
-                        Type = x.Type,
-                        Value = x.Value
-                    }),
-                    Secrets = x.ClientSecrets.Select(x => new ClientSecretInfo {
-                        Id = x.Id,
-                        Type = x.Type == nameof(SecretType.SharedSecret) ? SecretType.SharedSecret : SecretType.X509Thumbprint,
-                        Value = "*****",
-                        Description = x.Description,
-                        Expiration = x.Expiration
-                    })
+                    Expiration = x.Expiration
                 })
-                .SingleOrDefaultAsync(x => x.ClientId == clientId);
-                if (foundClient == null) {
-                    return null;
-                }
-                return foundClient;
-            }
-            // Retrieve the client by either the cache or the database.
-            var client = await _cache.TryGetOrSetAsync(CacheKeys.Client(clientId), GetClientAsync, TimeSpan.FromDays(7));
+            })
+            .SingleOrDefaultAsync(x => x.ClientId == clientId);
             if (client == null) {
                 return NotFound();
             }
-            // Return 200 status code containing the client information.
             return Ok(client);
         }
 
