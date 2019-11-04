@@ -25,7 +25,6 @@ namespace Indice.AspNetCore.Identity.Features
     [ApiExplorerSettings(GroupName = "identity")]
     [Produces(MediaTypeNames.Application.Json)]
     [Consumes(MediaTypeNames.Application.Json)]
-    [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme)]
     internal class DashboardController : ControllerBase
     {
         private readonly IDistributedCache _cache;
@@ -84,6 +83,7 @@ namespace Indice.AspNetCore.Identity.Features
         /// <summary>
         /// Gets some useful information as a summary of the system.
         /// </summary>
+        [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme)]
         [HttpGet("summary")]
         [ProducesResponseType(statusCode: StatusCodes.Status200OK, type: typeof(SummaryInfo))]
         [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest, type: typeof(ValidationProblemDetails))]

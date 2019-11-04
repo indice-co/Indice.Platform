@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 using IdentityModel;
 using IdentityServer4.EntityFramework.Entities;
 using IdentityServer4.Models;
-using Indice.AspNetCore.Extensions;
 using Indice.Configuration;
 using Indice.Security;
 using Indice.Types;
@@ -30,6 +29,7 @@ namespace Indice.AspNetCore.Identity.Features
     [Produces(MediaTypeNames.Application.Json)]
     [Consumes(MediaTypeNames.Application.Json)]
     [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme, Policy = IdentityServerApi.SubScopes.Clients)]
+    [CacheResourceFilter]
     internal class ClientController : ControllerBase
     {
         private readonly ExtendedConfigurationDbContext _configurationDbContext;
@@ -74,6 +74,7 @@ namespace Indice.AspNetCore.Identity.Features
         [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest, type: typeof(ValidationProblemDetails))]
         [ProducesResponseType(statusCode: StatusCodes.Status401Unauthorized, type: typeof(ProblemDetails))]
         [ProducesResponseType(statusCode: StatusCodes.Status403Forbidden, type: typeof(ProblemDetails))]
+        [NoCache]
         public async Task<ActionResult<ResultSet<ClientInfo>>> GetClients([FromQuery]ListOptions options) {
             IQueryable<Entities.Client> query = null;
             if (User.IsAdmin()) {
@@ -120,7 +121,6 @@ namespace Indice.AspNetCore.Identity.Features
         [ProducesResponseType(statusCode: StatusCodes.Status401Unauthorized, type: typeof(ProblemDetails))]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
         [HttpGet("{clientId}")]
-        [CacheResourceFilter]
         public async Task<ActionResult<SingleClientInfo>> GetClient([FromRoute]string clientId) {
             var client = await _configurationDbContext.Clients.AsNoTracking().Select(x => new SingleClientInfo {
                 ClientId = x.ClientId,

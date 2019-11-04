@@ -26,9 +26,10 @@
                 </option>
                 <option *ngFor="let grantType of availableGrantTypes"
                         [value]="grantType"
-                        [disabled]="client.grantTypes.indexOf(grantType) > -1">
+                        [disabled]="!canAddGrantType(grantType)">
                     {{ grantType }}
                 </option>
+                <option value="custom">custom</option>
             </select>
             <div *ngIf="grantTypesform.submitted && grantType.invalid"
                  class="form-control-feedback text-danger">

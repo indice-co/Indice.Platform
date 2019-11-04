@@ -4,23 +4,25 @@ import { ActivatedRoute } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 
 import { Subscription, from, forkJoin } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { TableColumn } from '@swimlane/ngx-datatable';
 import { ClientStore } from '../../client-store.service';
 import { SingleClientInfo, ClaimInfo } from 'src/app/core/services/identity-api.service';
 import { ToastService } from 'src/app/layout/services/app-toast.service';
 import { environment } from 'src/environments/environment';
-import { map } from 'rxjs/operators';
+import { GrantTypeStateMatrixService } from './grant-type-state-matrix.service';
 
 @Component({
     selector: 'app-client-grant-types',
-    templateUrl: './client-grant-types.component.html'
+    templateUrl: './client-grant-types.component.html',
+    providers: [GrantTypeStateMatrixService]
 })
 export class ClientGrantTypesComponent implements OnInit, OnDestroy {
     @ViewChild('actionsTemplate', { static: true }) private _actionsTemplate: TemplateRef<HTMLElement>;
     @ViewChild('grantTypesform', { static: false }) private _form: NgForm;
     private _getDataSubscription: Subscription;
 
-    constructor(private _route: ActivatedRoute, private _clientStore: ClientStore, private _toast: ToastService, private _httpClient: HttpClient) { }
+    constructor(private _route: ActivatedRoute, private _clientStore: ClientStore, private _toast: ToastService, private _httpClient: HttpClient, private _grantTypeStateMatrixService: GrantTypeStateMatrixService) { }
 
     public client: SingleClientInfo;
     public columns: TableColumn[] = [];
@@ -73,6 +75,22 @@ export class ClientGrantTypesComponent implements OnInit, OnDestroy {
             });
             this.rows = [...this.rows];
         });
+    }
+
+    public canAddGrantType(grantType: string): boolean {
+        // A grant type that is already owned by the client, cannot be added again.
+        if (this.client.grantTypes.indexOf(grantType) > -1) {
+            return false;
+        }
+        let result = true;
+        // Check if grant type in the list can be added to client according to the grant types that already owns.
+        for (const type of this.client.grantTypes) {
+            if (!this._grantTypeStateMatrixService.canGoTo(type, grantType)) {
+                result = false;
+                break;
+            }
+        }
+        return result;
     }
 
     public update(): void { }
