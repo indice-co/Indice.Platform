@@ -14,7 +14,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Options;
 using Entities = IdentityServer4.EntityFramework.Entities;
 
@@ -23,18 +22,24 @@ namespace Indice.AspNetCore.Identity.Features
     /// <summary>
     /// Contains operations for managing application clients.
     /// </summary>
+    /// <response code="400">Bad Request</response>
+    /// <response code="401">Unauthorized</response>
+    /// <response code="403">Forbidden</response>
+    /// <response code="500">Internal Server Error</response>
     [Route("api/clients")]
     [ApiController]
     [ApiExplorerSettings(GroupName = "identity")]
     [Produces(MediaTypeNames.Application.Json)]
     [Consumes(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest, type: typeof(ValidationProblemDetails))]
+    [ProducesResponseType(statusCode: StatusCodes.Status401Unauthorized, type: typeof(ProblemDetails))]
+    [ProducesResponseType(statusCode: StatusCodes.Status403Forbidden, type: typeof(ProblemDetails))]
     [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme, Policy = IdentityServerApi.SubScopes.Clients)]
     [CacheResourceFilter]
     internal class ClientController : ControllerBase
     {
         private readonly ExtendedConfigurationDbContext _configurationDbContext;
         private readonly GeneralSettings _generalSettings;
-        private readonly IDistributedCache _cache;
         private readonly IEventService _eventService;
         private readonly IdentityServerApiEndpointsOptions _apiEndpointsOptions;
         /// <summary>
@@ -47,13 +52,11 @@ namespace Indice.AspNetCore.Identity.Features
         /// </summary>
         /// <param name="configurationDbContext">Abstraction for the configuration context.</param>
         /// <param name="generalSettings">Applications general settings.</param>
-        /// <param name="cache">Represents a distributed cache of serialized values.</param>
         /// <param name="eventService">Models the event mechanism used to raise events inside the IdentityServer API.</param>
         /// <param name="apiEndpointsOptions">Options for configuring the IdentityServer API feature.</param>
-        public ClientController(ExtendedConfigurationDbContext configurationDbContext, IOptions<GeneralSettings> generalSettings, IDistributedCache cache, IEventService eventService, IdentityServerApiEndpointsOptions apiEndpointsOptions) {
+        public ClientController(ExtendedConfigurationDbContext configurationDbContext, IOptions<GeneralSettings> generalSettings, IEventService eventService, IdentityServerApiEndpointsOptions apiEndpointsOptions) {
             _configurationDbContext = configurationDbContext ?? throw new ArgumentNullException(nameof(configurationDbContext));
             _generalSettings = generalSettings?.Value ?? throw new ArgumentNullException(nameof(generalSettings));
-            _cache = cache ?? throw new ArgumentNullException(nameof(cache));
             _eventService = eventService ?? throw new ArgumentNullException(nameof(eventService));
             _apiEndpointsOptions = apiEndpointsOptions ?? throw new ArgumentNullException(nameof(apiEndpointsOptions));
         }
@@ -65,15 +68,8 @@ namespace Indice.AspNetCore.Identity.Features
         /// </summary>
         /// <param name="options">List params used to navigate through collections. Contains parameters such as sort, search, page number and page size.</param>
         /// <response code="200">OK</response>
-        /// <response code="400">Bad Request</response>
-        /// <response code="401">Unauthorized</response>
-        /// <response code="403">Forbidden</response>
-        /// <response code="500">Internal Server Error</response>
         [HttpGet]
         [ProducesResponseType(statusCode: StatusCodes.Status200OK, type: typeof(ResultSet<ClientInfo>))]
-        [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest, type: typeof(ValidationProblemDetails))]
-        [ProducesResponseType(statusCode: StatusCodes.Status401Unauthorized, type: typeof(ProblemDetails))]
-        [ProducesResponseType(statusCode: StatusCodes.Status403Forbidden, type: typeof(ProblemDetails))]
         [NoCache]
         public async Task<ActionResult<ResultSet<ClientInfo>>> GetClients([FromQuery]ListOptions options) {
             IQueryable<Entities.Client> query = null;
@@ -111,74 +107,70 @@ namespace Indice.AspNetCore.Identity.Features
         /// </summary>
         /// <param name="clientId">The identifier of the client.</param>
         /// <response code="200">OK</response>
-        /// <response code="400">Bad Request</response>
-        /// <response code="401">Unauthorized</response>
-        /// <response code="403">Forbidden</response>
         /// <response code="404">Not Found</response>
-        /// <response code="500">Internal Server Error</response>
         [ProducesResponseType(statusCode: StatusCodes.Status200OK, type: typeof(SingleClientInfo))]
-        [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest, type: typeof(ValidationProblemDetails))]
-        [ProducesResponseType(statusCode: StatusCodes.Status401Unauthorized, type: typeof(ProblemDetails))]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
         [HttpGet("{clientId}")]
         public async Task<ActionResult<SingleClientInfo>> GetClient([FromRoute]string clientId) {
-            var client = await _configurationDbContext.Clients.AsNoTracking().Select(x => new SingleClientInfo {
-                ClientId = x.ClientId,
-                ClientName = x.ClientName,
-                ClientUri = x.ClientUri,
-                LogoUri = x.LogoUri,
-                Description = x.Description,
-                AllowRememberConsent = x.AllowRememberConsent,
-                Enabled = x.Enabled,
-                RequireConsent = x.RequireConsent,
-                AllowedCorsOrigins = x.AllowedCorsOrigins.Select(x => x.Origin),
-                PostLogoutRedirectUris = x.PostLogoutRedirectUris.Select(x => x.PostLogoutRedirectUri),
-                RedirectUris = x.RedirectUris.Select(x => x.RedirectUri),
-                IdentityTokenLifetime = x.IdentityTokenLifetime,
-                AccessTokenLifetime = x.AccessTokenLifetime,
-                ConsentLifetime = x.ConsentLifetime,
-                UserSsoLifetime = x.UserSsoLifetime,
-                FrontChannelLogoutUri = x.FrontChannelLogoutUri,
-                PairWiseSubjectSalt = x.PairWiseSubjectSalt,
-                AccessTokenType = x.AccessTokenType == 0 ? AccessTokenType.Jwt : AccessTokenType.Reference,
-                FrontChannelLogoutSessionRequired = x.FrontChannelLogoutSessionRequired,
-                IncludeJwtId = x.IncludeJwtId,
-                AllowAccessTokensViaBrowser = x.AllowAccessTokensViaBrowser,
-                AlwaysIncludeUserClaimsInIdToken = x.AlwaysIncludeUserClaimsInIdToken,
-                AlwaysSendClientClaims = x.AlwaysSendClientClaims,
-                AuthorizationCodeLifetime = x.AuthorizationCodeLifetime,
-                RequirePkce = x.RequirePkce,
-                AllowPlainTextPkce = x.AllowPlainTextPkce,
-                ClientClaimsPrefix = x.ClientClaimsPrefix,
-                GrantTypes = x.AllowedGrantTypes.Select(x => x.GrantType),
-                ApiResources = x.AllowedScopes.Join(
-                    _configurationDbContext.ApiResources.SelectMany(x => x.Scopes),
-                    clientScope => clientScope.Scope,
-                    apiScope => apiScope.Name,
-                    (clientScope, apiScope) => apiScope.Name
-                )
-                .Select(x => x),
-                IdentityResources = x.AllowedScopes.Join(
-                    _configurationDbContext.IdentityResources,
-                    clientScope => clientScope.Scope,
-                    identityResource => identityResource.Name,
-                    (clientScope, identityResource) => identityResource.Name
-                )
-                .Select(x => x),
-                Claims = x.Claims.Select(x => new ClaimInfo {
-                    Id = x.Id,
-                    Type = x.Type,
-                    Value = x.Value
-                }),
-                Secrets = x.ClientSecrets.Select(x => new ClientSecretInfo {
-                    Id = x.Id,
-                    Type = x.Type == nameof(SecretType.SharedSecret) ? SecretType.SharedSecret : SecretType.X509Thumbprint,
-                    Value = "*****",
-                    Description = x.Description,
-                    Expiration = x.Expiration
-                })
-            })
-            .SingleOrDefaultAsync(x => x.ClientId == clientId);
+            var client = await _configurationDbContext.Clients
+                                                      .AsNoTracking()
+                                                      .Select(x => new SingleClientInfo {
+                                                          ClientId = x.ClientId,
+                                                          ClientName = x.ClientName,
+                                                          ClientUri = x.ClientUri,
+                                                          LogoUri = x.LogoUri,
+                                                          Description = x.Description,
+                                                          AllowRememberConsent = x.AllowRememberConsent,
+                                                          Enabled = x.Enabled,
+                                                          RequireConsent = x.RequireConsent,
+                                                          AllowedCorsOrigins = x.AllowedCorsOrigins.Select(x => x.Origin),
+                                                          PostLogoutRedirectUris = x.PostLogoutRedirectUris.Select(x => x.PostLogoutRedirectUri),
+                                                          RedirectUris = x.RedirectUris.Select(x => x.RedirectUri),
+                                                          IdentityTokenLifetime = x.IdentityTokenLifetime,
+                                                          AccessTokenLifetime = x.AccessTokenLifetime,
+                                                          ConsentLifetime = x.ConsentLifetime,
+                                                          UserSsoLifetime = x.UserSsoLifetime,
+                                                          FrontChannelLogoutUri = x.FrontChannelLogoutUri,
+                                                          PairWiseSubjectSalt = x.PairWiseSubjectSalt,
+                                                          AccessTokenType = x.AccessTokenType == 0 ? AccessTokenType.Jwt : AccessTokenType.Reference,
+                                                          FrontChannelLogoutSessionRequired = x.FrontChannelLogoutSessionRequired,
+                                                          IncludeJwtId = x.IncludeJwtId,
+                                                          AllowAccessTokensViaBrowser = x.AllowAccessTokensViaBrowser,
+                                                          AlwaysIncludeUserClaimsInIdToken = x.AlwaysIncludeUserClaimsInIdToken,
+                                                          AlwaysSendClientClaims = x.AlwaysSendClientClaims,
+                                                          AuthorizationCodeLifetime = x.AuthorizationCodeLifetime,
+                                                          RequirePkce = x.RequirePkce,
+                                                          AllowPlainTextPkce = x.AllowPlainTextPkce,
+                                                          ClientClaimsPrefix = x.ClientClaimsPrefix,
+                                                          GrantTypes = x.AllowedGrantTypes.Select(x => x.GrantType),
+                                                          ApiResources = x.AllowedScopes.Join(
+                                                              _configurationDbContext.ApiResources.SelectMany(x => x.Scopes),
+                                                              clientScope => clientScope.Scope,
+                                                              apiScope => apiScope.Name,
+                                                              (clientScope, apiScope) => apiScope.Name
+                                                          )
+                                                          .Select(x => x),
+                                                          IdentityResources = x.AllowedScopes.Join(
+                                                              _configurationDbContext.IdentityResources,
+                                                              clientScope => clientScope.Scope,
+                                                              identityResource => identityResource.Name,
+                                                              (clientScope, identityResource) => identityResource.Name
+                                                          )
+                                                          .Select(x => x),
+                                                          Claims = x.Claims.Select(x => new ClaimInfo {
+                                                              Id = x.Id,
+                                                              Type = x.Type,
+                                                              Value = x.Value
+                                                          }),
+                                                          Secrets = x.ClientSecrets.Select(x => new ClientSecretInfo {
+                                                              Id = x.Id,
+                                                              Type = x.Type == nameof(SecretType.SharedSecret) ? SecretType.SharedSecret : SecretType.X509Thumbprint,
+                                                              Value = "*****",
+                                                              Description = x.Description,
+                                                              Expiration = x.Expiration
+                                                          })
+                                                      })
+                                                      .SingleOrDefaultAsync(x => x.ClientId == clientId);
             if (client == null) {
                 return NotFound();
             }
@@ -190,15 +182,8 @@ namespace Indice.AspNetCore.Identity.Features
         /// </summary>
         /// <param name="request">Contains info about the client to be created.</param>
         /// <response code="201">Created</response>
-        /// <response code="400">Bad Request</response>
-        /// <response code="401">Unauthorized</response>
-        /// <response code="403">Forbidden</response>
-        /// <response code="500">Internal Server Error</response>
         [HttpPost]
         [ProducesResponseType(statusCode: StatusCodes.Status201Created, type: typeof(ClientInfo))]
-        [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest, type: typeof(ValidationProblemDetails))]
-        [ProducesResponseType(statusCode: StatusCodes.Status401Unauthorized, type: typeof(ProblemDetails))]
-        [ProducesResponseType(statusCode: StatusCodes.Status403Forbidden, type: typeof(ProblemDetails))]
         public async Task<ActionResult<ClientInfo>> CreateClient([FromBody]CreateClientRequest request) {
             var client = CreateForType(request.ClientType, _generalSettings.Authority, request);
             _configurationDbContext.Clients.Add(client);
@@ -229,15 +214,10 @@ namespace Indice.AspNetCore.Identity.Features
         /// <param name="clientId">The id of the client.</param>
         /// <param name="request">Contains info about the client to be updated.</param>
         /// <response code="200">Ok</response>
-        /// <response code="400">Bad Request</response>
-        /// <response code="401">Unauthorized</response>
-        /// <response code="403">Forbidden</response>
-        /// <response code="500">Internal Server Error</response>
+        /// <response code="404">Not Found</response>
         [HttpPut("{clientId}")]
         [ProducesResponseType(statusCode: StatusCodes.Status200OK)]
-        [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest, type: typeof(ValidationProblemDetails))]
-        [ProducesResponseType(statusCode: StatusCodes.Status401Unauthorized, type: typeof(ProblemDetails))]
-        [ProducesResponseType(statusCode: StatusCodes.Status403Forbidden, type: typeof(ProblemDetails))]
+        [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
         public async Task<IActionResult> UpdateClient([FromRoute]string clientId, [FromBody]UpdateClientRequest request) {
             var client = await _configurationDbContext.Clients.SingleOrDefaultAsync(x => x.ClientId == clientId);
             if (client == null) {
@@ -266,7 +246,6 @@ namespace Indice.AspNetCore.Identity.Features
             client.AllowPlainTextPkce = request.AllowPlainTextPkce;
             client.ClientClaimsPrefix = request.ClientClaimsPrefix;
             await _configurationDbContext.SaveChangesAsync();
-            await _cache.RemoveAsync(CacheKeys.Client(clientId));
             return Ok();
         }
 
@@ -276,15 +255,10 @@ namespace Indice.AspNetCore.Identity.Features
         /// <param name="clientId">The id of the client.</param>
         /// <param name="request">The claim to add.</param>
         /// <response code="201">Created</response>
-        /// <response code="400">Bad Request</response>
-        /// <response code="401">Unauthorized</response>
-        /// <response code="403">Forbidden</response>
-        /// <response code="500">Internal Server Error</response>
+        /// <response code="404">Not Found</response>
         [HttpPost("{clientId}/claims")]
         [ProducesResponseType(statusCode: StatusCodes.Status201Created, type: typeof(ClaimInfo))]
-        [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest, type: typeof(ValidationProblemDetails))]
-        [ProducesResponseType(statusCode: StatusCodes.Status401Unauthorized, type: typeof(ProblemDetails))]
-        [ProducesResponseType(statusCode: StatusCodes.Status403Forbidden, type: typeof(ProblemDetails))]
+        [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
         public async Task<ActionResult<ClaimInfo>> AddClientClaim([FromRoute]string clientId, [FromBody]CreateClaimRequest request) {
             var client = await _configurationDbContext.Clients.SingleOrDefaultAsync(x => x.ClientId == clientId);
             if (client == null) {
@@ -301,7 +275,6 @@ namespace Indice.AspNetCore.Identity.Features
             }
             client.Claims.Add(claimToAdd);
             await _configurationDbContext.SaveChangesAsync();
-            await _cache.RemoveAsync(CacheKeys.Client(clientId));
             return Created(string.Empty, new ClaimInfo {
                 Id = claimToAdd.Id,
                 Type = claimToAdd.Type,
@@ -315,15 +288,10 @@ namespace Indice.AspNetCore.Identity.Features
         /// <param name="clientId">The id of the client.</param>
         /// <param name="resources">The API or identity resources to add.</param>
         /// <response code="201">Created</response>
-        /// <response code="400">Bad Request</response>
-        /// <response code="401">Unauthorized</response>
-        /// <response code="403">Forbidden</response>
-        /// <response code="500">Internal Server Error</response>
+        /// <response code="404">Not Found</response>
         [HttpPost("{clientId}/resources")]
         [ProducesResponseType(statusCode: StatusCodes.Status200OK)]
-        [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest, type: typeof(ValidationProblemDetails))]
-        [ProducesResponseType(statusCode: StatusCodes.Status401Unauthorized, type: typeof(ProblemDetails))]
-        [ProducesResponseType(statusCode: StatusCodes.Status403Forbidden, type: typeof(ProblemDetails))]
+        [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
         public async Task<ActionResult> AddClientResources([FromRoute]string clientId, [FromBody]string[] resources) {
             var client = await _configurationDbContext.Clients.SingleOrDefaultAsync(x => x.ClientId == clientId);
             if (client == null) {
@@ -337,7 +305,6 @@ namespace Indice.AspNetCore.Identity.Features
                 Scope = x
             }));
             await _configurationDbContext.SaveChangesAsync();
-            await _cache.RemoveAsync(CacheKeys.Client(clientId));
             return Ok();
         }
 
@@ -347,15 +314,10 @@ namespace Indice.AspNetCore.Identity.Features
         /// <param name="clientId">The id of the client.</param>
         /// <param name="resource">The id of the resource to delete.</param>
         /// <response code="201">Created</response>
-        /// <response code="400">Bad Request</response>
-        /// <response code="401">Unauthorized</response>
-        /// <response code="403">Forbidden</response>
-        /// <response code="500">Internal Server Error</response>
+        /// <response code="404">Not Found</response>
         [HttpDelete("{clientId}/resources/{resource}")]
         [ProducesResponseType(statusCode: StatusCodes.Status200OK)]
-        [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest, type: typeof(ValidationProblemDetails))]
-        [ProducesResponseType(statusCode: StatusCodes.Status401Unauthorized, type: typeof(ProblemDetails))]
-        [ProducesResponseType(statusCode: StatusCodes.Status403Forbidden, type: typeof(ProblemDetails))]
+        [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
         public async Task<ActionResult> DeleteClientResource([FromRoute]string clientId, [FromRoute]string resource) {
             var client = await _configurationDbContext.Clients.Include(x => x.AllowedScopes).SingleOrDefaultAsync(x => x.ClientId == clientId);
             if (client == null) {
@@ -370,7 +332,6 @@ namespace Indice.AspNetCore.Identity.Features
             }
             client.AllowedScopes.Remove(resourceToRemove);
             await _configurationDbContext.SaveChangesAsync();
-            await _cache.RemoveAsync(CacheKeys.Client(clientId));
             return Ok();
         }
 
@@ -379,16 +340,9 @@ namespace Indice.AspNetCore.Identity.Features
         /// </summary>
         /// <param name="clientId">The id of the client to delete.</param>
         /// <response code="200">OK</response>
-        /// <response code="400">Bad Request</response>
-        /// <response code="401">Unauthorized</response>
-        /// <response code="403">Forbidden</response>
         /// <response code="404">Not Found</response>
-        /// <response code="500">Internal Server Error</response>
         [HttpDelete("{clientId}")]
         [ProducesResponseType(statusCode: StatusCodes.Status200OK)]
-        [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest, type: typeof(ValidationProblemDetails))]
-        [ProducesResponseType(statusCode: StatusCodes.Status401Unauthorized, type: typeof(ProblemDetails))]
-        [ProducesResponseType(statusCode: StatusCodes.Status403Forbidden, type: typeof(ProblemDetails))]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
         public async Task<IActionResult> DeleteClient([FromRoute]string clientId) {
             var client = await _configurationDbContext.Clients.AsNoTracking().SingleOrDefaultAsync(x => x.ClientId == clientId);
@@ -397,7 +351,6 @@ namespace Indice.AspNetCore.Identity.Features
             }
             _configurationDbContext.Clients.Remove(client);
             await _configurationDbContext.SaveChangesAsync();
-            await _cache.RemoveAsync(CacheKeys.Client(clientId));
             return Ok();
         }
 

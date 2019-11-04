@@ -136,8 +136,6 @@ namespace Indice.AspNetCore.Identity.Features
                 Reserved = false,
                 UserEditable = request.UserEditable
             };
-            var x = 3;
-            var y = x / 0;
             _dbContext.ClaimTypes.Add(claimType);
             await _dbContext.SaveChangesAsync();
             return CreatedAtAction(nameof(GetClaimType), Name, new { id = claimType.Id }, new ClaimTypeInfo {

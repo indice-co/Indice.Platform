@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 using IdentityModel;
 using IdentityServer4.Services;
 using IdentityServer4.Stores;
-using Indice.AspNetCore.Extensions;
 using Indice.AspNetCore.Identity.Models;
 using Indice.Types;
 using Microsoft.AspNetCore.Authorization;
@@ -15,7 +14,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Caching.Distributed;
 
 namespace Indice.AspNetCore.Identity.Features
 {
@@ -35,17 +33,16 @@ namespace Indice.AspNetCore.Identity.Features
     [ProducesResponseType(statusCode: StatusCodes.Status401Unauthorized, type: typeof(ProblemDetails))]
     [ProducesResponseType(statusCode: StatusCodes.Status403Forbidden, type: typeof(ProblemDetails))]
     [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme, Policy = IdentityServerApi.SubScopes.Users)]
+    [CacheResourceFilter]
     internal class UserController : ControllerBase
     {
         private readonly UserManager<User> _userManager;
         private readonly RoleManager<Role> _roleManager;
-        private readonly IDistributedCache _cache;
         private readonly ExtendedIdentityDbContext<User, Role> _dbContext;
         private readonly IPersistedGrantService _persistedGrantService;
         private readonly IClientStore _clientStore;
         private readonly IdentityServerApiEndpointsOptions _apiEndpointsOptions;
         private readonly IEventService _eventService;
-
         /// <summary>
         /// The name of the controller.
         /// </summary>
@@ -56,17 +53,15 @@ namespace Indice.AspNetCore.Identity.Features
         /// </summary>
         /// <param name="userManager">Provides the APIs for managing user in a persistence store.</param>
         /// <param name="roleManager">Provides the APIs for managing roles in a persistence store.</param>
-        /// <param name="cache">Represents a distributed cache of serialized values.</param>
         /// <param name="dbContext">Class for the Entity Framework database context used for identity.</param>
         /// <param name="persistedGrantService">Implements persisted grant logic.</param>
         /// <param name="clientStore">Retrieval of client configuration.</param>
         /// <param name="apiEndpointsOptions">Options for configuring the IdentityServer API feature.</param>
         /// <param name="eventService">Models the event mechanism used to raise events inside the IdentityServer API.</param>
-        public UserController(UserManager<User> userManager, RoleManager<Role> roleManager, IDistributedCache cache, ExtendedIdentityDbContext<User, Role> dbContext, IPersistedGrantService persistedGrantService, IClientStore clientStore,
+        public UserController(UserManager<User> userManager, RoleManager<Role> roleManager, ExtendedIdentityDbContext<User, Role> dbContext, IPersistedGrantService persistedGrantService, IClientStore clientStore,
             IdentityServerApiEndpointsOptions apiEndpointsOptions, IEventService eventService) {
             _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
             _roleManager = roleManager ?? throw new ArgumentNullException(nameof(roleManager));
-            _cache = cache ?? throw new ArgumentNullException(nameof(cache));
             _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
             _persistedGrantService = persistedGrantService ?? throw new ArgumentNullException(nameof(persistedGrantService));
             _clientStore = clientStore ?? throw new ArgumentNullException(nameof(clientStore));
@@ -81,6 +76,7 @@ namespace Indice.AspNetCore.Identity.Features
         /// <response code="200">OK</response>
         [HttpGet]
         [ProducesResponseType(statusCode: StatusCodes.Status200OK, type: typeof(ResultSet<UserInfo>))]
+        [NoCache]
         public async Task<ActionResult<ResultSet<UserInfo>>> GetUsers([FromQuery]ListOptions options) {
             var query = _userManager.Users.AsNoTracking();
             if (!string.IsNullOrEmpty(options.Search)) {
@@ -118,46 +114,38 @@ namespace Indice.AspNetCore.Identity.Features
         [ProducesResponseType(statusCode: StatusCodes.Status200OK, type: typeof(SingleUserInfo))]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
         public async Task<ActionResult<SingleUserInfo>> GetUser([FromRoute]string userId) {
-            async Task<SingleUserInfo> GetUserAsync() {
-                // Load user with his claims and roles from the database.
-                var query = _dbContext.Users.AsNoTracking();
-                var foundUser = await query.Where(x => x.Id == userId).Select(x => new SingleUserInfo {
-                    Id = userId,
-                    CreateDate = x.CreateDate,
-                    Email = x.Email,
-                    EmailConfirmed = x.EmailConfirmed,
-                    LockoutEnabled = x.LockoutEnabled,
-                    LockoutEnd = x.LockoutEnd,
-                    PhoneNumber = x.PhoneNumber,
-                    PhoneNumberConfirmed = x.PhoneNumberConfirmed,
-                    TwoFactorEnabled = x.TwoFactorEnabled,
-                    UserName = x.UserName,
-                    Claims = x.Claims.Select(x => new ClaimInfo {
-                        Id = x.Id,
-                        Type = x.ClaimType,
-                        Value = x.ClaimValue
-                    })
-                    .ToList(),
-                    Roles = _dbContext.UserRoles.Where(x => x.UserId == userId).Join(
-                        _dbContext.Roles,
-                        userRole => userRole.RoleId,
-                        role => role.Id,
-                        (userRole, role) => role.Name
-                    )
-                    .ToList()
-                })
-                .SingleOrDefaultAsync();
-                if (foundUser == null) {
-                    return null;
-                }
-                return foundUser;
-            }
-            // Retrieve the user by either the cache or the database.
-            var user = await _cache.TryGetOrSetAsync(CacheKeys.User(userId), GetUserAsync, TimeSpan.FromDays(7));
+            var user = await _dbContext.Users
+                                       .AsNoTracking()
+                                       .Where(x => x.Id == userId)
+                                       .Select(x => new SingleUserInfo {
+                                           Id = userId,
+                                           CreateDate = x.CreateDate,
+                                           Email = x.Email,
+                                           EmailConfirmed = x.EmailConfirmed,
+                                           LockoutEnabled = x.LockoutEnabled,
+                                           LockoutEnd = x.LockoutEnd,
+                                           PhoneNumber = x.PhoneNumber,
+                                           PhoneNumberConfirmed = x.PhoneNumberConfirmed,
+                                           TwoFactorEnabled = x.TwoFactorEnabled,
+                                           UserName = x.UserName,
+                                           Claims = x.Claims.Select(x => new ClaimInfo {
+                                               Id = x.Id,
+                                               Type = x.ClaimType,
+                                               Value = x.ClaimValue
+                                           })
+                                          .ToList(),
+                                           Roles = _dbContext.UserRoles.Where(x => x.UserId == userId).Join(
+                                               _dbContext.Roles,
+                                               userRole => userRole.RoleId,
+                                               role => role.Id,
+                                               (userRole, role) => role.Name
+                                           )
+                                           .ToList()
+                                       })
+                                       .SingleOrDefaultAsync();
             if (user == null) {
                 return NotFound();
             }
-            // Return 200 status code containing the user information.
             return Ok(user);
         }
 
@@ -218,34 +206,29 @@ namespace Indice.AspNetCore.Identity.Features
         [ProducesResponseType(statusCode: StatusCodes.Status200OK, type: typeof(SingleUserInfo))]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
         public async Task<ActionResult<SingleUserInfo>> UpdateUser([FromRoute]string userId, [FromBody]UpdateUserRequest request) {
-            // Load user with his claims from the database.
-            var foundUser = await _dbContext.Users.Include(x => x.Claims).SingleOrDefaultAsync(x => x.Id == userId);
-            if (foundUser == null) {
+            var user = await _dbContext.Users.Include(x => x.Claims).SingleOrDefaultAsync(x => x.Id == userId);
+            if (user == null) {
                 return NotFound();
             }
-            // Modify user properties according to request model.
-            foundUser.UserName = request.UserName;
-            foundUser.PhoneNumber = request.PhoneNumber;
-            foundUser.Email = request.Email;
-            foundUser.LockoutEnabled = request.LockoutEnabled;
-            foundUser.TwoFactorEnabled = request.TwoFactorEnabled;
-            foundUser.LockoutEnd = request.LockoutEnd;
-            // Modify user required claims.
+            user.UserName = request.UserName;
+            user.PhoneNumber = request.PhoneNumber;
+            user.Email = request.Email;
+            user.LockoutEnabled = request.LockoutEnabled;
+            user.TwoFactorEnabled = request.TwoFactorEnabled;
+            user.LockoutEnd = request.LockoutEnd;
             foreach (var requiredClaim in request.Claims) {
-                var claim = foundUser.Claims.SingleOrDefault(x => x.ClaimType == requiredClaim.Type);
+                var claim = user.Claims.SingleOrDefault(x => x.ClaimType == requiredClaim.Type);
                 if (claim != null) {
                     claim.ClaimValue = requiredClaim.Value;
                 } else {
-                    foundUser.Claims.Add(new IdentityUserClaim<string> {
+                    user.Claims.Add(new IdentityUserClaim<string> {
                         UserId = userId,
                         ClaimType = requiredClaim.Type,
                         ClaimValue = requiredClaim.Value
                     });
                 }
             }
-            // Update user and his claims.
-            await _userManager.UpdateAsync(foundUser);
-            // Retrieve user roles from database to prepare the response.
+            await _userManager.UpdateAsync(user);
             var roles = await _dbContext.UserRoles.AsNoTracking().Where(x => x.UserId == userId).Join(
                 _dbContext.Roles,
                 userRole => userRole.RoleId,
@@ -253,21 +236,18 @@ namespace Indice.AspNetCore.Identity.Features
                 (userRole, role) => role.Name
             )
             .ToListAsync();
-            // Remove user entry from the cache, since the user is updated.
-            await _cache.RemoveAsync(CacheKeys.User(userId));
-            // Return 200 status code containing the updated user information.
             return Ok(new SingleUserInfo {
                 Id = userId,
-                CreateDate = foundUser.CreateDate,
-                Email = foundUser.Email,
-                EmailConfirmed = foundUser.EmailConfirmed,
-                LockoutEnabled = foundUser.LockoutEnabled,
-                LockoutEnd = foundUser.LockoutEnd,
-                PhoneNumber = foundUser.PhoneNumber,
-                PhoneNumberConfirmed = foundUser.PhoneNumberConfirmed,
-                TwoFactorEnabled = foundUser.TwoFactorEnabled,
-                UserName = foundUser.UserName,
-                Claims = foundUser.Claims.Select(x => new ClaimInfo {
+                CreateDate = user.CreateDate,
+                Email = user.Email,
+                EmailConfirmed = user.EmailConfirmed,
+                LockoutEnabled = user.LockoutEnabled,
+                LockoutEnd = user.LockoutEnd,
+                PhoneNumber = user.PhoneNumber,
+                PhoneNumberConfirmed = user.PhoneNumberConfirmed,
+                TwoFactorEnabled = user.TwoFactorEnabled,
+                UserName = user.UserName,
+                Claims = user.Claims.Select(x => new ClaimInfo {
                     Id = x.Id,
                     Type = x.ClaimType,
                     Value = x.ClaimValue
@@ -320,7 +300,6 @@ namespace Indice.AspNetCore.Identity.Features
                 }));
             }
             await _userManager.AddToRoleAsync(user, role.Name);
-            await _cache.RemoveAsync(CacheKeys.User(userId));
             return Ok();
         }
 
@@ -349,7 +328,6 @@ namespace Indice.AspNetCore.Identity.Features
                 }));
             }
             await _userManager.RemoveFromRoleAsync(user, role.Name);
-            await _cache.RemoveAsync(CacheKeys.User(userId));
             return Ok();
         }
 
@@ -396,7 +374,6 @@ namespace Indice.AspNetCore.Identity.Features
             };
             _dbContext.UserClaims.Add(claimToAdd);
             await _dbContext.SaveChangesAsync();
-            await _cache.RemoveAsync(CacheKeys.User(userId));
             return CreatedAtAction(nameof(GetUserClaim), Name, new { userId, claimId = claimToAdd.Id }, new ClaimInfo {
                 Id = claimToAdd.Id,
                 Type = claimToAdd.ClaimType,
@@ -422,7 +399,6 @@ namespace Indice.AspNetCore.Identity.Features
             }
             userClaim.ClaimValue = request.ClaimValue;
             await _dbContext.SaveChangesAsync();
-            await _cache.RemoveAsync(CacheKeys.User(userId));
             return Ok(new ClaimInfo {
                 Id = userClaim.Id,
                 Type = userClaim.ClaimType,
@@ -447,7 +423,6 @@ namespace Indice.AspNetCore.Identity.Features
             }
             _dbContext.Remove(userClaim);
             await _dbContext.SaveChangesAsync();
-            await _cache.RemoveAsync(CacheKeys.User(userId));
             return Ok();
         }
 
@@ -460,6 +435,7 @@ namespace Indice.AspNetCore.Identity.Features
         [HttpGet("{userId}/applications")]
         [ProducesResponseType(statusCode: StatusCodes.Status200OK, type: typeof(ResultSet<UserClientInfo>))]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
+        [NoCache]
         public async Task<ActionResult<ResultSet<UserClientInfo>>> GetUserApplications([FromRoute]string userId) {
             var userGrants = await _persistedGrantService.GetAllGrantsAsync(userId);
             var clients = new List<UserClientInfo>();

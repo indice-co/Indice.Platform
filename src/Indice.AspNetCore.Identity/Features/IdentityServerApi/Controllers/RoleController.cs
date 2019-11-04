@@ -14,12 +14,20 @@ namespace Indice.AspNetCore.Identity.Features
     /// <summary>
     /// Contains operations for managing application roles.
     /// </summary>
+    /// <response code="400">Bad Request</response>
+    /// <response code="401">Unauthorized</response>
+    /// <response code="403">Forbidden</response>
+    /// <response code="500">Internal Server Error</response>
     [Route("api/roles")]
     [ApiController]
     [ApiExplorerSettings(GroupName = "identity")]
     [Produces(MediaTypeNames.Application.Json)]
     [Consumes(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest, type: typeof(ValidationProblemDetails))]
+    [ProducesResponseType(statusCode: StatusCodes.Status401Unauthorized, type: typeof(ProblemDetails))]
+    [ProducesResponseType(statusCode: StatusCodes.Status403Forbidden, type: typeof(ProblemDetails))]
     [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme, Policy = IdentityServerApi.Admin)]
+    [CacheResourceFilter]
     internal class RoleController : ControllerBase
     {
         private readonly RoleManager<Role> _roleManager;
@@ -41,15 +49,9 @@ namespace Indice.AspNetCore.Identity.Features
         /// </summary>
         /// <param name="options">List params used to navigate through collections. Contains parameters such as sort, search, page number and page size.</param>
         /// <response code="200">OK</response>
-        /// <response code="400">Bad Request</response>
-        /// <response code="401">Unauthorized</response>
-        /// <response code="403">Forbidden</response>
-        /// <response code="500">Internal Server Error</response>
         [HttpGet]
         [ProducesResponseType(statusCode: StatusCodes.Status200OK, type: typeof(ResultSet<RoleInfo>))]
-        [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest, type: typeof(ValidationProblemDetails))]
-        [ProducesResponseType(statusCode: StatusCodes.Status401Unauthorized, type: typeof(ProblemDetails))]
-        [ProducesResponseType(statusCode: StatusCodes.Status403Forbidden, type: typeof(ProblemDetails))]
+        [NoCache]
         public async Task<ActionResult<ResultSet<RoleInfo>>> GetRoles([FromQuery]ListOptions options) {
             var query = _roleManager.Roles.AsNoTracking();
             if (!string.IsNullOrEmpty(options.Search)) {
@@ -70,15 +72,8 @@ namespace Indice.AspNetCore.Identity.Features
         /// </summary>
         /// <param name="id">The identifier of the role.</param>
         /// <response code="200">OK</response>
-        /// <response code="400">Bad Request</response>
-        /// <response code="401">Unauthorized</response>
-        /// <response code="403">Forbidden</response>
         /// <response code="404">Not Found</response>
-        /// <response code="500">Internal Server Error</response>
         [ProducesResponseType(statusCode: StatusCodes.Status200OK, type: typeof(RoleInfo))]
-        [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest, type: typeof(ValidationProblemDetails))]
-        [ProducesResponseType(statusCode: StatusCodes.Status401Unauthorized, type: typeof(ProblemDetails))]
-        [ProducesResponseType(statusCode: StatusCodes.Status403Forbidden, type: typeof(ProblemDetails))]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
         [HttpGet("{id}")]
         public async Task<ActionResult<RoleInfo>> GetRole([FromRoute]string id) {
@@ -98,16 +93,9 @@ namespace Indice.AspNetCore.Identity.Features
         /// </summary>
         /// <param name="request">Contains info about the role to be created.</param>
         /// <response code="201">Created</response>
-        /// <response code="400">Bad Request</response>
-        /// <response code="401">Unauthorized</response>
-        /// <response code="403">Forbidden</response>
-        /// <response code="500">Internal Server Error</response>
         [HttpPost]
         [ServiceFilter(type: typeof(CreateRoleRequestValidationFilter))]
         [ProducesResponseType(statusCode: StatusCodes.Status201Created, type: typeof(RoleInfo))]
-        [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest, type: typeof(ValidationProblemDetails))]
-        [ProducesResponseType(statusCode: StatusCodes.Status401Unauthorized, type: typeof(ProblemDetails))]
-        [ProducesResponseType(statusCode: StatusCodes.Status403Forbidden, type: typeof(ProblemDetails))]
         public async Task<ActionResult<RoleInfo>> CreateRole([FromBody]CreateRoleRequest request) {
             var role = new Role {
                 Id = $"{Guid.NewGuid()}",
@@ -128,16 +116,9 @@ namespace Indice.AspNetCore.Identity.Features
         /// <param name="id">The id of the role to update.</param>
         /// <param name="request">Contains info about the role to update.</param>
         /// <response code="200">OK</response>
-        /// <response code="400">Bad Request</response>
-        /// <response code="401">Unauthorized</response>
-        /// <response code="403">Forbidden</response>
         /// <response code="404">Not Found</response>
-        /// <response code="500">Internal Server Error</response>
         [HttpPut("{id}")]
         [ProducesResponseType(statusCode: StatusCodes.Status200OK, type: typeof(RoleInfo))]
-        [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest, type: typeof(ValidationProblemDetails))]
-        [ProducesResponseType(statusCode: StatusCodes.Status401Unauthorized, type: typeof(ProblemDetails))]
-        [ProducesResponseType(statusCode: StatusCodes.Status403Forbidden, type: typeof(ProblemDetails))]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
         public async Task<ActionResult<RoleInfo>> UpdateRole([FromRoute]string id, [FromBody]UpdateRoleRequest request) {
             var role = await _roleManager.FindByIdAsync(id);
@@ -158,16 +139,9 @@ namespace Indice.AspNetCore.Identity.Features
         /// </summary>
         /// <param name="id">The id of the role to delete.</param>
         /// <response code="200">OK</response>
-        /// <response code="400">Bad Request</response>
-        /// <response code="401">Unauthorized</response>
-        /// <response code="403">Forbidden</response>
         /// <response code="404">Not Found</response>
-        /// <response code="500">Internal Server Error</response>
         [HttpDelete("{id}")]
         [ProducesResponseType(statusCode: StatusCodes.Status200OK)]
-        [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest, type: typeof(ValidationProblemDetails))]
-        [ProducesResponseType(statusCode: StatusCodes.Status401Unauthorized, type: typeof(ProblemDetails))]
-        [ProducesResponseType(statusCode: StatusCodes.Status403Forbidden, type: typeof(ProblemDetails))]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
         public async Task<IActionResult> DeleteRole([FromRoute]string id) {
             var role = await _roleManager.FindByIdAsync(id);
