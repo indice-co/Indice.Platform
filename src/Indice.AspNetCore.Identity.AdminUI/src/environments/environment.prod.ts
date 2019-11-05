@@ -12,5 +12,5 @@ export const environment = {
     scope: 'openid profile email role offline_access identity identity:clients identity:users',
     silent_redirect_uri : 'https://idsrv-admin-ui.azurewebsites.net/auth-renew'
   },
-  production: false
+  production: true
 };
