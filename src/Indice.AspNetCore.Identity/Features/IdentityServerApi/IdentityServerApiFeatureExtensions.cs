@@ -33,8 +33,8 @@ namespace Indice.AspNetCore.Identity.Features
             mvcBuilder.Services.AddIndiceServices(configuration);
             mvcBuilder.Services.AddTransient<IEventService, EventService>();
             // Register validation filters.
-            mvcBuilder.Services.AddScoped<CreateClaimTypeRequestValidationFilter>();
-            mvcBuilder.Services.AddScoped<CreateRoleRequestValidationFilter>();
+            mvcBuilder.Services.AddScoped<CreateClaimTypeValidationFilter>();
+            mvcBuilder.Services.AddScoped<CreateRoleValidationFilter>();
             // Add authorization policies that are used by the IdentityServer API.
             mvcBuilder.Services.AddAuthorization(authOptions => {
                 authOptions.AddPolicy(IdentityServerApi.SubScopes.Users, policy => {

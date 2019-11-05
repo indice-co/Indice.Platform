@@ -3,7 +3,7 @@ import { NgForm } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 
-import { Subscription, from, forkJoin } from 'rxjs';
+import { Subscription, forkJoin } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { TableColumn } from '@swimlane/ngx-datatable';
 import { ClientStore } from '../../client-store.service';
@@ -64,15 +64,23 @@ export class ClientGrantTypesComponent implements OnInit, OnDestroy {
     }
 
     public addGrantType(): void {
-        this._clientStore.addClaim(this.client.clientId, {
-            type: this.selectedGrantType,
-            // value: this.selectedClaimValue
-        } as ClaimInfo).subscribe(_ => {
-            this._toast.showSuccess(`Claim '${this.selectedGrantType}' was successfully added to the client.`);
+        this._clientStore.addGrantType(this.client.clientId, this.selectedGrantType).subscribe(_ => {
+            this._toast.showSuccess(`Grant type '${this.selectedGrantType}' was successfully added to the client.`);
+            this.rows.push({ type: this.selectedGrantType });
             this._form.resetForm({
-                'claim-name': '',
-                'claim-value': ''
+                'grant-type': ''
             });
+            this.rows = [...this.rows];
+        });
+    }
+
+    public deleteGrantType(grantType: string): void {
+        this._clientStore.deleteGrantType(this.client.clientId, grantType).subscribe(_ => {
+            this._toast.showSuccess(`Grant type '${this.selectedGrantType}' was successfully removed from the client.`);
+            const index = this.rows.findIndex(x => x.type === grantType);
+            if (index > - 1) {
+                this.rows.splice(index, 1);
+            }
             this.rows = [...this.rows];
         });
     }
@@ -92,6 +100,4 @@ export class ClientGrantTypesComponent implements OnInit, OnDestroy {
         }
         return result;
     }
-
-    public update(): void { }
 }

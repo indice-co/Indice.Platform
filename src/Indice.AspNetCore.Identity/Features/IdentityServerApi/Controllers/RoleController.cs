@@ -28,6 +28,7 @@ namespace Indice.AspNetCore.Identity.Features
     [ProducesResponseType(statusCode: StatusCodes.Status403Forbidden, type: typeof(ProblemDetails))]
     [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme, Policy = IdentityServerApi.Admin)]
     [CacheResourceFilter]
+    [ProblemDetailsExceptionFilter]
     internal class RoleController : ControllerBase
     {
         private readonly RoleManager<Role> _roleManager;
@@ -94,8 +95,8 @@ namespace Indice.AspNetCore.Identity.Features
         /// <param name="request">Contains info about the role to be created.</param>
         /// <response code="201">Created</response>
         [HttpPost]
-        [ServiceFilter(type: typeof(CreateRoleRequestValidationFilter))]
         [ProducesResponseType(statusCode: StatusCodes.Status201Created, type: typeof(RoleInfo))]
+        [ServiceFilter(type: typeof(CreateRoleValidationFilter))]
         public async Task<ActionResult<RoleInfo>> CreateRole([FromBody]CreateRoleRequest request) {
             var role = new Role {
                 Id = $"{Guid.NewGuid()}",

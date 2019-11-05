@@ -15,12 +15,20 @@ namespace Indice.AspNetCore.Identity.Features
     /// <summary>
     /// Contains operations for managing application's identity and API resources.
     /// </summary>
+    /// <response code="400">Bad Request</response>
+    /// <response code="401">Unauthorized</response>
+    /// <response code="403">Forbidden</response>
+    /// <response code="500">Internal Server Error</response>
     [Route("api/resources")]
     [ApiController]
     [ApiExplorerSettings(GroupName = "identity")]
     [Produces(MediaTypeNames.Application.Json)]
     [Consumes(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest, type: typeof(ValidationProblemDetails))]
+    [ProducesResponseType(statusCode: StatusCodes.Status401Unauthorized, type: typeof(ProblemDetails))]
+    [ProducesResponseType(statusCode: StatusCodes.Status403Forbidden, type: typeof(ProblemDetails))]
     [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme, Policy = IdentityServerApi.Admin)]
+    [ProblemDetailsExceptionFilter]
     internal class ResourceController : ControllerBase
     {
         private readonly ExtendedConfigurationDbContext _configurationDbContext;
@@ -42,15 +50,8 @@ namespace Indice.AspNetCore.Identity.Features
         /// </summary>
         /// <param name="options">List params used to navigate through collections. Contains parameters such as sort, search, page number and page size.</param>
         /// <response code="200">OK</response>
-        /// <response code="400">Bad Request</response>
-        /// <response code="401">Unauthorized</response>
-        /// <response code="403">Forbidden</response>
-        /// <response code="500">Internal Server Error</response>
         [HttpGet("identity")]
         [ProducesResponseType(statusCode: StatusCodes.Status200OK, type: typeof(ResultSet<IdentityResourceInfo>))]
-        [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest, type: typeof(ValidationProblemDetails))]
-        [ProducesResponseType(statusCode: StatusCodes.Status401Unauthorized, type: typeof(ProblemDetails))]
-        [ProducesResponseType(statusCode: StatusCodes.Status403Forbidden, type: typeof(ProblemDetails))]
         public async Task<ActionResult<ResultSet<IdentityResourceInfo>>> GetIdentityResources([FromQuery]ListOptions options) {
             var query = _configurationDbContext.IdentityResources.AsNoTracking();
             if (!string.IsNullOrEmpty(options.Search)) {
@@ -78,16 +79,11 @@ namespace Indice.AspNetCore.Identity.Features
         /// </summary>
         /// <param name="resourceId">The identifier of the identity resource.</param>
         /// <response code="200">OK</response>
-        /// <response code="400">Bad Request</response>
-        /// <response code="401">Unauthorized</response>
-        /// <response code="403">Forbidden</response>
         /// <response code="404">Not Found</response>
-        /// <response code="500">Internal Server Error</response>
         [ProducesResponseType(statusCode: StatusCodes.Status200OK, type: typeof(IdentityResourceInfo))]
-        [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest, type: typeof(ValidationProblemDetails))]
-        [ProducesResponseType(statusCode: StatusCodes.Status401Unauthorized, type: typeof(ProblemDetails))]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
         [HttpGet("identity/{resourceId:int}")]
+        [CacheResourceFilter]
         public async Task<ActionResult<IdentityResourceInfo>> GetIdentityResource([FromRoute]int resourceId) {
             var identityResource = await _configurationDbContext.IdentityResources
                                                                 .Include(x => x.UserClaims)
@@ -115,15 +111,8 @@ namespace Indice.AspNetCore.Identity.Features
         /// </summary>
         /// <param name="request">Contains info about the identity resource to be created.</param>
         /// <response code="201">Created</response>
-        /// <response code="400">Bad Request</response>
-        /// <response code="401">Unauthorized</response>
-        /// <response code="403">Forbidden</response>
-        /// <response code="500">Internal Server Error</response>
         [HttpPost("identity")]
         [ProducesResponseType(statusCode: StatusCodes.Status201Created, type: typeof(IdentityResourceInfo))]
-        [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest, type: typeof(ValidationProblemDetails))]
-        [ProducesResponseType(statusCode: StatusCodes.Status401Unauthorized, type: typeof(ProblemDetails))]
-        [ProducesResponseType(statusCode: StatusCodes.Status403Forbidden, type: typeof(ProblemDetails))]
         public async Task<ActionResult<IdentityResourceInfo>> CreateIdentityResource([FromBody]CreateApiResourceRequest request) {
             var resource = new IdentityResource {
                 Name = request.Name,
@@ -157,17 +146,11 @@ namespace Indice.AspNetCore.Identity.Features
         /// </summary>
         /// <param name="resourceId">The id of the identity resource to delete.</param>
         /// <response code="200">OK</response>
-        /// <response code="400">Bad Request</response>
-        /// <response code="401">Unauthorized</response>
-        /// <response code="403">Forbidden</response>
         /// <response code="404">Not Found</response>
-        /// <response code="500">Internal Server Error</response>
         [HttpDelete("identity/{resourceId:int}")]
         [ProducesResponseType(statusCode: StatusCodes.Status200OK)]
-        [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest, type: typeof(ValidationProblemDetails))]
-        [ProducesResponseType(statusCode: StatusCodes.Status401Unauthorized, type: typeof(ProblemDetails))]
-        [ProducesResponseType(statusCode: StatusCodes.Status403Forbidden, type: typeof(ProblemDetails))]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
+        [CacheResourceFilter]
         public async Task<IActionResult> DeleteIdentityResource([FromRoute]int resourceId) {
             var resource = await _configurationDbContext.IdentityResources.SingleOrDefaultAsync(x => x.Id == resourceId);
             if (resource == null) {
@@ -183,15 +166,8 @@ namespace Indice.AspNetCore.Identity.Features
         /// </summary>
         /// <param name="options">List params used to navigate through collections. Contains parameters such as sort, search, page number and page size.</param>
         /// <response code="200">OK</response>
-        /// <response code="400">Bad Request</response>
-        /// <response code="401">Unauthorized</response>
-        /// <response code="403">Forbidden</response>
-        /// <response code="500">Internal Server Error</response>
         [HttpGet("protected")]
         [ProducesResponseType(statusCode: StatusCodes.Status200OK, type: typeof(ResultSet<ApiResourceInfo>))]
-        [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest, type: typeof(ValidationProblemDetails))]
-        [ProducesResponseType(statusCode: StatusCodes.Status401Unauthorized, type: typeof(ProblemDetails))]
-        [ProducesResponseType(statusCode: StatusCodes.Status403Forbidden, type: typeof(ProblemDetails))]
         public async Task<ActionResult<ResultSet<ApiResourceInfo>>> GetApiResources([FromQuery]ListOptions options) {
             var query = _configurationDbContext.ApiResources.AsNoTracking();
             if (!string.IsNullOrEmpty(options.Search)) {
@@ -216,15 +192,8 @@ namespace Indice.AspNetCore.Identity.Features
         /// </summary>
         /// <param name="options">List params used to navigate through collections. Contains parameters such as sort, search, page number and page size.</param>
         /// <response code="200">OK</response>
-        /// <response code="400">Bad Request</response>
-        /// <response code="401">Unauthorized</response>
-        /// <response code="403">Forbidden</response>
-        /// <response code="500">Internal Server Error</response>
         [HttpGet("protected/scopes")]
         [ProducesResponseType(statusCode: StatusCodes.Status200OK, type: typeof(ResultSet<ScopeInfo>))]
-        [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest, type: typeof(ValidationProblemDetails))]
-        [ProducesResponseType(statusCode: StatusCodes.Status401Unauthorized, type: typeof(ProblemDetails))]
-        [ProducesResponseType(statusCode: StatusCodes.Status403Forbidden, type: typeof(ProblemDetails))]
         public async Task<ActionResult<ResultSet<ScopeInfo>>> GetApiScopes([FromQuery]ListOptions options) {
             var query = _configurationDbContext.ApiResources.AsNoTracking();
             if (!string.IsNullOrEmpty(options.Search)) {
@@ -250,16 +219,11 @@ namespace Indice.AspNetCore.Identity.Features
         /// </summary>
         /// <param name="resourceId">The identifier of the API resource.</param>
         /// <response code="200">OK</response>
-        /// <response code="400">Bad Request</response>
-        /// <response code="401">Unauthorized</response>
-        /// <response code="403">Forbidden</response>
         /// <response code="404">Not Found</response>
-        /// <response code="500">Internal Server Error</response>
         [ProducesResponseType(statusCode: StatusCodes.Status200OK, type: typeof(ApiResourceInfo))]
-        [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest, type: typeof(ValidationProblemDetails))]
-        [ProducesResponseType(statusCode: StatusCodes.Status401Unauthorized, type: typeof(ProblemDetails))]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
         [HttpGet("protected/{resourceId:int}")]
+        [CacheResourceFilter]
         public async Task<ActionResult<ApiResourceInfo>> GetApiResource([FromRoute]int resourceId) {
             var apiResource = await _configurationDbContext.ApiResources
                                                            .Include(x => x.UserClaims)
@@ -304,15 +268,8 @@ namespace Indice.AspNetCore.Identity.Features
         /// </summary>
         /// <param name="request">Contains info about the API resource to be created.</param>
         /// <response code="201">Created</response>
-        /// <response code="400">Bad Request</response>
-        /// <response code="401">Unauthorized</response>
-        /// <response code="403">Forbidden</response>
-        /// <response code="500">Internal Server Error</response>
         [HttpPost("protected")]
         [ProducesResponseType(statusCode: StatusCodes.Status201Created, type: typeof(ApiResourceInfo))]
-        [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest, type: typeof(ValidationProblemDetails))]
-        [ProducesResponseType(statusCode: StatusCodes.Status401Unauthorized, type: typeof(ProblemDetails))]
-        [ProducesResponseType(statusCode: StatusCodes.Status403Forbidden, type: typeof(ProblemDetails))]
         public async Task<ActionResult<ApiResourceInfo>> CreateApiResource([FromBody]CreateApiResourceRequest request) {
             var resource = new ApiResource {
                 Name = request.Name,
@@ -358,15 +315,10 @@ namespace Indice.AspNetCore.Identity.Features
         /// <param name="resourceId">The identifier of the API resource.</param>
         /// <param name="request">Contains info about the API resource to be updated.</param>
         /// <response code="200">Ok</response>
-        /// <response code="400">Bad Request</response>
-        /// <response code="401">Unauthorized</response>
-        /// <response code="403">Forbidden</response>
-        /// <response code="500">Internal Server Error</response>
+        /// <response code="404">Not Found</response>
         [HttpPut("protected/{resourceId:int}")]
         [ProducesResponseType(statusCode: StatusCodes.Status200OK)]
-        [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest, type: typeof(ValidationProblemDetails))]
-        [ProducesResponseType(statusCode: StatusCodes.Status401Unauthorized, type: typeof(ProblemDetails))]
-        [ProducesResponseType(statusCode: StatusCodes.Status403Forbidden, type: typeof(ProblemDetails))]
+        [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
         public async Task<IActionResult> UpdateApiResource([FromRoute]int resourceId, [FromBody]UpdateApiResourceRequest request) {
             var apiResource = await _configurationDbContext.ApiResources.SingleOrDefaultAsync(x => x.Id == resourceId);
             if (apiResource == null) {
@@ -385,23 +337,17 @@ namespace Indice.AspNetCore.Identity.Features
         /// <param name="resourceId">The identifier of the API resource.</param>
         /// <param name="claims">The API or identity resources to add.</param>
         /// <response code="200">Ok</response>
-        /// <response code="400">Bad Request</response>
-        /// <response code="401">Unauthorized</response>
-        /// <response code="403">Forbidden</response>
-        /// <response code="500">Internal Server Error</response>
+        /// <response code="404">Not Found</response>
         [HttpPost("protected/{resourceId:int}/claims")]
         [ProducesResponseType(statusCode: StatusCodes.Status200OK)]
-        [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest, type: typeof(ValidationProblemDetails))]
-        [ProducesResponseType(statusCode: StatusCodes.Status401Unauthorized, type: typeof(ProblemDetails))]
-        [ProducesResponseType(statusCode: StatusCodes.Status403Forbidden, type: typeof(ProblemDetails))]
+        [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
+        [CacheResourceFilter(dependentPaths: new string[] { "protected/{resourceId}" })]
         public async Task<ActionResult> AddApiResourceClaims([FromRoute]int resourceId, [FromBody]string[] claims) {
             var apiResource = await _configurationDbContext.ApiResources.SingleOrDefaultAsync(x => x.Id == resourceId);
             if (apiResource == null) {
                 return NotFound();
             }
-            if (apiResource.UserClaims == null) {
-                apiResource.UserClaims = new List<ApiResourceClaim>();
-            }
+            apiResource.UserClaims = new List<ApiResourceClaim>();
             apiResource.UserClaims.AddRange(claims.Select(x => new ApiResourceClaim {
                 ApiResourceId = resourceId,
                 Type = x
@@ -416,15 +362,11 @@ namespace Indice.AspNetCore.Identity.Features
         /// <param name="resourceId">The identifier of the API resource.</param>
         /// <param name="claim">The identifier of the API resource claim to remove.</param>
         /// <response code="200">Ok</response>
-        /// <response code="400">Bad Request</response>
-        /// <response code="401">Unauthorized</response>
-        /// <response code="403">Forbidden</response>
-        /// <response code="500">Internal Server Error</response>
+        /// <response code="404">Not Found</response>
         [HttpDelete("protected/{resourceId:int}/claims/{claim}")]
         [ProducesResponseType(statusCode: StatusCodes.Status200OK)]
-        [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest, type: typeof(ValidationProblemDetails))]
-        [ProducesResponseType(statusCode: StatusCodes.Status401Unauthorized, type: typeof(ProblemDetails))]
-        [ProducesResponseType(statusCode: StatusCodes.Status403Forbidden, type: typeof(ProblemDetails))]
+        [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
+        [CacheResourceFilter(dependentPaths: new string[] { "protected/{resourceId}" })]
         public async Task<ActionResult> DeleteApiResourceClaim([FromRoute]int resourceId, [FromRoute]string claim) {
             var apiResource = await _configurationDbContext.ApiResources.Include(x => x.UserClaims).SingleOrDefaultAsync(x => x.Id == resourceId);
             if (apiResource == null) {
@@ -448,22 +390,15 @@ namespace Indice.AspNetCore.Identity.Features
         /// <param name="resourceId">The identifier of the API resource.</param>
         /// <param name="request">Contains info about the API scope to be created.</param>
         /// <response code="201">Created</response>
-        /// <response code="400">Bad Request</response>
-        /// <response code="401">Unauthorized</response>
-        /// <response code="403">Forbidden</response>
-        /// <response code="500">Internal Server Error</response>
+        /// <response code="404">Not Found</response>
         [HttpPost("protected/{resourceId:int}/scopes")]
         [ProducesResponseType(statusCode: StatusCodes.Status201Created, type: typeof(ScopeInfo))]
-        [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest, type: typeof(ValidationProblemDetails))]
-        [ProducesResponseType(statusCode: StatusCodes.Status401Unauthorized, type: typeof(ProblemDetails))]
-        [ProducesResponseType(statusCode: StatusCodes.Status403Forbidden, type: typeof(ProblemDetails))]
+        [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
+        [CacheResourceFilter(dependentPaths: new string[] { "protected/{resourceId}" })]
         public async Task<ActionResult> AddApiResourceScope([FromRoute]int resourceId, [FromBody]CreateApiScopeRequest request) {
             var apiResource = await _configurationDbContext.ApiResources.SingleOrDefaultAsync(x => x.Id == resourceId);
             if (apiResource == null) {
                 return NotFound();
-            }
-            if (apiResource.Scopes == null) {
-                apiResource.Scopes = new List<ApiScope>();
             }
             var scopeToAdd = new ApiScope {
                 Name = request.Name,
@@ -477,7 +412,9 @@ namespace Indice.AspNetCore.Identity.Features
                 })
                 .ToList()
             };
-            apiResource.Scopes.Add(scopeToAdd);
+            apiResource.Scopes = new List<ApiScope> {
+                scopeToAdd
+            };
             await _configurationDbContext.SaveChangesAsync();
             return CreatedAtAction(string.Empty, new ScopeInfo {
                 Id = scopeToAdd.Id,
@@ -498,15 +435,11 @@ namespace Indice.AspNetCore.Identity.Features
         /// <param name="scopeId">The identifier of the API resource.</param>
         /// <param name="request">Contains info about the API scope to be updated.</param>
         /// <response code="200">Ok</response>
-        /// <response code="400">Bad Request</response>
-        /// <response code="401">Unauthorized</response>
-        /// <response code="403">Forbidden</response>
-        /// <response code="500">Internal Server Error</response>
+        /// <response code="404">Not Found</response>
         [HttpPut("protected/{resourceId:int}/scopes/{scopeId:int}")]
         [ProducesResponseType(statusCode: StatusCodes.Status200OK)]
-        [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest, type: typeof(ValidationProblemDetails))]
-        [ProducesResponseType(statusCode: StatusCodes.Status401Unauthorized, type: typeof(ProblemDetails))]
-        [ProducesResponseType(statusCode: StatusCodes.Status403Forbidden, type: typeof(ProblemDetails))]
+        [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
+        [CacheResourceFilter(dependentPaths: new string[] { "protected/{resourceId}" })]
         public async Task<IActionResult> UpdateApiResourceScope([FromRoute]int resourceId, [FromRoute]int scopeId, [FromBody]UpdateApiScopeRequest request) {
             var scope = await _configurationDbContext.ApiResources
                                                      .Where(x => x.Id == resourceId)
@@ -530,15 +463,11 @@ namespace Indice.AspNetCore.Identity.Features
         /// <param name="resourceId">The identifier of the API resource.</param>
         /// <param name="scopeId">The identifier of the API resource scope.</param>
         /// <response code="200">Ok</response>
-        /// <response code="400">Bad Request</response>
-        /// <response code="401">Unauthorized</response>
-        /// <response code="403">Forbidden</response>
-        /// <response code="500">Internal Server Error</response>
+        /// <response code="404">Not Found</response>
         [HttpDelete("protected/{resourceId:int}/scopes/{scopeId:int}")]
+        [CacheResourceFilter(dependentPaths: new string[] { "protected/{resourceId}" })]
         [ProducesResponseType(statusCode: StatusCodes.Status201Created, type: typeof(ScopeInfo))]
-        [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest, type: typeof(ValidationProblemDetails))]
-        [ProducesResponseType(statusCode: StatusCodes.Status401Unauthorized, type: typeof(ProblemDetails))]
-        [ProducesResponseType(statusCode: StatusCodes.Status403Forbidden, type: typeof(ProblemDetails))]
+        [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
         public async Task<ActionResult> DeleteApiResourceScope([FromRoute]int resourceId, [FromRoute]int scopeId) {
             var apiResource = await _configurationDbContext.ApiResources.Include(x => x.Scopes).SingleOrDefaultAsync(x => x.Id == resourceId);
             if (apiResource == null) {
@@ -563,15 +492,11 @@ namespace Indice.AspNetCore.Identity.Features
         /// <param name="scopeId">The identifier of the API resource scope.</param>
         /// <param name="claims">The claims to add to the scope.</param>
         /// <response code="200">Ok</response>
-        /// <response code="400">Bad Request</response>
-        /// <response code="401">Unauthorized</response>
-        /// <response code="403">Forbidden</response>
-        /// <response code="500">Internal Server Error</response>
+        /// <response code="404">Not Found</response>
         [HttpPost("protected/{resourceId:int}/scopes/{scopeId:int}/claims")]
         [ProducesResponseType(statusCode: StatusCodes.Status200OK)]
-        [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest, type: typeof(ValidationProblemDetails))]
-        [ProducesResponseType(statusCode: StatusCodes.Status401Unauthorized, type: typeof(ProblemDetails))]
-        [ProducesResponseType(statusCode: StatusCodes.Status403Forbidden, type: typeof(ProblemDetails))]
+        [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
+        [CacheResourceFilter(dependentPaths: new string[] { "protected/{resourceId}" })]
         public async Task<ActionResult> AddApiResourceScopeClaims([FromRoute]int resourceId, [FromRoute]int scopeId, [FromBody]string[] claims) {
             var apiResourceScope = await _configurationDbContext.ApiResources
                                                                 .Where(x => x.Id == resourceId)
@@ -581,9 +506,7 @@ namespace Indice.AspNetCore.Identity.Features
             if (apiResourceScope == null) {
                 return NotFound();
             }
-            if (apiResourceScope.UserClaims == null) {
-                apiResourceScope.UserClaims = new List<ApiScopeClaim>();
-            }
+            apiResourceScope.UserClaims = new List<ApiScopeClaim>();
             apiResourceScope.UserClaims.AddRange(claims.Select(x => new ApiScopeClaim {
                 ApiScopeId = scopeId,
                 Type = x
@@ -599,15 +522,11 @@ namespace Indice.AspNetCore.Identity.Features
         /// <param name="scopeId">The identifier of the API resource scope.</param>
         /// <param name="claim">The claim to remove from the scope.</param>
         /// <response code="200">Ok</response>
-        /// <response code="400">Bad Request</response>
-        /// <response code="401">Unauthorized</response>
-        /// <response code="403">Forbidden</response>
-        /// <response code="500">Internal Server Error</response>
+        /// <response code="404">Not Found</response>
         [HttpDelete("protected/{resourceId:int}/scopes/{scopeId:int}/claims/{claim}")]
+        [CacheResourceFilter(dependentPaths: new string[] { "protected/{resourceId}" })]
         [ProducesResponseType(statusCode: StatusCodes.Status200OK)]
-        [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest, type: typeof(ValidationProblemDetails))]
-        [ProducesResponseType(statusCode: StatusCodes.Status401Unauthorized, type: typeof(ProblemDetails))]
-        [ProducesResponseType(statusCode: StatusCodes.Status403Forbidden, type: typeof(ProblemDetails))]
+        [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
         public async Task<ActionResult> DeleteApiResourceScopeClaim([FromRoute]int resourceId, [FromRoute]int scopeId, [FromRoute]string claim) {
             var scope = await _configurationDbContext.ApiResources
                                                      .Include(x => x.Scopes)

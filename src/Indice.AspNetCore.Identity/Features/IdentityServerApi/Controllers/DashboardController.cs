@@ -24,6 +24,7 @@ namespace Indice.AspNetCore.Identity.Features
     [ApiExplorerSettings(GroupName = "identity")]
     [Produces(MediaTypeNames.Application.Json)]
     [Consumes(MediaTypeNames.Application.Json)]
+    [ProblemDetailsExceptionFilter]
     internal class DashboardController : ControllerBase
     {
         private readonly UserManager<User> _userManager;

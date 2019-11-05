@@ -3,8 +3,8 @@ import { Injectable } from '@angular/core';
 import { AsyncSubject, Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import {
-    IdentityApiService, SingleClientInfo, IdentityResourceInfoResultSet, IdentityResourceInfo, ApiResourceInfo, CreateClaimRequest, ClaimInfo, UpdateClientRequest, IUpdateClientRequest, 
-    ScopeInfo, ScopeInfoResultSet
+    IdentityApiService, SingleClientInfo, IdentityResourceInfoResultSet, IdentityResourceInfo, ApiResourceInfo, CreateClaimRequest, ClaimInfo, UpdateClientRequest, IUpdateClientRequest,
+    ScopeInfo, ScopeInfoResultSet, GrantTypeInfo
 } from 'src/app/core/services/identity-api.service';
 import { UrlType } from './urls/models/urlType';
 
@@ -161,6 +161,28 @@ export class ClientStore {
             this._client.complete();
         });
         return this._api.addClientResources(clientId, [resource.name]);
+    }
+
+    public addGrantType(clientId: string, grantType: string): Observable<void> {
+        return this._api.addClientGrantType(clientId, grantType).pipe(map((createdGrantType: GrantTypeInfo) => {
+            this.getClient(clientId).subscribe((client: SingleClientInfo) => {
+                client.grantTypes.push(createdGrantType.name);
+                this._client.next(client);
+                this._client.complete();
+            });
+        }));
+    }
+
+    public deleteGrantType(clientId: string, grantType: string): Observable<void> {
+        this.getClient(clientId).subscribe((client: SingleClientInfo) => {
+            const index = client.grantTypes.findIndex(x => x === grantType);
+            if (index > -1) {
+                client.grantTypes.splice(index, 1);
+            }
+            this._client.next(client);
+            this._client.complete();
+        });
+        return this._api.deleteClientGrantType(clientId, grantType);
     }
 
     public deleteClient(clientId: string): Observable<void> {

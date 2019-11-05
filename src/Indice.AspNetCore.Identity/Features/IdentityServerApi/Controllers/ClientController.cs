@@ -35,7 +35,7 @@ namespace Indice.AspNetCore.Identity.Features
     [ProducesResponseType(statusCode: StatusCodes.Status401Unauthorized, type: typeof(ProblemDetails))]
     [ProducesResponseType(statusCode: StatusCodes.Status403Forbidden, type: typeof(ProblemDetails))]
     [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme, Policy = IdentityServerApi.SubScopes.Clients)]
-    [CacheResourceFilter]
+    [ProblemDetailsExceptionFilter]
     internal class ClientController : ControllerBase
     {
         private readonly ExtendedConfigurationDbContext _configurationDbContext;
@@ -70,7 +70,6 @@ namespace Indice.AspNetCore.Identity.Features
         /// <response code="200">OK</response>
         [HttpGet]
         [ProducesResponseType(statusCode: StatusCodes.Status200OK, type: typeof(ResultSet<ClientInfo>))]
-        [NoCache]
         public async Task<ActionResult<ResultSet<ClientInfo>>> GetClients([FromQuery]ListOptions options) {
             IQueryable<Entities.Client> query = null;
             if (User.IsAdmin()) {
@@ -111,6 +110,7 @@ namespace Indice.AspNetCore.Identity.Features
         [ProducesResponseType(statusCode: StatusCodes.Status200OK, type: typeof(SingleClientInfo))]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
         [HttpGet("{clientId}")]
+        [CacheResourceFilter]
         public async Task<ActionResult<SingleClientInfo>> GetClient([FromRoute]string clientId) {
             var client = await _configurationDbContext.Clients
                                                       .AsNoTracking()
@@ -184,6 +184,7 @@ namespace Indice.AspNetCore.Identity.Features
         /// <response code="201">Created</response>
         [HttpPost]
         [ProducesResponseType(statusCode: StatusCodes.Status201Created, type: typeof(ClientInfo))]
+        [CacheResourceFilter(dependentStaticPaths: new string[] { "api/dashboard/summary" })]
         public async Task<ActionResult<ClientInfo>> CreateClient([FromBody]CreateClientRequest request) {
             var client = CreateForType(request.ClientType, _generalSettings.Authority, request);
             _configurationDbContext.Clients.Add(client);
@@ -218,6 +219,7 @@ namespace Indice.AspNetCore.Identity.Features
         [HttpPut("{clientId}")]
         [ProducesResponseType(statusCode: StatusCodes.Status200OK)]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
+        [CacheResourceFilter]
         public async Task<IActionResult> UpdateClient([FromRoute]string clientId, [FromBody]UpdateClientRequest request) {
             var client = await _configurationDbContext.Clients.SingleOrDefaultAsync(x => x.ClientId == clientId);
             if (client == null) {
@@ -259,6 +261,7 @@ namespace Indice.AspNetCore.Identity.Features
         [HttpPost("{clientId}/claims")]
         [ProducesResponseType(statusCode: StatusCodes.Status201Created, type: typeof(ClaimInfo))]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
+        [CacheResourceFilter(dependentPaths: new string[] { "{clientId}" })]
         public async Task<ActionResult<ClaimInfo>> AddClientClaim([FromRoute]string clientId, [FromBody]CreateClaimRequest request) {
             var client = await _configurationDbContext.Clients.SingleOrDefaultAsync(x => x.ClientId == clientId);
             if (client == null) {
@@ -270,10 +273,9 @@ namespace Indice.AspNetCore.Identity.Features
                 Type = request.Type,
                 Value = request.Value
             };
-            if (client.Claims == null) {
-                client.Claims = new List<ClientClaim>();
-            }
-            client.Claims.Add(claimToAdd);
+            client.Claims = new List<ClientClaim> {
+                claimToAdd
+            };
             await _configurationDbContext.SaveChangesAsync();
             return Created(string.Empty, new ClaimInfo {
                 Id = claimToAdd.Id,
@@ -292,14 +294,13 @@ namespace Indice.AspNetCore.Identity.Features
         [HttpPost("{clientId}/resources")]
         [ProducesResponseType(statusCode: StatusCodes.Status200OK)]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
+        [CacheResourceFilter(dependentPaths: new string[] { "{clientId}" })]
         public async Task<ActionResult> AddClientResources([FromRoute]string clientId, [FromBody]string[] resources) {
             var client = await _configurationDbContext.Clients.SingleOrDefaultAsync(x => x.ClientId == clientId);
             if (client == null) {
                 return NotFound();
             }
-            if (client.AllowedScopes == null) {
-                client.AllowedScopes = new List<ClientScope>();
-            }
+            client.AllowedScopes = new List<ClientScope>();
             client.AllowedScopes.AddRange(resources.Select(x => new ClientScope {
                 ClientId = client.Id,
                 Scope = x
@@ -318,6 +319,7 @@ namespace Indice.AspNetCore.Identity.Features
         [HttpDelete("{clientId}/resources/{resource}")]
         [ProducesResponseType(statusCode: StatusCodes.Status200OK)]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
+        [CacheResourceFilter(dependentPaths: new string[] { "{clientId}" })]
         public async Task<ActionResult> DeleteClientResource([FromRoute]string clientId, [FromRoute]string resource) {
             var client = await _configurationDbContext.Clients.Include(x => x.AllowedScopes).SingleOrDefaultAsync(x => x.ClientId == clientId);
             if (client == null) {
@@ -336,6 +338,64 @@ namespace Indice.AspNetCore.Identity.Features
         }
 
         /// <summary>
+        /// Adds an identity resource to the specified client.
+        /// </summary>
+        /// <param name="clientId">The id of the client.</param>
+        /// <param name="grantType">The name of the grant type to add.</param>
+        /// <response code="201">Created</response>
+        /// <response code="404">Not Found</response>
+        [HttpPost("{clientId}/grant-types/{grantType}")]
+        [ProducesResponseType(statusCode: StatusCodes.Status200OK, type: typeof(GrantTypeInfo))]
+        [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
+        [CacheResourceFilter(dependentPaths: new string[] { "{clientId}" })]
+        public async Task<ActionResult<GrantTypeInfo>> AddClientGrantType([FromRoute]string clientId, [FromRoute]string grantType) {
+            var client = await _configurationDbContext.Clients.SingleOrDefaultAsync(x => x.ClientId == clientId);
+            if (client == null) {
+                return NotFound();
+            }
+            var grantTypeToAdd = new ClientGrantType {
+                GrantType = grantType,
+                ClientId = client.Id
+            };
+            client.AllowedGrantTypes = new List<ClientGrantType> {
+                grantTypeToAdd
+            };
+            await _configurationDbContext.SaveChangesAsync();
+            return Ok(new GrantTypeInfo {
+                Id = grantTypeToAdd.Id,
+                Name = grantTypeToAdd.GrantType
+            });
+        }
+
+        /// <summary>
+        /// Removes an identity resource from the specified client.
+        /// </summary>
+        /// <param name="clientId">The id of the client.</param>
+        /// <param name="grantType">The id of the resource to delete.</param>
+        /// <response code="201">Created</response>
+        /// <response code="404">Not Found</response>
+        [HttpDelete("{clientId}/grant-types/{grantType}")]
+        [ProducesResponseType(statusCode: StatusCodes.Status200OK)]
+        [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
+        [CacheResourceFilter(dependentPaths: new string[] { "{clientId}" })]
+        public async Task<ActionResult> DeleteClientGrantType([FromRoute]string clientId, [FromRoute]string grantType) {
+            var client = await _configurationDbContext.Clients.Include(x => x.AllowedGrantTypes).SingleOrDefaultAsync(x => x.ClientId == clientId);
+            if (client == null) {
+                return NotFound();
+            }
+            if (client.AllowedGrantTypes == null) {
+                client.AllowedGrantTypes = new List<ClientGrantType>();
+            }
+            var grantTypeToRemove = client.AllowedGrantTypes.SingleOrDefault(x => x.GrantType == grantType);
+            if (grantTypeToRemove == null) {
+                return NotFound();
+            }
+            client.AllowedGrantTypes.Remove(grantTypeToRemove);
+            await _configurationDbContext.SaveChangesAsync();
+            return Ok();
+        }
+
+        /// <summary>
         /// Permanently deletes an existing client.
         /// </summary>
         /// <param name="clientId">The id of the client to delete.</param>
@@ -344,6 +404,7 @@ namespace Indice.AspNetCore.Identity.Features
         [HttpDelete("{clientId}")]
         [ProducesResponseType(statusCode: StatusCodes.Status200OK)]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
+        [CacheResourceFilter(dependentStaticPaths: new string[] { "api/dashboard/summary" })]
         public async Task<IActionResult> DeleteClient([FromRoute]string clientId) {
             var client = await _configurationDbContext.Clients.AsNoTracking().SingleOrDefaultAsync(x => x.ClientId == clientId);
             if (client == null) {

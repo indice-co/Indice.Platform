@@ -60,5 +60,5 @@
 <ng-template let-row="row"
              let-value="value"
              #actionsTemplate>
-    <button class="btn btn-danger">Delete</button>
+    <button class="btn btn-danger" (click)="deleteGrantType(value)">Delete</button>
 </ng-template>
