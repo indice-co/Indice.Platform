@@ -21,6 +21,7 @@ export class ClientClaimsComponent implements OnInit, OnDestroy {
     private _getDataSubscription: Subscription;
     private _updateClientSubscription: Subscription;
     private _addClaimSubscription: Subscription;
+    private _deleteClaimSubscription: Subscription;
 
     constructor(private _route: ActivatedRoute, private _clientStore: ClientStore, public utilities: UtilitiesService, public _toast: ToastService) { }
 
@@ -54,6 +55,9 @@ export class ClientClaimsComponent implements OnInit, OnDestroy {
         if (this._addClaimSubscription) {
             this._addClaimSubscription.unsubscribe();
         }
+        if (this._deleteClaimSubscription) {
+            this._deleteClaimSubscription.unsubscribe();
+        }
     }
 
     public addClaim(): void {
@@ -66,7 +70,7 @@ export class ClientClaimsComponent implements OnInit, OnDestroy {
                 'claim-name': '',
                 'claim-value': ''
             });
-            this.rows = [...this.rows];
+            this.rows = [...this.client.claims];
         });
     }
 
@@ -76,7 +80,12 @@ export class ClientClaimsComponent implements OnInit, OnDestroy {
         });
     }
 
-    public delete(): void { }
+    public delete(): void {
+        this._deleteClaimSubscription = this._clientStore.deleteClaim(this.client.clientId, this.claimToDelete).subscribe(_ => {
+            this._toast.showSuccess(`Claim '${this.claimToDelete.type}' was successfully deleted from the client.`);
+            this.rows = [...this.client.claims];
+        });
+    }
 
     public showDeleteAlert(claimId: number): void {
         this.claimToDelete = this.rows.find(x => x.id === claimId);

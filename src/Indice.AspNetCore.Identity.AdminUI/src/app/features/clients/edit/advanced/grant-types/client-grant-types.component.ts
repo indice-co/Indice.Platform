@@ -6,8 +6,9 @@ import { HttpClient } from '@angular/common/http';
 import { Subscription, forkJoin } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { TableColumn } from '@swimlane/ngx-datatable';
+import { SwalComponent } from '@sweetalert2/ngx-sweetalert2';
 import { ClientStore } from '../../client-store.service';
-import { SingleClientInfo, ClaimInfo } from 'src/app/core/services/identity-api.service';
+import { SingleClientInfo } from 'src/app/core/services/identity-api.service';
 import { ToastService } from 'src/app/layout/services/app-toast.service';
 import { environment } from 'src/environments/environment';
 import { GrantTypeStateMatrixService } from './grant-type-state-matrix.service';
@@ -20,6 +21,7 @@ import { GrantTypeStateMatrixService } from './grant-type-state-matrix.service';
 export class ClientGrantTypesComponent implements OnInit, OnDestroy {
     @ViewChild('actionsTemplate', { static: true }) private _actionsTemplate: TemplateRef<HTMLElement>;
     @ViewChild('grantTypesform', { static: false }) private _form: NgForm;
+    @ViewChild('deleteAlert', { static: false }) private _deleteAlert: SwalComponent;
     private _getDataSubscription: Subscription;
 
     constructor(private _route: ActivatedRoute, private _clientStore: ClientStore, private _toast: ToastService, private _httpClient: HttpClient, private _grantTypeStateMatrixService: GrantTypeStateMatrixService) { }
@@ -29,6 +31,7 @@ export class ClientGrantTypesComponent implements OnInit, OnDestroy {
     public selectedGrantType = '';
     public rows: { type: string }[];
     public availableGrantTypes: string[];
+    public grantTypeToDelete: { type: string };
 
     public ngOnInit(): void {
         this.columns = [
@@ -70,18 +73,26 @@ export class ClientGrantTypesComponent implements OnInit, OnDestroy {
             this._form.resetForm({
                 'grant-type': ''
             });
-            this.rows = [...this.rows];
+            this.rows = [...this.client.grantTypes.map((value: string) => {
+                return {
+                    type: value
+                };
+            })];
         });
     }
 
-    public deleteGrantType(grantType: string): void {
-        this._clientStore.deleteGrantType(this.client.clientId, grantType).subscribe(_ => {
+    public delete(): void {
+        this._clientStore.deleteGrantType(this.client.clientId, this.grantTypeToDelete.type).subscribe(_ => {
             this._toast.showSuccess(`Grant type '${this.selectedGrantType}' was successfully removed from the client.`);
-            const index = this.rows.findIndex(x => x.type === grantType);
+            const index = this.rows.findIndex(x => x.type === this.grantTypeToDelete.type);
             if (index > - 1) {
                 this.rows.splice(index, 1);
             }
-            this.rows = [...this.rows];
+            this.rows = [...this.client.grantTypes.map((value: string) => {
+                return {
+                    type: value
+                };
+            })];
         });
     }
 
@@ -99,5 +110,10 @@ export class ClientGrantTypesComponent implements OnInit, OnDestroy {
             }
         }
         return result;
+    }
+
+    public showDeleteAlert(grantType: string): void {
+        this.grantTypeToDelete = this.rows.find(x => x.type === grantType);
+        setTimeout(() => this._deleteAlert.fire(), 0);
     }
 }

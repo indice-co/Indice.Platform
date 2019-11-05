@@ -285,6 +285,34 @@ namespace Indice.AspNetCore.Identity.Features
         }
 
         /// <summary>
+        /// Removes an identity resource from the specified client.
+        /// </summary>
+        /// <param name="clientId">The id of the client.</param>
+        /// <param name="claimId">The id of the claim to delete.</param>
+        /// <response code="201">Created</response>
+        /// <response code="404">Not Found</response>
+        [HttpDelete("{clientId}/claims/{claimId:int}")]
+        [ProducesResponseType(statusCode: StatusCodes.Status200OK)]
+        [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
+        [CacheResourceFilter(dependentPaths: new string[] { "{clientId}" })]
+        public async Task<ActionResult> DeleteClientClaim([FromRoute]string clientId, [FromRoute]int claimId) {
+            var client = await _configurationDbContext.Clients.Include(x => x.Claims).SingleOrDefaultAsync(x => x.ClientId == clientId);
+            if (client == null) {
+                return NotFound();
+            }
+            if (client.Claims == null) {
+                client.Claims = new List<ClientClaim>();
+            }
+            var claimToRemove = client.Claims.SingleOrDefault(x => x.Id == claimId);
+            if (claimToRemove == null) {
+                return NotFound();
+            }
+            client.Claims.Remove(claimToRemove);
+            await _configurationDbContext.SaveChangesAsync();
+            return Ok();
+        }
+
+        /// <summary>
         /// Adds an identity resource to the specified client.
         /// </summary>
         /// <param name="clientId">The id of the client.</param>

@@ -1,3 +1,10 @@
+<swal title="Delete?"
+      [text]="'Client grant type \'' + grantTypeToDelete?.type + '\' will be deleted permanently. This action cannot be reversed.'"
+      type="warning"
+      [showCancelButton]="true"
+      (confirm)="delete()"
+      #deleteAlert>
+</swal>
 <p class="mt-3"
    *ngIf="!client">
     Loading client grant types...
@@ -60,5 +67,5 @@
 <ng-template let-row="row"
              let-value="value"
              #actionsTemplate>
-    <button class="btn btn-danger" (click)="deleteGrantType(value)">Delete</button>
+    <button class="btn btn-danger" (click)="showDeleteAlert(value)">Delete</button>
 </ng-template>

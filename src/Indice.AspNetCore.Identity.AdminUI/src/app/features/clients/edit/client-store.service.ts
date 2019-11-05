@@ -133,6 +133,18 @@ export class ClientStore {
         }));
     }
 
+    public deleteClaim(clientId: string, claim: ClaimInfo): Observable<void> {
+        this.getClient(clientId).subscribe((client: SingleClientInfo) => {
+            const index = client.claims.findIndex(x => x.id === claim.id);
+            if (index > -1) {
+                client.claims.splice(index, 1);
+            }
+            this._client.next(client);
+            this._client.complete();
+        });
+        return this._api.deleteClientClaim(clientId, claim.id);
+    }
+
     public addApiResource(clientId: string, resource: ApiResourceInfo): Observable<void> {
         this.getClient(clientId).subscribe((client: SingleClientInfo) => {
             client.apiResources.push(resource.name);
