@@ -3,7 +3,7 @@
     <Description>Indice.AspNetCore.Identity Class Library</Description>
     <Copyright>Copyright (c) 2018 Indice</Copyright>
     <AssemblyTitle>Indice.AspNetCore.Identity</AssemblyTitle>
-    <VersionPrefix>3.0.2</VersionPrefix>
+    <VersionPrefix>3.0.3</VersionPrefix>
     <!--<VersionSuffix>beta1</VersionSuffix>-->
     <Authors>c.leftheris, g.manoltzas</Authors>
     <TargetFramework>netcoreapp3.0</TargetFramework>
@@ -14,7 +14,7 @@
   <PropertyGroup Label="Package">
     <PackageId>Indice.AspNetCore.Identity</PackageId>
     <PackageTags>AspNetCore;IdentityServer;</PackageTags>
-    <PackageReleaseNotes>Modify UserController for IdentityServerApi feature.</PackageReleaseNotes>
+    <PackageReleaseNotes>Enhance API for IdentityServerApi feature.</PackageReleaseNotes>
     <PackageIcon>icon-128.png</PackageIcon>
     <PackageProjectUrl>https://github.com/indice-co/Indice.AspNet</PackageProjectUrl>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
