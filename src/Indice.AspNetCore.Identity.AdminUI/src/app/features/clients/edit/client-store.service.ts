@@ -4,7 +4,7 @@ import { AsyncSubject, Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import {
     IdentityApiService, SingleClientInfo, IdentityResourceInfoResultSet, IdentityResourceInfo, ApiResourceInfo, CreateClaimRequest, ClaimInfo, UpdateClientRequest, IUpdateClientRequest,
-    ScopeInfo, ScopeInfoResultSet, GrantTypeInfo
+    ScopeInfo, ScopeInfoResultSet, GrantTypeInfo, IUpdateClientUrls, UpdateClientUrls
 } from 'src/app/core/services/identity-api.service';
 import { UrlType } from './urls/models/urlType';
 
@@ -96,6 +96,14 @@ export class ClientStore {
             this._client.next(client);
             this._client.complete();
         });
+    }
+
+    public sendUpdateClientUrls(clientId: string, allowedCorsOrigins: string[], postLogoutRedirectUris: string[], redirectUris: string[]): Observable<void> {
+        return this._api.updateClientUrls(clientId, {
+            allowedCorsOrigins,
+            postLogoutRedirectUris,
+            redirectUris
+        } as UpdateClientUrls);
     }
 
     public getIdentityResources(): Observable<IdentityResourceInfo[]> {

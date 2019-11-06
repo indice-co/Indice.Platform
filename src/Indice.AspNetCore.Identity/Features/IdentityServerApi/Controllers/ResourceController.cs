@@ -314,7 +314,7 @@ namespace Indice.AspNetCore.Identity.Features
         /// </summary>
         /// <param name="resourceId">The identifier of the API resource.</param>
         /// <param name="request">Contains info about the API resource to be updated.</param>
-        /// <response code="200">Ok</response>
+        /// <response code="200">OK</response>
         /// <response code="404">Not Found</response>
         [HttpPut("protected/{resourceId:int}")]
         [ProducesResponseType(statusCode: StatusCodes.Status200OK)]
@@ -336,7 +336,7 @@ namespace Indice.AspNetCore.Identity.Features
         /// </summary>
         /// <param name="resourceId">The identifier of the API resource.</param>
         /// <param name="claims">The API or identity resources to add.</param>
-        /// <response code="200">Ok</response>
+        /// <response code="200">OK</response>
         /// <response code="404">Not Found</response>
         [HttpPost("protected/{resourceId:int}/claims")]
         [ProducesResponseType(statusCode: StatusCodes.Status200OK)]
@@ -361,7 +361,7 @@ namespace Indice.AspNetCore.Identity.Features
         /// </summary>
         /// <param name="resourceId">The identifier of the API resource.</param>
         /// <param name="claim">The identifier of the API resource claim to remove.</param>
-        /// <response code="200">Ok</response>
+        /// <response code="200">OK</response>
         /// <response code="404">Not Found</response>
         [HttpDelete("protected/{resourceId:int}/claims/{claim}")]
         [ProducesResponseType(statusCode: StatusCodes.Status200OK)]
@@ -434,7 +434,7 @@ namespace Indice.AspNetCore.Identity.Features
         /// <param name="resourceId">The identifier of the API resource.</param>
         /// <param name="scopeId">The identifier of the API resource.</param>
         /// <param name="request">Contains info about the API scope to be updated.</param>
-        /// <response code="200">Ok</response>
+        /// <response code="200">OK</response>
         /// <response code="404">Not Found</response>
         [HttpPut("protected/{resourceId:int}/scopes/{scopeId:int}")]
         [ProducesResponseType(statusCode: StatusCodes.Status200OK)]
@@ -462,7 +462,7 @@ namespace Indice.AspNetCore.Identity.Features
         /// </summary>
         /// <param name="resourceId">The identifier of the API resource.</param>
         /// <param name="scopeId">The identifier of the API resource scope.</param>
-        /// <response code="200">Ok</response>
+        /// <response code="200">OK</response>
         /// <response code="404">Not Found</response>
         [HttpDelete("protected/{resourceId:int}/scopes/{scopeId:int}")]
         [CacheResourceFilter(dependentPaths: new string[] { "protected/{resourceId}" })]
@@ -491,7 +491,7 @@ namespace Indice.AspNetCore.Identity.Features
         /// <param name="resourceId">The identifier of the API resource.</param>
         /// <param name="scopeId">The identifier of the API resource scope.</param>
         /// <param name="claims">The claims to add to the scope.</param>
-        /// <response code="200">Ok</response>
+        /// <response code="200">OK</response>
         /// <response code="404">Not Found</response>
         [HttpPost("protected/{resourceId:int}/scopes/{scopeId:int}/claims")]
         [ProducesResponseType(statusCode: StatusCodes.Status200OK)]
@@ -521,7 +521,7 @@ namespace Indice.AspNetCore.Identity.Features
         /// <param name="resourceId">The identifier of the API resource.</param>
         /// <param name="scopeId">The identifier of the API resource scope.</param>
         /// <param name="claim">The claim to remove from the scope.</param>
-        /// <response code="200">Ok</response>
+        /// <response code="200">OK</response>
         /// <response code="404">Not Found</response>
         [HttpDelete("protected/{resourceId:int}/scopes/{scopeId:int}/claims/{claim}")]
         [CacheResourceFilter(dependentPaths: new string[] { "protected/{resourceId}" })]

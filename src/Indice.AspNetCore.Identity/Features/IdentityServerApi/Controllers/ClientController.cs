@@ -214,7 +214,7 @@ namespace Indice.AspNetCore.Identity.Features
         /// </summary>
         /// <param name="clientId">The id of the client.</param>
         /// <param name="request">Contains info about the client to be updated.</param>
-        /// <response code="200">Ok</response>
+        /// <response code="200">OK</response>
         /// <response code="404">Not Found</response>
         [HttpPut("{clientId}")]
         [ProducesResponseType(statusCode: StatusCodes.Status200OK)]
@@ -289,7 +289,7 @@ namespace Indice.AspNetCore.Identity.Features
         /// </summary>
         /// <param name="clientId">The id of the client.</param>
         /// <param name="claimId">The id of the claim to delete.</param>
-        /// <response code="201">Created</response>
+        /// <response code="200">OK</response>
         /// <response code="404">Not Found</response>
         [HttpDelete("{clientId}/claims/{claimId:int}")]
         [ProducesResponseType(statusCode: StatusCodes.Status200OK)]
@@ -308,6 +308,51 @@ namespace Indice.AspNetCore.Identity.Features
                 return NotFound();
             }
             client.Claims.Remove(claimToRemove);
+            await _configurationDbContext.SaveChangesAsync();
+            return Ok();
+        }
+
+        /// <summary>
+        /// Renews the list of 
+        /// </summary>
+        /// <param name="clientId">The id of the client.</param>
+        /// <param name="request"></param>
+        /// <response code="200">OK</response>
+        /// <response code="404">Not Found</response>
+        [HttpPost("{clientId}/urls")]
+        [ProducesResponseType(statusCode: StatusCodes.Status200OK)]
+        [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
+        [CacheResourceFilter(dependentPaths: new string[] { "{clientId}" })]
+        public async Task<ActionResult> UpdateClientUrls([FromRoute]string clientId, [FromBody]UpdateClientUrls request) {
+            var client = await _configurationDbContext.Clients
+                                                      .Include(x => x.AllowedCorsOrigins)
+                                                      .Include(x => x.RedirectUris)
+                                                      .Include(x => x.PostLogoutRedirectUris)
+                                                      .SingleOrDefaultAsync(x => x.ClientId == clientId);
+            if (client == null) {
+                return NotFound();
+            }
+            client.AllowedCorsOrigins?.RemoveAll(x => true);
+            client.RedirectUris?.RemoveAll(x => true);
+            client.PostLogoutRedirectUris?.RemoveAll(x => true);
+            if (request.AllowedCorsOrigins?.Count() > 0) {
+                client.AllowedCorsOrigins.AddRange(request.AllowedCorsOrigins.Select(x => new ClientCorsOrigin {
+                    ClientId = client.Id,
+                    Origin = x
+                }));
+            }
+            if (request.RedirectUris?.Count() > 0) {
+                client.RedirectUris.AddRange(request.RedirectUris.Select(x => new ClientRedirectUri {
+                    ClientId = client.Id,
+                    RedirectUri = x
+                }));
+            }
+            if (request.PostLogoutRedirectUris?.Count() > 0) {
+                client.PostLogoutRedirectUris.AddRange(request.PostLogoutRedirectUris.Select(x => new ClientPostLogoutRedirectUri {
+                    ClientId = client.Id,
+                    PostLogoutRedirectUri = x
+                }));
+            }
             await _configurationDbContext.SaveChangesAsync();
             return Ok();
         }
@@ -342,7 +387,7 @@ namespace Indice.AspNetCore.Identity.Features
         /// </summary>
         /// <param name="clientId">The id of the client.</param>
         /// <param name="resource">The id of the resource to delete.</param>
-        /// <response code="201">Created</response>
+        /// <response code="200">OK</response>
         /// <response code="404">Not Found</response>
         [HttpDelete("{clientId}/resources/{resource}")]
         [ProducesResponseType(statusCode: StatusCodes.Status200OK)]
@@ -400,7 +445,7 @@ namespace Indice.AspNetCore.Identity.Features
         /// </summary>
         /// <param name="clientId">The id of the client.</param>
         /// <param name="grantType">The id of the resource to delete.</param>
-        /// <response code="201">Created</response>
+        /// <response code="200">OK</response>
         /// <response code="404">Not Found</response>
         [HttpDelete("{clientId}/grant-types/{grantType}")]
         [ProducesResponseType(statusCode: StatusCodes.Status200OK)]

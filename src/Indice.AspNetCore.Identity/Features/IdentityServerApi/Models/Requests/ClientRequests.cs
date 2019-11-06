@@ -141,6 +141,25 @@ namespace Indice.AspNetCore.Identity.Features
     }
 
     /// <summary>
+    /// Defines the model required to update client URLs.
+    /// </summary>
+    public class UpdateClientUrls 
+    {
+        /// <summary>
+        /// Cors origins allowed.
+        /// </summary>
+        public IEnumerable<string> AllowedCorsOrigins { get; set; }
+        /// <summary>
+        /// Allowed URIs to redirect after logout.
+        /// </summary>
+        public IEnumerable<string> PostLogoutRedirectUris { get; set; }
+        /// <summary>
+        /// Allowed URIs to redirect after successful login.
+        /// </summary>
+        public IEnumerable<string> RedirectUris { get; set; }
+    }
+
+    /// <summary>
     /// Models an OAuth client type.
     /// </summary>
     public enum ClientType

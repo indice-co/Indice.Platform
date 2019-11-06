@@ -75,7 +75,7 @@ export interface IIdentityApiService {
      * Updates an existing client.
      * @param clientId The id of the client.
      * @param body (optional) Contains info about the client to be updated.
-     * @return Ok
+     * @return OK
      */
     updateClient(clientId: string, body?: UpdateClientRequest | undefined): Observable<void>;
     /**
@@ -95,7 +95,7 @@ export interface IIdentityApiService {
      * Removes an identity resource from the specified client.
      * @param clientId The id of the client.
      * @param claimId The id of the claim to delete.
-     * @return Success
+     * @return OK
      */
     deleteClientClaim(clientId: string, claimId: number): Observable<void>;
     /**
@@ -109,7 +109,7 @@ export interface IIdentityApiService {
      * Removes an identity resource from the specified client.
      * @param clientId The id of the client.
      * @param grantType The id of the resource to delete.
-     * @return Success
+     * @return OK
      */
     deleteClientGrantType(clientId: string, grantType: string): Observable<void>;
     /**
@@ -123,9 +123,16 @@ export interface IIdentityApiService {
      * Removes an identity resource from the specified client.
      * @param clientId The id of the client.
      * @param resource The id of the resource to delete.
-     * @return Success
+     * @return OK
      */
     deleteClientResource(clientId: string, resource: string): Observable<void>;
+    /**
+     * Renews the list of
+     * @param clientId The id of the client.
+     * @param body (optional) 
+     * @return OK
+     */
+    updateClientUrls(clientId: string, body?: UpdateClientUrls | undefined): Observable<void>;
     /**
      * Displays blog posts from the official IdentityServer blog.
      * @param page (optional) 
@@ -190,21 +197,21 @@ export interface IIdentityApiService {
      * Updates an API resource.
      * @param resourceId The identifier of the API resource.
      * @param body (optional) Contains info about the API resource to be updated.
-     * @return Ok
+     * @return OK
      */
     updateApiResource(resourceId: number, body?: UpdateApiResourceRequest | undefined): Observable<void>;
     /**
      * Adds claims to an API resource.
      * @param resourceId The identifier of the API resource.
      * @param body (optional) The API or identity resources to add.
-     * @return Ok
+     * @return OK
      */
     addApiResourceClaims(resourceId: number, body?: string[] | undefined): Observable<void>;
     /**
      * Removes a specified claim from an API resource.
      * @param resourceId The identifier of the API resource.
      * @param claim The identifier of the API resource claim to remove.
-     * @return Ok
+     * @return OK
      */
     deleteApiResourceClaim(resourceId: number, claim: string): Observable<void>;
     /**
@@ -219,14 +226,14 @@ export interface IIdentityApiService {
      * @param resourceId The identifier of the API resource.
      * @param scopeId The identifier of the API resource.
      * @param body (optional) Contains info about the API scope to be updated.
-     * @return Ok
+     * @return OK
      */
     updateApiResourceScope(resourceId: number, scopeId: number, body?: UpdateApiScopeRequest | undefined): Observable<void>;
     /**
      * Deletes a specified scope from an API resource.
      * @param resourceId The identifier of the API resource.
      * @param scopeId The identifier of the API resource scope.
-     * @return Ok
+     * @return OK
      */
     deleteApiResourceScope(resourceId: number, scopeId: number): Observable<void>;
     /**
@@ -234,7 +241,7 @@ export interface IIdentityApiService {
      * @param resourceId The identifier of the API resource.
      * @param scopeId The identifier of the API resource scope.
      * @param body (optional) The claims to add to the scope.
-     * @return Ok
+     * @return OK
      */
     addApiResourceScopeClaims(resourceId: number, scopeId: number, body?: string[] | undefined): Observable<void>;
     /**
@@ -242,7 +249,7 @@ export interface IIdentityApiService {
      * @param resourceId The identifier of the API resource.
      * @param scopeId The identifier of the API resource scope.
      * @param claim The claim to remove from the scope.
-     * @return Ok
+     * @return OK
      */
     deleteApiResourceScopeClaim(resourceId: number, scopeId: number, claim: string): Observable<void>;
     /**
@@ -1106,7 +1113,7 @@ export class IdentityApiService implements IIdentityApiService {
      * Updates an existing client.
      * @param clientId The id of the client.
      * @param body (optional) Contains info about the client to be updated.
-     * @return Ok
+     * @return OK
      */
     updateClient(clientId: string, body?: UpdateClientRequest | undefined): Observable<void> {
         let url_ = this.baseUrl + "/api/clients/{clientId}";
@@ -1372,7 +1379,7 @@ export class IdentityApiService implements IIdentityApiService {
      * Removes an identity resource from the specified client.
      * @param clientId The id of the client.
      * @param claimId The id of the claim to delete.
-     * @return Success
+     * @return OK
      */
     deleteClientClaim(clientId: string, claimId: number): Observable<void> {
         let url_ = this.baseUrl + "/api/clients/{clientId}/claims/{claimId}";
@@ -1447,10 +1454,6 @@ export class IdentityApiService implements IIdentityApiService {
         } else if (status === 500) {
             return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
             return throwException("Internal Server Error", status, _responseText, _headers);
-            }));
-        } else if (status === 201) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            return _observableOf<void>(<any>null);
             }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
@@ -1560,7 +1563,7 @@ export class IdentityApiService implements IIdentityApiService {
      * Removes an identity resource from the specified client.
      * @param clientId The id of the client.
      * @param grantType The id of the resource to delete.
-     * @return Success
+     * @return OK
      */
     deleteClientGrantType(clientId: string, grantType: string): Observable<void> {
         let url_ = this.baseUrl + "/api/clients/{clientId}/grant-types/{grantType}";
@@ -1635,10 +1638,6 @@ export class IdentityApiService implements IIdentityApiService {
         } else if (status === 500) {
             return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
             return throwException("Internal Server Error", status, _responseText, _headers);
-            }));
-        } else if (status === 201) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            return _observableOf<void>(<any>null);
             }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
@@ -1745,7 +1744,7 @@ export class IdentityApiService implements IIdentityApiService {
      * Removes an identity resource from the specified client.
      * @param clientId The id of the client.
      * @param resource The id of the resource to delete.
-     * @return Success
+     * @return OK
      */
     deleteClientResource(clientId: string, resource: string): Observable<void> {
         let url_ = this.baseUrl + "/api/clients/{clientId}/resources/{resource}";
@@ -1821,9 +1820,94 @@ export class IdentityApiService implements IIdentityApiService {
             return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
             return throwException("Internal Server Error", status, _responseText, _headers);
             }));
-        } else if (status === 201) {
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<void>(<any>null);
+    }
+
+    /**
+     * Renews the list of
+     * @param clientId The id of the client.
+     * @param body (optional) 
+     * @return OK
+     */
+    updateClientUrls(clientId: string, body?: UpdateClientUrls | undefined): Observable<void> {
+        let url_ = this.baseUrl + "/api/clients/{clientId}/urls";
+        if (clientId === undefined || clientId === null)
+            throw new Error("The parameter 'clientId' must be defined.");
+        url_ = url_.replace("{clientId}", encodeURIComponent("" + clientId)); 
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json", 
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processUpdateClientUrls(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processUpdateClientUrls(<any>response_);
+                } catch (e) {
+                    return <Observable<void>><any>_observableThrow(e);
+                }
+            } else
+                return <Observable<void>><any>_observableThrow(response_);
+        }));
+    }
+
+    protected processUpdateClientUrls(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob = 
+            response instanceof HttpResponse ? response.body : 
+            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }};
+        if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ValidationProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            }));
+        } else if (status === 200) {
             return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
             return _observableOf<void>(<any>null);
+            }));
+        } else if (status === 404) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = ProblemDetails.fromJS(resultData404);
+            return throwException("Not Found", status, _responseText, _headers, result404);
+            }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("Internal Server Error", status, _responseText, _headers);
             }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
@@ -2598,7 +2682,7 @@ export class IdentityApiService implements IIdentityApiService {
      * Updates an API resource.
      * @param resourceId The identifier of the API resource.
      * @param body (optional) Contains info about the API resource to be updated.
-     * @return Ok
+     * @return OK
      */
     updateApiResource(resourceId: number, body?: UpdateApiResourceRequest | undefined): Observable<void> {
         let url_ = this.baseUrl + "/api/resources/protected/{resourceId}";
@@ -2687,7 +2771,7 @@ export class IdentityApiService implements IIdentityApiService {
      * Adds claims to an API resource.
      * @param resourceId The identifier of the API resource.
      * @param body (optional) The API or identity resources to add.
-     * @return Ok
+     * @return OK
      */
     addApiResourceClaims(resourceId: number, body?: string[] | undefined): Observable<void> {
         let url_ = this.baseUrl + "/api/resources/protected/{resourceId}/claims";
@@ -2776,7 +2860,7 @@ export class IdentityApiService implements IIdentityApiService {
      * Removes a specified claim from an API resource.
      * @param resourceId The identifier of the API resource.
      * @param claim The identifier of the API resource claim to remove.
-     * @return Ok
+     * @return OK
      */
     deleteApiResourceClaim(resourceId: number, claim: string): Observable<void> {
         let url_ = this.baseUrl + "/api/resources/protected/{resourceId}/claims/{claim}";
@@ -2958,7 +3042,7 @@ export class IdentityApiService implements IIdentityApiService {
      * @param resourceId The identifier of the API resource.
      * @param scopeId The identifier of the API resource.
      * @param body (optional) Contains info about the API scope to be updated.
-     * @return Ok
+     * @return OK
      */
     updateApiResourceScope(resourceId: number, scopeId: number, body?: UpdateApiScopeRequest | undefined): Observable<void> {
         let url_ = this.baseUrl + "/api/resources/protected/{resourceId}/scopes/{scopeId}";
@@ -3050,7 +3134,7 @@ export class IdentityApiService implements IIdentityApiService {
      * Deletes a specified scope from an API resource.
      * @param resourceId The identifier of the API resource.
      * @param scopeId The identifier of the API resource scope.
-     * @return Ok
+     * @return OK
      */
     deleteApiResourceScope(resourceId: number, scopeId: number): Observable<void> {
         let url_ = this.baseUrl + "/api/resources/protected/{resourceId}/scopes/{scopeId}";
@@ -3146,7 +3230,7 @@ export class IdentityApiService implements IIdentityApiService {
      * @param resourceId The identifier of the API resource.
      * @param scopeId The identifier of the API resource scope.
      * @param body (optional) The claims to add to the scope.
-     * @return Ok
+     * @return OK
      */
     addApiResourceScopeClaims(resourceId: number, scopeId: number, body?: string[] | undefined): Observable<void> {
         let url_ = this.baseUrl + "/api/resources/protected/{resourceId}/scopes/{scopeId}/claims";
@@ -3239,7 +3323,7 @@ export class IdentityApiService implements IIdentityApiService {
      * @param resourceId The identifier of the API resource.
      * @param scopeId The identifier of the API resource scope.
      * @param claim The claim to remove from the scope.
-     * @return Ok
+     * @return OK
      */
     deleteApiResourceScopeClaim(resourceId: number, scopeId: number, claim: string): Observable<void> {
         let url_ = this.baseUrl + "/api/resources/protected/{resourceId}/scopes/{scopeId}/claims/{claim}";
@@ -6385,6 +6469,82 @@ export interface IGrantTypeInfo {
     id?: number;
     /** The name of the grant type. */
     name?: string | undefined;
+}
+
+/** Defines the model required to update client URLs. */
+export class UpdateClientUrls implements IUpdateClientUrls {
+    /** Cors origins allowed. */
+    allowedCorsOrigins?: string[] | undefined;
+    /** Allowed URIs to redirect after logout. */
+    postLogoutRedirectUris?: string[] | undefined;
+    /** Allowed URIs to redirect after successful login. */
+    redirectUris?: string[] | undefined;
+
+    constructor(data?: IUpdateClientUrls) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["allowedCorsOrigins"])) {
+                this.allowedCorsOrigins = [] as any;
+                for (let item of _data["allowedCorsOrigins"])
+                    this.allowedCorsOrigins!.push(item);
+            }
+            if (Array.isArray(_data["postLogoutRedirectUris"])) {
+                this.postLogoutRedirectUris = [] as any;
+                for (let item of _data["postLogoutRedirectUris"])
+                    this.postLogoutRedirectUris!.push(item);
+            }
+            if (Array.isArray(_data["redirectUris"])) {
+                this.redirectUris = [] as any;
+                for (let item of _data["redirectUris"])
+                    this.redirectUris!.push(item);
+            }
+        }
+    }
+
+    static fromJS(data: any): UpdateClientUrls {
+        data = typeof data === 'object' ? data : {};
+        let result = new UpdateClientUrls();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.allowedCorsOrigins)) {
+            data["allowedCorsOrigins"] = [];
+            for (let item of this.allowedCorsOrigins)
+                data["allowedCorsOrigins"].push(item);
+        }
+        if (Array.isArray(this.postLogoutRedirectUris)) {
+            data["postLogoutRedirectUris"] = [];
+            for (let item of this.postLogoutRedirectUris)
+                data["postLogoutRedirectUris"].push(item);
+        }
+        if (Array.isArray(this.redirectUris)) {
+            data["redirectUris"] = [];
+            for (let item of this.redirectUris)
+                data["redirectUris"].push(item);
+        }
+        return data; 
+    }
+}
+
+/** Defines the model required to update client URLs. */
+export interface IUpdateClientUrls {
+    /** Cors origins allowed. */
+    allowedCorsOrigins?: string[] | undefined;
+    /** Allowed URIs to redirect after logout. */
+    postLogoutRedirectUris?: string[] | undefined;
+    /** Allowed URIs to redirect after successful login. */
+    redirectUris?: string[] | undefined;
 }
 
 /** Describes a blog post item. */

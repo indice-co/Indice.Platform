@@ -1,5 +1,6 @@
 import { Component, OnInit, OnDestroy, ViewChild, TemplateRef } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
+import { NgForm } from '@angular/forms';
 
 import { TableColumn } from '@swimlane/ngx-datatable';
 import { Subscription } from 'rxjs';
@@ -7,6 +8,7 @@ import { SingleClientInfo } from 'src/app/core/services/identity-api.service';
 import { ClientStore } from '../client-store.service';
 import { ClientUrl } from './models/client-url';
 import { UrlType } from './models/urlType';
+import { ToastService } from 'src/app/layout/services/app-toast.service';
 
 @Component({
     selector: 'app-client-urls',
@@ -14,13 +16,17 @@ import { UrlType } from './models/urlType';
 })
 export class ClientUrlsComponent implements OnInit, OnDestroy {
     @ViewChild('checkboxTemplate', { static: true }) private _checkboxTemplate: TemplateRef<HTMLElement>;
+    @ViewChild('urlForm', { static: false }) private _form: NgForm;
     private _getDataSubscription: Subscription;
+    private _updateClientUrlsSubscription: Subscription;
     private _clientId: string;
 
-    constructor(private _route: ActivatedRoute, private _clientStore: ClientStore) { }
+    constructor(private _route: ActivatedRoute, private _clientStore: ClientStore, private _toast: ToastService) { }
 
     public columns: TableColumn[] = [];
     public rows: ClientUrl[] = [];
+    public client: SingleClientInfo;
+    public url: string;
 
     public ngOnInit(): void {
         this.columns = [
@@ -37,6 +43,9 @@ export class ClientUrlsComponent implements OnInit, OnDestroy {
         if (this._getDataSubscription) {
             this._getDataSubscription.unsubscribe();
         }
+        if (this._updateClientUrlsSubscription) {
+            this._updateClientUrlsSubscription.unsubscribe();
+        }
     }
 
     public checkboxChanged(event: any, column: any, row: ClientUrl) {
@@ -46,10 +55,23 @@ export class ClientUrlsComponent implements OnInit, OnDestroy {
         setTimeout(() => this.renderTable(), 0);
     }
 
-    public update(): void { }
+    public addClientUrl() {
+        this._clientStore.updateClientUrl(this._clientId, this.url, true, UrlType.Cors);
+        setTimeout(() => this.renderTable(), 0);
+        this._form.resetForm({
+            url: ''
+        });
+    }
+
+    public update(): void {
+        this._updateClientUrlsSubscription = this._clientStore.sendUpdateClientUrls(this._clientId, this.client.allowedCorsOrigins, this.client.postLogoutRedirectUris, this.client.redirectUris).subscribe(_ => {
+            this._toast.showSuccess(`Client URLs were successfully updated.`);
+        });
+    }
 
     private renderTable(): void {
         this._getDataSubscription = this._clientStore.getClient(this._clientId).subscribe((client: SingleClientInfo) => {
+            this.client = client;
             let urls = client.redirectUris;
             if (client.allowedCorsOrigins) {
                 urls = urls.concat(client.allowedCorsOrigins);
