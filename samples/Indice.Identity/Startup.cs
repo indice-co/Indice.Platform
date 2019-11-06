@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using Indice.AspNetCore.Identity.Features;
@@ -14,7 +15,9 @@ using Microsoft.AspNetCore.Localization;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Net.Http.Headers;
 using Swashbuckle.AspNetCore.SwaggerUI;
+using SameSiteMode = Microsoft.AspNetCore.Http.SameSiteMode;
 
 namespace Indice.Identity
 {
@@ -117,7 +120,13 @@ namespace Indice.Identity
             app.UseCors();
             app.UseAuthentication();
             app.UseAuthorization();
-            app.UseStaticFiles();
+            app.UseStaticFiles(new StaticFileOptions {
+                OnPrepareResponse = context => {
+                    const int durationInSeconds = 60 * 60 * 24;
+                    context.Context.Response.Headers[HeaderNames.CacheControl] = $"public,max-age={durationInSeconds}";
+                    context.Context.Response.Headers.Append(HeaderNames.Expires, DateTime.UtcNow.AddSeconds(durationInSeconds).ToString("R", CultureInfo.InvariantCulture));
+                }
+            });
             app.UseSpaStaticFiles();
             app.UseResponseCaching();
             app.UseCookiePolicy();
@@ -130,7 +139,7 @@ namespace Indice.Identity
                     swaggerOptions.OAuth2RedirectUrl($"{Settings.Host}/docs/oauth2-redirect.html");
                     swaggerOptions.OAuthClientId("swagger-ui");
                     swaggerOptions.OAuthAppName("Swagger UI");
-                    swaggerOptions.DocExpansion(DocExpansion.List);
+                    swaggerOptions.DocExpansion(DocExpansion.None);
                 });
             }
             app.UseEndpoints(endpoints => {
