@@ -58,7 +58,7 @@ namespace Indice.AspNetCore.Identity.Features
                 var searchTerm = options.Search.ToLower();
                 query = query.Where(x => x.Name.ToLower().Contains(searchTerm) || x.Description.Contains(searchTerm));
             }
-            var identityResources = await query.Select(resource => new IdentityResourceInfo {
+            var resources = await query.Select(resource => new IdentityResourceInfo {
                 Id = resource.Id,
                 Name = resource.Name,
                 DisplayName = resource.DisplayName,
@@ -71,7 +71,7 @@ namespace Indice.AspNetCore.Identity.Features
                 AllowedClaims = resource.UserClaims.Select(claim => claim.Type)
             })
             .ToResultSetAsync(options);
-            return Ok(identityResources);
+            return Ok(resources);
         }
 
         /// <summary>
@@ -85,24 +85,24 @@ namespace Indice.AspNetCore.Identity.Features
         [HttpGet("identity/{resourceId:int}")]
         [CacheResourceFilter]
         public async Task<ActionResult<IdentityResourceInfo>> GetIdentityResource([FromRoute]int resourceId) {
-            var identityResource = await _configurationDbContext.IdentityResources
-                                                                .Include(x => x.UserClaims)
-                                                                .AsNoTracking()
-                                                                .SingleOrDefaultAsync(x => x.Id == resourceId);
-            if (identityResource == null) {
+            var resource = await _configurationDbContext.IdentityResources
+                                                        .Include(x => x.UserClaims)
+                                                        .AsNoTracking()
+                                                        .SingleOrDefaultAsync(x => x.Id == resourceId);
+            if (resource == null) {
                 return NotFound();
             }
             return Ok(new IdentityResourceInfo {
-                Id = identityResource.Id,
-                Name = identityResource.Name,
-                DisplayName = identityResource.DisplayName,
-                Description = identityResource.Description,
-                Enabled = identityResource.Enabled,
-                Required = identityResource.Required,
-                Emphasize = identityResource.Emphasize,
-                NonEditable = identityResource.NonEditable,
-                ShowInDiscoveryDocument = identityResource.ShowInDiscoveryDocument,
-                AllowedClaims = identityResource.UserClaims.Select(x => x.Type)
+                Id = resource.Id,
+                Name = resource.Name,
+                DisplayName = resource.DisplayName,
+                Description = resource.Description,
+                Enabled = resource.Enabled,
+                Required = resource.Required,
+                Emphasize = resource.Emphasize,
+                NonEditable = resource.NonEditable,
+                ShowInDiscoveryDocument = resource.ShowInDiscoveryDocument,
+                AllowedClaims = resource.UserClaims.Select(x => x.Type)
             });
         }
 
@@ -142,6 +142,32 @@ namespace Indice.AspNetCore.Identity.Features
         }
 
         /// <summary>
+        /// Updates an identity resource.
+        /// </summary>
+        /// <param name="resourceId">The identifier of the identity resource.</param>
+        /// <param name="request">Contains info about the identity resource to be updated.</param>
+        /// <response code="200">OK</response>
+        /// <response code="404">Not Found</response>
+        [HttpPut("identity/{resourceId:int}")]
+        [ProducesResponseType(statusCode: StatusCodes.Status200OK)]
+        [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
+        [CacheResourceFilter]
+        public async Task<IActionResult> UpdateIdentityResource([FromRoute]int resourceId, [FromBody]UpdateIdentityResourceRequest request) {
+            var resource = await _configurationDbContext.IdentityResources.SingleOrDefaultAsync(x => x.Id == resourceId);
+            if (resource == null) {
+                return NotFound();
+            }
+            resource.DisplayName = request.DisplayName;
+            resource.Description = request.Description;
+            resource.Enabled = request.Enabled;
+            resource.Emphasize = request.Emphasize;
+            resource.Required = request.Required;
+            resource.ShowInDiscoveryDocument = request.ShowInDiscoveryDocument;
+            await _configurationDbContext.SaveChangesAsync();
+            return Ok();
+        }
+
+        /// <summary>
         /// Permanently deletes an identity resource.
         /// </summary>
         /// <param name="resourceId">The id of the identity resource to delete.</param>
@@ -174,7 +200,7 @@ namespace Indice.AspNetCore.Identity.Features
                 var searchTerm = options.Search.ToLower();
                 query = query.Where(x => x.Name.ToLower().Contains(searchTerm) || x.Description.ToLower().Contains(searchTerm));
             }
-            var apiResources = await query.Select(x => new ApiResourceInfo {
+            var resources = await query.Select(x => new ApiResourceInfo {
                 Id = x.Id,
                 Name = x.Name,
                 DisplayName = x.DisplayName,
@@ -184,7 +210,7 @@ namespace Indice.AspNetCore.Identity.Features
                 AllowedClaims = x.UserClaims.Select(x => x.Type)
             })
             .ToResultSetAsync(options);
-            return Ok(apiResources);
+            return Ok(resources);
         }
 
         /// <summary>
@@ -200,7 +226,7 @@ namespace Indice.AspNetCore.Identity.Features
                 var searchTerm = options.Search.ToLower();
                 query = query.Where(x => x.Name.ToLower().Contains(searchTerm) || x.Description.ToLower().Contains(searchTerm));
             }
-            var apiScopes = await query.SelectMany(x => x.Scopes).Select(x => new ScopeInfo {
+            var scopes = await query.SelectMany(x => x.Scopes).Select(x => new ScopeInfo {
                 Id = x.Id,
                 Name = x.Name,
                 DisplayName = x.DisplayName,
@@ -211,7 +237,7 @@ namespace Indice.AspNetCore.Identity.Features
                 UserClaims = x.UserClaims.Select(x => x.Type)
             })
             .ToResultSetAsync(options);
-            return Ok(apiScopes);
+            return Ok(scopes);
         }
 
         /// <summary>
@@ -225,25 +251,25 @@ namespace Indice.AspNetCore.Identity.Features
         [HttpGet("protected/{resourceId:int}")]
         [CacheResourceFilter]
         public async Task<ActionResult<ApiResourceInfo>> GetApiResource([FromRoute]int resourceId) {
-            var apiResource = await _configurationDbContext.ApiResources
-                                                           .Include(x => x.UserClaims)
-                                                           .Include(x => x.Secrets)
-                                                           .Include(x => x.Scopes)
-                                                           .ThenInclude(x => x.UserClaims)
-                                                           .AsNoTracking()
-                                                           .SingleOrDefaultAsync(x => x.Id == resourceId);
-            if (apiResource == null) {
+            var resource = await _configurationDbContext.ApiResources
+                                                        .Include(x => x.UserClaims)
+                                                        .Include(x => x.Secrets)
+                                                        .Include(x => x.Scopes)
+                                                        .ThenInclude(x => x.UserClaims)
+                                                        .AsNoTracking()
+                                                        .SingleOrDefaultAsync(x => x.Id == resourceId);
+            if (resource == null) {
                 return NotFound();
             }
             return Ok(new ApiResourceInfo {
-                Id = apiResource.Id,
-                Name = apiResource.Name,
-                DisplayName = apiResource.DisplayName,
-                Description = apiResource.Description,
-                Enabled = apiResource.Enabled,
-                NonEditable = apiResource.NonEditable,
-                AllowedClaims = apiResource.UserClaims.Select(x => x.Type),
-                Scopes = apiResource.Scopes.Any() ? apiResource.Scopes.Select(x => new ScopeInfo {
+                Id = resource.Id,
+                Name = resource.Name,
+                DisplayName = resource.DisplayName,
+                Description = resource.Description,
+                Enabled = resource.Enabled,
+                NonEditable = resource.NonEditable,
+                AllowedClaims = resource.UserClaims.Select(x => x.Type),
+                Scopes = resource.Scopes.Any() ? resource.Scopes.Select(x => new ScopeInfo {
                     Id = x.Id,
                     Name = x.Name,
                     DisplayName = x.DisplayName,
@@ -253,7 +279,7 @@ namespace Indice.AspNetCore.Identity.Features
                     ShowInDiscoveryDocument = x.ShowInDiscoveryDocument,
                     UserClaims = x.UserClaims.Any() ? x.UserClaims.Select(x => x.Type) : default
                 }) : default,
-                Secrets = apiResource.Secrets.Any() ? apiResource.Secrets.Select(x => new ApiSecretInfo {
+                Secrets = resource.Secrets.Any() ? resource.Secrets.Select(x => new ApiSecretInfo {
                     Id = x.Id,
                     Type = x.Type == nameof(SecretType.SharedSecret) ? SecretType.SharedSecret : SecretType.X509Thumbprint,
                     Value = "*****",
@@ -320,13 +346,13 @@ namespace Indice.AspNetCore.Identity.Features
         [ProducesResponseType(statusCode: StatusCodes.Status200OK)]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
         public async Task<IActionResult> UpdateApiResource([FromRoute]int resourceId, [FromBody]UpdateApiResourceRequest request) {
-            var apiResource = await _configurationDbContext.ApiResources.SingleOrDefaultAsync(x => x.Id == resourceId);
-            if (apiResource == null) {
+            var resource = await _configurationDbContext.ApiResources.SingleOrDefaultAsync(x => x.Id == resourceId);
+            if (resource == null) {
                 return NotFound();
             }
-            apiResource.DisplayName = request.DisplayName;
-            apiResource.Description = request.Description;
-            apiResource.Enabled = request.Enabled;
+            resource.DisplayName = request.DisplayName;
+            resource.Description = request.Description;
+            resource.Enabled = request.Enabled;
             await _configurationDbContext.SaveChangesAsync();
             return Ok();
         }
@@ -343,12 +369,12 @@ namespace Indice.AspNetCore.Identity.Features
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
         [CacheResourceFilter(dependentPaths: new string[] { "protected/{resourceId}" })]
         public async Task<ActionResult> AddApiResourceClaims([FromRoute]int resourceId, [FromBody]string[] claims) {
-            var apiResource = await _configurationDbContext.ApiResources.SingleOrDefaultAsync(x => x.Id == resourceId);
-            if (apiResource == null) {
+            var resource = await _configurationDbContext.ApiResources.SingleOrDefaultAsync(x => x.Id == resourceId);
+            if (resource == null) {
                 return NotFound();
             }
-            apiResource.UserClaims = new List<ApiResourceClaim>();
-            apiResource.UserClaims.AddRange(claims.Select(x => new ApiResourceClaim {
+            resource.UserClaims = new List<ApiResourceClaim>();
+            resource.UserClaims.AddRange(claims.Select(x => new ApiResourceClaim {
                 ApiResourceId = resourceId,
                 Type = x
             }));
@@ -368,18 +394,18 @@ namespace Indice.AspNetCore.Identity.Features
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
         [CacheResourceFilter(dependentPaths: new string[] { "protected/{resourceId}" })]
         public async Task<ActionResult> DeleteApiResourceClaim([FromRoute]int resourceId, [FromRoute]string claim) {
-            var apiResource = await _configurationDbContext.ApiResources.Include(x => x.UserClaims).SingleOrDefaultAsync(x => x.Id == resourceId);
-            if (apiResource == null) {
+            var resource = await _configurationDbContext.ApiResources.Include(x => x.UserClaims).SingleOrDefaultAsync(x => x.Id == resourceId);
+            if (resource == null) {
                 return NotFound();
             }
-            if (apiResource.UserClaims == null) {
-                apiResource.UserClaims = new List<ApiResourceClaim>();
+            if (resource.UserClaims == null) {
+                resource.UserClaims = new List<ApiResourceClaim>();
             }
-            var claimToRemove = apiResource.UserClaims.Select(x => x.Type == claim).ToList();
+            var claimToRemove = resource.UserClaims.Select(x => x.Type == claim).ToList();
             if (claimToRemove?.Count == 0) {
                 return NotFound();
             }
-            apiResource.UserClaims.RemoveAll(x => x.Type == claim);
+            resource.UserClaims.RemoveAll(x => x.Type == claim);
             await _configurationDbContext.SaveChangesAsync();
             return Ok();
         }
@@ -396,8 +422,8 @@ namespace Indice.AspNetCore.Identity.Features
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
         [CacheResourceFilter(dependentPaths: new string[] { "protected/{resourceId}" })]
         public async Task<ActionResult> AddApiResourceScope([FromRoute]int resourceId, [FromBody]CreateApiScopeRequest request) {
-            var apiResource = await _configurationDbContext.ApiResources.SingleOrDefaultAsync(x => x.Id == resourceId);
-            if (apiResource == null) {
+            var resource = await _configurationDbContext.ApiResources.SingleOrDefaultAsync(x => x.Id == resourceId);
+            if (resource == null) {
                 return NotFound();
             }
             var scopeToAdd = new ApiScope {
@@ -412,7 +438,7 @@ namespace Indice.AspNetCore.Identity.Features
                 })
                 .ToList()
             };
-            apiResource.Scopes = new List<ApiScope> {
+            resource.Scopes = new List<ApiScope> {
                 scopeToAdd
             };
             await _configurationDbContext.SaveChangesAsync();
@@ -469,18 +495,18 @@ namespace Indice.AspNetCore.Identity.Features
         [ProducesResponseType(statusCode: StatusCodes.Status201Created, type: typeof(ScopeInfo))]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
         public async Task<ActionResult> DeleteApiResourceScope([FromRoute]int resourceId, [FromRoute]int scopeId) {
-            var apiResource = await _configurationDbContext.ApiResources.Include(x => x.Scopes).SingleOrDefaultAsync(x => x.Id == resourceId);
-            if (apiResource == null) {
+            var resource = await _configurationDbContext.ApiResources.Include(x => x.Scopes).SingleOrDefaultAsync(x => x.Id == resourceId);
+            if (resource == null) {
                 return NotFound();
             }
-            if (apiResource.Scopes == null) {
-                apiResource.Scopes = new List<ApiScope>();
+            if (resource.Scopes == null) {
+                resource.Scopes = new List<ApiScope>();
             }
-            var scopeToRemove = apiResource.Scopes.SingleOrDefault(x => x.Id == scopeId);
+            var scopeToRemove = resource.Scopes.SingleOrDefault(x => x.Id == scopeId);
             if (scopeToRemove == null) {
                 return NotFound();
             }
-            apiResource.Scopes.Remove(scopeToRemove);
+            resource.Scopes.Remove(scopeToRemove);
             await _configurationDbContext.SaveChangesAsync();
             return Ok();
         }
@@ -498,16 +524,16 @@ namespace Indice.AspNetCore.Identity.Features
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
         [CacheResourceFilter(dependentPaths: new string[] { "protected/{resourceId}" })]
         public async Task<ActionResult> AddApiResourceScopeClaims([FromRoute]int resourceId, [FromRoute]int scopeId, [FromBody]string[] claims) {
-            var apiResourceScope = await _configurationDbContext.ApiResources
-                                                                .Where(x => x.Id == resourceId)
-                                                                .SelectMany(x => x.Scopes)
-                                                                .Where(x => x.Id == scopeId)
-                                                                .SingleOrDefaultAsync();
-            if (apiResourceScope == null) {
+            var resourceScope = await _configurationDbContext.ApiResources
+                                                             .Where(x => x.Id == resourceId)
+                                                             .SelectMany(x => x.Scopes)
+                                                             .Where(x => x.Id == scopeId)
+                                                             .SingleOrDefaultAsync();
+            if (resourceScope == null) {
                 return NotFound();
             }
-            apiResourceScope.UserClaims = new List<ApiScopeClaim>();
-            apiResourceScope.UserClaims.AddRange(claims.Select(x => new ApiScopeClaim {
+            resourceScope.UserClaims = new List<ApiScopeClaim>();
+            resourceScope.UserClaims.AddRange(claims.Select(x => new ApiScopeClaim {
                 ApiScopeId = scopeId,
                 Type = x
             }));

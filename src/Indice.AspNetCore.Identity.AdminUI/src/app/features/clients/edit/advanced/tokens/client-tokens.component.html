@@ -183,8 +183,10 @@
                         1 yr
                     </span>
                 </span>
-                <span class="input-group-prepend cursor-pointer">
-                    <span class="input-group-text font-12 btn btn-secondary"
+                <span class="input-group-prepend cursor-pointer"
+                      (click)="client.consentLifetime = null">
+                    <span [ngClass]="{ 'active': client.consentLifetime === null }"
+                          class="input-group-text font-12 btn btn-secondary"
                           style="font-size: 12px;">
                         ∞
                     </span>
@@ -373,7 +375,7 @@
         <div>
             <button type="submit"
                     class="btn btn-primary waves-effect waves-light m-r-5">
-                Update
+                Save Changes
             </button>
         </div>
     </div>

@@ -39,18 +39,20 @@ export class UtilitiesService {
     }
 
     public monthsToSeconds(months: number): number {
-        return months * 2629744;
+        return months * 2592000;
     }
 
     public yearsToSeconds(years: number): number {
-        return years * 31556926;
+        return years * 31536000;
     }
 
     public secondsToText(totalSeconds: number): string {
-        const hours = Math.floor(totalSeconds / 3600);
-        const minutes = Math.floor((totalSeconds - (hours * 3600)) / 60);
-        const seconds = totalSeconds - (hours * 3600) - (minutes * 60);
+        const days = Math.floor(totalSeconds / 86400);
+        const hours = Math.floor((totalSeconds - (days * 86400)) / 3600);
+        const minutes = Math.floor((totalSeconds - (days * 86400) - (hours * 3600)) / 60);
+        const seconds = totalSeconds - (days * 86400) - (hours * 3600) - (minutes * 60);
         return `
+            ${days > 0 ? `${days < 10 ? `0${days}` : days} day${days > 1 ? 's' : ''}${hours > 0 || minutes > 0 || seconds > 0 ? ',' : ''}` : ''}
             ${hours > 0 ? `${hours < 10 ? `0${hours}` : hours} hr${minutes > 0 || seconds > 0 ? ',' : ''}` : ''}
             ${minutes > 0 ? `${minutes < 10 ? `0${minutes}` : minutes} min${seconds > 0 ? ',' : ''}` : ''}
             ${seconds > 0 ? `${seconds < 10 ? `0${seconds}` : seconds} secs` : ''}

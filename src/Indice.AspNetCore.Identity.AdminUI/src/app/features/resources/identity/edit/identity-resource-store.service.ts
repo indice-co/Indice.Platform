@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
 
 import { AsyncSubject, Observable } from 'rxjs';
-import { IdentityApiService, IdentityResourceInfo, ClaimTypeInfo, ClaimTypeInfoResultSet } from 'src/app/core/services/identity-api.service';
+import { map } from 'rxjs/operators';
+import { IdentityApiService, IdentityResourceInfo, ClaimTypeInfo, ClaimTypeInfoResultSet, UpdateIdentityResourceRequest, IUpdateIdentityResourceRequest } from 'src/app/core/services/identity-api.service';
 
 @Injectable()
 export class IdentityResourceStore {
@@ -19,6 +20,20 @@ export class IdentityResourceStore {
             });
         }
         return this._identityResource;
+    }
+
+    public updateApiResource(identityResource: IdentityResourceInfo): Observable<void> {
+        return this._api.updateIdentityResource(identityResource.id, new UpdateIdentityResourceRequest({
+            displayName: identityResource.displayName,
+            description: identityResource.description,
+            enabled: identityResource.enabled,
+            emphasize: identityResource.emphasize,
+            required: identityResource.required,
+            showInDiscoveryDocument: identityResource.showInDiscoveryDocument
+        } as IUpdateIdentityResourceRequest)).pipe(map(_ => {
+            this._identityResource.next(identityResource);
+            this._identityResource.complete();
+        }));
     }
 
     public getAllClaims(): Observable<ClaimTypeInfo[]> {

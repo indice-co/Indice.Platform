@@ -167,6 +167,13 @@ export interface IIdentityApiService {
      */
     getIdentityResource(resourceId: number): Observable<IdentityResourceInfo>;
     /**
+     * Updates an identity resource.
+     * @param resourceId The identifier of the identity resource.
+     * @param body (optional) Contains info about the identity resource to be updated.
+     * @return OK
+     */
+    updateIdentityResource(resourceId: number, body?: UpdateIdentityResourceRequest | undefined): Observable<void>;
+    /**
      * Permanently deletes an identity resource.
      * @param resourceId The id of the identity resource to delete.
      * @return OK
@@ -2325,6 +2332,95 @@ export class IdentityApiService implements IIdentityApiService {
             }));
         }
         return _observableOf<IdentityResourceInfo>(<any>null);
+    }
+
+    /**
+     * Updates an identity resource.
+     * @param resourceId The identifier of the identity resource.
+     * @param body (optional) Contains info about the identity resource to be updated.
+     * @return OK
+     */
+    updateIdentityResource(resourceId: number, body?: UpdateIdentityResourceRequest | undefined): Observable<void> {
+        let url_ = this.baseUrl + "/api/resources/identity/{resourceId}";
+        if (resourceId === undefined || resourceId === null)
+            throw new Error("The parameter 'resourceId' must be defined.");
+        url_ = url_.replace("{resourceId}", encodeURIComponent("" + resourceId)); 
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json", 
+            })
+        };
+
+        return this.http.request("put", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processUpdateIdentityResource(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processUpdateIdentityResource(<any>response_);
+                } catch (e) {
+                    return <Observable<void>><any>_observableThrow(e);
+                }
+            } else
+                return <Observable<void>><any>_observableThrow(response_);
+        }));
+    }
+
+    protected processUpdateIdentityResource(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob = 
+            response instanceof HttpResponse ? response.body : 
+            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }};
+        if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ValidationProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            }));
+        } else if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return _observableOf<void>(<any>null);
+            }));
+        } else if (status === 404) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = ProblemDetails.fromJS(resultData404);
+            return throwException("Not Found", status, _responseText, _headers, result404);
+            }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("Internal Server Error", status, _responseText, _headers);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<void>(<any>null);
     }
 
     /**
@@ -6909,6 +7005,76 @@ export interface ICreateApiResourceRequest {
     name?: string | undefined;
     /** List of accociated user claims that should be included when this resource is requested. */
     userClaims?: string[] | undefined;
+    /** Display name of the resource. */
+    displayName?: string | undefined;
+    /** Description of the resource. */
+    description?: string | undefined;
+}
+
+/** Models an identity resource that will be updated on the server. */
+export class UpdateIdentityResourceRequest implements IUpdateIdentityResourceRequest {
+    /** Specifies whether the resource is enabled. */
+    enabled?: boolean;
+    /** Determines whether this resource should be displayed emphasized or not. */
+    emphasize?: boolean;
+    /** Determines whether this resource is required or not. */
+    required?: boolean;
+    /** Determines whether this scope should be displayed in the discovery document or not. */
+    showInDiscoveryDocument?: boolean;
+    /** Display name of the resource. */
+    displayName?: string | undefined;
+    /** Description of the resource. */
+    description?: string | undefined;
+
+    constructor(data?: IUpdateIdentityResourceRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.enabled = _data["enabled"];
+            this.emphasize = _data["emphasize"];
+            this.required = _data["required"];
+            this.showInDiscoveryDocument = _data["showInDiscoveryDocument"];
+            this.displayName = _data["displayName"];
+            this.description = _data["description"];
+        }
+    }
+
+    static fromJS(data: any): UpdateIdentityResourceRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new UpdateIdentityResourceRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["enabled"] = this.enabled;
+        data["emphasize"] = this.emphasize;
+        data["required"] = this.required;
+        data["showInDiscoveryDocument"] = this.showInDiscoveryDocument;
+        data["displayName"] = this.displayName;
+        data["description"] = this.description;
+        return data; 
+    }
+}
+
+/** Models an identity resource that will be updated on the server. */
+export interface IUpdateIdentityResourceRequest {
+    /** Specifies whether the resource is enabled. */
+    enabled?: boolean;
+    /** Determines whether this resource should be displayed emphasized or not. */
+    emphasize?: boolean;
+    /** Determines whether this resource is required or not. */
+    required?: boolean;
+    /** Determines whether this scope should be displayed in the discovery document or not. */
+    showInDiscoveryDocument?: boolean;
     /** Display name of the resource. */
     displayName?: string | undefined;
     /** Description of the resource. */

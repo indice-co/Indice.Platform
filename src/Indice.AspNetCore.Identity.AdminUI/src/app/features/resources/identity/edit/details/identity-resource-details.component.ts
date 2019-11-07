@@ -1,12 +1,12 @@
 import { Component, ViewChild, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { NgForm } from '@angular/forms';
 
 import { Subscription } from 'rxjs';
 import { SwalComponent } from '@sweetalert2/ngx-sweetalert2';
 import { IdentityResourceInfo } from 'src/app/core/services/identity-api.service';
 import { IdentityResourceStore } from '../identity-resource-store.service';
 import { ClaimType } from 'src/app/features/users/edit/details/models/claim-type.model';
+import { ToastService } from 'src/app/layout/services/app-toast.service';
 
 @Component({
     selector: 'app-identity-resource-details',
@@ -15,12 +15,9 @@ import { ClaimType } from 'src/app/features/users/edit/details/models/claim-type
 export class IdentityResourceDetailsComponent implements OnInit, OnDestroy {
     private _updateIdentityResourceSubscription: Subscription;
     private _getResourceSubscription: Subscription;
-    @ViewChild('form', { static: false }) private _form: NgForm;
-    @ViewChild('updateSuccessAlert', { static: false }) private _updateSuccessAlert: SwalComponent;
     @ViewChild('deleteSuccessAlert', { static: false }) private _deleteSuccessAlert: SwalComponent;
-    @ViewChild('deleteAlert', { static: false }) private _deleteAlert: SwalComponent;
 
-    constructor(private _router: Router, private _route: ActivatedRoute, private _identityResourceStore: IdentityResourceStore) { }
+    constructor(private _router: Router, private _route: ActivatedRoute, private _identityResourceStore: IdentityResourceStore, public _toast: ToastService) { }
 
     public identityResource: IdentityResourceInfo;
     public requiredClaims: ClaimType[];
@@ -41,10 +38,6 @@ export class IdentityResourceDetailsComponent implements OnInit, OnDestroy {
         }
     }
 
-    public deletePrompt(): void {
-        this._deleteAlert.fire();
-    }
-
     public delete(): void {
         this._deleteSuccessAlert.fire();
     }
@@ -54,15 +47,8 @@ export class IdentityResourceDetailsComponent implements OnInit, OnDestroy {
     }
 
     public update(): void {
-        const requiredClaims = this.requiredClaims.map(x => Object.assign({}, x));
-        // requiredClaims.forEach((claim: ClaimType) => {
-        //     if (claim.valueType === ValueType.DateTime) {
-        //         const date = claim.value as NgbDateStruct;
-        //         claim.value = this.dateParser.format(date);
-        //     }
-        // });
-        // this._updateIdentityResourceSubscription = this._identityResourceStore.updateUser(this.identityResource, requiredClaims).subscribe(_ => {
-        //     this._updateSuccessAlert.fire();
-        // });
+        this._updateIdentityResourceSubscription = this._identityResourceStore.updateApiResource(this.identityResource).subscribe(_ => {
+            this._toast.showSuccess(`Identity resource '${this.identityResource.name}' was updated successfully.`);
+        });
     }
 }

@@ -48,6 +48,29 @@ namespace Indice.AspNetCore.Identity.Features
     }
 
     /// <summary>
+    /// Models an identity resource that will be updated on the server.
+    /// </summary>
+    public class UpdateIdentityResourceRequest : BasicResourceRequest
+    {
+        /// <summary>
+        /// Specifies whether the resource is enabled.
+        /// </summary>
+        public bool Enabled { get; set; }
+        /// <summary>
+        /// Determines whether this resource should be displayed emphasized or not.
+        /// </summary>
+        public bool Emphasize { get; set; }
+        /// <summary>
+        /// Determines whether this resource is required or not.
+        /// </summary>
+        public bool Required { get; set; }
+        /// <summary>
+        /// Determines whether this scope should be displayed in the discovery document or not.
+        /// </summary>
+        public bool ShowInDiscoveryDocument { get; set; }
+    }
+
+    /// <summary>
     /// Models an API scope that will be updated on the server.
     /// </summary>
     public class UpdateApiScopeRequest : BasicResourceRequest
