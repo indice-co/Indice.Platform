@@ -553,6 +553,13 @@ namespace Indice.AspNetCore.Identity.Features
                     };
                     break;
                 case ClientType.Native:
+                    client.AllowedGrantTypes = new List<ClientGrantType> {
+                        new ClientGrantType {
+                            GrantType = GrantType.Hybrid
+                        }
+                    };
+                    client.RequirePkce = true;
+                    client.RequireClientSecret = false;
                     break;
                 case ClientType.Machine:
                     client.AllowedGrantTypes = new List<ClientGrantType> {

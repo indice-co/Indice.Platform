@@ -12,6 +12,8 @@ import { ToastService } from 'src/app/layout/services/app-toast.service';
 })
 export class ClientDetailsComponent implements OnInit, OnDestroy {
     private _getDataSubscription: Subscription;
+    private _deleteClientSubscription: Subscription;
+    private _updateClientSubscription: Subscription;
 
     constructor(private _route: ActivatedRoute, private _clientStore: ClientStore, public _toast: ToastService, private _router: Router) { }
 
@@ -28,17 +30,23 @@ export class ClientDetailsComponent implements OnInit, OnDestroy {
         if (this._getDataSubscription) {
             this._getDataSubscription.unsubscribe();
         }
+        if (this._deleteClientSubscription) {
+            this._deleteClientSubscription.unsubscribe();
+        }
+        if (this._updateClientSubscription) {
+            this._updateClientSubscription.unsubscribe();
+        }
     }
 
     public delete(): void {
-        this._clientStore.deleteClient(this.client.clientId).subscribe(_ => {
+        this._deleteClientSubscription = this._clientStore.deleteClient(this.client.clientId).subscribe(_ => {
             this._toast.showSuccess(`Client '${this.client.clientName}' was deleted successfully.`);
             this._router.navigate(['../../'], { relativeTo: this._route });
         });
     }
 
     public update(): void {
-        this._clientStore.updateClient(this.client).subscribe(_ => {
+        this._updateClientSubscription = this._clientStore.updateClient(this.client).subscribe(_ => {
             this._toast.showSuccess(`Client '${this.client.clientName}' was updated successfully.`);
         });
     }

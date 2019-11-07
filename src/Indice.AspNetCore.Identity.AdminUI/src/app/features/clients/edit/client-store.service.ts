@@ -4,7 +4,7 @@ import { AsyncSubject, Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import {
     IdentityApiService, SingleClientInfo, IdentityResourceInfoResultSet, IdentityResourceInfo, ApiResourceInfo, CreateClaimRequest, ClaimInfo, UpdateClientRequest, IUpdateClientRequest,
-    ScopeInfo, ScopeInfoResultSet, GrantTypeInfo, IUpdateClientUrls, UpdateClientUrls
+    ScopeInfo, ScopeInfoResultSet, GrantTypeInfo, UpdateClientUrls
 } from 'src/app/core/services/identity-api.service';
 import { UrlType } from './urls/models/urlType';
 

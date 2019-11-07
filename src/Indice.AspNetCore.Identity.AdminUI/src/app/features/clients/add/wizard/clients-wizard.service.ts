@@ -10,14 +10,14 @@ import { IdentityResourcesStepComponent } from './steps/identity-resources/ident
 import { ApiResourcesStepComponent } from './steps/api-resources/api-resources-step.component';
 import { SummaryStepComponent } from './steps/summary/summary-step.component';
 import { SecretsStepComponent } from './steps/secrets/secrets-step.component';
-import { IdentityResourceInfo, ApiResourceInfo, IdentityResourceInfoResultSet, IdentityApiService, ApiResourceInfoResultSet, ClientType as Type } from 'src/app/core/services/identity-api.service';
+import { IdentityResourceInfo, ApiResourceInfo, IdentityResourceInfoResultSet, IdentityApiService, ApiResourceInfoResultSet, ClientType as Type, ScopeInfoResultSet, ScopeInfo } from 'src/app/core/services/identity-api.service';
 
 @Injectable()
 export class ClientsWizardService {
     private _clientTypes: ClientType[] = [];
     private _clientTypeSteps: { key: string, steps: WizardStepDescriptor[] }[] = [];
     private _identityResources: AsyncSubject<IdentityResourceInfo[]>;
-    private _apiResources: AsyncSubject<ApiResourceInfo[]>;
+    private _apiResources: AsyncSubject<ScopeInfo[]>;
 
     constructor(private _api: IdentityApiService) {
         this._clientTypes.push(...[
@@ -54,7 +54,12 @@ export class ClientsWizardService {
             ]]
         }, {
             key: Type.Native, steps: [...[
-                new WizardStepDescriptor('Basic details', ExtendedInfoStepComponent)
+                new WizardStepDescriptor('Basic details', ExtendedInfoStepComponent),
+                new WizardStepDescriptor('Application URLs', UrlsStepComponent),
+                new WizardStepDescriptor('Secrets', SecretsStepComponent),
+                new WizardStepDescriptor('Access to Identity resources', IdentityResourcesStepComponent),
+                new WizardStepDescriptor('Access to API resources', ApiResourcesStepComponent),
+                new WizardStepDescriptor('Summary', SummaryStepComponent)
             ]]
         }, {
             key: Type.Machine, steps: [...[
@@ -93,10 +98,10 @@ export class ClientsWizardService {
         return this._identityResources;
     }
 
-    public getApiResources(): Observable<ApiResourceInfo[]> {
+    public getApiResources(): Observable<ScopeInfo[]> {
         if (!this._apiResources) {
-            this._apiResources = new AsyncSubject<ApiResourceInfo[]>();
-            this._api.getApiResources(1, 2147483647, 'name+', undefined).subscribe((response: ApiResourceInfoResultSet) => {
+            this._apiResources = new AsyncSubject<ScopeInfo[]>();
+            this._api.getApiScopes(1, 2147483647, 'name+', undefined).subscribe((response: ScopeInfoResultSet) => {
                 this._apiResources.next(response.items);
                 this._apiResources.complete();
             });

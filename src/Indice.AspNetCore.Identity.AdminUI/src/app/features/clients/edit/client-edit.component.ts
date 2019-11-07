@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
 import { ClientStore } from './client-store.service';
+import { ClientType } from 'src/app/core/services/identity-api.service';
 
 @Component({
     selector: 'app-client-edit',
