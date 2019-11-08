@@ -32,7 +32,7 @@ namespace Indice.Identity.Security
                 },
                 AllowOfflineAccess = false,
                 ClientSecrets = {
-                    new Secret("qmHK5Rqc4rZTBE3BqCw6ScxR5N57rnfzcULdmKA33cc8RjhsZsqUygMVX43y6yJB".Sha256())
+                    new Secret("qmHK5Rqc4rZTBE3BqCw6ScxR5N57rnfzcULdmKA33cc8RjhsZsqUygMVX43y6yJB".ToSha256())
                 },
                 PostLogoutRedirectUris = {
                     "https://www.getpostman.com"
@@ -84,7 +84,7 @@ namespace Indice.Identity.Security
                 AccessTokenType = AccessTokenType.Jwt,
                 AllowAccessTokensViaBrowser = true,
                 AllowedCorsOrigins = {
-                    "https://localhost:5000",
+                    "https://localhost:2000",
                     "https://idsrv-admin-ui.azurewebsites.net"
                 },
                 AllowedGrantTypes = GrantTypes.Implicit,
@@ -98,11 +98,11 @@ namespace Indice.Identity.Security
                     JwtClaimTypes.Role
                 },
                 PostLogoutRedirectUris = {
-                    "https://localhost:5000/docs",
+                    "https://localhost:2000/docs",
                     "https://idsrv-admin-ui.azurewebsites.net/docs"
                 },
                 RedirectUris = {
-                    "https://localhost:5000/docs/oauth2-redirect.html",
+                    "https://localhost:2000/docs/oauth2-redirect.html",
                     "https://idsrv-admin-ui.azurewebsites.net/docs/oauth2-redirect.html"
                 },
                 RequireConsent = true

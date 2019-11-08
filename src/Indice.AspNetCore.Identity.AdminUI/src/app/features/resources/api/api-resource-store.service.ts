@@ -4,7 +4,7 @@ import { AsyncSubject, Observable, forkJoin } from 'rxjs';
 import { map } from 'rxjs/operators';
 import {
     ApiResourceInfo, IdentityApiService, ScopeInfo, ClaimTypeInfo, ClaimTypeInfoResultSet, UpdateApiResourceRequest, IUpdateApiResourceRequest, CreateApiScopeRequest,
-    UpdateApiScopeRequest, IUpdateApiScopeRequest
+    UpdateApiScopeRequest, IUpdateApiScopeRequest, CreateSecretRequest, ApiSecretInfo, ICreateSecretRequest, SecretInfo
 } from 'src/app/core/services/identity-api.service';
 
 @Injectable()
@@ -42,12 +42,39 @@ export class ApiResourceStore {
     }
 
     public addApiResourceClaim(apiResourceId: number, claim: ClaimTypeInfo): Observable<void> {
-        this.getApiResource(apiResourceId).subscribe((apiResource: ApiResourceInfo) => {
+        return this.getApiResource(apiResourceId).pipe(map((apiResource: ApiResourceInfo) => {
             apiResource.allowedClaims.push(claim.name);
             this._apiResource.next(apiResource);
             this._apiResource.complete();
+        }));
+    }
+
+    public addApiResourceSecret(apiResourceId: number, secret: CreateSecretRequest): Observable<void> {
+        const getApiResource = this.getApiResource(apiResourceId);
+        const addSecret = this._api.addApiResourceSecret(apiResourceId, secret);
+        return forkJoin([getApiResource, addSecret]).pipe(map((responses: [ApiResourceInfo, SecretInfo]) => {
+            return {
+                apiResource: responses[0],
+                addedSecret: responses[1]
+            };
+        })).pipe(map((result: { apiResource: ApiResourceInfo, addedSecret: ApiSecretInfo }) => {
+            (result.addedSecret as any).valueText = 'Value is hidden';
+            result.apiResource.secrets.push(result.addedSecret);
+            this._apiResource.next(result.apiResource);
+            this._apiResource.complete();
+        }));
+    }
+
+    public deleteApiResourceSecret(apiResourceId: number, secret: ApiSecretInfo): Observable<void> {
+        this.getApiResource(apiResourceId).subscribe((apiResource: ApiResourceInfo) => {
+            const index = apiResource.secrets.indexOf(secret);
+            if (index > -1) {
+                apiResource.secrets.splice(index, 1);
+            }
+            this._apiResource.next(apiResource);
+            this._apiResource.complete();
         });
-        return this._api.addApiResourceClaims(apiResourceId, [claim.name]);
+        return this._api.deleteApiResourceSecret(apiResourceId, secret.id);
     }
 
     public deleteApiResourceClaim(apiResourceId: number, claim: ClaimTypeInfo): Observable<void> {

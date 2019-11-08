@@ -21,6 +21,8 @@ import { ApiResourceClaimsComponent } from './api/edit/claims/api-resource-claim
 import { ApiResourceScopeAddComponent } from './api/edit/scopes/add/api-resource-scope-add.component';
 import { UserClaimsStepComponent } from './api/wizard/steps/user-claims/user-claims-step.component';
 import { BasicInfoStepComponent } from './api/wizard/steps/basic-info/basic-info-step.component';
+import { ApiResourceSecretsComponent } from './api/edit/secrets/api-resource-secrets.component';
+import { NgbDatepickerModule } from '@ng-bootstrap/ng-bootstrap';
 
 @NgModule({
     declarations: [
@@ -39,7 +41,8 @@ import { BasicInfoStepComponent } from './api/wizard/steps/basic-info/basic-info
         BasicInfoStepComponent,
         UserClaimsStepComponent,
         ApiResourceClaimsComponent,
-        ApiResourceScopeAddComponent
+        ApiResourceScopeAddComponent,
+        ApiResourceSecretsComponent
     ],
     imports: [
         CommonModule,
@@ -47,7 +50,8 @@ import { BasicInfoStepComponent } from './api/wizard/steps/basic-info/basic-info
         ReactiveFormsModule,
         ResourcesRoutingModule,
         SharedModule,
-        SweetAlert2Module
+        SweetAlert2Module,
+        NgbDatepickerModule
     ],
     entryComponents: [
         BasicInfoStepComponent,

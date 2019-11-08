@@ -12,7 +12,7 @@
                     [attr.data-target]="'#collapse-' + scope.id"
                     [attr.aria-expanded]="scope['isOpen']"
                     [attr.aria-controls]="'collapse-' + scope.id"
-                    (click)="openPanel(i)">
+                    (click)="togglePanel(i)">
                 {{ scope.name }}
             </button>
         </div>
@@ -41,8 +41,9 @@
                     </li>
                 </ul>
                 <app-api-resource-scope-details *ngIf="detailsActive"
-                                                [scope]="scope" 
-                                                [editable]="!apiResource.nonEditable">
+                                                [scope]="scope"
+                                                [editable]="!apiResource.nonEditable"
+                                                [id]="i">
                 </app-api-resource-scope-details>
                 <app-api-resource-scope-claims *ngIf="!detailsActive"
                                                [scope]="scope">

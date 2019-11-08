@@ -3,9 +3,9 @@
 namespace Indice.AspNetCore.Identity.Features
 {
     /// <summary>
-    /// Models a client secret that will be created on the server.
+    /// Models a client or API secret that will be created on the server.
     /// </summary>
-    public class ClientSecretRequest
+    public class CreateSecretRequest
     {
         /// <summary>
         /// Description of client secret.

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Mime;
 using System.Threading.Tasks;
+using IdentityModel;
 using IdentityServer4.EntityFramework.Entities;
 using Indice.Types;
 using Microsoft.AspNetCore.Authorization;
@@ -358,6 +359,69 @@ namespace Indice.AspNetCore.Identity.Features
         }
 
         /// <summary>
+        /// Adds a new scope to an existing API resource.
+        /// </summary>
+        /// <param name="resourceId">The identifier of the API resource.</param>
+        /// <param name="request">Contains info about the API scope to be created.</param>
+        /// <response code="201">Created</response>
+        /// <response code="404">Not Found</response>
+        [HttpPost("protected/{resourceId:int}/secrets")]
+        [ProducesResponseType(statusCode: StatusCodes.Status201Created, type: typeof(SecretInfo))]
+        [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
+        [CacheResourceFilter(dependentPaths: new string[] { "protected/{resourceId}" })]
+        public async Task<ActionResult<SecretInfo>> AddApiResourceSecret([FromRoute]int resourceId, [FromBody]CreateSecretRequest request) {
+            var resource = await _configurationDbContext.ApiResources.SingleOrDefaultAsync(x => x.Id == resourceId);
+            if (resource == null) {
+                return NotFound();
+            }
+            var secretToAdd = new ApiSecret {
+                Description = request.Description,
+                Value = request.Value.ToSha256(),
+                Expiration = request.Expiration,
+                Type = $"{request.Type}"
+            };
+            resource.Secrets = new List<ApiSecret> {
+                secretToAdd
+            };
+            await _configurationDbContext.SaveChangesAsync();
+            return CreatedAtAction(string.Empty, new SecretInfo {
+                Id = secretToAdd.Id,
+                Description = secretToAdd.Description,
+                Expiration = secretToAdd.Expiration,
+                Type = secretToAdd.Type == nameof(SecretType.SharedSecret) ? SecretType.SharedSecret : SecretType.X509Thumbprint,
+                Value = "*****"
+            });
+        }
+
+        /// <summary>
+        /// Removes a specified claim from an API resource.
+        /// </summary>
+        /// <param name="resourceId">The identifier of the API resource.</param>
+        /// <param name="secretId">The identifier of the API resource secret to remove.</param>
+        /// <response code="200">OK</response>
+        /// <response code="404">Not Found</response>
+        [HttpDelete("protected/{resourceId:int}/secrets/{secretId}")]
+        [ProducesResponseType(statusCode: StatusCodes.Status200OK)]
+        [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
+        [CacheResourceFilter(dependentPaths: new string[] { "protected/{resourceId}" })]
+        public async Task<ActionResult> DeleteApiResourceSecret([FromRoute]int resourceId, [FromRoute]int secretId) {
+            var resource = await _configurationDbContext.ApiResources.Include(x => x.Secrets).SingleOrDefaultAsync(x => x.Id == resourceId);
+            if (resource == null) {
+                return NotFound();
+            }
+            if (resource.Secrets == null) {
+                resource.Secrets = new List<ApiSecret>();
+            }
+            var secretToRemove = resource.Secrets.SingleOrDefault(x => x.Id == secretId);
+            if (secretToRemove == null) {
+                return NotFound();
+            }
+            resource.Secrets.Remove(secretToRemove);
+            await _configurationDbContext.SaveChangesAsync();
+            return Ok();
+        }
+
+        /// <summary>
         /// Adds claims to an API resource.
         /// </summary>
         /// <param name="resourceId">The identifier of the API resource.</param>
@@ -421,7 +485,7 @@ namespace Indice.AspNetCore.Identity.Features
         [ProducesResponseType(statusCode: StatusCodes.Status201Created, type: typeof(ScopeInfo))]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
         [CacheResourceFilter(dependentPaths: new string[] { "protected/{resourceId}" })]
-        public async Task<ActionResult> AddApiResourceScope([FromRoute]int resourceId, [FromBody]CreateApiScopeRequest request) {
+        public async Task<ActionResult<ScopeInfo>> AddApiResourceScope([FromRoute]int resourceId, [FromBody]CreateApiScopeRequest request) {
             var resource = await _configurationDbContext.ApiResources.SingleOrDefaultAsync(x => x.Id == resourceId);
             if (resource == null) {
                 return NotFound();

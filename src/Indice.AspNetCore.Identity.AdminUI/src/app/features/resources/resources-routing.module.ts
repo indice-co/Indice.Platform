@@ -13,6 +13,7 @@ import { ApiResourceScopesComponent } from './api/edit/scopes/api-resource-scope
 import { ApiResourceAddComponent } from './api/add/api-resource-add.component';
 import { ApiResourceClaimsComponent } from './api/edit/claims/api-resource-claims.component';
 import { ApiResourceScopeAddComponent } from './api/edit/scopes/add/api-resource-scope-add.component';
+import { ApiResourceSecretsComponent } from './api/edit/secrets/api-resource-secrets.component';
 
 const routes: Routes = [
     { path: '', redirectTo: 'identity', pathMatch: 'full' },
@@ -34,7 +35,7 @@ const routes: Routes = [
             { path: 'scopes', component: ApiResourceScopesComponent },
             { path: 'scopes/add', component: ApiResourceScopeAddComponent },
             { path: 'claims', component: ApiResourceClaimsComponent },
-            { path: 'secrets' }
+            { path: 'secrets', component: ApiResourceSecretsComponent }
         ]
     }
 ];

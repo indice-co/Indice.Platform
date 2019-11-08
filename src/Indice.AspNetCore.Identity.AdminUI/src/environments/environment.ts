@@ -3,10 +3,10 @@
 // The list of file replacements can be found in `angular.json`.
 
 export const environment = {
-  api_url: 'https://localhost:5000',
-  api_docs: 'https://localhost:5000/docs/index.html',
+  api_url: 'https://localhost:2000',
+  api_docs: 'https://localhost:2000/docs/index.html',
   auth_settings: {
-    authority: 'https://localhost:5000',
+    authority: 'https://localhost:2000',
     client_id: 'idsrv-admin-ui',
     filterProtocolClaims: true,
     loadUserInfo: true,

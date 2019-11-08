@@ -62,7 +62,7 @@ namespace Indice.Identity.Security
             };
             var identityApi = new ApiResource(IdentityServerApi.Scope, "IdentityServer API", claimTypes) {
                 ApiSecrets = {
-                    new Secret("VGLwBUKNQbfZABgZgD45PshqPZHkYJVrFPKR4QKsZRLdzAnzU2UHzQUHc2Zhd759".Sha256())
+                    new Secret("VGLwBUKNQbfZABgZgD45PshqPZHkYJVrFPKR4QKsZRLdzAnzU2UHzQUHc2Zhd759".ToSha256())
                 },
                 Description = "API backing the IdentityServer Management Tool."
             };

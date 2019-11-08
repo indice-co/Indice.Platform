@@ -12,8 +12,9 @@ import { ApiResourceStore } from '../../api-resource-store.service';
 })
 export class ApiResourceDetailsComponent implements OnInit, OnDestroy {
     private _getDataSubscription: Subscription;
+    private _updateApiResourceSubscription: Subscription;
 
-    constructor(private _route: ActivatedRoute, private _apiResourceStore: ApiResourceStore, public _toast: ToastService, private _router: Router) { }
+    constructor(private _route: ActivatedRoute, private _apiResourceStore: ApiResourceStore, public _toast: ToastService) { }
 
     public apiResource: ApiResourceInfo;
 
@@ -28,6 +29,9 @@ export class ApiResourceDetailsComponent implements OnInit, OnDestroy {
         if (this._getDataSubscription) {
             this._getDataSubscription.unsubscribe();
         }
+        if (this._updateApiResourceSubscription) {
+            this._updateApiResourceSubscription.unsubscribe();
+        }
     }
 
     public delete(): void {
@@ -38,7 +42,7 @@ export class ApiResourceDetailsComponent implements OnInit, OnDestroy {
     }
 
     public update(): void {
-        this._apiResourceStore.updateApiResource(this.apiResource).subscribe(_ => {
+        this._updateApiResourceSubscription = this._apiResourceStore.updateApiResource(this.apiResource).subscribe(_ => {
             this._toast.showSuccess(`API resource '${this.apiResource.name}' was updated successfully.`);
         });
     }

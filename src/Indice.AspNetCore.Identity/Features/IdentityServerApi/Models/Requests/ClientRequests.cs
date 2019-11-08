@@ -27,7 +27,7 @@ namespace Indice.AspNetCore.Identity.Features
         /// <summary>
         /// The client secrets.
         /// </summary>
-        public List<ClientSecretRequest> Secrets { get; set; } = new List<ClientSecretRequest>();
+        public List<CreateSecretRequest> Secrets { get; set; } = new List<CreateSecretRequest>();
         /// <summary>
         /// The list of identity resources allowed by the client.
         /// </summary>
