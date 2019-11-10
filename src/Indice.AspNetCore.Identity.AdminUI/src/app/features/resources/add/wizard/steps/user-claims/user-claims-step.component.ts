@@ -2,21 +2,20 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { AbstractControl } from '@angular/forms';
 
 import { Subscription } from 'rxjs';
-import { ClaimTypeInfo } from 'src/app/core/services/identity-api.service';
+import { ClaimTypeInfo, IdentityApiService, ClaimTypeInfoResultSet } from 'src/app/core/services/identity-api.service';
 import { StepBaseComponent } from 'src/app/shared/components/step-base/step-base.component';
-import { ApiResourceWizardModel } from '../../../models/api-resource-wizard-model';
-import { ApiResourceStore } from '../../../api-resource-store.service';
+import { ResourceWizardModel } from '../../../models/resource-wizard-model';
 
 @Component({
     selector: 'app-user-claims-step',
     templateUrl: './user-claims-step.component.html'
 })
-export class UserClaimsStepComponent extends StepBaseComponent<ApiResourceWizardModel> implements OnInit, OnDestroy {
+export class UserClaimsStepComponent extends StepBaseComponent<ResourceWizardModel> implements OnInit, OnDestroy {
     private _getDataSubscription: Subscription;
     private _addApiResourceScopeClaim: Subscription;
     private _selectedClaimsControl: AbstractControl;
 
-    constructor(private _apiResourceStore: ApiResourceStore) {
+    constructor(private _api: IdentityApiService) {
         super();
     }
 
@@ -24,10 +23,10 @@ export class UserClaimsStepComponent extends StepBaseComponent<ApiResourceWizard
     public selectedClaims: ClaimTypeInfo[];
 
     public ngOnInit(): void {
-        this._apiResourceStore.getAllClaims().subscribe((allClaims: ClaimTypeInfo[]) => {
+        this._api.getClaimTypes(undefined, 1, 2147483647, 'name+', undefined).subscribe((response: ClaimTypeInfoResultSet) => {
             this._selectedClaimsControl = this.data.form.controls.userClaims;
-            this.availableClaims = allClaims.filter(x => !this._selectedClaimsControl.value.includes(x.name));
-            this.selectedClaims = allClaims.filter(x => this._selectedClaimsControl.value.includes(x.name));
+            this.availableClaims = response.items.filter(x => !this._selectedClaimsControl.value.includes(x.name));
+            this.selectedClaims = response.items.filter(x => this._selectedClaimsControl.value.includes(x.name));
         });
     }
 

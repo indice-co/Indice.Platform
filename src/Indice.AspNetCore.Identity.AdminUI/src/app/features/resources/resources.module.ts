@@ -9,20 +9,19 @@ import { IdentityResourcesComponent } from './identity/identity-resources.compon
 import { IdentityResourceEditComponent } from './identity/edit/identity-resource-edit.component';
 import { IdentityResourceDetailsComponent } from './identity/edit/details/identity-resource-details.component';
 import { IdentityResourceClaimsComponent } from './identity/edit/claims/identity-resource-claims.component';
-import { IdentityResourceAddComponent } from './identity/add/identity-resource-add.component';
 import { ApiResourcesComponent } from './api/api-resources.component';
 import { ApiResourceEditComponent } from './api/edit/api-resource-edit.component';
 import { ApiResourceDetailsComponent } from './api/edit/details/api-resource-details.component';
 import { ApiResourceScopesComponent } from './api/edit/scopes/api-resource-scopes.component';
 import { ApiResourceScopeDetailsComponent } from './api/edit/scopes/details/api-resource-scope-details.component';
 import { ApiResourceScopeClaimsComponent } from './api/edit/scopes/claims/api-resource-scope-claims.component';
-import { ApiResourceAddComponent } from './api/add/api-resource-add.component';
+import { ResourceAddComponent } from './add/resource-add.component';
 import { ApiResourceClaimsComponent } from './api/edit/claims/api-resource-claims.component';
 import { ApiResourceScopeAddComponent } from './api/edit/scopes/add/api-resource-scope-add.component';
-import { UserClaimsStepComponent } from './api/wizard/steps/user-claims/user-claims-step.component';
-import { BasicInfoStepComponent } from './api/wizard/steps/basic-info/basic-info-step.component';
 import { ApiResourceSecretsComponent } from './api/edit/secrets/api-resource-secrets.component';
 import { NgbDatepickerModule } from '@ng-bootstrap/ng-bootstrap';
+import { UserClaimsStepComponent } from './add/wizard/steps/user-claims/user-claims-step.component';
+import { BasicInfoStepComponent } from './add/wizard/steps/basic-info/basic-info-step.component';
 
 @NgModule({
     declarations: [
@@ -30,14 +29,13 @@ import { NgbDatepickerModule } from '@ng-bootstrap/ng-bootstrap';
         IdentityResourceEditComponent,
         IdentityResourceDetailsComponent,
         IdentityResourceClaimsComponent,
-        IdentityResourceAddComponent,
         ApiResourcesComponent,
         ApiResourceEditComponent,
         ApiResourceDetailsComponent,
         ApiResourceScopesComponent,
         ApiResourceScopeDetailsComponent,
         ApiResourceScopeClaimsComponent,
-        ApiResourceAddComponent,
+        ResourceAddComponent,
         BasicInfoStepComponent,
         UserClaimsStepComponent,
         ApiResourceClaimsComponent,

@@ -3,7 +3,6 @@ import { ActivatedRoute } from '@angular/router';
 
 import { Subscription } from 'rxjs';
 import { SwalComponent } from '@sweetalert2/ngx-sweetalert2';
-import { NgbPanelChangeEvent } from '@ng-bootstrap/ng-bootstrap';
 import { ScopeInfo } from 'src/app/core/services/identity-api.service';
 import { ToastService } from 'src/app/layout/services/app-toast.service';
 import { ApiResourceStore } from '../../../api-resource-store.service';
@@ -24,7 +23,7 @@ export class ApiResourceScopeDetailsComponent implements OnInit, OnDestroy {
 
     @Input() public scope = new ScopeInfo();
     @Input() public editable = false;
-    @Input() public index: number;
+    public discriminator = this.utilities.newGuid();
 
     public ngOnInit(): void {
         this._apiResourceId = +this._route.parent.snapshot.params.id;
@@ -58,6 +57,4 @@ export class ApiResourceScopeDetailsComponent implements OnInit, OnDestroy {
             this._toast.showSuccess(`API scope '${this.scope.name}' was updated successfully.`);
         });
     }
-
-    public panelChanged(event: NgbPanelChangeEvent): void { }
 }

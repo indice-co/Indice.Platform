@@ -31,8 +31,8 @@
         <div class="col-sm-10">
             <input class="form-control"
                    type="text"
-                   [id]="'scope-display-name-' + index"
-                   [name]="'scope-display-name-' + index"
+                   [id]="'scope-display-name-' + discriminator"
+                   [name]="'scope-display-name-' + discriminator"
                    [(ngModel)]="scope.displayName"
                    maxlength="200"
                    #scopeName="ngModel" />
@@ -44,8 +44,8 @@
             Description
         </label>
         <div class="col-sm-10">
-            <textarea [id]="'scope-description-' + index"
-                      [name]="'scope-description-' + index"
+            <textarea [id]="'scope-description-' + discriminator"
+                      [name]="'scope-description-' + discriminator"
                       class="form-control"
                       rows="3"
                       maxlength="1000"
@@ -61,8 +61,8 @@
             <div class="form-check col-form-label">
                 <input class="form-check-input"
                        type="checkbox"
-                       [id]="'scope-required-' + index"
-                       [name]="'scope-required-' + index"
+                       [id]="'scope-required-' + discriminator"
+                       [name]="'scope-required-' + discriminator"
                        [(ngModel)]="scope.required"
                        #required="ngModel" />
             </div>
@@ -75,8 +75,8 @@
             <div class="form-check col-form-label">
                 <input class="form-check-input"
                        type="checkbox"
-                       [id]="'scope-show-in-dd-' + index"
-                       [name]="'scope-show-in-dd-' + index"
+                       [id]="'scope-show-in-dd-' + discriminator"
+                       [name]="'scope-show-in-dd-' + discriminator"
                        [(ngModel)]="scope.showInDiscoveryDocument"
                        #showInDiscoveryDocument="ngModel" />
             </div>
@@ -104,7 +104,7 @@
             </button>
             <button type="button"
                     class="btn btn-danger m-r-5 float-right"
-                    (click)="deletePrompt(scope)" 
+                    (click)="deletePrompt(scope)"
                     *ngIf="editable">
                 Delete
             </button>

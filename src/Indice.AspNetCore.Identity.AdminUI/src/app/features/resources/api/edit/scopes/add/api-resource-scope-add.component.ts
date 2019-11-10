@@ -6,12 +6,12 @@ import { Subscription } from 'rxjs';
 import { WizardStepDescriptor } from 'src/app/shared/components/step-base/models/wizard-step-descriptor';
 import { WizardStepDirective } from 'src/app/shared/components/step-base/wizard-step.directive';
 import { StepBaseComponent } from 'src/app/shared/components/step-base/step-base.component';
-import { ScopeInfo, CreateApiScopeRequest } from 'src/app/core/services/identity-api.service';
+import { CreateApiScopeRequest } from 'src/app/core/services/identity-api.service';
 import { ToastService } from 'src/app/layout/services/app-toast.service';
-import { ApiResourceWizardModel } from '../../../models/api-resource-wizard-model';
-import { UserClaimsStepComponent } from '../../../wizard/steps/user-claims/user-claims-step.component';
-import { BasicInfoStepComponent } from '../../../wizard/steps/basic-info/basic-info-step.component';
+import { ResourceWizardModel } from '../../../../add/models/resource-wizard-model';
 import { ApiResourceStore } from '../../../api-resource-store.service';
+import { UserClaimsStepComponent } from 'src/app/features/resources/add/wizard/steps/user-claims/user-claims-step.component';
+import { BasicInfoStepComponent } from 'src/app/features/resources/add/wizard/steps/basic-info/basic-info-step.component';
 
 @Component({
     selector: 'app-api-resource-scope-add',
@@ -19,7 +19,7 @@ import { ApiResourceStore } from '../../../api-resource-store.service';
 })
 export class ApiResourceScopeAddComponent implements OnInit {
     @ViewChild(WizardStepDirective, { static: false }) private _wizardStepHost: WizardStepDirective;
-    private _loadedStepInstance: StepBaseComponent<ApiResourceWizardModel>;
+    private _loadedStepInstance: StepBaseComponent<ResourceWizardModel>;
     private _formValidatedSubscription: Subscription;
     private _apiResourceId: number;
 
@@ -114,12 +114,13 @@ export class ApiResourceScopeAddComponent implements OnInit {
         viewContainerRef.clear();
         const componentRef = viewContainerRef.createComponent(componentFactory);
         // Keep a reference of the instance of the step component.
-        this._loadedStepInstance = componentRef.instance as StepBaseComponent<ApiResourceWizardModel>;
+        this._loadedStepInstance = componentRef.instance as StepBaseComponent<ResourceWizardModel>;
         // Pass data to the dynamically loaded component.
         this._loadedStepInstance.data = {
             apiResource: this.resource,
-            form: this.form
-        } as ApiResourceWizardModel;
+            form: this.form,
+            displayType: false
+        } as ResourceWizardModel;
         if (this._formValidatedSubscription) {
             this._formValidatedSubscription.unsubscribe();
         }

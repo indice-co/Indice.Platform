@@ -1,8 +1,7 @@
-import { Component, ViewChild, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 
 import { Subscription } from 'rxjs';
-import { SwalComponent } from '@sweetalert2/ngx-sweetalert2';
 import { IdentityResourceInfo } from 'src/app/core/services/identity-api.service';
 import { IdentityResourceStore } from '../identity-resource-store.service';
 import { ClaimType } from 'src/app/features/users/edit/details/models/claim-type.model';
@@ -14,8 +13,8 @@ import { ToastService } from 'src/app/layout/services/app-toast.service';
 })
 export class IdentityResourceDetailsComponent implements OnInit, OnDestroy {
     private _updateIdentityResourceSubscription: Subscription;
+    private _deleteIdentityResourceSubscription: Subscription;
     private _getResourceSubscription: Subscription;
-    @ViewChild('deleteSuccessAlert', { static: false }) private _deleteSuccessAlert: SwalComponent;
 
     constructor(private _router: Router, private _route: ActivatedRoute, private _identityResourceStore: IdentityResourceStore, public _toast: ToastService) { }
 
@@ -36,18 +35,20 @@ export class IdentityResourceDetailsComponent implements OnInit, OnDestroy {
         if (this._updateIdentityResourceSubscription) {
             this._updateIdentityResourceSubscription.unsubscribe();
         }
+        if (this._deleteIdentityResourceSubscription) {
+            this._deleteIdentityResourceSubscription.unsubscribe();
+        }
     }
 
     public delete(): void {
-        this._deleteSuccessAlert.fire();
-    }
-
-    public goToList(): void {
-        this._router.navigateByUrl('/app/resources/identity');
+        this._deleteIdentityResourceSubscription = this._identityResourceStore.deleteIdentityResource(this.identityResource.id).subscribe(_ => {
+            this._toast.showSuccess(`Identity resource '${this.identityResource.name}' was deleted successfully.`);
+            this._router.navigate(['../../'], { relativeTo: this._route });
+        });
     }
 
     public update(): void {
-        this._updateIdentityResourceSubscription = this._identityResourceStore.updateApiResource(this.identityResource).subscribe(_ => {
+        this._updateIdentityResourceSubscription = this._identityResourceStore.updateIdentityResource(this.identityResource).subscribe(_ => {
             this._toast.showSuccess(`Identity resource '${this.identityResource.name}' was updated successfully.`);
         });
     }

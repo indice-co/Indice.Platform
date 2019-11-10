@@ -15,6 +15,9 @@
     <div class="form-group row">
         <label for="client-id"
                class="col-sm-2 col-form-label">
+            <i class="dripicons-information align-middle"
+               title="The unique identifier for this application.">
+            </i>
             Client Id
         </label>
         <div class="col-sm-10 col-form-label">
@@ -28,6 +31,9 @@
     <div class="form-group row">
         <label for="client-display-name"
                class="col-sm-2 col-form-label">
+            <i class="dripicons-information align-middle"
+               title="Application name that will be seen on consent screen.">
+            </i>
             Display Name (*)
         </label>
         <div class="col-sm-10">
@@ -64,6 +70,9 @@
     <div class="form-group row">
         <label for="client-display-url"
                class="col-sm-2 col-form-label">
+            <i class="dripicons-information align-middle"
+               title="Application URL that will be seen on consent screen.">
+            </i>
             Display URL
         </label>
         <div class="col-sm-10">
@@ -79,6 +88,9 @@
     <div class="form-group row">
         <label for="client-logo-url"
                class="col-sm-2 col-form-label">
+            <i class="dripicons-information align-middle"
+               title="Application logo that will be seen on consent screen.">
+            </i>
             Logo URL
         </label>
         <div class="col-sm-10">
@@ -110,7 +122,12 @@
     </div>
     <div class="form-group row">
         <label for="client-require-consent"
-               class="col-sm-2 col-form-label">Require Consent</label>
+               class="col-sm-2 col-form-label">
+            <i class="dripicons-information align-middle"
+               title="Specifies whether a consent screen is required.">
+            </i>
+            Require Consent
+        </label>
         <div class="col-sm-10">
             <div class="form-check col-form-label">
                 <input class="form-check-input"
@@ -124,7 +141,12 @@
     </div>
     <div class="form-group row">
         <label for="client-remember-consent"
-               class="col-sm-2 col-form-label">Remember Consent</label>
+               class="col-sm-2 col-form-label">
+            <i class="dripicons-information align-middle"
+               title="Specifies whether consent screen is remembered after having been given.">
+            </i>
+            Remember Consent
+        </label>
         <div class="col-sm-10">
             <div class="form-check col-form-label">
                 <input class="form-check-input"
@@ -139,11 +161,11 @@
     <div class="form-group">
         <div>
             <button type="submit"
-                    class="btn btn-primary waves-effect waves-light m-r-5">
+                    class="btn btn-primary m-r-5">
                 Save Changes
             </button>
             <button type="button"
-                    class="btn btn-danger waves-effect m-r-5 float-right"
+                    class="btn btn-danger m-r-5 float-right"
                     (click)="deleteAlert.fire()">
                 Delete
             </button>

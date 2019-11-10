@@ -1,16 +1,5 @@
-<swal title="Great"
-      text="User was updated successfully."
-      type="success"
-      #updateSuccessAlert>
-</swal>
-<swal title="Great"
-      text="User was deleted successfully."
-      type="success"
-      (confirm)="goToList()"
-      #deleteSuccessAlert>
-</swal>
 <swal title="Delete?"
-      text="User will be deleted permanently. This action cannot be reversed."
+      [text]="'Identity resource \'' + identityResource?.name + '\' will be deleted permanently. This action cannot be reversed.'"
       type="warning"
       [showCancelButton]="true"
       (confirm)="delete()"

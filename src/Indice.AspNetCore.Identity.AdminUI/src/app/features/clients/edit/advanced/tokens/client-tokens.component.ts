@@ -36,4 +36,8 @@ export class ClientTokensComponent implements OnInit, OnDestroy {
             this._toast.showSuccess(`Client '${this.client.clientName}' was updated successfully.`);
         });
     }
+
+    public hasAnyOf(types: string[]): boolean {
+        return this.client.grantTypes && this.client.grantTypes.some(x => types.indexOf(x) > -1);
+    }
 }

@@ -30,9 +30,14 @@ export class ClientStore {
     public updateClient(client: SingleClientInfo): Observable<void> {
         return this._api.updateClient(client.clientId, new UpdateClientRequest({
             accessTokenLifetime: client.accessTokenLifetime,
+            absoluteRefreshTokenLifetime: client.absoluteRefreshTokenLifetime,
             accessTokenType: client.accessTokenType,
             allowAccessTokensViaBrowser: client.allowAccessTokensViaBrowser,
             allowPlainTextPkce: client.allowPlainTextPkce,
+            refreshTokenUsage: client.refreshTokenUsage,
+            refreshTokenExpiration: client.refreshTokenExpiration,
+            allowOfflineAccess: client.allowOfflineAccess,
+            updateAccessTokenClaimsOnRefresh: client.updateAccessTokenClaimsOnRefresh,
             allowRememberConsent: client.allowRememberConsent,
             alwaysIncludeUserClaimsInIdToken: client.alwaysIncludeUserClaimsInIdToken,
             alwaysSendClientClaims: client.alwaysSendClientClaims,

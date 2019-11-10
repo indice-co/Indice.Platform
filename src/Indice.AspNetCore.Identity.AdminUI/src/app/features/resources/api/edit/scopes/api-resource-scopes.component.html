@@ -42,8 +42,7 @@
                 </ul>
                 <app-api-resource-scope-details *ngIf="detailsActive"
                                                 [scope]="scope"
-                                                [editable]="!apiResource.nonEditable"
-                                                [id]="i">
+                                                [editable]="!apiResource.nonEditable">
                 </app-api-resource-scope-details>
                 <app-api-resource-scope-claims *ngIf="!detailsActive"
                                                [scope]="scope">

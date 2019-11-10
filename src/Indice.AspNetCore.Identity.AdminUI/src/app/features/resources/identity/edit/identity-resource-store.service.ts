@@ -22,7 +22,7 @@ export class IdentityResourceStore {
         return this._identityResource;
     }
 
-    public updateApiResource(identityResource: IdentityResourceInfo): Observable<void> {
+    public updateIdentityResource(identityResource: IdentityResourceInfo): Observable<void> {
         return this._api.updateIdentityResource(identityResource.id, new UpdateIdentityResourceRequest({
             displayName: identityResource.displayName,
             description: identityResource.description,
@@ -34,6 +34,10 @@ export class IdentityResourceStore {
             this._identityResource.next(identityResource);
             this._identityResource.complete();
         }));
+    }
+
+    public deleteIdentityResource(resourceId: number): Observable<void> {
+        return this._api.deleteIdentityResource(resourceId);
     }
 
     public getAllClaims(): Observable<ClaimTypeInfo[]> {

@@ -16,10 +16,11 @@
             {{ utilities.secondsToText(value) }}
         </span>
     </ng-template>
-    <div class="form-group row">
+    <div class="form-group row"
+         *ngIf="hasAnyOf(['authorization_code', 'password', 'hybrid'])">
         <label for="client-identity-token-lifetime"
                class="col-sm-2 col-form-label">
-            Identity Token Lifetime (seconds) (*)
+            Identity Token Lifetime (sec) (*)
         </label>
         <div class="col-sm-10">
             <div class="input-group">
@@ -56,10 +57,11 @@
             </div>
         </div>
     </div>
-    <div class="form-group row">
+    <div class="form-group row"
+         *ngIf="hasAnyOf(['authorization_code', 'password', 'client_credentials', 'hybrid'])">
         <label for="client-access-token-lifetime"
                class="col-sm-2 col-form-label">
-            Access Token Lifetime (seconds) (*)
+            Access Token Lifetime (sec) (*)
         </label>
         <div class="col-sm-10">
             <div class="input-group">
@@ -112,10 +114,60 @@
             </div>
         </div>
     </div>
-    <div class="form-group row">
+    <div class="form-group row"
+         *ngIf="hasAnyOf(['password', 'hybrid'])">
+        <label for="absolute-refresh-token-lifetime"
+               class="col-sm-2 col-form-label">
+            Absolute Refresh Token Lifetime (sec) (*)
+        </label>
+        <div class="col-sm-10">
+            <div class="input-group">
+                <span class="input-group-prepend cursor-pointer"
+                      (click)="client.absoluteRefreshTokenLifetime = utilities.daysToSeconds(1)">
+                    <span [ngClass]="{ 'active': client.absoluteRefreshTokenLifetime === utilities.daysToSeconds(1) }"
+                          class="input-group-text btn btn-secondary"
+                          style="font-size: 12px;">
+                        1 day
+                    </span>
+                </span>
+                <span class="input-group-prepend cursor-pointer"
+                      (click)="client.absoluteRefreshTokenLifetime = utilities.daysToSeconds(15)">
+                    <span [ngClass]="{ 'active': client.absoluteRefreshTokenLifetime === utilities.daysToSeconds(15) }"
+                          class="input-group-text btn btn-secondary"
+                          style="font-size: 12px;">
+                        15 days
+                    </span>
+                </span>
+                <span class="input-group-prepend cursor-pointer"
+                      (click)="client.absoluteRefreshTokenLifetime = utilities.daysToSeconds(30)">
+                    <span [ngClass]="{ 'active': client.absoluteRefreshTokenLifetime === utilities.daysToSeconds(30) }"
+                          class="input-group-text btn btn-secondary"
+                          style="font-size: 12px;">
+                        30 days
+                    </span>
+                </span>
+                <input class="form-control"
+                       type="number"
+                       id="absolute-refresh-token-lifetime"
+                       name="absolute-refresh-token-lifetime"
+                       [(ngModel)]="client.absoluteRefreshTokenLifetime"
+                       required
+                       #absoluteRefreshTokenLifetime="ngModel" />
+            </div>
+            <ng-container [ngTemplateOutlet]="secondsTextContent"
+                          [ngTemplateOutletContext]="{ value: client.absoluteRefreshTokenLifetime }">
+            </ng-container>
+            <div *ngIf="form.submitted && absoluteRefreshTokenLifetime.invalid"
+                 class="form-control-feedback text-danger">
+                Field 'Access Token Lifetime' is required.
+            </div>
+        </div>
+    </div>
+    <div class="form-group row"
+         *ngIf="hasAnyOf(['authorization_code', 'hybrid'])">
         <label for="client-authorization-token-lifetime"
                class="col-sm-2 col-form-label">
-            Authorization Code Lifetime (seconds) (*)
+            Authorization Code Lifetime (sec) (*)
         </label>
         <div class="col-sm-10">
             <div class="input-group">
@@ -152,10 +204,11 @@
             </div>
         </div>
     </div>
-    <div class="form-group row">
+    <div class="form-group row"
+         *ngIf="hasAnyOf(['authorization_code', 'hybrid'])">
         <label for="client-consent-token-lifetime"
                class="col-sm-2 col-form-label">
-            Consent Token Lifetime (seconds)
+            Consent Token Lifetime (sec)
         </label>
         <div class="col-sm-10">
             <div class="input-group">
@@ -184,8 +237,8 @@
                     </span>
                 </span>
                 <span class="input-group-prepend cursor-pointer"
-                      (click)="client.consentLifetime = null">
-                    <span [ngClass]="{ 'active': client.consentLifetime === null }"
+                      (click)="client.consentLifetime = undefined">
+                    <span [ngClass]="{ 'active': client.consentLifetime === undefined }"
                           class="input-group-text font-12 btn btn-secondary"
                           style="font-size: 12px;">
                         ∞
@@ -203,10 +256,11 @@
             </ng-container>
         </div>
     </div>
-    <div class="form-group row">
+    <div class="form-group row"
+         *ngIf="hasAnyOf(['authorization_code', 'hybrid'])">
         <label for="client-sso-lifetime"
                class="col-sm-2 col-form-label">
-            SSO Lifetime (seconds)
+            SSO Lifetime (sec)
         </label>
         <div class="col-sm-10">
             <div class="input-group">
@@ -246,7 +300,8 @@
             </ng-container>
         </div>
     </div>
-    <div class="form-group row">
+    <div class="form-group row"
+         *ngIf="hasAnyOf(['authorization_code', 'hybrid'])">
         <label for="client-front-channel-logout-uri"
                class="col-sm-2 col-form-label">
             Front Channel Logout URI
@@ -260,7 +315,8 @@
                    #frontChannelLogoutUri="ngModel" />
         </div>
     </div>
-    <div class="form-group row">
+    <div class="form-group row"
+         *ngIf="hasAnyOf(['authorization_code', 'password', 'client_credentials', 'hybrid'])">
         <label for="client-pair-wise-subject-salt"
                class="col-sm-2 col-form-label">
             Pair Wise Subject Salt
@@ -274,7 +330,8 @@
                    #pairWiseSubjectSalt="ngModel" />
         </div>
     </div>
-    <div class="form-group row">
+    <div class="form-group row"
+         *ngIf="hasAnyOf(['authorization_code', 'password', 'client_credentials', 'hybrid'])">
         <label for="client-access-token-type"
                class="col-sm-2 col-form-label">
             Access Token Type
@@ -295,7 +352,64 @@
             </div>
         </div>
     </div>
-    <div class="form-group row">
+    <div class="form-group row"
+         *ngIf="hasAnyOf(['password', 'hybrid'])">
+        <label for="client-refresh-token-usage"
+               class="col-sm-2 col-form-label">
+            Refresh Token Usage
+        </label>
+        <div class="col-sm-10">
+            <select class="form-control custom-select"
+                    id="client-refresh-token-usage"
+                    name="client-refresh-token-usage"
+                    [(ngModel)]="client.refreshTokenUsage"
+                    required
+                    #refreshTokenUsage="ngModel">
+                <option value="ReUse"
+                        title="The refresh token handle will stay the same when refreshing tokens.">
+                    ReUse
+                </option>
+                <option value="OneTimeOnly"
+                        title="The refresh token handle will be updated when refreshing tokens.">
+                    One Time Only
+                </option>
+            </select>
+            <div *ngIf="form.submitted && refreshTokenUsage.invalid"
+                 class="form-control-feedback text-danger">
+                Field 'Refresh Token Usage' is required.
+            </div>
+        </div>
+    </div>
+    <div class="form-group row"
+         *ngIf="hasAnyOf(['password', 'hybrid'])">
+        <label for="client-refresh-token-expiration"
+               class="col-sm-2 col-form-label">
+            Refresh Token Expiration
+        </label>
+        <div class="col-sm-10">
+            <select class="form-control custom-select"
+                    id="client-refresh-token-expiration"
+                    name="client-refresh-token-expiration"
+                    [(ngModel)]="client.refreshTokenExpiration"
+                    required
+                    #refreshTokenExpiration="ngModel">
+                <option value="Sliding"
+                        title="When refreshing the token, the lifetime of the refresh token will be renewed (by the amount specified in Sliding Refresh Token Lifetime).">
+                    Sliding
+                </option>
+                <option value="Absolute"
+                        title="The refresh token will expire on a fixed point in time (specified by the Absolute Refresh Token Lifetime).">
+                    Absolute
+                </option>
+            </select>
+            <div *ngIf="form.submitted && refreshTokenExpiration.invalid"
+                 class="form-control-feedback text-danger">
+                Field 'Refresh Token Expiration' is required.
+            </div>
+        </div>
+    </div>
+    <div class="form-group row"
+         *ngIf="hasAnyOf(['authorization_code', 'hybrid'])">
         <label for="client-front-channel-logout-session-required"
                class="col-sm-2 col-form-label">
             Front Channel Logout Session Required
@@ -311,7 +425,8 @@
             </div>
         </div>
     </div>
-    <div class="form-group row">
+    <div class="form-group row"
+         *ngIf="hasAnyOf(['authorization_code', 'hybrid'])">
         <label for="client-require-pkce"
                class="col-sm-2 col-form-label">
             Require PKCE
@@ -327,7 +442,8 @@
             </div>
         </div>
     </div>
-    <div class="form-group row">
+    <div class="form-group row"
+         *ngIf="hasAnyOf(['authorization_code', 'password', 'hybrid'])">
         <label for="client-include-user-claims-in-id-token"
                class="col-sm-2 col-form-label">
             Always Include User Claims In Id Token
@@ -343,7 +459,8 @@
             </div>
         </div>
     </div>
-    <div class="form-group row">
+    <div class="form-group row"
+         *ngIf="hasAnyOf(['authorization_code', 'password', 'client_credentials', 'hybrid'])">
         <label for="client-include-jwt-id"
                class="col-sm-2 col-form-label">Include JWT Id</label>
         <div class="col-sm-10">
@@ -357,7 +474,8 @@
             </div>
         </div>
     </div>
-    <div class="form-group row">
+    <div class="form-group row"
+         *ngIf="hasAnyOf(['authorization_code', 'hybrid'])">
         <label for="client-allow-plain-text-pkce"
                class="col-sm-2 col-form-label">Allow PlainText PKCE</label>
         <div class="col-sm-10">
@@ -368,6 +486,36 @@
                        name="client-allow-plain-text-pkce"
                        [(ngModel)]="client.allowPlainTextPkce"
                        #allowPlainTextPkce="ngModel" />
+            </div>
+        </div>
+    </div>
+    <div class="form-group row"
+         *ngIf="hasAnyOf(['password', 'hybrid'])">
+        <label for="client-allow-offline-access"
+               class="col-sm-2 col-form-label">Allow Offline Access</label>
+        <div class="col-sm-10">
+            <div class="form-check col-form-label">
+                <input class="form-check-input"
+                       type="checkbox"
+                       id="client-allow-offline-access"
+                       name="client-allow-offline-access"
+                       [(ngModel)]="client.allowOfflineAccess"
+                       #allowOfflineAccess="ngModel" />
+            </div>
+        </div>
+    </div>
+    <div class="form-group row"
+         *ngIf="hasAnyOf(['password', 'hybrid'])">
+        <label for="client-update-access-token-claims-on-refresh"
+               class="col-sm-2 col-form-label">Update Access Token Claims On Refresh</label>
+        <div class="col-sm-10">
+            <div class="form-check col-form-label">
+                <input class="form-check-input"
+                       type="checkbox"
+                       id="client-update-access-token-claims-on-refresh"
+                       name="client-update-access-token-claims-on-refresh"
+                       [(ngModel)]="client.updateAccessTokenClaimsOnRefresh"
+                       #updateAccessTokenClaimsOnRefresh="ngModel" />
             </div>
         </div>
     </div>

@@ -13,8 +13,9 @@ import { ApiResourceStore } from '../../api-resource-store.service';
 export class ApiResourceDetailsComponent implements OnInit, OnDestroy {
     private _getDataSubscription: Subscription;
     private _updateApiResourceSubscription: Subscription;
+    private _deleteApiResourceSubscription: Subscription;
 
-    constructor(private _route: ActivatedRoute, private _apiResourceStore: ApiResourceStore, public _toast: ToastService) { }
+    constructor(private _route: ActivatedRoute, private _apiResourceStore: ApiResourceStore, public _toast: ToastService, private _router: Router) { }
 
     public apiResource: ApiResourceInfo;
 
@@ -32,13 +33,16 @@ export class ApiResourceDetailsComponent implements OnInit, OnDestroy {
         if (this._updateApiResourceSubscription) {
             this._updateApiResourceSubscription.unsubscribe();
         }
+        if (this._deleteApiResourceSubscription) {
+            this._deleteApiResourceSubscription.unsubscribe();
+        }
     }
 
     public delete(): void {
-        // this._apiResourceStore.deleteClient(this.client.clientId).subscribe(_ => {
-        //     this._toast.showSuccess(`Client '${this.client.clientName}' was deleted successfully.`);
-        //     this._router.navigate(['../../'], { relativeTo: this._route });
-        // });
+        this._deleteApiResourceSubscription = this._apiResourceStore.deleteApiResource(this.apiResource.id).subscribe(_ => {
+            this._toast.showSuccess(`API resource '${this.apiResource.name}' was deleted successfully.`);
+            this._router.navigate(['../../'], { relativeTo: this._route });
+        });
     }
 
     public update(): void {

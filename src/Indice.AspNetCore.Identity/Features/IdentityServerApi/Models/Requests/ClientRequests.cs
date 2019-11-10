@@ -52,9 +52,17 @@ namespace Indice.AspNetCore.Identity.Features
         /// </summary>
         public int AccessTokenLifetime { get; set; }
         /// <summary>
+        /// Maximum lifetime of a refresh token in seconds.
+        /// </summary>
+        public int AbsoluteRefreshTokenLifetime { get; set; }
+        /// <summary>
         /// Lifetime of a user consent in seconds.
         /// </summary>
         public int ConsentLifetime { get; set; }
+        /// <summary>
+        /// Gets or sets a value indicating whether to allow offline access.
+        /// </summary>
+        public bool AllowOfflineAccess { get; set; }
         /// <summary>
         /// The maximum duration (in seconds) since the last time the user authenticated.
         /// </summary>
@@ -68,9 +76,24 @@ namespace Indice.AspNetCore.Identity.Features
         /// </summary>
         public string PairWiseSubjectSalt { get; set; }
         /// <summary>
+        /// Gets or sets a value indicating whether the access token (and its claims) should be updated on a refresh token request.
+        /// </summary>
+        public bool UpdateAccessTokenClaimsOnRefresh { get; set; }
+        /// <summary>
         /// Specifies whether the access token is a reference token or a self contained JWT token.
         /// </summary>
         public AccessTokenType? AccessTokenType { get; set; }
+        /// <summary>
+        /// Absolute: the refresh token will expire on a fixed point in time (specified by the AbsoluteRefreshTokenLifetime) 
+        /// Sliding: when refreshing the token, the lifetime of the refresh token will be renewed (by the amount specified in SlidingRefreshTokenLifetime).
+        /// The lifetime will not exceed AbsoluteRefreshTokenLifetime.
+        /// </summary>
+        public TokenExpiration RefreshTokenExpiration { get; set; }
+        /// <summary>
+        /// ReUse: the refresh token handle will stay the same when refreshing tokens. 
+        /// OneTime: the refresh token handle will be updated when refreshing tokens.
+        /// </summary>
+        public TokenUsage RefreshTokenUsage { get; set; }
         /// <summary>
         /// Specifies is the user's session id should be sent to the FrontChannelLogoutUri.
         /// </summary>

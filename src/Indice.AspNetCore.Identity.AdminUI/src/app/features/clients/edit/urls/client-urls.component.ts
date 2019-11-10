@@ -16,6 +16,9 @@ import { ToastService } from 'src/app/layout/services/app-toast.service';
 })
 export class ClientUrlsComponent implements OnInit, OnDestroy {
     @ViewChild('checkboxTemplate', { static: true }) private _checkboxTemplate: TemplateRef<HTMLElement>;
+    @ViewChild('redirectTemplate', { static: true }) private _redirectTemplate: TemplateRef<HTMLElement>;
+    @ViewChild('corsTemplate', { static: true }) private _corsTemplate: TemplateRef<HTMLElement>;
+    @ViewChild('postLogoutRedirectTemplate', { static: true }) private _postLogoutRedirectTemplate: TemplateRef<HTMLElement>;
     @ViewChild('urlForm', { static: false }) private _form: NgForm;
     private _getDataSubscription: Subscription;
     private _updateClientUrlsSubscription: Subscription;
@@ -31,9 +34,9 @@ export class ClientUrlsComponent implements OnInit, OnDestroy {
     public ngOnInit(): void {
         this.columns = [
             { prop: 'url', name: 'URL', draggable: false, canAutoResize: true, sortable: true, resizeable: false },
-            { prop: 'isRedirect', name: 'Redirect', draggable: false, canAutoResize: true, sortable: false, resizeable: false, cellTemplate: this._checkboxTemplate },
-            { prop: 'isCors', name: 'CORS', draggable: false, canAutoResize: true, sortable: false, resizeable: false, cellTemplate: this._checkboxTemplate },
-            { prop: 'isPostLogoutRedirect', name: 'Post Logout Redirect', draggable: false, canAutoResize: true, sortable: false, resizeable: false, cellTemplate: this._checkboxTemplate }
+            { prop: 'isRedirect', draggable: false, canAutoResize: true, sortable: false, resizeable: false, cellTemplate: this._checkboxTemplate, headerTemplate: this._redirectTemplate },
+            { prop: 'isCors', draggable: false, canAutoResize: true, sortable: false, resizeable: false, cellTemplate: this._checkboxTemplate, headerTemplate: this._corsTemplate },
+            { prop: 'isPostLogoutRedirect', draggable: false, canAutoResize: true, sortable: false, resizeable: false, cellTemplate: this._checkboxTemplate, headerTemplate: this._postLogoutRedirectTemplate }
         ];
         this._clientId = this._route.parent.snapshot.params.id;
         this.renderTable();

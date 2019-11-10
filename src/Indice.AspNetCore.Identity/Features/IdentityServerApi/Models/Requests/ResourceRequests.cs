@@ -3,9 +3,9 @@
 namespace Indice.AspNetCore.Identity.Features
 {
     /// <summary>
-    /// Models an API resource that will be created on the server.
+    /// Models a resource (API or identity) that will be created on the server.
     /// </summary>
-    public class CreateApiResourceRequest : BasicResourceRequest
+    public class CreateResourceRequest : BasicResourceRequest
     {
         /// <summary>
         /// The unique name of the resource.
@@ -20,7 +20,7 @@ namespace Indice.AspNetCore.Identity.Features
     /// <summary>
     /// Models an API scope that will be created on the server.
     /// </summary>
-    public class CreateApiScopeRequest : CreateApiResourceRequest
+    public class CreateApiScopeRequest : CreateResourceRequest
     {
         /// <summary>
         /// Determines whether this scope is required or not.

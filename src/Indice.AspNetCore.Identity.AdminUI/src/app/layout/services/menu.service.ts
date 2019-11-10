@@ -28,9 +28,8 @@ export class MenuService {
             ]),
             new MenuItem('Resources', undefined, 'dripicons-web', this.isActiveMenuItem('/app/resources'), [
                 new MenuItem('Identity Resources List', '/app/resources/identity'),
-                new MenuItem('Add Identity Resource', '/app/resources/identity/add'),
                 new MenuItem('API Resources List', '/app/resources/api'),
-                new MenuItem('Add API Resource', '/app/resources/api/add')
+                new MenuItem('Add Resource', '/app/resources/add')
             ]),
             new MenuItem('Claim Types', undefined, 'dripicons-ticket', this.isActiveMenuItem('/app/claim-types'), [
                 new MenuItem('Claims List', '/app/claim-types'),

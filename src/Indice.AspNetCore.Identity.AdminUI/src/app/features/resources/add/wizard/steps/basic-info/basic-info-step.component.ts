@@ -2,15 +2,23 @@ import { Component } from '@angular/core';
 import { AbstractControl } from '@angular/forms';
 
 import { StepBaseComponent } from 'src/app/shared/components/step-base/step-base.component';
-import { ApiResourceWizardModel } from '../../../models/api-resource-wizard-model';
+import { ResourceWizardModel } from '../../../models/resource-wizard-model';
 
 @Component({
   selector: 'app-basic-info-step',
   templateUrl: './basic-info-step.component.html'
 })
-export class BasicInfoStepComponent extends StepBaseComponent<ApiResourceWizardModel> {
+export class BasicInfoStepComponent extends StepBaseComponent<ResourceWizardModel> {
   constructor() {
     super();
+  }
+
+  public get displayType(): boolean {
+    return this.data.displayType;
+  }
+
+  public get type(): AbstractControl {
+    return this.data.form.get('type');
   }
 
   public get name(): AbstractControl {

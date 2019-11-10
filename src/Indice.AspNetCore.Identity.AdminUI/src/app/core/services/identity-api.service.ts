@@ -159,7 +159,7 @@ export interface IIdentityApiService {
      * @param body (optional) Contains info about the identity resource to be created.
      * @return Created
      */
-    createIdentityResource(body?: CreateApiResourceRequest | undefined): Observable<IdentityResourceInfo>;
+    createIdentityResource(body?: CreateResourceRequest | undefined): Observable<IdentityResourceInfo>;
     /**
      * Gets an identity resource by it's unique id.
      * @param resourceId The identifier of the identity resource.
@@ -193,7 +193,7 @@ export interface IIdentityApiService {
      * @param body (optional) Contains info about the API resource to be created.
      * @return Created
      */
-    createApiResource(body?: CreateApiResourceRequest | undefined): Observable<ApiResourceInfo>;
+    createApiResource(body?: CreateResourceRequest | undefined): Observable<ApiResourceInfo>;
     /**
      * Gets an API resource by it's unique id.
      * @param resourceId The identifier of the API resource.
@@ -207,6 +207,12 @@ export interface IIdentityApiService {
      * @return OK
      */
     updateApiResource(resourceId: number, body?: UpdateApiResourceRequest | undefined): Observable<void>;
+    /**
+     * Permanently deletes an API resource.
+     * @param resourceId The id of the API resource to delete.
+     * @return OK
+     */
+    deleteApiResource(resourceId: number): Observable<void>;
     /**
      * Adds claims to an API resource.
      * @param resourceId The identifier of the API resource.
@@ -2183,7 +2189,7 @@ export class IdentityApiService implements IIdentityApiService {
      * @param body (optional) Contains info about the identity resource to be created.
      * @return Created
      */
-    createIdentityResource(body?: CreateApiResourceRequest | undefined): Observable<IdentityResourceInfo> {
+    createIdentityResource(body?: CreateResourceRequest | undefined): Observable<IdentityResourceInfo> {
         let url_ = this.baseUrl + "/api/resources/identity";
         url_ = url_.replace(/[?&]$/, "");
 
@@ -2623,7 +2629,7 @@ export class IdentityApiService implements IIdentityApiService {
      * @param body (optional) Contains info about the API resource to be created.
      * @return Created
      */
-    createApiResource(body?: CreateApiResourceRequest | undefined): Observable<ApiResourceInfo> {
+    createApiResource(body?: CreateResourceRequest | undefined): Observable<ApiResourceInfo> {
         let url_ = this.baseUrl + "/api/resources/protected";
         url_ = url_.replace(/[?&]$/, "");
 
@@ -2827,6 +2833,90 @@ export class IdentityApiService implements IIdentityApiService {
     }
 
     protected processUpdateApiResource(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob = 
+            response instanceof HttpResponse ? response.body : 
+            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }};
+        if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ValidationProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            }));
+        } else if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return _observableOf<void>(<any>null);
+            }));
+        } else if (status === 404) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = ProblemDetails.fromJS(resultData404);
+            return throwException("Not Found", status, _responseText, _headers, result404);
+            }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("Internal Server Error", status, _responseText, _headers);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<void>(<any>null);
+    }
+
+    /**
+     * Permanently deletes an API resource.
+     * @param resourceId The id of the API resource to delete.
+     * @return OK
+     */
+    deleteApiResource(resourceId: number): Observable<void> {
+        let url_ = this.baseUrl + "/api/resources/protected/{resourceId}";
+        if (resourceId === undefined || resourceId === null)
+            throw new Error("The parameter 'resourceId' must be defined.");
+        url_ = url_.replace("{resourceId}", encodeURIComponent("" + resourceId)); 
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+            })
+        };
+
+        return this.http.request("delete", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processDeleteApiResource(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processDeleteApiResource(<any>response_);
+                } catch (e) {
+                    return <Observable<void>><any>_observableThrow(e);
+                }
+            } else
+                return <Observable<void>><any>_observableThrow(response_);
+        }));
+    }
+
+    protected processDeleteApiResource(response: HttpResponseBase): Observable<void> {
         const status = response.status;
         const responseBlob = 
             response instanceof HttpResponse ? response.body : 
@@ -6098,6 +6188,16 @@ export enum AccessTokenType {
     Reference = "Reference",
 }
 
+export enum TokenUsage {
+    ReUse = "ReUse",
+    OneTimeOnly = "OneTimeOnly",
+}
+
+export enum TokenExpiration {
+    Sliding = "Sliding",
+    Absolute = "Absolute",
+}
+
 /** Models a claim. */
 export class ClaimInfo implements IClaimInfo {
     /** The id of the user claim entry. */
@@ -6218,6 +6318,8 @@ export class SingleClientInfo implements ISingleClientInfo {
     identityTokenLifetime?: number | undefined;
     /** Lifetime of access token in seconds */
     accessTokenLifetime?: number | undefined;
+    /** Maximum lifetime of a refresh token in seconds. */
+    absoluteRefreshTokenLifetime?: number | undefined;
     /** Lifetime of a user consent in seconds. */
     consentLifetime?: number | undefined;
     /** The maximum duration (in seconds) since the last time the user authenticated. */
@@ -6227,6 +6329,12 @@ export class SingleClientInfo implements ISingleClientInfo {
     /** Gets or sets a salt value used in pair-wise subjectId generation for users of this client. */
     pairWiseSubjectSalt?: string | undefined;
     accessTokenType?: AccessTokenType;
+    refreshTokenUsage?: TokenUsage;
+    refreshTokenExpiration?: TokenExpiration;
+    /** Gets or sets a value indicating whether to allow offline access. */
+    allowOfflineAccess?: boolean | undefined;
+    /** Gets or sets a value indicating whether the access token (and its claims) should be updated on a refresh token request. */
+    updateAccessTokenClaimsOnRefresh?: boolean | undefined;
     /** Specifies is the user's session id should be sent to the FrontChannelLogoutUri. */
     frontChannelLogoutSessionRequired?: boolean | undefined;
     /** Gets or sets a value indicating whether JWT access tokens should include an identifier. */
@@ -6293,11 +6401,16 @@ export class SingleClientInfo implements ISingleClientInfo {
         if (_data) {
             this.identityTokenLifetime = _data["identityTokenLifetime"];
             this.accessTokenLifetime = _data["accessTokenLifetime"];
+            this.absoluteRefreshTokenLifetime = _data["absoluteRefreshTokenLifetime"];
             this.consentLifetime = _data["consentLifetime"];
             this.userSsoLifetime = _data["userSsoLifetime"];
             this.frontChannelLogoutUri = _data["frontChannelLogoutUri"];
             this.pairWiseSubjectSalt = _data["pairWiseSubjectSalt"];
             this.accessTokenType = _data["accessTokenType"];
+            this.refreshTokenUsage = _data["refreshTokenUsage"];
+            this.refreshTokenExpiration = _data["refreshTokenExpiration"];
+            this.allowOfflineAccess = _data["allowOfflineAccess"];
+            this.updateAccessTokenClaimsOnRefresh = _data["updateAccessTokenClaimsOnRefresh"];
             this.frontChannelLogoutSessionRequired = _data["frontChannelLogoutSessionRequired"];
             this.includeJwtId = _data["includeJwtId"];
             this.allowAccessTokensViaBrowser = _data["allowAccessTokensViaBrowser"];
@@ -6370,11 +6483,16 @@ export class SingleClientInfo implements ISingleClientInfo {
         data = typeof data === 'object' ? data : {};
         data["identityTokenLifetime"] = this.identityTokenLifetime;
         data["accessTokenLifetime"] = this.accessTokenLifetime;
+        data["absoluteRefreshTokenLifetime"] = this.absoluteRefreshTokenLifetime;
         data["consentLifetime"] = this.consentLifetime;
         data["userSsoLifetime"] = this.userSsoLifetime;
         data["frontChannelLogoutUri"] = this.frontChannelLogoutUri;
         data["pairWiseSubjectSalt"] = this.pairWiseSubjectSalt;
         data["accessTokenType"] = this.accessTokenType;
+        data["refreshTokenUsage"] = this.refreshTokenUsage;
+        data["refreshTokenExpiration"] = this.refreshTokenExpiration;
+        data["allowOfflineAccess"] = this.allowOfflineAccess;
+        data["updateAccessTokenClaimsOnRefresh"] = this.updateAccessTokenClaimsOnRefresh;
         data["frontChannelLogoutSessionRequired"] = this.frontChannelLogoutSessionRequired;
         data["includeJwtId"] = this.includeJwtId;
         data["allowAccessTokensViaBrowser"] = this.allowAccessTokensViaBrowser;
@@ -6443,6 +6561,8 @@ export interface ISingleClientInfo {
     identityTokenLifetime?: number | undefined;
     /** Lifetime of access token in seconds */
     accessTokenLifetime?: number | undefined;
+    /** Maximum lifetime of a refresh token in seconds. */
+    absoluteRefreshTokenLifetime?: number | undefined;
     /** Lifetime of a user consent in seconds. */
     consentLifetime?: number | undefined;
     /** The maximum duration (in seconds) since the last time the user authenticated. */
@@ -6452,6 +6572,12 @@ export interface ISingleClientInfo {
     /** Gets or sets a salt value used in pair-wise subjectId generation for users of this client. */
     pairWiseSubjectSalt?: string | undefined;
     accessTokenType?: AccessTokenType;
+    refreshTokenUsage?: TokenUsage;
+    refreshTokenExpiration?: TokenExpiration;
+    /** Gets or sets a value indicating whether to allow offline access. */
+    allowOfflineAccess?: boolean | undefined;
+    /** Gets or sets a value indicating whether the access token (and its claims) should be updated on a refresh token request. */
+    updateAccessTokenClaimsOnRefresh?: boolean | undefined;
     /** Specifies is the user's session id should be sent to the FrontChannelLogoutUri. */
     frontChannelLogoutSessionRequired?: boolean | undefined;
     /** Gets or sets a value indicating whether JWT access tokens should include an identifier. */
@@ -6512,15 +6638,23 @@ export class UpdateClientRequest implements IUpdateClientRequest {
     identityTokenLifetime?: number;
     /** Lifetime of access token in seconds */
     accessTokenLifetime?: number;
+    /** Maximum lifetime of a refresh token in seconds. */
+    absoluteRefreshTokenLifetime?: number;
     /** Lifetime of a user consent in seconds. */
     consentLifetime?: number;
+    /** Gets or sets a value indicating whether to allow offline access. */
+    allowOfflineAccess?: boolean;
     /** The maximum duration (in seconds) since the last time the user authenticated. */
     userSsoLifetime?: number;
     /** Specifies logout URI at client for HTTP front-channel based logout. */
     frontChannelLogoutUri?: string | undefined;
     /** Gets or sets a salt value used in pair-wise subjectId generation for users of this client. */
     pairWiseSubjectSalt?: string | undefined;
+    /** Gets or sets a value indicating whether the access token (and its claims) should be updated on a refresh token request. */
+    updateAccessTokenClaimsOnRefresh?: boolean;
     accessTokenType?: AccessTokenType;
+    refreshTokenExpiration?: TokenExpiration;
+    refreshTokenUsage?: TokenUsage;
     /** Specifies is the user's session id should be sent to the FrontChannelLogoutUri. */
     frontChannelLogoutSessionRequired?: boolean;
     /** Gets or sets a value indicating whether JWT access tokens should include an identifier. */
@@ -6565,11 +6699,16 @@ export class UpdateClientRequest implements IUpdateClientRequest {
         if (_data) {
             this.identityTokenLifetime = _data["identityTokenLifetime"];
             this.accessTokenLifetime = _data["accessTokenLifetime"];
+            this.absoluteRefreshTokenLifetime = _data["absoluteRefreshTokenLifetime"];
             this.consentLifetime = _data["consentLifetime"];
+            this.allowOfflineAccess = _data["allowOfflineAccess"];
             this.userSsoLifetime = _data["userSsoLifetime"];
             this.frontChannelLogoutUri = _data["frontChannelLogoutUri"];
             this.pairWiseSubjectSalt = _data["pairWiseSubjectSalt"];
+            this.updateAccessTokenClaimsOnRefresh = _data["updateAccessTokenClaimsOnRefresh"];
             this.accessTokenType = _data["accessTokenType"];
+            this.refreshTokenExpiration = _data["refreshTokenExpiration"];
+            this.refreshTokenUsage = _data["refreshTokenUsage"];
             this.frontChannelLogoutSessionRequired = _data["frontChannelLogoutSessionRequired"];
             this.includeJwtId = _data["includeJwtId"];
             this.allowAccessTokensViaBrowser = _data["allowAccessTokensViaBrowser"];
@@ -6599,11 +6738,16 @@ export class UpdateClientRequest implements IUpdateClientRequest {
         data = typeof data === 'object' ? data : {};
         data["identityTokenLifetime"] = this.identityTokenLifetime;
         data["accessTokenLifetime"] = this.accessTokenLifetime;
+        data["absoluteRefreshTokenLifetime"] = this.absoluteRefreshTokenLifetime;
         data["consentLifetime"] = this.consentLifetime;
+        data["allowOfflineAccess"] = this.allowOfflineAccess;
         data["userSsoLifetime"] = this.userSsoLifetime;
         data["frontChannelLogoutUri"] = this.frontChannelLogoutUri;
         data["pairWiseSubjectSalt"] = this.pairWiseSubjectSalt;
+        data["updateAccessTokenClaimsOnRefresh"] = this.updateAccessTokenClaimsOnRefresh;
         data["accessTokenType"] = this.accessTokenType;
+        data["refreshTokenExpiration"] = this.refreshTokenExpiration;
+        data["refreshTokenUsage"] = this.refreshTokenUsage;
         data["frontChannelLogoutSessionRequired"] = this.frontChannelLogoutSessionRequired;
         data["includeJwtId"] = this.includeJwtId;
         data["allowAccessTokensViaBrowser"] = this.allowAccessTokensViaBrowser;
@@ -6629,15 +6773,23 @@ export interface IUpdateClientRequest {
     identityTokenLifetime?: number;
     /** Lifetime of access token in seconds */
     accessTokenLifetime?: number;
+    /** Maximum lifetime of a refresh token in seconds. */
+    absoluteRefreshTokenLifetime?: number;
     /** Lifetime of a user consent in seconds. */
     consentLifetime?: number;
+    /** Gets or sets a value indicating whether to allow offline access. */
+    allowOfflineAccess?: boolean;
     /** The maximum duration (in seconds) since the last time the user authenticated. */
     userSsoLifetime?: number;
     /** Specifies logout URI at client for HTTP front-channel based logout. */
     frontChannelLogoutUri?: string | undefined;
     /** Gets or sets a salt value used in pair-wise subjectId generation for users of this client. */
     pairWiseSubjectSalt?: string | undefined;
+    /** Gets or sets a value indicating whether the access token (and its claims) should be updated on a refresh token request. */
+    updateAccessTokenClaimsOnRefresh?: boolean;
     accessTokenType?: AccessTokenType;
+    refreshTokenExpiration?: TokenExpiration;
+    refreshTokenUsage?: TokenUsage;
     /** Specifies is the user's session id should be sent to the FrontChannelLogoutUri. */
     frontChannelLogoutSessionRequired?: boolean;
     /** Gets or sets a value indicating whether JWT access tokens should include an identifier. */
@@ -7140,8 +7292,8 @@ export interface IIdentityResourceInfoResultSet {
     items?: IdentityResourceInfo[] | undefined;
 }
 
-/** Models an API resource that will be created on the server. */
-export class CreateApiResourceRequest implements ICreateApiResourceRequest {
+/** Models a resource (API or identity) that will be created on the server. */
+export class CreateResourceRequest implements ICreateResourceRequest {
     /** The unique name of the resource. */
     name?: string | undefined;
     /** List of accociated user claims that should be included when this resource is requested. */
@@ -7151,7 +7303,7 @@ export class CreateApiResourceRequest implements ICreateApiResourceRequest {
     /** Description of the resource. */
     description?: string | undefined;
 
-    constructor(data?: ICreateApiResourceRequest) {
+    constructor(data?: ICreateResourceRequest) {
         if (data) {
             for (var property in data) {
                 if (data.hasOwnProperty(property))
@@ -7173,9 +7325,9 @@ export class CreateApiResourceRequest implements ICreateApiResourceRequest {
         }
     }
 
-    static fromJS(data: any): CreateApiResourceRequest {
+    static fromJS(data: any): CreateResourceRequest {
         data = typeof data === 'object' ? data : {};
-        let result = new CreateApiResourceRequest();
+        let result = new CreateResourceRequest();
         result.init(data);
         return result;
     }
@@ -7194,8 +7346,8 @@ export class CreateApiResourceRequest implements ICreateApiResourceRequest {
     }
 }
 
-/** Models an API resource that will be created on the server. */
-export interface ICreateApiResourceRequest {
+/** Models a resource (API or identity) that will be created on the server. */
+export interface ICreateResourceRequest {
     /** The unique name of the resource. */
     name?: string | undefined;
     /** List of accociated user claims that should be included when this resource is requested. */

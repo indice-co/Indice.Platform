@@ -18,6 +18,7 @@ export class ApiResourceStore {
         if (!this._apiResource) {
             this._apiResource = new AsyncSubject<ApiResourceInfo>();
             this._api.getApiResource(apiResourceId).subscribe((apiResource: ApiResourceInfo) => {
+                apiResource.secrets = apiResource.secrets || [];
                 apiResource.scopes = apiResource.scopes.sort((left: ScopeInfo, right: ScopeInfo) => (left.name > right.name ? 1 : -1));
                 apiResource.scopes.forEach((value: ScopeInfo) => {
                     (value as any).isOpen = false;
@@ -163,6 +164,10 @@ export class ApiResourceStore {
             this._apiResource.complete();
         });
         return this._api.deleteApiResourceScopeClaim(apiResourceId, scopeId, claim.name);
+    }
+
+    public deleteApiResource(resourceId: number): Observable<void> {
+        return this._api.deleteApiResource(resourceId);
     }
 
     public getAllClaims(): Observable<ClaimTypeInfo[]> {

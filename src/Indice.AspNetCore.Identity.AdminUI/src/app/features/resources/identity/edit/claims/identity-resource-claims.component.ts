@@ -3,7 +3,7 @@ import { ActivatedRoute } from '@angular/router';
 
 import { Subscription, forkJoin } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { RoleInfo, ClaimTypeInfo, IdentityResourceInfo } from 'src/app/core/services/identity-api.service';
+import { ClaimTypeInfo, IdentityResourceInfo } from 'src/app/core/services/identity-api.service';
 import { IdentityResourceStore } from '../identity-resource-store.service';
 
 @Component({

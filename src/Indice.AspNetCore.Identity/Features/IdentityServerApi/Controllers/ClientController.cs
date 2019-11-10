@@ -132,7 +132,7 @@ namespace Indice.AspNetCore.Identity.Features
                                                           UserSsoLifetime = x.UserSsoLifetime,
                                                           FrontChannelLogoutUri = x.FrontChannelLogoutUri,
                                                           PairWiseSubjectSalt = x.PairWiseSubjectSalt,
-                                                          AccessTokenType = x.AccessTokenType == 0 ? AccessTokenType.Jwt : AccessTokenType.Reference,
+                                                          AccessTokenType = (AccessTokenType)x.AccessTokenType,
                                                           FrontChannelLogoutSessionRequired = x.FrontChannelLogoutSessionRequired,
                                                           IncludeJwtId = x.IncludeJwtId,
                                                           AllowAccessTokensViaBrowser = x.AllowAccessTokensViaBrowser,
@@ -143,6 +143,12 @@ namespace Indice.AspNetCore.Identity.Features
                                                           AllowPlainTextPkce = x.AllowPlainTextPkce,
                                                           ClientClaimsPrefix = x.ClientClaimsPrefix,
                                                           GrantTypes = x.AllowedGrantTypes.Select(x => x.GrantType),
+                                                          AbsoluteRefreshTokenLifetime = x.AbsoluteRefreshTokenLifetime,
+                                                          AllowOfflineAccess = x.AllowOfflineAccess,
+                                                          NonEditable = x.NonEditable,
+                                                          RefreshTokenExpiration = (TokenExpiration)x.RefreshTokenExpiration,
+                                                          RefreshTokenUsage = (TokenUsage)x.RefreshTokenUsage,
+                                                          UpdateAccessTokenClaimsOnRefresh = x.UpdateAccessTokenClaimsOnRefresh,
                                                           ApiResources = x.AllowedScopes.Join(
                                                               _configurationDbContext.ApiResources.SelectMany(x => x.Scopes),
                                                               clientScope => clientScope.Scope,
@@ -247,6 +253,11 @@ namespace Indice.AspNetCore.Identity.Features
             client.RequirePkce = request.RequirePkce;
             client.AllowPlainTextPkce = request.AllowPlainTextPkce;
             client.ClientClaimsPrefix = request.ClientClaimsPrefix;
+            client.AbsoluteRefreshTokenLifetime = request.AbsoluteRefreshTokenLifetime;
+            client.RefreshTokenUsage = (int)request.RefreshTokenUsage;
+            client.RefreshTokenExpiration = (int)request.RefreshTokenExpiration;
+            client.AllowOfflineAccess = request.AllowOfflineAccess;
+            client.UpdateAccessTokenClaimsOnRefresh = request.UpdateAccessTokenClaimsOnRefresh;
             await _configurationDbContext.SaveChangesAsync();
             return Ok();
         }

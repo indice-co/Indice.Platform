@@ -20,21 +20,21 @@
                     <div class="form-group">
                         <div>
                             <button type="button"
-                                    class="btn btn-secondary waves-effect waves-light m-r-5"
+                                    class="btn btn-secondary m-r-5"
                                     *ngIf="canGoBack"
                                     (click)="goToPreviousStep()">
                                 Previous Step
                             </button>
                             <button type="button"
-                                    class="btn btn-primary waves-effect waves-light m-r-5"
+                                    class="btn btn-primary m-r-5"
                                     *ngIf="canGoFront"
                                     (click)="goToNextStep()">
                                 Next Step
                             </button>
                             <button type="submit"
-                                    class="btn btn-primary waves-effect waves-light"
+                                    class="btn btn-primary"
                                     *ngIf="isSummaryStep"
-                                    (click)="saveApiResource()">
+                                    (click)="saveResource()">
                                 Save
                             </button>
                         </div>

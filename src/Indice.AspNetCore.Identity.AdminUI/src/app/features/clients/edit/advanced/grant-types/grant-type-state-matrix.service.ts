@@ -19,6 +19,11 @@ export class GrantTypeStateMatrixService {
         this._stateMatrix.push({ from: 'hybrid', to: 'client_credentials' });
         this._stateMatrix.push({ from: 'hybrid', to: 'password' });
         this._stateMatrix.push({ from: 'hybrid', to: 'custom' });
+        this._stateMatrix.push({ from: 'password', to: 'implicit' });
+        this._stateMatrix.push({ from: 'password', to: 'authorization_code' });
+        this._stateMatrix.push({ from: 'password', to: 'hybrid' });
+        this._stateMatrix.push({ from: 'password', to: 'client_credentials' });
+        this._stateMatrix.push({ from: 'password', to: 'custom' });
     }
 
     public canGoTo(from: string, to: string): boolean {

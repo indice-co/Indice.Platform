@@ -65,3 +65,27 @@
                (change)="checkboxChanged($event, column, row)" />
     </div>
 </ng-template>
+<ng-template #redirectTemplate>
+    <span>
+        <i class="dripicons-information align-middle"
+           title="URL that tokens can be sent.">
+        </i>
+        Redirect
+    </span>
+</ng-template>
+<ng-template #corsTemplate>
+    <span>
+        <i class="dripicons-information align-middle"
+           title="Domain that can make cross origin requests.">
+        </i>
+        CORS
+    </span>
+</ng-template>
+<ng-template #postLogoutRedirectTemplate>
+    <span>
+        <i class="dripicons-information align-middle"
+           title="Can redirect to this URL after logout.">
+        </i>
+        Post Logout Redirect
+    </span>
+</ng-template>

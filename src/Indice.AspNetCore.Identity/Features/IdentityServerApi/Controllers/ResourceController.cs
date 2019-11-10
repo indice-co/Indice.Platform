@@ -114,7 +114,7 @@ namespace Indice.AspNetCore.Identity.Features
         /// <response code="201">Created</response>
         [HttpPost("identity")]
         [ProducesResponseType(statusCode: StatusCodes.Status201Created, type: typeof(IdentityResourceInfo))]
-        public async Task<ActionResult<IdentityResourceInfo>> CreateIdentityResource([FromBody]CreateApiResourceRequest request) {
+        public async Task<ActionResult<IdentityResourceInfo>> CreateIdentityResource([FromBody]CreateResourceRequest request) {
             var resource = new IdentityResource {
                 Name = request.Name,
                 DisplayName = request.DisplayName,
@@ -297,7 +297,7 @@ namespace Indice.AspNetCore.Identity.Features
         /// <response code="201">Created</response>
         [HttpPost("protected")]
         [ProducesResponseType(statusCode: StatusCodes.Status201Created, type: typeof(ApiResourceInfo))]
-        public async Task<ActionResult<ApiResourceInfo>> CreateApiResource([FromBody]CreateApiResourceRequest request) {
+        public async Task<ActionResult<ApiResourceInfo>> CreateApiResource([FromBody]CreateResourceRequest request) {
             var resource = new ApiResource {
                 Name = request.Name,
                 DisplayName = request.DisplayName,
@@ -632,6 +632,26 @@ namespace Indice.AspNetCore.Identity.Features
                 return NotFound();
             }
             scope.UserClaims.Remove(claimToRemove);
+            await _configurationDbContext.SaveChangesAsync();
+            return Ok();
+        }
+
+        /// <summary>
+        /// Permanently deletes an API resource.
+        /// </summary>
+        /// <param name="resourceId">The id of the API resource to delete.</param>
+        /// <response code="200">OK</response>
+        /// <response code="404">Not Found</response>
+        [HttpDelete("protected/{resourceId:int}")]
+        [ProducesResponseType(statusCode: StatusCodes.Status200OK)]
+        [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
+        [CacheResourceFilter]
+        public async Task<IActionResult> DeleteApiResource([FromRoute]int resourceId) {
+            var resource = await _configurationDbContext.ApiResources.SingleOrDefaultAsync(x => x.Id == resourceId);
+            if (resource == null) {
+                return NotFound();
+            }
+            _configurationDbContext.ApiResources.Remove(resource);
             await _configurationDbContext.SaveChangesAsync();
             return Ok();
         }
