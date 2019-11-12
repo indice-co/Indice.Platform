@@ -9,6 +9,7 @@ import { ClientStore } from '../client-store.service';
 import { ClientUrl } from './models/client-url';
 import { UrlType } from './models/urlType';
 import { ToastService } from 'src/app/layout/services/app-toast.service';
+import { UtilitiesService } from 'src/app/core/services/utilities.services';
 
 @Component({
     selector: 'app-client-urls',
@@ -24,7 +25,7 @@ export class ClientUrlsComponent implements OnInit, OnDestroy {
     private _updateClientUrlsSubscription: Subscription;
     private _clientId: string;
 
-    constructor(private _route: ActivatedRoute, private _clientStore: ClientStore, private _toast: ToastService) { }
+    constructor(private _route: ActivatedRoute, private _clientStore: ClientStore, private _toast: ToastService, private _utilities: UtilitiesService) { }
 
     public columns: TableColumn[] = [];
     public rows: ClientUrl[] = [];
@@ -89,7 +90,8 @@ export class ClientUrlsComponent implements OnInit, OnDestroy {
                     url: value,
                     isCors: client.allowedCorsOrigins.includes(value),
                     isPostLogoutRedirect: client.postLogoutRedirectUris.includes(value),
-                    isRedirect: client.redirectUris.includes(value)
+                    isRedirect: client.redirectUris.includes(value),
+                    id: this._utilities.newGuid()
                 } as ClientUrl);
             });
             this.rows = rows;

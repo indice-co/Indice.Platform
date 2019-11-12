@@ -115,12 +115,13 @@
                             Required Claim
                         </label>
                         <div class="col-sm-10">
-                            <div class="form-check col-form-label">
+                            <div class="form-check col-form-label custom-control custom-checkbox">
                                 <input id="claim-type-confirmed"
                                        name="claim-type-confirmed"
                                        type="checkbox"
-                                       class="form-check-input"
+                                       class="form-check-input custom-control-input"
                                        [(ngModel)]="claimType.required" />
+                                <label class="custom-control-label" for="claim-type-confirmed">&nbsp;</label>
                             </div>
                         </div>
                     </div>
@@ -130,12 +131,13 @@
                             User Editable
                         </label>
                         <div class="col-sm-10">
-                            <div class="form-check col-form-label">
+                            <div class="form-check col-form-label custom-control custom-checkbox">
                                 <input id="claim-type-editable"
                                        name="claim-type-editable"
                                        type="checkbox"
-                                       class="form-check-input"
+                                       class="form-check-input custom-control-input"
                                        [(ngModel)]="claimType.userEditable" />
+                                <label class="custom-control-label" for="claim-type-editable">&nbsp;</label>
                             </div>
                         </div>
                     </div>

@@ -39,8 +39,8 @@
                     <a [routerLink]="['/app/users/add']" class="dropdown-item">User</a>
                     <a [routerLink]="['/app/roles/add']" class="dropdown-item">Role</a>
                     <a [routerLink]="['/app/clients/add']" class="dropdown-item">Client</a>
-                    <a [routerLink]="['/app/resources/identity/add']" class="dropdown-item">Identity Resource</a>
-                    <a [routerLink]="['/app/resources/api/add']" class="dropdown-item">API Resource</a>
+                    <a [routerLink]="['/app/resources/add']" [state]="{ origin: 'identity' }" class="dropdown-item">Identity Resource</a>
+                    <a [routerLink]="['/app/resources/add']" [state]="{ origin: 'api' }" class="dropdown-item">API Resource</a>
                     <a [routerLink]="['/app/claim-types/add']" class="dropdown-item">Claim Type</a>
                 </div>
             </li>

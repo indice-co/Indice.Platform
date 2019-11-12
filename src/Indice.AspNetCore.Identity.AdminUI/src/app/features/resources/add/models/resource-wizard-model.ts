@@ -6,4 +6,5 @@ export interface ResourceWizardModel {
     form: FormGroup;
     apiResource: CreateResourceRequest;
     displayType: boolean;
+    navigationOrigin: string;
 }

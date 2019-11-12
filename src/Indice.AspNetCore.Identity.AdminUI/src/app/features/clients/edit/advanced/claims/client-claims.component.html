@@ -35,13 +35,14 @@
             Always Send Claims
         </label>
         <div class="col-sm-10">
-            <div class="form-check col-form-label">
-                <input class="form-check-input"
+            <div class="form-check col-form-label custom-control custom-checkbox">
+                <input class="form-check-input custom-control-input"
                        type="checkbox"
                        id="client-always-send-client-claims"
                        name="client-always-send-client-claims"
                        [(ngModel)]="client.alwaysSendClientClaims"
                        #alwaysSendClientClaims="ngModel" />
+                <label class="custom-control-label" for="client-always-send-client-claims">&nbsp;</label>
             </div>
         </div>
     </div>

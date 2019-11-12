@@ -58,11 +58,13 @@
              let-column="column"
              let-value="value"
              #checkboxTemplate>
-    <div class="form-check">
+    <div class="form-check custom-control custom-checkbox">
         <input type="checkbox"
-               class="form-check-input"
+               class="form-check-input custom-control-input"
+               [id]="row.id + '-' + column.$$id"
                [checked]="value"
                (change)="checkboxChanged($event, column, row)" />
+        <label class="custom-control-label" [for]="row.id + '-' + column.$$id">&nbsp;</label>
     </div>
 </ng-template>
 <ng-template #redirectTemplate>

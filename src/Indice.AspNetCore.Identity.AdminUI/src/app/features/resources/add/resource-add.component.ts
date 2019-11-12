@@ -22,6 +22,7 @@ export class ResourceAddComponent implements OnInit {
     @ViewChild(WizardStepDirective, { static: false }) private _wizardStepHost: WizardStepDirective;
     private _loadedStepInstance: StepBaseComponent<ResourceWizardModel>;
     private _formValidatedSubscription: Subscription;
+    private _navigationOrigin: string;
 
     constructor(private _componentFactoryResolver: ComponentFactoryResolver, private _formBuilder: FormBuilder, private _changeDetectionRef: ChangeDetectorRef,
                 private _api: IdentityApiService, private _toast: ToastService, private _router: Router, private _route: ActivatedRoute) { }
@@ -56,6 +57,7 @@ export class ResourceAddComponent implements OnInit {
             new WizardStepDescriptor('Basic Details', BasicInfoStepComponent),
             new WizardStepDescriptor('User Claims', UserClaimsStepComponent)
         ];
+        this._navigationOrigin = history.state.origin;
         this._changeDetectionRef.detectChanges();
         this.loadStep(this.apiResourceSteps[0]);
     }
@@ -128,7 +130,8 @@ export class ResourceAddComponent implements OnInit {
         this._loadedStepInstance.data = {
             apiResource: this.resource,
             form: this.form,
-            displayType: true
+            displayType: true,
+            navigationOrigin: this._navigationOrigin
         } as ResourceWizardModel;
         if (this._formValidatedSubscription) {
             this._formValidatedSubscription.unsubscribe();

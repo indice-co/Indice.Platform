@@ -63,14 +63,15 @@
             Email Confirmed
         </label>
         <div class="col-sm-10">
-            <div class="form-check col-form-label">
-                <input class="form-check-input"
+            <div class="form-check col-form-label custom-control custom-checkbox">
+                <input class="form-check-input custom-control-input"
                        type="checkbox"
                        id="user-email-confirmed"
                        name="user-email-confirmed"
                        [(ngModel)]="user.emailConfirmed"
                        disabled
                        #emailConfirmed="ngModel" />
+                <label class="custom-control-label" for="user-email-confirmed">&nbsp;</label>
             </div>
         </div>
     </div>
@@ -104,14 +105,15 @@
         <label for="user-phone-number-confirmed"
                class="col-sm-2 col-form-label">Phone Number Confirmed</label>
         <div class="col-sm-10">
-            <div class="form-check col-form-label">
-                <input class="form-check-input"
+            <div class="form-check col-form-label custom-control custom-checkbox">
+                <input class="form-check-input custom-control-input"
                        type="checkbox"
                        id="user-phone-number-confirmed"
                        name="user-phone-number-confirmed"
                        [(ngModel)]="user.phoneNumberConfirmed"
                        disabled
                        #phoneNumberConfirmed="ngModel" />
+                <label class="custom-control-label" for="user-phone-number-confirmed">&nbsp;</label>
             </div>
         </div>
     </div>
