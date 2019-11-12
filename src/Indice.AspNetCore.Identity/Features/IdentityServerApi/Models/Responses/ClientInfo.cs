@@ -139,6 +139,14 @@ namespace Indice.AspNetCore.Identity.Features
         /// </summary>
         public string ClientClaimsPrefix { get; set; }
         /// <summary>
+        /// Specifies logout URI at client for HTTP back-channel based logout.
+        /// </summary>
+        public string BackChannelLogoutUri { get; set; }
+        /// <summary>
+        /// Specifies is the user's session id should be sent to the BackChannelLogoutUri.
+        /// </summary>
+        public bool BackChannelLogoutSessionRequired { get; set; }
+        /// <summary>
         /// List of client claims.
         /// </summary>
         public IEnumerable<ClaimInfo> Claims { get; set; }

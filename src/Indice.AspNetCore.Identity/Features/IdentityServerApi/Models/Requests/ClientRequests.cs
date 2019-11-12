@@ -58,7 +58,7 @@ namespace Indice.AspNetCore.Identity.Features
         /// <summary>
         /// Lifetime of a user consent in seconds.
         /// </summary>
-        public int ConsentLifetime { get; set; }
+        public int? ConsentLifetime { get; set; }
         /// <summary>
         /// Gets or sets a value indicating whether to allow offline access.
         /// </summary>
@@ -66,7 +66,7 @@ namespace Indice.AspNetCore.Identity.Features
         /// <summary>
         /// The maximum duration (in seconds) since the last time the user authenticated.
         /// </summary>
-        public int UserSsoLifetime { get; set; }
+        public int? UserSsoLifetime { get; set; }
         /// <summary>
         /// Specifies logout URI at client for HTTP front-channel based logout.
         /// </summary>
@@ -79,6 +79,14 @@ namespace Indice.AspNetCore.Identity.Features
         /// Gets or sets a value indicating whether the access token (and its claims) should be updated on a refresh token request.
         /// </summary>
         public bool UpdateAccessTokenClaimsOnRefresh { get; set; }
+        /// <summary>
+        /// Specifies logout URI at client for HTTP back-channel based logout.
+        /// </summary>
+        public string BackChannelLogoutUri { get; set; }
+        /// <summary>
+        /// Specifies is the user's session id should be sent to the BackChannelLogoutUri.
+        /// </summary>
+        public bool BackChannelLogoutSessionRequired { get; set; }
         /// <summary>
         /// Specifies whether the access token is a reference token or a self contained JWT token.
         /// </summary>

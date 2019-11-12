@@ -10,7 +10,7 @@ import { IdentityResourcesStepComponent } from './steps/identity-resources/ident
 import { ApiResourcesStepComponent } from './steps/api-resources/api-resources-step.component';
 import { SummaryStepComponent } from './steps/summary/summary-step.component';
 import { SecretsStepComponent } from './steps/secrets/secrets-step.component';
-import { IdentityResourceInfo, ApiResourceInfo, IdentityResourceInfoResultSet, IdentityApiService, ApiResourceInfoResultSet, ClientType as Type, ScopeInfoResultSet, ScopeInfo } from 'src/app/core/services/identity-api.service';
+import { IdentityResourceInfo, IdentityResourceInfoResultSet, IdentityApiService, ApiResourceInfoResultSet, ClientType as Type, ScopeInfoResultSet, ScopeInfo } from 'src/app/core/services/identity-api.service';
 
 @Injectable()
 export class ClientsWizardService {

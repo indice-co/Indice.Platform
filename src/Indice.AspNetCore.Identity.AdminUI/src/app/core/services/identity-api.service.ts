@@ -6353,6 +6353,10 @@ export class SingleClientInfo implements ISingleClientInfo {
     allowPlainTextPkce?: boolean | undefined;
     /** Gets or sets a value to prefix it on client claim types. */
     clientClaimsPrefix?: string | undefined;
+    /** Specifies logout URI at client for HTTP back-channel based logout. */
+    backChannelLogoutUri?: string | undefined;
+    /** Specifies is the user's session id should be sent to the BackChannelLogoutUri. */
+    backChannelLogoutSessionRequired?: boolean;
     /** List of client claims. */
     claims?: ClaimInfo[] | undefined;
     /** List of configured grant types. */
@@ -6420,6 +6424,8 @@ export class SingleClientInfo implements ISingleClientInfo {
             this.requirePkce = _data["requirePkce"];
             this.allowPlainTextPkce = _data["allowPlainTextPkce"];
             this.clientClaimsPrefix = _data["clientClaimsPrefix"];
+            this.backChannelLogoutUri = _data["backChannelLogoutUri"];
+            this.backChannelLogoutSessionRequired = _data["backChannelLogoutSessionRequired"];
             if (Array.isArray(_data["claims"])) {
                 this.claims = [] as any;
                 for (let item of _data["claims"])
@@ -6502,6 +6508,8 @@ export class SingleClientInfo implements ISingleClientInfo {
         data["requirePkce"] = this.requirePkce;
         data["allowPlainTextPkce"] = this.allowPlainTextPkce;
         data["clientClaimsPrefix"] = this.clientClaimsPrefix;
+        data["backChannelLogoutUri"] = this.backChannelLogoutUri;
+        data["backChannelLogoutSessionRequired"] = this.backChannelLogoutSessionRequired;
         if (Array.isArray(this.claims)) {
             data["claims"] = [];
             for (let item of this.claims)
@@ -6596,6 +6604,10 @@ export interface ISingleClientInfo {
     allowPlainTextPkce?: boolean | undefined;
     /** Gets or sets a value to prefix it on client claim types. */
     clientClaimsPrefix?: string | undefined;
+    /** Specifies logout URI at client for HTTP back-channel based logout. */
+    backChannelLogoutUri?: string | undefined;
+    /** Specifies is the user's session id should be sent to the BackChannelLogoutUri. */
+    backChannelLogoutSessionRequired?: boolean;
     /** List of client claims. */
     claims?: ClaimInfo[] | undefined;
     /** List of configured grant types. */
@@ -6641,17 +6653,21 @@ export class UpdateClientRequest implements IUpdateClientRequest {
     /** Maximum lifetime of a refresh token in seconds. */
     absoluteRefreshTokenLifetime?: number;
     /** Lifetime of a user consent in seconds. */
-    consentLifetime?: number;
+    consentLifetime?: number | undefined;
     /** Gets or sets a value indicating whether to allow offline access. */
     allowOfflineAccess?: boolean;
     /** The maximum duration (in seconds) since the last time the user authenticated. */
-    userSsoLifetime?: number;
+    userSsoLifetime?: number | undefined;
     /** Specifies logout URI at client for HTTP front-channel based logout. */
     frontChannelLogoutUri?: string | undefined;
     /** Gets or sets a salt value used in pair-wise subjectId generation for users of this client. */
     pairWiseSubjectSalt?: string | undefined;
     /** Gets or sets a value indicating whether the access token (and its claims) should be updated on a refresh token request. */
     updateAccessTokenClaimsOnRefresh?: boolean;
+    /** Specifies logout URI at client for HTTP back-channel based logout. */
+    backChannelLogoutUri?: string | undefined;
+    /** Specifies is the user's session id should be sent to the BackChannelLogoutUri. */
+    backChannelLogoutSessionRequired?: boolean;
     accessTokenType?: AccessTokenType;
     refreshTokenExpiration?: TokenExpiration;
     refreshTokenUsage?: TokenUsage;
@@ -6706,6 +6722,8 @@ export class UpdateClientRequest implements IUpdateClientRequest {
             this.frontChannelLogoutUri = _data["frontChannelLogoutUri"];
             this.pairWiseSubjectSalt = _data["pairWiseSubjectSalt"];
             this.updateAccessTokenClaimsOnRefresh = _data["updateAccessTokenClaimsOnRefresh"];
+            this.backChannelLogoutUri = _data["backChannelLogoutUri"];
+            this.backChannelLogoutSessionRequired = _data["backChannelLogoutSessionRequired"];
             this.accessTokenType = _data["accessTokenType"];
             this.refreshTokenExpiration = _data["refreshTokenExpiration"];
             this.refreshTokenUsage = _data["refreshTokenUsage"];
@@ -6745,6 +6763,8 @@ export class UpdateClientRequest implements IUpdateClientRequest {
         data["frontChannelLogoutUri"] = this.frontChannelLogoutUri;
         data["pairWiseSubjectSalt"] = this.pairWiseSubjectSalt;
         data["updateAccessTokenClaimsOnRefresh"] = this.updateAccessTokenClaimsOnRefresh;
+        data["backChannelLogoutUri"] = this.backChannelLogoutUri;
+        data["backChannelLogoutSessionRequired"] = this.backChannelLogoutSessionRequired;
         data["accessTokenType"] = this.accessTokenType;
         data["refreshTokenExpiration"] = this.refreshTokenExpiration;
         data["refreshTokenUsage"] = this.refreshTokenUsage;
@@ -6776,17 +6796,21 @@ export interface IUpdateClientRequest {
     /** Maximum lifetime of a refresh token in seconds. */
     absoluteRefreshTokenLifetime?: number;
     /** Lifetime of a user consent in seconds. */
-    consentLifetime?: number;
+    consentLifetime?: number | undefined;
     /** Gets or sets a value indicating whether to allow offline access. */
     allowOfflineAccess?: boolean;
     /** The maximum duration (in seconds) since the last time the user authenticated. */
-    userSsoLifetime?: number;
+    userSsoLifetime?: number | undefined;
     /** Specifies logout URI at client for HTTP front-channel based logout. */
     frontChannelLogoutUri?: string | undefined;
     /** Gets or sets a salt value used in pair-wise subjectId generation for users of this client. */
     pairWiseSubjectSalt?: string | undefined;
     /** Gets or sets a value indicating whether the access token (and its claims) should be updated on a refresh token request. */
     updateAccessTokenClaimsOnRefresh?: boolean;
+    /** Specifies logout URI at client for HTTP back-channel based logout. */
+    backChannelLogoutUri?: string | undefined;
+    /** Specifies is the user's session id should be sent to the BackChannelLogoutUri. */
+    backChannelLogoutSessionRequired?: boolean;
     accessTokenType?: AccessTokenType;
     refreshTokenExpiration?: TokenExpiration;
     refreshTokenUsage?: TokenUsage;

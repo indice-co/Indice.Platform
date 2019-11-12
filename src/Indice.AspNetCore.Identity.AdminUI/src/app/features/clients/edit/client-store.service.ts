@@ -55,7 +55,9 @@ export class ClientStore {
             pairWiseSubjectSalt: client.pairWiseSubjectSalt,
             requireConsent: client.requireConsent,
             requirePkce: client.requirePkce,
-            userSsoLifetime: client.userSsoLifetime
+            userSsoLifetime: client.userSsoLifetime,
+            backChannelLogoutUri: client.backChannelLogoutUri,
+            backChannelLogoutSessionRequired: client.backChannelLogoutSessionRequired
         } as IUpdateClientRequest)).pipe(map(_ => {
             this._client.next(client);
             this._client.complete();

@@ -40,4 +40,16 @@ export class ClientTokensComponent implements OnInit, OnDestroy {
     public hasAnyOf(types: string[]): boolean {
         return this.client.grantTypes && this.client.grantTypes.some(x => types.indexOf(x) > -1);
     }
+
+    public hasAllOf(types: string[]): boolean {
+        let result = true;
+        if (this.client.grantTypes) {
+            types.forEach((value: string) => {
+                if (!this.client.grantTypes.includes(value)) {
+                    result = false;
+                }
+            });
+        }
+        return result;
+    }
 }

@@ -149,6 +149,8 @@ namespace Indice.AspNetCore.Identity.Features
                                                           RefreshTokenExpiration = (TokenExpiration)x.RefreshTokenExpiration,
                                                           RefreshTokenUsage = (TokenUsage)x.RefreshTokenUsage,
                                                           UpdateAccessTokenClaimsOnRefresh = x.UpdateAccessTokenClaimsOnRefresh,
+                                                          BackChannelLogoutUri = x.BackChannelLogoutUri,
+                                                          BackChannelLogoutSessionRequired = x.BackChannelLogoutSessionRequired,
                                                           ApiResources = x.AllowedScopes.Join(
                                                               _configurationDbContext.ApiResources.SelectMany(x => x.Scopes),
                                                               clientScope => clientScope.Scope,
@@ -258,6 +260,8 @@ namespace Indice.AspNetCore.Identity.Features
             client.RefreshTokenExpiration = (int)request.RefreshTokenExpiration;
             client.AllowOfflineAccess = request.AllowOfflineAccess;
             client.UpdateAccessTokenClaimsOnRefresh = request.UpdateAccessTokenClaimsOnRefresh;
+            client.BackChannelLogoutUri = request.BackChannelLogoutUri;
+            client.BackChannelLogoutSessionRequired = request.BackChannelLogoutSessionRequired;
             await _configurationDbContext.SaveChangesAsync();
             return Ok();
         }
@@ -513,6 +517,7 @@ namespace Indice.AspNetCore.Identity.Features
                 ClientUri = clientRequest.ClientUri,
                 LogoUri = clientRequest.LogoUri,
                 RequireConsent = clientRequest.RequireConsent,
+                BackChannelLogoutSessionRequired = true,
                 AllowedScopes = clientRequest.IdentityResources.Union(clientRequest.ApiResources).Select(scope => new ClientScope {
                     Scope = scope
                 })
@@ -562,11 +567,12 @@ namespace Indice.AspNetCore.Identity.Features
                             GrantType = GrantType.Hybrid
                         }
                     };
+                    client.RequirePkce = true;
                     break;
                 case ClientType.Native:
                     client.AllowedGrantTypes = new List<ClientGrantType> {
                         new ClientGrantType {
-                            GrantType = GrantType.Hybrid
+                            GrantType = GrantType.AuthorizationCode
                         }
                     };
                     client.RequirePkce = true;
