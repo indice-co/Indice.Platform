@@ -1,33 +1,80 @@
-<form class="needs-validation" [ngClass]="{ 'was-validated': form.submitted }" (ngSubmit)="form.form.valid && addClaim()" novalidate #form="ngForm">
+<form class="needs-validation"
+      [ngClass]="{ 'was-validated': form.submitted }"
+      (ngSubmit)="form.form.valid && addClaim()"
+      novalidate
+      #form="ngForm">
     <div class="form-row">
         <div class="col">
-            <label class="sr-only" for="claims-select">Claim</label>
-            <select class="form-control custom-select" id="claims-select" name="claims-select" [ngModel]="selectedClaimName" (ngModelChange)="claimSelected($event)" 
-                required #claim="ngModel">
-                <option value="" disabled>Please select a claim</option>
-                <option *ngFor="let claim of claims" [value]="claim.name">{{ claim.name }}</option>
+            <label class="sr-only"
+                   for="claims-select">
+                Claim
+            </label>
+            <select class="form-control custom-select"
+                    id="claims-select"
+                    name="claims-select"
+                    [ngModel]="selectedClaimName"
+                    (ngModelChange)="claimSelected($event)"
+                    required
+                    #claim="ngModel">
+                <option value=""
+                        disabled>
+                    Please select a claim
+                </option>
+                <option *ngFor="let claim of claims"
+                        [value]="claim.name">
+                    {{ claim.name }}
+                </option>
             </select>
-            <div *ngIf="form.submitted && claim.invalid" class="form-control-feedback text-danger">Please select a claim.</div>
+            <div *ngIf="form.submitted && claim.invalid"
+                 class="form-control-feedback text-danger">
+                Please select a claim.
+            </div>
         </div>
         <div class="col">
-            <label class="sr-only" for="claim-value">Value</label>
-            <app-dynamic-input id="claim-value" name="claim-value" [pattern]="selectedClaimRule" [(ngModel)]="selectedClaimValue" [modelType]="selectedClaimValueType" 
-                [placeholder]="'Please provide a value...'" required #value="ngModel">
+            <label class="sr-only"
+                   for="claim-value">
+                Value
+            </label>
+            <app-dynamic-input id="claim-value"
+                               name="claim-value"
+                               [pattern]="selectedClaimRule"
+                               [(ngModel)]="selectedClaimValue"
+                               [modelType]="selectedClaimValueType"
+                               [placeholder]="'Please provide a value...'"
+                               required
+                               #value="ngModel">
             </app-dynamic-input>
-            <div *ngIf="form.submitted && value.invalid" class="form-control-feedback text-danger">Please provide a value.</div>
+            <div *ngIf="form.submitted && value.invalid"
+                 class="form-control-feedback text-danger">
+                Please provide a value.
+            </div>
         </div>
         <div class="col-md-1 text-right">
-            <button type="submit" class="btn btn-primary waves-effect waves-light m-r-5">Add</button>
+            <button type="submit"
+                    class="btn btn-primary waves-effect waves-light m-r-5">
+                Add
+            </button>
         </div>
     </div>
 </form>
 <div class="row mt-3">
     <div class="col-12">
-        <app-list-view [clientSide]="true" [rowsPerPage]="10" [canFilter]="false" [columns]="columns" [rows]="rows" [defaultSortField]="'type'" [defaultSortDirection]="'Asc'" 
-            #userClaimsList>
+        <app-list-view [clientSide]="true"
+                       [rowsPerPage]="10"
+                       [canFilter]="false"
+                       [columns]="columns"
+                       [rows]="rows"
+                       [defaultSortField]="'type'"
+                       [defaultSortDirection]="'Asc'"
+                       #userClaimsList>
         </app-list-view>
     </div>
 </div>
-<ng-template let-row="row" let-value="value" #actionsTemplate>
-    <a class="btn btn-success" href="#" role="button" [routerLink]="value + '/edit'">Edit</a>
+<ng-template let-row="row"
+             let-value="value"
+             #actionsTemplate>
+    <a class="btn btn-success"
+       href="#"
+       role="button"
+       [routerLink]="value + '/edit'">Edit</a>
 </ng-template>

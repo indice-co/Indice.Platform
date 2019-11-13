@@ -64,7 +64,9 @@
                [id]="row.id + '-' + column.$$id"
                [checked]="value"
                (change)="checkboxChanged($event, column, row)" />
-        <label class="custom-control-label" [for]="row.id + '-' + column.$$id">&nbsp;</label>
+        <label class="custom-control-label"
+               [for]="row.id + '-' + column.$$id">
+        </label>
     </div>
 </ng-template>
 <ng-template #redirectTemplate>

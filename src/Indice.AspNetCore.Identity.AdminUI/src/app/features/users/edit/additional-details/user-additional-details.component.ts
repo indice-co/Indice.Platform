@@ -75,7 +75,7 @@ export class UserAdditionalDetailsComponent implements OnInit, OnDestroy {
             type: this.selectedClaimName,
             value: this.selectedClaimValueType === ValueType.DateTime ? this._dateParser.format(this.selectedClaimValue as NgbDateStruct) : this.selectedClaimValue
         } as ClaimInfo).subscribe(_ => {
-            this._toast.showSuccess(`Claim '${this.selectedClaimName}' was successfully added to the user.`);
+            this._toast.showSuccess(`Claim '${this.selectedClaimName}' was successfully added to user ${this._user.email}.`);
             this._form.resetForm({
                 'claims-select': '',
                 'claim-value': ''

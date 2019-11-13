@@ -22,9 +22,18 @@
                            [routerLink]="['urls']"
                            routerLinkActive="active"
                            role="tab"
-                           id="client-urls"
+                           id="client-urls-tab"
                            *ngIf="hasAnyOf(['authorization_code', 'password', 'hybrid'])">
                             Application URLs
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link"
+                           [routerLink]="['secrets']"
+                           routerLinkActive="active"
+                           role="tab"
+                           id="client-secrets-tab">
+                            Secrets
                         </a>
                     </li>
                     <li class="nav-item">
@@ -32,7 +41,7 @@
                            [routerLink]="['resources']"
                            routerLinkActive="active"
                            role="tab"
-                           id="resources">
+                           id="resources-tab">
                             Resources
                         </a>
                     </li>
@@ -41,7 +50,7 @@
                            [routerLink]="['advanced']"
                            routerLinkActive="active"
                            role="tab"
-                           id="advanced">
+                           id="advanced-tab">
                             Advanced
                         </a>
                     </li>

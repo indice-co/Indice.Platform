@@ -32,6 +32,7 @@ export class ClientGrantTypesComponent implements OnInit, OnDestroy {
     public rows: { type: string }[];
     public availableGrantTypes: string[];
     public grantTypeToDelete: { type: string };
+    public customGrantName: string;
 
     public ngOnInit(): void {
         this.columns = [
@@ -67,9 +68,10 @@ export class ClientGrantTypesComponent implements OnInit, OnDestroy {
     }
 
     public addGrantType(): void {
-        this._clientStore.addGrantType(this.client.clientId, this.selectedGrantType).subscribe(_ => {
-            this._toast.showSuccess(`Grant type '${this.selectedGrantType}' was successfully added to the client.`);
-            this.rows.push({ type: this.selectedGrantType });
+        const grantToAdd = this.selectedGrantType === 'custom' ? this.customGrantName : this.selectedGrantType;
+        this._clientStore.addGrantType(this.client.clientId, grantToAdd).subscribe(_ => {
+            this._toast.showSuccess(`Grant type '${grantToAdd}' was successfully added to client '${this.client.clientName}'.`);
+            this.rows.push({ type: grantToAdd });
             this._form.resetForm({
                 'grant-type': ''
             });

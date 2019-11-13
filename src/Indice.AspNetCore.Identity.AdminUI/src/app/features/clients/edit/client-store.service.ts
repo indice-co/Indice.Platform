@@ -1,10 +1,10 @@
 import { Injectable } from '@angular/core';
 
-import { AsyncSubject, Observable } from 'rxjs';
+import { AsyncSubject, Observable, forkJoin } from 'rxjs';
 import { map } from 'rxjs/operators';
 import {
     IdentityApiService, SingleClientInfo, IdentityResourceInfoResultSet, IdentityResourceInfo, ApiResourceInfo, CreateClaimRequest, ClaimInfo, UpdateClientRequest, IUpdateClientRequest,
-    ScopeInfo, ScopeInfoResultSet, GrantTypeInfo, UpdateClientUrls
+    ScopeInfo, ScopeInfoResultSet, GrantTypeInfo, UpdateClientUrls, CreateSecretRequest, SecretInfo, ApiSecretInfo, ClientSecretInfo
 } from 'src/app/core/services/identity-api.service';
 import { UrlType } from './urls/models/urlType';
 
@@ -210,6 +210,34 @@ export class ClientStore {
             this._client.complete();
         });
         return this._api.deleteClientGrantType(clientId, grantType);
+    }
+
+    public addSecret(clientId: string, secret: CreateSecretRequest): Observable<void> {
+        const getClient = this.getClient(clientId);
+        const addSecret = this._api.addClientSecret(clientId, secret);
+        return forkJoin([getClient, addSecret]).pipe(map((responses: [SingleClientInfo, SecretInfo]) => {
+            return {
+                client: responses[0],
+                addedSecret: responses[1]
+            };
+        })).pipe(map((result: { client: SingleClientInfo, addedSecret: ClientSecretInfo }) => {
+            (result.addedSecret as any).valueText = 'Value is hidden';
+            result.client.secrets.push(result.addedSecret);
+            this._client.next(result.client);
+            this._client.complete();
+        }));
+    }
+
+    public deleteClientSecret(clientId: string, secret: ClientSecretInfo): Observable<void> {
+        this.getClient(clientId).subscribe((client: SingleClientInfo) => {
+            const index = client.secrets.indexOf(secret);
+            if (index > -1) {
+                client.secrets.splice(index, 1);
+            }
+            this._client.next(client);
+            this._client.complete();
+        });
+        return this._api.deleteClientSecret(clientId, secret.id);
     }
 
     public deleteClient(clientId: string): Observable<void> {

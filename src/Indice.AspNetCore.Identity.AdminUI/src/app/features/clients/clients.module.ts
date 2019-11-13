@@ -25,6 +25,7 @@ import { ClientAdvancedComponent } from './edit/advanced/client-advanced.compone
 import { ClientTokensComponent } from './edit/advanced/tokens/client-tokens.component';
 import { ClientClaimsComponent } from './edit/advanced/claims/client-claims.component';
 import { ClientGrantTypesComponent } from './edit/advanced/grant-types/client-grant-types.component';
+import { ClientSecretsComponent } from './edit/secrets/client-secrets.component';
 
 @NgModule({
     declarations: [
@@ -46,7 +47,8 @@ import { ClientGrantTypesComponent } from './edit/advanced/grant-types/client-gr
         ClientAdvancedComponent,
         ClientTokensComponent,
         ClientClaimsComponent,
-        ClientGrantTypesComponent
+        ClientGrantTypesComponent,
+        ClientSecretsComponent
     ],
     imports: [
         CommonModule,

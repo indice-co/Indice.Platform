@@ -58,13 +58,16 @@
         <label for="scope-required"
                class="col-sm-2 col-form-label">Required</label>
         <div class="col-sm-10">
-            <div class="form-check col-form-label">
-                <input class="form-check-input"
+            <div class="form-check col-form-label custom-control custom-checkbox">
+                <input class="form-check-input custom-control-input"
                        type="checkbox"
                        [id]="'scope-required-' + discriminator"
                        [name]="'scope-required-' + discriminator"
                        [(ngModel)]="scope.required"
                        #required="ngModel" />
+                <label class="custom-control-label"
+                       [for]="'scope-required-' + discriminator">
+                </label>
             </div>
         </div>
     </div>
@@ -72,13 +75,16 @@
         <label for="scope-show-in-dd"
                class="col-sm-2 col-form-label">Show in Discovery Document</label>
         <div class="col-sm-10">
-            <div class="form-check col-form-label">
-                <input class="form-check-input"
+            <div class="form-check col-form-label custom-control custom-checkbox">
+                <input class="form-check-input custom-control-input"
                        type="checkbox"
                        [id]="'scope-show-in-dd-' + discriminator"
                        [name]="'scope-show-in-dd-' + discriminator"
                        [(ngModel)]="scope.showInDiscoveryDocument"
                        #showInDiscoveryDocument="ngModel" />
+                <label class="custom-control-label"
+                       [for]="'scope-show-in-dd-' + discriminator">
+                </label>
             </div>
         </div>
     </div>
@@ -86,13 +92,16 @@
         <label for="scope-emphasize"
                class="col-sm-2 col-form-label">Emphasize</label>
         <div class="col-sm-10">
-            <div class="form-check col-form-label">
-                <input class="form-check-input"
+            <div class="form-check col-form-label custom-control custom-checkbox">
+                <input class="form-check-input custom-control-input"
                        type="checkbox"
-                       id="scope-emphasize"
+                       [id]="'scope-emphasize' + discriminator"
                        name="scope-emphasize"
                        [(ngModel)]="scope.emphasize"
                        #emphasize="ngModel" />
+                <label class="custom-control-label"
+                       [for]="'scope-emphasize' + discriminator">
+                </label>
             </div>
         </div>
     </div>

@@ -6,10 +6,14 @@
                 <p class="text-muted m-b-30 font-14">
                     Setup a client application.
                 </p>
-                <div class="container m-auto" *ngIf="!clientConfigurationStarted">
+                <div class="container m-auto"
+                     *ngIf="!clientConfigurationStarted">
                     <div class="row m-t-20">
-                        <div class="col-md-6 cursor-pointer" *ngFor="let clientType of clientTypes" (click)="selectClientType(clientType)">
-                            <div class="card mb-3 card-body shadow" [ngStyle]="{ 'background': selectedClientType?.key === clientType.key ? '#46cd93' : '' }">
+                        <div class="col-md-6 cursor-pointer"
+                             *ngFor="let clientType of clientTypes"
+                             (click)="selectClientType(clientType)">
+                            <div class="card mb-3 card-body shadow"
+                                 [ngStyle]="{ 'background': selectedClientType?.key === clientType.key ? '#46cd93' : '' }">
                                 <div class="row no-gutters">
                                     <div class="col-sm-10">
                                         <h3 class="card-title font-14 m-0">{{ clientType.name }}</h3>
@@ -23,28 +27,52 @@
                         </div>
                     </div>
                     <hr />
-                    <div class="row" *ngIf="selectedClientType">
+                    <div class="row"
+                         *ngIf="selectedClientType">
                         <div class="col-sm-10">
                             <p [innerHTML]="selectedClientType.descriptionHtml"></p>
                         </div>
                         <div class="col-sm-2 m-auto">
-                            <button type="button" class="btn btn-lg btn-primary waves-effect waves-light m-r-5 float-right" (click)="startClientConfiguration()">Get Started</button>
+                            <button type="button"
+                                    class="btn btn-lg btn-primary waves-effect waves-light m-r-5 float-right"
+                                    (click)="startClientConfiguration()">
+                                Get Started
+                            </button>
                         </div>
                     </div>
                 </div>
                 <div *ngIf="clientConfigurationStarted">
-                    <h3 class="m-b-30 text-center"  [ngClass]="{ 'd-none': i !== wizardStepIndex }" *ngFor="let step of clientTypeSteps; let i = index">
+                    <h3 class="m-b-30 text-center"
+                        [ngClass]="{ 'd-none': i !== wizardStepIndex }"
+                        *ngFor="let step of clientTypeSteps; let i = index">
                         Step {{ wizardStepIndex + 1 }} of {{ clientTypeSteps.length }} - {{ step.title }}
                     </h3>
-                    <form class="needs-validation" [ngClass]="{ 'was-validated': hostFormValidated }" [formGroup]="form" novalidate #ngForm="ngForm">
+                    <form class="needs-validation"
+                          [ngClass]="{ 'was-validated': hostFormValidated }"
+                          [formGroup]="form"
+                          novalidate
+                          #ngForm="ngForm">
                         <ng-template wizardStepHost></ng-template>
                         <div class="form-group">
                             <div>
-                                <button type="button" class="btn btn-secondary waves-effect waves-light m-r-5" *ngIf="canGoBack" (click)="goToPreviousStep()">Previous Step</button>
-                                <button type="button" class="btn btn-primary waves-effect waves-light m-r-5" *ngIf="canGoFront" (click)="goToNextStep()">
+                                <button type="button"
+                                        class="btn btn-secondary m-r-5"
+                                        *ngIf="canGoBack"
+                                        (click)="goToPreviousStep()">
+                                    Previous Step
+                                </button>
+                                <button type="button"
+                                        class="btn btn-primary m-r-5"
+                                        *ngIf="canGoFront"
+                                        (click)="goToNextStep()">
                                     {{ isFinishingStep ? 'Go to Summary' : 'Next Step' }}
                                 </button>
-                                <button type="submit" class="btn btn-primary waves-effect waves-light" *ngIf="isSummaryStep" (click)="saveClient()">Save</button>
+                                <button type="submit"
+                                        class="btn btn-primary"
+                                        *ngIf="isSummaryStep"
+                                        (click)="saveClient()">
+                                    Save
+                                </button>
                             </div>
                         </div>
                     </form>

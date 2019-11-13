@@ -16,7 +16,7 @@
       novalidate
       #grantTypesform="ngForm">
     <div class="form-row">
-        <div class="col-md">
+        <div class="col">
             <label class="sr-only"
                    for="grant-type">
                 Grant Type
@@ -43,6 +43,24 @@
                 Please select a value.
             </div>
         </div>
+        <div class="col" *ngIf="selectedGrantType === 'custom'">
+            <label class="sr-only"
+                   for="claim-value">
+                Value
+            </label>
+            <input class="form-control"
+                   id="claim-value"
+                   name="claim-value"
+                   [(ngModel)]="customGrantName"
+                   [placeholder]="'Please provide a value...'"
+                   type="text"
+                   required
+                   #value="ngModel" />
+            <div *ngIf="grantTypesform.submitted && value.invalid"
+                 class="form-control-feedback text-danger">
+                Please provide a value.
+            </div>
+        </div>
         <div class="col-md-1 text-right">
             <button type="submit"
                     class="btn btn-primary waves-effect waves-light m-r-5">
@@ -67,5 +85,6 @@
 <ng-template let-row="row"
              let-value="value"
              #actionsTemplate>
-    <button class="btn btn-danger" (click)="showDeleteAlert(value)">Delete</button>
+    <button class="btn btn-danger"
+            (click)="showDeleteAlert(value)">Delete</button>
 </ng-template>

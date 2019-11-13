@@ -9,6 +9,7 @@ import { UserStore } from '../../user-store.service';
 import { SingleUserInfo, ClaimTypeInfo, ValueType } from 'src/app/core/services/identity-api.service';
 import { NgbDateCustomParserFormatter } from 'src/app/shared/services/custom-parser-formatter.service';
 import { ToastService } from 'src/app/layout/services/app-toast.service';
+import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
     selector: 'app-additional-detail-edit',
@@ -19,10 +20,10 @@ export class AdditionalDetailEditComponent implements OnInit, OnDestroy {
     private _getDataSubscription: Subscription;
     private _userId: string;
     private _claimId: number;
+    private _userEmail: string;
 
     constructor(private _userStore: UserStore, private _router: Router, private _route: ActivatedRoute, private _dateParser: NgbDateCustomParserFormatter, public _toast: ToastService) { }
 
-    @ViewChild('deleteAlert', { static: false }) private deleteAlert: SwalComponent;
     public claim: ClaimType;
 
     public ngOnInit(): void {
@@ -36,6 +37,7 @@ export class AdditionalDetailEditComponent implements OnInit, OnDestroy {
                 claims: responses[1] as ClaimType[]
             };
         })).subscribe((result: { user: SingleUserInfo, claims: ClaimType[] }) => {
+            this._userEmail = result.user.email;
             const userClaim = result.user.claims.find(x => x.id === this._claimId);
             const claimType = userClaim && result.claims.find(x => x.name === userClaim.type);
             if (claimType) {
@@ -52,20 +54,17 @@ export class AdditionalDetailEditComponent implements OnInit, OnDestroy {
         }
     }
 
-    public deletePrompt(): void {
-        this.deleteAlert.fire();
-    }
-
     public delete(): void {
         this._userStore.deleteUserClaim(this._userId, this._claimId).subscribe(_ => {
-            this._toast.showSuccess(`User claim '${this.claim.name}' was deleted successfully.`);
+            this._toast.showSuccess(`Claim '${this.claim.name}' was successfully removed from user '${this._userEmail}'.`);
             this._router.navigate(['../../'], { relativeTo: this._route });
         });
     }
 
     public update(): void {
-        this._userStore.updateUserClaim(this._userId, this._claimId, this.claim.value).subscribe(_ => {
-            this._toast.showSuccess(`User claim '${this.claim.name}' was updated successfully.`);
+        const claimValue = this.claim.valueType === ValueType.DateTime ? this._dateParser.format(this.claim.value as NgbDateStruct) : this.claim.value;
+        this._userStore.updateUserClaim(this._userId, this._claimId, claimValue).subscribe(_ => {
+            this._toast.showSuccess(`Claim '${this.claim.name}' was successfully updated.`);
         });
     }
 }

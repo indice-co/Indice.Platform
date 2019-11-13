@@ -3,7 +3,7 @@
     <Description>Indice.AspNetCore.Identity Class Library</Description>
     <Copyright>Copyright (c) 2018 Indice</Copyright>
     <AssemblyTitle>Indice.AspNetCore.Identity</AssemblyTitle>
-    <VersionPrefix>3.0.3</VersionPrefix>
+    <VersionPrefix>3.0.4</VersionPrefix>
     <!--<VersionSuffix>beta1</VersionSuffix>-->
     <Authors>c.leftheris, g.manoltzas</Authors>
     <TargetFramework>netcoreapp3.0</TargetFramework>
@@ -34,7 +34,7 @@
     <PackageReference Include="Bogus" Version="28.3.2" />
     <PackageReference Include="IdentityServer4" Version="3.0.1" />
     <PackageReference Include="IdentityServer4.AccessTokenValidation" Version="3.0.1" />
-    <PackageReference Include="IdentityServer4.EntityFramework" Version="3.0.1" />    
+    <PackageReference Include="IdentityServer4.EntityFramework" Version="3.0.1" />
     <PackageReference Include="Indice.AspNetCore" Version="3.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.Identity" Version="2.2.0" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="3.0.0" />

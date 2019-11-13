@@ -484,6 +484,70 @@ namespace Indice.AspNetCore.Identity.Features
         }
 
         /// <summary>
+        /// Adds a new secret to an existing client.
+        /// </summary>
+        /// <param name="clientId">The id of the client.</param>
+        /// <param name="request">Contains info about the API scope to be created.</param>
+        /// <response code="201">Created</response>
+        /// <response code="404">Not Found</response>
+        [HttpPost("{clientId}/secrets")]
+        [ProducesResponseType(statusCode: StatusCodes.Status201Created, type: typeof(SecretInfo))]
+        [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
+        [CacheResourceFilter(dependentPaths: new string[] { "{clientId}" })]
+        public async Task<ActionResult<SecretInfo>> AddClientSecret([FromRoute]string clientId, [FromBody]CreateSecretRequest request) {
+            var client = await _configurationDbContext.Clients.SingleOrDefaultAsync(x => x.ClientId == clientId);
+            if (client == null) {
+                return NotFound();
+            }
+            var secretToAdd = new ClientSecret {
+                Description = request.Description,
+                Value = request.Value.ToSha256(),
+                Expiration = request.Expiration,
+                Type = $"{request.Type}",
+                ClientId = client.Id
+            };
+            client.ClientSecrets = new List<ClientSecret> {
+                secretToAdd
+            };
+            await _configurationDbContext.SaveChangesAsync();
+            return CreatedAtAction(string.Empty, new SecretInfo {
+                Id = secretToAdd.Id,
+                Description = secretToAdd.Description,
+                Expiration = secretToAdd.Expiration,
+                Type = secretToAdd.Type == nameof(SecretType.SharedSecret) ? SecretType.SharedSecret : SecretType.X509Thumbprint,
+                Value = "*****"
+            });
+        }
+
+        /// <summary>
+        /// Removes a specified secret from a client.
+        /// </summary>
+        /// <param name="clientId">The id of the client.</param>
+        /// <param name="secretId">The identifier of the client secret to remove.</param>
+        /// <response code="200">OK</response>
+        /// <response code="404">Not Found</response>
+        [HttpDelete("{clientId}/secrets/{secretId}")]
+        [ProducesResponseType(statusCode: StatusCodes.Status200OK)]
+        [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
+        [CacheResourceFilter(dependentPaths: new string[] { "{clientId}" })]
+        public async Task<ActionResult> DeleteClientSecret([FromRoute]string clientId, [FromRoute]int secretId) {
+            var client = await _configurationDbContext.Clients.Include(x => x.ClientSecrets).SingleOrDefaultAsync(x => x.ClientId == clientId);
+            if (client == null) {
+                return NotFound();
+            }
+            if (client.ClientSecrets == null) {
+                client.ClientSecrets = new List<ClientSecret>();
+            }
+            var secretToRemove = client.ClientSecrets.SingleOrDefault(x => x.Id == secretId);
+            if (secretToRemove == null) {
+                return NotFound();
+            }
+            client.ClientSecrets.Remove(secretToRemove);
+            await _configurationDbContext.SaveChangesAsync();
+            return Ok();
+        }
+
+        /// <summary>
         /// Permanently deletes an existing client.
         /// </summary>
         /// <param name="clientId">The id of the client to delete.</param>

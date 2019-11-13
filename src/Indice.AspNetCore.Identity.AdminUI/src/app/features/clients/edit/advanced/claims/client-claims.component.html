@@ -42,7 +42,9 @@
                        name="client-always-send-client-claims"
                        [(ngModel)]="client.alwaysSendClientClaims"
                        #alwaysSendClientClaims="ngModel" />
-                <label class="custom-control-label" for="client-always-send-client-claims">&nbsp;</label>
+                <label class="custom-control-label"
+                       for="client-always-send-client-claims">
+                </label>
             </div>
         </div>
     </div>
@@ -89,6 +91,7 @@
                    name="claim-value"
                    [(ngModel)]="selectedClaimValue"
                    [placeholder]="'Please provide a value...'"
+                   type="text"
                    required
                    #value="ngModel" />
             <div *ngIf="claimsform.submitted && value.invalid"
@@ -122,7 +125,7 @@
              #actionsTemplate>
     <a class="btn btn-danger waves-effect m-r-5"
        href="javascript:void(0)"
-       role="button" 
+       role="button"
        (click)="showDeleteAlert(row.id)">
         Delete
     </a>

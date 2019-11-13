@@ -71,7 +71,9 @@
                        [(ngModel)]="user.emailConfirmed"
                        disabled
                        #emailConfirmed="ngModel" />
-                <label class="custom-control-label" for="user-email-confirmed">&nbsp;</label>
+                <label class="custom-control-label"
+                       for="user-email-confirmed">
+                </label>
             </div>
         </div>
     </div>
@@ -113,7 +115,9 @@
                        [(ngModel)]="user.phoneNumberConfirmed"
                        disabled
                        #phoneNumberConfirmed="ngModel" />
-                <label class="custom-control-label" for="user-phone-number-confirmed">&nbsp;</label>
+                <label class="custom-control-label"
+                       for="user-phone-number-confirmed">
+                </label>
             </div>
         </div>
     </div>
@@ -148,7 +152,7 @@
             </button>
             <button type="button"
                     class="btn btn-danger waves-effect m-r-5 float-right"
-                    (click)="deleteAlert.fire()" 
+                    (click)="deleteAlert.fire()"
                     *ngIf="currentUserId !== user.id">
                 Delete
             </button>

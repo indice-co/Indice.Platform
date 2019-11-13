@@ -1,61 +1,125 @@
 <div [formGroup]="data.form">
     <div class="form-group row">
-        <label for="client-id" class="col-sm-2 col-form-label">
-            <i class="dripicons-information align-middle" title="The unique identifier for this application."></i> Client Id (*)
+        <label for="client-id"
+               class="col-sm-2 col-form-label">
+            <i class="dripicons-information align-middle"
+               title="The unique identifier for this application.">
+            </i>
+            Client Id (*)
         </label>
         <div class="col-sm-10">
             <div class="input-group">
-                <span class="input-group-prepend cursor-pointer" title="Generate a random name." (click)="generateName()">
+                <span class="input-group-prepend cursor-pointer"
+                      title="Generate a random name."
+                      (click)="generateName()">
                     <span class="input-group-text">
                         <i class="dripicons-plus align-middle font-12"></i>
                     </span>
                 </span>
-                <input class="form-control" type="text" id="client-id" name="client-id" [ngClass]="{ 'invalid': hostFormValidated && clientId.invalid }" [formControlName]="'clientId'" 
-                    required maxlength="200" />
+                <input class="form-control"
+                       type="text"
+                       id="client-id"
+                       name="client-id"
+                       [ngClass]="{ 'invalid': hostFormValidated && clientId.invalid }"
+                       [formControlName]="'clientId'"
+                       required
+                       maxlength="200" />
             </div>
-            <div *ngIf="hostFormValidated && clientId.invalid" class="form-control-feedback text-danger">Field 'Client Id' is required.</div>
-        </div>
-    </div>
-    <div class="form-group row">
-        <label for="client-name" class="col-sm-2 col-form-label">
-            <i class="dripicons-information align-middle" title="Application name that will be seen on consent screens."></i> Client Name (*)
-        </label>
-        <div class="col-sm-10">
-            <input class="form-control" type="text" id="client-name" name="client-name" [ngClass]="{ 'invalid': hostFormValidated && clientName.invalid }"  [formControlName]="'clientName'"
-                required maxlength="200" />
-            <div *ngIf="hostFormValidated && clientName.invalid" class="form-control-feedback text-danger">Field 'Client Name' is required.</div>
-        </div>
-    </div>
-    <div class="form-group row">
-        <label for="require-consent" class="col-sm-2 col-form-label">
-            <i class="dripicons-information align-middle" title="Specifies whether a consent screen is required."></i> Require Consent
-        </label>
-        <div class="col-sm-10">
-            <div class="form-check col-form-label">
-                <input class="form-check-input" type="checkbox" id="require-consent" name="require-consent" [formControlName]="'requireConsent'" />
+            <div *ngIf="hostFormValidated && clientId.invalid"
+                 class="form-control-feedback text-danger">
+                Field 'Client Id' is required.
             </div>
         </div>
     </div>
     <div class="form-group row">
-        <label for="client-url" class="col-sm-2 col-form-label">
-            <i class="dripicons-information align-middle" title="Application URL that will be seen on consent screens."></i> Client URL
+        <label for="client-name"
+               class="col-sm-2 col-form-label">
+            <i class="dripicons-information align-middle"
+               title="Application name that will be seen on consent screens.">
+            </i>
+            Client Name (*)
         </label>
         <div class="col-sm-10">
-            <input class="form-control" type="text" id="client-url" name="client-url" [formControlName]="'clientUrl'" />
+            <input class="form-control"
+                   type="text"
+                   id="client-name"
+                   name="client-name"
+                   [ngClass]="{ 'invalid': hostFormValidated && clientName.invalid }"
+                   [formControlName]="'clientName'"
+                   required
+                   maxlength="200" />
+            <div *ngIf="hostFormValidated && clientName.invalid"
+                 class="form-control-feedback text-danger">
+                Field 'Client Name' is required.
+            </div>
         </div>
     </div>
     <div class="form-group row">
-        <label for="logo-url" class="col-sm-2 col-form-label">
-            <i class="dripicons-information align-middle" title="Application logo that will be seen on consent screens. These protocols rely upon TLS in production."></i> Logo URL
+        <label for="require-consent"
+               class="col-sm-2 col-form-label">
+            <i class="dripicons-information align-middle"
+               title="Specifies whether a consent screen is required.">
+            </i>
+            Require Consent
         </label>
         <div class="col-sm-10">
-            <input class="form-control" type="text" id="logo-url" name="logo-url" [formControlName]="'logoUrl'" />
+            <div class="form-check col-form-label custom-control custom-checkbox">
+                <input class="form-check-input custom-control-input"
+                       type="checkbox"
+                       id="require-consent"
+                       name="require-consent"
+                       [formControlName]="'requireConsent'" />
+                <label class="custom-control-label"
+                       for="require-consent">
+                </label>
+            </div>
         </div>
     </div>
     <div class="form-group row">
-        <label for="description" class="col-sm-2 col-form-label">Description</label>
+        <label for="client-url"
+               class="col-sm-2 col-form-label">
+            <i class="dripicons-information align-middle"
+               title="Application URL that will be seen on consent screens.">
+            </i>
+            Client URL
+        </label>
         <div class="col-sm-10">
-            <textarea class="form-control" rows="3" type="text" id="description" name="description" [formControlName]="'description'"></textarea>
+            <input class="form-control"
+                   type="text"
+                   id="client-url"
+                   name="client-url"
+                   [formControlName]="'clientUrl'" />
+        </div>
+    </div>
+    <div class="form-group row">
+        <label for="logo-url"
+               class="col-sm-2 col-form-label">
+            <i class="dripicons-information align-middle"
+               title="Application logo that will be seen on consent screens. These protocols rely upon TLS in production.">
+            </i>
+            Logo URL
+        </label>
+        <div class="col-sm-10">
+            <input class="form-control"
+                   type="text"
+                   id="logo-url"
+                   name="logo-url"
+                   [formControlName]="'logoUrl'" />
+        </div>
+    </div>
+    <div class="form-group row">
+        <label for="description"
+               class="col-sm-2 col-form-label">
+            Description
+        </label>
+        <div class="col-sm-10">
+            <textarea class="form-control"
+                      rows="3"
+                      type="text"
+                      id="description"
+                      name="description"
+                      [formControlName]="'description'">
+            </textarea>
         </div>
     </div>
 </div>
