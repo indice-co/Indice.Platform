@@ -56,7 +56,7 @@ namespace Indice.AspNetCore.Identity.Features
         /// </summary>
         public int? IdentityTokenLifetime { get; set; }
         /// <summary>
-        /// Lifetime of access token in seconds
+        /// Lifetime of access token in seconds.
         /// </summary>
         public int? AccessTokenLifetime { get; set; }
         /// <summary>
@@ -103,7 +103,7 @@ namespace Indice.AspNetCore.Identity.Features
         /// </summary>
         public bool? UpdateAccessTokenClaimsOnRefresh { get; set; }
         /// <summary>
-        /// Specifies is the user's session id should be sent to the FrontChannelLogoutUri.
+        /// Specifies if the user's session id should be sent to the FrontChannelLogoutUri.
         /// </summary>
         public bool? FrontChannelLogoutSessionRequired { get; set; }
         /// <summary>
@@ -143,9 +143,17 @@ namespace Indice.AspNetCore.Identity.Features
         /// </summary>
         public string BackChannelLogoutUri { get; set; }
         /// <summary>
-        /// Specifies is the user's session id should be sent to the BackChannelLogoutUri.
+        /// Specifies if the user's session id should be sent to the BackChannelLogoutUri.
         /// </summary>
         public bool BackChannelLogoutSessionRequired { get; set; }
+        /// <summary>
+        /// Gets or sets the type of the device flow user code.
+        /// </summary>
+        public string UserCodeType { get; set; }
+        /// <summary>
+        /// Gets or sets the device code lifetime.
+        /// </summary>
+        public int? DeviceCodeLifetime { get; set; }
         /// <summary>
         /// List of client claims.
         /// </summary>

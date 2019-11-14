@@ -70,11 +70,18 @@ export class ClientsWizardService {
             ]]
         }, {
             key: Type.Device, steps: [...[
-                new WizardStepDescriptor('Basic details', BasicInfoStepComponent)
+                new WizardStepDescriptor('Basic details', BasicInfoStepComponent),
+                new WizardStepDescriptor('Access to Identity resources', IdentityResourcesStepComponent),
+                new WizardStepDescriptor('Access to API resources', ApiResourcesStepComponent),
+                new WizardStepDescriptor('Summary', SummaryStepComponent)
             ]]
         }, {
             key: Type.SPALegacy, steps: [...[
-                new WizardStepDescriptor('Basic details', ExtendedInfoStepComponent)
+                new WizardStepDescriptor('Basic details', ExtendedInfoStepComponent),
+                new WizardStepDescriptor('Application URLs', UrlsStepComponent),
+                new WizardStepDescriptor('Access to Identity resources', IdentityResourcesStepComponent),
+                new WizardStepDescriptor('Access to API resources', ApiResourcesStepComponent),
+                new WizardStepDescriptor('Summary', SummaryStepComponent)
             ]]
         }]);
     }

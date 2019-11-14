@@ -57,7 +57,9 @@ export class ClientStore {
             requirePkce: client.requirePkce,
             userSsoLifetime: client.userSsoLifetime,
             backChannelLogoutUri: client.backChannelLogoutUri,
-            backChannelLogoutSessionRequired: client.backChannelLogoutSessionRequired
+            backChannelLogoutSessionRequired: client.backChannelLogoutSessionRequired,
+            deviceCodeLifetime: client.deviceCodeLifetime,
+            userCodeType: client.userCodeType
         } as IUpdateClientRequest)).pipe(map(_ => {
             this._client.next(client);
             this._client.complete();

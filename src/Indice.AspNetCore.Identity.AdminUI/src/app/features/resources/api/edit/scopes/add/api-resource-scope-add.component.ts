@@ -47,6 +47,7 @@ export class ApiResourceScopeAddComponent implements OnInit {
     public ngOnInit(): void {
         this._apiResourceId = +this._route.parent.snapshot.params.id;
         this.form = this._formBuilder.group({
+            type: [''],
             name: ['', [Validators.required, Validators.maxLength(200)]],
             displayName: ['', [Validators.maxLength(200)]],
             description: ['', [Validators.maxLength(1000)]],

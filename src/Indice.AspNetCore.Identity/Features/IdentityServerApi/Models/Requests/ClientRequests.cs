@@ -142,6 +142,14 @@ namespace Indice.AspNetCore.Identity.Features
         /// Specifies whether consent screen is remembered after having been given.
         /// </summary>
         public bool AllowRememberConsent { get; set; }
+        /// <summary>
+        /// Gets or sets the type of the device flow user code.
+        /// </summary>
+        public string UserCodeType { get; set; }
+        /// <summary>
+        /// Gets or sets the device code lifetime.
+        /// </summary>
+        public int DeviceCodeLifetime { get; set; }
     }
 
     /// <summary>

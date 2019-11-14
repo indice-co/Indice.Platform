@@ -151,6 +151,8 @@ namespace Indice.AspNetCore.Identity.Features
                                                           UpdateAccessTokenClaimsOnRefresh = x.UpdateAccessTokenClaimsOnRefresh,
                                                           BackChannelLogoutUri = x.BackChannelLogoutUri,
                                                           BackChannelLogoutSessionRequired = x.BackChannelLogoutSessionRequired,
+                                                          UserCodeType = x.UserCodeType,
+                                                          DeviceCodeLifetime = x.DeviceCodeLifetime,
                                                           ApiResources = x.AllowedScopes.Join(
                                                               _configurationDbContext.ApiResources.SelectMany(x => x.Scopes),
                                                               clientScope => clientScope.Scope,
@@ -262,6 +264,8 @@ namespace Indice.AspNetCore.Identity.Features
             client.UpdateAccessTokenClaimsOnRefresh = request.UpdateAccessTokenClaimsOnRefresh;
             client.BackChannelLogoutUri = request.BackChannelLogoutUri;
             client.BackChannelLogoutSessionRequired = request.BackChannelLogoutSessionRequired;
+            client.UserCodeType = request.UserCodeType;
+            client.DeviceCodeLifetime = request.DeviceCodeLifetime;
             await _configurationDbContext.SaveChangesAsync();
             return Ok();
         }
@@ -651,6 +655,11 @@ namespace Indice.AspNetCore.Identity.Features
                     client.RequireConsent = false;
                     break;
                 case ClientType.Device:
+                    client.AllowedGrantTypes = new List<ClientGrantType> {
+                        new ClientGrantType {
+                            GrantType = GrantType.DeviceFlow
+                        }
+                    };
                     break;
                 case ClientType.SPALegacy:
                     client.AllowedGrantTypes = new List<ClientGrantType> {

@@ -17,12 +17,15 @@
         </span>
     </ng-template>
     <div class="form-group row"
-         *ngIf="hasAnyOf(['authorization_code', 'password', 'hybrid'])">
+         *ngIf="hasAnyOf(['authorization_code', 'password', 'hybrid', 'implicit', 'urn:ietf:params:oauth:grant-type:device_code'])">
         <label for="client-identity-token-lifetime"
-               class="col-sm-2 col-form-label">
+               class="col-sm-3 col-form-label">
+            <i class="dripicons-information align-middle"
+               title="Lifetime of identity token in seconds.">
+            </i>
             Identity Token Lifetime (sec) (*)
         </label>
-        <div class="col-sm-10">
+        <div class="col-sm-9">
             <div class="input-group">
                 <span class="input-group-prepend cursor-pointer"
                       (click)="client.identityTokenLifetime = utilities.minutesToSeconds(5)">
@@ -59,12 +62,15 @@
         </div>
     </div>
     <div class="form-group row"
-         *ngIf="hasAnyOf(['authorization_code', 'password', 'client_credentials', 'hybrid'])">
+         *ngIf="hasAnyOf(['authorization_code', 'password', 'client_credentials', 'hybrid', 'implicit', 'urn:ietf:params:oauth:grant-type:device_code'])">
         <label for="client-access-token-lifetime"
-               class="col-sm-2 col-form-label">
+               class="col-sm-3 col-form-label">
+            <i class="dripicons-information align-middle"
+               title="Lifetime of access token in seconds.">
+            </i>
             Access Token Lifetime (sec) (*)
         </label>
-        <div class="col-sm-10">
+        <div class="col-sm-9">
             <div class="input-group">
                 <span class="input-group-prepend cursor-pointer"
                       (click)="client.accessTokenLifetime = utilities.minutesToSeconds(15)">
@@ -117,13 +123,16 @@
         </div>
     </div>
     <div class="form-group row"
-         *ngIf="hasAnyOf(['password', 'hybrid']) 
+         *ngIf="hasAnyOf(['password', 'hybrid', 'urn:ietf:params:oauth:grant-type:device_code']) 
              || hasAllOf(['authorization_code', 'client_credentials'])">
         <label for="absolute-refresh-token-lifetime"
-               class="col-sm-2 col-form-label">
+               class="col-sm-3 col-form-label">
+            <i class="dripicons-information align-middle"
+               title="Maximum lifetime of a refresh token in seconds.">
+            </i>
             Absolute Refresh Token Lifetime (sec) (*)
         </label>
-        <div class="col-sm-10">
+        <div class="col-sm-9">
             <div class="input-group">
                 <span class="input-group-prepend cursor-pointer"
                       (click)="client.absoluteRefreshTokenLifetime = utilities.daysToSeconds(1)">
@@ -170,10 +179,13 @@
     <div class="form-group row"
          *ngIf="hasAnyOf(['authorization_code', 'hybrid'])">
         <label for="client-authorization-token-lifetime"
-               class="col-sm-2 col-form-label">
+               class="col-sm-3 col-form-label">
+            <i class="dripicons-information align-middle"
+               title="Lifetime of authorization code in seconds.">
+            </i>
             Authorization Code Lifetime (sec) (*)
         </label>
-        <div class="col-sm-10">
+        <div class="col-sm-9">
             <div class="input-group">
                 <span class="input-group-prepend cursor-pointer"
                       (click)="client.authorizationCodeLifetime = utilities.minutesToSeconds(5)">
@@ -210,12 +222,15 @@
         </div>
     </div>
     <div class="form-group row"
-         *ngIf="hasAnyOf(['authorization_code', 'hybrid'])">
+         *ngIf="hasAnyOf(['authorization_code', 'hybrid', 'implicit', 'urn:ietf:params:oauth:grant-type:device_code'])">
         <label for="client-consent-token-lifetime"
-               class="col-sm-2 col-form-label">
+               class="col-sm-3 col-form-label">
+            <i class="dripicons-information align-middle"
+               title="Lifetime of a user consent in seconds.">
+            </i>
             Consent Token Lifetime (sec)
         </label>
-        <div class="col-sm-10">
+        <div class="col-sm-9">
             <div class="input-group">
                 <span class="input-group-prepend cursor-pointer"
                       (click)="client.consentLifetime = utilities.daysToSeconds(7)">
@@ -263,12 +278,15 @@
         </div>
     </div>
     <div class="form-group row"
-         *ngIf="hasAnyOf(['authorization_code', 'hybrid'])">
+         *ngIf="hasAnyOf(['authorization_code', 'hybrid', 'implicit', 'urn:ietf:params:oauth:grant-type:device_code'])">
         <label for="client-sso-lifetime"
-               class="col-sm-2 col-form-label">
+               class="col-sm-3 col-form-label">
+            <i class="dripicons-information align-middle"
+               title="The maximum duration (in seconds) since the last time the user authenticated.">
+            </i>
             SSO Lifetime (sec)
         </label>
-        <div class="col-sm-10">
+        <div class="col-sm-9">
             <div class="input-group">
                 <span class="input-group-prepend cursor-pointer"
                       (click)="client.userSsoLifetime = utilities.hoursToSeconds(1)">
@@ -308,12 +326,55 @@
         </div>
     </div>
     <div class="form-group row"
-         *ngIf="hasAnyOf(['authorization_code', 'hybrid'])">
+         *ngIf="hasAnyOf(['urn:ietf:params:oauth:grant-type:device_code'])">
+        <label for="client-device-code-lifetime"
+               class="col-sm-3 col-form-label">
+            <i class="dripicons-information align-middle"
+               title="Sets the device code lifetime.">
+            </i>
+            Device Code Lifetime (sec)
+        </label>
+        <div class="col-sm-9">
+            <div class="input-group">
+                <span class="input-group-prepend cursor-pointer"
+                      (click)="client.deviceCodeLifetime = utilities.minutesToSeconds(5)">
+                    <span [ngClass]="{ 'active': client.deviceCodeLifetime === utilities.minutesToSeconds(5) }"
+                          class="input-group-text btn btn-secondary"
+                          style="font-size: 12px;">
+                        5 mins
+                    </span>
+                </span>
+                <span class="input-group-prepend cursor-pointer"
+                      (click)="client.deviceCodeLifetime = utilities.minutesToSeconds(10)">
+                    <span [ngClass]="{ 'active': client.deviceCodeLifetime === utilities.minutesToSeconds(10) }"
+                          class="input-group-text btn btn-secondary"
+                          style="font-size: 12px;">
+                        10 mins
+                    </span>
+                </span>
+                <input class="form-control"
+                       type="number"
+                       min="0"
+                       id="client-device-code-lifetime"
+                       name="client-device-code-lifetime"
+                       [(ngModel)]="client.deviceCodeLifetime"
+                       #deviceCodeLifetime="ngModel" />
+            </div>
+            <ng-container [ngTemplateOutlet]="secondsTextContent"
+                          [ngTemplateOutletContext]="{ value: client.deviceCodeLifetime }">
+            </ng-container>
+        </div>
+    </div>
+    <div class="form-group row"
+         *ngIf="hasAnyOf(['authorization_code', 'hybrid', 'implicit'])">
         <label for="client-front-channel-logout-uri"
-               class="col-sm-2 col-form-label">
+               class="col-sm-3 col-form-label">
+            <i class="dripicons-information align-middle"
+               title="Specifies logout URI at client for HTTP front-channel based logout.">
+            </i>
             Front Channel Logout URI
         </label>
-        <div class="col-sm-10">
+        <div class="col-sm-9">
             <input class="form-control"
                    type="text"
                    id="client-front-channel-logout-uri"
@@ -326,10 +387,13 @@
          *ngIf="hasAnyOf(['hybrid']) 
              || hasAllOf(['authorization_code', 'client_credentials'])">
         <label for="client-back-channel-logout-uri"
-               class="col-sm-2 col-form-label">
+               class="col-sm-3 col-form-label">
+            <i class="dripicons-information align-middle"
+               title="Specifies logout URI at client for HTTP back-channel based logout.">
+            </i>
             Back Channel Logout Uri
         </label>
-        <div class="col-sm-10">
+        <div class="col-sm-9">
             <input class="form-control"
                    type="text"
                    id="client-back-channel-logout-uri"
@@ -339,12 +403,33 @@
         </div>
     </div>
     <div class="form-group row"
-         *ngIf="hasAnyOf(['authorization_code', 'password', 'client_credentials', 'hybrid'])">
+         *ngIf="hasAnyOf(['urn:ietf:params:oauth:grant-type:device_code'])">
+        <label for="client-user-code-generator-type"
+               class="col-sm-3 col-form-label">
+            <i class="dripicons-information align-middle"
+               title="Sets the type of the device flow user code.">
+            </i>
+            User Code Generator Type
+        </label>
+        <div class="col-sm-9">
+            <input class="form-control"
+                   type="text"
+                   id="client-user-code-generator-type"
+                   name="client-user-code-generator-type"
+                   [(ngModel)]="client.userCodeType"
+                   #userCodeType="ngModel" />
+        </div>
+    </div>
+    <div class="form-group row"
+         *ngIf="hasAnyOf(['authorization_code', 'password', 'client_credentials', 'hybrid', 'implicit', 'urn:ietf:params:oauth:grant-type:device_code'])">
         <label for="client-pair-wise-subject-salt"
-               class="col-sm-2 col-form-label">
+               class="col-sm-3 col-form-label">
+            <i class="dripicons-information align-middle"
+               title="Sets a salt value used in pair-wise subjectId generation for users of this client.">
+            </i>
             Pair Wise Subject Salt
         </label>
-        <div class="col-sm-10">
+        <div class="col-sm-9">
             <input class="form-control"
                    type="text"
                    id="client-pair-wise-subject-salt"
@@ -354,12 +439,15 @@
         </div>
     </div>
     <div class="form-group row"
-         *ngIf="hasAnyOf(['authorization_code', 'password', 'client_credentials', 'hybrid'])">
+         *ngIf="hasAnyOf(['authorization_code', 'password', 'client_credentials', 'hybrid', 'implicit', 'urn:ietf:params:oauth:grant-type:device_code'])">
         <label for="client-access-token-type"
-               class="col-sm-2 col-form-label">
+               class="col-sm-3 col-form-label">
+            <i class="dripicons-information align-middle"
+               title="Specifies whether the access token is a reference token or a self contained JWT token.">
+            </i>
             Access Token Type
         </label>
-        <div class="col-sm-10">
+        <div class="col-sm-9">
             <select class="form-control custom-select"
                     id="client-access-token-type"
                     name="client-access-token-type"
@@ -376,13 +464,16 @@
         </div>
     </div>
     <div class="form-group row"
-         *ngIf="hasAnyOf(['password', 'hybrid']) 
+         *ngIf="hasAnyOf(['password', 'hybrid', 'urn:ietf:params:oauth:grant-type:device_code']) 
              || hasAllOf(['authorization_code', 'client_credentials'])">
         <label for="client-refresh-token-usage"
-               class="col-sm-2 col-form-label">
+               class="col-sm-3 col-form-label">
+            <i class="dripicons-information align-middle"
+               title="ReUse: the refresh token handle will stay the same when refreshing tokens. OneTime: the refresh token handle will be updated when refreshing tokens.">
+            </i>
             Refresh Token Usage
         </label>
-        <div class="col-sm-10">
+        <div class="col-sm-9">
             <select class="form-control custom-select"
                     id="client-refresh-token-usage"
                     name="client-refresh-token-usage"
@@ -405,13 +496,16 @@
         </div>
     </div>
     <div class="form-group row"
-         *ngIf="hasAnyOf(['password', 'hybrid']) 
+         *ngIf="hasAnyOf(['password', 'hybrid', 'urn:ietf:params:oauth:grant-type:device_code']) 
              || hasAllOf(['authorization_code', 'client_credentials'])">
         <label for="client-refresh-token-expiration"
-               class="col-sm-2 col-form-label">
+               class="col-sm-3 col-form-label">
+            <i class="dripicons-information align-middle"
+               title="Absolute: the refresh token will expire on a fixed point in time (specified by the AbsoluteRefreshTokenLifetime). Sliding: when refreshing the token, the lifetime of the refresh token will be renewed (by the amount specified in SlidingRefreshTokenLifetime).">
+            </i>
             Refresh Token Expiration
         </label>
-        <div class="col-sm-10">
+        <div class="col-sm-9">
             <select class="form-control custom-select"
                     id="client-refresh-token-expiration"
                     name="client-refresh-token-expiration"
@@ -434,12 +528,15 @@
         </div>
     </div>
     <div class="form-group row"
-         *ngIf="hasAnyOf(['authorization_code', 'hybrid'])">
+         *ngIf="hasAnyOf(['authorization_code', 'hybrid', 'implicit'])">
         <label for="client-front-channel-logout-session-required"
-               class="col-sm-2 col-form-label">
+               class="col-sm-3 col-form-label">
+            <i class="dripicons-information align-middle"
+               title="Specifies if the user's session id should be sent to the FrontChannelLogoutUri.">
+            </i>
             Front Channel Logout Session Required
         </label>
-        <div class="col-sm-10">
+        <div class="col-sm-9">
             <div class="form-check col-form-label custom-control custom-checkbox">
                 <input class="form-check-input custom-control-input"
                        type="checkbox"
@@ -454,12 +551,15 @@
         </div>
     </div>
     <div class="form-group row"
-         *ngIf="hasAnyOf(['hybrid'])">
+         *ngIf="hasAnyOf(['hybrid', 'implicit'])">
         <label for="client-allow-access-tokens-via-browser"
-               class="col-sm-2 col-form-label">
+               class="col-sm-3 col-form-label">
+            <i class="dripicons-information align-middle"
+               title="Controls whether access tokens are transmitted via the browser for this client. This can prevent accidental leakage of access tokens when multiple response types are allowed.">
+            </i>
             Allow Access Tokens Via Browser
         </label>
-        <div class="col-sm-10">
+        <div class="col-sm-9">
             <div class="form-check col-form-label custom-control custom-checkbox">
                 <input class="form-check-input custom-control-input"
                        type="checkbox"
@@ -477,10 +577,13 @@
          *ngIf="hasAnyOf(['hybrid']) 
              || hasAllOf(['authorization_code', 'client_credentials'])">
         <label for="client-back-channel-logout-session-required"
-               class="col-sm-2 col-form-label">
+               class="col-sm-3 col-form-label">
+            <i class="dripicons-information align-middle"
+               title="Specifies if the user's session id should be sent to the BackChannelLogoutUri.">
+            </i>
             Back Channel Logout Session Required
         </label>
-        <div class="col-sm-10">
+        <div class="col-sm-9">
             <div class="form-check col-form-label custom-control custom-checkbox">
                 <input class="form-check-input custom-control-input"
                        type="checkbox"
@@ -497,10 +600,13 @@
     <div class="form-group row"
          *ngIf="hasAnyOf(['authorization_code', 'hybrid'])">
         <label for="client-require-pkce"
-               class="col-sm-2 col-form-label">
+               class="col-sm-3 col-form-label">
+            <i class="dripicons-information align-middle"
+               title="Specifies whether a proof key is required for authorization code based token requests.">
+            </i>
             Require PKCE
         </label>
-        <div class="col-sm-10">
+        <div class="col-sm-9">
             <div class="form-check col-form-label custom-control custom-checkbox">
                 <input class="form-check-input custom-control-input"
                        type="checkbox"
@@ -515,12 +621,15 @@
         </div>
     </div>
     <div class="form-group row"
-         *ngIf="hasAnyOf(['authorization_code', 'password', 'hybrid'])">
+         *ngIf="hasAnyOf(['authorization_code', 'password', 'hybrid', 'implicit', 'urn:ietf:params:oauth:grant-type:device_code'])">
         <label for="client-include-user-claims-in-id-token"
-               class="col-sm-2 col-form-label">
+               class="col-sm-3 col-form-label">
+            <i class="dripicons-information align-middle"
+               title="When requesting both an id token and access token, should the user claims always be added to the id token instead of requring the client to use the userinfo endpoint.">
+            </i>
             Always Include User Claims In Id Token
         </label>
-        <div class="col-sm-10">
+        <div class="col-sm-9">
             <div class="form-check col-form-label custom-control custom-checkbox">
                 <input class="form-check-input custom-control-input"
                        type="checkbox"
@@ -535,10 +644,15 @@
         </div>
     </div>
     <div class="form-group row"
-         *ngIf="hasAnyOf(['authorization_code', 'password', 'client_credentials', 'hybrid'])">
+         *ngIf="hasAnyOf(['authorization_code', 'password', 'client_credentials', 'hybrid', 'implicit', 'urn:ietf:params:oauth:grant-type:device_code'])">
         <label for="client-include-jwt-id"
-               class="col-sm-2 col-form-label">Include JWT Id</label>
-        <div class="col-sm-10">
+               class="col-sm-3 col-form-label">
+            <i class="dripicons-information align-middle"
+               title="Sets a value indicating whether JWT access tokens should include an identifier.">
+            </i>
+            Include JWT Id
+        </label>
+        <div class="col-sm-9">
             <div class="form-check col-form-label custom-control custom-checkbox">
                 <input class="form-check-input custom-control-input"
                        type="checkbox"
@@ -556,8 +670,13 @@
          *ngIf="hasAnyOf(['authorization_code', 'hybrid']) 
              || hasAllOf(['authorization_code', 'client_credentials'])">
         <label for="client-allow-plain-text-pkce"
-               class="col-sm-2 col-form-label">Allow PlainText PKCE</label>
-        <div class="col-sm-10">
+               class="col-sm-3 col-form-label">
+            <i class="dripicons-information align-middle"
+               title="Specifies whether a proof key can be sent using plain method.">
+            </i>
+            Allow PlainText PKCE
+        </label>
+        <div class="col-sm-9">
             <div class="form-check col-form-label custom-control custom-checkbox">
                 <input class="form-check-input custom-control-input"
                        type="checkbox"
@@ -572,11 +691,16 @@
         </div>
     </div>
     <div class="form-group row"
-         *ngIf="hasAnyOf(['password', 'hybrid']) 
+         *ngIf="hasAnyOf(['password', 'hybrid', 'urn:ietf:params:oauth:grant-type:device_code']) 
              || hasAllOf(['authorization_code', 'client_credentials'])">
         <label for="client-allow-offline-access"
-               class="col-sm-2 col-form-label">Allow Offline Access</label>
-        <div class="col-sm-10">
+               class="col-sm-3 col-form-label">
+            <i class="dripicons-information align-middle"
+               title="Sets a value indicating whether to allow offline access.">
+            </i>
+            Allow Offline Access
+        </label>
+        <div class="col-sm-9">
             <div class="form-check col-form-label custom-control custom-checkbox">
                 <input class="form-check-input custom-control-input"
                        type="checkbox"
@@ -591,11 +715,16 @@
         </div>
     </div>
     <div class="form-group row"
-         *ngIf="hasAnyOf(['password', 'hybrid']) 
+         *ngIf="hasAnyOf(['password', 'hybrid', 'urn:ietf:params:oauth:grant-type:device_code']) 
              || hasAllOf(['authorization_code', 'client_credentials'])">
         <label for="client-update-access-token-claims-on-refresh"
-               class="col-sm-2 col-form-label">Update Access Token Claims On Refresh</label>
-        <div class="col-sm-10">
+               class="col-sm-3 col-form-label">
+            <i class="dripicons-information align-middle"
+               title="Sets a value indicating whether the access token (and its claims) should be updated on a refresh token request.">
+            </i>
+            Update Access Token Claims On Refresh
+        </label>
+        <div class="col-sm-9">
             <div class="form-check col-form-label custom-control custom-checkbox">
                 <input class="form-check-input custom-control-input"
                        type="checkbox"

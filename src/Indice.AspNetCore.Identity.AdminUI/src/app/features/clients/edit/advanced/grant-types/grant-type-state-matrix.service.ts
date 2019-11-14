@@ -24,6 +24,11 @@ export class GrantTypeStateMatrixService {
         this._stateMatrix.push({ from: 'password', to: 'hybrid' });
         this._stateMatrix.push({ from: 'password', to: 'client_credentials' });
         this._stateMatrix.push({ from: 'password', to: 'custom' });
+        this._stateMatrix.push({ from: 'implicit', to: 'client_credentials' });
+        this._stateMatrix.push({ from: 'implicit', to: 'password' });
+        this._stateMatrix.push({ from: 'implicit', to: 'custom' });
+        this._stateMatrix.push({ from: 'urn:ietf:params:oauth:grant-type:device_code', to: 'client_credentials' });
+        this._stateMatrix.push({ from: 'urn:ietf:params:oauth:grant-type:device_code', to: 'custom' });
     }
 
     public canGoTo(from: string, to: string): boolean {
