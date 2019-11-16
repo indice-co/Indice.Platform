@@ -17,7 +17,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Net.Http.Headers;
 using Swashbuckle.AspNetCore.SwaggerUI;
-using SameSiteMode = Microsoft.AspNetCore.Http.SameSiteMode;
 
 namespace Indice.Identity
 {
@@ -62,10 +61,6 @@ namespace Indice.Identity
                        .WithHeaders("Authorization", "Content-Type")
                        .WithExposedHeaders("Content-Disposition");
             }));
-            services.Configure<CookiePolicyOptions>(options => {
-                options.CheckConsentNeeded = context => false;
-                options.MinimumSameSitePolicy = SameSiteMode.None;
-            });
             services.AddIdentityConfig(Configuration);
             services.AddIdentityServerConfig(HostingEnvironment, Configuration, Settings);
             services.ConfigureApplicationCookie(options => {
@@ -129,7 +124,6 @@ namespace Indice.Identity
             });
             app.UseSpaStaticFiles();
             app.UseResponseCaching();
-            app.UseCookiePolicy();
             app.UseSwagger();
             var enableSwagger = HostingEnvironment.IsDevelopment() || Configuration.GetValue<bool>($"{GeneralSettings.Name}:SwaggerUI");
             if (enableSwagger) {
