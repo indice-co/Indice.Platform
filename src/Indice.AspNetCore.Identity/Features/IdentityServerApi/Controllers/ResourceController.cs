@@ -282,7 +282,7 @@ namespace Indice.AspNetCore.Identity.Features
                 }) : default,
                 Secrets = resource.Secrets.Any() ? resource.Secrets.Select(x => new ApiSecretInfo {
                     Id = x.Id,
-                    Type = x.Type == nameof(SecretType.SharedSecret) ? SecretType.SharedSecret : SecretType.X509Thumbprint,
+                    Type = x.Type,
                     Value = "*****",
                     Description = x.Description,
                     Expiration = x.Expiration
@@ -388,7 +388,7 @@ namespace Indice.AspNetCore.Identity.Features
                 Id = secretToAdd.Id,
                 Description = secretToAdd.Description,
                 Expiration = secretToAdd.Expiration,
-                Type = secretToAdd.Type == nameof(SecretType.SharedSecret) ? SecretType.SharedSecret : SecretType.X509Thumbprint,
+                Type = secretToAdd.Type,
                 Value = "*****"
             });
         }

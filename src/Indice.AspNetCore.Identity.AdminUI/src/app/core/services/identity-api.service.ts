@@ -6455,7 +6455,8 @@ export class ClientSecretInfo implements IClientSecretInfo {
     value?: string | undefined;
     /** Optional expiration of client secret. */
     expiration?: Date | undefined;
-    type?: SecretType;
+    /** The type of client secret. */
+    type?: string | undefined;
 
     constructor(data?: IClientSecretInfo) {
         if (data) {
@@ -6504,14 +6505,15 @@ export interface IClientSecretInfo {
     value?: string | undefined;
     /** Optional expiration of client secret. */
     expiration?: Date | undefined;
-    type?: SecretType;
+    /** The type of client secret. */
+    type?: string | undefined;
 }
 
 /** Models a system client when API provides info for a single client. */
 export class SingleClientInfo implements ISingleClientInfo {
     /** Lifetime of identity token in seconds. */
     identityTokenLifetime?: number | undefined;
-    /** Lifetime of access token in seconds */
+    /** Lifetime of access token in seconds. */
     accessTokenLifetime?: number | undefined;
     /** Maximum lifetime of a refresh token in seconds. */
     absoluteRefreshTokenLifetime?: number | undefined;
@@ -6530,7 +6532,7 @@ export class SingleClientInfo implements ISingleClientInfo {
     allowOfflineAccess?: boolean | undefined;
     /** Gets or sets a value indicating whether the access token (and its claims) should be updated on a refresh token request. */
     updateAccessTokenClaimsOnRefresh?: boolean | undefined;
-    /** Specifies is the user's session id should be sent to the FrontChannelLogoutUri. */
+    /** Specifies if the user's session id should be sent to the FrontChannelLogoutUri. */
     frontChannelLogoutSessionRequired?: boolean | undefined;
     /** Gets or sets a value indicating whether JWT access tokens should include an identifier. */
     includeJwtId?: boolean | undefined;
@@ -6550,7 +6552,7 @@ export class SingleClientInfo implements ISingleClientInfo {
     clientClaimsPrefix?: string | undefined;
     /** Specifies logout URI at client for HTTP back-channel based logout. */
     backChannelLogoutUri?: string | undefined;
-    /** Specifies is the user's session id should be sent to the BackChannelLogoutUri. */
+    /** Specifies if the user's session id should be sent to the BackChannelLogoutUri. */
     backChannelLogoutSessionRequired?: boolean;
     /** Gets or sets the type of the device flow user code. */
     userCodeType?: string | undefined;
@@ -6770,7 +6772,7 @@ export class SingleClientInfo implements ISingleClientInfo {
 export interface ISingleClientInfo {
     /** Lifetime of identity token in seconds. */
     identityTokenLifetime?: number | undefined;
-    /** Lifetime of access token in seconds */
+    /** Lifetime of access token in seconds. */
     accessTokenLifetime?: number | undefined;
     /** Maximum lifetime of a refresh token in seconds. */
     absoluteRefreshTokenLifetime?: number | undefined;
@@ -6789,7 +6791,7 @@ export interface ISingleClientInfo {
     allowOfflineAccess?: boolean | undefined;
     /** Gets or sets a value indicating whether the access token (and its claims) should be updated on a refresh token request. */
     updateAccessTokenClaimsOnRefresh?: boolean | undefined;
-    /** Specifies is the user's session id should be sent to the FrontChannelLogoutUri. */
+    /** Specifies if the user's session id should be sent to the FrontChannelLogoutUri. */
     frontChannelLogoutSessionRequired?: boolean | undefined;
     /** Gets or sets a value indicating whether JWT access tokens should include an identifier. */
     includeJwtId?: boolean | undefined;
@@ -6809,7 +6811,7 @@ export interface ISingleClientInfo {
     clientClaimsPrefix?: string | undefined;
     /** Specifies logout URI at client for HTTP back-channel based logout. */
     backChannelLogoutUri?: string | undefined;
-    /** Specifies is the user's session id should be sent to the BackChannelLogoutUri. */
+    /** Specifies if the user's session id should be sent to the BackChannelLogoutUri. */
     backChannelLogoutSessionRequired?: boolean;
     /** Gets or sets the type of the device flow user code. */
     userCodeType?: string | undefined;
@@ -7167,7 +7169,8 @@ export class SecretInfo implements ISecretInfo {
     value?: string | undefined;
     /** Optional expiration of client secret. */
     expiration?: Date | undefined;
-    type?: SecretType;
+    /** The type of client secret. */
+    type?: string | undefined;
 
     constructor(data?: ISecretInfo) {
         if (data) {
@@ -7216,7 +7219,8 @@ export interface ISecretInfo {
     value?: string | undefined;
     /** Optional expiration of client secret. */
     expiration?: Date | undefined;
-    type?: SecretType;
+    /** The type of client secret. */
+    type?: string | undefined;
 }
 
 /** Defines the model required to update client URLs. */
@@ -7833,7 +7837,8 @@ export class ApiSecretInfo implements IApiSecretInfo {
     value?: string | undefined;
     /** Optional expiration of client secret. */
     expiration?: Date | undefined;
-    type?: SecretType;
+    /** The type of client secret. */
+    type?: string | undefined;
 
     constructor(data?: IApiSecretInfo) {
         if (data) {
@@ -7882,7 +7887,8 @@ export interface IApiSecretInfo {
     value?: string | undefined;
     /** Optional expiration of client secret. */
     expiration?: Date | undefined;
-    type?: SecretType;
+    /** The type of client secret. */
+    type?: string | undefined;
 }
 
 /** Models an API resource for the application. */

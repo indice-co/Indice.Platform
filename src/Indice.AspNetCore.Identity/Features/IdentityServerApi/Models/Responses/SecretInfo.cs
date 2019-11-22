@@ -26,7 +26,7 @@ namespace Indice.AspNetCore.Identity.Features
         /// <summary>
         /// The type of client secret.
         /// </summary>
-        public SecretType Type { get; set; }
+        public string Type { get; set; }
     }
 
     /// <summary>
