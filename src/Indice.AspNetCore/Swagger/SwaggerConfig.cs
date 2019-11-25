@@ -146,12 +146,69 @@ namespace Indice.AspNetCore.Swagger
             return info;
         }
 
+
         /// <summary>
-        /// A set of defaults for exposing an API.
+        /// Adds requirements to the operations protected by the Authorize attribute
         /// </summary>
-        /// <param name="options">The options to confugure</param>
+        /// <param name="options"></param>
+        /// <param name="name">The security scheme name to protect.</param>
         /// <param name="settings"></param>
-        public static void IndiceDefaults(this SwaggerGenOptions options, GeneralSettings settings) {
+        /// <param name="clearOther"></param>
+        /// <returns></returns>
+        public static SwaggerGenOptions AddSecurityRequirements(this SwaggerGenOptions options, string name, GeneralSettings settings, bool clearOther = false) {
+            if (clearOther) { 
+                var filters = options.OperationFilterDescriptors.Where(x => x.Type == typeof(SecurityRequirementsOperationFilter));
+                foreach (var filter in filters) {
+                    options.OperationFilterDescriptors.Remove(filter);
+                }
+            }
+            options.OperationFilter<SecurityRequirementsOperationFilter>(name, settings);
+            return options;
+        }
+
+        /// <summary>
+        /// adds Basic authentication via header as a security scheme.
+        /// </summary>
+        /// <param name="options"></param>
+        /// <param name="settings"></param>
+        /// <param name="name">A unique name for the scheme.</param>
+        public static SwaggerGenOptions AddBasicAuthentication(this SwaggerGenOptions options, GeneralSettings settings, string name = "basicAuth") {
+            //options.SwaggerGeneratorOptions.SecuritySchemes.Clear();
+            options.AddSecurityDefinition(name, new OpenApiSecurityScheme() {
+                Type = SecuritySchemeType.Http,
+                Scheme = "basic",
+                Description = "Input your username and password to access this API",
+                Name = "Authorization",
+                In = ParameterLocation.Header
+            });
+            options.AddSecurityRequirements(name, settings);
+            return options;
+        }
+
+        /// <summary>
+        /// adds OpenId connect security scheme.
+        /// </summary>
+        /// <param name="options"></param>
+        /// <param name="settings"></param>
+        /// <param name="name">A unique name for the scheme.</param>
+        public static SwaggerGenOptions AddOpenIdConnect(this SwaggerGenOptions options, GeneralSettings settings, string name = "openId") {
+            // https://swagger.io/docs/specification/authentication/
+            options.AddSecurityDefinition(name, new OpenApiSecurityScheme {
+                Type = SecuritySchemeType.OpenIdConnect,
+                Description = "Identity Server Openid connect",
+                OpenIdConnectUrl = new Uri(settings?.Authority + "/.well-known/openid-configuration")
+            });
+            options.AddSecurityRequirements(name, settings);
+            return options;
+        }
+
+        /// <summary>
+        /// adds OpenId connect security scheme.
+        /// </summary>
+        /// <param name="options"></param>
+        /// <param name="settings"></param>
+        /// <param name="name">A unique name for the scheme.</param>
+        public static SwaggerGenOptions AddOAuth2(this SwaggerGenOptions options, GeneralSettings settings, string name = "oauth2") {
             var apiSettings = settings?.Api ?? new ApiSettings();
             // Define the OAuth2.0 scheme that's in use (i.e. Implicit Flow).
             var scopes = new Dictionary<string, string> {
@@ -161,12 +218,7 @@ namespace Indice.AspNetCore.Swagger
                 scopes.Add($"{apiSettings.ResourceName}:{scope.Key}", scope.Value);
             }
             // https://swagger.io/docs/specification/authentication/
-            options.AddSecurityDefinition("openId", new OpenApiSecurityScheme {
-                Type = SecuritySchemeType.OpenIdConnect,
-                Description = "Identity Server Openid connect",
-                OpenIdConnectUrl = new Uri(settings?.Authority + "/.well-known/openid-configuration")
-            });
-            options.AddSecurityDefinition("oauth2", new OpenApiSecurityScheme {
+            options.AddSecurityDefinition(name, new OpenApiSecurityScheme {
                 Type = SecuritySchemeType.OAuth2,
                 Description = "Identity Server oAuth2",
                 Flows = new OpenApiOAuthFlows {
@@ -184,6 +236,17 @@ namespace Indice.AspNetCore.Swagger
                     }
                 }
             });
+            options.AddSecurityRequirements(name, settings);
+            return options;
+        }
+
+        /// <summary>
+        /// A set of defaults for exposing an API.
+        /// </summary>
+        /// <param name="options">The options to confugure</param>
+        /// <param name="settings"></param>
+        public static void IndiceDefaults(this SwaggerGenOptions options, GeneralSettings settings) {
+            var apiSettings = settings?.Api ?? new ApiSettings();
             var version = $"v{apiSettings.DefaultVersion}";
             options.SwaggerDoc(apiSettings.ResourceName, new OpenApiInfo {
                 Version = version,
@@ -208,8 +271,7 @@ namespace Indice.AspNetCore.Swagger
             options.MapType<GeoPoint>(() => new OpenApiSchema {
                 Type = "string"
             });
-            options.CustomOperationIds(x => (x.ActionDescriptor as ControllerActionDescriptor)?.ActionName);
-            options.OperationFilter<SecurityRequirementsOperationFilter>(); // Assign scope requirements to operations based on AuthorizeAttribute.           
+            options.CustomOperationIds(x => (x.ActionDescriptor as ControllerActionDescriptor)?.ActionName);        
         }
 
         /// <summary>

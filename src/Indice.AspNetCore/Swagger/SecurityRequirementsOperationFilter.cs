@@ -6,18 +6,22 @@ using Swashbuckle.AspNetCore.Swagger;
 using Microsoft.Extensions.Options;
 using Indice.Configuration;
 using Microsoft.OpenApi.Models;
+using System;
 
 namespace Indice.AspNetCore.Swagger
 {
     internal class SecurityRequirementsOperationFilter : IOperationFilter
     {
         private readonly ApiSettings _ApiSettings;
+        private readonly string _SecuritySchemeName;
 
-        public SecurityRequirementsOperationFilter(IOptions<GeneralSettings> settingsWrapper) {
-            if (settingsWrapper == null)
-                throw new System.ArgumentNullException(nameof(settingsWrapper));
-            _ApiSettings = settingsWrapper.Value.Api ?? new ApiSettings();
+        public SecurityRequirementsOperationFilter(string securitySchemeName, GeneralSettings settings) {
+            if (settings == null)
+                throw new ArgumentNullException(nameof(settings));
+            _ApiSettings = settings.Api ?? new ApiSettings();
+            _SecuritySchemeName = securitySchemeName;
         }
+
 
         /// <summary>
         /// 
@@ -29,7 +33,6 @@ namespace Indice.AspNetCore.Swagger
             var authAttributes = context.MethodInfo.DeclaringType.GetCustomAttributes(true)
             .Union(context.MethodInfo.GetCustomAttributes(true))
             .OfType<AuthorizeAttribute>();
-
             var requireScopes = authAttributes.Select(attr => attr.Policy);
 
             if (requireScopes.Any()) {
@@ -39,7 +42,7 @@ namespace Indice.AspNetCore.Swagger
                     operation.Responses.Add("403", new OpenApiResponse { Description = "Forbidden", Content = new Dictionary<string, OpenApiMediaType> { { "application/json", new OpenApiMediaType { Schema = new OpenApiSchema { Type = "object" } } } } });
                 var scopes = new[] { _ApiSettings.ResourceName }.Union(_ApiSettings.Scopes.Keys.Select(x => $"{_ApiSettings.ResourceName}:{x}"));
                 var oAuthScheme = new OpenApiSecurityScheme {
-                    Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "oauth2" }
+                    Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = _SecuritySchemeName }
                 };
                 operation.Security = new List<OpenApiSecurityRequirement> {
                     new OpenApiSecurityRequirement {
