@@ -73,6 +73,7 @@ namespace Indice.Identity
             services.AddEmailServiceSparkpost(Configuration);
             services.AddSwaggerGen(options => {
                 options.IndiceDefaults(Settings);
+                options.AddOAuth2(Settings);
                 options.IncludeXmlComments(Assembly.Load(IdentityServerApi.AssemblyName));
             });
             services.AddResponseCaching();
