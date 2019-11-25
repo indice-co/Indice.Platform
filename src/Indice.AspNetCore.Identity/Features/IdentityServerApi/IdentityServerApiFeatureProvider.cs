@@ -12,6 +12,7 @@ namespace Indice.AspNetCore.Identity.Features
     internal class IdentityServerApiFeatureProvider : IApplicationFeatureProvider<ControllerFeature>
     {
         private static IReadOnlyList<TypeInfo> ControllerTypes => new List<TypeInfo>() {
+            typeof(AccountController).GetTypeInfo(),
             typeof(ClaimTypeController).GetTypeInfo(),
             typeof(ClientController).GetTypeInfo(),
             typeof(DashboardController).GetTypeInfo(),
@@ -27,7 +28,7 @@ namespace Indice.AspNetCore.Identity.Features
         /// <param name="feature">The feature instance to populate.</param>
         public void PopulateFeature(IEnumerable<ApplicationPart> parts, ControllerFeature feature) {
             foreach (var type in ControllerTypes) {
-                if (!feature.Controllers.Any(x => x.Name == type.Name)) {
+                if (!feature.Controllers.Any(x => x.FullName == type.FullName)) {
                     feature.Controllers.Add(type);
                 }
             }

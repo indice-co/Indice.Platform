@@ -111,7 +111,7 @@ namespace Indice.AspNetCore.Identity.Features
         /// <param name="request">Contains info about the claim to be created.</param>
         /// <response code="201">Created</response>
         [HttpPost]
-        [ServiceFilter(type: typeof(CreateClaimTypeValidationFilter))]
+        [ServiceFilter(type: typeof(CreateClaimTypeRequestValidationFilter))]
         [ProducesResponseType(statusCode: StatusCodes.Status201Created, type: typeof(ClaimTypeInfo))]
         public async Task<ActionResult<ClaimTypeInfo>> CreateClaimType([FromBody]CreateClaimTypeRequest request) {
             var claimType = new ClaimType {

@@ -10,22 +10,25 @@ import { ListViewComponent } from 'src/app/shared/components/list-view/list-view
   templateUrl: './users.component.html'
 })
 export class UsersComponent implements OnInit {
+  @ViewChild('usersList', { static: true }) private _usersList: ListViewComponent;
+  @ViewChild('actionsTemplate', { static: true }) private _actionsTemplate: TemplateRef<HTMLElement>;
+  @ViewChild('optionalTemplate', { static: true }) private _optionalTemplate: TemplateRef<HTMLElement>;
+
   constructor(private api: IdentityApiService) { }
 
-  @ViewChild('usersList', { static: true }) public usersList: ListViewComponent;
-  @ViewChild('actionsTemplate', { static: true }) public actionsTemplate: TemplateRef<HTMLElement>;
   public count = 0;
   public rows: UserInfo[] = [];
   public columns: TableColumn[] = [];
 
   public ngOnInit(): void {
     this.columns = [
-      { prop: 'lastName', name: 'Last Name', draggable: false, canAutoResize: true, sortable: true, resizeable: false },
-      { prop: 'firstName', name: 'First Name', draggable: false, canAutoResize: true, sortable: true, resizeable: false },
-      { prop: 'email', name: 'Email', draggable: false, canAutoResize: true, sortable: true, resizeable: false, cellTemplate: this.usersList.emailTemplate },
-      { prop: 'phoneNumber', name: 'Phone Number', draggable: false, canAutoResize: true, sortable: false, resizeable: false, cellTemplate: this.usersList.phoneNumberTemplate },
-      { prop: 'createDate', name: 'Create Date', draggable: false, canAutoResize: true, sortable: true, resizeable: false, cellTemplate: this.usersList.dateTimeTemplate },
-      { prop: 'id', name: 'Actions', draggable: false, canAutoResize: true, sortable: false, resizeable: false, cellTemplate: this.actionsTemplate, cellClass: 'd-flex align-items-center' }
+      { prop: 'userName', name: 'Username', draggable: false, canAutoResize: true, sortable: true, resizeable: false },
+      { prop: 'email', name: 'Email', draggable: false, canAutoResize: true, sortable: true, resizeable: false, cellTemplate: this._usersList.emailTemplate },
+      { prop: 'lastName', name: 'Last Name', draggable: false, canAutoResize: true, sortable: true, resizeable: false, cellTemplate: this._optionalTemplate },
+      { prop: 'firstName', name: 'First Name', draggable: false, canAutoResize: true, sortable: true, resizeable: false, cellTemplate: this._optionalTemplate },
+      { prop: 'phoneNumber', name: 'Phone Number', draggable: false, canAutoResize: true, sortable: false, resizeable: false, cellTemplate: this._usersList.phoneNumberTemplate },
+      { prop: 'createDate', name: 'Create Date', draggable: false, canAutoResize: true, sortable: true, resizeable: false, cellTemplate: this._usersList.dateTimeTemplate },
+      { prop: 'id', name: 'Actions', draggable: false, canAutoResize: true, sortable: false, resizeable: false, cellTemplate: this._actionsTemplate, cellClass: 'd-flex align-items-center' }
     ];
   }
 

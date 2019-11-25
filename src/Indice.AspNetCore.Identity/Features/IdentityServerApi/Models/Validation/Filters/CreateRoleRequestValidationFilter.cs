@@ -13,15 +13,15 @@ namespace Indice.AspNetCore.Identity.Features
     /// <summary>
     /// Validator for <see cref="CreateRoleRequest"/> model.
     /// </summary>
-    internal class CreateRoleValidationFilter : IAsyncActionFilter
+    internal class CreateRoleRequestValidationFilter : IAsyncActionFilter
     {
         private readonly Func<ExtendedIdentityDbContext<User, Role>> _getDbContext;
 
         /// <summary>
-        /// Creates a new instance of <see cref="CreateClaimTypeValidationFilter"/>.
+        /// Creates a new instance of <see cref="CreateClaimTypeRequestValidationFilter"/>.
         /// </summary>
         /// <param name="getDbContext"></param>
-        public CreateRoleValidationFilter(Func<ExtendedIdentityDbContext<User, Role>> getDbContext) {
+        public CreateRoleRequestValidationFilter(Func<ExtendedIdentityDbContext<User, Role>> getDbContext) {
             _getDbContext = getDbContext ?? throw new ArgumentNullException(nameof(getDbContext));
         }
 

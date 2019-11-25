@@ -556,7 +556,7 @@ namespace Indice.AspNetCore.Identity.Features
         /// <response code="404">Not Found</response>
         [HttpDelete("protected/{resourceId:int}/scopes/{scopeId:int}")]
         [CacheResourceFilter(dependentPaths: new string[] { "protected/{resourceId}" })]
-        [ProducesResponseType(statusCode: StatusCodes.Status201Created, type: typeof(ScopeInfo))]
+        [ProducesResponseType(statusCode: StatusCodes.Status200OK)]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
         public async Task<ActionResult> DeleteApiResourceScope([FromRoute]int resourceId, [FromRoute]int scopeId) {
             var resource = await _configurationDbContext.ApiResources.Include(x => x.Scopes).SingleOrDefaultAsync(x => x.Id == resourceId);

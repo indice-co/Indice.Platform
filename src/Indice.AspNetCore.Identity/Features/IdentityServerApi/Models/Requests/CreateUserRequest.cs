@@ -1,4 +1,6 @@
-﻿namespace Indice.AspNetCore.Identity.Features
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace Indice.AspNetCore.Identity.Features
 {
     /// <summary>
     /// Models a new user that will be created on the server.
@@ -16,6 +18,7 @@
         /// <summary>
         /// The username used to login.
         /// </summary>
+        [Required(AllowEmptyStrings = false, ErrorMessage = "Field 'UserName' is required.")]
         public string UserName { get; set; }
         /// <summary>
         /// The email of the user.

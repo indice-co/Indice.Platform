@@ -96,7 +96,7 @@ namespace Indice.AspNetCore.Identity.Features
         /// <response code="201">Created</response>
         [HttpPost]
         [ProducesResponseType(statusCode: StatusCodes.Status201Created, type: typeof(RoleInfo))]
-        [ServiceFilter(type: typeof(CreateRoleValidationFilter))]
+        [ServiceFilter(type: typeof(CreateRoleRequestValidationFilter))]
         public async Task<ActionResult<RoleInfo>> CreateRole([FromBody]CreateRoleRequest request) {
             var role = new Role {
                 Id = $"{Guid.NewGuid()}",

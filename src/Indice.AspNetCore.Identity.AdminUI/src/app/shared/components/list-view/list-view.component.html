@@ -1,23 +1,62 @@
-<div class="col-sm-12 col-md-4 m-auto" [hidden]="!canFilter">
-    <input class="search mt-0" type="text" [placeholder]="'Type at least ' + minimumSearchCharacters + ' characters to filter results...'" [(ngModel)]="searchTerm" #filterInput />
+<div class="col-sm-12 col-md-4 m-auto"
+     [hidden]="!canFilter">
+    <input class="search mt-0"
+           type="text"
+           [placeholder]="'Type at least ' + minimumSearchCharacters + ' characters to filter results...'"
+           [(ngModel)]="searchTerm"
+           #filterInput />
 </div>
-<ngx-datatable class="material expandable" trackByProp="id" [rows]="rows" [columns]="columns" [columnMode]="'force'" [count]="count" [rowHeight]="50" [headerHeight]="50" 
-    [footerHeight]="50" [limit]="rowsPerPage" reorderable="false" [externalPaging]="!clientSide" [externalSorting]="!clientSide" [loadingIndicator]="isLoading" 
-    (page)="setPage($event)" (sort)="setSort($event)" #dataTable>
+<ngx-datatable class="material expandable"
+               trackByProp="id"
+               [rows]="rows"
+               [columns]="columns"
+               [columnMode]="'force'"
+               [count]="count"
+               [rowHeight]="50"
+               [headerHeight]="50"
+               [footerHeight]="50"
+               [limit]="rowsPerPage"
+               reorderable="false"
+               [externalPaging]="!clientSide"
+               [externalSorting]="!clientSide"
+               [loadingIndicator]="isLoading"
+               (page)="setPage($event)"
+               (sort)="setSort($event)"
+               #dataTable>
 </ngx-datatable>
-<ng-template let-row="row" let-value="value" #emailTemplate>
-    <a *ngIf="value" [href]="'mailto:' + value">{{ value }}</a>
+<ng-template let-row="row"
+             let-value="value"
+             #emailTemplate>
+    <a *ngIf="value"
+       [href]="'mailto:' + value">
+        {{ value }}
+    </a>
     <span *ngIf="!value"> - </span>
 </ng-template>
-<ng-template let-row="row" let-value="value" #phoneNumberTemplate>
-    <a *ngIf="value" [href]="'tel:' + value">{{ value }}</a>
+<ng-template let-row="row"
+             let-value="value"
+             #phoneNumberTemplate>
+    <a *ngIf="value"
+       [href]="'tel:' + value">
+        {{ value }}
+    </a>
     <span *ngIf="!value"> - </span>
 </ng-template>
-<ng-template let-row="row" let-value="value" #dateTimeTemplate>
+<ng-template let-row="row"
+             let-value="value"
+             #dateTimeTemplate>
     <span *ngIf="value">{{ value | date:'medium' }}</span>
     <span *ngIf="!value"> - </span>
 </ng-template>
-<ng-template let-row="row" let-value="value" #booleanTemplate>
-    <i *ngIf="value === true" class="dripicons-checkmark" style="color: #32CD32 !important;"></i>
-    <i *ngIf="value === false" class="dripicons-cross" style="color: #CC0000 !important;"></i>
+<ng-template let-row="row"
+             let-value="value"
+             #booleanTemplate>
+    <i *ngIf="value === true"
+       class="dripicons-checkmark"
+       style="color: #32CD32 !important;">
+    </i>
+    <i *ngIf="value === false"
+       class="dripicons-cross"
+       style="color: #CC0000 !important;">
+    </i>
 </ng-template>

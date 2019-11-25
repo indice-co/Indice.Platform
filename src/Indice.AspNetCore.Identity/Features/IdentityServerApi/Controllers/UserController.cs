@@ -77,14 +77,14 @@ namespace Indice.AspNetCore.Identity.Features
         [HttpGet]
         [ProducesResponseType(statusCode: StatusCodes.Status200OK, type: typeof(ResultSet<UserInfo>))]
         public async Task<ActionResult<ResultSet<UserInfo>>> GetUsers([FromQuery]ListOptions options) {
-            var query = _userManager.Users.AsNoTracking();
+            var query = _userManager.Users.Include(x => x.Claims).AsNoTracking();
             if (!string.IsNullOrEmpty(options.Search)) {
                 var searchTerm = options.Search.ToLower();
                 query = query.Where(x => x.Email.ToLower().Contains(searchTerm)
                                       || x.PhoneNumber.Contains(searchTerm)
-                                      || x.UserName.ToLower().Contains(searchTerm));
+                                      || x.UserName.ToLower().Contains(searchTerm)
+                                      || x.Claims.Any(x => x.ClaimValue.ToLower().Contains(searchTerm)));
             }
-            // Creating a new 'UserInfo' object at this point will result in evaluating the query in-memory.
             var users = await query.Select(x => new UserInfo {
                 Id = x.Id,
                 FirstName = x.Claims.FirstOrDefault(x => x.ClaimType == JwtClaimTypes.GivenName).ClaimValue,
@@ -97,7 +97,13 @@ namespace Indice.AspNetCore.Identity.Features
                 CreateDate = x.CreateDate,
                 LockoutEnabled = x.LockoutEnabled,
                 LockoutEnd = x.LockoutEnd,
-                TwoFactorEnabled = x.TwoFactorEnabled
+                TwoFactorEnabled = x.TwoFactorEnabled,
+                Claims = x.Claims.Select(x => new ClaimInfo {
+                    Id = x.Id,
+                    Type = x.ClaimType,
+                    Value = x.ClaimValue
+                })
+                .ToList()
             })
             .ToResultSetAsync(options);
             return Ok(users);
@@ -171,7 +177,7 @@ namespace Indice.AspNetCore.Identity.Features
                 result = await _userManager.CreateAsync(user, request.Password);
             }
             if (!result.Succeeded) {
-                return BadRequest(new ValidationProblemDetails(result.Errors.ToDictionary(x => x.Code, x => new[] { x.Description })));
+                return BadRequest(result.Errors.ToValidationProblemDetails());
             }
             var claims = new List<Claim>();
             if (!string.IsNullOrEmpty(request.FirstName)) {

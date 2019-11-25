@@ -44,7 +44,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 options.ClaimsIdentity.UserNameClaimType = JwtClaimTypes.Name;
                 options.Lockout = lockoutOptions;
                 options.Password = passwordOptions;
-                options.User.RequireUniqueEmail = true;
+                options.User.RequireUniqueEmail = false;
             })
             .AddClaimsTransform<ExtendedUserClaimsPrincipalFactory<User, Role>>()
             .AddEntityFrameworkStores<ExtendedIdentityDbContext<User, Role>>()

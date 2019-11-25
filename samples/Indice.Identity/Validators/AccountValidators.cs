@@ -1,8 +1,6 @@
-﻿using System;
-using FluentValidation;
+﻿using FluentValidation;
 using Humanizer;
 using Indice.AspNetCore.Identity.Models;
-using Microsoft.Extensions.Localization;
 
 namespace Indice.Identity.Models.Validators
 {

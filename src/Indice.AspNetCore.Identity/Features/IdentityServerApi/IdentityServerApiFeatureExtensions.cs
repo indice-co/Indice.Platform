@@ -33,24 +33,24 @@ namespace Indice.AspNetCore.Identity.Features
             mvcBuilder.Services.AddIndiceServices(configuration);
             mvcBuilder.Services.AddTransient<IEventService, EventService>();
             // Register validation filters.
-            mvcBuilder.Services.AddScoped<CreateClaimTypeValidationFilter>();
-            mvcBuilder.Services.AddScoped<CreateRoleValidationFilter>();
+            mvcBuilder.Services.AddScoped<CreateClaimTypeRequestValidationFilter>();
+            mvcBuilder.Services.AddScoped<CreateRoleRequestValidationFilter>();
             // Add authorization policies that are used by the IdentityServer API.
             mvcBuilder.Services.AddAuthorization(authOptions => {
                 authOptions.AddPolicy(IdentityServerApi.SubScopes.Users, policy => {
                     policy.AddAuthenticationSchemes(IdentityServerApi.AuthenticationScheme)
                           .RequireAuthenticatedUser()
-                          .RequireAssertion(x => x.User.HasClaim(JwtClaimTypes.Scope, IdentityServerApi.SubScopes.Users) || x.User.IsAdmin());
+                          .RequireAssertion(x => x.User.HasClaim(JwtClaimTypes.Scope, IdentityServerApi.SubScopes.Users) && x.User.IsAdmin());
                 });
                 authOptions.AddPolicy(IdentityServerApi.SubScopes.Clients, policy => {
                     policy.AddAuthenticationSchemes(IdentityServerApi.AuthenticationScheme)
                           .RequireAuthenticatedUser()
-                          .RequireAssertion(x => x.User.HasClaim(JwtClaimTypes.Scope, IdentityServerApi.SubScopes.Clients) || x.User.IsAdmin());
+                          .RequireAssertion(x => x.User.HasClaim(JwtClaimTypes.Scope, IdentityServerApi.SubScopes.Clients) && x.User.IsAdmin());
                 });
                 authOptions.AddPolicy(IdentityServerApi.Admin, policy => {
                     policy.AddAuthenticationSchemes(IdentityServerApi.AuthenticationScheme)
                           .RequireAuthenticatedUser()
-                          .RequireAssertion(x => x.User.IsAdmin());
+                          .RequireAssertion(x => x.User.HasClaim(JwtClaimTypes.Scope, IdentityServerApi.Scope) && x.User.IsAdmin());
                 });
             });
             // Register the authentication handler, using a custom scheme name, for local APIs.

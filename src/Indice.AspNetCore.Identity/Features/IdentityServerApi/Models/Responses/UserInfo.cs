@@ -9,10 +9,6 @@ namespace Indice.AspNetCore.Identity.Features
     public class SingleUserInfo : BasicUserInfo
     {
         /// <summary>
-        /// User metadata expressed as claims.
-        /// </summary>
-        public List<ClaimInfo> Claims { get; set; } = new List<ClaimInfo>();
-        /// <summary>
         /// The names of the roles that the user belongs to.
         /// </summary>
         public List<string> Roles { get; set; } = new List<string>();
@@ -63,6 +59,10 @@ namespace Indice.AspNetCore.Identity.Features
         /// The username.
         /// </summary>
         public string UserName { get; set; }
+        /// <summary>
+        /// User metadata expressed as claims.
+        /// </summary>
+        public List<ClaimInfo> Claims { get; set; } = new List<ClaimInfo>();
     }
 
     /// <summary>
