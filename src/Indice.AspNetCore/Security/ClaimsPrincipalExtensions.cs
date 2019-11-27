@@ -79,27 +79,25 @@ namespace Indice.Security
         }
 
         /// <summary>
-        /// 
+        /// Checks if the current principal is a client owned by the system.
         /// </summary>
-        /// <param name="principal"></param>
+        /// <param name="principal">The current principal.</param>
         /// <returns></returns>
-        public static bool IsSystem(this ClaimsPrincipal principal) {
-            var isSystem = FindFirstValue<bool>(principal, $"client_{BasicClaimTypes.System}");
+        public static bool IsSystemClient(this ClaimsPrincipal principal) {
+            var isSystem = FindFirstValue<bool>(principal, $"client_{BasicClaimTypes.System}") ?? FindFirstValue<bool>(principal, BasicClaimTypes.System);
             return isSystem ?? false;
         }
 
         /// <summary>
-        /// 
+        /// Checks if the current principal is a system admin.
         /// </summary>
-        /// <param name="principal"></param>
-        /// <returns></returns>
+        /// <param name="principal">The current principal.</param>
         public static bool IsAdmin(this ClaimsPrincipal principal) => FindFirstValue<bool>(principal, BasicClaimTypes.Admin) ?? principal.HasClaim("role", "Administrator");
 
         /// <summary>
-        /// 
+        /// Checks if the current principal has logged in using an external provider.
         /// </summary>
-        /// <param name="principal"></param>
-        /// <returns></returns>
+        /// <param name="principal">The current principal.</param>
         public static bool IsExternal(this ClaimsPrincipal principal) => principal.FindFirst("idp")?.Value != "local";
     }
 }

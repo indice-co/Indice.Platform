@@ -1,6 +1,8 @@
 ﻿using Indice.AspNetCore.Identity.Data;
 using Indice.AspNetCore.Identity.Models;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Hosting;
 
 namespace Indice.AspNetCore.Identity.Features
 {
@@ -16,12 +18,13 @@ namespace Indice.AspNetCore.Identity.Features
         /// </summary>
         /// <param name="dbContextOptions">The options to be used by a <see cref="DbContext"/>.</param>
         /// <param name="identityServerApiEndpointsOptions">Options for configuring the IdentityServer API feature.</param>
-        public ExtendedIdentityDbContext(DbContextOptions<ExtendedIdentityDbContext<TUser, TRole>> dbContextOptions, IdentityServerApiEndpointsOptions identityServerApiEndpointsOptions) : base(dbContextOptions) {
-#if DEBUG
-            if (Database.EnsureCreated() && identityServerApiEndpointsOptions.UseInitialData) {
-                this.Seed();
+        /// <param name="webHostEnvironment">Provides information about the web hosting environment an application is running in.</param>
+        public ExtendedIdentityDbContext(DbContextOptions<ExtendedIdentityDbContext<TUser, TRole>> dbContextOptions, IdentityServerApiEndpointsOptions identityServerApiEndpointsOptions, IWebHostEnvironment webHostEnvironment) : base(dbContextOptions) {
+            if (identityServerApiEndpointsOptions.UseInitialData && webHostEnvironment.IsDevelopment()) {
+                if (Database.EnsureCreated()) {
+                    this.Seed();
+                }
             }
-#endif
         }
 
         /// <summary>

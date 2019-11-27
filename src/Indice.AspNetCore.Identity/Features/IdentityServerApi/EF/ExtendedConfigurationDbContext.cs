@@ -1,11 +1,13 @@
 ﻿using IdentityServer4.EntityFramework.DbContexts;
 using IdentityServer4.EntityFramework.Options;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Hosting;
 
 namespace Indice.AspNetCore.Identity.Features
 {
     /// <summary>
-    /// 
+    /// Extended DbContext for the IdentityServer configuration data.
     /// </summary>
     public class ExtendedConfigurationDbContext : ConfigurationDbContext<ExtendedConfigurationDbContext>
     {
@@ -14,10 +16,11 @@ namespace Indice.AspNetCore.Identity.Features
         /// </summary>
         /// <param name="options">The options to be used by a <see cref="DbContext"/>.</param>
         /// <param name="storeOptions">Options for configuring the <see cref="ExtendedConfigurationDbContext"/>.</param>
-        public ExtendedConfigurationDbContext(DbContextOptions<ExtendedConfigurationDbContext> options, ConfigurationStoreOptions storeOptions) : base(options, storeOptions) {
-#if DEBUG
-            Database.EnsureCreated();
-#endif
+        /// <param name="webHostEnvironment">Provides information about the web hosting environment an application is running in.</param>
+        public ExtendedConfigurationDbContext(DbContextOptions<ExtendedConfigurationDbContext> options, ConfigurationStoreOptions storeOptions, IWebHostEnvironment webHostEnvironment) : base(options, storeOptions) {
+            if (webHostEnvironment.IsDevelopment()) {
+                Database.EnsureCreated();
+            }
         }
 
         /// <summary>
@@ -32,6 +35,7 @@ namespace Indice.AspNetCore.Identity.Features
         protected override void OnModelCreating(ModelBuilder modelBuilder) {
             base.OnModelCreating(modelBuilder);
             modelBuilder.ApplyConfiguration(new ClientUserMap());
+            modelBuilder.ApplyConfiguration(new ClientSecretExtendedMap());
         }
     }
 }

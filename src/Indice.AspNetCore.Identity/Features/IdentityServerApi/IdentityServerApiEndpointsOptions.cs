@@ -9,7 +9,7 @@ namespace Indice.AspNetCore.Identity.Features
     {
         internal IServiceCollection Services;
         /// <summary>
-        /// If true, it seeds the database with some initial data for users, roles etc. Works only on Debug mode. Default is false.
+        /// If true, it seeds the database with some initial data for users, roles etc. Works on Development environment. Default is false.
         /// </summary>
         public bool UseInitialData { get; set; } = false;
         /// <summary>

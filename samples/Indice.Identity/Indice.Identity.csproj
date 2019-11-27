@@ -19,6 +19,9 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="3.0.1" />
     <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" Version="5.0.0-rc4" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Indice.AspNetCore.Identity\Indice.AspNetCore.Identity.csproj" />
+  </ItemGroup>
   <ItemGroup Label="Content">
     <None Update="indice-idsrv.pfx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

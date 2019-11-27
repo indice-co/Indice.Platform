@@ -72,7 +72,9 @@ namespace Indice.AspNetCore.Identity.Features
                     var cachedValue = _cache.GetString(_cacheKey);
                     // Check if we already have a cached value for this cache key and also that response status code is 200 OK.
                     if (string.IsNullOrEmpty(cachedValue) && (context.Result is OkObjectResult result)) {
-                        _cache.SetString(_cacheKey, JsonConvert.SerializeObject(result.Value, _jsonSerializerSettings));
+                        _cache.SetString(_cacheKey, JsonConvert.SerializeObject(result.Value, _jsonSerializerSettings), new DistributedCacheEntryOptions {
+                            AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(10)
+                        });
                     }
                 }
                 if (requestMethod == HttpMethod.Post.Method || requestMethod == HttpMethod.Put.Method || requestMethod == HttpMethod.Patch.Method || requestMethod == HttpMethod.Delete.Method) {
