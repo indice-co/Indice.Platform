@@ -23,4 +23,16 @@ namespace Indice.AspNetCore.Identity.Features
         [Compare("NewPassword", ErrorMessage = "Password confirmation is not correct.")]
         public string NewPasswordConfirmation { get; set; }
     }
+
+    /// <summary>
+    /// Models a request to set a user's password.
+    /// </summary>
+    public class SetPasswordRequest
+    {
+        /// <summary>
+        /// The password of the user.
+        /// </summary>
+        [Required(ErrorMessage = "Field 'Password' is required.")]
+        public string Password { get; set; }
+    }
 }

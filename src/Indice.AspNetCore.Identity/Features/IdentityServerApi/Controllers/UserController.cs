@@ -76,14 +76,18 @@ namespace Indice.AspNetCore.Identity.Features
         /// <response code="200">OK</response>
         [HttpGet]
         [ProducesResponseType(statusCode: StatusCodes.Status200OK, type: typeof(ResultSet<UserInfo>))]
-        public async Task<ActionResult<ResultSet<UserInfo>>> GetUsers([FromQuery]ListOptions options) {
+        public async Task<ActionResult<ResultSet<UserInfo>>> GetUsers([FromQuery]ListOptions<UserListFilter> options) {
             var query = _userManager.Users.Include(x => x.Claims).AsNoTracking();
-            if (!string.IsNullOrEmpty(options.Search)) {
+            if (!string.IsNullOrEmpty(options?.Search)) {
                 var searchTerm = options.Search.ToLower();
                 query = query.Where(x => x.Email.ToLower().Contains(searchTerm)
                                       || x.PhoneNumber.Contains(searchTerm)
                                       || x.UserName.ToLower().Contains(searchTerm)
                                       || x.Claims.Any(x => x.ClaimValue.ToLower().Contains(searchTerm)));
+            }
+            if (options?.Filter != null) {
+                var filter = options.Filter;
+                query = query.Where(x => filter.Claim == null || x.Claims.Any(x => x.ClaimType == filter.Claim.Type && x.ClaimValue == filter.Claim.Value));
             }
             var users = await query.Select(x => new UserInfo {
                 Id = x.Id,
