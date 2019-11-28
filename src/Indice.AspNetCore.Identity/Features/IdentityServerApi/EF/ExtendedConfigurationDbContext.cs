@@ -27,6 +27,10 @@ namespace Indice.AspNetCore.Identity.Features
         /// A table that contains the association between a client and a user.
         /// </summary>
         public DbSet<ClientUser> ClientUsers { get; set; }
+        /// <summary>
+        /// A table that contains custom data for a client secret.
+        /// </summary>
+        public DbSet<ClientSecretExtended> ClientSecretExtras { get; set; }
 
         /// <summary>
         /// Register extended configuration methods when the database is being created.
