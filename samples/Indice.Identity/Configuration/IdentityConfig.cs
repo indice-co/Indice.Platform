@@ -41,8 +41,10 @@ namespace Microsoft.Extensions.DependencyInjection
                 options.Lockout = lockoutOptions;
                 options.User.RequireUniqueEmail = false;
             })
-            .AddClaimsTransform<ExtendedUserClaimsPrincipalFactory<User, Role>>()
+            .AddExtendedSignInManager<User>()
+            .AddPasswordValidator<PreviousPasswordAwareValidator<ExtendedIdentityDbContext<User, Role>, User, Role>>()
             .AddEntityFrameworkStores<ExtendedIdentityDbContext<User, Role>>()
+            .AddClaimsTransform<ExtendedUserClaimsPrincipalFactory<User, Role>>()
             .AddUserStore<ExtendedUserStore<ExtendedIdentityDbContext<User, Role>, User, Role>>()
             .AddDefaultTokenProviders();
         }

@@ -73,9 +73,18 @@ namespace Indice.AspNetCore.Identity.Data
         public override async Task SetPasswordHashAsync(TUser user, string passwordHash, CancellationToken cancellationToken = default(CancellationToken)) {
             if (PasswordHistoryLimit.HasValue && !string.IsNullOrWhiteSpace(passwordHash)) {
                 var numberOfPasswordsToKeep = Math.Max(PasswordHistoryLimit.Value, 0);
-                var toPurge = await Context.Set<UserPassword>().Where(x => x.UserId == user.Id).OrderByDescending(x => x.DateCreated).Skip(numberOfPasswordsToKeep).ToArrayAsync();
+                var toPurge = await Context.Set<UserPassword>()
+                                           .Where(x => x.UserId == user.Id)
+                                           .OrderByDescending(x => x.DateCreated)
+                                           .Skip(numberOfPasswordsToKeep)
+                                           .ToArrayAsync();
                 Context.Set<UserPassword>().RemoveRange(toPurge);
-                await Context.Set<UserPassword>().AddAsync(new UserPassword { UserId = user.Id, DateCreated = DateTime.UtcNow, PasswordHash = passwordHash });
+                await Context.Set<UserPassword>()
+                             .AddAsync(new UserPassword { 
+                                 UserId = user.Id, 
+                                 DateCreated = DateTime.UtcNow, 
+                                 PasswordHash = passwordHash 
+                             });
             }
             user.LastPasswordChangeDate = DateTime.UtcNow;
             await base.SetPasswordHashAsync(user, passwordHash, cancellationToken);
