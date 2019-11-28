@@ -197,7 +197,13 @@ namespace Indice.AspNetCore.Identity.Features
                 Id = user.Id,
                 UserName = user.UserName,
                 Email = user.Email,
-                PhoneNumber = user.PhoneNumber
+                PhoneNumber = user.PhoneNumber,
+                Claims = user.Claims?.Select(x => new ClaimInfo { 
+                    Id = x.Id,
+                    Type = x.ClaimType,
+                    Value = x.ClaimValue
+                })
+                .ToList()
             };
             if (_apiEndpointsOptions.RaiseEvents) {
                 await _eventService.Raise(new UserCreatedEvent(response));

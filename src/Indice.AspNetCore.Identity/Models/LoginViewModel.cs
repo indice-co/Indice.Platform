@@ -17,27 +17,22 @@ namespace Indice.AspNetCore.Identity.Models
         /// Allow remember login
         /// </summary>
         public bool AllowRememberLogin { get; set; } = true;
-
         /// <summary>
         /// Enables local logins (if false onlu external provider list will be available)
         /// </summary>
         public bool EnableLocalLogin { get; set; } = true;
-
         /// <summary>
         /// List of external providers
         /// </summary>
         public IEnumerable<ExternalProvider> ExternalProviders { get; set; } = Enumerable.Empty<ExternalProvider>();
-
         /// <summary>
         /// The visible external providers are those form the <see cref="ExternalProviders"/> list that have a display name
         /// </summary>
         public IEnumerable<ExternalProvider> VisibleExternalProviders => ExternalProviders.Where(x => !String.IsNullOrWhiteSpace(x.DisplayName));
-
         /// <summary>
         /// Use this flag to hide the local login form
         /// </summary>
         public bool IsExternalLoginOnly => EnableLocalLogin == false && ExternalProviders?.Count() == 1;
-
         /// <summary>
         /// The scheme to use for external login cookie.
         /// </summary>

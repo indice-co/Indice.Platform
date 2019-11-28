@@ -24,5 +24,9 @@ namespace Indice.AspNetCore.Identity.Models
         /// The return url after the login is successful.
         /// </summary>
         public string ReturnUrl { get; set; }
+        /// <summary>
+        /// The id of the current client in the request. 
+        /// </summary>
+        public string ClientId { get; set; }
     }
 }
