@@ -221,6 +221,7 @@ namespace Indice.AspNetCore.Identity.Features
         [HttpPut("{userId}")]
         [ProducesResponseType(statusCode: StatusCodes.Status200OK, type: typeof(SingleUserInfo))]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
+        [CacheResourceFilter]
         public async Task<ActionResult<SingleUserInfo>> UpdateUser([FromRoute]string userId, [FromBody]UpdateUserRequest request) {
             var user = await _dbContext.Users.Include(x => x.Claims).SingleOrDefaultAsync(x => x.Id == userId);
             if (user == null) {
@@ -282,6 +283,7 @@ namespace Indice.AspNetCore.Identity.Features
         [HttpDelete("{userId}")]
         [ProducesResponseType(statusCode: StatusCodes.Status200OK)]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
+        [CacheResourceFilter]
         public async Task<IActionResult> DeleteUser([FromRoute]string userId) {
             var user = await _dbContext.Users.SingleOrDefaultAsync(x => x.Id == userId);
             if (user == null) {

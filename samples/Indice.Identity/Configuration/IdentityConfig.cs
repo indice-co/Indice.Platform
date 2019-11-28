@@ -5,6 +5,7 @@ using Indice.AspNetCore.Identity.Features;
 using Indice.AspNetCore.Identity.Models;
 using Indice.AspNetCore.Identity.Services;
 using Indice.Identity.Security;
+using Indice.Identity.Services;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
@@ -22,18 +23,13 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
         /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
         public static IdentityBuilder AddIdentityConfig(this IServiceCollection services, IConfiguration configuration) {
-            services.Configure<PasswordOptions>(configuration.GetSection(nameof(PasswordOptions)));
-            services.Configure<LockoutOptions>(configuration.GetSection(nameof(LockoutOptions)));
-            services.Configure<SignInOptions>(configuration.GetSection(nameof(SignInOptions)));
+            // https://docs.microsoft.com/en-us/aspnet/core/fundamentals/configuration/options?view=aspnetcore-3.0#use-di-services-to-configure-options-1
+            services.AddTransient<IdentityOptionsService>();
+            services.AddOptions<IdentityOptions>().Configure<IdentityOptionsService>(async (identityOptions, identityOptionsService) => {
+                identityOptions.Password = await identityOptionsService.GetPasswordOptions();
+            });
             services.AddTransient<IClaimsTransformation, ClaimsTransformer>();
             return services.AddIdentity<User, Role>(options => {
-                var passwordOptions = configuration.GetSection(nameof(PasswordOptions)).Get<PasswordOptions>() ?? new PasswordOptions {
-                    RequireDigit = false,
-                    RequiredLength = 6,
-                    RequireLowercase = false,
-                    RequireNonAlphanumeric = false,
-                    RequireUppercase = false
-                };
                 var lockoutOptions = configuration.GetSection(nameof(LockoutOptions)).Get<LockoutOptions>() ?? new LockoutOptions {
                     AllowedForNewUsers = true,
                     DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5),
@@ -43,7 +39,6 @@ namespace Microsoft.Extensions.DependencyInjection
                 options.ClaimsIdentity.UserIdClaimType = JwtClaimTypes.Subject;
                 options.ClaimsIdentity.UserNameClaimType = JwtClaimTypes.Name;
                 options.Lockout = lockoutOptions;
-                options.Password = passwordOptions;
                 options.User.RequireUniqueEmail = false;
             })
             .AddClaimsTransform<ExtendedUserClaimsPrincipalFactory<User, Role>>()
