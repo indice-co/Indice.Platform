@@ -3,7 +3,7 @@
 namespace Indice.AspNetCore.Identity.Models
 {
     /// <summary>
-    /// A user password hashed stored for passwork history validation purposes.
+    /// A user password hashed stored for password history validation purposes.
     /// </summary>
     public class UserPassword
     {
@@ -19,11 +19,11 @@ namespace Indice.AspNetCore.Identity.Models
         /// </summary>
         public Guid Id { get; set; }
         /// <summary>
-        /// The user id related
+        /// The user id related.
         /// </summary>
         public string UserId { get; set; }
         /// <summary>
-        /// Password hash
+        /// Password hash.
         /// </summary>
         public string PasswordHash { get; set; }
         /// <summary>

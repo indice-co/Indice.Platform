@@ -5,16 +5,19 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 namespace Indice.AspNetCore.Identity.Data.Mappings
 {
     /// <summary>
-    /// <see cref="IEntityTypeConfiguration{User}"/> for the <seealso cref="User"/> type.
+    /// Entity Framework mapping for type <see cref="User"/>.
     /// </summary>
-    public class UserMap<TUser> : IEntityTypeConfiguration<TUser> where TUser: User
+    /// <typeparam name="TUser">The type of user.</typeparam>
+    internal class UserMap<TUser> : IEntityTypeConfiguration<TUser> where TUser : User
     {
         /// <summary>
-        /// Configures the enity builder.
+        /// Configure Entity Framework mapping for type <see cref="User"/>.
         /// </summary>
         /// <param name="entityBuilder"></param>
         public void Configure(EntityTypeBuilder<TUser> entityBuilder) {
+            // Configure table name and schema.
             entityBuilder.ToTable(nameof(User), "auth");
+            // Configure relationships.
             entityBuilder.HasMany(x => x.Claims).WithOne().HasForeignKey(x => x.UserId);
             entityBuilder.HasMany(x => x.Logins).WithOne().HasForeignKey(x => x.UserId);
             entityBuilder.HasMany(x => x.Roles).WithOne().HasForeignKey(x => x.UserId);
