@@ -1,6 +1,4 @@
-﻿using System;
-using IdentityModel;
-using Indice.AspNetCore.Identity.Data;
+﻿using Indice.AspNetCore.Identity.Data;
 using Indice.AspNetCore.Identity.Features;
 using Indice.AspNetCore.Identity.Models;
 using Indice.AspNetCore.Identity.Services;
@@ -23,25 +21,14 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
         public static IdentityBuilder AddIdentityConfig(this IServiceCollection services, IConfiguration configuration) {
             services.AddTransient<IClaimsTransformation, ClaimsTransformer>();
-            return services.AddIdentity<User, Role>(options => {
-                var lockoutOptions = configuration.GetSection(nameof(LockoutOptions)).Get<LockoutOptions>() ?? new LockoutOptions {
-                    AllowedForNewUsers = true,
-                    DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5),
-                    MaxFailedAccessAttempts = 5
-                };
-                options.ClaimsIdentity.RoleClaimType = JwtClaimTypes.Role;
-                options.ClaimsIdentity.UserIdClaimType = JwtClaimTypes.Subject;
-                options.ClaimsIdentity.UserNameClaimType = JwtClaimTypes.Name;
-                options.Lockout = lockoutOptions;
-                options.User.RequireUniqueEmail = true;
-            })
-            .AddExtendedSignInManager<User>()
-            .AddPasswordValidator<PreviousPasswordAwareValidator<ExtendedIdentityDbContext<User, Role>, User, Role>>()
-            .AddEntityFrameworkStores<ExtendedIdentityDbContext<User, Role>>()
-            .AddClaimsTransform<ExtendedUserClaimsPrincipalFactory<User, Role>>()
-            .AddUserStore<ExtendedUserStore<ExtendedIdentityDbContext<User, Role>, User, Role>>()
-            //.AddDynamicIdentityOptions<ExtendedIdentityDbContext<User, Role>, User, Role>()
-            .AddDefaultTokenProviders();
+            services.Configure<IdentityOptions>(configuration.GetSection(nameof(IdentityOptions)));
+            return services.AddIdentity<User, Role>()
+                           .AddExtendedSignInManager<User>()
+                           .AddPasswordValidator<PreviousPasswordAwareValidator<ExtendedIdentityDbContext<User, Role>, User, Role>>()
+                           .AddEntityFrameworkStores<ExtendedIdentityDbContext<User, Role>>()
+                           .AddClaimsTransform<ExtendedUserClaimsPrincipalFactory<User, Role>>()
+                           .AddUserStore<ExtendedUserStore<ExtendedIdentityDbContext<User, Role>, User, Role>>()
+                           .AddDefaultTokenProviders();
         }
     }
 }

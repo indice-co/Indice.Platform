@@ -1,6 +1,5 @@
 ﻿using System;
 using Indice.AspNetCore.Identity.Authorization;
-using Indice.AspNetCore.Identity.Data;
 using Indice.AspNetCore.Identity.Models;
 using Indice.AspNetCore.Identity.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -45,30 +44,5 @@ namespace Microsoft.AspNetCore.Identity
         /// <returns>The services.</returns>
         public static IServiceCollection ConfigureExtendedValidationCookie(this IServiceCollection services, Action<CookieAuthenticationOptions> configure)
             => services.Configure(ExtendedIdentityConstants.ExtendedValidationUserIdScheme, configure);
-
-        /// <summary>
-        /// Configures the <see cref="IdentityOptions"/> so they can be dynamically using a database configuration.
-        /// </summary>
-        /// <param name="builder">The type of builder for configuring identity services.</param>
-        public static IdentityBuilder AddDynamicIdentityOptions(this IdentityBuilder builder) => AddDynamicIdentityOptions<IdentityDbContext, User, IdentityRole>(builder);
-
-        /// <summary>
-        /// Configures the <see cref="IdentityOptions"/> so they can be dynamically changed using a database configuration. Uses <see cref="IdentityDbContext"/>.
-        /// </summary>
-        /// <param name="builder">The type of builder for configuring identity services.</param>
-        public static IdentityBuilder AddDynamicIdentityOptions<TContext, TUser, TRole>(this IdentityBuilder builder)
-            where TContext : IdentityDbContext<TUser, TRole>
-            where TUser : User
-            where TRole : IdentityRole {
-            var services = builder.Services;
-            var serviceProvider = services.BuildServiceProvider();
-            // https://docs.microsoft.com/en-us/aspnet/core/fundamentals/configuration/options?view=aspnetcore-3.0#use-di-services-to-configure-options-1
-            services.AddTransient(typeof(IdentityOptionsService<,,>));
-            services.AddScoped(typeof(IdentityOptionsService<,,>).MakeGenericType(typeof(TContext), builder.UserType, builder.RoleType));
-            services.AddOptions<IdentityOptions>().Configure<IdentityOptionsService<TContext, TUser, TRole>>(async (identityOptions, identityOptionsService) => {
-                identityOptions.Password = await identityOptionsService.GetPasswordOptions();
-            });
-            return builder;
-        }
     }
 }

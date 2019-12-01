@@ -19,6 +19,7 @@ namespace Indice.AspNetCore.Identity.Data.Mappings
             builder.ToTable(nameof(UserPassword), "auth");
             // Configure primary key.
             builder.HasKey(x => x.Id);
+            // Configure relationships.
             builder.HasOne<TUser>().WithMany().HasForeignKey(x => x.UserId).OnDelete(DeleteBehavior.Cascade);
         }
     }

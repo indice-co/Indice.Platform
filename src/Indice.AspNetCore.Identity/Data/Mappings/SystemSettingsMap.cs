@@ -1,4 +1,5 @@
 ﻿using Indice.AspNetCore.Identity.Models;
+using Indice.Configuration;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -12,10 +13,11 @@ namespace Indice.AspNetCore.Identity.Data.Mappings
         public void Configure(EntityTypeBuilder<SystemSettings> builder) {
             // Configure table name and schema.
             builder.ToTable(nameof(SystemSettings), "auth");
+            // Configure primary key.
+            builder.HasKey(x => x.Id);
             // Configure fields.
-            builder.Property(x => x.OptionsJson).HasColumnName(nameof(SystemSettings.Options)).IsRequired();
-            // Ignored properties.
-            builder.Ignore(x => x.Options);
+            builder.Property(x => x.Key).HasMaxLength(TextSizePresets.M128).IsRequired();
+            builder.Property(x => x.Value).HasMaxLength(TextSizePresets.L2048).IsRequired();
         }
     }
 }

@@ -20,8 +20,8 @@ namespace Indice.Identity
         /// <param name="args">Optional command line arguments.</param>
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
-                .ConfigureWebHostDefaults(webBuilder => {
-                    webBuilder.UseStartup<Startup>();
+                .ConfigureWebHostDefaults(webHostBuilder => {
+                    webHostBuilder.UseStartup<Startup>();
                 });
     }
 }

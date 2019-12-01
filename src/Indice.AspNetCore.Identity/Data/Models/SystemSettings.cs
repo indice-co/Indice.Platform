@@ -1,26 +1,21 @@
-﻿using Newtonsoft.Json;
-
-namespace Indice.AspNetCore.Identity.Models
+﻿namespace Indice.AspNetCore.Identity.Models
 {
     /// <summary>
-    /// Contains various server settings for identity.
+    /// Models application settings stored in the database.
     /// </summary>
     public class SystemSettings
     {
         /// <summary>
         /// Primary key for setting.
         /// </summary>
-        public string Id { get; set; }
+        public int Id { get; set; }
         /// <summary>
-        /// Specifies options for password requirements.
+        /// The key of application setting.
         /// </summary>
-        public dynamic Options { get; set; }
+        public string Key { get; set; }
         /// <summary>
-        /// Specifies options for password requirements in JSON format.
+        /// The value of application setting.
         /// </summary>
-        public string OptionsJson {
-            get => Options != null ? JsonConvert.SerializeObject(Options) : null;
-            private set => Options = value != null ? JsonConvert.DeserializeObject(value) : null;
-        }
+        public string Value { get; set; }
     }
 }
