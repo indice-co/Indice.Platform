@@ -112,8 +112,8 @@ namespace Indice.AspNetCore.Identity.Features
     /// <summary>
     /// An attribute that is used to indicate that a controller or method should not cache the response.
     /// </summary>
-    [AttributeUsage(validOn: AttributeTargets.Method)]
     /// <remarks>Do not use this attribute together with <see cref="CacheResourceFilterAttribute"/> since the latter will have no effect.</remarks>
+    [AttributeUsage(validOn: AttributeTargets.Method)]
     internal sealed class NoCacheAttribute : Attribute { }
 
     /// <summary>

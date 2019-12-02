@@ -9,7 +9,7 @@ namespace Indice.Extensions
     /// </summary>
     public static class FileExtensions
     {
-        private static IDictionary<string, string> _mappings = new Dictionary<string, string>(StringComparer.CurrentCultureIgnoreCase) {
+        private static readonly IDictionary<string, string> _mappings = new Dictionary<string, string>(StringComparer.CurrentCultureIgnoreCase) {
         #region Big freaking list of mime types.
             // Combination of values from Windows 7 Registry and from C:\Windows\System32\inetsrv\config\applicationHost.config.
             // Some other added, including .7z and .dat.
@@ -583,7 +583,7 @@ namespace Indice.Extensions
         /// <returns></returns>
         public static string GetMimeType(string extension) {
             if (extension == null) {
-                throw new ArgumentNullException("extension");
+                throw new ArgumentNullException(nameof(extension));
             }
             if (!extension.StartsWith(".")) {
                 extension = "." + extension;

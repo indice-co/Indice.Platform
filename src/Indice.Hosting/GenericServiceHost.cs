@@ -18,7 +18,7 @@ namespace Microsoft.Extensions.Hosting
 
             _host
                 .Services
-                .GetRequiredService<IApplicationLifetime>()
+                .GetRequiredService<IHostApplicationLifetime>()
                 .ApplicationStopped
                 .Register(() => {
                     if (!_stopRequestedByWindows) {
