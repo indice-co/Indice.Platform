@@ -22,7 +22,7 @@ namespace Indice.AspNetCore.Identity.Extensions
             if (principal == null) {
                 throw new ArgumentNullException(nameof(principal));
             }
-            return principal?.Identities != null && principal.Identities.Any(x => x.AuthenticationType == authenticationScheme);
+            return principal?.Identities != null && principal.Identities.Any(x => x.AuthenticationType == authenticationScheme); 
         }
     }
 }
