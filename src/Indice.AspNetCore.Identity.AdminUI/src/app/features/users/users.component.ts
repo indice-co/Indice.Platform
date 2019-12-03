@@ -33,7 +33,7 @@ export class UsersComponent implements OnInit {
   }
 
   public getUsers(event: SearchEvent): void {
-    this.api.getUsers(event.page, event.pageSize, event.sortField, event.searchTerm).subscribe((users: UserInfoResultSet) => {
+    this.api.getUsers(undefined, undefined, event.page, event.pageSize, event.sortField, event.searchTerm).subscribe((users: UserInfoResultSet) => {
       this.count = users.count;
       this.rows = users.items;
     });

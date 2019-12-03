@@ -13,6 +13,7 @@ import { ClientStore } from '../../client-store.service';
 export class ClientIdentityResourcesComponent implements OnInit, OnDestroy {
     private _getDataSubscription: Subscription;
     private _addClientIdentityResourceSubscription: Subscription;
+    private _removeClientIdentityResourceSubscription: Subscription;
 
     constructor(private _route: ActivatedRoute, private _clientStore: ClientStore) { }
 
@@ -29,7 +30,8 @@ export class ClientIdentityResourcesComponent implements OnInit, OnDestroy {
                 client: responses[0],
                 identityResources: responses[1]
             };
-        })).subscribe((result: { client: SingleClientInfo, identityResources: IdentityResourceInfo[] }) => {
+        }))
+        .subscribe((result: { client: SingleClientInfo, identityResources: IdentityResourceInfo[] }) => {
             const clientIdentityResources = result.client.identityResources;
             const allIdentityResources = result.identityResources;
             this.availableResources = allIdentityResources.filter(x => !clientIdentityResources.includes(x.name));
@@ -44,11 +46,16 @@ export class ClientIdentityResourcesComponent implements OnInit, OnDestroy {
         if (this._addClientIdentityResourceSubscription) {
             this._addClientIdentityResourceSubscription.unsubscribe();
         }
+        if (this._removeClientIdentityResourceSubscription) {
+            this._removeClientIdentityResourceSubscription.unsubscribe();
+        }
     }
 
     public addResource(resource: IdentityResourceInfo): void {
         this._addClientIdentityResourceSubscription = this._clientStore.addIdentityResource(this.clientId, resource).subscribe();
     }
 
-    public removeResource(resource: IdentityResourceInfo): void { }
+    public removeResource(resource: IdentityResourceInfo): void {
+        this._removeClientIdentityResourceSubscription = this._clientStore.deleteIdentityResource(this.clientId, resource).subscribe();
+    }
 }

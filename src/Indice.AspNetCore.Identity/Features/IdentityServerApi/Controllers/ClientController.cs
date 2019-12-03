@@ -405,14 +405,14 @@ namespace Indice.AspNetCore.Identity.Features
         /// Removes an identity resource from the specified client.
         /// </summary>
         /// <param name="clientId">The id of the client.</param>
-        /// <param name="resource">The id of the resource to delete.</param>
+        /// <param name="resources">The names of the identity resources to delete.</param>
         /// <response code="200">OK</response>
         /// <response code="404">Not Found</response>
-        [HttpDelete("{clientId}/resources/{resource}")]
+        [HttpDelete("{clientId}/resources")]
         [ProducesResponseType(statusCode: StatusCodes.Status200OK)]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
         [CacheResourceFilter(dependentPaths: new string[] { "{clientId}" })]
-        public async Task<ActionResult> DeleteClientResource([FromRoute]string clientId, [FromRoute]string resource) {
+        public async Task<ActionResult> DeleteClientResource([FromRoute]string clientId, [FromBody]string[] resources) {
             var client = await _configurationDbContext.Clients.Include(x => x.AllowedScopes).SingleOrDefaultAsync(x => x.ClientId == clientId);
             if (client == null) {
                 return NotFound();
@@ -420,11 +420,13 @@ namespace Indice.AspNetCore.Identity.Features
             if (client.AllowedScopes == null) {
                 client.AllowedScopes = new List<ClientScope>();
             }
-            var resourceToRemove = client.AllowedScopes.SingleOrDefault(x => x.Scope == resource);
-            if (resourceToRemove == null) {
+            var resourcesToRemove = client.AllowedScopes.Where(x => resources.Contains(x.Scope)).ToList();
+            if (resourcesToRemove == null) {
                 return NotFound();
             }
-            client.AllowedScopes.Remove(resourceToRemove);
+            foreach (var resource in resourcesToRemove) {
+                client.AllowedScopes.Remove(resource);
+            }
             await _configurationDbContext.SaveChangesAsync();
             return Ok();
         }

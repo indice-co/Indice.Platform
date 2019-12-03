@@ -180,7 +180,7 @@ export class ClientStore {
             this._client.next(client);
             this._client.complete();
         });
-        return this._api.deleteClientResource(clientId, resource.name);
+        return this._api.deleteClientResource(clientId, [resource.name]);
     }
 
     public addIdentityResource(clientId: string, resource: IdentityResourceInfo): Observable<void> {
@@ -190,6 +190,18 @@ export class ClientStore {
             this._client.complete();
         });
         return this._api.addClientResources(clientId, [resource.name]);
+    }
+
+    public deleteIdentityResource(clientId: string, resource: IdentityResourceInfo): Observable<void> {
+        this.getClient(clientId).subscribe((client: SingleClientInfo) => {
+            const index = client.identityResources.findIndex(x => x === resource.name);
+            if (index > -1) {
+                client.identityResources.splice(index, 1);
+            }
+            this._client.next(client);
+            this._client.complete();
+        });
+        return this._api.deleteClientResource(clientId, [resource.name]);
     }
 
     public addGrantType(clientId: string, grantType: string): Observable<void> {

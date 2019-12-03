@@ -15,291 +15,424 @@ import { HttpClient, HttpHeaders, HttpResponse, HttpResponseBase } from '@angula
 export const API_BASE_URL = new InjectionToken<string>('API_BASE_URL');
 
 export interface IIdentityApiService {
-    changeUserPassword(userId: string, body?: ChangePasswordRequest | undefined): Observable<void>;
     /**
-     * @param filter_Required (optional) 
+     * Changes the password for a given user, but requires the old password to be present.
+     * @param userId The identifier of the user.
+     * @param body (optional) Contains info about the user password to change.
+     * @return OK
+     */
+    changePassword(userId: string, body?: ChangePasswordRequest | undefined): Observable<void>;
+    /**
+     * Sets the password for a given user.
+     * @param userId The identifier of the user.
+     * @param body (optional) Contains info about the user password to change.
+     * @return OK
+     */
+    setPassword(userId: string, body?: SetPasswordRequest | undefined): Observable<void>;
+    /**
+     * Returns a list of Indice.AspNetCore.Identity.Features.ClaimTypeInfo objects containing the total number of claim types in the database and the data filtered according to the provided Indice.Types.ListOptions.
+     * @param filter_Required (optional) Determines whether this claim is required to create new users.
      * @param page (optional) 
      * @param size (optional) 
      * @param sort (optional) 
      * @param search (optional) 
-     * @return Success
+     * @return OK
      */
     getClaimTypes(filter_Required?: boolean | undefined, page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined): Observable<ClaimTypeInfoResultSet>;
     /**
-     * @param body (optional) 
-     * @return Success
+     * Creates a new claim type.
+     * @param body (optional) Contains info about the claim to be created.
+     * @return Created
      */
     createClaimType(body?: CreateClaimTypeRequest | undefined): Observable<ClaimTypeInfo>;
     /**
-     * @return Success
+     * Gets a claim type by it's unique id.
+     * @param id The identifier of the claim type.
+     * @return OK
      */
     getClaimType(id: string): Observable<ClaimTypeInfo>;
     /**
-     * @param body (optional) 
-     * @return Success
+     * Updates an existing claim type.
+     * @param id The id of the claim to update.
+     * @param body (optional) Contains info about the claim to update.
+     * @return OK
      */
     updateClaimType(id: string, body?: UpdateClaimTypeRequest | undefined): Observable<ClaimTypeInfo>;
     /**
-     * @return Success
+     * Permanently deletes an existing claim type.
+     * @param id The id of the claim to delete.
+     * @return OK
      */
     deleteClaimType(id: string): Observable<void>;
     /**
+     * Returns a list of Indice.AspNetCore.Identity.Features.ClientInfo objects containing the total number of clients in the database and the data filtered according to the provided Indice.Types.ListOptions.
      * @param page (optional) 
      * @param size (optional) 
      * @param sort (optional) 
      * @param search (optional) 
-     * @return Success
+     * @return OK
      */
     getClients(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined): Observable<ClientInfoResultSet>;
     /**
-     * @param body (optional) 
-     * @return Success
+     * Creates a new client.
+     * @param body (optional) Contains info about the client to be created.
+     * @return Created
      */
     createClient(body?: CreateClientRequest | undefined): Observable<ClientInfo>;
     /**
-     * @return Success
+     * Gets a client by it's unique id.
+     * @param clientId The identifier of the client.
+     * @return OK
      */
     getClient(clientId: string): Observable<SingleClientInfo>;
     /**
-     * @param body (optional) 
-     * @return Success
+     * Updates an existing client.
+     * @param clientId The id of the client.
+     * @param body (optional) Contains info about the client to be updated.
+     * @return OK
      */
     updateClient(clientId: string, body?: UpdateClientRequest | undefined): Observable<void>;
     /**
-     * @return Success
+     * Permanently deletes an existing client.
+     * @param clientId The id of the client to delete.
+     * @return OK
      */
     deleteClient(clientId: string): Observable<void>;
     /**
-     * @param body (optional) 
-     * @return Success
+     * Adds a claim for the specified client.
+     * @param clientId The id of the client.
+     * @param body (optional) The claim to add.
+     * @return Created
      */
     addClientClaim(clientId: string, body?: CreateClaimRequest | undefined): Observable<ClaimInfo>;
     /**
-     * @return Success
+     * Removes an identity resource from the specified client.
+     * @param clientId The id of the client.
+     * @param claimId The id of the claim to delete.
+     * @return OK
      */
     deleteClientClaim(clientId: string, claimId: number): Observable<void>;
     /**
+     * Adds an identity resource to the specified client.
+     * @param clientId The id of the client.
+     * @param grantType The name of the grant type to add.
      * @return Success
      */
     addClientGrantType(clientId: string, grantType: string): Observable<GrantTypeInfo>;
     /**
-     * @return Success
+     * Removes an identity resource from the specified client.
+     * @param clientId The id of the client.
+     * @param grantType The id of the resource to delete.
+     * @return OK
      */
     deleteClientGrantType(clientId: string, grantType: string): Observable<void>;
     /**
-     * @param body (optional) 
+     * Adds an identity resource to the specified client.
+     * @param clientId The id of the client.
+     * @param body (optional) The API or identity resources to add.
      * @return Success
      */
     addClientResources(clientId: string, body?: string[] | undefined): Observable<void>;
     /**
-     * @return Success
+     * Removes an identity resource from the specified client.
+     * @param clientId The id of the client.
+     * @param body (optional) The names of the identity resources to delete.
+     * @return OK
      */
-    deleteClientResource(clientId: string, resource: string): Observable<void>;
+    deleteClientResource(clientId: string, body?: string[] | undefined): Observable<void>;
     /**
-     * @param body (optional) 
-     * @return Success
+     * Adds a new secret to an existing client.
+     * @param clientId The id of the client.
+     * @param body (optional) Contains info about the API scope to be created.
+     * @return Created
      */
     addClientSecret(clientId: string, body?: CreateSecretRequest | undefined): Observable<SecretInfo>;
     /**
-     * @return Success
+     * Removes a specified secret from a client.
+     * @param clientId The id of the client.
+     * @param secretId The identifier of the client secret to remove.
+     * @return OK
      */
     deleteClientSecret(clientId: string, secretId: number): Observable<void>;
     /**
+     * Renews the list of
+     * @param clientId The id of the client.
      * @param body (optional) 
-     * @return Success
+     * @return OK
      */
     updateClientUrls(clientId: string, body?: UpdateClientUrls | undefined): Observable<void>;
     /**
+     * Displays blog posts from the official IdentityServer blog.
      * @param page (optional) 
      * @param size (optional) 
-     * @return Success
+     * @return OK
      */
     getNews(page?: number | undefined, size?: number | undefined): Observable<BlogItemInfoResultSet>;
     /**
-     * @return Success
+     * Gets some useful information as a summary of the system.
+     * @return OK
      */
     getSystemSummary(): Observable<SummaryInfo>;
     /**
+     * Returns a list of Indice.AspNetCore.Identity.Features.IdentityResourceInfo objects containing the total number of identity resources in the database and the data filtered according to the provided Indice.Types.ListOptions.
      * @param page (optional) 
      * @param size (optional) 
      * @param sort (optional) 
      * @param search (optional) 
-     * @return Success
+     * @return OK
      */
     getIdentityResources(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined): Observable<IdentityResourceInfoResultSet>;
     /**
-     * @param body (optional) 
-     * @return Success
+     * Creates a new identity resource.
+     * @param body (optional) Contains info about the identity resource to be created.
+     * @return Created
      */
     createIdentityResource(body?: CreateResourceRequest | undefined): Observable<IdentityResourceInfo>;
     /**
-     * @return Success
+     * Gets an identity resource by it's unique id.
+     * @param resourceId The identifier of the identity resource.
+     * @return OK
      */
     getIdentityResource(resourceId: number): Observable<IdentityResourceInfo>;
     /**
-     * @param body (optional) 
-     * @return Success
+     * Updates an identity resource.
+     * @param resourceId The identifier of the identity resource.
+     * @param body (optional) Contains info about the identity resource to be updated.
+     * @return OK
      */
     updateIdentityResource(resourceId: number, body?: UpdateIdentityResourceRequest | undefined): Observable<void>;
     /**
-     * @return Success
+     * Permanently deletes an identity resource.
+     * @param resourceId The id of the identity resource to delete.
+     * @return OK
      */
     deleteIdentityResource(resourceId: number): Observable<void>;
     /**
+     * Returns a list of Indice.AspNetCore.Identity.Features.ApiResourceInfo objects containing the total number of API resources in the database and the data filtered according to the provided Indice.Types.ListOptions.
      * @param page (optional) 
      * @param size (optional) 
      * @param sort (optional) 
      * @param search (optional) 
-     * @return Success
+     * @return OK
      */
     getApiResources(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined): Observable<ApiResourceInfoResultSet>;
     /**
-     * @param body (optional) 
-     * @return Success
+     * Creates a new API resource.
+     * @param body (optional) Contains info about the API resource to be created.
+     * @return Created
      */
     createApiResource(body?: CreateResourceRequest | undefined): Observable<ApiResourceInfo>;
     /**
-     * @return Success
+     * Gets an API resource by it's unique id.
+     * @param resourceId The identifier of the API resource.
+     * @return OK
      */
     getApiResource(resourceId: number): Observable<ApiResourceInfo>;
     /**
-     * @param body (optional) 
-     * @return Success
+     * Updates an API resource.
+     * @param resourceId The identifier of the API resource.
+     * @param body (optional) Contains info about the API resource to be updated.
+     * @return OK
      */
     updateApiResource(resourceId: number, body?: UpdateApiResourceRequest | undefined): Observable<void>;
     /**
-     * @return Success
+     * Permanently deletes an API resource.
+     * @param resourceId The id of the API resource to delete.
+     * @return OK
      */
     deleteApiResource(resourceId: number): Observable<void>;
     /**
-     * @param body (optional) 
-     * @return Success
+     * Adds claims to an API resource.
+     * @param resourceId The identifier of the API resource.
+     * @param body (optional) The API or identity resources to add.
+     * @return OK
      */
     addApiResourceClaims(resourceId: number, body?: string[] | undefined): Observable<void>;
     /**
-     * @return Success
+     * Removes a specified claim from an API resource.
+     * @param resourceId The identifier of the API resource.
+     * @param claim The identifier of the API resource claim to remove.
+     * @return OK
      */
     deleteApiResourceClaim(resourceId: number, claim: string): Observable<void>;
     /**
-     * @param body (optional) 
-     * @return Success
+     * Adds a new scope to an existing API resource.
+     * @param resourceId The identifier of the API resource.
+     * @param body (optional) Contains info about the API scope to be created.
+     * @return Created
      */
     addApiResourceScope(resourceId: number, body?: CreateApiScopeRequest | undefined): Observable<ScopeInfo>;
     /**
-     * @param body (optional) 
-     * @return Success
+     * Updates a specified scope of an API resource.
+     * @param resourceId The identifier of the API resource.
+     * @param scopeId The identifier of the API resource.
+     * @param body (optional) Contains info about the API scope to be updated.
+     * @return OK
      */
     updateApiResourceScope(resourceId: number, scopeId: number, body?: UpdateApiScopeRequest | undefined): Observable<void>;
     /**
-     * @return Success
+     * Deletes a specified scope from an API resource.
+     * @param resourceId The identifier of the API resource.
+     * @param scopeId The identifier of the API resource scope.
+     * @return OK
      */
     deleteApiResourceScope(resourceId: number, scopeId: number): Observable<void>;
     /**
-     * @param body (optional) 
-     * @return Success
+     * Adds claims to an API scope of a protected resource.
+     * @param resourceId The identifier of the API resource.
+     * @param scopeId The identifier of the API resource scope.
+     * @param body (optional) The claims to add to the scope.
+     * @return OK
      */
     addApiResourceScopeClaims(resourceId: number, scopeId: number, body?: string[] | undefined): Observable<void>;
     /**
-     * @return Success
+     * Deletes a claim from an API scope of a protected resource.
+     * @param resourceId The identifier of the API resource.
+     * @param scopeId The identifier of the API resource scope.
+     * @param claim The claim to remove from the scope.
+     * @return OK
      */
     deleteApiResourceScopeClaim(resourceId: number, scopeId: number, claim: string): Observable<void>;
     /**
-     * @param body (optional) 
-     * @return Success
+     * Adds a new scope to an existing API resource.
+     * @param resourceId The identifier of the API resource.
+     * @param body (optional) Contains info about the API scope to be created.
+     * @return Created
      */
     addApiResourceSecret(resourceId: number, body?: CreateSecretRequest | undefined): Observable<SecretInfo>;
     /**
-     * @return Success
+     * Removes a specified claim from an API resource.
+     * @param resourceId The identifier of the API resource.
+     * @param secretId The identifier of the API resource secret to remove.
+     * @return OK
      */
     deleteApiResourceSecret(resourceId: number, secretId: number): Observable<void>;
     /**
+     * Returns a list of Indice.AspNetCore.Identity.Features.ScopeInfo objects containing the total number of API scopes in the database and the data filtered according to the provided Indice.Types.ListOptions.
      * @param page (optional) 
      * @param size (optional) 
      * @param sort (optional) 
      * @param search (optional) 
-     * @return Success
+     * @return OK
      */
     getApiScopes(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined): Observable<ScopeInfoResultSet>;
     /**
+     * Returns a list of Indice.AspNetCore.Identity.Features.RoleInfo objects containing the total number of roles in the database and the data filtered according to the provided Indice.Types.ListOptions.
      * @param page (optional) 
      * @param size (optional) 
      * @param sort (optional) 
      * @param search (optional) 
-     * @return Success
+     * @return OK
      */
     getRoles(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined): Observable<RoleInfoResultSet>;
     /**
-     * @param body (optional) 
-     * @return Success
+     * Creates a new role.
+     * @param body (optional) Contains info about the role to be created.
+     * @return Created
      */
     createRole(body?: CreateRoleRequest | undefined): Observable<RoleInfo>;
     /**
-     * @return Success
+     * Gets a role by it's unique id.
+     * @param id The identifier of the role.
+     * @return OK
      */
     getRole(id: string): Observable<RoleInfo>;
     /**
-     * @param body (optional) 
-     * @return Success
+     * Updates an existing role.
+     * @param id The id of the role to update.
+     * @param body (optional) Contains info about the role to update.
+     * @return OK
      */
     updateRole(id: string, body?: UpdateRoleRequest | undefined): Observable<RoleInfo>;
     /**
-     * @return Success
+     * Permanently deletes a role.
+     * @param id The id of the role to delete.
+     * @return OK
      */
     deleteRole(id: string): Observable<void>;
     /**
+     * Returns a list of Indice.AspNetCore.Identity.Features.UserInfo objects containing the total number of users in the database and the data filtered according to the provided Indice.Types.ListOptions.
+     * @param filter_Claim_Type (optional) The type of the claim.
+     * @param filter_Claim_Value (optional) The value of the claim.
      * @param page (optional) 
      * @param size (optional) 
      * @param sort (optional) 
      * @param search (optional) 
-     * @return Success
+     * @return OK
      */
-    getUsers(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined): Observable<UserInfoResultSet>;
+    getUsers(filter_Claim_Type?: string | undefined, filter_Claim_Value?: string | undefined, page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined): Observable<UserInfoResultSet>;
     /**
-     * @param body (optional) 
-     * @return Success
+     * Creates a new user.
+     * @param body (optional) Contains info about the user to be created.
+     * @return Created
      */
     createUser(body?: CreateUserRequest | undefined): Observable<SingleUserInfo>;
     /**
-     * @return Success
+     * Gets a user by it's unique id.
+     * @param userId The identifier of the user.
+     * @return OK
      */
     getUser(userId: string): Observable<SingleUserInfo>;
     /**
-     * @param body (optional) 
-     * @return Success
+     * Updates an existing user.
+     * @param userId The id of the user to update.
+     * @param body (optional) Contains info about the user to update.
+     * @return OK
      */
     updateUser(userId: string, body?: UpdateUserRequest | undefined): Observable<SingleUserInfo>;
     /**
-     * @return Success
+     * Permanently deletes a user.
+     * @param userId The id of the user to delete.
+     * @return OK
      */
     deleteUser(userId: string): Observable<void>;
     /**
-     * @return Success
+     * Gets a list of the applications the user has given consent to or currently has IdentityServer side tokens for.
+     * @param userId The id of the user.
+     * @return OK
      */
     getUserApplications(userId: string): Observable<UserClientInfoResultSet>;
     /**
-     * @param body (optional) 
-     * @return Success
+     * Adds a claim for the specified user.
+     * @param userId The id of the user.
+     * @param body (optional) The claim to add.
+     * @return Created
      */
     addUserClaim(userId: string, body?: CreateClaimRequest | undefined): Observable<ClaimInfo>;
     /**
-     * @return Success
+     * Gets a specified claim for a given user.
+     * @param userId The id of the user.
+     * @param claimId The id of the claim.
+     * @return OK
      */
     getUserClaim(userId: string, claimId: number): Observable<BasicClaimInfo>;
     /**
-     * @param body (optional) 
-     * @return Success
+     * Updates an existing user claim.
+     * @param userId The id of the user.
+     * @param claimId The id of the user claim.
+     * @param body (optional) Contains info about the user claim to update.
+     * @return OK
      */
     updateUserClaim(userId: string, claimId: number, body?: UpdateUserClaimRequest | undefined): Observable<ClaimInfo>;
     /**
-     * @return Success
+     * Permanently deletes a specified claim from a user.
+     * @param userId The id of the user.
+     * @param claimId The id of the claim to delete.
+     * @return OK
      */
     deleteUserClaim(userId: string, claimId: number): Observable<void>;
     /**
-     * @return Success
+     * Adds a new role to the specified user.
+     * @param userId The id of the user.
+     * @param roleId The id of the role.
+     * @return OK
      */
     addUserRole(userId: string, roleId: string): Observable<void>;
     /**
-     * @return Success
+     * Removes an existing role from the specified user.
+     * @param userId The id of the user.
+     * @param roleId The id of the role.
+     * @return OK
      */
     deleteUserRole(userId: string, roleId: string): Observable<void>;
 }
@@ -317,7 +450,13 @@ export class IdentityApiService implements IIdentityApiService {
         this.baseUrl = baseUrl ? baseUrl : "";
     }
 
-    changeUserPassword(userId: string, body?: ChangePasswordRequest | undefined): Observable<void> {
+    /**
+     * Changes the password for a given user, but requires the old password to be present.
+     * @param userId The identifier of the user.
+     * @param body (optional) Contains info about the user password to change.
+     * @return OK
+     */
+    changePassword(userId: string, body?: ChangePasswordRequest | undefined): Observable<void> {
         let url_ = this.baseUrl + "/api/account/{userId}/change-password";
         if (userId === undefined || userId === null)
             throw new Error("The parameter 'userId' must be defined.");
@@ -336,11 +475,11 @@ export class IdentityApiService implements IIdentityApiService {
         };
 
         return this.http.request("put", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processChangeUserPassword(response_);
+            return this.processChangePassword(response_);
         })).pipe(_observableCatch((response_: any) => {
             if (response_ instanceof HttpResponseBase) {
                 try {
-                    return this.processChangeUserPassword(<any>response_);
+                    return this.processChangePassword(<any>response_);
                 } catch (e) {
                     return <Observable<void>><any>_observableThrow(e);
                 }
@@ -349,7 +488,7 @@ export class IdentityApiService implements IIdentityApiService {
         }));
     }
 
-    protected processChangeUserPassword(response: HttpResponseBase): Observable<void> {
+    protected processChangePassword(response: HttpResponseBase): Observable<void> {
         const status = response.status;
         const responseBlob = 
             response instanceof HttpResponse ? response.body : 
@@ -377,6 +516,18 @@ export class IdentityApiService implements IIdentityApiService {
             result403 = ProblemDetails.fromJS(resultData403);
             return throwException("Forbidden", status, _responseText, _headers, result403);
             }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("Internal Server Error", status, _responseText, _headers);
+            }));
+        } else if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return _observableOf<void>(<any>null);
+            }));
+        } else if (status === 404) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("Not Found", status, _responseText, _headers);
+            }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
@@ -386,12 +537,99 @@ export class IdentityApiService implements IIdentityApiService {
     }
 
     /**
-     * @param filter_Required (optional) 
+     * Sets the password for a given user.
+     * @param userId The identifier of the user.
+     * @param body (optional) Contains info about the user password to change.
+     * @return OK
+     */
+    setPassword(userId: string, body?: SetPasswordRequest | undefined): Observable<void> {
+        let url_ = this.baseUrl + "/api/account/{userId}/set-password";
+        if (userId === undefined || userId === null)
+            throw new Error("The parameter 'userId' must be defined.");
+        url_ = url_.replace("{userId}", encodeURIComponent("" + userId)); 
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",			
+            headers: new HttpHeaders({
+                "Content-Type": "application/json", 
+            })
+        };
+
+        return this.http.request("put", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processSetPassword(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processSetPassword(<any>response_);
+                } catch (e) {
+                    return <Observable<void>><any>_observableThrow(e);
+                }
+            } else
+                return <Observable<void>><any>_observableThrow(response_);
+        }));
+    }
+
+    protected processSetPassword(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob = 
+            response instanceof HttpResponse ? response.body : 
+            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }};
+        if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ValidationProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("Internal Server Error", status, _responseText, _headers);
+            }));
+        } else if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return _observableOf<void>(<any>null);
+            }));
+        } else if (status === 404) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("Not Found", status, _responseText, _headers);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<void>(<any>null);
+    }
+
+    /**
+     * Returns a list of Indice.AspNetCore.Identity.Features.ClaimTypeInfo objects containing the total number of claim types in the database and the data filtered according to the provided Indice.Types.ListOptions.
+     * @param filter_Required (optional) Determines whether this claim is required to create new users.
      * @param page (optional) 
      * @param size (optional) 
      * @param sort (optional) 
      * @param search (optional) 
-     * @return Success
+     * @return OK
      */
     getClaimTypes(filter_Required?: boolean | undefined, page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined): Observable<ClaimTypeInfoResultSet> {
         let url_ = this.baseUrl + "/api/claim-types?";
@@ -474,6 +712,10 @@ export class IdentityApiService implements IIdentityApiService {
             result200 = ClaimTypeInfoResultSet.fromJS(resultData200);
             return _observableOf(result200);
             }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("Internal Server Error", status, _responseText, _headers);
+            }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
@@ -483,8 +725,9 @@ export class IdentityApiService implements IIdentityApiService {
     }
 
     /**
-     * @param body (optional) 
-     * @return Success
+     * Creates a new claim type.
+     * @param body (optional) Contains info about the claim to be created.
+     * @return Created
      */
     createClaimType(body?: CreateClaimTypeRequest | undefined): Observable<ClaimTypeInfo> {
         let url_ = this.baseUrl + "/api/claim-types";
@@ -551,6 +794,10 @@ export class IdentityApiService implements IIdentityApiService {
             result201 = ClaimTypeInfo.fromJS(resultData201);
             return _observableOf(result201);
             }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("Internal Server Error", status, _responseText, _headers);
+            }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
@@ -560,7 +807,9 @@ export class IdentityApiService implements IIdentityApiService {
     }
 
     /**
-     * @return Success
+     * Gets a claim type by it's unique id.
+     * @param id The identifier of the claim type.
+     * @return OK
      */
     getClaimType(id: string): Observable<ClaimTypeInfo> {
         let url_ = this.baseUrl + "/api/claim-types/{id}";
@@ -633,6 +882,10 @@ export class IdentityApiService implements IIdentityApiService {
             result404 = ProblemDetails.fromJS(resultData404);
             return throwException("Not Found", status, _responseText, _headers, result404);
             }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("Internal Server Error", status, _responseText, _headers);
+            }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
@@ -642,8 +895,10 @@ export class IdentityApiService implements IIdentityApiService {
     }
 
     /**
-     * @param body (optional) 
-     * @return Success
+     * Updates an existing claim type.
+     * @param id The id of the claim to update.
+     * @param body (optional) Contains info about the claim to update.
+     * @return OK
      */
     updateClaimType(id: string, body?: UpdateClaimTypeRequest | undefined): Observable<ClaimTypeInfo> {
         let url_ = this.baseUrl + "/api/claim-types/{id}";
@@ -720,6 +975,10 @@ export class IdentityApiService implements IIdentityApiService {
             result404 = ProblemDetails.fromJS(resultData404);
             return throwException("Not Found", status, _responseText, _headers, result404);
             }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("Internal Server Error", status, _responseText, _headers);
+            }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
@@ -729,7 +988,9 @@ export class IdentityApiService implements IIdentityApiService {
     }
 
     /**
-     * @return Success
+     * Permanently deletes an existing claim type.
+     * @param id The id of the claim to delete.
+     * @return OK
      */
     deleteClaimType(id: string): Observable<void> {
         let url_ = this.baseUrl + "/api/claim-types/{id}";
@@ -798,6 +1059,10 @@ export class IdentityApiService implements IIdentityApiService {
             result404 = ProblemDetails.fromJS(resultData404);
             return throwException("Not Found", status, _responseText, _headers, result404);
             }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("Internal Server Error", status, _responseText, _headers);
+            }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
@@ -807,11 +1072,12 @@ export class IdentityApiService implements IIdentityApiService {
     }
 
     /**
+     * Returns a list of Indice.AspNetCore.Identity.Features.ClientInfo objects containing the total number of clients in the database and the data filtered according to the provided Indice.Types.ListOptions.
      * @param page (optional) 
      * @param size (optional) 
      * @param sort (optional) 
      * @param search (optional) 
-     * @return Success
+     * @return OK
      */
     getClients(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined): Observable<ClientInfoResultSet> {
         let url_ = this.baseUrl + "/api/clients?";
@@ -890,6 +1156,10 @@ export class IdentityApiService implements IIdentityApiService {
             result200 = ClientInfoResultSet.fromJS(resultData200);
             return _observableOf(result200);
             }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("Internal Server Error", status, _responseText, _headers);
+            }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
@@ -899,8 +1169,9 @@ export class IdentityApiService implements IIdentityApiService {
     }
 
     /**
-     * @param body (optional) 
-     * @return Success
+     * Creates a new client.
+     * @param body (optional) Contains info about the client to be created.
+     * @return Created
      */
     createClient(body?: CreateClientRequest | undefined): Observable<ClientInfo> {
         let url_ = this.baseUrl + "/api/clients";
@@ -967,6 +1238,10 @@ export class IdentityApiService implements IIdentityApiService {
             result201 = ClientInfo.fromJS(resultData201);
             return _observableOf(result201);
             }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("Internal Server Error", status, _responseText, _headers);
+            }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
@@ -976,7 +1251,9 @@ export class IdentityApiService implements IIdentityApiService {
     }
 
     /**
-     * @return Success
+     * Gets a client by it's unique id.
+     * @param clientId The identifier of the client.
+     * @return OK
      */
     getClient(clientId: string): Observable<SingleClientInfo> {
         let url_ = this.baseUrl + "/api/clients/{clientId}";
@@ -1049,6 +1326,10 @@ export class IdentityApiService implements IIdentityApiService {
             result404 = ProblemDetails.fromJS(resultData404);
             return throwException("Not Found", status, _responseText, _headers, result404);
             }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("Internal Server Error", status, _responseText, _headers);
+            }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
@@ -1058,8 +1339,10 @@ export class IdentityApiService implements IIdentityApiService {
     }
 
     /**
-     * @param body (optional) 
-     * @return Success
+     * Updates an existing client.
+     * @param clientId The id of the client.
+     * @param body (optional) Contains info about the client to be updated.
+     * @return OK
      */
     updateClient(clientId: string, body?: UpdateClientRequest | undefined): Observable<void> {
         let url_ = this.baseUrl + "/api/clients/{clientId}";
@@ -1132,6 +1415,10 @@ export class IdentityApiService implements IIdentityApiService {
             result404 = ProblemDetails.fromJS(resultData404);
             return throwException("Not Found", status, _responseText, _headers, result404);
             }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("Internal Server Error", status, _responseText, _headers);
+            }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
@@ -1141,7 +1428,9 @@ export class IdentityApiService implements IIdentityApiService {
     }
 
     /**
-     * @return Success
+     * Permanently deletes an existing client.
+     * @param clientId The id of the client to delete.
+     * @return OK
      */
     deleteClient(clientId: string): Observable<void> {
         let url_ = this.baseUrl + "/api/clients/{clientId}";
@@ -1210,6 +1499,10 @@ export class IdentityApiService implements IIdentityApiService {
             result404 = ProblemDetails.fromJS(resultData404);
             return throwException("Not Found", status, _responseText, _headers, result404);
             }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("Internal Server Error", status, _responseText, _headers);
+            }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
@@ -1219,8 +1512,10 @@ export class IdentityApiService implements IIdentityApiService {
     }
 
     /**
-     * @param body (optional) 
-     * @return Success
+     * Adds a claim for the specified client.
+     * @param clientId The id of the client.
+     * @param body (optional) The claim to add.
+     * @return Created
      */
     addClientClaim(clientId: string, body?: CreateClaimRequest | undefined): Observable<ClaimInfo> {
         let url_ = this.baseUrl + "/api/clients/{clientId}/claims";
@@ -1297,6 +1592,10 @@ export class IdentityApiService implements IIdentityApiService {
             result404 = ProblemDetails.fromJS(resultData404);
             return throwException("Not Found", status, _responseText, _headers, result404);
             }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("Internal Server Error", status, _responseText, _headers);
+            }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
@@ -1306,7 +1605,10 @@ export class IdentityApiService implements IIdentityApiService {
     }
 
     /**
-     * @return Success
+     * Removes an identity resource from the specified client.
+     * @param clientId The id of the client.
+     * @param claimId The id of the claim to delete.
+     * @return OK
      */
     deleteClientClaim(clientId: string, claimId: number): Observable<void> {
         let url_ = this.baseUrl + "/api/clients/{clientId}/claims/{claimId}";
@@ -1378,6 +1680,10 @@ export class IdentityApiService implements IIdentityApiService {
             result404 = ProblemDetails.fromJS(resultData404);
             return throwException("Not Found", status, _responseText, _headers, result404);
             }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("Internal Server Error", status, _responseText, _headers);
+            }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
@@ -1387,6 +1693,9 @@ export class IdentityApiService implements IIdentityApiService {
     }
 
     /**
+     * Adds an identity resource to the specified client.
+     * @param clientId The id of the client.
+     * @param grantType The name of the grant type to add.
      * @return Success
      */
     addClientGrantType(clientId: string, grantType: string): Observable<GrantTypeInfo> {
@@ -1463,6 +1772,14 @@ export class IdentityApiService implements IIdentityApiService {
             result404 = ProblemDetails.fromJS(resultData404);
             return throwException("Not Found", status, _responseText, _headers, result404);
             }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("Internal Server Error", status, _responseText, _headers);
+            }));
+        } else if (status === 201) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("Created", status, _responseText, _headers);
+            }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
@@ -1472,7 +1789,10 @@ export class IdentityApiService implements IIdentityApiService {
     }
 
     /**
-     * @return Success
+     * Removes an identity resource from the specified client.
+     * @param clientId The id of the client.
+     * @param grantType The id of the resource to delete.
+     * @return OK
      */
     deleteClientGrantType(clientId: string, grantType: string): Observable<void> {
         let url_ = this.baseUrl + "/api/clients/{clientId}/grant-types/{grantType}";
@@ -1544,6 +1864,10 @@ export class IdentityApiService implements IIdentityApiService {
             result404 = ProblemDetails.fromJS(resultData404);
             return throwException("Not Found", status, _responseText, _headers, result404);
             }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("Internal Server Error", status, _responseText, _headers);
+            }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
@@ -1553,7 +1877,9 @@ export class IdentityApiService implements IIdentityApiService {
     }
 
     /**
-     * @param body (optional) 
+     * Adds an identity resource to the specified client.
+     * @param clientId The id of the client.
+     * @param body (optional) The API or identity resources to add.
      * @return Success
      */
     addClientResources(clientId: string, body?: string[] | undefined): Observable<void> {
@@ -1627,6 +1953,14 @@ export class IdentityApiService implements IIdentityApiService {
             result404 = ProblemDetails.fromJS(resultData404);
             return throwException("Not Found", status, _responseText, _headers, result404);
             }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("Internal Server Error", status, _responseText, _headers);
+            }));
+        } else if (status === 201) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return _observableOf<void>(<any>null);
+            }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
@@ -1636,22 +1970,26 @@ export class IdentityApiService implements IIdentityApiService {
     }
 
     /**
-     * @return Success
+     * Removes an identity resource from the specified client.
+     * @param clientId The id of the client.
+     * @param body (optional) The names of the identity resources to delete.
+     * @return OK
      */
-    deleteClientResource(clientId: string, resource: string): Observable<void> {
-        let url_ = this.baseUrl + "/api/clients/{clientId}/resources/{resource}";
+    deleteClientResource(clientId: string, body?: string[] | undefined): Observable<void> {
+        let url_ = this.baseUrl + "/api/clients/{clientId}/resources";
         if (clientId === undefined || clientId === null)
             throw new Error("The parameter 'clientId' must be defined.");
         url_ = url_.replace("{clientId}", encodeURIComponent("" + clientId)); 
-        if (resource === undefined || resource === null)
-            throw new Error("The parameter 'resource' must be defined.");
-        url_ = url_.replace("{resource}", encodeURIComponent("" + resource)); 
         url_ = url_.replace(/[?&]$/, "");
 
+        const content_ = JSON.stringify(body);
+
         let options_ : any = {
+            body: content_,
             observe: "response",
             responseType: "blob",			
             headers: new HttpHeaders({
+                "Content-Type": "application/json", 
             })
         };
 
@@ -1708,6 +2046,10 @@ export class IdentityApiService implements IIdentityApiService {
             result404 = ProblemDetails.fromJS(resultData404);
             return throwException("Not Found", status, _responseText, _headers, result404);
             }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("Internal Server Error", status, _responseText, _headers);
+            }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
@@ -1717,8 +2059,10 @@ export class IdentityApiService implements IIdentityApiService {
     }
 
     /**
-     * @param body (optional) 
-     * @return Success
+     * Adds a new secret to an existing client.
+     * @param clientId The id of the client.
+     * @param body (optional) Contains info about the API scope to be created.
+     * @return Created
      */
     addClientSecret(clientId: string, body?: CreateSecretRequest | undefined): Observable<SecretInfo> {
         let url_ = this.baseUrl + "/api/clients/{clientId}/secrets";
@@ -1795,6 +2139,10 @@ export class IdentityApiService implements IIdentityApiService {
             result404 = ProblemDetails.fromJS(resultData404);
             return throwException("Not Found", status, _responseText, _headers, result404);
             }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("Internal Server Error", status, _responseText, _headers);
+            }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
@@ -1804,7 +2152,10 @@ export class IdentityApiService implements IIdentityApiService {
     }
 
     /**
-     * @return Success
+     * Removes a specified secret from a client.
+     * @param clientId The id of the client.
+     * @param secretId The identifier of the client secret to remove.
+     * @return OK
      */
     deleteClientSecret(clientId: string, secretId: number): Observable<void> {
         let url_ = this.baseUrl + "/api/clients/{clientId}/secrets/{secretId}";
@@ -1876,6 +2227,10 @@ export class IdentityApiService implements IIdentityApiService {
             result404 = ProblemDetails.fromJS(resultData404);
             return throwException("Not Found", status, _responseText, _headers, result404);
             }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("Internal Server Error", status, _responseText, _headers);
+            }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
@@ -1885,8 +2240,10 @@ export class IdentityApiService implements IIdentityApiService {
     }
 
     /**
+     * Renews the list of
+     * @param clientId The id of the client.
      * @param body (optional) 
-     * @return Success
+     * @return OK
      */
     updateClientUrls(clientId: string, body?: UpdateClientUrls | undefined): Observable<void> {
         let url_ = this.baseUrl + "/api/clients/{clientId}/urls";
@@ -1959,6 +2316,10 @@ export class IdentityApiService implements IIdentityApiService {
             result404 = ProblemDetails.fromJS(resultData404);
             return throwException("Not Found", status, _responseText, _headers, result404);
             }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("Internal Server Error", status, _responseText, _headers);
+            }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
@@ -1968,9 +2329,10 @@ export class IdentityApiService implements IIdentityApiService {
     }
 
     /**
+     * Displays blog posts from the official IdentityServer blog.
      * @param page (optional) 
      * @param size (optional) 
-     * @return Success
+     * @return OK
      */
     getNews(page?: number | undefined, size?: number | undefined): Observable<BlogItemInfoResultSet> {
         let url_ = this.baseUrl + "/api/dashboard/news?";
@@ -2020,6 +2382,10 @@ export class IdentityApiService implements IIdentityApiService {
             result200 = BlogItemInfoResultSet.fromJS(resultData200);
             return _observableOf(result200);
             }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("Internal Server Error", status, _responseText, _headers);
+            }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
@@ -2029,7 +2395,8 @@ export class IdentityApiService implements IIdentityApiService {
     }
 
     /**
-     * @return Success
+     * Gets some useful information as a summary of the system.
+     * @return OK
      */
     getSystemSummary(): Observable<SummaryInfo> {
         let url_ = this.baseUrl + "/api/dashboard/summary";
@@ -2092,6 +2459,10 @@ export class IdentityApiService implements IIdentityApiService {
             result403 = ProblemDetails.fromJS(resultData403);
             return throwException("Forbidden", status, _responseText, _headers, result403);
             }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("Internal Server Error", status, _responseText, _headers);
+            }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
@@ -2101,11 +2472,12 @@ export class IdentityApiService implements IIdentityApiService {
     }
 
     /**
+     * Returns a list of Indice.AspNetCore.Identity.Features.IdentityResourceInfo objects containing the total number of identity resources in the database and the data filtered according to the provided Indice.Types.ListOptions.
      * @param page (optional) 
      * @param size (optional) 
      * @param sort (optional) 
      * @param search (optional) 
-     * @return Success
+     * @return OK
      */
     getIdentityResources(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined): Observable<IdentityResourceInfoResultSet> {
         let url_ = this.baseUrl + "/api/resources/identity?";
@@ -2184,6 +2556,10 @@ export class IdentityApiService implements IIdentityApiService {
             result200 = IdentityResourceInfoResultSet.fromJS(resultData200);
             return _observableOf(result200);
             }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("Internal Server Error", status, _responseText, _headers);
+            }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
@@ -2193,8 +2569,9 @@ export class IdentityApiService implements IIdentityApiService {
     }
 
     /**
-     * @param body (optional) 
-     * @return Success
+     * Creates a new identity resource.
+     * @param body (optional) Contains info about the identity resource to be created.
+     * @return Created
      */
     createIdentityResource(body?: CreateResourceRequest | undefined): Observable<IdentityResourceInfo> {
         let url_ = this.baseUrl + "/api/resources/identity";
@@ -2261,6 +2638,10 @@ export class IdentityApiService implements IIdentityApiService {
             result201 = IdentityResourceInfo.fromJS(resultData201);
             return _observableOf(result201);
             }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("Internal Server Error", status, _responseText, _headers);
+            }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
@@ -2270,7 +2651,9 @@ export class IdentityApiService implements IIdentityApiService {
     }
 
     /**
-     * @return Success
+     * Gets an identity resource by it's unique id.
+     * @param resourceId The identifier of the identity resource.
+     * @return OK
      */
     getIdentityResource(resourceId: number): Observable<IdentityResourceInfo> {
         let url_ = this.baseUrl + "/api/resources/identity/{resourceId}";
@@ -2343,6 +2726,10 @@ export class IdentityApiService implements IIdentityApiService {
             result404 = ProblemDetails.fromJS(resultData404);
             return throwException("Not Found", status, _responseText, _headers, result404);
             }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("Internal Server Error", status, _responseText, _headers);
+            }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
@@ -2352,8 +2739,10 @@ export class IdentityApiService implements IIdentityApiService {
     }
 
     /**
-     * @param body (optional) 
-     * @return Success
+     * Updates an identity resource.
+     * @param resourceId The identifier of the identity resource.
+     * @param body (optional) Contains info about the identity resource to be updated.
+     * @return OK
      */
     updateIdentityResource(resourceId: number, body?: UpdateIdentityResourceRequest | undefined): Observable<void> {
         let url_ = this.baseUrl + "/api/resources/identity/{resourceId}";
@@ -2426,6 +2815,10 @@ export class IdentityApiService implements IIdentityApiService {
             result404 = ProblemDetails.fromJS(resultData404);
             return throwException("Not Found", status, _responseText, _headers, result404);
             }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("Internal Server Error", status, _responseText, _headers);
+            }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
@@ -2435,7 +2828,9 @@ export class IdentityApiService implements IIdentityApiService {
     }
 
     /**
-     * @return Success
+     * Permanently deletes an identity resource.
+     * @param resourceId The id of the identity resource to delete.
+     * @return OK
      */
     deleteIdentityResource(resourceId: number): Observable<void> {
         let url_ = this.baseUrl + "/api/resources/identity/{resourceId}";
@@ -2504,6 +2899,10 @@ export class IdentityApiService implements IIdentityApiService {
             result404 = ProblemDetails.fromJS(resultData404);
             return throwException("Not Found", status, _responseText, _headers, result404);
             }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("Internal Server Error", status, _responseText, _headers);
+            }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
@@ -2513,11 +2912,12 @@ export class IdentityApiService implements IIdentityApiService {
     }
 
     /**
+     * Returns a list of Indice.AspNetCore.Identity.Features.ApiResourceInfo objects containing the total number of API resources in the database and the data filtered according to the provided Indice.Types.ListOptions.
      * @param page (optional) 
      * @param size (optional) 
      * @param sort (optional) 
      * @param search (optional) 
-     * @return Success
+     * @return OK
      */
     getApiResources(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined): Observable<ApiResourceInfoResultSet> {
         let url_ = this.baseUrl + "/api/resources/protected?";
@@ -2596,6 +2996,10 @@ export class IdentityApiService implements IIdentityApiService {
             result200 = ApiResourceInfoResultSet.fromJS(resultData200);
             return _observableOf(result200);
             }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("Internal Server Error", status, _responseText, _headers);
+            }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
@@ -2605,8 +3009,9 @@ export class IdentityApiService implements IIdentityApiService {
     }
 
     /**
-     * @param body (optional) 
-     * @return Success
+     * Creates a new API resource.
+     * @param body (optional) Contains info about the API resource to be created.
+     * @return Created
      */
     createApiResource(body?: CreateResourceRequest | undefined): Observable<ApiResourceInfo> {
         let url_ = this.baseUrl + "/api/resources/protected";
@@ -2673,6 +3078,10 @@ export class IdentityApiService implements IIdentityApiService {
             result201 = ApiResourceInfo.fromJS(resultData201);
             return _observableOf(result201);
             }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("Internal Server Error", status, _responseText, _headers);
+            }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
@@ -2682,7 +3091,9 @@ export class IdentityApiService implements IIdentityApiService {
     }
 
     /**
-     * @return Success
+     * Gets an API resource by it's unique id.
+     * @param resourceId The identifier of the API resource.
+     * @return OK
      */
     getApiResource(resourceId: number): Observable<ApiResourceInfo> {
         let url_ = this.baseUrl + "/api/resources/protected/{resourceId}";
@@ -2755,6 +3166,10 @@ export class IdentityApiService implements IIdentityApiService {
             result404 = ProblemDetails.fromJS(resultData404);
             return throwException("Not Found", status, _responseText, _headers, result404);
             }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("Internal Server Error", status, _responseText, _headers);
+            }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
@@ -2764,8 +3179,10 @@ export class IdentityApiService implements IIdentityApiService {
     }
 
     /**
-     * @param body (optional) 
-     * @return Success
+     * Updates an API resource.
+     * @param resourceId The identifier of the API resource.
+     * @param body (optional) Contains info about the API resource to be updated.
+     * @return OK
      */
     updateApiResource(resourceId: number, body?: UpdateApiResourceRequest | undefined): Observable<void> {
         let url_ = this.baseUrl + "/api/resources/protected/{resourceId}";
@@ -2838,6 +3255,10 @@ export class IdentityApiService implements IIdentityApiService {
             result404 = ProblemDetails.fromJS(resultData404);
             return throwException("Not Found", status, _responseText, _headers, result404);
             }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("Internal Server Error", status, _responseText, _headers);
+            }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
@@ -2847,7 +3268,9 @@ export class IdentityApiService implements IIdentityApiService {
     }
 
     /**
-     * @return Success
+     * Permanently deletes an API resource.
+     * @param resourceId The id of the API resource to delete.
+     * @return OK
      */
     deleteApiResource(resourceId: number): Observable<void> {
         let url_ = this.baseUrl + "/api/resources/protected/{resourceId}";
@@ -2916,6 +3339,10 @@ export class IdentityApiService implements IIdentityApiService {
             result404 = ProblemDetails.fromJS(resultData404);
             return throwException("Not Found", status, _responseText, _headers, result404);
             }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("Internal Server Error", status, _responseText, _headers);
+            }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
@@ -2925,8 +3352,10 @@ export class IdentityApiService implements IIdentityApiService {
     }
 
     /**
-     * @param body (optional) 
-     * @return Success
+     * Adds claims to an API resource.
+     * @param resourceId The identifier of the API resource.
+     * @param body (optional) The API or identity resources to add.
+     * @return OK
      */
     addApiResourceClaims(resourceId: number, body?: string[] | undefined): Observable<void> {
         let url_ = this.baseUrl + "/api/resources/protected/{resourceId}/claims";
@@ -2999,6 +3428,10 @@ export class IdentityApiService implements IIdentityApiService {
             result404 = ProblemDetails.fromJS(resultData404);
             return throwException("Not Found", status, _responseText, _headers, result404);
             }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("Internal Server Error", status, _responseText, _headers);
+            }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
@@ -3008,7 +3441,10 @@ export class IdentityApiService implements IIdentityApiService {
     }
 
     /**
-     * @return Success
+     * Removes a specified claim from an API resource.
+     * @param resourceId The identifier of the API resource.
+     * @param claim The identifier of the API resource claim to remove.
+     * @return OK
      */
     deleteApiResourceClaim(resourceId: number, claim: string): Observable<void> {
         let url_ = this.baseUrl + "/api/resources/protected/{resourceId}/claims/{claim}";
@@ -3080,6 +3516,10 @@ export class IdentityApiService implements IIdentityApiService {
             result404 = ProblemDetails.fromJS(resultData404);
             return throwException("Not Found", status, _responseText, _headers, result404);
             }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("Internal Server Error", status, _responseText, _headers);
+            }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
@@ -3089,8 +3529,10 @@ export class IdentityApiService implements IIdentityApiService {
     }
 
     /**
-     * @param body (optional) 
-     * @return Success
+     * Adds a new scope to an existing API resource.
+     * @param resourceId The identifier of the API resource.
+     * @param body (optional) Contains info about the API scope to be created.
+     * @return Created
      */
     addApiResourceScope(resourceId: number, body?: CreateApiScopeRequest | undefined): Observable<ScopeInfo> {
         let url_ = this.baseUrl + "/api/resources/protected/{resourceId}/scopes";
@@ -3167,6 +3609,10 @@ export class IdentityApiService implements IIdentityApiService {
             result404 = ProblemDetails.fromJS(resultData404);
             return throwException("Not Found", status, _responseText, _headers, result404);
             }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("Internal Server Error", status, _responseText, _headers);
+            }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
@@ -3176,8 +3622,11 @@ export class IdentityApiService implements IIdentityApiService {
     }
 
     /**
-     * @param body (optional) 
-     * @return Success
+     * Updates a specified scope of an API resource.
+     * @param resourceId The identifier of the API resource.
+     * @param scopeId The identifier of the API resource.
+     * @param body (optional) Contains info about the API scope to be updated.
+     * @return OK
      */
     updateApiResourceScope(resourceId: number, scopeId: number, body?: UpdateApiScopeRequest | undefined): Observable<void> {
         let url_ = this.baseUrl + "/api/resources/protected/{resourceId}/scopes/{scopeId}";
@@ -3253,6 +3702,10 @@ export class IdentityApiService implements IIdentityApiService {
             result404 = ProblemDetails.fromJS(resultData404);
             return throwException("Not Found", status, _responseText, _headers, result404);
             }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("Internal Server Error", status, _responseText, _headers);
+            }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
@@ -3262,7 +3715,10 @@ export class IdentityApiService implements IIdentityApiService {
     }
 
     /**
-     * @return Success
+     * Deletes a specified scope from an API resource.
+     * @param resourceId The identifier of the API resource.
+     * @param scopeId The identifier of the API resource scope.
+     * @return OK
      */
     deleteApiResourceScope(resourceId: number, scopeId: number): Observable<void> {
         let url_ = this.baseUrl + "/api/resources/protected/{resourceId}/scopes/{scopeId}";
@@ -3334,6 +3790,10 @@ export class IdentityApiService implements IIdentityApiService {
             result404 = ProblemDetails.fromJS(resultData404);
             return throwException("Not Found", status, _responseText, _headers, result404);
             }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("Internal Server Error", status, _responseText, _headers);
+            }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
@@ -3343,8 +3803,11 @@ export class IdentityApiService implements IIdentityApiService {
     }
 
     /**
-     * @param body (optional) 
-     * @return Success
+     * Adds claims to an API scope of a protected resource.
+     * @param resourceId The identifier of the API resource.
+     * @param scopeId The identifier of the API resource scope.
+     * @param body (optional) The claims to add to the scope.
+     * @return OK
      */
     addApiResourceScopeClaims(resourceId: number, scopeId: number, body?: string[] | undefined): Observable<void> {
         let url_ = this.baseUrl + "/api/resources/protected/{resourceId}/scopes/{scopeId}/claims";
@@ -3420,6 +3883,10 @@ export class IdentityApiService implements IIdentityApiService {
             result404 = ProblemDetails.fromJS(resultData404);
             return throwException("Not Found", status, _responseText, _headers, result404);
             }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("Internal Server Error", status, _responseText, _headers);
+            }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
@@ -3429,7 +3896,11 @@ export class IdentityApiService implements IIdentityApiService {
     }
 
     /**
-     * @return Success
+     * Deletes a claim from an API scope of a protected resource.
+     * @param resourceId The identifier of the API resource.
+     * @param scopeId The identifier of the API resource scope.
+     * @param claim The claim to remove from the scope.
+     * @return OK
      */
     deleteApiResourceScopeClaim(resourceId: number, scopeId: number, claim: string): Observable<void> {
         let url_ = this.baseUrl + "/api/resources/protected/{resourceId}/scopes/{scopeId}/claims/{claim}";
@@ -3504,6 +3975,10 @@ export class IdentityApiService implements IIdentityApiService {
             result404 = ProblemDetails.fromJS(resultData404);
             return throwException("Not Found", status, _responseText, _headers, result404);
             }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("Internal Server Error", status, _responseText, _headers);
+            }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
@@ -3513,8 +3988,10 @@ export class IdentityApiService implements IIdentityApiService {
     }
 
     /**
-     * @param body (optional) 
-     * @return Success
+     * Adds a new scope to an existing API resource.
+     * @param resourceId The identifier of the API resource.
+     * @param body (optional) Contains info about the API scope to be created.
+     * @return Created
      */
     addApiResourceSecret(resourceId: number, body?: CreateSecretRequest | undefined): Observable<SecretInfo> {
         let url_ = this.baseUrl + "/api/resources/protected/{resourceId}/secrets";
@@ -3591,6 +4068,10 @@ export class IdentityApiService implements IIdentityApiService {
             result404 = ProblemDetails.fromJS(resultData404);
             return throwException("Not Found", status, _responseText, _headers, result404);
             }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("Internal Server Error", status, _responseText, _headers);
+            }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
@@ -3600,7 +4081,10 @@ export class IdentityApiService implements IIdentityApiService {
     }
 
     /**
-     * @return Success
+     * Removes a specified claim from an API resource.
+     * @param resourceId The identifier of the API resource.
+     * @param secretId The identifier of the API resource secret to remove.
+     * @return OK
      */
     deleteApiResourceSecret(resourceId: number, secretId: number): Observable<void> {
         let url_ = this.baseUrl + "/api/resources/protected/{resourceId}/secrets/{secretId}";
@@ -3672,6 +4156,10 @@ export class IdentityApiService implements IIdentityApiService {
             result404 = ProblemDetails.fromJS(resultData404);
             return throwException("Not Found", status, _responseText, _headers, result404);
             }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("Internal Server Error", status, _responseText, _headers);
+            }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
@@ -3681,11 +4169,12 @@ export class IdentityApiService implements IIdentityApiService {
     }
 
     /**
+     * Returns a list of Indice.AspNetCore.Identity.Features.ScopeInfo objects containing the total number of API scopes in the database and the data filtered according to the provided Indice.Types.ListOptions.
      * @param page (optional) 
      * @param size (optional) 
      * @param sort (optional) 
      * @param search (optional) 
-     * @return Success
+     * @return OK
      */
     getApiScopes(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined): Observable<ScopeInfoResultSet> {
         let url_ = this.baseUrl + "/api/resources/protected/scopes?";
@@ -3764,6 +4253,10 @@ export class IdentityApiService implements IIdentityApiService {
             result200 = ScopeInfoResultSet.fromJS(resultData200);
             return _observableOf(result200);
             }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("Internal Server Error", status, _responseText, _headers);
+            }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
@@ -3773,11 +4266,12 @@ export class IdentityApiService implements IIdentityApiService {
     }
 
     /**
+     * Returns a list of Indice.AspNetCore.Identity.Features.RoleInfo objects containing the total number of roles in the database and the data filtered according to the provided Indice.Types.ListOptions.
      * @param page (optional) 
      * @param size (optional) 
      * @param sort (optional) 
      * @param search (optional) 
-     * @return Success
+     * @return OK
      */
     getRoles(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined): Observable<RoleInfoResultSet> {
         let url_ = this.baseUrl + "/api/roles?";
@@ -3856,6 +4350,10 @@ export class IdentityApiService implements IIdentityApiService {
             result200 = RoleInfoResultSet.fromJS(resultData200);
             return _observableOf(result200);
             }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("Internal Server Error", status, _responseText, _headers);
+            }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
@@ -3865,8 +4363,9 @@ export class IdentityApiService implements IIdentityApiService {
     }
 
     /**
-     * @param body (optional) 
-     * @return Success
+     * Creates a new role.
+     * @param body (optional) Contains info about the role to be created.
+     * @return Created
      */
     createRole(body?: CreateRoleRequest | undefined): Observable<RoleInfo> {
         let url_ = this.baseUrl + "/api/roles";
@@ -3933,6 +4432,10 @@ export class IdentityApiService implements IIdentityApiService {
             result201 = RoleInfo.fromJS(resultData201);
             return _observableOf(result201);
             }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("Internal Server Error", status, _responseText, _headers);
+            }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
@@ -3942,7 +4445,9 @@ export class IdentityApiService implements IIdentityApiService {
     }
 
     /**
-     * @return Success
+     * Gets a role by it's unique id.
+     * @param id The identifier of the role.
+     * @return OK
      */
     getRole(id: string): Observable<RoleInfo> {
         let url_ = this.baseUrl + "/api/roles/{id}";
@@ -4015,6 +4520,10 @@ export class IdentityApiService implements IIdentityApiService {
             result404 = ProblemDetails.fromJS(resultData404);
             return throwException("Not Found", status, _responseText, _headers, result404);
             }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("Internal Server Error", status, _responseText, _headers);
+            }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
@@ -4024,8 +4533,10 @@ export class IdentityApiService implements IIdentityApiService {
     }
 
     /**
-     * @param body (optional) 
-     * @return Success
+     * Updates an existing role.
+     * @param id The id of the role to update.
+     * @param body (optional) Contains info about the role to update.
+     * @return OK
      */
     updateRole(id: string, body?: UpdateRoleRequest | undefined): Observable<RoleInfo> {
         let url_ = this.baseUrl + "/api/roles/{id}";
@@ -4102,6 +4613,10 @@ export class IdentityApiService implements IIdentityApiService {
             result404 = ProblemDetails.fromJS(resultData404);
             return throwException("Not Found", status, _responseText, _headers, result404);
             }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("Internal Server Error", status, _responseText, _headers);
+            }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
@@ -4111,7 +4626,9 @@ export class IdentityApiService implements IIdentityApiService {
     }
 
     /**
-     * @return Success
+     * Permanently deletes a role.
+     * @param id The id of the role to delete.
+     * @return OK
      */
     deleteRole(id: string): Observable<void> {
         let url_ = this.baseUrl + "/api/roles/{id}";
@@ -4180,6 +4697,10 @@ export class IdentityApiService implements IIdentityApiService {
             result404 = ProblemDetails.fromJS(resultData404);
             return throwException("Not Found", status, _responseText, _headers, result404);
             }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("Internal Server Error", status, _responseText, _headers);
+            }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
@@ -4189,14 +4710,25 @@ export class IdentityApiService implements IIdentityApiService {
     }
 
     /**
+     * Returns a list of Indice.AspNetCore.Identity.Features.UserInfo objects containing the total number of users in the database and the data filtered according to the provided Indice.Types.ListOptions.
+     * @param filter_Claim_Type (optional) The type of the claim.
+     * @param filter_Claim_Value (optional) The value of the claim.
      * @param page (optional) 
      * @param size (optional) 
      * @param sort (optional) 
      * @param search (optional) 
-     * @return Success
+     * @return OK
      */
-    getUsers(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined): Observable<UserInfoResultSet> {
+    getUsers(filter_Claim_Type?: string | undefined, filter_Claim_Value?: string | undefined, page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined): Observable<UserInfoResultSet> {
         let url_ = this.baseUrl + "/api/users?";
+        if (filter_Claim_Type === null)
+            throw new Error("The parameter 'filter_Claim_Type' cannot be null.");
+        else if (filter_Claim_Type !== undefined)
+            url_ += "Filter.Claim.Type=" + encodeURIComponent("" + filter_Claim_Type) + "&"; 
+        if (filter_Claim_Value === null)
+            throw new Error("The parameter 'filter_Claim_Value' cannot be null.");
+        else if (filter_Claim_Value !== undefined)
+            url_ += "Filter.Claim.Value=" + encodeURIComponent("" + filter_Claim_Value) + "&"; 
         if (page === null)
             throw new Error("The parameter 'page' cannot be null.");
         else if (page !== undefined)
@@ -4272,6 +4804,10 @@ export class IdentityApiService implements IIdentityApiService {
             result200 = UserInfoResultSet.fromJS(resultData200);
             return _observableOf(result200);
             }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("Internal Server Error", status, _responseText, _headers);
+            }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
@@ -4281,8 +4817,9 @@ export class IdentityApiService implements IIdentityApiService {
     }
 
     /**
-     * @param body (optional) 
-     * @return Success
+     * Creates a new user.
+     * @param body (optional) Contains info about the user to be created.
+     * @return Created
      */
     createUser(body?: CreateUserRequest | undefined): Observable<SingleUserInfo> {
         let url_ = this.baseUrl + "/api/users";
@@ -4349,6 +4886,10 @@ export class IdentityApiService implements IIdentityApiService {
             result201 = SingleUserInfo.fromJS(resultData201);
             return _observableOf(result201);
             }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("Internal Server Error", status, _responseText, _headers);
+            }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
@@ -4358,7 +4899,9 @@ export class IdentityApiService implements IIdentityApiService {
     }
 
     /**
-     * @return Success
+     * Gets a user by it's unique id.
+     * @param userId The identifier of the user.
+     * @return OK
      */
     getUser(userId: string): Observable<SingleUserInfo> {
         let url_ = this.baseUrl + "/api/users/{userId}";
@@ -4431,6 +4974,10 @@ export class IdentityApiService implements IIdentityApiService {
             result404 = ProblemDetails.fromJS(resultData404);
             return throwException("Not Found", status, _responseText, _headers, result404);
             }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("Internal Server Error", status, _responseText, _headers);
+            }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
@@ -4440,8 +4987,10 @@ export class IdentityApiService implements IIdentityApiService {
     }
 
     /**
-     * @param body (optional) 
-     * @return Success
+     * Updates an existing user.
+     * @param userId The id of the user to update.
+     * @param body (optional) Contains info about the user to update.
+     * @return OK
      */
     updateUser(userId: string, body?: UpdateUserRequest | undefined): Observable<SingleUserInfo> {
         let url_ = this.baseUrl + "/api/users/{userId}";
@@ -4518,6 +5067,10 @@ export class IdentityApiService implements IIdentityApiService {
             result404 = ProblemDetails.fromJS(resultData404);
             return throwException("Not Found", status, _responseText, _headers, result404);
             }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("Internal Server Error", status, _responseText, _headers);
+            }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
@@ -4527,7 +5080,9 @@ export class IdentityApiService implements IIdentityApiService {
     }
 
     /**
-     * @return Success
+     * Permanently deletes a user.
+     * @param userId The id of the user to delete.
+     * @return OK
      */
     deleteUser(userId: string): Observable<void> {
         let url_ = this.baseUrl + "/api/users/{userId}";
@@ -4596,6 +5151,10 @@ export class IdentityApiService implements IIdentityApiService {
             result404 = ProblemDetails.fromJS(resultData404);
             return throwException("Not Found", status, _responseText, _headers, result404);
             }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("Internal Server Error", status, _responseText, _headers);
+            }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
@@ -4605,7 +5164,9 @@ export class IdentityApiService implements IIdentityApiService {
     }
 
     /**
-     * @return Success
+     * Gets a list of the applications the user has given consent to or currently has IdentityServer side tokens for.
+     * @param userId The id of the user.
+     * @return OK
      */
     getUserApplications(userId: string): Observable<UserClientInfoResultSet> {
         let url_ = this.baseUrl + "/api/users/{userId}/applications";
@@ -4678,6 +5239,10 @@ export class IdentityApiService implements IIdentityApiService {
             result404 = ProblemDetails.fromJS(resultData404);
             return throwException("Not Found", status, _responseText, _headers, result404);
             }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("Internal Server Error", status, _responseText, _headers);
+            }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
@@ -4687,8 +5252,10 @@ export class IdentityApiService implements IIdentityApiService {
     }
 
     /**
-     * @param body (optional) 
-     * @return Success
+     * Adds a claim for the specified user.
+     * @param userId The id of the user.
+     * @param body (optional) The claim to add.
+     * @return Created
      */
     addUserClaim(userId: string, body?: CreateClaimRequest | undefined): Observable<ClaimInfo> {
         let url_ = this.baseUrl + "/api/users/{userId}/claims";
@@ -4765,6 +5332,10 @@ export class IdentityApiService implements IIdentityApiService {
             result404 = ProblemDetails.fromJS(resultData404);
             return throwException("Not Found", status, _responseText, _headers, result404);
             }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("Internal Server Error", status, _responseText, _headers);
+            }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
@@ -4774,7 +5345,10 @@ export class IdentityApiService implements IIdentityApiService {
     }
 
     /**
-     * @return Success
+     * Gets a specified claim for a given user.
+     * @param userId The id of the user.
+     * @param claimId The id of the claim.
+     * @return OK
      */
     getUserClaim(userId: string, claimId: number): Observable<BasicClaimInfo> {
         let url_ = this.baseUrl + "/api/users/{userId}/claims/{claimId}";
@@ -4850,6 +5424,10 @@ export class IdentityApiService implements IIdentityApiService {
             result404 = ProblemDetails.fromJS(resultData404);
             return throwException("Not Found", status, _responseText, _headers, result404);
             }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("Internal Server Error", status, _responseText, _headers);
+            }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
@@ -4859,8 +5437,11 @@ export class IdentityApiService implements IIdentityApiService {
     }
 
     /**
-     * @param body (optional) 
-     * @return Success
+     * Updates an existing user claim.
+     * @param userId The id of the user.
+     * @param claimId The id of the user claim.
+     * @param body (optional) Contains info about the user claim to update.
+     * @return OK
      */
     updateUserClaim(userId: string, claimId: number, body?: UpdateUserClaimRequest | undefined): Observable<ClaimInfo> {
         let url_ = this.baseUrl + "/api/users/{userId}/claims/{claimId}";
@@ -4940,6 +5521,10 @@ export class IdentityApiService implements IIdentityApiService {
             result404 = ProblemDetails.fromJS(resultData404);
             return throwException("Not Found", status, _responseText, _headers, result404);
             }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("Internal Server Error", status, _responseText, _headers);
+            }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
@@ -4949,7 +5534,10 @@ export class IdentityApiService implements IIdentityApiService {
     }
 
     /**
-     * @return Success
+     * Permanently deletes a specified claim from a user.
+     * @param userId The id of the user.
+     * @param claimId The id of the claim to delete.
+     * @return OK
      */
     deleteUserClaim(userId: string, claimId: number): Observable<void> {
         let url_ = this.baseUrl + "/api/users/{userId}/claims/{claimId}";
@@ -5021,6 +5609,10 @@ export class IdentityApiService implements IIdentityApiService {
             result404 = ProblemDetails.fromJS(resultData404);
             return throwException("Not Found", status, _responseText, _headers, result404);
             }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("Internal Server Error", status, _responseText, _headers);
+            }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
@@ -5030,7 +5622,10 @@ export class IdentityApiService implements IIdentityApiService {
     }
 
     /**
-     * @return Success
+     * Adds a new role to the specified user.
+     * @param userId The id of the user.
+     * @param roleId The id of the role.
+     * @return OK
      */
     addUserRole(userId: string, roleId: string): Observable<void> {
         let url_ = this.baseUrl + "/api/users/{userId}/roles/{roleId}";
@@ -5102,6 +5697,10 @@ export class IdentityApiService implements IIdentityApiService {
             result404 = ProblemDetails.fromJS(resultData404);
             return throwException("Not Found", status, _responseText, _headers, result404);
             }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("Internal Server Error", status, _responseText, _headers);
+            }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
@@ -5111,7 +5710,10 @@ export class IdentityApiService implements IIdentityApiService {
     }
 
     /**
-     * @return Success
+     * Removes an existing role from the specified user.
+     * @param userId The id of the user.
+     * @param roleId The id of the role.
+     * @return OK
      */
     deleteUserRole(userId: string, roleId: string): Observable<void> {
         let url_ = this.baseUrl + "/api/users/{userId}/roles/{roleId}";
@@ -5183,6 +5785,10 @@ export class IdentityApiService implements IIdentityApiService {
             result404 = ProblemDetails.fromJS(resultData404);
             return throwException("Not Found", status, _responseText, _headers, result404);
             }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("Internal Server Error", status, _responseText, _headers);
+            }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
@@ -5192,9 +5798,13 @@ export class IdentityApiService implements IIdentityApiService {
     }
 }
 
+/** Models a password change request by the user. */
 export class ChangePasswordRequest implements IChangePasswordRequest {
+    /** The current password of the user. */
     oldPassword!: string | undefined;
+    /** The new password of the user. */
     newPassword!: string | undefined;
+    /** The new password confirmation. */
     newPasswordConfirmation?: string | undefined;
 
     constructor(data?: IChangePasswordRequest) {
@@ -5230,9 +5840,13 @@ export class ChangePasswordRequest implements IChangePasswordRequest {
     }
 }
 
+/** Models a password change request by the user. */
 export interface IChangePasswordRequest {
+    /** The current password of the user. */
     oldPassword: string | undefined;
+    /** The new password of the user. */
     newPassword: string | undefined;
+    /** The new password confirmation. */
     newPasswordConfirmation?: string | undefined;
 }
 
@@ -5388,6 +6002,47 @@ export interface IProblemDetails {
     extensions?: { [key: string]: any; } | undefined;
 }
 
+/** Models a request to set a user's password. */
+export class SetPasswordRequest implements ISetPasswordRequest {
+    /** The password of the user. */
+    password!: string | undefined;
+
+    constructor(data?: ISetPasswordRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.password = _data["password"];
+        }
+    }
+
+    static fromJS(data: any): SetPasswordRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new SetPasswordRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["password"] = this.password;
+        return data; 
+    }
+}
+
+/** Models a request to set a user's password. */
+export interface ISetPasswordRequest {
+    /** The password of the user. */
+    password: string | undefined;
+}
+
+/** Describes value type names. */
 export enum ValueType {
     Boolean = "Boolean",
     DateTime = "DateTime",
@@ -5395,14 +6050,23 @@ export enum ValueType {
     String = "String",
 }
 
+/** Models an application claim type. */
 export class ClaimTypeInfo implements IClaimTypeInfo {
+    /** The unique id of the claim. */
     id?: string | undefined;
+    /** The name. */
     name?: string | undefined;
+    /** The name used for display purposes. */
     displayName?: string | undefined;
+    /** A description. */
     description?: string | undefined;
+    /** Determines whether this claim is required to create new users. */
     required?: boolean;
+    /** Determines whether this is a system reserved claim. */
     reserved?: boolean;
+    /** Determines whether this claim will be editable by a user if exposed through a public API. */
     userEditable?: boolean;
+    /** A regex rule that constraints the values of the claim. */
     rule?: string | undefined;
     valueType?: ValueType;
 
@@ -5451,14 +6115,23 @@ export class ClaimTypeInfo implements IClaimTypeInfo {
     }
 }
 
+/** Models an application claim type. */
 export interface IClaimTypeInfo {
+    /** The unique id of the claim. */
     id?: string | undefined;
+    /** The name. */
     name?: string | undefined;
+    /** The name used for display purposes. */
     displayName?: string | undefined;
+    /** A description. */
     description?: string | undefined;
+    /** Determines whether this claim is required to create new users. */
     required?: boolean;
+    /** Determines whether this is a system reserved claim. */
     reserved?: boolean;
+    /** Determines whether this claim will be editable by a user if exposed through a public API. */
     userEditable?: boolean;
+    /** A regex rule that constraints the values of the claim. */
     rule?: string | undefined;
     valueType?: ValueType;
 }
@@ -5511,12 +6184,19 @@ export interface IClaimTypeInfoResultSet {
     items?: ClaimTypeInfo[] | undefined;
 }
 
+/** Models a claim type that will be created on the server. */
 export class CreateClaimTypeRequest implements ICreateClaimTypeRequest {
+    /** The name. */
     name!: string | undefined;
+    /** The name used for display purposes. If not set, Indice.AspNetCore.Identity.Features.CreateClaimTypeRequest.Name is used. */
     displayName?: string | undefined;
+    /** A description. */
     description?: string | undefined;
+    /** Determines whether this claim is required to create new users. */
     required?: boolean;
+    /** Determines whether this claim will be editable by a user if exposed through a public API. */
     userEditable?: boolean;
+    /** A regex rule that constraints the values of the claim. */
     rule?: string | undefined;
     valueType?: ValueType;
 
@@ -5561,21 +6241,34 @@ export class CreateClaimTypeRequest implements ICreateClaimTypeRequest {
     }
 }
 
+/** Models a claim type that will be created on the server. */
 export interface ICreateClaimTypeRequest {
+    /** The name. */
     name: string | undefined;
+    /** The name used for display purposes. If not set, Indice.AspNetCore.Identity.Features.CreateClaimTypeRequest.Name is used. */
     displayName?: string | undefined;
+    /** A description. */
     description?: string | undefined;
+    /** Determines whether this claim is required to create new users. */
     required?: boolean;
+    /** Determines whether this claim will be editable by a user if exposed through a public API. */
     userEditable?: boolean;
+    /** A regex rule that constraints the values of the claim. */
     rule?: string | undefined;
     valueType?: ValueType;
 }
 
+/** Models a claim type that will be updated on the server. */
 export class UpdateClaimTypeRequest implements IUpdateClaimTypeRequest {
+    /** The name used for display purposes. */
     displayName?: string | undefined;
+    /** A description. */
     description?: string | undefined;
+    /** Determines whether this claim is required to create new users. */
     required?: boolean;
+    /** Determines whether this claim will be editable by a user if exposed through a public API. */
     userEditable?: boolean;
+    /** A regex rule that constraints the values of the claim. */
     rule?: string | undefined;
     valueType?: ValueType;
 
@@ -5618,24 +6311,40 @@ export class UpdateClaimTypeRequest implements IUpdateClaimTypeRequest {
     }
 }
 
+/** Models a claim type that will be updated on the server. */
 export interface IUpdateClaimTypeRequest {
+    /** The name used for display purposes. */
     displayName?: string | undefined;
+    /** A description. */
     description?: string | undefined;
+    /** Determines whether this claim is required to create new users. */
     required?: boolean;
+    /** Determines whether this claim will be editable by a user if exposed through a public API. */
     userEditable?: boolean;
+    /** A regex rule that constraints the values of the claim. */
     rule?: string | undefined;
     valueType?: ValueType;
 }
 
+/** Models a system client. */
 export class ClientInfo implements IClientInfo {
+    /** The unique identifier for this application. */
     clientId?: string | undefined;
+    /** Application name that will be seen on consent screens. */
     clientName?: string | undefined;
+    /** Application description. */
     description?: string | undefined;
+    /** Determines whether this application is enabled or not. */
     enabled?: boolean | undefined;
+    /** Specifies whether a consent screen is required. */
     requireConsent?: boolean | undefined;
+    /** Specifies whether consent screen is remembered after having been given. */
     allowRememberConsent?: boolean | undefined;
+    /** Application logo that will be seen on consent screens. */
     logoUri?: string | undefined;
+    /** Application URL that will be seen on consent screens. */
     clientUri?: string | undefined;
+    /** Specifies whether the client can be edited or not. */
     nonEditable?: boolean;
 
     constructor(data?: IClientInfo) {
@@ -5683,15 +6392,25 @@ export class ClientInfo implements IClientInfo {
     }
 }
 
+/** Models a system client. */
 export interface IClientInfo {
+    /** The unique identifier for this application. */
     clientId?: string | undefined;
+    /** Application name that will be seen on consent screens. */
     clientName?: string | undefined;
+    /** Application description. */
     description?: string | undefined;
+    /** Determines whether this application is enabled or not. */
     enabled?: boolean | undefined;
+    /** Specifies whether a consent screen is required. */
     requireConsent?: boolean | undefined;
+    /** Specifies whether consent screen is remembered after having been given. */
     allowRememberConsent?: boolean | undefined;
+    /** Application logo that will be seen on consent screens. */
     logoUri?: string | undefined;
+    /** Application URL that will be seen on consent screens. */
     clientUri?: string | undefined;
+    /** Specifies whether the client can be edited or not. */
     nonEditable?: boolean;
 }
 
@@ -5743,6 +6462,7 @@ export interface IClientInfoResultSet {
     items?: ClientInfo[] | undefined;
 }
 
+/** Models an OAuth client type. */
 export enum ClientType {
     SPA = "SPA",
     WebApp = "WebApp",
@@ -5752,14 +6472,19 @@ export enum ClientType {
     SPALegacy = "SPALegacy",
 }
 
+/** The type of client secret. */
 export enum SecretType {
     X509Thumbprint = "X509Thumbprint",
     SharedSecret = "SharedSecret",
 }
 
+/** Models a client or API secret that will be created on the server. */
 export class CreateSecretRequest implements ICreateSecretRequest {
+    /** Description of client secret. */
     description?: string | undefined;
+    /** The value of client secret. */
     value?: string | undefined;
+    /** Optional expiration of client secret. */
     expiration?: Date | undefined;
     type?: SecretType;
 
@@ -5798,25 +6523,41 @@ export class CreateSecretRequest implements ICreateSecretRequest {
     }
 }
 
+/** Models a client or API secret that will be created on the server. */
 export interface ICreateSecretRequest {
+    /** Description of client secret. */
     description?: string | undefined;
+    /** The value of client secret. */
     value?: string | undefined;
+    /** Optional expiration of client secret. */
     expiration?: Date | undefined;
     type?: SecretType;
 }
 
+/** Models a client that will be created on the server. */
 export class CreateClientRequest implements ICreateClientRequest {
     clientType?: ClientType;
+    /** The unique identifier for this application. */
     clientId?: string | undefined;
+    /** Allowed URL to return after logging in. */
     redirectUri?: string | undefined;
+    /** Allowed URL to return after logout. */
     postLogoutRedirectUri?: string | undefined;
+    /** The client secrets. */
     secrets?: CreateSecretRequest[] | undefined;
+    /** The list of identity resources allowed by the client. */
     identityResources?: string[] | undefined;
+    /** The list of API resources allowed by the client. */
     apiResources?: string[] | undefined;
+    /** Application name that will be seen on consent screens. */
     clientName?: string | undefined;
+    /** Application URL that will be seen on consent screens. */
     clientUri?: string | undefined;
+    /** Application logo that will be seen on consent screens. */
     logoUri?: string | undefined;
+    /** Application description. */
     description?: string | undefined;
+    /** Specifies whether a consent screen is required. */
     requireConsent?: boolean;
 
     constructor(data?: ICreateClientRequest) {
@@ -5894,18 +6635,30 @@ export class CreateClientRequest implements ICreateClientRequest {
     }
 }
 
+/** Models a client that will be created on the server. */
 export interface ICreateClientRequest {
     clientType?: ClientType;
+    /** The unique identifier for this application. */
     clientId?: string | undefined;
+    /** Allowed URL to return after logging in. */
     redirectUri?: string | undefined;
+    /** Allowed URL to return after logout. */
     postLogoutRedirectUri?: string | undefined;
+    /** The client secrets. */
     secrets?: CreateSecretRequest[] | undefined;
+    /** The list of identity resources allowed by the client. */
     identityResources?: string[] | undefined;
+    /** The list of API resources allowed by the client. */
     apiResources?: string[] | undefined;
+    /** Application name that will be seen on consent screens. */
     clientName?: string | undefined;
+    /** Application URL that will be seen on consent screens. */
     clientUri?: string | undefined;
+    /** Application logo that will be seen on consent screens. */
     logoUri?: string | undefined;
+    /** Application description. */
     description?: string | undefined;
+    /** Specifies whether a consent screen is required. */
     requireConsent?: boolean;
 }
 
@@ -5924,9 +6677,13 @@ export enum TokenExpiration {
     Absolute = "Absolute",
 }
 
+/** Models a claim. */
 export class ClaimInfo implements IClaimInfo {
+    /** The id of the user claim entry. */
     id?: number;
+    /** The type of the claim. */
     type?: string | undefined;
+    /** The value of the claim. */
     value?: string | undefined;
 
     constructor(data?: IClaimInfo) {
@@ -5962,17 +6719,27 @@ export class ClaimInfo implements IClaimInfo {
     }
 }
 
+/** Models a claim. */
 export interface IClaimInfo {
+    /** The id of the user claim entry. */
     id?: number;
+    /** The type of the claim. */
     type?: string | undefined;
+    /** The value of the claim. */
     value?: string | undefined;
 }
 
+/** Models an Client secret used in flows that require this. */
 export class ClientSecretInfo implements IClientSecretInfo {
+    /** The identifier for the API secret. */
     id?: number;
+    /** Description of client secret. */
     description?: string | undefined;
+    /** The value of client secret. */
     value?: string | undefined;
+    /** Optional expiration of client secret. */
     expiration?: Date | undefined;
+    /** The type of client secret. */
     type?: string | undefined;
 
     constructor(data?: IClientSecretInfo) {
@@ -6012,56 +6779,102 @@ export class ClientSecretInfo implements IClientSecretInfo {
     }
 }
 
+/** Models an Client secret used in flows that require this. */
 export interface IClientSecretInfo {
+    /** The identifier for the API secret. */
     id?: number;
+    /** Description of client secret. */
     description?: string | undefined;
+    /** The value of client secret. */
     value?: string | undefined;
+    /** Optional expiration of client secret. */
     expiration?: Date | undefined;
+    /** The type of client secret. */
     type?: string | undefined;
 }
 
+/** Models a system client when API provides info for a single client. */
 export class SingleClientInfo implements ISingleClientInfo {
+    /** Lifetime of identity token in seconds. */
     identityTokenLifetime?: number | undefined;
+    /** Lifetime of access token in seconds. */
     accessTokenLifetime?: number | undefined;
+    /** Maximum lifetime of a refresh token in seconds. */
     absoluteRefreshTokenLifetime?: number | undefined;
+    /** Lifetime of a user consent in seconds. */
     consentLifetime?: number | undefined;
+    /** The maximum duration (in seconds) since the last time the user authenticated. */
     userSsoLifetime?: number | undefined;
+    /** Specifies logout URI at client for HTTP front-channel based logout. */
     frontChannelLogoutUri?: string | undefined;
+    /** Gets or sets a salt value used in pair-wise subjectId generation for users of this client. */
     pairWiseSubjectSalt?: string | undefined;
     accessTokenType?: AccessTokenType;
     refreshTokenUsage?: TokenUsage;
     refreshTokenExpiration?: TokenExpiration;
+    /** Gets or sets a value indicating whether to allow offline access. */
     allowOfflineAccess?: boolean | undefined;
+    /** Gets or sets a value indicating whether the access token (and its claims) should be updated on a refresh token request. */
     updateAccessTokenClaimsOnRefresh?: boolean | undefined;
+    /** Specifies if the user's session id should be sent to the FrontChannelLogoutUri. */
     frontChannelLogoutSessionRequired?: boolean | undefined;
+    /** Gets or sets a value indicating whether JWT access tokens should include an identifier. */
     includeJwtId?: boolean | undefined;
+    /** Controls whether access tokens are transmitted via the browser for this client. This can prevent accidental leakage of access tokens when multiple response types are allowed. */
     allowAccessTokensViaBrowser?: boolean | undefined;
+    /** When requesting both an id token and access token, should the user claims always be added to the id token instead of requring the client to use the userinfo endpoint. */
     alwaysIncludeUserClaimsInIdToken?: boolean | undefined;
+    /** Gets or sets a value indicating whether client claims should be always included in the access tokens - or only for client credentials flow. */
     alwaysSendClientClaims?: boolean | undefined;
+    /** Lifetime of authorization code in seconds. */
     authorizationCodeLifetime?: number | undefined;
+    /** Specifies whether a proof key is required for authorization code based token requests. */
     requirePkce?: boolean | undefined;
+    /** Specifies whether a proof key can be sent using plain method. */
     allowPlainTextPkce?: boolean | undefined;
+    /** Gets or sets a value to prefix it on client claim types. */
     clientClaimsPrefix?: string | undefined;
+    /** Specifies logout URI at client for HTTP back-channel based logout. */
     backChannelLogoutUri?: string | undefined;
+    /** Specifies if the user's session id should be sent to the BackChannelLogoutUri. */
     backChannelLogoutSessionRequired?: boolean;
+    /** Gets or sets the type of the device flow user code. */
     userCodeType?: string | undefined;
+    /** Gets or sets the device code lifetime. */
     deviceCodeLifetime?: number | undefined;
+    /** List of client claims. */
     claims?: ClaimInfo[] | undefined;
+    /** List of configured grant types. */
     grantTypes?: string[] | undefined;
+    /** List of available client secrets. */
     secrets?: ClientSecretInfo[] | undefined;
+    /** Cors origins allowed. */
     allowedCorsOrigins?: string[] | undefined;
+    /** Allowed URIs to redirect after logout. */
     postLogoutRedirectUris?: string[] | undefined;
+    /** Allowed URIs to redirect after successful login. */
     redirectUris?: string[] | undefined;
+    /** The API resources that the client has access to. */
     apiResources?: string[] | undefined;
+    /** The identity resources that the client has access to. */
     identityResources?: string[] | undefined;
+    /** The unique identifier for this application. */
     clientId?: string | undefined;
+    /** Application name that will be seen on consent screens. */
     clientName?: string | undefined;
+    /** Application description. */
     description?: string | undefined;
+    /** Determines whether this application is enabled or not. */
     enabled?: boolean | undefined;
+    /** Specifies whether a consent screen is required. */
     requireConsent?: boolean | undefined;
+    /** Specifies whether consent screen is remembered after having been given. */
     allowRememberConsent?: boolean | undefined;
+    /** Application logo that will be seen on consent screens. */
     logoUri?: string | undefined;
+    /** Application URL that will be seen on consent screens. */
     clientUri?: string | undefined;
+    /** Specifies whether the client can be edited or not. */
     nonEditable?: boolean;
 
     constructor(data?: ISingleClientInfo) {
@@ -6239,82 +7052,151 @@ export class SingleClientInfo implements ISingleClientInfo {
     }
 }
 
+/** Models a system client when API provides info for a single client. */
 export interface ISingleClientInfo {
+    /** Lifetime of identity token in seconds. */
     identityTokenLifetime?: number | undefined;
+    /** Lifetime of access token in seconds. */
     accessTokenLifetime?: number | undefined;
+    /** Maximum lifetime of a refresh token in seconds. */
     absoluteRefreshTokenLifetime?: number | undefined;
+    /** Lifetime of a user consent in seconds. */
     consentLifetime?: number | undefined;
+    /** The maximum duration (in seconds) since the last time the user authenticated. */
     userSsoLifetime?: number | undefined;
+    /** Specifies logout URI at client for HTTP front-channel based logout. */
     frontChannelLogoutUri?: string | undefined;
+    /** Gets or sets a salt value used in pair-wise subjectId generation for users of this client. */
     pairWiseSubjectSalt?: string | undefined;
     accessTokenType?: AccessTokenType;
     refreshTokenUsage?: TokenUsage;
     refreshTokenExpiration?: TokenExpiration;
+    /** Gets or sets a value indicating whether to allow offline access. */
     allowOfflineAccess?: boolean | undefined;
+    /** Gets or sets a value indicating whether the access token (and its claims) should be updated on a refresh token request. */
     updateAccessTokenClaimsOnRefresh?: boolean | undefined;
+    /** Specifies if the user's session id should be sent to the FrontChannelLogoutUri. */
     frontChannelLogoutSessionRequired?: boolean | undefined;
+    /** Gets or sets a value indicating whether JWT access tokens should include an identifier. */
     includeJwtId?: boolean | undefined;
+    /** Controls whether access tokens are transmitted via the browser for this client. This can prevent accidental leakage of access tokens when multiple response types are allowed. */
     allowAccessTokensViaBrowser?: boolean | undefined;
+    /** When requesting both an id token and access token, should the user claims always be added to the id token instead of requring the client to use the userinfo endpoint. */
     alwaysIncludeUserClaimsInIdToken?: boolean | undefined;
+    /** Gets or sets a value indicating whether client claims should be always included in the access tokens - or only for client credentials flow. */
     alwaysSendClientClaims?: boolean | undefined;
+    /** Lifetime of authorization code in seconds. */
     authorizationCodeLifetime?: number | undefined;
+    /** Specifies whether a proof key is required for authorization code based token requests. */
     requirePkce?: boolean | undefined;
+    /** Specifies whether a proof key can be sent using plain method. */
     allowPlainTextPkce?: boolean | undefined;
+    /** Gets or sets a value to prefix it on client claim types. */
     clientClaimsPrefix?: string | undefined;
+    /** Specifies logout URI at client for HTTP back-channel based logout. */
     backChannelLogoutUri?: string | undefined;
+    /** Specifies if the user's session id should be sent to the BackChannelLogoutUri. */
     backChannelLogoutSessionRequired?: boolean;
+    /** Gets or sets the type of the device flow user code. */
     userCodeType?: string | undefined;
+    /** Gets or sets the device code lifetime. */
     deviceCodeLifetime?: number | undefined;
+    /** List of client claims. */
     claims?: ClaimInfo[] | undefined;
+    /** List of configured grant types. */
     grantTypes?: string[] | undefined;
+    /** List of available client secrets. */
     secrets?: ClientSecretInfo[] | undefined;
+    /** Cors origins allowed. */
     allowedCorsOrigins?: string[] | undefined;
+    /** Allowed URIs to redirect after logout. */
     postLogoutRedirectUris?: string[] | undefined;
+    /** Allowed URIs to redirect after successful login. */
     redirectUris?: string[] | undefined;
+    /** The API resources that the client has access to. */
     apiResources?: string[] | undefined;
+    /** The identity resources that the client has access to. */
     identityResources?: string[] | undefined;
+    /** The unique identifier for this application. */
     clientId?: string | undefined;
+    /** Application name that will be seen on consent screens. */
     clientName?: string | undefined;
+    /** Application description. */
     description?: string | undefined;
+    /** Determines whether this application is enabled or not. */
     enabled?: boolean | undefined;
+    /** Specifies whether a consent screen is required. */
     requireConsent?: boolean | undefined;
+    /** Specifies whether consent screen is remembered after having been given. */
     allowRememberConsent?: boolean | undefined;
+    /** Application logo that will be seen on consent screens. */
     logoUri?: string | undefined;
+    /** Application URL that will be seen on consent screens. */
     clientUri?: string | undefined;
+    /** Specifies whether the client can be edited or not. */
     nonEditable?: boolean;
 }
 
+/** Models a client that will be updated on the server. */
 export class UpdateClientRequest implements IUpdateClientRequest {
+    /** Lifetime of identity token in seconds. */
     identityTokenLifetime?: number;
+    /** Lifetime of access token in seconds */
     accessTokenLifetime?: number;
+    /** Maximum lifetime of a refresh token in seconds. */
     absoluteRefreshTokenLifetime?: number;
+    /** Lifetime of a user consent in seconds. */
     consentLifetime?: number | undefined;
+    /** Gets or sets a value indicating whether to allow offline access. */
     allowOfflineAccess?: boolean;
+    /** The maximum duration (in seconds) since the last time the user authenticated. */
     userSsoLifetime?: number | undefined;
+    /** Specifies logout URI at client for HTTP front-channel based logout. */
     frontChannelLogoutUri?: string | undefined;
+    /** Gets or sets a salt value used in pair-wise subjectId generation for users of this client. */
     pairWiseSubjectSalt?: string | undefined;
+    /** Gets or sets a value indicating whether the access token (and its claims) should be updated on a refresh token request. */
     updateAccessTokenClaimsOnRefresh?: boolean;
+    /** Specifies logout URI at client for HTTP back-channel based logout. */
     backChannelLogoutUri?: string | undefined;
+    /** Specifies is the user's session id should be sent to the BackChannelLogoutUri. */
     backChannelLogoutSessionRequired?: boolean;
     accessTokenType?: AccessTokenType;
     refreshTokenExpiration?: TokenExpiration;
     refreshTokenUsage?: TokenUsage;
+    /** Specifies is the user's session id should be sent to the FrontChannelLogoutUri. */
     frontChannelLogoutSessionRequired?: boolean;
+    /** Gets or sets a value indicating whether JWT access tokens should include an identifier. */
     includeJwtId?: boolean;
+    /** Controls whether access tokens are transmitted via the browser for this client. This can prevent accidental leakage of access tokens when multiple response types are allowed. */
     allowAccessTokensViaBrowser?: boolean;
+    /** When requesting both an id token and access token, should the user claims always be added to the id token instead of requring the client to use the userinfo endpoint. */
     alwaysIncludeUserClaimsInIdToken?: boolean;
+    /** Gets or sets a value indicating whether client claims should be always included in the access tokens - or only for client credentials flow. */
     alwaysSendClientClaims?: boolean;
+    /** Lifetime of authorization code in seconds. */
     authorizationCodeLifetime?: number;
+    /** Specifies whether a proof key is required for authorization code based token requests. */
     requirePkce?: boolean;
+    /** Specifies whether a proof key can be sent using plain method. */
     allowPlainTextPkce?: boolean;
+    /** Gets or sets a value to prefix it on client claim types. */
     clientClaimsPrefix?: string | undefined;
+    /** Specifies whether consent screen is remembered after having been given. */
     allowRememberConsent?: boolean;
+    /** Gets or sets the type of the device flow user code. */
     userCodeType?: string | undefined;
+    /** Gets or sets the device code lifetime. */
     deviceCodeLifetime?: number;
+    /** Application name that will be seen on consent screens. */
     clientName?: string | undefined;
+    /** Application URL that will be seen on consent screens. */
     clientUri?: string | undefined;
+    /** Application logo that will be seen on consent screens. */
     logoUri?: string | undefined;
+    /** Application description. */
     description?: string | undefined;
+    /** Specifies whether a consent screen is required. */
     requireConsent?: boolean;
 
     constructor(data?: IUpdateClientRequest) {
@@ -6406,42 +7288,74 @@ export class UpdateClientRequest implements IUpdateClientRequest {
     }
 }
 
+/** Models a client that will be updated on the server. */
 export interface IUpdateClientRequest {
+    /** Lifetime of identity token in seconds. */
     identityTokenLifetime?: number;
+    /** Lifetime of access token in seconds */
     accessTokenLifetime?: number;
+    /** Maximum lifetime of a refresh token in seconds. */
     absoluteRefreshTokenLifetime?: number;
+    /** Lifetime of a user consent in seconds. */
     consentLifetime?: number | undefined;
+    /** Gets or sets a value indicating whether to allow offline access. */
     allowOfflineAccess?: boolean;
+    /** The maximum duration (in seconds) since the last time the user authenticated. */
     userSsoLifetime?: number | undefined;
+    /** Specifies logout URI at client for HTTP front-channel based logout. */
     frontChannelLogoutUri?: string | undefined;
+    /** Gets or sets a salt value used in pair-wise subjectId generation for users of this client. */
     pairWiseSubjectSalt?: string | undefined;
+    /** Gets or sets a value indicating whether the access token (and its claims) should be updated on a refresh token request. */
     updateAccessTokenClaimsOnRefresh?: boolean;
+    /** Specifies logout URI at client for HTTP back-channel based logout. */
     backChannelLogoutUri?: string | undefined;
+    /** Specifies is the user's session id should be sent to the BackChannelLogoutUri. */
     backChannelLogoutSessionRequired?: boolean;
     accessTokenType?: AccessTokenType;
     refreshTokenExpiration?: TokenExpiration;
     refreshTokenUsage?: TokenUsage;
+    /** Specifies is the user's session id should be sent to the FrontChannelLogoutUri. */
     frontChannelLogoutSessionRequired?: boolean;
+    /** Gets or sets a value indicating whether JWT access tokens should include an identifier. */
     includeJwtId?: boolean;
+    /** Controls whether access tokens are transmitted via the browser for this client. This can prevent accidental leakage of access tokens when multiple response types are allowed. */
     allowAccessTokensViaBrowser?: boolean;
+    /** When requesting both an id token and access token, should the user claims always be added to the id token instead of requring the client to use the userinfo endpoint. */
     alwaysIncludeUserClaimsInIdToken?: boolean;
+    /** Gets or sets a value indicating whether client claims should be always included in the access tokens - or only for client credentials flow. */
     alwaysSendClientClaims?: boolean;
+    /** Lifetime of authorization code in seconds. */
     authorizationCodeLifetime?: number;
+    /** Specifies whether a proof key is required for authorization code based token requests. */
     requirePkce?: boolean;
+    /** Specifies whether a proof key can be sent using plain method. */
     allowPlainTextPkce?: boolean;
+    /** Gets or sets a value to prefix it on client claim types. */
     clientClaimsPrefix?: string | undefined;
+    /** Specifies whether consent screen is remembered after having been given. */
     allowRememberConsent?: boolean;
+    /** Gets or sets the type of the device flow user code. */
     userCodeType?: string | undefined;
+    /** Gets or sets the device code lifetime. */
     deviceCodeLifetime?: number;
+    /** Application name that will be seen on consent screens. */
     clientName?: string | undefined;
+    /** Application URL that will be seen on consent screens. */
     clientUri?: string | undefined;
+    /** Application logo that will be seen on consent screens. */
     logoUri?: string | undefined;
+    /** Application description. */
     description?: string | undefined;
+    /** Specifies whether a consent screen is required. */
     requireConsent?: boolean;
 }
 
+/** Models a request to create a claim for an entity (e.x user or client). */
 export class CreateClaimRequest implements ICreateClaimRequest {
+    /** The type of the claim. */
     type?: string | undefined;
+    /** The value of the claim. */
     value?: string | undefined;
 
     constructor(data?: ICreateClaimRequest) {
@@ -6475,13 +7389,19 @@ export class CreateClaimRequest implements ICreateClaimRequest {
     }
 }
 
+/** Models a request to create a claim for an entity (e.x user or client). */
 export interface ICreateClaimRequest {
+    /** The type of the claim. */
     type?: string | undefined;
+    /** The value of the claim. */
     value?: string | undefined;
 }
 
+/** Describes the grant type of a client in the database. */
 export class GrantTypeInfo implements IGrantTypeInfo {
+    /** The id of the grant type in the system. */
     id?: number;
+    /** The name of the grant type. */
     name?: string | undefined;
 
     constructor(data?: IGrantTypeInfo) {
@@ -6515,16 +7435,25 @@ export class GrantTypeInfo implements IGrantTypeInfo {
     }
 }
 
+/** Describes the grant type of a client in the database. */
 export interface IGrantTypeInfo {
+    /** The id of the grant type in the system. */
     id?: number;
+    /** The name of the grant type. */
     name?: string | undefined;
 }
 
+/** Models a secret value used for a client or API. */
 export class SecretInfo implements ISecretInfo {
+    /** The identifier for the API secret. */
     id?: number;
+    /** Description of client secret. */
     description?: string | undefined;
+    /** The value of client secret. */
     value?: string | undefined;
+    /** Optional expiration of client secret. */
     expiration?: Date | undefined;
+    /** The type of client secret. */
     type?: string | undefined;
 
     constructor(data?: ISecretInfo) {
@@ -6564,17 +7493,27 @@ export class SecretInfo implements ISecretInfo {
     }
 }
 
+/** Models a secret value used for a client or API. */
 export interface ISecretInfo {
+    /** The identifier for the API secret. */
     id?: number;
+    /** Description of client secret. */
     description?: string | undefined;
+    /** The value of client secret. */
     value?: string | undefined;
+    /** Optional expiration of client secret. */
     expiration?: Date | undefined;
+    /** The type of client secret. */
     type?: string | undefined;
 }
 
+/** Defines the model required to update client URLs. */
 export class UpdateClientUrls implements IUpdateClientUrls {
+    /** Cors origins allowed. */
     allowedCorsOrigins?: string[] | undefined;
+    /** Allowed URIs to redirect after logout. */
     postLogoutRedirectUris?: string[] | undefined;
+    /** Allowed URIs to redirect after successful login. */
     redirectUris?: string[] | undefined;
 
     constructor(data?: IUpdateClientUrls) {
@@ -6634,16 +7573,25 @@ export class UpdateClientUrls implements IUpdateClientUrls {
     }
 }
 
+/** Defines the model required to update client URLs. */
 export interface IUpdateClientUrls {
+    /** Cors origins allowed. */
     allowedCorsOrigins?: string[] | undefined;
+    /** Allowed URIs to redirect after logout. */
     postLogoutRedirectUris?: string[] | undefined;
+    /** Allowed URIs to redirect after successful login. */
     redirectUris?: string[] | undefined;
 }
 
+/** Describes a blog post item. */
 export class BlogItemInfo implements IBlogItemInfo {
+    /** Title of the post. */
     title?: string | undefined;
+    /** Original link to the post. */
     link?: string | undefined;
+    /** The datetime that the post was published. */
     publishDate?: Date;
+    /** A small description for the post. */
     description?: string | undefined;
 
     constructor(data?: IBlogItemInfo) {
@@ -6681,10 +7629,15 @@ export class BlogItemInfo implements IBlogItemInfo {
     }
 }
 
+/** Describes a blog post item. */
 export interface IBlogItemInfo {
+    /** Title of the post. */
     title?: string | undefined;
+    /** Original link to the post. */
     link?: string | undefined;
+    /** The datetime that the post was published. */
     publishDate?: Date;
+    /** A small description for the post. */
     description?: string | undefined;
 }
 
@@ -6736,8 +7689,11 @@ export interface IBlogItemInfoResultSet {
     items?: BlogItemInfo[] | undefined;
 }
 
+/** Contains summary information about the system. */
 export class SummaryInfo implements ISummaryInfo {
+    /** The total number of users. */
     numberOfUsers?: number;
+    /** The total number of users. */
     numberOfClients?: number;
 
     constructor(data?: ISummaryInfo) {
@@ -6771,21 +7727,35 @@ export class SummaryInfo implements ISummaryInfo {
     }
 }
 
+/** Contains summary information about the system. */
 export interface ISummaryInfo {
+    /** The total number of users. */
     numberOfUsers?: number;
+    /** The total number of users. */
     numberOfClients?: number;
 }
 
+/** Models an identity resource for the application. */
 export class IdentityResourceInfo implements IIdentityResourceInfo {
+    /** Unique identifier for the identity resource. */
     id?: number;
+    /** The name of the resource. */
     name?: string | undefined;
+    /** The display name of the resource. */
     displayName?: string | undefined;
+    /** The description of the resource. */
     description?: string | undefined;
+    /** Determines whether this resource is enabled or not. */
     enabled?: boolean;
+    /** Determines whether this resource is required or not. */
     required?: boolean;
+    /** Determines whether this resource should be displayed emphasized or not. */
     emphasize?: boolean;
+    /** Determines whether this resource should be displayed in the discovery document or not. */
     showInDiscoveryDocument?: boolean;
+    /** Determines whether this resource is editable or not. */
     nonEditable?: boolean;
+    /** List of accociated claims that should be included when this resource is requested. */
     allowedClaims?: string[] | undefined;
 
     constructor(data?: IIdentityResourceInfo) {
@@ -6843,16 +7813,27 @@ export class IdentityResourceInfo implements IIdentityResourceInfo {
     }
 }
 
+/** Models an identity resource for the application. */
 export interface IIdentityResourceInfo {
+    /** Unique identifier for the identity resource. */
     id?: number;
+    /** The name of the resource. */
     name?: string | undefined;
+    /** The display name of the resource. */
     displayName?: string | undefined;
+    /** The description of the resource. */
     description?: string | undefined;
+    /** Determines whether this resource is enabled or not. */
     enabled?: boolean;
+    /** Determines whether this resource is required or not. */
     required?: boolean;
+    /** Determines whether this resource should be displayed emphasized or not. */
     emphasize?: boolean;
+    /** Determines whether this resource should be displayed in the discovery document or not. */
     showInDiscoveryDocument?: boolean;
+    /** Determines whether this resource is editable or not. */
     nonEditable?: boolean;
+    /** List of accociated claims that should be included when this resource is requested. */
     allowedClaims?: string[] | undefined;
 }
 
@@ -6904,10 +7885,15 @@ export interface IIdentityResourceInfoResultSet {
     items?: IdentityResourceInfo[] | undefined;
 }
 
+/** Models a resource (API or identity) that will be created on the server. */
 export class CreateResourceRequest implements ICreateResourceRequest {
+    /** The unique name of the resource. */
     name?: string | undefined;
+    /** List of accociated user claims that should be included when this resource is requested. */
     userClaims?: string[] | undefined;
+    /** Display name of the resource. */
     displayName?: string | undefined;
+    /** Description of the resource. */
     description?: string | undefined;
 
     constructor(data?: ICreateResourceRequest) {
@@ -6953,19 +7939,31 @@ export class CreateResourceRequest implements ICreateResourceRequest {
     }
 }
 
+/** Models a resource (API or identity) that will be created on the server. */
 export interface ICreateResourceRequest {
+    /** The unique name of the resource. */
     name?: string | undefined;
+    /** List of accociated user claims that should be included when this resource is requested. */
     userClaims?: string[] | undefined;
+    /** Display name of the resource. */
     displayName?: string | undefined;
+    /** Description of the resource. */
     description?: string | undefined;
 }
 
+/** Models an identity resource that will be updated on the server. */
 export class UpdateIdentityResourceRequest implements IUpdateIdentityResourceRequest {
+    /** Specifies whether the resource is enabled. */
     enabled?: boolean;
+    /** Determines whether this resource should be displayed emphasized or not. */
     emphasize?: boolean;
+    /** Determines whether this resource is required or not. */
     required?: boolean;
+    /** Determines whether this scope should be displayed in the discovery document or not. */
     showInDiscoveryDocument?: boolean;
+    /** Display name of the resource. */
     displayName?: string | undefined;
+    /** Description of the resource. */
     description?: string | undefined;
 
     constructor(data?: IUpdateIdentityResourceRequest) {
@@ -7007,23 +8005,39 @@ export class UpdateIdentityResourceRequest implements IUpdateIdentityResourceReq
     }
 }
 
+/** Models an identity resource that will be updated on the server. */
 export interface IUpdateIdentityResourceRequest {
+    /** Specifies whether the resource is enabled. */
     enabled?: boolean;
+    /** Determines whether this resource should be displayed emphasized or not. */
     emphasize?: boolean;
+    /** Determines whether this resource is required or not. */
     required?: boolean;
+    /** Determines whether this scope should be displayed in the discovery document or not. */
     showInDiscoveryDocument?: boolean;
+    /** Display name of the resource. */
     displayName?: string | undefined;
+    /** Description of the resource. */
     description?: string | undefined;
 }
 
+/** Models access to an API resource. */
 export class ScopeInfo implements IScopeInfo {
+    /** Unique identifier for the scope. */
     id?: number;
+    /** The name of the scope. */
     name?: string | undefined;
+    /** The display name of the scope. */
     displayName?: string | undefined;
+    /** The description of the resource. */
     description?: string | undefined;
+    /** Determines whether this scope is required or not. */
     required?: boolean | undefined;
+    /** Determines whether this scope should be displayed emphasized or not. */
     emphasize?: boolean | undefined;
+    /** Determines whether this scope should be displayed in the discovery document or not. */
     showInDiscoveryDocument?: boolean | undefined;
+    /** List of accociated user claims that should be included when a resource is requested. */
     userClaims?: string[] | undefined;
 
     constructor(data?: IScopeInfo) {
@@ -7077,22 +8091,37 @@ export class ScopeInfo implements IScopeInfo {
     }
 }
 
+/** Models access to an API resource. */
 export interface IScopeInfo {
+    /** Unique identifier for the scope. */
     id?: number;
+    /** The name of the scope. */
     name?: string | undefined;
+    /** The display name of the scope. */
     displayName?: string | undefined;
+    /** The description of the resource. */
     description?: string | undefined;
+    /** Determines whether this scope is required or not. */
     required?: boolean | undefined;
+    /** Determines whether this scope should be displayed emphasized or not. */
     emphasize?: boolean | undefined;
+    /** Determines whether this scope should be displayed in the discovery document or not. */
     showInDiscoveryDocument?: boolean | undefined;
+    /** List of accociated user claims that should be included when a resource is requested. */
     userClaims?: string[] | undefined;
 }
 
+/** Models an API secret used for the introspection endpoint. The API can authenticate with introspection using the API name and secret. */
 export class ApiSecretInfo implements IApiSecretInfo {
+    /** The identifier for the API secret. */
     id?: number;
+    /** Description of client secret. */
     description?: string | undefined;
+    /** The value of client secret. */
     value?: string | undefined;
+    /** Optional expiration of client secret. */
     expiration?: Date | undefined;
+    /** The type of client secret. */
     type?: string | undefined;
 
     constructor(data?: IApiSecretInfo) {
@@ -7132,22 +8161,37 @@ export class ApiSecretInfo implements IApiSecretInfo {
     }
 }
 
+/** Models an API secret used for the introspection endpoint. The API can authenticate with introspection using the API name and secret. */
 export interface IApiSecretInfo {
+    /** The identifier for the API secret. */
     id?: number;
+    /** Description of client secret. */
     description?: string | undefined;
+    /** The value of client secret. */
     value?: string | undefined;
+    /** Optional expiration of client secret. */
     expiration?: Date | undefined;
+    /** The type of client secret. */
     type?: string | undefined;
 }
 
+/** Models an API resource for the application. */
 export class ApiResourceInfo implements IApiResourceInfo {
+    /** Unique identifier for the API resource. */
     id?: number;
+    /** The name of the resource. */
     name?: string | undefined;
+    /** The display name of the resource. */
     displayName?: string | undefined;
+    /** The description of the resource. */
     description?: string | undefined;
+    /** Determines whether this resource is enabled or not. */
     enabled?: boolean;
+    /** Determines whether this resource is editable or not. */
     nonEditable?: boolean;
+    /** List of accociated claims that should be included when this resource is requested. */
     allowedClaims?: string[] | undefined;
+    /** List of all scopes included in the resource. At least one scope must be included. */
     scopes?: ScopeInfo[] | undefined;
     secrets?: ApiSecretInfo[] | undefined;
 
@@ -7220,14 +8264,23 @@ export class ApiResourceInfo implements IApiResourceInfo {
     }
 }
 
+/** Models an API resource for the application. */
 export interface IApiResourceInfo {
+    /** Unique identifier for the API resource. */
     id?: number;
+    /** The name of the resource. */
     name?: string | undefined;
+    /** The display name of the resource. */
     displayName?: string | undefined;
+    /** The description of the resource. */
     description?: string | undefined;
+    /** Determines whether this resource is enabled or not. */
     enabled?: boolean;
+    /** Determines whether this resource is editable or not. */
     nonEditable?: boolean;
+    /** List of accociated claims that should be included when this resource is requested. */
     allowedClaims?: string[] | undefined;
+    /** List of all scopes included in the resource. At least one scope must be included. */
     scopes?: ScopeInfo[] | undefined;
     secrets?: ApiSecretInfo[] | undefined;
 }
@@ -7280,9 +8333,13 @@ export interface IApiResourceInfoResultSet {
     items?: ApiResourceInfo[] | undefined;
 }
 
+/** Models an API resource that will be updated on the server. */
 export class UpdateApiResourceRequest implements IUpdateApiResourceRequest {
+    /** Specifies whether the resource is enabled. */
     enabled?: boolean;
+    /** Display name of the resource. */
     displayName?: string | undefined;
+    /** Description of the resource. */
     description?: string | undefined;
 
     constructor(data?: IUpdateApiResourceRequest) {
@@ -7318,19 +8375,31 @@ export class UpdateApiResourceRequest implements IUpdateApiResourceRequest {
     }
 }
 
+/** Models an API resource that will be updated on the server. */
 export interface IUpdateApiResourceRequest {
+    /** Specifies whether the resource is enabled. */
     enabled?: boolean;
+    /** Display name of the resource. */
     displayName?: string | undefined;
+    /** Description of the resource. */
     description?: string | undefined;
 }
 
+/** Models an API scope that will be created on the server. */
 export class CreateApiScopeRequest implements ICreateApiScopeRequest {
+    /** Determines whether this scope is required or not. */
     required?: boolean;
+    /** Determines whether this scope should be displayed emphasized or not. */
     emphasize?: boolean;
+    /** Determines whether this scope should be displayed in the discovery document or not. */
     showInDiscoveryDocument?: boolean;
+    /** The unique name of the resource. */
     name?: string | undefined;
+    /** List of accociated user claims that should be included when this resource is requested. */
     userClaims?: string[] | undefined;
+    /** Display name of the resource. */
     displayName?: string | undefined;
+    /** Description of the resource. */
     description?: string | undefined;
 
     constructor(data?: ICreateApiScopeRequest) {
@@ -7382,21 +8451,35 @@ export class CreateApiScopeRequest implements ICreateApiScopeRequest {
     }
 }
 
+/** Models an API scope that will be created on the server. */
 export interface ICreateApiScopeRequest {
+    /** Determines whether this scope is required or not. */
     required?: boolean;
+    /** Determines whether this scope should be displayed emphasized or not. */
     emphasize?: boolean;
+    /** Determines whether this scope should be displayed in the discovery document or not. */
     showInDiscoveryDocument?: boolean;
+    /** The unique name of the resource. */
     name?: string | undefined;
+    /** List of accociated user claims that should be included when this resource is requested. */
     userClaims?: string[] | undefined;
+    /** Display name of the resource. */
     displayName?: string | undefined;
+    /** Description of the resource. */
     description?: string | undefined;
 }
 
+/** Models an API scope that will be updated on the server. */
 export class UpdateApiScopeRequest implements IUpdateApiScopeRequest {
+    /** Determines whether this scope is required or not. */
     required?: boolean;
+    /** Determines whether this scope should be displayed emphasized or not. */
     emphasize?: boolean;
+    /** Determines whether this scope should be displayed in the discovery document or not. */
     showInDiscoveryDocument?: boolean;
+    /** Display name of the resource. */
     displayName?: string | undefined;
+    /** Description of the resource. */
     description?: string | undefined;
 
     constructor(data?: IUpdateApiScopeRequest) {
@@ -7436,11 +8519,17 @@ export class UpdateApiScopeRequest implements IUpdateApiScopeRequest {
     }
 }
 
+/** Models an API scope that will be updated on the server. */
 export interface IUpdateApiScopeRequest {
+    /** Determines whether this scope is required or not. */
     required?: boolean;
+    /** Determines whether this scope should be displayed emphasized or not. */
     emphasize?: boolean;
+    /** Determines whether this scope should be displayed in the discovery document or not. */
     showInDiscoveryDocument?: boolean;
+    /** Display name of the resource. */
     displayName?: string | undefined;
+    /** Description of the resource. */
     description?: string | undefined;
 }
 
@@ -7492,9 +8581,13 @@ export interface IScopeInfoResultSet {
     items?: ScopeInfo[] | undefined;
 }
 
+/** Models an system role. */
 export class RoleInfo implements IRoleInfo {
+    /** The id of the role. */
     id?: string | undefined;
+    /** The name of the role. */
     name?: string | undefined;
+    /** A description for the role. */
     description?: string | undefined;
 
     constructor(data?: IRoleInfo) {
@@ -7530,9 +8623,13 @@ export class RoleInfo implements IRoleInfo {
     }
 }
 
+/** Models an system role. */
 export interface IRoleInfo {
+    /** The id of the role. */
     id?: string | undefined;
+    /** The name of the role. */
     name?: string | undefined;
+    /** A description for the role. */
     description?: string | undefined;
 }
 
@@ -7584,8 +8681,11 @@ export interface IRoleInfoResultSet {
     items?: RoleInfo[] | undefined;
 }
 
+/** Models a role that will be created on the server. */
 export class CreateRoleRequest implements ICreateRoleRequest {
+    /** The name of the role. */
     name!: string | undefined;
+    /** A description for the role. */
     description?: string | undefined;
 
     constructor(data?: ICreateRoleRequest) {
@@ -7619,12 +8719,17 @@ export class CreateRoleRequest implements ICreateRoleRequest {
     }
 }
 
+/** Models a role that will be created on the server. */
 export interface ICreateRoleRequest {
+    /** The name of the role. */
     name: string | undefined;
+    /** A description for the role. */
     description?: string | undefined;
 }
 
+/** Models a role that will be updated on the server. */
 export class UpdateRoleRequest implements IUpdateRoleRequest {
+    /** A description for the role. */
     description?: string | undefined;
 
     constructor(data?: IUpdateRoleRequest) {
@@ -7656,23 +8761,39 @@ export class UpdateRoleRequest implements IUpdateRoleRequest {
     }
 }
 
+/** Models a role that will be updated on the server. */
 export interface IUpdateRoleRequest {
+    /** A description for the role. */
     description?: string | undefined;
 }
 
+/** Models an application user when retrieving a list. */
 export class UserInfo implements IUserInfo {
+    /** User's first name. */
     firstName?: string | undefined;
+    /** User's last name. */
     lastName?: string | undefined;
+    /** User's unique identifier. */
     id?: string | undefined;
+    /** Indicates whether a user's email is confirmed or not. */
     emailConfirmed?: boolean;
+    /** Indicates whether lockout feature is enabled for the user. */
     lockoutEnabled?: boolean;
+    /** Indicates whether a user's phone number is confirmed or not. */
     phoneNumberConfirmed?: boolean;
+    /** Indicates whether two-factor authentication is enabled for the user. */
     twoFactorEnabled?: boolean;
+    /** The datetime where the user was created in the system. */
     createDate?: Date;
+    /** The datetime where the lockout period ends. */
     lockoutEnd?: Date | undefined;
+    /** User's email address. */
     email?: string | undefined;
+    /** User's phone number. */
     phoneNumber?: string | undefined;
+    /** The username. */
     userName?: string | undefined;
+    /** User metadata expressed as claims. */
     claims?: ClaimInfo[] | undefined;
 
     constructor(data?: IUserInfo) {
@@ -7736,19 +8857,33 @@ export class UserInfo implements IUserInfo {
     }
 }
 
+/** Models an application user when retrieving a list. */
 export interface IUserInfo {
+    /** User's first name. */
     firstName?: string | undefined;
+    /** User's last name. */
     lastName?: string | undefined;
+    /** User's unique identifier. */
     id?: string | undefined;
+    /** Indicates whether a user's email is confirmed or not. */
     emailConfirmed?: boolean;
+    /** Indicates whether lockout feature is enabled for the user. */
     lockoutEnabled?: boolean;
+    /** Indicates whether a user's phone number is confirmed or not. */
     phoneNumberConfirmed?: boolean;
+    /** Indicates whether two-factor authentication is enabled for the user. */
     twoFactorEnabled?: boolean;
+    /** The datetime where the user was created in the system. */
     createDate?: Date;
+    /** The datetime where the lockout period ends. */
     lockoutEnd?: Date | undefined;
+    /** User's email address. */
     email?: string | undefined;
+    /** User's phone number. */
     phoneNumber?: string | undefined;
+    /** The username. */
     userName?: string | undefined;
+    /** User metadata expressed as claims. */
     claims?: ClaimInfo[] | undefined;
 }
 
@@ -7800,12 +8935,19 @@ export interface IUserInfoResultSet {
     items?: UserInfo[] | undefined;
 }
 
+/** Models a new user that will be created on the server. */
 export class CreateUserRequest implements ICreateUserRequest {
+    /** The first name of the user. */
     firstName?: string | undefined;
+    /** The last name of the user. */
     lastName?: string | undefined;
+    /** The username used to login. */
     userName!: string | undefined;
+    /** The email of the user. */
     email?: string | undefined;
+    /** The initial password of the user. */
     password?: string | undefined;
+    /** User's phone number. */
     phoneNumber?: string | undefined;
 
     constructor(data?: ICreateUserRequest) {
@@ -7847,27 +8989,47 @@ export class CreateUserRequest implements ICreateUserRequest {
     }
 }
 
+/** Models a new user that will be created on the server. */
 export interface ICreateUserRequest {
+    /** The first name of the user. */
     firstName?: string | undefined;
+    /** The last name of the user. */
     lastName?: string | undefined;
+    /** The username used to login. */
     userName: string | undefined;
+    /** The email of the user. */
     email?: string | undefined;
+    /** The initial password of the user. */
     password?: string | undefined;
+    /** User's phone number. */
     phoneNumber?: string | undefined;
 }
 
+/** Models an application user when API provides info for a single user. */
 export class SingleUserInfo implements ISingleUserInfo {
+    /** The names of the roles that the user belongs to. */
     roles?: string[] | undefined;
+    /** User's unique identifier. */
     id?: string | undefined;
+    /** Indicates whether a user's email is confirmed or not. */
     emailConfirmed?: boolean;
+    /** Indicates whether lockout feature is enabled for the user. */
     lockoutEnabled?: boolean;
+    /** Indicates whether a user's phone number is confirmed or not. */
     phoneNumberConfirmed?: boolean;
+    /** Indicates whether two-factor authentication is enabled for the user. */
     twoFactorEnabled?: boolean;
+    /** The datetime where the user was created in the system. */
     createDate?: Date;
+    /** The datetime where the lockout period ends. */
     lockoutEnd?: Date | undefined;
+    /** User's email address. */
     email?: string | undefined;
+    /** User's phone number. */
     phoneNumber?: string | undefined;
+    /** The username. */
     userName?: string | undefined;
+    /** User metadata expressed as claims. */
     claims?: ClaimInfo[] | undefined;
 
     constructor(data?: ISingleUserInfo) {
@@ -7937,23 +9099,39 @@ export class SingleUserInfo implements ISingleUserInfo {
     }
 }
 
+/** Models an application user when API provides info for a single user. */
 export interface ISingleUserInfo {
+    /** The names of the roles that the user belongs to. */
     roles?: string[] | undefined;
+    /** User's unique identifier. */
     id?: string | undefined;
+    /** Indicates whether a user's email is confirmed or not. */
     emailConfirmed?: boolean;
+    /** Indicates whether lockout feature is enabled for the user. */
     lockoutEnabled?: boolean;
+    /** Indicates whether a user's phone number is confirmed or not. */
     phoneNumberConfirmed?: boolean;
+    /** Indicates whether two-factor authentication is enabled for the user. */
     twoFactorEnabled?: boolean;
+    /** The datetime where the user was created in the system. */
     createDate?: Date;
+    /** The datetime where the lockout period ends. */
     lockoutEnd?: Date | undefined;
+    /** User's email address. */
     email?: string | undefined;
+    /** User's phone number. */
     phoneNumber?: string | undefined;
+    /** The username. */
     userName?: string | undefined;
+    /** User metadata expressed as claims. */
     claims?: ClaimInfo[] | undefined;
 }
 
+/** Models a claim. */
 export class BasicClaimInfo implements IBasicClaimInfo {
+    /** The type of the claim. */
     type?: string | undefined;
+    /** The value of the claim. */
     value?: string | undefined;
 
     constructor(data?: IBasicClaimInfo) {
@@ -7987,18 +9165,29 @@ export class BasicClaimInfo implements IBasicClaimInfo {
     }
 }
 
+/** Models a claim. */
 export interface IBasicClaimInfo {
+    /** The type of the claim. */
     type?: string | undefined;
+    /** The value of the claim. */
     value?: string | undefined;
 }
 
+/** Models a user that will be updated on the server. */
 export class UpdateUserRequest implements IUpdateUserRequest {
+    /** Indicates whether lockout feature is enabled for the user. */
     lockoutEnabled?: boolean;
+    /** Indicates whether two-factor authentication is enabled for the user. */
     twoFactorEnabled?: boolean;
+    /** The datetime where the lockout period ends. */
     lockoutEnd?: Date | undefined;
+    /** User's email address. */
     email?: string | undefined;
+    /** User's phone number. */
     phoneNumber?: string | undefined;
+    /** The username. */
     userName?: string | undefined;
+    /** Dynamic claims that have been marked as required. */
     claims?: BasicClaimInfo[] | undefined;
 
     constructor(data?: IUpdateUserRequest) {
@@ -8050,28 +9239,49 @@ export class UpdateUserRequest implements IUpdateUserRequest {
     }
 }
 
+/** Models a user that will be updated on the server. */
 export interface IUpdateUserRequest {
+    /** Indicates whether lockout feature is enabled for the user. */
     lockoutEnabled?: boolean;
+    /** Indicates whether two-factor authentication is enabled for the user. */
     twoFactorEnabled?: boolean;
+    /** The datetime where the lockout period ends. */
     lockoutEnd?: Date | undefined;
+    /** User's email address. */
     email?: string | undefined;
+    /** User's phone number. */
     phoneNumber?: string | undefined;
+    /** The username. */
     userName?: string | undefined;
+    /** Dynamic claims that have been marked as required. */
     claims?: BasicClaimInfo[] | undefined;
 }
 
+/** Models a system client that a user has given consent to or currently has IdentityServer side tokens for. */
 export class UserClientInfo implements IUserClientInfo {
+    /** Creation of grant. */
     createdAt?: Date;
+    /** Expiration of grant. */
     expiresAt?: Date | undefined;
+    /** Resources/scopes accessible by the application. */
     scopes?: string[] | undefined;
+    /** The unique identifier for this application. */
     clientId?: string | undefined;
+    /** Application name that will be seen on consent screens. */
     clientName?: string | undefined;
+    /** Application description. */
     description?: string | undefined;
+    /** Determines whether this application is enabled or not. */
     enabled?: boolean | undefined;
+    /** Specifies whether a consent screen is required. */
     requireConsent?: boolean | undefined;
+    /** Specifies whether consent screen is remembered after having been given. */
     allowRememberConsent?: boolean | undefined;
+    /** Application logo that will be seen on consent screens. */
     logoUri?: string | undefined;
+    /** Application URL that will be seen on consent screens. */
     clientUri?: string | undefined;
+    /** Specifies whether the client can be edited or not. */
     nonEditable?: boolean;
 
     constructor(data?: IUserClientInfo) {
@@ -8133,18 +9343,31 @@ export class UserClientInfo implements IUserClientInfo {
     }
 }
 
+/** Models a system client that a user has given consent to or currently has IdentityServer side tokens for. */
 export interface IUserClientInfo {
+    /** Creation of grant. */
     createdAt?: Date;
+    /** Expiration of grant. */
     expiresAt?: Date | undefined;
+    /** Resources/scopes accessible by the application. */
     scopes?: string[] | undefined;
+    /** The unique identifier for this application. */
     clientId?: string | undefined;
+    /** Application name that will be seen on consent screens. */
     clientName?: string | undefined;
+    /** Application description. */
     description?: string | undefined;
+    /** Determines whether this application is enabled or not. */
     enabled?: boolean | undefined;
+    /** Specifies whether a consent screen is required. */
     requireConsent?: boolean | undefined;
+    /** Specifies whether consent screen is remembered after having been given. */
     allowRememberConsent?: boolean | undefined;
+    /** Application logo that will be seen on consent screens. */
     logoUri?: string | undefined;
+    /** Application URL that will be seen on consent screens. */
     clientUri?: string | undefined;
+    /** Specifies whether the client can be edited or not. */
     nonEditable?: boolean;
 }
 
@@ -8196,7 +9419,9 @@ export interface IUserClientInfoResultSet {
     items?: UserClientInfo[] | undefined;
 }
 
+/** Models a user claim that will be updated on the server. */
 export class UpdateUserClaimRequest implements IUpdateUserClaimRequest {
+    /** The value of the claim. */
     claimValue?: string | undefined;
 
     constructor(data?: IUpdateUserClaimRequest) {
@@ -8228,7 +9453,9 @@ export class UpdateUserClaimRequest implements IUpdateUserClaimRequest {
     }
 }
 
+/** Models a user claim that will be updated on the server. */
 export interface IUpdateUserClaimRequest {
+    /** The value of the claim. */
     claimValue?: string | undefined;
 }
 
