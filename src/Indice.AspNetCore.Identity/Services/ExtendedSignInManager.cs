@@ -19,7 +19,7 @@ namespace Indice.AspNetCore.Identity.Services
     /// Provides the APIs for user sign in.
     /// </summary>
     /// <typeparam name="TUser">The type encapsulating a user.</typeparam>
-    public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : class
+    public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : User
     {
         private const string LoginProviderKey = "LoginProvider";
         private const string XsrfKey = "XsrfId";
@@ -37,7 +37,7 @@ namespace Indice.AspNetCore.Identity.Services
         /// <param name="confirmation">The <see cref="IUserConfirmation{TUser}"/> used check whether a user account is confirmed.</param>
         /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
         /// <param name="authenticationSchemeProvider">Responsible for managing what authenticationSchemes are supported.</param>
-        public ExtendedSignInManager(UserManager<TUser> userManager, IHttpContextAccessor contextAccessor, IUserClaimsPrincipalFactory<TUser> claimsFactory, IOptions<IdentityOptions> optionsAccessor,
+        public ExtendedSignInManager(UserManager<TUser> userManager, IHttpContextAccessor contextAccessor, IUserClaimsPrincipalFactory<TUser> claimsFactory, IOptionsSnapshot<IdentityOptions> optionsAccessor,
             ILogger<SignInManager<TUser>> logger, IAuthenticationSchemeProvider schemes, IUserConfirmation<TUser> confirmation, IConfiguration configuration, IAuthenticationSchemeProvider authenticationSchemeProvider)
             : base(userManager, contextAccessor, claimsFactory, optionsAccessor, logger, schemes, confirmation) {
             RequirePostSigninConfirmedEmail = configuration.GetSection(nameof(SignInOptions)).GetValue<bool?>(nameof(RequirePostSigninConfirmedEmail)) == true;

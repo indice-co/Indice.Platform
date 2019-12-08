@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using IdentityModel;
 using IdentityServer4.EntityFramework.Entities;
 using IdentityServer4.Models;
+using Indice.AspNetCore.Filters;
 using Indice.Configuration;
 using Indice.Security;
 using Indice.Types;
@@ -54,7 +55,7 @@ namespace Indice.AspNetCore.Identity.Features
         /// <param name="generalSettings">Applications general settings.</param>
         /// <param name="eventService">Models the event mechanism used to raise events inside the IdentityServer API.</param>
         /// <param name="apiEndpointsOptions">Options for configuring the IdentityServer API feature.</param>
-        public ClientController(ExtendedConfigurationDbContext configurationDbContext, IOptions<GeneralSettings> generalSettings, IEventService eventService, IdentityServerApiEndpointsOptions apiEndpointsOptions) {
+        public ClientController(ExtendedConfigurationDbContext configurationDbContext, IOptionsSnapshot<GeneralSettings> generalSettings, IEventService eventService, IdentityServerApiEndpointsOptions apiEndpointsOptions) {
             _configurationDbContext = configurationDbContext ?? throw new ArgumentNullException(nameof(configurationDbContext));
             _generalSettings = generalSettings?.Value ?? throw new ArgumentNullException(nameof(generalSettings));
             _eventService = eventService ?? throw new ArgumentNullException(nameof(eventService));

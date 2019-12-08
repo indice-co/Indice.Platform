@@ -12,6 +12,7 @@ using IdentityServer4.Stores;
 using Indice.AspNetCore.Filters;
 using Indice.AspNetCore.Identity.Extensions;
 using Indice.AspNetCore.Identity.Models;
+using Indice.AspNetCore.Identity.Services;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -28,14 +29,14 @@ namespace Indice.Identity.Controllers
         private readonly IIdentityServerInteractionService _interaction;
         private readonly IClientStore _clientStore;
         private readonly IEventService _events;
-        private readonly SignInManager<User> _signInManager;
-        private readonly UserManager<User> _userManager;
+        private readonly ExtendedSignInManager<User> _signInManager;
+        private readonly ExtendedUserManager<User> _userManager;
         /// <summary>
-        /// 
+        /// The name of the controller.
         /// </summary>
         public const string Name = "External";
 
-        public ExternalController(IIdentityServerInteractionService interaction, IClientStore clientStore, IEventService events, SignInManager<User> signInManager, UserManager<User> userManager) {
+        public ExternalController(IIdentityServerInteractionService interaction, IClientStore clientStore, IEventService events, ExtendedSignInManager<User> signInManager, ExtendedUserManager<User> userManager) {
             _interaction = interaction ?? throw new ArgumentNullException(nameof(interaction));
             _clientStore = clientStore ?? throw new ArgumentNullException(nameof(clientStore));
             _events = events ?? throw new ArgumentNullException(nameof(events));

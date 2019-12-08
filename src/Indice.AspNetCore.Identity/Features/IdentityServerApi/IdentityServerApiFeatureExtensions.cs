@@ -1,9 +1,11 @@
 ﻿using System;
 using IdentityModel;
 using Indice.AspNetCore.Identity.Models;
+using Indice.AspNetCore.Identity.Services;
 using Indice.Security;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Indice.AspNetCore.Identity.Features
 {
@@ -53,6 +55,8 @@ namespace Indice.AspNetCore.Identity.Features
                           .RequireAssertion(x => x.User.HasClaim(JwtClaimTypes.Scope, IdentityServerApi.Scope) && (x.User.IsAdmin() || x.User.IsSystemClient()));
                 });
             });
+            // Try register the extended version of UserManager<User>.
+            mvcBuilder.Services.TryAddScoped<ExtendedUserManager<User>>();
             // Register the authentication handler, using a custom scheme name, for local APIs.
             mvcBuilder.Services.AddAuthentication()
                                .AddLocalApi(IdentityServerApi.AuthenticationScheme, options => {

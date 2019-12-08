@@ -7,7 +7,9 @@ using System.Threading.Tasks;
 using IdentityModel;
 using IdentityServer4.Services;
 using IdentityServer4.Stores;
+using Indice.AspNetCore.Filters;
 using Indice.AspNetCore.Identity.Models;
+using Indice.AspNetCore.Identity.Services;
 using Indice.Types;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -36,7 +38,7 @@ namespace Indice.AspNetCore.Identity.Features
     [ProblemDetailsExceptionFilter]
     internal class UserController : ControllerBase
     {
-        private readonly UserManager<User> _userManager;
+        private readonly ExtendedUserManager<User> _userManager;
         private readonly RoleManager<Role> _roleManager;
         private readonly ExtendedIdentityDbContext<User, Role> _dbContext;
         private readonly IPersistedGrantService _persistedGrantService;
@@ -58,7 +60,7 @@ namespace Indice.AspNetCore.Identity.Features
         /// <param name="clientStore">Retrieval of client configuration.</param>
         /// <param name="apiEndpointsOptions">Options for configuring the IdentityServer API feature.</param>
         /// <param name="eventService">Models the event mechanism used to raise events inside the IdentityServer API.</param>
-        public UserController(UserManager<User> userManager, RoleManager<Role> roleManager, ExtendedIdentityDbContext<User, Role> dbContext, IPersistedGrantService persistedGrantService, IClientStore clientStore,
+        public UserController(ExtendedUserManager<User> userManager, RoleManager<Role> roleManager, ExtendedIdentityDbContext<User, Role> dbContext, IPersistedGrantService persistedGrantService, IClientStore clientStore,
             IdentityServerApiEndpointsOptions apiEndpointsOptions, IEventService eventService) {
             _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
             _roleManager = roleManager ?? throw new ArgumentNullException(nameof(roleManager));

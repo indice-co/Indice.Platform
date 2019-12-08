@@ -5,6 +5,7 @@ using System.Net.Mime;
 using System.Threading.Tasks;
 using IdentityModel;
 using IdentityServer4.EntityFramework.Entities;
+using Indice.AspNetCore.Filters;
 using Indice.Types;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;

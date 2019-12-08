@@ -2,6 +2,7 @@
 using System.Net.Mime;
 using System.Threading.Tasks;
 using Indice.AspNetCore.Identity.Models;
+using Indice.AspNetCore.Identity.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -29,10 +30,10 @@ namespace Indice.AspNetCore.Identity.Features
     [ProblemDetailsExceptionFilter]
     internal class AccountController : ControllerBase
     {
-        private readonly UserManager<User> _userManager;
+        private readonly ExtendedUserManager<User> _userManager;
         private readonly ExtendedIdentityDbContext<User, Role> _dbContext;
 
-        public AccountController(UserManager<User> userManager, ExtendedIdentityDbContext<User, Role> dbContext) {
+        public AccountController(ExtendedUserManager<User> userManager, ExtendedIdentityDbContext<User, Role> dbContext) {
             _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
             _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
         }

@@ -11,12 +11,12 @@ using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-namespace Indice.AspNetCore.Identity.Features
+namespace Indice.AspNetCore.Filters
 {
     /// <summary>
     /// A resource filter used to short-circuit most of the pipeline if the response is already cached.
     /// </summary>
-    internal sealed class CacheResourceFilter : IResourceFilter
+    public sealed class CacheResourceFilter : IResourceFilter
     {
         private readonly IDistributedCache _cache;
         // Invoke the same JSON serializer settings that are used by the output formatter, so we can save objects in the cache in the exact same manner.
@@ -25,6 +25,13 @@ namespace Indice.AspNetCore.Identity.Features
         private readonly string[] _dependentStaticPaths;
         private string _cacheKey;
 
+        /// <summary>
+        /// Constructs a <see cref="CacheResourceFilter"/>.
+        /// </summary>
+        /// <param name="cache">Represents a distributed cache of serialized values.</param>
+        /// <param name="jsonOptions">Provides programmatic configuration for JSON in the MVC framework.</param>
+        /// <param name="dependentPaths">Parent paths of the current method that must be invalidated. Path template variables must match by name.</param>
+        /// <param name="dependentStaticPaths">Dependent static path that must be invalidated along with this resource.</param>
         public CacheResourceFilter(IDistributedCache cache, IOptions<MvcNewtonsoftJsonOptions> jsonOptions, string[] dependentPaths, string[] dependentStaticPaths) {
             _cache = cache ?? throw new ArgumentNullException(nameof(cache));
             _jsonSerializerSettings = jsonOptions?.Value?.SerializerSettings ?? throw new ArgumentNullException(nameof(jsonOptions));
@@ -114,7 +121,7 @@ namespace Indice.AspNetCore.Identity.Features
     /// </summary>
     /// <remarks>Do not use this attribute together with <see cref="CacheResourceFilterAttribute"/> since the latter will have no effect.</remarks>
     [AttributeUsage(validOn: AttributeTargets.Method)]
-    internal sealed class NoCacheAttribute : Attribute { }
+    public sealed class NoCacheAttribute : Attribute { }
 
     /// <summary>
     /// A type filter attribute for <see cref="CacheResourceFilter"/>.

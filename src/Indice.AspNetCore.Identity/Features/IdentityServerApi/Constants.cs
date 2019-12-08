@@ -5,7 +5,7 @@ namespace Indice.AspNetCore.Identity.Features
     /// <summary>
     /// Constants for IdentityServer API feature.
     /// </summary>
-    public class IdentityServerApi
+    public static class IdentityServerApi
     {
         /// <summary>
         /// The assembly name.
@@ -38,30 +38,5 @@ namespace Indice.AspNetCore.Identity.Features
             /// </summary>
             public const string Users = "identity:users";
         }
-    }
-
-    /// <summary>
-    /// Cache keys for storing items in the cache store.
-    /// </summary>
-    internal class CacheKeys
-    {
-        /// <summary>
-        /// News.
-        /// </summary>
-        public const string News = "news";
-        /// <summary>
-        /// Specified user.
-        /// </summary>
-        /// <param name="userId">The user id.</param>
-        public static string User(string userId) => $"user_{userId.ToLower()}";
-        /// <summary>
-        /// Specified client.
-        /// </summary>
-        /// <param name="clientId">The client id.</param>
-        public static string Client(string clientId) => $"client_{clientId.ToLower()}";
-        /// <summary>
-        /// Dashboard summary.
-        /// </summary>
-        public const string Summary = "summary";
     }
 }

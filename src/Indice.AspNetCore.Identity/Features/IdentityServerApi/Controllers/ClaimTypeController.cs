@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Net.Mime;
 using System.Threading.Tasks;
+using Indice.AspNetCore.Filters;
 using Indice.AspNetCore.Identity.Models;
 using Indice.Types;
 using Microsoft.AspNetCore.Authorization;

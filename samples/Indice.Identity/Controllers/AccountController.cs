@@ -12,7 +12,6 @@ using Indice.AspNetCore.Identity.Models;
 using Indice.AspNetCore.Identity.Services;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Indice.Identity.Controllers
@@ -27,8 +26,8 @@ namespace Indice.Identity.Controllers
         private readonly IIdentityServerInteractionService _interaction;
         private readonly IEventService _events;
         private readonly IClientStore _clientStore;
-        private readonly UserManager<User> _userManager;
-        private readonly SignInManager<User> _signInManager;
+        private readonly ExtendedUserManager<User> _userManager;
+        private readonly ExtendedSignInManager<User> _signInManager;
         private readonly AccountService _accountService;
         /// <summary>
         /// The name of the controller.
@@ -45,7 +44,7 @@ namespace Indice.Identity.Controllers
         /// <param name="signInManager">Provides the APIs for user sign in.</param>
         /// <param name="schemeProvider">Responsible for managing what authenticationSchemes are supported.</param>
         /// <param name="httpContextAccessor">Provides access to the current HTTP context.</param>
-        public AccountController(IIdentityServerInteractionService interaction, IEventService events, IClientStore clientStore, UserManager<User> userManager, SignInManager<User> signInManager, IAuthenticationSchemeProvider schemeProvider, 
+        public AccountController(IIdentityServerInteractionService interaction, IEventService events, IClientStore clientStore, ExtendedUserManager<User> userManager, ExtendedSignInManager<User> signInManager, IAuthenticationSchemeProvider schemeProvider, 
             IHttpContextAccessor httpContextAccessor) {
             _interaction = interaction ?? throw new ArgumentNullException(nameof(interaction));
             _events = events ?? throw new ArgumentNullException(nameof(events));

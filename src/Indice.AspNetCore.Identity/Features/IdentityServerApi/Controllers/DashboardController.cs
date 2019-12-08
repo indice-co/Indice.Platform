@@ -5,11 +5,12 @@ using System.Net.Mime;
 using System.ServiceModel.Syndication;
 using System.Threading.Tasks;
 using System.Xml;
+using Indice.AspNetCore.Filters;
 using Indice.AspNetCore.Identity.Models;
+using Indice.AspNetCore.Identity.Services;
 using Indice.Types;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -27,7 +28,7 @@ namespace Indice.AspNetCore.Identity.Features
     [ProblemDetailsExceptionFilter]
     internal class DashboardController : ControllerBase
     {
-        private readonly UserManager<User> _userManager;
+        private readonly ExtendedUserManager<User> _userManager;
         private readonly ExtendedConfigurationDbContext _configurationDbContext;
 
         /// <summary>
@@ -35,7 +36,7 @@ namespace Indice.AspNetCore.Identity.Features
         /// </summary>
         /// <param name="userManager">Provides the APIs for managing user in a persistence store.</param>
         /// <param name="configurationDbContext">Abstraction for the configuration context.</param>
-        public DashboardController(UserManager<User> userManager, ExtendedConfigurationDbContext configurationDbContext) {
+        public DashboardController(ExtendedUserManager<User> userManager, ExtendedConfigurationDbContext configurationDbContext) {
             _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
             _configurationDbContext = configurationDbContext ?? throw new ArgumentNullException(nameof(configurationDbContext));
         }

@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Hosting;
+﻿using System;
+using Indice.Extensions.Configuration.EFCore;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
 
 namespace Indice.Identity
@@ -22,6 +24,7 @@ namespace Indice.Identity
             Host.CreateDefaultBuilder(args)
                 .ConfigureWebHostDefaults(webHostBuilder => {
                     webHostBuilder.UseStartup<Startup>();
-                });
+                })
+                .UseEFConfiguration(reloadInterval: TimeSpan.FromHours(1));
     }
 }

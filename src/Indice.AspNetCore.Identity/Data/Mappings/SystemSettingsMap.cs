@@ -12,11 +12,11 @@ namespace Indice.AspNetCore.Identity.Data.Mappings
     {
         public void Configure(EntityTypeBuilder<SystemSettings> builder) {
             // Configure table name and schema.
-            builder.ToTable(nameof(SystemSettings), "auth");
+            builder.ToTable(nameof(SystemSettings), "config");
             // Configure primary key.
-            builder.HasKey(x => x.Id);
+            builder.HasKey(x => x.Key);
             // Configure fields.
-            builder.Property(x => x.Key).HasMaxLength(TextSizePresets.M128).IsRequired();
+            builder.Property(x => x.Key).HasMaxLength(TextSizePresets.M512);
             builder.Property(x => x.Value).HasMaxLength(TextSizePresets.L2048).IsRequired();
         }
     }

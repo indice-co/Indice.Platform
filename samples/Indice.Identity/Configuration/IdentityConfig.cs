@@ -24,10 +24,10 @@ namespace Microsoft.Extensions.DependencyInjection
             services.Configure<IdentityOptions>(configuration.GetSection(nameof(IdentityOptions)));
             return services.AddIdentity<User, Role>()
                            .AddExtendedSignInManager<User>()
+                           .AddUserStore<ExtendedUserStore<ExtendedIdentityDbContext<User, Role>, User, Role>>()
                            .AddPasswordValidator<PreviousPasswordAwareValidator<ExtendedIdentityDbContext<User, Role>, User, Role>>()
                            .AddEntityFrameworkStores<ExtendedIdentityDbContext<User, Role>>()
                            .AddClaimsTransform<ExtendedUserClaimsPrincipalFactory<User, Role>>()
-                           .AddUserStore<ExtendedUserStore<ExtendedIdentityDbContext<User, Role>, User, Role>>()
                            .AddDefaultTokenProviders();
         }
     }

@@ -6,10 +6,6 @@
     public class SystemSettings
     {
         /// <summary>
-        /// Primary key for setting.
-        /// </summary>
-        public int Id { get; set; }
-        /// <summary>
         /// The key of application setting.
         /// </summary>
         public string Key { get; set; }
