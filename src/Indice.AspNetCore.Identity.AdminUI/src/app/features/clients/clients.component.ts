@@ -25,7 +25,7 @@ export class ClientsComponent implements OnInit {
             { prop: 'clientId', name: 'Client Id', draggable: false, canAutoResize: true, sortable: true, resizeable: false, cellTemplate: this._clientIdTemplate },
             { prop: 'clientName', name: 'Client Name', draggable: false, canAutoResize: true, sortable: true, resizeable: false },
             { prop: 'enabled', name: 'Enabled', draggable: false, canAutoResize: true, sortable: true, resizeable: false, cellTemplate: this._clientsList.booleanTemplate },
-            { prop: 'clientId', name: 'Actions', draggable: false, canAutoResize: true, sortable: false, resizeable: false, cellTemplate: this._actionsTemplate, cellClass: 'd-flex align-items-center' }
+            { prop: 'clientId', name: 'Actions', draggable: false, canAutoResize: false, sortable: false, resizeable: false, cellTemplate: this._actionsTemplate, cellClass: 'd-flex align-items-center' }
         ];
     }
 

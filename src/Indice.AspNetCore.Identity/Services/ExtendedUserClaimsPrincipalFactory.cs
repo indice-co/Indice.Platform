@@ -20,7 +20,7 @@ namespace Indice.AspNetCore.Identity.Services
         /// </summary>
         /// <param name="userManager">The <see cref="UserManager{TUser}"/> to retrieve user information from.</param>
         /// <param name="roleManager">The <see cref="RoleManager{TRole}"/> to retrieve a user's roles from.</param>
-        /// <param name="optionsAccessor">The configured <see cref="SystemSettings"/>.</param>
+        /// <param name="optionsAccessor">The configured <see cref="AppSetting"/>.</param>
         public ExtendedUserClaimsPrincipalFactory(UserManager<User> userManager, RoleManager<IdentityRole> roleManager, IOptions<IdentityOptions> optionsAccessor)
             : base(userManager, roleManager, optionsAccessor) { }
 
@@ -44,7 +44,7 @@ namespace Indice.AspNetCore.Identity.Services
         /// </summary>
         /// <param name="userManager">The <see cref="UserManager{TUser}"/> to retrieve user information from.</param>
         /// <param name="roleManager">The <see cref="RoleManager{TRole}"/> to retrieve a user's roles from.</param>
-        /// <param name="optionsAccessor">The configured <see cref="SystemSettings"/>.</param>
+        /// <param name="optionsAccessor">The configured <see cref="AppSetting"/>.</param>
         public ExtendedUserClaimsPrincipalFactory(UserManager<TUser> userManager, RoleManager<TRole> roleManager, IOptions<IdentityOptions> optionsAccessor)
             : base(userManager, roleManager, optionsAccessor) { }
 

@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using FluentValidation;
 
 namespace Indice.Validation
@@ -11,7 +9,7 @@ namespace Indice.Validation
     public static class ValidatorExtensions
     {
         /// <summary>
-        /// Check the taxid number for format &amp; checksum.
+        /// Check the tax id number for format &amp; checksum.
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="ruleBuilder"></param>
@@ -25,7 +23,7 @@ namespace Indice.Validation
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="ruleBuilder"></param>
-        /// <param name="countryISO">the country two letter iso (ie GR)</param>
+        /// <param name="countryISO">The country two letter iso (ie GR)</param>
         /// <returns></returns>
         public static IRuleBuilderOptions<T, string> TaxCode<T>(this IRuleBuilder<T, string> ruleBuilder, string countryISO) => ruleBuilder.TaxCode(_ => countryISO);
 
@@ -33,7 +31,6 @@ namespace Indice.Validation
             if (string.IsNullOrEmpty(taxCode) || string.IsNullOrEmpty(countryISO)) {
                 return true;
             }
-
             try {
                 return TaxCodeValidator.CheckNumber(taxCode, countryISO);
             } catch (NotSupportedException) {
