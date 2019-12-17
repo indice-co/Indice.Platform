@@ -25,6 +25,6 @@ namespace Indice.Identity
                 .ConfigureWebHostDefaults(webHostBuilder => {
                     webHostBuilder.UseStartup<Startup>();
                 })
-                .UseEFConfiguration(reloadInterval: TimeSpan.FromHours(1));
+                .UseEFConfiguration(reloadInterval: TimeSpan.FromHours(1), connectionStringName: "IdentityDb");
     }
 }
