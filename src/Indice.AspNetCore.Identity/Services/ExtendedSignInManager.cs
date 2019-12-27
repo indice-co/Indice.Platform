@@ -141,7 +141,14 @@ namespace Indice.AspNetCore.Identity.Services
                 });
                 return new ExtendedSigninResult(!isEmailConfirmed && RequirePostSigninConfirmedEmail, !isPhoneConfirmed && RequirePostSigninConfirmedPhoneNumber, isPasswordExpired);
             }
-            return await base.SignInOrTwoFactorAsync(user, isPersistent, loginProvider, bypassTwoFactor);
+            var result = await base.SignInOrTwoFactorAsync(user, isPersistent, loginProvider, bypassTwoFactor);
+            if (result.Succeeded && (user is User)) {
+                try { 
+                (user as User).LastSignInDate = DateTimeOffset.UtcNow;
+                await UserManager.UpdateAsync(user);
+                } catch {; }
+            }
+            return result;
         }
 
         /// <summary>
