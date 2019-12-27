@@ -34,6 +34,10 @@ export class MenuService {
             new MenuItem('Claim Types', undefined, 'dripicons-ticket', this.isActiveMenuItem('/app/claim-types'), [
                 new MenuItem('Claims List', '/app/claim-types'),
                 new MenuItem('Add Claim', '/app/claim-types/add')
+            ]),
+            new MenuItem('App Settings', undefined, 'dripicons-gear', this.isActiveMenuItem('/app/settings'), [
+                new MenuItem('App Settings List', '/app/settings'),
+                new MenuItem('Add App Setting', '/app/settings/add')
             ])
         ]);
     }

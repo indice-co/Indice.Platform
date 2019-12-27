@@ -22,7 +22,7 @@ export class IdentityResourcesComponent implements OnInit {
             { prop: 'name', name: 'Id', draggable: false, canAutoResize: true, sortable: true, resizeable: false },
             { prop: 'displayName', name: 'Name', draggable: false, canAutoResize: true, sortable: true, resizeable: false },
             { prop: 'description', name: 'Description', draggable: false, canAutoResize: true, sortable: true, resizeable: false },
-            { prop: 'id', name: 'Actions', draggable: false, canAutoResize: true, sortable: false, resizeable: false, cellTemplate: this._actionsTemplate, cellClass: 'd-flex align-items-center' }
+            { prop: 'id', name: 'Actions', draggable: false, canAutoResize: false, sortable: false, resizeable: false, cellTemplate: this._actionsTemplate, cellClass: 'd-flex align-items-center' }
         ];
     }
 

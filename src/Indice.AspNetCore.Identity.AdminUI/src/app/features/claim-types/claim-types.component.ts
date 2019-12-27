@@ -27,7 +27,7 @@ export class ClaimTypesComponent implements OnInit {
             { prop: 'valueType', name: 'Value Type', draggable: false, canAutoResize: true, sortable: true, resizeable: false, cellTemplate: this._valueTypeTemplate },
             { prop: 'userEditable', name: 'User Editable', draggable: false, canAutoResize: true, sortable: true, resizeable: false, cellTemplate: this._claimTypesList.booleanTemplate },
             { prop: 'required', name: 'Required', draggable: false, canAutoResize: true, sortable: true, resizeable: false, cellTemplate: this._claimTypesList.booleanTemplate },
-            { prop: 'id', name: 'Actions', draggable: false, canAutoResize: true, sortable: false, resizeable: false, cellTemplate: this._actionsTemplate, cellClass: 'd-flex align-items-center' }
+            { prop: 'id', name: 'Actions', draggable: false, canAutoResize: false, sortable: false, resizeable: false, cellTemplate: this._actionsTemplate, cellClass: 'd-flex align-items-center' }
         ];
     }
 

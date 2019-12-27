@@ -6,13 +6,13 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 namespace Indice.AspNetCore.Identity.Data.Mappings
 {
     /// <summary>
-    /// Entity Framework mapping for type <see cref="SystemSettings"/>.
+    /// Entity Framework mapping for type <see cref="AppSetting"/>.
     /// </summary>
-    internal class SystemSettingsMap : IEntityTypeConfiguration<SystemSettings>
+    internal class AppSettingMap : IEntityTypeConfiguration<AppSetting>
     {
-        public void Configure(EntityTypeBuilder<SystemSettings> builder) {
+        public void Configure(EntityTypeBuilder<AppSetting> builder) {
             // Configure table name and schema.
-            builder.ToTable(nameof(SystemSettings), "config");
+            builder.ToTable(nameof(AppSetting), AppSetting.TableSchema);
             // Configure primary key.
             builder.HasKey(x => x.Key);
             // Configure fields.

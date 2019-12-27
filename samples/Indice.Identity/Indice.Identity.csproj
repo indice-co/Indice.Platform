@@ -14,7 +14,8 @@
   <ItemGroup>
     <PackageReference Include="Hellang.Middleware.ProblemDetails" Version="3.1.0" />
     <PackageReference Include="IdentityServer4.AspNetIdentity" Version="3.0.2" />
-    <PackageReference Include="Indice.AspNetCore.Identity" Version="3.0.13" />
+    <!--<PackageReference Include="Indice.AspNetCore.Identity" Version="3.1.1" />-->
+    <PackageReference Include="Microsoft.AspNetCore.AzureAppServices.HostingStartup" Version="3.1.0" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="3.1.0" />
     <PackageReference Include="Microsoft.AspNetCore.SpaServices.Extensions" Version="3.1.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="3.1.0" />
@@ -27,57 +28,5 @@
     <None Update="indice-idsrv.pfx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="wwwroot\admin-ui\assets\fonts\dripicons-v2.svg" />
-    <None Include="wwwroot\admin-ui\assets\fonts\ionicons.svg" />
-    <None Include="wwwroot\admin-ui\assets\fonts\ionicons.woff2" />
-    <None Include="wwwroot\admin-ui\assets\fonts\materialdesignicons-webfont.svg" />
-    <None Include="wwwroot\admin-ui\assets\fonts\materialdesignicons-webfont.woff2" />
-    <None Include="wwwroot\admin-ui\assets\fonts\themify.svg" />
-    <None Include="wwwroot\admin-ui\assets\fonts\typicons.scss" />
-    <None Include="wwwroot\admin-ui\assets\fonts\typicons.svg" />
-    <None Include="wwwroot\admin-ui\assets\img\logo.svg" />
-    <None Include="wwwroot\admin-ui\assets\scss\icons.scss" />
-    <None Include="wwwroot\admin-ui\assets\scss\style.scss" />
-    <None Include="wwwroot\admin-ui\assets\scss\_account-pages.scss" />
-    <None Include="wwwroot\admin-ui\assets\scss\_alertify.scss" />
-    <None Include="wwwroot\admin-ui\assets\scss\_alerts.scss" />
-    <None Include="wwwroot\admin-ui\assets\scss\_bootstrap-custom.scss" />
-    <None Include="wwwroot\admin-ui\assets\scss\_buttons.scss" />
-    <None Include="wwwroot\admin-ui\assets\scss\_calendar.scss" />
-    <None Include="wwwroot\admin-ui\assets\scss\_card.scss" />
-    <None Include="wwwroot\admin-ui\assets\scss\_charts.scss" />
-    <None Include="wwwroot\admin-ui\assets\scss\_colors.scss" />
-    <None Include="wwwroot\admin-ui\assets\scss\_custom.scss" />
-    <None Include="wwwroot\admin-ui\assets\scss\_demo-only.scss" />
-    <None Include="wwwroot\admin-ui\assets\scss\_footer.scss" />
-    <None Include="wwwroot\admin-ui\assets\scss\_form-advanced.scss" />
-    <None Include="wwwroot\admin-ui\assets\scss\_form-editor.scss" />
-    <None Include="wwwroot\admin-ui\assets\scss\_form-elements.scss" />
-    <None Include="wwwroot\admin-ui\assets\scss\_form-upload.scss" />
-    <None Include="wwwroot\admin-ui\assets\scss\_form-validation.scss" />
-    <None Include="wwwroot\admin-ui\assets\scss\_general.scss" />
-    <None Include="wwwroot\admin-ui\assets\scss\_helper.scss" />
-    <None Include="wwwroot\admin-ui\assets\scss\_invoice.scss" />
-    <None Include="wwwroot\admin-ui\assets\scss\_loader.scss" />
-    <None Include="wwwroot\admin-ui\assets\scss\_maps.scss" />
-    <None Include="wwwroot\admin-ui\assets\scss\_menu.scss" />
-    <None Include="wwwroot\admin-ui\assets\scss\_nestable.scss" />
-    <None Include="wwwroot\admin-ui\assets\scss\_page-head.scss" />
-    <None Include="wwwroot\admin-ui\assets\scss\_pagination.scss" />
-    <None Include="wwwroot\admin-ui\assets\scss\_popover-tooltips.scss" />
-    <None Include="wwwroot\admin-ui\assets\scss\_progressbar.scss" />
-    <None Include="wwwroot\admin-ui\assets\scss\_range-slider.scss" />
-    <None Include="wwwroot\admin-ui\assets\scss\_summernote.scss" />
-    <None Include="wwwroot\admin-ui\assets\scss\_sweet-alert.scss" />
-    <None Include="wwwroot\admin-ui\assets\scss\_tables.scss" />
-    <None Include="wwwroot\admin-ui\assets\scss\_tabs.scss" />
-    <None Include="wwwroot\admin-ui\assets\scss\_timeline.scss" />
-    <None Include="wwwroot\admin-ui\assets\scss\_topbar.scss" />
-    <None Include="wwwroot\admin-ui\assets\scss\_typeahead.scss" />
-    <None Include="wwwroot\admin-ui\assets\scss\_variables.scss" />
-    <None Include="wwwroot\admin-ui\assets\scss\_waves.scss" />
-    <None Include="wwwroot\admin-ui\assets\scss\_widgets.scss" />
   </ItemGroup>
 </Project>

@@ -14,7 +14,7 @@
   <PropertyGroup Label="Package">
     <PackageId>Indice.AspNetCore.Identity</PackageId>
     <PackageTags>AspNetCore;IdentityServer;</PackageTags>
-    <PackageReleaseNotes>Minor fix on DeleteApiResourceScope method.</PackageReleaseNotes>
+    <PackageReleaseNotes>Create EFConfigurationProvider for persisting settings in database.</PackageReleaseNotes>
     <PackageIcon>icon-310.png</PackageIcon>
     <PackageProjectUrl>https://github.com/indice-co/Indice.AspNet</PackageProjectUrl>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
@@ -31,11 +31,11 @@
     <None Include="..\..\icon\icon-310.png" Pack="true" Visible="false" PackagePath="" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Bogus" Version="28.4.3" />
+    <PackageReference Include="Bogus" Version="28.4.4" />
     <PackageReference Include="IdentityServer4" Version="3.0.2" />
     <PackageReference Include="IdentityServer4.AccessTokenValidation" Version="3.0.1" />
     <PackageReference Include="IdentityServer4.EntityFramework" Version="3.0.2" />
-    <PackageReference Include="Indice.AspNetCore" Version="3.1.0" />
+    <PackageReference Include="Indice.AspNetCore" Version="3.1.1" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="3.1.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="3.1.0" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="3.1.0" />

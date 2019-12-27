@@ -51,7 +51,7 @@ namespace Indice.Extensions.Configuration.EFCore
             using (var dbContext = new IdentityDbContext(builder.Options)) {
                 var canConnect = await dbContext.Database.CanConnectAsync();
                 if (canConnect) {
-                    var data = await dbContext.SystemSettings.ToDictionaryAsync(x => x.Key, y => y.Value);
+                    var data = await dbContext.AppSettings.ToDictionaryAsync(x => x.Key, y => y.Value);
                     if (data != null) {
                         Data = data;
                     }
@@ -60,7 +60,7 @@ namespace Indice.Extensions.Configuration.EFCore
             OnReload();
             // Schedule a polling task only if none exists and a valid delay is specified.
             if (_pollingTask == null && _reloadInterval != null) {
-                _pollingTask = PollForSecretChanges();
+                _pollingTask = PollForSettingsChanges();
             }
         }
 
@@ -68,7 +68,7 @@ namespace Indice.Extensions.Configuration.EFCore
             await Task.Delay(_reloadInterval.Value, _cancellationToken.Token);
         }
 
-        private async Task PollForSecretChanges() {
+        private async Task PollForSettingsChanges() {
             while (!_cancellationToken.IsCancellationRequested) {
                 await WaitForReload();
                 try {

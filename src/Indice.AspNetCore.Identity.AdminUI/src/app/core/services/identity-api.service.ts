@@ -30,6 +30,46 @@ export interface IIdentityApiService {
      */
     setPassword(userId: string, body?: SetPasswordRequest | undefined): Observable<void>;
     /**
+     * Returns a list of Indice.AspNetCore.Identity.Features.AppSettingInfo objects containing the total number of app settings in the database and the data filtered according to the provided Indice.Types.ListOptions.
+     * @param page (optional) 
+     * @param size (optional) 
+     * @param sort (optional) 
+     * @param search (optional) 
+     * @return OK
+     */
+    getSettings(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined): Observable<AppSettingInfoResultSet>;
+    /**
+     * Creates a new application setting.
+     * @param body (optional) Contains info about the application setting to be created.
+     * @return Created
+     */
+    createSetting(body?: CreateAppSettingRequest | undefined): Observable<AppSettingInfo>;
+    /**
+     * Gets an application setting by it's key.
+     * @param key The key of the setting.
+     * @return OK
+     */
+    getSetting(key: string): Observable<AppSettingInfo>;
+    /**
+     * Updates an existing application setting.
+     * @param key The key of the setting to update.
+     * @param body (optional) Contains info about the application setting to update.
+     * @return OK
+     */
+    updateSetting(key: string, body?: UpdateAppSettingRequest | undefined): Observable<AppSettingInfo>;
+    /**
+     * Permanently deletes an application setting.
+     * @param key The key of the setting.
+     * @return OK
+     */
+    deleteSetting(key: string): Observable<void>;
+    /**
+     * Loads the appsettings.json file and saves the configuration in the database.
+     * @param hardRefresh (optional) 
+     * @return OK
+     */
+    loadFromAppSettings(hardRefresh?: boolean | undefined): Observable<void>;
+    /**
      * Returns a list of Indice.AspNetCore.Identity.Features.ClaimTypeInfo objects containing the total number of claim types in the database and the data filtered according to the provided Indice.Types.ListOptions.
      * @param filter_Required (optional) Determines whether this claim is required to create new users.
      * @param page (optional) 
@@ -613,6 +653,528 @@ export class IdentityApiService implements IIdentityApiService {
         } else if (status === 404) {
             return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
             return throwException("Not Found", status, _responseText, _headers);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<void>(<any>null);
+    }
+
+    /**
+     * Returns a list of Indice.AspNetCore.Identity.Features.AppSettingInfo objects containing the total number of app settings in the database and the data filtered according to the provided Indice.Types.ListOptions.
+     * @param page (optional) 
+     * @param size (optional) 
+     * @param sort (optional) 
+     * @param search (optional) 
+     * @return OK
+     */
+    getSettings(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined): Observable<AppSettingInfoResultSet> {
+        let url_ = this.baseUrl + "/api/app-settings?";
+        if (page === null)
+            throw new Error("The parameter 'page' cannot be null.");
+        else if (page !== undefined)
+            url_ += "Page=" + encodeURIComponent("" + page) + "&"; 
+        if (size === null)
+            throw new Error("The parameter 'size' cannot be null.");
+        else if (size !== undefined)
+            url_ += "Size=" + encodeURIComponent("" + size) + "&"; 
+        if (sort === null)
+            throw new Error("The parameter 'sort' cannot be null.");
+        else if (sort !== undefined)
+            url_ += "Sort=" + encodeURIComponent("" + sort) + "&"; 
+        if (search === null)
+            throw new Error("The parameter 'search' cannot be null.");
+        else if (search !== undefined)
+            url_ += "Search=" + encodeURIComponent("" + search) + "&"; 
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",			
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetSettings(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetSettings(<any>response_);
+                } catch (e) {
+                    return <Observable<AppSettingInfoResultSet>><any>_observableThrow(e);
+                }
+            } else
+                return <Observable<AppSettingInfoResultSet>><any>_observableThrow(response_);
+        }));
+    }
+
+    protected processGetSettings(response: HttpResponseBase): Observable<AppSettingInfoResultSet> {
+        const status = response.status;
+        const responseBlob = 
+            response instanceof HttpResponse ? response.body : 
+            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }};
+        if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ValidationProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            }));
+        } else if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = AppSettingInfoResultSet.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("Internal Server Error", status, _responseText, _headers);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<AppSettingInfoResultSet>(<any>null);
+    }
+
+    /**
+     * Creates a new application setting.
+     * @param body (optional) Contains info about the application setting to be created.
+     * @return Created
+     */
+    createSetting(body?: CreateAppSettingRequest | undefined): Observable<AppSettingInfo> {
+        let url_ = this.baseUrl + "/api/app-settings";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",			
+            headers: new HttpHeaders({
+                "Content-Type": "application/json", 
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processCreateSetting(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processCreateSetting(<any>response_);
+                } catch (e) {
+                    return <Observable<AppSettingInfo>><any>_observableThrow(e);
+                }
+            } else
+                return <Observable<AppSettingInfo>><any>_observableThrow(response_);
+        }));
+    }
+
+    protected processCreateSetting(response: HttpResponseBase): Observable<AppSettingInfo> {
+        const status = response.status;
+        const responseBlob = 
+            response instanceof HttpResponse ? response.body : 
+            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }};
+        if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ValidationProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            }));
+        } else if (status === 201) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result201: any = null;
+            let resultData201 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result201 = AppSettingInfo.fromJS(resultData201);
+            return _observableOf(result201);
+            }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("Internal Server Error", status, _responseText, _headers);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<AppSettingInfo>(<any>null);
+    }
+
+    /**
+     * Gets an application setting by it's key.
+     * @param key The key of the setting.
+     * @return OK
+     */
+    getSetting(key: string): Observable<AppSettingInfo> {
+        let url_ = this.baseUrl + "/api/app-settings/{key}";
+        if (key === undefined || key === null)
+            throw new Error("The parameter 'key' must be defined.");
+        url_ = url_.replace("{key}", encodeURIComponent("" + key)); 
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",			
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetSetting(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetSetting(<any>response_);
+                } catch (e) {
+                    return <Observable<AppSettingInfo>><any>_observableThrow(e);
+                }
+            } else
+                return <Observable<AppSettingInfo>><any>_observableThrow(response_);
+        }));
+    }
+
+    protected processGetSetting(response: HttpResponseBase): Observable<AppSettingInfo> {
+        const status = response.status;
+        const responseBlob = 
+            response instanceof HttpResponse ? response.body : 
+            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }};
+        if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ValidationProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            }));
+        } else if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = AppSettingInfo.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status === 404) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = ProblemDetails.fromJS(resultData404);
+            return throwException("Not Found", status, _responseText, _headers, result404);
+            }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("Internal Server Error", status, _responseText, _headers);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<AppSettingInfo>(<any>null);
+    }
+
+    /**
+     * Updates an existing application setting.
+     * @param key The key of the setting to update.
+     * @param body (optional) Contains info about the application setting to update.
+     * @return OK
+     */
+    updateSetting(key: string, body?: UpdateAppSettingRequest | undefined): Observable<AppSettingInfo> {
+        let url_ = this.baseUrl + "/api/app-settings/{key}";
+        if (key === undefined || key === null)
+            throw new Error("The parameter 'key' must be defined.");
+        url_ = url_.replace("{key}", encodeURIComponent("" + key)); 
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",			
+            headers: new HttpHeaders({
+                "Content-Type": "application/json", 
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("put", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processUpdateSetting(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processUpdateSetting(<any>response_);
+                } catch (e) {
+                    return <Observable<AppSettingInfo>><any>_observableThrow(e);
+                }
+            } else
+                return <Observable<AppSettingInfo>><any>_observableThrow(response_);
+        }));
+    }
+
+    protected processUpdateSetting(response: HttpResponseBase): Observable<AppSettingInfo> {
+        const status = response.status;
+        const responseBlob = 
+            response instanceof HttpResponse ? response.body : 
+            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }};
+        if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ValidationProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            }));
+        } else if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = AppSettingInfo.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status === 404) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = ProblemDetails.fromJS(resultData404);
+            return throwException("Not Found", status, _responseText, _headers, result404);
+            }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("Internal Server Error", status, _responseText, _headers);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<AppSettingInfo>(<any>null);
+    }
+
+    /**
+     * Permanently deletes an application setting.
+     * @param key The key of the setting.
+     * @return OK
+     */
+    deleteSetting(key: string): Observable<void> {
+        let url_ = this.baseUrl + "/api/app-settings/{key}";
+        if (key === undefined || key === null)
+            throw new Error("The parameter 'key' must be defined.");
+        url_ = url_.replace("{key}", encodeURIComponent("" + key)); 
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",			
+            headers: new HttpHeaders({
+            })
+        };
+
+        return this.http.request("delete", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processDeleteSetting(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processDeleteSetting(<any>response_);
+                } catch (e) {
+                    return <Observable<void>><any>_observableThrow(e);
+                }
+            } else
+                return <Observable<void>><any>_observableThrow(response_);
+        }));
+    }
+
+    protected processDeleteSetting(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob = 
+            response instanceof HttpResponse ? response.body : 
+            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }};
+        if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ValidationProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            }));
+        } else if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return _observableOf<void>(<any>null);
+            }));
+        } else if (status === 404) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = ProblemDetails.fromJS(resultData404);
+            return throwException("Not Found", status, _responseText, _headers, result404);
+            }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("Internal Server Error", status, _responseText, _headers);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<void>(<any>null);
+    }
+
+    /**
+     * Loads the appsettings.json file and saves the configuration in the database.
+     * @param hardRefresh (optional) 
+     * @return OK
+     */
+    loadFromAppSettings(hardRefresh?: boolean | undefined): Observable<void> {
+        let url_ = this.baseUrl + "/api/app-settings/load?";
+        if (hardRefresh === null)
+            throw new Error("The parameter 'hardRefresh' cannot be null.");
+        else if (hardRefresh !== undefined)
+            url_ += "hardRefresh=" + encodeURIComponent("" + hardRefresh) + "&"; 
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",			
+            headers: new HttpHeaders({
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processLoadFromAppSettings(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processLoadFromAppSettings(<any>response_);
+                } catch (e) {
+                    return <Observable<void>><any>_observableThrow(e);
+                }
+            } else
+                return <Observable<void>><any>_observableThrow(response_);
+        }));
+    }
+
+    protected processLoadFromAppSettings(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob = 
+            response instanceof HttpResponse ? response.body : 
+            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }};
+        if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ValidationProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            }));
+        } else if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return _observableOf<void>(<any>null);
+            }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("Internal Server Error", status, _responseText, _headers);
             }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
@@ -6040,6 +6602,186 @@ export class SetPasswordRequest implements ISetPasswordRequest {
 export interface ISetPasswordRequest {
     /** The password of the user. */
     password: string | undefined;
+}
+
+/** Models an application setting persisted in the database. */
+export class AppSettingInfo implements IAppSettingInfo {
+    /** The key of application setting. */
+    key?: string | undefined;
+    /** The value of application setting. */
+    value?: string | undefined;
+
+    constructor(data?: IAppSettingInfo) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.key = _data["key"];
+            this.value = _data["value"];
+        }
+    }
+
+    static fromJS(data: any): AppSettingInfo {
+        data = typeof data === 'object' ? data : {};
+        let result = new AppSettingInfo();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["key"] = this.key;
+        data["value"] = this.value;
+        return data; 
+    }
+}
+
+/** Models an application setting persisted in the database. */
+export interface IAppSettingInfo {
+    /** The key of application setting. */
+    key?: string | undefined;
+    /** The value of application setting. */
+    value?: string | undefined;
+}
+
+export class AppSettingInfoResultSet implements IAppSettingInfoResultSet {
+    count?: number;
+    items?: AppSettingInfo[] | undefined;
+
+    constructor(data?: IAppSettingInfoResultSet) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.count = _data["count"];
+            if (Array.isArray(_data["items"])) {
+                this.items = [] as any;
+                for (let item of _data["items"])
+                    this.items!.push(AppSettingInfo.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): AppSettingInfoResultSet {
+        data = typeof data === 'object' ? data : {};
+        let result = new AppSettingInfoResultSet();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["count"] = this.count;
+        if (Array.isArray(this.items)) {
+            data["items"] = [];
+            for (let item of this.items)
+                data["items"].push(item.toJSON());
+        }
+        return data; 
+    }
+}
+
+export interface IAppSettingInfoResultSet {
+    count?: number;
+    items?: AppSettingInfo[] | undefined;
+}
+
+/** Models an application setting persisted in the database. */
+export class CreateAppSettingRequest implements ICreateAppSettingRequest {
+    /** The key of application setting. */
+    key?: string | undefined;
+    /** The value of application setting. */
+    value?: string | undefined;
+
+    constructor(data?: ICreateAppSettingRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.key = _data["key"];
+            this.value = _data["value"];
+        }
+    }
+
+    static fromJS(data: any): CreateAppSettingRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new CreateAppSettingRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["key"] = this.key;
+        data["value"] = this.value;
+        return data; 
+    }
+}
+
+/** Models an application setting persisted in the database. */
+export interface ICreateAppSettingRequest {
+    /** The key of application setting. */
+    key?: string | undefined;
+    /** The value of application setting. */
+    value?: string | undefined;
+}
+
+/** Models an application setting that will be updated on the server. */
+export class UpdateAppSettingRequest implements IUpdateAppSettingRequest {
+    /** The value of application setting. */
+    value?: string | undefined;
+
+    constructor(data?: IUpdateAppSettingRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.value = _data["value"];
+        }
+    }
+
+    static fromJS(data: any): UpdateAppSettingRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new UpdateAppSettingRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["value"] = this.value;
+        return data; 
+    }
+}
+
+/** Models an application setting that will be updated on the server. */
+export interface IUpdateAppSettingRequest {
+    /** The value of application setting. */
+    value?: string | undefined;
 }
 
 /** Describes value type names. */

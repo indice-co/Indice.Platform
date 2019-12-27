@@ -36,7 +36,7 @@ namespace Indice.Extensions.Configuration.EFCore
         /// <param name="reloadInterval">The <see cref="TimeSpan"/> to wait in between each attempt at polling the database for changes. Default is null which indicates no reloading.</param>
         /// <param name="connectionStringName">The name of the connection string to user. Default is 'IdentityDb'</param>
         /// <returns>The <see cref="IHostBuilder"/>.</returns>
-        public static IHostBuilder UseEFConfiguration(this IHostBuilder hostBuilder, TimeSpan? reloadInterval = null, string connectionStringName = "IdentityDb") {
+        public static IHostBuilder UseEFConfiguration(this IHostBuilder hostBuilder, TimeSpan? reloadInterval = null, string connectionStringName = "DefaultConnection") {
             hostBuilder.ConfigureAppConfiguration((hostBuilderContext, configurationBuilder) => {
                 var builder = configurationBuilder.Build();
                 configurationBuilder.AddEFConfiguration(options => {

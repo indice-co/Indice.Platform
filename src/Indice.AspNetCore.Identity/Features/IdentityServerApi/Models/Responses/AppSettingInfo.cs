@@ -1,9 +1,9 @@
-﻿namespace Indice.AspNetCore.Identity.Models
+﻿namespace Indice.AspNetCore.Identity.Features
 {
     /// <summary>
-    /// Models application settings stored in the database.
+    /// Models an application setting persisted in the database.
     /// </summary>
-    public class SystemSettings
+    public class AppSettingInfo
     {
         /// <summary>
         /// The key of application setting.

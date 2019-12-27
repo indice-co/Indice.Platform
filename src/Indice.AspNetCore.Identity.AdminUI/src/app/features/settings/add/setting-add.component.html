@@ -2,9 +2,9 @@
     <div class="col-12">
         <div class="card m-b-30 m-t-30">
             <div class="card-body">
-                <h4 class="mt-0 header-title">Add Role</h4>
+                <h4 class="mt-0 header-title">Add Setting</h4>
                 <p class="text-muted m-b-30 font-14">
-                    Add a custom role.
+                    Add an application setting.
                 </p>
                 <form class="needs-validation"
                       [ngClass]="{ 'was-validated': form.submitted }"
@@ -15,40 +15,44 @@
                                             #validationSummary>
                     </app-validation-summary>
                     <div class="form-group row">
-                        <label for="role-name"
+                        <label for="setting-name"
                                class="col-sm-2 col-form-label">
                             Name (*)
                         </label>
                         <div class="col-sm-10">
-                            <input id="role-name"
-                                   name="role-name"
+                            <input id="setting-name"
+                                   name="setting-name"
                                    type="text"
                                    class="form-control"
-                                   [ngClass]="{ 'invalid': form.submitted && name.invalid }"
-                                   [(ngModel)]="role.name"
+                                   [ngClass]="{ 'invalid': form.submitted && key.invalid }"
+                                   [(ngModel)]="setting.key"
                                    required
-                                   maxlength="64"
-                                   #name="ngModel" />
-                            <div *ngIf="form.submitted && name.invalid"
+                                   maxlength="512"
+                                   #key="ngModel" />
+                            <div *ngIf="form.submitted && key.invalid"
                                  class="form-control-feedback text-danger">
                                 Field 'Name' is required.
                             </div>
                         </div>
                     </div>
                     <div class="form-group row">
-                        <label for="role-description"
+                        <label for="setting-value"
                                class="col-sm-2 col-form-label">
-                            Description
+                            Value (*)
                         </label>
                         <div class="col-sm-10">
-                            <textarea id="role-description"
-                                      name="role-description"
-                                      class="form-control"
-                                      rows="3"
-                                      maxlength="512"
-                                      [(ngModel)]="role.description"
-                                      #description="ngModel">
-                            </textarea>
+                            <input id="setting-value"
+                                   name="setting-value"
+                                   class="form-control"
+                                   rows="3"
+                                   required
+                                   maxlength="2048"
+                                   [(ngModel)]="setting.value"
+                                   #value="ngModel" />
+                            <div *ngIf="form.submitted && value.invalid"
+                                 class="form-control-feedback text-danger">
+                                Field 'Value' is required.
+                            </div>
                         </div>
                     </div>
                     <div class="form-group">

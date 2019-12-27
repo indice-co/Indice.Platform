@@ -22,7 +22,7 @@ export class RolesComponent implements OnInit {
         this.columns = [
             { prop: 'name', name: 'Name', draggable: false, canAutoResize: true, sortable: true, resizeable: false },
             { prop: 'description', name: 'Description', draggable: false, canAutoResize: true, sortable: false, resizeable: false },
-            { prop: 'id', name: 'Actions', draggable: false, canAutoResize: true, sortable: false, resizeable: false, cellTemplate: this.actionsTemplate, cellClass: 'd-flex align-items-center' }
+            { prop: 'id', name: 'Actions', draggable: false, canAutoResize: false, sortable: false, resizeable: false, cellTemplate: this.actionsTemplate, cellClass: 'd-flex align-items-center' }
         ];
     }
 

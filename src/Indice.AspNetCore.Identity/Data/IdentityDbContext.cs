@@ -39,7 +39,7 @@ namespace Indice.AspNetCore.Identity.Data
         /// <summary>
         /// Stores system settings in the database.
         /// </summary>
-        internal DbSet<SystemSettings> SystemSettings { get; set; }
+        internal DbSet<AppSetting> AppSettings { get; set; }
 
         /// <summary>
         /// Configures schema needed for the Identity framework.
@@ -55,7 +55,7 @@ namespace Indice.AspNetCore.Identity.Data
             builder.Entity<IdentityUserLogin<string>>().ToTable("UserLogin", "auth");
             builder.ApplyConfiguration(new UserMap<TUser>());
             builder.ApplyConfiguration(new UserPasswordMap<TUser>());
-            builder.ApplyConfiguration(new SystemSettingsMap());
+            builder.ApplyConfiguration(new AppSettingMap());
         }
     }
 }
