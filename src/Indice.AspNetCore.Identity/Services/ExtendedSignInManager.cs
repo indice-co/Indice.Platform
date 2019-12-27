@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using IdentityModel;
 using Indice.AspNetCore.Identity.Authorization;
 using Indice.AspNetCore.Identity.Models;
+using Indice.Security;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -124,15 +125,21 @@ namespace Indice.AspNetCore.Identity.Services
         protected override async Task<SignInResult> SignInOrTwoFactorAsync(TUser user, bool isPersistent, string loginProvider = null, bool bypassTwoFactor = false) {
             var isEmailConfirmed = await UserManager.IsEmailConfirmedAsync(user);
             var isPhoneConfirmed = await UserManager.IsPhoneNumberConfirmedAsync(user);
-            if ((!isEmailConfirmed || !isPhoneConfirmed) && (RequirePostSigninConfirmedEmail || RequirePostSigninConfirmedPhoneNumber)) {
+            var isPasswordExpired = false;
+            if (user is User) {
+                isPasswordExpired = (user as User).HasExpiredPassword();
+            }
+            var doPartialSignin = (!isEmailConfirmed || !isPhoneConfirmed) && (RequirePostSigninConfirmedEmail || RequirePostSigninConfirmedPhoneNumber);
+            doPartialSignin = doPartialSignin || isPasswordExpired;
+            if (doPartialSignin) {
                 // Store the userId for use after two factor check.
                 var userId = await UserManager.GetUserIdAsync(user);
                 var returnUrl = Context.Request.Query["ReturnUrl"];
-                await Context.SignInAsync(ExtendedIdentityConstants.ExtendedValidationUserIdScheme, StoreValidationInfo(userId, isEmailConfirmed, isPhoneConfirmed), new AuthenticationProperties {
+                await Context.SignInAsync(ExtendedIdentityConstants.ExtendedValidationUserIdScheme, StoreValidationInfo(userId, isEmailConfirmed, isPhoneConfirmed, isPasswordExpired), new AuthenticationProperties {
                     RedirectUri = returnUrl,
                     IsPersistent = isPersistent
                 });
-                return new ExtendedSigninResult(!isEmailConfirmed && RequirePostSigninConfirmedEmail, !isPhoneConfirmed && RequirePostSigninConfirmedPhoneNumber);
+                return new ExtendedSigninResult(!isEmailConfirmed && RequirePostSigninConfirmedEmail, !isPhoneConfirmed && RequirePostSigninConfirmedPhoneNumber, isPasswordExpired);
             }
             return await base.SignInOrTwoFactorAsync(user, isPersistent, loginProvider, bypassTwoFactor);
         }
@@ -170,12 +177,14 @@ namespace Indice.AspNetCore.Identity.Services
         /// <param name="userId">The user whose is logging in.</param>
         /// <param name="isEmailConfirmed">Flag indicating whether the user has confirmed his email address.</param>
         /// <param name="isPhoneConfirmed">Flag indicating whether the user has confirmed his phone number.</param>
+        /// <param name="isPasswordExpired">Flag indicating whether the user has an expired password.</param>
         /// <returns>A <see cref="ClaimsPrincipal"/> containing the user 2fa information.</returns>
-        internal ClaimsPrincipal StoreValidationInfo(string userId, bool isEmailConfirmed, bool isPhoneConfirmed) {
+        internal ClaimsPrincipal StoreValidationInfo(string userId, bool isEmailConfirmed, bool isPhoneConfirmed, bool isPasswordExpired) {
             var identity = new ClaimsIdentity(ExtendedIdentityConstants.ExtendedValidationUserIdScheme);
             identity.AddClaim(new Claim(JwtClaimTypes.Subject, userId));
             identity.AddClaim(new Claim(JwtClaimTypes.EmailVerified, isEmailConfirmed.ToString().ToLower()));
             identity.AddClaim(new Claim(JwtClaimTypes.PhoneNumberVerified, isPhoneConfirmed.ToString().ToLower()));
+            identity.AddClaim(new Claim(ExtendedIdentityConstants.PasswordExpiredClaimType, isPasswordExpired.ToString().ToLower()));
             return new ClaimsPrincipal(identity);
         }
     }
@@ -188,9 +197,10 @@ namespace Indice.AspNetCore.Identity.Services
         /// <summary>
         /// Construct an instance of <see cref="ExtendedSigninResult"/>.
         /// </summary>
-        public ExtendedSigninResult(bool requiresEmailValidation, bool requiresPhoneNumberValidation) {
+        public ExtendedSigninResult(bool requiresEmailValidation, bool requiresPhoneNumberValidation, bool requiredPasswordChange) {
             RequiresEmailValidation = requiresEmailValidation;
             RequiresPhoneNumberValidation = requiresPhoneNumberValidation;
+            RequiresPasswordChange = requiredPasswordChange;
         }
 
         /// <summary>
@@ -203,6 +213,11 @@ namespace Indice.AspNetCore.Identity.Services
         /// </summary>
         /// <value>True if the user attempting to sign-in requires email confirmation, otherwise false.</value>
         public bool RequiresEmailValidation { get; }
+        /// <summary>
+        /// Returns a flag indication whether the user attempting to sign-in requires an immediate password change due to expiration.
+        /// </summary>
+        /// <value>True if the user attempting to sign-in requires a password change, otherwise false.</value>
+        public bool RequiresPasswordChange { get; set; }
     }
 
     /// <summary>
@@ -221,5 +236,10 @@ namespace Indice.AspNetCore.Identity.Services
         /// Returns a flag indication whether the user attempting to sign-in requires email confirmation .
         /// </summary>
         public static bool RequiresEmailConfirmation(this SignInResult result) => (result as ExtendedSigninResult)?.RequiresEmailValidation == true;
+
+        /// <summary>
+        /// Returns a flag indication whether the user attempting to sign-in requires email confirmation .
+        /// </summary>
+        public static bool RequiresPasswordChange(this SignInResult result) => (result as ExtendedSigninResult)?.RequiresPasswordChange == true;
     }
 }

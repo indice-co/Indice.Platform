@@ -53,6 +53,16 @@ namespace Indice.AspNetCore.Identity.Models
         public DateTimeOffset? LastPasswordChangeDate { get; set; }
 
         /// <summary>
+        /// Represents the password expiration policy the value is measured in days.
+        /// </summary>
+        public PasswordExpirationPolicy? PasswordExpirationPolicy { get; set; }
+
+        /// <summary>
+        /// If set, it represents the date when the current password will expire.
+        /// </summary>
+        public DateTimeOffset? PasswordExpirationDate { get; set; }
+
+        /// <summary>
         /// System administrator Indicator.
         /// </summary>
         public bool Admin { get; set; }
@@ -76,5 +86,42 @@ namespace Indice.AspNetCore.Identity.Models
         /// Navigation property for this users login accounts.
         /// </summary>
         public virtual ICollection<IdentityUserLogin<string>> Logins { get; } = new List<IdentityUserLogin<string>>();
+
+        /// <summary>
+        /// Calculate the next date that the user must change his password
+        /// </summary>
+        /// <returns></returns>
+        public DateTimeOffset? CalculatePasswordExpirationDate() {
+            if (!PasswordExpirationPolicy.HasValue) {
+                return null;
+            }
+            var lastChange = LastPasswordChangeDate ?? DateTime.UtcNow;
+            return PasswordExpirationPolicy.Value switch
+            {
+                Models.PasswordExpirationPolicy.Never => null,
+                Models.PasswordExpirationPolicy.NextLogin => lastChange,
+                Models.PasswordExpirationPolicy.Monthly => lastChange.AddMonths(1),
+                Models.PasswordExpirationPolicy.Quarterly => lastChange.AddMonths(3),
+                Models.PasswordExpirationPolicy.Semesterly => lastChange.AddMonths(6),
+                Models.PasswordExpirationPolicy.Anually => lastChange.AddMonths(12),
+                Models.PasswordExpirationPolicy.Bianually => lastChange.AddMonths(24),
+                _ => lastChange.AddDays((int)PasswordExpirationPolicy.Value),
+            };
+        }
+
+        /// <summary>
+        /// Check to see if the current password has expired according to current password expiration policy.
+        /// </summary>
+        /// <param name="now">the date to use as now</param>
+        /// <returns></returns>
+        public bool HasExpiredPassword(DateTime? now = null) {
+            var expired = false;
+            now ??= DateTime.UtcNow;
+            if (PasswordExpirationPolicy.HasValue) {
+                var expirationDate = CalculatePasswordExpirationDate();
+                expired = expirationDate.HasValue && expirationDate <= now;
+            }
+            return expired;
+        }
     }
 }
