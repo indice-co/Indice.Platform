@@ -19,6 +19,21 @@ namespace Indice.Identity.Models.Validators
     }
 
     /// <summary>
+    /// Validator for <see cref="PasswordExpiredModel"/> model.
+    /// </summary>
+    public class PasswordExpiredValidator : AbstractValidator<PasswordExpiredModel>
+    {
+        /// <summary>
+        /// Creates a new instance of <see cref="ChangePasswordValidator"/>.
+        /// </summary>
+        public PasswordExpiredValidator() {
+            RuleFor(x => x.NewPassword).NotEmpty().WithName(nameof(PasswordExpiredModel.NewPassword).Humanize(LetterCasing.Sentence));
+            RuleFor(x => x.NewPasswordConfirmation).NotEmpty().WithName(nameof(PasswordExpiredModel.NewPasswordConfirmation).Humanize(LetterCasing.Sentence));
+            RuleFor(x => x.NewPasswordConfirmation).Equal(x => x.NewPassword).WithName(nameof(PasswordExpiredModel.NewPasswordConfirmation).Humanize(LetterCasing.Sentence));
+        }
+    }
+
+    /// <summary>
     /// Validator for <see cref="ForgotPasswordRequest"/> model.
     /// </summary>
     public class ForgotPasswordValidator : AbstractValidator<ForgotPasswordRequest>
