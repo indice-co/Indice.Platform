@@ -291,5 +291,6 @@ __pycache__/
 samples/Indice.Identity/tempkey.rsa
 samples/Indice.Identity/wwwroot/lib
 samples/Indice.Identity/wwwroot/admin-ui
+samples/Indice.Identity/logs
 samples/Indice.Identity/compilerconfig.json
 samples/Indice.Identity/compilerconfig.json.defaults
