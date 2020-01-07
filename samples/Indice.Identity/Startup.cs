@@ -123,7 +123,6 @@ namespace Indice.Identity
                     context.Context.Response.Headers.Append(HeaderNames.Expires, DateTime.UtcNow.AddSeconds(durationInSeconds).ToString("R", CultureInfo.InvariantCulture));
                 }
             });
-            app.UseSpaStaticFiles();
             app.UseResponseCaching();
             app.UseSwagger();
             var enableSwagger = HostingEnvironment.IsDevelopment() || Configuration.GetValue<bool>($"{GeneralSettings.Name}:SwaggerUI");
@@ -141,6 +140,7 @@ namespace Indice.Identity
                 endpoints.MapControllerRoute("default", "{controller=Welcome}/{action=Index}/{id?}");
             });
             if (!HostingEnvironment.IsDevelopment()) {
+                app.UseSpaStaticFiles();
                 app.UseSpa(builder => {
                     builder.Options.SourcePath = "wwwroot/admin-ui";
                 });
