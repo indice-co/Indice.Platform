@@ -25,11 +25,17 @@ namespace Indice.Types
         public double Longitude { get; set; }
 
         /// <summary>
+        /// The elevation
+        /// </summary>
+        public double? Elevation { get; set; }
+
+        /// <summary>
         /// Default string representation
         /// </summary>
         /// <returns></returns>
         public override string ToString() {
-            return string.Format(CultureInfo.InvariantCulture, "{0:G},{1:G}", Latitude, Longitude);
+            var mask = Elevation.HasValue ? "{0:G},{1:G},{2:G}" : "{0:G},{1:G}";
+            return string.Format(CultureInfo.InvariantCulture, mask, Latitude, Longitude, Elevation);
         }
 
         /// <summary>
@@ -37,7 +43,8 @@ namespace Indice.Types
         /// </summary>
         /// <returns></returns>
         public string ToDbGeographyString() {
-            return string.Format(CultureInfo.InvariantCulture, "POINT ({1:G} {0:G})", Latitude, Longitude);
+            var mask = Elevation.HasValue ? "POINT ({1:G} {0:G} {2:G})" : "POINT ({1:G} {0:G})";
+            return string.Format(CultureInfo.InvariantCulture, mask, Latitude, Longitude, Elevation);
         }
 
         // https://developer.here.com/documentation/places/topics/location-contexts.html#location-contexts__position-format
@@ -49,7 +56,8 @@ namespace Indice.Types
         /// </summary>
         /// <returns></returns>
         public string ToHeaderGeographyString() {
-            return string.Format(CultureInfo.InvariantCulture, "geo:{0:G},{1:G};cgen=map", Latitude, Longitude);
+            var mask = Elevation.HasValue ? "geo:{0:G},{1:G},{2:G};cgen=map" : "geo:{0:G},{1:G};cgen=map";
+            return string.Format(CultureInfo.InvariantCulture, mask, Latitude, Longitude, Elevation);
         }
 
 
@@ -81,20 +89,30 @@ namespace Indice.Types
             var parts = new string[0];
             if (latlong.StartsWith("POINT", StringComparison.OrdinalIgnoreCase)) {
                 latlong = latlong.TrimStart('P', 'O', 'I', 'N', 'T', '(', ' ').TrimEnd(' ', ')');
-                parts = latlong.Split(' ').Reverse().ToArray();
+                parts = latlong.Split(' ').ToArray();
+                if (parts.Length >= 2) {
+                    var lat = parts[1];
+                    var lon = parts[0];
+                    parts[0] = lat;
+                    parts[1] = lon;
+                }
             } else if (latlong.StartsWith("geo:", StringComparison.OrdinalIgnoreCase)) {
                 latlong = latlong.TrimStart('g', 'e', 'o', ':', ' ').TrimEnd(' ');
                 parts = latlong.Split(';')[0].Split(',');
             } else {
                 parts = latlong.Split(',');
             }
-            if (parts.Length != 2 || string.IsNullOrEmpty(parts[0]) || string.IsNullOrEmpty(parts[1])) {
+            if (parts.Length < 2 || string.IsNullOrEmpty(parts[0]) || string.IsNullOrEmpty(parts[1])) {
                 throw new ArgumentOutOfRangeException(nameof(latlong));
             }
-            return new GeoPoint() {
+            var point = new GeoPoint() {
                 Latitude = double.Parse(parts[0], CultureInfo.InvariantCulture),
                 Longitude = double.Parse(parts[1], CultureInfo.InvariantCulture),
             };
+            if (parts.Length >= 3) {
+                point.Elevation = double.Parse(parts[2], CultureInfo.InvariantCulture);
+            }
+            return point;
         }
 
         /// <summary>
