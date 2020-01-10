@@ -68,6 +68,7 @@ namespace Indice.Identity
                 options.LoginPath = new PathString("/login");
                 options.LogoutPath = new PathString("/logout");
             });
+            services.ConfigureNonBreakingSameSiteCookies();
             services.AddOptions();
             services.AddLogging();
             services.AddEmailServiceSparkpost(Configuration);
@@ -97,6 +98,8 @@ namespace Indice.Identity
                 app.UseHsts();
                 app.UseHttpsRedirection();
             }
+            // Add this before any other middleware that might write cookies.
+            app.UseCookiePolicy();
             app.UseWhen(context => !context.Request.Path.StartsWithSegments("/api"), branch => {
                 if (!HostingEnvironment.IsDevelopment()) {
                     branch.UseExceptionHandler("/error");
