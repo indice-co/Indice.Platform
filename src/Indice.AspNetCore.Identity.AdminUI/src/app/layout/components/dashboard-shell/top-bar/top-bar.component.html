@@ -19,20 +19,19 @@
                    ngbDropdownToggle>
                     <span class="d-none d-md-inline-block ml-1">
                         {{ displayName }}
-                        <i class="material-icons">menu</i>
+                        <i class="material-icons align-middle">chevron_right</i>
                     </span>
                 </a>
                 <div class="dropdown-menu dropdown-menu-right profile-dropdown"
                      ngbDropdownMenu>
                     <a class="dropdown-item"
                        href="#">
-                        <i class="dripicons-user text-muted"></i> Profile
+                        <i class="material-icons text-muted">account_circle</i> Profile
                     </a>
-                    <div class="dropdown-divider"></div>
                     <a class="dropdown-item"
                        (click)="signOut()"
                        href="javascript:void(0);">
-                        <i class="dripicons-exit text-muted"></i> Sign Out
+                        <i class="material-icons text-muted">exit_to_app</i> Sign Out
                     </a>
                 </div>
             </li>

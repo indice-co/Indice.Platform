@@ -6,10 +6,10 @@
       #deleteAlert>
 </swal>
 <swal title="Block?"
-      text="User will be blocked. You can undo this action later."
+      text="User will be blocked. You can revert this action later."
       type="warning"
       [showCancelButton]="true"
-      (confirm)="delete()"
+      (confirm)="block()"
       #blockAlert>
 </swal>
 <p *ngIf="!user">Loading user data...</p>
@@ -192,7 +192,7 @@
             <button type="button"
                     class="btn btn-secondary m-r-5 float-right"
                     (click)="blockAlert.fire()"
-                    *ngIf="currentUserId !== user.id">
+                    *ngIf="currentUserId !== user.id && !user.blocked">
                 <i class="material-icons align-middle">block</i>
                 Block
             </button>

@@ -462,6 +462,12 @@ export interface IIdentityApiService {
      */
     deleteUserClaim(userId: string, claimId: number): Observable<void>;
     /**
+     * Locks a user permanently.
+     * @param userId The id of the user to lock.
+     * @return OK
+     */
+    lockUser(userId: string): Observable<void>;
+    /**
      * Adds a new role to the specified user.
      * @param userId The id of the user.
      * @param roleId The id of the role.
@@ -475,6 +481,12 @@ export interface IIdentityApiService {
      * @return OK
      */
     deleteUserRole(userId: string, roleId: string): Observable<void>;
+    /**
+     * Unlocks a user.
+     * @param userId The id of the user to unlock.
+     * @return OK
+     */
+    unlockUser(userId: string): Observable<void>;
 }
 
 @Injectable({
@@ -6184,6 +6196,90 @@ export class IdentityApiService implements IIdentityApiService {
     }
 
     /**
+     * Locks a user permanently.
+     * @param userId The id of the user to lock.
+     * @return OK
+     */
+    lockUser(userId: string): Observable<void> {
+        let url_ = this.baseUrl + "/api/users/{userId}/lock";
+        if (userId === undefined || userId === null)
+            throw new Error("The parameter 'userId' must be defined.");
+        url_ = url_.replace("{userId}", encodeURIComponent("" + userId)); 
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",			
+            headers: new HttpHeaders({
+            })
+        };
+
+        return this.http.request("put", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processLockUser(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processLockUser(<any>response_);
+                } catch (e) {
+                    return <Observable<void>><any>_observableThrow(e);
+                }
+            } else
+                return <Observable<void>><any>_observableThrow(response_);
+        }));
+    }
+
+    protected processLockUser(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob = 
+            response instanceof HttpResponse ? response.body : 
+            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }};
+        if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ValidationProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            }));
+        } else if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return _observableOf<void>(<any>null);
+            }));
+        } else if (status === 404) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = ProblemDetails.fromJS(resultData404);
+            return throwException("Not Found", status, _responseText, _headers, result404);
+            }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("Internal Server Error", status, _responseText, _headers);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<void>(<any>null);
+    }
+
+    /**
      * Adds a new role to the specified user.
      * @param userId The id of the user.
      * @param roleId The id of the role.
@@ -6309,6 +6405,90 @@ export class IdentityApiService implements IIdentityApiService {
     }
 
     protected processDeleteUserRole(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob = 
+            response instanceof HttpResponse ? response.body : 
+            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }};
+        if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ValidationProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            }));
+        } else if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return _observableOf<void>(<any>null);
+            }));
+        } else if (status === 404) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = ProblemDetails.fromJS(resultData404);
+            return throwException("Not Found", status, _responseText, _headers, result404);
+            }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("Internal Server Error", status, _responseText, _headers);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<void>(<any>null);
+    }
+
+    /**
+     * Unlocks a user.
+     * @param userId The id of the user to unlock.
+     * @return OK
+     */
+    unlockUser(userId: string): Observable<void> {
+        let url_ = this.baseUrl + "/api/users/{userId}/unlock";
+        if (userId === undefined || userId === null)
+            throw new Error("The parameter 'userId' must be defined.");
+        url_ = url_.replace("{userId}", encodeURIComponent("" + userId)); 
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",			
+            headers: new HttpHeaders({
+            })
+        };
+
+        return this.http.request("put", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processUnlockUser(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processUnlockUser(<any>response_);
+                } catch (e) {
+                    return <Observable<void>><any>_observableThrow(e);
+                }
+            } else
+                return <Observable<void>><any>_observableThrow(response_);
+        }));
+    }
+
+    protected processUnlockUser(response: HttpResponseBase): Observable<void> {
         const status = response.status;
         const responseBlob = 
             response instanceof HttpResponse ? response.body : 
@@ -9966,8 +10146,6 @@ export class UpdateUserRequest implements IUpdateUserRequest {
     userName?: string | undefined;
     /** Dynamic claims that have been marked as required. */
     claims?: BasicClaimInfo[] | undefined;
-    /** Indicates whether the user is forcefully blocked. */
-    blocked?: boolean;
     passwordExpirationPolicy?: PasswordExpirationPolicy;
 
     constructor(data?: IUpdateUserRequest) {
@@ -9992,7 +10170,6 @@ export class UpdateUserRequest implements IUpdateUserRequest {
                 for (let item of _data["claims"])
                     this.claims!.push(BasicClaimInfo.fromJS(item));
             }
-            this.blocked = _data["blocked"];
             this.passwordExpirationPolicy = _data["passwordExpirationPolicy"];
         }
     }
@@ -10017,7 +10194,6 @@ export class UpdateUserRequest implements IUpdateUserRequest {
             for (let item of this.claims)
                 data["claims"].push(item.toJSON());
         }
-        data["blocked"] = this.blocked;
         data["passwordExpirationPolicy"] = this.passwordExpirationPolicy;
         return data; 
     }
@@ -10039,8 +10215,6 @@ export interface IUpdateUserRequest {
     userName?: string | undefined;
     /** Dynamic claims that have been marked as required. */
     claims?: BasicClaimInfo[] | undefined;
-    /** Indicates whether the user is forcefully blocked. */
-    blocked?: boolean;
     passwordExpirationPolicy?: PasswordExpirationPolicy;
 }
 

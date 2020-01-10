@@ -72,6 +72,12 @@ export class UserDetailsComponent implements OnInit, OnDestroy {
         });
     }
 
+    public block(): void {
+        this._userStore.blockUser(this.user.id).subscribe(_ => {
+            this._toast.showSuccess(`User '${this.user.userName}' was blocked.`);
+        });
+    }
+
     public update(): void {
         const requiredClaims = this.requiredClaims.map(x => Object.assign({}, x));
         requiredClaims.forEach((claim: ClaimType) => {

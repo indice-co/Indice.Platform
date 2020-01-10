@@ -14,28 +14,28 @@ export class MenuService {
         this._currentUrl = this.router.url;
         this._menuItems.push(...[
             new MenuItem('Dashboard', '/app/dashboard', 'home'),
-            new MenuItem('Users', undefined, 'supervised_user_circle', this.isActiveMenuItem('/app/users'), [
+            new MenuItem('Users', undefined, 'group', this.isActiveMenuItem('/app/users'), [
                 new MenuItem('Users List', '/app/users'),
                 new MenuItem('Add User', '/app/users/add')
             ]),
-            new MenuItem('Roles', undefined, 'dripicons-graduation', this.isActiveMenuItem('/app/roles'), [
+            new MenuItem('Roles', undefined, 'security', this.isActiveMenuItem('/app/roles'), [
                 new MenuItem('Roles List', '/app/roles'),
                 new MenuItem('Add Role', '/app/roles/add')
             ]),
-            new MenuItem('Clients', undefined, 'dripicons-view-apps', this.isActiveMenuItem('/app/clients'), [
+            new MenuItem('Clients', undefined, 'apps', this.isActiveMenuItem('/app/clients'), [
                 new MenuItem('Clients List', '/app/clients'),
                 new MenuItem('Add Client', '/app/clients/add')
             ]),
-            new MenuItem('Resources', undefined, 'dripicons-web', this.isActiveMenuItem('/app/resources'), [
+            new MenuItem('Resources', undefined, 'web', this.isActiveMenuItem('/app/resources'), [
                 new MenuItem('Identity Resources List', '/app/resources/identity'),
                 new MenuItem('API Resources List', '/app/resources/api'),
                 new MenuItem('Add Resource', '/app/resources/add')
             ]),
-            new MenuItem('Claim Types', undefined, 'dripicons-ticket', this.isActiveMenuItem('/app/claim-types'), [
+            new MenuItem('Claim Types', undefined, 'perm_identity', this.isActiveMenuItem('/app/claim-types'), [
                 new MenuItem('Claims List', '/app/claim-types'),
                 new MenuItem('Add Claim', '/app/claim-types/add')
             ]),
-            new MenuItem('App Settings', undefined, 'dripicons-gear', this.isActiveMenuItem('/app/settings'), [
+            new MenuItem('App Settings', undefined, 'settings_system_daydream', this.isActiveMenuItem('/app/settings'), [
                 new MenuItem('App Settings List', '/app/settings'),
                 new MenuItem('Add App Setting', '/app/settings/add')
             ])

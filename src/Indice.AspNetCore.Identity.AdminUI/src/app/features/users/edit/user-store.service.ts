@@ -42,7 +42,6 @@ export class UserStore {
             phoneNumber: user.phoneNumber,
             twoFactorEnabled: user.twoFactorEnabled,
             userName: user.userName,
-            blocked: user.blocked,
             passwordExpirationPolicy: user.passwordExpirationPolicy,
             claims
         } as UpdateUserRequest).pipe(map((updatedUser: SingleUserInfo) => {
@@ -54,6 +53,15 @@ export class UserStore {
 
     public deleteUser(userId: string): Observable<void> {
         return this._api.deleteUser(userId);
+    }
+
+    public blockUser(userId: string): Observable<void> {
+        this.getUser(userId).subscribe((user: SingleUserInfo) => {
+            user.blocked = true;
+            this._user.next(user);
+            this._user.complete();
+        });
+        return this._api.lockUser(userId);
     }
 
     public addUserRole(userId: string, role: RoleInfo): Observable<void> {
