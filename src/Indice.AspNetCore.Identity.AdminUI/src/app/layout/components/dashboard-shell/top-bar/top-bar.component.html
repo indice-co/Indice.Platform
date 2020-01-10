@@ -1,25 +1,37 @@
 <div class="topbar">
     <div class="topbar-left	d-none d-lg-block">
         <div class="text-center">
-            <a [routerLink]="['dashboard']" class="logo">
-                <img src="assets/img/logo.svg" height="70" alt="logo" />
+            <a [routerLink]="['dashboard']"
+               class="logo">
+                <img src="assets/img/logo.svg"
+                     height="70"
+                     alt="logo" />
             </a>
         </div>
     </div>
     <nav class="navbar-custom">
         <ul class="list-inline float-right mb-0">
-            <li class="list-inline-item dropdown notification-list nav-user" ngbDropdown>
-                <a href="javascript:void(0);" class="nav-link dropdown-toggle arrow-none waves-effect" role="button" ngbDropdownToggle>
+            <li class="list-inline-item dropdown notification-list nav-user"
+                ngbDropdown>
+                <a href="javascript:void(0);"
+                   class="nav-link dropdown-toggle arrow-none waves-effect"
+                   role="button"
+                   ngbDropdownToggle>
                     <span class="d-none d-md-inline-block ml-1">
-                        {{ displayName }} <i class="mdi mdi-chevron-down"></i>
+                        {{ displayName }}
+                        <i class="material-icons">menu</i>
                     </span>
                 </a>
-                <div class="dropdown-menu dropdown-menu-right profile-dropdown" ngbDropdownMenu>
-                    <a class="dropdown-item" href="#">
+                <div class="dropdown-menu dropdown-menu-right profile-dropdown"
+                     ngbDropdownMenu>
+                    <a class="dropdown-item"
+                       href="#">
                         <i class="dripicons-user text-muted"></i> Profile
                     </a>
                     <div class="dropdown-divider"></div>
-                    <a class="dropdown-item" (click)="signOut()" href="javascript:void(0);">
+                    <a class="dropdown-item"
+                       (click)="signOut()"
+                       href="javascript:void(0);">
                         <i class="dripicons-exit text-muted"></i> Sign Out
                     </a>
                 </div>
@@ -27,21 +39,49 @@
         </ul>
         <ul class="list-inline menu-left mb-0">
             <li class="list-inline-item">
-                <button (click)="toggleMenu()" type="button" class="button-menu-mobile open-left waves-effect">
-                    <i class="mdi mdi-menu"></i>
+                <button (click)="toggleMenu()"
+                        type="button"
+                        class="button-menu-mobile open-left waves-effect">
+                    <i class="material-icons">menu</i>
                 </button>
             </li>
-            <li class="list-inline-item dropdown notification-list d-none d-sm-inline-block" ngbDropdown>
-                <a class="nav-link dropdown-toggle arrow-none waves-effect" href="javascript:void(0);" role="button" ngbDropdownToggle>
-                    Create New <i class="mdi mdi-plus align-middle"></i>
+            <li class="list-inline-item dropdown notification-list d-none d-sm-inline-block"
+                ngbDropdown>
+                <a class="nav-link dropdown-toggle arrow-none waves-effect"
+                   href="javascript:void(0);"
+                   role="button"
+                   ngbDropdownToggle>
+                    Create New 
+                    <i class="material-icons align-middle">add</i>
                 </a>
-                <div class="dropdown-menu" ngbDropdownMenu>
-                    <a [routerLink]="['/app/users/add']" class="dropdown-item">User</a>
-                    <a [routerLink]="['/app/roles/add']" class="dropdown-item">Role</a>
-                    <a [routerLink]="['/app/clients/add']" class="dropdown-item">Client</a>
-                    <a [routerLink]="['/app/resources/add']" [state]="{ origin: 'identity' }" class="dropdown-item">Identity Resource</a>
-                    <a [routerLink]="['/app/resources/add']" [state]="{ origin: 'api' }" class="dropdown-item">API Resource</a>
-                    <a [routerLink]="['/app/claim-types/add']" class="dropdown-item">Claim Type</a>
+                <div class="dropdown-menu"
+                     ngbDropdownMenu>
+                    <a [routerLink]="['/app/users/add']"
+                       class="dropdown-item">
+                        User
+                    </a>
+                    <a [routerLink]="['/app/roles/add']"
+                       class="dropdown-item">
+                        Role
+                    </a>
+                    <a [routerLink]="['/app/clients/add']"
+                       class="dropdown-item">
+                        Client
+                    </a>
+                    <a [routerLink]="['/app/resources/add']"
+                       [state]="{ origin: 'identity' }"
+                       class="dropdown-item">
+                        Identity Resource
+                    </a>
+                    <a [routerLink]="['/app/resources/add']"
+                       [state]="{ origin: 'api' }"
+                       class="dropdown-item">
+                        API Resource
+                    </a>
+                    <a [routerLink]="['/app/claim-types/add']"
+                       class="dropdown-item">
+                        Claim Type
+                    </a>
                 </div>
             </li>
         </ul>

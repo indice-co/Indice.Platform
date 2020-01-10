@@ -1,9 +1,3 @@
-
-/* ==============
-  Menu
-===================*/
-
-
 .menu-title {
   padding: 12px 25px !important;
   letter-spacing: .035em;
@@ -146,20 +140,6 @@ body{
     }
   }
 }
-
-.has_sub{
-  &.nav-active {
-    i{
-      &.mdi-chevron-right{
-        &:before {
-          content: "\F140";
-        }
-      }
-    }
-  }
-}
-
-// enlarged
 
 #wrapper{
   &.enlarged {

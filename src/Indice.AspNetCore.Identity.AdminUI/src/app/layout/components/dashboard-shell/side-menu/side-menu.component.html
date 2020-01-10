@@ -1,47 +1,77 @@
 <div class="left side-menu">
-    <button type="button" class="button-menu-mobile button-menu-mobile-topbar open-left waves-effect" (click)="toggleMenu()">
-        <i class="mdi mdi-close"></i>
+    <button type="button"
+            class="button-menu-mobile button-menu-mobile-topbar open-left waves-effect"
+            (click)="toggleMenu()">
+        <i class="material-icons">close</i>
     </button>
     <div class="left-side-logo d-block d-lg-none">
         <div class="text-center">
-            <a [routerLink]="['dashboard']" class="logo">
-                <img src="assets/img/logo.svg" height="60" alt="logo" />
+            <a [routerLink]="['dashboard']"
+               class="logo">
+                <img src="assets/img/logo.svg"
+                     height="60"
+                     alt="logo" />
             </a>
         </div>
     </div>
     <div class="sidebar-inner">
         <div id="sidebar-menu">
             <ul>
-                <ng-template let-menuItem="menuItem" #menuItemContent>
-                    <i *ngIf="menuItem.iconClass" [class]="menuItem.iconClass"></i>
+                <ng-template let-menuItem="menuItem"
+                             #menuItemContent>
+                    <i *ngIf="menuItem.iconName"
+                       class="material-icons">
+                        {{ menuItem.iconName }}
+                    </i>
                     <span>{{ menuItem.title }}</span>
-                    <span *ngIf="menuItem.hasChildren()" class="menu-arrow float-right">
-                        <i class="mdi mdi-chevron-right"></i>
+                    <span *ngIf="menuItem.hasChildren()"
+                          class="menu-arrow float-right">
+                        <i class="material-icons">chevron_right</i>
                     </span>
                 </ng-template>
                 <li class="menu-title">Main</li>
-                <li [routerLinkMatch]="{ 'active': menuItem.path }" [routerLinkMatchOptions]="{ ignoreQueryParams: true }" *ngFor="let menuItem of menuItems" 
+                <li [routerLinkMatch]="{ 'active': menuItem.path }"
+                    [routerLinkMatchOptions]="{ ignoreQueryParams: true }"
+                    *ngFor="let menuItem of menuItems"
                     [ngClass]="{ 'has_sub': menuItem.hasChildren(), 'nav-active': menuItem.isOpen }">
-                    <a *ngIf="!menuItem.hasChildren() && menuItem.path" [routerLink]="[menuItem.path]" class="waves-effect">
-                        <ng-container [ngTemplateOutlet]="menuItemContent" [ngTemplateOutletContext]="{ menuItem: menuItem }"></ng-container>
+                    <a *ngIf="!menuItem.hasChildren() && menuItem.path"
+                       [routerLink]="[menuItem.path]">
+                        <ng-container [ngTemplateOutlet]="menuItemContent"
+                                      [ngTemplateOutletContext]="{ menuItem: menuItem }">
+                        </ng-container>
                     </a>
-                    <a (click)="menuItem.hasChildren() ? toggleMenuItem(menuItem) : undefined" *ngIf="menuItem.hasChildren() && !menuItem.path" href="javascript:void(0);" class="waves-effect">
-                        <ng-container [ngTemplateOutlet]="menuItemContent" [ngTemplateOutletContext]="{ menuItem: menuItem }"></ng-container>
+                    <a (click)="menuItem.hasChildren() ? toggleMenuItem(menuItem) : undefined"
+                       *ngIf="menuItem.hasChildren() && !menuItem.path"
+                       href="javascript:void(0);">
+                        <ng-container [ngTemplateOutlet]="menuItemContent"
+                                      [ngTemplateOutletContext]="{ menuItem: menuItem }">
+                        </ng-container>
                     </a>
-                    <ul *ngIf="menuItem.hasChildren()" class="list-unstyled">
-                        <li [routerLinkMatch]="{ 'active': childItem.path }" [routerLinkMatchOptions]="{ ignoreQueryParams: true }" *ngFor="let childItem of menuItem.children">
-                            <a [routerLinkMatch]="{ 'active': childItem.path }" [routerLinkMatchOptions]="{ ignoreQueryParams: true }" [routerLink]="childItem.path">{{ childItem.title }}</a>
+                    <ul *ngIf="menuItem.hasChildren()"
+                        class="list-unstyled">
+                        <li [routerLinkMatch]="{ 'active': childItem.path }"
+                            [routerLinkMatchOptions]="{ ignoreQueryParams: true }"
+                            *ngFor="let childItem of menuItem.children">
+                            <a [routerLinkMatch]="{ 'active': childItem.path }"
+                               [routerLinkMatchOptions]="{ ignoreQueryParams: true }"
+                               [routerLink]="childItem.path">
+                                {{ childItem.title }}
+                            </a>
                         </li>
                     </ul>
                 </li>
                 <li>
-                    <a [href]="apiDocsUrl" class="waves-effect" target="_blank">
+                    <a [href]="apiDocsUrl"
+                       class="waves-effect"
+                       target="_blank">
                         <i class="dripicons-document"></i>
                         <span>API Docs</span>
                     </a>
                 </li>
                 <li>
-                    <a [href]="authority + '/.well-known/openid-configuration'" class="waves-effect" target="_blank">
+                    <a [href]="authority + '/.well-known/openid-configuration'"
+                       class="waves-effect"
+                       target="_blank">
                         <i class="dripicons-search"></i>
                         <span>Discovery Document</span>
                     </a>

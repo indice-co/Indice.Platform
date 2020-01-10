@@ -44,14 +44,17 @@
 <ng-template let-row="row"
              let-value="value"
              #valueTypeTemplate>
-    <code class="highlighter-rouge">{{ value }}</code>
+    <code class="highlighter-rouge">
+        {{ value }}
+    </code>
 </ng-template>
 <ng-template let-row="row"
              let-value="value"
              #nameTemplate>
     <span *ngIf="row.description">
-        <i class="dripicons-information align-middle"
-           [title]="row.description">
+        <i [title]="row.description"
+           class="material-icons align-middle">
+            info
         </i>
         {{ value }}
     </span>

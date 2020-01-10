@@ -4,7 +4,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription, forkJoin } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
-import { SingleUserInfo, ClaimTypeInfo, ValueType } from 'src/app/core/services/identity-api.service';
+import { SingleUserInfo, ClaimTypeInfo, ValueType, PasswordExpirationPolicy, ISingleUserInfo } from 'src/app/core/services/identity-api.service';
 import { ClaimType } from './models/claim-type.model';
 import { UserStore } from '../user-store.service';
 import { NgbDateCustomParserFormatter } from 'src/app/shared/services/custom-parser-formatter.service';
@@ -27,6 +27,7 @@ export class UserDetailsComponent implements OnInit, OnDestroy {
     public user: SingleUserInfo;
     public requiredClaims: ClaimType[];
     public currentUserId: string;
+    public userPasswordExpirationPolicy = '';
 
     public ngOnInit(): void {
         this.currentUserId = this._authService.getSubjectId();
@@ -40,6 +41,7 @@ export class UserDetailsComponent implements OnInit, OnDestroy {
             };
         })).subscribe((result: { user: SingleUserInfo, claims: ClaimType[] }) => {
             this.user = result.user;
+            this.userPasswordExpirationPolicy = this.user.passwordExpirationPolicy ? this.user.passwordExpirationPolicy : '';
             const requiredClaims = result.claims.filter(x => x.required === true);
             requiredClaims.forEach((claim: ClaimType) => {
                 const userClaim = this.user.claims.find(x => x.type === claim.name);
@@ -78,6 +80,7 @@ export class UserDetailsComponent implements OnInit, OnDestroy {
                 claim.value = this._dateParser.format(date);
             }
         });
+        this.user.passwordExpirationPolicy = this.userPasswordExpirationPolicy as PasswordExpirationPolicy;
         this._updateUserSubscription = this._userStore.updateUser(this.user, requiredClaims).subscribe(_ => {
             this._toast.showSuccess(`User '${this.user.email}' was updated successfully.`);
         });

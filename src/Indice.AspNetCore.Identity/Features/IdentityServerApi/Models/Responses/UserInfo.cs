@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Indice.AspNetCore.Identity.Models;
 
 namespace Indice.AspNetCore.Identity.Features
 {
@@ -63,6 +64,14 @@ namespace Indice.AspNetCore.Identity.Features
         /// User metadata expressed as claims.
         /// </summary>
         public List<ClaimInfo> Claims { get; set; } = new List<ClaimInfo>();
+        /// <summary>
+        /// Indicates whether the user is forcefully blocked.
+        /// </summary>
+        public bool Blocked { get; set; }
+        /// <summary>
+        /// Represents the password expiration policy the value is measured in days.
+        /// </summary>
+        public PasswordExpirationPolicy? PasswordExpirationPolicy { get; set; }
     }
 
     /// <summary>

@@ -42,6 +42,8 @@ export class UserStore {
             phoneNumber: user.phoneNumber,
             twoFactorEnabled: user.twoFactorEnabled,
             userName: user.userName,
+            blocked: user.blocked,
+            passwordExpirationPolicy: user.passwordExpirationPolicy,
             claims
         } as UpdateUserRequest).pipe(map((updatedUser: SingleUserInfo) => {
             user.claims = [...updatedUser.claims];

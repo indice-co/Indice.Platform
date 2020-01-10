@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Indice.AspNetCore.Identity.Models
 {
@@ -35,7 +33,7 @@ namespace Indice.AspNetCore.Identity.Models
         /// </summary>
         Anually = 365,
         /// <summary>
-        /// The password expires every two year.
+        /// The password expires every two years.
         /// </summary>
         Bianually = 2 * Anually,
     }

@@ -13,8 +13,8 @@ export class MenuService {
     constructor(private router: Router) {
         this._currentUrl = this.router.url;
         this._menuItems.push(...[
-            new MenuItem('Dashboard', '/app/dashboard', 'dripicons-home'),
-            new MenuItem('Users', undefined, 'dripicons-user-group', this.isActiveMenuItem('/app/users'), [
+            new MenuItem('Dashboard', '/app/dashboard', 'home'),
+            new MenuItem('Users', undefined, 'supervised_user_circle', this.isActiveMenuItem('/app/users'), [
                 new MenuItem('Users List', '/app/users'),
                 new MenuItem('Add User', '/app/users/add')
             ]),

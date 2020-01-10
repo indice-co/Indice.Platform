@@ -104,6 +104,8 @@ namespace Indice.AspNetCore.Identity.Features
                 LockoutEnabled = x.LockoutEnabled,
                 LockoutEnd = x.LockoutEnd,
                 TwoFactorEnabled = x.TwoFactorEnabled,
+                Blocked = x.Blocked,
+                PasswordExpirationPolicy = x.PasswordExpirationPolicy,
                 Claims = x.Claims.Select(x => new ClaimInfo {
                     Id = x.Id,
                     Type = x.ClaimType,
@@ -140,6 +142,8 @@ namespace Indice.AspNetCore.Identity.Features
                                            PhoneNumberConfirmed = x.PhoneNumberConfirmed,
                                            TwoFactorEnabled = x.TwoFactorEnabled,
                                            UserName = x.UserName,
+                                           Blocked = x.Blocked,
+                                           PasswordExpirationPolicy = x.PasswordExpirationPolicy,
                                            Claims = x.Claims.Select(x => new ClaimInfo {
                                                Id = x.Id,
                                                Type = x.ClaimType,
@@ -174,8 +178,10 @@ namespace Indice.AspNetCore.Identity.Features
                 UserName = request.UserName,
                 Email = request.Email,
                 CreateDate = DateTime.UtcNow,
-                PhoneNumber = request.PhoneNumber
+                PhoneNumber = request.PhoneNumber,
+                PasswordExpirationPolicy = request.PasswordExpirationPolicy
             };
+            user.PasswordExpirationDate = user.CalculatePasswordExpirationDate();
             IdentityResult result = null;
             if (string.IsNullOrEmpty(request.Password)) {
                 result = await _userManager.CreateAsync(user);
@@ -200,7 +206,7 @@ namespace Indice.AspNetCore.Identity.Features
                 UserName = user.UserName,
                 Email = user.Email,
                 PhoneNumber = user.PhoneNumber,
-                Claims = user.Claims?.Select(x => new ClaimInfo { 
+                Claims = user.Claims?.Select(x => new ClaimInfo {
                     Id = x.Id,
                     Type = x.ClaimType,
                     Value = x.ClaimValue
@@ -235,6 +241,8 @@ namespace Indice.AspNetCore.Identity.Features
             user.LockoutEnabled = request.LockoutEnabled;
             user.TwoFactorEnabled = request.TwoFactorEnabled;
             user.LockoutEnd = request.LockoutEnd;
+            user.PasswordExpirationPolicy = request.PasswordExpirationPolicy;
+            user.PasswordExpirationDate = user.CalculatePasswordExpirationDate();
             foreach (var requiredClaim in request.Claims) {
                 var claim = user.Claims.SingleOrDefault(x => x.ClaimType == requiredClaim.Type);
                 if (claim != null) {
@@ -266,6 +274,7 @@ namespace Indice.AspNetCore.Identity.Features
                 PhoneNumberConfirmed = user.PhoneNumberConfirmed,
                 TwoFactorEnabled = user.TwoFactorEnabled,
                 UserName = user.UserName,
+                Blocked = user.Blocked,
                 Claims = user.Claims.Select(x => new ClaimInfo {
                     Id = x.Id,
                     Type = x.ClaimType,
@@ -274,6 +283,56 @@ namespace Indice.AspNetCore.Identity.Features
                 .ToList(),
                 Roles = roles
             });
+        }
+
+        /// <summary>
+        /// Locks a user permanently.
+        /// </summary>
+        /// <param name="userId">The id of the user to lock.</param>
+        /// <response code="200">OK</response>
+        /// <response code="404">Not Found</response>
+        [HttpPut("{userId}/lock")]
+        [ProducesResponseType(statusCode: StatusCodes.Status200OK, type: typeof(void))]
+        [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
+        [CacheResourceFilter(dependentPaths: new string[] { "{userId}" })]
+        public async Task<IActionResult> LockUser([FromRoute]string userId) {
+            var user = await _dbContext.Users.AsNoTracking().SingleOrDefaultAsync(x => x.Id == userId);
+            if (user == null) {
+                return NotFound();
+            }
+            if (user.Blocked) {
+                return BadRequest(new ValidationProblemDetails(new Dictionary<string, string[]> {
+                    { "blocked", new[] { $"User '{user.Email}' is already locked." } }
+                }));
+            }
+            user.Blocked = true;
+            await _userManager.UpdateAsync(user);
+            return Ok();
+        }
+
+        /// <summary>
+        /// Unlocks a user.
+        /// </summary>
+        /// <param name="userId">The id of the user to unlock.</param>
+        /// <response code="200">OK</response>
+        /// <response code="404">Not Found</response>
+        [HttpPut("{userId}/unlock")]
+        [ProducesResponseType(statusCode: StatusCodes.Status200OK, type: typeof(void))]
+        [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
+        [CacheResourceFilter(dependentPaths: new string[] { "{userId}" })]
+        public async Task<IActionResult> UnlockUser([FromRoute]string userId) {
+            var user = await _dbContext.Users.AsNoTracking().SingleOrDefaultAsync(x => x.Id == userId);
+            if (user == null) {
+                return NotFound();
+            }
+            if (!user.Blocked) {
+                return BadRequest(new ValidationProblemDetails(new Dictionary<string, string[]> {
+                    { "blocked", new[] { $"User '{user.Email}' is already not locked." } }
+                }));
+            }
+            user.Blocked = false;
+            await _userManager.UpdateAsync(user);
+            return Ok();
         }
 
         /// <summary>

@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using Indice.AspNetCore.Identity.Models;
 
 namespace Indice.AspNetCore.Identity.Features
 {
@@ -32,5 +33,9 @@ namespace Indice.AspNetCore.Identity.Features
         /// User's phone number.
         /// </summary>
         public string PhoneNumber { get; set; }
+        /// <summary>
+        /// Represents the password expiration policy the value is measured in days.
+        /// </summary>
+        public PasswordExpirationPolicy? PasswordExpirationPolicy { get; set; }
     }
 }
