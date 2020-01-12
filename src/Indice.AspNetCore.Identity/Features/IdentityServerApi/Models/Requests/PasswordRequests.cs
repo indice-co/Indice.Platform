@@ -34,5 +34,9 @@ namespace Indice.AspNetCore.Identity.Features
         /// </summary>
         [Required(ErrorMessage = "Field 'Password' is required.")]
         public string Password { get; set; }
+        /// <summary>
+        /// Forces the user to change his password after changed by the system admin.
+        /// </summary>
+        public bool? ChangePasswordAfterFirstSignIn { get; set; }
     }
 }

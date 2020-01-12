@@ -150,6 +150,10 @@ namespace Indice.AspNetCore.Identity.Features
         /// Gets or sets the device code lifetime.
         /// </summary>
         public int DeviceCodeLifetime { get; set; }
+        /// <summary>
+        /// Specifies if client is enabled.
+        /// </summary>
+        public bool Enabled { get; set; }
     }
 
     /// <summary>

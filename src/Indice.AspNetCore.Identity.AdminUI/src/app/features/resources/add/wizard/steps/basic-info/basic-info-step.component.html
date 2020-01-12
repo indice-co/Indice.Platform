@@ -1,5 +1,6 @@
 <div [formGroup]="data.form">
-    <div class="form-group row" *ngIf="displayType">
+    <div class="form-group row"
+         *ngIf="displayType">
         <label for="resource-type"
                class="col-sm-2 col-form-label">
             Resource Type
@@ -24,8 +25,9 @@
     <div class="form-group row">
         <label for="resource-name"
                class="col-sm-2 col-form-label">
-            <i class="dripicons-information align-middle"
+            <i class="material-icons align-middle"
                title="The unique identifier for this resource.">
+                info
             </i>
             Id (*)
         </label>
@@ -49,8 +51,9 @@
     <div class="form-group row">
         <label for="resource-display-name"
                class="col-sm-2 col-form-label">
-            <i class="dripicons-information align-middle"
+            <i class="material-icons align-middle"
                title="Application name that will be seen on consent screens.">
+                info
             </i>
             Display Name
         </label>

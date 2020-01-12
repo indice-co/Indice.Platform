@@ -6,51 +6,125 @@
                 <p class="text-muted m-b-30 font-14">
                     Create a new user.
                 </p>
-                <form class="needs-validation" [ngClass]="{ 'was-validated': form.submitted }" (ngSubmit)="form.form.valid && save()" novalidate #form="ngForm">
-                    <app-validation-summary [problemDetails]="problemDetails" #validationSummary></app-validation-summary>
+                <form class="needs-validation"
+                      [ngClass]="{ 'was-validated': form.submitted }"
+                      (ngSubmit)="form.form.valid && save()"
+                      novalidate
+                      #form="ngForm">
+                    <app-validation-summary [problemDetails]="problemDetails"
+                                            #validationSummary>
+                    </app-validation-summary>
                     <div class="form-group row">
-                        <label for="first-name" class="col-sm-2 col-form-label">First Name</label>
+                        <label for="first-name"
+                               class="col-sm-2 col-form-label">
+                            First Name
+                        </label>
                         <div class="col-sm-10">
-                            <input id="first-name" name="first-name" type="text" class="form-control" [ngClass]="{ 'invalid': form.submitted && firstName.invalid }" 
-                                [(ngModel)]="user.firstName" maxlength="256" #firstName="ngModel" />
+                            <input id="first-name"
+                                   name="first-name"
+                                   type="text"
+                                   class="form-control"
+                                   [ngClass]="{ 'invalid': form.submitted && firstName.invalid }"
+                                   [(ngModel)]="user.firstName"
+                                   maxlength="256"
+                                   #firstName="ngModel" />
                         </div>
                     </div>
                     <div class="form-group row">
-                        <label for="last-name" class="col-sm-2 col-form-label">Last Name</label>
+                        <label for="last-name"
+                               class="col-sm-2 col-form-label">
+                            Last Name
+                        </label>
                         <div class="col-sm-10">
-                            <input id="last-name" name="last-name" type="text" class="form-control" [ngClass]="{ 'invalid': form.submitted && lastName.invalid }" 
-                                [(ngModel)]="user.lastName" maxlength="256" #lastName="ngModel" />
+                            <input id="last-name"
+                                   name="last-name"
+                                   type="text"
+                                   class="form-control"
+                                   [ngClass]="{ 'invalid': form.submitted && lastName.invalid }"
+                                   [(ngModel)]="user.lastName"
+                                   maxlength="256"
+                                   #lastName="ngModel" />
                         </div>
                     </div>
                     <div class="form-group row">
-                        <label for="userName" class="col-sm-2 col-form-label">Username (*)</label>
+                        <label for="userName"
+                               class="col-sm-2 col-form-label">
+                            Username (*)
+                        </label>
                         <div class="col-sm-10">
-                            <input id="userName" name="userName" type="text" class="form-control" [ngClass]="{ 'invalid': form.submitted && userName.invalid }" 
-                                [(ngModel)]="user.userName" required maxlength="256" #userName="ngModel" />
-                            <div *ngIf="form.submitted && userName.invalid" class="form-control-feedback text-danger">Field 'Username' is required.</div>
+                            <input id="userName"
+                                   name="userName"
+                                   type="text"
+                                   class="form-control"
+                                   [ngClass]="{ 'invalid': form.submitted && userName.invalid }"
+                                   [(ngModel)]="user.userName"
+                                   required
+                                   maxlength="256"
+                                   #userName="ngModel" />
+                            <div *ngIf="form.submitted && userName.invalid"
+                                 class="form-control-feedback text-danger">
+                                Field 'Username' is required.
+                            </div>
                         </div>
                     </div>
                     <div class="form-group row">
-                        <label for="email" class="col-sm-2 col-form-label">Email (*)</label>
+                        <label for="email"
+                               class="col-sm-2 col-form-label">
+                            Email (*)
+                        </label>
                         <div class="col-sm-10">
-                            <input id="email" name="email" type="email" class="form-control" [ngClass]="{ 'invalid': form.submitted && email.invalid }" [(ngModel)]="user.email" 
-                                email required maxlength="256" #email="ngModel" />
-                            <div *ngIf="form.submitted && email.invalid && email.errors['required']" class="form-control-feedback text-danger">Field 'Email' is required.</div>
-                            <div *ngIf="form.submitted && email.invalid && email.errors['email']" class="form-control-feedback text-danger">Please enter a valid email address.</div>
+                            <input id="email"
+                                   name="email"
+                                   type="email"
+                                   class="form-control"
+                                   [ngClass]="{ 'invalid': form.submitted && email.invalid }"
+                                   [(ngModel)]="user.email"
+                                   email
+                                   required
+                                   maxlength="256"
+                                   #email="ngModel" />
+                            <div *ngIf="form.submitted && email.invalid && email.errors['required']"
+                                 class="form-control-feedback text-danger">
+                                Field 'Email' is required.
+                            </div>
+                            <div *ngIf="form.submitted && email.invalid && email.errors['email']"
+                                 class="form-control-feedback text-danger">
+                                Please enter a valid email address.
+                            </div>
                         </div>
                     </div>
                     <div class="form-group row">
-                        <label for="password" class="col-sm-2 col-form-label">Password (*)</label>
+                        <label for="password"
+                               class="col-sm-2 col-form-label">
+                            Password (*)
+                        </label>
                         <div class="col-sm-10">
-                            <input id="password" name="password" type="password" class="form-control" [ngClass]="{ 'invalid': form.submitted && password.invalid }" [(ngModel)]="user.password" 
-                                required #password="ngModel" />
-                            <div *ngIf="form.submitted && password.invalid" class="form-control-feedback text-danger">Field 'Password' is required.</div>
+                            <input id="password"
+                                   name="password"
+                                   type="password"
+                                   class="form-control"
+                                   [ngClass]="{ 'invalid': form.submitted && password.invalid }"
+                                   [(ngModel)]="user.password"
+                                   required
+                                   #password="ngModel" />
+                            <div *ngIf="form.submitted && password.invalid"
+                                 class="form-control-feedback text-danger">
+                                Field 'Password' is required.
+                            </div>
                         </div>
                     </div>
                     <div class="form-group">
                         <div>
-                            <button type="submit" class="btn btn-primary waves-effect waves-light m-r-5" (click)="setSaveAndConfigure(true)">Save & Configure</button>
-                            <button type="submit" class="btn btn-primary waves-effect waves-light m-r-5" (click)="setSaveAndConfigure(false)">Save</button>
+                            <button type="submit"
+                                    class="btn btn-primary waves-effect waves-light m-r-5"
+                                    (click)="setSaveAndConfigure(true)">
+                                Save & Configure
+                            </button>
+                            <button type="submit"
+                                    class="btn btn-primary waves-effect waves-light m-r-5"
+                                    (click)="setSaveAndConfigure(false)">
+                                Save
+                            </button>
                         </div>
                     </div>
                 </form>

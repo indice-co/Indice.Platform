@@ -12,7 +12,7 @@
                  #secondsTextContent>
         <span class="text-muted"
               *ngIf="value && value !== ''">
-            <i class="dripicons-clock align-middle"></i>
+            <i class="material-icons align-middle">timer</i>
             {{ utilities.secondsToText(value) }}
         </span>
     </ng-template>
@@ -20,8 +20,9 @@
          *ngIf="hasAnyOf(['authorization_code', 'password', 'hybrid', 'implicit', 'urn:ietf:params:oauth:grant-type:device_code'])">
         <label for="client-identity-token-lifetime"
                class="col-sm-3 col-form-label">
-            <i class="dripicons-information align-middle"
+            <i class="material-icons align-middle"
                title="Lifetime of identity token in seconds.">
+                info
             </i>
             Identity Token Lifetime (sec) (*)
         </label>
@@ -65,8 +66,9 @@
          *ngIf="hasAnyOf(['authorization_code', 'password', 'client_credentials', 'hybrid', 'implicit', 'urn:ietf:params:oauth:grant-type:device_code'])">
         <label for="client-access-token-lifetime"
                class="col-sm-3 col-form-label">
-            <i class="dripicons-information align-middle"
+            <i class="material-icons align-middle"
                title="Lifetime of access token in seconds.">
+                info
             </i>
             Access Token Lifetime (sec) (*)
         </label>
@@ -127,8 +129,9 @@
              || hasAllOf(['authorization_code', 'client_credentials'])">
         <label for="absolute-refresh-token-lifetime"
                class="col-sm-3 col-form-label">
-            <i class="dripicons-information align-middle"
+            <i class="material-icons align-middle"
                title="Maximum lifetime of a refresh token in seconds.">
+                info
             </i>
             Absolute Refresh Token Lifetime (sec) (*)
         </label>
@@ -180,8 +183,9 @@
          *ngIf="hasAnyOf(['authorization_code', 'hybrid'])">
         <label for="client-authorization-token-lifetime"
                class="col-sm-3 col-form-label">
-            <i class="dripicons-information align-middle"
+            <i class="material-icons align-middle"
                title="Lifetime of authorization code in seconds.">
+                info
             </i>
             Authorization Code Lifetime (sec) (*)
         </label>
@@ -225,8 +229,9 @@
          *ngIf="hasAnyOf(['authorization_code', 'hybrid', 'implicit', 'urn:ietf:params:oauth:grant-type:device_code'])">
         <label for="client-consent-token-lifetime"
                class="col-sm-3 col-form-label">
-            <i class="dripicons-information align-middle"
+            <i class="material-icons align-middle"
                title="Lifetime of a user consent in seconds.">
+                info
             </i>
             Consent Token Lifetime (sec)
         </label>
@@ -281,8 +286,9 @@
          *ngIf="hasAnyOf(['authorization_code', 'hybrid', 'implicit', 'urn:ietf:params:oauth:grant-type:device_code'])">
         <label for="client-sso-lifetime"
                class="col-sm-3 col-form-label">
-            <i class="dripicons-information align-middle"
+            <i class="material-icons align-middle"
                title="The maximum duration (in seconds) since the last time the user authenticated.">
+                info
             </i>
             SSO Lifetime (sec)
         </label>
@@ -329,8 +335,9 @@
          *ngIf="hasAnyOf(['urn:ietf:params:oauth:grant-type:device_code'])">
         <label for="client-device-code-lifetime"
                class="col-sm-3 col-form-label">
-            <i class="dripicons-information align-middle"
+            <i class="material-icons align-middle"
                title="Sets the device code lifetime.">
+                info
             </i>
             Device Code Lifetime (sec)
         </label>
@@ -369,8 +376,9 @@
          *ngIf="hasAnyOf(['authorization_code', 'hybrid', 'implicit'])">
         <label for="client-front-channel-logout-uri"
                class="col-sm-3 col-form-label">
-            <i class="dripicons-information align-middle"
+            <i class="material-icons align-middle"
                title="Specifies logout URI at client for HTTP front-channel based logout.">
+                info
             </i>
             Front Channel Logout URI
         </label>
@@ -388,8 +396,9 @@
              || hasAllOf(['authorization_code', 'client_credentials'])">
         <label for="client-back-channel-logout-uri"
                class="col-sm-3 col-form-label">
-            <i class="dripicons-information align-middle"
+            <i class="material-icons align-middle"
                title="Specifies logout URI at client for HTTP back-channel based logout.">
+                info
             </i>
             Back Channel Logout Uri
         </label>
@@ -406,8 +415,9 @@
          *ngIf="hasAnyOf(['urn:ietf:params:oauth:grant-type:device_code'])">
         <label for="client-user-code-generator-type"
                class="col-sm-3 col-form-label">
-            <i class="dripicons-information align-middle"
+            <i class="material-icons align-middle"
                title="Sets the type of the device flow user code.">
+                info
             </i>
             User Code Generator Type
         </label>
@@ -424,8 +434,9 @@
          *ngIf="hasAnyOf(['authorization_code', 'password', 'client_credentials', 'hybrid', 'implicit', 'urn:ietf:params:oauth:grant-type:device_code'])">
         <label for="client-pair-wise-subject-salt"
                class="col-sm-3 col-form-label">
-            <i class="dripicons-information align-middle"
+            <i class="material-icons align-middle"
                title="Sets a salt value used in pair-wise subjectId generation for users of this client.">
+                info
             </i>
             Pair Wise Subject Salt
         </label>
@@ -442,8 +453,9 @@
          *ngIf="hasAnyOf(['authorization_code', 'password', 'client_credentials', 'hybrid', 'implicit', 'urn:ietf:params:oauth:grant-type:device_code'])">
         <label for="client-access-token-type"
                class="col-sm-3 col-form-label">
-            <i class="dripicons-information align-middle"
+            <i class="material-icons align-middle"
                title="Specifies whether the access token is a reference token or a self contained JWT token.">
+                info
             </i>
             Access Token Type
         </label>
@@ -468,8 +480,9 @@
              || hasAllOf(['authorization_code', 'client_credentials'])">
         <label for="client-refresh-token-usage"
                class="col-sm-3 col-form-label">
-            <i class="dripicons-information align-middle"
+            <i class="material-icons align-middle"
                title="ReUse: the refresh token handle will stay the same when refreshing tokens. OneTime: the refresh token handle will be updated when refreshing tokens.">
+                info
             </i>
             Refresh Token Usage
         </label>
@@ -500,8 +513,9 @@
              || hasAllOf(['authorization_code', 'client_credentials'])">
         <label for="client-refresh-token-expiration"
                class="col-sm-3 col-form-label">
-            <i class="dripicons-information align-middle"
+            <i class="material-icons align-middle"
                title="Absolute: the refresh token will expire on a fixed point in time (specified by the AbsoluteRefreshTokenLifetime). Sliding: when refreshing the token, the lifetime of the refresh token will be renewed (by the amount specified in SlidingRefreshTokenLifetime).">
+                info
             </i>
             Refresh Token Expiration
         </label>
@@ -531,8 +545,9 @@
          *ngIf="hasAnyOf(['authorization_code', 'hybrid', 'implicit'])">
         <label for="client-front-channel-logout-session-required"
                class="col-sm-3 col-form-label">
-            <i class="dripicons-information align-middle"
+            <i class="material-icons align-middle"
                title="Specifies if the user's session id should be sent to the FrontChannelLogoutUri.">
+                info
             </i>
             Front Channel Logout Session Required
         </label>
@@ -554,8 +569,9 @@
          *ngIf="hasAnyOf(['hybrid', 'implicit'])">
         <label for="client-allow-access-tokens-via-browser"
                class="col-sm-3 col-form-label">
-            <i class="dripicons-information align-middle"
+            <i class="material-icons align-middle"
                title="Controls whether access tokens are transmitted via the browser for this client. This can prevent accidental leakage of access tokens when multiple response types are allowed.">
+                info
             </i>
             Allow Access Tokens Via Browser
         </label>
@@ -578,8 +594,9 @@
              || hasAllOf(['authorization_code', 'client_credentials'])">
         <label for="client-back-channel-logout-session-required"
                class="col-sm-3 col-form-label">
-            <i class="dripicons-information align-middle"
+            <i class="material-icons align-middle"
                title="Specifies if the user's session id should be sent to the BackChannelLogoutUri.">
+                info
             </i>
             Back Channel Logout Session Required
         </label>
@@ -601,8 +618,9 @@
          *ngIf="hasAnyOf(['authorization_code', 'hybrid'])">
         <label for="client-require-pkce"
                class="col-sm-3 col-form-label">
-            <i class="dripicons-information align-middle"
+            <i class="material-icons align-middle"
                title="Specifies whether a proof key is required for authorization code based token requests.">
+                info
             </i>
             Require PKCE
         </label>
@@ -624,8 +642,9 @@
          *ngIf="hasAnyOf(['authorization_code', 'password', 'hybrid', 'implicit', 'urn:ietf:params:oauth:grant-type:device_code'])">
         <label for="client-include-user-claims-in-id-token"
                class="col-sm-3 col-form-label">
-            <i class="dripicons-information align-middle"
+            <i class="material-icons align-middle"
                title="When requesting both an id token and access token, should the user claims always be added to the id token instead of requring the client to use the userinfo endpoint.">
+                info
             </i>
             Always Include User Claims In Id Token
         </label>
@@ -647,8 +666,9 @@
          *ngIf="hasAnyOf(['authorization_code', 'password', 'client_credentials', 'hybrid', 'implicit', 'urn:ietf:params:oauth:grant-type:device_code'])">
         <label for="client-include-jwt-id"
                class="col-sm-3 col-form-label">
-            <i class="dripicons-information align-middle"
+            <i class="material-icons align-middle"
                title="Sets a value indicating whether JWT access tokens should include an identifier.">
+                info
             </i>
             Include JWT Id
         </label>
@@ -671,8 +691,9 @@
              || hasAllOf(['authorization_code', 'client_credentials'])">
         <label for="client-allow-plain-text-pkce"
                class="col-sm-3 col-form-label">
-            <i class="dripicons-information align-middle"
+            <i class="material-icons align-middle"
                title="Specifies whether a proof key can be sent using plain method.">
+                info
             </i>
             Allow PlainText PKCE
         </label>
@@ -695,8 +716,9 @@
              || hasAllOf(['authorization_code', 'client_credentials'])">
         <label for="client-allow-offline-access"
                class="col-sm-3 col-form-label">
-            <i class="dripicons-information align-middle"
+            <i class="material-icons align-middle"
                title="Sets a value indicating whether to allow offline access.">
+                info
             </i>
             Allow Offline Access
         </label>
@@ -719,8 +741,9 @@
              || hasAllOf(['authorization_code', 'client_credentials'])">
         <label for="client-update-access-token-claims-on-refresh"
                class="col-sm-3 col-form-label">
-            <i class="dripicons-information align-middle"
+            <i class="material-icons align-middle"
                title="Sets a value indicating whether the access token (and its claims) should be updated on a refresh token request.">
+                info
             </i>
             Update Access Token Claims On Refresh
         </label>

@@ -3,9 +3,9 @@ import { ActivatedRoute } from '@angular/router';
 
 import { Subscription } from 'rxjs';
 import { TableColumn } from '@swimlane/ngx-datatable';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { UserClientInfo } from 'src/app/core/services/identity-api.service';
 import { UserStore } from '../user-store.service';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
     selector: 'app-user-applications',
@@ -15,7 +15,7 @@ export class UserApplicationsComponent implements OnInit, OnDestroy {
     @ViewChild('actionsTemplate', { static: true }) private _actionsTemplate: TemplateRef<HTMLElement>;
     private _getDataSubscription: Subscription;
 
-    constructor(private userStore: UserStore, private route: ActivatedRoute, private modalService: NgbModal) { }
+    constructor(private _userStore: UserStore, private _route: ActivatedRoute, private _modalService: NgbModal) { }
 
     public columns: TableColumn[] = [];
     public rows: UserClientInfo[] = [];
@@ -28,8 +28,8 @@ export class UserApplicationsComponent implements OnInit, OnDestroy {
             { prop: 'description', name: 'Description', draggable: false, canAutoResize: true, sortable: false, resizeable: false },
             { prop: 'id', name: 'Actions', draggable: false, canAutoResize: true, sortable: false, resizeable: false, cellTemplate: this._actionsTemplate, cellClass: 'd-flex align-items-center' }
         ];
-        const userId = this.route.parent.snapshot.params.id;
-        this._getDataSubscription = this.userStore.getUserApplications(userId).subscribe((userApplications: UserClientInfo[]) => {
+        const userId = this._route.parent.snapshot.params.id;
+        this._getDataSubscription = this._userStore.getUserApplications(userId).subscribe((userApplications: UserClientInfo[]) => {
             this.rows = userApplications;
         });
     }
@@ -42,6 +42,6 @@ export class UserApplicationsComponent implements OnInit, OnDestroy {
 
     public showDetails(client: UserClientInfo, content: any): void {
         this.selectedUserClient = client;
-        this.modalService.open(content);
+        this._modalService.open(content);
     }
 }

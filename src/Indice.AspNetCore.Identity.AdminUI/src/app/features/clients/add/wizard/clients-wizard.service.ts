@@ -22,18 +22,18 @@ export class ClientsWizardService {
     constructor(private _api: IdentityApiService) {
         this._clientTypes.push(...[
             new ClientType(Type.SPA, 'Single Page App', 'Authorization code flow + PKCE', `A client-side application running in a browser.<br />These applications cannot be trusted to keep secrets
-                or use refresh tokens.<br />Tokens will be sent through via the browser and will be visible to the user.`, 'dripicons-web'),
+                or use refresh tokens.<br />Tokens will be sent through via the browser and will be visible to the user.`, 'language'),
             new ClientType(Type.WebApp, 'Web App', 'Hybrid flow with client authentication', `A server-side application running on your infrastructure.<br />These applications can be trusted to
-                keep a secret and use refresh tokens.<br />Tokens will be sent to a back-end server and will not be visible to the user.`, 'dripicons-monitor'),
+                keep a secret and use refresh tokens.<br />Tokens will be sent to a back-end server and will not be visible to the user.`, 'desktop_windows'),
             new ClientType(Type.Native, 'Native', 'Authorization code flow + PKCE', `A desktop or mobile application running on a user's device.<br />These applications cannot be trusted to keep
-                a secret but can use refresh tokens.<br />Token visibility dependent on browser and redirect URI choice.`, 'dripicons-device-mobile'),
+                a secret but can use refresh tokens.<br />Token visibility dependent on browser and redirect URI choice.`, 'phone_android'),
             new ClientType(Type.Machine, 'Machine', 'Client credentials', `A machine-to-machine method of communication.<br />No users are involved in the process.<br />Tokens will be sent
-                via back-channel communication.`, 'dripicons-stack'),
+                via back-channel communication.`, 'dns'),
             new ClientType(Type.Device, 'Device', 'Device flow using external browser', `An IoT application or otherwise browserless or input constrained device.<br />These applications
-                typically cannot be trusted to keep a secret but can use refresh tokens.`, 'dripicons-wifi'),
+                typically cannot be trusted to keep a secret but can use refresh tokens.`, 'signal_wifi_4_bar'),
             new ClientType(Type.SPALegacy, 'Single Page App (legacy)', 'Implicit flow', `A client-side application running in a browser using previous OAuth Working Group recommendations.
                 <br />These applications cannot be trusted to keep secrets or use refresh tokens.<br />Tokens will be sent through via the browser and will be visible to the user.`,
-                'dripicons-web')
+                'language')
         ]);
         this._clientTypeSteps.push(...[{
             key: Type.SPA, steps: [...[

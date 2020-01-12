@@ -3,8 +3,9 @@ import { ActivatedRoute, Router } from '@angular/router';
 
 import { Subscription, forkJoin } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
-import { SingleUserInfo, ClaimTypeInfo, ValueType, PasswordExpirationPolicy, ISingleUserInfo } from 'src/app/core/services/identity-api.service';
+import { NgbDateStruct, NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { SwalPortalTargets } from '@sweetalert2/ngx-sweetalert2';
+import { SingleUserInfo, ClaimTypeInfo, ValueType, PasswordExpirationPolicy, ProblemDetails, ValidationProblemDetails } from 'src/app/core/services/identity-api.service';
 import { ClaimType } from './models/claim-type.model';
 import { UserStore } from '../user-store.service';
 import { NgbDateCustomParserFormatter } from 'src/app/shared/services/custom-parser-formatter.service';
@@ -22,12 +23,15 @@ export class UserDetailsComponent implements OnInit, OnDestroy {
     private _getDataSubscription: Subscription;
 
     constructor(private _route: ActivatedRoute, private _userStore: UserStore, private _dateParser: NgbDateCustomParserFormatter, public _toast: ToastService,
-                private _router: Router, private _authService: AuthService) { }
+        private _router: Router, private _authService: AuthService, private _modalService: NgbModal, public readonly swalTargets: SwalPortalTargets) { }
 
     public user: SingleUserInfo;
     public requiredClaims: ClaimType[];
     public currentUserId: string;
     public userPasswordExpirationPolicy = '';
+    public newPassword = '';
+    public changePasswordAfterFirstSignIn = false;
+    public problemDetails: ProblemDetails;
 
     public ngOnInit(): void {
         this.currentUserId = this._authService.getSubjectId();
@@ -72,9 +76,28 @@ export class UserDetailsComponent implements OnInit, OnDestroy {
         });
     }
 
-    public block(): void {
-        this._userStore.blockUser(this.user.id).subscribe(_ => {
-            this._toast.showSuccess(`User '${this.user.userName}' was blocked.`);
+    public toggleBlock(): void {
+        if (!this.user.blocked) {
+            this._userStore.blockUser(this.user.id).subscribe(_ => {
+                this._toast.showSuccess(`User '${this.user.userName}' was blocked.`);
+            });
+        } else {
+            this._userStore.unblockUser(this.user.id).subscribe(_ => {
+                this._toast.showSuccess(`User '${this.user.userName}' was unblocked.`);
+            });
+        }
+    }
+
+    public showResetPassword(content: any): void {
+        this._modalService.open(content);
+    }
+
+    public resetPassword() {
+        this._userStore.resetPassword(this.user.id, this.newPassword, this.changePasswordAfterFirstSignIn).subscribe(_ => {
+            this.userPasswordExpirationPolicy = this.user.passwordExpirationPolicy ? this.user.passwordExpirationPolicy : '';
+            this._toast.showSuccess(`Password for user '${this.user.userName}' was reset successfully.`);
+        }, (problemDetails: ValidationProblemDetails) => {
+            this.problemDetails = problemDetails;
         });
     }
 

@@ -83,6 +83,10 @@ namespace Indice.AspNetCore.Identity.Features
             if (!result.Succeeded) {
                 return BadRequest(result.Errors.ToValidationProblemDetails());
             }
+            if (request.ChangePasswordAfterFirstSignIn.HasValue && request.ChangePasswordAfterFirstSignIn.Value == true) {
+                user.PasswordExpirationPolicy = PasswordExpirationPolicy.NextLogin;
+                await _userManager.UpdateAsync(user);
+            }
             return Ok();
         }
     }

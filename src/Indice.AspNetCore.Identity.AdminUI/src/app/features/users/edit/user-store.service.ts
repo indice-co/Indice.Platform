@@ -4,7 +4,7 @@ import { Observable, AsyncSubject } from 'rxjs';
 import { map } from 'rxjs/operators';
 import {
     IdentityApiService, SingleUserInfo, RoleInfoResultSet, RoleInfo, ClaimTypeInfo, ClaimTypeInfoResultSet, UpdateUserRequest, ClaimInfo, CreateClaimRequest, BasicClaimInfo,
-    UserClientInfo, UserClientInfoResultSet, UpdateUserClaimRequest
+    UserClientInfo, UserClientInfoResultSet, UpdateUserClaimRequest, PasswordExpirationPolicy, SetPasswordRequest
 } from 'src/app/core/services/identity-api.service';
 import { ClaimType } from './details/models/claim-type.model';
 
@@ -61,7 +61,30 @@ export class UserStore {
             this._user.next(user);
             this._user.complete();
         });
-        return this._api.lockUser(userId);
+        return this._api.blockUser(userId);
+    }
+
+    public unblockUser(userId: string): Observable<void> {
+        this.getUser(userId).subscribe((user: SingleUserInfo) => {
+            user.blocked = false;
+            this._user.next(user);
+            this._user.complete();
+        });
+        return this._api.unblockUser(userId);
+    }
+
+    public resetPassword(userId: string, password: string, changePasswordAfterFirstSignIn: boolean): Observable<void> {
+        this.getUser(userId).subscribe((user: SingleUserInfo) => {
+            if (changePasswordAfterFirstSignIn) {
+                user.passwordExpirationPolicy = PasswordExpirationPolicy.NextLogin;
+            }
+            this._user.next(user);
+            this._user.complete();
+        });
+        return this._api.setPassword(userId, {
+            password,
+            changePasswordAfterFirstSignIn
+        } as SetPasswordRequest);
     }
 
     public addUserRole(userId: string, role: RoleInfo): Observable<void> {

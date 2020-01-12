@@ -101,7 +101,7 @@ namespace Indice.AspNetCore.Identity.Data
                              });
             }
             user.LastPasswordChangeDate = changeDate;
-            // calculate expiration date based on policy.
+            // Calculate expiration date based on policy.
             user.PasswordExpirationDate = user.CalculatePasswordExpirationDate();
             await base.SetPasswordHashAsync(user, passwordHash, cancellationToken);
         }
@@ -113,7 +113,7 @@ namespace Indice.AspNetCore.Identity.Data
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
         public override Task<IdentityResult> UpdateAsync(TUser user, CancellationToken cancellationToken = default) {
-            // calculate expiration date based on policy.
+            // Calculate expiration date based on policy.
             user.PasswordExpirationDate = user.CalculatePasswordExpirationDate();
             return base.UpdateAsync(user, cancellationToken);
         }
@@ -124,8 +124,7 @@ namespace Indice.AspNetCore.Identity.Data
         /// </summary>
         /// <param name="user">The user whose password expiration policy to set.</param>
         /// <param name="policy">The password expiration policy to set.</param>
-        /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the
-        /// operation should be canceled.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
         /// <returns>The <see cref="Task{IdentityResult}"/> that represents the asynchronous operation.</returns>
         public async Task<IdentityResult> SetPasswordExpirationPolicyAsync(TUser user, PasswordExpirationPolicy? policy, CancellationToken cancellationToken = default(CancellationToken)) {
             cancellationToken.ThrowIfCancellationRequested();
@@ -133,9 +132,9 @@ namespace Indice.AspNetCore.Identity.Data
             if (user == null) {
                 throw new ArgumentNullException(nameof(user));
             }
-            // set the policy.
+            // Set the policy.
             user.PasswordExpirationPolicy = policy;
-            // calculate expiration date based on policy.
+            // Calculate expiration date based on policy.
             user.PasswordExpirationDate = user.CalculatePasswordExpirationDate();
             Context.Attach(user);
             user.ConcurrencyStamp = Guid.NewGuid().ToString();
