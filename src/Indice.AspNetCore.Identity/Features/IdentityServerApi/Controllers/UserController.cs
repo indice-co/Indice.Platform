@@ -542,5 +542,58 @@ namespace Indice.AspNetCore.Identity.Features
             await _userManager.UpdateAsync(user);
             return Ok();
         }
+
+        /// <summary>
+        /// Changes the password for a given user, but requires the old password to be present.
+        /// </summary>
+        /// <param name="userId">The identifier of the user.</param>
+        /// <param name="request">Contains info about the user password to change.</param>
+        /// <response code="200">OK</response>
+        /// <response code="404">Not Found</response>
+        [HttpPut("{userId}/change-password")]
+        public async Task<IActionResult> ChangePassword([FromRoute]string userId, [FromBody]ChangePasswordRequest request) {
+            var user = await _dbContext.Users.SingleOrDefaultAsync(x => x.Id == userId);
+            if (user == null) {
+                return NotFound();
+            }
+            var result = await _userManager.ChangePasswordAsync(user, request.OldPassword, request.NewPassword);
+            if (!result.Succeeded) {
+                return BadRequest(result.Errors.ToValidationProblemDetails());
+            }
+            return Ok();
+        }
+
+        /// <summary>
+        /// Sets the password for a given user.
+        /// </summary>
+        /// <param name="userId">The identifier of the user.</param>
+        /// <param name="request">Contains info about the user password to change.</param>
+        /// <response code="200">OK</response>
+        /// <response code="404">Not Found</response>
+        [HttpPut("{userId}/set-password")]
+        [CacheResourceFilter(dependentPaths: new string[] { "{userId}" })]
+        public async Task<IActionResult> SetPassword([FromRoute]string userId, [FromBody]SetPasswordRequest request) {
+            var user = await _dbContext.Users.SingleOrDefaultAsync(x => x.Id == userId);
+            if (user == null) {
+                return NotFound();
+            }
+            var hasPassword = await _userManager.HasPasswordAsync(user);
+            IdentityResult result;
+            if (hasPassword) {
+                result = await _userManager.RemovePasswordAsync(user);
+                if (!result.Succeeded) {
+                    return BadRequest(result.Errors.ToValidationProblemDetails());
+                }
+            }
+            result = await _userManager.AddPasswordAsync(user, request.Password);
+            if (!result.Succeeded) {
+                return BadRequest(result.Errors.ToValidationProblemDetails());
+            }
+            if (request.ChangePasswordAfterFirstSignIn.HasValue && request.ChangePasswordAfterFirstSignIn.Value == true) {
+                user.PasswordExpirationPolicy = PasswordExpirationPolicy.NextLogin;
+                await _userManager.UpdateAsync(user);
+            }
+            return Ok();
+        }
     }
 }
