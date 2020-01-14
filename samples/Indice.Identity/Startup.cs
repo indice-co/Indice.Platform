@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
+using Hellang.Middleware.ProblemDetails;
 using Indice.AspNetCore.Identity.Features;
 using Indice.AspNetCore.Swagger;
 using Indice.Configuration;
@@ -139,8 +140,9 @@ namespace Indice.Identity
                     swaggerOptions.DocExpansion(DocExpansion.None);
                 });
             }
+            app.UseProblemDetails();
             app.UseEndpoints(endpoints => {
-                endpoints.MapControllerRoute("default", "{controller=Welcome}/{action=Index}/{id?}");
+                endpoints.MapControllers();
             });
             if (!HostingEnvironment.IsDevelopment()) {
                 app.UseSpaStaticFiles();
