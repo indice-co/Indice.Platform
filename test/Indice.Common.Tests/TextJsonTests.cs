@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Indice.Serialization;
@@ -13,9 +11,9 @@ namespace Indice.Common.Tests
     {
         [Fact]
         public void RoundtripStringToObjectTest() {
-            var options = new JsonSerializerOptions();
-            // Support for OpenAPI / Swagger when using System.Text.Json is ongoing and unlikely to be available as part of the 3.0 release.
-            options.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+            var options = new JsonSerializerOptions {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            };
             options.Converters.Add(new JsonStringEnumConverter());
             options.IgnoreNullValues = true;
             var model = new { Field = "text field here", Value = 12.34 };
@@ -27,9 +25,9 @@ namespace Indice.Common.Tests
         
         [Fact]
         public void RoundtripTypeConverterAdapter() {
-            var options = new JsonSerializerOptions();
-            // Support for OpenAPI / Swagger when using System.Text.Json is ongoing and unlikely to be available as part of the 3.0 release.
-            options.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+            var options = new JsonSerializerOptions {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            };
             options.Converters.Add(new JsonStringEnumConverter());
             options.Converters.Add(new TypeConverterJsonAdapter());
             options.IgnoreNullValues = true;

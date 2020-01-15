@@ -14,7 +14,7 @@
   <ItemGroup>
     <PackageReference Include="Hellang.Middleware.ProblemDetails" Version="4.0.0" />
     <PackageReference Include="IdentityServer4.AspNetIdentity" Version="3.1.0" />
-    <PackageReference Include="Indice.AspNetCore.Identity" Version="3.1.8" />
+    <!--<PackageReference Include="Indice.AspNetCore.Identity" Version="3.1.8" />-->
     <PackageReference Include="Microsoft.AspNetCore.AzureAppServices.HostingStartup" Version="3.1.1" />
     <PackageReference Include="Microsoft.AspNetCore.SpaServices.Extensions" Version="3.1.1" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="3.1.1" />
@@ -35,5 +35,8 @@
   <ItemGroup>
     <Folder Include="logs\" />
     <Folder Include="wwwroot\admin-ui\" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Indice.AspNetCore.Identity\Indice.AspNetCore.Identity.csproj" />
   </ItemGroup>
 </Project>

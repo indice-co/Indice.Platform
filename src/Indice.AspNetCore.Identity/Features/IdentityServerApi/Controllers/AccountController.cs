@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Net.Mime;
+using System.Security.Claims;
 using System.Threading.Tasks;
+using IdentityModel;
 using Indice.AspNetCore.Identity.Models;
 using Indice.AspNetCore.Identity.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -38,6 +39,25 @@ namespace Indice.AspNetCore.Identity.Features
             _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
         }
 
-        
+        public string UserId => User.FindFirstValue(JwtClaimTypes.Subject);
+
+        /// <summary>
+        /// Changes the password for a given user, but requires the old password to be present.
+        /// </summary>
+        /// <param name="request">Contains info about the user password to change.</param>
+        /// <response code="200">OK</response>
+        /// <response code="404">Not Found</response>
+        [HttpPut("change-password")]
+        public async Task<IActionResult> ChangePassword([FromBody]ChangePasswordRequest request) {
+            var user = await _dbContext.Users.SingleOrDefaultAsync(x => x.Id == UserId);
+            if (user == null) {
+                return NotFound();
+            }
+            var result = await _userManager.ChangePasswordAsync(user, request.OldPassword, request.NewPassword);
+            if (!result.Succeeded) {
+                return BadRequest(result.Errors.ToValidationProblemDetails());
+            }
+            return Ok();
+        }
     }
 }
