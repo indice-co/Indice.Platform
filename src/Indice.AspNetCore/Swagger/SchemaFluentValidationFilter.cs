@@ -29,10 +29,10 @@ namespace Indice.AspNetCore.Swagger
         /// <param name="schema"></param>
         /// <param name="context"></param>
         public void Apply(OpenApiSchema schema, SchemaFilterContext context) {
-            if (context.ApiModel.Type == typeof(void))
+            if (context.Type == typeof(void))
                 return;
 
-            var validator = _factory.GetValidator(context.ApiModel.Type);
+            var validator = _factory.GetValidator(context.Type);
 
             if (validator != null && schema.Properties != null) {
                 foreach (var item in schema.Properties) {

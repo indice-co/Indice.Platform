@@ -10,7 +10,7 @@ using System.Text.Json;
 namespace Microsoft.Extensions.Configuration.Json
 {
     /// <summary>
-    /// 
+    /// Parser/Helper for appsettings json.
     /// </summary>
     public class JsonConfigurationFileParser
     {

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -69,8 +70,21 @@ namespace Indice.AspNetCore.Identity.Services
                 }
                 additionalClaims.Add(new Claim(BasicClaimTypes.Admin, isAdmin.ToString().ToLower(), ClaimValueTypes.Boolean));
             }
+            if (!identity.HasClaim(x => x.Type == BasicClaimTypes.PasswordExpirationDate) && user.PasswordExpirationDate.HasValue) {
+                additionalClaims.Add(new Claim(BasicClaimTypes.PasswordExpirationDate, ToISOString(user.PasswordExpirationDate.Value.UtcDateTime), ClaimValueTypes.DateTime));
+            }
             identity.AddClaims(additionalClaims);
             return identity;
+        }
+
+        const string ISOFORMAT = "yyyy-MM-dd\\THH:mm:ss.fffK"; //ISO-8601 used by Javascript (ALWAYS UTC)
+        private static string ToISOString(DateTime d, bool useLocal = false) {
+            if (!useLocal && d.Kind == DateTimeKind.Local) {
+                //If d is LT or you don't want LocalTime -> convert to UTC and always add K format always add 'Z' postfix
+                return d.ToUniversalTime().ToString(ISOFORMAT);
+            } else { //If d is already UTC K format add 'Z' postfix, if d is LT K format add +/-TIMEOFFSET
+                return d.ToString(ISOFORMAT);
+            }
         }
     }
 }

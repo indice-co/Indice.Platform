@@ -69,6 +69,7 @@ namespace Indice.Identity
                 options.LoginPath = new PathString("/login");
                 options.LogoutPath = new PathString("/logout");
             });
+            services.AddProblemDetailsConfig(HostingEnvironment);
             services.ConfigureNonBreakingSameSiteCookies();
             services.AddOptions();
             services.AddLogging();
@@ -116,8 +117,9 @@ namespace Indice.Identity
                 SupportedUICultures = SupportedCultures.Get().ToList()
             });
             app.UseRouting();
-            app.UseIdentityServer();
             app.UseCors();
+            app.UseIdentityServer();
+            app.UseProblemDetails();
             app.UseAuthentication();
             app.UseAuthorization();
             app.UseStaticFiles(new StaticFileOptions {
@@ -140,7 +142,6 @@ namespace Indice.Identity
                     swaggerOptions.DocExpansion(DocExpansion.None);
                 });
             }
-            app.UseProblemDetails();
             app.UseEndpoints(endpoints => {
                 endpoints.MapControllers();
             });

@@ -1,4 +1,6 @@
-﻿using FluentValidation.AspNetCore;
+﻿using System.Text.Json;
+using System.Text.Json.Serialization;
+using FluentValidation.AspNetCore;
 using Indice.AspNetCore.Identity.Features;
 using Indice.Identity;
 using Indice.Identity.Services;
@@ -71,12 +73,12 @@ namespace Microsoft.Extensions.DependencyInjection
                                options.FormatterMappings.SetMediaTypeMappingForFormat("docx", "application/vnd.openxmlformats-officedocument.wordprocessingml.document");
                                options.FormatterMappings.SetMediaTypeMappingForFormat("xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
                            })
-                           /*.AddJsonOptions(options => {
+                           .AddJsonOptions(options => {
                                // Support for OpenAPI / Swagger when using System.Text.Json is ongoing and unlikely to be available as part of the 3.0 release.
                                options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
                                options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
-                               options.JsonSerializerOptions.IgnoreNullValues = false;
-                           })*/
+                               options.JsonSerializerOptions.IgnoreNullValues = true;
+                           })
                            .AddFluentValidation(options => {
                                options.RegisterValidatorsFromAssemblyContaining<Startup>();
                                options.ConfigureClientsideValidation();

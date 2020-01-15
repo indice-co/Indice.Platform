@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Net.Http;
+using System.Text.Json;
 using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -8,8 +9,6 @@ using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Options;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 
 namespace Indice.AspNetCore.Filters
 {
@@ -20,7 +19,7 @@ namespace Indice.AspNetCore.Filters
     {
         private readonly IDistributedCache _cache;
         // Invoke the same JSON serializer settings that are used by the output formatter, so we can save objects in the cache in the exact same manner.
-        private readonly JsonSerializerSettings _jsonSerializerSettings;
+        private readonly JsonSerializerOptions _jsonSerializerOptions;
         private readonly string[] _dependentPaths;
         private readonly string[] _dependentStaticPaths;
         private string _cacheKey;
@@ -32,9 +31,9 @@ namespace Indice.AspNetCore.Filters
         /// <param name="jsonOptions">Provides programmatic configuration for JSON in the MVC framework.</param>
         /// <param name="dependentPaths">Parent paths of the current method that must be invalidated. Path template variables must match by name.</param>
         /// <param name="dependentStaticPaths">Dependent static path that must be invalidated along with this resource.</param>
-        public CacheResourceFilter(IDistributedCache cache, IOptions<MvcNewtonsoftJsonOptions> jsonOptions, string[] dependentPaths, string[] dependentStaticPaths) {
+        public CacheResourceFilter(IDistributedCache cache, IOptions<JsonOptions> jsonOptions, string[] dependentPaths, string[] dependentStaticPaths) {
             _cache = cache ?? throw new ArgumentNullException(nameof(cache));
-            _jsonSerializerSettings = jsonOptions?.Value?.SerializerSettings ?? throw new ArgumentNullException(nameof(jsonOptions));
+            _jsonSerializerOptions = jsonOptions?.Value?.JsonSerializerOptions ?? throw new ArgumentNullException(nameof(jsonOptions));
             _dependentPaths = dependentPaths ?? Array.Empty<string>();
             _dependentStaticPaths = dependentStaticPaths ?? Array.Empty<string>();
         }
@@ -50,7 +49,7 @@ namespace Indice.AspNetCore.Filters
             var cachedValue = _cache.GetString(_cacheKey);
             // If there is a cached response for this path and the request method is of type 'GET', then break the pipeline and send the cached response.
             if (!string.IsNullOrEmpty(cachedValue) && requestMethod == HttpMethod.Get.Method) {
-                context.Result = new OkObjectResult(JObject.Parse(cachedValue));
+                context.Result = new OkObjectResult(JsonDocument.Parse(cachedValue).RootElement);
             }
         }
 
@@ -79,7 +78,7 @@ namespace Indice.AspNetCore.Filters
                     var cachedValue = _cache.GetString(_cacheKey);
                     // Check if we already have a cached value for this cache key and also that response status code is 200 OK.
                     if (string.IsNullOrEmpty(cachedValue) && (context.Result is OkObjectResult result)) {
-                        _cache.SetString(_cacheKey, JsonConvert.SerializeObject(result.Value, _jsonSerializerSettings), new DistributedCacheEntryOptions {
+                        _cache.SetString(_cacheKey, JsonSerializer.Serialize(result.Value, _jsonSerializerOptions), new DistributedCacheEntryOptions {
                             AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(10)
                         });
                     }

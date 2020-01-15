@@ -65,9 +65,20 @@ namespace Indice.Security
         public const string FullName = "full_name";
 
         /// <summary>
+        /// String from the time zone database (http://www.twinsun.com/tz/tz-link.htm) representing
+        /// the End-User's time zone. For example, Europe/Paris or America/Los_Angeles.
+        /// </summary>
+        public const string ZoneInfo = "zoneinfo";
+
+        /// <summary>
         /// Client Id (calling application)
         /// </summary>
         public const string ClientId = "client_id";
+
+        /// <summary>
+        /// The datetime when the user password will expire.
+        /// </summary>
+        public const string PasswordExpirationDate = "password_expiration_date";
 
         /// <summary>
         /// All possible user related claims
@@ -82,7 +93,8 @@ namespace Indice.Security
             "family_name",
             "given_name",
             "role",
-            Admin
+            Admin,
+            PasswordExpirationDate
         };
     }
 }

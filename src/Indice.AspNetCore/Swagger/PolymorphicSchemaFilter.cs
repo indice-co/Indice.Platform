@@ -96,13 +96,13 @@ namespace Indice.AspNetCore.Swagger
             if (DerivedTypes.Count == 0) {
                 return;
             }
-            if (BaseType == context.ApiModel.Type) { // when it is the base type
+            if (BaseType == context.Type) { // when it is the base type
                 schema.Discriminator = new OpenApiDiscriminator { PropertyName = Discriminator, Mapping = DiscriminatorMap };
                 foreach (var type in DerivedTypes.Where(x => x.Name != BaseType.Name && !context.SchemaRepository.Schemas.ContainsKey(x.Name))) {
                     var derivedSchema = default(OpenApiSchema);
-                    //if (!context.SchemaGenerator.TryGetIdFor(type, out var derivedSchemaId)) {
+                    if (!context.SchemaRepository.TryGetIdFor(type, out var derivedSchemaId)) {
                         derivedSchema = context.SchemaGenerator.GenerateSchema(type, context.SchemaRepository);
-                    //}
+                    }
                     if (context.SchemaRepository.Schemas.ContainsKey(derivedSchema.Reference?.Id ?? type.Name)) {
                         derivedSchema = context.SchemaRepository.Schemas[derivedSchema.Reference?.Id ?? type.Name];
                     } else {
@@ -110,7 +110,7 @@ namespace Indice.AspNetCore.Swagger
                     }
                     SubclassSchema(schema, derivedSchema, type, context);
                 }
-            } else if (!DerivedTypes.Contains(context.ApiModel.Type)) { // when it is neither the derived type or base type
+            } else if (!DerivedTypes.Contains(context.Type)) { // when it is neither the derived type or base type
                 var baseTypeProperties = schema.Properties
                                       .Where(p => p.Value.Reference?.Id == BaseType.Name)
                                       .Union(schema.Properties.Where(p => p.Value.Items?.Reference?.Id == BaseType.Name))
@@ -143,7 +143,7 @@ namespace Indice.AspNetCore.Swagger
             var extraRequired = derivedSchema.Required.Where(x => !baseSchema.Properties.ContainsKey(x));
             context.SchemaRepository.Schemas[derivedType.Name] = new OpenApiSchema {
                 AllOf = new List<OpenApiSchema> {
-                                new OpenApiSchema { Reference = new OpenApiReference { Type = ReferenceType.Schema, Id = context.ApiModel.Type.Name } },
+                                new OpenApiSchema { Reference = new OpenApiReference { Type = ReferenceType.Schema, Id = context.Type.Name } },
                                 new OpenApiSchema {
                                     Type = "object",
                                     Properties = extraProps,
