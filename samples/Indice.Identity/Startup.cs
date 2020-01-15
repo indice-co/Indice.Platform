@@ -71,8 +71,6 @@ namespace Indice.Identity
             });
             services.AddProblemDetailsConfig(HostingEnvironment);
             services.ConfigureNonBreakingSameSiteCookies();
-            services.AddOptions();
-            services.AddLogging();
             services.AddEmailServiceSparkpost(Configuration);
             services.AddSwaggerGen(options => {
                 options.IndiceDefaults(Settings);

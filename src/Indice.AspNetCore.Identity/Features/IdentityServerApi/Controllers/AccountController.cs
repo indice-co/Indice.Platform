@@ -59,5 +59,37 @@ namespace Indice.AspNetCore.Identity.Features
             }
             return Ok();
         }
+
+        [AllowAnonymous]
+        [HttpGet("confirm-email")]
+        public async Task<IActionResult> ConfirmEmail([FromQuery]string userId, [FromQuery]string code) {
+            return Ok();
+            //if (null == userId || null == code) {
+            //    ModelState.AddModelError(string.Empty, "Something went wrong.");
+            //}
+            //if (!ModelState.IsValid) {
+            //    return View();
+            //}
+            //var user = await _userManager.FindByIdAsync(userId);
+            //if (user == null) {
+            //    ModelState.AddModelError(string.Empty, "Something went wrong.");
+            //}
+            //if (await _userManager.IsEmailConfirmedAsync(user)) {
+            //    ModelState.AddModelError(string.Empty, _localizer["Email already verified."]);
+            //    return View();
+            //}
+            //var result = await _userManager.ConfirmEmailAsync(user, code);
+            //if (result.Succeeded || result.Errors == null) {
+            //    return View(new ConfirmEmailModel {
+            //        ReturnUrl = returnUrl
+            //    });
+            //}
+            //foreach (var error in result.Errors) {
+            //    ModelState.AddModelError(string.Empty, error.Description);
+            //}
+            //return View(new ConfirmEmailModel {
+            //    ReturnUrl = returnUrl
+            //});
+        }
     }
 }
