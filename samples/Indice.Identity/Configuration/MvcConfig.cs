@@ -36,17 +36,6 @@ namespace Microsoft.Extensions.DependencyInjection
                                options.RaiseEvents = true;
                                options.AddEventHandler<ClientCreatedEventHandler, ClientCreatedEvent>();
                            })
-                           .AddNewtonsoftJson(options => {
-                               options.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver {
-                                   NamingStrategy = new CamelCaseNamingStrategy {
-                                       ProcessDictionaryKeys = false,
-                                       OverrideSpecifiedNames = false
-                                   }
-                               };
-                               options.SerializerSettings.Converters.Add(new StringEnumConverter());
-                               options.SerializerSettings.DateTimeZoneHandling = DateTimeZoneHandling.Utc;
-                               options.SerializerSettings.DefaultValueHandling = DefaultValueHandling.IgnoreAndPopulate;
-                           })
                            .SetCompatibilityVersion(CompatibilityVersion.Latest)
                            .ConfigureApiBehaviorOptions(options => {
                                options.ClientErrorMapping[400].Link = "https://httpstatuses.com/400";
@@ -74,7 +63,6 @@ namespace Microsoft.Extensions.DependencyInjection
                                options.FormatterMappings.SetMediaTypeMappingForFormat("xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
                            })
                            .AddJsonOptions(options => {
-                               // Support for OpenAPI / Swagger when using System.Text.Json is ongoing and unlikely to be available as part of the 3.0 release.
                                options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
                                options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
                                options.JsonSerializerOptions.IgnoreNullValues = true;

@@ -6,7 +6,7 @@ import { BrowserModule } from '@angular/platform-browser';
 
 import { AuthCallbackComponent } from './components/auth-callback/auth-callback.component';
 import { AuthRenewComponent } from './components/auth-renew/auth-renew.component';
-import { API_BASE_URL } from './services/identity-api.service';
+import { IDENTITY_API_BASE_URL } from './services/identity-api.service';
 import { environment } from 'src/environments/environment';
 import { AuthInterceptor } from './services/auth.interceptor';
 import { CoreRoutingModule } from './core-routing.module';
@@ -32,7 +32,7 @@ import { SweetAlert2Module } from '@sweetalert2/ngx-sweetalert2';
     ],
     providers: [
         { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true },
-        { provide: API_BASE_URL, useFactory: () => environment.api_url }
+        { provide: IDENTITY_API_BASE_URL, useFactory: () => environment.api_url }
     ]
 })
 export class CoreModule { }
