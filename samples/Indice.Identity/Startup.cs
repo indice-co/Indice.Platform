@@ -56,6 +56,7 @@ namespace Indice.Identity
         /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
         public void ConfigureServices(IServiceCollection services) {
             services.AddMvcConfig(Configuration);
+            services.AddLocalization(options => options.ResourcesPath = "Resources");
             services.AddCors(options => options.AddDefaultPolicy(builder => {
                 builder.WithOrigins(Configuration.GetSection("AllowedHosts").Get<string[]>())
                        .WithMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
@@ -100,10 +101,14 @@ namespace Indice.Identity
             }
             // Add this before any other middleware that might write cookies.
             app.UseCookiePolicy();
+            app.UseIdentityServer();
             app.UseWhen(context => !context.Request.Path.StartsWithSegments("/api"), branch => {
                 if (!HostingEnvironment.IsDevelopment()) {
                     branch.UseExceptionHandler("/error");
                 }
+            });
+            app.UseWhen(context => context.Request.Path.StartsWithSegments("/api"), branch => {
+                app.UseProblemDetails();
             });
             app.UseRequestLocalization(new RequestLocalizationOptions {
                 DefaultRequestCulture = new RequestCulture(SupportedCultures.Default),
@@ -116,8 +121,6 @@ namespace Indice.Identity
             });
             app.UseRouting();
             app.UseCors();
-            app.UseIdentityServer();
-            app.UseProblemDetails();
             app.UseAuthentication();
             app.UseAuthorization();
             app.UseStaticFiles(new StaticFileOptions {
@@ -141,7 +144,7 @@ namespace Indice.Identity
                 });
             }
             app.UseEndpoints(endpoints => {
-                endpoints.MapControllers();
+                endpoints.MapDefaultControllerRoute();
             });
             if (!HostingEnvironment.IsDevelopment()) {
                 app.UseSpaStaticFiles();

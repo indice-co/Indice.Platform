@@ -33,6 +33,10 @@ namespace Indice.AspNetCore.Identity.Features
     {
         private readonly ExtendedUserManager<User> _userManager;
         private readonly ExtendedIdentityDbContext<User, Role> _dbContext;
+        /// <summary>
+        /// The name of the controller.
+        /// </summary>
+        public const string Name = "Account";
 
         public AccountController(ExtendedUserManager<User> userManager, ExtendedIdentityDbContext<User, Role> dbContext) {
             _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
@@ -62,7 +66,7 @@ namespace Indice.AspNetCore.Identity.Features
 
         [AllowAnonymous]
         [HttpGet("confirm-email")]
-        public async Task<IActionResult> ConfirmEmail([FromQuery]string userId, [FromQuery]string code) {
+        public async Task<IActionResult> ConfirmEmail([FromQuery]string userId, [FromQuery]string code, [FromQuery]string returnUrl) {
             return Ok();
             //if (null == userId || null == code) {
             //    ModelState.AddModelError(string.Empty, "Something went wrong.");

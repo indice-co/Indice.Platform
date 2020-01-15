@@ -19,6 +19,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Options;
 
 namespace Indice.AspNetCore.Identity.Features
@@ -50,6 +51,8 @@ namespace Indice.AspNetCore.Identity.Features
         private readonly IdentityServerApiEndpointsOptions _apiEndpointsOptions;
         private readonly IEventService _eventService;
         private readonly GeneralSettings _generalSettings;
+        private readonly IStringLocalizer<UserController> _localizer;
+        private readonly UserEmailVerificationOptions _userEmailVerificationOptions;
         private readonly IEmailService _emailService;
         /// <summary>
         /// The name of the controller.
@@ -67,9 +70,12 @@ namespace Indice.AspNetCore.Identity.Features
         /// <param name="apiEndpointsOptions">Options for configuring the IdentityServer API feature.</param>
         /// <param name="eventService">Models the event mechanism used to raise events inside the IdentityServer API.</param>
         /// <param name="generalSettings">General settings for an ASP.NET Core application.</param>
+        /// <param name="localizer">Represents an <see cref="IStringLocalizer"/> that provides strings for <see cref="UserController"/>.</param>
+        /// <param name="userEmailVerificationOptions">Options for the email sent to user for verification.</param>
         /// <param name="emailService">A service responsible for sending emails.</param>
         public UserController(ExtendedUserManager<User> userManager, RoleManager<Role> roleManager, ExtendedIdentityDbContext<User, Role> dbContext, IPersistedGrantService persistedGrantService, IClientStore clientStore,
-            IdentityServerApiEndpointsOptions apiEndpointsOptions, IEventService eventService, IOptions<GeneralSettings> generalSettings, IEmailService emailService) {
+            IdentityServerApiEndpointsOptions apiEndpointsOptions, IEventService eventService, IOptions<GeneralSettings> generalSettings, IStringLocalizer<UserController> localizer, IOptions<UserEmailVerificationOptions> userEmailVerificationOptions,
+            IEmailService emailService) {
             _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
             _roleManager = roleManager ?? throw new ArgumentNullException(nameof(roleManager));
             _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
@@ -78,6 +84,8 @@ namespace Indice.AspNetCore.Identity.Features
             _apiEndpointsOptions = apiEndpointsOptions ?? throw new ArgumentNullException(nameof(apiEndpointsOptions));
             _eventService = eventService ?? throw new ArgumentNullException(nameof(eventService));
             _generalSettings = generalSettings?.Value ?? throw new ArgumentNullException(nameof(generalSettings));
+            _localizer = localizer ?? throw new ArgumentNullException(nameof(localizer));
+            _userEmailVerificationOptions = userEmailVerificationOptions?.Value;
             _emailService = emailService;
         }
 
@@ -223,9 +231,7 @@ namespace Indice.AspNetCore.Identity.Features
                 })
                 .ToList()
             };
-            if (_emailService != null) {
-
-            }
+            await SendEmailConfirmation(user);
             await _eventService.Raise(new UserCreatedEvent(response));
             return CreatedAtAction(nameof(GetUser), Name, new { userId = user.Id }, response);
         }
@@ -587,25 +593,22 @@ namespace Indice.AspNetCore.Identity.Features
             return Ok();
         }
 
-        private async Task SendEmailConfirmationEmail(User user, string returnUrl = null) {
-            //if (_emailService == null) {
-            //    return;
-            //}
-            //var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-            //var callbackUrl = $"{_generalSettings.Host}{Url.Action(nameof(ConfirmEmail), Name, new { userId = user.Id, code, returnUrl })}";
-            //var recipient = user.Email;
-            //var subject = _localizer["Confirm your account"];
-            //var body = $@"<div>
-            //    {_localizer["Welcome to"]} {_localizer[_settings.ApplicationName]},
-            //    <br /><br />
-            //    {_localizer["We need you to verify your email. Click"]} <a style=""color:#005030""href=""{callbackUrl}"">{_localizer["here"]}</a> {_localizer["to get verified"]}!
-            //    <br /><br />
-            //    {_localizer["Thanks"]}!
-            //</div>";
-            //var data = new User {
-            //    UserName = User.FindDisplayName() ?? user.UserName
-            //};
-            //await _emailService.SendAsync<User>(message => message.To(recipient).WithSubject(subject).WithBody(body).WithData(data));
+        private async Task SendEmailConfirmation(User user, string returnUrl = null) {
+            if (_userEmailVerificationOptions?.Enabled == false) {
+                return;
+            }
+            if (_emailService == null) {
+                throw new Exception($"User email verification feature is enabled but no concrete implementation of {nameof(IEmailService)} is provided.");
+            }
+            var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+            var callbackUrl = $"{_generalSettings.Host}{Url.Action(nameof(AccountController.ConfirmEmail), AccountController.Name, new { userId = user.Id, code, returnUrl })}";
+            var recipient = user.Email;
+            var subject = _userEmailVerificationOptions.Subject;
+            var body = _userEmailVerificationOptions.Body.Replace("{callbackUrl}", callbackUrl);
+            var data = new User {
+                UserName = User.FindDisplayName() ?? user.UserName
+            };
+            await _emailService.SendAsync<User>(message => message.To(recipient).WithSubject(subject).WithBody(body).WithData(data));
         }
     }
 }

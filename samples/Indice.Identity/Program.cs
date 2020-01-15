@@ -42,11 +42,11 @@ namespace Indice.Identity
                 .ConfigureWebHostDefaults(webHostBuilder => {
                     webHostBuilder.UseStartup<Startup>();
                 })
-                .ConfigureLogging(logging => {
-                    logging.ClearProviders();
-                    logging.SetMinimumLevel(LogLevel.Trace);
-                })
-                .UseNLog()  // NLog: Setup NLog for dependency injection.
+                //.ConfigureLogging(logging => {
+                //    logging.ClearProviders();
+                //    logging.SetMinimumLevel(LogLevel.Trace);
+                //})
+                //.UseNLog()  // NLog: Setup NLog for dependency injection.
                 .UseEFConfiguration(reloadInterval: TimeSpan.FromHours(1), connectionStringName: "IdentityDb");
     }
 }

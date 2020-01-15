@@ -3,6 +3,7 @@ using IdentityModel;
 using Indice.AspNetCore.Identity.Models;
 using Indice.AspNetCore.Identity.Services;
 using Indice.Security;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -12,8 +13,7 @@ namespace Indice.AspNetCore.Identity.Features
     /// <summary>
     /// Contains extension methods on <see cref="IMvcBuilder"/> for configuring IdentityServer API feature.
     /// </summary>
-    public static class IdentityServerApiFeatureExtensions
-    {
+    public static class IdentityServerApiFeatureExtensions {
         /// <summary>
         /// Adds the IdentityServer API endpoints to MVC.
         /// </summary>
@@ -66,20 +66,31 @@ namespace Indice.AspNetCore.Identity.Features
         }
 
         /// <summary>
-        /// Registers the DbContext to be used by the Identity system.
+        /// Registers the <see cref="DbContext"/> to be used by the Identity system.
         /// </summary>
         /// <param name="options">Options for configuring the IdentityServer API feature.</param>
         /// <param name="configureAction">Configuration for <see cref="ExtendedIdentityDbContext{TUser, TRole}"/>.</param>
         public static void AddDbContext(this IdentityServerApiEndpointsOptions options, Action<IdentityDbContextOptions> configureAction) {
-            var contextOptions = new IdentityDbContextOptions();
-            configureAction?.Invoke(contextOptions);
-            options.Services.AddSingleton(contextOptions);
-            if (contextOptions.ResolveDbContextOptions != null) {
-                options.Services.AddDbContext<ExtendedIdentityDbContext<User, Role>>(contextOptions.ResolveDbContextOptions);
+            var dbContextOptions = new IdentityDbContextOptions();
+            configureAction?.Invoke(dbContextOptions);
+            options.Services.AddSingleton(dbContextOptions);
+            if (dbContextOptions.ResolveDbContextOptions != null) {
+                options.Services.AddDbContext<ExtendedIdentityDbContext<User, Role>>(dbContextOptions.ResolveDbContextOptions);
             } else {
-                options.Services.AddDbContext<ExtendedIdentityDbContext<User, Role>>(contextOptions.ConfigureDbContext);
+                options.Services.AddDbContext<ExtendedIdentityDbContext<User, Role>>(dbContextOptions.ConfigureDbContext);
             }
             options.Services.AddTransient<Func<ExtendedIdentityDbContext<User, Role>>>(provider => provider.GetService<ExtendedIdentityDbContext<User, Role>>);
+        }
+
+        /// <summary>
+        /// Configures the parameters needed when a verification email is sent to the user.
+        /// </summary>
+        /// <param name="options">Options for configuring the IdentityServer API feature.</param>
+        /// <param name="configureAction">Configuration for the email sent to user for verification.</param>
+        public static void ConfigureUserEmailVerification(this IdentityServerApiEndpointsOptions options, Action<UserEmailVerificationOptions> configureAction) {
+            var userEmailVerificationOptions = new UserEmailVerificationOptions();
+            configureAction?.Invoke(userEmailVerificationOptions);
+            options.Services.AddSingleton(userEmailVerificationOptions);
         }
 
         /// <summary>
