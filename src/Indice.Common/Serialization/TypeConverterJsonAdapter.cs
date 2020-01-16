@@ -12,36 +12,21 @@ namespace Indice.Serialization
     /// </summary>
     public class TypeConverterJsonAdapter : JsonConverter<object>
     {
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="reader"></param>
-        /// <param name="typeToConvert"></param>
-        /// <param name="options"></param>
-        /// <returns></returns>
+        /// <inheritdoc/>
         public override object Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) {
             var converter = TypeDescriptor.GetConverter(typeToConvert);
             var text = reader.GetString();
             return converter.ConvertFromString(text);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="writer"></param>
-        /// <param name="objectToWrite"></param>
-        /// <param name="options"></param>
+        /// <inheritdoc/>
         public override void Write(Utf8JsonWriter writer, object objectToWrite, JsonSerializerOptions options) {
             var converter = TypeDescriptor.GetConverter(objectToWrite);
             var text = converter.ConvertToString(objectToWrite);
             writer.WriteStringValue(text);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="typeToConvert"></param>
-        /// <returns></returns>
+        /// <inheritdoc/>
         public override bool CanConvert(Type typeToConvert) {
             var hasConverter = typeToConvert.GetCustomAttributes<TypeConverterAttribute>(inherit: true).Any();
             if (!hasConverter) {
