@@ -21,24 +21,25 @@ namespace Indice.AspNetCore.Identity.Features
         /// <param name="configureAction">Configuration options for IdentityServer API feature.</param>
         public static IMvcBuilder AddIdentityServerApiEndpoints(this IMvcBuilder mvcBuilder, Action<IdentityServerApiEndpointsOptions> configureAction = null) {
             mvcBuilder.ConfigureApplicationPartManager(x => x.FeatureProviders.Add(new IdentityServerApiFeatureProvider()));
+            var services = mvcBuilder.Services;
+            var serviceProvider = services.BuildServiceProvider();
+            var configuration = serviceProvider.GetRequiredService<IConfiguration>();
             var apiEndpointsOptions = new IdentityServerApiEndpointsOptions {
-                Services = mvcBuilder.Services
+                Services = services
             };
             // Initialize default options.
             configureAction?.Invoke(apiEndpointsOptions);
             apiEndpointsOptions.Services = null;
-            var serviceProvider = mvcBuilder.Services.BuildServiceProvider();
-            var configuration = serviceProvider.GetRequiredService<IConfiguration>();
-            mvcBuilder.Services.AddDistributedMemoryCache();
+            services.AddDistributedMemoryCache();
             // Invoke action provided by developer to override default options.
-            mvcBuilder.Services.AddSingleton(apiEndpointsOptions);
-            mvcBuilder.Services.AddIndiceServices(configuration);
-            mvcBuilder.Services.AddTransient<IEventService, EventService>();
+            services.AddSingleton(apiEndpointsOptions);
+            services.AddIndiceServices(configuration);
+            services.AddTransient<IEventService, EventService>();
             // Register validation filters.
-            mvcBuilder.Services.AddScoped<CreateClaimTypeRequestValidationFilter>();
-            mvcBuilder.Services.AddScoped<CreateRoleRequestValidationFilter>();
+            services.AddScoped<CreateClaimTypeRequestValidationFilter>();
+            services.AddScoped<CreateRoleRequestValidationFilter>();
             // Add authorization policies that are used by the IdentityServer API.
-            mvcBuilder.Services.AddAuthorization(authOptions => {
+            services.AddAuthorization(authOptions => {
                 authOptions.AddPolicy(IdentityServerApi.SubScopes.Users, policy => {
                     policy.AddAuthenticationSchemes(IdentityServerApi.AuthenticationScheme)
                           .RequireAuthenticatedUser()
@@ -56,12 +57,12 @@ namespace Indice.AspNetCore.Identity.Features
                 });
             });
             // Try register the extended version of UserManager<User>.
-            mvcBuilder.Services.TryAddScoped<ExtendedUserManager<User>>();
+            services.TryAddScoped<ExtendedUserManager<User>>();
             // Register the authentication handler, using a custom scheme name, for local APIs.
-            mvcBuilder.Services.AddAuthentication()
-                               .AddLocalApi(IdentityServerApi.AuthenticationScheme, options => {
-                                   options.ExpectedScope = IdentityServerApi.Scope;
-                               });
+            services.AddAuthentication()
+                    .AddLocalApi(IdentityServerApi.AuthenticationScheme, options => {
+                        options.ExpectedScope = IdentityServerApi.Scope;
+                    });
             return mvcBuilder;
         }
 

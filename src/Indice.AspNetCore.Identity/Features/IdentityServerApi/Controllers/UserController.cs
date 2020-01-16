@@ -74,7 +74,7 @@ namespace Indice.AspNetCore.Identity.Features
         /// <param name="userEmailVerificationOptions">Options for the email sent to user for verification.</param>
         /// <param name="emailService">A service responsible for sending emails.</param>
         public UserController(ExtendedUserManager<User> userManager, RoleManager<Role> roleManager, ExtendedIdentityDbContext<User, Role> dbContext, IPersistedGrantService persistedGrantService, IClientStore clientStore,
-            IdentityServerApiEndpointsOptions apiEndpointsOptions, IEventService eventService, IOptions<GeneralSettings> generalSettings, IStringLocalizer<UserController> localizer, IOptions<UserEmailVerificationOptions> userEmailVerificationOptions,
+            IdentityServerApiEndpointsOptions apiEndpointsOptions, IEventService eventService, IOptions<GeneralSettings> generalSettings, IStringLocalizer<UserController> localizer, UserEmailVerificationOptions userEmailVerificationOptions,
             IEmailService emailService) {
             _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
             _roleManager = roleManager ?? throw new ArgumentNullException(nameof(roleManager));
@@ -85,7 +85,7 @@ namespace Indice.AspNetCore.Identity.Features
             _eventService = eventService ?? throw new ArgumentNullException(nameof(eventService));
             _generalSettings = generalSettings?.Value ?? throw new ArgumentNullException(nameof(generalSettings));
             _localizer = localizer ?? throw new ArgumentNullException(nameof(localizer));
-            _userEmailVerificationOptions = userEmailVerificationOptions?.Value;
+            _userEmailVerificationOptions = userEmailVerificationOptions;
             _emailService = emailService;
         }
 

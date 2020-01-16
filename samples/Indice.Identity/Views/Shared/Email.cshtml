@@ -1,0 +1,32 @@
+﻿@inject ExtendedUserManager<User> UserManager
+@inject IViewLocalizer Localizer
+@inject IOptions<GeneralSettings> GeneralSettingsWrapper
+
+@{
+    Layout = "~/Views/Shared/_LayoutEmail.cshtml";
+    var generalSettings = GeneralSettingsWrapper.Value;
+    var subject = ViewData["Subject"];
+    var body = ViewData["Body"];
+    var userName = ViewData["UserName"] ?? Model?.UserName ?? UserManager.GetUserName(User);
+}
+
+@section preheader {
+    @Localizer["Hi"] @Html.Raw(userName ?? string.Empty), @Html.Raw(body)
+}
+
+<tr>
+    <td align="left" valign="top">
+        <font face="'Century Gothic', sans-serif" color="#1a1a1a" style="font-size: 20px; line-height: 20px; font-weight: 300;">
+            <span style="font-family: 'Century Gothic', Arial, sans-serif ,Helvetica, Arial, sans-serif; color: #1a1a1a; font-size: 20px; line-height: 20px; font-weight: 300;">@Localizer["Hi"] @Html.Raw(userName ?? string.Empty),</span>
+        </font>
+        <div style="height: 20px; line-height: 20px; font-size: 18px;">&nbsp;</div>
+        <font face="'Century Gothic', sans-serif" color="#585858" style="font-size: 14px; line-height: 22px;">
+            <span style="font-family: 'Century Gothic', Arial, sans-serif ,Helvetica, Arial, sans-serif; color: #585858; font-size: 14px; line-height: 22px;">@Html.Raw(body)</span>
+        </font>
+        <div style="height: 20px; line-height: 20px; font-size: 18px;">&nbsp;</div>
+        <font face="'Century Gothic', sans-serif" color="#585858" style="font-size: 14px; line-height: 22px;">
+            <span style="font-family: 'Century Gothic', Arial, sans-serif ,Helvetica, Arial, sans-serif; color: #585858; font-size: 14px; line-height: 22px;">@Localizer["Sincerely"], <br />@generalSettings.Organization</span>
+        </font>
+        <div style="height: 20px; line-height: 20px; font-size: 18px;">&nbsp;</div>
+    </td>
+</tr>

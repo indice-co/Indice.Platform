@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
@@ -71,7 +72,6 @@ namespace Indice.Services
 
         /// <inheritdoc/>
         public override async Task SendAsync<TModel>(string[] recipients, string subject, string body, string template, TModel data, FileAttachment[] attachments = null) {
-            
             var request = new SparkPostRequest {
                 Content = new SparkPostContent {
                     From = _settings.Sender,
@@ -98,7 +98,8 @@ namespace Indice.Services
             });
             var response = await _httpClient.PostAsync("transmissions", new StringContent(requestJson, Encoding.UTF8, "application/json"));
             if (!response.IsSuccessStatusCode) {
-                // Should log something.
+                var content = await response.Content.ReadAsStringAsync();
+                Debug.WriteLine(content);
             }
         }
     }

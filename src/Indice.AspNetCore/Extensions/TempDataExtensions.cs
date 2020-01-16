@@ -26,7 +26,22 @@ namespace Indice.AspNetCore.Extensions
         /// <returns>The data persisted in the <see cref="TempDataDictionary"/> under the specified key.</returns>
         public static T Get<T>(this ITempDataDictionary tempData, string key) {
             tempData.TryGetValue(key, out var @object);
-            return @object == null ? default(T) : JsonConvert.DeserializeObject<T>((string)@object);
+            return @object == null ? default : JsonConvert.DeserializeObject<T>((string)@object);
+        }
+
+        /// <summary>
+        /// Retrieves information from the <see cref="TempDataDictionary"/> using a specified key, without marking the key for deletion.
+        /// </summary>
+        /// <typeparam name="T">The type of data to retrieve.</typeparam>
+        /// <param name="tempData">Represents a set of data that persists only from one request to the next.</param>
+        /// <param name="key">The key to use in the <see cref="TempDataDictionary"/>.</param>
+        /// <returns>The data persisted in the <see cref="TempDataDictionary"/> under the specified key.</returns>
+        public static T Peek<T>(this ITempDataDictionary tempData, string key) {
+            var item = tempData.Peek(key);
+            if (item != null) {
+                return JsonConvert.DeserializeObject<T>((string)item);
+            }
+            return default;
         }
     }
 }

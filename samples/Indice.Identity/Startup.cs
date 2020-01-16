@@ -101,6 +101,16 @@ namespace Indice.Identity
             }
             // Add this before any other middleware that might write cookies.
             app.UseCookiePolicy();
+            app.UseRequestLocalization(new RequestLocalizationOptions {
+                DefaultRequestCulture = new RequestCulture(SupportedCultures.Default),
+                SupportedCultures = SupportedCultures.Get().ToList(),
+                SupportedUICultures = SupportedCultures.Get().ToList(),
+                // Remove AcceptLanguageHeaderRequestCultureProvider in order to fallback to DefaultRequestCulture.
+                RequestCultureProviders = new List<IRequestCultureProvider> {
+                    new QueryStringRequestCultureProvider(),
+                    new CookieRequestCultureProvider()
+                }
+            });
             app.UseIdentityServer();
             app.UseWhen(context => !context.Request.Path.StartsWithSegments("/api"), branch => {
                 if (!HostingEnvironment.IsDevelopment()) {

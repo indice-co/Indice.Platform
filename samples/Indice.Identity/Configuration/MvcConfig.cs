@@ -5,11 +5,9 @@ using Indice.AspNetCore.Identity.Features;
 using Indice.Identity;
 using Indice.Identity.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
-using Newtonsoft.Json.Serialization;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
@@ -25,6 +23,7 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
         public static IMvcBuilder AddMvcConfig(this IServiceCollection services, IConfiguration configuration) {
             return services.AddControllersWithViews()
+                           .AddRazorRuntimeCompilation()
                            .AddIdentityServerApiEndpoints(options => {
                                options.UseInitialData = true;
                                options.AddDbContext(identityOptions => {
@@ -37,6 +36,7 @@ namespace Microsoft.Extensions.DependencyInjection
                                options.AddEventHandler<ClientCreatedEventHandler, ClientCreatedEvent>();
                                // Enable user verification.
                                options.ConfigureUserEmailVerification(userEmailVerificationOptions => {
+                                   userEmailVerificationOptions.Enabled = true;
                                    userEmailVerificationOptions.Subject = "Confirm your account";
                                    userEmailVerificationOptions.Body = @"
                                        Welcome to Indice Identity Server,<br/><br/>We need you to verify your email. Click <a style=""color:#005030""href=""{callbackUrl}"">here</a> to get verified!
@@ -79,7 +79,8 @@ namespace Microsoft.Extensions.DependencyInjection
                                options.RegisterValidatorsFromAssemblyContaining<Startup>();
                                options.ConfigureClientsideValidation();
                                options.RunDefaultMvcValidationAfterFluentValidationExecutes = true;
-                           });
+                           })
+                           .AddViewLocalization(LanguageViewLocationExpanderFormat.Suffix);
         }
     }
 }
