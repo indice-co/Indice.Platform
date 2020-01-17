@@ -19,6 +19,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Options;
 
@@ -52,7 +53,7 @@ namespace Indice.AspNetCore.Identity.Features
         private readonly IEventService _eventService;
         private readonly GeneralSettings _generalSettings;
         private readonly IStringLocalizer<UserController> _localizer;
-        private readonly UserEmailVerificationOptions _userEmailVerificationOptions;
+        private readonly EmailVerificationOptions _userEmailVerificationOptions;
         private readonly IEmailService _emailService;
         /// <summary>
         /// The name of the controller.
@@ -74,8 +75,8 @@ namespace Indice.AspNetCore.Identity.Features
         /// <param name="userEmailVerificationOptions">Options for the email sent to user for verification.</param>
         /// <param name="emailService">A service responsible for sending emails.</param>
         public UserController(ExtendedUserManager<User> userManager, RoleManager<Role> roleManager, ExtendedIdentityDbContext<User, Role> dbContext, IPersistedGrantService persistedGrantService, IClientStore clientStore,
-            IdentityServerApiEndpointsOptions apiEndpointsOptions, IEventService eventService, IOptions<GeneralSettings> generalSettings, IStringLocalizer<UserController> localizer, UserEmailVerificationOptions userEmailVerificationOptions,
-            IEmailService emailService) {
+            IdentityServerApiEndpointsOptions apiEndpointsOptions, IEventService eventService, IOptions<GeneralSettings> generalSettings, IStringLocalizer<UserController> localizer, EmailVerificationOptions userEmailVerificationOptions = null,
+            IEmailService emailService = null) {
             _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
             _roleManager = roleManager ?? throw new ArgumentNullException(nameof(roleManager));
             _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
@@ -231,7 +232,9 @@ namespace Indice.AspNetCore.Identity.Features
                 })
                 .ToList()
             };
-            await SendEmailConfirmation(user);
+            if (request.SendConfirmationEmail) {
+                await SendEmailConfirmation(user);
+            }
             await _eventService.Raise(new UserCreatedEvent(response));
             return CreatedAtAction(nameof(GetUser), Name, new { userId = user.Id }, response);
         }
@@ -568,6 +571,8 @@ namespace Indice.AspNetCore.Identity.Features
         /// <response code="200">OK</response>
         /// <response code="404">Not Found</response>
         [HttpPut("{userId}/set-password")]
+        [ProducesResponseType(statusCode: StatusCodes.Status200OK, type: typeof(void))]
+        [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
         [CacheResourceFilter(dependentPaths: new string[] { "{userId}" })]
         public async Task<IActionResult> SetPassword([FromRoute]string userId, [FromBody]SetPasswordRequest request) {
             var user = await _dbContext.Users.SingleOrDefaultAsync(x => x.Id == userId);
@@ -593,15 +598,16 @@ namespace Indice.AspNetCore.Identity.Features
             return Ok();
         }
 
-        private async Task SendEmailConfirmation(User user, string returnUrl = null) {
-            if (_userEmailVerificationOptions?.Enabled == false) {
+        private async Task SendEmailConfirmation(User user) {
+            if (_userEmailVerificationOptions == null) {
                 return;
             }
             if (_emailService == null) {
-                throw new Exception($"User email verification feature is enabled but no concrete implementation of {nameof(IEmailService)} is provided.");
+                throw new Exception($"No concrete implementation of {nameof(IEmailService)} is registered. Check {nameof(ServiceCollectionExtensions.AddEmailService)}, {nameof(ServiceCollectionExtensions.AddEmailServiceSmtpRazor)} or " +
+                    $"{nameof(ServiceCollectionExtensions.AddEmailServiceSparkpost)} extensions on {nameof(IServiceCollection)} or provide your own implementation.");
             }
             var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-            var callbackUrl = $"{_generalSettings.Host}{Url.Action(nameof(AccountController.ConfirmEmail), AccountController.Name, new { userId = user.Id, code, returnUrl })}";
+            var callbackUrl = $"{_generalSettings.Host}{Url.Action(nameof(AccountController.ConfirmEmail), AccountController.Name, new { userId = user.Id, code })}";
             var recipient = user.Email;
             var subject = _userEmailVerificationOptions.Subject;
             var body = _userEmailVerificationOptions.Body.Replace("{callbackUrl}", callbackUrl);

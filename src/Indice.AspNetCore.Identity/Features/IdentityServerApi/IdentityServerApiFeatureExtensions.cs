@@ -13,7 +13,8 @@ namespace Indice.AspNetCore.Identity.Features
     /// <summary>
     /// Contains extension methods on <see cref="IMvcBuilder"/> for configuring IdentityServer API feature.
     /// </summary>
-    public static class IdentityServerApiFeatureExtensions {
+    public static class IdentityServerApiFeatureExtensions
+    {
         /// <summary>
         /// Adds the IdentityServer API endpoints to MVC.
         /// </summary>
@@ -88,10 +89,32 @@ namespace Indice.AspNetCore.Identity.Features
         /// </summary>
         /// <param name="options">Options for configuring the IdentityServer API feature.</param>
         /// <param name="configureAction">Configuration for the email sent to user for verification.</param>
-        public static void ConfigureUserEmailVerification(this IdentityServerApiEndpointsOptions options, Action<UserEmailVerificationOptions> configureAction) {
-            var userEmailVerificationOptions = new UserEmailVerificationOptions();
+        public static void ConfigureEmailVerification(this IdentityServerApiEndpointsOptions options, Action<EmailVerificationOptions> configureAction) {
+            var userEmailVerificationOptions = new EmailVerificationOptions();
             configureAction?.Invoke(userEmailVerificationOptions);
             options.Services.AddSingleton(userEmailVerificationOptions);
+        }
+
+        /// <summary>
+        /// Configures the parameters needed when an email is sent to the user when the email address is changed.
+        /// </summary>
+        /// <param name="options">Options for configuring the IdentityServer API feature.</param>
+        /// <param name="configureAction">Configuration for the email sent to user.</param>
+        public static void ConfigureChangeEmail(this IdentityServerApiEndpointsOptions options, Action<ChangeEmailOptions> configureAction) {
+            var changeEmailOptions = new ChangeEmailOptions();
+            configureAction?.Invoke(changeEmailOptions);
+            options.Services.AddSingleton(changeEmailOptions);
+        }
+
+        /// <summary>
+        /// Configures the parameters needed when an SMS is sent to the user when the phone number is changed.
+        /// </summary>
+        /// <param name="options">Options for configuring the IdentityServer API feature.</param>
+        /// <param name="configureAction">Configuration for the SMS sent to user.</param>
+        public static void ConfigureChangePhone(this IdentityServerApiEndpointsOptions options, Action<ChangePhoneNumberOptions> configureAction) {
+            var changePhoneNumberOptions = new ChangePhoneNumberOptions();
+            configureAction?.Invoke(changePhoneNumberOptions);
+            options.Services.AddSingleton(changePhoneNumberOptions);
         }
 
         /// <summary>

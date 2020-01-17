@@ -1,17 +1,15 @@
-﻿using Indice.Services;
-
-namespace Indice.AspNetCore.Identity.Features
+﻿namespace Indice.AspNetCore.Identity.Features
 {
+    /// <summary>
+    /// Options for the email sent when a user changes his email address.
+    /// </summary>
+    public class ChangeEmailOptions : EmailVerificationOptions { }
+
     /// <summary>
     /// Options for the email sent to user for verification.
     /// </summary>
-    public class UserEmailVerificationOptions
+    public class EmailVerificationOptions
     {
-        /// <summary>
-        /// Specifies if an email verification is sent to the user upon creation. Default is true.
-        /// </summary>
-        /// <remarks>When this feature is enabled, an <see cref="IEmailService"/> must also be registered.</remarks>
-        public bool Enabled { get; set; }
         /// <summary>
         /// The subject of the email verification email.
         /// </summary>

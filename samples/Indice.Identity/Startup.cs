@@ -73,6 +73,7 @@ namespace Indice.Identity
             services.AddProblemDetailsConfig(HostingEnvironment);
             services.ConfigureNonBreakingSameSiteCookies();
             services.AddEmailServiceSparkpost(Configuration);
+            services.AddSmsServiceYouboto(Configuration);
             services.AddSwaggerGen(options => {
                 options.IndiceDefaults(Settings);
                 options.AddOAuth2(Settings);

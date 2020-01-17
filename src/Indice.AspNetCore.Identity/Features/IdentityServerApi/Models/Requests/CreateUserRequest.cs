@@ -37,5 +37,9 @@ namespace Indice.AspNetCore.Identity.Features
         /// Represents the password expiration policy the value is measured in days.
         /// </summary>
         public PasswordExpirationPolicy? PasswordExpirationPolicy { get; set; }
+        /// <summary>
+        /// After creating the user a confirmation email is sent to the user as well.
+        /// </summary>
+        public bool SendConfirmationEmail { get; set; }
     }
 }

@@ -34,14 +34,19 @@ namespace Microsoft.Extensions.DependencyInjection
                                // Enable events and register handlers.
                                options.RaiseEvents = true;
                                options.AddEventHandler<ClientCreatedEventHandler, ClientCreatedEvent>();
-                               // Enable user verification.
-                               options.ConfigureUserEmailVerification(userEmailVerificationOptions => {
-                                   userEmailVerificationOptions.Enabled = true;
-                                   userEmailVerificationOptions.Subject = "Confirm your account";
-                                   userEmailVerificationOptions.Body = @"
-                                       Welcome to Indice Identity Server,<br/><br/>We need you to verify your email. Click <a style=""color:#005030""href=""{callbackUrl}"">here</a> to get verified!
-                                       <br/><br/>Thanks!
-                                   ";
+                               // Configure user verification email.
+                               options.ConfigureEmailVerification(emailVerificationOptions => {
+                                   emailVerificationOptions.Subject = "Confirm your account";
+                                   emailVerificationOptions.Body = @"Welcome to Indice Identity Server,<br/><br/>We need you to verify your email. Click <a style=""color:#005030""href=""{callbackUrl}"">here</a> to get verified!<br/><br/>Thanks!";
+                               });
+                               // Configure change email message.
+                               options.ConfigureChangeEmail(changeEmailOptions => {
+                                   changeEmailOptions.Subject = "Confirm your account";
+                                   changeEmailOptions.Body = @"We need you to verify your new email. Click <a style=""color:#005030""href=""{callbackUrl}"">here</a> to get verified!<br/><br/>Thanks!";
+                               });
+                               options.ConfigureChangePhone(changePhoneOptions => {
+                                   changePhoneOptions.Subject = "Phone confirmation";
+                                   changePhoneOptions.Message = "Your code is {code}.";
                                });
                            })
                            .SetCompatibilityVersion(CompatibilityVersion.Latest)
