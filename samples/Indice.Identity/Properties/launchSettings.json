@@ -19,7 +19,7 @@
     "Indice.Identity": {
       "commandName": "Project",
       "launchBrowser": true,
-      "launchUrl": "https://localhost:2000/docs",
+      "launchUrl": "docs",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       },
