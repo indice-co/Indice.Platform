@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Indice.Security
+﻿namespace Indice.Security
 {
     /// <summary>
     /// Common Claim types used in all Indice applications.

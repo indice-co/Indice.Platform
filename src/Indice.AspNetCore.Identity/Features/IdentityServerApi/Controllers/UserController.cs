@@ -607,7 +607,7 @@ namespace Indice.AspNetCore.Identity.Features
                     $"{nameof(ServiceCollectionExtensions.AddEmailServiceSparkpost)} extensions on {nameof(IServiceCollection)} or provide your own implementation.");
             }
             var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-            var callbackUrl = $"{_generalSettings.Host}{Url.Action(nameof(AccountController.ConfirmEmail), AccountController.Name, new { userId = user.Id, code })}";
+            var callbackUrl = $"{_generalSettings.Host}{Url.Action(nameof(MyAccountController.ConfirmEmail), MyAccountController.Name, new { userId = user.Id, code })}";
             var recipient = user.Email;
             var subject = _userEmailVerificationOptions.Subject;
             var body = _userEmailVerificationOptions.Body.Replace("{callbackUrl}", callbackUrl);

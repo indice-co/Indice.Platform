@@ -22,7 +22,7 @@ namespace Indice.AspNetCore.Identity.Features
     /// <response code="401">Unauthorized</response>
     /// <response code="403">Forbidden</response>
     /// <response code="500">Internal Server Error</response>
-    [Route("api/account")]
+    [Route("api/my-account")]
     [ApiController]
     [ApiExplorerSettings(GroupName = "identity")]
     [Produces(MediaTypeNames.Application.Json)]
@@ -32,7 +32,7 @@ namespace Indice.AspNetCore.Identity.Features
     [ProducesResponseType(statusCode: StatusCodes.Status403Forbidden, type: typeof(ProblemDetails))]
     [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme)]
     [ProblemDetailsExceptionFilter]
-    internal class AccountController : ControllerBase
+    internal class MyAccountController : ControllerBase
     {
         private readonly ExtendedUserManager<User> _userManager;
         private readonly EmailVerificationOptions _userEmailVerificationOptions;
@@ -44,9 +44,9 @@ namespace Indice.AspNetCore.Identity.Features
         /// <summary>
         /// The name of the controller.
         /// </summary>
-        public const string Name = "Account";
+        public const string Name = "MyAccount";
 
-        public AccountController(ExtendedUserManager<User> userManager, IOptions<GeneralSettings> generalSettings, EmailVerificationOptions userEmailVerificationOptions = null, ChangeEmailOptions changeEmailOptions = null,
+        public MyAccountController(ExtendedUserManager<User> userManager, IOptions<GeneralSettings> generalSettings, EmailVerificationOptions userEmailVerificationOptions = null, ChangeEmailOptions changeEmailOptions = null,
             ChangePhoneNumberOptions changePhoneNumberOptions = null, IEmailService emailService = null, ISmsService smsService = null) {
             _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
             _generalSettings = generalSettings?.Value ?? throw new ArgumentNullException(nameof(generalSettings));

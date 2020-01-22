@@ -12,7 +12,7 @@ namespace Indice.AspNetCore.Identity.Features
     internal class IdentityServerApiFeatureProvider : IApplicationFeatureProvider<ControllerFeature>
     {
         private static IReadOnlyList<TypeInfo> ControllerTypes => new List<TypeInfo>() {
-            typeof(AccountController).GetTypeInfo(),
+            typeof(MyAccountController).GetTypeInfo(),
             typeof(ClaimTypeController).GetTypeInfo(),
             typeof(ClientController).GetTypeInfo(),
             typeof(DashboardController).GetTypeInfo(),
