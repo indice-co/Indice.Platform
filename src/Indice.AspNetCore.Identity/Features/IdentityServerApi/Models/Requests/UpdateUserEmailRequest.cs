@@ -11,6 +11,7 @@ namespace Indice.AspNetCore.Identity.Features
         /// The new user email.
         /// </summary>
         [Required(AllowEmptyStrings = false)]
+        [EmailAddress]
         public string Email { get; set; }
     }
 }
