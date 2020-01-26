@@ -104,7 +104,8 @@ namespace Indice.AspNetCore.Identity.Features
                 query = query.Where(x => x.Email.ToLower().Contains(searchTerm)
                                       || x.PhoneNumber.Contains(searchTerm)
                                       || x.UserName.ToLower().Contains(searchTerm)
-                                      || x.Claims.Any(x => x.ClaimValue.ToLower().Contains(searchTerm)));
+                                      || x.Claims.Any(x => x.ClaimValue.ToLower().Contains(searchTerm))
+                                      || searchTerm.Contains(x.Id.ToLower()));
             }
             if (options?.Filter != null) {
                 var filter = options.Filter;
