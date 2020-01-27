@@ -225,7 +225,6 @@ namespace Microsoft.Extensions.DependencyInjection
             var serviceProvider = services.BuildServiceProvider();
             var hostingEnvironment = serviceProvider.GetRequiredService<IWebHostEnvironment>();
             if (path == null) {
-                var environmentName = Regex.Replace(hostingEnvironment.EnvironmentName ?? "Development", @"\s+", "-").ToLowerInvariant();
                 path = Path.Combine(hostingEnvironment.ContentRootPath, "App_Data");
             }
             if (!Directory.Exists(path)) {
