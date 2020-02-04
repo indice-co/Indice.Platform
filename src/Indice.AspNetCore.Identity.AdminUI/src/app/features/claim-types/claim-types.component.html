@@ -56,7 +56,7 @@
            class="material-icons align-middle">
             info
         </i>
-        {{ value }}
+        {{ row.displayName || row.name }}
     </span>
     <span *ngIf="!row.description">{{ value }}</span>
 </ng-template>

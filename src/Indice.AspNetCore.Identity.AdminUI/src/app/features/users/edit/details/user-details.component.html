@@ -5,6 +5,13 @@
       (confirm)="delete()"
       #deleteAlert>
 </swal>
+<swal title="Unlock?"
+      text="User will be unlocked permanently. This action cannot be reversed."
+      type="warning"
+      [showCancelButton]="true"
+      (confirm)="unlock()"
+      #unlockAlert>
+</swal>
 <swal [title]="!user?.blocked ? 'Block?' : 'Unblock?'"
       [text]="!user?.blocked ? 'User will be blocked. You can revert this action later.' : 'User will be unblocked. You can revert this action later.'"
       type="warning"
@@ -78,6 +85,18 @@
       (ngSubmit)="form.form.valid && update()"
       novalidate
       #form="ngForm">
+    <div class="alert alert-warning d-flex align-items-center justify-content-between"
+         role="alert"
+         *ngIf="user.accessFailedCount > 0 && user.lockoutEnd">
+        <b class="flex-fill">
+            User is locked until {{ user.lockoutEnd | date: 'medium' }} after {{ user.accessFailedCount }} failed logins.
+        </b>
+        <button type="button"
+                class="btn btn-secondary"
+                (click)="unlockAlert.fire()">
+            Unlock
+        </button>
+    </div>
     <div class="form-group row">
         <label for="user-name"
                class="col-sm-2 col-form-label">

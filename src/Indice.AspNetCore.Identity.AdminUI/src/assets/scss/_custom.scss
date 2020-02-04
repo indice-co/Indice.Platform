@@ -10,6 +10,14 @@
     font-size: 40px !important;
 }
 
+.font-14 {
+    font-size: 14px !important;
+}
+
+.font-17 {
+    font-size: 17px !important;
+}
+
 .material-icons {
     font-size: 20px;
 }
@@ -25,4 +33,11 @@
     background: #5985ee;
     border: #adb5bd solid 1px;
     border-color: rgb(173, 181, 189);
+}
+
+.checkmark {
+    color: #32CD32 !important;
+    position: absolute;
+    right: 0;
+    transform: translateY(33%);
 }

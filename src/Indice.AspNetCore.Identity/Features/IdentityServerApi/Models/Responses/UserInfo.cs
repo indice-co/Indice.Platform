@@ -63,7 +63,7 @@ namespace Indice.AspNetCore.Identity.Features
         /// <summary>
         /// User metadata expressed as claims.
         /// </summary>
-        public List<ClaimInfo> Claims { get; set; } = new List<ClaimInfo>();
+        public IEnumerable<ClaimInfo> Claims { get; set; } = new List<ClaimInfo>();
         /// <summary>
         /// Indicates whether the user is forcefully blocked.
         /// </summary>
@@ -72,6 +72,14 @@ namespace Indice.AspNetCore.Identity.Features
         /// Represents the password expiration policy the value is measured in days.
         /// </summary>
         public PasswordExpirationPolicy? PasswordExpirationPolicy { get; set; }
+        /// <summary>
+        /// Indicates whether the user is a system administrator.
+        /// </summary>
+        public bool IsAdmin { get; set; }
+        /// <summary>
+        /// The number of failed login attempts for the user.
+        /// </summary>
+        public int AccessFailedCount { get; set; }
     }
 
     /// <summary>

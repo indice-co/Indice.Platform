@@ -23,7 +23,7 @@ export class UserDetailsComponent implements OnInit, OnDestroy {
     private _getDataSubscription: Subscription;
 
     constructor(private _route: ActivatedRoute, private _userStore: UserStore, private _dateParser: NgbDateCustomParserFormatter, public _toast: ToastService,
-        private _router: Router, private _authService: AuthService, private _modalService: NgbModal, public readonly swalTargets: SwalPortalTargets) { }
+                private _router: Router, private _authService: AuthService, private _modalService: NgbModal, public readonly swalTargets: SwalPortalTargets) { }
 
     public user: SingleUserInfo;
     public requiredClaims: ClaimType[];
@@ -73,6 +73,12 @@ export class UserDetailsComponent implements OnInit, OnDestroy {
         this._userStore.deleteUser(this.user.id).subscribe(_ => {
             this._toast.showSuccess(`User '${this.user.userName}' was deleted successfully.`);
             this._router.navigate(['../../'], { relativeTo: this._route });
+        });
+    }
+
+    public unlock(): void {
+        this._userStore.unlockUser(this.user.id).subscribe(_ => {
+            this._toast.showSuccess(`User '${this.user.userName}' was unlocked.`);
         });
     }
 

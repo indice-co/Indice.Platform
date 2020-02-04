@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 
@@ -21,12 +19,10 @@ namespace Indice.Types
         /// <param name="options">The options to use for sortig and paging</param>
         /// <returns>The results in a set that contains a page set of the total available records and the total count</returns>
         public static async Task<ResultSet<T>> ToResultSetAsync<T>(this IQueryable<T> source, ListOptions options) {
-            options = options ?? new ListOptions();
-
+            options ??= new ListOptions();
             foreach (var sorting in options.GetSortings()) {
                 source = source.OrderBy(sorting.Path, sorting.Direction);
             }
-
             return await source.ToResultSetAsync(options.Page, options.Size);
         }
 
@@ -43,18 +39,14 @@ namespace Indice.Types
             if (page <= 0) {
                 throw new ArgumentOutOfRangeException(nameof(page), "Must be a positive integer");
             }
-
             if (size < 0) {
                 throw new ArgumentOutOfRangeException(nameof(size), "Must be a positive integer");
             }
-
             var index = page - 1;
-
             if (size == 0) {
-                return new ResultSet<T>(new T[0], await source.CountAsync());
+                return new ResultSet<T>(Array.Empty<T>(), await source.CountAsync());
             }
-
-            return new ResultSet<T>(await source.Skip(index * size).Take(size).ToArrayAsync(), await source.CountAsync());
+            return new ResultSet<T>(await source.Skip(index * size).Take(size).ToListAsync(), await source.CountAsync());
         }
     }
 }

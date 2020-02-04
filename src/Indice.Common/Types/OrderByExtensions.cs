@@ -58,35 +58,22 @@ namespace Indice.Types
         public static IOrderedQueryable<T> ThenByDescending<T>(this IOrderedQueryable<T> source, string property) => ApplyOrder(source, property, "ThenByDescending");
 
         private static IOrderedQueryable<T> ApplyOrder<T>(IQueryable<T> source, string property, string methodName) {
-            var props = property.Split('.');
+            var properties = property.Split('.');
             var type = typeof(T);
-            var arg = Expression.Parameter(type, "x");
-            Expression expr = arg;
-            foreach (var prop in props) {
+            var argument = Expression.Parameter(type, "x");
+            Expression expression = argument;
+            foreach (var prop in properties) {
                 // Use reflection (not ComponentModel) to mirror LINQ.
-#if NETSTANDARD14
-                var pi = type.GetRuntimeProperty(prop);
-#else
-                var pi = type.GetProperty(prop, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
-#endif
-                expr = Expression.Property(expr, pi);
-                type = pi.PropertyType;
+                var propertyInfo = type.GetProperty(prop, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
+                expression = Expression.Property(expression, propertyInfo);
+                type = propertyInfo.PropertyType;
             }
-
             var delegateType = typeof(Func<,>).MakeGenericType(typeof(T), type);
-            var lambda = Expression.Lambda(delegateType, expr, arg);
-
-#if NETSTANDARD14
-            var result = typeof(IQueryable).GetRuntimeMethods()
-                                           .Single(method => method.Name == methodName && method.IsGenericMethodDefinition && method.GetGenericArguments().Length == 2 && method.GetParameters().Length == 2)
-                                           .MakeGenericMethod(typeof(T), type)
-                                           .Invoke(null, new object[] { source, lambda });
-#else
+            var lambda = Expression.Lambda(delegateType, expression, argument);
             var result = typeof(Queryable).GetMethods()
                                           .Single(method => method.Name == methodName && method.IsGenericMethodDefinition && method.GetGenericArguments().Length == 2 && method.GetParameters().Length == 2)
                                           .MakeGenericMethod(typeof(T), type)
                                           .Invoke(null, new object[] { source, lambda });
-#endif
             return (IOrderedQueryable<T>)result;
         }
     }

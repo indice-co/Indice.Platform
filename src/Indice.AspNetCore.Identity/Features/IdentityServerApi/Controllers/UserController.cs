@@ -98,7 +98,7 @@ namespace Indice.AspNetCore.Identity.Features
         [HttpGet]
         [ProducesResponseType(statusCode: StatusCodes.Status200OK, type: typeof(ResultSet<UserInfo>))]
         public async Task<ActionResult<ResultSet<UserInfo>>> GetUsers([FromQuery]ListOptions<UserListFilter> options) {
-            var query = _userManager.Users.Include(x => x.Claims).AsNoTracking();
+            var query = _userManager.Users.AsNoTracking();
             if (!string.IsNullOrEmpty(options?.Search)) {
                 var searchTerm = options.Search.ToLower();
                 query = query.Where(x => x.Email.ToLower().Contains(searchTerm)
@@ -126,12 +126,13 @@ namespace Indice.AspNetCore.Identity.Features
                 TwoFactorEnabled = x.TwoFactorEnabled,
                 Blocked = x.Blocked,
                 PasswordExpirationPolicy = x.PasswordExpirationPolicy,
+                IsAdmin = x.Admin,
+                AccessFailedCount = x.AccessFailedCount,
                 Claims = x.Claims.Select(x => new ClaimInfo {
                     Id = x.Id,
                     Type = x.ClaimType,
                     Value = x.ClaimValue
                 })
-                .ToList()
             })
             .ToResultSetAsync(options);
             return Ok(users);
@@ -164,6 +165,8 @@ namespace Indice.AspNetCore.Identity.Features
                                            UserName = x.UserName,
                                            Blocked = x.Blocked,
                                            PasswordExpirationPolicy = x.PasswordExpirationPolicy,
+                                           IsAdmin = x.Admin,
+                                           AccessFailedCount = x.AccessFailedCount,
                                            Claims = x.Claims.Select(x => new ClaimInfo {
                                                Id = x.Id,
                                                Type = x.ClaimType,
@@ -263,6 +266,7 @@ namespace Indice.AspNetCore.Identity.Features
             user.TwoFactorEnabled = request.TwoFactorEnabled;
             user.LockoutEnd = request.LockoutEnd;
             user.PasswordExpirationPolicy = request.PasswordExpirationPolicy;
+            user.Admin = request.IsAdmin;
             foreach (var requiredClaim in request.Claims) {
                 var claim = user.Claims.SingleOrDefault(x => x.ClaimType == requiredClaim.Type);
                 if (claim != null) {
@@ -561,6 +565,33 @@ namespace Indice.AspNetCore.Identity.Features
             }
             user.Blocked = false;
             await _userManager.UpdateAsync(user);
+            return Ok();
+        }
+
+        /// <summary>
+        /// Unlocks a user.
+        /// </summary>
+        /// <param name="userId">The id of the user to unlock.</param>
+        /// <response code="200">OK</response>
+        /// <response code="404">Not Found</response>
+        [HttpPut("{userId}/unlock")]
+        [ProducesResponseType(statusCode: StatusCodes.Status200OK, type: typeof(void))]
+        [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
+        [CacheResourceFilter(dependentPaths: new string[] { "{userId}" })]
+        public async Task<IActionResult> UnlockUser([FromRoute]string userId) {
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null) {
+                return NotFound();
+            }
+            // Setting an end date tin the past immediately unlocks the user.
+            var result = await _userManager.SetLockoutEndDateAsync(user, null);
+            if (!result.Succeeded) {
+                return BadRequest(result.Errors.ToValidationProblemDetails());
+            }
+            result = await _userManager.ResetAccessFailedCountAsync(user);
+            if (!result.Succeeded) {
+                return BadRequest(result.Errors.ToValidationProblemDetails());
+            }
             return Ok();
         }
 

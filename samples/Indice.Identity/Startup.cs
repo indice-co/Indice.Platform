@@ -155,7 +155,7 @@ namespace Indice.Identity
                 });
             }
             app.UseEndpoints(endpoints => {
-                endpoints.MapDefaultControllerRoute();
+                endpoints.MapControllers();
             });
             if (!HostingEnvironment.IsDevelopment()) {
                 app.UseSpaStaticFiles();

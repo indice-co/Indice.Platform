@@ -11,6 +11,7 @@ export class ListView {
     @ViewChild('phoneNumberTemplate', { static: true }) public phoneNumberTemplate: TemplateRef<HTMLElement>;
     @ViewChild('dateTimeTemplate', { static: true }) public dateTimeTemplate: TemplateRef<HTMLElement>;
     @ViewChild('booleanTemplate', { static: true }) public booleanTemplate: TemplateRef<HTMLElement>;
+    @ViewChild('usernameTemplate', { static: true }) public usernameTemplate: TemplateRef<HTMLElement>;
     @Output() protected search: EventEmitter<SearchEvent> = new EventEmitter();
     @Input() public rows: any[];
     @Input() public rowsPerPage: number;

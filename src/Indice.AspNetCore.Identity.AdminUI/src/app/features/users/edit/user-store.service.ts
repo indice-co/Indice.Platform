@@ -29,12 +29,12 @@ export class UserStore {
     }
 
     public updateUser(user: SingleUserInfo, requiredClaims: ClaimType[]): Observable<void> {
-        const claims = requiredClaims.map((claim: ClaimType) => {
+        const claims = requiredClaims ? requiredClaims.map((claim: ClaimType) => {
             return {
                 type: claim.name,
                 value: claim.value
             } as BasicClaimInfo;
-        });
+        }) : null;
         return this._api.updateUser(user.id, {
             email: user.email,
             lockoutEnabled: user.lockoutEnabled,
@@ -43,6 +43,7 @@ export class UserStore {
             twoFactorEnabled: user.twoFactorEnabled,
             userName: user.userName,
             passwordExpirationPolicy: user.passwordExpirationPolicy,
+            isAdmin: user.isAdmin,
             claims
         } as UpdateUserRequest).pipe(map((updatedUser: SingleUserInfo) => {
             user.claims = [...updatedUser.claims];
@@ -71,6 +72,16 @@ export class UserStore {
             this._user.complete();
         });
         return this._api.unblockUser(userId);
+    }
+
+    public unlockUser(userId: string): Observable<void> {
+        this.getUser(userId).subscribe((user: SingleUserInfo) => {
+            user.lockoutEnd = null;
+            user.accessFailedCount = 0;
+            this._user.next(user);
+            this._user.complete();
+        });
+        return this._api.unlockUser(userId);
     }
 
     public resetPassword(userId: string, password: string, changePasswordAfterFirstSignIn: boolean): Observable<void> {
