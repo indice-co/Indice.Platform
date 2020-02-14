@@ -7,18 +7,18 @@ using Microsoft.AspNetCore.Mvc.Controllers;
 namespace Indice.AspNetCore.Features
 {
     /// <summary>
-    /// Avatar feature implementation for <see cref="IApplicationFeatureProvider{ControllerFeature}"/>
+    /// Avatar feature implementation for <see cref="IApplicationFeatureProvider{ControllerFeature}"/>.
     /// </summary>
     public class AvatarFeatureProvider : IApplicationFeatureProvider<ControllerFeature>
     {
         /// <summary>
-        /// Populates the feature for the current aspnet app.
+        /// Populates the feature for the current ASP.NET app.
         /// </summary>
-        /// <param name="parts"></param>
-        /// <param name="feature"></param>
+        /// <param name="parts">The list of <see cref="ApplicationPart"/> instances in the application.</param>
+        /// <param name="feature">The feature instance to populate.</param>
         public void PopulateFeature(IEnumerable<ApplicationPart> parts, ControllerFeature feature) {
             var type = typeof(AvatarController).GetTypeInfo();
-            if (!feature.Controllers.Any(t => t == type)) {
+            if (!feature.Controllers.Any(x => x == type)) {
                 feature.Controllers.Add(type);
             }
         }

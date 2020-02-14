@@ -22,6 +22,7 @@ namespace Indice.Identity.Controllers
     [ApiExplorerSettings(IgnoreApi = true)]
     [SecurityHeaders]
     [Authorize]
+    [Route("consent")]
     public class ConsentController : Controller
     {
         private readonly IIdentityServerInteractionService _interaction;

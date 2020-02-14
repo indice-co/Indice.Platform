@@ -23,7 +23,7 @@ namespace Indice.AspNetCore.Identity.Features
         };
 
         /// <summary>
-        /// Updates the feature instance ny adding the IdentityServer API controllers.
+        /// Updates the feature instance by adding the IdentityServer API controllers.
         /// </summary>
         /// <param name="parts">The list of <see cref="ApplicationPart"/> instances in the application.</param>
         /// <param name="feature">The feature instance to populate.</param>

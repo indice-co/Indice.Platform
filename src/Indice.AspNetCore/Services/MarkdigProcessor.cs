@@ -9,21 +9,21 @@ namespace Indice.Services
     public class MarkdigProcessor : IMarkdownProcessor
     {
         /// <summary>
-        /// pipeline to use
+        /// Pipeline to use.
         /// </summary>
         public MarkdownPipeline Pipeline { get; } = new MarkdownPipelineBuilder().UseAdvancedExtensions().Build();
+        
         /// <summary>
-        /// Converts to html
+        /// Converts to HTML.
         /// </summary>
-        /// <param name="markdown"></param>
-        /// <returns></returns>
+        /// <param name="markdown">The markdown text.</param>
         public string Convert(string markdown) => Markdown.ToHtml(markdown, Pipeline);
 
         /// <summary>
-        /// Converts to html
+        /// Converts to HTML.
         /// </summary>
-        /// <param name="markdown"></param>
-        /// <param name="writer"></param>
+        /// <param name="markdown">The markdown text.</param>
+        /// <param name="writer">The destination <see cref="TextWriter"/> that will receive the result of the conversion.</param>
         public void Convert(string markdown, TextWriter writer) => Markdown.ToHtml(markdown, writer, Pipeline);
     }
 }

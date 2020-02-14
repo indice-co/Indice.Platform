@@ -19,7 +19,7 @@ namespace Indice.AspNetCore.Identity.Services
         private readonly IClientStore _clientStore;
         private readonly IIdentityServerInteractionService _interaction;
         private readonly IHttpContextAccessor _httpContextAccessor;
-        private IAuthenticationSchemeProvider _schemeProvider;
+        private readonly IAuthenticationSchemeProvider _schemeProvider;
 
         /// <summary>
         /// Constructs the <see cref="AccountService"/>

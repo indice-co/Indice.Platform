@@ -44,7 +44,7 @@ namespace Indice.Services
                 @object = JsonConvert.DeserializeObject<T>(decryptedText);
                 return true;
             } catch (Exception) {
-                @object = default(T);
+                @object = default;
                 return false;
             }
         }
