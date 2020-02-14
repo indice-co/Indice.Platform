@@ -1,5 +1,5 @@
 ﻿using IdentityServer4.Configuration;
-using Indice.AspNetCore.Features;
+using Indice.AspNetCore.Identity.Features;
 using Indice.AspNetCore.Identity.Services;
 using Indice.Services;
 using Microsoft.Extensions.DependencyInjection.Extensions;

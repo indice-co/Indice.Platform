@@ -6,7 +6,7 @@ using IdentityServer4.Models;
 using IdentityServer4.Validation;
 using Indice.Services;
 
-namespace Indice.AspNetCore.Features
+namespace Indice.AspNetCore.Identity.Features
 {
     /// <summary>
     /// Handles validation of token requests using <see cref="TotpConstants.GrantType.Totp"/> grant type.

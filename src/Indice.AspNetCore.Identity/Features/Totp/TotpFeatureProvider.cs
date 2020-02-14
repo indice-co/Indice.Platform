@@ -1,11 +1,10 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using Indice.AspNetCore.Identity.Features;
 using Microsoft.AspNetCore.Mvc.ApplicationParts;
 using Microsoft.AspNetCore.Mvc.Controllers;
 
-namespace Indice.AspNetCore.Features
+namespace Indice.AspNetCore.Identity.Features
 {
     /// <summary>
     /// TOTP feature implementation for <see cref="IApplicationFeatureProvider{ControllerFeature}"/>.
