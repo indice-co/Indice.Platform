@@ -26,6 +26,7 @@ namespace Microsoft.Extensions.DependencyInjection
                            .AddExtendedSignInManager<User>()
                            .AddUserStore<ExtendedUserStore<ExtendedIdentityDbContext<User, Role>, User, Role>>()
                            .AddPasswordValidator<PreviousPasswordAwareValidator<ExtendedIdentityDbContext<User, Role>, User, Role>>()
+                           .AddPasswordValidator<UserNameAsPasswordValidator>()
                            .AddEntityFrameworkStores<ExtendedIdentityDbContext<User, Role>>()
                            .AddClaimsTransform<ExtendedUserClaimsPrincipalFactory<User, Role>>()
                            .AddDefaultTokenProviders();

@@ -97,7 +97,8 @@ namespace Indice.AspNetCore.Identity.Services
                                                    .Take(PasswordHistoryLimit.Value)
                                                    .Select(x => x.PasswordHash)
                                                    .ToArrayAsync();
-                var isUsedBefore = usedPasswords.Where(hash => !string.IsNullOrEmpty(hash)).Any(hash => manager.PasswordHasher.VerifyHashedPassword(user, hash, password) == PasswordVerificationResult.Success);
+                var isUsedBefore = usedPasswords.Where(hash => !string.IsNullOrEmpty(hash))
+                                                .Any(hash => manager.PasswordHasher.VerifyHashedPassword(user, hash, password) == PasswordVerificationResult.Success);
                 if (usedPasswords.Length > 0 && isUsedBefore) {
                     result = IdentityResult.Failed(new IdentityError {
                         Code = "PasswordHistory",
