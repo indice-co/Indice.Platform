@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Indice.AspNetCore.Identity.Models;
@@ -28,19 +29,19 @@ namespace Indice.AspNetCore.Identity.Services
         /// </summary>
         /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
         public UserNameAsPasswordValidator(IConfiguration configuration) {
-            //AllowedUserNameCharactersOnPassword = configuration.GetSection(nameof(PasswordOptions)).GetValue<int?>(nameof(AllowedUserNameCharactersOnPassword));
-            AllowedUserNameCharactersOnPassword = configuration.GetSection($"{nameof(IdentityOptions)}:{nameof(IdentityOptions.Password)}").GetValue<int?>(nameof(AllowedUserNameCharactersOnPassword));
+            MaxAllowedUserNameSubset = configuration.GetSection(nameof(PasswordOptions)).GetValue<int?>(nameof(MaxAllowedUserNameSubset));
         }
 
         /// <summary>
         /// Τhe maximum number of identical characters that can be simultaneously in the username and password.
         /// </summary>
-        protected int? AllowedUserNameCharactersOnPassword { get; }
+        public int? MaxAllowedUserNameSubset { get; }
 
         /// <inheritdoc/>
         public Task<IdentityResult> ValidateAsync(UserManager<TUser> manager, TUser user, string password) {
             var result = IdentityResult.Success;
-            if (!AllowedUserNameCharactersOnPassword.HasValue) {
+            // If the option is not set, then there is no need to perform any action.
+            if (!MaxAllowedUserNameSubset.HasValue) {
                 return Task.FromResult(result);
             }
             if (user == null) {
@@ -49,10 +50,24 @@ namespace Indice.AspNetCore.Identity.Services
             if (password == null) {
                 throw new ArgumentNullException(nameof(password));
             }
-            var userNameChars = user.UserName.ToCharArray();
-            var passwordChars = password.ToCharArray();
-            var commonChars = userNameChars.Intersect(passwordChars);
-            if (commonChars.Count() > AllowedUserNameCharactersOnPassword) {
+            // If username is exactly the same with the password, then this is an error independently of the MaxAllowedUsernameSubset property.
+            if (user.UserName.Equals(password, StringComparison.InvariantCultureIgnoreCase)) {
+                result = IdentityResult.Failed(new IdentityError {
+                    Code = "UserNameInPassword",
+                    Description = "Username and password cannot be the same."
+                });
+                return Task.FromResult(result);
+            }
+            if (MaxAllowedUserNameSubset > password.Length) {
+                return Task.FromResult(result);
+            }
+            var userNameSubstrings = new List<string>();
+            var characterIndex = 0;
+            while (characterIndex + MaxAllowedUserNameSubset + 1 <= user.UserName.Length) {
+                userNameSubstrings.Add(user.UserName.Substring(characterIndex, MaxAllowedUserNameSubset.Value + 1));
+                characterIndex++;
+            }
+            if (userNameSubstrings.Any(userNameSubstring => password.Contains(userNameSubstring))) {
                 result = IdentityResult.Failed(new IdentityError {
                     Code = "UserNameInPassword",
                     Description = "Username and password are identical."
