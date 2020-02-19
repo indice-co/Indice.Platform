@@ -17,6 +17,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Net.Http.Headers;
+using Serilog;
 using Swashbuckle.AspNetCore.SwaggerUI;
 
 namespace Indice.Identity
@@ -100,6 +101,7 @@ namespace Indice.Identity
                 app.UseHsts();
                 app.UseHttpsRedirection();
             }
+            app.UseSerilogRequestLogging();
             // Add this before any other middleware that might write cookies.
             app.UseCookiePolicy();
             app.UseRequestLocalization(new RequestLocalizationOptions {
