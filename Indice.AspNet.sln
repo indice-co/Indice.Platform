@@ -32,6 +32,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "samples", "samples", "{09C5
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Indice.Identity", "samples\Indice.Identity\Indice.Identity.csproj", "{9EF8EC1B-EA1A-4E74-8D7E-13F90EE6DE3C}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ResourceOwnerPasswordFlow", "samples\ResourceOwnerPasswordFlow\ResourceOwnerPasswordFlow.csproj", "{0B1595C5-12ED-48BB-BCE5-CC9B723095AD}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IdentityModel.AspNetCore", "..\IdentityModel.AspNetCore\src\IdentityModel.AspNetCore.csproj", "{9F4D653A-32D9-4641-8585-D8E1A82FAB46}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -70,6 +74,14 @@ Global
 		{9EF8EC1B-EA1A-4E74-8D7E-13F90EE6DE3C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9EF8EC1B-EA1A-4E74-8D7E-13F90EE6DE3C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9EF8EC1B-EA1A-4E74-8D7E-13F90EE6DE3C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0B1595C5-12ED-48BB-BCE5-CC9B723095AD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0B1595C5-12ED-48BB-BCE5-CC9B723095AD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0B1595C5-12ED-48BB-BCE5-CC9B723095AD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0B1595C5-12ED-48BB-BCE5-CC9B723095AD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9F4D653A-32D9-4641-8585-D8E1A82FAB46}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9F4D653A-32D9-4641-8585-D8E1A82FAB46}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9F4D653A-32D9-4641-8585-D8E1A82FAB46}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9F4D653A-32D9-4641-8585-D8E1A82FAB46}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -83,6 +95,8 @@ Global
 		{E2641A2F-CFCF-4BBE-9409-90A136BD35F9} = {643960D9-48C5-4EA3-BED5-486CCC694947}
 		{0D533FDE-18EF-4D24-8538-9F7ED72F76C2} = {643960D9-48C5-4EA3-BED5-486CCC694947}
 		{9EF8EC1B-EA1A-4E74-8D7E-13F90EE6DE3C} = {09C5F009-8096-498D-A578-511456E53E65}
+		{0B1595C5-12ED-48BB-BCE5-CC9B723095AD} = {09C5F009-8096-498D-A578-511456E53E65}
+		{9F4D653A-32D9-4641-8585-D8E1A82FAB46} = {643960D9-48C5-4EA3-BED5-486CCC694947}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {C2B9151E-8A85-444E-93A9-78264FD0FE4A}

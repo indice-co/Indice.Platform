@@ -1,0 +1,37 @@
+﻿@{
+    ViewData["Title"] = "Login Page";
+    Layout = null;
+}
+
+@model LoginViewModel
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Resource Owner Password Flow</title>
+    <link rel="stylesheet" type="text/css" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" type="text/css" href="~/css/sign-in.css" />
+</head>
+<body class="text-center">
+    <form class="form-signin" asp-controller="@AccountController.Name" asp-action="@nameof(AccountController.Login)" method="post">
+        <input type="hidden" asp-for="ReturnUrl" />
+        <img class="mb-4" src="https://getbootstrap.com/docs/4.4/assets/brand/bootstrap-solid.svg" alt="" width="72" height="72" />
+        <h1 class="h3 mb-3 font-weight-normal">Please sign in</h1>
+        <label asp-for="Email" class="sr-only">Email address</label>
+        <input type="email" asp-for="Email" class="form-control" placeholder="Email address" required autofocus />
+        <label asp-for="Password" class="sr-only">Password</label>
+        <input type="password" asp-for="Password" class="form-control" placeholder="Password" required />
+        <div class="checkbox mb-3">
+            <label>
+                <input type="checkbox" asp-for="RememberMe"> Remember me
+            </label>
+        </div>
+        <button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
+        <p class="mt-5 mb-3 text-muted">&copy; @DateTime.Now.Year</p>
+    </form>
+    <script type="text/javascript" src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script type="text/javascript" src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

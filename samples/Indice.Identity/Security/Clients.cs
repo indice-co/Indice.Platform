@@ -14,7 +14,6 @@ namespace Indice.Identity.Security
         /// <summary>
         /// Get system's predefined clients.
         /// </summary>
-        /// <returns></returns>
         public static IEnumerable<Client> Get() => new List<Client> {
             new Client {
                 ClientId = "postman",
@@ -40,6 +39,29 @@ namespace Indice.Identity.Security
                 RedirectUris = {
                     "https://www.getpostman.com/oauth2/callback"
                 },
+                RequireConsent = false
+            },
+            new Client { 
+                ClientId = "resource-owner-password-mvc",
+                ClientName = "Resource Owner Password MVC client",
+                AllowedGrantTypes = GrantTypes.ResourceOwnerPassword,
+                AccessTokenType = AccessTokenType.Reference,
+                AccessTokenLifetime = 300,
+                ClientSecrets = {
+                    new Secret("ZWU0NTdmNWEtM2Y0MC00NzhiLWE1ZmUtZDFhZjA4YjlmMmEy".ToSha256())
+                },
+                AllowedScopes = {
+                    IdentityServerApi.Scope,
+                    IdentityServerApi.SubScopes.Clients,
+                    IdentityServerApi.SubScopes.Users,
+                    IdentityServerConstants.StandardScopes.Email,
+                    IdentityServerConstants.StandardScopes.OfflineAccess,
+                    IdentityServerConstants.StandardScopes.OpenId,
+                    IdentityServerConstants.StandardScopes.Profile,
+                    JwtClaimTypes.Role
+                },
+                AllowOfflineAccess = true,
+                RequireClientSecret = true,
                 RequireConsent = false
             },
             new Client {
