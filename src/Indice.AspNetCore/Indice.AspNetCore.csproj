@@ -34,10 +34,10 @@
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="FluentValidation.AspNetCore" Version="8.6.1" />
+    <PackageReference Include="FluentValidation.AspNetCore" Version="8.6.2" />
     <PackageReference Include="Humanizer.Core" Version="2.7.9" />
     <PackageReference Include="Indice.Services" Version="1.5.3" />
-    <PackageReference Include="Markdig" Version="0.18.1" />
+    <PackageReference Include="Markdig" Version="0.18.3" />
     <PackageReference Include="Microsoft.AspNetCore.DataProtection.AzureStorage" Version="3.1.2" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Formatters.Json" Version="2.2.0" />
     <PackageReference Include="Microsoft.Azure.Storage.Queue" Version="11.1.3" />

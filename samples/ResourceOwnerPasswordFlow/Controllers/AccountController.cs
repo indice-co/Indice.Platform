@@ -9,7 +9,6 @@ using IdentityModel.Client;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
-using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using ResourceOwnerPasswordFlow.Configuration;
 using ResourceOwnerPasswordFlow.Models;
 using ResourceOwnerPasswordFlow.Settings;

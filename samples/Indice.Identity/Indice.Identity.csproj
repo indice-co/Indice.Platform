@@ -12,8 +12,8 @@
     <None Remove="Models\**" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Hellang.Middleware.ProblemDetails" Version="4.1.0" />
-    <PackageReference Include="IdentityServer4.AspNetIdentity" Version="3.1.1" />
+    <PackageReference Include="Hellang.Middleware.ProblemDetails" Version="4.2.0" />
+    <PackageReference Include="IdentityServer4.AspNetIdentity" Version="3.1.2" />
     <!--<PackageReference Include="Indice.AspNetCore.Identity" Version="3.1.8" />-->
     <PackageReference Include="Microsoft.AspNetCore.AzureAppServices.HostingStartup" Version="3.1.2" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="3.1.2" />
