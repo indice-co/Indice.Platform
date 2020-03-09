@@ -1,0 +1,31 @@
+﻿@{
+    ViewData["Title"] = "Login Page";
+    Layout = null;
+}
+
+@model LoginViewModel
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Code Flow Inline Frame</title>
+    <link rel="stylesheet" type="text/css" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" type="text/css" href="~/css/sign-in.css" />
+</head>
+<body class="text-center">
+    <iframe id="login-iframe" class="form-signin" src="@Model.AuthorizeUrl"></iframe>
+    <script type="text/javascript" src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script type="text/javascript" src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script type="text/javascript">
+        function ready() {
+            var loginFrame = document.getElementById('login-iframe');
+            if (loginFrame) {
+            }
+        }
+        // Add an event handler to determine when document is loaded.
+        document.addEventListener('DOMContentLoaded', ready);
+    </script>
+</body>
+</html>

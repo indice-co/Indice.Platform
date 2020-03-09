@@ -41,7 +41,7 @@ namespace Indice.Identity.Security
                 },
                 RequireConsent = false
             },
-            new Client { 
+            new Client {
                 ClientId = "resource-owner-password-mvc",
                 ClientName = "Resource Owner Password MVC client",
                 AllowedGrantTypes = GrantTypes.ResourceOwnerPassword,
@@ -95,6 +95,37 @@ namespace Indice.Identity.Security
                     "https://idsrv-admin-ui.azurewebsites.net/auth-callback",
                     "http://localhost:4200/auth-renew",
                     "https://idsrv-admin-ui.azurewebsites.net/auth-renew"
+                },
+                RequireClientSecret  = false,
+                RequirePkce = true,
+                RequireConsent = false
+            },
+            new Client {
+                ClientId = "code-flow-iframe",
+                ClientName = "Code Flow iframe",
+                AccessTokenType = AccessTokenType.Reference,
+                AllowAccessTokensViaBrowser = false,
+                AllowedCorsOrigins = {
+                    "https://localhost:2002"
+                },
+                AllowedGrantTypes = GrantTypes.Code,
+                AllowedScopes = {
+                    IdentityServerApi.Scope,
+                    IdentityServerApi.SubScopes.Clients,
+                    IdentityServerApi.SubScopes.Users,
+                    IdentityServerConstants.StandardScopes.Email,
+                    IdentityServerConstants.StandardScopes.OfflineAccess,
+                    IdentityServerConstants.StandardScopes.OpenId,
+                    IdentityServerConstants.StandardScopes.Profile,
+                    JwtClaimTypes.Role
+                },
+                AllowOfflineAccess = true,
+                ClientUri = "https://localhost:2002",
+                PostLogoutRedirectUris = {
+                    "https://localhost:2002/account/logout"
+                },
+                RedirectUris = {
+                    "https://localhost:2002/account/auth-callback"
                 },
                 RequireClientSecret  = false,
                 RequirePkce = true,

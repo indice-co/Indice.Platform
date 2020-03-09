@@ -83,6 +83,7 @@ namespace Indice.Identity
             services.AddResponseCaching();
             services.AddCsp(options => {
                 options.AddSandbox("allow-popups");
+                options.AddFrameAncestors("https://localhost:2002");
             });
             services.AddSpaStaticFiles(options => {
                 options.RootPath = "wwwroot/admin-ui";
