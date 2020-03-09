@@ -16,7 +16,7 @@ namespace ResourceOwnerPasswordFlow
 {
     public class Startup
     {
-        public const string CookieScheme = "ROPFCookies";
+        public const string CookieScheme = "ROPFCookie";
 
         public Startup(IConfiguration configuration) {
             Configuration = configuration;
@@ -45,11 +45,6 @@ namespace ResourceOwnerPasswordFlow
                         TimeSpan.FromSeconds(2),
                         TimeSpan.FromSeconds(3)
                     }));
-            services.AddHttpClient<IdentityApiService>(client => {
-                var authorityUrl = Configuration.GetSection(GeneralSettings.Name).GetValue<string>(nameof(GeneralSettings.Authority));
-                client.BaseAddress = new Uri(authorityUrl);
-            })
-            .AddUserAccessTokenHandler();
             // Configure settings.
             services.Configure<ClientSettings>(Configuration.GetSection(ClientSettings.Name));
             services.Configure<GeneralSettings>(Configuration.GetSection(GeneralSettings.Name));
@@ -58,6 +53,11 @@ namespace ResourceOwnerPasswordFlow
                 var authorityUrl = Configuration.GetSection(GeneralSettings.Name).GetValue<string>(nameof(GeneralSettings.Authority));
                 options.BaseAddress = new Uri(authorityUrl);
             });
+            services.AddHttpClient<IdentityApiService>(client => {
+                var authorityUrl = Configuration.GetSection(GeneralSettings.Name).GetValue<string>(nameof(GeneralSettings.Authority));
+                client.BaseAddress = new Uri(authorityUrl);
+            })
+            .AddUserAccessTokenHandler();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

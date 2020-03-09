@@ -1,0 +1,30 @@
+﻿@{
+    ViewData["Title"] = "Redirect";
+    Layout = null;
+}
+
+@model RedirectViewModel
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>@ViewData["Title"] - Code Flow Inline Frame</title>
+</head>
+<body class="text-center">
+    <script type="text/javascript">
+        function ready() {
+            var loginFrame = parent.document.getElementById('login-iframe');
+            if (loginFrame) {
+                var returnUrl = '@Model.Url';
+                if (returnUrl === '') {
+                    returnUrl = '/';
+                }
+                parent.window.location.href = returnUrl;
+            }
+        }
+        // Add an event handler to determine when document is loaded.
+        document.addEventListener('DOMContentLoaded', ready);
+    </script>
+</body>
+</html>
