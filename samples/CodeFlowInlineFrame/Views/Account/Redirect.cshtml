@@ -14,8 +14,8 @@
 <body class="text-center">
     <script type="text/javascript">
         function ready() {
-            var loginFrame = parent.document.getElementById('login-iframe');
-            if (loginFrame) {
+            var oidcFrame = parent.document.getElementById('oidc-iframe');
+            if (oidcFrame) {
                 var returnUrl = '@Model.Url';
                 if (returnUrl === '') {
                     returnUrl = '/';

@@ -13,11 +13,6 @@
     <link rel="stylesheet" type="text/css" href="~/css/sign-in.css" />
 </head>
 <body class="text-center">
-    <iframe id="logout-iframe" class="form-signin" src="@Model.Url"></iframe>
-    <script type="text/javascript">
-        function ready() { }
-        // Add an event handler to determine when document is loaded.
-        document.addEventListener('DOMContentLoaded', ready);
-    </script>
+    <iframe id="oidc-iframe" class="form-signin" src="@Model.Url"></iframe>
 </body>
 </html>

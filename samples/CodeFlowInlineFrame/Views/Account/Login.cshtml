@@ -15,17 +15,6 @@
     <link rel="stylesheet" type="text/css" href="~/css/sign-in.css" />
 </head>
 <body class="text-center">
-    <iframe id="login-iframe" class="form-signin" src="@Model.AuthorizeUrl"></iframe>
-    <script type="text/javascript" src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script type="text/javascript" src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script type="text/javascript">
-        function ready() {
-            var loginFrame = document.getElementById('login-iframe');
-            if (loginFrame) {
-            }
-        }
-        // Add an event handler to determine when document is loaded.
-        document.addEventListener('DOMContentLoaded', ready);
-    </script>
+    <iframe id="oidc-iframe" class="form-signin" src="@Model.AuthorizeUrl"></iframe>
 </body>
 </html>

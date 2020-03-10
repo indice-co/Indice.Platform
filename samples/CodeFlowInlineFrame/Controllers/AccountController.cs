@@ -36,7 +36,10 @@ namespace CodeFlowInlineFrame.Controllers
             var authorizeEndpoint = $"{_generalSettings.Authority}/connect/authorize";
             var requestUrl = new RequestUrl(authorizeEndpoint);
             var codeVerifier = CryptoRandom.CreateUniqueId(32);
-            TempData.TryAdd(OidcConstants.TokenRequest.CodeVerifier, codeVerifier);
+            if (TempData.ContainsKey(OidcConstants.TokenRequest.CodeVerifier)) {
+                TempData.Remove(OidcConstants.TokenRequest.CodeVerifier);
+            }
+            TempData.Add(OidcConstants.TokenRequest.CodeVerifier, codeVerifier);
             string codeChallenge;
             using (var sha256 = SHA256.Create()) {
                 var challengeBytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(codeVerifier));
