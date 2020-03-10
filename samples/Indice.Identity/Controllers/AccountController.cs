@@ -162,6 +162,7 @@ namespace Indice.Identity.Controllers
         public async Task<IActionResult> Logout(LogoutInputModel model) {
             // Build a model so the logged out page knows what to display.
             var viewModel = await _accountService.BuildLoggedOutViewModelAsync(model.LogoutId);
+            viewModel.AutomaticRedirectAfterSignOut = true;
             if (User?.Identity.IsAuthenticated == true) {
                 // Delete local authentication cookies.
                 await _signInManager.SignOutAsync();

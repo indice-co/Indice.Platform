@@ -1,0 +1,23 @@
+﻿@{
+    ViewData["Title"] = "Logout";
+    Layout = null;
+}
+
+@model LogoutViewModel
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>@ViewData["Title"] - Code Flow Inline Frame</title>
+    <link rel="stylesheet" type="text/css" href="~/css/sign-in.css" />
+</head>
+<body class="text-center">
+    <iframe id="logout-iframe" class="form-signin" src="@Model.Url"></iframe>
+    <script type="text/javascript">
+        function ready() { }
+        // Add an event handler to determine when document is loaded.
+        document.addEventListener('DOMContentLoaded', ready);
+    </script>
+</body>
+</html>

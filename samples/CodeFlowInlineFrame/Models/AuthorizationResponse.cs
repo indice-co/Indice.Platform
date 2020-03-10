@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using IdentityModel;
-using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.AspNetCore.Http;
 
 namespace CodeFlowInlineFrame.Models
 {
@@ -12,13 +12,12 @@ namespace CodeFlowInlineFrame.Models
         public string SessionState { get; private set; }
         public string State { get; private set; }
 
-        public void PopulateFrom(string queryString) {
-            var queryStringValues = QueryHelpers.ParseQuery(queryString);
-            Code = queryStringValues.TryGetValue(OidcConstants.AuthorizeResponse.Code, out var code) ? code : default;
-            IdToken = queryStringValues.TryGetValue(OidcConstants.AuthorizeResponse.IdentityToken, out var idToken) ? idToken : default;
-            Scopes = queryStringValues.TryGetValue(OidcConstants.AuthorizeResponse.Scope, out var scope) ? ((string)scope).Split(' ') : default;
-            SessionState = queryStringValues.TryGetValue("session_state", out var sessionState) ? sessionState : default;
-            State = queryStringValues.TryGetValue(OidcConstants.AuthorizeResponse.State, out var state) ? state : default;
+        public void PopulateFrom(IFormCollection form) {
+            Code = form.TryGetValue(OidcConstants.AuthorizeResponse.Code, out var code) ? code : default;
+            IdToken = form.TryGetValue(OidcConstants.AuthorizeResponse.IdentityToken, out var idToken) ? idToken : default;
+            Scopes = form.TryGetValue(OidcConstants.AuthorizeResponse.Scope, out var scope) ? ((string)scope).Split(' ') : default;
+            SessionState = form.TryGetValue("session_state", out var sessionState) ? sessionState : default;
+            State = form.TryGetValue(OidcConstants.AuthorizeResponse.State, out var state) ? state : default;
         }
     }
 }

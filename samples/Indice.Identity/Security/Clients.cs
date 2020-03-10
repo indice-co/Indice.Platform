@@ -73,7 +73,7 @@ namespace Indice.Identity.Security
                     "http://localhost:4200",
                     "https://idsrv-admin-ui.azurewebsites.net"
                 },
-                AllowedGrantTypes = GrantTypes.Code,
+                AllowedGrantTypes = GrantTypes.Hybrid,
                 AllowedScopes = {
                     IdentityServerApi.Scope,
                     IdentityServerApi.SubScopes.Clients,
@@ -108,7 +108,7 @@ namespace Indice.Identity.Security
                 AllowedCorsOrigins = {
                     "https://localhost:2002"
                 },
-                AllowedGrantTypes = GrantTypes.Code,
+                AllowedGrantTypes = GrantTypes.Hybrid,
                 AllowedScopes = {
                     IdentityServerApi.Scope,
                     IdentityServerApi.SubScopes.Clients,
@@ -122,7 +122,7 @@ namespace Indice.Identity.Security
                 AllowOfflineAccess = true,
                 ClientUri = "https://localhost:2002",
                 PostLogoutRedirectUris = {
-                    "https://localhost:2002/account/logout"
+                    "https://localhost:2002"
                 },
                 RedirectUris = {
                     "https://localhost:2002/account/auth-callback"

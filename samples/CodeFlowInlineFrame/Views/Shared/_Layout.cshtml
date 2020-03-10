@@ -23,6 +23,15 @@
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-controller="@HomeController.Name" asp-action="@nameof(HomeController.Privacy)">Privacy</a>
                         </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-controller="@SummaryController.Name" asp-action="@nameof(SummaryController.Info)">Get Summary Info</a>
+                        </li>
+                        @if (User.Identity.IsAuthenticated)
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-controller="@AccountController.Name" asp-action="@nameof(AccountController.Logout)">Logout</a>
+                            </li>
+                        }
                     </ul>
                 </div>
             </div>

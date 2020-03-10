@@ -1,5 +1,6 @@
 using System;
 using IdentityModel.AspNetCore.AccessTokenManagement;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -33,6 +34,9 @@ namespace ResourceOwnerPasswordFlow
                     .AddCookie(CookieScheme, options => {
                         options.LoginPath = "/account/login";
                         options.AccessDeniedPath = "/account/access-denied";
+                        options.Events.OnSigningOut = async context => {
+                            await context.HttpContext.RevokeUserRefreshTokenAsync();
+                        };
                     });
             services.AddSingleton<IConfigureOptions<CookieAuthenticationOptions>, ConfigureRopfCookie>();
             // Configure access token management.

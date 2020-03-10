@@ -36,7 +36,7 @@ namespace CodeFlowInlineFrame.Controllers
             var authorizeEndpoint = $"{_generalSettings.Authority}/connect/authorize";
             var requestUrl = new RequestUrl(authorizeEndpoint);
             var codeVerifier = CryptoRandom.CreateUniqueId(32);
-            TempData.Add(OidcConstants.TokenRequest.CodeVerifier, codeVerifier);
+            TempData.TryAdd(OidcConstants.TokenRequest.CodeVerifier, codeVerifier);
             string codeChallenge;
             using (var sha256 = SHA256.Create()) {
                 var challengeBytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(codeVerifier));
@@ -44,10 +44,10 @@ namespace CodeFlowInlineFrame.Controllers
             }
             var authorizeUrl = requestUrl.CreateAuthorizeUrl(
                 clientId: _clientSettings.Id,
-                responseType: OidcConstants.ResponseTypes.Code,
+                responseType: OidcConstants.ResponseTypes.CodeIdToken,
                 codeChallengeMethod: OidcConstants.CodeChallengeMethods.Sha256,
                 codeChallenge: codeChallenge,
-                responseMode: OidcConstants.ResponseModes.Query,
+                responseMode: OidcConstants.ResponseModes.FormPost,
                 redirectUri: $"{_generalSettings.Host}/account/auth-callback",
                 nonce: Guid.NewGuid().ToString(),
                 scope: string.Join(" ", _clientSettings.Scopes),
@@ -58,10 +58,10 @@ namespace CodeFlowInlineFrame.Controllers
             });
         }
 
-        [HttpGet("auth-callback")]
+        [HttpPost("auth-callback")]
         public async Task<ViewResult> AuthCallback() {
             var authorizationResponse = new AuthorizationResponse();
-            authorizationResponse.PopulateFrom(HttpContext.Request.QueryString.Value);
+            authorizationResponse.PopulateFrom(HttpContext.Request.Form);
             if (string.IsNullOrEmpty(authorizationResponse.Code)) {
                 throw new Exception("Authorization code is not present in the response.");
             }
@@ -89,25 +89,49 @@ namespace CodeFlowInlineFrame.Controllers
             var authenticationProperties = new AuthenticationProperties();
             authenticationProperties.StoreTokens(new List<AuthenticationToken> {
                 new AuthenticationToken {
-                    Name = "access_token",
+                    Name = OidcConstants.TokenTypes.AccessToken,
                     Value = tokenResponse.AccessToken
                 },
                 new AuthenticationToken {
-                    Name = "refresh_token",
+                    Name = OidcConstants.TokenTypes.RefreshToken,
                     Value = tokenResponse.RefreshToken
+                },
+                new AuthenticationToken {
+                    Name = OidcConstants.TokenTypes.IdentityToken,
+                    Value = tokenResponse.IdentityToken
                 },
                 new AuthenticationToken {
                     Name = "expires_at",
                     Value = DateTime.UtcNow.AddSeconds(tokenResponse.ExpiresIn).ToString("o", CultureInfo.InvariantCulture)
                 }
             });
-            await HttpContext.SignInAsync(claimsPrincipal, authenticationProperties);
+            await HttpContext.SignInAsync(Startup.CookieScheme, claimsPrincipal, authenticationProperties);
             var returnUrl = "/";
             if (!string.IsNullOrEmpty(authorizationResponse.State)) {
                 returnUrl = Encoding.UTF8.GetString(Convert.FromBase64String(authorizationResponse.State));
             }
             return View("Redirect", new RedirectViewModel {
                 Url = returnUrl
+            });
+        }
+
+        [HttpGet("access-denied")]
+        public ViewResult AccessDenied() {
+            return View();
+        }
+
+        [HttpGet("logout")]
+        public async Task<IActionResult> Logout() {
+            await HttpContext.SignOutAsync(Startup.CookieScheme);
+            var endsessionEndpoint = $"{_generalSettings.Authority}/connect/endsession";
+            var requestUrl = new RequestUrl(endsessionEndpoint);
+            var idToken = await HttpContext.GetTokenAsync(OidcConstants.ResponseTypes.IdToken);
+            var endSessionUrl = requestUrl.CreateEndSessionUrl(
+                idTokenHint: idToken,
+                postLogoutRedirectUri: _generalSettings.Host
+            );
+            return View(new LogoutViewModel {
+                Url = endSessionUrl
             });
         }
     }
