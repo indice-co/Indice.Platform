@@ -131,10 +131,17 @@ namespace CodeFlowInlineFrame.Controllers
             var idToken = await HttpContext.GetTokenAsync(OidcConstants.ResponseTypes.IdToken);
             var endSessionUrl = requestUrl.CreateEndSessionUrl(
                 idTokenHint: idToken,
-                postLogoutRedirectUri: _generalSettings.Host
+                postLogoutRedirectUri: $"{_generalSettings.Host}{Url.Action(nameof(LoggedOut), Name)}"
             );
             return View(new LogoutViewModel {
                 Url = endSessionUrl
+            });
+        }
+
+        [HttpGet("logged-out")]
+        public ViewResult LoggedOut() {
+            return View("Redirect", new RedirectViewModel { 
+                Url = _generalSettings.Host
             });
         }
     }
