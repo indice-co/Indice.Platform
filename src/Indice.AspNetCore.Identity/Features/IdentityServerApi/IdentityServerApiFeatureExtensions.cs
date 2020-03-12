@@ -41,6 +41,10 @@ namespace Indice.AspNetCore.Identity.Features
             services.AddScoped<CreateRoleRequestValidationFilter>();
             // Add authorization policies that are used by the IdentityServer API.
             services.AddAuthorization(authOptions => {
+                authOptions.AddPolicy(IdentityServerApi.Scope, policy => {
+                    policy.AddAuthenticationSchemes(IdentityServerApi.AuthenticationScheme)
+                          .RequireAuthenticatedUser();
+                });
                 authOptions.AddPolicy(IdentityServerApi.SubScopes.Users, policy => {
                     policy.AddAuthenticationSchemes(IdentityServerApi.AuthenticationScheme)
                           .RequireAuthenticatedUser()

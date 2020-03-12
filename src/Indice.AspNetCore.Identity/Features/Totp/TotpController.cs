@@ -55,7 +55,12 @@ namespace Indice.AspNetCore.Identity.Features
             }
             switch (request.Channel) {
                 case TotpDeliveryChannel.Sms:
-                    var result = await TotpService.Send(User, request.Channel, request.Purpose);
+                    var result = await TotpService.Send(options => 
+                        options.UsePrincipal(User)
+                               .WithMessage(request.Message)
+                               .UsingSms()
+                               .WithPurpose(request.Purpose)
+                    );
                     if (!result.Success) {
                         ModelState.AddModelError(nameof(request.Channel), result.Errors.FirstOrDefault() ?? "an error occured");
                         return BadRequest(new ValidationProblemDetails(ModelState));
@@ -121,6 +126,10 @@ namespace Indice.AspNetCore.Identity.Features
         /// Optionaly pass the reason to generate the TOTP.
         /// </summary>
         public string Purpose { get; set; }
+        /// <summary>
+        /// The message to be sent in the SMS. It's important for the message to contain the {0} placeholder in the position where the OTP should be placed.
+        /// </summary>
+        public string Message { get; set; }
     }
 
     /// <summary>

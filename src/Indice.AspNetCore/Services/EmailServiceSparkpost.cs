@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
@@ -12,6 +11,7 @@ using Indice.Extensions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.ViewEngines;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
@@ -51,6 +51,7 @@ namespace Indice.Services
     {
         private readonly EmailServiceSparkPostSettings _settings;
         private readonly HttpClient _httpClient;
+        private readonly ILogger<EmailServiceSparkpost> _logger;
 
         /// <summary>
         /// constructs the service
@@ -60,10 +61,12 @@ namespace Indice.Services
         /// <param name="tempDataProvider">Defines the contract for temporary-data providers that store data that is viewed on the next request.</param>
         /// <param name="httpContextAccessor">Used to access the <see cref="HttpContext"/> through the <see cref="IHttpContextAccessor"/> interface and its default implementation <see cref="HttpContextAccessor"/>.</param>
         /// <param name="httpClient">The http client to use (DI managed)</param>
-        public EmailServiceSparkpost(EmailServiceSparkPostSettings settings, ICompositeViewEngine viewEngine, ITempDataProvider tempDataProvider, IHttpContextAccessor httpContextAccessor, HttpClient httpClient)
+        /// <param name="logger">Represents a type used to perform logging.</param>
+        public EmailServiceSparkpost(EmailServiceSparkPostSettings settings, ICompositeViewEngine viewEngine, ITempDataProvider tempDataProvider, IHttpContextAccessor httpContextAccessor, HttpClient httpClient, ILogger<EmailServiceSparkpost> logger)
             : base(viewEngine, tempDataProvider, httpContextAccessor) {
             _settings = settings ?? throw new ArgumentNullException(nameof(settings));
             _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             if (_httpClient.BaseAddress == null) {
                 _httpClient.BaseAddress = new Uri(_settings.Api);
                 _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(_settings.ApiKey);
@@ -99,7 +102,9 @@ namespace Indice.Services
             var response = await _httpClient.PostAsync("transmissions", new StringContent(requestJson, Encoding.UTF8, "application/json"));
             if (!response.IsSuccessStatusCode) {
                 var content = await response.Content.ReadAsStringAsync();
-                Debug.WriteLine(content);
+                var message = $"SparkPost service could not send email to recipients '{string.Join(", ", recipients)}'. Error is: '{content}'.";
+                _logger.LogError(message);
+                throw new InvalidOperationException(message);
             }
         }
     }

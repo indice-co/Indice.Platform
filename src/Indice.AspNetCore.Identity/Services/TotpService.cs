@@ -16,7 +16,7 @@ using Microsoft.Extensions.Logging;
 namespace Indice.AspNetCore.Identity.Services
 {
     /// <summary>
-    /// Used to generate, send & verify time based one time passwords.
+    /// Used to generate, send and verify time based one time passwords.
     /// </summary>
     public class TotpService : ITotpService
     {
@@ -60,14 +60,14 @@ namespace Indice.AspNetCore.Identity.Services
         public ILogger<TotpService> Logger { get; }
 
         /// <inheritdoc />
-        public async Task<TotpResult> Send(ClaimsPrincipal principal, TotpDeliveryChannel channel = TotpDeliveryChannel.Sms, string purpose = null, string securityToken = null, string phoneNumber = null, string email = null) {
+        public async Task<TotpResult> Send(ClaimsPrincipal principal, string message, TotpDeliveryChannel channel = TotpDeliveryChannel.Sms, string purpose = null, string securityToken = null, string phoneNumber = null, string email = null) {
             var totpResult = ValidateParameters(principal, securityToken, phoneNumber, email);
             if (!totpResult.Success) {
                 return totpResult;
             }
             User user = null;
-            var providedPrincipal = principal != null;
-            if (providedPrincipal) {
+            var hasPrincipal = principal != null;
+            if (hasPrincipal) {
                 user = await UserManager.GetUserAsync(principal);
                 if (user?.PhoneNumberConfirmed == false || string.IsNullOrEmpty(user?.PhoneNumber)) {
                     return TotpResult.ErrorResult(Localizer["Cannot send SMS. User's phone number is not verified."]);
@@ -75,18 +75,17 @@ namespace Indice.AspNetCore.Identity.Services
             }
             purpose ??= TotpConstants.TokenGenerationPurpose.StrongCustomerAuthentication;
             var token = string.Empty;
-            var providedSecurityToken = !string.IsNullOrEmpty(securityToken);
-            if (providedSecurityToken) {
+            var hasSecurityToken = !string.IsNullOrEmpty(securityToken);
+            if (hasSecurityToken) {
                 var modifier = GetModifier(purpose, phoneNumber, email);
                 var encodedToken = Encoding.Unicode.GetBytes(securityToken);
                 token = Rfc6238AuthenticationService.GenerateCode(encodedToken, modifier).ToString("D6", CultureInfo.InvariantCulture);
             }
-            if (providedPrincipal) {
+            if (hasPrincipal) {
                 token = await UserManager.GenerateUserTokenAsync(user, TokenOptions.DefaultPhoneProvider, purpose);
             }
             var userName = user?.UserName ?? "Anonymous";
-            Logger.LogDebug($"User: '{userName}' - Token: '{token}'");
-            var cacheKey = $"totp{(providedPrincipal ? $":{user.Id}" : string.Empty)}:{channel}:{token}:{purpose}";
+            var cacheKey = $"totp{(hasPrincipal ? $":{user.Id}" : string.Empty)}:{channel}:{token}:{purpose}";
             if (await CacheKeyExists(cacheKey)) {
                 Logger.LogInformation($"User: '{userName}' - Last token has not expired yet. Throttling.");
                 return TotpResult.ErrorResult(Localizer["Last token has not expired yet. Please wait a few seconds and try again."]);
@@ -94,7 +93,7 @@ namespace Indice.AspNetCore.Identity.Services
             Logger.LogInformation($"User: '{userName}' - Token generated successfully.");
             switch (channel) {
                 case TotpDeliveryChannel.Sms:
-                    await SmsService.SendAsync(user?.PhoneNumber ?? phoneNumber, Localizer["Chaniabank OTP"], Localizer["Chaniabank OTP Code {0}. Please fill in the one-time password to proceed.", token]);
+                    await SmsService.SendAsync(user?.PhoneNumber ?? phoneNumber, Localizer["OTP"], Localizer[message, token]);
                     break;
                 case TotpDeliveryChannel.Viber:
                 case TotpDeliveryChannel.Email:
@@ -187,14 +186,14 @@ namespace Indice.AspNetCore.Identity.Services
         }
 
         private TotpResult ValidateParameters(ClaimsPrincipal principal, string securityToken, string phoneNumber, string email) {
-            var providedSecurityToken = !string.IsNullOrEmpty(securityToken);
-            var providedPrincipal = principal != null;
-            if (providedSecurityToken && providedPrincipal) {
+            var hasSecurityToken = !string.IsNullOrEmpty(securityToken);
+            var hasPrincipal = principal != null;
+            if (hasSecurityToken && hasPrincipal) {
                 return TotpResult.ErrorResult(Localizer["You can either provide a principal or your own security token."]);
             }
-            var providedPhoneNumber = !string.IsNullOrEmpty(phoneNumber);
-            var providedEmail = !string.IsNullOrEmpty(email);
-            if (providedSecurityToken && !providedPhoneNumber && !providedEmail) {
+            var hasPhoneNumber = !string.IsNullOrEmpty(phoneNumber);
+            var hasEmail = !string.IsNullOrEmpty(email);
+            if (hasSecurityToken && !hasPhoneNumber && !hasEmail) {
                 return TotpResult.ErrorResult(Localizer["If you provide your own security token, please make sure you also provide a phone number or email."]);
             }
             return TotpResult.SuccessResult;

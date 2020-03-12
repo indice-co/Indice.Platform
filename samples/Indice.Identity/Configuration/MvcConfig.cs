@@ -24,6 +24,7 @@ namespace Microsoft.Extensions.DependencyInjection
         public static IMvcBuilder AddMvcConfig(this IServiceCollection services, IConfiguration configuration) {
             return services.AddControllersWithViews()
                            .AddRazorRuntimeCompilation()
+                           .AddTotp()
                            .AddIdentityServerApiEndpoints(options => {
                                options.UseInitialData = true;
                                options.AddDbContext(identityOptions => {
