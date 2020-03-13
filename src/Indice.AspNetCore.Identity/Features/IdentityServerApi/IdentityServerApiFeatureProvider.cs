@@ -19,7 +19,8 @@ namespace Indice.AspNetCore.Identity.Features
             typeof(ResourceController).GetTypeInfo(),
             typeof(RoleController).GetTypeInfo(),
             typeof(UserController).GetTypeInfo(),
-            typeof(SettingsController).GetTypeInfo()
+            typeof(SettingsController).GetTypeInfo(),
+            typeof(LookupController).GetTypeInfo()
         };
 
         /// <summary>
