@@ -18,6 +18,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Net.Http.Headers;
 using Serilog;
+using Serilog.Events;
 using Swashbuckle.AspNetCore.SwaggerUI;
 
 namespace Indice.Identity
@@ -102,7 +103,24 @@ namespace Indice.Identity
                 app.UseHsts();
                 app.UseHttpsRedirection();
             }
-            app.UseSerilogRequestLogging();
+            app.UseStaticFiles(new StaticFileOptions {
+                OnPrepareResponse = context => {
+                    const int durationInSeconds = 60 * 60 * 24;
+                    context.Context.Response.Headers[HeaderNames.CacheControl] = $"public,max-age={durationInSeconds}";
+                    context.Context.Response.Headers.Append(HeaderNames.Expires, DateTime.UtcNow.AddSeconds(durationInSeconds).ToString("R", CultureInfo.InvariantCulture));
+                }
+            });
+            app.UseSerilogRequestLogging(options => {
+                // Customize the message template.
+                options.MessageTemplate = "Handled {RequestPath}";
+                // Emit debug-level events instead of the defaults.
+                options.GetLevel = (httpContext, elapsed, ex) => LogEventLevel.Debug;
+                // Attach additional properties to the request completion event.
+                options.EnrichDiagnosticContext = (diagnosticContext, httpContext) => {
+                    diagnosticContext.Set("RequestHost", httpContext.Request.Host.Value);
+                    diagnosticContext.Set("RequestScheme", httpContext.Request.Scheme);
+                };
+            });
             // Add this before any other middleware that might write cookies.
             app.UseCookiePolicy();
             app.UseRequestLocalization(new RequestLocalizationOptions {
@@ -137,13 +155,6 @@ namespace Indice.Identity
             app.UseCors();
             app.UseAuthentication();
             app.UseAuthorization();
-            app.UseStaticFiles(new StaticFileOptions {
-                OnPrepareResponse = context => {
-                    const int durationInSeconds = 60 * 60 * 24;
-                    context.Context.Response.Headers[HeaderNames.CacheControl] = $"public,max-age={durationInSeconds}";
-                    context.Context.Response.Headers.Append(HeaderNames.Expires, DateTime.UtcNow.AddSeconds(durationInSeconds).ToString("R", CultureInfo.InvariantCulture));
-                }
-            });
             app.UseResponseCaching();
             app.UseSwagger();
             var enableSwagger = HostingEnvironment.IsDevelopment() || Configuration.GetValue<bool>($"{GeneralSettings.Name}:SwaggerUI");

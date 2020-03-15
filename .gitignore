@@ -289,6 +289,7 @@ __pycache__/
 
 # Other
 samples/Indice.Identity/tempkey.rsa
+samples/Indice.Identity/package-lock.json
 samples/Indice.Identity/wwwroot/lib
 samples/Indice.Identity/wwwroot/admin-ui
 samples/Indice.Identity/logs

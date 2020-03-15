@@ -21,6 +21,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Localization;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace Indice.AspNetCore.Identity.Features
@@ -53,6 +54,7 @@ namespace Indice.AspNetCore.Identity.Features
         private readonly IEventService _eventService;
         private readonly GeneralSettings _generalSettings;
         private readonly IStringLocalizer<UserController> _localizer;
+        private readonly ILogger<UserController> _logger;
         private readonly EmailVerificationOptions _userEmailVerificationOptions;
         private readonly IEmailService _emailService;
         /// <summary>
@@ -72,11 +74,12 @@ namespace Indice.AspNetCore.Identity.Features
         /// <param name="eventService">Models the event mechanism used to raise events inside the IdentityServer API.</param>
         /// <param name="generalSettings">General settings for an ASP.NET Core application.</param>
         /// <param name="localizer">Represents an <see cref="IStringLocalizer"/> that provides strings for <see cref="UserController"/>.</param>
+        /// <param name="logger">Represents a type used to perform logging.</param>
         /// <param name="userEmailVerificationOptions">Options for the email sent to user for verification.</param>
         /// <param name="emailService">A service responsible for sending emails.</param>
         public UserController(ExtendedUserManager<User> userManager, RoleManager<Role> roleManager, ExtendedIdentityDbContext<User, Role> dbContext, IPersistedGrantService persistedGrantService, IClientStore clientStore,
-            IdentityServerApiEndpointsOptions apiEndpointsOptions, IEventService eventService, IOptions<GeneralSettings> generalSettings, IStringLocalizer<UserController> localizer, EmailVerificationOptions userEmailVerificationOptions = null,
-            IEmailService emailService = null) {
+            IdentityServerApiEndpointsOptions apiEndpointsOptions, IEventService eventService, IOptions<GeneralSettings> generalSettings, IStringLocalizer<UserController> localizer, ILogger<UserController> logger,
+            EmailVerificationOptions userEmailVerificationOptions = null, IEmailService emailService = null) {
             _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
             _roleManager = roleManager ?? throw new ArgumentNullException(nameof(roleManager));
             _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
@@ -86,9 +89,13 @@ namespace Indice.AspNetCore.Identity.Features
             _eventService = eventService ?? throw new ArgumentNullException(nameof(eventService));
             _generalSettings = generalSettings?.Value ?? throw new ArgumentNullException(nameof(generalSettings));
             _localizer = localizer ?? throw new ArgumentNullException(nameof(localizer));
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _userEmailVerificationOptions = userEmailVerificationOptions;
             _emailService = emailService;
         }
+
+        public string UserId => User.FindFirstValue(JwtClaimTypes.Subject);
+        public string UserEmail => User.FindFirstValue(JwtClaimTypes.Email);
 
         /// <summary>
         /// Returns a list of <see cref="UserInfo"/> objects containing the total number of users in the database and the data filtered according to the provided <see cref="ListOptions"/>.
@@ -135,6 +142,7 @@ namespace Indice.AspNetCore.Identity.Features
                 })
             })
             .ToResultSetAsync(options);
+            _logger.LogInformation("User '{userId}' ('{userEmail}') requested the list of users.", UserId, UserEmail);
             return Ok(users);
         }
 
@@ -183,8 +191,10 @@ namespace Indice.AspNetCore.Identity.Features
                                        })
                                        .SingleOrDefaultAsync();
             if (user == null) {
+                _logger.LogInformation("User '{userId}' ('{userEmail}') requested the details of user '{requestedUserId}' but the user was not found.", UserId, UserEmail, userId);
                 return NotFound();
             }
+            _logger.LogInformation("User '{userId}' ('{userEmail}') requested the details of user '{requestedUserId}' ('{requestedUserName}').", UserId, UserEmail, userId, user.UserName);
             return Ok(user);
         }
 
@@ -212,6 +222,8 @@ namespace Indice.AspNetCore.Identity.Features
                 result = await _userManager.CreateAsync(user, request.Password);
             }
             if (!result.Succeeded) {
+                _logger.LogWarning("User '{userId}' ('{userEmail}') tried to create user '{creatingUserId}' ('{creatingUserName}') but failed with error(s): {errors}.",
+                    UserId, UserEmail, user.Id, user.UserName, string.Join(", ", result.Errors.Select(x => x.Description)));
                 return BadRequest(result.Errors.ToValidationProblemDetails());
             }
             var claims = new List<Claim>();
@@ -240,6 +252,7 @@ namespace Indice.AspNetCore.Identity.Features
                 await SendEmailConfirmation(user);
             }
             await _eventService.Raise(new UserCreatedEvent(response));
+            _logger.LogInformation("User '{userId}' ('{userEmail}') successfully created user '{createdUserId}' ('{createdUserName}').", UserId, UserEmail, user.Id, user.UserName);
             return CreatedAtAction(nameof(GetUser), Name, new { userId = user.Id }, response);
         }
 
@@ -257,6 +270,7 @@ namespace Indice.AspNetCore.Identity.Features
         public async Task<ActionResult<SingleUserInfo>> UpdateUser([FromRoute]string userId, [FromBody]UpdateUserRequest request) {
             var user = await _dbContext.Users.Include(x => x.Claims).SingleOrDefaultAsync(x => x.Id == userId);
             if (user == null) {
+                _logger.LogInformation("User '{userId}' ('{userEmail}') requested to update user '{updatingUserId}' but the user was not found.", UserId, UserEmail, userId);
                 return NotFound();
             }
             user.UserName = request.UserName;
@@ -287,6 +301,7 @@ namespace Indice.AspNetCore.Identity.Features
                 (userRole, role) => role.Name
             )
             .ToListAsync();
+            _logger.LogInformation("User '{userId}' ('{userEmail}') successfully updated user '{updatedUserId}' ('{updatedUserName}').", UserId, UserEmail, userId, user.UserName);
             return Ok(new SingleUserInfo {
                 Id = userId,
                 CreateDate = user.CreateDate,
@@ -322,9 +337,11 @@ namespace Indice.AspNetCore.Identity.Features
         public async Task<IActionResult> DeleteUser([FromRoute]string userId) {
             var user = await _dbContext.Users.SingleOrDefaultAsync(x => x.Id == userId);
             if (user == null) {
+                _logger.LogInformation("User '{userId}' ('{userEmail}') requested to delete user '{deletingUserId}' but the user was not found.", UserId, UserEmail, userId);
                 return NotFound();
             }
             await _userManager.DeleteAsync(user);
+            _logger.LogInformation("User '{userId}' ('{userEmail}') successfully deleted user '{deletedUserId}' ('{deletedUserName}').", UserId, UserEmail, userId, user.UserName);
             return Ok();
         }
 
@@ -342,18 +359,25 @@ namespace Indice.AspNetCore.Identity.Features
         public async Task<IActionResult> AddUserRole([FromRoute]string userId, [FromRoute]string roleId) {
             var user = await _userManager.FindByIdAsync(userId);
             if (user == null) {
+                _logger.LogInformation("User '{userId}' ('{userEmail}') requested to add a role to user '{updatingUserId}' but the user was not found.", UserId, UserEmail, userId);
                 return NotFound();
             }
             var role = await _roleManager.FindByIdAsync(roleId);
             if (role == null) {
+                _logger.LogInformation("User '{userId}' ('{userEmail}') requested to add a role to user '{updatingUserId}' ('{updatingUserName}') but the role was not found.",
+                    UserId, UserEmail, userId, user.UserName);
                 return NotFound();
             }
             if (await _userManager.IsInRoleAsync(user, role.Name)) {
+                _logger.LogInformation("User '{userId}' ('{userEmail}') requested to add a role '{roleName}' to user '{updatingUserId}' ('{updatingUserName}') but the is already a member of that role.",
+                    UserId, UserEmail, role.Name, userId, user.UserName);
                 return BadRequest(new ValidationProblemDetails(new Dictionary<string, string[]> {
                     { $"{nameof(roleId)}", new[] { $"User '{user.Email}' is already a member of role '{role.Name}'." } }
                 }));
             }
             await _userManager.AddToRoleAsync(user, role.Name);
+            _logger.LogInformation("User '{userId}' ('{userEmail}') successfully added user '{updatingUserId}' ('{updatingUserName}') to role '{roleName}'.",
+                UserId, UserEmail, role.Name, userId, user.UserName, role.Name);
             return Ok();
         }
 

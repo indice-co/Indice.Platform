@@ -73,7 +73,7 @@ namespace Indice.Identity.Security
                     "http://localhost:4200",
                     "https://idsrv-admin-ui.azurewebsites.net"
                 },
-                AllowedGrantTypes = GrantTypes.Hybrid,
+                AllowedGrantTypes = GrantTypes.Code,
                 AllowedScopes = {
                     IdentityServerApi.Scope,
                     IdentityServerApi.SubScopes.Clients,

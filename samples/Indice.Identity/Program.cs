@@ -1,9 +1,11 @@
 ﻿using System;
+using System.Diagnostics;
 using Indice.Extensions.Configuration.EFCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Serilog;
+using Serilog.Debugging;
 using Serilog.Events;
 using Serilog.Sinks.MSSqlServer;
 
@@ -22,23 +24,34 @@ namespace Indice.Identity
             var configuration = new ConfigurationBuilder().AddJsonFile("appsettings.json", optional: false).Build();
             var columnOptions = new ColumnOptions();
             columnOptions.Store.Remove(StandardColumn.Properties);
+            columnOptions.Store.Remove(StandardColumn.MessageTemplate);
             columnOptions.Store.Add(StandardColumn.LogEvent);
-            columnOptions.LogEvent.DataLength = 2048;
-            columnOptions.PrimaryKey = columnOptions.TimeStamp;
+            //columnOptions.LogEvent.DataLength = 2048;
+            columnOptions.PrimaryKey = columnOptions.Id;
             columnOptions.TimeStamp.NonClusteredIndex = true;
             Log.Logger = new LoggerConfiguration()
-                .MinimumLevel.Debug()
-                .MinimumLevel.Override("Microsoft", LogEventLevel.Information)
+                .MinimumLevel.Information()
+                .MinimumLevel.Override("Microsoft", LogEventLevel.Warning)
                 .MinimumLevel.Override("Microsoft.AspNetCore", LogEventLevel.Warning)
+                .MinimumLevel.Override("Microsoft.Hosting.Lifetime", LogEventLevel.Warning)
+                .Enrich.WithMachineName()
+                .Enrich.WithThreadId()
                 .Enrich.FromLogContext()
                 .WriteTo.Console()
                 .WriteTo.MSSqlServer(
                     connectionString: configuration.GetConnectionString("IdentityDb"),
+                    schemaName: "log",
                     tableName: "Logs",
                     columnOptions: columnOptions,
-                    autoCreateSqlTable: true
+                    autoCreateSqlTable: true,
+                    restrictedToMinimumLevel: LogEventLevel.Information,
+                    batchPostingLimit: 50,
+                    period: TimeSpan.FromMinutes(1)
                  )
                 .CreateLogger();
+#if DEBUG
+            SelfLog.Enable(message => Debug.WriteLine(message));
+#endif
             try {
                 Log.Information("Starting web host.");
                 CreateHostBuilder(args).Build().Run();
@@ -55,12 +68,14 @@ namespace Indice.Identity
         /// Buildes the web host.
         /// </summary>
         /// <param name="args">Optional command line arguments.</param>
-        public static IHostBuilder CreateHostBuilder(string[] args) =>
-            Host.CreateDefaultBuilder(args)
-                .ConfigureWebHostDefaults(webHostBuilder => {
-                    webHostBuilder.UseStartup<Startup>();
-                })
-                .UseEFConfiguration(reloadInterval: TimeSpan.FromHours(1), connectionStringName: "IdentityDb")
-                .UseSerilog();
+        public static IHostBuilder CreateHostBuilder(string[] args) {
+            AppDomain.CurrentDomain.ProcessExit += (sender, @event) => Log.CloseAndFlush();
+            return Host.CreateDefaultBuilder(args)
+                       .ConfigureWebHostDefaults(webHostBuilder => {
+                           webHostBuilder.UseStartup<Startup>();
+                       })
+                       .UseEFConfiguration(reloadInterval: TimeSpan.FromHours(1), connectionStringName: "IdentityDb")
+                       .UseSerilog();
+        }
     }
 }

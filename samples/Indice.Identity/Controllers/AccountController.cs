@@ -13,6 +13,8 @@ using Indice.AspNetCore.Identity.Services;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
+using Serilog;
 
 namespace Indice.Identity.Controllers
 {
@@ -29,6 +31,7 @@ namespace Indice.Identity.Controllers
         private readonly ExtendedUserManager<User> _userManager;
         private readonly ExtendedSignInManager<User> _signInManager;
         private readonly AccountService _accountService;
+        private readonly ILogger<AccountController> _logger;
         /// <summary>
         /// The name of the controller.
         /// </summary>
@@ -44,14 +47,16 @@ namespace Indice.Identity.Controllers
         /// <param name="signInManager">Provides the APIs for user sign in.</param>
         /// <param name="schemeProvider">Responsible for managing what authenticationSchemes are supported.</param>
         /// <param name="httpContextAccessor">Provides access to the current HTTP context.</param>
-        public AccountController(IIdentityServerInteractionService interaction, IEventService events, IClientStore clientStore, ExtendedUserManager<User> userManager, ExtendedSignInManager<User> signInManager, IAuthenticationSchemeProvider schemeProvider, 
-            IHttpContextAccessor httpContextAccessor) {
+        /// <param name="logger">Represents a type used to perform logging.</param>
+        public AccountController(IIdentityServerInteractionService interaction, IEventService events, IClientStore clientStore, ExtendedUserManager<User> userManager, ExtendedSignInManager<User> signInManager, IAuthenticationSchemeProvider schemeProvider,
+            IHttpContextAccessor httpContextAccessor, ILogger<AccountController> logger) {
             _interaction = interaction ?? throw new ArgumentNullException(nameof(interaction));
             _events = events ?? throw new ArgumentNullException(nameof(events));
             _clientStore = clientStore ?? throw new ArgumentNullException(nameof(clientStore));
             _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
             _signInManager = signInManager ?? throw new ArgumentNullException(nameof(signInManager));
             _accountService = new AccountService(interaction, httpContextAccessor, schemeProvider, clientStore);
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
         /// <summary>
@@ -69,6 +74,9 @@ namespace Indice.Identity.Controllers
                     returnUrl
                 });
             }
+#if DEBUG
+            viewModel.Username = "company@indice.gr";
+#endif
             return View(viewModel);
         }
 
@@ -107,6 +115,7 @@ namespace Indice.Identity.Controllers
                 if (result.Succeeded) {
                     var user = await _userManager.FindByNameAsync(model.Username);
                     await _events.RaiseAsync(new UserLoginSuccessEvent(user.UserName, user.Id, user.UserName));
+                    _logger.LogInformation("User '{userId}' ('{userEmail}') was successfully logged in.", user.Id, user.Email);
                     if (context != null) {
                         if (await _clientStore.IsPkceClientAsync(context.ClientId)) {
                             // If the client is PKCE then we assume it's native, so this change in how to return the response is for better UX for the end user.
@@ -122,7 +131,7 @@ namespace Indice.Identity.Controllers
                         return Redirect("~/");
                     } else {
                         // User might have clicked on a malicious link - should be logged.
-                        throw new Exception("Invalid return URL");
+                        throw new Exception("Invalid return URL.");
                     }
                 }
                 if (result.IsLockedOut) {
