@@ -3,7 +3,7 @@
     <Description>Indice.Services Class Library</Description>
     <Copyright>Copyright (c) 2018 Indice</Copyright>
     <AssemblyTitle>Indice.Services</AssemblyTitle>
-    <VersionPrefix>1.5.4</VersionPrefix>
+    <VersionPrefix>1.5.5</VersionPrefix>
     <!--<VersionSuffix>beta2</VersionSuffix>-->
     <Authors>c.leftheris, g.manoltzas</Authors>
     <TargetFramework>netstandard2.0</TargetFramework>
@@ -14,7 +14,7 @@
   <PropertyGroup Label="Package">
     <PackageId>Indice.Services</PackageId>
     <PackageTags>dotnetcore;Files;Emails;Sms</PackageTags>
-    <PackageReleaseNotes>Updated Indice.Common package and enhanced ITotpService.</PackageReleaseNotes>
+    <PackageReleaseNotes>Add content type to file when uploading to Azure storage - FileServiceAzureStorage</PackageReleaseNotes>
     <PackageIcon>icon-310.png</PackageIcon>
     <PackageProjectUrl>https://github.com/indice-co/Indice.AspNet</PackageProjectUrl>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
