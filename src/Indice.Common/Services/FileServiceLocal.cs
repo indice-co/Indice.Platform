@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Indice.Extensions;
 
@@ -125,14 +124,10 @@ namespace Indice.Services
 
         private bool GuardExists(string path, bool isDirectory = false, bool throwOnError = true) {
             var exists = isDirectory ? Directory.Exists(path) : File.Exists(path);
-            if (!exists && throwOnError)
-                throw new Exception($"file or directory '{path}' not found");
+            if (!exists && throwOnError) {
+                throw new Exception($"file or directory '{path}' not found.");
+            }
             return exists;
-        }
-
-        private void GuardRelative(string path) {
-            if (Path.IsPathRooted(path))
-                throw new Exception($"The path must be relative '{path}'");
         }
     }
 }

@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
+using System.Security.Claims;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Http;
@@ -22,6 +24,8 @@ namespace Indice.AspNetCore.Filters
         private readonly JsonSerializerOptions _jsonSerializerOptions;
         private readonly string[] _dependentPaths;
         private readonly string[] _dependentStaticPaths;
+        private readonly int _expiration;
+        private readonly string[] _varyByClaimType;
         private string _cacheKey;
 
         /// <summary>
@@ -31,11 +35,15 @@ namespace Indice.AspNetCore.Filters
         /// <param name="jsonOptions">Provides programmatic configuration for JSON in the MVC framework.</param>
         /// <param name="dependentPaths">Parent paths of the current method that must be invalidated. Path template variables must match by name.</param>
         /// <param name="dependentStaticPaths">Dependent static path that must be invalidated along with this resource.</param>
-        public CacheResourceFilter(IDistributedCache cache, IOptions<JsonOptions> jsonOptions, string[] dependentPaths, string[] dependentStaticPaths) {
+        /// <param name="expiration">The absolute expiration in minutes of the cache item, expressed as an <see cref="int"/>. Defaults to 60 minutes.</param>
+        /// <param name="varyByClaimType">The claim to use which value is included in the cache key.</param>
+        public CacheResourceFilter(IDistributedCache cache, IOptions<JsonOptions> jsonOptions, string[] dependentPaths, string[] dependentStaticPaths, int expiration, string[] varyByClaimType) {
             _cache = cache ?? throw new ArgumentNullException(nameof(cache));
             _jsonSerializerOptions = jsonOptions?.Value?.JsonSerializerOptions ?? throw new ArgumentNullException(nameof(jsonOptions));
             _dependentPaths = dependentPaths ?? Array.Empty<string>();
             _dependentStaticPaths = dependentStaticPaths ?? Array.Empty<string>();
+            _expiration = expiration;
+            _varyByClaimType = varyByClaimType;
         }
 
         /// <summary>
@@ -43,12 +51,19 @@ namespace Indice.AspNetCore.Filters
         /// </summary>
         /// <param name="context">A context for resource filters, specifically <see cref="OnResourceExecuting(ResourceExecutingContext)"/> calls.</param>
         public void OnResourceExecuting(ResourceExecutingContext context) {
-            var request = context.HttpContext.Request;
+            var httpContext = context.HttpContext;
+            var request = httpContext.Request;
             _cacheKey = request.Path.ToString();
+            if (_varyByClaimType.Length > 0) {
+                var claimValues = _varyByClaimType.Select(claim => httpContext.User.FindFirstValue(claim));
+                if (claimValues.Any()) {
+                    _cacheKey = $"{_cacheKey}|{string.Join('|', claimValues)}";
+                }
+            }
             var requestMethod = request.Method;
             var cachedValue = _cache.GetString(_cacheKey);
             // If there is a cached response for this path and the request method is of type 'GET', then break the pipeline and send the cached response.
-            if (!string.IsNullOrEmpty(cachedValue) && requestMethod == HttpMethod.Get.Method) {
+            if (!string.IsNullOrEmpty(cachedValue) && (requestMethod == HttpMethod.Get.Method || requestMethod == HttpMethod.Head.Method)) {
                 context.Result = new OkObjectResult(JsonDocument.Parse(cachedValue).RootElement);
             }
         }
@@ -74,12 +89,12 @@ namespace Indice.AspNetCore.Filters
             // Check if the cache key has been properly set, which is crucial for interacting with the cache.
             if (!string.IsNullOrEmpty(_cacheKey)) {
                 // If request method is of type 'GET' then we can cache the response.
-                if (requestMethod == HttpMethod.Get.Method) {
+                if (requestMethod == HttpMethod.Get.Method || requestMethod == HttpMethod.Head.Method) {
                     var cachedValue = _cache.GetString(_cacheKey);
                     // Check if we already have a cached value for this cache key and also that response status code is 200 OK.
                     if (string.IsNullOrEmpty(cachedValue) && (context.Result is OkObjectResult result)) {
                         _cache.SetString(_cacheKey, JsonSerializer.Serialize(result.Value, _jsonSerializerOptions), new DistributedCacheEntryOptions {
-                            AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(10)
+                            AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(_expiration)
                         });
                     }
                 }
@@ -132,13 +147,41 @@ namespace Indice.AspNetCore.Filters
         /// <summary>
         /// Creates a new instance of <see cref="CacheResourceFilterAttribute"/>.
         /// </summary>
-        /// <param name="dependentPaths">Parent paths of the current method that must be invalidated. Path template variables must match by name.</param>
-        /// <param name="dependentStaticPaths">Dependent static path that must be invalidated along with this resource.</param>
-        public CacheResourceFilterAttribute(string[] dependentPaths = null, string[] dependentStaticPaths = null) : base(typeof(CacheResourceFilter)) {
-            Arguments = new object[] {
-                dependentPaths ?? Array.Empty<string>() ,
-                dependentStaticPaths ?? Array.Empty<string>()
-            };
+        public CacheResourceFilterAttribute() : base(typeof(CacheResourceFilter)) {
+            Arguments = new object[4];
+            DependentPaths = Array.Empty<string>();
+            DependentStaticPaths = Array.Empty<string>();
+            Expiration = 60;
+            VaryByClaimType = Array.Empty<string>();
+        }
+
+        /// <summary>
+        /// Parent paths of the current method that must be invalidated. Path template variables must match by name.
+        /// </summary>
+        public string[] DependentPaths {
+            get => (string[])Arguments[0];
+            set => Arguments[0] = value;
+        }
+        /// <summary>
+        /// Dependent static path that must be invalidated along with this resource.
+        /// </summary>
+        public string[] DependentStaticPaths {
+            get => (string[])Arguments[1];
+            set => Arguments[1] = value;
+        }
+        /// <summary>
+        /// The absolute expiration in minutes of the cache item, expressed as an <see cref="int"/>. Defaults to 60 minutes.
+        /// </summary>
+        public int Expiration {
+            get => (int)(Arguments[2] ?? 0);
+            set => Arguments[2] = value;
+        }
+        /// <summary>
+        /// The claim to use which value is included in the cache key.
+        /// </summary>
+        public string[] VaryByClaimType {
+            get => (string[])Arguments[3];
+            set => Arguments[3] = value;
         }
     }
 }

@@ -17,28 +17,24 @@ namespace Indice.Services
         /// <param name="stream"></param>
         /// <returns></returns>
         Task SaveAsync(string filepath, Stream stream);
-
         /// <summary>
         /// Retrieves a file using a path.
         /// </summary>
         /// <param name="filepath"></param>
         /// <returns></returns>
         Task<byte[]> GetAsync(string filepath);
-
         /// <summary>
         /// Gets a path list. For a given folder
         /// </summary>
         /// <param name="path">The file path</param>
         /// <returns></returns>
         Task<IEnumerable<string>> SearchAsync(string path);
-
         /// <summary>
         /// Gets the file properties
         /// </summary>
         /// <param name="filepath"></param>
         /// <returns></returns>
         Task<FileProperties> GetPropertiesAsync(string filepath);
-
         /// <summary>
         /// Removes the file from storage. In case of a folder or virtual path prefix it will remove all files recursive.
         /// </summary>
@@ -95,42 +91,34 @@ namespace Indice.Services
         /// Last modified.
         /// </summary>
         public DateTimeOffset? LastModified { get; set; }
-
         /// <summary>
         /// Etag
         /// </summary>
         public string ETag { get; set; }
-
         /// <summary>
         /// Media type (ie application/octet-stream)
         /// </summary>
         public string ContentType { get; set; }
-
         /// <summary>
         /// Content MD5 hash
         /// </summary>
         public string ContentMD5 { get; set; }
-
         /// <summary>
         /// Size in Bytes
         /// </summary>
         public long Length { get; set; }
-
         /// <summary>
         /// Content language
         /// </summary>
         public string ContentLanguage { get; set; }
-
         /// <summary>
         /// Content encoding
         /// </summary>
         public string ContentEncoding { get; set; }
-
         /// <summary>
         /// Content Disposition
         /// </summary>
         public string ContentDisposition { get; set; }
-
         /// <summary>
         /// Cache control
         /// </summary>

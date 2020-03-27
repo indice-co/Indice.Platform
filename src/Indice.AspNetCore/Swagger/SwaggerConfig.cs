@@ -23,7 +23,7 @@ namespace Indice.AspNetCore.Swagger
         /// <summary>
         /// Since swashbackle 4.0 release the support for for parameters of type IFormFile is out-of-the-box. 
         /// That is, the generator will automatically detect these and generate the correct Swagger to describe parameters that are passed in formData.
-        /// So this is exported to a seperate operation just in case we still need of it. [Depricated]
+        /// So this is exported to a seperate operation just in case we still need of it.
         /// </summary>
         /// <param name="options">The options to confugure</param>
         public static void AddFormFileSupport(this SwaggerGenOptions options) {
