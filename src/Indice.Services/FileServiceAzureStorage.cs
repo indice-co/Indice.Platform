@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using Indice.Extensions;
 using Microsoft.Azure.Storage;
 using Microsoft.Azure.Storage.Blob;
 
@@ -48,6 +49,10 @@ namespace Indice.Services
             var container = blobClient.GetContainerReference(folder);
             await container.CreateIfNotExistsAsync();
             var blob = container.GetBlockBlobReference(filename);
+            var extension = Path.GetExtension(filepath);
+            if (!string.IsNullOrEmpty(extension)) {
+                blob.Properties.ContentType = FileExtensions.GetMimeType(extension);
+            }
             stream.Position = 0;
             await blob.UploadFromStreamAsync(stream);
         }
