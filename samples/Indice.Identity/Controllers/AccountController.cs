@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using IdentityModel;
 using IdentityServer4.Events;
 using IdentityServer4.Extensions;
 using IdentityServer4.Models;
@@ -59,6 +60,9 @@ namespace Indice.Identity.Controllers
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
+        public string UserId => User.FindFirstValue(JwtClaimTypes.Subject);
+        public string UserEmail => User.FindFirstValue(JwtClaimTypes.Email);
+
         /// <summary>
         /// Displayes the login page.
         /// </summary>
@@ -115,11 +119,13 @@ namespace Indice.Identity.Controllers
                 if (result.Succeeded) {
                     var user = await _userManager.FindByNameAsync(model.Username);
                     await _events.RaiseAsync(new UserLoginSuccessEvent(user.UserName, user.Id, user.UserName));
-                    _logger.LogInformation("User '{userId}' ('{userEmail}') was successfully logged in.", user.Id, user.Email);
+                    _logger.LogInformation("User '{UserId}' ('{UserEmail}') was successfully logged in.", user.Id, user.Email);
                     if (context != null) {
                         if (await _clientStore.IsPkceClientAsync(context.ClientId)) {
                             // If the client is PKCE then we assume it's native, so this change in how to return the response is for better UX for the end user.
-                            return View("Redirect", new RedirectViewModel { RedirectUrl = model.ReturnUrl });
+                            return View("Redirect", new RedirectViewModel { 
+                                RedirectUrl = model.ReturnUrl
+                            });
                         }
                         // We can trust model.ReturnUrl since GetAuthorizationContextAsync returned non-null.
                         return Redirect(model.ReturnUrl);

@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.ObjectModel;
+using System.Data;
 using System.Diagnostics;
 using Indice.Extensions.Configuration.EFCore;
 using Microsoft.AspNetCore.Hosting;
@@ -26,29 +28,37 @@ namespace Indice.Identity
             columnOptions.Store.Remove(StandardColumn.Properties);
             columnOptions.Store.Remove(StandardColumn.MessageTemplate);
             columnOptions.Store.Add(StandardColumn.LogEvent);
-            //columnOptions.LogEvent.DataLength = 2048;
+            columnOptions.AdditionalColumns = new Collection<SqlColumn> {
+                new SqlColumn {
+                    AllowNull = true,
+                    ColumnName = "UserId",
+                    DataLength = 64,
+                    DataType = SqlDbType.NVarChar,
+                    NonClusteredIndex = true
+                }
+            };
             columnOptions.PrimaryKey = columnOptions.Id;
             columnOptions.TimeStamp.NonClusteredIndex = true;
             Log.Logger = new LoggerConfiguration()
-                .MinimumLevel.Information()
-                .MinimumLevel.Override("Microsoft", LogEventLevel.Warning)
-                .MinimumLevel.Override("Microsoft.AspNetCore", LogEventLevel.Warning)
-                .MinimumLevel.Override("Microsoft.Hosting.Lifetime", LogEventLevel.Warning)
-                .Enrich.WithMachineName()
-                .Enrich.WithThreadId()
-                .Enrich.FromLogContext()
-                .WriteTo.Console()
-                .WriteTo.MSSqlServer(
-                    connectionString: configuration.GetConnectionString("IdentityDb"),
-                    schemaName: "log",
-                    tableName: "Logs",
-                    columnOptions: columnOptions,
-                    autoCreateSqlTable: true,
-                    restrictedToMinimumLevel: LogEventLevel.Information,
-                    batchPostingLimit: 50,
-                    period: TimeSpan.FromMinutes(1)
-                 )
-                .CreateLogger();
+               .MinimumLevel.Information()
+               .MinimumLevel.Override("Microsoft", LogEventLevel.Warning)
+               .MinimumLevel.Override("Microsoft.AspNetCore", LogEventLevel.Warning)
+               .MinimumLevel.Override("Microsoft.Hosting.Lifetime", LogEventLevel.Warning)
+               .Enrich.WithMachineName()
+               .Enrich.WithThreadId()
+               .Enrich.FromLogContext()
+               .WriteTo.Console()
+               .WriteTo.MSSqlServer(
+                   connectionString: configuration.GetConnectionString("IdentityDb"),
+                   schemaName: "log",
+                   tableName: "Logs",
+                   columnOptions: columnOptions,
+                   autoCreateSqlTable: true,
+                   restrictedToMinimumLevel: LogEventLevel.Information,
+                   batchPostingLimit: 50,
+                   period: TimeSpan.FromMinutes(1)
+                )
+               .CreateLogger();
 #if DEBUG
             SelfLog.Enable(message => Debug.WriteLine(message));
 #endif

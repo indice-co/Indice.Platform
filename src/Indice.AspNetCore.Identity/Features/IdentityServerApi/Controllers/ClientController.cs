@@ -195,7 +195,7 @@ namespace Indice.AspNetCore.Identity.Features
         /// <response code="201">Created</response>
         [HttpPost]
         [ProducesResponseType(statusCode: StatusCodes.Status201Created, type: typeof(ClientInfo))]
-        [CacheResourceFilter(dependentStaticPaths: new string[] { "api/dashboard/summary" })]
+        [CacheResourceFilter(DependentStaticPaths = new string[] { "api/dashboard/summary" })]
         public async Task<ActionResult<ClientInfo>> CreateClient([FromBody]CreateClientRequest request) {
             var client = CreateForType(request.ClientType, _generalSettings.Authority, request);
             _configurationDbContext.Clients.Add(client);
@@ -282,7 +282,7 @@ namespace Indice.AspNetCore.Identity.Features
         [HttpPost("{clientId}/claims")]
         [ProducesResponseType(statusCode: StatusCodes.Status201Created, type: typeof(ClaimInfo))]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
-        [CacheResourceFilter(dependentPaths: new string[] { "{clientId}" })]
+        [CacheResourceFilter(DependentPaths = new string[] { "{clientId}" })]
         public async Task<ActionResult<ClaimInfo>> AddClientClaim([FromRoute]string clientId, [FromBody]CreateClaimRequest request) {
             var client = await _configurationDbContext.Clients.SingleOrDefaultAsync(x => x.ClientId == clientId);
             if (client == null) {
@@ -315,7 +315,7 @@ namespace Indice.AspNetCore.Identity.Features
         [HttpDelete("{clientId}/claims/{claimId:int}")]
         [ProducesResponseType(statusCode: StatusCodes.Status200OK)]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
-        [CacheResourceFilter(dependentPaths: new string[] { "{clientId}" })]
+        [CacheResourceFilter(DependentPaths = new string[] { "{clientId}" })]
         public async Task<ActionResult> DeleteClientClaim([FromRoute]string clientId, [FromRoute]int claimId) {
             var client = await _configurationDbContext.Clients.Include(x => x.Claims).SingleOrDefaultAsync(x => x.ClientId == clientId);
             if (client == null) {
@@ -343,7 +343,7 @@ namespace Indice.AspNetCore.Identity.Features
         [HttpPost("{clientId}/urls")]
         [ProducesResponseType(statusCode: StatusCodes.Status200OK)]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
-        [CacheResourceFilter(dependentPaths: new string[] { "{clientId}" })]
+        [CacheResourceFilter(DependentPaths = new string[] { "{clientId}" })]
         public async Task<ActionResult> UpdateClientUrls([FromRoute]string clientId, [FromBody]UpdateClientUrls request) {
             var client = await _configurationDbContext.Clients
                                                       .Include(x => x.AllowedCorsOrigins)
@@ -388,7 +388,7 @@ namespace Indice.AspNetCore.Identity.Features
         [HttpPost("{clientId}/resources")]
         [ProducesResponseType(statusCode: StatusCodes.Status200OK)]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
-        [CacheResourceFilter(dependentPaths: new string[] { "{clientId}" })]
+        [CacheResourceFilter(DependentPaths = new string[] { "{clientId}" })]
         public async Task<ActionResult> AddClientResources([FromRoute]string clientId, [FromBody]string[] resources) {
             var client = await _configurationDbContext.Clients.SingleOrDefaultAsync(x => x.ClientId == clientId);
             if (client == null) {
@@ -413,7 +413,7 @@ namespace Indice.AspNetCore.Identity.Features
         [HttpDelete("{clientId}/resources")]
         [ProducesResponseType(statusCode: StatusCodes.Status200OK)]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
-        [CacheResourceFilter(dependentPaths: new string[] { "{clientId}" })]
+        [CacheResourceFilter(DependentPaths = new string[] { "{clientId}" })]
         public async Task<ActionResult> DeleteClientResource([FromRoute]string clientId, [FromBody]string[] resources) {
             var client = await _configurationDbContext.Clients.Include(x => x.AllowedScopes).SingleOrDefaultAsync(x => x.ClientId == clientId);
             if (client == null) {
@@ -443,7 +443,7 @@ namespace Indice.AspNetCore.Identity.Features
         [HttpPost("{clientId}/grant-types/{grantType}")]
         [ProducesResponseType(statusCode: StatusCodes.Status200OK, type: typeof(GrantTypeInfo))]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
-        [CacheResourceFilter(dependentPaths: new string[] { "{clientId}" })]
+        [CacheResourceFilter(DependentPaths = new string[] { "{clientId}" })]
         public async Task<ActionResult<GrantTypeInfo>> AddClientGrantType([FromRoute]string clientId, [FromRoute]string grantType) {
             var client = await _configurationDbContext.Clients.SingleOrDefaultAsync(x => x.ClientId == clientId);
             if (client == null) {
@@ -473,7 +473,7 @@ namespace Indice.AspNetCore.Identity.Features
         [HttpDelete("{clientId}/grant-types/{grantType}")]
         [ProducesResponseType(statusCode: StatusCodes.Status200OK)]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
-        [CacheResourceFilter(dependentPaths: new string[] { "{clientId}" })]
+        [CacheResourceFilter(DependentPaths = new string[] { "{clientId}" })]
         public async Task<ActionResult> DeleteClientGrantType([FromRoute]string clientId, [FromRoute]string grantType) {
             var client = await _configurationDbContext.Clients.Include(x => x.AllowedGrantTypes).SingleOrDefaultAsync(x => x.ClientId == clientId);
             if (client == null) {
@@ -501,7 +501,7 @@ namespace Indice.AspNetCore.Identity.Features
         [HttpPost("{clientId}/secrets")]
         [ProducesResponseType(statusCode: StatusCodes.Status201Created, type: typeof(SecretInfo))]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
-        [CacheResourceFilter(dependentPaths: new string[] { "{clientId}" })]
+        [CacheResourceFilter(DependentPaths = new string[] { "{clientId}" })]
         public async Task<ActionResult<SecretInfo>> AddClientSecret([FromRoute]string clientId, [FromBody]CreateSecretRequest request) {
             var client = await _configurationDbContext.Clients.SingleOrDefaultAsync(x => x.ClientId == clientId);
             if (client == null) {
@@ -537,7 +537,7 @@ namespace Indice.AspNetCore.Identity.Features
         [HttpDelete("{clientId}/secrets/{secretId}")]
         [ProducesResponseType(statusCode: StatusCodes.Status200OK)]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
-        [CacheResourceFilter(dependentPaths: new string[] { "{clientId}" })]
+        [CacheResourceFilter(DependentPaths = new string[] { "{clientId}" })]
         public async Task<ActionResult> DeleteClientSecret([FromRoute]string clientId, [FromRoute]int secretId) {
             var client = await _configurationDbContext.Clients.Include(x => x.ClientSecrets).SingleOrDefaultAsync(x => x.ClientId == clientId);
             if (client == null) {
@@ -564,7 +564,7 @@ namespace Indice.AspNetCore.Identity.Features
         [HttpDelete("{clientId}")]
         [ProducesResponseType(statusCode: StatusCodes.Status200OK)]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
-        [CacheResourceFilter(dependentStaticPaths: new string[] { "api/dashboard/summary" })]
+        [CacheResourceFilter(DependentStaticPaths = new string[] { "api/dashboard/summary" })]
         public async Task<IActionResult> DeleteClient([FromRoute]string clientId) {
             var client = await _configurationDbContext.Clients.AsNoTracking().SingleOrDefaultAsync(x => x.ClientId == clientId);
             if (client == null) {

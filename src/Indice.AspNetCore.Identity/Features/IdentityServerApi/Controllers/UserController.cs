@@ -142,7 +142,7 @@ namespace Indice.AspNetCore.Identity.Features
                 })
             })
             .ToResultSetAsync(options);
-            _logger.LogInformation("User '{userId}' ('{userEmail}') requested the list of users.", UserId, UserEmail);
+            _logger.LogInformation("User '{UserId}' ('{UserEmail}') requested the list of users.", UserId, UserEmail);
             return Ok(users);
         }
 
@@ -191,10 +191,10 @@ namespace Indice.AspNetCore.Identity.Features
                                        })
                                        .SingleOrDefaultAsync();
             if (user == null) {
-                _logger.LogInformation("User '{userId}' ('{userEmail}') requested the details of user '{requestedUserId}' but the user was not found.", UserId, UserEmail, userId);
+                _logger.LogInformation("User '{UserId}' ('{UserEmail}') requested the details of user '{RequestedUserId}' but the user was not found.", UserId, UserEmail, userId);
                 return NotFound();
             }
-            _logger.LogInformation("User '{userId}' ('{userEmail}') requested the details of user '{requestedUserId}' ('{requestedUserName}').", UserId, UserEmail, userId, user.UserName);
+            _logger.LogInformation("User '{UserId}' ('{UserEmail}') requested the details of user '{RequestedUserId}' ('{RequestedUserName}').", UserId, UserEmail, userId, user.UserName);
             return Ok(user);
         }
 
@@ -222,7 +222,7 @@ namespace Indice.AspNetCore.Identity.Features
                 result = await _userManager.CreateAsync(user, request.Password);
             }
             if (!result.Succeeded) {
-                _logger.LogWarning("User '{userId}' ('{userEmail}') tried to create user '{creatingUserId}' ('{creatingUserName}') but failed with error(s): {errors}.",
+                _logger.LogWarning("User '{UserId}' ('{UserEmail}') tried to create user '{CreatingUserId}' ('{CreatingUserName}') but failed with error(s): {Errors}.",
                     UserId, UserEmail, user.Id, user.UserName, string.Join(", ", result.Errors.Select(x => x.Description)));
                 return BadRequest(result.Errors.ToValidationProblemDetails());
             }
@@ -252,7 +252,7 @@ namespace Indice.AspNetCore.Identity.Features
                 await SendEmailConfirmation(user);
             }
             await _eventService.Raise(new UserCreatedEvent(response));
-            _logger.LogInformation("User '{userId}' ('{userEmail}') successfully created user '{createdUserId}' ('{createdUserName}').", UserId, UserEmail, user.Id, user.UserName);
+            _logger.LogInformation("User '{UserId}' ('{UserEmail}') successfully created user '{CreatedUserId}' ('{CreatedUserName}').", UserId, UserEmail, user.Id, user.UserName);
             return CreatedAtAction(nameof(GetUser), Name, new { userId = user.Id }, response);
         }
 
@@ -270,7 +270,7 @@ namespace Indice.AspNetCore.Identity.Features
         public async Task<ActionResult<SingleUserInfo>> UpdateUser([FromRoute]string userId, [FromBody]UpdateUserRequest request) {
             var user = await _dbContext.Users.Include(x => x.Claims).SingleOrDefaultAsync(x => x.Id == userId);
             if (user == null) {
-                _logger.LogInformation("User '{userId}' ('{userEmail}') requested to update user '{updatingUserId}' but the user was not found.", UserId, UserEmail, userId);
+                _logger.LogInformation("User '{UserId}' ('{UserEmail}') requested to update user '{UpdatingUserId}' but the user was not found.", UserId, UserEmail, userId);
                 return NotFound();
             }
             user.UserName = request.UserName;
@@ -301,7 +301,7 @@ namespace Indice.AspNetCore.Identity.Features
                 (userRole, role) => role.Name
             )
             .ToListAsync();
-            _logger.LogInformation("User '{userId}' ('{userEmail}') successfully updated user '{updatedUserId}' ('{updatedUserName}').", UserId, UserEmail, userId, user.UserName);
+            _logger.LogInformation("User '{UserId}' ('{UserEmail}') successfully updated user '{UpdatedUserId}' ('{UpdatedUserName}').", UserId, UserEmail, userId, user.UserName);
             return Ok(new SingleUserInfo {
                 Id = userId,
                 CreateDate = user.CreateDate,
@@ -337,11 +337,11 @@ namespace Indice.AspNetCore.Identity.Features
         public async Task<IActionResult> DeleteUser([FromRoute]string userId) {
             var user = await _dbContext.Users.SingleOrDefaultAsync(x => x.Id == userId);
             if (user == null) {
-                _logger.LogInformation("User '{userId}' ('{userEmail}') requested to delete user '{deletingUserId}' but the user was not found.", UserId, UserEmail, userId);
+                _logger.LogInformation("User '{UserId}' ('{UserEmail}') requested to delete user '{DeletingUserId}' but the user was not found.", UserId, UserEmail, userId);
                 return NotFound();
             }
             await _userManager.DeleteAsync(user);
-            _logger.LogInformation("User '{userId}' ('{userEmail}') successfully deleted user '{deletedUserId}' ('{deletedUserName}').", UserId, UserEmail, userId, user.UserName);
+            _logger.LogInformation("User '{UserId}' ('{UserEmail}') successfully deleted user '{DeletedUserId}' ('{DeletedUserName}').", UserId, UserEmail, userId, user.UserName);
             return Ok();
         }
 
@@ -355,28 +355,28 @@ namespace Indice.AspNetCore.Identity.Features
         [HttpPost("{userId}/roles/{roleId}")]
         [ProducesResponseType(statusCode: StatusCodes.Status200OK)]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
-        [CacheResourceFilter(dependentPaths: new string[] { "{userId}" })]
+        [CacheResourceFilter(DependentPaths = new string[] { "{userId}" })]
         public async Task<IActionResult> AddUserRole([FromRoute]string userId, [FromRoute]string roleId) {
             var user = await _userManager.FindByIdAsync(userId);
             if (user == null) {
-                _logger.LogInformation("User '{userId}' ('{userEmail}') requested to add a role to user '{updatingUserId}' but the user was not found.", UserId, UserEmail, userId);
+                _logger.LogInformation("User '{UserId}' ('{UserEmail}') requested to add a role to user '{UpdatingUserId}' but the user was not found.", UserId, UserEmail, userId);
                 return NotFound();
             }
             var role = await _roleManager.FindByIdAsync(roleId);
             if (role == null) {
-                _logger.LogInformation("User '{userId}' ('{userEmail}') requested to add a role to user '{updatingUserId}' ('{updatingUserName}') but the role was not found.",
+                _logger.LogInformation("User '{UserId}' ('{UserEmail}') requested to add a role to user '{UpdatingUserId}' ('{UpdatingUserName}') but the role was not found.",
                     UserId, UserEmail, userId, user.UserName);
                 return NotFound();
             }
             if (await _userManager.IsInRoleAsync(user, role.Name)) {
-                _logger.LogInformation("User '{userId}' ('{userEmail}') requested to add a role '{roleName}' to user '{updatingUserId}' ('{updatingUserName}') but the is already a member of that role.",
+                _logger.LogInformation("User '{UserId}' ('{UserEmail}') requested to add a role '{RoleName}' to user '{UpdatingUserId}' ('{UpdatingUserName}') but the is already a member of that role.",
                     UserId, UserEmail, role.Name, userId, user.UserName);
                 return BadRequest(new ValidationProblemDetails(new Dictionary<string, string[]> {
                     { $"{nameof(roleId)}", new[] { $"User '{user.Email}' is already a member of role '{role.Name}'." } }
                 }));
             }
             await _userManager.AddToRoleAsync(user, role.Name);
-            _logger.LogInformation("User '{userId}' ('{userEmail}') successfully added user '{updatingUserId}' ('{updatingUserName}') to role '{roleName}'.",
+            _logger.LogInformation("User '{UserId}' ('{UserEmail}') successfully added user '{UpdatingUserId}' ('{UpdatingUserName}') to role '{RoleName}'.",
                 UserId, UserEmail, role.Name, userId, user.UserName, role.Name);
             return Ok();
         }
@@ -391,7 +391,7 @@ namespace Indice.AspNetCore.Identity.Features
         [HttpDelete("{userId}/roles/{roleId}")]
         [ProducesResponseType(statusCode: StatusCodes.Status200OK)]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
-        [CacheResourceFilter(dependentPaths: new string[] { "{userId}" })]
+        [CacheResourceFilter(DependentPaths = new string[] { "{userId}" })]
         public async Task<IActionResult> DeleteUserRole([FromRoute]string userId, [FromRoute]string roleId) {
             var user = await _userManager.FindByIdAsync(userId);
             if (user == null) {
@@ -442,7 +442,7 @@ namespace Indice.AspNetCore.Identity.Features
         [HttpPost("{userId}/claims")]
         [ProducesResponseType(statusCode: StatusCodes.Status201Created, type: typeof(ClaimInfo))]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
-        [CacheResourceFilter(dependentPaths: new string[] { "{userId}" })]
+        [CacheResourceFilter(DependentPaths = new string[] { "{userId}" })]
         public async Task<ActionResult<ClaimInfo>> AddUserClaim([FromRoute]string userId, [FromBody]CreateClaimRequest request) {
             var user = await _dbContext.Users.AsNoTracking().SingleOrDefaultAsync(x => x.Id == userId);
             if (user == null) {
@@ -473,7 +473,7 @@ namespace Indice.AspNetCore.Identity.Features
         [HttpPut("{userId}/claims/{claimId}")]
         [ProducesResponseType(statusCode: StatusCodes.Status200OK, type: typeof(ClaimInfo))]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
-        [CacheResourceFilter(dependentPaths: new string[] { "{userId}" })]
+        [CacheResourceFilter(DependentPaths = new string[] { "{userId}" })]
         public async Task<ActionResult<ClaimInfo>> UpdateUserClaim([FromRoute]string userId, [FromRoute]int claimId, [FromBody]UpdateUserClaimRequest request) {
             var userClaim = await _dbContext.UserClaims.SingleOrDefaultAsync(x => x.UserId == userId && x.Id == claimId);
             if (userClaim == null) {
@@ -498,7 +498,7 @@ namespace Indice.AspNetCore.Identity.Features
         [HttpDelete("{userId}/claims/{claimId}")]
         [ProducesResponseType(statusCode: StatusCodes.Status200OK)]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
-        [CacheResourceFilter(dependentPaths: new string[] { "{userId}" })]
+        [CacheResourceFilter(DependentPaths = new string[] { "{userId}" })]
         public async Task<IActionResult> DeleteUserClaim([FromRoute]string userId, [FromRoute]int claimId) {
             var userClaim = await _dbContext.UserClaims.SingleOrDefaultAsync(x => x.UserId == userId && x.Id == claimId);
             if (userClaim == null) {
@@ -551,7 +551,7 @@ namespace Indice.AspNetCore.Identity.Features
         [HttpPut("{userId}/block")]
         [ProducesResponseType(statusCode: StatusCodes.Status200OK, type: typeof(void))]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
-        [CacheResourceFilter(dependentPaths: new string[] { "{userId}" })]
+        [CacheResourceFilter(DependentPaths = new string[] { "{userId}" })]
         public async Task<IActionResult> BlockUser([FromRoute]string userId) {
             var user = await _dbContext.Users.SingleOrDefaultAsync(x => x.Id == userId);
             if (user == null) {
@@ -576,7 +576,7 @@ namespace Indice.AspNetCore.Identity.Features
         [HttpPut("{userId}/unblock")]
         [ProducesResponseType(statusCode: StatusCodes.Status200OK, type: typeof(void))]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
-        [CacheResourceFilter(dependentPaths: new string[] { "{userId}" })]
+        [CacheResourceFilter(DependentPaths = new string[] { "{userId}" })]
         public async Task<IActionResult> UnblockUser([FromRoute]string userId) {
             var user = await _dbContext.Users.SingleOrDefaultAsync(x => x.Id == userId);
             if (user == null) {
@@ -601,7 +601,7 @@ namespace Indice.AspNetCore.Identity.Features
         [HttpPut("{userId}/unlock")]
         [ProducesResponseType(statusCode: StatusCodes.Status200OK, type: typeof(void))]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
-        [CacheResourceFilter(dependentPaths: new string[] { "{userId}" })]
+        [CacheResourceFilter(DependentPaths = new string[] { "{userId}" })]
         public async Task<IActionResult> UnlockUser([FromRoute]string userId) {
             var user = await _userManager.FindByIdAsync(userId);
             if (user == null) {
@@ -629,7 +629,7 @@ namespace Indice.AspNetCore.Identity.Features
         [HttpPut("{userId}/set-password")]
         [ProducesResponseType(statusCode: StatusCodes.Status200OK, type: typeof(void))]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
-        [CacheResourceFilter(dependentPaths: new string[] { "{userId}" })]
+        [CacheResourceFilter(DependentPaths = new string[] { "{userId}" })]
         public async Task<IActionResult> SetPassword([FromRoute]string userId, [FromBody]SetPasswordRequest request) {
             var user = await _dbContext.Users.SingleOrDefaultAsync(x => x.Id == userId);
             if (user == null) {

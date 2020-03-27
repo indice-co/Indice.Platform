@@ -1,11 +1,7 @@
-﻿using Microsoft.AspNetCore.Http;
-using Swashbuckle.AspNetCore.Swagger;
-using Swashbuckle.AspNetCore.SwaggerGen;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Dynamic;
+﻿using System.Linq;
+using Microsoft.AspNetCore.Http;
 using Microsoft.OpenApi.Models;
+using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace Indice.AspNetCore.Swagger
 {
