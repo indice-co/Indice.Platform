@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using Indice.Serialization;
+﻿using Indice.Serialization;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Serialization;
 using Xunit;
 
@@ -21,7 +19,9 @@ namespace Indice.Common.Tests
                     }
                 },
                 Converters = new JsonConverter[] {
-                    new Newtonsoft.Json.Converters.StringEnumConverter { CamelCaseText = false },
+                    new StringEnumConverter {
+                        NamingStrategy = new CamelCaseNamingStrategy()
+                    }
                 }
             };
         }
@@ -29,7 +29,6 @@ namespace Indice.Common.Tests
         [Fact]
         public void DeserializePolymorphicObjectTest() {
             var json = @"{""firstName"": ""Κωνσταντίνος"", ""lastName"": ""Λευθέρης"", ""type"": ""Student""}";
-
             var person = JsonConvert.DeserializeObject<Person>(json, Settings);
             Assert.IsType<Student>(person);
             Assert.Equal("Κωνσταντίνος", person.FirstName);
@@ -39,7 +38,6 @@ namespace Indice.Common.Tests
         [Fact]
         public void DeserializePolymorphicObjectWithEnumTest() {
             var json = @"{""firstName"": ""Kate"", ""lastName"": ""Leftheris"", ""sex"": ""Female""}";
-
             var person = JsonConvert.DeserializeObject<Parent>(json, Settings);
             Assert.IsType<Mother>(person);
             Assert.Equal("Kate", person.FirstName);
@@ -49,12 +47,10 @@ namespace Indice.Common.Tests
         [Fact]
         public void DeserializePolymorphicObjectListTest() {
             var json = @"[{""firstName"": ""Kate"", ""lastName"": ""Leftheris"", ""sex"": ""Female""}, {""firstName"": ""Κωνσταντίνος"", ""lastName"": ""Λευθέρης"", ""sex"": ""Male""}]";
-
             var people = JsonConvert.DeserializeObject<Parent[]>(json, Settings);
             Assert.IsType<Mother>(people[0]);
             Assert.IsType<Father>(people[1]);
         }
-
 
         [Fact]
         public void SerializePolymorphicObjectListTest() {
@@ -79,22 +75,18 @@ namespace Indice.Common.Tests
             Assert.Equal(json, jsonResult);
         }
 
-        [JsonConverter(typeof(JsonPolymorphicConverter<Person>), "type")]
+        [JsonConverter(typeof(JsonNetPolymorphicConverter<Person>), "type")]
         public class Person
         {
             public string FirstName { get; set; }
             public string LastName { get; set; }
         }
 
-        public class Teacher : Person
-        {
-        }
+        public class Teacher : Person { }
 
-        public class Student : Person
-        {
-        }
+        public class Student : Person { }
 
-        [JsonConverter(typeof(JsonPolymorphicConverter<Parent>), "sex")]
+        [JsonConverter(typeof(JsonNetPolymorphicConverter<Parent>), "sex")]
         public abstract class Parent : Person
         {
             public SexType Sex { get; set; }
@@ -106,6 +98,7 @@ namespace Indice.Common.Tests
                 Sex = SexType.Male;
             }
         }
+
         public class Mother : Parent
         {
             public Mother() {
