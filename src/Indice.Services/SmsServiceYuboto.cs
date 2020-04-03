@@ -14,107 +14,103 @@ namespace Indice.Services
     /// </summary>
     public class SmsServiceYuboto : ISmsService, IDisposable
     {
+        private bool _disposed = false;
+
         /// <summary>
-        /// The settings required to configure the service
+        /// The settings required to configure the service.
         /// </summary>
         protected SmsServiceSettings Settings { get; }
-
         /// <summary>
-        /// The http client
+        /// The <see cref="System.Net.Http.HttpClient"/>.
         /// </summary>
-        protected HttpClient Http { get; }
-
+        protected HttpClient HttpClient { get; }
         /// <summary>
-        /// logger
+        /// Represents a type used to perform logging.
         /// </summary>
         protected ILogger<SmsServiceYuboto> Logger { get; }
 
-        private bool _shouldDispose = false;
-
         /// <summary>
-        /// Constructs the <see cref="SmsServiceYuboto"/> using the <seealso cref="SmsServiceSettings"/>
+        /// Constructs the <see cref="SmsServiceYuboto"/> using the <seealso cref="SmsServiceSettings"/>.
         /// </summary>
-        /// <param name="settings"></param>
-        /// <param name="httpClient">Injected http client managed by the DI</param>
-        /// <param name="logger"></param>
-        public SmsServiceYuboto(SmsServiceSettings settings, ILogger<SmsServiceYuboto> logger, HttpClient httpClient) {
+        /// <param name="settings">The settings required to configure the service.</param>
+        /// <param name="httpClient">Injected <see cref="System.Net.Http.HttpClient"/> managed by the DI.</param>
+        /// <param name="logger">Represents a type used to perform logging.</param>
+        public SmsServiceYuboto(HttpClient httpClient, SmsServiceSettings settings, ILogger<SmsServiceYuboto> logger) {
+            HttpClient = httpClient ?? new HttpClient();
             Settings = settings ?? throw new ArgumentNullException(nameof(settings));
-            if (httpClient == null) {
-                _shouldDispose = true;
-            }
-            Http = httpClient ?? new HttpClient();
-            Logger = logger;
-            if (Http.BaseAddress == null) {
+            Logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            if (HttpClient.BaseAddress == null) {
                 var uri = "https://services.yuboto.com/web2sms/api/v2/smsc.aspx";
-                Http.BaseAddress = new Uri(uri);
+                HttpClient.BaseAddress = new Uri(uri);
             }
         }
 
-        /// <summary>
-        /// Send an sms to a recipient
-        /// </summary>
-        /// <param name="destination"></param>
-        /// <param name="subject"></param>
-        /// <param name="body"></param>
-        /// <returns></returns>
+        /// <inheritdoc/>
         public async Task SendAsync(string destination, string subject, string body) {
             HttpResponseMessage httpResponse;
             YubotoResponse response;
-            var recipients = (destination ?? "").Split(new string[] { "," }, StringSplitOptions.RemoveEmptyEntries);
-            if (recipients == null)
+            var recipients = (destination ?? string.Empty).Split(new string[] { "," }, StringSplitOptions.RemoveEmptyEntries);
+            if (recipients == null) {
                 throw new ArgumentNullException(nameof(recipients));
-            if (recipients.Length == 0)
-                throw new ArgumentException("Recipients list is empty", nameof(recipients));
-            if (recipients.Any(telephone => telephone.Any(telNumber => !char.IsNumber(telNumber))))
+            }
+            if (recipients.Length == 0) {
+                throw new ArgumentException("Recipients list is empty.", nameof(recipients));
+            }
+            if (recipients.Any(telephone => telephone.Any(character => !char.IsNumber(character)))) {
                 throw new ArgumentException("Invalid recipients. Recipients cannot contain letters.", nameof(recipients));
-
-            var request = new YubotoRequestHelper(Settings.ApiKey, (Settings.Sender ?? Settings.SenderName), recipients, body) {
-                IsSmsTest = Settings.TestMode,
-            }.CreateStringRequest();
-            httpResponse = await Http.GetAsync(request);
+            }
+            var request = new YubotoRequestHelper(Settings.ApiKey, Settings.Sender ?? Settings.SenderName, recipients, body) {
+                IsSmsTest = Settings.TestMode
+            }
+            .CreateRequest();
+            httpResponse = await HttpClient.GetAsync(request);
             var stringifyResponse = await httpResponse.Content.ReadAsStringAsync();
             response = JsonConvert.DeserializeObject<YubotoResponse>(stringifyResponse);
-
             if (response.HasError) {
                 throw new SmsServiceException($"SMS Delivery failed. {response}");
             } else {
-                Logger?.LogInformation("Sent sms message ok. {1}", response.OK.FirstOrDefault());
+                Logger?.LogInformation("SMS message successfully sent: {1}", response.OK.FirstOrDefault());
             }
         }
 
         /// <summary>
-        /// disposes the http client if not managed by the DI
+        /// Disposes the <see cref="System.Net.Http.HttpClient"/> if not managed by the DI.
         /// </summary>
         public void Dispose() {
-            if (_shouldDispose)
-                Http.Dispose();
+            Dispose(true);
+            GC.SuppressFinalize(this);
         }
 
+        // https://docs.microsoft.com/en-us/dotnet/standard/garbage-collection/implementing-dispose
+        /// <summary>
+        /// Protected implementation of Dispose pattern.
+        /// </summary>
+        /// <param name="disposing"></param>
+        protected virtual void Dispose(bool disposing) {
+            if (_disposed) {
+                return;
+            }
+            if (disposing) {
+                // Free any other managed objects here.
+                HttpClient.Dispose();
+            }
+            // Free any unmanaged objects here.
+            _disposed = true;
+        }
     }
 
     /// <summary>
     /// 2.9 System Responses
-    /// Successful delivery response example:
-    ///      {"ok":{"3069XXXXXXXX":"YYYYYYYYY"}}
-    /// Successful delivery for multiple phones example:
-    ///      {"ok":{"3069XXXXXXXX":"YYYYYYYYY","3069XXXXXXXX":"YYYYYYYYY","3069XXXXXXXX":"YYYYYYYYY"}}
-    /// Error response example:
-    ///      {"error":"Err315:Text was not provided"}
+    /// Successful delivery response example: {"ok":{"3069XXXXXXXX":"YYYYYYYYY"}}
+    /// Successful delivery for multiple phones example: {"ok":{"3069XXXXXXXX":"YYYYYYYYY","3069XXXXXXXX":"YYYYYYYYY","3069XXXXXXXX":"YYYYYYYYY"}}
+    /// Error response example: {"error":"Err315:Text was not provided"}
     /// </summary>
     internal class YubotoResponse
     {
         public Dictionary<string, string> OK { get; set; } = new Dictionary<string, string>();
-
         public string Error { get; set; }
-
-        public bool HasError {
-            get {
-                return !string.IsNullOrWhiteSpace(Error);
-            }
-        }
-        public override string ToString() {
-            return HasError ? Error : $"{OK}";
-        }
+        public bool HasError => !string.IsNullOrWhiteSpace(Error);
+        public override string ToString() => HasError ? Error : $"{OK}";
     }
 
     internal class YubotoRequestHelper
@@ -127,26 +123,22 @@ namespace Indice.Services
             Message = message;
         }
 
-
         string ApiKey { get; set; }
         string Action { get; set; } = "Send";
-
         /// <summary>
-        /// Numeric (maximum number of digits: 16) or alphanumeric characters (maximum number of characters: 11)
+        /// Numeric (maximum number of digits: 16) or alphanumeric characters (maximum number of characters: 11).
         /// </summary>
         string From { get; set; }
-
         /// <summary>
         /// Use country code without + or 00.
         /// </summary>
         IEnumerable<string> To { get; set; }
-
         /// <summary>
         /// Through Yuboto platform, you can send:
-        ///      Simple SMS(up to 160 characters)
-        ///      Flash SMS(up to 160 characters)
-        ///      Long SMS(more than 160 characters)
-        ///      Unicode SMS(up to 70 characters)
+        ///     - Simple SMS(up to 160 characters)
+        ///     - Flash SMS(up to 160 characters)
+        ///     - Long SMS(more than 160 characters)
+        ///     - Unicode SMS(up to 70 characters)
         /// Some 8bit alphabet characters may also be included and sent as a simple SMS. These will count as 2 characters. ^{}\[]~|€
         /// All the other characters included in the 8bit alphabet can only be sent as Unicode characters (SMS 70 characters).
         /// If you use small case Greek characters (8bit) in a non Unicode format, then the system will automatically convert them into Capital Greek characters (7bit).
@@ -155,30 +147,24 @@ namespace Indice.Services
         /// If you choose to send a long SMS without previously notifying the system, then the system will limit it to 160 characters(simple SMS).
         /// </summary>
         string Message { get; set; }
-
         /// <summary>
-        /// params: sms (default) / flash / unicode
+        /// Params: sms (default) / flash / unicode
         /// </summary>
         public string SmsType { get; set; } = "sms";
-
         /// <summary>
-        /// params: no (default) / yes
+        /// Params: no (default) / yes
         /// </summary>
         public bool IsLongSms { get; set; }
-
         /// <summary>
         /// YYYYMMDD
         /// </summary>
         public string DateToSend { get; set; }
-
         /// <summary>
         /// HHMM
         /// </summary>
         public string TimeToSend { get; set; }
-
         /// <summary>
-        /// min 30
-        /// max 4320 (default)
+        /// Min 30, max 4320 (default).
         /// </summary>
         public int SmsValidity { get; set; } = 4320;
         public bool IsSmsTest { get; set; }
@@ -187,44 +173,16 @@ namespace Indice.Services
         public string Option2 { get; set; }
         public bool IsJson { get; set; } = true;
 
-        public object CreateJsonObjRequest() {
-            var requestObj = new {
-                //Required
-                api_key = ApiKey,
-                action = Action,
-                from = From,
-                to = string.Join(",", To),
-                text = Message,
-                //Optional
-                //typesms =           !string.IsNullOrWhiteSpace(SmsType) ? SmsType : null,
-                //longsms =           IsLongSms ? "yes" : "no",
-                //datein_to_send =    !string.IsNullOrWhiteSpace(DateToSend) ? DateToSend : null,
-                //timein_to_send =    !string.IsNullOrWhiteSpace(TimeToSend) ? TimeToSend : null,
-                //smsValidity =       SmsValidity,
-                smstest = IsSmsTest ? "yes" : "no",
-                //callback_url =      !string.IsNullOrWhiteSpace(CallbackUrl) ? CallbackUrl : null,
-                //option1 =           !string.IsNullOrWhiteSpace(Option1) ? Option1 : null,
-                //option2 =           !string.IsNullOrWhiteSpace(Option2) ? Option2 : null,
-                //json =              IsJson ? "yes" : "no"
-            };
-            return requestObj;
-        }
-
-        //https://services.yuboto.com/web2sms/api/v2/smsc.aspx?api_key=XXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXX&action=send&from=Grpm&to=306942012052&text=This%20is%20my%20first%20test
-        public string CreateStringRequest() {
-            var sb = new System.Text.StringBuilder();
-
-            sb.Append($"?api_key={ApiKey}");
-            sb.Append($"&action={Action}");
-            sb.Append($"&from={From}");
-            sb.Append($"&to={string.Join(",", To)}");
-            sb.Append($"&text={Message}");
-            if (IsSmsTest) {
-                //sb.Append($"&smstest=yes");
-            }
-            var request = sb.ToString();
+        // https://services.yuboto.com/web2sms/api/v2/smsc.aspx?api_key=XXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXX&action=send&from=Grpm&to=306942012052&text=This%20is%20my%20first%20test
+        public string CreateRequest() {
+            var stringBuilder = new StringBuilder();
+            stringBuilder.Append($"?api_key={ApiKey}");
+            stringBuilder.Append($"&action={Action}");
+            stringBuilder.Append($"&from={From}");
+            stringBuilder.Append($"&to={string.Join(",", To)}");
+            stringBuilder.Append($"&text={Message}");
+            var request = stringBuilder.ToString();
             return request;
         }
-
     }
 }

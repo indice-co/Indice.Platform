@@ -7,7 +7,7 @@ namespace Indice.Serialization
     /// <summary>
     /// A custom <see cref="JsonConverter"/> that tries to convert a string JSON value to it's double representation.
     /// </summary>
-    public class JsonConverterStringDouble : JsonConverter<double>
+    public class JsonStringDoubleConverter : JsonConverter<double>
     {
         /// <inheritdoc/>
         public override double Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) {

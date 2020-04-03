@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Linq;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace Indice.Extensions
 {
@@ -32,9 +28,7 @@ namespace Indice.Extensions
                 // We need to remove whitespaces.
                 suggestedAlias = Regex.Replace(suggestedAlias, whitespacePattern, "-").ToLowerInvariant().Trim('-');
             }
-
             var availability = CheckAvailability(existingAliases, suggestedAlias);
-
             if (!availability.IsAvailable) {
                 var aliasParts = suggestedAlias.Split('-');
                 var aliasLastIndex = availability.LastIndex;
@@ -46,7 +40,6 @@ namespace Indice.Extensions
                     suggestedAlias = $"{string.Join("-", aliasParts)}-{aliasLastIndex + 1}";
                 }
             }
-
             return suggestedAlias;
         }
 
@@ -58,7 +51,6 @@ namespace Indice.Extensions
             var lastIndex = 0;
             var similarAliases = existingAliases.Where(x => x.StartsWith(newAlias)).ToList();
             var isAvailable = !similarAliases.Any();
-
             if (isAvailable) {
                 // If the alias is available then the alias index will not be used.
                 lastIndex = -1;
@@ -72,16 +64,13 @@ namespace Indice.Extensions
                 })
                 .OrderBy(x => x)
                 .ToList();
-
                 // If this is the case then we return that index, otherwise 0. We want company aliases to be like 'my-corp, my-corp-1, my-corp-2' etc.
                 lastIndex = indexes.Count > 0 ? indexes.Last() : 0;
             }
-
             var availabeAlias = new AliasAvailability {
                 IsAvailable = isAvailable,
                 LastIndex = lastIndex
             };
-
             return availabeAlias;
         }
 
@@ -94,7 +83,6 @@ namespace Indice.Extensions
             /// The suggested alias is available
             /// </summary>
             public bool IsAvailable { get; set; }
-
             /// <summary>
             /// The last index used for this alias.
             /// </summary>

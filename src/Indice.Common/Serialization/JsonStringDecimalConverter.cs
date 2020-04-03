@@ -8,7 +8,7 @@ namespace Indice.Serialization
     /// <summary>
     /// A custom <see cref="JsonConverter"/> that tries to convert a string JSON value to it's decimal representation.
     /// </summary>
-    public class JsonConverterStringDecimal : JsonConverter<decimal>
+    public class JsonStringDecimalConverter : JsonConverter<decimal>
     {
         /// <inheritdoc/>
         public override decimal Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) {

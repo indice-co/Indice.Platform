@@ -6,8 +6,10 @@ using System.Reflection;
 using Indice.Configuration;
 using Indice.Serialization;
 using Indice.Types;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
 using Newtonsoft.Json;
 using Swashbuckle.AspNetCore.SwaggerGen;
@@ -88,17 +90,49 @@ namespace Indice.AspNetCore.Swagger
         /// <summary>
         /// Adds polymorphism.
         /// </summary>
-        /// <param name="options">The options to confugure</param>
-        /// <param name="assembliesToScan">Assemblies that will be searched for <see cref="PolymorphicJsonConverter"/> annotations</param>
-        public static void AddPolymorphism(this SwaggerGenOptions options, params Assembly[] assembliesToScan) {
+        /// <param name="options">The options to configure.</param>
+        /// <param name="assembliesToScan">Assemblies that will be searched for <see cref="JsonNetPolymorphicConverter"/> annotations.</param>
+        public static void AddPolymorphismJsonNet(this SwaggerGenOptions options, params Assembly[] assembliesToScan) {
             var attribute = assembliesToScan.SelectMany(x => x.ExportedTypes)
                                             .Select(x => x.GetCustomAttribute<JsonConverterAttribute>(false))
-                                            .Where(x => x != null && typeof(PolymorphicJsonConverter)
+                                            .Where(x => x != null && typeof(JsonNetPolymorphicConverter)
                                             .IsAssignableFrom(x.ConverterType));
             foreach (var item in attribute) {
                 var baseType = item.ConverterType.GenericTypeArguments[0];
                 var discriminator = item.ConverterParameters.FirstOrDefault() as string;
-                var mapping = PolymorphicJsonConverter.GetTypeMapping(baseType, discriminator);
+                var mapping = JsonNetPolymorphicConverter.GetTypeMapping(baseType, discriminator);
+                options.SchemaFilter<PolymorphicSchemaFilter>(baseType, discriminator, mapping);
+                options.OperationFilter<PolymorphicOperationFilter>(new PolymorphicSchemaFilter(baseType, discriminator, mapping));
+            }
+        }
+
+        /// <summary>
+        /// Adds polymorphism.
+        /// </summary>
+        /// <param name="options">The options to configure.</param>
+        /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
+        public static void AddPolymorphism(this SwaggerGenOptions options, IServiceCollection services) {
+            var serviceProvider = services.BuildServiceProvider();
+            var jsonOptions = serviceProvider.GetService<IOptions<JsonOptions>>();
+            if (jsonOptions == null) {
+                return;
+            }
+            var jsonSerializerOptions = jsonOptions.Value.JsonSerializerOptions;
+            var polymorphicConverters = jsonSerializerOptions?.Converters?.Where(x => {
+                var converterType = x.GetType();
+                if (!(converterType.IsGenericType && converterType.GetGenericTypeDefinition().IsAssignableFrom(typeof(JsonPolymorphicConverterFactory<>)))) {
+                    return false;
+                }
+                return true;
+            })
+            .Cast<IJsonPolymorphicConverterFactory>();
+            if (!polymorphicConverters.Any()) {
+                return;
+            }
+            foreach (var converter in polymorphicConverters) {
+                var baseType = converter.BaseType;
+                var discriminator = converter.TypePropertyName;
+                var mapping = JsonPolymorphicConverter.GetTypeMapping(baseType, discriminator);
                 options.SchemaFilter<PolymorphicSchemaFilter>(baseType, discriminator, mapping);
                 options.OperationFilter<PolymorphicOperationFilter>(new PolymorphicSchemaFilter(baseType, discriminator, mapping));
             }
@@ -146,7 +180,6 @@ namespace Indice.AspNetCore.Swagger
             return info;
         }
 
-
         /// <summary>
         /// Adds requirements to the operations protected by the Authorize attribute
         /// </summary>
@@ -156,7 +189,7 @@ namespace Indice.AspNetCore.Swagger
         /// <param name="clearOther"></param>
         /// <returns></returns>
         public static SwaggerGenOptions AddSecurityRequirements(this SwaggerGenOptions options, string name, GeneralSettings settings, bool clearOther = false) {
-            if (clearOther) { 
+            if (clearOther) {
                 var filters = options.OperationFilterDescriptors.Where(x => x.Type == typeof(SecurityRequirementsOperationFilter));
                 foreach (var filter in filters) {
                     options.OperationFilterDescriptors.Remove(filter);
@@ -271,7 +304,7 @@ namespace Indice.AspNetCore.Swagger
             options.MapType<GeoPoint>(() => new OpenApiSchema {
                 Type = "string"
             });
-            options.CustomOperationIds(x => (x.ActionDescriptor as ControllerActionDescriptor)?.ActionName);        
+            options.CustomOperationIds(x => (x.ActionDescriptor as ControllerActionDescriptor)?.ActionName);
         }
 
         /// <summary>

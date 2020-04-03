@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
@@ -21,22 +20,11 @@ namespace Indice.AspNetCore.Swagger
             EnumerableOfBaseType = typeof(IEnumerable<>).MakeGenericType(Configuration.BaseType);
         }
 
-        private PolymorphicSchemaFilter Configuration { get; }   
+        private PolymorphicSchemaFilter Configuration { get; }
         private Type EnumerableOfBaseType { get; }
-        
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="operation"></param>
-        /// <param name="context"></param>
+
+        /// <inheritdoc/>
         public void Apply(OpenApiOperation operation, OperationFilterContext context) {
-            //if (context.ApiDescription.SupportedResponseTypes.Any(x => x.Type == Configuration.BaseType || EnumerableOfBaseType.IsAssignableFrom(x.Type))) {
-            //    foreach (var contenType in operation.Responses) {
-            //        var response = contenType.Value;
-            //        if (response.Reference?.Id == Configuration.BaseType.Name) {
-            //        }
-            //    }
-            //}
             if (context.ApiDescription.ActionDescriptor.Parameters.Any(x => x.ParameterType == Configuration.BaseType || EnumerableOfBaseType.IsAssignableFrom(x.ParameterType))) {
                 foreach (var contenType in operation.RequestBody.Content) {
                     var request = contenType.Value.Schema;

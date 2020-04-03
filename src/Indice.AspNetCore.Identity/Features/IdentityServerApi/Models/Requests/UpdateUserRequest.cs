@@ -45,5 +45,13 @@ namespace Indice.AspNetCore.Identity.Features
         /// Indicates whether the user is a system administrator.
         /// </summary>
         public bool IsAdmin { get; set; }
+        /// <summary>
+        /// Indicates whether a user's email is confirmed or not.
+        /// </summary>
+        public bool EmailConfirmed { get; set; }
+        /// <summary>
+        /// Indicates whether a user's phone number is confirmed or not.
+        /// </summary>
+        public bool PhoneNumberConfirmed { get; set; }
     }
 }

@@ -79,7 +79,7 @@ namespace Indice.Common.Tests
             Assert.Equal(json, jsonResult);
         }
 
-        [JsonConverter(typeof(PolymorphicJsonConverter<Person>), "type")]
+        [JsonConverter(typeof(JsonPolymorphicConverter<Person>), "type")]
         public class Person
         {
             public string FirstName { get; set; }
@@ -94,7 +94,7 @@ namespace Indice.Common.Tests
         {
         }
 
-        [JsonConverter(typeof(PolymorphicJsonConverter<Parent>), "sex")]
+        [JsonConverter(typeof(JsonPolymorphicConverter<Parent>), "sex")]
         public abstract class Parent : Person
         {
             public SexType Sex { get; set; }

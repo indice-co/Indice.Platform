@@ -7,7 +7,7 @@ namespace Indice.Serialization
     /// <summary>
     /// A custom <see cref="JsonConverter"/> that tries to convert a string JSON value to it's int representation.
     /// </summary>
-    public class JsonConverterStringInt32 : JsonConverter<int>
+    public class JsonStringInt32Converter : JsonConverter<int>
     {
         /// <inheritdoc/>
         public override int Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) {

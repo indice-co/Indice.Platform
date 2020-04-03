@@ -55,7 +55,7 @@ namespace Indice.Identity
                    columnOptions: columnOptions,
                    autoCreateSqlTable: true,
                    restrictedToMinimumLevel: LogEventLevel.Information,
-                   batchPostingLimit: 50,
+                   batchPostingLimit: 20,
                    period: TimeSpan.FromMinutes(1)
                 )
                .CreateLogger();

@@ -241,6 +241,11 @@ namespace Indice.AspNetCore.Identity.Features
                 UserName = user.UserName,
                 Email = user.Email,
                 PhoneNumber = user.PhoneNumber,
+                PasswordExpirationPolicy = user.PasswordExpirationPolicy,
+                IsAdmin = user.Admin,
+                TwoFactorEnabled = user.TwoFactorEnabled,
+                EmailConfirmed = user.EmailConfirmed,
+                PhoneNumberConfirmed = user.PhoneNumberConfirmed,
                 Claims = user.Claims?.Select(x => new ClaimInfo {
                     Id = x.Id,
                     Type = x.ClaimType,
@@ -281,6 +286,8 @@ namespace Indice.AspNetCore.Identity.Features
             user.LockoutEnd = request.LockoutEnd;
             user.PasswordExpirationPolicy = request.PasswordExpirationPolicy;
             user.Admin = request.IsAdmin;
+            user.EmailConfirmed = request.EmailConfirmed;
+            user.PhoneNumberConfirmed = request.PhoneNumberConfirmed;
             foreach (var requiredClaim in request.Claims) {
                 var claim = user.Claims.SingleOrDefault(x => x.ClaimType == requiredClaim.Type);
                 if (claim != null) {

@@ -8,7 +8,7 @@ namespace Indice.Serialization
     /// A custom <see cref="JsonConverter"/> for scenarios that require type inference.
     /// </summary>
     /// <remarks>https://docs.microsoft.com/en-us/dotnet/standard/serialization/system-text-json-converters-how-to#deserialize-inferred-types-to-object-properties</remarks>
-    public class ObjectToInferredTypesConverter : JsonConverter<object>
+    public class JsonObjectToInferredTypeConverter : JsonConverter<object>
     {
         /// <inheritdoc/>
         public override object Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) {
