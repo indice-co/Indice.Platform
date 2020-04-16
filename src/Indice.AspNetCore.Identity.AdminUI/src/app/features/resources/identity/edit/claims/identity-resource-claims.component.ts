@@ -12,6 +12,8 @@ import { IdentityResourceStore } from '../identity-resource-store.service';
 })
 export class IdentityResourceClaimsComponent implements OnInit, OnDestroy {
     private _getDataSubscription: Subscription;
+    private _addIdentityResourceClaim: Subscription;
+    private _deleteIdentityResourceClaim: Subscription;
     private _identityResourceId: number;
 
     constructor(private _route: ActivatedRoute, private _identityResourceStore: IdentityResourceStore) { }
@@ -40,9 +42,19 @@ export class IdentityResourceClaimsComponent implements OnInit, OnDestroy {
         if (this._getDataSubscription) {
             this._getDataSubscription.unsubscribe();
         }
+        if (this._addIdentityResourceClaim) {
+            this._addIdentityResourceClaim.unsubscribe();
+        }
+        if (this._deleteIdentityResourceClaim) {
+            this._deleteIdentityResourceClaim.unsubscribe();
+        }
     }
 
-    public addClaim(claim: ClaimTypeInfo): void { }
+    public addClaim(claim: ClaimTypeInfo): void {
+        this._addIdentityResourceClaim = this._identityResourceStore.addIdentityResourceClaim(this._identityResourceId, claim).subscribe();
+    }
 
-    public removeClaim(claim: ClaimTypeInfo): void { }
+    public removeClaim(claim: ClaimTypeInfo): void {
+        this._deleteIdentityResourceClaim = this._identityResourceStore.deleteIdentityResourceClaim(this._identityResourceId, claim).subscribe();
+    }
 }

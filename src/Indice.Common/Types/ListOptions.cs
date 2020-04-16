@@ -55,17 +55,14 @@ namespace Indice.Types
         /// <returns></returns>
         public IEnumerable<SortByClause> GetSortings() {
             var list = (Sort ?? string.Empty).Split(',');
-
             foreach (var item in list) {
                 if (string.IsNullOrWhiteSpace(item)) {
                     continue;
                 }
                 var sortBy = SortByClause.Parse(item);
-
                 if (SortRedirects.ContainsKey(sortBy.Path)) {
                     sortBy = new SortByClause(SortRedirects[sortBy.Path], sortBy.Direction, sortBy.DataType);
                 }
-
                 yield return sortBy;
             }
         }
@@ -121,15 +118,12 @@ namespace Indice.Types
                 { nameof(Page).ToLower(), Page.ToString() },
                 { nameof(Size).ToLower(), Size.ToString() },
             };
-
             if (!string.IsNullOrWhiteSpace(Sort)) {
                 dictionary.Add(nameof(Sort).ToLower(), Sort);
             }
-
             if (!string.IsNullOrWhiteSpace(Search)) {
                 dictionary.Add(nameof(Search).ToLower(), Search);
             }
-
             return dictionary;
         }
     }

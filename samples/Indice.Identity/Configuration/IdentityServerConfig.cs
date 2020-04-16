@@ -6,7 +6,6 @@ using Indice.AspNetCore.Identity.Features;
 using Indice.AspNetCore.Identity.Models;
 using Indice.Configuration;
 using Indice.Identity;
-using Indice.Identity.Security;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -51,8 +50,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 options.SetupTables();
                 options.ConfigureDbContext = builder => builder.UseSqlServer(configuration.GetConnectionString("ConfigurationDb"), sqlServerOptions => sqlServerOptions.MigrationsAssembly(migrationsAssembly));
             })
-            .AddAppAuthRedirectUriValidator()
-            .AddEventSink<TokenIssuanceEventSink>();
+            .AddAppAuthRedirectUriValidator();
             if (hostingEnvironment.IsDevelopment()) {
                 IdentityModelEventSource.ShowPII = true;
                 identityServerBuilder.AddDeveloperSigningCredential();

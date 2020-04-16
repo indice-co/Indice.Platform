@@ -51,10 +51,6 @@ namespace Indice.Identity.Security
                 _logger.LogInformation($"Cannot determine email for tenant.");
             }
             // We do not want to keep these claims, so discard them.
-            var nameClaim = claims.FirstOrDefault(x => x.Type == JwtClaimTypes.Name);
-            if (nameClaim != null) {
-                identity.TryRemoveClaim(nameClaim);
-            }
             var preferredUserNameClaim = claims.FirstOrDefault(x => x.Type == JwtClaimTypes.PreferredUserName);
             if (preferredUserNameClaim != null) {
                 identity.TryRemoveClaim(preferredUserNameClaim);

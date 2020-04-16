@@ -170,6 +170,59 @@ namespace Indice.AspNetCore.Identity.Features
         }
 
         /// <summary>
+        /// Adds claims to an identity resource.
+        /// </summary>
+        /// <param name="resourceId">The identifier of the identity resource.</param>
+        /// <param name="claims">The claims to add.</param>
+        /// <response code="200">OK</response>
+        /// <response code="404">Not Found</response>
+        [HttpPost("identity/{resourceId:int}/claims")]
+        [ProducesResponseType(statusCode: StatusCodes.Status200OK)]
+        [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
+        [CacheResourceFilter(DependentPaths = new string[] { "identity/{resourceId}" })]
+        public async Task<ActionResult> AddIdentityResourceClaims([FromRoute]int resourceId, [FromBody]string[] claims) {
+            var resource = await _configurationDbContext.IdentityResources.SingleOrDefaultAsync(x => x.Id == resourceId);
+            if (resource == null) {
+                return NotFound();
+            }
+            resource.UserClaims = new List<IdentityClaim>();
+            resource.UserClaims.AddRange(claims.Select(x => new IdentityClaim {
+                IdentityResourceId = resourceId,
+                Type = x
+            }));
+            await _configurationDbContext.SaveChangesAsync();
+            return Ok();
+        }
+
+        /// <summary>
+        /// Removes a specified claim from an identity resource.
+        /// </summary>
+        /// <param name="resourceId">The identifier of the identity resource.</param>
+        /// <param name="claim">The of the claim to remove.</param>
+        /// <response code="200">OK</response>
+        /// <response code="404">Not Found</response>
+        [HttpDelete("identity/{resourceId:int}/claims/{claim}")]
+        [ProducesResponseType(statusCode: StatusCodes.Status200OK)]
+        [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
+        [CacheResourceFilter(DependentPaths = new string[] { "identity/{resourceId}" })]
+        public async Task<ActionResult> DeleteIdentityResourceClaim([FromRoute]int resourceId, [FromRoute]string claim) {
+            var resource = await _configurationDbContext.IdentityResources.Include(x => x.UserClaims).SingleOrDefaultAsync(x => x.Id == resourceId);
+            if (resource == null) {
+                return NotFound();
+            }
+            if (resource.UserClaims == null) {
+                resource.UserClaims = new List<IdentityClaim>();
+            }
+            var claimToRemove = resource.UserClaims.Select(x => x.Type == claim).ToList();
+            if (claimToRemove?.Count == 0) {
+                return NotFound();
+            }
+            resource.UserClaims.RemoveAll(x => x.Type == claim);
+            await _configurationDbContext.SaveChangesAsync();
+            return Ok();
+        }
+
+        /// <summary>
         /// Permanently deletes an identity resource.
         /// </summary>
         /// <param name="resourceId">The id of the identity resource to delete.</param>

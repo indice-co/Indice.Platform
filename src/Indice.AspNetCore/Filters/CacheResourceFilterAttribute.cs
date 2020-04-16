@@ -53,7 +53,7 @@ namespace Indice.AspNetCore.Filters
         public void OnResourceExecuting(ResourceExecutingContext context) {
             var httpContext = context.HttpContext;
             var request = httpContext.Request;
-            _cacheKey = request.Path.ToString();
+            _cacheKey = $"{request.Path}{(request.QueryString.HasValue ? request.QueryString.Value : string.Empty)}";
             if (_varyByClaimType.Length > 0) {
                 var claimValues = _varyByClaimType.Select(claim => httpContext.User.FindFirstValue(claim));
                 if (claimValues.Any()) {

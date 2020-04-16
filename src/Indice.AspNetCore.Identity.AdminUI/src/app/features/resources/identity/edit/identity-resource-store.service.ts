@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 
-import { AsyncSubject, Observable } from 'rxjs';
+import { AsyncSubject, Observable, forkJoin } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { IdentityApiService, IdentityResourceInfo, ClaimTypeInfo, ClaimTypeInfoResultSet, UpdateIdentityResourceRequest, IUpdateIdentityResourceRequest } from 'src/app/core/services/identity-api.service';
 
@@ -49,5 +49,31 @@ export class IdentityResourceStore {
             });
         }
         return this._allClaims;
+    }
+
+    public addIdentityResourceClaim(resourceId: number, claim: ClaimTypeInfo): Observable<void> {
+        const getIdentityResource = this.getIdentityResource(resourceId);
+        const addClaim = this._api.addIdentityResourceClaims(resourceId, [claim.name]);
+        return forkJoin([getIdentityResource, addClaim]).pipe(map((responses: [IdentityResourceInfo, void]) => {
+            return {
+                identityResource: responses[0]
+            };
+        })).pipe(map((result: { identityResource: IdentityResourceInfo }) => {
+            result.identityResource.allowedClaims.push(claim.name);
+            this._identityResource.next(result.identityResource);
+            this._identityResource.complete();
+        }));
+    }
+
+    public deleteIdentityResourceClaim(resourceId: number, claim: ClaimTypeInfo): Observable<void> {
+        this.getIdentityResource(resourceId).subscribe((identityResource: IdentityResourceInfo) => {
+            const index = identityResource.allowedClaims.indexOf(claim.name);
+            if (index > -1) {
+                identityResource.allowedClaims.splice(index, 1);
+            }
+            this._identityResource.next(identityResource);
+            this._identityResource.complete();
+        });
+        return this._api.deleteIdentityResourceClaim(resourceId, claim.name);
     }
 }

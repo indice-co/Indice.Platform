@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
+using System.Security.Claims;
 using Hellang.Middleware.ProblemDetails;
+using IdentityModel;
 using Indice.AspNetCore.Identity.Features;
 using Indice.AspNetCore.Swagger;
 using Indice.Configuration;
@@ -12,6 +14,7 @@ using Indice.Identity.Security;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -112,13 +115,16 @@ namespace Indice.Identity
             });
             app.UseSerilogRequestLogging(options => {
                 // Customize the message template.
-                options.MessageTemplate = "Handled {RequestPath}";
+                options.MessageTemplate = "Path {RequestPath} was requested.";
                 // Emit debug-level events instead of the defaults.
-                options.GetLevel = (httpContext, elapsed, ex) => LogEventLevel.Debug;
+                options.GetLevel = (httpContext, elapsed, ex) => LogEventLevel.Information;
                 // Attach additional properties to the request completion event.
                 options.EnrichDiagnosticContext = (diagnosticContext, httpContext) => {
-                    diagnosticContext.Set("RequestHost", httpContext.Request.Host.Value);
-                    diagnosticContext.Set("RequestScheme", httpContext.Request.Scheme);
+                    var request = httpContext.Request;
+                    diagnosticContext.Set(nameof(LogInfo.RequestUrl), UriHelper.GetDisplayUrl(request) ?? null);
+                    diagnosticContext.Set(nameof(LogInfo.IpAddress), httpContext.Connection?.RemoteIpAddress ?? null);
+                    diagnosticContext.Set(nameof(LogInfo.UserName), httpContext.User.FindFirstValue(JwtClaimTypes.Name));
+                    diagnosticContext.Set(nameof(LogInfo.RequestMethod), request?.Method ?? null);
                 };
             });
             // Add this before any other middleware that might write cookies.

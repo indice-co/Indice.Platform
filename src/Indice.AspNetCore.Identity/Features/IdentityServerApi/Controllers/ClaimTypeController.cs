@@ -15,7 +15,6 @@ namespace Indice.AspNetCore.Identity.Features
     /// <summary>
     /// Contains operations for managing application claim types.
     /// </summary>
-    /// <response code="400">Bad Request</response>
     /// <response code="401">Unauthorized</response>
     /// <response code="403">Forbidden</response>
     /// <response code="500">Internal Server Error</response>
@@ -24,9 +23,8 @@ namespace Indice.AspNetCore.Identity.Features
     [ApiExplorerSettings(GroupName = "identity")]
     [Produces(MediaTypeNames.Application.Json)]
     [Consumes(MediaTypeNames.Application.Json)]
-    [ProducesResponseType(statusCode: 400, type: typeof(ValidationProblemDetails))]
-    [ProducesResponseType(statusCode: 401, type: typeof(ProblemDetails))]
-    [ProducesResponseType(statusCode: 403, type: typeof(ProblemDetails))]
+    [ProducesResponseType(statusCode: StatusCodes.Status401Unauthorized, type: typeof(ProblemDetails))]
+    [ProducesResponseType(statusCode: StatusCodes.Status403Forbidden, type: typeof(ProblemDetails))]
     [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme, Policy = IdentityServerApi.Admin)]
     [CacheResourceFilter]
     [ProblemDetailsExceptionFilter]
@@ -52,7 +50,7 @@ namespace Indice.AspNetCore.Identity.Features
         /// <param name="options">List params used to navigate through collections. Contains parameters such as sort, search, page number and page size.</param>
         /// <response code="200">OK</response>
         [HttpGet]
-        [ProducesResponseType(statusCode: 200, type: typeof(ResultSet<ClaimTypeInfo>))]
+        [ProducesResponseType(statusCode: StatusCodes.Status200OK, type: typeof(ResultSet<ClaimTypeInfo>))]
         [NoCache]
         public async Task<ActionResult<ResultSet<ClaimTypeInfo>>> GetClaimTypes([FromQuery]ListOptions<ClaimTypesListFilter> options) {
             var query = _dbContext.ClaimTypes.AsNoTracking().AsQueryable();
@@ -110,9 +108,11 @@ namespace Indice.AspNetCore.Identity.Features
         /// Creates a new claim type.
         /// </summary>
         /// <param name="request">Contains info about the claim to be created.</param>
+        /// <response code= "400">Bad Request</response>
         /// <response code="201">Created</response>
         [HttpPost]
         [ServiceFilter(type: typeof(CreateClaimTypeRequestValidationFilter))]
+        [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest, type: typeof(ValidationProblemDetails))]
         [ProducesResponseType(statusCode: StatusCodes.Status201Created, type: typeof(ClaimTypeInfo))]
         public async Task<ActionResult<ClaimTypeInfo>> CreateClaimType([FromBody]CreateClaimTypeRequest request) {
             var claimType = new ClaimType {

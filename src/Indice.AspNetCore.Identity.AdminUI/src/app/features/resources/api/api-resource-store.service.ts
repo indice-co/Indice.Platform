@@ -43,9 +43,15 @@ export class ApiResourceStore {
     }
 
     public addApiResourceClaim(apiResourceId: number, claim: ClaimTypeInfo): Observable<void> {
-        return this.getApiResource(apiResourceId).pipe(map((apiResource: ApiResourceInfo) => {
-            apiResource.allowedClaims.push(claim.name);
-            this._apiResource.next(apiResource);
+        const getApiResource = this.getApiResource(apiResourceId);
+        const addClaim = this._api.addApiResourceClaims(apiResourceId, [claim.name]);
+        return forkJoin([getApiResource, addClaim]).pipe(map((responses: [ApiResourceInfo, void]) => {
+            return {
+                apiResource: responses[0]
+            };
+        })).pipe(map((result: { apiResource: ApiResourceInfo }) => {
+            result.apiResource.allowedClaims.push(claim.name);
+            this._apiResource.next(result.apiResource);
             this._apiResource.complete();
         }));
     }

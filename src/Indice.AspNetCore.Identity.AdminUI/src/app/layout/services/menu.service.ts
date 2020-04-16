@@ -38,7 +38,8 @@ export class MenuService {
             new MenuItem('App Settings', undefined, 'settings_system_daydream', this.isActiveMenuItem('/app/settings'), [
                 new MenuItem('App Settings List', '/app/settings'),
                 new MenuItem('Add App Setting', '/app/settings/add')
-            ])
+            ]),
+            new MenuItem('Event Log', '/app/logs', 'history'),
         ]);
     }
 

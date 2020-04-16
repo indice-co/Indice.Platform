@@ -24,7 +24,8 @@ const appRoutes: Routes = [
             { path: 'roles', loadChildren: () => import('../features/roles/roles.module').then(x => x.ClaimTypesModule) },
             { path: 'clients', loadChildren: () => import('../features/clients/clients.module').then(x => x.ClientsModule) },
             { path: 'resources', loadChildren: () => import('../features/resources/resources.module').then(x => x.ResourcesModule) },
-            { path: 'settings', loadChildren: () => import('../features/settings/settings.module').then(x => x.SettingsModule) }
+            { path: 'settings', loadChildren: () => import('../features/settings/settings.module').then(x => x.SettingsModule) },
+            { path: 'logs', loadChildren: () => import('../features/logs/logs.module').then(x => x.LogsModule) }
         ]
     }
 ];

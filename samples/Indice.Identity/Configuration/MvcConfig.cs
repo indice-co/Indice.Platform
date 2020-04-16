@@ -1,7 +1,9 @@
-﻿using System.Text.Json;
+﻿using System.Collections.Generic;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 using FluentValidation.AspNetCore;
 using Indice.AspNetCore.Identity.Features;
+using Indice.AspNetCore.Identity.Models;
 using Indice.Identity;
 using Indice.Identity.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -49,6 +51,20 @@ namespace Microsoft.Extensions.DependencyInjection
                                    changePhoneOptions.Subject = "Phone confirmation";
                                    changePhoneOptions.Message = "Your code is {code}.";
                                });
+                               // Add custom initial users.
+                               options.InitialUsers = new List<User> {
+                                   new User {
+                                       Admin = true,
+                                       Email = "g.manoltzas@indice.gr",
+                                       NormalizedEmail = "g.manoltzas@indice.gr".ToUpper(),
+                                       UserName = "gmanoltzas",
+                                       NormalizedUserName = "gmanoltzas".ToUpper(),
+                                       PasswordHash = "AH6SA/wuxp9YEfLGROaj2CgjhxZhXDkMB1nD8V7lfQAI+WTM4lGMItjLhhV5ASsq+Q==",
+                                       EmailConfirmed = true,
+                                       PhoneNumber = "+30 6992731575",
+                                       PhoneNumberConfirmed = true
+                                   }
+                               };
                            })
                            .SetCompatibilityVersion(CompatibilityVersion.Latest)
                            .ConfigureApiBehaviorOptions(options => {

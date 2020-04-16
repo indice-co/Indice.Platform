@@ -15,7 +15,6 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using Serilog;
 
 namespace Indice.Identity.Controllers
 {
@@ -61,7 +60,7 @@ namespace Indice.Identity.Controllers
         }
 
         public string UserId => User.FindFirstValue(JwtClaimTypes.Subject);
-        public string UserEmail => User.FindFirstValue(JwtClaimTypes.Email);
+        public string UserName => User.FindFirstValue(JwtClaimTypes.Name);
 
         /// <summary>
         /// Displayes the login page.
@@ -116,14 +115,15 @@ namespace Indice.Identity.Controllers
             if (ModelState.IsValid) {
                 // Validate username/password against database.
                 var result = await _signInManager.PasswordSignInAsync(model.Username, model.Password, AccountOptions.AllowRememberLogin && model.RememberLogin, lockoutOnFailure: true);
+                User user = null;
                 if (result.Succeeded) {
-                    var user = await _userManager.FindByNameAsync(model.Username);
+                    user = await _userManager.FindByNameAsync(model.Username);
                     await _events.RaiseAsync(new UserLoginSuccessEvent(user.UserName, user.Id, user.UserName));
-                    _logger.LogInformation("User '{UserId}' ('{UserEmail}') was successfully logged in.", user.Id, user.Email);
+                    _logger.LogInformation("User '{UserName}' was successfully logged in.", user.UserName, user.Email);
                     if (context != null) {
                         if (await _clientStore.IsPkceClientAsync(context.ClientId)) {
                             // If the client is PKCE then we assume it's native, so this change in how to return the response is for better UX for the end user.
-                            return View("Redirect", new RedirectViewModel { 
+                            return View("Redirect", new RedirectViewModel {
                                 RedirectUrl = model.ReturnUrl
                             });
                         }
@@ -137,13 +137,16 @@ namespace Indice.Identity.Controllers
                         return Redirect("~/");
                     } else {
                         // User might have clicked on a malicious link - should be logged.
+                        _logger.LogError("User '{UserName}' might have clicked a malicious link during login: {ReturnUrl}.", UserName, model.ReturnUrl);
                         throw new Exception("Invalid return URL.");
                     }
                 }
                 if (result.IsLockedOut) {
+                    _logger.LogWarning("User '{UserName}' was locked out after {WrongLoginsNumber} unsuccessful login attempts.", UserName, user?.AccessFailedCount);
                     await _events.RaiseAsync(new UserLoginFailureEvent(model.Username, "User locked out."));
                     ModelState.AddModelError(string.Empty, "Your account is temporarily locked. Please contact system administrator.");
                 } else {
+                    _logger.LogWarning("User '{UserName}' entered invalid credentials during login.", UserName);
                     await _events.RaiseAsync(new UserLoginFailureEvent(model.Username, "Invalid credentials."));
                     ModelState.AddModelError(string.Empty, "Please check your credentials.");
                 }

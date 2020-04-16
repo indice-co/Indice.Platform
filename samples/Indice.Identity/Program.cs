@@ -2,6 +2,7 @@
 using System.Collections.ObjectModel;
 using System.Data;
 using System.Diagnostics;
+using Indice.AspNetCore.Identity.Features;
 using Indice.Extensions.Configuration.EFCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -27,14 +28,37 @@ namespace Indice.Identity
             var columnOptions = new ColumnOptions();
             columnOptions.Store.Remove(StandardColumn.Properties);
             columnOptions.Store.Remove(StandardColumn.MessageTemplate);
-            columnOptions.Store.Add(StandardColumn.LogEvent);
             columnOptions.AdditionalColumns = new Collection<SqlColumn> {
                 new SqlColumn {
                     AllowNull = true,
-                    ColumnName = "UserId",
-                    DataLength = 64,
+                    ColumnName = nameof(LogInfo.UserName),
+                    DataLength = 256,
                     DataType = SqlDbType.NVarChar,
                     NonClusteredIndex = true
+                },
+                new SqlColumn {
+                    AllowNull = true,
+                    ColumnName = nameof(LogInfo.MachineName),
+                    DataLength = 64,
+                    DataType = SqlDbType.NVarChar
+                },
+                new SqlColumn {
+                    AllowNull = true,
+                    ColumnName = nameof(LogInfo.RequestUrl),
+                    DataLength = 2048,
+                    DataType = SqlDbType.NVarChar
+                },
+                new SqlColumn {
+                    AllowNull = true,
+                    ColumnName = nameof(LogInfo.IpAddress),
+                    DataLength = 64,
+                    DataType = SqlDbType.NVarChar
+                },
+                new SqlColumn {
+                    AllowNull = true,
+                    ColumnName = nameof(LogInfo.RequestMethod),
+                    DataLength = 16,
+                    DataType = SqlDbType.NVarChar
                 }
             };
             columnOptions.PrimaryKey = columnOptions.Id;
@@ -44,6 +68,7 @@ namespace Indice.Identity
                .MinimumLevel.Override("Microsoft", LogEventLevel.Warning)
                .MinimumLevel.Override("Microsoft.AspNetCore", LogEventLevel.Warning)
                .MinimumLevel.Override("Microsoft.Hosting.Lifetime", LogEventLevel.Warning)
+               .MinimumLevel.Override("IdentityServer4", LogEventLevel.Error)
                .Enrich.WithMachineName()
                .Enrich.WithThreadId()
                .Enrich.FromLogContext()
@@ -55,7 +80,7 @@ namespace Indice.Identity
                    columnOptions: columnOptions,
                    autoCreateSqlTable: true,
                    restrictedToMinimumLevel: LogEventLevel.Information,
-                   batchPostingLimit: 20,
+                   batchPostingLimit: 25,
                    period: TimeSpan.FromMinutes(1)
                 )
                .CreateLogger();

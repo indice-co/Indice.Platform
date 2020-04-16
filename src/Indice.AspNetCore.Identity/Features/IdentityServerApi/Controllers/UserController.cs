@@ -27,7 +27,7 @@ using Microsoft.Extensions.Options;
 namespace Indice.AspNetCore.Identity.Features
 {
     /// <summary>
-    /// Contains operations for managing application's users.
+    /// Contains operations for managing applications users.
     /// </summary>
     /// <response code="400">Bad Request</response>
     /// <response code="401">Unauthorized</response>
@@ -54,7 +54,6 @@ namespace Indice.AspNetCore.Identity.Features
         private readonly IEventService _eventService;
         private readonly GeneralSettings _generalSettings;
         private readonly IStringLocalizer<UserController> _localizer;
-        private readonly ILogger<UserController> _logger;
         private readonly EmailVerificationOptions _userEmailVerificationOptions;
         private readonly IEmailService _emailService;
         /// <summary>
@@ -74,11 +73,10 @@ namespace Indice.AspNetCore.Identity.Features
         /// <param name="eventService">Models the event mechanism used to raise events inside the IdentityServer API.</param>
         /// <param name="generalSettings">General settings for an ASP.NET Core application.</param>
         /// <param name="localizer">Represents an <see cref="IStringLocalizer"/> that provides strings for <see cref="UserController"/>.</param>
-        /// <param name="logger">Represents a type used to perform logging.</param>
         /// <param name="userEmailVerificationOptions">Options for the email sent to user for verification.</param>
         /// <param name="emailService">A service responsible for sending emails.</param>
         public UserController(ExtendedUserManager<User> userManager, RoleManager<Role> roleManager, ExtendedIdentityDbContext<User, Role> dbContext, IPersistedGrantService persistedGrantService, IClientStore clientStore,
-            IdentityServerApiEndpointsOptions apiEndpointsOptions, IEventService eventService, IOptions<GeneralSettings> generalSettings, IStringLocalizer<UserController> localizer, ILogger<UserController> logger,
+            IdentityServerApiEndpointsOptions apiEndpointsOptions, IEventService eventService, IOptions<GeneralSettings> generalSettings, IStringLocalizer<UserController> localizer,
             EmailVerificationOptions userEmailVerificationOptions = null, IEmailService emailService = null) {
             _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
             _roleManager = roleManager ?? throw new ArgumentNullException(nameof(roleManager));
@@ -89,13 +87,12 @@ namespace Indice.AspNetCore.Identity.Features
             _eventService = eventService ?? throw new ArgumentNullException(nameof(eventService));
             _generalSettings = generalSettings?.Value ?? throw new ArgumentNullException(nameof(generalSettings));
             _localizer = localizer ?? throw new ArgumentNullException(nameof(localizer));
-            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _userEmailVerificationOptions = userEmailVerificationOptions;
             _emailService = emailService;
         }
 
         public string UserId => User.FindFirstValue(JwtClaimTypes.Subject);
-        public string UserEmail => User.FindFirstValue(JwtClaimTypes.Email);
+        public string UserName => User.FindFirstValue(JwtClaimTypes.Name);
 
         /// <summary>
         /// Returns a list of <see cref="UserInfo"/> objects containing the total number of users in the database and the data filtered according to the provided <see cref="ListOptions"/>.
@@ -142,12 +139,11 @@ namespace Indice.AspNetCore.Identity.Features
                 })
             })
             .ToResultSetAsync(options);
-            _logger.LogInformation("User '{UserId}' ('{UserEmail}') requested the list of users.", UserId, UserEmail);
             return Ok(users);
         }
 
         /// <summary>
-        /// Gets a user by it's unique id.
+        /// Gets a user by its unique id.
         /// </summary>
         /// <param name="userId">The identifier of the user.</param>
         /// <response code="200">OK</response>
@@ -191,10 +187,8 @@ namespace Indice.AspNetCore.Identity.Features
                                        })
                                        .SingleOrDefaultAsync();
             if (user == null) {
-                _logger.LogInformation("User '{UserId}' ('{UserEmail}') requested the details of user '{RequestedUserId}' but the user was not found.", UserId, UserEmail, userId);
                 return NotFound();
             }
-            _logger.LogInformation("User '{UserId}' ('{UserEmail}') requested the details of user '{RequestedUserId}' ('{RequestedUserName}').", UserId, UserEmail, userId, user.UserName);
             return Ok(user);
         }
 
@@ -222,8 +216,6 @@ namespace Indice.AspNetCore.Identity.Features
                 result = await _userManager.CreateAsync(user, request.Password);
             }
             if (!result.Succeeded) {
-                _logger.LogWarning("User '{UserId}' ('{UserEmail}') tried to create user '{CreatingUserId}' ('{CreatingUserName}') but failed with error(s): {Errors}.",
-                    UserId, UserEmail, user.Id, user.UserName, string.Join(", ", result.Errors.Select(x => x.Description)));
                 return BadRequest(result.Errors.ToValidationProblemDetails());
             }
             var claims = new List<Claim>();
@@ -257,7 +249,6 @@ namespace Indice.AspNetCore.Identity.Features
                 await SendEmailConfirmation(user);
             }
             await _eventService.Raise(new UserCreatedEvent(response));
-            _logger.LogInformation("User '{UserId}' ('{UserEmail}') successfully created user '{CreatedUserId}' ('{CreatedUserName}').", UserId, UserEmail, user.Id, user.UserName);
             return CreatedAtAction(nameof(GetUser), Name, new { userId = user.Id }, response);
         }
 
@@ -275,7 +266,6 @@ namespace Indice.AspNetCore.Identity.Features
         public async Task<ActionResult<SingleUserInfo>> UpdateUser([FromRoute]string userId, [FromBody]UpdateUserRequest request) {
             var user = await _dbContext.Users.Include(x => x.Claims).SingleOrDefaultAsync(x => x.Id == userId);
             if (user == null) {
-                _logger.LogInformation("User '{UserId}' ('{UserEmail}') requested to update user '{UpdatingUserId}' but the user was not found.", UserId, UserEmail, userId);
                 return NotFound();
             }
             user.UserName = request.UserName;
@@ -308,7 +298,6 @@ namespace Indice.AspNetCore.Identity.Features
                 (userRole, role) => role.Name
             )
             .ToListAsync();
-            _logger.LogInformation("User '{UserId}' ('{UserEmail}') successfully updated user '{UpdatedUserId}' ('{UpdatedUserName}').", UserId, UserEmail, userId, user.UserName);
             return Ok(new SingleUserInfo {
                 Id = userId,
                 CreateDate = user.CreateDate,
@@ -335,21 +324,19 @@ namespace Indice.AspNetCore.Identity.Features
         /// Permanently deletes a user.
         /// </summary>
         /// <param name="userId">The id of the user to delete.</param>
-        /// <response code="200">OK</response>
+        /// <response code="204">No Content</response>
         /// <response code="404">Not Found</response>
         [HttpDelete("{userId}")]
-        [ProducesResponseType(statusCode: StatusCodes.Status200OK)]
+        [ProducesResponseType(statusCode: StatusCodes.Status204NoContent)]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
         [CacheResourceFilter]
         public async Task<IActionResult> DeleteUser([FromRoute]string userId) {
             var user = await _dbContext.Users.SingleOrDefaultAsync(x => x.Id == userId);
             if (user == null) {
-                _logger.LogInformation("User '{UserId}' ('{UserEmail}') requested to delete user '{DeletingUserId}' but the user was not found.", UserId, UserEmail, userId);
                 return NotFound();
             }
             await _userManager.DeleteAsync(user);
-            _logger.LogInformation("User '{UserId}' ('{UserEmail}') successfully deleted user '{DeletedUserId}' ('{DeletedUserName}').", UserId, UserEmail, userId, user.UserName);
-            return Ok();
+            return NoContent();
         }
 
         /// <summary>
@@ -357,35 +344,28 @@ namespace Indice.AspNetCore.Identity.Features
         /// </summary>
         /// <param name="userId">The id of the user.</param>
         /// <param name="roleId">The id of the role.</param>
-        /// <response code="200">OK</response>
+        /// <response code="204">No Content</response>
         /// <response code="404">Not Found</response>
         [HttpPost("{userId}/roles/{roleId}")]
-        [ProducesResponseType(statusCode: StatusCodes.Status200OK)]
+        [ProducesResponseType(statusCode: StatusCodes.Status204NoContent)]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
         [CacheResourceFilter(DependentPaths = new string[] { "{userId}" })]
         public async Task<IActionResult> AddUserRole([FromRoute]string userId, [FromRoute]string roleId) {
             var user = await _userManager.FindByIdAsync(userId);
             if (user == null) {
-                _logger.LogInformation("User '{UserId}' ('{UserEmail}') requested to add a role to user '{UpdatingUserId}' but the user was not found.", UserId, UserEmail, userId);
                 return NotFound();
             }
             var role = await _roleManager.FindByIdAsync(roleId);
             if (role == null) {
-                _logger.LogInformation("User '{UserId}' ('{UserEmail}') requested to add a role to user '{UpdatingUserId}' ('{UpdatingUserName}') but the role was not found.",
-                    UserId, UserEmail, userId, user.UserName);
                 return NotFound();
             }
             if (await _userManager.IsInRoleAsync(user, role.Name)) {
-                _logger.LogInformation("User '{UserId}' ('{UserEmail}') requested to add a role '{RoleName}' to user '{UpdatingUserId}' ('{UpdatingUserName}') but the is already a member of that role.",
-                    UserId, UserEmail, role.Name, userId, user.UserName);
                 return BadRequest(new ValidationProblemDetails(new Dictionary<string, string[]> {
-                    { $"{nameof(roleId)}", new[] { $"User '{user.Email}' is already a member of role '{role.Name}'." } }
+                    { $"{nameof(roleId)}", new[] { $"User {user.Email} is already a member of role {role.Name}." } }
                 }));
             }
             await _userManager.AddToRoleAsync(user, role.Name);
-            _logger.LogInformation("User '{UserId}' ('{UserEmail}') successfully added user '{UpdatingUserId}' ('{UpdatingUserName}') to role '{RoleName}'.",
-                UserId, UserEmail, role.Name, userId, user.UserName, role.Name);
-            return Ok();
+            return NoContent();
         }
 
         /// <summary>
@@ -393,10 +373,10 @@ namespace Indice.AspNetCore.Identity.Features
         /// </summary>
         /// <param name="userId">The id of the user.</param>
         /// <param name="roleId">The id of the role.</param>
-        /// <response code="200">OK</response>
+        /// <response code="204">No Content</response>
         /// <response code="404">Not Found</response>
         [HttpDelete("{userId}/roles/{roleId}")]
-        [ProducesResponseType(statusCode: StatusCodes.Status200OK)]
+        [ProducesResponseType(statusCode: StatusCodes.Status204NoContent)]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
         [CacheResourceFilter(DependentPaths = new string[] { "{userId}" })]
         public async Task<IActionResult> DeleteUserRole([FromRoute]string userId, [FromRoute]string roleId) {
@@ -410,11 +390,11 @@ namespace Indice.AspNetCore.Identity.Features
             }
             if (!await _userManager.IsInRoleAsync(user, role.Name)) {
                 return BadRequest(new ValidationProblemDetails(new Dictionary<string, string[]> {
-                    { $"{nameof(roleId)}", new[] { $"User '{user.Email}' is not a member of role '{role.Name}'." } }
+                    { $"{nameof(roleId)}", new[] { $"User {user.Email} is not a member of role {role.Name}." } }
                 }));
             }
             await _userManager.RemoveFromRoleAsync(user, role.Name);
-            return Ok();
+            return NoContent();
         }
 
         /// <summary>
@@ -566,7 +546,7 @@ namespace Indice.AspNetCore.Identity.Features
             }
             if (user.Blocked) {
                 return BadRequest(new ValidationProblemDetails(new Dictionary<string, string[]> {
-                    { "blocked", new[] { $"User '{user.Email}' is already locked." } }
+                    { "blocked", new[] { $"User {user.Email} is already locked." } }
                 }));
             }
             user.Blocked = true;
@@ -591,7 +571,7 @@ namespace Indice.AspNetCore.Identity.Features
             }
             if (!user.Blocked) {
                 return BadRequest(new ValidationProblemDetails(new Dictionary<string, string[]> {
-                    { "blocked", new[] { $"User '{user.Email}' is already not locked." } }
+                    { "blocked", new[] { $"User {user.Email} is already not locked." } }
                 }));
             }
             user.Blocked = false;

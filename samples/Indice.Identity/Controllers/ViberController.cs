@@ -16,7 +16,7 @@ namespace Indice.Identity.Controllers
 {
     [ApiController]
     [Route("api/viber")]
-    [ApiExplorerSettings(GroupName = "identity")]
+    [ApiExplorerSettings(IgnoreApi = true)]
     public class ViberController : ControllerBase
     {
         private const string PngMimeType = "image/png";
