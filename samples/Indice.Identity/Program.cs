@@ -30,9 +30,6 @@ namespace Indice.Identity
                .WriteTo.Console()
                .WriteTo.File("logs/log.txt", rollingInterval: RollingInterval.Day, rollOnFileSizeLimit: true)
                .CreateLogger();
-#if DEBUG
-            SelfLog.Enable(message => Debug.WriteLine(message));
-#endif
             try {
                 Log.Information("Starting web host.");
                 CreateHostBuilder(args).Build().Run();
