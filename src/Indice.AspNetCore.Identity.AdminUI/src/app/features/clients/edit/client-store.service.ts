@@ -60,7 +60,8 @@ export class ClientStore {
             backChannelLogoutSessionRequired: client.backChannelLogoutSessionRequired,
             deviceCodeLifetime: client.deviceCodeLifetime,
             userCodeType: client.userCodeType,
-            enabled: client.enabled
+            enabled: client.enabled,
+            slidingRefreshTokenLifetime: client.slidingRefreshTokenLifetime
         } as IUpdateClientRequest)).pipe(map(_ => {
             this._client.next(client);
             this._client.complete();

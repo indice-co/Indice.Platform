@@ -48,7 +48,7 @@ namespace Indice.AspNetCore.Identity.Features
         [HttpGet("news")]
         [ProducesResponseType(statusCode: StatusCodes.Status200OK, type: typeof(ResultSet<BlogItemInfo>))]
         [ResponseCache(VaryByQueryKeys = new[] { "page", "size" }, Duration = 3600/* 1 hour */, Location = ResponseCacheLocation.Client)]
-        public ActionResult<ResultSet<BlogItemInfo>> GetNews([FromQuery]int page = 1, [FromQuery]int size = 100) {
+        public IActionResult GetNews([FromQuery]int page = 1, [FromQuery]int size = 100) {
             const string url = "https://www.identityserver.com/rss";
             var feedItems = new List<BlogItemInfo>();
             using (var reader = XmlReader.Create(url)) {
@@ -80,7 +80,7 @@ namespace Indice.AspNetCore.Identity.Features
         [ProducesResponseType(statusCode: StatusCodes.Status401Unauthorized, type: typeof(ProblemDetails))]
         [ProducesResponseType(statusCode: StatusCodes.Status403Forbidden, type: typeof(ProblemDetails))]
         [CacheResourceFilter]
-        public async Task<ActionResult<SummaryInfo>> GetSystemSummary() {
+        public async Task<IActionResult> GetSystemSummary() {
             var getUsersNumberTask = _userManager.Users.CountAsync();
             var getClientsNumberTask = _configurationDbContext.Clients.CountAsync();
             var results = await Task.WhenAll(getUsersNumberTask, getClientsNumberTask);

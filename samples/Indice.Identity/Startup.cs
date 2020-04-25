@@ -113,20 +113,6 @@ namespace Indice.Identity
                     context.Context.Response.Headers.Append(HeaderNames.Expires, DateTime.UtcNow.AddSeconds(durationInSeconds).ToString("R", CultureInfo.InvariantCulture));
                 }
             });
-            app.UseSerilogRequestLogging(options => {
-                // Customize the message template.
-                options.MessageTemplate = "Path {RequestPath} was requested.";
-                // Emit debug-level events instead of the defaults.
-                options.GetLevel = (httpContext, elapsed, ex) => LogEventLevel.Information;
-                // Attach additional properties to the request completion event.
-                options.EnrichDiagnosticContext = (diagnosticContext, httpContext) => {
-                    var request = httpContext.Request;
-                    diagnosticContext.Set(nameof(LogInfo.RequestUrl), UriHelper.GetDisplayUrl(request) ?? null);
-                    diagnosticContext.Set(nameof(LogInfo.IpAddress), httpContext.Connection?.RemoteIpAddress ?? null);
-                    diagnosticContext.Set(nameof(LogInfo.UserName), httpContext.User.FindFirstValue(JwtClaimTypes.Name));
-                    diagnosticContext.Set(nameof(LogInfo.RequestMethod), request?.Method ?? null);
-                };
-            });
             // Add this before any other middleware that might write cookies.
             app.UseCookiePolicy();
             app.UseRequestLocalization(new RequestLocalizationOptions {

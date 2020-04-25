@@ -54,7 +54,7 @@ namespace Indice.AspNetCore.Identity.Features
         [HttpGet]
         [ProducesResponseType(statusCode: StatusCodes.Status200OK, type: typeof(ResultSet<RoleInfo>))]
         [NoCache]
-        public async Task<ActionResult<ResultSet<RoleInfo>>> GetRoles([FromQuery]ListOptions options) {
+        public async Task<IActionResult> GetRoles([FromQuery]ListOptions options) {
             var query = _roleManager.Roles.AsNoTracking();
             if (!string.IsNullOrEmpty(options.Search)) {
                 var searchTerm = options.Search.ToLower();
@@ -78,7 +78,7 @@ namespace Indice.AspNetCore.Identity.Features
         [ProducesResponseType(statusCode: StatusCodes.Status200OK, type: typeof(RoleInfo))]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
         [HttpGet("{id}")]
-        public async Task<ActionResult<RoleInfo>> GetRole([FromRoute]string id) {
+        public async Task<IActionResult> GetRole([FromRoute]string id) {
             var role = await _roleManager.FindByIdAsync(id);
             if (role == null) {
                 return NotFound();
@@ -98,7 +98,7 @@ namespace Indice.AspNetCore.Identity.Features
         [HttpPost]
         [ProducesResponseType(statusCode: StatusCodes.Status201Created, type: typeof(RoleInfo))]
         [ServiceFilter(type: typeof(CreateRoleRequestValidationFilter))]
-        public async Task<ActionResult<RoleInfo>> CreateRole([FromBody]CreateRoleRequest request) {
+        public async Task<IActionResult> CreateRole([FromBody]CreateRoleRequest request) {
             var role = new Role {
                 Id = $"{Guid.NewGuid()}",
                 Name = request.Name,
@@ -122,7 +122,7 @@ namespace Indice.AspNetCore.Identity.Features
         [HttpPut("{id}")]
         [ProducesResponseType(statusCode: StatusCodes.Status200OK, type: typeof(RoleInfo))]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
-        public async Task<ActionResult<RoleInfo>> UpdateRole([FromRoute]string id, [FromBody]UpdateRoleRequest request) {
+        public async Task<IActionResult> UpdateRole([FromRoute]string id, [FromBody]UpdateRoleRequest request) {
             var role = await _roleManager.FindByIdAsync(id);
             if (role == null) {
                 return NotFound();

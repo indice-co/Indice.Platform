@@ -125,8 +125,7 @@
         </div>
     </div>
     <div class="form-group row"
-         *ngIf="hasAnyOf(['password', 'hybrid', 'urn:ietf:params:oauth:grant-type:device_code']) 
-             || hasAllOf(['authorization_code', 'client_credentials'])">
+         *ngIf="hasAnyOf(['password', 'hybrid', 'urn:ietf:params:oauth:grant-type:device_code', 'authorization_code', 'implicit'])">
         <label for="absolute-refresh-token-lifetime"
                class="col-sm-3 col-form-label">
             <i class="material-icons align-middle"
@@ -180,7 +179,61 @@
         </div>
     </div>
     <div class="form-group row"
-         *ngIf="hasAnyOf(['authorization_code', 'hybrid'])">
+         *ngIf="hasAnyOf(['password', 'hybrid', 'urn:ietf:params:oauth:grant-type:device_code', 'authorization_code', 'implicit'])">
+        <label for="sliding-refresh-token-lifetime"
+               class="col-sm-3 col-form-label">
+            <i class="material-icons align-middle"
+               title="Sliding lifetime of a refresh token in seconds.">
+                info
+            </i>
+            Sliding Refresh Token Lifetime (sec) (*)
+        </label>
+        <div class="col-sm-9">
+            <div class="input-group">
+                <span class="input-group-prepend cursor-pointer"
+                      (click)="client.slidingRefreshTokenLifetime = utilities.daysToSeconds(1)">
+                    <span [ngClass]="{ 'active': client.slidingRefreshTokenLifetime === utilities.daysToSeconds(1) }"
+                          class="input-group-text btn btn-secondary"
+                          style="font-size: 12px;">
+                        1 day
+                    </span>
+                </span>
+                <span class="input-group-prepend cursor-pointer"
+                      (click)="client.slidingRefreshTokenLifetime = utilities.daysToSeconds(15)">
+                    <span [ngClass]="{ 'active': client.slidingRefreshTokenLifetime === utilities.daysToSeconds(15) }"
+                          class="input-group-text btn btn-secondary"
+                          style="font-size: 12px;">
+                        15 days
+                    </span>
+                </span>
+                <span class="input-group-prepend cursor-pointer"
+                      (click)="client.slidingRefreshTokenLifetime = utilities.daysToSeconds(30)">
+                    <span [ngClass]="{ 'active': client.slidingRefreshTokenLifetime === utilities.daysToSeconds(30) }"
+                          class="input-group-text btn btn-secondary"
+                          style="font-size: 12px;">
+                        30 days
+                    </span>
+                </span>
+                <input class="form-control"
+                       type="number"
+                       min="0"
+                       id="sliding-refresh-token-lifetime"
+                       name="sliding-refresh-token-lifetime"
+                       [(ngModel)]="client.slidingRefreshTokenLifetime"
+                       required
+                       #slidingRefreshTokenLifetime="ngModel" />
+            </div>
+            <ng-container [ngTemplateOutlet]="secondsTextContent"
+                          [ngTemplateOutletContext]="{ value: client.slidingRefreshTokenLifetime }">
+            </ng-container>
+            <div *ngIf="form.submitted && slidingRefreshTokenLifetime.invalid"
+                 class="form-control-feedback text-danger">
+                Field 'Sliding Refresh Token Lifetime' is required.
+            </div>
+        </div>
+    </div>
+    <div class="form-group row"
+         *ngIf="hasAnyOf(['authorization_code', 'hybrid', 'implicit'])">
         <label for="client-authorization-token-lifetime"
                class="col-sm-3 col-form-label">
             <i class="material-icons align-middle"
@@ -509,8 +562,7 @@
         </div>
     </div>
     <div class="form-group row"
-         *ngIf="hasAnyOf(['password', 'hybrid', 'urn:ietf:params:oauth:grant-type:device_code']) 
-             || hasAllOf(['authorization_code', 'client_credentials'])">
+         *ngIf="hasAnyOf(['password', 'hybrid', 'urn:ietf:params:oauth:grant-type:device_code', 'implicit', 'authorization_code'])">
         <label for="client-refresh-token-expiration"
                class="col-sm-3 col-form-label">
             <i class="material-icons align-middle"

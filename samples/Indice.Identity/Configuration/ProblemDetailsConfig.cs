@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Net.Http;
 using Hellang.Middleware.ProblemDetails;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -18,11 +19,15 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <param name="hostingEnvironment">Provides information about the web hosting environment an application is running in.</param>
         public static IServiceCollection AddProblemDetailsConfig(this IServiceCollection services, IWebHostEnvironment hostingEnvironment) {
             services.AddProblemDetails(options => {
-                // This is the default behavior. Only include exception details in a development environment.
-                options.IncludeExceptionDetails = _ => hostingEnvironment.IsDevelopment();
+                // This is the default behavior; only include exception details in a development environment.
+                options.IncludeExceptionDetails = (httpContext, exception) => hostingEnvironment.IsDevelopment();
+                // This will map NotImplementedException to the 501 Not Implemented status code.
+                options.Map<NotImplementedException>(exception => new StatusCodeProblemDetails(StatusCodes.Status501NotImplemented));
+                // This will map HttpRequestException to the 503 Service Unavailable status code.
+                options.MapToStatusCode<HttpRequestException>(StatusCodes.Status503ServiceUnavailable);
                 // Because exceptions are handled polymorphically, this will act as a "catch all" mapping, which is why it's added last.
                 // If an exception other than NotImplementedException and HttpRequestException is thrown, this will handle it.
-                options.Map<Exception>(exception => new ExceptionProblemDetails(exception, StatusCodes.Status500InternalServerError));
+                options.Map<Exception>(exception => new StatusCodeProblemDetails(StatusCodes.Status500InternalServerError));
             });
             return services;
         }

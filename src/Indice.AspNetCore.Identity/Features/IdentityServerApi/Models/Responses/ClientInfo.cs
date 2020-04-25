@@ -151,6 +151,10 @@ namespace Indice.AspNetCore.Identity.Features
         /// </summary>
         public string UserCodeType { get; set; }
         /// <summary>
+        /// Sliding lifetime of a refresh token in seconds. Defaults to 1296000 seconds / 15 days.
+        /// </summary>
+        public int SlidingRefreshTokenLifetime { get; set; }
+        /// <summary>
         /// Gets or sets the device code lifetime.
         /// </summary>
         public int? DeviceCodeLifetime { get; set; }

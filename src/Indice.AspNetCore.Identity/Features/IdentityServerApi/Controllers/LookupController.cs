@@ -36,7 +36,7 @@ namespace Indice.AspNetCore.Identity.Features
         [HttpGet("password-options")]
         [ProducesResponseType(statusCode: StatusCodes.Status200OK, type: typeof(PasswordOptions))]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
-        public ActionResult<PasswordOptions> GetPasswordOptions() {
+        public IActionResult GetPasswordOptions() {
             var passwordOptions = _identityOptions.Password;
             // This is not very common to happen since there are default PasswordOptions that are applied.
             if (passwordOptions == null) {

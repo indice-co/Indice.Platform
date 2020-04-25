@@ -154,6 +154,10 @@ namespace Indice.AspNetCore.Identity.Features
         /// Specifies if client is enabled.
         /// </summary>
         public bool Enabled { get; set; }
+        /// <summary>
+        /// Sliding lifetime of a refresh token in seconds. Defaults to 1296000 seconds / 15 days.
+        /// </summary>
+        public int SlidingRefreshTokenLifetime { get; set; }
     }
 
     /// <summary>

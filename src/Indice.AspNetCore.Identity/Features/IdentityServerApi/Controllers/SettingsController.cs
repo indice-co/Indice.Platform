@@ -57,7 +57,7 @@ namespace Indice.AspNetCore.Identity.Features
         /// <response code="200">OK</response>
         [HttpGet]
         [ProducesResponseType(statusCode: 200, type: typeof(ResultSet<AppSettingInfo>))]
-        public async Task<ActionResult<ResultSet<AppSettingInfo>>> GetSettings([FromQuery]ListOptions options) {
+        public async Task<IActionResult> GetSettings([FromQuery]ListOptions options) {
             var query = _dbContext.AppSettings.AsNoTracking().AsQueryable();
             if (!string.IsNullOrEmpty(options.Search)) {
                 var searchTerm = options.Search.ToLower();
@@ -110,7 +110,7 @@ namespace Indice.AspNetCore.Identity.Features
         [ProducesResponseType(statusCode: StatusCodes.Status200OK, type: typeof(AppSettingInfo))]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
         [HttpGet("{key}")]
-        public async Task<ActionResult<AppSettingInfo>> GetSetting([FromRoute]string key) {
+        public async Task<IActionResult> GetSetting([FromRoute]string key) {
             var setting = await _dbContext.AppSettings.AsNoTracking().Select(x => new AppSettingInfo {
                 Key = x.Key,
                 Value = x.Value
@@ -129,7 +129,7 @@ namespace Indice.AspNetCore.Identity.Features
         /// <response code="201">Created</response>
         [HttpPost]
         [ProducesResponseType(statusCode: StatusCodes.Status201Created, type: typeof(AppSettingInfo))]
-        public async Task<ActionResult<AppSettingInfo>> CreateSetting([FromBody]CreateAppSettingRequest request) {
+        public async Task<IActionResult> CreateSetting([FromBody]CreateAppSettingRequest request) {
             var setting = new AppSetting {
                 Key = request.Key,
                 Value = request.Value
@@ -152,7 +152,7 @@ namespace Indice.AspNetCore.Identity.Features
         [HttpPut("{key}")]
         [ProducesResponseType(statusCode: StatusCodes.Status200OK, type: typeof(AppSettingInfo))]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
-        public async Task<ActionResult<AppSettingInfo>> UpdateSetting([FromRoute]string key, [FromBody]UpdateAppSettingRequest request) {
+        public async Task<IActionResult> UpdateSetting([FromRoute]string key, [FromBody]UpdateAppSettingRequest request) {
             var setting = await _dbContext.AppSettings.SingleOrDefaultAsync(x => x.Key == key);
             if (setting == null) {
                 return NotFound();

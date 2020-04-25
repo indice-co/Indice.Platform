@@ -25,12 +25,6 @@ export class ClientTokensComponent implements OnInit, OnDestroy {
         });
     }
 
-    public ngOnDestroy(): void {
-        if (this._getDataSubscription) {
-            this._getDataSubscription.unsubscribe();
-        }
-    }
-
     public update(): void {
         this._clientStore.updateClient(this.client).subscribe(_ => {
             this._toast.showSuccess(`Client '${this.client.clientName}' was updated successfully.`);
@@ -51,5 +45,11 @@ export class ClientTokensComponent implements OnInit, OnDestroy {
             });
         }
         return result;
+    }
+
+    public ngOnDestroy(): void {
+        if (this._getDataSubscription) {
+            this._getDataSubscription.unsubscribe();
+        }
     }
 }

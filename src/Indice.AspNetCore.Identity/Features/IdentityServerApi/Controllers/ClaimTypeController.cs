@@ -52,7 +52,7 @@ namespace Indice.AspNetCore.Identity.Features
         [HttpGet]
         [ProducesResponseType(statusCode: StatusCodes.Status200OK, type: typeof(ResultSet<ClaimTypeInfo>))]
         [NoCache]
-        public async Task<ActionResult<ResultSet<ClaimTypeInfo>>> GetClaimTypes([FromQuery]ListOptions<ClaimTypesListFilter> options) {
+        public async Task<IActionResult> GetClaimTypes([FromQuery]ListOptions<ClaimTypesListFilter> options) {
             var query = _dbContext.ClaimTypes.AsNoTracking().AsQueryable();
             if (!string.IsNullOrEmpty(options.Search)) {
                 var searchTerm = options.Search.ToLower();
@@ -85,7 +85,7 @@ namespace Indice.AspNetCore.Identity.Features
         [ProducesResponseType(statusCode: StatusCodes.Status200OK, type: typeof(ClaimTypeInfo))]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
         [HttpGet("{id}")]
-        public async Task<ActionResult<ClaimTypeInfo>> GetClaimType([FromRoute]string id) {
+        public async Task<IActionResult> GetClaimType([FromRoute]string id) {
             var claimType = await _dbContext.ClaimTypes.AsNoTracking().Select(x => new ClaimTypeInfo {
                 Id = x.Id,
                 Name = x.Name,
@@ -114,7 +114,7 @@ namespace Indice.AspNetCore.Identity.Features
         [ServiceFilter(type: typeof(CreateClaimTypeRequestValidationFilter))]
         [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest, type: typeof(ValidationProblemDetails))]
         [ProducesResponseType(statusCode: StatusCodes.Status201Created, type: typeof(ClaimTypeInfo))]
-        public async Task<ActionResult<ClaimTypeInfo>> CreateClaimType([FromBody]CreateClaimTypeRequest request) {
+        public async Task<IActionResult> CreateClaimType([FromBody]CreateClaimTypeRequest request) {
             var claimType = new ClaimType {
                 Id = $"{Guid.NewGuid()}",
                 Name = request.Name,
@@ -151,7 +151,7 @@ namespace Indice.AspNetCore.Identity.Features
         [HttpPut("{id}")]
         [ProducesResponseType(statusCode: StatusCodes.Status200OK, type: typeof(ClaimTypeInfo))]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
-        public async Task<ActionResult<ClaimTypeInfo>> UpdateClaimType([FromRoute]string id, [FromBody]UpdateClaimTypeRequest request) {
+        public async Task<IActionResult> UpdateClaimType([FromRoute]string id, [FromBody]UpdateClaimTypeRequest request) {
             var claimType = await _dbContext.ClaimTypes.SingleOrDefaultAsync(x => x.Id == id);
             if (claimType == null) {
                 return NotFound();
