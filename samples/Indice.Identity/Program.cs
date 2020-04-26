@@ -1,7 +1,6 @@
 ﻿using System;
 using Indice.Extensions.Configuration.EFCore;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Serilog;
 using Serilog.Events;
@@ -18,7 +17,6 @@ namespace Indice.Identity
         /// </summary>
         /// <param name="args">Optional command line arguments.</param>
         public static int Main(string[] args) {
-            var configuration = new ConfigurationBuilder().AddJsonFile("appsettings.json", optional: false).Build();
             Log.Logger = new LoggerConfiguration()
                .MinimumLevel.Information()
                .MinimumLevel.Override("Microsoft", LogEventLevel.Warning)
