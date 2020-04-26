@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using FluentValidation.AspNetCore;
@@ -62,7 +63,8 @@ namespace Microsoft.Extensions.DependencyInjection
                                        PasswordHash = "AH6SA/wuxp9YEfLGROaj2CgjhxZhXDkMB1nD8V7lfQAI+WTM4lGMItjLhhV5ASsq+Q==",
                                        EmailConfirmed = true,
                                        PhoneNumber = "+30 6992731575",
-                                       PhoneNumberConfirmed = true
+                                       PhoneNumberConfirmed = true,
+                                       CreateDate = DateTimeOffset.UtcNow
                                    }
                                };
                            })

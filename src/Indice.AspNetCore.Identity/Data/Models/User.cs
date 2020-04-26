@@ -13,12 +13,14 @@ namespace Indice.AspNetCore.Identity.Models
         /// Initializes a new instance of <see cref="IdentityUser"/>.
         /// </summary>
         public User() : this(string.Empty, Guid.NewGuid()) { }
+        
         /// <summary>
         /// Initializes a new instance of <see cref="IdentityUser"/>.
         /// </summary>
         /// <remarks>The Id property is initialized to from a new GUID string value.</remarks>
         /// <param name="userName">The user name</param>
         public User(string userName) : base(userName) { }
+        
         /// <summary>
         /// Initializes a new instance of <see cref="IdentityUser"/>.
         /// </summary>
@@ -33,6 +35,7 @@ namespace Indice.AspNetCore.Identity.Models
             Id = id;
             UserName = userName;
         }
+
         /// <summary>
         /// Date that the user was created
         /// </summary>

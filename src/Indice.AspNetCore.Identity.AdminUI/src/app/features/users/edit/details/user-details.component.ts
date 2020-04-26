@@ -115,7 +115,7 @@ export class UserDetailsComponent implements OnInit, OnDestroy {
                 claim.value = this._dateParser.format(date);
             }
         });
-        this.user.passwordExpirationPolicy = this.userPasswordExpirationPolicy as PasswordExpirationPolicy;
+        this.user.passwordExpirationPolicy = this.userPasswordExpirationPolicy === '' ? undefined : this.userPasswordExpirationPolicy as PasswordExpirationPolicy;
         this._updateUserSubscription = this._userStore.updateUser(this.user, requiredClaims).subscribe(_ => {
             this._toast.showSuccess(`User '${this.user.email}' was updated successfully.`);
         });
