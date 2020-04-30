@@ -37,6 +37,12 @@ namespace Microsoft.AspNetCore.Identity
         }
 
         /// <summary>
+        /// Registers an instance of <see cref="ExtendedSignInManager{TUser}"/> along with required dependencies, using <see cref="User"/> class as a user type..
+        /// </summary>
+        /// <param name="builder">The type of builder for configuring identity services.</param>
+        public static IdentityBuilder AddExtendedSignInManager(this IdentityBuilder builder) => builder.AddExtendedSignInManager<User>();
+
+        /// <summary>
         /// Configures the cookie used by <see cref="ExtendedIdentityConstants.ExtendedValidationUserIdScheme"/>.
         /// </summary>
         /// <param name="services">The services available in the application.</param>

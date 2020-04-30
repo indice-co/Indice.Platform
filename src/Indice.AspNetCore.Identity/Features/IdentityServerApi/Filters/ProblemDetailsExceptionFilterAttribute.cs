@@ -18,7 +18,7 @@ namespace Indice.AspNetCore.Identity.Features
                 problemDetails.Title = context.Exception.Message;
                 problemDetails.Detail = context.Exception.InnerException?.Message;
             } else {
-                problemDetails.Detail = "An internal server error has occured.";
+                problemDetails.Title = "An internal server error has occured.";
             }
             context.Result = new ObjectResult(problemDetails) {
                 StatusCode = StatusCodes.Status500InternalServerError,

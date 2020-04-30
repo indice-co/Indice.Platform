@@ -40,6 +40,8 @@ namespace Indice.AspNetCore.Identity.Services
         where TUser : User
         where TRole : IdentityRole
     {
+        const string ISOFORMAT = "yyyy-MM-dd\\THH:mm:ss.fffK"; //ISO-8601 used by Javascript (ALWAYS UTC)
+
         /// <summary>
         /// Constructor for the extender user claims principal factory.
         /// </summary>
@@ -77,12 +79,12 @@ namespace Indice.AspNetCore.Identity.Services
             return identity;
         }
 
-        const string ISOFORMAT = "yyyy-MM-dd\\THH:mm:ss.fffK"; //ISO-8601 used by Javascript (ALWAYS UTC)
         private static string ToISOString(DateTime d, bool useLocal = false) {
             if (!useLocal && d.Kind == DateTimeKind.Local) {
-                //If d is LT or you don't want LocalTime -> convert to UTC and always add K format always add 'Z' postfix
+                // If d is LT or you don't want LocalTime -> convert to UTC and always add K format always add 'Z' postfix.
                 return d.ToUniversalTime().ToString(ISOFORMAT);
-            } else { //If d is already UTC K format add 'Z' postfix, if d is LT K format add +/-TIMEOFFSET
+            } else { 
+                //If d is already UTC K format add 'Z' postfix, if d is LT K format add +/-TIMEOFFSET.
                 return d.ToString(ISOFORMAT);
             }
         }

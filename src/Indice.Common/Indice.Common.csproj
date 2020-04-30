@@ -3,7 +3,7 @@
     <Description>Indice.Common Class Library</Description>
     <Copyright>Copyright (c) 2018 Indice</Copyright>
     <AssemblyTitle>Indice.Common</AssemblyTitle>
-    <VersionPrefix>1.5.6</VersionPrefix>
+    <VersionPrefix>1.5.7</VersionPrefix>
     <!--<VersionSuffix>beta2</VersionSuffix>-->
     <Authors>c.leftheris</Authors>
     <TargetFrameworks>netstandard2.0;netcoreapp3.1</TargetFrameworks>
@@ -15,7 +15,7 @@
   <PropertyGroup Label="Package">
     <PackageId>Indice.Common</PackageId>
     <PackageTags>AspNet;Api;Utilities</PackageTags>
-    <PackageReleaseNotes>Create JsonPolymorphicConverter based on System.Text.Json.</PackageReleaseNotes>
+    <PackageReleaseNotes>Add .svg to the list of mime types.</PackageReleaseNotes>
     <PackageIcon>icon-310.png</PackageIcon>
     <PackageProjectUrl>https://github.com/indice-co/Indice.AspNet</PackageProjectUrl>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>

@@ -6,6 +6,7 @@ using System.Reflection;
 using System.Security.Claims;
 using Hellang.Middleware.ProblemDetails;
 using IdentityModel;
+using IdentityServer4.Configuration;
 using Indice.AspNetCore.Identity.Features;
 using Indice.AspNetCore.Swagger;
 using Indice.Configuration;
@@ -113,19 +114,12 @@ namespace Indice.Identity
                     context.Context.Response.Headers.Append(HeaderNames.Expires, DateTime.UtcNow.AddSeconds(durationInSeconds).ToString("R", CultureInfo.InvariantCulture));
                 }
             });
-            // Add this before any other middleware that might write cookies.
             app.UseCookiePolicy();
-            app.UseRequestLocalization(new RequestLocalizationOptions {
-                DefaultRequestCulture = new RequestCulture(SupportedCultures.Default),
-                SupportedCultures = SupportedCultures.Get().ToList(),
-                SupportedUICultures = SupportedCultures.Get().ToList(),
-                // Remove AcceptLanguageHeaderRequestCultureProvider in order to fallback to DefaultRequestCulture.
-                RequestCultureProviders = new List<IRequestCultureProvider> {
-                    new QueryStringRequestCultureProvider(),
-                    new CookieRequestCultureProvider()
-                }
-            });
+            app.UseRouting();
             app.UseIdentityServer();
+            app.UseCors();
+            app.UseAuthentication();
+            app.UseAuthorization();
             app.UseWhen(context => !context.Request.Path.StartsWithSegments("/api"), branch => {
                 if (!HostingEnvironment.IsDevelopment()) {
                     branch.UseExceptionHandler("/error");
@@ -143,10 +137,6 @@ namespace Indice.Identity
                 SupportedCultures = SupportedCultures.Get().ToList(),
                 SupportedUICultures = SupportedCultures.Get().ToList()
             });
-            app.UseRouting();
-            app.UseCors();
-            app.UseAuthentication();
-            app.UseAuthorization();
             app.UseResponseCaching();
             app.UseSwagger();
             var enableSwagger = HostingEnvironment.IsDevelopment() || Configuration.GetValue<bool>($"{GeneralSettings.Name}:SwaggerUI");

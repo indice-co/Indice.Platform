@@ -25,11 +25,17 @@ namespace Indice.AspNetCore.Identity.Services
     public class UserNameAsPasswordValidator<TUser> : IPasswordValidator<TUser> where TUser : User
     {
         /// <summary>
+        /// The code used when describing the <see cref="IdentityError"/>.
+        /// </summary>
+        public const string ErrorDescriber = "PasswordContainsUserName";
+
+        /// <summary>
         /// Creates a new instance of <see cref="UserNameAsPasswordValidator{TUser}"/>.
         /// </summary>
         /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
         public UserNameAsPasswordValidator(IConfiguration configuration) {
-            MaxAllowedUserNameSubset = configuration.GetSection(nameof(PasswordOptions)).GetValue<int?>(nameof(MaxAllowedUserNameSubset));
+            MaxAllowedUserNameSubset = configuration.GetSection($"{nameof(IdentityOptions)}:{nameof(IdentityOptions.Password)}").GetValue<int?>(nameof(MaxAllowedUserNameSubset)) ??
+                                       configuration.GetSection(nameof(PasswordOptions)).GetValue<int?>(nameof(MaxAllowedUserNameSubset));
         }
 
         /// <summary>
@@ -53,7 +59,7 @@ namespace Indice.AspNetCore.Identity.Services
             // If username is exactly the same with the password, then this is an error independently of the MaxAllowedUsernameSubset property.
             if (user.UserName.Equals(password, StringComparison.InvariantCultureIgnoreCase)) {
                 result = IdentityResult.Failed(new IdentityError {
-                    Code = "UserNameInPassword",
+                    Code = ErrorDescriber,
                     Description = "Username and password cannot be the same."
                 });
                 return Task.FromResult(result);
@@ -67,9 +73,9 @@ namespace Indice.AspNetCore.Identity.Services
                 userNameSubstrings.Add(user.UserName.Substring(characterIndex, MaxAllowedUserNameSubset.Value + 1));
                 characterIndex++;
             }
-            if (userNameSubstrings.Any(userNameSubstring => password.Contains(userNameSubstring))) {
+            if (userNameSubstrings.Any(userNameSubstring => password.Contains(userNameSubstring, StringComparison.OrdinalIgnoreCase))) {
                 result = IdentityResult.Failed(new IdentityError {
-                    Code = "UserNameInPassword",
+                    Code = ErrorDescriber,
                     Description = "Username and password are identical."
                 });
             }

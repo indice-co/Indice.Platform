@@ -62,24 +62,30 @@ namespace Indice.AspNetCore.Identity.Services
         where TRole : IdentityRole
     {
         /// <summary>
+        /// The code used when describing the <see cref="IdentityError"/>.
+        /// </summary>
+        public static string ErrorDescriber = "PasswordHistory";
+
+        /// <summary>
         /// Class constructor.
         /// </summary>
         /// <param name="dbContext">The DbContext to use for the Identity framework.</param>
         /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
         public PreviousPasswordAwareValidator(TContext dbContext, IConfiguration configuration) {
             DbContext = dbContext;
-            PasswordHistoryLimit = configuration.GetSection(nameof(PasswordOptions)).GetValue<int?>(nameof(PasswordHistoryLimit));
+            PasswordHistoryLimit = configuration.GetSection($"{nameof(IdentityOptions)}:{nameof(IdentityOptions.Password)}").GetValue<int?>(nameof(PasswordHistoryLimit)) ??
+                                   configuration.GetSection(nameof(PasswordOptions)).GetValue<int?>(nameof(PasswordHistoryLimit));
         }
 
         /// <summary>
         /// The database context.
         /// </summary>
-        protected TContext DbContext { get; }
+        public TContext DbContext { get; }
         /// <summary>
         /// The password history limit is an integer indicating the number of passwords to keep track. 
         /// Then when a user changes his password these will be check against so that no new password matches any stored in the history table.
         /// </summary>
-        protected int? PasswordHistoryLimit { get; }
+        public int? PasswordHistoryLimit { get; }
 
         /// <summary>
         /// Validates a password as an asynchronous operation.
@@ -101,7 +107,7 @@ namespace Indice.AspNetCore.Identity.Services
                                                 .Any(hash => manager.PasswordHasher.VerifyHashedPassword(user, hash, password) == PasswordVerificationResult.Success);
                 if (usedPasswords.Length > 0 && isUsedBefore) {
                     result = IdentityResult.Failed(new IdentityError {
-                        Code = "PasswordHistory",
+                        Code = ErrorDescriber,
                         Description = "This password has been used recently."
                     });
                 }

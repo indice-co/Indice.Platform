@@ -50,7 +50,6 @@ namespace Indice.AspNetCore.Identity.Services
                     ReturnUrl = returnUrl,
                     Username = context?.LoginHint,
                 };
-
                 if (!local) {
                     viewModel.ExternalProviders = new[] { new ExternalProvider { AuthenticationScheme = context.IdP } };
                 }
@@ -87,8 +86,7 @@ namespace Indice.AspNetCore.Identity.Services
         /// <summary>
         /// Builds the <see cref="LoginViewModel"/> from the posted request <see cref="LoginInputModel"/>.
         /// </summary>
-        /// <param name="model">the request model</param>
-        /// <returns></returns>
+        /// <param name="model">the request model.</param>
         public async Task<LoginViewModel> BuildLoginViewModelAsync(LoginInputModel model) {
             var viewModel = await BuildLoginViewModelAsync(model.ReturnUrl);
             viewModel.Username = model.Username;
@@ -100,7 +98,6 @@ namespace Indice.AspNetCore.Identity.Services
         /// Builds the <see cref="RegisterViewModel"/>.
         /// </summary>
         /// <param name="returnUrl"></param>
-        /// <returns></returns>
         public async Task<RegisterViewModel> BuildRegisterViewModelAsync(string returnUrl) => await BuildRegisterViewModelAsync<RegisterViewModel>(returnUrl);
 
         /// <summary>
@@ -108,7 +105,6 @@ namespace Indice.AspNetCore.Identity.Services
         /// </summary>
         /// <typeparam name="TRegisterViewModel"></typeparam>
         /// <param name="returnUrl"></param>
-        /// <returns></returns>
         public async Task<TRegisterViewModel> BuildRegisterViewModelAsync<TRegisterViewModel>(string returnUrl) where TRegisterViewModel : RegisterViewModel, new() {
             var context = await _interaction.GetAuthorizationContextAsync(returnUrl);
             if (context?.IdP != null) {
@@ -149,7 +145,6 @@ namespace Indice.AspNetCore.Identity.Services
         /// Builds the <see cref="RegisterViewModel"/> from the posted request <see cref="RegisterRequest"/>.
         /// </summary>
         /// <param name="model"></param>
-        /// <returns></returns>
         public async Task<RegisterViewModel> BuildRegisterViewModelAsync(RegisterRequest model) => await BuildRegisterViewModelAsync<RegisterViewModel>(model);
 
         /// <summary>
@@ -158,7 +153,6 @@ namespace Indice.AspNetCore.Identity.Services
         /// </summary>
         /// <typeparam name="TRegisterViewModel"></typeparam>
         /// <param name="model"></param>
-        /// <returns></returns>
         public async Task<TRegisterViewModel> BuildRegisterViewModelAsync<TRegisterViewModel>(RegisterRequest model) where TRegisterViewModel : RegisterViewModel, new() {
             var viewModel = await BuildRegisterViewModelAsync<TRegisterViewModel>(model.ReturnUrl);
             viewModel.Username = model.Username;
@@ -169,7 +163,6 @@ namespace Indice.AspNetCore.Identity.Services
         /// Builds the logout viewmodel.
         /// </summary>
         /// <param name="logoutId"></param>
-        /// <returns></returns>
         public async Task<LogoutViewModel> BuildLogoutViewModelAsync(string logoutId) {
             var user = _httpContextAccessor.HttpContext.User;
             var viewModel = new LogoutViewModel {
@@ -196,7 +189,6 @@ namespace Indice.AspNetCore.Identity.Services
         /// Build the post logout viewmodel. <see cref="LoggedOutViewModel"/>
         /// </summary>
         /// <param name="logoutId"></param>
-        /// <returns></returns>
         public async Task<LoggedOutViewModel> BuildLoggedOutViewModelAsync(string logoutId) {
             // Get context information (client name, post logout redirect URI and iframe for federated signout).
             var context = await _interaction.GetLogoutContextAsync(logoutId);

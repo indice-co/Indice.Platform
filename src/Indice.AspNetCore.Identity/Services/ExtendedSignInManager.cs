@@ -41,19 +41,21 @@ namespace Indice.AspNetCore.Identity.Services
         public ExtendedSignInManager(UserManager<TUser> userManager, IHttpContextAccessor contextAccessor, IUserClaimsPrincipalFactory<TUser> claimsFactory, IOptionsSnapshot<IdentityOptions> optionsAccessor,
             ILogger<SignInManager<TUser>> logger, IAuthenticationSchemeProvider schemes, IUserConfirmation<TUser> confirmation, IConfiguration configuration, IAuthenticationSchemeProvider authenticationSchemeProvider)
             : base(userManager, contextAccessor, claimsFactory, optionsAccessor, logger, schemes, confirmation) {
-            RequirePostSigninConfirmedEmail = configuration.GetSection(nameof(SignInOptions)).GetValue<bool?>(nameof(RequirePostSigninConfirmedEmail)) == true;
-            RequirePostSigninConfirmedPhoneNumber = configuration.GetSection(nameof(SignInOptions)).GetValue<bool?>(nameof(RequirePostSigninConfirmedPhoneNumber)) == true;
+            RequirePostSignInConfirmedEmail = configuration.GetSection($"{nameof(IdentityOptions)}:{nameof(IdentityOptions.SignIn)}").GetValue<bool?>(nameof(RequirePostSignInConfirmedEmail)) == true ||
+                                              configuration.GetSection(nameof(SignInOptions)).GetValue<bool?>(nameof(RequirePostSignInConfirmedEmail)) == true;
+            RequirePostSignInConfirmedPhoneNumber = configuration.GetSection($"{nameof(IdentityOptions)}:{nameof(IdentityOptions.SignIn)}").GetValue<bool?>(nameof(RequirePostSignInConfirmedPhoneNumber)) == true ||
+                                                    configuration.GetSection(nameof(SignInOptions)).GetValue<bool?>(nameof(RequirePostSignInConfirmedPhoneNumber)) == true;
             _authenticationSchemeProvider = authenticationSchemeProvider ?? throw new ArgumentNullException(nameof(authenticationSchemeProvider));
         }
 
         /// <summary>
         /// Enables the feature post login email confirmation.
         /// </summary>
-        public bool RequirePostSigninConfirmedEmail { get; }
+        public bool RequirePostSignInConfirmedEmail { get; }
         /// <summary>
         /// Enables the feature post login phone number confirmation.
         /// </summary>
-        public bool RequirePostSigninConfirmedPhoneNumber { get; }
+        public bool RequirePostSignInConfirmedPhoneNumber { get; }
 
         /// <summary>
         /// Gets the external login information for the current login, as an asynchronous operation.
@@ -129,7 +131,7 @@ namespace Indice.AspNetCore.Identity.Services
             if (user is User) {
                 isPasswordExpired = (user as User).HasExpiredPassword();
             }
-            var doPartialSignin = (!isEmailConfirmed || !isPhoneConfirmed) && (RequirePostSigninConfirmedEmail || RequirePostSigninConfirmedPhoneNumber);
+            var doPartialSignin = (!isEmailConfirmed || !isPhoneConfirmed) && (RequirePostSignInConfirmedEmail || RequirePostSignInConfirmedPhoneNumber);
             doPartialSignin = doPartialSignin || isPasswordExpired;
             if (doPartialSignin) {
                 // Store the userId for use after two factor check.
@@ -139,7 +141,7 @@ namespace Indice.AspNetCore.Identity.Services
                     RedirectUri = returnUrl,
                     IsPersistent = isPersistent
                 });
-                return new ExtendedSigninResult(!isEmailConfirmed && RequirePostSigninConfirmedEmail, !isPhoneConfirmed && RequirePostSigninConfirmedPhoneNumber, isPasswordExpired);
+                return new ExtendedSigninResult(!isEmailConfirmed && RequirePostSignInConfirmedEmail, !isPhoneConfirmed && RequirePostSignInConfirmedPhoneNumber, isPasswordExpired);
             }
             var result = await base.SignInOrTwoFactorAsync(user, isPersistent, loginProvider, bypassTwoFactor);
             if (result.Succeeded && (user is User)) {
