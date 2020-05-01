@@ -8,10 +8,6 @@ namespace Indice.AspNetCore.Identity.Features
     public class CredentialsValidationInfo
     {
         /// <summary>
-        /// Determines if the provided username is already taken by another user.
-        /// </summary>
-        public bool? UserNameExists { get; set; }
-        /// <summary>
         /// Contains the results of checking various password validation rules.
         /// </summary>
         public IList<PasswordRuleInfo> PasswordRules { get; set; }

@@ -16,6 +16,73 @@ export const IDENTITY_API_BASE_URL = new InjectionToken<string>('IDENTITY_API_BA
 
 export interface IIdentityApiService {
     /**
+     * Requests an email change for the current user.
+     * @param body (optional) Models a request for changing the email.
+     * @return OK
+     */
+    changeEmail(body?: UpdateUserEmailRequest | undefined): Observable<void>;
+    /**
+     * Confirms the email address of a given user.
+     * @param userId (optional) The id of the user.
+     * @param code (optional) The confirmation token of the user.
+     * @return OK
+     */
+    confirmChangeEmail(userId?: string | null | undefined, code?: string | null | undefined): Observable<void>;
+    /**
+     * Changes the password for the current user, but requires the old password to be present.
+     * @param body (optional) Contains info about the user password to change.
+     * @return OK
+     */
+    changePassword(body?: ChangePasswordRequest | undefined): Observable<void>;
+    /**
+     * Update the password expiration policy.
+     * @param body (optional) Contains info about the chosen expiration policy.
+     * @return OK
+     */
+    updatePasswordExpirationPolicy(body?: UpdatePasswordExpirationPolicyRequest | undefined): Observable<void>;
+    /**
+     * Requests a phone number change for the current user.
+     * @param body (optional) Models a request for changing the phone number.
+     * @return OK
+     */
+    changePhoneNumber(body?: UpdateUserPhoneRequest | undefined): Observable<void>;
+    /**
+     * Confirms the phone number of the user, using the OTP.
+     * @param userId (optional) The id of the user.
+     * @param token (optional) The OTP.
+     * @return Success
+     */
+    confirmChangePhone(userId?: string | null | undefined, token?: string | null | undefined): Observable<void>;
+    /**
+     * Changes the username for the current user.
+     * @param body (optional) Models a request for changing the username.
+     * @return OK
+     */
+    changeUserName(body?: ChangeUserNameRequest | undefined): Observable<void>;
+    /**
+     * Confirms the email address of a given user.
+     * @param userId (optional) The id of the user.
+     * @param code (optional) The confirmation token of the user.
+     * @return OK
+     */
+    confirmEmail(userId?: string | null | undefined, code?: string | null | undefined): Observable<void>;
+    /**
+     * Gets the password options that are applied when the user creates an account.
+     * @return OK
+     */
+    getPasswordOptions(): Observable<PasswordOptions>;
+    /**
+     * Checks if a username already exists in the database.
+     * @param body (optional) 
+     */
+    checkUserNameExists(body?: ValidateUserNameRequest | undefined): Observable<void>;
+    /**
+     * Validates a user's password against one or more configured Microsoft.AspNetCore.Identity.IPasswordValidator`1.
+     * @param body (optional) 
+     * @return Success
+     */
+    validatePassword(body?: ValidatePasswordRequest | undefined): Observable<CredentialsValidationInfo>;
+    /**
      * Returns a list of Indice.AspNetCore.Identity.Features.AppSettingInfo objects containing the total number of app settings in the database and the data filtered according to the provided Indice.Types.ListOptions.
      * @param page (optional) 
      * @param size (optional) 
@@ -199,62 +266,6 @@ export interface IIdentityApiService {
      * @return OK
      */
     getSystemSummary(): Observable<SummaryInfo>;
-    /**
-     * Gets the password options that are applied when the user creates an account.
-     * @return Success
-     */
-    getPasswordOptions(): Observable<PasswordOptions>;
-    /**
-     * Requests an email change for the current user.
-     * @param body (optional) Models a request for changing the email.
-     * @return OK
-     */
-    changeEmail(body?: UpdateUserEmailRequest | undefined): Observable<void>;
-    /**
-     * Confirms the email address of a given user.
-     * @param userId (optional) The id of the user.
-     * @param code (optional) The confirmation token of the user.
-     * @return OK
-     */
-    confirmChangeEmail(userId?: string | null | undefined, code?: string | null | undefined): Observable<void>;
-    /**
-     * Changes the password for the current user, but requires the old password to be present.
-     * @param body (optional) Contains info about the user password to change.
-     * @return OK
-     */
-    changePassword(body?: ChangePasswordRequest | undefined): Observable<void>;
-    /**
-     * Update the password expiration policy.
-     * @param body (optional) Contains info about the chosen expiration policy.
-     * @return OK
-     */
-    updatePasswordExpirationPolicy(body?: UpdatePasswordExpirationPolicyRequest | undefined): Observable<void>;
-    /**
-     * Requests a phone number change for the current user.
-     * @param body (optional) Models a request for changing the phone number.
-     * @return OK
-     */
-    changePhoneNumber(body?: UpdateUserPhoneRequest | undefined): Observable<void>;
-    /**
-     * Confirms the phone number of the user, using the OTP.
-     * @param userId (optional) The id of the user.
-     * @param token (optional) The OTP.
-     * @return Success
-     */
-    confirmChangePhone(userId?: string | null | undefined, token?: string | null | undefined): Observable<void>;
-    /**
-     * Changes the username for the current user.
-     * @param body (optional) Models a request for changing the username.
-     * @return OK
-     */
-    changeUserName(body?: ChangeUserNameRequest | undefined): Observable<void>;
-    /**
-     * Confirms the email address of a given user.
-     * @param userId (optional) The id of the user.
-     * @param code (optional) The confirmation token of the user.
-     * @return OK
-     */
-    confirmEmail(userId?: string | null | undefined, code?: string | null | undefined): Observable<void>;
     /**
      * Returns a list of Indice.AspNetCore.Identity.Features.IdentityResourceInfo objects containing the total number of identity resources in the database and the data filtered according to the provided Indice.Types.ListOptions.
      * @param page (optional) 
@@ -581,6 +592,940 @@ export class IdentityApiService implements IIdentityApiService {
     constructor(@Inject(HttpClient) http: HttpClient, @Optional() @Inject(IDENTITY_API_BASE_URL) baseUrl?: string) {
         this.http = http;
         this.baseUrl = baseUrl ? baseUrl : "";
+    }
+
+    /**
+     * Requests an email change for the current user.
+     * @param body (optional) Models a request for changing the email.
+     * @return OK
+     */
+    changeEmail(body?: UpdateUserEmailRequest | undefined): Observable<void> {
+        let url_ = this.baseUrl + "/api/account/my/change-email";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+            })
+        };
+
+        return this.http.request("put", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processChangeEmail(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processChangeEmail(<any>response_);
+                } catch (e) {
+                    return <Observable<void>><any>_observableThrow(e);
+                }
+            } else
+                return <Observable<void>><any>_observableThrow(response_);
+        }));
+    }
+
+    protected processChangeEmail(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ValidationProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            }));
+        } else if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return _observableOf<void>(<any>null);
+            }));
+        } else if (status === 404) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = ProblemDetails.fromJS(resultData404);
+            return throwException("Not Found", status, _responseText, _headers, result404);
+            }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("Internal Server Error", status, _responseText, _headers);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<void>(<any>null);
+    }
+
+    /**
+     * Confirms the email address of a given user.
+     * @param userId (optional) The id of the user.
+     * @param code (optional) The confirmation token of the user.
+     * @return OK
+     */
+    confirmChangeEmail(userId?: string | null | undefined, code?: string | null | undefined): Observable<void> {
+        let url_ = this.baseUrl + "/api/account/my/change-email/confirm?";
+        if (userId !== undefined)
+            url_ += "userId=" + encodeURIComponent("" + userId) + "&";
+        if (code !== undefined)
+            url_ += "code=" + encodeURIComponent("" + code) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processConfirmChangeEmail(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processConfirmChangeEmail(<any>response_);
+                } catch (e) {
+                    return <Observable<void>><any>_observableThrow(e);
+                }
+            } else
+                return <Observable<void>><any>_observableThrow(response_);
+        }));
+    }
+
+    protected processConfirmChangeEmail(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ValidationProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            }));
+        } else if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return _observableOf<void>(<any>null);
+            }));
+        } else if (status === 302) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("Redirect", status, _responseText, _headers);
+            }));
+        } else if (status === 404) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = ProblemDetails.fromJS(resultData404);
+            return throwException("Not Found", status, _responseText, _headers, result404);
+            }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("Internal Server Error", status, _responseText, _headers);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<void>(<any>null);
+    }
+
+    /**
+     * Changes the password for the current user, but requires the old password to be present.
+     * @param body (optional) Contains info about the user password to change.
+     * @return OK
+     */
+    changePassword(body?: ChangePasswordRequest | undefined): Observable<void> {
+        let url_ = this.baseUrl + "/api/account/my/change-password";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+            })
+        };
+
+        return this.http.request("put", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processChangePassword(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processChangePassword(<any>response_);
+                } catch (e) {
+                    return <Observable<void>><any>_observableThrow(e);
+                }
+            } else
+                return <Observable<void>><any>_observableThrow(response_);
+        }));
+    }
+
+    protected processChangePassword(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ValidationProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            }));
+        } else if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return _observableOf<void>(<any>null);
+            }));
+        } else if (status === 404) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = ProblemDetails.fromJS(resultData404);
+            return throwException("Not Found", status, _responseText, _headers, result404);
+            }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("Internal Server Error", status, _responseText, _headers);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<void>(<any>null);
+    }
+
+    /**
+     * Update the password expiration policy.
+     * @param body (optional) Contains info about the chosen expiration policy.
+     * @return OK
+     */
+    updatePasswordExpirationPolicy(body?: UpdatePasswordExpirationPolicyRequest | undefined): Observable<void> {
+        let url_ = this.baseUrl + "/api/account/my/change-password-policy";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+            })
+        };
+
+        return this.http.request("put", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processUpdatePasswordExpirationPolicy(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processUpdatePasswordExpirationPolicy(<any>response_);
+                } catch (e) {
+                    return <Observable<void>><any>_observableThrow(e);
+                }
+            } else
+                return <Observable<void>><any>_observableThrow(response_);
+        }));
+    }
+
+    protected processUpdatePasswordExpirationPolicy(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ValidationProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            }));
+        } else if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return _observableOf<void>(<any>null);
+            }));
+        } else if (status === 404) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = ProblemDetails.fromJS(resultData404);
+            return throwException("Not Found", status, _responseText, _headers, result404);
+            }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("Internal Server Error", status, _responseText, _headers);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<void>(<any>null);
+    }
+
+    /**
+     * Requests a phone number change for the current user.
+     * @param body (optional) Models a request for changing the phone number.
+     * @return OK
+     */
+    changePhoneNumber(body?: UpdateUserPhoneRequest | undefined): Observable<void> {
+        let url_ = this.baseUrl + "/api/account/my/change-phone";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+            })
+        };
+
+        return this.http.request("put", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processChangePhoneNumber(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processChangePhoneNumber(<any>response_);
+                } catch (e) {
+                    return <Observable<void>><any>_observableThrow(e);
+                }
+            } else
+                return <Observable<void>><any>_observableThrow(response_);
+        }));
+    }
+
+    protected processChangePhoneNumber(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ValidationProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            }));
+        } else if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return _observableOf<void>(<any>null);
+            }));
+        } else if (status === 404) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = ProblemDetails.fromJS(resultData404);
+            return throwException("Not Found", status, _responseText, _headers, result404);
+            }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("Internal Server Error", status, _responseText, _headers);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<void>(<any>null);
+    }
+
+    /**
+     * Confirms the phone number of the user, using the OTP.
+     * @param userId (optional) The id of the user.
+     * @param token (optional) The OTP.
+     * @return Success
+     */
+    confirmChangePhone(userId?: string | null | undefined, token?: string | null | undefined): Observable<void> {
+        let url_ = this.baseUrl + "/api/account/my/change-phone/confirm?";
+        if (userId !== undefined)
+            url_ += "userId=" + encodeURIComponent("" + userId) + "&";
+        if (token !== undefined)
+            url_ += "token=" + encodeURIComponent("" + token) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processConfirmChangePhone(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processConfirmChangePhone(<any>response_);
+                } catch (e) {
+                    return <Observable<void>><any>_observableThrow(e);
+                }
+            } else
+                return <Observable<void>><any>_observableThrow(response_);
+        }));
+    }
+
+    protected processConfirmChangePhone(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ValidationProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            }));
+        } else if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return _observableOf<void>(<any>null);
+            }));
+        } else if (status === 404) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = ProblemDetails.fromJS(resultData404);
+            return throwException("Not Found", status, _responseText, _headers, result404);
+            }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("Internal Server Error", status, _responseText, _headers);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<void>(<any>null);
+    }
+
+    /**
+     * Changes the username for the current user.
+     * @param body (optional) Models a request for changing the username.
+     * @return OK
+     */
+    changeUserName(body?: ChangeUserNameRequest | undefined): Observable<void> {
+        let url_ = this.baseUrl + "/api/account/my/change-username";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+            })
+        };
+
+        return this.http.request("put", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processChangeUserName(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processChangeUserName(<any>response_);
+                } catch (e) {
+                    return <Observable<void>><any>_observableThrow(e);
+                }
+            } else
+                return <Observable<void>><any>_observableThrow(response_);
+        }));
+    }
+
+    protected processChangeUserName(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ValidationProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            }));
+        } else if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return _observableOf<void>(<any>null);
+            }));
+        } else if (status === 404) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = ProblemDetails.fromJS(resultData404);
+            return throwException("Not Found", status, _responseText, _headers, result404);
+            }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("Internal Server Error", status, _responseText, _headers);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<void>(<any>null);
+    }
+
+    /**
+     * Confirms the email address of a given user.
+     * @param userId (optional) The id of the user.
+     * @param code (optional) The confirmation token of the user.
+     * @return OK
+     */
+    confirmEmail(userId?: string | null | undefined, code?: string | null | undefined): Observable<void> {
+        let url_ = this.baseUrl + "/api/account/my/confirm-email?";
+        if (userId !== undefined)
+            url_ += "userId=" + encodeURIComponent("" + userId) + "&";
+        if (code !== undefined)
+            url_ += "code=" + encodeURIComponent("" + code) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processConfirmEmail(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processConfirmEmail(<any>response_);
+                } catch (e) {
+                    return <Observable<void>><any>_observableThrow(e);
+                }
+            } else
+                return <Observable<void>><any>_observableThrow(response_);
+        }));
+    }
+
+    protected processConfirmEmail(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ValidationProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            }));
+        } else if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return _observableOf<void>(<any>null);
+            }));
+        } else if (status === 404) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = ProblemDetails.fromJS(resultData404);
+            return throwException("Not Found", status, _responseText, _headers, result404);
+            }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("Internal Server Error", status, _responseText, _headers);
+            }));
+        } else if (status === 302) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("Redirect", status, _responseText, _headers);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<void>(<any>null);
+    }
+
+    /**
+     * Gets the password options that are applied when the user creates an account.
+     * @return OK
+     */
+    getPasswordOptions(): Observable<PasswordOptions> {
+        let url_ = this.baseUrl + "/api/account/password-options";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetPasswordOptions(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetPasswordOptions(<any>response_);
+                } catch (e) {
+                    return <Observable<PasswordOptions>><any>_observableThrow(e);
+                }
+            } else
+                return <Observable<PasswordOptions>><any>_observableThrow(response_);
+        }));
+    }
+
+    protected processGetPasswordOptions(response: HttpResponseBase): Observable<PasswordOptions> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ValidationProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            }));
+        } else if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = PasswordOptions.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("Internal Server Error", status, _responseText, _headers);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<PasswordOptions>(<any>null);
+    }
+
+    /**
+     * Checks if a username already exists in the database.
+     * @param body (optional) 
+     */
+    checkUserNameExists(body?: ValidateUserNameRequest | undefined): Observable<void> {
+        let url_ = this.baseUrl + "/api/account/username-exists";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processCheckUserNameExists(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processCheckUserNameExists(<any>response_);
+                } catch (e) {
+                    return <Observable<void>><any>_observableThrow(e);
+                }
+            } else
+                return <Observable<void>><any>_observableThrow(response_);
+        }));
+    }
+
+    protected processCheckUserNameExists(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ValidationProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            }));
+        } else if (status === 302) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("Found", status, _responseText, _headers);
+            }));
+        } else if (status === 404) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = ProblemDetails.fromJS(resultData404);
+            return throwException("Not Found", status, _responseText, _headers, result404);
+            }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("Internal Server Error", status, _responseText, _headers);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<void>(<any>null);
+    }
+
+    /**
+     * Validates a user's password against one or more configured Microsoft.AspNetCore.Identity.IPasswordValidator`1.
+     * @param body (optional) 
+     * @return Success
+     */
+    validatePassword(body?: ValidatePasswordRequest | undefined): Observable<CredentialsValidationInfo> {
+        let url_ = this.baseUrl + "/api/account/validate-password";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processValidatePassword(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processValidatePassword(<any>response_);
+                } catch (e) {
+                    return <Observable<CredentialsValidationInfo>><any>_observableThrow(e);
+                }
+            } else
+                return <Observable<CredentialsValidationInfo>><any>_observableThrow(response_);
+        }));
+    }
+
+    protected processValidatePassword(response: HttpResponseBase): Observable<CredentialsValidationInfo> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ValidationProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            }));
+        } else if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = CredentialsValidationInfo.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("Internal Server Error", status, _responseText, _headers);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<CredentialsValidationInfo>(<any>null);
     }
 
     /**
@@ -2910,781 +3855,6 @@ export class IdentityApiService implements IIdentityApiService {
             }));
         }
         return _observableOf<SummaryInfo>(<any>null);
-    }
-
-    /**
-     * Gets the password options that are applied when the user creates an account.
-     * @return Success
-     */
-    getPasswordOptions(): Observable<PasswordOptions> {
-        let url_ = this.baseUrl + "/api/lookups/password-options";
-        url_ = url_.replace(/[?&]$/, "");
-
-        let options_ : any = {
-            observe: "response",
-            responseType: "blob",
-            headers: new HttpHeaders({
-                "Accept": "application/json"
-            })
-        };
-
-        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processGetPasswordOptions(response_);
-        })).pipe(_observableCatch((response_: any) => {
-            if (response_ instanceof HttpResponseBase) {
-                try {
-                    return this.processGetPasswordOptions(<any>response_);
-                } catch (e) {
-                    return <Observable<PasswordOptions>><any>_observableThrow(e);
-                }
-            } else
-                return <Observable<PasswordOptions>><any>_observableThrow(response_);
-        }));
-    }
-
-    protected processGetPasswordOptions(response: HttpResponseBase): Observable<PasswordOptions> {
-        const status = response.status;
-        const responseBlob =
-            response instanceof HttpResponse ? response.body :
-            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
-
-        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
-        if (status === 400) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            let result400: any = null;
-            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result400 = ValidationProblemDetails.fromJS(resultData400);
-            return throwException("Bad Request", status, _responseText, _headers, result400);
-            }));
-        } else if (status === 401) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            let result401: any = null;
-            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result401 = ProblemDetails.fromJS(resultData401);
-            return throwException("Unauthorized", status, _responseText, _headers, result401);
-            }));
-        } else if (status === 403) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            let result403: any = null;
-            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result403 = ProblemDetails.fromJS(resultData403);
-            return throwException("Forbidden", status, _responseText, _headers, result403);
-            }));
-        } else if (status === 200) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            let result200: any = null;
-            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = PasswordOptions.fromJS(resultData200);
-            return _observableOf(result200);
-            }));
-        } else if (status === 404) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            let result404: any = null;
-            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result404 = ProblemDetails.fromJS(resultData404);
-            return throwException("Not Found", status, _responseText, _headers, result404);
-            }));
-        } else if (status === 500) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            return throwException("Internal Server Error", status, _responseText, _headers);
-            }));
-        } else if (status !== 200 && status !== 204) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            }));
-        }
-        return _observableOf<PasswordOptions>(<any>null);
-    }
-
-    /**
-     * Requests an email change for the current user.
-     * @param body (optional) Models a request for changing the email.
-     * @return OK
-     */
-    changeEmail(body?: UpdateUserEmailRequest | undefined): Observable<void> {
-        let url_ = this.baseUrl + "/api/my-account/change-email";
-        url_ = url_.replace(/[?&]$/, "");
-
-        const content_ = JSON.stringify(body);
-
-        let options_ : any = {
-            body: content_,
-            observe: "response",
-            responseType: "blob",
-            headers: new HttpHeaders({
-                "Content-Type": "application/json",
-            })
-        };
-
-        return this.http.request("put", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processChangeEmail(response_);
-        })).pipe(_observableCatch((response_: any) => {
-            if (response_ instanceof HttpResponseBase) {
-                try {
-                    return this.processChangeEmail(<any>response_);
-                } catch (e) {
-                    return <Observable<void>><any>_observableThrow(e);
-                }
-            } else
-                return <Observable<void>><any>_observableThrow(response_);
-        }));
-    }
-
-    protected processChangeEmail(response: HttpResponseBase): Observable<void> {
-        const status = response.status;
-        const responseBlob =
-            response instanceof HttpResponse ? response.body :
-            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
-
-        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
-        if (status === 400) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            let result400: any = null;
-            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result400 = ValidationProblemDetails.fromJS(resultData400);
-            return throwException("Bad Request", status, _responseText, _headers, result400);
-            }));
-        } else if (status === 401) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            let result401: any = null;
-            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result401 = ProblemDetails.fromJS(resultData401);
-            return throwException("Unauthorized", status, _responseText, _headers, result401);
-            }));
-        } else if (status === 403) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            let result403: any = null;
-            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result403 = ProblemDetails.fromJS(resultData403);
-            return throwException("Forbidden", status, _responseText, _headers, result403);
-            }));
-        } else if (status === 200) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            return _observableOf<void>(<any>null);
-            }));
-        } else if (status === 404) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            let result404: any = null;
-            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result404 = ProblemDetails.fromJS(resultData404);
-            return throwException("Not Found", status, _responseText, _headers, result404);
-            }));
-        } else if (status === 500) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            return throwException("Internal Server Error", status, _responseText, _headers);
-            }));
-        } else if (status !== 200 && status !== 204) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            }));
-        }
-        return _observableOf<void>(<any>null);
-    }
-
-    /**
-     * Confirms the email address of a given user.
-     * @param userId (optional) The id of the user.
-     * @param code (optional) The confirmation token of the user.
-     * @return OK
-     */
-    confirmChangeEmail(userId?: string | null | undefined, code?: string | null | undefined): Observable<void> {
-        let url_ = this.baseUrl + "/api/my-account/change-email/confirm?";
-        if (userId !== undefined)
-            url_ += "userId=" + encodeURIComponent("" + userId) + "&";
-        if (code !== undefined)
-            url_ += "code=" + encodeURIComponent("" + code) + "&";
-        url_ = url_.replace(/[?&]$/, "");
-
-        let options_ : any = {
-            observe: "response",
-            responseType: "blob",
-            headers: new HttpHeaders({
-            })
-        };
-
-        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processConfirmChangeEmail(response_);
-        })).pipe(_observableCatch((response_: any) => {
-            if (response_ instanceof HttpResponseBase) {
-                try {
-                    return this.processConfirmChangeEmail(<any>response_);
-                } catch (e) {
-                    return <Observable<void>><any>_observableThrow(e);
-                }
-            } else
-                return <Observable<void>><any>_observableThrow(response_);
-        }));
-    }
-
-    protected processConfirmChangeEmail(response: HttpResponseBase): Observable<void> {
-        const status = response.status;
-        const responseBlob =
-            response instanceof HttpResponse ? response.body :
-            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
-
-        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
-        if (status === 400) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            let result400: any = null;
-            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result400 = ValidationProblemDetails.fromJS(resultData400);
-            return throwException("Bad Request", status, _responseText, _headers, result400);
-            }));
-        } else if (status === 401) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            let result401: any = null;
-            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result401 = ProblemDetails.fromJS(resultData401);
-            return throwException("Unauthorized", status, _responseText, _headers, result401);
-            }));
-        } else if (status === 403) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            let result403: any = null;
-            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result403 = ProblemDetails.fromJS(resultData403);
-            return throwException("Forbidden", status, _responseText, _headers, result403);
-            }));
-        } else if (status === 200) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            return _observableOf<void>(<any>null);
-            }));
-        } else if (status === 302) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            return throwException("Redirect", status, _responseText, _headers);
-            }));
-        } else if (status === 404) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            let result404: any = null;
-            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result404 = ProblemDetails.fromJS(resultData404);
-            return throwException("Not Found", status, _responseText, _headers, result404);
-            }));
-        } else if (status === 500) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            return throwException("Internal Server Error", status, _responseText, _headers);
-            }));
-        } else if (status !== 200 && status !== 204) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            }));
-        }
-        return _observableOf<void>(<any>null);
-    }
-
-    /**
-     * Changes the password for the current user, but requires the old password to be present.
-     * @param body (optional) Contains info about the user password to change.
-     * @return OK
-     */
-    changePassword(body?: ChangePasswordRequest | undefined): Observable<void> {
-        let url_ = this.baseUrl + "/api/my-account/change-password";
-        url_ = url_.replace(/[?&]$/, "");
-
-        const content_ = JSON.stringify(body);
-
-        let options_ : any = {
-            body: content_,
-            observe: "response",
-            responseType: "blob",
-            headers: new HttpHeaders({
-                "Content-Type": "application/json",
-            })
-        };
-
-        return this.http.request("put", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processChangePassword(response_);
-        })).pipe(_observableCatch((response_: any) => {
-            if (response_ instanceof HttpResponseBase) {
-                try {
-                    return this.processChangePassword(<any>response_);
-                } catch (e) {
-                    return <Observable<void>><any>_observableThrow(e);
-                }
-            } else
-                return <Observable<void>><any>_observableThrow(response_);
-        }));
-    }
-
-    protected processChangePassword(response: HttpResponseBase): Observable<void> {
-        const status = response.status;
-        const responseBlob =
-            response instanceof HttpResponse ? response.body :
-            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
-
-        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
-        if (status === 400) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            let result400: any = null;
-            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result400 = ValidationProblemDetails.fromJS(resultData400);
-            return throwException("Bad Request", status, _responseText, _headers, result400);
-            }));
-        } else if (status === 401) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            let result401: any = null;
-            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result401 = ProblemDetails.fromJS(resultData401);
-            return throwException("Unauthorized", status, _responseText, _headers, result401);
-            }));
-        } else if (status === 403) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            let result403: any = null;
-            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result403 = ProblemDetails.fromJS(resultData403);
-            return throwException("Forbidden", status, _responseText, _headers, result403);
-            }));
-        } else if (status === 200) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            return _observableOf<void>(<any>null);
-            }));
-        } else if (status === 404) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            let result404: any = null;
-            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result404 = ProblemDetails.fromJS(resultData404);
-            return throwException("Not Found", status, _responseText, _headers, result404);
-            }));
-        } else if (status === 500) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            return throwException("Internal Server Error", status, _responseText, _headers);
-            }));
-        } else if (status !== 200 && status !== 204) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            }));
-        }
-        return _observableOf<void>(<any>null);
-    }
-
-    /**
-     * Update the password expiration policy.
-     * @param body (optional) Contains info about the chosen expiration policy.
-     * @return OK
-     */
-    updatePasswordExpirationPolicy(body?: UpdatePasswordExpirationPolicyRequest | undefined): Observable<void> {
-        let url_ = this.baseUrl + "/api/my-account/change-password-policy";
-        url_ = url_.replace(/[?&]$/, "");
-
-        const content_ = JSON.stringify(body);
-
-        let options_ : any = {
-            body: content_,
-            observe: "response",
-            responseType: "blob",
-            headers: new HttpHeaders({
-                "Content-Type": "application/json",
-            })
-        };
-
-        return this.http.request("put", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processUpdatePasswordExpirationPolicy(response_);
-        })).pipe(_observableCatch((response_: any) => {
-            if (response_ instanceof HttpResponseBase) {
-                try {
-                    return this.processUpdatePasswordExpirationPolicy(<any>response_);
-                } catch (e) {
-                    return <Observable<void>><any>_observableThrow(e);
-                }
-            } else
-                return <Observable<void>><any>_observableThrow(response_);
-        }));
-    }
-
-    protected processUpdatePasswordExpirationPolicy(response: HttpResponseBase): Observable<void> {
-        const status = response.status;
-        const responseBlob =
-            response instanceof HttpResponse ? response.body :
-            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
-
-        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
-        if (status === 400) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            let result400: any = null;
-            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result400 = ValidationProblemDetails.fromJS(resultData400);
-            return throwException("Bad Request", status, _responseText, _headers, result400);
-            }));
-        } else if (status === 401) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            let result401: any = null;
-            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result401 = ProblemDetails.fromJS(resultData401);
-            return throwException("Unauthorized", status, _responseText, _headers, result401);
-            }));
-        } else if (status === 403) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            let result403: any = null;
-            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result403 = ProblemDetails.fromJS(resultData403);
-            return throwException("Forbidden", status, _responseText, _headers, result403);
-            }));
-        } else if (status === 200) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            return _observableOf<void>(<any>null);
-            }));
-        } else if (status === 404) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            let result404: any = null;
-            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result404 = ProblemDetails.fromJS(resultData404);
-            return throwException("Not Found", status, _responseText, _headers, result404);
-            }));
-        } else if (status === 500) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            return throwException("Internal Server Error", status, _responseText, _headers);
-            }));
-        } else if (status !== 200 && status !== 204) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            }));
-        }
-        return _observableOf<void>(<any>null);
-    }
-
-    /**
-     * Requests a phone number change for the current user.
-     * @param body (optional) Models a request for changing the phone number.
-     * @return OK
-     */
-    changePhoneNumber(body?: UpdateUserPhoneRequest | undefined): Observable<void> {
-        let url_ = this.baseUrl + "/api/my-account/change-phone";
-        url_ = url_.replace(/[?&]$/, "");
-
-        const content_ = JSON.stringify(body);
-
-        let options_ : any = {
-            body: content_,
-            observe: "response",
-            responseType: "blob",
-            headers: new HttpHeaders({
-                "Content-Type": "application/json",
-            })
-        };
-
-        return this.http.request("put", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processChangePhoneNumber(response_);
-        })).pipe(_observableCatch((response_: any) => {
-            if (response_ instanceof HttpResponseBase) {
-                try {
-                    return this.processChangePhoneNumber(<any>response_);
-                } catch (e) {
-                    return <Observable<void>><any>_observableThrow(e);
-                }
-            } else
-                return <Observable<void>><any>_observableThrow(response_);
-        }));
-    }
-
-    protected processChangePhoneNumber(response: HttpResponseBase): Observable<void> {
-        const status = response.status;
-        const responseBlob =
-            response instanceof HttpResponse ? response.body :
-            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
-
-        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
-        if (status === 400) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            let result400: any = null;
-            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result400 = ValidationProblemDetails.fromJS(resultData400);
-            return throwException("Bad Request", status, _responseText, _headers, result400);
-            }));
-        } else if (status === 401) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            let result401: any = null;
-            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result401 = ProblemDetails.fromJS(resultData401);
-            return throwException("Unauthorized", status, _responseText, _headers, result401);
-            }));
-        } else if (status === 403) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            let result403: any = null;
-            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result403 = ProblemDetails.fromJS(resultData403);
-            return throwException("Forbidden", status, _responseText, _headers, result403);
-            }));
-        } else if (status === 200) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            return _observableOf<void>(<any>null);
-            }));
-        } else if (status === 404) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            let result404: any = null;
-            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result404 = ProblemDetails.fromJS(resultData404);
-            return throwException("Not Found", status, _responseText, _headers, result404);
-            }));
-        } else if (status === 500) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            return throwException("Internal Server Error", status, _responseText, _headers);
-            }));
-        } else if (status !== 200 && status !== 204) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            }));
-        }
-        return _observableOf<void>(<any>null);
-    }
-
-    /**
-     * Confirms the phone number of the user, using the OTP.
-     * @param userId (optional) The id of the user.
-     * @param token (optional) The OTP.
-     * @return Success
-     */
-    confirmChangePhone(userId?: string | null | undefined, token?: string | null | undefined): Observable<void> {
-        let url_ = this.baseUrl + "/api/my-account/change-phone/confirm?";
-        if (userId !== undefined)
-            url_ += "userId=" + encodeURIComponent("" + userId) + "&";
-        if (token !== undefined)
-            url_ += "token=" + encodeURIComponent("" + token) + "&";
-        url_ = url_.replace(/[?&]$/, "");
-
-        let options_ : any = {
-            observe: "response",
-            responseType: "blob",
-            headers: new HttpHeaders({
-            })
-        };
-
-        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processConfirmChangePhone(response_);
-        })).pipe(_observableCatch((response_: any) => {
-            if (response_ instanceof HttpResponseBase) {
-                try {
-                    return this.processConfirmChangePhone(<any>response_);
-                } catch (e) {
-                    return <Observable<void>><any>_observableThrow(e);
-                }
-            } else
-                return <Observable<void>><any>_observableThrow(response_);
-        }));
-    }
-
-    protected processConfirmChangePhone(response: HttpResponseBase): Observable<void> {
-        const status = response.status;
-        const responseBlob =
-            response instanceof HttpResponse ? response.body :
-            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
-
-        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
-        if (status === 400) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            let result400: any = null;
-            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result400 = ValidationProblemDetails.fromJS(resultData400);
-            return throwException("Bad Request", status, _responseText, _headers, result400);
-            }));
-        } else if (status === 401) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            let result401: any = null;
-            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result401 = ProblemDetails.fromJS(resultData401);
-            return throwException("Unauthorized", status, _responseText, _headers, result401);
-            }));
-        } else if (status === 403) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            let result403: any = null;
-            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result403 = ProblemDetails.fromJS(resultData403);
-            return throwException("Forbidden", status, _responseText, _headers, result403);
-            }));
-        } else if (status === 200) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            return _observableOf<void>(<any>null);
-            }));
-        } else if (status === 404) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            let result404: any = null;
-            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result404 = ProblemDetails.fromJS(resultData404);
-            return throwException("Not Found", status, _responseText, _headers, result404);
-            }));
-        } else if (status === 500) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            return throwException("Internal Server Error", status, _responseText, _headers);
-            }));
-        } else if (status !== 200 && status !== 204) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            }));
-        }
-        return _observableOf<void>(<any>null);
-    }
-
-    /**
-     * Changes the username for the current user.
-     * @param body (optional) Models a request for changing the username.
-     * @return OK
-     */
-    changeUserName(body?: ChangeUserNameRequest | undefined): Observable<void> {
-        let url_ = this.baseUrl + "/api/my-account/change-username";
-        url_ = url_.replace(/[?&]$/, "");
-
-        const content_ = JSON.stringify(body);
-
-        let options_ : any = {
-            body: content_,
-            observe: "response",
-            responseType: "blob",
-            headers: new HttpHeaders({
-                "Content-Type": "application/json",
-            })
-        };
-
-        return this.http.request("put", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processChangeUserName(response_);
-        })).pipe(_observableCatch((response_: any) => {
-            if (response_ instanceof HttpResponseBase) {
-                try {
-                    return this.processChangeUserName(<any>response_);
-                } catch (e) {
-                    return <Observable<void>><any>_observableThrow(e);
-                }
-            } else
-                return <Observable<void>><any>_observableThrow(response_);
-        }));
-    }
-
-    protected processChangeUserName(response: HttpResponseBase): Observable<void> {
-        const status = response.status;
-        const responseBlob =
-            response instanceof HttpResponse ? response.body :
-            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
-
-        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
-        if (status === 400) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            let result400: any = null;
-            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result400 = ValidationProblemDetails.fromJS(resultData400);
-            return throwException("Bad Request", status, _responseText, _headers, result400);
-            }));
-        } else if (status === 401) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            let result401: any = null;
-            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result401 = ProblemDetails.fromJS(resultData401);
-            return throwException("Unauthorized", status, _responseText, _headers, result401);
-            }));
-        } else if (status === 403) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            let result403: any = null;
-            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result403 = ProblemDetails.fromJS(resultData403);
-            return throwException("Forbidden", status, _responseText, _headers, result403);
-            }));
-        } else if (status === 200) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            return _observableOf<void>(<any>null);
-            }));
-        } else if (status === 404) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            let result404: any = null;
-            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result404 = ProblemDetails.fromJS(resultData404);
-            return throwException("Not Found", status, _responseText, _headers, result404);
-            }));
-        } else if (status === 500) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            return throwException("Internal Server Error", status, _responseText, _headers);
-            }));
-        } else if (status !== 200 && status !== 204) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            }));
-        }
-        return _observableOf<void>(<any>null);
-    }
-
-    /**
-     * Confirms the email address of a given user.
-     * @param userId (optional) The id of the user.
-     * @param code (optional) The confirmation token of the user.
-     * @return OK
-     */
-    confirmEmail(userId?: string | null | undefined, code?: string | null | undefined): Observable<void> {
-        let url_ = this.baseUrl + "/api/my-account/confirm-email?";
-        if (userId !== undefined)
-            url_ += "userId=" + encodeURIComponent("" + userId) + "&";
-        if (code !== undefined)
-            url_ += "code=" + encodeURIComponent("" + code) + "&";
-        url_ = url_.replace(/[?&]$/, "");
-
-        let options_ : any = {
-            observe: "response",
-            responseType: "blob",
-            headers: new HttpHeaders({
-            })
-        };
-
-        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processConfirmEmail(response_);
-        })).pipe(_observableCatch((response_: any) => {
-            if (response_ instanceof HttpResponseBase) {
-                try {
-                    return this.processConfirmEmail(<any>response_);
-                } catch (e) {
-                    return <Observable<void>><any>_observableThrow(e);
-                }
-            } else
-                return <Observable<void>><any>_observableThrow(response_);
-        }));
-    }
-
-    protected processConfirmEmail(response: HttpResponseBase): Observable<void> {
-        const status = response.status;
-        const responseBlob =
-            response instanceof HttpResponse ? response.body :
-            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
-
-        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
-        if (status === 400) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            let result400: any = null;
-            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result400 = ValidationProblemDetails.fromJS(resultData400);
-            return throwException("Bad Request", status, _responseText, _headers, result400);
-            }));
-        } else if (status === 401) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            let result401: any = null;
-            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result401 = ProblemDetails.fromJS(resultData401);
-            return throwException("Unauthorized", status, _responseText, _headers, result401);
-            }));
-        } else if (status === 403) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            let result403: any = null;
-            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result403 = ProblemDetails.fromJS(resultData403);
-            return throwException("Forbidden", status, _responseText, _headers, result403);
-            }));
-        } else if (status === 200) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            return _observableOf<void>(<any>null);
-            }));
-        } else if (status === 404) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            let result404: any = null;
-            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result404 = ProblemDetails.fromJS(resultData404);
-            return throwException("Not Found", status, _responseText, _headers, result404);
-            }));
-        } else if (status === 500) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            return throwException("Internal Server Error", status, _responseText, _headers);
-            }));
-        } else if (status === 302) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            return throwException("Redirect", status, _responseText, _headers);
-            }));
-        } else if (status !== 200 && status !== 204) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            }));
-        }
-        return _observableOf<void>(<any>null);
     }
 
     /**
@@ -7734,6 +7904,46 @@ export class IdentityApiService implements IIdentityApiService {
     }
 }
 
+/** Models the request to update the email for the user. */
+export class UpdateUserEmailRequest implements IUpdateUserEmailRequest {
+    /** The new user email. */
+    email!: string;
+
+    constructor(data?: IUpdateUserEmailRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.email = _data["email"];
+        }
+    }
+
+    static fromJS(data: any): UpdateUserEmailRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new UpdateUserEmailRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["email"] = this.email;
+        return data; 
+    }
+}
+
+/** Models the request to update the email for the user. */
+export interface IUpdateUserEmailRequest {
+    /** The new user email. */
+    email: string;
+}
+
 export class ValidationProblemDetails implements IValidationProblemDetails {
     readonly errors?: { [key: string]: string[]; } | undefined;
     type?: string | undefined;
@@ -7852,6 +8062,429 @@ export interface IProblemDetails {
     status?: number | undefined;
     detail?: string | undefined;
     instance?: string | undefined;
+}
+
+/** Models a password change request by the user. */
+export class ChangePasswordRequest implements IChangePasswordRequest {
+    /** The current password of the user. */
+    oldPassword!: string;
+    /** The new password of the user. */
+    newPassword!: string;
+    /** The new password confirmation. */
+    newPasswordConfirmation?: string | undefined;
+
+    constructor(data?: IChangePasswordRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.oldPassword = _data["oldPassword"];
+            this.newPassword = _data["newPassword"];
+            this.newPasswordConfirmation = _data["newPasswordConfirmation"];
+        }
+    }
+
+    static fromJS(data: any): ChangePasswordRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new ChangePasswordRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["oldPassword"] = this.oldPassword;
+        data["newPassword"] = this.newPassword;
+        data["newPasswordConfirmation"] = this.newPasswordConfirmation;
+        return data; 
+    }
+}
+
+/** Models a password change request by the user. */
+export interface IChangePasswordRequest {
+    /** The current password of the user. */
+    oldPassword: string;
+    /** The new password of the user. */
+    newPassword: string;
+    /** The new password confirmation. */
+    newPasswordConfirmation?: string | undefined;
+}
+
+/** Indice.AspNetCore.Identity.Models.PasswordExpirationPolicy enum defines all available passord expiration presets. The value is measured in days.            If cast to integer will give you a number in days to add to the current <seealso cref="T:System.DateTime" />. */
+export enum PasswordExpirationPolicy {
+    NextLogin = "NextLogin",
+    Monthly = "Monthly",
+    Quarterly = "Quarterly",
+    Semesterly = "Semesterly",
+    Anually = "Anually",
+    Bianually = "Bianually",
+    Never = "Never",
+}
+
+/** Models the request to update the password expiration policy for the user. */
+export class UpdatePasswordExpirationPolicyRequest implements IUpdatePasswordExpirationPolicyRequest {
+    policy!: PasswordExpirationPolicy;
+
+    constructor(data?: IUpdatePasswordExpirationPolicyRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.policy = _data["policy"];
+        }
+    }
+
+    static fromJS(data: any): UpdatePasswordExpirationPolicyRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new UpdatePasswordExpirationPolicyRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["policy"] = this.policy;
+        return data; 
+    }
+}
+
+/** Models the request to update the password expiration policy for the user. */
+export interface IUpdatePasswordExpirationPolicyRequest {
+    policy: PasswordExpirationPolicy;
+}
+
+/** Models the request to update the phone number for the user. */
+export class UpdateUserPhoneRequest implements IUpdateUserPhoneRequest {
+    /** The new phone number. */
+    phoneNumber!: string;
+
+    constructor(data?: IUpdateUserPhoneRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.phoneNumber = _data["phoneNumber"];
+        }
+    }
+
+    static fromJS(data: any): UpdateUserPhoneRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new UpdateUserPhoneRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["phoneNumber"] = this.phoneNumber;
+        return data; 
+    }
+}
+
+/** Models the request to update the phone number for the user. */
+export interface IUpdateUserPhoneRequest {
+    /** The new phone number. */
+    phoneNumber: string;
+}
+
+/** Models a request for changing the username. */
+export class ChangeUserNameRequest implements IChangeUserNameRequest {
+    /** The new username. */
+    userName!: string;
+
+    constructor(data?: IChangeUserNameRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.userName = _data["userName"];
+        }
+    }
+
+    static fromJS(data: any): ChangeUserNameRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new ChangeUserNameRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["userName"] = this.userName;
+        return data; 
+    }
+}
+
+/** Models a request for changing the username. */
+export interface IChangeUserNameRequest {
+    /** The new username. */
+    userName: string;
+}
+
+export class PasswordOptions implements IPasswordOptions {
+    requiredLength?: number;
+    requiredUniqueChars?: number;
+    requireNonAlphanumeric?: boolean;
+    requireLowercase?: boolean;
+    requireUppercase?: boolean;
+    requireDigit?: boolean;
+
+    constructor(data?: IPasswordOptions) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.requiredLength = _data["requiredLength"];
+            this.requiredUniqueChars = _data["requiredUniqueChars"];
+            this.requireNonAlphanumeric = _data["requireNonAlphanumeric"];
+            this.requireLowercase = _data["requireLowercase"];
+            this.requireUppercase = _data["requireUppercase"];
+            this.requireDigit = _data["requireDigit"];
+        }
+    }
+
+    static fromJS(data: any): PasswordOptions {
+        data = typeof data === 'object' ? data : {};
+        let result = new PasswordOptions();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["requiredLength"] = this.requiredLength;
+        data["requiredUniqueChars"] = this.requiredUniqueChars;
+        data["requireNonAlphanumeric"] = this.requireNonAlphanumeric;
+        data["requireLowercase"] = this.requireLowercase;
+        data["requireUppercase"] = this.requireUppercase;
+        data["requireDigit"] = this.requireDigit;
+        return data; 
+    }
+}
+
+export interface IPasswordOptions {
+    requiredLength?: number;
+    requiredUniqueChars?: number;
+    requireNonAlphanumeric?: boolean;
+    requireLowercase?: boolean;
+    requireUppercase?: boolean;
+    requireDigit?: boolean;
+}
+
+/** Class that models the request for validating a user's username. */
+export class ValidateUserNameRequest implements IValidateUserNameRequest {
+    /** The username. */
+    userName!: string;
+
+    constructor(data?: IValidateUserNameRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.userName = _data["userName"];
+        }
+    }
+
+    static fromJS(data: any): ValidateUserNameRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new ValidateUserNameRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["userName"] = this.userName;
+        return data; 
+    }
+}
+
+/** Class that models the request for validating a user's username. */
+export interface IValidateUserNameRequest {
+    /** The username. */
+    userName: string;
+}
+
+/** Class that models the request for validating a user's password. */
+export class ValidatePasswordRequest implements IValidatePasswordRequest {
+    /** The username. */
+    userName?: string | undefined;
+    /** The password. */
+    password!: string;
+
+    constructor(data?: IValidatePasswordRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.userName = _data["userName"];
+            this.password = _data["password"];
+        }
+    }
+
+    static fromJS(data: any): ValidatePasswordRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new ValidatePasswordRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["userName"] = this.userName;
+        data["password"] = this.password;
+        return data; 
+    }
+}
+
+/** Class that models the request for validating a user's password. */
+export interface IValidatePasswordRequest {
+    /** The username. */
+    userName?: string | undefined;
+    /** The password. */
+    password: string;
+}
+
+/** Models a password validation rule. */
+export class PasswordRuleInfo implements IPasswordRuleInfo {
+    /** The name of the rule checked. */
+    name?: string | undefined;
+    /** The description. */
+    description?: string | undefined;
+    /** Determines if rule validation was successful or not. */
+    isValid?: boolean;
+
+    constructor(data?: IPasswordRuleInfo) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.name = _data["name"];
+            this.description = _data["description"];
+            this.isValid = _data["isValid"];
+        }
+    }
+
+    static fromJS(data: any): PasswordRuleInfo {
+        data = typeof data === 'object' ? data : {};
+        let result = new PasswordRuleInfo();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["name"] = this.name;
+        data["description"] = this.description;
+        data["isValid"] = this.isValid;
+        return data; 
+    }
+}
+
+/** Models a password validation rule. */
+export interface IPasswordRuleInfo {
+    /** The name of the rule checked. */
+    name?: string | undefined;
+    /** The description. */
+    description?: string | undefined;
+    /** Determines if rule validation was successful or not. */
+    isValid?: boolean;
+}
+
+/** Models the result of validating a user's credentials. */
+export class CredentialsValidationInfo implements ICredentialsValidationInfo {
+    /** Contains the results of checking various password validation rules. */
+    passwordRules?: PasswordRuleInfo[] | undefined;
+
+    constructor(data?: ICredentialsValidationInfo) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["passwordRules"])) {
+                this.passwordRules = [] as any;
+                for (let item of _data["passwordRules"])
+                    this.passwordRules!.push(PasswordRuleInfo.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): CredentialsValidationInfo {
+        data = typeof data === 'object' ? data : {};
+        let result = new CredentialsValidationInfo();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.passwordRules)) {
+            data["passwordRules"] = [];
+            for (let item of this.passwordRules)
+                data["passwordRules"].push(item.toJSON());
+        }
+        return data; 
+    }
+}
+
+/** Models the result of validating a user's credentials. */
+export interface ICredentialsValidationInfo {
+    /** Contains the results of checking various password validation rules. */
+    passwordRules?: PasswordRuleInfo[] | undefined;
 }
 
 /** Models an application setting persisted in the database. */
@@ -9743,283 +10376,6 @@ export interface ISummaryInfo {
     numberOfUsers?: number;
     /** The total number of users. */
     numberOfClients?: number;
-}
-
-export class PasswordOptions implements IPasswordOptions {
-    requiredLength?: number;
-    requiredUniqueChars?: number;
-    requireNonAlphanumeric?: boolean;
-    requireLowercase?: boolean;
-    requireUppercase?: boolean;
-    requireDigit?: boolean;
-
-    constructor(data?: IPasswordOptions) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.requiredLength = _data["requiredLength"];
-            this.requiredUniqueChars = _data["requiredUniqueChars"];
-            this.requireNonAlphanumeric = _data["requireNonAlphanumeric"];
-            this.requireLowercase = _data["requireLowercase"];
-            this.requireUppercase = _data["requireUppercase"];
-            this.requireDigit = _data["requireDigit"];
-        }
-    }
-
-    static fromJS(data: any): PasswordOptions {
-        data = typeof data === 'object' ? data : {};
-        let result = new PasswordOptions();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["requiredLength"] = this.requiredLength;
-        data["requiredUniqueChars"] = this.requiredUniqueChars;
-        data["requireNonAlphanumeric"] = this.requireNonAlphanumeric;
-        data["requireLowercase"] = this.requireLowercase;
-        data["requireUppercase"] = this.requireUppercase;
-        data["requireDigit"] = this.requireDigit;
-        return data; 
-    }
-}
-
-export interface IPasswordOptions {
-    requiredLength?: number;
-    requiredUniqueChars?: number;
-    requireNonAlphanumeric?: boolean;
-    requireLowercase?: boolean;
-    requireUppercase?: boolean;
-    requireDigit?: boolean;
-}
-
-/** Models the request to update the email for the user. */
-export class UpdateUserEmailRequest implements IUpdateUserEmailRequest {
-    /** The new user email. */
-    email!: string;
-
-    constructor(data?: IUpdateUserEmailRequest) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.email = _data["email"];
-        }
-    }
-
-    static fromJS(data: any): UpdateUserEmailRequest {
-        data = typeof data === 'object' ? data : {};
-        let result = new UpdateUserEmailRequest();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["email"] = this.email;
-        return data; 
-    }
-}
-
-/** Models the request to update the email for the user. */
-export interface IUpdateUserEmailRequest {
-    /** The new user email. */
-    email: string;
-}
-
-/** Models a password change request by the user. */
-export class ChangePasswordRequest implements IChangePasswordRequest {
-    /** The current password of the user. */
-    oldPassword!: string;
-    /** The new password of the user. */
-    newPassword!: string;
-    /** The new password confirmation. */
-    newPasswordConfirmation?: string | undefined;
-
-    constructor(data?: IChangePasswordRequest) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.oldPassword = _data["oldPassword"];
-            this.newPassword = _data["newPassword"];
-            this.newPasswordConfirmation = _data["newPasswordConfirmation"];
-        }
-    }
-
-    static fromJS(data: any): ChangePasswordRequest {
-        data = typeof data === 'object' ? data : {};
-        let result = new ChangePasswordRequest();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["oldPassword"] = this.oldPassword;
-        data["newPassword"] = this.newPassword;
-        data["newPasswordConfirmation"] = this.newPasswordConfirmation;
-        return data; 
-    }
-}
-
-/** Models a password change request by the user. */
-export interface IChangePasswordRequest {
-    /** The current password of the user. */
-    oldPassword: string;
-    /** The new password of the user. */
-    newPassword: string;
-    /** The new password confirmation. */
-    newPasswordConfirmation?: string | undefined;
-}
-
-/** Indice.AspNetCore.Identity.Models.PasswordExpirationPolicy enum defines all available passord expiration presets. The value is measured in days.            If cast to integer will give you a number in days to add to the current <seealso cref="T:System.DateTime" />. */
-export enum PasswordExpirationPolicy {
-    NextLogin = "NextLogin",
-    Monthly = "Monthly",
-    Quarterly = "Quarterly",
-    Semesterly = "Semesterly",
-    Anually = "Anually",
-    Bianually = "Bianually",
-    Never = "Never",
-}
-
-/** Models the request to update the password expiration policy for the user. */
-export class UpdatePasswordExpirationPolicyRequest implements IUpdatePasswordExpirationPolicyRequest {
-    policy!: PasswordExpirationPolicy;
-
-    constructor(data?: IUpdatePasswordExpirationPolicyRequest) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.policy = _data["policy"];
-        }
-    }
-
-    static fromJS(data: any): UpdatePasswordExpirationPolicyRequest {
-        data = typeof data === 'object' ? data : {};
-        let result = new UpdatePasswordExpirationPolicyRequest();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["policy"] = this.policy;
-        return data; 
-    }
-}
-
-/** Models the request to update the password expiration policy for the user. */
-export interface IUpdatePasswordExpirationPolicyRequest {
-    policy: PasswordExpirationPolicy;
-}
-
-/** Models the request to update the phone number for the user. */
-export class UpdateUserPhoneRequest implements IUpdateUserPhoneRequest {
-    /** The new phone number. */
-    phoneNumber!: string;
-
-    constructor(data?: IUpdateUserPhoneRequest) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.phoneNumber = _data["phoneNumber"];
-        }
-    }
-
-    static fromJS(data: any): UpdateUserPhoneRequest {
-        data = typeof data === 'object' ? data : {};
-        let result = new UpdateUserPhoneRequest();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["phoneNumber"] = this.phoneNumber;
-        return data; 
-    }
-}
-
-/** Models the request to update the phone number for the user. */
-export interface IUpdateUserPhoneRequest {
-    /** The new phone number. */
-    phoneNumber: string;
-}
-
-/** Models a request for changing the username. */
-export class ChangeUserNameRequest implements IChangeUserNameRequest {
-    /** The new username. */
-    userName!: string;
-
-    constructor(data?: IChangeUserNameRequest) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.userName = _data["userName"];
-        }
-    }
-
-    static fromJS(data: any): ChangeUserNameRequest {
-        data = typeof data === 'object' ? data : {};
-        let result = new ChangeUserNameRequest();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["userName"] = this.userName;
-        return data; 
-    }
-}
-
-/** Models a request for changing the username. */
-export interface IChangeUserNameRequest {
-    /** The new username. */
-    userName: string;
 }
 
 /** Models an identity resource for the application. */

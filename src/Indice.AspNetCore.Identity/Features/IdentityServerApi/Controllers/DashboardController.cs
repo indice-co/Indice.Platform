@@ -30,6 +30,10 @@ namespace Indice.AspNetCore.Identity.Features
     {
         private readonly ExtendedUserManager<User> _userManager;
         private readonly ExtendedConfigurationDbContext _configurationDbContext;
+        /// <summary>
+        /// The name of the controller.
+        /// </summary>
+        public const string Name = "Dashboard";
 
         /// <summary>
         /// Creates a new instance of <see cref="DashboardController"/>.

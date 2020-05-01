@@ -42,7 +42,7 @@ namespace Indice.AspNetCore.Identity.Features
     [ProducesResponseType(statusCode: StatusCodes.Status403Forbidden, type: typeof(ProblemDetails))]
     [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme, Policy = IdentityServerApi.SubScopes.Users)]
     [ProblemDetailsExceptionFilter]
-    internal class UserController : ControllerBase
+    internal class UsersController : ControllerBase
     {
         private readonly ExtendedUserManager<User> _userManager;
         private readonly RoleManager<Role> _roleManager;
@@ -52,16 +52,16 @@ namespace Indice.AspNetCore.Identity.Features
         private readonly IdentityServerApiEndpointsOptions _apiEndpointsOptions;
         private readonly IEventService _eventService;
         private readonly GeneralSettings _generalSettings;
-        private readonly IStringLocalizer<UserController> _localizer;
+        private readonly IStringLocalizer<UsersController> _localizer;
         private readonly EmailVerificationOptions _userEmailVerificationOptions;
         private readonly IEmailService _emailService;
         /// <summary>
         /// The name of the controller.
         /// </summary>
-        public const string Name = "User";
+        public const string Name = "Users";
 
         /// <summary>
-        /// Creates an instance of <see cref="UserController"/>.
+        /// Creates an instance of <see cref="UsersController"/>.
         /// </summary>
         /// <param name="userManager">Provides the APIs for managing user in a persistence store.</param>
         /// <param name="roleManager">Provides the APIs for managing roles in a persistence store.</param>
@@ -71,11 +71,11 @@ namespace Indice.AspNetCore.Identity.Features
         /// <param name="apiEndpointsOptions">Options for configuring the IdentityServer API feature.</param>
         /// <param name="eventService">Models the event mechanism used to raise events inside the IdentityServer API.</param>
         /// <param name="generalSettings">General settings for an ASP.NET Core application.</param>
-        /// <param name="localizer">Represents an <see cref="IStringLocalizer"/> that provides strings for <see cref="UserController"/>.</param>
+        /// <param name="localizer">Represents an <see cref="IStringLocalizer"/> that provides strings for <see cref="UsersController"/>.</param>
         /// <param name="userEmailVerificationOptions">Options for the email sent to user for verification.</param>
         /// <param name="emailService">A service responsible for sending emails.</param>
-        public UserController(ExtendedUserManager<User> userManager, RoleManager<Role> roleManager, ExtendedIdentityDbContext<User, Role> dbContext, IPersistedGrantService persistedGrantService, IClientStore clientStore,
-            IdentityServerApiEndpointsOptions apiEndpointsOptions, IEventService eventService, IOptions<GeneralSettings> generalSettings, IStringLocalizer<UserController> localizer,
+        public UsersController(ExtendedUserManager<User> userManager, RoleManager<Role> roleManager, ExtendedIdentityDbContext<User, Role> dbContext, IPersistedGrantService persistedGrantService, IClientStore clientStore,
+            IdentityServerApiEndpointsOptions apiEndpointsOptions, IEventService eventService, IOptions<GeneralSettings> generalSettings, IStringLocalizer<UsersController> localizer,
             EmailVerificationOptions userEmailVerificationOptions = null, IEmailService emailService = null) {
             _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
             _roleManager = roleManager ?? throw new ArgumentNullException(nameof(roleManager));
@@ -649,7 +649,7 @@ namespace Indice.AspNetCore.Identity.Features
                     $"{nameof(ServiceCollectionExtensions.AddEmailServiceSparkpost)} extensions on {nameof(IServiceCollection)} or provide your own implementation.");
             }
             var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-            var callbackUrl = $"{_generalSettings.Host}{Url.Action(nameof(MyAccountController.ConfirmEmail), MyAccountController.Name, new { userId = user.Id, code })}";
+            var callbackUrl = $"{_generalSettings.Host}{Url.Action(nameof(AccountController.ConfirmEmail), AccountController.Name, new { userId = user.Id, code })}";
             var recipient = user.Email;
             var subject = _userEmailVerificationOptions.Subject;
             var body = _userEmailVerificationOptions.Body.Replace("{callbackUrl}", callbackUrl);

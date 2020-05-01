@@ -28,19 +28,19 @@ namespace Indice.AspNetCore.Identity.Features
     [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme, Policy = IdentityServerApi.Admin)]
     [CacheResourceFilter]
     [ProblemDetailsExceptionFilter]
-    internal class ClaimTypeController : ControllerBase
+    internal class ClaimTypesController : ControllerBase
     {
         private readonly ExtendedIdentityDbContext<User, Role> _dbContext;
         /// <summary>
         /// The name of the controller.
         /// </summary>
-        public const string Name = "ClaimType";
+        public const string Name = "ClaimTypes";
 
         /// <summary>
-        /// Creates an instance of <see cref="ClaimTypeController"/>.
+        /// Creates an instance of <see cref="ClaimTypesController"/>.
         /// </summary>
         /// <param name="dbContext"><see cref="DbContext"/> for the Identity Framework.</param>
-        public ClaimTypeController(ExtendedIdentityDbContext<User, Role> dbContext) {
+        public ClaimTypesController(ExtendedIdentityDbContext<User, Role> dbContext) {
             _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
         }
 

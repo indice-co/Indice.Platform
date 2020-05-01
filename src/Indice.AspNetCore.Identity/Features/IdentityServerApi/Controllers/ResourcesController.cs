@@ -31,7 +31,7 @@ namespace Indice.AspNetCore.Identity.Features
     [ProducesResponseType(statusCode: StatusCodes.Status403Forbidden, type: typeof(ProblemDetails))]
     [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme, Policy = IdentityServerApi.Admin)]
     [ProblemDetailsExceptionFilter]
-    internal class ResourceController : ControllerBase
+    internal class ResourcesController : ControllerBase
     {
         private readonly ExtendedConfigurationDbContext _configurationDbContext;
         /// <summary>
@@ -40,10 +40,10 @@ namespace Indice.AspNetCore.Identity.Features
         public const string Name = "Resources";
 
         /// <summary>
-        /// Creates an instance of <see cref="ResourceController"/>.
+        /// Creates an instance of <see cref="ResourcesController"/>.
         /// </summary>
         /// <param name="configurationDbContext">Abstraction for the configuration context.</param>
-        public ResourceController(ExtendedConfigurationDbContext configurationDbContext) {
+        public ResourcesController(ExtendedConfigurationDbContext configurationDbContext) {
             _configurationDbContext = configurationDbContext ?? throw new ArgumentNullException(nameof(configurationDbContext));
         }
 

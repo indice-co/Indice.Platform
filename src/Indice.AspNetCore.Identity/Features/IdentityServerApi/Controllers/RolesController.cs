@@ -30,19 +30,19 @@ namespace Indice.AspNetCore.Identity.Features
     [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme, Policy = IdentityServerApi.Admin)]
     [CacheResourceFilter]
     [ProblemDetailsExceptionFilter]
-    internal class RoleController : ControllerBase
+    internal class RolesController : ControllerBase
     {
         private readonly RoleManager<Role> _roleManager;
         /// <summary>
         /// The name of the controller.
         /// </summary>
-        public const string Name = "Role";
+        public const string Name = "Roles";
 
         /// <summary>
-        /// Creates an instance of <see cref="RoleController"/>.
+        /// Creates an instance of <see cref="RolesController"/>.
         /// </summary>
         /// <param name="roleManager">Provides the APIs for managing roles in a persistence store.</param>
-        public RoleController(RoleManager<Role> roleManager) {
+        public RolesController(RoleManager<Role> roleManager) {
             _roleManager = roleManager ?? throw new ArgumentNullException(nameof(roleManager));
         }
 

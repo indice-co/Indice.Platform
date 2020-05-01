@@ -37,7 +37,7 @@ namespace Indice.AspNetCore.Identity.Features
     [ProducesResponseType(statusCode: StatusCodes.Status403Forbidden, type: typeof(ProblemDetails))]
     [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme, Policy = IdentityServerApi.SubScopes.Clients)]
     [ProblemDetailsExceptionFilter]
-    internal class ClientController : ControllerBase
+    internal class ClientsController : ControllerBase
     {
         private readonly ExtendedConfigurationDbContext _configurationDbContext;
         private readonly GeneralSettings _generalSettings;
@@ -46,16 +46,16 @@ namespace Indice.AspNetCore.Identity.Features
         /// <summary>
         /// The name of the controller.
         /// </summary>
-        public const string Name = "Client";
+        public const string Name = "Clients";
 
         /// <summary>
-        /// Creates an instance of <see cref="ClientController"/>.
+        /// Creates an instance of <see cref="ClientsController"/>.
         /// </summary>
         /// <param name="configurationDbContext">Abstraction for the configuration context.</param>
         /// <param name="generalSettings">Applications general settings.</param>
         /// <param name="eventService">Models the event mechanism used to raise events inside the IdentityServer API.</param>
         /// <param name="apiEndpointsOptions">Options for configuring the IdentityServer API feature.</param>
-        public ClientController(ExtendedConfigurationDbContext configurationDbContext, IOptionsSnapshot<GeneralSettings> generalSettings, IEventService eventService, IdentityServerApiEndpointsOptions apiEndpointsOptions) {
+        public ClientsController(ExtendedConfigurationDbContext configurationDbContext, IOptionsSnapshot<GeneralSettings> generalSettings, IEventService eventService, IdentityServerApiEndpointsOptions apiEndpointsOptions) {
             _configurationDbContext = configurationDbContext ?? throw new ArgumentNullException(nameof(configurationDbContext));
             _generalSettings = generalSettings?.Value ?? throw new ArgumentNullException(nameof(generalSettings));
             _eventService = eventService ?? throw new ArgumentNullException(nameof(eventService));
