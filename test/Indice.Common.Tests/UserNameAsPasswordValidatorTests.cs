@@ -19,7 +19,7 @@ namespace Indice.Common.Tests
         [InlineData("oltz")]
         [InlineData("ltza")]
         [InlineData("tzas")]
-        public async Task CheckInvalidUserNames(string password) {
+        public async Task CheckInvalidPasswords(string password) {
             const string UserName = "gmanoltzas";
             var configurationBuilder = new ConfigurationBuilder().AddInMemoryCollection(new List<KeyValuePair<string, string>> {
                 new KeyValuePair<string, string>($"{nameof(PasswordOptions)}:{nameof(UserNameAsPasswordValidator<User>.MaxAllowedUserNameSubset)}", "3")
@@ -40,7 +40,7 @@ namespace Indice.Common.Tests
         [InlineData("ltz")]
         [InlineData("tza")]
         [InlineData("zas")]
-        public async Task CheckValidUserNames(string password) {
+        public async Task CheckValidPasswords(string password) {
             const string UserName = "gmanoltzas";
             var configurationBuilder = new ConfigurationBuilder().AddInMemoryCollection(new List<KeyValuePair<string, string>> {
                 new KeyValuePair<string, string>($"{nameof(PasswordOptions)}:{nameof(UserNameAsPasswordValidator<User>.MaxAllowedUserNameSubset)}", "3")

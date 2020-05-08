@@ -25,7 +25,7 @@ namespace Indice.Identity.Services
         /// </summary>
         /// <param name="event">Client created event info.</param>
         public Task Handle(ClientCreatedEvent @event) {
-            _logger.LogDebug($"Client created: {@event.ToString()}");
+            _logger.LogDebug($"Client created: {@event}");
             return Task.CompletedTask;
         }
     }

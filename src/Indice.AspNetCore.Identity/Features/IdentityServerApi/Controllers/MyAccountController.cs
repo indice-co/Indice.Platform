@@ -32,18 +32,16 @@ namespace Indice.AspNetCore.Identity.Features
     [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest, type: typeof(ValidationProblemDetails))]
     [ProducesResponseType(statusCode: StatusCodes.Status401Unauthorized, type: typeof(ProblemDetails))]
     [ProducesResponseType(statusCode: StatusCodes.Status403Forbidden, type: typeof(ProblemDetails))]
-    [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme)]
+    [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme, Policy = IdentityServerApi.Scope)]
     [ProblemDetailsExceptionFilter]
-    internal class AccountController : ControllerBase
+    internal class MyAccountController : ControllerBase
     {
         private readonly ExtendedUserManager<User> _userManager;
-        private readonly EmailVerificationOptions _userEmailVerificationOptions;
-        private readonly ChangeEmailOptions _changeEmailOptions;
-        private readonly ChangePhoneNumberOptions _changePhoneNumberOptions;
         private readonly GeneralSettings _generalSettings;
-        private readonly IEmailService _emailService;
-        private readonly ISmsService _smsService;
         private readonly IdentityOptions _identityOptions;
+        private readonly IdentityServerApiEndpointsOptions _identityServerApiEndpointsOptions;
+        private readonly ISmsService _smsService;
+        private readonly IEmailService _emailService;
         private readonly IList<string> _errorCodes = new List<string> {
             nameof(IdentityErrorDescriber.PasswordTooShort),
             nameof(IdentityErrorDescriber.PasswordRequiresNonAlphanumeric),
@@ -55,129 +53,145 @@ namespace Indice.AspNetCore.Identity.Features
         /// <summary>
         /// The name of the controller.
         /// </summary>
-        public const string Name = "Account";
+        public const string Name = "MyAccount";
 
-        public AccountController(ExtendedUserManager<User> userManager, IOptions<GeneralSettings> generalSettings, IOptionsSnapshot<IdentityOptions> identityOptions, EmailVerificationOptions userEmailVerificationOptions = null,
-            ChangeEmailOptions changeEmailOptions = null, ChangePhoneNumberOptions changePhoneNumberOptions = null, IEmailService emailService = null, ISmsService smsService = null) {
+        public MyAccountController(ExtendedUserManager<User> userManager, IOptions<GeneralSettings> generalSettings, IOptionsSnapshot<IdentityOptions> identityOptions,
+            IdentityServerApiEndpointsOptions identityServerApiEndpointsOptions, ISmsService smsService, IEmailService emailService) {
             _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
             _generalSettings = generalSettings?.Value ?? throw new ArgumentNullException(nameof(generalSettings));
             _identityOptions = identityOptions?.Value ?? throw new ArgumentNullException(nameof(identityOptions));
-            _userEmailVerificationOptions = userEmailVerificationOptions;
-            _changeEmailOptions = changeEmailOptions;
-            _changePhoneNumberOptions = changePhoneNumberOptions;
-            _emailService = emailService;
+            _identityServerApiEndpointsOptions = identityServerApiEndpointsOptions ?? throw new ArgumentNullException(nameof(identityServerApiEndpointsOptions));
             _smsService = smsService;
+            _emailService = emailService;
         }
 
         /// <summary>
-        /// Requests an email change for the current user.
+        /// Updates the email of the current user.
         /// </summary>
-        /// <param name="request">Models a request for changing the email.</param>
-        /// <response code="200">OK</response>
+        /// <param name="request">Models a request for changing the email address.</param>
+        /// <response code="204">No Content</response>
         /// <response code="404">Not Found</response>
-        [HttpPut("my/change-email")]
-        [ProducesResponseType(statusCode: StatusCodes.Status200OK, type: typeof(void))]
+        [HttpPut("my/email")]
+        [ProducesResponseType(statusCode: StatusCodes.Status204NoContent, type: typeof(void))]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
-        public async Task<IActionResult> ChangeEmail([FromBody]UpdateUserEmailRequest request) {
+        public async Task<IActionResult> UpdateEmail([FromBody]UpdateUserEmailRequest request) {
             var user = await _userManager.GetUserAsync(User);
             if (user == null) {
                 return NotFound();
             }
             var currentEmail = await _userManager.GetEmailAsync(user);
             if (currentEmail.Equals(request.Email, StringComparison.OrdinalIgnoreCase)) {
-                return BadRequest(new ValidationProblemDetails(new Dictionary<string, string[]> {
-                    { nameof(request), new string[] { $"User already has email '{request.Email}'." } }
-                }));
+                ModelState.AddModelError(nameof(request.Email).ToLower(), $"User already has email '{request.Email}'.");
+                return BadRequest(new ValidationProblemDetails(ModelState));
             }
             var result = await _userManager.SetEmailAsync(user, request.Email);
             if (!result.Succeeded) {
                 return BadRequest(result.Errors.ToValidationProblemDetails());
             }
-            await SendEmailConfirmation(user);
-            return Ok();
+            if (!_identityServerApiEndpointsOptions.Email.SendEmailOnUpdate) {
+                return NoContent();
+            }
+            if (_emailService == null) {
+                var message = $"No concrete implementation of {nameof(IEmailService)} is registered. " +
+                              $"Check {nameof(ServiceCollectionExtensions.AddEmailService)}, {nameof(ServiceCollectionExtensions.AddEmailServiceSmtpRazor)} or " +
+                              $"{nameof(ServiceCollectionExtensions.AddEmailServiceSparkpost)} extensions on {nameof(IServiceCollection)} or provide your own implementation.";
+                throw new Exception(message);
+            }
+            var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+            var subject = _identityServerApiEndpointsOptions.Email.Subject;
+            var body = _identityServerApiEndpointsOptions.Email.Body.Replace("{token}", token);
+            var data = new User {
+                UserName = User.FindDisplayName() ?? user.UserName
+            };
+            await _emailService.SendAsync<User>(message => message.To(user.Email).WithSubject(subject).WithBody(body).WithData(data));
+            return NoContent();
         }
 
         /// <summary>
         /// Confirms the email address of a given user.
         /// </summary>
-        /// <param name="userId">The id of the user.</param>
-        /// <param name="code">The confirmation token of the user.</param>
-        /// <response code="200">OK</response>
-        /// <response code="302">Redirect</response>
+        /// <param name="request"></param>
+        /// <response code="204">No Content</response>
         /// <response code="404">Not Found</response>
-        [AllowAnonymous]
-        [HttpGet("my/change-email/confirm")]
-        [ProducesResponseType(statusCode: StatusCodes.Status200OK, type: typeof(void))]
-        [ProducesResponseType(statusCode: StatusCodes.Status302Found, type: typeof(void))]
+        [HttpPut("my/email/confirmation")]
+        [ProducesResponseType(statusCode: StatusCodes.Status204NoContent, type: typeof(void))]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
-        public async Task<IActionResult> ConfirmChangeEmail([FromQuery]string userId, [FromQuery]string code) => await ConfirmEmailInternal(userId, code, _changeEmailOptions?.ReturnUrl);
+        public async Task<IActionResult> ConfirmEmail([FromBody]ConfirmEmailRequest request) {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null) {
+                return NotFound();
+            }
+            if (user.EmailConfirmed) {
+                ModelState.AddModelError(nameof(request.Token).ToLower(), "User's email is already confirmed.");
+                return BadRequest(new ValidationProblemDetails(ModelState));
+            }
+            var result = await _userManager.ConfirmEmailAsync(user, request.Token);
+            if (!result.Succeeded) {
+                return BadRequest(result.Errors.ToValidationProblemDetails());
+            }
+            return NoContent();
+        }
 
         /// <summary>
         /// Requests a phone number change for the current user.
         /// </summary>
         /// <param name="request">Models a request for changing the phone number.</param>
-        /// <response code="200">OK</response>
+        /// <response code="204">No Content</response>
         /// <response code="404">Not Found</response>
-        [HttpPut("my/change-phone")]
-        [ProducesResponseType(statusCode: StatusCodes.Status200OK, type: typeof(void))]
+        [HttpPut("my/phone-number")]
+        [ProducesResponseType(statusCode: StatusCodes.Status204NoContent, type: typeof(void))]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
-        public async Task<IActionResult> ChangePhoneNumber([FromBody]UpdateUserPhoneRequest request) {
+        public async Task<IActionResult> UpdatePhoneNumber([FromBody]UpdateUserPhoneNumberRequest request) {
             var user = await _userManager.GetUserAsync(User);
             if (user == null) {
                 return NotFound();
             }
             var currentPhoneNumber = await _userManager.GetPhoneNumberAsync(user);
             if (currentPhoneNumber.Equals(request.PhoneNumber, StringComparison.OrdinalIgnoreCase)) {
-                return BadRequest(new ValidationProblemDetails(new Dictionary<string, string[]> {
-                    { nameof(request), new string[] { $"User already has phone number '{request.PhoneNumber}'." } }
-                }));
+                ModelState.AddModelError(nameof(request.PhoneNumber).ToLower(), $"User already has phone number '{request.PhoneNumber}'.");
+                return BadRequest(new ValidationProblemDetails(ModelState));
             }
             var result = await _userManager.SetPhoneNumberAsync(user, request.PhoneNumber);
             if (!result.Succeeded) {
                 return BadRequest(result.Errors.ToValidationProblemDetails());
             }
-            if (_changePhoneNumberOptions == null) {
-                return Ok();
+            if (!_identityServerApiEndpointsOptions.PhoneNumber.SendOtpOnUpdate) {
+                return NoContent();
             }
             if (_smsService == null) {
-                throw new Exception($"No concrete implementation of {nameof(ISmsService)} is registered. Check {nameof(ServiceCollectionExtensions.AddSmsServiceYouboto)} extension on {nameof(IServiceCollection)} or provide " +
-                    $"your own implementation.");
+                var message = $"No concrete implementation of {nameof(ISmsService)} is registered. " +
+                              $"Check {nameof(ServiceCollectionExtensions.AddSmsServiceYouboto)} extension on {nameof(IServiceCollection)} or provide your own implementation.";
+                throw new Exception(message);
             }
-            var code = await _userManager.GenerateChangePhoneNumberTokenAsync(user, request.PhoneNumber);
-            var message = _changePhoneNumberOptions.Message.Replace("{code}", code);
-            await _smsService.SendAsync(request.PhoneNumber, _changePhoneNumberOptions.Subject, message);
-            return Ok();
+            var token = await _userManager.GenerateChangePhoneNumberTokenAsync(user, request.PhoneNumber);
+            var smsMessage = _identityServerApiEndpointsOptions.PhoneNumber.Message.Replace("{token}", token);
+            await _smsService.SendAsync(request.PhoneNumber, string.Empty, smsMessage);
+            return NoContent();
         }
 
         /// <summary>
-        /// Confirms the phone number of the user, using the OTP.
+        /// Confirms the phone number of the user, using the OTP token.
         /// </summary>
-        /// <param name="userId">The id of the user.</param>
-        /// <param name="token">The OTP.</param>
-        [AllowAnonymous]
-        [HttpGet("my/change-phone/confirm")]
-        [ProducesResponseType(statusCode: StatusCodes.Status200OK, type: typeof(void))]
+        /// <param name="request"></param>
+        /// <response code="204">No Content</response>
+        /// <response code="404">Not Found</response>
+        [HttpPut("my/phone-number/confirmation")]
+        [ProducesResponseType(statusCode: StatusCodes.Status204NoContent, type: typeof(void))]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
-        public async Task<IActionResult> ConfirmChangePhone([FromQuery]string userId, [FromQuery]string token) {
-            if (string.IsNullOrEmpty(userId)) {
-                return BadRequest(new ValidationProblemDetails(new Dictionary<string, string[]> {
-                    { nameof(userId), new string[] { $"Query parameter {nameof(userId)} is missing." } }
-                }));
-            }
-            if (string.IsNullOrEmpty(token)) {
-                return BadRequest(new ValidationProblemDetails(new Dictionary<string, string[]> {
-                    { nameof(token), new string[] { $"Query parameter {nameof(token)} is missing." } }
-                }));
-            }
-            var user = await _userManager.FindByIdAsync(userId);
+        public async Task<IActionResult> ConfirmPhoneNumber([FromBody]ConfirmPhoneNumberRequest request) {
+            var user = await _userManager.GetUserAsync(User);
             if (user == null) {
                 return NotFound();
             }
-            var result = await _userManager.ChangePhoneNumberAsync(user, user.PhoneNumber, token);
+            if (user.PhoneNumberConfirmed) {
+                ModelState.AddModelError(nameof(request.Token).ToLower(), "User's phone number is already confirmed.");
+                return BadRequest(new ValidationProblemDetails(ModelState));
+            }
+            var result = await _userManager.ChangePhoneNumberAsync(user, user.PhoneNumber, request.Token);
             if (!result.Succeeded) {
                 return BadRequest(result.Errors.ToValidationProblemDetails());
             }
-            return Ok();
+            return NoContent();
         }
 
         /// <summary>
@@ -186,10 +200,10 @@ namespace Indice.AspNetCore.Identity.Features
         /// <param name="request">Models a request for changing the username.</param>
         /// <response code="200">OK</response>
         /// <response code="404">Not Found</response>
-        [HttpPut("my/change-username")]
+        [HttpPut("my/username")]
         [ProducesResponseType(statusCode: StatusCodes.Status200OK, type: typeof(void))]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
-        public async Task<IActionResult> ChangeUserName([FromBody]ChangeUserNameRequest request) {
+        public async Task<IActionResult> UpdateUserName([FromBody]UpdateUserNameRequest request) {
             var user = await _userManager.GetUserAsync(User);
             if (user == null) {
                 return NotFound();
@@ -205,12 +219,12 @@ namespace Indice.AspNetCore.Identity.Features
         /// Changes the password for the current user, but requires the old password to be present.
         /// </summary>
         /// <param name="request">Contains info about the user password to change.</param>
-        /// <response code="200">OK</response>
+        /// <response code="204">No Content</response>
         /// <response code="404">Not Found</response>
-        [HttpPut("my/change-password")]
-        [ProducesResponseType(statusCode: StatusCodes.Status200OK, type: typeof(void))]
+        [HttpPut("my/password")]
+        [ProducesResponseType(statusCode: StatusCodes.Status204NoContent, type: typeof(void))]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
-        public async Task<IActionResult> ChangePassword([FromBody]ChangePasswordRequest request) {
+        public async Task<IActionResult> UpdatePassword([FromBody]ChangePasswordRequest request) {
             var user = await _userManager.GetUserAsync(User);
             if (user == null) {
                 return NotFound();
@@ -219,17 +233,17 @@ namespace Indice.AspNetCore.Identity.Features
             if (!result.Succeeded) {
                 return BadRequest(result.Errors.ToValidationProblemDetails());
             }
-            return Ok();
+            return NoContent();
         }
 
         /// <summary>
         /// Update the password expiration policy.
         /// </summary>
         /// <param name="request">Contains info about the chosen expiration policy.</param>
-        /// <response code="200">OK</response>
+        /// <response code="204">No Content</response>
         /// <response code="404">Not Found</response>
-        [HttpPut("my/change-password-policy")]
-        [ProducesResponseType(statusCode: StatusCodes.Status200OK, type: typeof(void))]
+        [HttpPut("my/password-expiration-policy")]
+        [ProducesResponseType(statusCode: StatusCodes.Status204NoContent, type: typeof(void))]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
         public async Task<IActionResult> UpdatePasswordExpirationPolicy([FromBody]UpdatePasswordExpirationPolicyRequest request) {
             var user = await _userManager.GetUserAsync(User);
@@ -238,22 +252,20 @@ namespace Indice.AspNetCore.Identity.Features
             }
             user.PasswordExpirationPolicy = request.Policy;
             await _userManager.UpdateAsync(user);
-            return Ok();
+            return NoContent();
         }
 
         /// <summary>
-        /// Confirms the email address of a given user.
+        /// Permanently deletes current user's account.
         /// </summary>
-        /// <param name="userId">The id of the user.</param>
-        /// <param name="code">The confirmation token of the user.</param>
-        /// <response code="200">OK</response>
-        /// <response code="302">Redirect</response>
-        /// <response code="404">Not Found</response>
-        [AllowAnonymous]
-        [HttpGet("my/confirm-email")]
-        [ProducesResponseType(statusCode: StatusCodes.Status200OK, type: typeof(void))]
-        [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
-        public async Task<IActionResult> ConfirmEmail([FromQuery]string userId, [FromQuery]string code) => await ConfirmEmailInternal(userId, code, _userEmailVerificationOptions?.ReturnUrl);
+        /// <response code="204">No Content</response>
+        [HttpDelete("my")]
+        [ProducesResponseType(statusCode: StatusCodes.Status204NoContent, type: typeof(void))]
+        public async Task<IActionResult> DeleteAccount() {
+            var currentUser = await _userManager.GetUserAsync(HttpContext.User);
+            await _userManager.DeleteAsync(currentUser);
+            return NoContent();
+        }
 
         /// <summary>
         /// Gets the password options that are applied when the user creates an account.
@@ -322,51 +334,6 @@ namespace Indice.AspNetCore.Identity.Features
                 }
             }
             return Ok(response);
-        }
-
-        private async Task<IActionResult> ConfirmEmailInternal(string userId, string code, string returnUrl = null) {
-            if (string.IsNullOrEmpty(userId)) {
-                return BadRequest(new ValidationProblemDetails(new Dictionary<string, string[]> {
-                    { nameof(userId), new string[] { $"Query parameter {nameof(userId)} is missing." } }
-                }));
-            }
-            if (string.IsNullOrEmpty(code)) {
-                return BadRequest(new ValidationProblemDetails(new Dictionary<string, string[]> {
-                    { nameof(code), new string[] { $"Query parameter {nameof(code)} is missing." } }
-                }));
-            }
-            var user = await _userManager.FindByIdAsync(userId);
-            if (user == null) {
-                return NotFound();
-            }
-            var result = await _userManager.ConfirmEmailAsync(user, code);
-            if (!result.Succeeded) {
-                return BadRequest(result.Errors.ToValidationProblemDetails());
-            }
-            // TODO: Maybe add some more checks about the ReturnUrl option.
-            if (!string.IsNullOrEmpty(returnUrl)) {
-                return Redirect(returnUrl);
-            }
-            return Ok();
-        }
-
-        private async Task SendEmailConfirmation(User user) {
-            if (_changeEmailOptions == null) {
-                return;
-            }
-            if (_emailService == null) {
-                throw new Exception($"No concrete implementation of {nameof(IEmailService)} is registered. Check {nameof(ServiceCollectionExtensions.AddEmailService)}, {nameof(ServiceCollectionExtensions.AddEmailServiceSmtpRazor)} or " +
-                    $"{nameof(ServiceCollectionExtensions.AddEmailServiceSparkpost)} extensions on {nameof(IServiceCollection)} or provide your own implementation.");
-            }
-            var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-            var callbackUrl = $"{_generalSettings.Host}{Url.Action(nameof(ConfirmChangeEmail), Name, new { userId = user.Id, code })}";
-            var recipient = user.Email;
-            var subject = _changeEmailOptions.Subject;
-            var body = _changeEmailOptions.Body.Replace("{callbackUrl}", callbackUrl);
-            var data = new User {
-                UserName = User.FindDisplayName() ?? user.UserName
-            };
-            await _emailService.SendAsync<User>(message => message.To(recipient).WithSubject(subject).WithBody(body).WithData(data));
         }
 
         private string GetErrorCode(IPasswordValidator<User> validator, bool userNameWasProvided) {

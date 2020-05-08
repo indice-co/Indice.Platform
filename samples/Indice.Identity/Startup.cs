@@ -78,8 +78,8 @@ namespace Indice.Identity
             });
             services.AddProblemDetailsConfig(HostingEnvironment);
             services.ConfigureNonBreakingSameSiteCookies();
-            services.AddEmailServiceSparkpost(Configuration);
             services.AddSmsServiceYouboto(Configuration);
+            services.AddEmailServiceSmtpRazor(Configuration);
             services.AddSwaggerGen(options => {
                 options.IndiceDefaults(Settings);
                 options.AddOAuth2(Settings);
@@ -126,7 +126,7 @@ namespace Indice.Identity
                 }
             });
             app.UseWhen(context => context.Request.Path.StartsWithSegments("/api"), branch => {
-                app.UseProblemDetails();
+                branch.UseProblemDetails();
             });
             app.UseRequestLocalization(new RequestLocalizationOptions {
                 DefaultRequestCulture = new RequestCulture(SupportedCultures.Default),

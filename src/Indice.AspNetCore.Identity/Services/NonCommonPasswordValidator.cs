@@ -88,17 +88,15 @@ namespace Indice.AspNetCore.Identity.Services
     /// </summary>
     public class ConfigPasswordBlacklistProvider : IPasswordBlacklistProvider
     {
-        private readonly HashSet<string> _blacklist;
-
         /// <inheritdoc/>
         public ConfigPasswordBlacklistProvider(IConfiguration configuration) {
             var list = configuration.GetSection($"{nameof(IdentityOptions)}:{nameof(IdentityOptions.Password)}").GetValue<string[]>(nameof(Blacklist)) ??
                        configuration.GetSection($"{nameof(PasswordOptions)}").GetValue<string[]>(nameof(Blacklist)) ??
                        Array.Empty<string>();
-            _blacklist = new HashSet<string>(list);
+            Blacklist = new HashSet<string>(list);
         }
 
         /// <inheritdoc/>
-        public HashSet<string> Blacklist => _blacklist;
+        public HashSet<string> Blacklist { get; }
     }
 }

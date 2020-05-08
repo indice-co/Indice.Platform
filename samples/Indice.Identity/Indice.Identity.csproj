@@ -6,12 +6,6 @@
     <noWarn>1591</noWarn>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Remove="Resources\**" />
-    <Content Remove="Resources\**" />
-    <EmbeddedResource Remove="Resources\**" />
-    <None Remove="Resources\**" />
-  </ItemGroup>
-  <ItemGroup>
     <PackageReference Include="Hellang.Middleware.ProblemDetails" Version="5.0.0" />
     <PackageReference Include="IdentityServer4.AspNetIdentity" Version="3.1.2" />
     <!--<PackageReference Include="Indice.AspNetCore.Identity" Version="3.1.23" />-->

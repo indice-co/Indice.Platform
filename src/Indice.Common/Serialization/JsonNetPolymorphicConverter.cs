@@ -112,11 +112,14 @@ namespace Indice.Serialization
         public static IDictionary<string, Type> GetTypeMapping(Type baseType, string typePropertyName) {
             IDictionary<string, Type> typeMapping = new Dictionary<string, Type>();
             var options = Array.Empty<string>();
+            var discriminator = default(PropertyInfo);
+            if (!string.IsNullOrWhiteSpace(typePropertyName)) {
 #if NETSTANDARD14
-            var discriminator = baseType.GetTypeInfo().GetDeclaredProperty(typePropertyName);
+                discriminator = baseType.GetTypeInfo().GetDeclaredProperty(typePropertyName);
 #else
-            var discriminator = baseType.GetProperty(typePropertyName, BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase);
+                discriminator = baseType.GetProperty(typePropertyName, BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase);
 #endif
+            }
             if (discriminator?.PropertyType
 #if NETSTANDARD14
                 .GetTypeInfo().IsEnum

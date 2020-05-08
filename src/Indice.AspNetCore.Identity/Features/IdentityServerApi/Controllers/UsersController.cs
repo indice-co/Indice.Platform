@@ -53,7 +53,6 @@ namespace Indice.AspNetCore.Identity.Features
         private readonly IEventService _eventService;
         private readonly GeneralSettings _generalSettings;
         private readonly IStringLocalizer<UsersController> _localizer;
-        private readonly EmailVerificationOptions _userEmailVerificationOptions;
         private readonly IEmailService _emailService;
         /// <summary>
         /// The name of the controller.
@@ -72,11 +71,10 @@ namespace Indice.AspNetCore.Identity.Features
         /// <param name="eventService">Models the event mechanism used to raise events inside the IdentityServer API.</param>
         /// <param name="generalSettings">General settings for an ASP.NET Core application.</param>
         /// <param name="localizer">Represents an <see cref="IStringLocalizer"/> that provides strings for <see cref="UsersController"/>.</param>
-        /// <param name="userEmailVerificationOptions">Options for the email sent to user for verification.</param>
         /// <param name="emailService">A service responsible for sending emails.</param>
-        public UsersController(ExtendedUserManager<User> userManager, RoleManager<Role> roleManager, ExtendedIdentityDbContext<User, Role> dbContext, IPersistedGrantService persistedGrantService, IClientStore clientStore,
-            IdentityServerApiEndpointsOptions apiEndpointsOptions, IEventService eventService, IOptions<GeneralSettings> generalSettings, IStringLocalizer<UsersController> localizer,
-            EmailVerificationOptions userEmailVerificationOptions = null, IEmailService emailService = null) {
+        public UsersController(ExtendedUserManager<User> userManager, RoleManager<Role> roleManager, ExtendedIdentityDbContext<User, Role> dbContext, IPersistedGrantService persistedGrantService,
+            IClientStore clientStore, IdentityServerApiEndpointsOptions apiEndpointsOptions, IEventService eventService, IOptions<GeneralSettings> generalSettings, IStringLocalizer<UsersController> localizer,
+            IEmailService emailService = null) {
             _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
             _roleManager = roleManager ?? throw new ArgumentNullException(nameof(roleManager));
             _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
@@ -86,7 +84,6 @@ namespace Indice.AspNetCore.Identity.Features
             _eventService = eventService ?? throw new ArgumentNullException(nameof(eventService));
             _generalSettings = generalSettings?.Value ?? throw new ArgumentNullException(nameof(generalSettings));
             _localizer = localizer ?? throw new ArgumentNullException(nameof(localizer));
-            _userEmailVerificationOptions = userEmailVerificationOptions;
             _emailService = emailService;
         }
 
@@ -245,7 +242,7 @@ namespace Indice.AspNetCore.Identity.Features
                 .ToList()
             };
             if (request.SendConfirmationEmail) {
-                await SendEmailConfirmation(user);
+                //await SendEmailConfirmation(user);
             }
             await _eventService.Raise(new UserCreatedEvent(response));
             return CreatedAtAction(nameof(GetUser), Name, new { userId = user.Id }, response);
@@ -529,63 +526,37 @@ namespace Indice.AspNetCore.Identity.Features
         }
 
         /// <summary>
-        /// Blocks a user permanently.
+        /// Toggles user block state.
         /// </summary>
         /// <param name="userId">The id of the user to block.</param>
-        /// <response code="200">OK</response>
+        /// <param name="request">Contains info about whether to block the user or not.</param>
+        /// <response code="204">No Content</response>
         /// <response code="404">Not Found</response>
-        [HttpPut("{userId}/block")]
-        [ProducesResponseType(statusCode: StatusCodes.Status200OK, type: typeof(void))]
+        [HttpPut("{userId}/set-block")]
+        [ProducesResponseType(statusCode: StatusCodes.Status204NoContent, type: typeof(void))]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
         [CacheResourceFilter(DependentPaths = new string[] { "{userId}" })]
-        public async Task<IActionResult> BlockUser([FromRoute]string userId) {
+        public async Task<IActionResult> SetUserBlock([FromRoute]string userId, [FromBody]SetUserBlockRequest request) {
             var user = await _dbContext.Users.SingleOrDefaultAsync(x => x.Id == userId);
             if (user == null) {
                 return NotFound();
             }
-            if (user.Blocked) {
-                return BadRequest(new ValidationProblemDetails(new Dictionary<string, string[]> {
-                    { "blocked", new[] { $"User {user.Email} is already locked." } }
-                }));
+            user.Blocked = request.Blocked;
+            var result = await _userManager.UpdateAsync(user);
+            if (!result.Succeeded) {
+                return BadRequest(result.Errors.ToValidationProblemDetails());
             }
-            user.Blocked = true;
-            await _userManager.UpdateAsync(user);
-            return Ok();
-        }
-
-        /// <summary>
-        /// Unblocks a user.
-        /// </summary>
-        /// <param name="userId">The id of the user to unblock.</param>
-        /// <response code="200">OK</response>
-        /// <response code="404">Not Found</response>
-        [HttpPut("{userId}/unblock")]
-        [ProducesResponseType(statusCode: StatusCodes.Status200OK, type: typeof(void))]
-        [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
-        [CacheResourceFilter(DependentPaths = new string[] { "{userId}" })]
-        public async Task<IActionResult> UnblockUser([FromRoute]string userId) {
-            var user = await _dbContext.Users.SingleOrDefaultAsync(x => x.Id == userId);
-            if (user == null) {
-                return NotFound();
-            }
-            if (!user.Blocked) {
-                return BadRequest(new ValidationProblemDetails(new Dictionary<string, string[]> {
-                    { "blocked", new[] { $"User {user.Email} is already not locked." } }
-                }));
-            }
-            user.Blocked = false;
-            await _userManager.UpdateAsync(user);
-            return Ok();
+            return NoContent();
         }
 
         /// <summary>
         /// Unlocks a user.
         /// </summary>
         /// <param name="userId">The id of the user to unlock.</param>
-        /// <response code="200">OK</response>
+        /// <response code="204">No Content</response>
         /// <response code="404">Not Found</response>
         [HttpPut("{userId}/unlock")]
-        [ProducesResponseType(statusCode: StatusCodes.Status200OK, type: typeof(void))]
+        [ProducesResponseType(statusCode: StatusCodes.Status204NoContent, type: typeof(void))]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
         [CacheResourceFilter(DependentPaths = new string[] { "{userId}" })]
         public async Task<IActionResult> UnlockUser([FromRoute]string userId) {
@@ -593,7 +564,6 @@ namespace Indice.AspNetCore.Identity.Features
             if (user == null) {
                 return NotFound();
             }
-            // Setting an end date tin the past immediately unlocks the user.
             var result = await _userManager.SetLockoutEndDateAsync(user, null);
             if (!result.Succeeded) {
                 return BadRequest(result.Errors.ToValidationProblemDetails());
@@ -640,23 +610,23 @@ namespace Indice.AspNetCore.Identity.Features
             return Ok();
         }
 
-        private async Task SendEmailConfirmation(User user) {
-            if (_userEmailVerificationOptions == null) {
-                return;
-            }
-            if (_emailService == null) {
-                throw new Exception($"No concrete implementation of {nameof(IEmailService)} is registered. Check {nameof(ServiceCollectionExtensions.AddEmailService)}, {nameof(ServiceCollectionExtensions.AddEmailServiceSmtpRazor)} or " +
-                    $"{nameof(ServiceCollectionExtensions.AddEmailServiceSparkpost)} extensions on {nameof(IServiceCollection)} or provide your own implementation.");
-            }
-            var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-            var callbackUrl = $"{_generalSettings.Host}{Url.Action(nameof(AccountController.ConfirmEmail), AccountController.Name, new { userId = user.Id, code })}";
-            var recipient = user.Email;
-            var subject = _userEmailVerificationOptions.Subject;
-            var body = _userEmailVerificationOptions.Body.Replace("{callbackUrl}", callbackUrl);
-            var data = new User {
-                UserName = User.FindDisplayName() ?? user.UserName
-            };
-            await _emailService.SendAsync<User>(message => message.To(recipient).WithSubject(subject).WithBody(body).WithData(data));
-        }
+        //private async Task SendEmailConfirmation(User user) {
+        //    if (_userEmailVerificationOptions == null) {
+        //        return;
+        //    }
+        //    if (_emailService == null) {
+        //        throw new Exception($"No concrete implementation of {nameof(IEmailService)} is registered. Check {nameof(ServiceCollectionExtensions.AddEmailService)}, {nameof(ServiceCollectionExtensions.AddEmailServiceSmtpRazor)} or " +
+        //            $"{nameof(ServiceCollectionExtensions.AddEmailServiceSparkpost)} extensions on {nameof(IServiceCollection)} or provide your own implementation.");
+        //    }
+        //    var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+        //    var callbackUrl = $"{_generalSettings.Host}{Url.Action(nameof(MyAccountController.ConfirmEmail), MyAccountController.Name, new { userId = user.Id, code })}";
+        //    var recipient = user.Email;
+        //    var subject = _userEmailVerificationOptions.Subject;
+        //    var body = _userEmailVerificationOptions.Body.Replace("{callbackUrl}", callbackUrl);
+        //    var data = new User {
+        //        UserName = User.FindDisplayName() ?? user.UserName
+        //    };
+        //    await _emailService.SendAsync<User>(message => message.To(recipient).WithSubject(subject).WithBody(body).WithData(data));
+        //}
     }
 }

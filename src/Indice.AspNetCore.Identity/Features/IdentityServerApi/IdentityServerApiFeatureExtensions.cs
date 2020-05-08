@@ -89,39 +89,6 @@ namespace Indice.AspNetCore.Identity.Features
         }
 
         /// <summary>
-        /// Configures the parameters needed when a verification email is sent to the user.
-        /// </summary>
-        /// <param name="options">Options for configuring the IdentityServer API feature.</param>
-        /// <param name="configureAction">Configuration for the email sent to user for verification.</param>
-        public static void ConfigureEmailVerification(this IdentityServerApiEndpointsOptions options, Action<EmailVerificationOptions> configureAction) {
-            var userEmailVerificationOptions = new EmailVerificationOptions();
-            configureAction?.Invoke(userEmailVerificationOptions);
-            options.Services.AddSingleton(userEmailVerificationOptions);
-        }
-
-        /// <summary>
-        /// Configures the parameters needed when an email is sent to the user when the email address is changed.
-        /// </summary>
-        /// <param name="options">Options for configuring the IdentityServer API feature.</param>
-        /// <param name="configureAction">Configuration for the email sent to user.</param>
-        public static void ConfigureChangeEmail(this IdentityServerApiEndpointsOptions options, Action<ChangeEmailOptions> configureAction) {
-            var changeEmailOptions = new ChangeEmailOptions();
-            configureAction?.Invoke(changeEmailOptions);
-            options.Services.AddSingleton(changeEmailOptions);
-        }
-
-        /// <summary>
-        /// Configures the parameters needed when an SMS is sent to the user when the phone number is changed.
-        /// </summary>
-        /// <param name="options">Options for configuring the IdentityServer API feature.</param>
-        /// <param name="configureAction">Configuration for the SMS sent to user.</param>
-        public static void ConfigureChangePhone(this IdentityServerApiEndpointsOptions options, Action<ChangePhoneNumberOptions> configureAction) {
-            var changePhoneNumberOptions = new ChangePhoneNumberOptions();
-            configureAction?.Invoke(changePhoneNumberOptions);
-            options.Services.AddSingleton(changePhoneNumberOptions);
-        }
-
-        /// <summary>
         /// Registers an <see cref="IIdentityServerApiEventHandler{TEvent}"/> for the specified event type.
         /// </summary>
         /// <typeparam name="TEvent">The implementation of <see cref="IIdentityServerApiEventHandler{TEvent}"/> to register.</typeparam>

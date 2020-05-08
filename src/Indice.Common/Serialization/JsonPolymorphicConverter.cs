@@ -97,7 +97,10 @@ namespace Indice.Serialization
         public static IDictionary<string, Type> GetTypeMapping(Type baseType, string typePropertyName) {
             IDictionary<string, Type> typeMapping = new Dictionary<string, Type>();
             var options = Array.Empty<string>();
-            var discriminator = baseType.GetProperty(typePropertyName, BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase);
+            var discriminator = default(PropertyInfo);
+            if (!string.IsNullOrWhiteSpace(typePropertyName)) {
+                discriminator = baseType.GetProperty(typePropertyName, BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase);
+            }
             if (discriminator?.PropertyType.IsEnum == true) {
                 options = Enum.GetNames(discriminator.PropertyType);
             }
