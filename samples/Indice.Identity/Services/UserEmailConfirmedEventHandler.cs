@@ -10,13 +10,13 @@ namespace Indice.Identity.Services
     /// </summary>
     public class UserEmailConfirmedEventHandler : IIdentityServerApiEventHandler<UserEmailConfirmedEvent>
     {
-        private readonly ILogger<ClientCreatedEventHandler> _logger;
+        private readonly ILogger<UserEmailConfirmedEventHandler> _logger;
 
         /// <summary>
         /// Creates a new instance of <see cref="UserEmailConfirmedEventHandler"/>.
         /// </summary>
         /// <param name="logger">Represents a type used to perform logging.</param>
-        public UserEmailConfirmedEventHandler(ILogger<ClientCreatedEventHandler> logger) {
+        public UserEmailConfirmedEventHandler(ILogger<UserEmailConfirmedEventHandler> logger) {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
