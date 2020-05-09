@@ -37,7 +37,8 @@ namespace Microsoft.Extensions.DependencyInjection
                                });
                                // Enable events and register handlers.
                                options.CanRaiseEvents = true;
-                               options.AddEventHandler<ClientCreatedEventHandler, ClientCreatedEvent>();
+                               options.AddEventHandler<ClientCreatedEvent, ClientCreatedEventHandler>();
+                               options.AddEventHandler<UserEmailConfirmedEvent, UserEmailConfirmedEventHandler>();
                                // Update email options.
                                options.Email.SendEmailOnUpdate = true;
                                options.Email.Subject = "Indice account confirmation";

@@ -11,7 +11,6 @@ using Indice.AspNetCore.Filters;
 using Indice.AspNetCore.Identity.Models;
 using Indice.AspNetCore.Identity.Services;
 using Indice.Configuration;
-using Indice.Security;
 using Indice.Services;
 using Indice.Types;
 using Microsoft.AspNetCore.Authorization;
@@ -19,7 +18,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Options;
 
@@ -86,9 +84,6 @@ namespace Indice.AspNetCore.Identity.Features
             _localizer = localizer ?? throw new ArgumentNullException(nameof(localizer));
             _emailService = emailService;
         }
-
-        public string UserId => User.FindFirstValue(JwtClaimTypes.Subject);
-        public string UserName => User.FindFirstValue(JwtClaimTypes.Name);
 
         /// <summary>
         /// Returns a list of <see cref="UserInfo"/> objects containing the total number of users in the database and the data filtered according to the provided <see cref="ListOptions"/>.

@@ -3,17 +3,20 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Mime;
 using System.Threading.Tasks;
+using System.Security.Claims;
+using IdentityModel;
 using Indice.AspNetCore.Identity.Models;
 using Indice.AspNetCore.Identity.Services;
 using Indice.Configuration;
-using Indice.Security;
 using Indice.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
+using Indice.Security;
 
 namespace Indice.AspNetCore.Identity.Features
 {
@@ -42,6 +45,7 @@ namespace Indice.AspNetCore.Identity.Features
         private readonly IdentityServerApiEndpointsOptions _identityServerApiEndpointsOptions;
         private readonly ISmsService _smsService;
         private readonly IEmailService _emailService;
+        private readonly IEventService _eventService;
         private readonly IList<string> _errorCodes = new List<string> {
             nameof(IdentityErrorDescriber.PasswordTooShort),
             nameof(IdentityErrorDescriber.PasswordRequiresNonAlphanumeric),
@@ -56,11 +60,12 @@ namespace Indice.AspNetCore.Identity.Features
         public const string Name = "MyAccount";
 
         public MyAccountController(ExtendedUserManager<User> userManager, IOptions<GeneralSettings> generalSettings, IOptionsSnapshot<IdentityOptions> identityOptions,
-            IdentityServerApiEndpointsOptions identityServerApiEndpointsOptions, ISmsService smsService, IEmailService emailService) {
+            IdentityServerApiEndpointsOptions identityServerApiEndpointsOptions, IEventService eventService, ISmsService smsService, IEmailService emailService) {
             _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
             _generalSettings = generalSettings?.Value ?? throw new ArgumentNullException(nameof(generalSettings));
             _identityOptions = identityOptions?.Value ?? throw new ArgumentNullException(nameof(identityOptions));
             _identityServerApiEndpointsOptions = identityServerApiEndpointsOptions ?? throw new ArgumentNullException(nameof(identityServerApiEndpointsOptions));
+            _eventService = eventService ?? throw new ArgumentNullException(nameof(eventService));
             _smsService = smsService;
             _emailService = emailService;
         }
@@ -117,7 +122,11 @@ namespace Indice.AspNetCore.Identity.Features
         [ProducesResponseType(statusCode: StatusCodes.Status204NoContent, type: typeof(void))]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
         public async Task<IActionResult> ConfirmEmail([FromBody]ConfirmEmailRequest request) {
-            var user = await _userManager.GetUserAsync(User);
+            var userId = User.FindFirstValue(JwtClaimTypes.Subject);
+            var user = await _userManager.Users
+                                         .Include(x => x.Claims)
+                                         .Where(x => x.Id == userId)
+                                         .SingleOrDefaultAsync();
             if (user == null) {
                 return NotFound();
             }
@@ -129,6 +138,8 @@ namespace Indice.AspNetCore.Identity.Features
             if (!result.Succeeded) {
                 return BadRequest(result.Errors.ToValidationProblemDetails());
             }
+            var eventInfo = user.ToBasicUserInfo();
+            await _eventService.Raise(new UserEmailConfirmedEvent(eventInfo));
             return NoContent();
         }
 
@@ -179,7 +190,11 @@ namespace Indice.AspNetCore.Identity.Features
         [ProducesResponseType(statusCode: StatusCodes.Status204NoContent, type: typeof(void))]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
         public async Task<IActionResult> ConfirmPhoneNumber([FromBody]ConfirmPhoneNumberRequest request) {
-            var user = await _userManager.GetUserAsync(User);
+            var userId = User.FindFirstValue(JwtClaimTypes.Subject);
+            var user = await _userManager.Users
+                                         .Include(x => x.Claims)
+                                         .Where(x => x.Id == userId)
+                                         .SingleOrDefaultAsync();
             if (user == null) {
                 return NotFound();
             }
@@ -191,6 +206,8 @@ namespace Indice.AspNetCore.Identity.Features
             if (!result.Succeeded) {
                 return BadRequest(result.Errors.ToValidationProblemDetails());
             }
+            var eventInfo = user.ToBasicUserInfo();
+            await _eventService.Raise(new UserPhoneNumberConfirmedEvent(eventInfo));
             return NoContent();
         }
 

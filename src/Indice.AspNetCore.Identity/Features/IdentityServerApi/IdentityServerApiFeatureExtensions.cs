@@ -89,14 +89,14 @@ namespace Indice.AspNetCore.Identity.Features
         }
 
         /// <summary>
-        /// Registers an <see cref="IIdentityServerApiEventHandler{TEvent}"/> for the specified event type.
+        /// Registers an implementation of <see cref="IIdentityServerApiEventHandler{TEvent}"/> for the specified event type.
         /// </summary>
-        /// <typeparam name="TEvent">The implementation of <see cref="IIdentityServerApiEventHandler{TEvent}"/> to register.</typeparam>
-        /// <typeparam name="THandler">The implementation of <see cref="IIdentityServerApiEventHandler{TEvent}"/> to register.</typeparam>
+        /// <typeparam name="TEvent">The type of the event to handler.</typeparam>
+        /// <typeparam name="TEventHandler">The handler to user for the specified event.</typeparam>
         /// <param name="options">Options for configuring the IdentityServer API feature.</param>
-        public static void AddEventHandler<THandler, TEvent>(this IdentityServerApiEndpointsOptions options)
-            where THandler : class, IIdentityServerApiEventHandler<TEvent>
-            where TEvent : IIdentityServerApiEvent =>
-            options.Services.AddTransient(typeof(IIdentityServerApiEventHandler<TEvent>), typeof(THandler));
+        public static void AddEventHandler<TEvent, TEventHandler>(this IdentityServerApiEndpointsOptions options)
+            where TEvent : IIdentityServerApiEvent
+            where TEventHandler : class, IIdentityServerApiEventHandler<TEvent> =>
+            options.Services.AddTransient(typeof(IIdentityServerApiEventHandler<TEvent>), typeof(TEventHandler));
     }
 }

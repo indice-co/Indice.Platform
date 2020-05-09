@@ -6,6 +6,7 @@
     var subject = ViewData["Subject"];
     var lang = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
     var langSuffix = (lang == "el") ? ".el" : string.Empty;
+    var authority = generalSettings.Authority.Contains("localhost") ? "https://idsrv-admin-ui.azurewebsites.net" : generalSettings.Authority;
 }
 
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
@@ -123,7 +124,7 @@
                                     <td align="left" valign="top">
                                         <div style="height: 39px; line-height: 39px; font-size: 37px;">&nbsp;</div>
                                         <a href="#" target="_blank" style="display: block; max-width: 128px;">
-                                            <img src="@generalSettings.Authority/img/logo@(langSuffix).png" alt="@generalSettings.Organization Logo" width="128" border="0" style="display: block; width: 128px;" />
+                                            <img src="@authority/img/logo@(langSuffix).png" alt="@generalSettings.Organization Logo" width="128" border="0" style="display: block; width: 128px;" />
                                         </a>
                                         <div style="height: 73px; line-height: 73px; font-size: 71px;">&nbsp;</div>
                                     </td>
@@ -151,7 +152,7 @@
                                                     <td align="center" valign="top">
                                                         <div style="height: 13px; line-height: 13px; font-size: 11px;">&nbsp;</div>
                                                         <div style="display: block; max-width: 50px;">
-                                                            <img src="@generalSettings.Authority/img/icon.png" alt="img" width="50" border="0" style="display: block; width: 50px;" />
+                                                            <img src="@authority/img/icon.png" alt="img" width="50" border="0" style="display: block; width: 50px;" />
                                                         </div>
                                                     </td>
                                                 </tr>
