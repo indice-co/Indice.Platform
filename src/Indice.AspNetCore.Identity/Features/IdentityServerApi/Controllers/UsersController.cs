@@ -51,7 +51,6 @@ namespace Indice.AspNetCore.Identity.Features
         private readonly IEventService _eventService;
         private readonly GeneralSettings _generalSettings;
         private readonly IStringLocalizer<UsersController> _localizer;
-        private readonly IEmailService _emailService;
         /// <summary>
         /// The name of the controller.
         /// </summary>
@@ -69,10 +68,8 @@ namespace Indice.AspNetCore.Identity.Features
         /// <param name="eventService">Models the event mechanism used to raise events inside the IdentityServer API.</param>
         /// <param name="generalSettings">General settings for an ASP.NET Core application.</param>
         /// <param name="localizer">Represents an <see cref="IStringLocalizer"/> that provides strings for <see cref="UsersController"/>.</param>
-        /// <param name="emailService">A service responsible for sending emails.</param>
         public UsersController(ExtendedUserManager<User> userManager, RoleManager<Role> roleManager, ExtendedIdentityDbContext<User, Role> dbContext, IPersistedGrantService persistedGrantService,
-            IClientStore clientStore, IdentityServerApiEndpointsOptions apiEndpointsOptions, IEventService eventService, IOptions<GeneralSettings> generalSettings, IStringLocalizer<UsersController> localizer,
-            IEmailService emailService = null) {
+            IClientStore clientStore, IdentityServerApiEndpointsOptions apiEndpointsOptions, IEventService eventService, IOptions<GeneralSettings> generalSettings, IStringLocalizer<UsersController> localizer) {
             _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
             _roleManager = roleManager ?? throw new ArgumentNullException(nameof(roleManager));
             _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
@@ -82,7 +79,6 @@ namespace Indice.AspNetCore.Identity.Features
             _eventService = eventService ?? throw new ArgumentNullException(nameof(eventService));
             _generalSettings = generalSettings?.Value ?? throw new ArgumentNullException(nameof(generalSettings));
             _localizer = localizer ?? throw new ArgumentNullException(nameof(localizer));
-            _emailService = emailService;
         }
 
         /// <summary>
@@ -236,9 +232,6 @@ namespace Indice.AspNetCore.Identity.Features
                 })
                 .ToList()
             };
-            if (request.SendConfirmationEmail) {
-                //await SendEmailConfirmation(user);
-            }
             await _eventService.Raise(new UserCreatedEvent(response));
             return CreatedAtAction(nameof(GetUser), Name, new { userId = user.Id }, response);
         }
@@ -604,24 +597,5 @@ namespace Indice.AspNetCore.Identity.Features
             }
             return Ok();
         }
-
-        //private async Task SendEmailConfirmation(User user) {
-        //    if (_userEmailVerificationOptions == null) {
-        //        return;
-        //    }
-        //    if (_emailService == null) {
-        //        throw new Exception($"No concrete implementation of {nameof(IEmailService)} is registered. Check {nameof(ServiceCollectionExtensions.AddEmailService)}, {nameof(ServiceCollectionExtensions.AddEmailServiceSmtpRazor)} or " +
-        //            $"{nameof(ServiceCollectionExtensions.AddEmailServiceSparkpost)} extensions on {nameof(IServiceCollection)} or provide your own implementation.");
-        //    }
-        //    var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-        //    var callbackUrl = $"{_generalSettings.Host}{Url.Action(nameof(MyAccountController.ConfirmEmail), MyAccountController.Name, new { userId = user.Id, code })}";
-        //    var recipient = user.Email;
-        //    var subject = _userEmailVerificationOptions.Subject;
-        //    var body = _userEmailVerificationOptions.Body.Replace("{callbackUrl}", callbackUrl);
-        //    var data = new User {
-        //        UserName = User.FindDisplayName() ?? user.UserName
-        //    };
-        //    await _emailService.SendAsync<User>(message => message.To(recipient).WithSubject(subject).WithBody(body).WithData(data));
-        //}
     }
 }

@@ -8,7 +8,7 @@ namespace Indice.AspNetCore.Identity.Features
     public class UpdatePhoneNumberOptions
     {
         /// <summary>
-        /// Controls whether an SMS is sent to the user, containing an OTP token, or not. Defaults to false.
+        /// Controls whether an SMS is sent to the user when the phone number is updated, containing an OTP token, or not. Defaults to false.
         /// </summary>
         /// <remarks>Hint: also remember to register an implementation of <see cref="ISmsService"/>.</remarks>
         public bool SendOtpOnUpdate { get; set; }
