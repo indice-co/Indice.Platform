@@ -2,12 +2,13 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Mime;
-using System.Threading.Tasks;
 using System.Security.Claims;
+using System.Threading.Tasks;
 using IdentityModel;
 using Indice.AspNetCore.Identity.Models;
 using Indice.AspNetCore.Identity.Services;
 using Indice.Configuration;
+using Indice.Security;
 using Indice.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -16,7 +17,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
-using Indice.Security;
 
 namespace Indice.AspNetCore.Identity.Features
 {
@@ -27,7 +27,7 @@ namespace Indice.AspNetCore.Identity.Features
     /// <response code="401">Unauthorized</response>
     /// <response code="403">Forbidden</response>
     /// <response code="500">Internal Server Error</response>
-    [Route("api/account")]
+    [Route("api")]
     [ApiController]
     [ApiExplorerSettings(GroupName = "identity")]
     [Produces(MediaTypeNames.Application.Json)]
@@ -76,7 +76,7 @@ namespace Indice.AspNetCore.Identity.Features
         /// <param name="request">Models a request for changing the email address.</param>
         /// <response code="204">No Content</response>
         /// <response code="404">Not Found</response>
-        [HttpPut("my/email")]
+        [HttpPut("my/account/email")]
         [ProducesResponseType(statusCode: StatusCodes.Status204NoContent, type: typeof(void))]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
         public async Task<IActionResult> UpdateEmail([FromBody]UpdateUserEmailRequest request) {
@@ -104,7 +104,8 @@ namespace Indice.AspNetCore.Identity.Features
             }
             var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
             var subject = _identityServerApiEndpointsOptions.Email.Subject;
-            var body = _identityServerApiEndpointsOptions.Email.Body.Replace("{token}", token);
+            var callbackUrl = _identityServerApiEndpointsOptions.Email.Body.Replace("{callbackUrl}", $"{request.ReturnUrl}{(request.ReturnUrl.Contains("?") ? "&" : "?")}userId={user.Id}&token={token}");
+            var body = _identityServerApiEndpointsOptions.Email.Body.Replace("{callbackUrl}", $"{request.ReturnUrl}?userId={user.Id}&token={token}");
             var data = new User {
                 UserName = User.FindDisplayName() ?? user.UserName
             };
@@ -118,7 +119,7 @@ namespace Indice.AspNetCore.Identity.Features
         /// <param name="request"></param>
         /// <response code="204">No Content</response>
         /// <response code="404">Not Found</response>
-        [HttpPut("my/email/confirmation")]
+        [HttpPut("my/account/email/confirmation")]
         [ProducesResponseType(statusCode: StatusCodes.Status204NoContent, type: typeof(void))]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
         public async Task<IActionResult> ConfirmEmail([FromBody]ConfirmEmailRequest request) {
@@ -149,7 +150,7 @@ namespace Indice.AspNetCore.Identity.Features
         /// <param name="request">Models a request for changing the phone number.</param>
         /// <response code="204">No Content</response>
         /// <response code="404">Not Found</response>
-        [HttpPut("my/phone-number")]
+        [HttpPut("my/account/phone-number")]
         [ProducesResponseType(statusCode: StatusCodes.Status204NoContent, type: typeof(void))]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
         public async Task<IActionResult> UpdatePhoneNumber([FromBody]UpdateUserPhoneNumberRequest request) {
@@ -186,7 +187,7 @@ namespace Indice.AspNetCore.Identity.Features
         /// <param name="request"></param>
         /// <response code="204">No Content</response>
         /// <response code="404">Not Found</response>
-        [HttpPut("my/phone-number/confirmation")]
+        [HttpPut("my/account/phone-number/confirmation")]
         [ProducesResponseType(statusCode: StatusCodes.Status204NoContent, type: typeof(void))]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
         public async Task<IActionResult> ConfirmPhoneNumber([FromBody]ConfirmPhoneNumberRequest request) {
@@ -217,7 +218,7 @@ namespace Indice.AspNetCore.Identity.Features
         /// <param name="request">Models a request for changing the username.</param>
         /// <response code="200">OK</response>
         /// <response code="404">Not Found</response>
-        [HttpPut("my/username")]
+        [HttpPut("my/account/username")]
         [ProducesResponseType(statusCode: StatusCodes.Status200OK, type: typeof(void))]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
         public async Task<IActionResult> UpdateUserName([FromBody]UpdateUserNameRequest request) {
@@ -238,7 +239,7 @@ namespace Indice.AspNetCore.Identity.Features
         /// <param name="request">Contains info about the user password to change.</param>
         /// <response code="204">No Content</response>
         /// <response code="404">Not Found</response>
-        [HttpPut("my/password")]
+        [HttpPut("my/account/password")]
         [ProducesResponseType(statusCode: StatusCodes.Status204NoContent, type: typeof(void))]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
         public async Task<IActionResult> UpdatePassword([FromBody]ChangePasswordRequest request) {
@@ -259,7 +260,7 @@ namespace Indice.AspNetCore.Identity.Features
         /// <param name="request">Contains info about the chosen expiration policy.</param>
         /// <response code="204">No Content</response>
         /// <response code="404">Not Found</response>
-        [HttpPut("my/password-expiration-policy")]
+        [HttpPut("my/account/password-expiration-policy")]
         [ProducesResponseType(statusCode: StatusCodes.Status204NoContent, type: typeof(void))]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
         public async Task<IActionResult> UpdatePasswordExpirationPolicy([FromBody]UpdatePasswordExpirationPolicyRequest request) {
@@ -276,7 +277,7 @@ namespace Indice.AspNetCore.Identity.Features
         /// Permanently deletes current user's account.
         /// </summary>
         /// <response code="204">No Content</response>
-        [HttpDelete("my")]
+        [HttpDelete("my/account")]
         [ProducesResponseType(statusCode: StatusCodes.Status204NoContent, type: typeof(void))]
         public async Task<IActionResult> DeleteAccount() {
             var currentUser = await _userManager.GetUserAsync(HttpContext.User);
@@ -290,7 +291,7 @@ namespace Indice.AspNetCore.Identity.Features
         /// <response code="200">OK</response>
         [AllowAnonymous]
         [ResponseCache(Duration = 3600, Location = ResponseCacheLocation.Client)]
-        [HttpGet("password-options")]
+        [HttpGet("account/password-options")]
         [ProducesResponseType(statusCode: StatusCodes.Status200OK, type: typeof(PasswordOptions))]
         public IActionResult GetPasswordOptions() => Ok(_identityOptions.Password);
 
@@ -300,7 +301,7 @@ namespace Indice.AspNetCore.Identity.Features
         /// <response code="302">Found</response>
         /// <response code="404">Not Found</response>
         [AllowAnonymous]
-        [HttpPost("username-exists")]
+        [HttpPost("account/username-exists")]
         [ProducesResponseType(statusCode: StatusCodes.Status302Found, type: typeof(void))]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(void))]
         public async Task<IActionResult> CheckUserNameExists([FromBody]ValidateUserNameRequest request) {
@@ -315,7 +316,7 @@ namespace Indice.AspNetCore.Identity.Features
         /// Validates a user's password against one or more configured <see cref="IPasswordValidator{TUser}"/>.
         /// </summary>
         [AllowAnonymous]
-        [HttpPost("validate-password")]
+        [HttpPost("account/validate-password")]
         [ProducesResponseType(statusCode: StatusCodes.Status200OK, type: typeof(CredentialsValidationInfo))]
         public async Task<IActionResult> ValidatePassword([FromBody]ValidatePasswordRequest request) {
             if (!ModelState.IsValid) {

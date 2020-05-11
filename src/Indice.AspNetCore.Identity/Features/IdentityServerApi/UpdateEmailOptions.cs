@@ -20,7 +20,7 @@ namespace Indice.AspNetCore.Identity.Features
         /// The body of the verification email.
         /// </summary>
         /// <remarks>The body must contain a placeholder, which is {token}, in order to put the actual value of the generated verification code.</remarks>
-        public string Body { get; set; } = "Email verification code is {token}.";
+        public string Body { get; set; } = "Email verification link is {callbackUrl}.";
         /// <summary>
         /// The optional template (Razor view) to use for the email message.
         /// </summary>

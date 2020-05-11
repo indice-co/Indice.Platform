@@ -42,7 +42,7 @@ namespace Microsoft.Extensions.DependencyInjection
                                // Update email options.
                                options.Email.SendEmailOnUpdate = true;
                                options.Email.Subject = "Indice account confirmation";
-                               options.Email.Body = "Your email verification code is {token}.";
+                               options.Email.Body = @"We need you to verify your email. Click <a style=""color:#005030""href=""{callbackUrl}"">here</a> to get verified!<br/><br/>Thanks!";
                                // Update phone number options.
                                options.PhoneNumber.SendOtpOnUpdate = true;
                                options.PhoneNumber.Message = "Your phone number verification code is {token}.";
