@@ -3,7 +3,7 @@
     <Description>Indice.AspNetCore.Identity Class Library</Description>
     <Copyright>Copyright (c) 2018 Indice</Copyright>
     <AssemblyTitle>Indice.AspNetCore.Identity</AssemblyTitle>
-    <VersionPrefix>3.1.31</VersionPrefix>
+    <VersionPrefix>3.1.32</VersionPrefix>
     <!--<VersionSuffix>beta1</VersionSuffix>-->
     <Authors>c.leftheris, g.manoltzas</Authors>
     <TargetFramework>netcoreapp3.1</TargetFramework>
@@ -14,7 +14,7 @@
   <PropertyGroup Label="Package">
     <PackageId>Indice.AspNetCore.Identity</PackageId>
     <PackageTags>AspNetCore;IdentityServer;</PackageTags>
-    <PackageReleaseNotes>Rename paths for MyAccount controller on identity API.</PackageReleaseNotes>
+    <PackageReleaseNotes>Fix bug on update email on MyAccount controller on identity API.</PackageReleaseNotes>
     <PackageIcon>icon-310.png</PackageIcon>
     <PackageProjectUrl>https://github.com/indice-co/Indice.AspNet</PackageProjectUrl>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>

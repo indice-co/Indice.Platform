@@ -104,8 +104,7 @@ namespace Indice.AspNetCore.Identity.Features
             }
             var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
             var subject = _identityServerApiEndpointsOptions.Email.Subject;
-            var callbackUrl = _identityServerApiEndpointsOptions.Email.Body.Replace("{callbackUrl}", $"{request.ReturnUrl}{(request.ReturnUrl.Contains("?") ? "&" : "?")}userId={user.Id}&token={token}");
-            var body = _identityServerApiEndpointsOptions.Email.Body.Replace("{callbackUrl}", $"{request.ReturnUrl}?userId={user.Id}&token={token}");
+            var body = _identityServerApiEndpointsOptions.Email.Body.Replace("{callbackUrl}", $"{request.ReturnUrl}{(request.ReturnUrl.Contains("?") ? "&" : "?")}userId={user.Id}&token={token}");
             var data = new User {
                 UserName = User.FindDisplayName() ?? user.UserName
             };
