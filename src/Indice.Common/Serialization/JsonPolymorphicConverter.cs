@@ -178,11 +178,6 @@ namespace Indice.Serialization
         /// <summary>
         /// Initializes a new instance of the <see cref="JsonNetPolymorphicConverter{T}"/> class.
         /// </summary>
-        public JsonPolymorphicConverter() : this(FindDiscriminatorProperty<T>()) { }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="JsonNetPolymorphicConverter{T}"/> class.
-        /// </summary>
         /// <param name="typePropertName">The name of the property in which to serialize the type name.</param>
         public JsonPolymorphicConverter(string typePropertName) : base(typePropertName, GetTypeMapping(typeof(T), typePropertName)) { }
     }
@@ -198,7 +193,7 @@ namespace Indice.Serialization
         /// </summary>
         /// <param name="typePropertyName">The name of the property in which to serialize the type name.</param>
         public JsonPolymorphicConverterFactory(string typePropertyName) {
-            TypePropertyName = typePropertyName;
+            TypePropertyName = typePropertyName ?? "discriminator";
         }
 
         /// <inheritdoc />
@@ -215,12 +210,7 @@ namespace Indice.Serialization
         /// <inheritdoc />
         public override JsonConverter CreateConverter(Type typeToConvert, JsonSerializerOptions options) {
             var converterType = typeof(JsonPolymorphicConverter<>).MakeGenericType(typeToConvert);
-            object converter;
-            if (string.IsNullOrEmpty(TypePropertyName)) {
-                converter = Activator.CreateInstance(converterType);
-            } else {
-                converter = Activator.CreateInstance(converterType, TypePropertyName);
-            }
+            var converter = Activator.CreateInstance(converterType, TypePropertyName);
             return (JsonConverter)converter;
         }
     }

@@ -131,7 +131,7 @@ namespace Indice.AspNetCore.Swagger
             }
             foreach (var converter in polymorphicConverters) {
                 var baseType = converter.BaseType;
-                var discriminator = converter.TypePropertyName;
+                var discriminator = jsonSerializerOptions.PropertyNamingPolicy.ConvertName(converter.TypePropertyName);
                 var mapping = JsonPolymorphicConverter.GetTypeMapping(baseType, discriminator);
                 options.SchemaFilter<PolymorphicSchemaFilter>(baseType, discriminator, mapping);
                 options.OperationFilter<PolymorphicOperationFilter>(new PolymorphicSchemaFilter(baseType, discriminator, mapping));
