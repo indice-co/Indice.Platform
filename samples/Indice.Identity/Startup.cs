@@ -3,26 +3,21 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
-using System.Security.Claims;
 using Hellang.Middleware.ProblemDetails;
-using IdentityModel;
-using IdentityServer4.Configuration;
 using Indice.AspNetCore.Identity.Features;
 using Indice.AspNetCore.Swagger;
 using Indice.Configuration;
 using Indice.Identity.Configuration;
 using Indice.Identity.Security;
+using Indice.Identity.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Net.Http.Headers;
-using Serilog;
-using Serilog.Events;
 using Swashbuckle.AspNetCore.SwaggerUI;
 
 namespace Indice.Identity
@@ -85,7 +80,9 @@ namespace Indice.Identity
                 options.AddOAuth2(Settings);
                 options.IncludeXmlComments(Assembly.Load(IdentityServerApi.AssemblyName));
             });
+            services.AddMessageDescriber<ExtendedMessageDescriber>();
             services.AddResponseCaching();
+            services.AddDataProtectionLocal(options => options.FromConfiguration());
             services.AddCsp(options => {
                 options.AddSandbox("allow-popups");
                 options.AddFrameAncestors("https://localhost:2002");

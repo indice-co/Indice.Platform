@@ -3,6 +3,7 @@ using Indice.AspNetCore.Identity.Features;
 using Indice.AspNetCore.Identity.Models;
 using Indice.AspNetCore.Identity.Services;
 using Indice.Identity.Security;
+using Indice.Identity.Services;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
@@ -29,6 +30,7 @@ namespace Microsoft.Extensions.DependencyInjection
                            .AddPasswordValidator<UserNameAsPasswordValidator>()
                            .AddPasswordValidator<LatinCharactersPasswordValidator>()
                            .AddNonCommonPasswordValidator()
+                           .AddErrorDescriber<ExtendedIdentityErrorDescriber>()
                            .AddEntityFrameworkStores<ExtendedIdentityDbContext<User, Role>>()
                            .AddClaimsTransform<ExtendedUserClaimsPrincipalFactory<User, Role>>()
                            .AddDefaultTokenProviders();

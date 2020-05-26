@@ -12,10 +12,5 @@ namespace Indice.AspNetCore.Identity.Features
         /// </summary>
         /// <remarks>Hint: also remember to register an implementation of <see cref="ISmsService"/>.</remarks>
         public bool SendOtpOnUpdate { get; set; }
-        /// <summary>
-        /// The text message of the SMS.
-        /// </summary>
-        /// <remarks>The message must contain a placeholder, which is {token}, in order to put the actual value of the generated verification code.</remarks>
-        public string Message { get; set; } = "SMS verification code is {token}.";
     }
 }

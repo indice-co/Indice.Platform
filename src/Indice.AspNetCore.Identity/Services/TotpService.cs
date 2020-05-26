@@ -95,8 +95,9 @@ namespace Indice.AspNetCore.Identity.Services
                 case TotpDeliveryChannel.Sms:
                     await SmsService.SendAsync(user?.PhoneNumber ?? phoneNumber, Localizer["OTP"], Localizer[message, token]);
                     break;
-                case TotpDeliveryChannel.Viber:
                 case TotpDeliveryChannel.Email:
+
+                case TotpDeliveryChannel.Viber:
                 case TotpDeliveryChannel.Telephone:
                 case TotpDeliveryChannel.EToken:
                     throw new NotSupportedException($"EToken delivery channel {channel} is not implemented.");

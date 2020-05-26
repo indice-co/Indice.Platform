@@ -13,15 +13,6 @@ namespace Indice.AspNetCore.Identity.Features
         /// <remarks>Hint: also remember to register an implementation of <see cref="IEmailService"/>.</remarks>
         public bool SendEmailOnUpdate { get; set; } = false;
         /// <summary>
-        /// The subject of the email verification email.
-        /// </summary>
-        public string Subject { get; set; } = "Confirm your account";
-        /// <summary>
-        /// The body of the verification email.
-        /// </summary>
-        /// <remarks>The body must contain a placeholder, which is {token}, in order to put the actual value of the generated verification code.</remarks>
-        public string Body { get; set; } = "Email verification link is {callbackUrl}.";
-        /// <summary>
         /// The optional template (Razor view) to use for the email message.
         /// </summary>
         public string TemplateName { get; set; } = "Email";

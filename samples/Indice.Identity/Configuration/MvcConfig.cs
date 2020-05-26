@@ -37,15 +37,12 @@ namespace Microsoft.Extensions.DependencyInjection
                                });
                                // Enable events and register handlers.
                                options.CanRaiseEvents = true;
-                               options.AddEventHandler<ClientCreatedEvent, ClientCreatedEventHandler>();
-                               options.AddEventHandler<UserEmailConfirmedEvent, UserEmailConfirmedEventHandler>();
+                               options.AddEventHandler<ClientCreatedEvent, ClientCreatedEventHandler>()
+                                      .AddEventHandler<UserEmailConfirmedEvent, UserEmailConfirmedEventHandler>();
                                // Update email options.
                                options.Email.SendEmailOnUpdate = true;
-                               options.Email.Subject = "Indice account confirmation";
-                               options.Email.Body = @"We need you to verify your email. Click <a style=""color:#005030""href=""{callbackUrl}"">here</a> to get verified!<br/><br/>Thanks!";
                                // Update phone number options.
                                options.PhoneNumber.SendOtpOnUpdate = true;
-                               options.PhoneNumber.Message = "Your phone number verification code is {token}.";
                                // Add custom initial user and enable test data.
                                options.UseInitialData = true;
                                options.InitialUsers = new List<User> {

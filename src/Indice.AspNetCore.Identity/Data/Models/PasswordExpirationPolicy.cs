@@ -31,10 +31,10 @@ namespace Indice.AspNetCore.Identity.Models
         /// <summary>
         /// The password expires every year.
         /// </summary>
-        Anually = 365,
+        Annually = 365,
         /// <summary>
         /// The password expires every two years.
         /// </summary>
-        Bianually = 2 * Anually,
+        Biannually = 2 * Annually,
     }
 }

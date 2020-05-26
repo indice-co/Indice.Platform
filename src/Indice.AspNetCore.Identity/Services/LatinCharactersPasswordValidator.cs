@@ -1,7 +1,9 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Indice.AspNetCore.Identity.Models;
 using Indice.Extensions;
+using Indice.Services;
 using Microsoft.AspNetCore.Identity;
 
 namespace Indice.AspNetCore.Identity.Services
@@ -9,10 +11,8 @@ namespace Indice.AspNetCore.Identity.Services
     /// <inheritdoc/>
     public class LatinCharactersPasswordValidator : LatinCharactersPasswordValidator<User>
     {
-        /// <summary>
-        /// Creates a new instance of <see cref="LatinCharactersPasswordValidator"/>.
-        /// </summary>
-        public LatinCharactersPasswordValidator() : base() { }
+        /// <inheritdoc/>
+        public LatinCharactersPasswordValidator(MessageDescriber messageDescriber) : base(messageDescriber) { }
     }
 
     /// <summary>
@@ -21,10 +21,19 @@ namespace Indice.AspNetCore.Identity.Services
     /// <typeparam name="TUser">The type of user instance.</typeparam>
     public class LatinCharactersPasswordValidator<TUser> : IPasswordValidator<TUser> where TUser : User
     {
+        private readonly MessageDescriber _messageDescriber;
         /// <summary>
         /// The code used when describing the <see cref="IdentityError"/>.
         /// </summary>
         public const string ErrorDescriber = "PasswordContainsNonLatinLetters";
+
+        /// <summary>
+        /// Creates a new instance of <see cref="LatinCharactersPasswordValidator"/>.
+        /// </summary>
+        /// <param name="messageDescriber">Provides the various messages used throughout Indice packages.</param>
+        public LatinCharactersPasswordValidator(MessageDescriber messageDescriber) {
+            _messageDescriber = messageDescriber ?? throw new ArgumentNullException(nameof(messageDescriber));
+        }
 
         /// <inheritdoc/>
         public Task<IdentityResult> ValidateAsync(UserManager<TUser> manager, TUser user, string password) {
@@ -33,7 +42,7 @@ namespace Indice.AspNetCore.Identity.Services
             if (!isValid) {
                 result = IdentityResult.Failed(new IdentityError {
                     Code = ErrorDescriber,
-                    Description = "Password cannot contain non latin letters."
+                    Description = _messageDescriber.PasswordHasNonLatinChars()
                 });
             }
             return Task.FromResult(result);

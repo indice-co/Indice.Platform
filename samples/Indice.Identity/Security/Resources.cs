@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using IdentityModel;
 using IdentityServer4.Models;
 using Indice.AspNetCore.Identity.Features;
@@ -25,7 +26,12 @@ namespace Indice.Identity.Security
                 Description = "Your user profile information (first name, last name, etc.)",
                 DisplayName = nameof(IdentityResources.Profile),
                 Name = nameof(IdentityResources.Profile).ToLower(),
-                Emphasize = true
+                Emphasize = true,
+                UserClaims = new IdentityResources.Profile().UserClaims.Concat(new [] {
+                    BasicClaimTypes.PasswordExpirationDate,
+                    BasicClaimTypes.PasswordExpirationPolicy
+                })
+                .ToList()
             },
             new IdentityResource {
                 Description = "Your user role on the system.",
@@ -54,6 +60,8 @@ namespace Indice.Identity.Security
                 JwtClaimTypes.Role,
                 BasicClaimTypes.Admin,
                 BasicClaimTypes.System,
+                BasicClaimTypes.PasswordExpirationDate,
+                BasicClaimTypes.PasswordExpirationPolicy,
                 JwtClaimTypes.Subject,
                 JwtClaimTypes.Name,
                 JwtClaimTypes.Email,

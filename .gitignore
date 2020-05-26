@@ -295,3 +295,4 @@ samples/Indice.Identity/wwwroot/admin-ui
 samples/Indice.Identity/logs
 samples/Indice.Identity/compilerconfig.json
 samples/Indice.Identity/compilerconfig.json.defaults
+samples/Indice.Identity/App_data

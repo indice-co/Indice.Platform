@@ -126,14 +126,9 @@ namespace Indice.Serialization
         private static IEnumerable<Type> GetTypesInHierarchy(Type baseType) {
             var baseTypeInfo = baseType.GetTypeInfo();
             var derivedTypes = baseTypeInfo.Assembly.DefinedTypes.Where(type => !type.IsAbstract && type != baseType && baseTypeInfo.IsAssignableFrom(type)).Select(typeInfo => typeInfo.AsType());
-#if NETSTANDARD2_0
             var allTypes = new List<Type> { baseType };
             allTypes.AddRange(derivedTypes);
             return allTypes;
-#endif
-#if NETCOREAPP3_1
-            return derivedTypes.Prepend(baseType);
-#endif
         }
 
         private static string ResolveDiscriminatorValue(Type type, PropertyInfo discriminator, string[] options) {

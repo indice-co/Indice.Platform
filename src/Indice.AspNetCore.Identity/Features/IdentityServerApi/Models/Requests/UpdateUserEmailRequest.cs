@@ -13,10 +13,5 @@ namespace Indice.AspNetCore.Identity.Features
         [Required(AllowEmptyStrings = false)]
         [EmailAddress]
         public string Email { get; set; }
-        /// <summary>
-        /// The URL to return after email confirmation.
-        /// </summary>
-        [Required(AllowEmptyStrings = false)]
-        public string ReturnUrl { get; set; }
     }
 }

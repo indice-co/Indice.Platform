@@ -94,9 +94,11 @@ namespace Indice.AspNetCore.Identity.Features
         /// <typeparam name="TEvent">The type of the event to handler.</typeparam>
         /// <typeparam name="TEventHandler">The handler to user for the specified event.</typeparam>
         /// <param name="options">Options for configuring the IdentityServer API feature.</param>
-        public static void AddEventHandler<TEvent, TEventHandler>(this IdentityServerApiEndpointsOptions options)
+        public static IdentityServerApiEndpointsOptions AddEventHandler<TEvent, TEventHandler>(this IdentityServerApiEndpointsOptions options)
             where TEvent : IIdentityServerApiEvent
-            where TEventHandler : class, IIdentityServerApiEventHandler<TEvent> =>
+            where TEventHandler : class, IIdentityServerApiEventHandler<TEvent> {
             options.Services.AddTransient(typeof(IIdentityServerApiEventHandler<TEvent>), typeof(TEventHandler));
+            return options;
+        }
     }
 }

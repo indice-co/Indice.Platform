@@ -45,6 +45,7 @@ namespace Microsoft.Extensions.DependencyInjection
         public static IServiceCollection AddIndiceServices(this IServiceCollection services, IConfiguration configuration) {
             services.Configure<GeneralSettings>(configuration.GetSection(GeneralSettings.Name));
             services.TryAddTransient(serviceProvider => serviceProvider.GetRequiredService<IOptions<GeneralSettings>>().Value);
+            services.TryAddScoped<MessageDescriber>();
             return services;
         }
 
@@ -97,23 +98,6 @@ namespace Microsoft.Extensions.DependencyInjection
         }
 
         /// <summary>
-        /// Adds <see cref="IFileService"/> using Azure Blob Storage as the backing store.
-        /// </summary>
-        /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
-        /// <param name="configure">Configure the available options. Null to use defaults.</param>
-        public static IServiceCollection AddFilesAzure(this IServiceCollection services, Action<FileServiceAzureStorage.FileServiceOptions> configure = null) {
-            services.AddTransient<IFileService, FileServiceAzureStorage>(serviceProvider => {
-                var options = new FileServiceAzureStorage.FileServiceOptions {
-                    ConnectionString = serviceProvider.GetRequiredService<IConfiguration>().GetConnectionString(FileServiceAzureStorage.CONNECTION_STRING_NAME),
-                    EnvironmentName = serviceProvider.GetRequiredService<IWebHostEnvironment>().EnvironmentName
-                };
-                configure?.Invoke(options);
-                return new FileServiceAzureStorage(options.ConnectionString, options.EnvironmentName);
-            });
-            return services;
-        }
-
-        /// <summary>
         /// Adds <see cref="IEventDispatcher"/> using Azure Storage as a queuing mechanism.
         /// </summary>
         /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
@@ -137,6 +121,23 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
         public static IServiceCollection AddEventDispatcherInMemory(this IServiceCollection services) {
             services.AddTransient<IEventDispatcher, EventDispatcherInMemory>();
+            return services;
+        }
+
+        /// <summary>
+        /// Adds <see cref="IFileService"/> using Azure Blob Storage as the backing store.
+        /// </summary>
+        /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
+        /// <param name="configure">Configure the available options. Null to use defaults.</param>
+        public static IServiceCollection AddFilesAzure(this IServiceCollection services, Action<FileServiceAzureStorage.FileServiceOptions> configure = null) {
+            services.AddTransient<IFileService, FileServiceAzureStorage>(serviceProvider => {
+                var options = new FileServiceAzureStorage.FileServiceOptions {
+                    ConnectionString = serviceProvider.GetRequiredService<IConfiguration>().GetConnectionString(FileServiceAzureStorage.CONNECTION_STRING_NAME),
+                    EnvironmentName = serviceProvider.GetRequiredService<IWebHostEnvironment>().EnvironmentName
+                };
+                configure?.Invoke(options);
+                return new FileServiceAzureStorage(options.ConnectionString, options.EnvironmentName);
+            });
             return services;
         }
 
@@ -182,90 +183,132 @@ namespace Microsoft.Extensions.DependencyInjection
         /// Configures the Data Protection API for the application by using Azure Storage.
         /// </summary>
         /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
-        /// <param name="configure">Configure the available options. Null to use defaults.</param>
-        public static void AddDataProtectionAzure(this IServiceCollection services, Action<AzureDataProtectionOptions> configure = null) {
+        /// <param name="configure">Configures the available options. Null to use defaults.</param>
+        public static IServiceCollection AddDataProtectionAzure(this IServiceCollection services, Action<AzureDataProtectionOptions> configure = null) {
             services.TryAddSingleton(typeof(IDataProtectionEncryptor<>), typeof(DataProtectionEncryptor<>));
             var serviceProvider = services.BuildServiceProvider();
             var hostingEnvironment = serviceProvider.GetRequiredService<IWebHostEnvironment>();
             var environmentName = Regex.Replace(hostingEnvironment.EnvironmentName ?? "Development", @"\s+", "-").ToLowerInvariant();
+            const int defaultKeyLifetime = 90;
             var options = new AzureDataProtectionOptions {
                 StorageConnectionString = serviceProvider.GetRequiredService<IConfiguration>().GetConnectionString("StorageConnection"),
                 ContainerName = environmentName,
-                ApplicationName = hostingEnvironment.ApplicationName
+                ApplicationName = hostingEnvironment.ApplicationName,
+                KeyLifetime = defaultKeyLifetime
             };
+            options.Services = services;
             configure?.Invoke(options);
+            options.Services = null;
+            if (options.KeyLifetime <= 0) {
+                options.KeyLifetime = defaultKeyLifetime;
+            }
             var storageAccount = CloudStorageAccount.Parse(options.StorageConnectionString);
             var blobClient = storageAccount.CreateCloudBlobClient();
             var container = blobClient.GetContainerReference(options.ContainerName);
             container.CreateIfNotExistsAsync().Wait();
             // Enables data protection services to the specified IServiceCollection.
-            services.AddDataProtection()
-                    // Configures the data protection system to use the specified cryptographic algorithms by default when generating protected payloads.
-                    // The algorithms selected below are the default and they are added just for completeness.
-                    .UseCryptographicAlgorithms(new AuthenticatedEncryptorConfiguration {
-                        EncryptionAlgorithm = EncryptionAlgorithm.AES_256_GCM,
-                        ValidationAlgorithm = ValidationAlgorithm.HMACSHA512
-                    })
-                    .PersistKeysToAzureBlobStorage(container, "Keys")
-                    // Configure the system to use a key lifetime of 30 days instead of the default 90 days.
-                    .SetDefaultKeyLifetime(TimeSpan.FromDays(30))
-                    // Configure the system not to automatically roll keys (create new keys) as they approach expiration.
-                    //.DisableAutomaticKeyGeneration()
-                    // This prevents the apps from understanding each other's protected payloads (e.x Azure slots). To share protected payloads between two apps, use SetApplicationName with the 
-                    // same value for each app.
-                    .SetApplicationName(options.ApplicationName);
+            var dataProtectionBuilder = services.AddDataProtection()
+                                                // Configures the data protection system to use the specified cryptographic algorithms by default when generating protected payloads.
+                                                // The algorithms selected below are the default and they are added just for completeness.
+                                                .UseCryptographicAlgorithms(new AuthenticatedEncryptorConfiguration {
+                                                    EncryptionAlgorithm = EncryptionAlgorithm.AES_256_GCM,
+                                                    ValidationAlgorithm = ValidationAlgorithm.HMACSHA512
+                                                })
+                                                .PersistKeysToAzureBlobStorage(container, "Keys")
+                                                // Configure the system to use a key lifetime. Default is 90 days.
+                                                .SetDefaultKeyLifetime(TimeSpan.FromDays(options.KeyLifetime))
+                                                // This prevents the apps from understanding each other's protected payloads (e.x Azure slots). To share protected payloads between two apps, 
+                                                // use SetApplicationName with the same value for each app.
+                                                .SetApplicationName(options.ApplicationName);
+            if (options.DisableAutomaticKeyGeneration) {
+                // Configure the system not to automatically roll keys (create new keys) as they approach expiration.
+                dataProtectionBuilder.DisableAutomaticKeyGeneration();
+            }
+            return services;
         }
 
         /// <summary>
         /// Configures the Data Protection API for the application by using the file system.
         /// </summary>
         /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
-        /// <param name="path">The path to the file system that will be used within the data protection system.</param>
-        public static void AddDataProtectionLocal(this IServiceCollection services, string path = null) {
+        /// <param name="configure">Configures the available options. Null to use defaults.</param>
+        public static IServiceCollection AddDataProtectionLocal(this IServiceCollection services, Action<LocalDataProtectionOptions> configure = null) {
             var serviceProvider = services.BuildServiceProvider();
             var hostingEnvironment = serviceProvider.GetRequiredService<IWebHostEnvironment>();
-            if (path == null) {
-                path = Path.Combine(hostingEnvironment.ContentRootPath, "App_Data");
+            const int defaultKeyLifetime = 90;
+            var options = new LocalDataProtectionOptions {
+                ApplicationName = hostingEnvironment.ApplicationName,
+                CryptographicAlgorithms = new AuthenticatedEncryptorConfiguration {
+                    EncryptionAlgorithm = EncryptionAlgorithm.AES_256_GCM,
+                    ValidationAlgorithm = ValidationAlgorithm.HMACSHA512
+                },
+                KeyLifetime = defaultKeyLifetime
+            };
+            options.Services = services;
+            configure?.Invoke(options);
+            options.Services = null;
+            if (options.KeyLifetime <= 0) {
+                options.KeyLifetime = defaultKeyLifetime;
             }
-            if (!Directory.Exists(path)) {
-                Directory.CreateDirectory(path);
+            if (string.IsNullOrWhiteSpace(options.Path)) {
+                options.Path = Path.Combine(hostingEnvironment.ContentRootPath, "App_Data");
+            } else if (!Path.IsPathRooted(options.Path)) {
+                options.Path = Path.Combine(hostingEnvironment.ContentRootPath, options.Path);
+            }
+            if (!Directory.Exists(options.Path)) {
+                Directory.CreateDirectory(options.Path);
             }
             services.TryAddSingleton(typeof(IDataProtectionEncryptor<>), typeof(DataProtectionEncryptor<>));
             // Enables data protection services to the specified IServiceCollection.
-            services.AddDataProtection()
-                    // Configures the data protection system to use the specified cryptographic algorithms by default when generating protected payloads.
-                    // The algorithms selected below are the default and they are added just for completeness.
-                    .UseCryptographicAlgorithms(new AuthenticatedEncryptorConfiguration {
-                        EncryptionAlgorithm = EncryptionAlgorithm.AES_256_GCM,
-                        ValidationAlgorithm = ValidationAlgorithm.HMACSHA512
-                    })
-                    .PersistKeysToFileSystem(new DirectoryInfo(path))
-                    // Configure the system to use a key lifetime of 30 days instead of the default 90 days.
-                    .SetDefaultKeyLifetime(TimeSpan.FromDays(30))
-                    // Configure the system not to automatically roll keys (create new keys) as they approach expiration.
-                    //.DisableAutomaticKeyGeneration()
-                    // This prevents the apps from understanding each other's protected payloads (e.x Azure slots). To share protected payloads between two apps, use SetApplicationName with the 
-                    // same value for each app.
-                    .SetApplicationName(hostingEnvironment.ApplicationName);
+            var dataProtectionBuilder = services.AddDataProtection()
+                                                // Configures the data protection system to use the specified cryptographic algorithms by default when generating protected payloads.
+                                                // The algorithms selected below are the default and they are added just for completeness.
+                                                .UseCryptographicAlgorithms(options.CryptographicAlgorithms)
+                                                .PersistKeysToFileSystem(new DirectoryInfo(options.Path))
+                                                // Configure the system to use a key lifetime. Default is 90 days.
+                                                .SetDefaultKeyLifetime(TimeSpan.FromDays(options.KeyLifetime))
+                                                // This prevents the apps from understanding each other's protected payloads (e.x Azure slots). To share protected payloads between two apps, 
+                                                // use SetApplicationName with the same value for each app.
+                                                .SetApplicationName(options.ApplicationName);
+            if (options.DisableAutomaticKeyGeneration) {
+                // Configure the system not to automatically roll keys (create new keys) as they approach expiration.
+                dataProtectionBuilder.DisableAutomaticKeyGeneration();
+            }
+            return services;
         }
 
         /// <summary>
-        /// Options for configuring ASP.NET Core DataProtection API using azure Blob Storage backend.
+        /// Reads the data protection options directly from configuration.
         /// </summary>
-        public class AzureDataProtectionOptions
-        {
-            /// <summary>
-            /// The connection string to your Azure storage account.
-            /// </summary>
-            public string StorageConnectionString { get; set; }
-            /// <summary>
-            /// The name of the container that will be used within the data protection system.
-            /// </summary>
-            public string ContainerName { get; set; }
-            /// <summary>
-            /// Sets the unique name of this application within the data protection system.
-            /// </summary>
-            public string ApplicationName { get; set; }
+        /// <param name="options">Options for configuring ASP.NET Core DataProtection API using local file system.</param>
+        /// <param name="section">The section to use in search for settings regarding data protection. Default section used is <see cref="LocalDataProtectionOptions.Name"/>.</param>
+        public static LocalDataProtectionOptions FromConfiguration(this LocalDataProtectionOptions options, string section = null) {
+            var serviceProvider = options.Services.BuildServiceProvider();
+            var configuration = serviceProvider.GetRequiredService<IConfiguration>();
+            configuration.Bind(section ?? LocalDataProtectionOptions.Name, options);
+            return options;
+        }
+
+        /// <summary>
+        /// Reads the data protection options directly from configuration.
+        /// </summary>
+        /// <param name="options">Options for configuring ASP.NET Core DataProtection API using Azure Blob Storage infrastructure.</param>
+        /// <param name="section">The section to use in search for settings regarding data protection. Default section used is <see cref="LocalDataProtectionOptions.Name"/>.</param>
+        public static AzureDataProtectionOptions FromConfiguration(this AzureDataProtectionOptions options, string section = null) {
+            var serviceProvider = options.Services.BuildServiceProvider();
+            var configuration = serviceProvider.GetRequiredService<IConfiguration>();
+            configuration.Bind(section ?? AzureDataProtectionOptions.Name, options);
+            return options;
+        }
+
+        /// <summary>
+        /// Adds an overridden implementation of <see cref="MessageDescriber"/>.
+        /// </summary>
+        /// <typeparam name="TDescriber">The type of message describer.</typeparam>
+        /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
+        public static IServiceCollection AddMessageDescriber<TDescriber>(this IServiceCollection services) where TDescriber : MessageDescriber {
+            services.AddScoped<MessageDescriber, TDescriber>();
+            return services;
         }
     }
 }

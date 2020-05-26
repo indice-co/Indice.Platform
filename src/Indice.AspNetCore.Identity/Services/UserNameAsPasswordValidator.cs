@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Indice.AspNetCore.Identity.Models;
+using Indice.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 
@@ -11,11 +12,8 @@ namespace Indice.AspNetCore.Identity.Services
     /// <inheritdoc/>
     public class UserNameAsPasswordValidator : UserNameAsPasswordValidator<User>
     {
-        /// <summary>
-        /// Creates a new instance of <see cref="UserNameAsPasswordValidator"/>.
-        /// </summary>
-        /// <param name="configuration"></param>
-        public UserNameAsPasswordValidator(IConfiguration configuration) : base(configuration) { }
+        /// <inheritdoc/>
+        public UserNameAsPasswordValidator(IConfiguration configuration, MessageDescriber messageDescriber) : base(configuration, messageDescriber) { }
     }
 
     /// <summary>
@@ -24,16 +22,19 @@ namespace Indice.AspNetCore.Identity.Services
     /// <typeparam name="TUser">The type of user instance.</typeparam>
     public class UserNameAsPasswordValidator<TUser> : IPasswordValidator<TUser> where TUser : User
     {
+        private readonly MessageDescriber _messageDescriber;
         /// <summary>
         /// The code used when describing the <see cref="IdentityError"/>.
         /// </summary>
         public const string ErrorDescriber = "PasswordContainsUserName";
 
         /// <summary>
-        /// Creates a new instance of <see cref="UserNameAsPasswordValidator{TUser}"/>.
+        /// Creates a new instance of <see cref="UserNameAsPasswordValidator"/>.
         /// </summary>
         /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
-        public UserNameAsPasswordValidator(IConfiguration configuration) {
+        /// <param name="messageDescriber">Provides the various messages used throughout Indice packages.</param>
+        public UserNameAsPasswordValidator(IConfiguration configuration, MessageDescriber messageDescriber) {
+            _messageDescriber = messageDescriber;
             MaxAllowedUserNameSubset = configuration.GetSection($"{nameof(IdentityOptions)}:{nameof(IdentityOptions.Password)}").GetValue<int?>(nameof(MaxAllowedUserNameSubset)) ??
                                        configuration.GetSection(nameof(PasswordOptions)).GetValue<int?>(nameof(MaxAllowedUserNameSubset));
         }
@@ -60,7 +61,7 @@ namespace Indice.AspNetCore.Identity.Services
             if (user.UserName.Equals(password, StringComparison.InvariantCultureIgnoreCase)) {
                 result = IdentityResult.Failed(new IdentityError {
                     Code = ErrorDescriber,
-                    Description = "Username and password cannot be the same."
+                    Description = _messageDescriber.PasswordIdenticalToUserName()
                 });
                 return Task.FromResult(result);
             }
@@ -76,7 +77,7 @@ namespace Indice.AspNetCore.Identity.Services
             if (userNameSubstrings.Any(userNameSubstring => password.Contains(userNameSubstring, StringComparison.OrdinalIgnoreCase))) {
                 result = IdentityResult.Failed(new IdentityError {
                     Code = ErrorDescriber,
-                    Description = "Username and password are identical."
+                    Description = _messageDescriber.PasswordIdenticalToUserName()
                 });
             }
             return Task.FromResult(result);

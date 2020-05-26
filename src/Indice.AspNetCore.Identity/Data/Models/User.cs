@@ -92,8 +92,8 @@ namespace Indice.AspNetCore.Identity.Models
                 Models.PasswordExpirationPolicy.Monthly => lastChange.AddMonths(1),
                 Models.PasswordExpirationPolicy.Quarterly => lastChange.AddMonths(3),
                 Models.PasswordExpirationPolicy.Semesterly => lastChange.AddMonths(6),
-                Models.PasswordExpirationPolicy.Anually => lastChange.AddMonths(12),
-                Models.PasswordExpirationPolicy.Bianually => lastChange.AddMonths(24),
+                Models.PasswordExpirationPolicy.Annually => lastChange.AddMonths(12),
+                Models.PasswordExpirationPolicy.Biannually => lastChange.AddMonths(24),
                 _ => lastChange.AddDays((int)PasswordExpirationPolicy.Value)
             };
         }

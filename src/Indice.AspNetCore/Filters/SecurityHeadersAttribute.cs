@@ -66,9 +66,9 @@ namespace Indice.AspNetCore.Filters
             FrameAncestors = $"{None}",
             Sandbox = $"allow-forms allow-same-origin allow-scripts",
             ScriptSrc = $"{Self} ajax.googleapis.com ajax.aspnetcdn.com stackpath.bootstrapcdn.com",
-            FontSrc = $"{Self} fonts.googleapis.com",
+            FontSrc = $"{Self} fonts.googleapis.com fonts.gstatic.com",
             ImgSrc = $"{Wildcard} {Data}",
-            StyleSrc = $"{Self} {UnsafeInline} fonts.googleapis.com stackpath.bootstrapcdn.com use.fontawesome.com",
+            StyleSrc = $"{Self} {UnsafeInline} fonts.googleapis.com stackpath.bootstrapcdn.com use.fontawesome.com"
         };
 
         private readonly Dictionary<string, string> _values = new Dictionary<string, string>();

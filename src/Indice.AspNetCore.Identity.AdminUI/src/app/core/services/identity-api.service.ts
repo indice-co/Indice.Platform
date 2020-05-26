@@ -10190,8 +10190,8 @@ export enum PasswordExpirationPolicy {
     Monthly = "Monthly",
     Quarterly = "Quarterly",
     Semesterly = "Semesterly",
-    Anually = "Anually",
-    Bianually = "Bianually",
+    Annually = "Annually",
+    Biannually = "Biannually",
     Never = "Never",
 }
 
