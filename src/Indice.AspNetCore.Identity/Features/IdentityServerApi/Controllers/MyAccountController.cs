@@ -75,7 +75,7 @@ namespace Indice.AspNetCore.Identity.Features
         [HttpPut("my/account/email")]
         [ProducesResponseType(statusCode: StatusCodes.Status204NoContent, type: typeof(void))]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
-        public async Task<IActionResult> UpdateEmail([FromBody]UpdateUserEmailRequest request) {
+        public async Task<IActionResult> UpdateEmail([FromBody] UpdateUserEmailRequest request) {
             var user = await _userManager.GetUserAsync(User);
             if (user == null) {
                 return NotFound();
@@ -102,7 +102,7 @@ namespace Indice.AspNetCore.Identity.Features
             var data = new User {
                 UserName = User.FindDisplayName() ?? user.UserName
             };
-            await _emailService.SendAsync<User>(message => message.To(user.Email).WithSubject(_messageDescriber.EmailUpdateMessageSubject).WithBody(_messageDescriber.EmailUpdateMessageSubject).WithData(data));
+            await _emailService.SendAsync<User>(message => message.To(user.Email).WithSubject(_messageDescriber.EmailUpdateMessageSubject).WithBody(_messageDescriber.EmailUpdateMessageBody(request.ReturnUrl, user.Id, token)).WithData(data));
             return NoContent();
         }
 
@@ -115,7 +115,7 @@ namespace Indice.AspNetCore.Identity.Features
         [HttpPut("my/account/email/confirmation")]
         [ProducesResponseType(statusCode: StatusCodes.Status204NoContent, type: typeof(void))]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
-        public async Task<IActionResult> ConfirmEmail([FromBody]ConfirmEmailRequest request) {
+        public async Task<IActionResult> ConfirmEmail([FromBody] ConfirmEmailRequest request) {
             var userId = User.FindFirstValue(JwtClaimTypes.Subject);
             var user = await _userManager.Users
                                          .Include(x => x.Claims)
@@ -146,7 +146,7 @@ namespace Indice.AspNetCore.Identity.Features
         [HttpPut("my/account/phone-number")]
         [ProducesResponseType(statusCode: StatusCodes.Status204NoContent, type: typeof(void))]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
-        public async Task<IActionResult> UpdatePhoneNumber([FromBody]UpdateUserPhoneNumberRequest request) {
+        public async Task<IActionResult> UpdatePhoneNumber([FromBody] UpdateUserPhoneNumberRequest request) {
             var user = await _userManager.GetUserAsync(User);
             if (user == null) {
                 return NotFound();
@@ -182,7 +182,7 @@ namespace Indice.AspNetCore.Identity.Features
         [HttpPut("my/account/phone-number/confirmation")]
         [ProducesResponseType(statusCode: StatusCodes.Status204NoContent, type: typeof(void))]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
-        public async Task<IActionResult> ConfirmPhoneNumber([FromBody]ConfirmPhoneNumberRequest request) {
+        public async Task<IActionResult> ConfirmPhoneNumber([FromBody] ConfirmPhoneNumberRequest request) {
             var userId = User.FindFirstValue(JwtClaimTypes.Subject);
             var user = await _userManager.Users
                                          .Include(x => x.Claims)
@@ -213,7 +213,7 @@ namespace Indice.AspNetCore.Identity.Features
         [HttpPut("my/account/username")]
         [ProducesResponseType(statusCode: StatusCodes.Status200OK, type: typeof(void))]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
-        public async Task<IActionResult> UpdateUserName([FromBody]UpdateUserNameRequest request) {
+        public async Task<IActionResult> UpdateUserName([FromBody] UpdateUserNameRequest request) {
             var user = await _userManager.GetUserAsync(User);
             if (user == null) {
                 return NotFound();
@@ -234,7 +234,7 @@ namespace Indice.AspNetCore.Identity.Features
         [HttpPut("my/account/password")]
         [ProducesResponseType(statusCode: StatusCodes.Status204NoContent, type: typeof(void))]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
-        public async Task<IActionResult> UpdatePassword([FromBody]ChangePasswordRequest request) {
+        public async Task<IActionResult> UpdatePassword([FromBody] ChangePasswordRequest request) {
             var user = await _userManager.GetUserAsync(User);
             if (user == null) {
                 return NotFound();
@@ -255,7 +255,7 @@ namespace Indice.AspNetCore.Identity.Features
         [HttpPut("my/account/password-expiration-policy")]
         [ProducesResponseType(statusCode: StatusCodes.Status204NoContent, type: typeof(void))]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
-        public async Task<IActionResult> UpdatePasswordExpirationPolicy([FromBody]UpdatePasswordExpirationPolicyRequest request) {
+        public async Task<IActionResult> UpdatePasswordExpirationPolicy([FromBody] UpdatePasswordExpirationPolicyRequest request) {
             var user = await _userManager.GetUserAsync(User);
             if (user == null) {
                 return NotFound();
@@ -296,7 +296,7 @@ namespace Indice.AspNetCore.Identity.Features
         [HttpPost("account/username-exists")]
         [ProducesResponseType(statusCode: StatusCodes.Status302Found, type: typeof(void))]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(void))]
-        public async Task<IActionResult> CheckUserNameExists([FromBody]ValidateUserNameRequest request) {
+        public async Task<IActionResult> CheckUserNameExists([FromBody] ValidateUserNameRequest request) {
             if (!ModelState.IsValid) {
                 return BadRequest(new ValidationProblemDetails(ModelState));
             }
@@ -310,7 +310,7 @@ namespace Indice.AspNetCore.Identity.Features
         [AllowAnonymous]
         [HttpPost("account/validate-password")]
         [ProducesResponseType(statusCode: StatusCodes.Status200OK, type: typeof(CredentialsValidationInfo))]
-        public async Task<IActionResult> ValidatePassword([FromBody]ValidatePasswordRequest request) {
+        public async Task<IActionResult> ValidatePassword([FromBody] ValidatePasswordRequest request) {
             if (!ModelState.IsValid) {
                 return BadRequest(new ValidationProblemDetails(ModelState));
             }
@@ -330,7 +330,7 @@ namespace Indice.AspNetCore.Identity.Features
                     }
                 }
             }
-            return Ok(new CredentialsValidationInfo { 
+            return Ok(new CredentialsValidationInfo {
                 PasswordRules = availableRules.Values.ToList()
             });
         }

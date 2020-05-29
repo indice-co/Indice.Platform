@@ -21,33 +21,68 @@ namespace System.Security
         private static readonly RandomNumberGenerator _rng = RandomNumberGenerator.Create();
 
         /// <summary>
-        /// Generates a new 80-bit security token
+        /// Generate the code.
+        /// </summary>
+        /// <param name="securityToken">A security code. This should be a secret.</param>
+        /// <param name="modifier">Entropy.</param>
+        /// <returns></returns>
+        public static int GenerateCode(byte[] securityToken, string modifier = null) {
+            if (securityToken == null) {
+                throw new ArgumentNullException(nameof(securityToken));
+            }
+            // Allow a variance of no greater than 9 minutes in either direction.
+            var currentTimeStep = GetCurrentTimeStepNumber();
+            using (var hashAlgorithm = new HMACSHA1(securityToken)) {
+                return ComputeTotp(hashAlgorithm, currentTimeStep, modifier);
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="securityToken">A security code. This should be a secret.</param>
+        /// <param name="code">The code.</param>
+        /// <param name="modifier">Entropy.</param>
+        /// <returns></returns>
+        public static bool ValidateCode(byte[] securityToken, int code, string modifier = null) {
+            if (securityToken == null) {
+                throw new ArgumentNullException(nameof(securityToken));
+            }
+            // Allow a variance of no greater than 9 minutes in either direction
+            var currentTimeStep = GetCurrentTimeStepNumber();
+            using (var hashAlgorithm = new HMACSHA1(securityToken)) {
+                for (var i = -2; i <= 2; i++) {
+                    var computedTotp = ComputeTotp(hashAlgorithm, (ulong)((long)currentTimeStep + i), modifier);
+                    if (computedTotp == code) {
+                        return true;
+                    }
+                }
+            }
+            // No match.
+            return false;
+        }
+
+        /// <summary>
+        /// Generates a new 80-bit security token.
         /// </summary>
         /// <returns></returns>
         public static byte[] GenerateRandomKey() {
-            byte[] bytes = new byte[20];
+            var bytes = new byte[20];
             _rng.GetBytes(bytes);
             return bytes;
         }
 
-        
         private static int ComputeTotp(HashAlgorithm hashAlgorithm, ulong timestepNumber, string modifier) {
-            // # of 0's = length of pin
+            // # of 0's = length of pin.
             const int Mod = 1000000;
-
             // See https://tools.ietf.org/html/rfc4226
-            // We can add an optional modifier
+            // We can add an optional modifier.
             var timestepAsBytes = BitConverter.GetBytes(IPAddress.HostToNetworkOrder((long)timestepNumber));
             var hash = hashAlgorithm.ComputeHash(ApplyModifier(timestepAsBytes, modifier));
-
-            // Generate DT string
+            // Generate DT string.
             var offset = hash[hash.Length - 1] & 0xf;
             Debug.Assert(offset + 4 < hash.Length);
-            var binaryCode = (hash[offset] & 0x7f) << 24
-                             | (hash[offset + 1] & 0xff) << 16
-                             | (hash[offset + 2] & 0xff) << 8
-                             | (hash[offset + 3] & 0xff);
-
+            var binaryCode = (hash[offset] & 0x7f) << 24 | (hash[offset + 1] & 0xff) << 16 | (hash[offset + 2] & 0xff) << 8 | (hash[offset + 3] & 0xff);
             return binaryCode % Mod;
         }
 
@@ -55,7 +90,6 @@ namespace System.Security
             if (string.IsNullOrEmpty(modifier)) {
                 return input;
             }
-
             var modifierBytes = _encoding.GetBytes(modifier);
             var combined = new byte[checked(input.Length + modifierBytes.Length)];
             Buffer.BlockCopy(input, 0, combined, 0, input.Length);
@@ -67,51 +101,6 @@ namespace System.Security
         private static ulong GetCurrentTimeStepNumber() {
             var delta = DateTime.UtcNow - _unixEpoch;
             return (ulong)(delta.Ticks / _timestep.Ticks);
-        }
-
-        /// <summary>
-        /// Generate the code
-        /// </summary>
-        /// <param name="securityToken">A security code. This should be a secret.</param>
-        /// <param name="modifier">Entropy</param>
-        /// <returns></returns>
-        public static int GenerateCode(byte[] securityToken, string modifier = null) {
-            if (securityToken == null) {
-                throw new ArgumentNullException(nameof(securityToken));
-            }
-
-            // Allow a variance of no greater than 9 minutes in either direction
-            var currentTimeStep = GetCurrentTimeStepNumber();
-            using (var hashAlgorithm = new HMACSHA1(securityToken)) {
-                return ComputeTotp(hashAlgorithm, currentTimeStep, modifier);
-            }
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="securityToken">A security code. This should be a secret.</param>
-        /// <param name="code">The code</param>
-        /// <param name="modifier">Entropy</param>
-        /// <returns></returns>
-        public static bool ValidateCode(byte[] securityToken, int code, string modifier = null) {
-            if (securityToken == null) {
-                throw new ArgumentNullException(nameof(securityToken));
-            }
-
-            // Allow a variance of no greater than 9 minutes in either direction
-            var currentTimeStep = GetCurrentTimeStepNumber();
-            using (var hashAlgorithm = new HMACSHA1(securityToken)) {
-                for (var i = -2; i <= 2; i++) {
-                    var computedTotp = ComputeTotp(hashAlgorithm, (ulong)((long)currentTimeStep + i), modifier);
-                    if (computedTotp == code) {
-                        return true;
-                    }
-                }
-            }
-
-            // No match
-            return false;
         }
     }
 }

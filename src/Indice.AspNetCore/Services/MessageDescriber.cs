@@ -37,7 +37,7 @@ namespace Indice.Services
         /// <summary>
         /// Email verification code is {0}.
         /// </summary>
-        public virtual string EmailUpdateMessageBody(string userId, string token) => string.Format(Resources.Culture, Resources.EmailUpdateMessageBody);
+        public virtual string EmailUpdateMessageBody(string returnUrl, string userId, string token) => string.Format(Resources.Culture, Resources.EmailUpdateMessageBody);
         /// <summary>
         /// Your password is very common to use.
         /// </summary>

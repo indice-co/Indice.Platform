@@ -30,8 +30,6 @@ namespace Indice.Serialization
                 }
                 return reader.GetString();
             }
-            // Use JsonElement as fallback.
-            // Newtonsoft uses JArray or JObject.
             using (var document = JsonDocument.ParseValue(ref reader)) {
                 return document.RootElement.Clone();
             }

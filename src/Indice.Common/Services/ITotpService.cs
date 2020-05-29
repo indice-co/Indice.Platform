@@ -20,10 +20,9 @@ namespace Indice.Services
         /// <param name="channel">Delivery channel.</param>
         /// <param name="purpose">Optionaly pass the reason to generate the TOTP.</param>
         /// <param name="securityToken">The generated security token to use, if no <paramref name="principal"/> is provided.</param>
-        /// <param name="phoneNumber">The phone number to use, if no <paramref name="principal"/> is provided.</param>
-        /// <param name="email">The email to use, if no <paramref name="principal"/> is provided.</param>
+        /// <param name="phoneNumberOrEmail">The phone number to use, if no <paramref name="principal"/> is provided.</param>
         /// <exception cref="TotpServiceException">Used to pass errors between service and the caller.</exception>
-        Task<TotpResult> Send(ClaimsPrincipal principal, string message, TotpDeliveryChannel channel = TotpDeliveryChannel.Sms, string purpose = null, string securityToken = null, string phoneNumber = null, string email = null);
+        Task<TotpResult> Send(ClaimsPrincipal principal, string message, TotpDeliveryChannel channel = TotpDeliveryChannel.Sms, string purpose = null, string securityToken = null, string phoneNumberOrEmail = null);
         /// <summary>
         /// Verify the code received for the given claims principal.
         /// </summary>
@@ -32,10 +31,9 @@ namespace Indice.Services
         /// <param name="provider">Optionaly pass the provider to use to verify. Defaults to DefaultPhoneProvider.</param>
         /// <param name="purpose">Optionaly pass the reason used to generate the TOTP.</param>
         /// <param name="securityToken">The generated security token to use, if no <paramref name="principal"/> is provided.</param>
-        /// <param name="phoneNumber">The phone number to use, if no <paramref name="principal"/> is provided.</param>
-        /// <param name="email">The email to use, if no <paramref name="principal"/> is provided.</param>
+        /// <param name="phoneNumberOrEmail">The phone number to use, if no <paramref name="principal"/> is provided.</param>
         /// <exception cref="TotpServiceException">Used to pass errors between service and the caller.</exception>
-        Task<TotpResult> Verify(ClaimsPrincipal principal, string code, TotpProviderType? provider = null, string purpose = null, string securityToken = null, string phoneNumber = null, string email = null);
+        Task<TotpResult> Verify(ClaimsPrincipal principal, string code, TotpProviderType? provider = null, string purpose = null, string securityToken = null, string phoneNumberOrEmail = null);
         /// <summary>
         /// Gets list of available providers for the given claims principal.
         /// </summary>
@@ -74,7 +72,7 @@ namespace Indice.Services
             var messageBuilder = new TotpMessageBuilder();
             configureMessage(messageBuilder);
             var totpMessage = messageBuilder.Build();
-            return service.Send(totpMessage.ClaimsPrincipal, totpMessage.Message, totpMessage.DeliveryChannel, totpMessage.Purpose, totpMessage.SecurityToken, totpMessage.PhoneNumber, totpMessage.Email);
+            return service.Send(totpMessage.ClaimsPrincipal, totpMessage.Message, totpMessage.DeliveryChannel, totpMessage.Purpose, totpMessage.SecurityToken, totpMessage.PhoneNumberOrEmail);
         }
 
         /// <summary>
@@ -116,13 +114,9 @@ namespace Indice.Services
         /// </summary>
         public string SecurityToken { get; internal set; }
         /// <summary>
-        /// Email address.
+        /// Email address or phone number.
         /// </summary>
-        public string Email { get; internal set; }
-        /// <summary>
-        /// Phone number.
-        /// </summary>
-        public string PhoneNumber { get; internal set; }
+        public string PhoneNumberOrEmail { get; internal set; }
         /// <summary>
         /// Chosen delivery channel.
         /// </summary>
@@ -167,8 +161,7 @@ namespace Indice.Services
             ClaimsPrincipal = ClaimsPrincipal,
             Message = Message,
             SecurityToken = SecurityToken,
-            Email = Email,
-            PhoneNumber = PhoneNumber,
+            PhoneNumberOrEmail = PhoneNumberOrEmail,
             DeliveryChannel = DeliveryChannel,
             Purpose = Purpose
         };
@@ -223,7 +216,7 @@ namespace Indice.Services
         /// <returns></returns>
         ITotpPurposeBuilder ToEmail(string email);
         /// <summary>
-        /// Sets the <see cref="TotpMessageBuilder.PhoneNumber"/> property.
+        /// Sets the <see cref="TotpMessageBuilder.PhoneNumberOrEmail"/> property.
         /// </summary>
         /// <param name="phoneNumber">Phone number.</param>
         /// <returns></returns>
@@ -248,7 +241,7 @@ namespace Indice.Services
             if (string.IsNullOrEmpty(email)) {
                 throw new ArgumentNullException($"Parameter {nameof(email)} cannot be null or empty.");
             }
-            _totpMessageBuilder.Email = email;
+            _totpMessageBuilder.PhoneNumberOrEmail = email;
             var totpPurposeBuilder = new TotpPurposeBuilder(_totpMessageBuilder);
             return totpPurposeBuilder;
         }
@@ -258,7 +251,7 @@ namespace Indice.Services
             if (string.IsNullOrEmpty(phoneNumber)) {
                 throw new ArgumentNullException($"Parameter {nameof(phoneNumber)} cannot be null or empty.");
             }
-            _totpMessageBuilder.PhoneNumber = phoneNumber;
+            _totpMessageBuilder.PhoneNumberOrEmail = phoneNumber;
             var totpPhoneProviderBuilder = new TotpPhoneProviderBuilder(_totpMessageBuilder);
             return totpPhoneProviderBuilder;
         }
@@ -512,13 +505,9 @@ namespace Indice.Services
         /// </summary>
         public string SecurityToken { get; set; }
         /// <summary>
-        /// Phone number.
+        /// Email address or phone number.
         /// </summary>
-        public string PhoneNumber { get; set; }
-        /// <summary>
-        /// Email address.
-        /// </summary>
-        public string Email { get; set; }
+        public string PhoneNumberOrEmail { get; set; }
     }
 
     /// <summary>
