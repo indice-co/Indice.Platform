@@ -97,7 +97,7 @@ namespace Indice.AspNetCore.Identity.Services
         public override async Task SignInAsync(TUser user, AuthenticationProperties authenticationProperties, string authenticationMethod = null) {
             await base.SignInAsync(user, authenticationProperties, authenticationMethod);
             if (user is User) {
-                (user as User).LastSignInDate = DateTimeOffset.UtcNow;
+                user.LastSignInDate = DateTimeOffset.UtcNow;
                 await UserManager.UpdateAsync(user);
             }
         }
@@ -108,7 +108,7 @@ namespace Indice.AspNetCore.Identity.Services
         /// <param name="user">The user whose sign-in status should be returned.</param>
         /// <returns>The task object representing the asynchronous operation, containing a flag that is true if the specified user can sign-in, otherwise false.</returns>
         public override async Task<bool> CanSignInAsync(TUser user) {
-            if (user is User && (user as User).Blocked) {
+            if (user is User && user.Blocked) {
                 Logger.LogWarning(0, "User {userId} cannot sign in. User is blocked by the administrator.", await UserManager.GetUserIdAsync(user));
                 return false;
             }
@@ -129,7 +129,7 @@ namespace Indice.AspNetCore.Identity.Services
             var isPhoneConfirmed = await UserManager.IsPhoneNumberConfirmedAsync(user);
             var isPasswordExpired = false;
             if (user is User) {
-                isPasswordExpired = (user as User).HasExpiredPassword();
+                isPasswordExpired = user.HasExpiredPassword();
             }
             var doPartialSignin = (!isEmailConfirmed || !isPhoneConfirmed) && (RequirePostSignInConfirmedEmail || RequirePostSignInConfirmedPhoneNumber);
             doPartialSignin = doPartialSignin || isPasswordExpired;
@@ -146,9 +146,9 @@ namespace Indice.AspNetCore.Identity.Services
             var result = await base.SignInOrTwoFactorAsync(user, isPersistent, loginProvider, bypassTwoFactor);
             if (result.Succeeded && (user is User)) {
                 try { 
-                (user as User).LastSignInDate = DateTimeOffset.UtcNow;
+                user.LastSignInDate = DateTimeOffset.UtcNow;
                 await UserManager.UpdateAsync(user);
-                } catch {; }
+                } catch { ; }
             }
             return result;
         }
