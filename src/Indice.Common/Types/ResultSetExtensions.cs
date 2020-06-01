@@ -17,7 +17,6 @@ namespace Indice.Types
         /// <returns>The results</returns>
         public static ResultSet<T> ToResultSet<T>(this IList<T> collection) => new ResultSet<T>(collection, collection.Count);
 
-
         /// <summary>
         /// Creates a <see cref="ResultSet{T}"/> out of the current <seealso cref="IEnumerable{T}"/>. 
         /// </summary>
@@ -45,11 +44,9 @@ namespace Indice.Types
         /// <returns>The results</returns>
         public static ResultSet<T> ToResultSet<T>(this IQueryable<T> source, ListOptions options) {
             options = options ?? new ListOptions();
-
             foreach (var sorting in options.GetSortings()) {
                 source = source.OrderBy(sorting.Path, sorting.Direction);
             }
-
             return source.ToResultSet(options.Page, options.Size);
         }
 
