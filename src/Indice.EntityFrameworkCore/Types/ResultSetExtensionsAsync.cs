@@ -14,7 +14,7 @@ namespace Indice.Types
         /// Asynchronous method that materializes an <see cref="IQueryable{T}"/> <paramref name="source"/> using the <seealso cref="ListOptions"/>
         /// for paging and sorting.
         /// </summary>
-        /// <typeparam name="T"></typeparam>
+        /// <typeparam name="T">The type to contain in the result items.</typeparam>
         /// <param name="source">The source collection</param>
         /// <param name="options">The options to use for sortig and paging</param>
         /// <returns>The results in a set that contains a page set of the total available records and the total count</returns>
@@ -27,14 +27,13 @@ namespace Indice.Types
         }
 
         /// <summary>
-        /// Asynchronous method that materializes an <see cref="IQueryable{T}"/> <paramref name="source"/> using 
-        /// the <paramref name="page"/> number and <paramref name="size"/> for paging.
+        /// Asynchronous method that materializes an <see cref="IQueryable{T}"/> <paramref name="source"/> using the <paramref name="page"/> number and <paramref name="size"/> for paging.
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="source">The source collection</param>
-        /// <param name="page">The page number</param>
-        /// <param name="size">the page size</param>
-        /// <returns>The results in a set that contains a page set of the total available records and the total count</returns>
+        /// <typeparam name="T">The type to contain in the result items.</typeparam>
+        /// <param name="source">The source collection.</param>
+        /// <param name="page">The page number.</param>
+        /// <param name="size">the page size.</param>
+        /// <returns>The results in a set that contains a page set of the total available records and the total count.</returns>
         public static async Task<ResultSet<T>> ToResultSetAsync<T>(this IQueryable<T> source, int page, int size) {
             if (page <= 0) {
                 throw new ArgumentOutOfRangeException(nameof(page), "Must be a positive integer");

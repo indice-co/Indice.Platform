@@ -210,7 +210,7 @@ namespace Indice.Services
     public interface ITotpContactBuilder : ITotpPhoneProviderBuilder
     {
         /// <summary>
-        /// Sets the <see cref="TotpMessageBuilder.Email"/> property.
+        /// Sets the <see cref="TotpMessageBuilder.PhoneNumberOrEmail"/> property.
         /// </summary>
         /// <param name="email">Email address.</param>
         /// <returns></returns>

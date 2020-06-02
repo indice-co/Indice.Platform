@@ -1,11 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Globalization;
-using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace Indice.Types
 {
@@ -16,32 +12,8 @@ namespace Indice.Types
     [TypeConverter(typeof(FilterClauseTypeConverter))]
     public struct FilterClause
     {
-
         const string REGEX_PATTERN = @"^\s*([A-Za-z_][A-Za-z0-9_\.]+)::({0})::(\(({1})\))?(.+)\s*$";
-        static readonly Regex parseRegex = new Regex(string.Format(REGEX_PATTERN,
-                                                                   string.Join("|", Enum.GetNames(typeof(FilterOperator))).ToLowerInvariant(),
-                                                                   string.Join("|", Enum.GetNames(typeof(JsonDataType))).ToLowerInvariant()
-                                                     ), RegexOptions.IgnoreCase);
-
-        /// <summary>
-        /// Member path to compare
-        /// </summary>
-        public string Member { get; }
-
-        /// <summary>
-        /// Value to compare against
-        /// </summary>
-        public string Value { get; }
-
-        /// <summary>
-        /// The operator to apply between the <see cref="Member" /> and <seealso cref="Value"/>
-        /// </summary>
-        public FilterOperator Operator { get; }
-
-        /// <summary>
-        /// The <see cref="JsonDataType"/> of the data <seealso cref="Member"/>
-        /// </summary>
-        public JsonDataType DataType { get; }
+        static readonly Regex parseRegex = new Regex(string.Format(REGEX_PATTERN, string.Join("|", Enum.GetNames(typeof(FilterOperator))).ToLowerInvariant(), string.Join("|", Enum.GetNames(typeof(JsonDataType))).ToLowerInvariant()), RegexOptions.IgnoreCase);
 
         /// <summary>
         /// Creates the Json filter by supplying all the required members.
@@ -58,13 +30,27 @@ namespace Indice.Types
         }
 
         /// <summary>
+        /// Member path to compare.
+        /// </summary>
+        public string Member { get; }
+        /// <summary>
+        /// Value to compare against.
+        /// </summary>
+        public string Value { get; }
+        /// <summary>
+        /// The operator to apply between the <see cref="Member" /> and <seealso cref="Value"/>.
+        /// </summary>
+        public FilterOperator Operator { get; }
+        /// <summary>
+        /// The <see cref="JsonDataType"/> of the data <seealso cref="Member"/>.
+        /// </summary>
+        public JsonDataType DataType { get; }
+
+        /// <summary>
         /// Returnes a hash code for the value of this instance.
         /// </summary>
         /// <returns>An integer representing the hash code for the value of this instance.</returns>
-        public override int GetHashCode() => (Member ?? string.Empty).GetHashCode() ^
-                                             (Value ?? string.Empty).GetHashCode() ^
-                                             Operator.GetHashCode() ^
-                                             DataType.GetHashCode();
+        public override int GetHashCode() => (Member ?? string.Empty).GetHashCode() ^ (Value ?? string.Empty).GetHashCode() ^ Operator.GetHashCode() ^ DataType.GetHashCode();
 
         /// <summary>
         /// Indicates whether this instance and a specified object are equal. 
@@ -72,12 +58,9 @@ namespace Indice.Types
         /// <param name="obj">The object to compare with the current instance.</param>
         /// <returns></returns>
         public override bool Equals(object obj) {
-            if (obj != null && obj is FilterClause) {
-                var other = ((FilterClause)obj);
-                return other.Member == Member &&
-                       other.Value == Value &&
-                       other.Operator == Operator &&
-                       other.DataType == DataType;
+            if (obj != null && obj is FilterClause clause) {
+                var other = clause;
+                return other.Member == Member && other.Value == Value && other.Operator == Operator && other.DataType == DataType;
             }
             return base.Equals(obj);
         }
@@ -116,6 +99,20 @@ namespace Indice.Types
         /// </summary>
         /// <param name="value">The value to convert</param>
         public static explicit operator FilterClause(string value) => Parse(value);
+
+        /// <summary>
+        /// Checks for equality between two <see cref="FilterClause"/>.
+        /// </summary>
+        /// <param name="left">First part of equality.</param>
+        /// <param name="right">Second part of equality.</param>
+        public static bool operator ==(FilterClause left, FilterClause right) => left.Equals(right);
+
+        /// <summary>
+        /// Checks for non-equality between two <see cref="FilterClause"/>.
+        /// </summary>
+        /// <param name="left">First part of equality.</param>
+        /// <param name="right">Second part of equality.</param>
+        public static bool operator !=(FilterClause left, FilterClause right) => !(left == right);
     }
 
     /// <summary>
