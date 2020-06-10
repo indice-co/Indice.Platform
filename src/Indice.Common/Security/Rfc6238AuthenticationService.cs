@@ -14,7 +14,7 @@ namespace System.Security
     /// </summary>
     public class Rfc6238AuthenticationService
     {
-        private readonly Rfc6238AuthenticationServiceOptions _options;
+        private readonly TotpOptions _options;
         private readonly DateTime _unixEpoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
         private readonly TimeSpan _timestep = TimeSpan.FromMinutes(0.5d);
         private readonly Encoding _encoding = new UTF8Encoding(encoderShouldEmitUTF8Identifier: false, throwOnInvalidBytes: true);
@@ -22,10 +22,16 @@ namespace System.Security
         /// <summary>
         /// Creates a new instance of <see cref="Rfc6238AuthenticationService"/>.
         /// </summary>
-        public Rfc6238AuthenticationService(Rfc6238AuthenticationServiceOptions options) {
+        public Rfc6238AuthenticationService(TotpOptions options) {
             _options = options ?? throw new ArgumentNullException(nameof(options));
-            if (_options.TimeStep.HasValue) {
-                _timestep = TimeSpan.FromMinutes(_options.TimeStep.Value);
+            if (_options.Timestep.HasValue) {
+                var timestep = _options.Timestep.Value;
+                if (timestep <= 0) {
+                    timestep = 1;
+                } else if (timestep > 6) {
+                    timestep = 6;
+                }
+                _timestep = TimeSpan.FromMinutes(timestep);
             }
         }
 

@@ -3,9 +3,9 @@
 namespace Indice.Configuration
 {
     /// <summary>
-    /// Configuration used in <see cref="Rfc6238AuthenticationService"/>.
+    /// Configuration used in <see cref="Rfc6238AuthenticationService"/> service.
     /// </summary>
-    public class Rfc6238AuthenticationServiceOptions
+    public class TotpOptions
     {
         /// <summary>
         /// The name is used to mark the section found inside a configuration file.
@@ -18,6 +18,6 @@ namespace Indice.Configuration
         /// <summary>
         /// An interval which will be used to calculate the value of the validity window.
         /// </summary>
-        public double? TimeStep => TokenDuration.HasValue ? (TokenDuration.Value / 2) : default(double?);
+        public double? Timestep => TokenDuration.HasValue ? (TokenDuration.Value / 2) : default(double?);
     }
 }

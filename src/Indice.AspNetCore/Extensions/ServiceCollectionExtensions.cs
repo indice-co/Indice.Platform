@@ -20,7 +20,7 @@ using Microsoft.Extensions.Options;
 namespace Microsoft.Extensions.DependencyInjection
 {
     /// <summary>
-    /// Extensions to configure the IServiceCollection of an ASP.NET Core application.
+    /// Extensions to configure the <see cref="IServiceCollection"/> of an ASP.NET Core application.
     /// </summary>
     public static class ServiceCollectionExtensions
     {

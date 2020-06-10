@@ -1,8 +1,9 @@
 ﻿using System;
+using Indice.AspNetCore.Identity;
 using Indice.AspNetCore.Identity.Authorization;
 using Indice.AspNetCore.Identity.Models;
 using Indice.AspNetCore.Identity.Services;
-using Microsoft.AspNetCore.Authentication.Cookies;
+using Indice.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.AspNetCore.Identity
@@ -30,7 +31,7 @@ namespace Microsoft.AspNetCore.Identity
         public static IdentityBuilder AddExtendedSignInManager<TUser>(this IdentityBuilder builder) where TUser : User {
             builder.Services.AddAuthentication().AddCookie(ExtendedIdentityConstants.ExtendedValidationUserIdScheme, options => {
                 options.Cookie.Name = ExtendedIdentityConstants.ExtendedValidationUserIdScheme;
-                options.ExpireTimeSpan = TimeSpan.FromMinutes(5);
+                options.ExpireTimeSpan = TimeSpan.FromMinutes(10);
             });
             builder.AddSignInManager<ExtendedSignInManager<TUser>>();
             return builder;
@@ -43,12 +44,16 @@ namespace Microsoft.AspNetCore.Identity
         public static IdentityBuilder AddExtendedSignInManager(this IdentityBuilder builder) => builder.AddExtendedSignInManager<User>();
 
         /// <summary>
-        /// Configures the cookie used by <see cref="ExtendedIdentityConstants.ExtendedValidationUserIdScheme"/>.
+        /// Adds the <see cref="ExtendedPhoneNumberTokenProvider{TUser}"/> as a default phone provider.
         /// </summary>
-        /// <param name="services">The services available in the application.</param>
-        /// <param name="configure">An action to configure the <see cref="CookieAuthenticationOptions"/>.</param>
-        /// <returns>The services.</returns>
-        public static IServiceCollection ConfigureExtendedValidationCookie(this IServiceCollection services, Action<CookieAuthenticationOptions> configure)
-            => services.Configure(ExtendedIdentityConstants.ExtendedValidationUserIdScheme, configure);
+        /// <param name="builder">Helper functions for configuring identity services.</param>
+        /// <param name="configure"></param>
+        /// <returns>The configured <see cref="IdentityBuilder"/>.</returns>
+        public static IdentityBuilder AddExtendedPhoneNumberTokenProvider(this IdentityBuilder builder, Action<TotpOptions> configure = null) {
+            builder.Services.AddDefaultTotpService(configure);
+            var providerType = typeof(ExtendedPhoneNumberTokenProvider<>).MakeGenericType(builder.UserType);
+            builder.AddTokenProvider(TokenOptions.DefaultPhoneProvider, providerType);
+            return builder;
+        }
     }
 }
