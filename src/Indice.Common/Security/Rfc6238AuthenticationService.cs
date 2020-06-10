@@ -4,33 +4,41 @@
 using System.Diagnostics;
 using System.Net;
 using System.Security.Cryptography;
+using System.Text;
+using Indice.Configuration;
 
 namespace System.Security
 {
-    using System;
-    using System.Text;
-
     /// <summary>
     /// TOTP: Time-Based One-Time Password Algorithm. More info: https://tools.ietf.org/html/rfc6238
     /// </summary>
-    public static class Rfc6238AuthenticationService
+    public class Rfc6238AuthenticationService
     {
-        private static readonly DateTime _unixEpoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
-        private static readonly TimeSpan _timestep = TimeSpan.FromMinutes(3);
-        private static readonly Encoding _encoding = new UTF8Encoding(false, true);
-        private static readonly RandomNumberGenerator _rng = RandomNumberGenerator.Create();
+        private readonly Rfc6238AuthenticationServiceOptions _options;
+        private readonly DateTime _unixEpoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+        private readonly TimeSpan _timestep = TimeSpan.FromMinutes(0.5d);
+        private readonly Encoding _encoding = new UTF8Encoding(encoderShouldEmitUTF8Identifier: false, throwOnInvalidBytes: true);
+
+        /// <summary>
+        /// Creates a new instance of <see cref="Rfc6238AuthenticationService"/>.
+        /// </summary>
+        public Rfc6238AuthenticationService(Rfc6238AuthenticationServiceOptions options) {
+            _options = options ?? throw new ArgumentNullException(nameof(options));
+            if (_options.TimeStep.HasValue) {
+                _timestep = TimeSpan.FromMinutes(_options.TimeStep.Value);
+            }
+        }
 
         /// <summary>
         /// Generate the code.
         /// </summary>
         /// <param name="securityToken">A security code. This should be a secret.</param>
         /// <param name="modifier">Entropy.</param>
-        /// <returns></returns>
-        public static int GenerateCode(byte[] securityToken, string modifier = null) {
+        /// <returns>Returns the generated code.</returns>
+        public int GenerateCode(byte[] securityToken, string modifier = null) {
             if (securityToken == null) {
                 throw new ArgumentNullException(nameof(securityToken));
             }
-            // Allow a variance of no greater than 9 minutes in either direction.
             var currentTimeStep = GetCurrentTimeStepNumber();
             using (var hashAlgorithm = new HMACSHA1(securityToken)) {
                 return ComputeTotp(hashAlgorithm, currentTimeStep, modifier);
@@ -38,17 +46,16 @@ namespace System.Security
         }
 
         /// <summary>
-        /// 
+        /// Validates the <paramref name="code"/>.
         /// </summary>
         /// <param name="securityToken">A security code. This should be a secret.</param>
         /// <param name="code">The code.</param>
         /// <param name="modifier">Entropy.</param>
-        /// <returns></returns>
-        public static bool ValidateCode(byte[] securityToken, int code, string modifier = null) {
+        /// <returns>Returns true if code is valid, otherwise false.</returns>
+        public bool ValidateCode(byte[] securityToken, int code, string modifier = null) {
             if (securityToken == null) {
                 throw new ArgumentNullException(nameof(securityToken));
             }
-            // Allow a variance of no greater than 9 minutes in either direction
             var currentTimeStep = GetCurrentTimeStepNumber();
             using (var hashAlgorithm = new HMACSHA1(securityToken)) {
                 for (var i = -2; i <= 2; i++) {
@@ -58,21 +65,10 @@ namespace System.Security
                     }
                 }
             }
-            // No match.
             return false;
         }
 
-        /// <summary>
-        /// Generates a new 80-bit security token.
-        /// </summary>
-        /// <returns></returns>
-        public static byte[] GenerateRandomKey() {
-            var bytes = new byte[20];
-            _rng.GetBytes(bytes);
-            return bytes;
-        }
-
-        private static int ComputeTotp(HashAlgorithm hashAlgorithm, ulong timestepNumber, string modifier) {
+        private int ComputeTotp(HashAlgorithm hashAlgorithm, ulong timestepNumber, string modifier) {
             // # of 0's = length of pin.
             const int Mod = 1000000;
             // See https://tools.ietf.org/html/rfc4226
@@ -86,7 +82,7 @@ namespace System.Security
             return binaryCode % Mod;
         }
 
-        private static byte[] ApplyModifier(byte[] input, string modifier) {
+        private byte[] ApplyModifier(byte[] input, string modifier) {
             if (string.IsNullOrEmpty(modifier)) {
                 return input;
             }
@@ -98,7 +94,7 @@ namespace System.Security
         }
 
         // More info: https://tools.ietf.org/html/rfc6238#section-4
-        private static ulong GetCurrentTimeStepNumber() {
+        private ulong GetCurrentTimeStepNumber() {
             var delta = DateTime.UtcNow - _unixEpoch;
             return (ulong)(delta.Ticks / _timestep.Ticks);
         }

@@ -30,12 +30,14 @@ namespace Indice.AspNetCore.Identity.Services
         /// <param name="distributedCache">Represents a distributed cache of serialized values.</param>
         /// <param name="localizer">Represents a service that provides localized strings.</param>
         /// <param name="logger">Represents a type used to perform logging.</param>
-        public TotpService(UserManager<User> userManager, ISmsService smsService, IDistributedCache distributedCache, IStringLocalizer<TotpService> localizer, ILogger<TotpService> logger) {
+        /// <param name="rfc6238AuthenticationService">Time-Based One-Time Password Algorithm service.</param>
+        public TotpService(UserManager<User> userManager, ISmsService smsService, IDistributedCache distributedCache, IStringLocalizer<TotpService> localizer, ILogger<TotpService> logger, Rfc6238AuthenticationService rfc6238AuthenticationService) {
             UserManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
             SmsService = smsService ?? throw new ArgumentNullException(nameof(smsService));
             Cache = distributedCache ?? throw new ArgumentNullException(nameof(distributedCache));
             Localizer = localizer ?? throw new ArgumentNullException(nameof(localizer));
             Logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            Rfc6238AuthenticationService = rfc6238AuthenticationService ?? throw new ArgumentNullException(nameof(rfc6238AuthenticationService));
         }
 
         /// <summary>
@@ -58,6 +60,10 @@ namespace Indice.AspNetCore.Identity.Services
         /// Represents a type used to perform logging.
         /// </summary>
         public ILogger<TotpService> Logger { get; }
+        /// <summary>
+        /// Time-Based One-Time Password Algorithm service.
+        /// </summary>
+        public Rfc6238AuthenticationService Rfc6238AuthenticationService { get; }
 
         /// <inheritdoc />
         public async Task<TotpResult> Send(ClaimsPrincipal principal, string message, TotpDeliveryChannel channel = TotpDeliveryChannel.Sms, string purpose = null, string securityToken = null, string phoneNumberOrEmail = null) {

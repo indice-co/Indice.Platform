@@ -131,9 +131,9 @@ namespace Indice.AspNetCore.Identity.Services
             if (user is User) {
                 isPasswordExpired = user.HasExpiredPassword();
             }
-            var doPartialSignin = (!isEmailConfirmed || !isPhoneConfirmed) && (RequirePostSignInConfirmedEmail || RequirePostSignInConfirmedPhoneNumber);
-            doPartialSignin = doPartialSignin || isPasswordExpired;
-            if (doPartialSignin) {
+            var doPartialSignIn = (!isEmailConfirmed || !isPhoneConfirmed) && (RequirePostSignInConfirmedEmail || RequirePostSignInConfirmedPhoneNumber);
+            doPartialSignIn = doPartialSignIn || isPasswordExpired;
+            if (doPartialSignIn) {
                 // Store the userId for use after two factor check.
                 var userId = await UserManager.GetUserIdAsync(user);
                 var returnUrl = Context.Request.Query["ReturnUrl"];
