@@ -27,7 +27,7 @@ namespace Microsoft.Extensions.DependencyInjection
         public static IMvcBuilder AddMvcConfig(this IServiceCollection services, IConfiguration configuration) {
             return services.AddControllersWithViews()
                            .AddRazorRuntimeCompilation()
-                           .AddTotp(options => options.TokenDuration = 2)
+                           .AddTotp()
                            .AddIdentityServerApiEndpoints(options => {
                                // Configure the DbContext.
                                options.AddDbContext(identityOptions => {

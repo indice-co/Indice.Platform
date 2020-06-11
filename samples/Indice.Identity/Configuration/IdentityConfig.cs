@@ -34,7 +34,7 @@ namespace Microsoft.Extensions.DependencyInjection
                            .AddEntityFrameworkStores<ExtendedIdentityDbContext<User, Role>>()
                            .AddClaimsTransform<ExtendedUserClaimsPrincipalFactory<User, Role>>()
                            .AddDefaultTokenProviders()
-                           .AddExtendedPhoneNumberTokenProvider(options => options.TokenDuration = 2);
+                           .AddExtendedPhoneNumberTokenProvider();
         }
     }
 }

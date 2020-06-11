@@ -50,7 +50,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 options.SetupTables();
                 options.ConfigureDbContext = builder => builder.UseSqlServer(configuration.GetConnectionString("ConfigurationDb"), sqlServerOptions => sqlServerOptions.MigrationsAssembly(migrationsAssembly));
             })
-            .AddTotp(options => options.TokenDuration = 2)
+            .AddTotp()
             .AddAppAuthRedirectUriValidator();
             if (hostingEnvironment.IsDevelopment()) {
                 IdentityModelEventSource.ShowPII = true;
