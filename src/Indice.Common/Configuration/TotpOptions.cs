@@ -18,6 +18,6 @@ namespace Indice.Configuration
         /// <summary>
         /// An interval which will be used to calculate the value of the validity window.
         /// </summary>
-        public double? Timestep => TokenDuration.HasValue ? (TokenDuration.Value / 2) : default(double?);
+        public double? Timestep => TokenDuration.HasValue ? (TokenDuration.Value / 2.0) : default(double?);
     }
 }

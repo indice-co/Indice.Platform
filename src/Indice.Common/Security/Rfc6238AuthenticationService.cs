@@ -14,9 +14,11 @@ namespace System.Security
     /// </summary>
     public class Rfc6238AuthenticationService
     {
+        private const double _MIN_TIMESTEP = 0.5;
+        private const double _MAX_TIMESTEP = 3;
         private readonly TotpOptions _options;
         private readonly DateTime _unixEpoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
-        private readonly TimeSpan _timestep = TimeSpan.FromMinutes(0.5d);
+        private readonly TimeSpan _timestep = TimeSpan.FromMinutes(_MIN_TIMESTEP);
         private readonly Encoding _encoding = new UTF8Encoding(encoderShouldEmitUTF8Identifier: false, throwOnInvalidBytes: true);
 
         /// <summary>
@@ -26,10 +28,10 @@ namespace System.Security
             _options = options ?? throw new ArgumentNullException(nameof(options));
             if (_options.Timestep.HasValue) {
                 var timestep = _options.Timestep.Value;
-                if (timestep <= 0) {
-                    timestep = 1;
-                } else if (timestep > 6) {
-                    timestep = 6;
+                if (timestep < _MIN_TIMESTEP) {
+                    timestep = _MIN_TIMESTEP;
+                } else if (timestep > _MAX_TIMESTEP) {
+                    timestep = _MAX_TIMESTEP;
                 }
                 _timestep = TimeSpan.FromMinutes(timestep);
             }

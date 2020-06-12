@@ -12,7 +12,7 @@ namespace Indice.AspNetCore.Filters
     /// <summary>
     /// Sets the Content Security policy header for the current action.
     /// </summary>
-    public class SecurityHeadersAttribute : ActionFilterAttribute
+    public sealed class SecurityHeadersAttribute : ActionFilterAttribute
     {
         /// <summary>
         /// Constructor defaults to allowing self origin, plus Google for fonts and scripts (Google cdn) and wildcard for images.
