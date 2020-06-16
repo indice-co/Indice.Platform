@@ -319,8 +319,9 @@ namespace Indice.AspNetCore.Identity.Features
                 IsValid = true,
                 Description = x.Value
             });
+            var user = new User { UserName = request.UserName ?? string.Empty, Id = User.FindSubjectId() ?? string.Empty };
             foreach (var validator in _userManager.PasswordValidators) {
-                var result = await validator.ValidateAsync(_userManager, new User(request.UserName ?? string.Empty), request.Password);
+                var result = await validator.ValidateAsync(_userManager, user, request.Password);
                 if (!result.Succeeded) {
                     foreach (var error in result.Errors) {
                         if (availableRules.ContainsKey(error.Code)) {
