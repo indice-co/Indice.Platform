@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using Indice.Configuration;
 using Indice.Extensions;
 using MailKit.Net.Smtp;
-using MailKit.Security;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.ViewEngines;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
@@ -63,23 +62,22 @@ namespace Indice.Services
             } else {
                 message.Body = bodyPart;
             }
-            using (var client = new SmtpClient()) {
-                // If UseSSL = true then you need to provide certificate in order to send the email. Or else you get security exception.
-                var useSSL = _settings.UseSSL && client.ClientCertificates != null && client.ClientCertificates.Count > 0;
-                // For demo-purposes, accept all SSL certificates (in case the server supports STARTTLS).
-                client.ServerCertificateValidationCallback = (s, c, h, e) => true;
-                // Since we don't have an OAuth2 token, disable the XOAUTH2 authentication mechanism.
-                client.AuthenticationMechanisms.Remove("XOAUTH2");
-                // https://www.stevejgordon.co.uk/how-to-send-emails-in-asp-net-core-1-0
-                // https://portal.smartertools.com/kb/a2862/smtp-settings-for-outlook365-and-gmail.aspx
-                // Only needed if the SMTP server requires authentication.
-                await client.ConnectAsync(_settings.SmtpHost, _settings.SmtpPort, SecureSocketOptions.Auto);
-                if (!string.IsNullOrEmpty(_settings.Username)) {
-                    client.Authenticate(_settings.Username, _settings.Password);
-                }
-                await client.SendAsync(message);
-                await client.DisconnectAsync(true);
+            using var client = new SmtpClient();
+            // If UseSSL = true then you need to provide certificate in order to send the email. Or else you get security exception.
+            var useSSL = _settings.UseSSL && client.ClientCertificates != null && client.ClientCertificates.Count > 0;
+            // For demo-purposes, accept all SSL certificates (in case the server supports STARTTLS).
+            client.ServerCertificateValidationCallback = (s, c, h, e) => true;
+            // Since we don't have an OAuth2 token, disable the XOAUTH2 authentication mechanism.
+            client.AuthenticationMechanisms.Remove("XOAUTH2");
+            // https://www.stevejgordon.co.uk/how-to-send-emails-in-asp-net-core-1-0
+            // https://portal.smartertools.com/kb/a2862/smtp-settings-for-outlook365-and-gmail.aspx
+            // Only needed if the SMTP server requires authentication.
+            await client.ConnectAsync(_settings.SmtpHost, _settings.SmtpPort, (MailKit.Security.SecureSocketOptions)(int)_settings.SecureSocket);
+            if (!string.IsNullOrEmpty(_settings.Username)) {
+                client.Authenticate(_settings.Username, _settings.Password);
             }
+            await client.SendAsync(message);
+            await client.DisconnectAsync(true);
         }
     }
 }

@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using Indice.Configuration;
 using Indice.Extensions;
 using MailKit.Net.Smtp;
-using MailKit.Security;
 using MimeKit;
 using MimeKit.Text;
 
@@ -69,7 +68,7 @@ namespace Indice.Services
                 // https://www.stevejgordon.co.uk/how-to-send-emails-in-asp-net-core-1-0
                 // https://portal.smartertools.com/kb/a2862/smtp-settings-for-outlook365-and-gmail.aspx
                 // Only needed if the SMTP server requires authentication.
-                await client.ConnectAsync(_settings.SmtpHost, _settings.SmtpPort, SecureSocketOptions.Auto);
+                await client.ConnectAsync(_settings.SmtpHost, _settings.SmtpPort, (MailKit.Security.SecureSocketOptions)(int)_settings.SecureSocket);
                 if (!string.IsNullOrEmpty(_settings.Username)) {
                     client.Authenticate(_settings.Username, _settings.Password);
                 }

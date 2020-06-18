@@ -44,6 +44,8 @@ export class UserStore {
             userName: user.userName,
             passwordExpirationPolicy: user.passwordExpirationPolicy,
             isAdmin: user.isAdmin,
+            emailConfirmed: user.emailConfirmed,
+            phoneNumberConfirmed: user.phoneNumberConfirmed,
             claims
         } as UpdateUserRequest).pipe(map((updatedUser: SingleUserInfo) => {
             user.claims = [...updatedUser.claims];
