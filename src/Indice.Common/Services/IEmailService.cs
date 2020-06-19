@@ -51,6 +51,10 @@ namespace Indice.Services
         /// Provides a way of specifying the SSL and/or TLS encryption that should be used for a connection.
         /// </summary>
         public SecureSocketOptions SecureSocket { get; set; } = SecureSocketOptions.Auto;
+        /// <summary>
+        /// Get or set whether connecting via SSL/TLS should check certificate revocation.
+        /// </summary>
+        public bool CheckCertificateRevocation { get; set; } = true;
     }
 
     /// <summary>

@@ -67,6 +67,7 @@ namespace Indice.Services
             var useSSL = _settings.UseSSL && client.ClientCertificates != null && client.ClientCertificates.Count > 0;
             // For demo-purposes, accept all SSL certificates (in case the server supports STARTTLS).
             client.ServerCertificateValidationCallback = (s, c, h, e) => true;
+            client.CheckCertificateRevocation = _settings.CheckCertificateRevocation;
             // Since we don't have an OAuth2 token, disable the XOAUTH2 authentication mechanism.
             client.AuthenticationMechanisms.Remove("XOAUTH2");
             // https://www.stevejgordon.co.uk/how-to-send-emails-in-asp-net-core-1-0
