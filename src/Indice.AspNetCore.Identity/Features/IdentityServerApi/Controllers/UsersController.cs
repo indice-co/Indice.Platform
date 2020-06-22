@@ -194,7 +194,6 @@ namespace Indice.AspNetCore.Identity.Features
                 PhoneNumber = request.PhoneNumber,
                 PasswordExpirationPolicy = request.PasswordExpirationPolicy
             };
-            user.PasswordExpirationDate = user.CalculatePasswordExpirationDate();
             IdentityResult result = null;
             if (string.IsNullOrEmpty(request.Password)) {
                 result = await _userManager.CreateAsync(user);
@@ -591,8 +590,7 @@ namespace Indice.AspNetCore.Identity.Features
                 return BadRequest(result.Errors.ToValidationProblemDetails());
             }
             if (request.ChangePasswordAfterFirstSignIn.HasValue && request.ChangePasswordAfterFirstSignIn.Value == true) {
-                //user.PasswordExpirationPolicy = PasswordExpirationPolicy.NextLogin;
-                await _userManager.UpdateAsync(user);
+                await _userManager.SetMustRevalidateAsync(user, mustRevalidate: true);
             }
             return Ok();
         }

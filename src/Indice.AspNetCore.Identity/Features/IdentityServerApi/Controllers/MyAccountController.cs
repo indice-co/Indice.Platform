@@ -259,8 +259,7 @@ namespace Indice.AspNetCore.Identity.Features
             if (user == null) {
                 return NotFound();
             }
-            user.PasswordExpirationPolicy = request.Policy;
-            await _userManager.UpdateAsync(user);
+            await _userManager.SetPasswordExpirationPolicyAsync(user, request.Policy);
             return NoContent();
         }
 

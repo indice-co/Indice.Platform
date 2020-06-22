@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Indice.AspNetCore.Identity.Data;
+using Indice.AspNetCore.Identity.Extensions;
 using Indice.AspNetCore.Identity.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
@@ -40,18 +41,36 @@ namespace Indice.AspNetCore.Identity.Services
         /// <param name="policy">The password expiration policy to set.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
         /// <returns>The <see cref="Task{IdentityResult}"/> that represents the asynchronous operation.</returns>
-        public async Task<IdentityResult> SetPasswordExpirationPolicyAsync(TUser user, PasswordExpirationPolicy? policy, CancellationToken cancellationToken = default) {
+        public async Task SetPasswordExpirationPolicyAsync(TUser user, PasswordExpirationPolicy? policy, CancellationToken cancellationToken = default) {
             cancellationToken.ThrowIfCancellationRequested();
             ThrowIfDisposed();
             if (user == null) {
                 throw new ArgumentNullException(nameof(user));
             }
             var userStore = GetUserStore();
-            return await userStore.SetPasswordExpirationPolicyAsync(user, policy, cancellationToken);
+            await userStore.SetPasswordExpirationPolicyAsync(user, policy, cancellationToken);
+            await base.UpdateAsync(user);
         }
 
-        private ExtendedUserStore GetUserStore(bool throwOnFail = true) {
-            var cast = Store as ExtendedUserStore;
+        /// <summary>
+        /// Sets the <see cref="User.MustRevalidate"/> property of the user.
+        /// </summary>
+        /// <param name="user">The user instance.</param>
+        /// <param name="mustRevalidate">The value to use.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
+        public async Task SetMustRevalidateAsync(TUser user, bool mustRevalidate, CancellationToken cancellationToken = default) {
+            cancellationToken.ThrowIfCancellationRequested();
+            ThrowIfDisposed();
+            if (user == null) {
+                throw new ArgumentNullException(nameof(user));
+            }
+            var userStore = GetUserStore();
+            await userStore.SetMustRevalidateAsync(user, mustRevalidate, cancellationToken);
+            await base.UpdateAsync(user);
+        }
+
+        private IExtendedUserStore<TUser> GetUserStore(bool throwOnFail = true) {
+            var cast = Store as IExtendedUserStore<TUser>;
             if (throwOnFail && cast == null) {
                 throw new NotSupportedException("Store is not of type ExtendedUserStore.");
             }

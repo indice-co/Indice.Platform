@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Indice.AspNetCore.Identity.Extensions;
 using Indice.AspNetCore.Identity.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
@@ -41,7 +42,7 @@ namespace Indice.AspNetCore.Identity.Data
     /// <summary>
     /// Custom <see cref="UserStore"/> that provides password history features.
     /// </summary>
-    public class ExtendedUserStore<TContext, TUser, TRole> : UserStore<TUser, TRole, TContext>
+    public class ExtendedUserStore<TContext, TUser, TRole> : UserStore<TUser, TRole, TContext>, IExtendedUserStore<TUser>
         where TContext : IdentityDbContext<TUser, TRole>
         where TUser : User
         where TRole : IdentityRole
@@ -63,17 +64,17 @@ namespace Indice.AspNetCore.Identity.Data
         /// The password history limit is an integer indicating the number of passwords to keep track. 
         /// Then when a user changes his password these will be check against so that no new password matches any stored in the history table.
         /// </summary>
-        protected int? PasswordHistoryLimit { get; }
+        public int? PasswordHistoryLimit { get; protected set; }
         /// <summary>
         /// The password history retention is a double indicating the number of days the each password stored into history will be retained.
         /// The expiration day is calculated according to the date changed and not the created date.
         /// </summary>
-        protected double? PasswordHistoryRetentionDays { get; }
+        public double? PasswordHistoryRetentionDays { get; protected set; }
         /// <summary>
         /// The password expiration policy is the default setting that every new user created by the <see cref="UserManager{TUser}"/> will inherit in regards
         /// to when their password will need to be changed. This settings is only for new users created any only if no explicit password policy is set.
         /// </summary>
-        protected PasswordExpirationPolicy? PasswordExpirationPolicy { get; }
+        public PasswordExpirationPolicy? PasswordExpirationPolicy { get; protected set; }
 
         /// <summary>
         /// Sets the password hash for the specified user.
@@ -103,7 +104,6 @@ namespace Indice.AspNetCore.Identity.Data
             user.LastPasswordChangeDate = changeDate;
             // Calculate expiration date based on policy.
             user.PasswordExpirationDate = user.CalculatePasswordExpirationDate();
-            user.MustRevalidate = false;
             await base.SetPasswordHashAsync(user, passwordHash, cancellationToken);
         }
 
@@ -113,8 +113,7 @@ namespace Indice.AspNetCore.Identity.Data
         /// <param name="user">The user whose password expiration policy to set.</param>
         /// <param name="policy">The password expiration policy to set.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
-        /// <returns>The <see cref="Task{IdentityResult}"/> that represents the asynchronous operation.</returns>
-        public async Task<IdentityResult> SetPasswordExpirationPolicyAsync(TUser user, PasswordExpirationPolicy? policy, CancellationToken cancellationToken = default) {
+        public Task SetPasswordExpirationPolicyAsync(TUser user, PasswordExpirationPolicy? policy, CancellationToken cancellationToken = default) {
             cancellationToken.ThrowIfCancellationRequested();
             ThrowIfDisposed();
             if (user == null) {
@@ -124,7 +123,35 @@ namespace Indice.AspNetCore.Identity.Data
             user.PasswordExpirationPolicy = policy;
             // Calculate expiration date based on policy.
             user.PasswordExpirationDate = user.CalculatePasswordExpirationDate();
-            return await base.UpdateAsync(user, cancellationToken);
+            return Task.CompletedTask;
+        }
+
+        /// <summary>
+        /// Sets the <see cref="User.MustRevalidate"/> property of the user.
+        /// </summary>
+        /// <param name="user">The user instance.</param>
+        /// <param name="mustRevalidate">The value to use.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
+        public Task SetMustRevalidateAsync(TUser user, bool mustRevalidate, CancellationToken cancellationToken = default) {
+            cancellationToken.ThrowIfCancellationRequested();
+            ThrowIfDisposed();
+            if (user == null) {
+                throw new ArgumentNullException(nameof(user));
+            }
+            user.MustRevalidate = mustRevalidate;
+            return Task.CompletedTask;
+        }
+
+        /// <summary>
+        /// Updates the specified user in the user store.
+        /// </summary>
+        /// <param name="user"></param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
+        /// <returns>The <see cref="IdentityResult"/>.</returns>
+        public override Task<IdentityResult> UpdateAsync(TUser user, CancellationToken cancellationToken = default) {
+            // Calculate expiration date based on policy.
+            user.PasswordExpirationDate = user.CalculatePasswordExpirationDate();
+            return base.UpdateAsync(user, cancellationToken);
         }
 
         /// <summary>
@@ -133,12 +160,13 @@ namespace Indice.AspNetCore.Identity.Data
         /// <param name="user"></param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
         /// <returns>The <see cref="IdentityResult"/>.</returns>
-        public override Task<IdentityResult> CreateAsync(TUser user, CancellationToken cancellationToken = default(CancellationToken)) {
+        public override Task<IdentityResult> CreateAsync(TUser user, CancellationToken cancellationToken = default) {
             user.CreateDate = DateTimeOffset.UtcNow;
             // If user does not already have a policy assigned use the default policy.
             if (!user.PasswordExpirationPolicy.HasValue) {
                 user.PasswordExpirationPolicy = PasswordExpirationPolicy;
             }
+            user.PasswordExpirationDate = user.CalculatePasswordExpirationDate();
             return base.CreateAsync(user, cancellationToken);
         }
     }
