@@ -66,7 +66,11 @@ namespace Indice.AspNetCore.Identity.Models
         /// </summary>
         public bool Blocked { get; set; }
         /// <summary>
-        /// Navigation property for the roles this user belongs to.
+        /// Indicates whether the user must provide a new password upon next login.
+        /// </summary>
+        public bool MustRevalidate { get; set; }
+        /// <summary>
+        /// Navigation property for the roles this user belongs to. This setting takes precedence over <see cref="PasswordExpirationPolicy"/>.
         /// </summary>
         public virtual ICollection<IdentityUserRole<string>> Roles { get; } = new List<IdentityUserRole<string>>();
         /// <summary>
@@ -79,7 +83,7 @@ namespace Indice.AspNetCore.Identity.Models
         public virtual ICollection<IdentityUserLogin<string>> Logins { get; } = new List<IdentityUserLogin<string>>();
 
         /// <summary>
-        /// Calculates the next date that the user must change his password.
+        /// Calculates the next date that the user must change his password. Th
         /// </summary>
         public DateTimeOffset? CalculatePasswordExpirationDate() {
             if (!PasswordExpirationPolicy.HasValue) {
@@ -88,8 +92,6 @@ namespace Indice.AspNetCore.Identity.Models
             var lastChange = LastPasswordChangeDate ?? DateTime.UtcNow;
             return PasswordExpirationPolicy.Value switch
             {
-                Models.PasswordExpirationPolicy.Never => null,
-                Models.PasswordExpirationPolicy.NextLogin => lastChange,
                 Models.PasswordExpirationPolicy.Monthly => lastChange.AddMonths(1),
                 Models.PasswordExpirationPolicy.Quarterly => lastChange.AddMonths(3),
                 Models.PasswordExpirationPolicy.Semesterly => lastChange.AddMonths(6),

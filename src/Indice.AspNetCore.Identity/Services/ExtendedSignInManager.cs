@@ -129,7 +129,7 @@ namespace Indice.AspNetCore.Identity.Services
             var isPhoneConfirmed = await UserManager.IsPhoneNumberConfirmedAsync(user);
             var isPasswordExpired = false;
             if (user is User) {
-                isPasswordExpired = user.HasExpiredPassword();
+                isPasswordExpired = user.HasExpiredPassword() || user.MustRevalidate;
             }
             var doPartialSignIn = (!isEmailConfirmed || !isPhoneConfirmed) && (RequirePostSignInConfirmedEmail || RequirePostSignInConfirmedPhoneNumber);
             doPartialSignIn = doPartialSignIn || isPasswordExpired;

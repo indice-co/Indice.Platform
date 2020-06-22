@@ -9,14 +9,6 @@ namespace Indice.AspNetCore.Identity.Models
     public enum PasswordExpirationPolicy
     {
         /// <summary>
-        /// The password Never expires
-        /// </summary>
-        Never = -1,
-        /// <summary>
-        /// User must change it upon login. The password expires immediately.
-        /// </summary>
-        NextLogin = 0,
-        /// <summary>
         /// The password expires every month.
         /// </summary>
         Monthly = 30,
@@ -35,6 +27,6 @@ namespace Indice.AspNetCore.Identity.Models
         /// <summary>
         /// The password expires every two years.
         /// </summary>
-        Biannually = 2 * Annually,
+        Biannually = 2 * Annually
     }
 }

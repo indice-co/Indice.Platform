@@ -1,5 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
+using Indice.AspNetCore.Identity.Data;
 using Indice.AspNetCore.Identity.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
@@ -28,6 +31,31 @@ namespace Indice.AspNetCore.Identity.Services
         public ExtendedUserManager(IUserStore<TUser> userStore, IOptionsSnapshot<IdentityOptions> optionsAccessor, IPasswordHasher<TUser> passwordHasher, IEnumerable<IUserValidator<TUser>> userValidators,
             IEnumerable<IPasswordValidator<TUser>> passwordValidators, ILookupNormalizer keyNormalizer, IdentityErrorDescriber errors, IServiceProvider services, ILogger<ExtendedUserManager<TUser>> logger)
             : base(userStore, optionsAccessor, passwordHasher, userValidators, passwordValidators, keyNormalizer, errors, services, logger) {
+        }
+
+        /// <summary>
+        /// Sets the password expiration policy for the specified user.
+        /// </summary>
+        /// <param name="user">The user whose password expiration policy to set.</param>
+        /// <param name="policy">The password expiration policy to set.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
+        /// <returns>The <see cref="Task{IdentityResult}"/> that represents the asynchronous operation.</returns>
+        public async Task<IdentityResult> SetPasswordExpirationPolicyAsync(TUser user, PasswordExpirationPolicy? policy, CancellationToken cancellationToken = default) {
+            cancellationToken.ThrowIfCancellationRequested();
+            ThrowIfDisposed();
+            if (user == null) {
+                throw new ArgumentNullException(nameof(user));
+            }
+            var userStore = GetUserStore();
+            return await userStore.SetPasswordExpirationPolicyAsync(user, policy, cancellationToken);
+        }
+
+        private ExtendedUserStore GetUserStore(bool throwOnFail = true) {
+            var cast = Store as ExtendedUserStore;
+            if (throwOnFail && cast == null) {
+                throw new NotSupportedException("Store is not of type ExtendedUserStore.");
+            }
+            return cast;
         }
     }
 }
