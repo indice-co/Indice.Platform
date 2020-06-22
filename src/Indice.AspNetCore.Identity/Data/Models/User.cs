@@ -28,6 +28,7 @@ namespace Indice.AspNetCore.Identity.Models
             Id = id.ToString();
             UserName = userName;
         }
+
         /// <summary>
         /// Initializes a new instance of <see cref="IdentityUser"/>.
         /// </summary>

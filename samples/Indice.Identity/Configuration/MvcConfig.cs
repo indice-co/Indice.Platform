@@ -37,6 +37,7 @@ namespace Microsoft.Extensions.DependencyInjection
                                });
                                // Enable events and register handlers.
                                options.CanRaiseEvents = true;
+                               options.DisableCache = false;
                                options.AddEventHandler<ClientCreatedEvent, ClientCreatedEventHandler>()
                                       .AddEventHandler<UserEmailConfirmedEvent, UserEmailConfirmedEventHandler>();
                                // Update email options.

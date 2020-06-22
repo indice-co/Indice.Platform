@@ -4,6 +4,7 @@ using System.Net.Http;
 using System.Security.Claims;
 using System.Text.Json;
 using System.Text.RegularExpressions;
+using Indice.Configuration;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Controllers;
@@ -21,6 +22,7 @@ namespace Indice.AspNetCore.Filters
         private readonly IDistributedCache _cache;
         // Invoke the same JSON serializer settings that are used by the output formatter, so we can save objects in the cache in the exact same manner.
         private readonly JsonSerializerOptions _jsonSerializerOptions;
+        private readonly CacheResourceFilterOptions _cacheResourceFilterOptions;
         private readonly string[] _dependentPaths;
         private readonly string[] _dependentStaticPaths;
         private readonly int _expiration;
@@ -32,13 +34,15 @@ namespace Indice.AspNetCore.Filters
         /// </summary>
         /// <param name="cache">Represents a distributed cache of serialized values.</param>
         /// <param name="jsonOptions">Provides programmatic configuration for JSON in the MVC framework.</param>
+        /// <param name="cacheResourceFilterOptions">Options for the <see cref="CacheResourceFilter"/>.</param>
         /// <param name="dependentPaths">Parent paths of the current method that must be invalidated. Path template variables must match by name.</param>
         /// <param name="dependentStaticPaths">Dependent static path that must be invalidated along with this resource.</param>
         /// <param name="expiration">The absolute expiration in minutes of the cache item, expressed as an <see cref="int"/>. Defaults to 60 minutes.</param>
         /// <param name="varyByClaimType">The claim to use which value is included in the cache key.</param>
-        public CacheResourceFilter(IDistributedCache cache, IOptions<JsonOptions> jsonOptions, string[] dependentPaths, string[] dependentStaticPaths, int expiration, string[] varyByClaimType) {
+        public CacheResourceFilter(IDistributedCache cache, IOptions<JsonOptions> jsonOptions, IOptions<CacheResourceFilterOptions> cacheResourceFilterOptions, string[] dependentPaths, string[] dependentStaticPaths, int expiration, string[] varyByClaimType) {
             _cache = cache ?? throw new ArgumentNullException(nameof(cache));
             _jsonSerializerOptions = jsonOptions?.Value?.JsonSerializerOptions ?? throw new ArgumentNullException(nameof(jsonOptions));
+            _cacheResourceFilterOptions = cacheResourceFilterOptions?.Value ?? throw new ArgumentNullException(nameof(cacheResourceFilterOptions));
             _dependentPaths = dependentPaths ?? Array.Empty<string>();
             _dependentStaticPaths = dependentStaticPaths ?? Array.Empty<string>();
             _expiration = expiration;
@@ -50,6 +54,9 @@ namespace Indice.AspNetCore.Filters
         /// </summary>
         /// <param name="context">A context for resource filters, specifically <see cref="OnResourceExecuting(ResourceExecutingContext)"/> calls.</param>
         public void OnResourceExecuting(ResourceExecutingContext context) {
+            if (_cacheResourceFilterOptions.DisableCache) {
+                return;
+            }
             var httpContext = context.HttpContext;
             var request = httpContext.Request;
             _cacheKey = $"{request.Path}{(request.QueryString.HasValue ? request.QueryString.Value : string.Empty)}";
@@ -72,6 +79,9 @@ namespace Indice.AspNetCore.Filters
         /// </summary>
         /// <param name="context">A context for resource filters, specifically <see cref="OnResourceExecuted(ResourceExecutedContext)"/> calls.</param>
         public void OnResourceExecuted(ResourceExecutedContext context) {
+            if (_cacheResourceFilterOptions.DisableCache) {
+                return;
+            }
             var request = context.HttpContext.Request;
             var requestMethod = request.Method;
             var basePath = string.Empty;

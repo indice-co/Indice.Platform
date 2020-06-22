@@ -30,5 +30,9 @@ namespace Indice.AspNetCore.Identity.Features
         /// A list of initial users to be inserted in the database on startup. Works only when environment is 'Development'.
         /// </summary>
         public IEnumerable<User> InitialUsers { get; set; }
+        /// <summary>
+        /// Disables the cache for all the endpoints in the IdentityServer API. Defaults to false.
+        /// </summary>
+        public bool DisableCache { get; set; } = false;
     }
 }

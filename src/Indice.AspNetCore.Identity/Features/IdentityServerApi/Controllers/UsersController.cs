@@ -137,7 +137,7 @@ namespace Indice.AspNetCore.Identity.Features
         [HttpGet("{userId}")]
         [ProducesResponseType(statusCode: StatusCodes.Status200OK, type: typeof(SingleUserInfo))]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
-        [CacheResourceFilter(Expiration = 2)]
+        [CacheResourceFilter(Expiration = 60)]
         public async Task<IActionResult> GetUser([FromRoute]string userId) {
             var user = await _dbContext.Users
                                        .AsNoTracking()
@@ -591,7 +591,7 @@ namespace Indice.AspNetCore.Identity.Features
                 return BadRequest(result.Errors.ToValidationProblemDetails());
             }
             if (request.ChangePasswordAfterFirstSignIn.HasValue && request.ChangePasswordAfterFirstSignIn.Value == true) {
-                user.PasswordExpirationPolicy = PasswordExpirationPolicy.NextLogin;
+                //user.PasswordExpirationPolicy = PasswordExpirationPolicy.NextLogin;
                 await _userManager.UpdateAsync(user);
             }
             return Ok();

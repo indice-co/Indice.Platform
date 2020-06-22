@@ -2,6 +2,7 @@
 using IdentityModel;
 using Indice.AspNetCore.Identity.Models;
 using Indice.AspNetCore.Identity.Services;
+using Indice.Configuration;
 using Indice.Security;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -32,6 +33,8 @@ namespace Indice.AspNetCore.Identity.Features
             configureAction?.Invoke(apiEndpointsOptions);
             apiEndpointsOptions.Services = null;
             services.AddDistributedMemoryCache();
+            // Configure options for CacheResourceFilter.
+            services.Configure<CacheResourceFilterOptions>(options => options.DisableCache = apiEndpointsOptions.DisableCache);
             // Invoke action provided by developer to override default options.
             services.AddSingleton(apiEndpointsOptions);
             services.AddIndiceServices(configuration);
