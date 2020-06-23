@@ -590,7 +590,7 @@ namespace Indice.AspNetCore.Identity.Features
                 return BadRequest(result.Errors.ToValidationProblemDetails());
             }
             if (request.ChangePasswordAfterFirstSignIn.HasValue && request.ChangePasswordAfterFirstSignIn.Value == true) {
-                await _userManager.SetMustRevalidateAsync(user, mustRevalidate: true);
+                await _userManager.SetPasswordMustChangeOnNextLoginAsync(user, changePassword: true);
             }
             return Ok();
         }

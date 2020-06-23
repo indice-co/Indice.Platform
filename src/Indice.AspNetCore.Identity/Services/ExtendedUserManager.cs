@@ -53,19 +53,19 @@ namespace Indice.AspNetCore.Identity.Services
         }
 
         /// <summary>
-        /// Sets the <see cref="User.MustRevalidate"/> property of the user.
+        /// Sets the <see cref="User.PasswordChangeOnNextLogin"/> property of the user.
         /// </summary>
         /// <param name="user">The user instance.</param>
-        /// <param name="mustRevalidate">The value to use.</param>
+        /// <param name="changePassword">The value to use.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
-        public async Task SetMustRevalidateAsync(TUser user, bool mustRevalidate, CancellationToken cancellationToken = default) {
+        public async Task SetPasswordMustChangeOnNextLoginAsync(TUser user, bool changePassword, CancellationToken cancellationToken = default) {
             cancellationToken.ThrowIfCancellationRequested();
             ThrowIfDisposed();
             if (user == null) {
                 throw new ArgumentNullException(nameof(user));
             }
             var userStore = GetUserStore();
-            await userStore.SetMustRevalidateAsync(user, mustRevalidate, cancellationToken);
+            await userStore.SetPasswordMustChangeOnNextLoginAsync(user, changePassword, cancellationToken);
             await base.UpdateAsync(user);
         }
 

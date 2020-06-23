@@ -92,9 +92,6 @@ export class UserStore {
 
     public resetPassword(userId: string, password: string, changePasswordAfterFirstSignIn: boolean): Observable<void> {
         this.getUser(userId).subscribe((user: SingleUserInfo) => {
-            if (changePasswordAfterFirstSignIn) {
-                user.passwordExpirationPolicy = PasswordExpirationPolicy.NextLogin;
-            }
             this._user.next(user);
             this._user.complete();
         });

@@ -68,7 +68,7 @@ namespace Indice.AspNetCore.Identity.Models
         /// <summary>
         /// Indicates whether the user must provide a new password upon next login.
         /// </summary>
-        public bool MustRevalidate { get; set; }
+        public bool PasswordChangeOnNextLogin { get; set; }
         /// <summary>
         /// Navigation property for the roles this user belongs to. This setting takes precedence over <see cref="PasswordExpirationPolicy"/>.
         /// </summary>
@@ -92,6 +92,7 @@ namespace Indice.AspNetCore.Identity.Models
             var lastChange = LastPasswordChangeDate ?? DateTime.UtcNow;
             return PasswordExpirationPolicy.Value switch
             {
+                Models.PasswordExpirationPolicy.Never => null,
                 Models.PasswordExpirationPolicy.Monthly => lastChange.AddMonths(1),
                 Models.PasswordExpirationPolicy.Quarterly => lastChange.AddMonths(3),
                 Models.PasswordExpirationPolicy.Semesterly => lastChange.AddMonths(6),

@@ -101,7 +101,11 @@ namespace Indice.AspNetCore.Identity.Features
             var data = new User {
                 UserName = User.FindDisplayName() ?? user.UserName
             };
-            await _emailService.SendAsync<User>(message => message.To(user.Email).WithSubject(_messageDescriber.EmailUpdateMessageSubject).WithBody(_messageDescriber.EmailUpdateMessageBody(request.ReturnUrl, user, token)).WithData(data));
+            await _emailService.SendAsync<User>(message => 
+                message.To(user.Email)
+                       .WithSubject(_messageDescriber.EmailUpdateMessageSubject)
+                       .WithBody(_messageDescriber.EmailUpdateMessageBody(request.ReturnUrl, user, token))
+                       .WithData(data));
             return NoContent();
         }
 

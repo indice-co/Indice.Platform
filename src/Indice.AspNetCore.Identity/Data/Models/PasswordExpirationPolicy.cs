@@ -9,6 +9,10 @@ namespace Indice.AspNetCore.Identity.Models
     public enum PasswordExpirationPolicy
     {
         /// <summary>
+        /// The password Never expires
+        /// </summary>
+        Never = -1,
+        /// <summary>
         /// The password expires every month.
         /// </summary>
         Monthly = 30,

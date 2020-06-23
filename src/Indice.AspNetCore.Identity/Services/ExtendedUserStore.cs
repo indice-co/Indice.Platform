@@ -11,9 +11,7 @@ using Microsoft.Extensions.Configuration;
 
 namespace Indice.AspNetCore.Identity.Data
 {
-    /// <summary>
-    /// Custom <see cref="UserStore"/> that provides password history features.
-    /// </summary>
+    /// <inheritdoc/>
     public class ExtendedUserStore : ExtendedUserStore<IdentityDbContext, User, IdentityRole>
     {
         /// <summary>
@@ -25,9 +23,7 @@ namespace Indice.AspNetCore.Identity.Data
         public ExtendedUserStore(IdentityDbContext context, IConfiguration configuration, IdentityErrorDescriber describer = null) : base(context, configuration, describer) { }
     }
 
-    /// <summary>
-    /// Custom <see cref="UserStore"/> that provides password history features.
-    /// </summary>
+    /// <inheritdoc/>
     public class ExtendedUserStore<TContext> : ExtendedUserStore<TContext, User, IdentityRole> where TContext : IdentityDbContext<User, IdentityRole>
     {
         /// <summary>
@@ -39,9 +35,7 @@ namespace Indice.AspNetCore.Identity.Data
         public ExtendedUserStore(TContext context, IConfiguration configuration, IdentityErrorDescriber describer = null) : base(context, configuration, describer) { }
     }
 
-    /// <summary>
-    /// Custom <see cref="UserStore"/> that provides password history features.
-    /// </summary>
+    /// <inheritdoc/>
     public class ExtendedUserStore<TContext, TUser, TRole> : UserStore<TUser, TRole, TContext>, IExtendedUserStore<TUser>
         where TContext : IdentityDbContext<TUser, TRole>
         where TUser : User
@@ -60,30 +54,14 @@ namespace Indice.AspNetCore.Identity.Data
                                        configuration.GetSection(nameof(PasswordOptions)).GetValue<PasswordExpirationPolicy?>(nameof(PasswordExpirationPolicy));
         }
 
-        /// <summary>
-        /// The password history limit is an integer indicating the number of passwords to keep track. 
-        /// Then when a user changes his password these will be check against so that no new password matches any stored in the history table.
-        /// </summary>
+        /// <inheritdoc/>
         public int? PasswordHistoryLimit { get; protected set; }
-        /// <summary>
-        /// The password history retention is a double indicating the number of days the each password stored into history will be retained.
-        /// The expiration day is calculated according to the date changed and not the created date.
-        /// </summary>
+        /// <inheritdoc/>
         public double? PasswordHistoryRetentionDays { get; protected set; }
-        /// <summary>
-        /// The password expiration policy is the default setting that every new user created by the <see cref="UserManager{TUser}"/> will inherit in regards
-        /// to when their password will need to be changed. This settings is only for new users created any only if no explicit password policy is set.
-        /// </summary>
+        /// <inheritdoc/>
         public PasswordExpirationPolicy? PasswordExpirationPolicy { get; protected set; }
 
-        /// <summary>
-        /// Sets the password hash for the specified user.
-        /// </summary>
-        /// <param name="user">The user whose password hash to set.</param>
-        /// <param name="passwordHash">The password hash to set.</param>
-        /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the
-        /// operation should be canceled.</param>
-        /// <returns>The <see cref="Task"/> that represents the asynchronous operation.</returns>
+        /// <inheritdoc/>
         public override async Task SetPasswordHashAsync(TUser user, string passwordHash, CancellationToken cancellationToken = default) {
             var changeDate = DateTime.UtcNow;
             if (PasswordHistoryLimit.HasValue && !string.IsNullOrWhiteSpace(passwordHash)) {
@@ -107,12 +85,7 @@ namespace Indice.AspNetCore.Identity.Data
             await base.SetPasswordHashAsync(user, passwordHash, cancellationToken);
         }
 
-        /// <summary>
-        /// Sets the password expiration policy for the specified user.
-        /// </summary>
-        /// <param name="user">The user whose password expiration policy to set.</param>
-        /// <param name="policy">The password expiration policy to set.</param>
-        /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
+        /// <inheritdoc/>
         public Task SetPasswordExpirationPolicyAsync(TUser user, PasswordExpirationPolicy? policy, CancellationToken cancellationToken = default) {
             cancellationToken.ThrowIfCancellationRequested();
             ThrowIfDisposed();
@@ -126,40 +99,25 @@ namespace Indice.AspNetCore.Identity.Data
             return Task.CompletedTask;
         }
 
-        /// <summary>
-        /// Sets the <see cref="User.MustRevalidate"/> property of the user.
-        /// </summary>
-        /// <param name="user">The user instance.</param>
-        /// <param name="mustRevalidate">The value to use.</param>
-        /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
-        public Task SetMustRevalidateAsync(TUser user, bool mustRevalidate, CancellationToken cancellationToken = default) {
+        /// <inheritdoc/>
+        public Task SetPasswordMustChangeOnNextLoginAsync(TUser user, bool changePassword, CancellationToken cancellationToken = default) {
             cancellationToken.ThrowIfCancellationRequested();
             ThrowIfDisposed();
             if (user == null) {
                 throw new ArgumentNullException(nameof(user));
             }
-            user.MustRevalidate = mustRevalidate;
+            user.PasswordChangeOnNextLogin = changePassword;
             return Task.CompletedTask;
         }
 
-        /// <summary>
-        /// Updates the specified user in the user store.
-        /// </summary>
-        /// <param name="user"></param>
-        /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
-        /// <returns>The <see cref="IdentityResult"/>.</returns>
+        /// <inheritdoc/>
         public override Task<IdentityResult> UpdateAsync(TUser user, CancellationToken cancellationToken = default) {
             // Calculate expiration date based on policy.
             user.PasswordExpirationDate = user.CalculatePasswordExpirationDate();
             return base.UpdateAsync(user, cancellationToken);
         }
 
-        /// <summary>
-        /// Creates the specified user in the user store.
-        /// </summary>
-        /// <param name="user"></param>
-        /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
-        /// <returns>The <see cref="IdentityResult"/>.</returns>
+        /// <inheritdoc/>
         public override Task<IdentityResult> CreateAsync(TUser user, CancellationToken cancellationToken = default) {
             user.CreateDate = DateTimeOffset.UtcNow;
             // If user does not already have a policy assigned use the default policy.
