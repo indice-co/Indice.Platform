@@ -127,8 +127,9 @@ namespace Indice.AspNetCore.Identity.Services
         protected override async Task<SignInResult> SignInOrTwoFactorAsync(TUser user, bool isPersistent, string loginProvider = null, bool bypassTwoFactor = false) {
             var isEmailConfirmed = await UserManager.IsEmailConfirmedAsync(user);
             var isPhoneConfirmed = await UserManager.IsPhoneNumberConfirmedAsync(user);
-            var firstName = user.Claims.SingleOrDefault(x => x.ClaimType == JwtClaimTypes.GivenName)?.ClaimValue;
-            var lastName = user.Claims.SingleOrDefault(x => x.ClaimType == JwtClaimTypes.FamilyName)?.ClaimValue;
+            var userClaims = await UserManager.GetClaimsAsync(user);
+            var firstName = userClaims.SingleOrDefault(x => x.Type == JwtClaimTypes.GivenName)?.Value;
+            var lastName = userClaims.SingleOrDefault(x => x.Type == JwtClaimTypes.FamilyName)?.Value;
             var isPasswordExpired = false;
             if (user is User) {
                 isPasswordExpired = user.HasExpiredPassword() || user.PasswordChangeOnNextLogin;
