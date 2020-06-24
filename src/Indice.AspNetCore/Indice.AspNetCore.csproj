@@ -36,7 +36,7 @@
   <ItemGroup>
     <PackageReference Include="FluentValidation.AspNetCore" Version="8.6.2" />
     <PackageReference Include="Humanizer.Core" Version="2.8.26" />
-    <PackageReference Include="Indice.EntityFrameworkCore" Version="3.1.0" />
+    <PackageReference Include="Indice.EntityFrameworkCore" Version="3.1.1" />
     <PackageReference Include="Indice.Services" Version="1.5.19" />
     <PackageReference Include="Markdig" Version="0.20.0" />
     <PackageReference Include="Microsoft.AspNetCore.DataProtection.AzureStorage" Version="3.1.5" />
