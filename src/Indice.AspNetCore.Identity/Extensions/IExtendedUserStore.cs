@@ -35,11 +35,11 @@ namespace Indice.AspNetCore.Identity.Extensions
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
         Task SetPasswordExpirationPolicyAsync(TUser user, PasswordExpirationPolicy? policy, CancellationToken cancellationToken);
         /// <summary>
-        /// Sets the <see cref="User.PasswordChangeOnNextLogin"/> property of the user.
+        /// Sets the <see cref="User.PasswordExpired"/> property of the user.
         /// </summary>
         /// <param name="user">The user instance.</param>
         /// <param name="changePassword">The value to use.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
-        Task SetPasswordMustChangeOnNextLoginAsync(TUser user, bool changePassword, CancellationToken cancellationToken);
+        Task SetPasswordExpiredAsync(TUser user, bool changePassword, CancellationToken cancellationToken);
     }
 }

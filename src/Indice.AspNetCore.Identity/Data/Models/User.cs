@@ -68,7 +68,7 @@ namespace Indice.AspNetCore.Identity.Models
         /// <summary>
         /// Indicates whether the user must provide a new password upon next login.
         /// </summary>
-        public bool PasswordChangeOnNextLogin { get; set; }
+        public bool PasswordExpired { get; set; }
         /// <summary>
         /// Navigation property for the roles this user belongs to. This setting takes precedence over <see cref="PasswordExpirationPolicy"/>.
         /// </summary>

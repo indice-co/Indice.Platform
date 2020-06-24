@@ -100,13 +100,13 @@ namespace Indice.AspNetCore.Identity.Data
         }
 
         /// <inheritdoc/>
-        public Task SetPasswordMustChangeOnNextLoginAsync(TUser user, bool changePassword, CancellationToken cancellationToken = default) {
+        public Task SetPasswordExpiredAsync(TUser user, bool changePassword, CancellationToken cancellationToken = default) {
             cancellationToken.ThrowIfCancellationRequested();
             ThrowIfDisposed();
             if (user == null) {
                 throw new ArgumentNullException(nameof(user));
             }
-            user.PasswordChangeOnNextLogin = changePassword;
+            user.PasswordExpired = changePassword;
             return Task.CompletedTask;
         }
 

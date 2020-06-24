@@ -132,7 +132,7 @@ namespace Indice.AspNetCore.Identity.Services
             var lastName = userClaims.SingleOrDefault(x => x.Type == JwtClaimTypes.FamilyName)?.Value;
             var isPasswordExpired = false;
             if (user is User) {
-                isPasswordExpired = user.HasExpiredPassword() || user.PasswordChangeOnNextLogin;
+                isPasswordExpired = user.HasExpiredPassword() || user.PasswordExpired;
             }
             var doPartialSignIn = (!isEmailConfirmed || !isPhoneConfirmed) && (RequirePostSignInConfirmedEmail || RequirePostSignInConfirmedPhoneNumber);
             doPartialSignIn = doPartialSignIn || isPasswordExpired;
