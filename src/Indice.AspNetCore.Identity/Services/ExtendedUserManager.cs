@@ -69,10 +69,29 @@ namespace Indice.AspNetCore.Identity.Services
             await base.UpdateAsync(user);
         }
 
+        /// <summary>
+        /// Updates a user's password hash.
+        /// </summary>
+        /// <param name="user">The user.</param>
+        /// <param name="newPassword">The new password.</param>
+        /// <param name="validatePassword">Whether to validate the password.</param>
+        /// <returns>Whether the password has was successfully updated.</returns>
+        public async Task<IdentityResult> ResetPasswordAsync(TUser user, string newPassword, bool validatePassword = true) {
+            ThrowIfDisposed();
+            if (user == null) {
+                throw new ArgumentNullException(nameof(user));
+            }
+            var result = await base.UpdatePasswordHash(user, newPassword, validatePassword);
+            if (!result.Succeeded) {
+                return result;
+            }
+            return await UpdateUserAsync(user);
+        }
+
         private IExtendedUserStore<TUser> GetUserStore(bool throwOnFail = true) {
             var cast = Store as IExtendedUserStore<TUser>;
             if (throwOnFail && cast == null) {
-                throw new NotSupportedException("Store is not of type ExtendedUserStore.");
+                throw new NotSupportedException($"Store is not of type {nameof(ExtendedUserStore)}.");
             }
             return cast;
         }
