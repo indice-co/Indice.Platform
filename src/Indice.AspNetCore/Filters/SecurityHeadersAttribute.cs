@@ -5,7 +5,8 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
-using Newtonsoft.Json;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace Indice.AspNetCore.Filters
 {
@@ -95,86 +96,202 @@ namespace Indice.AspNetCore.Filters
         public const string UnsafeInline = "'unsafe-inline'";
 
         /// <summary>
-        /// Content Security Policy regarding all sources.
+        /// [CSP Level 1]
+        /// The default-src directive defines the default policy for fetching resources such as 
+        /// JavaScript, Images, CSS, Fonts, AJAX requests, Frames, HTML5 Media. 
+        /// Not all directives fallback to default-src. See the Source List Reference for possible values.
         /// </summary>
         public string DefaultSrc {
             get => GetValueOrDefault(nameof(DefaultSrc));
             set => SetValue(nameof(DefaultSrc), value);
         }
         /// <summary>
-        /// Content Security Policy regarding script sources.
+        /// [CSP Level 1]
+        /// Defines valid sources of JavaScript.
         /// </summary>
         public string ScriptSrc {
             get => GetValueOrDefault(nameof(ScriptSrc));
             set => SetValue(nameof(ScriptSrc), value);
         }
         /// <summary>
-        /// Content Security Policy regarding cascading stylesheets.
+        /// [CSP Level 1]
+        ///Defines valid sources of stylesheets or CSS.
         /// </summary>
         public string StyleSrc {
             get => GetValueOrDefault(nameof(StyleSrc));
             set => SetValue(nameof(StyleSrc), value);
         }
         /// <summary>
-        /// Content Security pPolicy regarding image sources.
+        /// [CSP Level 1]
+        /// Defines valid sources of images.
         /// </summary>
         public string ImgSrc {
             get => GetValueOrDefault(nameof(ImgSrc));
             set => SetValue(nameof(ImgSrc), value);
         }
+
         /// <summary>
+        /// [CSP Level 1]
+        /// Applies to XMLHttpRequest (AJAX), WebSocket, fetch(), &lt;a ping&gt; or EventSource. If not allowed the browser emulates a 400 HTTP status code.
+        /// </summary>
+        public string ConnectSrc {
+            get => GetValueOrDefault(nameof(ConnectSrc));
+            set => SetValue(nameof(ConnectSrc), value);
+        }
+
+        /// <summary>
+        /// [CSP Level 1]
         /// Content Security Policy regarding font sources.
         /// </summary>
         public string FontSrc {
             get => GetValueOrDefault(nameof(FontSrc));
             set => SetValue(nameof(FontSrc), value);
         }
+
         /// <summary>
+        /// [CSP Level 1]
         /// Specifies valid sources for the &lt;object&gt;, &lt;embed&gt;, and &lt;applet&gt; elements.
         /// </summary>
         public string ObjectSrc {
             get => GetValueOrDefault(nameof(ObjectSrc));
             set => SetValue(nameof(ObjectSrc), value);
         }
+
         /// <summary>
-        /// connect-src directive restricts the URLs which can be loaded using script interfaces. The APIs that are restricted are:
-        /// ping,
-        /// Fetch,
-        /// XMLHttpRequest,
-        /// WebSocket, and
-        /// EventSource.
+        /// [CSP Level 1]
+        /// Defines valid sources of audio and video, eg HTML5 &lt;audio&gt;, &lt;video&gt; elements.
         /// </summary>
-        public string ConnectSrc {
-            get => GetValueOrDefault(nameof(ConnectSrc));
-            set => SetValue(nameof(ConnectSrc), value);
+        public string MediaSrc {
+            get => GetValueOrDefault(nameof(MediaSrc));
+            set => SetValue(nameof(MediaSrc), value);
         }
+
         /// <summary>
-        /// Content Security policy regarding frame ancestors. When the current page will be included in an iframe.
+        /// [CSP Level 1]
+        /// Defines valid sources for loading frames. In CSP Level 2 frame-src was deprecated in favor of the child-src directive. 
+        /// CSP Level 3, has undeprecated frame-src and it will continue to defer to child-src if not present.
         /// </summary>
-        public string FrameAncestors {
-            get => GetValueOrDefault(nameof(FrameAncestors));
-            set => SetValue(nameof(FrameAncestors), value);
+        public string FrameSrc {
+            get => GetValueOrDefault(nameof(FrameSrc));
+            set => SetValue(nameof(FrameSrc), value);
         }
+
         /// <summary>
-        /// Endpoint to report back the csp report from server.
+        /// [CSP Level 1]
+        /// Enables a sandbox for the requested resource similar to the iframe sandbox attribute. 
+        /// The sandbox applies a same origin policy, prevents popups, plugins and script execution is blocked. 
+        /// You can keep the sandbox value empty to keep all restrictions in place, or add values: 
+        /// allow-forms allow-same-origin allow-scripts allow-popups, allow-modals, allow-orientation-lock, 
+        /// allow-pointer-lock, allow-presentation, allow-popups-to-escape-sandbox, and allow-top-navigation
+        /// </summary>
+        public string Sandbox {
+            get => GetValueOrDefault(nameof(Sandbox));
+            set => SetValue(nameof(Sandbox), value);
+        }
+
+        /// <summary>
+        /// [CSP Level 1]
+        /// Instructs the browser to POST a reports of policy failures to this URI. 
+        /// You can also use Content-Security-Policy-Report-Only as the HTTP header name to instruct the browser to only send reports (does not block anything). 
+        /// This directive is deprecated in CSP Level 3 in favor of the report-to directive.
         /// </summary>
         public string ReportUri {
             get => GetValueOrDefault(nameof(ReportUri));
             set => SetValue(nameof(ReportUri), value);
         }
+
         /// <summary>
-        /// Restricts the URLs which can be used in a document's &lt;base&gt; element.
+        /// [CSP Level 2]
+        /// Defines valid sources for web workers and nested browsing contexts loaded using elements such as &lt;frame&gt; and &lt;iframe&gt;
+        /// </summary>
+        public string ChildSrc {
+            get => GetValueOrDefault(nameof(ChildSrc));
+            set => SetValue(nameof(ChildSrc), value);
+        }
+
+        /// <summary>
+        /// [CSP Level 2]
+        /// Defines valid sources that can be used as an HTML &lt;form&gt; action.
+        /// </summary>
+        public string FormAction {
+            get => GetValueOrDefault(nameof(FormAction));
+            set => SetValue(nameof(FormAction), value);
+        }
+
+        /// <summary>
+        /// [CSP Level 2]
+        /// Defines valid sources for embedding the resource using &lt;frame&gt; &lt;iframe&gt; &lt;object&gt; &lt;embed&gt; &lt;applet&gt;. 
+        /// Setting this directive to 'none' should be roughly equivalent to X-Frame-Options: DENY
+        /// </summary>
+        public string FrameAncestors {
+            get => GetValueOrDefault(nameof(FrameAncestors));
+            set => SetValue(nameof(FrameAncestors), value);
+        }
+
+        /// <summary>
+        /// [CSP Level 2]
+        /// Defines valid MIME types for plugins invoked via &lt;object&gt; and &lt;embed&gt;. 
+        /// To load an &lt;applet&gt; you must specify application/x-java-applet.
+        /// </summary>
+        public string PluginTypes {
+            get => GetValueOrDefault(nameof(PluginTypes));
+            set => SetValue(nameof(PluginTypes), value);
+        }
+
+        /// <summary>
+        /// [CSP Level 2]
+        /// Defines a set of allowed URLs which can be used in the src attribute of a HTML base tag.
         /// </summary>
         public string BaseUri {
             get => GetValueOrDefault(nameof(BaseUri));
             set => SetValue(nameof(BaseUri), value);
         }
+
         /// <summary>
-        /// Enables a sandbox for the requested resource similar to the &lt;iframe&gt; sandbox attribute.
+        /// [CSP Level 3]
+        /// Defines a reporting group name defined by a Report-To HTTP response header. See the Reporting API for more info.
         /// </summary>
-        public string Sandbox {
-            get => GetValueOrDefault(nameof(Sandbox));
-            set => SetValue(nameof(Sandbox), value);
+        public string ReportTo {
+            get => GetValueOrDefault(nameof(ReportTo));
+            set => SetValue(nameof(ReportTo), value);
+        }
+
+        /// <summary>
+        /// [CSP Level 3]
+        /// Restricts the URLs which may be loaded as a Worker, SharedWorker or ServiceWorker.
+        /// </summary>
+        public string WorkerSrc {
+            get => GetValueOrDefault(nameof(WorkerSrc));
+            set => SetValue(nameof(WorkerSrc), value);
+        }
+
+        /// <summary>
+        /// [CSP Level 3]
+        /// Restricts the URLs that application manifests can be loaded.
+        /// </summary>
+        public string ManifestSrc {
+            get => GetValueOrDefault(nameof(ManifestSrc));
+            set => SetValue(nameof(ManifestSrc), value);
+        }
+
+        /// <summary>
+        /// [CSP Level 3]
+        /// Defines valid sources for request prefetch and prerendering, for example via the link tag with rel="prefetch" or rel="prerender":
+        /// </summary>
+        public string PrefetchSrc {
+            get => GetValueOrDefault(nameof(PrefetchSrc));
+            set => SetValue(nameof(PrefetchSrc), value);
+        }
+
+        /// <summary>
+        /// [CSP Level 3]
+        /// Restricts the URLs that the document may navigate to by any means. For example when a link is clicked, 
+        /// a form is submitted, or window.location is invoked. 
+        /// If form-action is present then this directive is ignored for form submissions.
+        /// </summary>
+        public string NavigateTo {
+            get => GetValueOrDefault(nameof(NavigateTo));
+            set => SetValue(nameof(NavigateTo), value);
         }
 
         /// <summary>
@@ -199,32 +316,118 @@ namespace Indice.AspNetCore.Filters
             return this;
         }
 
+        /** level1 **/
+        
         /// <summary>
         /// Appends an entry to the current CSP policy.
         /// </summary>
         /// <param name="value">The value to add.</param>
-        /// <returns>Returns the current instance of the Content Security Policy.</returns>
+        public CSP AddDefaultSrc(string value) => Add(nameof(DefaultSrc), value);
+        /// <summary>
+        /// Appends an entry to the current CSP policy.
+        /// </summary>
+        /// <param name="value">The value to add.</param>
         public CSP AddScriptSrc(string value) => Add(nameof(ScriptSrc), value);
-
         /// <summary>
         /// Appends an entry to the current CSP policy.
         /// </summary>
         /// <param name="value">The value to add.</param>
-        /// <returns>Returns the current instance of the Content Security Policy.</returns>
-        public CSP AddConnectSrc(string value) => Add(nameof(ConnectSrc), value);
-
+        public CSP AddStyleSrc(string value) => Add(nameof(StyleSrc), value);
         /// <summary>
         /// Appends an entry to the current CSP policy.
         /// </summary>
-        /// <param name="value">The value to add</param>
-        /// <returns>Returns the current instance of the Content Security Policy.</returns>
+        /// <param name="value">The value to add.</param>
+        public CSP AddImgSrc(string value) => Add(nameof(ImgSrc), value);
+        /// <summary>
+        /// Appends an entry to the current CSP policy.
+        /// </summary>
+        /// <param name="value">The value to add.</param>
+        public CSP AddConnectSrc(string value) => Add(nameof(ConnectSrc), value);
+        /// <summary>
+        /// Appends an entry to the current CSP policy.
+        /// </summary>
+        /// <param name="value">The value to add.</param>
+        public CSP AddFontSrc(string value) => Add(nameof(FontSrc), value);
+        /// <summary>
+        /// Appends an entry to the current CSP policy.
+        /// </summary>
+        /// <param name="value">The value to add.</param>
+        public CSP AddObjectSrc(string value) => Add(nameof(ObjectSrc), value);
+        /// <summary>
+        /// Appends an entry to the current CSP policy.
+        /// </summary>
+        /// <param name="value">The value to add.</param>
+        public CSP AddMediaSrc(string value) => Add(nameof(MediaSrc), value);
+        /// <summary>
+        /// Appends an entry to the current CSP policy.
+        /// </summary>
+        /// <param name="value">The value to add.</param>
+        public CSP AddFrameSrc(string value) => Add(nameof(FrameSrc), value);
+        /// <summary>
+        /// Appends an entry to the current CSP policy.
+        /// </summary>
+        /// <param name="value">The value to add.</param>
         public CSP AddSandbox(string value) => Add(nameof(Sandbox), value);
-
+        /// <summary>
+        /// Appends an entry to the current CSP policy.
+        /// </summary>
+        /// <param name="value">The value to add.</param>
+        public CSP AddReportUri(string value) => Add(nameof(ReportUri), value);
+        
+        /** level2 **/
+        /// <summary>
+        /// Appends an entry to the current CSP policy.
+        /// </summary>
+        /// <param name="value">The value to add.</param>
+        public CSP AddChildSrc(string value) => Add(nameof(ChildSrc), value);
+        /// <summary>
+        /// Appends an entry to the current CSP policy.
+        /// </summary>
+        /// <param name="value">The value to add.</param>
+        public CSP AddFormAction(string value) => Add(nameof(FormAction), value);
         /// <summary>
         /// Appends an entry to the current CSP policy.
         /// </summary>
         /// <param name="value">The value to add.</param>
         public CSP AddFrameAncestors(string value) => Add(nameof(FrameAncestors), value);
+        /// <summary>
+        /// Appends an entry to the current CSP policy.
+        /// </summary>
+        /// <param name="value">The value to add.</param>
+        public CSP AddPluginTypes(string value) => Add(nameof(PluginTypes), value);
+        /// <summary>
+        /// Appends an entry to the current CSP policy.
+        /// </summary>
+        /// <param name="value">The value to add.</param>
+        public CSP AddBaseUri(string value) => Add(nameof(BaseUri), value);
+
+        /** level3 **/
+
+        /// <summary>
+        /// Appends an entry to the current CSP policy.
+        /// </summary>
+        /// <param name="value">The value to add.</param>
+        public CSP AddReportTo(string value) => Add(nameof(ReportTo), value);
+        /// <summary>
+        /// Appends an entry to the current CSP policy.
+        /// </summary>
+        /// <param name="value">The value to add.</param>
+        public CSP AddWorkerSrc(string value) => Add(nameof(WorkerSrc), value);
+        /// <summary>
+        /// Appends an entry to the current CSP policy.
+        /// </summary>
+        /// <param name="value">The value to add.</param>
+        public CSP AddManifestSrc(string value) => Add(nameof(ManifestSrc), value);
+        /// <summary>
+        /// Appends an entry to the current CSP policy.
+        /// </summary>
+        /// <param name="value">The value to add.</param>
+        public CSP AddPrefetchSrc(string value) => Add(nameof(PrefetchSrc), value);
+        /// <summary>
+        /// Appends an entry to the current CSP policy.
+        /// </summary>
+        /// <param name="value">The value to add.</param>
+        public CSP AddNavigateTo(string value) => Add(nameof(NavigateTo), value);
 
         /// <summary>
         /// Gets the <see cref="IEnumerator{T}"/> to iterate the underliing values for each policy part.
@@ -259,16 +462,30 @@ namespace Indice.AspNetCore.Filters
         /// <returns></returns>
         public CSP Clone() {
             return new CSP {
+                // level1
                 DefaultSrc = DefaultSrc,
-                ObjectSrc = ObjectSrc,
-                BaseUri = BaseUri,
-                FrameAncestors = FrameAncestors,
-                Sandbox = Sandbox,
                 ScriptSrc = ScriptSrc,
-                FontSrc = FontSrc,
-                ImgSrc = ImgSrc,
                 StyleSrc = StyleSrc,
-                ConnectSrc = ConnectSrc
+                ImgSrc = ImgSrc,
+                ConnectSrc = ConnectSrc,
+                FontSrc = FontSrc,
+                ObjectSrc = ObjectSrc,
+                MediaSrc = MediaSrc,
+                FrameSrc = FrameSrc,
+                Sandbox = Sandbox,
+                ReportUri = ReportUri,
+                // level2
+                ChildSrc = ChildSrc,
+                FormAction = FormAction,
+                FrameAncestors = FrameAncestors,
+                PluginTypes = PluginTypes,
+                BaseUri = BaseUri,
+                // level3
+                ReportTo = ReportTo,
+                WorkerSrc = WorkerSrc,
+                ManifestSrc = ManifestSrc,
+                PrefetchSrc = PrefetchSrc,
+                NavigateTo = NavigateTo
             };
         }
 
@@ -282,7 +499,7 @@ namespace Indice.AspNetCore.Filters
             /// <summary>
             /// The CSP report member.
             /// </summary>
-            [JsonProperty(PropertyName = "csp-report")]
+            [JsonPropertyName("csp-report")]
             public Report CspReport { get; set; }
         }
 
@@ -294,43 +511,43 @@ namespace Indice.AspNetCore.Filters
             /// <summary>
             /// Document uri that the error happened.
             /// </summary>
-            [JsonProperty(PropertyName = "document-uri")]
+            [JsonPropertyName("document-uri")]
             public string DocumentUri { get; set; }
 
             /// <summary>
             /// The referrer.
             /// </summary>
-            [JsonProperty(PropertyName = "referrer")]
+            [JsonPropertyName("referrer")]
             public string Referrer { get; set; }
 
             /// <summary>
             /// Which directive was violated.
             /// </summary>
-            [JsonProperty(PropertyName = "violated-directive")]
+            [JsonPropertyName("violated-directive")]
             public string ViolatedDirective { get; set; }
 
             /// <summary>
             /// Effective directive.
             /// </summary>
-            [JsonProperty(PropertyName = "effective-directive")]
+            [JsonPropertyName("effective-directive")]
             public string EffectiveDirective { get; set; }
 
             /// <summary>
             /// Original policy.
             /// </summary>
-            [JsonProperty(PropertyName = "original-policy")]
+            [JsonPropertyName("original-policy")]
             public string OriginalPolicy { get; set; }
 
             /// <summary>
             /// The resource uri that was blocked.
             /// </summary>
-            [JsonProperty(PropertyName = "blocked-uri")]
+            [JsonPropertyName("blocked-uri")]
             public string BlockedUri { get; set; }
 
             /// <summary>
             /// Status code.
             /// </summary>
-            [JsonProperty(PropertyName = "status-code")]
+            [JsonPropertyName("status-code")]
             public int StatusCode { get; set; }
         }
     }
