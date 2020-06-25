@@ -5,7 +5,7 @@ namespace Indice.AspNetCore.Identity.Features
     /// <summary>
     /// Models a request for changing the username.
     /// </summary>
-    public class ChangeUserNameRequest
+    public class UpdateUserNameRequest
     {
         /// <summary>
         /// The new username.

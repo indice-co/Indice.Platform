@@ -6,8 +6,7 @@ using Newtonsoft.Json;
 namespace Indice.Types
 {
     /// <summary>
-    /// Α collection wrapper that encapsulates the results of an API call or operation.
-    /// Used usually for paginated results.
+    /// Α collection wrapper that encapsulates the results of an API call or operation. Used usually for paginated results.
     /// </summary>
     /// <typeparam name="T"></typeparam>
     public class ResultSet<T>
@@ -41,7 +40,7 @@ namespace Indice.Types
     /// <summary>
     /// A subclass of <see cref="ResultSet{T}"/> that provides additional information regarding the summary row for the data.
     /// </summary>
-    /// <typeparam name="T">The collection item.</typeparam>
+    /// <typeparam name="T">The collection item type.</typeparam>
     /// <typeparam name="TSummary">The summary row data type.</typeparam>
     public class ResultSet<T, TSummary> : ResultSet<T>
     {

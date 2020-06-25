@@ -1,7 +1,9 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Indice.AspNetCore.Identity.Data;
 using Indice.AspNetCore.Identity.Models;
+using Indice.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -19,7 +21,8 @@ namespace Indice.AspNetCore.Identity.Services
         /// </summary>
         /// <param name="dbContext">The DbContext to use for the Identity framework.</param>
         /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
-        public PreviousPasswordAwareValidator(TContext dbContext, IConfiguration configuration) : base(dbContext, configuration) { }
+        /// <param name="messageDescriber">Provides the various messages used throughout Indice packages.</param>
+        public PreviousPasswordAwareValidator(TContext dbContext, IConfiguration configuration, MessageDescriber messageDescriber) : base(dbContext, configuration, messageDescriber) { }
     }
 
     /// <summary>
@@ -32,7 +35,8 @@ namespace Indice.AspNetCore.Identity.Services
         /// </summary>
         /// <param name="dbContext">The DbContext to use for the Identity framework.</param>
         /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
-        public PreviousPasswordAwareValidator(IdentityDbContext<User, IdentityRole> dbContext, IConfiguration configuration) : base(dbContext, configuration) { }
+        /// <param name="messageDescriber">Provides the various messages used throughout Indice packages.</param>
+        public PreviousPasswordAwareValidator(IdentityDbContext<User, IdentityRole> dbContext, IConfiguration configuration, MessageDescriber messageDescriber) : base(dbContext, configuration, messageDescriber) { }
     }
 
     /// <summary>
@@ -47,15 +51,16 @@ namespace Indice.AspNetCore.Identity.Services
         /// </summary>
         /// <param name="dbContext">The DbContext to use for the Identity framework.</param>
         /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
-        public PreviousPasswordAwareValidator(IdentityDbContext<TUser, TRole> dbContext, IConfiguration configuration) : base(dbContext, configuration) { }
+        /// <param name="messageDescriber">Provides the various messages used throughout Indice packages.</param>
+        public PreviousPasswordAwareValidator(IdentityDbContext<TUser, TRole> dbContext, IConfiguration configuration, MessageDescriber messageDescriber) : base(dbContext, configuration, messageDescriber) { }
     }
 
     /// <summary>
     /// An <see cref="IPasswordValidator{TUser}" /> that checks a number of previous passwords for equality.
     /// </summary>
-    /// <typeparam name="TContext"></typeparam>
-    /// <typeparam name="TUser"></typeparam>
-    /// <typeparam name="TRole"></typeparam>
+    /// <typeparam name="TContext">Type of <see cref="DbContext"/>.</typeparam>
+    /// <typeparam name="TUser">Type of user.</typeparam>
+    /// <typeparam name="TRole">Type of role.</typeparam>
     public class PreviousPasswordAwareValidator<TContext, TUser, TRole> : IPasswordValidator<TUser>
         where TContext : IdentityDbContext<TUser, TRole>
         where TUser : User
@@ -71,8 +76,10 @@ namespace Indice.AspNetCore.Identity.Services
         /// </summary>
         /// <param name="dbContext">The DbContext to use for the Identity framework.</param>
         /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
-        public PreviousPasswordAwareValidator(TContext dbContext, IConfiguration configuration) {
+        /// <param name="messageDescriber">Provides the various messages used throughout Indice packages.</param>
+        public PreviousPasswordAwareValidator(TContext dbContext, IConfiguration configuration, MessageDescriber messageDescriber) {
             DbContext = dbContext;
+            MessageDescriber = messageDescriber ?? throw new ArgumentNullException(nameof(messageDescriber));
             PasswordHistoryLimit = configuration.GetSection($"{nameof(IdentityOptions)}:{nameof(IdentityOptions.Password)}").GetValue<int?>(nameof(PasswordHistoryLimit)) ??
                                    configuration.GetSection(nameof(PasswordOptions)).GetValue<int?>(nameof(PasswordHistoryLimit));
         }
@@ -86,6 +93,10 @@ namespace Indice.AspNetCore.Identity.Services
         /// Then when a user changes his password these will be check against so that no new password matches any stored in the history table.
         /// </summary>
         public int? PasswordHistoryLimit { get; }
+        /// <summary>
+        /// Provides the various messages used throughout Indice packages.
+        /// </summary>
+        public MessageDescriber MessageDescriber { get; set; }
 
         /// <summary>
         /// Validates a password as an asynchronous operation.
@@ -108,7 +119,7 @@ namespace Indice.AspNetCore.Identity.Services
                 if (usedPasswords.Length > 0 && isUsedBefore) {
                     result = IdentityResult.Failed(new IdentityError {
                         Code = ErrorDescriber,
-                        Description = "This password has been used recently."
+                        Description = MessageDescriber.PasswordRecentlyUsed()
                     });
                 }
             }

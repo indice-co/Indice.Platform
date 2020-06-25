@@ -9,7 +9,6 @@ namespace Indice.Types
     /// </summary>
     public class ListOptions
     {
-
         private readonly Dictionary<string, string> SortRedirects;
         /// <summary>
         /// Creates instance with default parameters
@@ -25,17 +24,14 @@ namespace Indice.Types
         /// The current page of the list. Default is 1.
         /// </summary>
         public int Page { get; set; }
-
         /// <summary>
         /// The size of the list. Default is 100.
         /// </summary>
         public int Size { get; set; }
-
         /// <summary>
         /// The property name used to sort the list.
         /// </summary>
         public string Sort { get; set; }
-
         /// <summary>
         /// A search term used to limit the results of the list.
         /// </summary>

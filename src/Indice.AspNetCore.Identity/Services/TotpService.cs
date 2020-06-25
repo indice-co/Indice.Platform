@@ -13,7 +13,7 @@ using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
 
-namespace Indice.AspNetCore.Identity.Services
+namespace Indice.AspNetCore.Identity
 {
     /// <summary>
     /// Used to generate, send and verify time based one time passwords.
@@ -30,12 +30,14 @@ namespace Indice.AspNetCore.Identity.Services
         /// <param name="distributedCache">Represents a distributed cache of serialized values.</param>
         /// <param name="localizer">Represents a service that provides localized strings.</param>
         /// <param name="logger">Represents a type used to perform logging.</param>
-        public TotpService(UserManager<User> userManager, ISmsService smsService, IDistributedCache distributedCache, IStringLocalizer<TotpService> localizer, ILogger<TotpService> logger) {
+        /// <param name="rfc6238AuthenticationService">Time-Based One-Time Password Algorithm service.</param>
+        public TotpService(UserManager<User> userManager, ISmsService smsService, IDistributedCache distributedCache, IStringLocalizer<TotpService> localizer, ILogger<TotpService> logger, Rfc6238AuthenticationService rfc6238AuthenticationService) {
             UserManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
             SmsService = smsService ?? throw new ArgumentNullException(nameof(smsService));
             Cache = distributedCache ?? throw new ArgumentNullException(nameof(distributedCache));
             Localizer = localizer ?? throw new ArgumentNullException(nameof(localizer));
             Logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            Rfc6238AuthenticationService = rfc6238AuthenticationService ?? throw new ArgumentNullException(nameof(rfc6238AuthenticationService));
         }
 
         /// <summary>
@@ -58,10 +60,14 @@ namespace Indice.AspNetCore.Identity.Services
         /// Represents a type used to perform logging.
         /// </summary>
         public ILogger<TotpService> Logger { get; }
+        /// <summary>
+        /// Time-Based One-Time Password Algorithm service.
+        /// </summary>
+        public Rfc6238AuthenticationService Rfc6238AuthenticationService { get; }
 
         /// <inheritdoc />
-        public async Task<TotpResult> Send(ClaimsPrincipal principal, string message, TotpDeliveryChannel channel = TotpDeliveryChannel.Sms, string purpose = null, string securityToken = null, string phoneNumber = null, string email = null) {
-            var totpResult = ValidateParameters(principal, securityToken, phoneNumber, email);
+        public async Task<TotpResult> Send(ClaimsPrincipal principal, string message, TotpDeliveryChannel channel = TotpDeliveryChannel.Sms, string purpose = null, string securityToken = null, string phoneNumberOrEmail = null) {
+            var totpResult = ValidateParameters(principal, securityToken, phoneNumberOrEmail);
             if (!totpResult.Success) {
                 return totpResult;
             }
@@ -77,7 +83,7 @@ namespace Indice.AspNetCore.Identity.Services
             var token = string.Empty;
             var hasSecurityToken = !string.IsNullOrEmpty(securityToken);
             if (hasSecurityToken) {
-                var modifier = GetModifier(purpose, phoneNumber, email);
+                var modifier = GetModifier(purpose, phoneNumberOrEmail);
                 var encodedToken = Encoding.Unicode.GetBytes(securityToken);
                 token = Rfc6238AuthenticationService.GenerateCode(encodedToken, modifier).ToString("D6", CultureInfo.InvariantCulture);
             }
@@ -93,10 +99,10 @@ namespace Indice.AspNetCore.Identity.Services
             Logger.LogInformation($"User: '{userName}' - Token generated successfully.");
             switch (channel) {
                 case TotpDeliveryChannel.Sms:
-                    await SmsService.SendAsync(user?.PhoneNumber ?? phoneNumber, Localizer["OTP"], Localizer[message, token]);
+                    await SmsService.SendAsync(user?.PhoneNumber ?? phoneNumberOrEmail, Localizer["OTP"], Localizer[message, token]);
                     break;
-                case TotpDeliveryChannel.Viber:
                 case TotpDeliveryChannel.Email:
+                case TotpDeliveryChannel.Viber:
                 case TotpDeliveryChannel.Telephone:
                 case TotpDeliveryChannel.EToken:
                     throw new NotSupportedException($"EToken delivery channel {channel} is not implemented.");
@@ -108,14 +114,13 @@ namespace Indice.AspNetCore.Identity.Services
         }
 
         /// <inheritdoc />
-        public async Task<TotpResult> Verify(ClaimsPrincipal principal, string code, TotpProviderType? provider = null, string purpose = null, string securityToken = null, string phoneNumber = null, string email = null) {
-            var totpResult = ValidateParameters(principal, securityToken, phoneNumber, email);
+        public async Task<TotpResult> Verify(ClaimsPrincipal principal, string code, TotpProviderType? provider = null, string purpose = null, string securityToken = null, string phoneNumberOrEmail = null) {
+            var totpResult = ValidateParameters(principal, securityToken, phoneNumberOrEmail);
             if (!totpResult.Success) {
                 return totpResult;
             }
-            var providedPrincipal = principal != null;
             purpose ??= TotpConstants.TokenGenerationPurpose.StrongCustomerAuthentication;
-            if (providedPrincipal) {
+            if (principal != null) {
                 var user = await UserManager.GetUserAsync(principal);
                 var providerName = provider.HasValue ? $"{provider}" : TokenOptions.DefaultPhoneProvider;
                 var verified = await UserManager.VerifyUserTokenAsync(user, providerName, purpose, code);
@@ -126,12 +131,11 @@ namespace Indice.AspNetCore.Identity.Services
                     return TotpResult.ErrorResult(Localizer["The verification code is invalid."]);
                 }
             }
-            var providedSecurityToken = !string.IsNullOrEmpty(securityToken);
-            if (providedSecurityToken) {
+            if (!string.IsNullOrEmpty(securityToken)) {
                 if (!int.TryParse(code, out var codeInt)) {
                     return TotpResult.ErrorResult(Localizer["Totp must be an integer value."]);
                 }
-                var modifier = GetModifier(purpose, phoneNumber, email);
+                var modifier = GetModifier(purpose, phoneNumberOrEmail);
                 var encodedToken = Encoding.Unicode.GetBytes(securityToken);
                 var isValidTotp = Rfc6238AuthenticationService.ValidateCode(encodedToken, codeInt, modifier);
                 totpResult.Success = isValidTotp;
@@ -181,19 +185,16 @@ namespace Indice.AspNetCore.Identity.Services
             return exists;
         }
 
-        private string GetModifier(string purpose, string phoneNumber, string email) {
-            return $"Totp:{purpose}:{(!string.IsNullOrEmpty(phoneNumber) ? phoneNumber : email)}";
-        }
+        private string GetModifier(string purpose, string phoneNumberOrEmail) => $"{purpose}:{phoneNumberOrEmail}";
 
-        private TotpResult ValidateParameters(ClaimsPrincipal principal, string securityToken, string phoneNumber, string email) {
+        private TotpResult ValidateParameters(ClaimsPrincipal principal, string securityToken, string phoneNumberOrEmail) {
             var hasSecurityToken = !string.IsNullOrEmpty(securityToken);
             var hasPrincipal = principal != null;
             if (hasSecurityToken && hasPrincipal) {
                 return TotpResult.ErrorResult(Localizer["You can either provide a principal or your own security token."]);
             }
-            var hasPhoneNumber = !string.IsNullOrEmpty(phoneNumber);
-            var hasEmail = !string.IsNullOrEmpty(email);
-            if (hasSecurityToken && !hasPhoneNumber && !hasEmail) {
+            var hasPhoneNumberOrEmail = !string.IsNullOrEmpty(phoneNumberOrEmail);
+            if (hasSecurityToken && !hasPhoneNumberOrEmail) {
                 return TotpResult.ErrorResult(Localizer["If you provide your own security token, please make sure you also provide a phone number or email."]);
             }
             return TotpResult.SuccessResult;

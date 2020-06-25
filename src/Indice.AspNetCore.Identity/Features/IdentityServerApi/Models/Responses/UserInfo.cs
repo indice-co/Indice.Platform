@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Indice.AspNetCore.Identity.Models;
 
 namespace Indice.AspNetCore.Identity.Features
@@ -95,5 +96,39 @@ namespace Indice.AspNetCore.Identity.Features
         /// User's last name.
         /// </summary>
         public string LastName { get; set; }
+    }
+
+    /// <summary>
+    /// Extension methods that are used to convert from <see cref="User"/> type to other DTOs.
+    /// </summary>
+    public static class UserExtensions
+    {
+        /// <summary>
+        /// Converts a type of <see cref="User"/> to <see cref="BasicUserInfo"/>.
+        /// </summary>
+        /// <param name="user">The instance to convert.</param>
+        /// <returns>A new instance of <see cref="BasicUserInfo"/>.</returns>
+        public static BasicUserInfo ToBasicUserInfo(this User user) => new BasicUserInfo {
+            Id = user.Id,
+            CreateDate = user.CreateDate,
+            Email = user.Email,
+            EmailConfirmed = user.EmailConfirmed,
+            LockoutEnabled = user.LockoutEnabled,
+            LockoutEnd = user.LockoutEnd,
+            PhoneNumber = user.PhoneNumber,
+            PhoneNumberConfirmed = user.PhoneNumberConfirmed,
+            TwoFactorEnabled = user.TwoFactorEnabled,
+            UserName = user.UserName,
+            Blocked = user.Blocked,
+            PasswordExpirationPolicy = user.PasswordExpirationPolicy,
+            IsAdmin = user.Admin,
+            AccessFailedCount = user.AccessFailedCount,
+            Claims = user.Claims.Select(x => new ClaimInfo {
+                Id = x.Id,
+                Type = x.ClaimType,
+                Value = x.ClaimValue
+            })
+            .ToList()
+        };
     }
 }

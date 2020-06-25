@@ -69,14 +69,16 @@ namespace Indice.AspNetCore.Swagger
             DiscriminatorMap = map.ToDictionary(x => x.Key, x => new OpenApiReference { 
                 Type = ReferenceType.Schema, 
                 Id = x.Value.Name 
-            }.ReferenceV3);
+            }
+            .ReferenceV3);
             DerivedTypes = map.Values.Where(x => x != baseType).ToList();
             AllOfReferences = map.Values.Where(x => !x.IsAbstract).Select(x => new OpenApiSchema { 
                 Reference = new OpenApiReference { 
                     Type = ReferenceType.Schema, 
                     Id = x.Name 
                 } 
-            }).ToList();
+            })
+            .ToList();
             Discriminator = discriminator;
         }
 
@@ -85,8 +87,11 @@ namespace Indice.AspNetCore.Swagger
             if (DerivedTypes.Count == 0) {
                 return;
             }
-            if (BaseType == context.Type) { // when it is the base type
-                schema.Discriminator = new OpenApiDiscriminator { PropertyName = Discriminator, Mapping = DiscriminatorMap };
+            if (BaseType == context.Type) { // When it is the base type.
+                schema.Discriminator = new OpenApiDiscriminator { 
+                    PropertyName = Discriminator, 
+                    Mapping = DiscriminatorMap 
+                };
                 foreach (var type in DerivedTypes.Where(x => x.Name != BaseType.Name && !context.SchemaRepository.Schemas.ContainsKey(x.Name))) {
                     var derivedSchema = default(OpenApiSchema);
                     if (!context.SchemaRepository.TryGetIdFor(type, out var derivedSchemaId)) {

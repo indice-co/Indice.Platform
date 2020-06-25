@@ -29,30 +29,23 @@ namespace Microsoft.Extensions.DependencyInjection
                            .AddRazorRuntimeCompilation()
                            .AddTotp()
                            .AddIdentityServerApiEndpoints(options => {
-                               options.UseInitialData = true;
+                               // Configure the DbContext.
                                options.AddDbContext(identityOptions => {
                                    identityOptions.ConfigureDbContext = builder => {
                                        builder.UseSqlServer(configuration.GetConnectionString("IdentityDb"));
                                    };
                                });
                                // Enable events and register handlers.
-                               options.RaiseEvents = true;
-                               options.AddEventHandler<ClientCreatedEventHandler, ClientCreatedEvent>();
-                               // Configure user verification email.
-                               options.ConfigureEmailVerification(emailVerificationOptions => {
-                                   emailVerificationOptions.Subject = "Confirm your account";
-                                   emailVerificationOptions.Body = @"Welcome to Indice Identity Server,<br/><br/>We need you to verify your email. Click <a style=""color:#005030""href=""{callbackUrl}"">here</a> to get verified!<br/><br/>Thanks!";
-                               });
-                               // Configure change email message.
-                               options.ConfigureChangeEmail(changeEmailOptions => {
-                                   changeEmailOptions.Subject = "Confirm your account";
-                                   changeEmailOptions.Body = @"We need you to verify your new email. Click <a style=""color:#005030""href=""{callbackUrl}"">here</a> to get verified!<br/><br/>Thanks!";
-                               });
-                               options.ConfigureChangePhone(changePhoneOptions => {
-                                   changePhoneOptions.Subject = "Phone confirmation";
-                                   changePhoneOptions.Message = "Your code is {code}.";
-                               });
-                               // Add custom initial users.
+                               options.CanRaiseEvents = true;
+                               options.DisableCache = false;
+                               options.AddEventHandler<ClientCreatedEvent, ClientCreatedEventHandler>()
+                                      .AddEventHandler<UserEmailConfirmedEvent, UserEmailConfirmedEventHandler>();
+                               // Update email options.
+                               options.Email.SendEmailOnUpdate = true;
+                               // Update phone number options.
+                               options.PhoneNumber.SendOtpOnUpdate = true;
+                               // Add custom initial user and enable test data.
+                               options.UseInitialData = true;
                                options.InitialUsers = new List<User> {
                                    new User {
                                        Admin = true,

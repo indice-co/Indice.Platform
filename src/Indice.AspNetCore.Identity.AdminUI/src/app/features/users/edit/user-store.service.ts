@@ -4,7 +4,7 @@ import { Observable, AsyncSubject } from 'rxjs';
 import { map } from 'rxjs/operators';
 import {
     IdentityApiService, SingleUserInfo, RoleInfoResultSet, RoleInfo, ClaimTypeInfo, ClaimTypeInfoResultSet, UpdateUserRequest, ClaimInfo, CreateClaimRequest, BasicClaimInfo,
-    UserClientInfo, UserClientInfoResultSet, UpdateUserClaimRequest, PasswordExpirationPolicy, SetPasswordRequest
+    UserClientInfo, UserClientInfoResultSet, UpdateUserClaimRequest, PasswordExpirationPolicy, SetPasswordRequest, SetUserBlockRequest
 } from 'src/app/core/services/identity-api.service';
 import { ClaimType } from './details/models/claim-type.model';
 
@@ -44,6 +44,8 @@ export class UserStore {
             userName: user.userName,
             passwordExpirationPolicy: user.passwordExpirationPolicy,
             isAdmin: user.isAdmin,
+            emailConfirmed: user.emailConfirmed,
+            phoneNumberConfirmed: user.phoneNumberConfirmed,
             claims
         } as UpdateUserRequest).pipe(map((updatedUser: SingleUserInfo) => {
             user.claims = [...updatedUser.claims];
@@ -62,7 +64,9 @@ export class UserStore {
             this._user.next(user);
             this._user.complete();
         });
-        return this._api.blockUser(userId);
+        return this._api.setUserBlock(userId, {
+            blocked: true
+        } as SetUserBlockRequest);
     }
 
     public unblockUser(userId: string): Observable<void> {
@@ -71,7 +75,9 @@ export class UserStore {
             this._user.next(user);
             this._user.complete();
         });
-        return this._api.unblockUser(userId);
+        return this._api.setUserBlock(userId, {
+            blocked: false
+        } as SetUserBlockRequest);
     }
 
     public unlockUser(userId: string): Observable<void> {
@@ -86,9 +92,6 @@ export class UserStore {
 
     public resetPassword(userId: string, password: string, changePasswordAfterFirstSignIn: boolean): Observable<void> {
         this.getUser(userId).subscribe((user: SingleUserInfo) => {
-            if (changePasswordAfterFirstSignIn) {
-                user.passwordExpirationPolicy = PasswordExpirationPolicy.NextLogin;
-            }
             this._user.next(user);
             this._user.complete();
         });

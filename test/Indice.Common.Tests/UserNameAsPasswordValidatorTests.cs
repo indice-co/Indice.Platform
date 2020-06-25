@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using Indice.AspNetCore.Identity.Models;
 using Indice.AspNetCore.Identity.Services;
+using Indice.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Xunit;
@@ -19,12 +20,12 @@ namespace Indice.Common.Tests
         [InlineData("oltz")]
         [InlineData("ltza")]
         [InlineData("tzas")]
-        public async Task CheckInvalidUserNames(string password) {
+        public async Task CheckInvalidPasswords(string password) {
             const string UserName = "gmanoltzas";
             var configurationBuilder = new ConfigurationBuilder().AddInMemoryCollection(new List<KeyValuePair<string, string>> {
                 new KeyValuePair<string, string>($"{nameof(PasswordOptions)}:{nameof(UserNameAsPasswordValidator<User>.MaxAllowedUserNameSubset)}", "3")
             });
-            var validator = new UserNameAsPasswordValidator<User>(configurationBuilder.Build());
+            var validator = new UserNameAsPasswordValidator<User>(configurationBuilder.Build(), new MessageDescriber());
             var identityResult = await validator.ValidateAsync(null, new User { UserName = UserName }, password);
             Assert.False(identityResult.Succeeded);
         }
@@ -40,12 +41,12 @@ namespace Indice.Common.Tests
         [InlineData("ltz")]
         [InlineData("tza")]
         [InlineData("zas")]
-        public async Task CheckValidUserNames(string password) {
+        public async Task CheckValidPasswords(string password) {
             const string UserName = "gmanoltzas";
             var configurationBuilder = new ConfigurationBuilder().AddInMemoryCollection(new List<KeyValuePair<string, string>> {
                 new KeyValuePair<string, string>($"{nameof(PasswordOptions)}:{nameof(UserNameAsPasswordValidator<User>.MaxAllowedUserNameSubset)}", "3")
             });
-            var validator = new UserNameAsPasswordValidator<User>(configurationBuilder.Build());
+            var validator = new UserNameAsPasswordValidator<User>(configurationBuilder.Build(), new MessageDescriber());
             var identityResult = await validator.ValidateAsync(null, new User { UserName = UserName }, password);
             Assert.True(identityResult.Succeeded);
         }

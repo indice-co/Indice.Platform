@@ -26,17 +26,14 @@ namespace Indice.Services
         /// The config section name.
         /// </summary>
         public const string Name = "SparkPost";
-
         /// <summary>
         /// The default sender address (ex. no-reply@indice.gr).
         /// </summary>
         public string Sender { get; set; }
-
         /// <summary>
         /// The SparkPost API key.
         /// </summary>
         public string ApiKey { get; set; }
-
         /// <summary>
         /// The SparkPost API URL (ex. https://api.sparkpost.com/api/v1/).
         /// </summary>

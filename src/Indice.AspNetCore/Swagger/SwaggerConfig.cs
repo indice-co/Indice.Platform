@@ -99,7 +99,7 @@ namespace Indice.AspNetCore.Swagger
                                             .IsAssignableFrom(x.ConverterType));
             foreach (var item in attribute) {
                 var baseType = item.ConverterType.GenericTypeArguments[0];
-                var discriminator = item.ConverterParameters.FirstOrDefault() as string;
+                var discriminator = item.ConverterParameters?.FirstOrDefault() as string;
                 var mapping = JsonNetPolymorphicConverter.GetTypeMapping(baseType, discriminator);
                 options.SchemaFilter<PolymorphicSchemaFilter>(baseType, discriminator, mapping);
                 options.OperationFilter<PolymorphicOperationFilter>(new PolymorphicSchemaFilter(baseType, discriminator, mapping));
@@ -131,7 +131,7 @@ namespace Indice.AspNetCore.Swagger
             }
             foreach (var converter in polymorphicConverters) {
                 var baseType = converter.BaseType;
-                var discriminator = converter.TypePropertyName;
+                var discriminator = jsonSerializerOptions.PropertyNamingPolicy.ConvertName(converter.TypePropertyName);
                 var mapping = JsonPolymorphicConverter.GetTypeMapping(baseType, discriminator);
                 options.SchemaFilter<PolymorphicSchemaFilter>(baseType, discriminator, mapping);
                 options.OperationFilter<PolymorphicOperationFilter>(new PolymorphicSchemaFilter(baseType, discriminator, mapping));

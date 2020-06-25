@@ -53,25 +53,6 @@ namespace Indice.Extensions
             return stringBuilder.ToString();
         }
 
-        /// <summary>Transliterate unicode character to ASCII string.</summary>
-        /// <param name="character">Character you want to transliterate into ASCII.</param>
-        /// <returns>ASCII string. Unknown(?) unicode characters will return [?] (3 characters). It is this way in Python code as well.</returns>
-        public static string Unidecode(this char character) {
-            string result;
-            if (character < 0x80) {
-                result = new string(character, 1);
-            } else {
-                var high = character >> 8;
-                var low = character & 0xff;
-                if (Unidecoder.Characters.TryGetValue(high, out var transliterations)) {
-                    result = transliterations[low];
-                } else {
-                    result = string.Empty;
-                }
-            }
-            return result;
-        }
-
         /// <summary>
         /// Converts a string to kebab case.
         /// </summary>

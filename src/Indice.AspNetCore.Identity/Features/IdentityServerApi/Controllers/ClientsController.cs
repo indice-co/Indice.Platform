@@ -215,7 +215,7 @@ namespace Indice.AspNetCore.Identity.Features
                 LogoUri = client.LogoUri,
                 RequireConsent = client.RequireConsent
             };
-            if (_apiEndpointsOptions.RaiseEvents) {
+            if (_apiEndpointsOptions.CanRaiseEvents) {
                 await _eventService.Raise(new ClientCreatedEvent(response));
             }
             return CreatedAtAction(nameof(GetClient), new { clientId = client.ClientId }, response);

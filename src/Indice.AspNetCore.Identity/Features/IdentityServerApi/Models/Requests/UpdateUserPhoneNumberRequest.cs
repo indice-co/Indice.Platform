@@ -3,12 +3,12 @@
 namespace Indice.AspNetCore.Identity.Features
 {
     /// <summary>
-    /// Models the request to update the phone number for the user.
+    /// Models the payload when user requests a phone number update.
     /// </summary>
-    public class UpdateUserPhoneRequest
+    public class UpdateUserPhoneNumberRequest
     {
         /// <summary>
-        /// The new phone number.
+        /// The phone number.
         /// </summary>
         [Required(AllowEmptyStrings = false)]
         public string PhoneNumber { get; set; }

@@ -154,7 +154,6 @@
                        id="user-email-confirmed"
                        name="user-email-confirmed"
                        [(ngModel)]="user.emailConfirmed"
-                       disabled
                        #emailConfirmed="ngModel" />
                 <label class="custom-control-label"
                        for="user-email-confirmed">
@@ -200,7 +199,6 @@
                        id="user-phone-number-confirmed"
                        name="user-phone-number-confirmed"
                        [(ngModel)]="user.phoneNumberConfirmed"
-                       disabled
                        #phoneNumberConfirmed="ngModel" />
                 <label class="custom-control-label"
                        for="user-phone-number-confirmed">
@@ -225,8 +223,8 @@
                 <option value="Monthly">Monthly</option>
                 <option value="Quarterly">Quarterly</option>
                 <option value="Semesterly">Semesterly</option>
-                <option value="Anually">Anually</option>
-                <option value="Bianually">Bianually</option>
+                <option value="Annually">Annually</option>
+                <option value="Biannually">Biannually</option>
             </select>
         </div>
     </div>

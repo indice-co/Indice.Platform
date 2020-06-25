@@ -75,17 +75,20 @@ namespace Indice.AspNetCore.Identity.Services
             if (!identity.HasClaim(x => x.Type == BasicClaimTypes.PasswordExpirationDate) && user.PasswordExpirationDate.HasValue) {
                 additionalClaims.Add(new Claim(BasicClaimTypes.PasswordExpirationDate, ToISOString(user.PasswordExpirationDate.Value.UtcDateTime), ClaimValueTypes.DateTime));
             }
+            if (!identity.HasClaim(x => x.Type == BasicClaimTypes.PasswordExpirationPolicy) && user.PasswordExpirationPolicy.HasValue) {
+                additionalClaims.Add(new Claim(BasicClaimTypes.PasswordExpirationPolicy, user.PasswordExpirationPolicy.ToString()));
+            }
             identity.AddClaims(additionalClaims);
             return identity;
         }
 
-        private static string ToISOString(DateTime d, bool useLocal = false) {
-            if (!useLocal && d.Kind == DateTimeKind.Local) {
+        private static string ToISOString(DateTime dateTime, bool useLocal = false) {
+            if (!useLocal && dateTime.Kind == DateTimeKind.Local) {
                 // If d is LT or you don't want LocalTime -> convert to UTC and always add K format always add 'Z' postfix.
-                return d.ToUniversalTime().ToString(ISOFORMAT);
-            } else { 
+                return dateTime.ToUniversalTime().ToString(ISOFORMAT);
+            } else {
                 //If d is already UTC K format add 'Z' postfix, if d is LT K format add +/-TIMEOFFSET.
-                return d.ToString(ISOFORMAT);
+                return dateTime.ToString(ISOFORMAT);
             }
         }
     }

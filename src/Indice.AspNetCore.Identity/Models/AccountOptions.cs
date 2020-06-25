@@ -2,13 +2,14 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 using System;
+using Microsoft.AspNetCore.Server.IISIntegration;
 
 namespace Indice.AspNetCore.Identity.Models
 {
     /// <summary>
     /// Account options used to configure account behavior.
     /// </summary>
-    public class AccountOptions
+    public static class AccountOptions
     {
         /// <summary>
         /// Allow local login or only external.
@@ -33,7 +34,7 @@ namespace Indice.AspNetCore.Identity.Models
         /// <summary>
         /// specify the Windows authentication scheme being used. Windows authentication scheme and display name.
         /// </summary>
-        public static readonly string WindowsAuthenticationSchemeName = Microsoft.AspNetCore.Server.IISIntegration.IISDefaults.AuthenticationScheme;
+        public static readonly string WindowsAuthenticationSchemeName = IISDefaults.AuthenticationScheme;
         /// <summary>
         /// if user uses windows auth, should we load the groups from windows
         /// </summary>
@@ -42,7 +43,6 @@ namespace Indice.AspNetCore.Identity.Models
         /// Invalid username or password.
         /// </summary>
         public static string InvalidCredentialsErrorMessage = "Invalid username or password";
-
         /// <summary>
         /// Error message when user is not enabled.
         /// </summary>

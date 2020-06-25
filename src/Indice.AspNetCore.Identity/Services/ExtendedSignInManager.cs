@@ -97,7 +97,7 @@ namespace Indice.AspNetCore.Identity.Services
         public override async Task SignInAsync(TUser user, AuthenticationProperties authenticationProperties, string authenticationMethod = null) {
             await base.SignInAsync(user, authenticationProperties, authenticationMethod);
             if (user is User) {
-                (user as User).LastSignInDate = DateTimeOffset.UtcNow;
+                user.LastSignInDate = DateTimeOffset.UtcNow;
                 await UserManager.UpdateAsync(user);
             }
         }
@@ -108,7 +108,7 @@ namespace Indice.AspNetCore.Identity.Services
         /// <param name="user">The user whose sign-in status should be returned.</param>
         /// <returns>The task object representing the asynchronous operation, containing a flag that is true if the specified user can sign-in, otherwise false.</returns>
         public override async Task<bool> CanSignInAsync(TUser user) {
-            if (user is User && (user as User).Blocked) {
+            if (user is User && user.Blocked) {
                 Logger.LogWarning(0, "User {userId} cannot sign in. User is blocked by the administrator.", await UserManager.GetUserIdAsync(user));
                 return false;
             }
@@ -127,17 +127,20 @@ namespace Indice.AspNetCore.Identity.Services
         protected override async Task<SignInResult> SignInOrTwoFactorAsync(TUser user, bool isPersistent, string loginProvider = null, bool bypassTwoFactor = false) {
             var isEmailConfirmed = await UserManager.IsEmailConfirmedAsync(user);
             var isPhoneConfirmed = await UserManager.IsPhoneNumberConfirmedAsync(user);
+            var userClaims = await UserManager.GetClaimsAsync(user);
+            var firstName = userClaims.SingleOrDefault(x => x.Type == JwtClaimTypes.GivenName)?.Value;
+            var lastName = userClaims.SingleOrDefault(x => x.Type == JwtClaimTypes.FamilyName)?.Value;
             var isPasswordExpired = false;
             if (user is User) {
-                isPasswordExpired = (user as User).HasExpiredPassword();
+                isPasswordExpired = user.HasExpiredPassword() || user.PasswordExpired;
             }
-            var doPartialSignin = (!isEmailConfirmed || !isPhoneConfirmed) && (RequirePostSignInConfirmedEmail || RequirePostSignInConfirmedPhoneNumber);
-            doPartialSignin = doPartialSignin || isPasswordExpired;
-            if (doPartialSignin) {
+            var doPartialSignIn = (!isEmailConfirmed || !isPhoneConfirmed) && (RequirePostSignInConfirmedEmail || RequirePostSignInConfirmedPhoneNumber);
+            doPartialSignIn = doPartialSignIn || isPasswordExpired;
+            if (doPartialSignIn) {
                 // Store the userId for use after two factor check.
                 var userId = await UserManager.GetUserIdAsync(user);
                 var returnUrl = Context.Request.Query["ReturnUrl"];
-                await Context.SignInAsync(ExtendedIdentityConstants.ExtendedValidationUserIdScheme, StoreValidationInfo(userId, isEmailConfirmed, isPhoneConfirmed, isPasswordExpired), new AuthenticationProperties {
+                await Context.SignInAsync(ExtendedIdentityConstants.ExtendedValidationUserIdScheme, StoreValidationInfo(userId, isEmailConfirmed, isPhoneConfirmed, isPasswordExpired, firstName, lastName), new AuthenticationProperties {
                     RedirectUri = returnUrl,
                     IsPersistent = isPersistent
                 });
@@ -146,9 +149,9 @@ namespace Indice.AspNetCore.Identity.Services
             var result = await base.SignInOrTwoFactorAsync(user, isPersistent, loginProvider, bypassTwoFactor);
             if (result.Succeeded && (user is User)) {
                 try { 
-                (user as User).LastSignInDate = DateTimeOffset.UtcNow;
+                user.LastSignInDate = DateTimeOffset.UtcNow;
                 await UserManager.UpdateAsync(user);
-                } catch {; }
+                } catch { ; }
             }
             return result;
         }
@@ -187,13 +190,21 @@ namespace Indice.AspNetCore.Identity.Services
         /// <param name="isEmailConfirmed">Flag indicating whether the user has confirmed his email address.</param>
         /// <param name="isPhoneConfirmed">Flag indicating whether the user has confirmed his phone number.</param>
         /// <param name="isPasswordExpired">Flag indicating whether the user has an expired password.</param>
+        /// <param name="firstName">User's first name.</param>
+        /// <param name="lastName">User's last name.</param>
         /// <returns>A <see cref="ClaimsPrincipal"/> containing the user 2fa information.</returns>
-        internal ClaimsPrincipal StoreValidationInfo(string userId, bool isEmailConfirmed, bool isPhoneConfirmed, bool isPasswordExpired) {
+        internal ClaimsPrincipal StoreValidationInfo(string userId, bool isEmailConfirmed, bool isPhoneConfirmed, bool isPasswordExpired, string firstName, string lastName) {
             var identity = new ClaimsIdentity(ExtendedIdentityConstants.ExtendedValidationUserIdScheme);
             identity.AddClaim(new Claim(JwtClaimTypes.Subject, userId));
             identity.AddClaim(new Claim(JwtClaimTypes.EmailVerified, isEmailConfirmed.ToString().ToLower()));
             identity.AddClaim(new Claim(JwtClaimTypes.PhoneNumberVerified, isPhoneConfirmed.ToString().ToLower()));
             identity.AddClaim(new Claim(ExtendedIdentityConstants.PasswordExpiredClaimType, isPasswordExpired.ToString().ToLower()));
+            if (!string.IsNullOrWhiteSpace(firstName)) {
+                identity.AddClaim(new Claim(JwtClaimTypes.GivenName, firstName));
+            }
+            if (!string.IsNullOrWhiteSpace(lastName)) {
+                identity.AddClaim(new Claim(JwtClaimTypes.FamilyName, lastName));
+            }
             return new ClaimsPrincipal(identity);
         }
     }

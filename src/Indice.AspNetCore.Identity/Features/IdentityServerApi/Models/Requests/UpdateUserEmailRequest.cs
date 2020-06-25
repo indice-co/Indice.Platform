@@ -8,6 +8,10 @@ namespace Indice.AspNetCore.Identity.Features
     public class UpdateUserEmailRequest
     {
         /// <summary>
+        /// The URL to return to.
+        /// </summary>
+        public string ReturnUrl { get; set; }
+        /// <summary>
         /// The new user email.
         /// </summary>
         [Required(AllowEmptyStrings = false)]

@@ -13,10 +13,6 @@ namespace Indice.AspNetCore.Identity.Models
         /// </summary>
         Never = -1,
         /// <summary>
-        /// User must change it upon login. The password expires immediately.
-        /// </summary>
-        NextLogin = 0,
-        /// <summary>
         /// The password expires every month.
         /// </summary>
         Monthly = 30,
@@ -31,10 +27,10 @@ namespace Indice.AspNetCore.Identity.Models
         /// <summary>
         /// The password expires every year.
         /// </summary>
-        Anually = 365,
+        Annually = 365,
         /// <summary>
         /// The password expires every two years.
         /// </summary>
-        Bianually = 2 * Anually,
+        Biannually = 2 * Annually
     }
 }

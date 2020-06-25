@@ -2,6 +2,7 @@
 using IdentityModel;
 using Indice.AspNetCore.Identity.Models;
 using Indice.AspNetCore.Identity.Services;
+using Indice.Configuration;
 using Indice.Security;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -32,6 +33,8 @@ namespace Indice.AspNetCore.Identity.Features
             configureAction?.Invoke(apiEndpointsOptions);
             apiEndpointsOptions.Services = null;
             services.AddDistributedMemoryCache();
+            // Configure options for CacheResourceFilter.
+            services.Configure<CacheResourceFilterOptions>(options => options.DisableCache = apiEndpointsOptions.DisableCache);
             // Invoke action provided by developer to override default options.
             services.AddSingleton(apiEndpointsOptions);
             services.AddIndiceServices(configuration);
@@ -89,47 +92,16 @@ namespace Indice.AspNetCore.Identity.Features
         }
 
         /// <summary>
-        /// Configures the parameters needed when a verification email is sent to the user.
+        /// Registers an implementation of <see cref="IIdentityServerApiEventHandler{TEvent}"/> for the specified event type.
         /// </summary>
+        /// <typeparam name="TEvent">The type of the event to handler.</typeparam>
+        /// <typeparam name="TEventHandler">The handler to user for the specified event.</typeparam>
         /// <param name="options">Options for configuring the IdentityServer API feature.</param>
-        /// <param name="configureAction">Configuration for the email sent to user for verification.</param>
-        public static void ConfigureEmailVerification(this IdentityServerApiEndpointsOptions options, Action<EmailVerificationOptions> configureAction) {
-            var userEmailVerificationOptions = new EmailVerificationOptions();
-            configureAction?.Invoke(userEmailVerificationOptions);
-            options.Services.AddSingleton(userEmailVerificationOptions);
+        public static IdentityServerApiEndpointsOptions AddEventHandler<TEvent, TEventHandler>(this IdentityServerApiEndpointsOptions options)
+            where TEvent : IIdentityServerApiEvent
+            where TEventHandler : class, IIdentityServerApiEventHandler<TEvent> {
+            options.Services.AddTransient(typeof(IIdentityServerApiEventHandler<TEvent>), typeof(TEventHandler));
+            return options;
         }
-
-        /// <summary>
-        /// Configures the parameters needed when an email is sent to the user when the email address is changed.
-        /// </summary>
-        /// <param name="options">Options for configuring the IdentityServer API feature.</param>
-        /// <param name="configureAction">Configuration for the email sent to user.</param>
-        public static void ConfigureChangeEmail(this IdentityServerApiEndpointsOptions options, Action<ChangeEmailOptions> configureAction) {
-            var changeEmailOptions = new ChangeEmailOptions();
-            configureAction?.Invoke(changeEmailOptions);
-            options.Services.AddSingleton(changeEmailOptions);
-        }
-
-        /// <summary>
-        /// Configures the parameters needed when an SMS is sent to the user when the phone number is changed.
-        /// </summary>
-        /// <param name="options">Options for configuring the IdentityServer API feature.</param>
-        /// <param name="configureAction">Configuration for the SMS sent to user.</param>
-        public static void ConfigureChangePhone(this IdentityServerApiEndpointsOptions options, Action<ChangePhoneNumberOptions> configureAction) {
-            var changePhoneNumberOptions = new ChangePhoneNumberOptions();
-            configureAction?.Invoke(changePhoneNumberOptions);
-            options.Services.AddSingleton(changePhoneNumberOptions);
-        }
-
-        /// <summary>
-        /// Registers an <see cref="IIdentityServerApiEventHandler{TEvent}"/> for the specified event type.
-        /// </summary>
-        /// <typeparam name="TEvent">The implementation of <see cref="IIdentityServerApiEventHandler{TEvent}"/> to register.</typeparam>
-        /// <typeparam name="THandler">The implementation of <see cref="IIdentityServerApiEventHandler{TEvent}"/> to register.</typeparam>
-        /// <param name="options">Options for configuring the IdentityServer API feature.</param>
-        public static void AddEventHandler<THandler, TEvent>(this IdentityServerApiEndpointsOptions options)
-            where THandler : class, IIdentityServerApiEventHandler<TEvent>
-            where TEvent : IIdentityServerApiEvent =>
-            options.Services.AddTransient(typeof(IIdentityServerApiEventHandler<TEvent>), typeof(THandler));
     }
 }

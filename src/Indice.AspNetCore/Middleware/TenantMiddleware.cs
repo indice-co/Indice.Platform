@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
-using System.Text;
 using System.Threading.Tasks;
 using Indice.Security;
 using Microsoft.AspNetCore.Builder;
@@ -17,8 +15,8 @@ namespace Indice.AspNetCore.Middleware
     /// </summary>
     /// <typeparam name="TDbContext">MyDbContext that contains the <typeparamref name="TTenant"/> table</typeparam>
     /// <typeparam name="TTenant">The entity that represents the subscription</typeparam>
-    public class TenantMiddleware<TDbContext, TTenant> 
-        where TDbContext : DbContext 
+    public class TenantMiddleware<TDbContext, TTenant>
+        where TDbContext : DbContext
         where TTenant : class, ITenant
     {
         private readonly RequestDelegate _next;
@@ -43,7 +41,7 @@ namespace Indice.AspNetCore.Middleware
         }
 
         /// <summary>
-        /// Invokes the middleware
+        /// Invokes the middleware.
         /// </summary>
         /// <param name="context"></param>
         /// <param name="dbContext"></param>
@@ -53,25 +51,19 @@ namespace Indice.AspNetCore.Middleware
             if (dbContext == null) {
                 throw new ArgumentNullException(nameof(dbContext));
             }
-
             if (cache == null) {
                 throw new ArgumentNullException(nameof(cache));
             }
-
             var user = context.User;
-
             if (user != null && user.Identity.IsAuthenticated) {
                 // Get the subscription id or company alias from route.
                 var tenantId = GetTenantIdFromRoute(context.Request.Path, RouteBase ?? "subscriptions");
-
                 if (!string.IsNullOrEmpty(tenantId)) {
                     var isGuid = Guid.TryParse(tenantId, out var guid);
-
                     // Check if the value in route is not a valid unique identifier. This means that the user provided us with the company alias.
                     if (!isGuid && typeof(ITenantWithAlias).IsAssignableFrom(typeof(TTenant))) {
                         // Get the subscription id by using the alias.
                         var id = await GetTenantIdFromAliasAsync(dbContext, tenantId);
-
                         if (id.HasValue) {
                             ((ClaimsIdentity)user.Identity).AddClaim(new Claim(BasicClaimTypes.TenantAlias, tenantId));
                             ((ClaimsIdentity)user.Identity).AddClaim(new Claim(BasicClaimTypes.TenantId, id.Value.ToString()));
@@ -81,7 +73,6 @@ namespace Indice.AspNetCore.Middleware
                     }
                 }
             }
-
             await _next(context);
         }
 
@@ -90,27 +81,21 @@ namespace Indice.AspNetCore.Middleware
         /// </summary>
         /// <param name="route"></param>
         /// <param name="routeBase"></param>
-        /// <returns></returns>
         public static string GetTenantIdFromRoute(string route, string routeBase) {
             var subscription = string.Empty;
             var index = route.IndexOf(routeBase, StringComparison.OrdinalIgnoreCase);
-
             if (index >= 0) {
                 route = route.TrimEnd('/');
                 var lastSegment = index + routeBase.Length == route.Length;
-
                 if (!lastSegment) {
                     var segment = route.Substring(index + routeBase.Length + 1);
                     var slashIndex = segment.IndexOf('/');
-
                     if (slashIndex < 0) {
                         slashIndex = segment.IndexOf('?');
                     }
-
                     subscription = slashIndex >= 0 ? segment.Substring(0, slashIndex) : segment;
                 }
             }
-
             return subscription;
         }
 
@@ -124,12 +109,7 @@ namespace Indice.AspNetCore.Middleware
             if (string.IsNullOrEmpty(alias)) {
                 throw new ArgumentNullException(nameof(alias));
             }
-
-            var subscriptionId = await dbContext.Set<TTenant>()
-                                                .Where(s => ((ITenantWithAlias)s).Alias == alias)
-                                                .Select(s => s.Id)
-                                                .SingleOrDefaultAsync();
-
+            var subscriptionId = await dbContext.Set<TTenant>().Where(s => ((ITenantWithAlias)s).Alias == alias).Select(s => s.Id).SingleOrDefaultAsync();
             return subscriptionId.Equals(Guid.Empty) ? default(Guid?) : subscriptionId;
         }
     }
@@ -142,8 +122,8 @@ namespace Indice.AspNetCore.Middleware
         /// <summary>
         ///  Used to populate active tenant information to the current User <see cref="ClaimsPrincipal"/> in a multitenant application API.
         /// </summary>
-        /// <typeparam name="TDbContext">MyDbContext that contains the <typeparamref name="TTenant"/> table</typeparam>
-        /// <typeparam name="TTenant">The entity that represents the subscription</typeparam>
+        /// <typeparam name="TDbContext">Type of <see cref="DbContext"/> that contains the <typeparamref name="TTenant"/> table.</typeparam>
+        /// <typeparam name="TTenant">The entity that represents the subscription.</typeparam>
         /// <param name="applicationBuilder"></param>
         /// <param name="routeBase">
         /// Route base is the segment of the route that all tenant operations are children. 
@@ -154,7 +134,6 @@ namespace Indice.AspNetCore.Middleware
             where TDbContext : DbContext
             where TTenant : class, ITenant {
             applicationBuilder.UseMiddleware<TenantMiddleware<TDbContext, TTenant>>(routeBase);
-
             return applicationBuilder;
         }
     }

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Indice.AspNetCore.Identity.Models;
+using Indice.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 
@@ -11,7 +12,7 @@ namespace Indice.AspNetCore.Identity.Services
     public class NonCommonPasswordValidator : NonCommonPasswordValidator<User>
     {
         /// <inheritdoc/>
-        public NonCommonPasswordValidator(IEnumerable<IPasswordBlacklistProvider> providers) : base(providers) { }
+        public NonCommonPasswordValidator(IEnumerable<IPasswordBlacklistProvider> providers, MessageDescriber messageDescriber) : base(providers, messageDescriber) { }
     }
 
     /// <summary>
@@ -21,6 +22,7 @@ namespace Indice.AspNetCore.Identity.Services
     public class NonCommonPasswordValidator<TUser> : IPasswordValidator<TUser> where TUser : User
     {
         private readonly HashSet<string> _commonPasswords;
+        private readonly MessageDescriber _messageDescriber;
         /// <summary>
         /// The code used when describing the <see cref="IdentityError"/>.
         /// </summary>
@@ -30,7 +32,9 @@ namespace Indice.AspNetCore.Identity.Services
         /// Creates a new instance of <see cref="NonCommonPasswordValidator"/>.
         /// </summary>
         /// <param name="providers">The list of <see cref="IPasswordBlacklistProvider"/> providers to use.</param>
-        public NonCommonPasswordValidator(IEnumerable<IPasswordBlacklistProvider> providers) {
+        /// <param name="messageDescriber">Provides the various messages used throughout Indice packages.</param>
+        public NonCommonPasswordValidator(IEnumerable<IPasswordBlacklistProvider> providers, MessageDescriber messageDescriber) {
+            _messageDescriber = messageDescriber ?? throw new ArgumentNullException(nameof(messageDescriber));
             _commonPasswords = new HashSet<string>();
             foreach (var provider in providers) {
                 AddPasswordSet(provider.Blacklist);
@@ -43,7 +47,7 @@ namespace Indice.AspNetCore.Identity.Services
             if (_commonPasswords.Contains(password)) {
                 result = IdentityResult.Failed(new IdentityError {
                     Code = ErrorDescriber,
-                    Description = "Your password is very common to use."
+                    Description = _messageDescriber.PasswordIsCommon()
                 });
             }
             return Task.FromResult(result);
@@ -88,17 +92,15 @@ namespace Indice.AspNetCore.Identity.Services
     /// </summary>
     public class ConfigPasswordBlacklistProvider : IPasswordBlacklistProvider
     {
-        private readonly HashSet<string> _blacklist;
-
         /// <inheritdoc/>
         public ConfigPasswordBlacklistProvider(IConfiguration configuration) {
-            var list = configuration.GetSection($"{nameof(IdentityOptions)}:{nameof(IdentityOptions.Password)}").GetValue<string[]>(nameof(Blacklist)) ??
+            var list = configuration.GetSection($"{nameof(IdentityOptions)}:{nameof(IdentityOptions.Password)}:{nameof(Blacklist)}").Get<string[]>() ??
                        configuration.GetSection($"{nameof(PasswordOptions)}").GetValue<string[]>(nameof(Blacklist)) ??
                        Array.Empty<string>();
-            _blacklist = new HashSet<string>(list);
+            Blacklist = new HashSet<string>(list);
         }
 
         /// <inheritdoc/>
-        public HashSet<string> Blacklist => _blacklist;
+        public HashSet<string> Blacklist { get; }
     }
 }
