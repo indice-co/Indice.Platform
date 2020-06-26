@@ -94,6 +94,10 @@ namespace Indice.AspNetCore.Filters
         /// Allows execution of unsafe in-page scripts and event handlers.
         /// </summary>
         public const string UnsafeInline = "'unsafe-inline'";
+        /// <summary>
+        /// Allows execution of unsafe in-page scripts and event handlers.
+        /// </summary>
+        public const string UnsafeEval = "'unsafe-eval'";
 
         /// <summary>
         /// [CSP Level 1]
