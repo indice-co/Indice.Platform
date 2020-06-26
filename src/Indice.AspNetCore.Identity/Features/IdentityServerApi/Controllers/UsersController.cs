@@ -87,7 +87,7 @@ namespace Indice.AspNetCore.Identity.Features
         /// <response code="200">OK</response>
         [HttpGet]
         [ProducesResponseType(statusCode: StatusCodes.Status200OK, type: typeof(ResultSet<UserInfo>))]
-        public async Task<IActionResult> GetUsers([FromQuery]ListOptions<UserListFilter> options) {
+        public async Task<IActionResult> GetUsers([FromQuery] ListOptions<UserListFilter> options) {
             var query = _userManager.Users.AsNoTracking();
             if (!string.IsNullOrEmpty(options?.Search)) {
                 var searchTerm = options.Search.ToLower();
@@ -138,7 +138,7 @@ namespace Indice.AspNetCore.Identity.Features
         [ProducesResponseType(statusCode: StatusCodes.Status200OK, type: typeof(SingleUserInfo))]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
         [CacheResourceFilter(Expiration = 60)]
-        public async Task<IActionResult> GetUser([FromRoute]string userId) {
+        public async Task<IActionResult> GetUser([FromRoute] string userId) {
             var user = await _dbContext.Users
                                        .AsNoTracking()
                                        .Where(x => x.Id == userId)
@@ -185,7 +185,7 @@ namespace Indice.AspNetCore.Identity.Features
         /// <response code="201">Created</response>
         [HttpPost]
         [ProducesResponseType(statusCode: StatusCodes.Status201Created, type: typeof(SingleUserInfo))]
-        public async Task<IActionResult> CreateUser([FromBody]CreateUserRequest request) {
+        public async Task<IActionResult> CreateUser([FromBody] CreateUserRequest request) {
             var user = new User {
                 Id = $"{Guid.NewGuid()}",
                 UserName = request.UserName,
@@ -202,6 +202,9 @@ namespace Indice.AspNetCore.Identity.Features
             }
             if (!result.Succeeded) {
                 return BadRequest(result.Errors.ToValidationProblemDetails());
+            }
+            if (request.ChangePasswordAfterFirstSignIn.HasValue && request.ChangePasswordAfterFirstSignIn.Value == true) {
+                await _userManager.SetPasswordExpiredAsync(user, true);
             }
             var claims = new List<Claim>();
             if (!string.IsNullOrEmpty(request.FirstName)) {
@@ -245,7 +248,7 @@ namespace Indice.AspNetCore.Identity.Features
         [ProducesResponseType(statusCode: StatusCodes.Status200OK, type: typeof(SingleUserInfo))]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
         [CacheResourceFilter]
-        public async Task<IActionResult> UpdateUser([FromRoute]string userId, [FromBody]UpdateUserRequest request) {
+        public async Task<IActionResult> UpdateUser([FromRoute] string userId, [FromBody] UpdateUserRequest request) {
             var user = await _dbContext.Users.Include(x => x.Claims).SingleOrDefaultAsync(x => x.Id == userId);
             if (user == null) {
                 return NotFound();
@@ -312,7 +315,7 @@ namespace Indice.AspNetCore.Identity.Features
         [ProducesResponseType(statusCode: StatusCodes.Status204NoContent)]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
         [CacheResourceFilter]
-        public async Task<IActionResult> DeleteUser([FromRoute]string userId) {
+        public async Task<IActionResult> DeleteUser([FromRoute] string userId) {
             var user = await _dbContext.Users.SingleOrDefaultAsync(x => x.Id == userId);
             if (user == null) {
                 return NotFound();
@@ -332,7 +335,7 @@ namespace Indice.AspNetCore.Identity.Features
         [ProducesResponseType(statusCode: StatusCodes.Status204NoContent)]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
         [CacheResourceFilter(DependentPaths = new string[] { "{userId}" })]
-        public async Task<IActionResult> AddUserRole([FromRoute]string userId, [FromRoute]string roleId) {
+        public async Task<IActionResult> AddUserRole([FromRoute] string userId, [FromRoute] string roleId) {
             var user = await _userManager.FindByIdAsync(userId);
             if (user == null) {
                 return NotFound();
@@ -361,7 +364,7 @@ namespace Indice.AspNetCore.Identity.Features
         [ProducesResponseType(statusCode: StatusCodes.Status204NoContent)]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
         [CacheResourceFilter(DependentPaths = new string[] { "{userId}" })]
-        public async Task<IActionResult> DeleteUserRole([FromRoute]string userId, [FromRoute]string roleId) {
+        public async Task<IActionResult> DeleteUserRole([FromRoute] string userId, [FromRoute] string roleId) {
             var user = await _userManager.FindByIdAsync(userId);
             if (user == null) {
                 return NotFound();
@@ -390,7 +393,7 @@ namespace Indice.AspNetCore.Identity.Features
         [ProducesResponseType(statusCode: StatusCodes.Status200OK, type: typeof(BasicClaimInfo))]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
         [CacheResourceFilter]
-        public async Task<IActionResult> GetUserClaim([FromRoute]string userId, [FromRoute]int claimId) {
+        public async Task<IActionResult> GetUserClaim([FromRoute] string userId, [FromRoute] int claimId) {
             var claim = await _dbContext.UserClaims.AsNoTracking().SingleOrDefaultAsync(x => x.UserId == userId && x.Id == claimId);
             if (claim == null) {
                 return NotFound();
@@ -412,7 +415,7 @@ namespace Indice.AspNetCore.Identity.Features
         [ProducesResponseType(statusCode: StatusCodes.Status201Created, type: typeof(ClaimInfo))]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
         [CacheResourceFilter(DependentPaths = new string[] { "{userId}" })]
-        public async Task<IActionResult> AddUserClaim([FromRoute]string userId, [FromBody]CreateClaimRequest request) {
+        public async Task<IActionResult> AddUserClaim([FromRoute] string userId, [FromBody] CreateClaimRequest request) {
             var user = await _dbContext.Users.AsNoTracking().SingleOrDefaultAsync(x => x.Id == userId);
             if (user == null) {
                 return NotFound();
@@ -443,7 +446,7 @@ namespace Indice.AspNetCore.Identity.Features
         [ProducesResponseType(statusCode: StatusCodes.Status200OK, type: typeof(ClaimInfo))]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
         [CacheResourceFilter(DependentPaths = new string[] { "{userId}" })]
-        public async Task<IActionResult> UpdateUserClaim([FromRoute]string userId, [FromRoute]int claimId, [FromBody]UpdateUserClaimRequest request) {
+        public async Task<IActionResult> UpdateUserClaim([FromRoute] string userId, [FromRoute] int claimId, [FromBody] UpdateUserClaimRequest request) {
             var userClaim = await _dbContext.UserClaims.SingleOrDefaultAsync(x => x.UserId == userId && x.Id == claimId);
             if (userClaim == null) {
                 return NotFound();
@@ -468,7 +471,7 @@ namespace Indice.AspNetCore.Identity.Features
         [ProducesResponseType(statusCode: StatusCodes.Status200OK)]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
         [CacheResourceFilter(DependentPaths = new string[] { "{userId}" })]
-        public async Task<IActionResult> DeleteUserClaim([FromRoute]string userId, [FromRoute]int claimId) {
+        public async Task<IActionResult> DeleteUserClaim([FromRoute] string userId, [FromRoute] int claimId) {
             var userClaim = await _dbContext.UserClaims.SingleOrDefaultAsync(x => x.UserId == userId && x.Id == claimId);
             if (userClaim == null) {
                 return NotFound();
@@ -487,7 +490,7 @@ namespace Indice.AspNetCore.Identity.Features
         [HttpGet("{userId}/applications")]
         [ProducesResponseType(statusCode: StatusCodes.Status200OK, type: typeof(ResultSet<UserClientInfo>))]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
-        public async Task<IActionResult> GetUserApplications([FromRoute]string userId) {
+        public async Task<IActionResult> GetUserApplications([FromRoute] string userId) {
             var userGrants = await _persistedGrantService.GetAllGrantsAsync(userId);
             var clients = new List<UserClientInfo>();
             foreach (var grant in userGrants) {
@@ -522,7 +525,7 @@ namespace Indice.AspNetCore.Identity.Features
         [ProducesResponseType(statusCode: StatusCodes.Status204NoContent, type: typeof(void))]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
         [CacheResourceFilter(DependentPaths = new string[] { "{userId}" })]
-        public async Task<IActionResult> SetUserBlock([FromRoute]string userId, [FromBody]SetUserBlockRequest request) {
+        public async Task<IActionResult> SetUserBlock([FromRoute] string userId, [FromBody] SetUserBlockRequest request) {
             var user = await _dbContext.Users.SingleOrDefaultAsync(x => x.Id == userId);
             if (user == null) {
                 return NotFound();
@@ -545,7 +548,7 @@ namespace Indice.AspNetCore.Identity.Features
         [ProducesResponseType(statusCode: StatusCodes.Status204NoContent, type: typeof(void))]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
         [CacheResourceFilter(DependentPaths = new string[] { "{userId}" })]
-        public async Task<IActionResult> UnlockUser([FromRoute]string userId) {
+        public async Task<IActionResult> UnlockUser([FromRoute] string userId) {
             var user = await _userManager.FindByIdAsync(userId);
             if (user == null) {
                 return NotFound();
@@ -572,7 +575,7 @@ namespace Indice.AspNetCore.Identity.Features
         [ProducesResponseType(statusCode: StatusCodes.Status200OK, type: typeof(void))]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
         [CacheResourceFilter(DependentPaths = new string[] { "{userId}" })]
-        public async Task<IActionResult> SetPassword([FromRoute]string userId, [FromBody]SetPasswordRequest request) {
+        public async Task<IActionResult> SetPassword([FromRoute] string userId, [FromBody] SetPasswordRequest request) {
             var user = await _dbContext.Users.SingleOrDefaultAsync(x => x.Id == userId);
             if (user == null) {
                 return NotFound();
@@ -590,7 +593,7 @@ namespace Indice.AspNetCore.Identity.Features
                 return BadRequest(result.Errors.ToValidationProblemDetails());
             }
             if (request.ChangePasswordAfterFirstSignIn.HasValue && request.ChangePasswordAfterFirstSignIn.Value == true) {
-                await _userManager.SetPasswordExpiredAsync(user, changePassword: true);
+                await _userManager.SetPasswordExpiredAsync(user, true);
             }
             return Ok();
         }
