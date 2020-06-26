@@ -63,7 +63,7 @@ namespace Indice.AspNetCore.Filters
         public static readonly CSP DefaultPolicy = new CSP {
             DefaultSrc = $"{Self}",
             ObjectSrc = $"{None}",
-            BaseUri = $"{Self}",
+            BaseUri = $"{Self} {Data}",
             FrameAncestors = $"{None}",
             Sandbox = $"allow-forms allow-same-origin allow-scripts",
             ScriptSrc = $"{Self} ajax.googleapis.com ajax.aspnetcdn.com stackpath.bootstrapcdn.com",
@@ -306,10 +306,12 @@ namespace Indice.AspNetCore.Filters
                 key = GetPascalCasing(key);
             }
             if (_values.ContainsKey(key)) {
-                _values[key] += $" {value}";
-                // If the directive contains 'none' but a value is allowed then we have to remove the 'none' value.
-                // To do: Maybe we should consider removing all existing value if 'none' is added.
-                _values[key] = _values[key].Replace($"{None} ", string.Empty);
+                if (!_values[key].Contains(value)) {
+                    _values[key] += $" {value}";
+                    // If the directive contains 'none' but a value is allowed then we have to remove the 'none' value.
+                    // To do: Maybe we should consider removing all existing value if 'none' is added.
+                    _values[key] = _values[key].Replace($"{None} ", string.Empty);
+                }
             } else {
                 _values.Add(key, value);
             }
