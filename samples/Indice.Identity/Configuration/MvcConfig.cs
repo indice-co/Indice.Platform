@@ -97,6 +97,7 @@ namespace Microsoft.Extensions.DependencyInjection
                                options.ConfigureClientsideValidation();
                                options.RunDefaultMvcValidationAfterFluentValidationExecutes = true;
                            })
+                           .AddAvatars()
                            .AddViewLocalization(LanguageViewLocationExpanderFormat.Suffix);
         }
     }
