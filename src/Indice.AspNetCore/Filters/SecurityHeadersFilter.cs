@@ -63,7 +63,7 @@ namespace Indice.AspNetCore.Filters
         public static readonly CSP DefaultPolicy = new CSP {
             DefaultSrc = $"{Self}",
             ObjectSrc = $"{None}",
-            BaseUri = $"{Self} {Data}",
+            BaseUri = $"{Self}",
             FrameAncestors = $"{None}",
             Sandbox = $"allow-forms allow-same-origin allow-scripts",
             ScriptSrc = $"{Self} ajax.googleapis.com ajax.aspnetcdn.com stackpath.bootstrapcdn.com",
