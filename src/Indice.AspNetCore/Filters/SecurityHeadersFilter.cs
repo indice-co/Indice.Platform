@@ -310,12 +310,14 @@ namespace Indice.AspNetCore.Filters
                 key = GetPascalCasing(key);
             }
             if (_values.ContainsKey(key)) {
-                if (!_values[key].Contains(value)) {
+                if (_values[key] == null) {
+                    _values[key] = value;
+                } else if (!_values[key].Contains(value)) {
                     _values[key] += $" {value}";
                     // If the directive contains 'none' but a value is allowed then we have to remove the 'none' value.
                     // To do: Maybe we should consider removing all existing value if 'none' is added.
                     _values[key] = _values[key].Replace($"{None} ", string.Empty);
-                }
+                } 
             } else {
                 _values.Add(key, value);
             }

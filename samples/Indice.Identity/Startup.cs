@@ -4,6 +4,7 @@ using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using Hellang.Middleware.ProblemDetails;
+using Indice.AspNetCore.Filters;
 using Indice.AspNetCore.Identity.Features;
 using Indice.AspNetCore.Swagger;
 using Indice.Configuration;
@@ -84,8 +85,13 @@ namespace Indice.Identity
             services.AddResponseCaching();
             services.AddDataProtectionLocal(options => options.FromConfiguration());
             services.AddCsp(options => {
-                options.AddSandbox("allow-popups");
-                options.AddFrameAncestors("https://localhost:2002");
+                options.AddSandbox("allow-popups")
+                       .AddFontSrc(CSP.Data) // Allows fonts as data URLs.
+                       .AddConnectSrc(CSP.Self)
+                       .AddConnectSrc("https://dc.services.visualstudio.com")
+                       .AddScriptSrc("cdnjs.cloudflare.com")
+                       .AddScriptSrc(CSP.UnsafeEval)
+                       .AddFrameAncestors("https://localhost:2002");
             });
             services.AddSpaStaticFiles(options => {
                 options.RootPath = "wwwroot/admin-ui";
