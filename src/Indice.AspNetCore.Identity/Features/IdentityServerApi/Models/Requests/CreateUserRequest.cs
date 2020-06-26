@@ -37,5 +37,9 @@ namespace Indice.AspNetCore.Identity.Features
         /// Represents the password expiration policy the value is measured in days.
         /// </summary>
         public PasswordExpirationPolicy? PasswordExpirationPolicy { get; set; }
+        /// <summary>
+        /// Forces the user to change his password after created by the system admin.
+        /// </summary>
+        public bool? ChangePasswordAfterFirstSignIn { get; set; }
     }
 }
