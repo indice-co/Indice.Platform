@@ -3,7 +3,6 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using Indice.Extensions;
-using Microsoft.VisualBasic;
 using SixLabors.Fonts;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Formats;
@@ -21,6 +20,7 @@ namespace Indice.Services
     public class AvatarGenerator
     {
         private readonly AvatarColor[] _backgroundColours;
+        private static readonly Assembly _assembly = typeof(AvatarGenerator).Assembly;
 
         /// <summary>
         /// Constructor.
@@ -72,8 +72,8 @@ namespace Indice.Services
             }
             using (var image = new Image<Rgba32>(size, size)) {
                 image.Mutate(x => x.Fill(accentColor.Background));
-                FontCollection fonts = new FontCollection();
-                FontFamily fontFamily = fonts.Install(GetFontResourceStream("open-sans", "OpenSans-Regular.ttf"));
+                var fonts = new FontCollection();
+                var fontFamily = fonts.Install(GetFontResourceStream("open-sans", "OpenSans-Regular.ttf"));
                 // For production application we would recomend you create a FontCollection singleton and manually install the ttf fonts yourself as using SystemFonts can be expensive and you risk font existing or not existing on a deployment by deployment basis.
                 var font = fontFamily.CreateFont(72, FontStyle.Regular); // for scaling water mark size is largly ignored.
                 // Measure the text size.
@@ -93,10 +93,9 @@ namespace Indice.Services
             output.Seek(0, SeekOrigin.Begin);
         }
 
-        private static readonly Assembly _assembly = typeof(AvatarGenerator).Assembly;
         private static Stream GetFontResourceStream(string familyName, string fileName) {
             var qualifiedResources = _assembly.GetManifestResourceNames().OrderBy(x => x).ToArray();
-            Stream stream = _assembly.GetManifestResourceStream($"Indice.AspNetCore.Fonts.{familyName.Replace('-', '_')}.{fileName}");
+            var stream = _assembly.GetManifestResourceStream($"Indice.AspNetCore.Fonts.{familyName.Replace('-', '_')}.{fileName}");
             return stream;
         }
     }
