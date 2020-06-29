@@ -1,4 +1,5 @@
 ﻿using Indice.AspNetCore.Features;
+using Indice.Services;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
@@ -14,6 +15,7 @@ namespace Microsoft.Extensions.DependencyInjection
         public static IMvcBuilder AddAvatars(this IMvcBuilder mvcBuilder) {
             mvcBuilder.ConfigureApplicationPartManager(apm => apm.FeatureProviders.Add(new AvatarFeatureProvider()));
             mvcBuilder.Services.AddResponseCaching();
+            mvcBuilder.Services.AddSingleton(sp => new AvatarGenerator());
             return mvcBuilder;
         }
     }
