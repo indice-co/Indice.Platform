@@ -22,7 +22,11 @@ namespace Indice.AspNetCore.Features
         /// <summary>
         /// <see cref="AvatarController"/> constructor.
         /// </summary>
-        public AvatarController() { }
+        public AvatarController(AvatarGenerator avatarGenerator) {
+            AvatarGenerator = avatarGenerator ?? throw new ArgumentNullException(nameof(avatarGenerator));
+        }
+
+        public AvatarGenerator AvatarGenerator { get; }
 
         /// <summary>
         /// Creates an avatar using random background color based on fullname and optional size.
@@ -96,7 +100,7 @@ namespace Indice.AspNetCore.Features
                 return BadRequest(ModelState);
             }
             var data = new MemoryStream();
-            new AvatarGenerator().Generate(data, firstName, lastName, size ?? 192, ext == "jpg", background);
+            AvatarGenerator.Generate(data, firstName, lastName, size ?? 192, ext == "jpg", background);
             var hash = string.Empty;
             using (var md5 = MD5.Create()) {
                 hash = md5.ComputeHash(Encoding.UTF8.GetBytes($"{firstName} {lastName}")).ToBase64UrlSafe();

@@ -20,6 +20,7 @@ namespace Indice.Services
     /// </summary>
     public class AvatarGenerator
     {
+        private readonly FontCollection _OpenSansFont;
         private readonly AvatarColor[] _backgroundColours;
 
         /// <summary>
@@ -51,6 +52,8 @@ namespace Indice.Services
                     new AvatarColor("607d8b", "ffffff"), // blue-grey
                 };
             }
+            _OpenSansFont = new FontCollection();
+            _OpenSansFont.Install(GetFontResourceStream("open-sans", "OpenSans-Regular.ttf"));
         }
 
         /// <summary>
@@ -73,9 +76,8 @@ namespace Indice.Services
             using (var image = new Image<Rgba32>(size, size)) {
                 image.Mutate(x => x.Fill(accentColor.Background));
                 FontCollection fonts = new FontCollection();
-                FontFamily fontFamily = fonts.Install(GetFontResourceStream("open-sans", "OpenSans-Regular.ttf"));
                 // For production application we would recomend you create a FontCollection singleton and manually install the ttf fonts yourself as using SystemFonts can be expensive and you risk font existing or not existing on a deployment by deployment basis.
-                var font = fontFamily.CreateFont(72, FontStyle.Regular); // for scaling water mark size is largly ignored.
+                var font = _OpenSansFont.CreateFont("Open Sans", 70, FontStyle.Regular); // for scaling water mark size is largly ignored.
                 // Measure the text size.
                 var textSize = TextMeasurer.Measure(avatarText, new RendererOptions(font));
                 // Find out how much we need to scale the text to fill the space (up or down).
@@ -92,12 +94,10 @@ namespace Indice.Services
             }
             output.Seek(0, SeekOrigin.Begin);
         }
-
-        private static readonly Assembly _assembly = typeof(AvatarGenerator).Assembly;
         private static Stream GetFontResourceStream(string familyName, string fileName) {
-            var qualifiedResources = _assembly.GetManifestResourceNames().OrderBy(x => x).ToArray();
-            Stream stream = _assembly.GetManifestResourceStream($"Indice.AspNetCore.Fonts.{familyName.Replace('-', '_')}.{fileName}");
-            return stream;
+            //var qualifiedResources = assembly.GetManifestResourceNames().OrderBy(x => x).ToArray();
+            return typeof(AvatarGenerator).Assembly
+                                          .GetManifestResourceStream($"Indice.AspNetCore.Fonts.{familyName.Replace('-', '_')}.{fileName}");
         }
     }
 
