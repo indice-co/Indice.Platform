@@ -4,7 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Caching.Distributed;
 
-namespace Indice.AspNetCore.Extensions
+namespace Indice.Extensions.Caching
 {
     /// <summary>
     /// Extension methods on <see cref="IDistributedCache"/>.
