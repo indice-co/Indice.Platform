@@ -39,6 +39,7 @@ namespace Indice.AspNetCore.Identity.Features
     [ProblemDetailsExceptionFilter]
     internal class MyAccountController : ControllerBase
     {
+        private readonly ExtendedIdentityDbContext<User, Role> _dbContext;
         private readonly ExtendedUserManager<User> _userManager;
         private readonly GeneralSettings _generalSettings;
         private readonly IdentityOptions _identityOptions;
@@ -54,13 +55,14 @@ namespace Indice.AspNetCore.Identity.Features
 
         public MyAccountController(ExtendedUserManager<User> userManager, IOptions<GeneralSettings> generalSettings, IOptionsSnapshot<IdentityOptions> identityOptions,
             IdentityServerApiEndpointsOptions identityServerApiEndpointsOptions, IEventService eventService, ISmsService smsService, IEmailService emailService,
-            MessageDescriber messageDescriber) {
+            MessageDescriber messageDescriber, ExtendedIdentityDbContext<User, Role> dbContext) {
             _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
             _generalSettings = generalSettings?.Value ?? throw new ArgumentNullException(nameof(generalSettings));
             _identityOptions = identityOptions?.Value ?? throw new ArgumentNullException(nameof(identityOptions));
             _identityServerApiEndpointsOptions = identityServerApiEndpointsOptions ?? throw new ArgumentNullException(nameof(identityServerApiEndpointsOptions));
             _eventService = eventService ?? throw new ArgumentNullException(nameof(eventService));
             _messageDescriber = messageDescriber ?? throw new ArgumentNullException(nameof(messageDescriber));
+            _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
             _smsService = smsService;
             _emailService = emailService;
         }
@@ -101,7 +103,7 @@ namespace Indice.AspNetCore.Identity.Features
             var data = new User {
                 UserName = User.FindDisplayName() ?? user.UserName
             };
-            await _emailService.SendAsync<User>(message => 
+            await _emailService.SendAsync<User>(message =>
                 message.To(user.Email)
                        .WithSubject(_messageDescriber.EmailUpdateMessageSubject)
                        .WithBody(_messageDescriber.EmailUpdateMessageBody(request.ReturnUrl, user, token))
@@ -265,6 +267,67 @@ namespace Indice.AspNetCore.Identity.Features
             }
             await _userManager.SetPasswordExpirationPolicyAsync(user, request.Policy);
             return NoContent();
+        }
+
+        /// <summary>
+        /// Assigns various properties on the current user's account.
+        /// </summary>
+        /// <param name="claims">Contains info about the claims to create.</param>
+        /// <response code="200">OK</response>
+        /// <response code="400">Bad Request</response>
+        /// <response code="404">Not Found</response>
+        [HttpPost("my/account/claims")]
+        [ProducesResponseType(statusCode: StatusCodes.Status200OK, type: typeof(IEnumerable<ClaimInfo>))]
+        [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest, type: typeof(ValidationProblemDetails))]
+        [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
+        public async Task<IActionResult> AddClaims([FromBody] IEnumerable<CreateClaimRequest> claims) {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null) {
+                return NotFound();
+            }
+            var allowedClaims = await _dbContext.ClaimTypes.Where(x => claims.Select(x => x.Type).Contains(x.Name)).Select(x => x.Name).ToListAsync();
+            if (allowedClaims.Count() != claims.Count()) {
+                var notAllowedClaims = claims.Select(x => x.Type).Except(allowedClaims);
+                ModelState.AddModelError(nameof(claims), $"The following claims are not registered for use: '{string.Join(", ", notAllowedClaims)}'.");
+                return BadRequest(new ValidationProblemDetails(ModelState));
+            }
+            var claimsToAdd = claims.Select(x => new IdentityUserClaim<string> {
+                UserId = user.Id,
+                ClaimType = x.Type,
+                ClaimValue = x.Value
+            }).ToArray();
+            _dbContext.UserClaims.AddRange(claimsToAdd);
+            await _dbContext.SaveChangesAsync();
+            return Ok(claimsToAdd.Select(x => new ClaimInfo {
+                Id = x.Id,
+                Type = x.ClaimType,
+                Value = x.ClaimValue
+            }));
+        }
+
+        /// <summary>
+        /// Updates the specified claim for the current user.
+        /// </summary>
+        /// <param name="claimId">The id of the user claim.</param>
+        /// <param name="request">Contains info about the claims to update.</param>
+        /// <response code="200">OK</response>
+        /// <response code="404">Not Found</response>
+        [HttpPut("my/account/claims/{claimId:int}")]
+        [ProducesResponseType(statusCode: StatusCodes.Status200OK, type: typeof(ClaimInfo))]
+        [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
+        public async Task<IActionResult> UpdateClaim([FromRoute] int claimId, [FromBody] UpdateUserClaimRequest request) {
+            var userId = User.FindSubjectId();
+            var userClaim = await _dbContext.UserClaims.SingleOrDefaultAsync(x => x.UserId == userId && x.Id == claimId);
+            if (userClaim == null) {
+                return NotFound();
+            }
+            userClaim.ClaimValue = request.ClaimValue;
+            await _dbContext.SaveChangesAsync();
+            return Ok(new ClaimInfo {
+                Id = userClaim.Id,
+                Type = userClaim.ClaimType,
+                Value = request.ClaimValue
+            });
         }
 
         /// <summary>
