@@ -285,17 +285,21 @@ namespace Indice.AspNetCore.Identity.Features
             if (user == null) {
                 return NotFound();
             }
-            var allowedClaims = await _dbContext.ClaimTypes.Where(x => claims.Select(x => x.Type).Contains(x.Name)).Select(x => x.Name).ToListAsync();
+            var allowedClaims = await _dbContext.ClaimTypes
+                                                .Where(x => claims.Select(x => x.Type).Contains(x.Name) && x.UserEditable)
+                                                .Select(x => x.Name)
+                                                .ToListAsync();
             if (allowedClaims.Count() != claims.Count()) {
                 var notAllowedClaims = claims.Select(x => x.Type).Except(allowedClaims);
-                ModelState.AddModelError(nameof(claims), $"The following claims are not registered for use: '{string.Join(", ", notAllowedClaims)}'.");
+                ModelState.AddModelError(nameof(claims), $"The following claims are not allowed to add: '{string.Join(", ", notAllowedClaims)}'.");
                 return BadRequest(new ValidationProblemDetails(ModelState));
             }
             var claimsToAdd = claims.Select(x => new IdentityUserClaim<string> {
                 UserId = user.Id,
                 ClaimType = x.Type,
                 ClaimValue = x.Value
-            }).ToArray();
+            })
+            .ToArray();
             _dbContext.UserClaims.AddRange(claimsToAdd);
             await _dbContext.SaveChangesAsync();
             return Ok(claimsToAdd.Select(x => new ClaimInfo {
@@ -311,15 +315,25 @@ namespace Indice.AspNetCore.Identity.Features
         /// <param name="claimId">The id of the user claim.</param>
         /// <param name="request">Contains info about the claims to update.</param>
         /// <response code="200">OK</response>
+        /// <response code="404">Bad Request</response>
         /// <response code="404">Not Found</response>
         [HttpPut("my/account/claims/{claimId:int}")]
         [ProducesResponseType(statusCode: StatusCodes.Status200OK, type: typeof(ClaimInfo))]
+        [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest, type: typeof(ValidationProblemDetails))]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
         public async Task<IActionResult> UpdateClaim([FromRoute] int claimId, [FromBody] UpdateUserClaimRequest request) {
             var userId = User.FindSubjectId();
             var userClaim = await _dbContext.UserClaims.SingleOrDefaultAsync(x => x.UserId == userId && x.Id == claimId);
             if (userClaim == null) {
                 return NotFound();
+            }
+            var claimType = await _dbContext.ClaimTypes.SingleOrDefaultAsync(x => x.Name == userClaim.ClaimType);
+            if (claimType == null) {
+                return NotFound();
+            }
+            if (!claimType.UserEditable) {
+                ModelState.AddModelError(nameof(claimType), $"Claim '{claimType.Name}' is not editable.");
+                return BadRequest(new ValidationProblemDetails(ModelState));
             }
             userClaim.ClaimValue = request.ClaimValue;
             await _dbContext.SaveChangesAsync();
