@@ -1,9 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using Indice.Extensions;
-using Microsoft.VisualBasic;
 using SixLabors.Fonts;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Formats;
@@ -20,7 +18,7 @@ namespace Indice.Services
     /// </summary>
     public class AvatarGenerator
     {
-        private readonly FontCollection _OpenSansFont;
+        private readonly FontCollection _openSansFont;
         private readonly AvatarColor[] _backgroundColours;
 
         /// <summary>
@@ -52,8 +50,8 @@ namespace Indice.Services
                     new AvatarColor("607d8b", "ffffff"), // blue-grey
                 };
             }
-            _OpenSansFont = new FontCollection();
-            _OpenSansFont.Install(GetFontResourceStream("open-sans", "OpenSans-Regular.ttf"));
+            _openSansFont = new FontCollection();
+            _openSansFont.Install(GetFontResourceStream("open-sans", "OpenSans-Regular.ttf"));
         }
 
         /// <summary>
@@ -67,7 +65,6 @@ namespace Indice.Services
         /// <param name="background">The background color to use.</param>
         public void Generate(Stream output, string firstName, string lastName, int size = 192, bool jpeg = false, string background = null) {
             var avatarText = string.Format("{0}{1}", firstName?.Length > 0 ? firstName[0] : ' ', lastName?.Length > 0 ? lastName[0] : ' ').ToUpper().RemoveDiacritics();
-            //var randomIndex = new Random().Next(0, _BackgroundColours.Length - 1);
             var randomIndex = $"{firstName}{lastName}".ToCharArray().Sum(x => x) % _backgroundColours.Length;
             var accentColor = _backgroundColours[randomIndex];
             if (background != null) {
@@ -75,9 +72,9 @@ namespace Indice.Services
             }
             using (var image = new Image<Rgba32>(size, size)) {
                 image.Mutate(x => x.Fill(accentColor.Background));
-                FontCollection fonts = new FontCollection();
+                var fonts = new FontCollection();
                 // For production application we would recomend you create a FontCollection singleton and manually install the ttf fonts yourself as using SystemFonts can be expensive and you risk font existing or not existing on a deployment by deployment basis.
-                var font = _OpenSansFont.CreateFont("Open Sans", 70, FontStyle.Regular); // for scaling water mark size is largly ignored.
+                var font = _openSansFont.CreateFont("Open Sans", 70, FontStyle.Regular); // for scaling water mark size is largly ignored.
                 // Measure the text size.
                 var textSize = TextMeasurer.Measure(avatarText, new RendererOptions(font));
                 // Find out how much we need to scale the text to fill the space (up or down).
@@ -94,11 +91,9 @@ namespace Indice.Services
             }
             output.Seek(0, SeekOrigin.Begin);
         }
-        private static Stream GetFontResourceStream(string familyName, string fileName) {
-            //var qualifiedResources = assembly.GetManifestResourceNames().OrderBy(x => x).ToArray();
-            return typeof(AvatarGenerator).Assembly
-                                          .GetManifestResourceStream($"Indice.AspNetCore.Fonts.{familyName.Replace('-', '_')}.{fileName}");
-        }
+
+        private static Stream GetFontResourceStream(string familyName, string fileName) => 
+            typeof(AvatarGenerator).Assembly.GetManifestResourceStream($"Indice.AspNetCore.Fonts.{familyName.Replace('-', '_')}.{fileName}");
     }
 
     /// <summary>

@@ -36,7 +36,7 @@ namespace Indice.AspNetCore.Features
         /// <returns></returns>
         [HttpGet("{fullname}/{size?}"), ResponseCache(Duration = 345600, Location = ResponseCacheLocation.Any, VaryByQueryKeys = new[] { "v" })]
         [AllowAnonymous]
-        public IActionResult GetAvatar([FromRoute]string fullname, [FromRoute]int? size) => GetAvatar(fullname, size, null);
+        public IActionResult GetAvatar([FromRoute] string fullname, [FromRoute] int? size) => GetAvatar(fullname, size, null);
 
         /// <summary>
         /// Creates an avatar using random background color based on fullname and optional size and extension.
@@ -47,7 +47,7 @@ namespace Indice.AspNetCore.Features
         /// <returns></returns>
         [HttpGet("{fullname}/{size}.{ext?}"), ResponseCache(Duration = 345600, Location = ResponseCacheLocation.Any, VaryByQueryKeys = new[] { "v" })]
         [AllowAnonymous]
-        public IActionResult GetAvatar([FromRoute]string fullname, [FromRoute]int? size, [FromRoute]string ext) => GetAvatar(fullname, size, null, ext);
+        public IActionResult GetAvatar([FromRoute] string fullname, [FromRoute] int? size, [FromRoute] string ext) => GetAvatar(fullname, size, null, ext);
 
         /// <summary>
         /// Creates an avatar using fullname, size, background color and optional extension.
@@ -59,7 +59,7 @@ namespace Indice.AspNetCore.Features
         /// <returns></returns>
         [HttpGet("{fullname}/{size}/{background}.{ext?}"), ResponseCache(Duration = 345600, Location = ResponseCacheLocation.Any, VaryByQueryKeys = new[] { "v" })]
         [AllowAnonymous]
-        public IActionResult GetAvatar([FromRoute]string fullname, [FromRoute]int? size, [FromRoute]string background, [FromRoute]string ext) {
+        public IActionResult GetAvatar([FromRoute] string fullname, [FromRoute] int? size, [FromRoute] string background, [FromRoute] string ext) {
             if (string.IsNullOrWhiteSpace(fullname)) {
                 return BadRequest();
             }
@@ -86,7 +86,7 @@ namespace Indice.AspNetCore.Features
         /// <returns></returns>
         [HttpGet("avatar"), ResponseCache(Duration = 345600, Location = ResponseCacheLocation.Any, VaryByQueryKeys = new[] { "firstname", "lastname", "size", "ext", "background", "v" })]
         [AllowAnonymous]
-        public IActionResult GetAvatar([FromQuery]string firstName, [FromQuery]string lastName, [FromQuery]int? size, [FromQuery]string ext, [FromQuery]string background, [FromQuery]string v) {
+        public IActionResult GetAvatar([FromQuery] string firstName, [FromQuery] string lastName, [FromQuery] int? size, [FromQuery] string ext, [FromQuery] string background, [FromQuery] string v) {
             if (string.IsNullOrWhiteSpace(firstName) && string.IsNullOrWhiteSpace(lastName)) {
                 ModelState.AddModelError(nameof(firstName), "Must provide with first or last name.");
                 return BadRequest(ModelState);

@@ -60,12 +60,7 @@ namespace Indice.AspNetCore.Filters
             var httpContext = context.HttpContext;
             var request = httpContext.Request;
             _cacheKey = $"{request.Path}{(request.QueryString.HasValue ? request.QueryString.Value : string.Empty)}";
-            if (_varyByClaimType.Length > 0) {
-                var claimValues = _varyByClaimType.Select(claim => httpContext.User.FindFirstValue(claim));
-                if (claimValues.Any()) {
-                    _cacheKey = $"{_cacheKey}|{string.Join('|', claimValues)}";
-                }
-            }
+            _cacheKey = AddCacheKeyDiscriminator(context.HttpContext, _cacheKey);
             var requestMethod = request.Method;
             var cachedValue = _cache.GetString(_cacheKey);
             // If there is a cached response for this path and the request method is of type 'GET', then break the pipeline and send the cached response.
@@ -129,13 +124,24 @@ namespace Indice.AspNetCore.Filters
                             nextMatch = nextMatch.NextMatch();
                             hasNextMatch = nextMatch.Success;
                         }
-                        _cache.Remove(dependentKey);
+                        _cache.Remove(AddCacheKeyDiscriminator(context.HttpContext, dependentKey));
                     }
                     foreach (var path in _dependentStaticPaths) {
-                        _cache.Remove(path.StartsWith("/") ? path : $"/{path}");
+                        var dependentKey = path.StartsWith("/") ? path : $"/{path}";
+                        _cache.Remove(AddCacheKeyDiscriminator(context.HttpContext, dependentKey));
                     }
                 }
             }
+        }
+
+        private string AddCacheKeyDiscriminator(HttpContext httpContext, string keyMainPart) {
+            if (_varyByClaimType.Length > 0) {
+                var claimValues = _varyByClaimType.Select(claim => httpContext.User.FindFirstValue(claim));
+                if (claimValues.Any()) {
+                    return $"{keyMainPart}|{string.Join('|', claimValues)}";
+                }
+            }
+            return keyMainPart;
         }
     }
 
