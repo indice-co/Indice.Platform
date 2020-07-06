@@ -97,6 +97,13 @@ namespace Indice.Services
             // Free any unmanaged objects here.
             _disposed = true;
         }
+
+        /// <summary>
+        /// Checkes the implementation if supports the givern <paramref name="deliveryChannel"/>.
+        /// </summary>
+        /// <param name="deliveryChannel">A string representing the delivery channel. ie 'SMS'</param>
+        /// <returns></returns>
+        public bool Supports(string deliveryChannel) => "SMS".Equals(deliveryChannel, StringComparison.OrdinalIgnoreCase);
     }
 
     /// <summary>

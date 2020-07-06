@@ -60,11 +60,34 @@ namespace Indice.Services
     public interface ISmsService
     {
         /// <summary>
+        /// Checkes the implementation if supports the givern <paramref name="deliveryChannel"/>.
+        /// </summary>
+        /// <param name="deliveryChannel">A string representing the delivery channel. ie 'SMS'</param>
+        /// <returns></returns>
+        bool Supports(string deliveryChannel);
+
+        /// <summary>
         /// Sends the SMS using the configured provider.
         /// </summary>
         /// <param name="destination">Destination, i.e. the phone number</param>
         /// <param name="subject">Message subject.</param>
         /// <param name="body">Message content.</param>
-        Task SendAsync(string destination, string subject, string body);
+        /// <param name="deliveryChannel">The delivery channel</param>
+        Task SendAsync(string destination, string subject, string body, string deliveryChannel);
+    }
+
+    /// <summary>
+    /// Extesions on the <see cref="ISmsService" />
+    /// </summary>
+    public static class SmsServiceExtensions
+    {
+        /// <summary>
+        /// Sends the SMS using the configured provider.
+        /// </summary>
+        /// <param name="smsService">The service extended</param>
+        /// <param name="destination">Destination, i.e. the phone number</param>
+        /// <param name="subject">Message subject.</param>
+        /// <param name="body">Message content.</param>
+        public static Task SendAsync(this ISmsService smsService, string destination, string subject, string body) => smsService.SendAsync(destination, subject, body, deliveryChannel: null);
     }
 }
