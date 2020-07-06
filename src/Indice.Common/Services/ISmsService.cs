@@ -72,22 +72,6 @@ namespace Indice.Services
         /// <param name="destination">Destination, i.e. the phone number</param>
         /// <param name="subject">Message subject.</param>
         /// <param name="body">Message content.</param>
-        /// <param name="deliveryChannel">The delivery channel</param>
-        Task SendAsync(string destination, string subject, string body, string deliveryChannel);
-    }
-
-    /// <summary>
-    /// Extesions on the <see cref="ISmsService" />
-    /// </summary>
-    public static class SmsServiceExtensions
-    {
-        /// <summary>
-        /// Sends the SMS using the configured provider.
-        /// </summary>
-        /// <param name="smsService">The service extended</param>
-        /// <param name="destination">Destination, i.e. the phone number</param>
-        /// <param name="subject">Message subject.</param>
-        /// <param name="body">Message content.</param>
-        public static Task SendAsync(this ISmsService smsService, string destination, string subject, string body) => smsService.SendAsync(destination, subject, body, deliveryChannel: null);
+        Task SendAsync(string destination, string subject, string body);
     }
 }
