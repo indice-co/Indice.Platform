@@ -100,6 +100,22 @@ namespace Microsoft.Extensions.DependencyInjection
         }
 
         /// <summary>
+        /// Adds an instance of <see cref="ISmsService"/> using Apifon.
+        /// </summary>
+        /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
+        /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
+        public static IServiceCollection AddSmsServiceApifon(this IServiceCollection services, IConfiguration configuration) {
+            services.Configure<SmsServiceApifonSettings>(configuration.GetSection(SmsServiceSettings.Name));
+            services.AddTransient(serviceProvider => serviceProvider.GetRequiredService<IOptions<SmsServiceApifonSettings>>().Value);
+            services.AddHttpClient<ISmsService, SmsServiceApifon>(options => {
+                options.BaseAddress = new Uri("https://ars.apifon.com/services/api/v1/sms/");
+            })
+                .SetHandlerLifetime(TimeSpan.FromMinutes(5));
+            services.AddTransient<ISmsServiceFactory, DefaultSmsServiceFactory>();
+            return services;
+        }
+
+        /// <summary>
         /// Adds an instance of <see cref="ISmsService"/> using Youboto.
         /// </summary>
         /// <param name="services">Specifies the contract for a collection of service descriptors.</param>

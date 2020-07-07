@@ -1,0 +1,302 @@
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Security.Cryptography;
+using System.Text;
+using System.Text.Json;
+using System.Text.Json.Serialization;
+using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
+using Org.BouncyCastle.Ocsp;
+
+namespace Indice.Services
+{
+    /// <summary>
+    /// Sms Service implementation using the Apifon sms service gateway.
+    /// </summary>
+    public class SmsServiceApifon : ISmsService, IDisposable
+    {
+        private bool _disposed = false;
+
+        /// <summary>
+        /// The settings required to configure the service
+        /// </summary>
+        protected SmsServiceApifonSettings Settings { get; }
+        /// <summary>
+        /// The <see cref="System.Net.Http.HttpClient"/>.
+        /// </summary>
+        protected HttpClient HttpClient { get; }
+        /// <summary>
+        /// Represents a type used to perform logging.
+        /// </summary>
+        protected ILogger<SmsServiceApifon> Logger { get; }
+
+        /// <summary>
+        /// Constructs the <see cref="SmsServiceApifon"/> using the <seealso cref="SmsServiceSettings"/>.
+        /// </summary>
+        /// <param name="settings">The settings required to configure the service.</param>
+        /// <param name="httpClient">Injected <see cref="System.Net.Http.HttpClient"/> managed by the DI.</param>
+        /// <param name="logger">Represents a type used to perform logging.</param>
+        public SmsServiceApifon(HttpClient httpClient, SmsServiceApifonSettings settings, ILogger<SmsServiceApifon> logger) {
+            HttpClient = httpClient ?? new HttpClient();
+            Settings = settings ?? throw new ArgumentNullException(nameof(settings));
+            Logger = logger ?? throw new ArgumentNullException(nameof(logger));
+
+            if (string.IsNullOrWhiteSpace(Settings.Token)) {
+                throw new ArgumentException("Sms settings Token key is empty");
+            }
+            if (string.IsNullOrWhiteSpace(Settings.ApiKey)) {
+                throw new ArgumentException("Sms settings Api key is empty");
+            }
+
+        }
+
+        /// <summary>
+        /// Send an sms to a recipient
+        /// </summary>
+        /// <param name="destination"></param>
+        /// <param name="subject"></param>
+        /// <param name="body"></param>
+        /// <returns></returns>
+        public async Task SendAsync(string destination, string subject, string body) {
+            HttpResponseMessage httpResponse;
+            ApifonResponse response;
+            var recipients = (destination ?? "").Split(new string[] { "," }, StringSplitOptions.RemoveEmptyEntries);
+            if (recipients == null)
+                throw new ArgumentNullException(nameof(recipients));
+            if (recipients.Length == 0)
+                throw new ArgumentException("Recipients list is empty", nameof(recipients));
+            if (recipients.Any(telephone => telephone.Any(telNumber => !char.IsNumber(telNumber))))
+                throw new ArgumentException("Invalid recipients. Recipients cannot contain letters.", nameof(recipients));
+
+            var request = new ApifonRequest(Settings.Sender ?? Settings.SenderName, recipients, body);
+            var signature = request.Sign(Settings.ApiKey, "POST", HttpClient.BaseAddress.OriginalString + "send");
+            HttpClient.DefaultRequestHeaders.Add("X-ApifonWS-Date", request.RequestDate.ToUniversalTime().ToString("r"));
+            HttpClient.DefaultRequestHeaders
+                .Accept
+                .Add(new MediaTypeWithQualityHeaderValue("application/json"));
+            HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("ApifonWS", $"{Settings.Token}:{signature}");
+            try {
+                httpResponse = await HttpClient.PostAsync("send", new StringContent(request.ToJson(), Encoding.UTF8, "application/json"));
+            } catch (Exception ex) {
+                throw new SmsServiceException($"SMS Delivery failed.", ex);
+            }
+            var stringifyResponse = await httpResponse.Content.ReadAsStringAsync();
+            if (!httpResponse.IsSuccessStatusCode) {
+                throw new SmsServiceException($"SMS Delivery failed. {httpResponse.StatusCode} : {stringifyResponse}");
+            }
+
+            response = JsonSerializer.Deserialize<ApifonResponse>(stringifyResponse);
+            if (response.HasError) {
+                throw new SmsServiceException($"SMS Delivery failed. {response.Status.Description}");
+            } else {
+                Logger?.LogInformation("SMS message successfully sent: {1}", response.Results.FirstOrDefault());
+            }
+        }
+
+        /// <summary>
+        /// Disposes the <see cref="System.Net.Http.HttpClient"/> if not managed by the DI.
+        /// </summary>
+        public void Dispose() {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        // https://docs.microsoft.com/en-us/dotnet/standard/garbage-collection/implementing-dispose
+        /// <summary>
+        /// Protected implementation of Dispose pattern.
+        /// </summary>
+        /// <param name="disposing"></param>
+        protected virtual void Dispose(bool disposing) {
+            if (_disposed) {
+                return;
+            }
+            if (disposing) {
+                // Free any other managed objects here.
+                HttpClient.Dispose();
+            }
+            // Free any unmanaged objects here.
+            _disposed = true;
+        }
+
+        /// <summary>
+        /// Checkes the implementation if supports the given <paramref name="deliveryChannel"/>.
+        /// </summary>
+        /// <param name="deliveryChannel">A string representing the delivery channel. ie 'SMS'</param>
+        /// <returns></returns>
+        public bool Supports(string deliveryChannel) => "SMS".Equals(deliveryChannel, StringComparison.OrdinalIgnoreCase);
+    }
+
+    /// <summary>
+    /// Extra settings class for configuring Apifon SMS service client. 
+    /// </summary>
+    public class SmsServiceApifonSettings : SmsServiceSettings
+    {
+        /// <summary>
+        /// Apifone Api token key.
+        /// </summary>
+        public string Token { get; set; }
+    }
+
+    internal class ApifonResponse
+    {
+        [JsonPropertyName("request_id")]
+        public string Id { get; set; }
+
+        public Dictionary<string, ResultDetails> Results { get; set; }
+
+        [JsonPropertyName("result_info")]
+        public ResultInfo Status { get; set; }
+
+        public bool HasError => !Status.Status.Equals("200");
+
+        internal class ResultDetails
+        {
+            [JsonPropertyName("message_id")]
+            public string Id { get; set; }
+
+            [JsonPropertyName("custom_id")]
+            public string CustomId { get; set; }
+
+            public int Length { get; set; }
+
+            [JsonPropertyName("short_url")]
+            public string ShortUrl { get; set; }
+
+            [JsonPropertyName("short_code")]
+            public string ShortCode { get; set; }
+
+        }
+
+        internal class ResultInfo
+        {
+            [JsonPropertyName("status_code")]
+            public string Status { get; set; }
+
+            public string Description { get; set; }
+
+        }
+    }
+
+    internal class ApifonRequest
+    {
+
+        public ApifonRequest() {
+
+        }
+
+        public ApifonRequest(string from, string[] to, string message) {
+            foreach(var subNumber in to) {
+                Subscribers = new Subscribers { To = subNumber};
+            }
+            Message.From = from;
+            Message.Text = message;
+        }
+
+        [JsonPropertyName("message")]
+        public Message Message { get; set; } = new Message();
+        [JsonPropertyName("subscribers")]
+        public Subscribers Subscribers { get; set; } = new Subscribers();
+        /// <summary>
+        /// Sms validity period
+        /// min 30
+        /// max 4320 (default)
+        /// </summary>
+        [JsonPropertyName("tte")]
+        public int? ValidityPeriod { get; set; }
+        /// <summary>
+        /// If set, the callback (delivery / status report) will be delivered to this URL, 
+        /// otherwise no callback will take place. 
+        /// </summary>
+        [JsonPropertyName("callback_url")]
+        public string CallbackUrl { get; set; }
+        /// <summary>
+        /// The date that the message will be sent on UTC/GMT TIMEZONE.
+        /// If omitted it will be sent immediately.
+        /// </summary>
+        [JsonPropertyName("date")]
+        public DateTime? DateToSend { get; set; }
+
+        [JsonIgnore]
+        public DateTime RequestDate { get; set; } = DateTime.UtcNow;
+
+        public string ToJson() {
+            // Serialize our concrete class into a JSON String
+            return JsonSerializer.Serialize(this, new JsonSerializerOptions {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                IgnoreNullValues = true,
+            });
+        }
+
+        public string Sign(string secretKey, string method, string uri) {
+            var toSign = method + "\n"
+                    + uri + "\n"
+                    + ToJson() + "\n"
+                    + RequestDate.ToUniversalTime().ToString("r");
+
+            var encoding = new System.Text.UTF8Encoding();
+            byte[] keyByte = encoding.GetBytes(secretKey);
+            byte[] messageBytes = encoding.GetBytes(toSign);
+            using (var hmacsha256 = new HMACSHA256(keyByte)) {
+                byte[] hashmessage = hmacsha256.ComputeHash(messageBytes);
+                return Convert.ToBase64String(hashmessage);
+            }
+        }
+    }
+
+    internal class Message
+    {
+        [JsonPropertyName("text")]
+        /// <summary>
+        /// Contains the body of the SMS message to be delivered to the destination device.One can optionally specify keys within the message body that
+        /// will be replaced later with values given by the params field in the SUBSCRIBERS* object. See 'params' in the SUBSCRIBERS* section for more
+        /// information on supplying the value for these keys. Each placeholder must be specified as { KEY}, where KEY is a key name in the params list.
+        /// For this feature to be used, GSM7 or UCS2 encoding must be used.
+        ///
+        /// In the event your text is longer than 160 characters in 7bit, 140 in 8bit or 70 in 16bit, Apifon will split the message into parts.
+        /// </summary>
+        public string Text { get; set; }
+
+        /// <summary>
+        /// Contains the information on how the text is encoded.
+        /// The maximum number of characters you can fit into a single message depends on the encoding you are using:
+        /// 
+        /// [0]: GSM7 bit Default Alphabet(160).
+        /// Basic Latin subset of ASCII, as well as some characters of the ISO Latin 1 – 160
+        /// 
+        /// [1]: GSM 8-bit data encoding(140.
+        /// 8-bit data encoding mode treats the information as raw data.According to the standard, the alphabet for this encoding is user-specific.
+        /// 
+        /// [2]: UCS-2 (UTF-16 [16 bit]) Encoding(70).
+        /// This encoding allows use of a greater range of characters and languages.UCS-2 can represent the most commonly used Latin and eastern
+        /// characters at the cost of a greater space expense.
+        /// </summary>
+        [JsonPropertyName("dc")]
+        public string Encoding { get; set; }
+
+        /// <summary>
+        /// Numeric (maximum number of digits: 16) or alphanumeric characters (maximum number of characters: 11)
+        /// </summary>
+        [JsonPropertyName("sender_id")]
+        public string From { get; set; }
+    }
+
+    internal class Subscribers
+    {
+        /// <summary>
+        /// Mobile number to deliver the message to. Number is in international format and is only digits between 7-15 digits long.
+        /// First digit cannot be a 0.
+        /// </summary>
+        [JsonPropertyName("number")]
+        public string To { get; set; }
+
+        /// <summary>
+        /// f your message content contains placeholders for personalized messages per destination, 
+        /// this field is required to populate the value for each recipient.
+        /// </summary>
+        public Dictionary<string, string> Params { get; set; }
+    }
+}
