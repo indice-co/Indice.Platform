@@ -21,7 +21,6 @@ namespace Indice.Identity.Controllers
     {
         private readonly IIdentityServerInteractionService _interaction;
         private readonly IConfiguration _configuration;
-        private readonly ISmsServiceFactory _smsProviders;
 
         /// <summary>
         /// The name of the controller.
