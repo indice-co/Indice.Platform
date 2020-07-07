@@ -6,6 +6,7 @@ using Indice.AspNetCore.Filters;
 using Indice.AspNetCore.TagHelpers;
 using Indice.Configuration;
 using Indice.Services;
+using Indice.Services.Yuboto;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.DataProtection.AuthenticatedEncryption;
 using Microsoft.AspNetCore.DataProtection.AuthenticatedEncryption.ConfigurationModel;
@@ -93,7 +94,21 @@ namespace Microsoft.Extensions.DependencyInjection
         public static IServiceCollection AddSmsServiceYouboto(this IServiceCollection services, IConfiguration configuration) {
             services.Configure<SmsServiceSettings>(configuration.GetSection(SmsServiceSettings.Name));
             services.AddTransient(serviceProvider => serviceProvider.GetRequiredService<IOptions<SmsServiceSettings>>().Value);
-            services.AddHttpClient<ISmsService, SmsServiceYuboto>().SetHandlerLifetime(TimeSpan.FromMinutes(5));
+            services.AddHttpClient<ISmsService, SmsYubotoOmniService>().SetHandlerLifetime(TimeSpan.FromMinutes(5));
+            services.AddTransient<ISmsServiceFactory, DefaultSmsServiceFactory>();
+            return services;
+        }
+
+        /// <summary>
+        /// Adds an instance of <see cref="ISmsService"/> using Youboto.
+        /// </summary>
+        /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
+        /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
+        public static IServiceCollection AddSmsServiceViber(this IServiceCollection services, IConfiguration configuration) {
+            services.Configure<SmsServiceViberSettings>(configuration.GetSection(SmsServiceSettings.Name));
+            services.AddTransient(serviceProvider => serviceProvider.GetRequiredService<IOptions<SmsServiceSettings>>().Value);
+            services.AddHttpClient<ISmsService, ViberYubotoOmniService>().SetHandlerLifetime(TimeSpan.FromMinutes(5));
+            services.AddTransient<ISmsServiceFactory, DefaultSmsServiceFactory>();
             return services;
         }
 

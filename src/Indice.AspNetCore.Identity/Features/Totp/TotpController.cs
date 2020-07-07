@@ -55,6 +55,7 @@ namespace Indice.AspNetCore.Identity.Features
             }
             switch (request.Channel) {
                 case TotpDeliveryChannel.Sms:
+                case TotpDeliveryChannel.Viber:
                     var result = await TotpService.Send(options => options.UsePrincipal(User).WithMessage(request.Message).UsingSms().WithPurpose(request.Purpose));
                     if (!result.Success) {
                         ModelState.AddModelError(nameof(request.Channel), result.Errors.FirstOrDefault() ?? "An error occured.");
@@ -63,7 +64,6 @@ namespace Indice.AspNetCore.Identity.Features
                     break;
                 case TotpDeliveryChannel.Email:
                 case TotpDeliveryChannel.Telephone:
-                case TotpDeliveryChannel.Viber:
                 default:
                     return StatusCode(405);
             }

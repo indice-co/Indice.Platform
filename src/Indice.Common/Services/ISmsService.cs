@@ -60,6 +60,13 @@ namespace Indice.Services
     public interface ISmsService
     {
         /// <summary>
+        /// Checkes the implementation if supports the givern <paramref name="deliveryChannel"/>.
+        /// </summary>
+        /// <param name="deliveryChannel">A string representing the delivery channel. ie 'SMS'</param>
+        /// <returns></returns>
+        bool Supports(string deliveryChannel);
+
+        /// <summary>
         /// Sends the SMS using the configured provider.
         /// </summary>
         /// <param name="destination">Destination, i.e. the phone number</param>

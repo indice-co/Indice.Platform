@@ -1,9 +1,12 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using IdentityServer4.Services;
 using Indice.AspNetCore.Filters;
 using Indice.AspNetCore.Identity.Models;
 using Indice.Configuration;
+using Indice.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 
@@ -18,6 +21,7 @@ namespace Indice.Identity.Controllers
     {
         private readonly IIdentityServerInteractionService _interaction;
         private readonly IConfiguration _configuration;
+
         /// <summary>
         /// The name of the controller.
         /// </summary>
@@ -37,7 +41,7 @@ namespace Indice.Identity.Controllers
         /// Displays the applicaion's home page.
         /// </summary>
         /// <returns></returns>
-        [HttpGet]
+        [HttpGet("home")]
         public IActionResult Index() {
             var siteUrl = _configuration[$"{GeneralSettings.Name}:Site"];
             if (!string.IsNullOrWhiteSpace(siteUrl)) {
