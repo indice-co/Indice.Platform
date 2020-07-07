@@ -4,6 +4,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
@@ -50,6 +51,8 @@ namespace Indice.Services.Yuboto.Bases
             }
         }
 
+        #region Helper Methods
+
         /// <summary>
         /// Get list of phone numbers from destination
         /// </summary>
@@ -81,6 +84,20 @@ namespace Indice.Services.Yuboto.Bases
             }
             return recipients;
         }
+
+        /// <summary>
+        /// Get default Json Serializer Options
+        /// CamelCase, ignore null values
+        /// </summary>
+        /// <returns></returns>
+        protected JsonSerializerOptions GetJsonSerializerOptions() {
+            return new JsonSerializerOptions {
+                IgnoreNullValues = true,
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            };
+        }
+
+        #endregion
 
         /// <summary>
         /// Disposes the <see cref="System.Net.Http.HttpClient"/> if not managed by the DI.

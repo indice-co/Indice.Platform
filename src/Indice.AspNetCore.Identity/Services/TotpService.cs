@@ -26,7 +26,7 @@ namespace Indice.AspNetCore.Identity
         /// Constructs the <see cref="TotpService"/>.
         /// </summary>
         /// <param name="userManager">Provides the APIs for managing user in a persistence store.</param>
-        /// <param name="smsServiceFactory"></param>
+        /// <param name="smsServiceFactory">Sms Service Factory</param>
         /// <param name="distributedCache">Represents a distributed cache of serialized values.</param>
         /// <param name="localizer">Represents a service that provides localized strings.</param>
         /// <param name="logger">Represents a type used to perform logging.</param>
@@ -100,8 +100,20 @@ namespace Indice.AspNetCore.Identity
             }
             Logger.LogInformation($"User: '{userName}' - Token generated successfully.");
 
-            var smsService = SmsServiceFactory.Create(TotpDeliveryChannel.Sms.ToString());
-            await smsService.SendAsync(user?.PhoneNumber ?? phoneNumberOrEmail, Localizer["OTP"], Localizer[message, token]);
+            switch (channel) {
+                case TotpDeliveryChannel.Sms:
+                case TotpDeliveryChannel.Viber:
+                    var smsService = SmsServiceFactory.Create(channel.ToString());
+                    await smsService.SendAsync(user?.PhoneNumber ?? phoneNumberOrEmail, Localizer["OTP"], Localizer[message, token]);
+                    break;
+                case TotpDeliveryChannel.Email:
+                case TotpDeliveryChannel.Telephone:
+                case TotpDeliveryChannel.EToken:
+                    throw new NotSupportedException($"EToken delivery channel {channel} is not implemented.");
+                default:
+                    break;
+            }
+
             await AddCacheKey(cacheKey);
             return TotpResult.SuccessResult;
         }

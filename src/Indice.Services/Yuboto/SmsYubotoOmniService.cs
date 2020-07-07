@@ -33,7 +33,7 @@ namespace Indice.Services.Yuboto
         public async Task SendAsync(string destination, string subject, string body) {
             var phoneNumbers = GetRecipientsFromDestination(destination);
             var requestBody = SendRequest.CreateSms(phoneNumbers, Settings.Sender ?? Settings.SenderName, body);
-            var jsonData = JsonSerializer.Serialize(requestBody);
+            var jsonData = JsonSerializer.Serialize(requestBody, GetJsonSerializerOptions());
             var data = new StringContent(jsonData, Encoding.UTF8, "application/json");
 
             var httpResponseMessage = await HttpClient.PostAsync($"Send", data);

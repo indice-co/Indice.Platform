@@ -9,7 +9,7 @@ namespace Indice.Services.Tests
 {
     public class YubotoTests
     {
-        [Theory/*(Skip = "Sensitive Data")*/]
+        [Theory(Skip = "Sensitive Data")]
         [InlineData("", "", "Sender", "SenderName", "Test Subject", "Test Body")]
         public async Task TestSms(string apiKey, string phoneNumber, string sender, string senderName, string subject, string body) {
             var excepion = default(Exception);
