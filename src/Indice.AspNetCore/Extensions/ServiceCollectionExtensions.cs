@@ -94,8 +94,7 @@ namespace Microsoft.Extensions.DependencyInjection
         public static IServiceCollection AddSmsServiceYouboto(this IServiceCollection services, IConfiguration configuration) {
             services.Configure<SmsServiceSettings>(configuration.GetSection(SmsServiceSettings.Name));
             services.AddTransient(serviceProvider => serviceProvider.GetRequiredService<IOptions<SmsServiceSettings>>().Value);
-            services.AddHttpClient<ISmsService, SmsYubotoOmniService>().SetHandlerLifetime(TimeSpan.FromMinutes(5));
-            services.AddTransient<ISmsServiceFactory, DefaultSmsServiceFactory>();
+            services.AddHttpClient<ISmsService, SmsServiceYuboto>().SetHandlerLifetime(TimeSpan.FromMinutes(5));
             return services;
         }
 
@@ -121,7 +120,32 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
         /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
         public static IServiceCollection AddSmsServiceViber(this IServiceCollection services, IConfiguration configuration) {
-            services.Configure<SmsServiceViberSettings>(configuration.GetSection(SmsServiceSettings.Name));
+            services.Configure<SmsServiceViberSettings>(configuration.GetSection(SmsServiceViberSettings.Name));
+            services.AddTransient(serviceProvider => serviceProvider.GetRequiredService<IOptions<SmsServiceViberSettings>>().Value);
+            services.AddHttpClient<ISmsService, SmsServiceViber>().SetHandlerLifetime(TimeSpan.FromMinutes(5));
+            return services;
+        }
+
+        // <summary>
+        /// Adds an instance of <see cref="ISmsService"/> using Youboto Omni from sending regular SMS messages.
+        /// </summary>
+        /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
+        /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
+        public static IServiceCollection AddSmsServiceYubotoOmni(this IServiceCollection services, IConfiguration configuration) {
+            services.Configure<SmsServiceSettings>(configuration.GetSection(SmsServiceSettings.Name));
+            services.AddTransient(serviceProvider => serviceProvider.GetRequiredService<IOptions<SmsServiceSettings>>().Value);
+            services.AddHttpClient<ISmsService, SmsYubotoOmniService>().SetHandlerLifetime(TimeSpan.FromMinutes(5));
+            services.AddTransient<ISmsServiceFactory, DefaultSmsServiceFactory>();
+            return services;
+        }
+
+        // <summary>
+        /// Adds an instance of <see cref="ISmsService"/> using Youboto Omni for sending Viber messages.
+        /// </summary>
+        /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
+        /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
+        public static IServiceCollection AddViberServiceYubotoOmni(this IServiceCollection services, IConfiguration configuration) {
+            services.Configure<SmsServiceSettings>(configuration.GetSection(SmsServiceSettings.Name));
             services.AddTransient(serviceProvider => serviceProvider.GetRequiredService<IOptions<SmsServiceSettings>>().Value);
             services.AddHttpClient<ISmsService, ViberYubotoOmniService>().SetHandlerLifetime(TimeSpan.FromMinutes(5));
             services.AddTransient<ISmsServiceFactory, DefaultSmsServiceFactory>();
