@@ -83,7 +83,7 @@ namespace Indice.AspNetCore.Filters
         /// </summary>
         public const string Self = "'self'";
         /// <summary>
-        /// Prevents loading resources from any source.
+        /// Prevents loading resources from any source. Refers to the empty set; that is, no URLs match. The single quotes are required.
         /// </summary>
         public const string None = "'none'";
         /// <summary>
@@ -91,13 +91,18 @@ namespace Indice.AspNetCore.Filters
         /// </summary>
         public const string Data = "data:";
         /// <summary>
-        /// Allows execution of unsafe in-page scripts and event handlers.
+        /// Allows the use of eval() and similar methods for creating code from strings. You must include the single quotes.
+        /// </summary>
+        public const string UnsafeEval = "'unsafe-eval'";
+        /// <summary>
+        /// Allows the use of inline resources, such as inline &lt;script&gt; elements, javascript: URLs, inline event handlers, and inline &lt;style&gt; elements. The single quotes are required.
         /// </summary>
         public const string UnsafeInline = "'unsafe-inline'";
         /// <summary>
-        /// Allows execution of unsafe in-page scripts and event handlers.
+        /// Allows enabling specific inline event handlers. If you only need to allow inline event handlers and not inline &lt;script&gt; elements or javascript: URLs, this is a safer method than using the unsafe-inline expression.
         /// </summary>
-        public const string UnsafeEval = "'unsafe-eval'";
+        public const string UnsafeHashes = "'unsafe-hashes'";
+
 
         /// <summary>
         /// [CSP Level 1]
@@ -325,86 +330,113 @@ namespace Indice.AspNetCore.Filters
         }
 
         /** level1 **/
-        
+
         /// <summary>
-        /// Appends an entry to the current CSP policy.
+        /// [CSP Level 1]
+        /// The default-src directive defines the default policy for fetching resources such as 
+        /// JavaScript, Images, CSS, Fonts, AJAX requests, Frames, HTML5 Media. 
+        /// Not all directives fallback to default-src. See the Source List Reference for possible values.
         /// </summary>
         /// <param name="value">The value to add.</param>
         public CSP AddDefaultSrc(string value) => Add(nameof(DefaultSrc), value);
         /// <summary>
-        /// Appends an entry to the current CSP policy.
+        /// [CSP Level 1]
+        /// Defines valid sources of JavaScript.
         /// </summary>
         /// <param name="value">The value to add.</param>
         public CSP AddScriptSrc(string value) => Add(nameof(ScriptSrc), value);
         /// <summary>
-        /// Appends an entry to the current CSP policy.
+        /// [CSP Level 1]
+        ///Defines valid sources of stylesheets or CSS.
         /// </summary>
         /// <param name="value">The value to add.</param>
         public CSP AddStyleSrc(string value) => Add(nameof(StyleSrc), value);
         /// <summary>
-        /// Appends an entry to the current CSP policy.
+        /// [CSP Level 1]
+        /// Defines valid sources of images.
         /// </summary>
         /// <param name="value">The value to add.</param>
         public CSP AddImgSrc(string value) => Add(nameof(ImgSrc), value);
         /// <summary>
-        /// Appends an entry to the current CSP policy.
+        /// [CSP Level 1]
+        /// Applies to XMLHttpRequest (AJAX), WebSocket, fetch(), &lt;a ping&gt; or EventSource. If not allowed the browser emulates a 400 HTTP status code.
         /// </summary>
         /// <param name="value">The value to add.</param>
         public CSP AddConnectSrc(string value) => Add(nameof(ConnectSrc), value);
         /// <summary>
-        /// Appends an entry to the current CSP policy.
+        /// [CSP Level 1]
+        /// Content Security Policy regarding font sources.
         /// </summary>
         /// <param name="value">The value to add.</param>
         public CSP AddFontSrc(string value) => Add(nameof(FontSrc), value);
         /// <summary>
-        /// Appends an entry to the current CSP policy.
+        /// [CSP Level 1]
+        /// Specifies valid sources for the &lt;object&gt;, &lt;embed&gt;, and &lt;applet&gt; elements.
         /// </summary>
         /// <param name="value">The value to add.</param>
         public CSP AddObjectSrc(string value) => Add(nameof(ObjectSrc), value);
         /// <summary>
-        /// Appends an entry to the current CSP policy.
+        /// [CSP Level 1]
+        /// Defines valid sources of audio and video, eg HTML5 &lt;audio&gt;, &lt;video&gt; elements.
         /// </summary>
         /// <param name="value">The value to add.</param>
         public CSP AddMediaSrc(string value) => Add(nameof(MediaSrc), value);
         /// <summary>
-        /// Appends an entry to the current CSP policy.
+        /// [CSP Level 1]
+        /// Defines valid sources for loading frames. In CSP Level 2 frame-src was deprecated in favor of the child-src directive. 
+        /// CSP Level 3, has undeprecated frame-src and it will continue to defer to child-src if not present.
         /// </summary>
         /// <param name="value">The value to add.</param>
         public CSP AddFrameSrc(string value) => Add(nameof(FrameSrc), value);
         /// <summary>
-        /// Appends an entry to the current CSP policy.
+        /// [CSP Level 1]
+        /// Enables a sandbox for the requested resource similar to the iframe sandbox attribute. 
+        /// The sandbox applies a same origin policy, prevents popups, plugins and script execution is blocked. 
+        /// You can keep the sandbox value empty to keep all restrictions in place, or add values: 
+        /// allow-forms allow-same-origin allow-scripts allow-popups, allow-modals, allow-orientation-lock, 
+        /// allow-pointer-lock, allow-presentation, allow-popups-to-escape-sandbox, and allow-top-navigation
         /// </summary>
         /// <param name="value">The value to add.</param>
         public CSP AddSandbox(string value) => Add(nameof(Sandbox), value);
         /// <summary>
-        /// Appends an entry to the current CSP policy.
+        /// [CSP Level 1]
+        /// Instructs the browser to POST a reports of policy failures to this URI. 
+        /// You can also use Content-Security-Policy-Report-Only as the HTTP header name to instruct the browser to only send reports (does not block anything). 
+        /// This directive is deprecated in CSP Level 3 in favor of the report-to directive.
         /// </summary>
         /// <param name="value">The value to add.</param>
         public CSP AddReportUri(string value) => Add(nameof(ReportUri), value);
-        
+
         /** level2 **/
         /// <summary>
-        /// Appends an entry to the current CSP policy.
+        /// [CSP Level 2]
+        /// Defines valid sources for web workers and nested browsing contexts loaded using elements such as &lt;frame&gt; and &lt;iframe&gt;
         /// </summary>
         /// <param name="value">The value to add.</param>
         public CSP AddChildSrc(string value) => Add(nameof(ChildSrc), value);
         /// <summary>
-        /// Appends an entry to the current CSP policy.
+        /// [CSP Level 2]
+        /// Defines valid sources that can be used as an HTML &lt;form&gt; action.
         /// </summary>
         /// <param name="value">The value to add.</param>
         public CSP AddFormAction(string value) => Add(nameof(FormAction), value);
         /// <summary>
-        /// Appends an entry to the current CSP policy.
+        /// [CSP Level 2]
+        /// Defines valid sources for embedding the resource using &lt;frame&gt; &lt;iframe&gt; &lt;object&gt; &lt;embed&gt; &lt;applet&gt;. 
+        /// Setting this directive to 'none' should be roughly equivalent to X-Frame-Options: DENY
         /// </summary>
         /// <param name="value">The value to add.</param>
         public CSP AddFrameAncestors(string value) => Add(nameof(FrameAncestors), value);
         /// <summary>
-        /// Appends an entry to the current CSP policy.
+        /// [CSP Level 2]
+        /// Defines valid MIME types for plugins invoked via &lt;object&gt; and &lt;embed&gt;. 
+        /// To load an &lt;applet&gt; you must specify application/x-java-applet.
         /// </summary>
         /// <param name="value">The value to add.</param>
         public CSP AddPluginTypes(string value) => Add(nameof(PluginTypes), value);
         /// <summary>
-        /// Appends an entry to the current CSP policy.
+        /// [CSP Level 2]
+        /// Defines a set of allowed URLs which can be used in the src attribute of a HTML base tag.
         /// </summary>
         /// <param name="value">The value to add.</param>
         public CSP AddBaseUri(string value) => Add(nameof(BaseUri), value);
@@ -412,27 +444,34 @@ namespace Indice.AspNetCore.Filters
         /** level3 **/
 
         /// <summary>
-        /// Appends an entry to the current CSP policy.
+        /// [CSP Level 3]
+        /// Defines a reporting group name defined by a Report-To HTTP response header. See the Reporting API for more info.
         /// </summary>
         /// <param name="value">The value to add.</param>
         public CSP AddReportTo(string value) => Add(nameof(ReportTo), value);
         /// <summary>
-        /// Appends an entry to the current CSP policy.
+        /// [CSP Level 3]
+        /// Restricts the URLs which may be loaded as a Worker, SharedWorker or ServiceWorker.
         /// </summary>
         /// <param name="value">The value to add.</param>
         public CSP AddWorkerSrc(string value) => Add(nameof(WorkerSrc), value);
         /// <summary>
-        /// Appends an entry to the current CSP policy.
+        /// [CSP Level 3]
+        /// Restricts the URLs that application manifests can be loaded.
         /// </summary>
         /// <param name="value">The value to add.</param>
         public CSP AddManifestSrc(string value) => Add(nameof(ManifestSrc), value);
         /// <summary>
-        /// Appends an entry to the current CSP policy.
+        /// [CSP Level 3]
+        /// Defines valid sources for request prefetch and prerendering, for example via the link tag with rel="prefetch" or rel="prerender":
         /// </summary>
         /// <param name="value">The value to add.</param>
         public CSP AddPrefetchSrc(string value) => Add(nameof(PrefetchSrc), value);
         /// <summary>
-        /// Appends an entry to the current CSP policy.
+        /// [CSP Level 3]
+        /// Restricts the URLs that the document may navigate to by any means. For example when a link is clicked, 
+        /// a form is submitted, or window.location is invoked. 
+        /// If form-action is present then this directive is ignored for form submissions.
         /// </summary>
         /// <param name="value">The value to add.</param>
         public CSP AddNavigateTo(string value) => Add(nameof(NavigateTo), value);
