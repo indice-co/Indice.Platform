@@ -126,7 +126,7 @@ namespace Microsoft.Extensions.DependencyInjection
             return services;
         }
 
-        // <summary>
+        /// <summary>
         /// Adds an instance of <see cref="ISmsService"/> using Youboto Omni from sending regular SMS messages.
         /// </summary>
         /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
@@ -139,7 +139,7 @@ namespace Microsoft.Extensions.DependencyInjection
             return services;
         }
 
-        // <summary>
+        /// <summary>
         /// Adds an instance of <see cref="ISmsService"/> using Youboto Omni for sending Viber messages.
         /// </summary>
         /// <param name="services">Specifies the contract for a collection of service descriptors.</param>

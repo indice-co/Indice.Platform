@@ -246,7 +246,6 @@ namespace Indice.Services
 
     internal class Message
     {
-        [JsonPropertyName("text")]
         /// <summary>
         /// Contains the body of the SMS message to be delivered to the destination device.One can optionally specify keys within the message body that
         /// will be replaced later with values given by the params field in the SUBSCRIBERS* object. See 'params' in the SUBSCRIBERS* section for more
@@ -255,6 +254,7 @@ namespace Indice.Services
         ///
         /// In the event your text is longer than 160 characters in 7bit, 140 in 8bit or 70 in 16bit, Apifon will split the message into parts.
         /// </summary>
+        [JsonPropertyName("text")]
         public string Text { get; set; }
 
         /// <summary>
