@@ -74,8 +74,9 @@ namespace Indice.Identity
             });
             services.AddProblemDetailsConfig(HostingEnvironment);
             services.ConfigureNonBreakingSameSiteCookies();
-            services.AddSmsServiceYouboto(Configuration);
-            services.AddSmsServiceViber(Configuration);
+            //services.AddSmsServiceYouboto(Configuration);
+            //services.AddSmsServiceViber(Configuration);
+            services.AddSmsServiceApifon(Configuration);
             services.AddEmailServiceSmtpRazor(Configuration);
             services.AddSwaggerGen(options => {
                 options.IndiceDefaults(Settings);

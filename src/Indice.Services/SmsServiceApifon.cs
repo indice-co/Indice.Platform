@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -10,7 +9,6 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using Org.BouncyCastle.Ocsp;
 
 namespace Indice.Services
 {
@@ -73,23 +71,25 @@ namespace Indice.Services
                 throw new ArgumentException("Invalid recipients. Recipients cannot contain letters.", nameof(recipients));
 
             var request = new ApifonRequest(Settings.Sender ?? Settings.SenderName, recipients, body);
-            var signature = request.Sign(Settings.ApiKey, "POST", HttpClient.BaseAddress.OriginalString + "send");
-            HttpClient.DefaultRequestHeaders.Add("X-ApifonWS-Date", request.RequestDate.ToUniversalTime().ToString("r"));
-            HttpClient.DefaultRequestHeaders
-                .Accept
-                .Add(new MediaTypeWithQualityHeaderValue("application/json"));
+            var signature = request.Sign(Settings.ApiKey, "POST", "/services/api/v1/sms/send");
+            HttpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+            HttpClient.DefaultRequestHeaders.Add("X-ApifonWS-Date", request.RequestDate.ToString("r"));
             HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("ApifonWS", $"{Settings.Token}:{signature}");
+
             try {
-                httpResponse = await HttpClient.PostAsync("send", new StringContent(request.ToJson(), Encoding.UTF8, "application/json"));
+                httpResponse = await HttpClient.PostAsync("send", new StringContent(request.ToJson(), Encoding.UTF8, "application/json")).ConfigureAwait(false);
             } catch (Exception ex) {
-                throw new SmsServiceException($"SMS Delivery failed.", ex);
+                throw new SmsServiceException($"SMS Delivery took too long.", ex);
             }
             var stringifyResponse = await httpResponse.Content.ReadAsStringAsync();
             if (!httpResponse.IsSuccessStatusCode) {
                 throw new SmsServiceException($"SMS Delivery failed. {httpResponse.StatusCode} : {stringifyResponse}");
             }
 
-            response = JsonSerializer.Deserialize<ApifonResponse>(stringifyResponse);
+            response = JsonSerializer.Deserialize<ApifonResponse>(stringifyResponse, new JsonSerializerOptions {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                IgnoreNullValues = true,
+            });
             if (response.HasError) {
                 throw new SmsServiceException($"SMS Delivery failed. {response.Status.Description}");
             } else {
@@ -105,7 +105,7 @@ namespace Indice.Services
             GC.SuppressFinalize(this);
         }
 
-        // https://docs.microsoft.com/en-us/dotnet/standard/garbage-collection/implementing-dispose
+        /// https://docs.microsoft.com/en-us/dotnet/standard/garbage-collection/implementing-dispose
         /// <summary>
         /// Protected implementation of Dispose pattern.
         /// </summary>
@@ -146,12 +146,12 @@ namespace Indice.Services
         [JsonPropertyName("request_id")]
         public string Id { get; set; }
 
-        public Dictionary<string, ResultDetails> Results { get; set; }
+        public Dictionary<string, ResultDetails[]> Results { get; set; }
 
         [JsonPropertyName("result_info")]
         public ResultInfo Status { get; set; }
 
-        public bool HasError => !Status.Status.Equals("200");
+        public bool HasError => !(Status?.StatusCode >= 200 && Status?.StatusCode < 300);
 
         internal class ResultDetails
         {
@@ -174,7 +174,7 @@ namespace Indice.Services
         internal class ResultInfo
         {
             [JsonPropertyName("status_code")]
-            public string Status { get; set; }
+            public int StatusCode { get; set; }
 
             public string Description { get; set; }
 
@@ -190,7 +190,7 @@ namespace Indice.Services
 
         public ApifonRequest(string from, string[] to, string message) {
             foreach(var subNumber in to) {
-                Subscribers = new Subscribers { To = subNumber};
+                Subscribers.Add(new Subscribers { To = subNumber });
             }
             Message.From = from;
             Message.Text = message;
@@ -199,7 +199,7 @@ namespace Indice.Services
         [JsonPropertyName("message")]
         public Message Message { get; set; } = new Message();
         [JsonPropertyName("subscribers")]
-        public Subscribers Subscribers { get; set; } = new Subscribers();
+        public List<Subscribers> Subscribers { get; set; } = new List<Subscribers>();
         /// <summary>
         /// Sms validity period
         /// min 30
@@ -221,7 +221,7 @@ namespace Indice.Services
         public DateTime? DateToSend { get; set; }
 
         [JsonIgnore]
-        public DateTime RequestDate { get; set; } = DateTime.UtcNow;
+        public DateTime RequestDate { get; set; } = DateTime.Now.ToUniversalTime();
 
         public string ToJson() {
             // Serialize our concrete class into a JSON String
@@ -235,14 +235,11 @@ namespace Indice.Services
             var toSign = method + "\n"
                     + uri + "\n"
                     + ToJson() + "\n"
-                    + RequestDate.ToUniversalTime().ToString("r");
+                    + RequestDate.ToString("r");
 
-            var encoding = new System.Text.UTF8Encoding();
-            byte[] keyByte = encoding.GetBytes(secretKey);
-            byte[] messageBytes = encoding.GetBytes(toSign);
-            using (var hmacsha256 = new HMACSHA256(keyByte)) {
-                byte[] hashmessage = hmacsha256.ComputeHash(messageBytes);
-                return Convert.ToBase64String(hashmessage);
+            var encoding = new UTF8Encoding();
+            using (var hmacsha256 = new HMACSHA256(encoding.GetBytes(secretKey))) {
+                return Convert.ToBase64String(hmacsha256.ComputeHash(encoding.GetBytes(toSign)));
             }
         }
     }
