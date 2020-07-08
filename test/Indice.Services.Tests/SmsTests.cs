@@ -30,7 +30,7 @@ namespace Indice.Services.Tests
             Assert.Null(excepion);
         }
 
-        [Theory(/*Skip = "Sensitive Data"*/)]
+        [Theory(Skip = "Sensitive Data")]
         [InlineData("", "", "", "Indice", "Indice", "Test Subject", "Test Body")]
         public async Task TestApifonSms(string apiKey, string token, string phoneNumber, string sender, string senderName, string subject, string body) {
             var excepion = default(Exception);
