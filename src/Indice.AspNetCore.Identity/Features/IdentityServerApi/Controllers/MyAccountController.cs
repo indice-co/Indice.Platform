@@ -47,6 +47,7 @@ namespace Indice.AspNetCore.Identity.Features
         private readonly ISmsService _smsService;
         private readonly IEmailService _emailService;
         private readonly IEventService _eventService;
+        private readonly ISmsServiceFactory _smsServiceFactory;
         private readonly MessageDescriber _messageDescriber;
         /// <summary>
         /// The name of the controller.
@@ -54,16 +55,17 @@ namespace Indice.AspNetCore.Identity.Features
         public const string Name = "MyAccount";
 
         public MyAccountController(ExtendedUserManager<User> userManager, IOptions<GeneralSettings> generalSettings, IOptionsSnapshot<IdentityOptions> identityOptions,
-            IdentityServerApiEndpointsOptions identityServerApiEndpointsOptions, IEventService eventService, ISmsService smsService, IEmailService emailService,
+            IdentityServerApiEndpointsOptions identityServerApiEndpointsOptions, IEventService eventService, ISmsServiceFactory smsServiceFactory, IEmailService emailService,
             MessageDescriber messageDescriber, ExtendedIdentityDbContext<User, Role> dbContext) {
             _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
             _generalSettings = generalSettings?.Value ?? throw new ArgumentNullException(nameof(generalSettings));
             _identityOptions = identityOptions?.Value ?? throw new ArgumentNullException(nameof(identityOptions));
             _identityServerApiEndpointsOptions = identityServerApiEndpointsOptions ?? throw new ArgumentNullException(nameof(identityServerApiEndpointsOptions));
             _eventService = eventService ?? throw new ArgumentNullException(nameof(eventService));
+            _smsServiceFactory = smsServiceFactory ?? throw new ArgumentNullException(nameof(smsServiceFactory));
             _messageDescriber = messageDescriber ?? throw new ArgumentNullException(nameof(messageDescriber));
             _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
-            _smsService = smsService;
+            _smsService = _smsServiceFactory.Create("Sms");
             _emailService = emailService;
         }
 
