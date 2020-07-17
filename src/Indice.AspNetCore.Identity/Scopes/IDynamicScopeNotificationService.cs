@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
+using IdentityServer4.Validation;
 
 namespace Indice.AspNetCore.Identity.Scopes
 {
@@ -12,9 +13,9 @@ namespace Indice.AspNetCore.Identity.Scopes
         /// Abstracts the way that an API is notified.
         /// </summary>
         /// <param name="clientId">The id of the client.</param>
-        /// <param name="scopes">The scopes that were altered.</param>
+        /// <param name="parsedScopes">The scopes that were altered.</param>
         /// <param name="notificationType">Describes the way that a dynamic consent was altered.</param>
-        Task Notify(string clientId, IEnumerable<string> scopes, DynamicScopeNotificationType notificationType);
+        Task Notify(string clientId, IEnumerable<ParsedScopeValue> parsedScopes, DynamicScopeNotificationType notificationType);
     }
 
     /// <summary>

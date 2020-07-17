@@ -28,6 +28,11 @@ namespace Indice.AspNetCore.Identity.Models
         public string ReturnUrl { get; set; }
 
         /// <summary>
+        /// Description
+        /// </summary>
+        public string Description { get; set; }
+
+        /// <summary>
         /// Selected Strong customer authentication method
         /// </summary>
         public string ScaMethod { get; set; }

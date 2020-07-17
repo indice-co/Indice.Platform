@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
-using System.Security.Principal;
 using System.Threading.Tasks;
 using IdentityModel;
 using IdentityServer4.Events;
@@ -13,7 +12,6 @@ using Indice.AspNetCore.Filters;
 using Indice.AspNetCore.Identity.Extensions;
 using Indice.AspNetCore.Identity.Models;
 using Indice.AspNetCore.Identity.Services;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
@@ -45,7 +43,7 @@ namespace Indice.Identity.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Challenge(string provider, string returnUrl) {
+        public IActionResult Challenge(string provider, string returnUrl) {
             if (string.IsNullOrEmpty(returnUrl)) {
                 returnUrl = "~/";
             }
@@ -53,10 +51,6 @@ namespace Indice.Identity.Controllers
             if (Url.IsLocalUrl(returnUrl) == false && _interaction.IsValidReturnUrl(returnUrl) == false) {
                 // User might have clicked on a malicious link - should be logged.
                 throw new Exception("Invalid return URL.");
-            }
-            if (AccountOptions.WindowsAuthenticationSchemeName == provider) {
-                // Windows authentication needs special handling.
-                return await ProcessWindowsLoginAsync(returnUrl);
             }
             var authenticationProperties = _signInManager.ConfigureExternalAuthenticationProperties(provider, Url.Action(nameof(Callback), new { returnUrl }));
             authenticationProperties.Items.Add(nameof(returnUrl), returnUrl);
@@ -96,40 +90,14 @@ namespace Indice.Identity.Controllers
             await _signInManager.ExternalLoginSignInAsync(externalLoginInfo.LoginProvider, externalLoginInfo.ProviderKey, isPersistent: true);
             // Check if external login is in the context of an OIDC request.
             var context = await _interaction.GetAuthorizationContextAsync(returnUrl);
-            if (context != null && await _clientStore.IsPkceClientAsync(context.ClientId)) {
-                // If the client is PKCE then we assume it's native, so this change in how to return the response is for better UX for the end user.
-                return View("Redirect", new RedirectViewModel {
-                    RedirectUrl = returnUrl
-                });
-            }
-            return Redirect(returnUrl);
-        }
-
-        private async Task<IActionResult> ProcessWindowsLoginAsync(string returnUrl) {
-            // See if windows auth has already been requested and succeeded.
-            var result = await HttpContext.AuthenticateAsync(AccountOptions.WindowsAuthenticationSchemeName);
-            if (!(result?.Principal is WindowsPrincipal principal)) {
-                // Trigger windows auth.
-                // Since they don't support the redirect uri, so this URL is re-triggered when we call challenge.
-                return Challenge(AccountOptions.WindowsAuthenticationSchemeName);
-            }
-            // We will issue the external cookie and then redirect the user back to the external callback, in essence, treating windows auth the same as any other external authentication mechanism.
-            var authenticationProperties = _signInManager.ConfigureExternalAuthenticationProperties(AccountOptions.WindowsAuthenticationSchemeName, Url.Action(nameof(Callback), new { returnUrl }));
-            authenticationProperties.Items.Add(nameof(returnUrl), returnUrl);
-            var claimsIdentity = new ClaimsIdentity(AccountOptions.WindowsAuthenticationSchemeName);
-            claimsIdentity.AddClaim(new Claim(JwtClaimTypes.Subject, principal.Identity.Name));
-            claimsIdentity.AddClaim(new Claim(JwtClaimTypes.Name, principal.Identity.Name));
-            // Add the groups as claims - be careful if the number of groups is too large.
-            if (AccountOptions.IncludeWindowsGroups) {
-                var windowsIdentity = principal.Identity as WindowsIdentity;
-                var groups = windowsIdentity?.Groups?.Translate(typeof(NTAccount));
-                if (groups != null) {
-                    var roles = groups.Select(x => new Claim(JwtClaimTypes.Role, x.Value));
-                    claimsIdentity.AddClaims(roles);
+            if (context != null) {
+                if (context.IsNativeClient()) {
+                    // The client is native, so this change in how to
+                    // return the response is for better UX for the end user.
+                    return this.LoadingPage("Redirect", returnUrl);
                 }
             }
-            await HttpContext.SignInAsync(IdentityConstants.ExternalScheme, new ClaimsPrincipal(claimsIdentity), authenticationProperties);
-            return Redirect(authenticationProperties.RedirectUri);
+            return Redirect(returnUrl);
         }
 
         private async Task<User> AutoProvisionExternalUserAsync(string userId, List<Claim> claims) {

@@ -74,10 +74,7 @@ namespace Indice.Identity
             });
             services.AddProblemDetailsConfig(HostingEnvironment);
             services.ConfigureNonBreakingSameSiteCookies();
-            //services.AddSmsServiceYouboto(Configuration);
-            //services.AddSmsServiceViber(Configuration);
-            services.AddSmsServiceApifon(Configuration);
-            services.AddEmailServiceSmtpRazor(Configuration);
+            services.AddSmsServiceYouboto(Configuration);
             services.AddSwaggerGen(options => {
                 options.IndiceDefaults(Settings);
                 options.AddOAuth2(Settings);
@@ -88,7 +85,7 @@ namespace Indice.Identity
             services.AddDataProtectionLocal(options => options.FromConfiguration());
             services.AddCsp(options => {
                 options.AddSandbox("allow-popups")
-                       .AddFontSrc(CSP.Data) // Allows fonts as data URLs.
+                       .AddFontSrc(CSP.Data)
                        .AddConnectSrc(CSP.Self)
                        .AddConnectSrc("https://dc.services.visualstudio.com")
                        .AddScriptSrc("cdnjs.cloudflare.com")
@@ -107,18 +104,19 @@ namespace Indice.Identity
         public void Configure(IApplicationBuilder app) {
             if (HostingEnvironment.IsDevelopment()) {
                 app.UseDeveloperExceptionPage();
-                app.IdentityServerStoreSetup<ExtendedConfigurationDbContext>(Clients.Get(), Resources.GetIdentityResources(), Resources.GetApiResources());
+                app.IdentityServerStoreSetup<ExtendedConfigurationDbContext>(Clients.Get(), Resources.GetIdentityResources(), Resources.GetApis(), Resources.GetApiScopes());
             } else {
                 app.UseHsts();
                 app.UseHttpsRedirection();
             }
-            app.UseStaticFiles(new StaticFileOptions {
+            var staticFileOptions = new StaticFileOptions {
                 OnPrepareResponse = context => {
                     const int durationInSeconds = 60 * 60 * 24;
                     context.Context.Response.Headers[HeaderNames.CacheControl] = $"public,max-age={durationInSeconds}";
                     context.Context.Response.Headers.Append(HeaderNames.Expires, DateTime.UtcNow.AddSeconds(durationInSeconds).ToString("R", CultureInfo.InvariantCulture));
                 }
-            });
+            };
+            app.UseStaticFiles(staticFileOptions);
             app.UseCookiePolicy();
             app.UseRouting();
             app.UseIdentityServer();
@@ -159,7 +157,7 @@ namespace Indice.Identity
                 endpoints.MapControllers();
             });
             if (!HostingEnvironment.IsDevelopment()) {
-                app.UseSpaStaticFiles();
+                app.UseSpaStaticFiles(staticFileOptions);
                 app.UseSpa(builder => {
                     builder.Options.SourcePath = "wwwroot/admin-ui";
                 });

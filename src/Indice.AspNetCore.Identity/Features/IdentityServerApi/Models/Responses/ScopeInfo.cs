@@ -14,7 +14,7 @@ namespace Indice.AspNetCore.Identity.Features
         /// <summary>
         /// The name of the scope.
         /// </summary>
-        public string Name { get; set; }
+        public string Scope { get; set; }
         /// <summary>
         /// The display name of the scope.
         /// </summary>
@@ -26,7 +26,7 @@ namespace Indice.AspNetCore.Identity.Features
         /// <summary>
         /// Determines whether this scope is required or not.
         /// </summary>
-        public bool? Required { get; set; }
+        public bool? NonEditable { get; set; }
         /// <summary>
         /// Determines whether this scope should be displayed emphasized or not.
         /// </summary>
@@ -35,6 +35,10 @@ namespace Indice.AspNetCore.Identity.Features
         /// Determines whether this scope should be displayed in the discovery document or not.
         /// </summary>
         public bool? ShowInDiscoveryDocument { get; set; }
+        /// <summary>
+        /// List of allowed signing algorithms for access token. If empty, will use the server default signing algorithm.
+        /// </summary>
+        public string AllowedAccessTokenSigningAlgorithms { get; set; }
         /// <summary>
         /// List of accociated user claims that should be included when a resource is requested.
         /// </summary>

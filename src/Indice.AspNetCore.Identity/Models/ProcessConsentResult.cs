@@ -2,6 +2,8 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
+using IdentityServer4.Models;
+
 namespace Indice.AspNetCore.Identity.Models
 {
     /// <summary>
@@ -20,9 +22,9 @@ namespace Indice.AspNetCore.Identity.Models
         public string RedirectUri { get; set; }
 
         /// <summary>
-        /// the client_id
+        /// The client
         /// </summary>
-        public string ClientId { get; set; }
+        public Client Client { get; set; }
 
         /// <summary>
         /// Should show the consent view.

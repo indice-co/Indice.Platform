@@ -48,13 +48,13 @@ export class ApiResourceScopeDetailsComponent implements OnInit, OnDestroy {
 
     public delete(): void {
         this._deleteApiResourceSubscription = this._apiResourceStore.deleteApiResourceScope(this._apiResourceId, this.scope.id).subscribe(_ => {
-            this._toast.showSuccess(`API scope '${this.scope.name}' was deleted successfully.`);
+            this._toast.showSuccess(`API scope '${this.scope.scope}' was deleted successfully.`);
         });
     }
 
     public update(): void {
         this._updateApiResourceSubscription = this._apiResourceStore.updateApiResourceScope(this._apiResourceId, this.scope).subscribe(_ => {
-            this._toast.showSuccess(`API scope '${this.scope.name}' was updated successfully.`);
+            this._toast.showSuccess(`API scope '${this.scope.scope}' was updated successfully.`);
         });
     }
 }

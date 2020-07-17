@@ -158,8 +158,8 @@ namespace Indice.AspNetCore.Identity.Features
                                                           ApiResources = x.AllowedScopes.Join(
                                                               _configurationDbContext.ApiResources.SelectMany(x => x.Scopes),
                                                               clientScope => clientScope.Scope,
-                                                              apiScope => apiScope.Name,
-                                                              (clientScope, apiScope) => apiScope.Name
+                                                              apiScope => apiScope.Scope,
+                                                              (clientScope, apiScope) => apiScope.Scope
                                                           )
                                                           .Select(x => x),
                                                           IdentityResources = x.AllowedScopes.Join(
@@ -290,13 +290,13 @@ namespace Indice.AspNetCore.Identity.Features
             if (client == null) {
                 return NotFound();
             }
-            var claimToAdd = new ClientClaim {
+            var claimToAdd = new Entities.ClientClaim {
                 Client = client,
                 ClientId = client.Id,
                 Type = request.Type,
                 Value = request.Value
             };
-            client.Claims = new List<ClientClaim> {
+            client.Claims = new List<Entities.ClientClaim> {
                 claimToAdd
             };
             await _configurationDbContext.SaveChangesAsync();
@@ -324,7 +324,7 @@ namespace Indice.AspNetCore.Identity.Features
                 return NotFound();
             }
             if (client.Claims == null) {
-                client.Claims = new List<ClientClaim>();
+                client.Claims = new List<Entities.ClientClaim>();
             }
             var claimToRemove = client.Claims.SingleOrDefault(x => x.Id == claimId);
             if (claimToRemove == null) {

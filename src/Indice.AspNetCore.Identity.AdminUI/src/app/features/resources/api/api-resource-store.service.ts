@@ -19,7 +19,7 @@ export class ApiResourceStore {
             this._apiResource = new AsyncSubject<ApiResourceInfo>();
             this._api.getApiResource(apiResourceId).subscribe((apiResource: ApiResourceInfo) => {
                 apiResource.secrets = apiResource.secrets || [];
-                apiResource.scopes = apiResource.scopes.sort((left: ScopeInfo, right: ScopeInfo) => (left.name > right.name ? 1 : -1));
+                apiResource.scopes = apiResource.scopes.sort((left: ScopeInfo, right: ScopeInfo) => (left.scope > right.scope ? 1 : -1));
                 apiResource.scopes.forEach((value: ScopeInfo) => {
                     (value as any).isOpen = false;
                     value.userClaims = value.userClaims || [];
@@ -107,7 +107,7 @@ export class ApiResourceStore {
             };
         })).pipe(map((result: { apiResource: ApiResourceInfo, addedScope: ScopeInfo }) => {
             result.apiResource.scopes.push(result.addedScope);
-            result.apiResource.scopes = result.apiResource.scopes.sort((left: ScopeInfo, right: ScopeInfo) => (left.name > right.name ? 1 : -1));
+            result.apiResource.scopes = result.apiResource.scopes.sort((left: ScopeInfo, right: ScopeInfo) => (left.scope > right.scope ? 1 : -1));
             this._apiResource.next(result.apiResource);
             this._apiResource.complete();
         }));
@@ -119,7 +119,7 @@ export class ApiResourceStore {
             displayName: scope.displayName,
             description: scope.description,
             emphasize: scope.emphasize,
-            required: scope.required,
+            nonEditable: scope.nonEditable,
             showInDiscoveryDocument: scope.showInDiscoveryDocument
         } as IUpdateApiScopeRequest));
         return forkJoin([getApiResource, updateScope]).pipe(map((responses: [ApiResourceInfo, null]) => {

@@ -40,6 +40,11 @@ namespace Indice.AspNetCore.Identity.Models
         public string ClientLogoUrl { get; set; }
 
         /// <summary>
+        /// Description
+        /// </summary>
+        public string Description { get; set; }
+
+        /// <summary>
         /// Date created.
         /// </summary>
         public DateTime Created { get; set; }

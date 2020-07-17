@@ -7,6 +7,7 @@ using IdentityServer4.EntityFramework.Interfaces;
 using IdentityServer4.Models;
 using IdentityServer4.Services;
 using IdentityServer4.Stores.Serialization;
+using IdentityServer4.Validation;
 using Microsoft.EntityFrameworkCore;
 
 namespace Indice.AspNetCore.Identity.Scopes
@@ -35,18 +36,8 @@ namespace Indice.AspNetCore.Identity.Scopes
             _serializer = serializer ?? throw new ArgumentNullException(nameof(serializer));
         }
 
-        /// <summary>
-        /// Gets all grants for a given subject Id.
-        /// </summary>
-        /// <param name="subjectId">The subject identifier.</param>
-        public Task<IEnumerable<Consent>> GetAllGrantsAsync(string subjectId) => _inner.GetAllGrantsAsync(subjectId);
-
-        /// <summary>
-        /// Removes all grants for a given subject id and client id combination.
-        /// </summary>
-        /// <param name="subjectId">The subject identifier.</param>
-        /// <param name="clientId">The client identifier.</param>
-        public async Task RemoveAllGrantsAsync(string subjectId, string clientId) {
+        /// <inheritdoc/>
+        public async Task RemoveAllGrantsAsync(string subjectId, string clientId = null, string sessionId = null) {
             var grants = await _persistedGrantDbContext.PersistedGrants.Where(x => x.SubjectId == subjectId && x.ClientId == clientId).ToListAsync();
             await _inner.RemoveAllGrantsAsync(subjectId, clientId);
             var consents = grants.Where(x => x.Type == IdentityServerConstants.PersistedGrantTypes.UserConsent);
@@ -57,7 +48,10 @@ namespace Indice.AspNetCore.Identity.Scopes
                     scopes.AddRange(consentData.Scopes);
                 }
             }
-            await _dynamicScopeNotificationService.Notify(clientId, scopes, DynamicScopeNotificationType.GrantsRevoked);
+            await _dynamicScopeNotificationService.Notify(clientId, scopes.Select(x => new ParsedScopeValue(x)), DynamicScopeNotificationType.GrantsRevoked);
         }
+
+        /// <inheritdoc/>
+        Task<IEnumerable<Grant>> IPersistedGrantService.GetAllGrantsAsync(string subjectId) => _inner.GetAllGrantsAsync(subjectId);
     }
 }

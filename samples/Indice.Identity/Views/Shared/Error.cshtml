@@ -1,4 +1,4 @@
-﻿@model ErrorViewModel
+@model ErrorViewModel
 
 @{
     var error = Model?.Error?.Error;
@@ -7,7 +7,7 @@
 }
 
 <div class="error-page">
-    <div class="page-header">
+    <div class="lead">
         <h1>Error</h1>
     </div>
     <div class="row">
@@ -27,7 +27,6 @@
                     }
                 }
             </div>
-
             @if (request_id != null)
             {
                 <div class="request-id">Request Id: @request_id</div>

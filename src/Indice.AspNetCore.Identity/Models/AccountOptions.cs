@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 using System;
-using Microsoft.AspNetCore.Server.IISIntegration;
 
 namespace Indice.AspNetCore.Identity.Models
 {
@@ -31,14 +30,6 @@ namespace Indice.AspNetCore.Identity.Models
         /// Automatic redirect after sign out.
         /// </summary>
         public static bool AutomaticRedirectAfterSignOut = false;
-        /// <summary>
-        /// specify the Windows authentication scheme being used. Windows authentication scheme and display name.
-        /// </summary>
-        public static readonly string WindowsAuthenticationSchemeName = IISDefaults.AuthenticationScheme;
-        /// <summary>
-        /// if user uses windows auth, should we load the groups from windows
-        /// </summary>
-        public static bool IncludeWindowsGroups = false;
         /// <summary>
         /// Invalid username or password.
         /// </summary>

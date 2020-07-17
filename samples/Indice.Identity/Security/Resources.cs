@@ -12,6 +12,19 @@ namespace Indice.Identity.Security
     /// </summary>
     public static class Resources
     {
+        private static readonly IEnumerable<string> _userClaims = new[] {
+            JwtClaimTypes.Role,
+            BasicClaimTypes.Admin,
+            BasicClaimTypes.System,
+            BasicClaimTypes.PasswordExpirationDate,
+            BasicClaimTypes.PasswordExpirationPolicy,
+            JwtClaimTypes.Subject,
+            JwtClaimTypes.Name,
+            JwtClaimTypes.Email,
+            JwtClaimTypes.GivenName,
+            JwtClaimTypes.FamilyName
+        };
+
         /// <summary>
         /// Gets the system's predefined identity resources.
         /// </summary>
@@ -52,43 +65,32 @@ namespace Indice.Identity.Security
             }
         };
 
-        /// <summary>
-        /// Gets the system's predefined API resources.
-        /// </summary>
-        public static IEnumerable<ApiResource> GetApiResources() {
-            var claimTypes = new[] {
-                JwtClaimTypes.Role,
-                BasicClaimTypes.Admin,
-                BasicClaimTypes.System,
-                BasicClaimTypes.PasswordExpirationDate,
-                BasicClaimTypes.PasswordExpirationPolicy,
-                JwtClaimTypes.Subject,
-                JwtClaimTypes.Name,
-                JwtClaimTypes.Email,
-                JwtClaimTypes.GivenName,
-                JwtClaimTypes.FamilyName
+        public static IEnumerable<ApiScope> GetApiScopes() {
+            return new[] {
+                new ApiScope(IdentityServerApi.Scope, "IdentityServer API", _userClaims) {
+                    Description  = "API backing the IdentityServer Management Tool."
+                },
+                new ApiScope(IdentityServerApi.SubScopes.Clients, "IdentityServer Clients API", _userClaims) {
+                    Description = "Provides access to the clients management API."
+                },
+                new ApiScope(IdentityServerApi.SubScopes.Users, "IdentityServer Users API", _userClaims) {
+                    Description = "Provides access to the users management API."
+                }
             };
-            var identityApi = new ApiResource(IdentityServerApi.Scope, "IdentityServer API", claimTypes) {
+        }
+
+        /// <summary>
+        /// Gets the system's predefined APIs.
+        /// </summary>
+        public static IEnumerable<ApiResource> GetApis() {
+            var identityApi = new ApiResource(IdentityServerApi.Scope, "IdentityServer API", _userClaims) {
                 ApiSecrets = {
                     new Secret("VGLwBUKNQbfZABgZgD45PshqPZHkYJVrFPKR4QKsZRLdzAnzU2UHzQUHc2Zhd759".ToSha256())
                 },
-                Description = "API backing the IdentityServer Management Tool."
+                Description = "API backing the IdentityServer Management Tool.",
+                Scopes = { IdentityServerApi.Scope, IdentityServerApi.SubScopes.Clients, IdentityServerApi.SubScopes.Users }
             };
-            identityApi.Scopes.Add(new Scope {
-                Description = "Provides access to the clients management API.",
-                DisplayName = "IdentityServer Clients API",
-                Name = IdentityServerApi.SubScopes.Clients,
-                Required = true
-            });
-            identityApi.Scopes.Add(new Scope {
-                Description = "Provides access to the users management API.",
-                DisplayName = "IdentityServer Users API",
-                Name = IdentityServerApi.SubScopes.Users,
-                Required = true
-            });
-            return new[] {
-                identityApi
-            };
+            return new[] { identityApi };
         }
     }
 }

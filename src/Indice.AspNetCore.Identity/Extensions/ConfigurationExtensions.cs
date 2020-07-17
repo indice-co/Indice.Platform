@@ -16,17 +16,19 @@ namespace Microsoft.Extensions.DependencyInjection
         /// Setup the IdentityServer stores for clients as well as API and identity resources.
         /// </summary>
         /// <param name="app">Defines a class that provides the mechanisms to configure an application's request pipeline.</param>
-        /// <param name="clients">The list of predefined in-memory clients.</param>
-        /// <param name="identityResources">The list of predefined in-memory identity resources.</param>
-        /// <param name="apiResources">The list of predefined in-memory API resources.</param>
-        public static IApplicationBuilder IdentityServerStoreSetup<TConfigurationDbContext>(this IApplicationBuilder app, IEnumerable<Client> clients = null, IEnumerable<IdentityResource> identityResources = null, IEnumerable<ApiResource> apiResources = null)
+        /// <param name="clients">The list of predefined clients.</param>
+        /// <param name="identityResources">The list of predefined identity resources.</param>
+        /// <param name="apis">The list of predefined APIs.</param>
+        /// <param name="apiScopes">The list of predefined API scopes.</param>
+        public static IApplicationBuilder IdentityServerStoreSetup<TConfigurationDbContext>(this IApplicationBuilder app, IEnumerable<Client> clients = null, IEnumerable<IdentityResource> identityResources = null,
+            IEnumerable<ApiResource> apis = null, IEnumerable<ApiScope> apiScopes = null)
             where TConfigurationDbContext : ConfigurationDbContext<TConfigurationDbContext> {
             using (var serviceScope = app.ApplicationServices.GetRequiredService<IServiceScopeFactory>().CreateScope()) {
                 serviceScope.ServiceProvider.GetService<PersistedGrantDbContext>().Database.EnsureCreated();
                 var config = serviceScope.ServiceProvider.GetService<TConfigurationDbContext>();
                 if (config != null) {
                     config.Database.EnsureCreated();
-                    config.SeedData(clients, identityResources, apiResources);
+                    config.SeedData(clients, identityResources, apis, apiScopes);
                 }
             }
             return app;
@@ -36,21 +38,24 @@ namespace Microsoft.Extensions.DependencyInjection
         /// Setup the IdentityServer stores for clients as well as API and identity resources.
         /// </summary>
         /// <param name="app">Defines a class that provides the mechanisms to configure an application's request pipeline.</param>
-        /// <param name="clients">The list of predefined in-memory clients.</param>
-        /// <param name="identityResources">The list of predefined in-memory identity resources.</param>
-        /// <param name="apiResources">The list of predefined in-memory API resources.</param>
-        public static IApplicationBuilder IdentityServerStoreSetup(this IApplicationBuilder app, IEnumerable<Client> clients = null, IEnumerable<IdentityResource> identityResources = null, IEnumerable<ApiResource> apiResources = null) =>
-            IdentityServerStoreSetup<ConfigurationDbContext>(app, clients, identityResources, apiResources);
+        /// <param name="clients">The list of predefined clients.</param>
+        /// <param name="identityResources">The list of predefined identity resources.</param>
+        /// <param name="apis">The list of predefined API resources.</param>
+        /// <param name="apiScopes">The list of predefined API scopes.</param>
+        public static IApplicationBuilder IdentityServerStoreSetup(this IApplicationBuilder app, IEnumerable<Client> clients = null, IEnumerable<IdentityResource> identityResources = null, IEnumerable<ApiResource> apis = null,
+            IEnumerable<ApiScope> apiScopes = null) =>
+            IdentityServerStoreSetup<ConfigurationDbContext>(app, clients, identityResources, apis, apiScopes);
 
         /// <summary>
-        /// Helper that seeds data to the <see cref="ConfigurationDbContext{TConfigurationDbContext}"/> store using in-memory configuration as the initial load.
+        /// Helper that seeds data to the <see cref="ConfigurationDbContext{TConfigurationDbContext}"/> store using configuration as the initial load.
         /// Works only if no data exist in the database.
         /// </summary>
         /// <param name="context">DbContext for the IdentityServer configuration data.</param>
-        /// <param name="clients">The list of predefined in-memory clients.</param>
-        /// <param name="identityResources">The list of predefined in-memory identity resources.</param>
-        /// <param name="apiResources">The list of predefined in-memory API resources.</param>
-        public static void SeedData<TConfigurationDbContext>(this TConfigurationDbContext context, IEnumerable<Client> clients, IEnumerable<IdentityResource> identityResources, IEnumerable<ApiResource> apiResources)
+        /// <param name="clients">The list of predefined clients.</param>
+        /// <param name="identityResources">The list of predefined identity resources.</param>
+        /// <param name="apis">The list of predefined API resources.</param>
+        /// <param name="apiScopes">The list of predefined API scopes.</param>
+        public static void SeedData<TConfigurationDbContext>(this TConfigurationDbContext context, IEnumerable<Client> clients, IEnumerable<IdentityResource> identityResources, IEnumerable<ApiResource> apis, IEnumerable<ApiScope> apiScopes)
             where TConfigurationDbContext : ConfigurationDbContext<TConfigurationDbContext> {
             if (!context.Clients.Any() && clients != null) {
                 foreach (var client in clients) {
@@ -70,8 +75,15 @@ namespace Microsoft.Extensions.DependencyInjection
                 }
                 context.SaveChanges();
             }
-            if (!context.ApiResources.Any() && apiResources != null) {
-                foreach (var resource in apiResources) {
+            if (!context.ApiScopes.Any() && apiScopes != null) {
+                foreach (var apiScope in apiScopes) {
+                    var apiScopeEntity = apiScope.ToEntity();
+                    context.ApiScopes.Add(apiScopeEntity);
+                }
+                context.SaveChanges();
+            }
+            if (!context.ApiResources.Any() && apis != null) {
+                foreach (var resource in apis) {
                     var resourceEntity = resource.ToEntity();
                     resourceEntity.NonEditable = true;
                     context.ApiResources.Add(resourceEntity);
@@ -81,14 +93,15 @@ namespace Microsoft.Extensions.DependencyInjection
         }
 
         /// <summary>
-        /// Helper that seeds data to the <see cref="ConfigurationDbContext"/> store using in-memory configuration as the initial load.
+        /// Helper that seeds data to the <see cref="ConfigurationDbContext"/> store using configuration as the initial load.
         /// Works only if no data exist in the database.
         /// </summary>
         /// <param name="context">DbContext for the IdentityServer configuration data.</param>
-        /// <param name="clients">The list of predefined in-memory clients.</param>
-        /// <param name="identityResources">The list of predefined in-memory identity resources.</param>
-        /// <param name="apiResources">The list of predefined in-memory API resources.</param>
-        public static void SeedData(this ConfigurationDbContext context, IEnumerable<Client> clients, IEnumerable<IdentityResource> identityResources, IEnumerable<ApiResource> apiResources) =>
-            SeedData<ConfigurationDbContext>(context, clients, identityResources, apiResources);
+        /// <param name="clients">The list of predefined clients.</param>
+        /// <param name="identityResources">The list of predefined identity resources.</param>
+        /// <param name="apis">The list of predefined API resources.</param>
+        /// <param name="apiScopes">The list of predefined API scopes.</param>
+        public static void SeedData(this ConfigurationDbContext context, IEnumerable<Client> clients, IEnumerable<IdentityResource> identityResources, IEnumerable<ApiResource> apis, IEnumerable<ApiScope> apiScopes) =>
+            SeedData<ConfigurationDbContext>(context, clients, identityResources, apis, apiScopes);
     }
 }

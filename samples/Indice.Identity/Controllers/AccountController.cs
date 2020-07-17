@@ -98,13 +98,11 @@ namespace Indice.Identity.Controllers
                 if (context != null) {
                     // If the user cancels, send a result back into IdentityServer as if they denied the consent (even if this client does not require consent).
                     // This will send back an access denied OIDC error response to the client.
-                    await _interaction.GrantConsentAsync(context, ConsentResponse.Denied);
+                    await _interaction.DenyAuthorizationAsync(context, AuthorizationError.AccessDenied);
                     // We can trust model.ReturnUrl since GetAuthorizationContextAsync returned non-null.
-                    if (await _clientStore.IsPkceClientAsync(context.ClientId)) {
-                        // If the client is PKCE then we assume it's native, so this change in how to return the response is for better UX for the end user.
-                        return View("Redirect", new RedirectViewModel {
-                            RedirectUrl = model.ReturnUrl
-                        });
+                    if (context.IsNativeClient()) {
+                        // The client is native, so this change in how to return the response is for better UX for the end user.
+                        return this.LoadingPage("Redirect", model.ReturnUrl);
                     }
                     return Redirect(model.ReturnUrl);
                 } else {
@@ -121,11 +119,9 @@ namespace Indice.Identity.Controllers
                     await _events.RaiseAsync(new UserLoginSuccessEvent(user.UserName, user.Id, user.UserName));
                     _logger.LogInformation("User '{UserName}' was successfully logged in.", user.UserName, user.Email);
                     if (context != null) {
-                        if (await _clientStore.IsPkceClientAsync(context.ClientId)) {
-                            // If the client is PKCE then we assume it's native, so this change in how to return the response is for better UX for the end user.
-                            return View("Redirect", new RedirectViewModel {
-                                RedirectUrl = model.ReturnUrl
-                            });
+                        if (context.IsNativeClient()) {
+                            // The client is native, so this change in how to return the response is for better UX for the end user.
+                            return this.LoadingPage("Redirect", model.ReturnUrl);
                         }
                         // We can trust model.ReturnUrl since GetAuthorizationContextAsync returned non-null.
                         return Redirect(model.ReturnUrl);

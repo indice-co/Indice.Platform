@@ -27,22 +27,27 @@ namespace Indice.AspNetCore.Identity.Extensions
         /// <param name="options"></param>
         public static void SetupTables(this ConfigurationStoreOptions options) {
             options.DefaultSchema = "config";
-            options.ClientClaim = new TableConfiguration(nameof(ClientClaim));
-            options.ClientSecret = new TableConfiguration(nameof(ClientSecret));
-            options.ClientScopes = new TableConfiguration(nameof(ClientScope));
-            options.ClientPostLogoutRedirectUri = new TableConfiguration(nameof(ClientPostLogoutRedirectUri));
-            options.ClientRedirectUri = new TableConfiguration(nameof(ClientRedirectUri));
-            options.ClientGrantType = new TableConfiguration(nameof(ClientGrantType));
-            options.Client = new TableConfiguration(nameof(Client));
-            options.ApiScopeClaim = new TableConfiguration(nameof(ApiScopeClaim));
-            options.ApiClaim = new TableConfiguration(nameof(options.ApiClaim));
-            options.ApiScope = new TableConfiguration(nameof(ApiScope));
-            options.ApiSecret = new TableConfiguration(nameof(ApiSecret));
             options.ApiResource = new TableConfiguration(nameof(ApiResource));
-            options.IdentityClaim = new TableConfiguration(nameof(IdentityClaim));
-            options.IdentityResource = new TableConfiguration(nameof(IdentityResource));
-            options.ClientIdPRestriction = new TableConfiguration(nameof(ClientIdPRestriction));
+            options.ApiResourceClaim = new TableConfiguration(nameof(ApiResourceClaim));
+            options.ApiResourceProperty = new TableConfiguration(nameof(ApiResourceProperty));
+            options.ApiResourceScope = new TableConfiguration(nameof(ApiResourceScope));
+            options.ApiResourceSecret = new TableConfiguration(nameof(ApiResourceSecret));
+            options.ApiScope = new TableConfiguration(nameof(ApiScope));
+            options.ApiScopeClaim = new TableConfiguration(nameof(ApiScopeClaim));
+            options.ApiScopeProperty = new TableConfiguration(nameof(ApiScopeProperty));
+            options.Client = new TableConfiguration(nameof(Client));
+            options.ClientClaim = new TableConfiguration(nameof(ClientClaim));
             options.ClientCorsOrigin = new TableConfiguration(nameof(ClientCorsOrigin));
+            options.ClientGrantType = new TableConfiguration(nameof(ClientGrantType));
+            options.ClientIdPRestriction = new TableConfiguration(nameof(ClientIdPRestriction));
+            options.ClientPostLogoutRedirectUri = new TableConfiguration(nameof(ClientPostLogoutRedirectUri));
+            options.ClientProperty = new TableConfiguration(nameof(ClientProperty));
+            options.ClientRedirectUri = new TableConfiguration(nameof(ClientRedirectUri));
+            options.ClientScopes = new TableConfiguration(nameof(ClientScope));
+            options.ClientSecret = new TableConfiguration(nameof(ClientSecret));
+            options.IdentityResource = new TableConfiguration(nameof(IdentityResource));
+            options.IdentityResourceClaim = new TableConfiguration(nameof(IdentityResourceClaim));
+            options.IdentityResourceProperty = new TableConfiguration(nameof(IdentityResourceProperty));
         }
 
         /// <summary>

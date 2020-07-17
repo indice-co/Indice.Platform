@@ -95,6 +95,7 @@ namespace Microsoft.Extensions.DependencyInjection
             services.Configure<SmsServiceSettings>(configuration.GetSection(SmsServiceSettings.Name));
             services.AddTransient(serviceProvider => serviceProvider.GetRequiredService<IOptions<SmsServiceSettings>>().Value);
             services.AddHttpClient<ISmsService, SmsServiceYuboto>().SetHandlerLifetime(TimeSpan.FromMinutes(5));
+            services.AddTransient<ISmsServiceFactory, DefaultSmsServiceFactory>();
             return services;
         }
 
@@ -109,7 +110,7 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddHttpClient<ISmsService, SmsServiceApifon>(options => {
                 options.BaseAddress = new Uri("https://ars.apifon.com/services/api/v1/sms/");
             })
-                .SetHandlerLifetime(TimeSpan.FromMinutes(5));
+            .SetHandlerLifetime(TimeSpan.FromMinutes(5));
             services.AddTransient<ISmsServiceFactory, DefaultSmsServiceFactory>();
             return services;
         }
@@ -123,6 +124,7 @@ namespace Microsoft.Extensions.DependencyInjection
             services.Configure<SmsServiceViberSettings>(configuration.GetSection(SmsServiceViberSettings.Name));
             services.AddTransient(serviceProvider => serviceProvider.GetRequiredService<IOptions<SmsServiceViberSettings>>().Value);
             services.AddHttpClient<ISmsService, SmsServiceViber>().SetHandlerLifetime(TimeSpan.FromMinutes(5));
+            services.AddTransient<ISmsServiceFactory, DefaultSmsServiceFactory>();
             return services;
         }
 

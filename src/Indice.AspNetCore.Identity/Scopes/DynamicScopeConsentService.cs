@@ -5,6 +5,7 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using IdentityServer4.Models;
 using IdentityServer4.Services;
+using IdentityServer4.Validation;
 
 namespace Indice.AspNetCore.Identity.Scopes
 {
@@ -31,20 +32,21 @@ namespace Indice.AspNetCore.Identity.Scopes
         /// </summary>
         /// <param name="subject">The user.</param>
         /// <param name="client">The client.</param>
-        /// <param name="scopes">The scopes.</param>
+        /// <param name="parsedScopes">The scopes.</param>
         /// <returns>Boolean if consent is required.</returns>
-        public Task<bool> RequiresConsentAsync(ClaimsPrincipal subject, Client client, IEnumerable<string> scopes) => _inner.RequiresConsentAsync(subject, client, scopes);
+        public Task<bool> RequiresConsentAsync(ClaimsPrincipal subject, Client client, IEnumerable<ParsedScopeValue> parsedScopes) => _inner.RequiresConsentAsync(subject, client, parsedScopes);
+
 
         /// <summary>
         /// Updates the consent.
         /// </summary>
         /// <param name="subject">The user.</param>
         /// <param name="client">The client.</param>
-        /// <param name="scopes">The scopes.</param>
-        public async Task UpdateConsentAsync(ClaimsPrincipal subject, Client client, IEnumerable<string> scopes) {
-            await _inner.UpdateConsentAsync(subject, client, scopes);
-            if (client.AllowRememberConsent && scopes != null && scopes.Any()) {
-                await _dynamicScopeNotificationService.Notify(client.ClientId, scopes, DynamicScopeNotificationType.ConsentGranted);
+        /// <param name="parsedScopes">The scopes.</param>
+        public async Task UpdateConsentAsync(ClaimsPrincipal subject, Client client, IEnumerable<ParsedScopeValue> parsedScopes) {
+            await _inner.UpdateConsentAsync(subject, client, parsedScopes);
+            if (client.AllowRememberConsent && parsedScopes != null && parsedScopes.Any()) {
+                await _dynamicScopeNotificationService.Notify(client.ClientId, parsedScopes, DynamicScopeNotificationType.ConsentGranted);
             }
         }
     }
