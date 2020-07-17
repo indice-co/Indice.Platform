@@ -184,9 +184,7 @@ namespace Indice.Services
     internal class ApifonRequest
     {
 
-        public ApifonRequest() {
-
-        }
+        public ApifonRequest() { }
 
         public ApifonRequest(string from, string[] to, string message) {
             foreach(var subNumber in to) {
