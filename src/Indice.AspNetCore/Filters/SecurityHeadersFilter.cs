@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Security.Cryptography;
+using System.Threading.Tasks;
 
 namespace Indice.AspNetCore.Filters
 {
@@ -15,6 +17,11 @@ namespace Indice.AspNetCore.Filters
     /// </summary>
     public sealed class SecurityHeadersAttribute : ActionFilterAttribute
     {
+        /// <summary>
+        /// This key is used to communicate generated nonces between the tag helper and the filter.
+        /// </summary>
+        public const string CSP_NONCE_HTTPCONTEXT_KEY = "CSP_NONCE";
+
         /// <summary>
         /// Constructor defaults to allowing self origin, plus Google for fonts and scripts (Google cdn) and wildcard for images.
         /// </summary>
@@ -27,27 +34,37 @@ namespace Indice.AspNetCore.Filters
         public override void OnResultExecuting(ResultExecutingContext context) {
             var result = context.Result;
             var requestPolicy = (CSP)context.HttpContext.RequestServices.GetService(typeof(CSP));
-            var policy = requestPolicy ?? CSP.DefaultPolicy;
             if (result is ViewResult) {
-                if (!context.HttpContext.Response.Headers.ContainsKey("X-Content-Type-Options")) {
-                    context.HttpContext.Response.Headers.Add("X-Content-Type-Options", "nosniff");
-                }
-                if (!context.HttpContext.Response.Headers.ContainsKey("X-Frame-Options")) {
-                    context.HttpContext.Response.Headers.Add("X-Frame-Options", "SAMEORIGIN");
-                }
-                // Once for standards compliant browsers.
-                if (!context.HttpContext.Response.Headers.ContainsKey("Content-Security-Policy")) {
-                    context.HttpContext.Response.Headers.Add("Content-Security-Policy", policy.ToString());
-                }
-                // And once again for IE.
-                if (!context.HttpContext.Response.Headers.ContainsKey("X-Content-Security-Policy")) {
-                    context.HttpContext.Response.Headers.Add("X-Content-Security-Policy", policy.ToString());
-                }
-                // https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Referrer-Policy
-                var referrer_policy = "no-referrer";
-                if (!context.HttpContext.Response.Headers.ContainsKey("Referrer-Policy")) {
-                    context.HttpContext.Response.Headers.Add("Referrer-Policy", referrer_policy);
-                }
+                context.HttpContext.Response.OnStarting(() => {
+                    var policy = (requestPolicy ?? CSP.DefaultPolicy).Clone();
+                    if (context.HttpContext.Items.ContainsKey(CSP_NONCE_HTTPCONTEXT_KEY)) {
+                        var nonceList = (List<string>)context.HttpContext.Items[CSP_NONCE_HTTPCONTEXT_KEY];
+                        foreach (var nonce in nonceList) {
+                            policy.AddScriptSrc($"'nonce-{nonce}'");
+                        }
+                    }
+                    if (!context.HttpContext.Response.Headers.ContainsKey("X-Content-Type-Options")) {
+                        context.HttpContext.Response.Headers.Add("X-Content-Type-Options", "nosniff");
+                    }
+                    if (!context.HttpContext.Response.Headers.ContainsKey("X-Frame-Options")) {
+                        context.HttpContext.Response.Headers.Add("X-Frame-Options", "SAMEORIGIN");
+                    }
+                    // Once for standards compliant browsers.
+                    if (!context.HttpContext.Response.Headers.ContainsKey("Content-Security-Policy")) {
+                        context.HttpContext.Response.Headers.Add("Content-Security-Policy", policy.ToString());
+                    }
+                    // And once again for IE.
+                    if (!context.HttpContext.Response.Headers.ContainsKey("X-Content-Security-Policy")) {
+                        context.HttpContext.Response.Headers.Add("X-Content-Security-Policy", policy.ToString());
+                    }
+                    // https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Referrer-Policy
+                    var referrer_policy = "no-referrer";
+                    if (!context.HttpContext.Response.Headers.ContainsKey("Referrer-Policy")) {
+                        context.HttpContext.Response.Headers.Add("Referrer-Policy", referrer_policy);
+                    }
+                    return Task.CompletedTask;
+                });
+                
             }
         }
     }
@@ -57,6 +74,17 @@ namespace Indice.AspNetCore.Filters
     /// </summary>
     public class CSP : IEnumerable<string>, ICloneable
     {
+        private static readonly RandomNumberGenerator Rng = RandomNumberGenerator.Create();
+
+        /// <summary>
+        /// Create a new nonce. Essentially creates an 16 byte length array (128 bit) and converts to base64 string.
+        /// </summary>
+        /// <returns></returns>
+        public static string CreateNonce() {
+            var bytes = new byte[128 / 8];
+            Rng.GetBytes(bytes);
+            return Convert.ToBase64String(bytes);
+        }
         /// <summary>
         /// Default policy.
         /// </summary>
