@@ -3,8 +3,8 @@
     <Description>Indice.AspNetCore Class Library</Description>
     <Copyright>Copyright (c) 2018 Indice</Copyright>
     <AssemblyTitle>Indice.AspNetCore</AssemblyTitle>
-    <VersionPrefix>3.1.33</VersionPrefix>
-    <!--<VersionSuffix>beta1</VersionSuffix>-->
+    <VersionPrefix>4.0.0</VersionPrefix>
+    <VersionSuffix>beta1</VersionSuffix>
     <Authors>c.leftheris, g.manoltzas</Authors>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <AssemblyName>Indice.AspNetCore</AssemblyName>
@@ -14,7 +14,7 @@
   <PropertyGroup Label="Package">
     <PackageId>Indice.AspNetCore</PackageId>
     <PackageTags>AspNetCore;TagHelpers;Grid;Sorting;Paging</PackageTags>
-    <PackageReleaseNotes>Avatar working on linux, fix bug in CacheResourceFilter.</PackageReleaseNotes>
+    <PackageReleaseNotes>Update to newer major version, upgrade IdentityServer to v4.</PackageReleaseNotes>
     <PackageIcon>icon-310.png</PackageIcon>
     <PackageProjectUrl>https://github.com/indice-co/Indice.AspNet</PackageProjectUrl>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
@@ -37,7 +37,7 @@
     <PackageReference Include="FluentValidation.AspNetCore" Version="9.0.1" />
     <PackageReference Include="Humanizer.Core" Version="2.8.26" />
     <PackageReference Include="Indice.EntityFrameworkCore" Version="3.1.1" />
-    <PackageReference Include="Indice.Services" Version="1.5.20" />
+    <PackageReference Include="Indice.Services" Version="4.0.0-beta1" />
     <PackageReference Include="Markdig" Version="0.20.0" />
     <PackageReference Include="Microsoft.AspNetCore.DataProtection.AzureStorage" Version="3.1.6" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Formatters.Json" Version="2.2.0" />

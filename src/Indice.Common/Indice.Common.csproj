@@ -3,8 +3,8 @@
     <Description>Indice.Common Class Library</Description>
     <Copyright>Copyright (c) 2018 Indice</Copyright>
     <AssemblyTitle>Indice.Common</AssemblyTitle>
-    <VersionPrefix>1.6.6</VersionPrefix>
-    <!--<VersionSuffix>beta2</VersionSuffix>-->
+    <VersionPrefix>4.0.0</VersionPrefix>
+    <VersionSuffix>beta1</VersionSuffix>
     <Authors>c.leftheris</Authors>
     <TargetFrameworks>netstandard2.0;netcoreapp3.1</TargetFrameworks>
     <AssemblyName>Indice.Common</AssemblyName>
@@ -15,7 +15,7 @@
   <PropertyGroup Label="Package">
     <PackageId>Indice.Common</PackageId>
     <PackageTags>AspNet;Api;Utilities</PackageTags>
-    <PackageReleaseNotes>Update packages.</PackageReleaseNotes>
+    <PackageReleaseNotes>Update to newer major version.</PackageReleaseNotes>
     <PackageIcon>icon-310.png</PackageIcon>
     <PackageProjectUrl>https://github.com/indice-co/Indice.AspNet</PackageProjectUrl>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
