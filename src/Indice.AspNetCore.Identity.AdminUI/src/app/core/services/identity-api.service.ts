@@ -390,7 +390,7 @@ export interface IIdentityApiService {
      * Deletes a specified scope from an API resource.
      * @param resourceId The identifier of the API resource.
      * @param scopeId The identifier of the API resource scope.
-     * @return OK
+     * @return No Content
      */
     deleteApiResourceScope(resourceId: number, scopeId: number): Observable<void>;
     /**
@@ -398,7 +398,7 @@ export interface IIdentityApiService {
      * @param resourceId The identifier of the API resource.
      * @param scopeId The identifier of the API resource scope.
      * @param body (optional) The claims to add to the scope.
-     * @return OK
+     * @return No Content
      */
     addApiResourceScopeClaims(resourceId: number, scopeId: number, body?: string[] | null | undefined): Observable<void>;
     /**
@@ -406,7 +406,7 @@ export interface IIdentityApiService {
      * @param resourceId The identifier of the API resource.
      * @param scopeId The identifier of the API resource scope.
      * @param claim The claim to remove from the scope.
-     * @return OK
+     * @return No Content
      */
     deleteApiResourceScopeClaim(resourceId: number, scopeId: number, claim: string | null): Observable<void>;
     /**
@@ -5448,7 +5448,7 @@ export class IdentityApiService implements IIdentityApiService {
      * Deletes a specified scope from an API resource.
      * @param resourceId The identifier of the API resource.
      * @param scopeId The identifier of the API resource scope.
-     * @return OK
+     * @return No Content
      */
     deleteApiResourceScope(resourceId: number, scopeId: number): Observable<void> {
         let url_ = this.baseUrl + "/api/resources/protected/{resourceId}/scopes/{scopeId}";
@@ -5509,7 +5509,7 @@ export class IdentityApiService implements IIdentityApiService {
             result403 = ProblemDetails.fromJS(resultData403);
             return throwException("Forbidden", status, _responseText, _headers, result403);
             }));
-        } else if (status === 200) {
+        } else if (status === 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
             return _observableOf<void>(<any>null);
             }));
@@ -5537,7 +5537,7 @@ export class IdentityApiService implements IIdentityApiService {
      * @param resourceId The identifier of the API resource.
      * @param scopeId The identifier of the API resource scope.
      * @param body (optional) The claims to add to the scope.
-     * @return OK
+     * @return No Content
      */
     addApiResourceScopeClaims(resourceId: number, scopeId: number, body?: string[] | null | undefined): Observable<void> {
         let url_ = this.baseUrl + "/api/resources/protected/{resourceId}/scopes/{scopeId}/claims";
@@ -5602,7 +5602,7 @@ export class IdentityApiService implements IIdentityApiService {
             result403 = ProblemDetails.fromJS(resultData403);
             return throwException("Forbidden", status, _responseText, _headers, result403);
             }));
-        } else if (status === 200) {
+        } else if (status === 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
             return _observableOf<void>(<any>null);
             }));
@@ -5630,7 +5630,7 @@ export class IdentityApiService implements IIdentityApiService {
      * @param resourceId The identifier of the API resource.
      * @param scopeId The identifier of the API resource scope.
      * @param claim The claim to remove from the scope.
-     * @return OK
+     * @return No Content
      */
     deleteApiResourceScopeClaim(resourceId: number, scopeId: number, claim: string | null): Observable<void> {
         let url_ = this.baseUrl + "/api/resources/protected/{resourceId}/scopes/{scopeId}/claims/{claim}";
@@ -5694,7 +5694,7 @@ export class IdentityApiService implements IIdentityApiService {
             result403 = ProblemDetails.fromJS(resultData403);
             return throwException("Forbidden", status, _responseText, _headers, result403);
             }));
-        } else if (status === 200) {
+        } else if (status === 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
             return _observableOf<void>(<any>null);
             }));
