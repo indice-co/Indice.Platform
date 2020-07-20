@@ -21,34 +21,6 @@
     <PackageReference Include="Serilog.Sinks.File" Version="4.1.0" />
     <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" Version="5.5.1" />
   </ItemGroup>
-  <ItemGroup Label="Content">
-    <None Update="indice-idsrv.pfx">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="App_Data\" />
-    <Folder Include="logs\" />
-    <Folder Include="Models\" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Views\Account\AccessDenied.cshtml" />
-    <None Include="Views\Account\LoggedOut.cshtml" />
-    <None Include="Views\Account\Login.cshtml" />
-    <None Include="Views\Account\Logout.cshtml" />
-    <None Include="Views\Consent\Index.cshtml" />
-    <None Include="Views\Device\Success.cshtml" />
-    <None Include="Views\Device\UserCodeCapture.cshtml" />
-    <None Include="Views\Device\UserCodeConfirmation.cshtml" />
-    <None Include="Views\Diagnostics\Index.cshtml" />
-    <None Include="Views\Grants\Index.cshtml" />
-    <None Include="Views\Home\Index.cshtml" />
-    <None Include="Views\Shared\Error.cshtml" />
-    <None Include="Views\Shared\Redirect.cshtml" />
-    <None Include="Views\Shared\_Layout.cshtml" />
-    <None Include="Views\Shared\_ScopeListItem.cshtml" />
-    <None Include="Views\Shared\_ValidationSummary.cshtml" />
-  </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\Indice.AspNetCore.Identity\Indice.AspNetCore.Identity.csproj" />
   </ItemGroup>
@@ -56,5 +28,8 @@
     <EmbeddedResource Update="Resources\Services\ExtendedMessageDescriber.el.resx">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </EmbeddedResource>
+    <Content Include="indice-idsrv.pfx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 </Project>
