@@ -157,7 +157,7 @@ namespace Indice.Identity
                 endpoints.MapControllers();
             });
             if (!HostingEnvironment.IsDevelopment()) {
-                app.UseSpaStaticFiles(staticFileOptions);
+                app.UseSpaStaticFiles();
                 app.UseSpa(builder => {
                     builder.Options.SourcePath = "wwwroot/admin-ui";
                 });
