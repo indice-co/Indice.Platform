@@ -1,5 +1,5 @@
 <swal title="Delete?"
-      [text]="'Scope \'' + scope?.scope + '\' will be deleted permanently. This action cannot be reversed.'"
+      [text]="'Scope \'' + scope?.name + '\' will be deleted permanently. This action cannot be reversed.'"
       type="warning"
       [showCancelButton]="true"
       (confirm)="delete()"
@@ -19,7 +19,7 @@
             <span class="col-form-label"
                   id="scope-id"
                   name="scope-id">
-                {{ scope.scope }}
+                {{ scope.name }}
             </span>
         </div>
     </div>
@@ -52,23 +52,6 @@
                       [(ngModel)]="scope.description"
                       #description="ngModel">
             </textarea>
-        </div>
-    </div>
-    <div class="form-group row">
-        <label for="scope-required"
-               class="col-sm-2 col-form-label">Required</label>
-        <div class="col-sm-10">
-            <div class="form-check col-form-label custom-control custom-checkbox">
-                <input class="form-check-input custom-control-input"
-                       type="checkbox"
-                       [id]="'scope-required-' + discriminator"
-                       [name]="'scope-required-' + discriminator"
-                       [(ngModel)]="scope.nonEditable"
-                       #required="ngModel" />
-                <label class="custom-control-label"
-                       [for]="'scope-required-' + discriminator">
-                </label>
-            </div>
         </div>
     </div>
     <div class="form-group row">

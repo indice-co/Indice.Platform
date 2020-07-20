@@ -29,7 +29,7 @@ namespace Indice.AspNetCore.Identity.Features
         /// <summary>
         /// Determines whether this scope is required or not.
         /// </summary>
-        public bool NonEditable { get; set; }
+        public bool Required { get; set; }
         /// <summary>
         /// Determines whether this scope should be displayed emphasized or not.
         /// </summary>
@@ -82,7 +82,7 @@ namespace Indice.AspNetCore.Identity.Features
         /// <summary>
         /// Determines whether this scope is required or not.
         /// </summary>
-        public bool NonEditable { get; set; }
+        public bool Required { get; set; }
         /// <summary>
         /// Determines whether this scope should be displayed emphasized or not.
         /// </summary>

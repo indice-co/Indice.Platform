@@ -52,7 +52,7 @@ namespace Indice.AspNetCore.Identity.Features
         [HttpGet("news")]
         [ProducesResponseType(statusCode: StatusCodes.Status200OK, type: typeof(ResultSet<BlogItemInfo>))]
         [ResponseCache(VaryByQueryKeys = new[] { "page", "size" }, Duration = 3600/* 1 hour */, Location = ResponseCacheLocation.Client)]
-        public IActionResult GetNews([FromQuery]int page = 1, [FromQuery]int size = 100) {
+        public IActionResult GetNews([FromQuery] int page = 1, [FromQuery] int size = 100) {
             const string url = "https://www.identityserver.com/rss";
             var feedItems = new List<BlogItemInfo>();
             using (var reader = XmlReader.Create(url)) {

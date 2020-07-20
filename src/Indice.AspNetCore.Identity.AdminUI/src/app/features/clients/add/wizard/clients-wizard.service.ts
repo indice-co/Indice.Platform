@@ -10,14 +10,14 @@ import { IdentityResourcesStepComponent } from './steps/identity-resources/ident
 import { ApiResourcesStepComponent } from './steps/api-resources/api-resources-step.component';
 import { SummaryStepComponent } from './steps/summary/summary-step.component';
 import { SecretsStepComponent } from './steps/secrets/secrets-step.component';
-import { IdentityResourceInfo, IdentityResourceInfoResultSet, IdentityApiService, ClientType as Type, ScopeInfoResultSet, ScopeInfo } from 'src/app/core/services/identity-api.service';
+import { IdentityResourceInfo, IdentityResourceInfoResultSet, IdentityApiService, ClientType as Type, ApiScopeInfoResultSet, ApiScopeInfo } from 'src/app/core/services/identity-api.service';
 
 @Injectable()
 export class ClientsWizardService {
     private _clientTypes: ClientType[] = [];
     private _clientTypeSteps: { key: string, steps: WizardStepDescriptor[] }[] = [];
     private _identityResources: AsyncSubject<IdentityResourceInfo[]>;
-    private _apiResources: AsyncSubject<ScopeInfo[]>;
+    private _apiResources: AsyncSubject<ApiScopeInfo[]>;
 
     constructor(private _api: IdentityApiService) {
         this._clientTypes.push(...[
@@ -105,10 +105,10 @@ export class ClientsWizardService {
         return this._identityResources;
     }
 
-    public getApiResources(): Observable<ScopeInfo[]> {
+    public getApiResources(): Observable<ApiScopeInfo[]> {
         if (!this._apiResources) {
-            this._apiResources = new AsyncSubject<ScopeInfo[]>();
-            this._api.getApiScopes(1, 2147483647, 'name+', undefined).subscribe((response: ScopeInfoResultSet) => {
+            this._apiResources = new AsyncSubject<ApiScopeInfo[]>();
+            this._api.getApiScopes(1, 2147483647, 'name+', undefined).subscribe((response: ApiScopeInfoResultSet) => {
                 this._apiResources.next(response.items);
                 this._apiResources.complete();
             });

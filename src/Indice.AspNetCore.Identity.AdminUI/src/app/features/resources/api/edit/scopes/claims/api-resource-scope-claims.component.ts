@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy, Input } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
 import { Subscription } from 'rxjs';
-import { ClaimTypeInfo, ScopeInfo } from 'src/app/core/services/identity-api.service';
+import { ClaimTypeInfo, ApiScopeInfo } from 'src/app/core/services/identity-api.service';
 import { ApiResourceStore } from '../../../api-resource-store.service';
 
 @Component({
@@ -17,7 +17,7 @@ export class ApiResourceScopeClaimsComponent implements OnInit, OnDestroy {
 
     constructor(private _route: ActivatedRoute, private _apiResourceStore: ApiResourceStore) { }
 
-    @Input() public scope = new ScopeInfo();
+    @Input() public scope = new ApiScopeInfo();
     public availableClaims: ClaimTypeInfo[];
     public selectedClaims: ClaimTypeInfo[];
 

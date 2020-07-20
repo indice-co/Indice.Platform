@@ -354,36 +354,36 @@ export interface IIdentityApiService {
     /**
      * Permanently deletes an API resource.
      * @param resourceId The id of the API resource to delete.
-     * @return OK
+     * @return Success
      */
     deleteApiResource(resourceId: number): Observable<void>;
     /**
      * Adds claims to an API resource.
      * @param resourceId The identifier of the API resource.
      * @param body (optional) The API or identity resources to add.
-     * @return OK
+     * @return No Content
      */
     addApiResourceClaims(resourceId: number, body?: string[] | null | undefined): Observable<void>;
     /**
      * Removes a specified claim from an API resource.
      * @param resourceId The identifier of the API resource.
      * @param claim The identifier of the API resource claim to remove.
-     * @return OK
+     * @return No Content
      */
     deleteApiResourceClaim(resourceId: number, claim: string | null): Observable<void>;
     /**
      * Adds a new scope to an existing API resource.
      * @param resourceId The identifier of the API resource.
      * @param body (optional) Contains info about the API scope to be created.
-     * @return Created
+     * @return OK
      */
-    addApiResourceScope(resourceId: number, body?: CreateApiScopeRequest | undefined): Observable<ScopeInfo>;
+    addApiResourceScope(resourceId: number, body?: CreateApiScopeRequest | undefined): Observable<ApiScopeInfo>;
     /**
      * Updates a specified scope of an API resource.
      * @param resourceId The identifier of the API resource.
      * @param scopeId The identifier of the API resource.
      * @param body (optional) Contains info about the API scope to be updated.
-     * @return OK
+     * @return Success
      */
     updateApiResourceScope(resourceId: number, scopeId: number, body?: UpdateApiScopeRequest | undefined): Observable<void>;
     /**
@@ -413,7 +413,7 @@ export interface IIdentityApiService {
      * Adds a new scope to an existing API resource.
      * @param resourceId The identifier of the API resource.
      * @param body (optional) Contains info about the API scope to be created.
-     * @return Created
+     * @return OK
      */
     addApiResourceSecret(resourceId: number, body?: CreateSecretRequest | undefined): Observable<SecretInfo>;
     /**
@@ -424,14 +424,14 @@ export interface IIdentityApiService {
      */
     deleteApiResourceSecret(resourceId: number, secretId: number): Observable<void>;
     /**
-     * Returns a list of Indice.AspNetCore.Identity.Features.ScopeInfo objects containing the total number of API scopes in the database and the data filtered according to the provided Indice.Types.ListOptions.
+     * Returns a list of Indice.AspNetCore.Identity.Features.ApiScopeInfo objects containing the total number of API scopes in the database and the data filtered according to the provided Indice.Types.ListOptions.
      * @param page (optional) 
      * @param size (optional) 
      * @param sort (optional) 
      * @param search (optional) 
      * @return OK
      */
-    getApiScopes(page?: number | undefined, size?: number | undefined, sort?: string | null | undefined, search?: string | null | undefined): Observable<ScopeInfoResultSet>;
+    getApiScopes(page?: number | undefined, size?: number | undefined, sort?: string | null | undefined, search?: string | null | undefined): Observable<ApiScopeInfoResultSet>;
     /**
      * Returns a list of Indice.AspNetCore.Identity.Features.RoleInfo objects containing the total number of roles in the database and the data filtered according to the provided Indice.Types.ListOptions.
      * @param page (optional) 
@@ -4992,7 +4992,7 @@ export class IdentityApiService implements IIdentityApiService {
     /**
      * Permanently deletes an API resource.
      * @param resourceId The id of the API resource to delete.
-     * @return OK
+     * @return Success
      */
     deleteApiResource(resourceId: number): Observable<void> {
         let url_ = this.baseUrl + "/api/resources/protected/{resourceId}";
@@ -5065,6 +5065,10 @@ export class IdentityApiService implements IIdentityApiService {
             return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
             return throwException("Internal Server Error", status, _responseText, _headers);
             }));
+        } else if (status === 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return _observableOf<void>(<any>null);
+            }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
@@ -5077,7 +5081,7 @@ export class IdentityApiService implements IIdentityApiService {
      * Adds claims to an API resource.
      * @param resourceId The identifier of the API resource.
      * @param body (optional) The API or identity resources to add.
-     * @return OK
+     * @return No Content
      */
     addApiResourceClaims(resourceId: number, body?: string[] | null | undefined): Observable<void> {
         let url_ = this.baseUrl + "/api/resources/protected/{resourceId}/claims";
@@ -5139,7 +5143,7 @@ export class IdentityApiService implements IIdentityApiService {
             result403 = ProblemDetails.fromJS(resultData403);
             return throwException("Forbidden", status, _responseText, _headers, result403);
             }));
-        } else if (status === 200) {
+        } else if (status === 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
             return _observableOf<void>(<any>null);
             }));
@@ -5166,7 +5170,7 @@ export class IdentityApiService implements IIdentityApiService {
      * Removes a specified claim from an API resource.
      * @param resourceId The identifier of the API resource.
      * @param claim The identifier of the API resource claim to remove.
-     * @return OK
+     * @return No Content
      */
     deleteApiResourceClaim(resourceId: number, claim: string | null): Observable<void> {
         let url_ = this.baseUrl + "/api/resources/protected/{resourceId}/claims/{claim}";
@@ -5227,7 +5231,7 @@ export class IdentityApiService implements IIdentityApiService {
             result403 = ProblemDetails.fromJS(resultData403);
             return throwException("Forbidden", status, _responseText, _headers, result403);
             }));
-        } else if (status === 200) {
+        } else if (status === 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
             return _observableOf<void>(<any>null);
             }));
@@ -5254,9 +5258,9 @@ export class IdentityApiService implements IIdentityApiService {
      * Adds a new scope to an existing API resource.
      * @param resourceId The identifier of the API resource.
      * @param body (optional) Contains info about the API scope to be created.
-     * @return Created
+     * @return OK
      */
-    addApiResourceScope(resourceId: number, body?: CreateApiScopeRequest | undefined): Observable<ScopeInfo> {
+    addApiResourceScope(resourceId: number, body?: CreateApiScopeRequest | undefined): Observable<ApiScopeInfo> {
         let url_ = this.baseUrl + "/api/resources/protected/{resourceId}/scopes";
         if (resourceId === undefined || resourceId === null)
             throw new Error("The parameter 'resourceId' must be defined.");
@@ -5282,14 +5286,14 @@ export class IdentityApiService implements IIdentityApiService {
                 try {
                     return this.processAddApiResourceScope(<any>response_);
                 } catch (e) {
-                    return <Observable<ScopeInfo>><any>_observableThrow(e);
+                    return <Observable<ApiScopeInfo>><any>_observableThrow(e);
                 }
             } else
-                return <Observable<ScopeInfo>><any>_observableThrow(response_);
+                return <Observable<ApiScopeInfo>><any>_observableThrow(response_);
         }));
     }
 
-    protected processAddApiResourceScope(response: HttpResponseBase): Observable<ScopeInfo> {
+    protected processAddApiResourceScope(response: HttpResponseBase): Observable<ApiScopeInfo> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -5317,12 +5321,12 @@ export class IdentityApiService implements IIdentityApiService {
             result403 = ProblemDetails.fromJS(resultData403);
             return throwException("Forbidden", status, _responseText, _headers, result403);
             }));
-        } else if (status === 201) {
+        } else if (status === 200) {
             return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            let result201: any = null;
-            let resultData201 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result201 = ScopeInfo.fromJS(resultData201);
-            return _observableOf(result201);
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = ApiScopeInfo.fromJS(resultData200);
+            return _observableOf(result200);
             }));
         } else if (status === 404) {
             return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
@@ -5340,7 +5344,7 @@ export class IdentityApiService implements IIdentityApiService {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             }));
         }
-        return _observableOf<ScopeInfo>(<any>null);
+        return _observableOf<ApiScopeInfo>(<any>null);
     }
 
     /**
@@ -5348,7 +5352,7 @@ export class IdentityApiService implements IIdentityApiService {
      * @param resourceId The identifier of the API resource.
      * @param scopeId The identifier of the API resource.
      * @param body (optional) Contains info about the API scope to be updated.
-     * @return OK
+     * @return Success
      */
     updateApiResourceScope(resourceId: number, scopeId: number, body?: UpdateApiScopeRequest | undefined): Observable<void> {
         let url_ = this.baseUrl + "/api/resources/protected/{resourceId}/scopes/{scopeId}";
@@ -5427,6 +5431,10 @@ export class IdentityApiService implements IIdentityApiService {
         } else if (status === 500) {
             return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
             return throwException("Internal Server Error", status, _responseText, _headers);
+            }));
+        } else if (status === 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return _observableOf<void>(<any>null);
             }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
@@ -5713,7 +5721,7 @@ export class IdentityApiService implements IIdentityApiService {
      * Adds a new scope to an existing API resource.
      * @param resourceId The identifier of the API resource.
      * @param body (optional) Contains info about the API scope to be created.
-     * @return Created
+     * @return OK
      */
     addApiResourceSecret(resourceId: number, body?: CreateSecretRequest | undefined): Observable<SecretInfo> {
         let url_ = this.baseUrl + "/api/resources/protected/{resourceId}/secrets";
@@ -5776,12 +5784,12 @@ export class IdentityApiService implements IIdentityApiService {
             result403 = ProblemDetails.fromJS(resultData403);
             return throwException("Forbidden", status, _responseText, _headers, result403);
             }));
-        } else if (status === 201) {
+        } else if (status === 200) {
             return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            let result201: any = null;
-            let resultData201 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result201 = SecretInfo.fromJS(resultData201);
-            return _observableOf(result201);
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = SecretInfo.fromJS(resultData200);
+            return _observableOf(result200);
             }));
         } else if (status === 404) {
             return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
@@ -5891,14 +5899,14 @@ export class IdentityApiService implements IIdentityApiService {
     }
 
     /**
-     * Returns a list of Indice.AspNetCore.Identity.Features.ScopeInfo objects containing the total number of API scopes in the database and the data filtered according to the provided Indice.Types.ListOptions.
+     * Returns a list of Indice.AspNetCore.Identity.Features.ApiScopeInfo objects containing the total number of API scopes in the database and the data filtered according to the provided Indice.Types.ListOptions.
      * @param page (optional) 
      * @param size (optional) 
      * @param sort (optional) 
      * @param search (optional) 
      * @return OK
      */
-    getApiScopes(page?: number | undefined, size?: number | undefined, sort?: string | null | undefined, search?: string | null | undefined): Observable<ScopeInfoResultSet> {
+    getApiScopes(page?: number | undefined, size?: number | undefined, sort?: string | null | undefined, search?: string | null | undefined): Observable<ApiScopeInfoResultSet> {
         let url_ = this.baseUrl + "/api/resources/protected/scopes?";
         if (page === null)
             throw new Error("The parameter 'page' cannot be null.");
@@ -5929,14 +5937,14 @@ export class IdentityApiService implements IIdentityApiService {
                 try {
                     return this.processGetApiScopes(<any>response_);
                 } catch (e) {
-                    return <Observable<ScopeInfoResultSet>><any>_observableThrow(e);
+                    return <Observable<ApiScopeInfoResultSet>><any>_observableThrow(e);
                 }
             } else
-                return <Observable<ScopeInfoResultSet>><any>_observableThrow(response_);
+                return <Observable<ApiScopeInfoResultSet>><any>_observableThrow(response_);
         }));
     }
 
-    protected processGetApiScopes(response: HttpResponseBase): Observable<ScopeInfoResultSet> {
+    protected processGetApiScopes(response: HttpResponseBase): Observable<ApiScopeInfoResultSet> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -5968,7 +5976,7 @@ export class IdentityApiService implements IIdentityApiService {
             return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = ScopeInfoResultSet.fromJS(resultData200);
+            result200 = ApiScopeInfoResultSet.fromJS(resultData200);
             return _observableOf(result200);
             }));
         } else if (status === 500) {
@@ -5980,7 +5988,7 @@ export class IdentityApiService implements IIdentityApiService {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             }));
         }
-        return _observableOf<ScopeInfoResultSet>(<any>null);
+        return _observableOf<ApiScopeInfoResultSet>(<any>null);
     }
 
     /**
@@ -10884,27 +10892,23 @@ export interface IUpdateIdentityResourceRequest {
 }
 
 /** Models access to an API resource. */
-export class ScopeInfo implements IScopeInfo {
+export class ApiScopeInfo implements IApiScopeInfo {
     /** Unique identifier for the scope. */
     id?: number;
     /** The name of the scope. */
-    scope?: string | undefined;
+    name?: string | undefined;
     /** The display name of the scope. */
     displayName?: string | undefined;
     /** The description of the resource. */
     description?: string | undefined;
-    /** Determines whether this scope is required or not. */
-    nonEditable?: boolean | undefined;
     /** Determines whether this scope should be displayed emphasized or not. */
     emphasize?: boolean | undefined;
     /** Determines whether this scope should be displayed in the discovery document or not. */
     showInDiscoveryDocument?: boolean | undefined;
-    /** List of allowed signing algorithms for access token. If empty, will use the server default signing algorithm. */
-    allowedAccessTokenSigningAlgorithms?: string | undefined;
     /** List of accociated user claims that should be included when a resource is requested. */
     userClaims?: string[] | undefined;
 
-    constructor(data?: IScopeInfo) {
+    constructor(data?: IApiScopeInfo) {
         if (data) {
             for (var property in data) {
                 if (data.hasOwnProperty(property))
@@ -10916,13 +10920,11 @@ export class ScopeInfo implements IScopeInfo {
     init(_data?: any) {
         if (_data) {
             this.id = _data["id"];
-            this.scope = _data["scope"];
+            this.name = _data["name"];
             this.displayName = _data["displayName"];
             this.description = _data["description"];
-            this.nonEditable = _data["nonEditable"];
             this.emphasize = _data["emphasize"];
             this.showInDiscoveryDocument = _data["showInDiscoveryDocument"];
-            this.allowedAccessTokenSigningAlgorithms = _data["allowedAccessTokenSigningAlgorithms"];
             if (Array.isArray(_data["userClaims"])) {
                 this.userClaims = [] as any;
                 for (let item of _data["userClaims"])
@@ -10931,9 +10933,9 @@ export class ScopeInfo implements IScopeInfo {
         }
     }
 
-    static fromJS(data: any): ScopeInfo {
+    static fromJS(data: any): ApiScopeInfo {
         data = typeof data === 'object' ? data : {};
-        let result = new ScopeInfo();
+        let result = new ApiScopeInfo();
         result.init(data);
         return result;
     }
@@ -10941,13 +10943,11 @@ export class ScopeInfo implements IScopeInfo {
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
         data["id"] = this.id;
-        data["scope"] = this.scope;
+        data["name"] = this.name;
         data["displayName"] = this.displayName;
         data["description"] = this.description;
-        data["nonEditable"] = this.nonEditable;
         data["emphasize"] = this.emphasize;
         data["showInDiscoveryDocument"] = this.showInDiscoveryDocument;
-        data["allowedAccessTokenSigningAlgorithms"] = this.allowedAccessTokenSigningAlgorithms;
         if (Array.isArray(this.userClaims)) {
             data["userClaims"] = [];
             for (let item of this.userClaims)
@@ -10958,23 +10958,19 @@ export class ScopeInfo implements IScopeInfo {
 }
 
 /** Models access to an API resource. */
-export interface IScopeInfo {
+export interface IApiScopeInfo {
     /** Unique identifier for the scope. */
     id?: number;
     /** The name of the scope. */
-    scope?: string | undefined;
+    name?: string | undefined;
     /** The display name of the scope. */
     displayName?: string | undefined;
     /** The description of the resource. */
     description?: string | undefined;
-    /** Determines whether this scope is required or not. */
-    nonEditable?: boolean | undefined;
     /** Determines whether this scope should be displayed emphasized or not. */
     emphasize?: boolean | undefined;
     /** Determines whether this scope should be displayed in the discovery document or not. */
     showInDiscoveryDocument?: boolean | undefined;
-    /** List of allowed signing algorithms for access token. If empty, will use the server default signing algorithm. */
-    allowedAccessTokenSigningAlgorithms?: string | undefined;
     /** List of accociated user claims that should be included when a resource is requested. */
     userClaims?: string[] | undefined;
 }
@@ -11060,7 +11056,7 @@ export class ApiResourceInfo implements IApiResourceInfo {
     /** List of accociated claims that should be included when this resource is requested. */
     allowedClaims?: string[] | undefined;
     /** List of all scopes included in the resource. At least one scope must be included. */
-    scopes?: ScopeInfo[] | undefined;
+    scopes?: ApiScopeInfo[] | undefined;
     secrets?: ApiSecretInfo[] | undefined;
 
     constructor(data?: IApiResourceInfo) {
@@ -11088,7 +11084,7 @@ export class ApiResourceInfo implements IApiResourceInfo {
             if (Array.isArray(_data["scopes"])) {
                 this.scopes = [] as any;
                 for (let item of _data["scopes"])
-                    this.scopes!.push(ScopeInfo.fromJS(item));
+                    this.scopes!.push(ApiScopeInfo.fromJS(item));
             }
             if (Array.isArray(_data["secrets"])) {
                 this.secrets = [] as any;
@@ -11149,7 +11145,7 @@ export interface IApiResourceInfo {
     /** List of accociated claims that should be included when this resource is requested. */
     allowedClaims?: string[] | undefined;
     /** List of all scopes included in the resource. At least one scope must be included. */
-    scopes?: ScopeInfo[] | undefined;
+    scopes?: ApiScopeInfo[] | undefined;
     secrets?: ApiSecretInfo[] | undefined;
 }
 
@@ -11256,7 +11252,7 @@ export interface IUpdateApiResourceRequest {
 /** Models an API scope that will be created on the server. */
 export class CreateApiScopeRequest implements ICreateApiScopeRequest {
     /** Determines whether this scope is required or not. */
-    nonEditable?: boolean;
+    required?: boolean;
     /** Determines whether this scope should be displayed emphasized or not. */
     emphasize?: boolean;
     /** Determines whether this scope should be displayed in the discovery document or not. */
@@ -11283,7 +11279,7 @@ export class CreateApiScopeRequest implements ICreateApiScopeRequest {
 
     init(_data?: any) {
         if (_data) {
-            this.nonEditable = _data["nonEditable"];
+            this.required = _data["required"];
             this.emphasize = _data["emphasize"];
             this.showInDiscoveryDocument = _data["showInDiscoveryDocument"];
             this.name = _data["name"];
@@ -11307,7 +11303,7 @@ export class CreateApiScopeRequest implements ICreateApiScopeRequest {
 
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
-        data["nonEditable"] = this.nonEditable;
+        data["required"] = this.required;
         data["emphasize"] = this.emphasize;
         data["showInDiscoveryDocument"] = this.showInDiscoveryDocument;
         data["name"] = this.name;
@@ -11326,7 +11322,7 @@ export class CreateApiScopeRequest implements ICreateApiScopeRequest {
 /** Models an API scope that will be created on the server. */
 export interface ICreateApiScopeRequest {
     /** Determines whether this scope is required or not. */
-    nonEditable?: boolean;
+    required?: boolean;
     /** Determines whether this scope should be displayed emphasized or not. */
     emphasize?: boolean;
     /** Determines whether this scope should be displayed in the discovery document or not. */
@@ -11346,7 +11342,7 @@ export interface ICreateApiScopeRequest {
 /** Models an API scope that will be updated on the server. */
 export class UpdateApiScopeRequest implements IUpdateApiScopeRequest {
     /** Determines whether this scope is required or not. */
-    nonEditable?: boolean;
+    required?: boolean;
     /** Determines whether this scope should be displayed emphasized or not. */
     emphasize?: boolean;
     /** Determines whether this scope should be displayed in the discovery document or not. */
@@ -11367,7 +11363,7 @@ export class UpdateApiScopeRequest implements IUpdateApiScopeRequest {
 
     init(_data?: any) {
         if (_data) {
-            this.nonEditable = _data["nonEditable"];
+            this.required = _data["required"];
             this.emphasize = _data["emphasize"];
             this.showInDiscoveryDocument = _data["showInDiscoveryDocument"];
             this.displayName = _data["displayName"];
@@ -11384,7 +11380,7 @@ export class UpdateApiScopeRequest implements IUpdateApiScopeRequest {
 
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
-        data["nonEditable"] = this.nonEditable;
+        data["required"] = this.required;
         data["emphasize"] = this.emphasize;
         data["showInDiscoveryDocument"] = this.showInDiscoveryDocument;
         data["displayName"] = this.displayName;
@@ -11396,7 +11392,7 @@ export class UpdateApiScopeRequest implements IUpdateApiScopeRequest {
 /** Models an API scope that will be updated on the server. */
 export interface IUpdateApiScopeRequest {
     /** Determines whether this scope is required or not. */
-    nonEditable?: boolean;
+    required?: boolean;
     /** Determines whether this scope should be displayed emphasized or not. */
     emphasize?: boolean;
     /** Determines whether this scope should be displayed in the discovery document or not. */
@@ -11407,11 +11403,11 @@ export interface IUpdateApiScopeRequest {
     description?: string | undefined;
 }
 
-export class ScopeInfoResultSet implements IScopeInfoResultSet {
+export class ApiScopeInfoResultSet implements IApiScopeInfoResultSet {
     count?: number;
-    items?: ScopeInfo[] | undefined;
+    items?: ApiScopeInfo[] | undefined;
 
-    constructor(data?: IScopeInfoResultSet) {
+    constructor(data?: IApiScopeInfoResultSet) {
         if (data) {
             for (var property in data) {
                 if (data.hasOwnProperty(property))
@@ -11426,14 +11422,14 @@ export class ScopeInfoResultSet implements IScopeInfoResultSet {
             if (Array.isArray(_data["items"])) {
                 this.items = [] as any;
                 for (let item of _data["items"])
-                    this.items!.push(ScopeInfo.fromJS(item));
+                    this.items!.push(ApiScopeInfo.fromJS(item));
             }
         }
     }
 
-    static fromJS(data: any): ScopeInfoResultSet {
+    static fromJS(data: any): ApiScopeInfoResultSet {
         data = typeof data === 'object' ? data : {};
-        let result = new ScopeInfoResultSet();
+        let result = new ApiScopeInfoResultSet();
         result.init(data);
         return result;
     }
@@ -11450,9 +11446,9 @@ export class ScopeInfoResultSet implements IScopeInfoResultSet {
     }
 }
 
-export interface IScopeInfoResultSet {
+export interface IApiScopeInfoResultSet {
     count?: number;
-    items?: ScopeInfo[] | undefined;
+    items?: ApiScopeInfo[] | undefined;
 }
 
 /** Models an system role. */

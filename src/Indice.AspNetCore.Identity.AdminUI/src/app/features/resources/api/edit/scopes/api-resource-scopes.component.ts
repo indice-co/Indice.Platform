@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 
 import { Subscription } from 'rxjs';
-import { ApiResourceInfo, ScopeInfo } from 'src/app/core/services/identity-api.service';
+import { ApiResourceInfo, ApiScopeInfo } from 'src/app/core/services/identity-api.service';
 import { ToastService } from 'src/app/layout/services/app-toast.service';
 import { ApiResourceStore } from '../../api-resource-store.service';
 
@@ -32,7 +32,7 @@ export class ApiResourceScopesComponent implements OnInit, OnDestroy {
     }
 
     public togglePanel(itemIndex: number): void {
-        this.apiResource.scopes.forEach((value: ScopeInfo, index: number) => {
+        this.apiResource.scopes.forEach((value: ApiScopeInfo, index: number) => {
             const isOpen = (value as any).isOpen;
             (value as any).isOpen = itemIndex === index ? !isOpen : false;
         });

@@ -39,6 +39,8 @@ namespace Microsoft.Extensions.DependencyInjection
                 options.UserInteraction.ErrorUrl = "/error";
                 options.UserInteraction.LoginUrl = "/login";
                 options.UserInteraction.LogoutUrl = "/logout";
+                // https://leastprivilege.com/2020/06/15/the-jwt-profile-for-oauth-2-0-access-tokens-and-identityserver/
+                options.EmitScopesAsSpaceDelimitedStringInJwt = true;
             })
             .AddAspNetIdentity<User>()
             .AddOperationalStore(options => {

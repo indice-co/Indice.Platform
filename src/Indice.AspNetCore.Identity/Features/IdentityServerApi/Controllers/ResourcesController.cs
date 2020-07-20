@@ -11,7 +11,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Entities = IdentityServer4.EntityFramework.Entities;
 
 namespace Indice.AspNetCore.Identity.Features
 {
@@ -270,28 +269,26 @@ namespace Indice.AspNetCore.Identity.Features
         }
 
         /// <summary>
-        /// Returns a list of <see cref="ScopeInfo"/> objects containing the total number of API scopes in the database and the data filtered according to the provided <see cref="ListOptions"/>.
+        /// Returns a list of <see cref="ApiScopeInfo"/> objects containing the total number of API scopes in the database and the data filtered according to the provided <see cref="ListOptions"/>.
         /// </summary>
         /// <param name="options">List params used to navigate through collections. Contains parameters such as sort, search, page number and page size.</param>
         /// <response code="200">OK</response>
         [HttpGet("protected/scopes")]
-        [ProducesResponseType(statusCode: StatusCodes.Status200OK, type: typeof(ResultSet<ScopeInfo>))]
+        [ProducesResponseType(statusCode: StatusCodes.Status200OK, type: typeof(ResultSet<ApiScopeInfo>))]
         public async Task<IActionResult> GetApiScopes([FromQuery] ListOptions options) {
-            var query = _configurationDbContext.ApiResources.AsNoTracking();
+            var query = _configurationDbContext.ApiScopes.AsNoTracking();
             if (!string.IsNullOrEmpty(options.Search)) {
                 var searchTerm = options.Search.ToLower();
                 query = query.Where(x => x.Name.ToLower().Contains(searchTerm) || x.Description.ToLower().Contains(searchTerm));
             }
-            var scopes = await query.SelectMany(x => x.Scopes).Select(x => new ScopeInfo {
-                Id = x.Id,
-                Scope = x.Scope,
-                DisplayName = x.ApiResource.DisplayName,
-                Description = x.ApiResource.Description,
-                Emphasize = false,
-                NonEditable = x.ApiResource.NonEditable,
-                ShowInDiscoveryDocument = x.ApiResource.ShowInDiscoveryDocument,
-                AllowedAccessTokenSigningAlgorithms = x.ApiResource.AllowedAccessTokenSigningAlgorithms,
-                UserClaims = x.ApiResource.UserClaims.Select(x => x.Type)
+            var scopes = await query.Select(apiScope => new ApiScopeInfo {
+                Id = apiScope.Id,
+                Name = apiScope.Name,
+                Description = apiScope.Description,
+                DisplayName = apiScope.DisplayName,
+                Emphasize = apiScope.Emphasize,
+                UserClaims = apiScope.UserClaims.Select(apiScopeClaim => apiScopeClaim.Type),
+                ShowInDiscoveryDocument = apiScope.ShowInDiscoveryDocument
             })
             .ToResultSetAsync(options);
             return Ok(scopes);
@@ -308,44 +305,47 @@ namespace Indice.AspNetCore.Identity.Features
         [HttpGet("protected/{resourceId:int}")]
         [CacheResourceFilter]
         public async Task<IActionResult> GetApiResource([FromRoute] int resourceId) {
-            var resource = await _configurationDbContext.ApiResources
-                                                        .Include(x => x.UserClaims)
-                                                        .Include(x => x.Secrets)
-                                                        .Include(x => x.Scopes)
-                                                        .ThenInclude(x => x.ApiResource)
-                                                        .ThenInclude(x => x.UserClaims)
-                                                        .AsNoTracking()
-                                                        .SingleOrDefaultAsync(x => x.Id == resourceId);
-            if (resource == null) {
+            var apiResource = await _configurationDbContext.ApiResources
+                .AsNoTracking()
+                .Select(x => new ApiResourceInfo {
+                    Id = x.Id,
+                    Name = x.Name,
+                    DisplayName = x.DisplayName,
+                    Description = x.Description,
+                    Enabled = x.Enabled,
+                    NonEditable = x.NonEditable,
+                    AllowedClaims = x.UserClaims.Select(x => x.Type),
+                    Scopes = x.Scopes.Any() ? x.Scopes.Join(
+                        _configurationDbContext.ApiScopes,
+                        apiResourceScope => apiResourceScope.Scope,
+                        apiScope => apiScope.Name,
+                        (apiResourceScope, apiScope) => new { 
+                            ApiResourceScope = apiResourceScope,
+                            ApiScope = apiScope
+                        }
+                    )
+                    .Select(result => new ApiScopeInfo {
+                        Id = result.ApiResourceScope.Id,
+                        Name = result.ApiScope.Name,
+                        Description = result.ApiScope.Description,
+                        DisplayName = result.ApiScope.DisplayName,
+                        Emphasize = result.ApiScope.Emphasize,
+                        UserClaims = result.ApiScope.UserClaims.Select(apiScopeClaim => apiScopeClaim.Type),
+                        ShowInDiscoveryDocument = result.ApiScope.ShowInDiscoveryDocument
+                    }) : default,
+                    Secrets = x.Secrets.Any() ? x.Secrets.Select(x => new ApiSecretInfo {
+                        Id = x.Id,
+                        Type = x.Type,
+                        Value = "*****",
+                        Description = x.Description,
+                        Expiration = x.Expiration
+                    }) : default
+                })
+                .SingleOrDefaultAsync(x => x.Id == resourceId);
+            if (apiResource == null) {
                 return NotFound();
             }
-            return Ok(new ApiResourceInfo {
-                Id = resource.Id,
-                Name = resource.Name,
-                DisplayName = resource.DisplayName,
-                Description = resource.Description,
-                Enabled = resource.Enabled,
-                NonEditable = resource.NonEditable,
-                AllowedClaims = resource.UserClaims.Select(x => x.Type),
-                Scopes = resource.Scopes.Any() ? resource.Scopes.Select(x => new ScopeInfo {
-                    Id = x.Id,
-                    Scope = x.ApiResource.Name,
-                    DisplayName = x.ApiResource.DisplayName,
-                    Description = x.ApiResource.Description,
-                    NonEditable = x.ApiResource.NonEditable,
-                    Emphasize = false,
-                    ShowInDiscoveryDocument = x.ApiResource.ShowInDiscoveryDocument,
-                    AllowedAccessTokenSigningAlgorithms = x.ApiResource.AllowedAccessTokenSigningAlgorithms,
-                    UserClaims = x.ApiResource.UserClaims.Any() ? x.ApiResource.UserClaims.Select(x => x.Type) : default
-                }) : default,
-                Secrets = resource.Secrets.Any() ? resource.Secrets.Select(x => new ApiSecretInfo {
-                    Id = x.Id,
-                    Type = x.Type,
-                    Value = "*****",
-                    Description = x.Description,
-                    Expiration = x.Expiration
-                }) : default
-            });
+            return Ok(apiResource);
         }
 
         /// <summary>
@@ -356,44 +356,43 @@ namespace Indice.AspNetCore.Identity.Features
         [HttpPost("protected")]
         [ProducesResponseType(statusCode: StatusCodes.Status201Created, type: typeof(ApiResourceInfo))]
         public async Task<IActionResult> CreateApiResource([FromBody] CreateResourceRequest request) {
-            var resource = new ApiResource {
+            var apiResource = new ApiResource {
                 Name = request.Name,
                 DisplayName = request.DisplayName,
                 Description = request.Description,
                 Enabled = true,
                 ShowInDiscoveryDocument = true,
                 AllowedAccessTokenSigningAlgorithms = request.AllowedAccessTokenSigningAlgorithms,
-                UserClaims = request.UserClaims.Select(x => new ApiResourceClaim {
-                    Type = x
-                })
-                .ToList(),
-                Scopes = new List<ApiResourceScope> {
-                    new ApiResourceScope {
-                        Scope = request.Name,
-                        ApiResource = new ApiResource {
-                            DisplayName = request.DisplayName,
-                            Description = request.Description,
-                            ShowInDiscoveryDocument = true
-                        }
-                    }
-                }
+                UserClaims = request.UserClaims.Select(claim => new ApiResourceClaim { Type = claim }).ToList(),
+                Scopes = new List<ApiResourceScope> { new ApiResourceScope { Scope = request.Name } }
             };
-            _configurationDbContext.ApiResources.Add(resource);
+            _configurationDbContext.ApiResources.Add(apiResource);
+            var apiScope = new ApiScope {
+                Name = request.Name,
+                DisplayName = request.DisplayName,
+                Description = request.Description,
+                Enabled = true,
+                ShowInDiscoveryDocument = true,
+                UserClaims = request.UserClaims.Select(claim => new ApiScopeClaim { Type = claim }).ToList()
+            };
+            _configurationDbContext.ApiScopes.Add(apiScope);
             await _configurationDbContext.SaveChangesAsync();
-            return CreatedAtAction(nameof(GetApiResource), Name, new { resourceId = resource.Id }, new ApiResourceInfo {
-                Id = resource.Id,
-                Name = resource.Name,
-                DisplayName = resource.DisplayName,
-                Description = resource.Description,
-                Enabled = resource.Enabled,
-                NonEditable = resource.NonEditable,
-                AllowedClaims = resource.UserClaims.Select(x => x.Type),
-                Scopes = resource.Scopes.Select(x => new ScopeInfo {
-                    Id = x.Id,
-                    Scope = x.ApiResource.Name,
-                    DisplayName = x.ApiResource.DisplayName,
-                    Description = x.ApiResource.Description,
-                    ShowInDiscoveryDocument = x.ApiResource.ShowInDiscoveryDocument
+            return CreatedAtAction(nameof(GetApiResource), Name, new { resourceId = apiResource.Id }, new ApiResourceInfo {
+                Id = apiResource.Id,
+                Name = apiResource.Name,
+                DisplayName = apiResource.DisplayName,
+                Description = apiResource.Description,
+                Enabled = apiResource.Enabled,
+                NonEditable = apiResource.NonEditable,
+                AllowedClaims = apiResource.UserClaims.Select(x => x.Type),
+                Scopes = apiResource.Scopes.Select(x => new ApiScopeInfo {
+                    Id = apiScope.Id,
+                    Name = apiScope.Name,
+                    DisplayName = apiScope.DisplayName,
+                    Description = apiScope.Description,
+                    ShowInDiscoveryDocument = apiScope.ShowInDiscoveryDocument,
+                    Emphasize = apiScope.Emphasize,
+                    UserClaims = apiScope.UserClaims.Select(x => x.Type)
                 })
             });
         }
@@ -408,6 +407,7 @@ namespace Indice.AspNetCore.Identity.Features
         [HttpPut("protected/{resourceId:int}")]
         [ProducesResponseType(statusCode: StatusCodes.Status200OK)]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
+        [CacheResourceFilter]
         public async Task<IActionResult> UpdateApiResource([FromRoute] int resourceId, [FromBody] UpdateApiResourceRequest request) {
             var resource = await _configurationDbContext.ApiResources.SingleOrDefaultAsync(x => x.Id == resourceId);
             if (resource == null) {
@@ -425,10 +425,10 @@ namespace Indice.AspNetCore.Identity.Features
         /// </summary>
         /// <param name="resourceId">The identifier of the API resource.</param>
         /// <param name="request">Contains info about the API scope to be created.</param>
-        /// <response code="201">Created</response>
+        /// <response code="200">OK</response>
         /// <response code="404">Not Found</response>
         [HttpPost("protected/{resourceId:int}/secrets")]
-        [ProducesResponseType(statusCode: StatusCodes.Status201Created, type: typeof(SecretInfo))]
+        [ProducesResponseType(statusCode: StatusCodes.Status200OK, type: typeof(SecretInfo))]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
         [CacheResourceFilter(DependentPaths = new string[] { "protected/{resourceId}" })]
         public async Task<IActionResult> AddApiResourceSecret([FromRoute] int resourceId, [FromBody] CreateSecretRequest request) {
@@ -446,7 +446,7 @@ namespace Indice.AspNetCore.Identity.Features
                 secretToAdd
             };
             await _configurationDbContext.SaveChangesAsync();
-            return CreatedAtAction(string.Empty, new SecretInfo {
+            return Ok(new SecretInfo {
                 Id = secretToAdd.Id,
                 Description = secretToAdd.Description,
                 Expiration = secretToAdd.Expiration,
@@ -488,10 +488,10 @@ namespace Indice.AspNetCore.Identity.Features
         /// </summary>
         /// <param name="resourceId">The identifier of the API resource.</param>
         /// <param name="claims">The API or identity resources to add.</param>
-        /// <response code="200">OK</response>
+        /// <response code="204">No Content</response>
         /// <response code="404">Not Found</response>
         [HttpPost("protected/{resourceId:int}/claims")]
-        [ProducesResponseType(statusCode: StatusCodes.Status200OK)]
+        [ProducesResponseType(statusCode: StatusCodes.Status204NoContent, type: typeof(void))]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
         [CacheResourceFilter(DependentPaths = new string[] { "protected/{resourceId}" })]
         public async Task<IActionResult> AddApiResourceClaims([FromRoute] int resourceId, [FromBody] string[] claims) {
@@ -505,7 +505,7 @@ namespace Indice.AspNetCore.Identity.Features
                 Type = x
             }));
             await _configurationDbContext.SaveChangesAsync();
-            return Ok();
+            return NoContent();
         }
 
         /// <summary>
@@ -513,10 +513,10 @@ namespace Indice.AspNetCore.Identity.Features
         /// </summary>
         /// <param name="resourceId">The identifier of the API resource.</param>
         /// <param name="claim">The identifier of the API resource claim to remove.</param>
-        /// <response code="200">OK</response>
+        /// <response code="204">No Content</response>
         /// <response code="404">Not Found</response>
         [HttpDelete("protected/{resourceId:int}/claims/{claim}")]
-        [ProducesResponseType(statusCode: StatusCodes.Status200OK)]
+        [ProducesResponseType(statusCode: StatusCodes.Status204NoContent, type: typeof(void))]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
         [CacheResourceFilter(DependentPaths = new string[] { "protected/{resourceId}" })]
         public async Task<IActionResult> DeleteApiResourceClaim([FromRoute] int resourceId, [FromRoute] string claim) {
@@ -533,7 +533,7 @@ namespace Indice.AspNetCore.Identity.Features
             }
             resource.UserClaims.RemoveAll(x => x.Type == claim);
             await _configurationDbContext.SaveChangesAsync();
-            return Ok();
+            return NoContent();
         }
 
         /// <summary>
@@ -541,42 +541,42 @@ namespace Indice.AspNetCore.Identity.Features
         /// </summary>
         /// <param name="resourceId">The identifier of the API resource.</param>
         /// <param name="request">Contains info about the API scope to be created.</param>
-        /// <response code="201">Created</response>
+        /// <response code="200">OK</response>
         /// <response code="404">Not Found</response>
         [HttpPost("protected/{resourceId:int}/scopes")]
-        [ProducesResponseType(statusCode: StatusCodes.Status201Created, type: typeof(ScopeInfo))]
+        [ProducesResponseType(statusCode: StatusCodes.Status200OK, type: typeof(ApiScopeInfo))]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
         [CacheResourceFilter(DependentPaths = new string[] { "protected/{resourceId}" })]
         public async Task<IActionResult> AddApiResourceScope([FromRoute] int resourceId, [FromBody] CreateApiScopeRequest request) {
-            var resource = await _configurationDbContext.ApiResources.SingleOrDefaultAsync(x => x.Id == resourceId);
+            var resource = await _configurationDbContext.ApiResources.Include(x => x.Scopes).SingleOrDefaultAsync(x => x.Id == resourceId);
             if (resource == null) {
                 return NotFound();
             }
-            var scopeToAdd = new ApiResourceScope {
-                ApiResource = new ApiResource {
-                    Name = request.Name,
-                    DisplayName = request.DisplayName,
-                    Description = request.Description,
-                    NonEditable = request.NonEditable,
-                    ShowInDiscoveryDocument = request.ShowInDiscoveryDocument,
-                    UserClaims = request.UserClaims.Select(x => new ApiResourceClaim {
-                        Type = x
-                    }).ToList()
-                }
+            var apiResourceScope = new ApiResourceScope {
+                Scope = request.Name,
+                ApiResourceId = resource.Id
             };
-            resource.Scopes = new List<ApiResourceScope> {
-                scopeToAdd
+            resource.Scopes.Add(apiResourceScope);
+            var apiScope = new ApiScope {
+                Name = request.Name,
+                DisplayName = request.DisplayName,
+                Description = request.Description,
+                Enabled = true,
+                Emphasize = request.Emphasize,
+                ShowInDiscoveryDocument = request.ShowInDiscoveryDocument,
+                Required = request.Required,
+                UserClaims = request.UserClaims.Select(claim => new ApiScopeClaim { Type = claim }).ToList()
             };
+            _configurationDbContext.ApiScopes.Add(apiScope);
             await _configurationDbContext.SaveChangesAsync();
-            return CreatedAtAction(string.Empty, new ScopeInfo {
-                Id = scopeToAdd.Id,
-                Scope = scopeToAdd.ApiResource.Name,
-                DisplayName = scopeToAdd.ApiResource.DisplayName,
-                Description = scopeToAdd.ApiResource.Description,
-                UserClaims = scopeToAdd.ApiResource.UserClaims.Select(x => x.Type),
-                Emphasize = false,
-                NonEditable = scopeToAdd.ApiResource.NonEditable,
-                ShowInDiscoveryDocument = scopeToAdd.ApiResource.ShowInDiscoveryDocument
+            return Ok(new ApiScopeInfo {
+                Id = apiResourceScope.Id,
+                Name = apiScope.Name,
+                DisplayName = apiScope.DisplayName,
+                Description = apiScope.Description,
+                UserClaims = apiScope.UserClaims.Select(x => x.Type),
+                Emphasize = apiScope.Emphasize,
+                ShowInDiscoveryDocument = apiScope.ShowInDiscoveryDocument
             });
         }
 
@@ -586,26 +586,25 @@ namespace Indice.AspNetCore.Identity.Features
         /// <param name="resourceId">The identifier of the API resource.</param>
         /// <param name="scopeId">The identifier of the API resource.</param>
         /// <param name="request">Contains info about the API scope to be updated.</param>
-        /// <response code="200">OK</response>
+        /// <response code="204">No Content</response>
         /// <response code="404">Not Found</response>
         [HttpPut("protected/{resourceId:int}/scopes/{scopeId:int}")]
-        [ProducesResponseType(statusCode: StatusCodes.Status200OK)]
+        [ProducesResponseType(statusCode: StatusCodes.Status200OK, type: typeof(void))]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
         [CacheResourceFilter(DependentPaths = new string[] { "protected/{resourceId}" })]
         public async Task<IActionResult> UpdateApiResourceScope([FromRoute] int resourceId, [FromRoute] int scopeId, [FromBody] UpdateApiScopeRequest request) {
-            var scope = await _configurationDbContext.ApiResources
-                                                     .Where(x => x.Id == resourceId)
-                                                     .SelectMany(x => x.Scopes)
-                                                     .SingleOrDefaultAsync(x => x.Id == scopeId);
-            if (scope == null) {
+            var apiResourceScope = await _configurationDbContext.ApiResources.AsNoTracking().Where(x => x.Id == resourceId).SelectMany(x => x.Scopes).SingleOrDefaultAsync(x => x.Id == scopeId);
+            if (apiResourceScope == null) {
                 return NotFound();
             }
-            scope.ApiResource.DisplayName = request.DisplayName;
-            scope.ApiResource.Description = request.Description;
-            scope.ApiResource.NonEditable = request.NonEditable;
-            scope.ApiResource.ShowInDiscoveryDocument = request.ShowInDiscoveryDocument;
+            var apiScope = await _configurationDbContext.ApiScopes.SingleOrDefaultAsync(x => x.Name == apiResourceScope.Scope);
+            apiScope.DisplayName = request.DisplayName;
+            apiScope.Description = request.Description;
+            apiScope.Required = request.Required;
+            apiScope.ShowInDiscoveryDocument = request.ShowInDiscoveryDocument;
+            apiScope.Emphasize = request.Emphasize;
             await _configurationDbContext.SaveChangesAsync();
-            return Ok();
+            return NoContent();
         }
 
         /// <summary>
@@ -702,20 +701,24 @@ namespace Indice.AspNetCore.Identity.Features
         /// Permanently deletes an API resource.
         /// </summary>
         /// <param name="resourceId">The id of the API resource to delete.</param>
-        /// <response code="200">OK</response>
+        /// <response code="204">No Content</response>
         /// <response code="404">Not Found</response>
         [HttpDelete("protected/{resourceId:int}")]
         [ProducesResponseType(statusCode: StatusCodes.Status200OK)]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
         [CacheResourceFilter]
         public async Task<IActionResult> DeleteApiResource([FromRoute] int resourceId) {
-            var resource = await _configurationDbContext.ApiResources.SingleOrDefaultAsync(x => x.Id == resourceId);
-            if (resource == null) {
+            var apiResource = await _configurationDbContext.ApiResources.Include(x => x.Scopes).SingleOrDefaultAsync(x => x.Id == resourceId);
+            if (apiResource == null) {
                 return NotFound();
             }
-            _configurationDbContext.ApiResources.Remove(resource);
+            _configurationDbContext.ApiResources.Remove(apiResource);
+            var apiScopes = await _configurationDbContext.ApiScopes.Where(apiScope => apiResource.Scopes.Select(apiResourceScope => apiResourceScope.Scope).Contains(apiScope.Name)).ToListAsync();
+            if (apiScopes.Any()) {
+                _configurationDbContext.ApiScopes.RemoveRange(apiScopes);
+            }
             await _configurationDbContext.SaveChangesAsync();
-            return Ok();
+            return NoContent();
         }
     }
 }
