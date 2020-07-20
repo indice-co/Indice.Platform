@@ -2,13 +2,12 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography;
+using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
-using System.Text.Json;
-using System.Text.Json.Serialization;
-using System.Security.Cryptography;
-using System.Threading.Tasks;
 
 namespace Indice.AspNetCore.Filters
 {
@@ -64,7 +63,6 @@ namespace Indice.AspNetCore.Filters
                     }
                     return Task.CompletedTask;
                 });
-                
             }
         }
     }
@@ -85,6 +83,7 @@ namespace Indice.AspNetCore.Filters
             Rng.GetBytes(bytes);
             return Convert.ToBase64String(bytes);
         }
+
         /// <summary>
         /// Default policy.
         /// </summary>
@@ -131,7 +130,6 @@ namespace Indice.AspNetCore.Filters
         /// </summary>
         public const string UnsafeHashes = "'unsafe-hashes'";
 
-
         /// <summary>
         /// [CSP Level 1]
         /// The default-src directive defines the default policy for fetching resources such as 
@@ -142,6 +140,7 @@ namespace Indice.AspNetCore.Filters
             get => GetValueOrDefault(nameof(DefaultSrc));
             set => SetValue(nameof(DefaultSrc), value);
         }
+
         /// <summary>
         /// [CSP Level 1]
         /// Defines valid sources of JavaScript.
@@ -150,6 +149,7 @@ namespace Indice.AspNetCore.Filters
             get => GetValueOrDefault(nameof(ScriptSrc));
             set => SetValue(nameof(ScriptSrc), value);
         }
+
         /// <summary>
         /// [CSP Level 1]
         ///Defines valid sources of stylesheets or CSS.
@@ -158,6 +158,7 @@ namespace Indice.AspNetCore.Filters
             get => GetValueOrDefault(nameof(StyleSrc));
             set => SetValue(nameof(StyleSrc), value);
         }
+
         /// <summary>
         /// [CSP Level 1]
         /// Defines valid sources of images.
