@@ -319,7 +319,7 @@ namespace Indice.AspNetCore.Identity.Features
                         _configurationDbContext.ApiScopes,
                         apiResourceScope => apiResourceScope.Scope,
                         apiScope => apiScope.Name,
-                        (apiResourceScope, apiScope) => new { 
+                        (apiResourceScope, apiScope) => new {
                             ApiResourceScope = apiResourceScope,
                             ApiScope = apiScope
                         }
@@ -542,9 +542,11 @@ namespace Indice.AspNetCore.Identity.Features
         /// <param name="resourceId">The identifier of the API resource.</param>
         /// <param name="request">Contains info about the API scope to be created.</param>
         /// <response code="200">OK</response>
+        /// <response code="400">Bad Request</response>
         /// <response code="404">Not Found</response>
         [HttpPost("protected/{resourceId:int}/scopes")]
         [ProducesResponseType(statusCode: StatusCodes.Status200OK, type: typeof(ApiScopeInfo))]
+        [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest, type: typeof(ValidationProblemDetails))]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
         [CacheResourceFilter(DependentPaths = new string[] { "protected/{resourceId}" })]
         public async Task<IActionResult> AddApiResourceScope([FromRoute] int resourceId, [FromBody] CreateApiScopeRequest request) {
@@ -552,12 +554,17 @@ namespace Indice.AspNetCore.Identity.Features
             if (resource == null) {
                 return NotFound();
             }
+            var apiScope = await _configurationDbContext.ApiScopes.AsNoTracking().SingleOrDefaultAsync(apiScope => apiScope.Name == request.Name);
+            if (apiScope != null) {
+                ModelState.AddModelError(nameof(request.Name).ToLower(), $"There is already an API scope with name: {apiScope.Name}.");
+                return BadRequest(new ValidationProblemDetails(ModelState));
+            }
             var apiResourceScope = new ApiResourceScope {
                 Scope = request.Name,
                 ApiResourceId = resource.Id
             };
             resource.Scopes.Add(apiResourceScope);
-            var apiScope = new ApiScope {
+            var apiScopeToAdd = new ApiScope {
                 Name = request.Name,
                 DisplayName = request.DisplayName,
                 Description = request.Description,
@@ -567,16 +574,16 @@ namespace Indice.AspNetCore.Identity.Features
                 Required = request.Required,
                 UserClaims = request.UserClaims.Select(claim => new ApiScopeClaim { Type = claim }).ToList()
             };
-            _configurationDbContext.ApiScopes.Add(apiScope);
+            _configurationDbContext.ApiScopes.Add(apiScopeToAdd);
             await _configurationDbContext.SaveChangesAsync();
             return Ok(new ApiScopeInfo {
                 Id = apiResourceScope.Id,
-                Name = apiScope.Name,
-                DisplayName = apiScope.DisplayName,
-                Description = apiScope.Description,
-                UserClaims = apiScope.UserClaims.Select(x => x.Type),
-                Emphasize = apiScope.Emphasize,
-                ShowInDiscoveryDocument = apiScope.ShowInDiscoveryDocument
+                Name = apiScopeToAdd.Name,
+                DisplayName = apiScopeToAdd.DisplayName,
+                Description = apiScopeToAdd.Description,
+                UserClaims = apiScopeToAdd.UserClaims.Select(x => x.Type),
+                Emphasize = apiScopeToAdd.Emphasize,
+                ShowInDiscoveryDocument = apiScopeToAdd.ShowInDiscoveryDocument
             });
         }
 
@@ -612,27 +619,29 @@ namespace Indice.AspNetCore.Identity.Features
         /// </summary>
         /// <param name="resourceId">The identifier of the API resource.</param>
         /// <param name="scopeId">The identifier of the API resource scope.</param>
-        /// <response code="200">OK</response>
+        /// <response code="204">No Content</response>
         /// <response code="404">Not Found</response>
         [HttpDelete("protected/{resourceId:int}/scopes/{scopeId:int}")]
         [CacheResourceFilter(DependentPaths = new string[] { "protected/{resourceId}" })]
-        [ProducesResponseType(statusCode: StatusCodes.Status200OK)]
+        [ProducesResponseType(statusCode: StatusCodes.Status204NoContent, type: typeof(void))]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
         public async Task<IActionResult> DeleteApiResourceScope([FromRoute] int resourceId, [FromRoute] int scopeId) {
-            var resource = await _configurationDbContext.ApiResources.Include(x => x.Scopes).SingleOrDefaultAsync(x => x.Id == resourceId);
-            if (resource == null) {
+            var apiResource = await _configurationDbContext.ApiResources.Include(x => x.Scopes).SingleOrDefaultAsync(x => x.Id == resourceId);
+            if (apiResource == null) {
                 return NotFound();
             }
-            if (resource.Scopes == null) {
-                resource.Scopes = new List<ApiResourceScope>();
-            }
-            var scopeToRemove = resource.Scopes.SingleOrDefault(x => x.Id == scopeId);
-            if (scopeToRemove == null) {
+            var apiResourceScope = apiResource.Scopes?.SingleOrDefault(x => x.Id == scopeId);
+            if (apiResourceScope == null) {
                 return NotFound();
             }
-            resource.Scopes.Remove(scopeToRemove);
+            apiResource.Scopes.Remove(apiResourceScope);
+            var apiScope = await _configurationDbContext.ApiScopes.SingleOrDefaultAsync(x => x.Name == apiResourceScope.Scope);
+            if (apiScope == null) {
+                return NotFound();
+            }
+            _configurationDbContext.ApiScopes.Remove(apiScope);
             await _configurationDbContext.SaveChangesAsync();
-            return Ok();
+            return NoContent();
         }
 
         /// <summary>
@@ -641,28 +650,29 @@ namespace Indice.AspNetCore.Identity.Features
         /// <param name="resourceId">The identifier of the API resource.</param>
         /// <param name="scopeId">The identifier of the API resource scope.</param>
         /// <param name="claims">The claims to add to the scope.</param>
-        /// <response code="200">OK</response>
+        /// <response code="204">No Content</response>
         /// <response code="404">Not Found</response>
         [HttpPost("protected/{resourceId:int}/scopes/{scopeId:int}/claims")]
-        [ProducesResponseType(statusCode: StatusCodes.Status200OK)]
+        [ProducesResponseType(statusCode: StatusCodes.Status204NoContent, type: typeof(void))]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
         [CacheResourceFilter(DependentPaths = new string[] { "protected/{resourceId}" })]
         public async Task<IActionResult> AddApiResourceScopeClaims([FromRoute] int resourceId, [FromRoute] int scopeId, [FromBody] string[] claims) {
-            var resourceScope = await _configurationDbContext.ApiResources
-                                                             .Where(x => x.Id == resourceId)
-                                                             .SelectMany(x => x.Scopes)
-                                                             .Where(x => x.Id == scopeId)
-                                                             .SingleOrDefaultAsync();
-            if (resourceScope == null) {
+            var apiResourceScope = await _configurationDbContext
+                .ApiResources
+                .AsNoTracking()
+                .Where(apiResource => apiResource.Id == resourceId)
+                .SelectMany(apiResource => apiResource.Scopes)
+                .SingleOrDefaultAsync(apiResourceScope => apiResourceScope.Id == scopeId);
+            if (apiResourceScope == null) {
                 return NotFound();
             }
-            resourceScope.ApiResource.UserClaims = new List<ApiResourceClaim>();
-            resourceScope.ApiResource.UserClaims.AddRange(claims.Select(x => new ApiResourceClaim {
-                ApiResourceId = scopeId,
-                Type = x
-            }));
+            var apiScope = await _configurationDbContext.ApiScopes.Include(apiScope => apiScope.UserClaims).SingleOrDefaultAsync(apiScope => apiScope.Name == apiResourceScope.Scope);
+            if (apiScope == null) {
+                return NotFound();
+            }
+            apiScope.UserClaims.AddRange(claims.Select(claim => new ApiScopeClaim { ScopeId = apiScope.Id, Type = claim }));
             await _configurationDbContext.SaveChangesAsync();
-            return Ok();
+            return NoContent();
         }
 
         /// <summary>
@@ -671,30 +681,32 @@ namespace Indice.AspNetCore.Identity.Features
         /// <param name="resourceId">The identifier of the API resource.</param>
         /// <param name="scopeId">The identifier of the API resource scope.</param>
         /// <param name="claim">The claim to remove from the scope.</param>
-        /// <response code="200">OK</response>
+        /// <response code="204">No Content</response>
         /// <response code="404">Not Found</response>
         [HttpDelete("protected/{resourceId:int}/scopes/{scopeId:int}/claims/{claim}")]
         [CacheResourceFilter(DependentPaths = new string[] { "protected/{resourceId}" })]
-        [ProducesResponseType(statusCode: StatusCodes.Status200OK)]
+        [ProducesResponseType(statusCode: StatusCodes.Status204NoContent, type: typeof(void))]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
         public async Task<IActionResult> DeleteApiResourceScopeClaim([FromRoute] int resourceId, [FromRoute] int scopeId, [FromRoute] string claim) {
-            var scope = await _configurationDbContext.ApiResources
-                                                     .Include(x => x.Scopes)
-                                                     .ThenInclude(x => x.ApiResource)
-                                                     .ThenInclude(x => x.UserClaims)
-                                                     .Where(x => x.Id == resourceId)
-                                                     .SelectMany(x => x.Scopes)
-                                                     .SingleOrDefaultAsync(x => x.Id == scopeId);
-            if (scope == null) {
+            var apiResourceScope = await _configurationDbContext
+                .ApiResources
+                .Where(apiResource => apiResource.Id == resourceId)
+                .SelectMany(apiResource => apiResource.Scopes)
+                .SingleOrDefaultAsync(apiResourceScope => apiResourceScope.Id == scopeId);
+            if (apiResourceScope == null) {
                 return NotFound();
             }
-            var claimToRemove = scope.ApiResource.UserClaims.SingleOrDefault(x => x.Type == claim);
+            var apiScope = await _configurationDbContext.ApiScopes.Include(x => x.UserClaims).SingleOrDefaultAsync(apiScope => apiScope.Name == apiResourceScope.Scope);
+            if (apiScope == null) {
+                return NotFound();
+            }
+            var claimToRemove = apiScope.UserClaims.SingleOrDefault(apiScopeClaim => apiScopeClaim.Type == claim);
             if (claimToRemove == null) {
                 return NotFound();
             }
-            scope.ApiResource.UserClaims.Remove(claimToRemove);
+            apiScope.UserClaims.Remove(claimToRemove);
             await _configurationDbContext.SaveChangesAsync();
-            return Ok();
+            return NoContent();
         }
 
         /// <summary>
