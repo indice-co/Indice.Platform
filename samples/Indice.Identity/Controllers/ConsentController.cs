@@ -197,7 +197,7 @@ namespace Indice.Identity.Controllers
         }
 
         private ScopeViewModel GetOfflineAccessScope(bool check) => new ScopeViewModel {
-            Value = IdentityServer4.IdentityServerConstants.StandardScopes.OfflineAccess,
+            Value = IdentityServerConstants.StandardScopes.OfflineAccess,
             DisplayName = ConsentOptions.OfflineAccessDisplayName,
             Description = ConsentOptions.OfflineAccessDescription,
             Emphasize = true,
