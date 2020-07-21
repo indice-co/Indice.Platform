@@ -19,7 +19,11 @@ namespace Indice.AspNetCore.Filters
         /// <summary>
         /// This key is used to communicate generated nonces between the tag helper and the filter.
         /// </summary>
-        public const string CSP_NONCE_HTTPCONTEXT_KEY = "CSP_NONCE";
+        public const string CSP_SCRIPT_NONCE_HTTPCONTEXT_KEY = "CSP_SCRIPT_NONCE";
+        /// <summary>
+        /// This key is used to communicate generated nonces between the tag helper and the filter.
+        /// </summary>
+        public const string CSP_STYLE_NONCE_HTTPCONTEXT_KEY = "CSP_STYLE_NONCE";
 
         /// <summary>
         /// Constructor defaults to allowing self origin, plus Google for fonts and scripts (Google cdn) and wildcard for images.
@@ -36,10 +40,16 @@ namespace Indice.AspNetCore.Filters
             if (result is ViewResult) {
                 context.HttpContext.Response.OnStarting(() => {
                     var policy = (requestPolicy ?? CSP.DefaultPolicy).Clone();
-                    if (context.HttpContext.Items.ContainsKey(CSP_NONCE_HTTPCONTEXT_KEY)) {
-                        var nonceList = (List<string>)context.HttpContext.Items[CSP_NONCE_HTTPCONTEXT_KEY];
+                    if (context.HttpContext.Items.ContainsKey(CSP_SCRIPT_NONCE_HTTPCONTEXT_KEY)) {
+                        var nonceList = (List<string>)context.HttpContext.Items[CSP_SCRIPT_NONCE_HTTPCONTEXT_KEY];
                         foreach (var nonce in nonceList) {
                             policy.AddScriptSrc($"'nonce-{nonce}'");
+                        }
+                    }
+                    if (context.HttpContext.Items.ContainsKey(CSP_STYLE_NONCE_HTTPCONTEXT_KEY)) {
+                        var nonceList = (List<string>)context.HttpContext.Items[CSP_STYLE_NONCE_HTTPCONTEXT_KEY];
+                        foreach (var nonce in nonceList) {
+                            policy.AddStyleSrc($"'nonce-{nonce}'");
                         }
                     }
                     if (!context.HttpContext.Response.Headers.ContainsKey("X-Content-Type-Options")) {
@@ -78,8 +88,8 @@ namespace Indice.AspNetCore.Filters
         /// Create a new nonce. Essentially creates an 16 byte length array (128 bit) and converts to base64 string.
         /// </summary>
         /// <returns></returns>
-        public static string CreateNonce() {
-            var bytes = new byte[128 / 8];
+        public static string CreateNonce(int length = 128) {
+            var bytes = new byte[length / 8];
             Rng.GetBytes(bytes);
             return Convert.ToBase64String(bytes);
         }
@@ -93,10 +103,10 @@ namespace Indice.AspNetCore.Filters
             BaseUri = $"{Self}",
             FrameAncestors = $"{None}",
             Sandbox = $"allow-forms allow-same-origin allow-scripts",
-            ScriptSrc = $"{Self} ajax.googleapis.com ajax.aspnetcdn.com stackpath.bootstrapcdn.com",
+            ScriptSrc = $"{Self}",
             FontSrc = $"{Self} fonts.googleapis.com fonts.gstatic.com",
             ImgSrc = $"{Wildcard} {Data}",
-            StyleSrc = $"{Self} {UnsafeInline} fonts.googleapis.com stackpath.bootstrapcdn.com use.fontawesome.com"
+            StyleSrc = $"{Self} {UnsafeInline} fonts.googleapis.com"
         };
 
         private readonly Dictionary<string, string> _values = new Dictionary<string, string>();
@@ -129,6 +139,12 @@ namespace Indice.AspNetCore.Filters
         /// Allows enabling specific inline event handlers. If you only need to allow inline event handlers and not inline &lt;script&gt; elements or javascript: URLs, this is a safer method than using the unsafe-inline expression.
         /// </summary>
         public const string UnsafeHashes = "'unsafe-hashes'";
+        /// <summary>
+        /// The strict-dynamic source expression specifies that the trust explicitly given to a script present in the markup, by accompanying it with a nonce or a hash, 
+        /// shall be propagated to all the scripts loaded by that root script. 
+        /// At the same time, any whitelist or source expressions such as 'self' or 'unsafe-inline' will be ignored. See script-src for an example.
+        /// </summary>
+        public const string StrictDynamic = "'strict-dynamic'";
 
         /// <summary>
         /// [CSP Level 1]

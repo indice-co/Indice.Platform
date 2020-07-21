@@ -87,12 +87,12 @@ namespace Indice.Identity
             services.AddResponseCaching();
             services.AddDataProtectionLocal(options => options.FromConfiguration());
             services.AddCsp(options => {
+                options.ScriptSrc = CSP.Self;
                 options.AddSandbox("allow-popups")
                        .AddFontSrc(CSP.Data) // Allows fonts as data URLs.
                        .AddConnectSrc(CSP.Self)
                        .AddConnectSrc("https://dc.services.visualstudio.com")
-                       .AddScriptSrc("cdnjs.cloudflare.com")
-                       .AddScriptSrc(CSP.UnsafeEval)
+                       //.AddScriptSrc("'report-sample'")
                        .AddFrameAncestors("https://localhost:2002");
             });
             services.AddSpaStaticFiles(options => {

@@ -38,11 +38,17 @@ namespace Indice.AspNetCore.TagHelpers
                 var nonce = CSP.CreateNonce();
                 var httpContext = _httpContextAccessor.HttpContext;
                 List<string> nonceList;
-                if (httpContext.Items.ContainsKey(SecurityHeadersAttribute.CSP_NONCE_HTTPCONTEXT_KEY)) {
-                    nonceList = (List<string>)httpContext.Items[SecurityHeadersAttribute.CSP_NONCE_HTTPCONTEXT_KEY];
+                var key = string.Empty;
+                if (string.Equals(context.TagName, "script", StringComparison.OrdinalIgnoreCase)) {
+                    key = SecurityHeadersAttribute.CSP_SCRIPT_NONCE_HTTPCONTEXT_KEY;
+                } else if (string.Equals(context.TagName, "style", StringComparison.OrdinalIgnoreCase)) {
+                    key = SecurityHeadersAttribute.CSP_STYLE_NONCE_HTTPCONTEXT_KEY;
+                }
+                if (httpContext.Items.ContainsKey(key)) {
+                    nonceList = (List<string>)httpContext.Items[key];
                 } else {
                     nonceList = new List<string>();
-                    httpContext.Items.Add(SecurityHeadersAttribute.CSP_NONCE_HTTPCONTEXT_KEY, nonceList);
+                    httpContext.Items.Add(key, nonceList);
                 }
                 if (!output.Attributes.ContainsName("nonce")) {
                     output.Attributes.Add("nonce", nonce);
