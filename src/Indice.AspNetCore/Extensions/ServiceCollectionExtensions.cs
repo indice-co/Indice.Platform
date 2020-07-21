@@ -94,6 +94,7 @@ namespace Microsoft.Extensions.DependencyInjection
         public static IServiceCollection AddSmsServiceYouboto(this IServiceCollection services, IConfiguration configuration) {
             services.Configure<SmsServiceSettings>(configuration.GetSection(SmsServiceSettings.Name));
             services.AddTransient(serviceProvider => serviceProvider.GetRequiredService<IOptions<SmsServiceSettings>>().Value);
+            services.TryAddTransient<ISmsServiceFactory, DefaultSmsServiceFactory>();
             services.AddHttpClient<ISmsService, SmsServiceYuboto>().SetHandlerLifetime(TimeSpan.FromMinutes(5));
             return services;
         }
@@ -106,11 +107,11 @@ namespace Microsoft.Extensions.DependencyInjection
         public static IServiceCollection AddSmsServiceApifon(this IServiceCollection services, IConfiguration configuration) {
             services.Configure<SmsServiceApifonSettings>(configuration.GetSection(SmsServiceSettings.Name));
             services.AddTransient(serviceProvider => serviceProvider.GetRequiredService<IOptions<SmsServiceApifonSettings>>().Value);
+            services.TryAddTransient<ISmsServiceFactory, DefaultSmsServiceFactory>();
             services.AddHttpClient<ISmsService, SmsServiceApifon>(options => {
                 options.BaseAddress = new Uri("https://ars.apifon.com/services/api/v1/sms/");
             })
-                .SetHandlerLifetime(TimeSpan.FromMinutes(5));
-            services.AddTransient<ISmsServiceFactory, DefaultSmsServiceFactory>();
+            .SetHandlerLifetime(TimeSpan.FromMinutes(5));
             return services;
         }
 
@@ -122,6 +123,7 @@ namespace Microsoft.Extensions.DependencyInjection
         public static IServiceCollection AddSmsServiceViber(this IServiceCollection services, IConfiguration configuration) {
             services.Configure<SmsServiceViberSettings>(configuration.GetSection(SmsServiceViberSettings.Name));
             services.AddTransient(serviceProvider => serviceProvider.GetRequiredService<IOptions<SmsServiceViberSettings>>().Value);
+            services.TryAddTransient<ISmsServiceFactory, DefaultSmsServiceFactory>();
             services.AddHttpClient<ISmsService, SmsServiceViber>().SetHandlerLifetime(TimeSpan.FromMinutes(5));
             return services;
         }
@@ -134,8 +136,8 @@ namespace Microsoft.Extensions.DependencyInjection
         public static IServiceCollection AddSmsServiceYubotoOmni(this IServiceCollection services, IConfiguration configuration) {
             services.Configure<SmsServiceSettings>(configuration.GetSection(SmsServiceSettings.Name));
             services.AddTransient(serviceProvider => serviceProvider.GetRequiredService<IOptions<SmsServiceSettings>>().Value);
+            services.TryAddTransient<ISmsServiceFactory, DefaultSmsServiceFactory>();
             services.AddHttpClient<ISmsService, SmsYubotoOmniService>().SetHandlerLifetime(TimeSpan.FromMinutes(5));
-            services.AddTransient<ISmsServiceFactory, DefaultSmsServiceFactory>();
             return services;
         }
 
@@ -147,8 +149,8 @@ namespace Microsoft.Extensions.DependencyInjection
         public static IServiceCollection AddViberServiceYubotoOmni(this IServiceCollection services, IConfiguration configuration) {
             services.Configure<SmsServiceSettings>(configuration.GetSection(SmsServiceSettings.Name));
             services.AddTransient(serviceProvider => serviceProvider.GetRequiredService<IOptions<SmsServiceSettings>>().Value);
+            services.TryAddTransient<ISmsServiceFactory, DefaultSmsServiceFactory>();
             services.AddHttpClient<ISmsService, ViberYubotoOmniService>().SetHandlerLifetime(TimeSpan.FromMinutes(5));
-            services.AddTransient<ISmsServiceFactory, DefaultSmsServiceFactory>();
             return services;
         }
 
