@@ -37,8 +37,6 @@ export class UserStore {
         }) : null;
         return this._api.updateUser(user.id, {
             email: user.email,
-            lockoutEnabled: user.lockoutEnabled,
-            lockoutEnd: user.lockoutEnd,
             phoneNumber: user.phoneNumber,
             twoFactorEnabled: user.twoFactorEnabled,
             userName: user.userName,

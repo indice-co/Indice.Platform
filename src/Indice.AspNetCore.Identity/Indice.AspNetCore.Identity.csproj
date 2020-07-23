@@ -3,7 +3,7 @@
     <Description>Indice.AspNetCore.Identity Class Library</Description>
     <Copyright>Copyright (c) 2018 Indice</Copyright>
     <AssemblyTitle>Indice.AspNetCore.Identity</AssemblyTitle>
-    <VersionPrefix>4.0.1</VersionPrefix>
+    <VersionPrefix>4.0.3</VersionPrefix>
     <VersionSuffix>beta1</VersionSuffix>
     <Authors>c.leftheris, g.manoltzas</Authors>
     <TargetFramework>netcoreapp3.1</TargetFramework>
@@ -14,7 +14,7 @@
   <PropertyGroup Label="Package">
     <PackageId>Indice.AspNetCore.Identity</PackageId>
     <PackageTags>AspNetCore;IdentityServer;</PackageTags>
-    <PackageReleaseNotes>Update Indice.AspNetCore.</PackageReleaseNotes>
+    <PackageReleaseNotes>Fix minor bug.</PackageReleaseNotes>
     <PackageIcon>icon-310.png</PackageIcon>
     <PackageProjectUrl>https://github.com/indice-co/Indice.AspNet</PackageProjectUrl>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
@@ -32,9 +32,9 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Bogus" Version="29.0.2" />
-    <PackageReference Include="IdentityServer4" Version="4.0.2" />
+    <PackageReference Include="IdentityServer4" Version="4.0.3" />
     <PackageReference Include="IdentityServer4.AccessTokenValidation" Version="3.0.1" />
-    <PackageReference Include="IdentityServer4.EntityFramework" Version="4.0.2" />
+    <PackageReference Include="IdentityServer4.EntityFramework" Version="4.0.3" />
     <PackageReference Include="Indice.AspNetCore" Version="4.0.0-beta1" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="3.1.6" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="3.1.6" />

@@ -54,7 +54,7 @@ namespace Indice.Identity.Models.Validators
         /// </summary>
         public LoginValidator() {
             RuleFor(x => x.Password).NotEmpty().WithName(nameof(LoginViewModel.Password));
-            RuleFor(x => x.Username).NotEmpty().WithName(nameof(LoginViewModel.Username));
+            RuleFor(x => x.UserName).NotEmpty().WithName(nameof(LoginViewModel.UserName));
         }
     }
 
