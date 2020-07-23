@@ -79,7 +79,8 @@ namespace Indice.AspNetCore.Identity.Services
                 ReturnUrl = returnUrl,
                 Username = context?.LoginHint,
                 ExternalProviders = providers.ToArray(),
-                ClientId = context?.ClientId
+                ClientId = context?.ClientId,
+                Operation = context?.Parameters?.AllKeys?.Contains(ExtraQueryParamNames.Operation) == true ? context?.Parameters[ExtraQueryParamNames.Operation] : null
             };
         }
 

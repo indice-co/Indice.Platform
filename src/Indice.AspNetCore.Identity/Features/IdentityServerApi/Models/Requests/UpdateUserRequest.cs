@@ -10,17 +10,9 @@ namespace Indice.AspNetCore.Identity.Features
     public class UpdateUserRequest
     {
         /// <summary>
-        /// Indicates whether lockout feature is enabled for the user.
-        /// </summary>
-        public bool LockoutEnabled { get; set; }
-        /// <summary>
         /// Indicates whether two-factor authentication is enabled for the user.
         /// </summary>
         public bool TwoFactorEnabled { get; set; }
-        /// <summary>
-        /// The datetime where the lockout period ends.
-        /// </summary>
-        public DateTimeOffset? LockoutEnd { get; set; }
         /// <summary>
         /// User's email address.
         /// </summary>

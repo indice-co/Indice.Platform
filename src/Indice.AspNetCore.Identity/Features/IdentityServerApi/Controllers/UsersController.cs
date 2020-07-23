@@ -256,9 +256,7 @@ namespace Indice.AspNetCore.Identity.Features
             user.UserName = request.UserName;
             user.PhoneNumber = request.PhoneNumber;
             user.Email = request.Email;
-            user.LockoutEnabled = request.LockoutEnabled;
             user.TwoFactorEnabled = request.TwoFactorEnabled;
-            user.LockoutEnd = request.LockoutEnd;
             user.PasswordExpirationPolicy = request.PasswordExpirationPolicy;
             user.Admin = request.IsAdmin;
             user.EmailConfirmed = request.EmailConfirmed;
@@ -569,10 +567,10 @@ namespace Indice.AspNetCore.Identity.Features
         /// </summary>
         /// <param name="userId">The identifier of the user.</param>
         /// <param name="request">Contains info about the user password to change.</param>
-        /// <response code="200">OK</response>
+        /// <response code="204">NoContent</response>
         /// <response code="404">Not Found</response>
         [HttpPut("{userId}/set-password")]
-        [ProducesResponseType(statusCode: StatusCodes.Status200OK, type: typeof(void))]
+        [ProducesResponseType(statusCode: StatusCodes.Status204NoContent, type: typeof(void))]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
         [CacheResourceFilter(DependentPaths = new string[] { "{userId}" })]
         public async Task<IActionResult> SetPassword([FromRoute] string userId, [FromBody] SetPasswordRequest request) {
@@ -595,7 +593,11 @@ namespace Indice.AspNetCore.Identity.Features
             if (request.ChangePasswordAfterFirstSignIn.HasValue && request.ChangePasswordAfterFirstSignIn.Value == true) {
                 await _userManager.SetPasswordExpiredAsync(user, true);
             }
-            return Ok();
+            result = await _userManager.SetLockoutEndDateAsync(user, null);
+            if (!result.Succeeded) {
+                return BadRequest(result.Errors.ToValidationProblemDetails());
+            }
+            return NoContent();
         }
     }
 }
