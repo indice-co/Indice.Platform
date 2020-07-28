@@ -19,18 +19,19 @@ namespace Indice.Extensions.Caching
         /// <param name="cacheKey">The cache key to search for.</param>
         /// <param name="getSourceAsync">The delegate to use in order to retrieve the item if not found in cache.</param>
         /// <param name="options">The cache options to use when adding items to the cache.</param>
+        /// <param name="jsonSerializerOptions">Provides options to be used with <see cref="JsonSerializer"/>.</param>
         /// <param name="cancellationToken">Propagates notification that operations should be canceled.</param>
         /// <returns>The item found in the cache under the specified key.</returns>
-        public static async Task<T> TryGetOrSetAsync<T>(this IDistributedCache cache, string cacheKey, Func<Task<T>> getSourceAsync, DistributedCacheEntryOptions options, CancellationToken cancellationToken = default) {
+        public static async Task<T> TryGetOrSetAsync<T>(this IDistributedCache cache, string cacheKey, Func<Task<T>> getSourceAsync, DistributedCacheEntryOptions options, JsonSerializerOptions jsonSerializerOptions, CancellationToken cancellationToken = default) {
             var itemJson = await cache.GetStringAsync(cacheKey, cancellationToken);
             if (!string.IsNullOrEmpty(itemJson)) {
-                return JsonSerializer.Deserialize<T>(itemJson);
+                return JsonSerializer.Deserialize<T>(itemJson, jsonSerializerOptions);
             }
             var result = await getSourceAsync();
             if (result == null) {
                 return await Task.FromResult(default(T));
             }
-            itemJson = JsonSerializer.Serialize(result);
+            itemJson = JsonSerializer.Serialize(result, jsonSerializerOptions);
             await cache.SetStringAsync(cacheKey, itemJson, options, cancellationToken);
             return result;
         }
@@ -66,12 +67,13 @@ namespace Indice.Extensions.Caching
         /// <param name="cacheKey">The cache key to search for.</param>
         /// <param name="getSourceAsync">The delegate to use in order to retrieve the item if not found in cache.</param>
         /// <param name="absoluteExpiration">The expiration timespan used to keep the item in the cache. If not provided, 1 hour is used by default.</param>
+        /// <param name="jsonSerializerOptions">Provides options to be used with <see cref="JsonSerializer"/>.</param>
         /// <param name="cancellationToken">Propagates notification that operations should be canceled.</param>
         /// <returns>The item found in the cache under the specified key.</returns>
-        public static async Task<T> TryGetOrSetAsync<T>(this IDistributedCache cache, string cacheKey, Func<Task<T>> getSourceAsync, TimeSpan? absoluteExpiration, CancellationToken cancellationToken = default) {
+        public static async Task<T> TryGetOrSetAsync<T>(this IDistributedCache cache, string cacheKey, Func<Task<T>> getSourceAsync, TimeSpan? absoluteExpiration, JsonSerializerOptions jsonSerializerOptions = null, CancellationToken cancellationToken = default) {
             return await cache.TryGetOrSetAsync(cacheKey, getSourceAsync, new DistributedCacheEntryOptions {
                 AbsoluteExpiration = DateTimeOffset.UtcNow.Add(absoluteExpiration ?? TimeSpan.FromHours(1))
-            }, cancellationToken);
+            }, jsonSerializerOptions, cancellationToken);
         }
 
         /// <summary>
