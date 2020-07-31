@@ -70,11 +70,10 @@ namespace Indice.Extensions.Caching
         /// <param name="jsonSerializerOptions">Provides options to be used with <see cref="JsonSerializer"/>.</param>
         /// <param name="cancellationToken">Propagates notification that operations should be canceled.</param>
         /// <returns>The item found in the cache under the specified key.</returns>
-        public static async Task<T> TryGetOrSetAsync<T>(this IDistributedCache cache, string cacheKey, Func<Task<T>> getSourceAsync, TimeSpan? absoluteExpiration, JsonSerializerOptions jsonSerializerOptions = null, CancellationToken cancellationToken = default) {
-            return await cache.TryGetOrSetAsync(cacheKey, getSourceAsync, new DistributedCacheEntryOptions {
+        public static async Task<T> TryGetOrSetAsync<T>(this IDistributedCache cache, string cacheKey, Func<Task<T>> getSourceAsync, TimeSpan? absoluteExpiration, JsonSerializerOptions jsonSerializerOptions = null, CancellationToken cancellationToken = default) => 
+            await cache.TryGetOrSetAsync(cacheKey, getSourceAsync, new DistributedCacheEntryOptions { 
                 AbsoluteExpiration = DateTimeOffset.UtcNow.Add(absoluteExpiration ?? TimeSpan.FromHours(1))
             }, jsonSerializerOptions, cancellationToken);
-        }
 
         /// <summary>
         /// Tries to retrieve an item from the cache by using a unique key. If the item is not found, the provided source is used and the item is then saved in the cache.
@@ -85,10 +84,8 @@ namespace Indice.Extensions.Caching
         /// <param name="getSource">The delegate to use in order to retrieve the item if not found in cache.</param>
         /// <param name="absoluteExpiration">The expiration timespan used to keep the item in the cache. If not provided, 1 hour is used by default.</param>
         /// <returns>The item found in the cache under the specified key.</returns>
-        public static T TryGetOrSet<T>(this IDistributedCache cache, string cacheKey, Func<T> getSource, TimeSpan? absoluteExpiration) {
-            return cache.TryGetOrSet(cacheKey, getSource, new DistributedCacheEntryOptions {
-                AbsoluteExpiration = DateTimeOffset.UtcNow.Add(absoluteExpiration ?? TimeSpan.FromHours(1))
-            });
-        }
+        public static T TryGetOrSet<T>(this IDistributedCache cache, string cacheKey, Func<T> getSource, TimeSpan? absoluteExpiration) => cache.TryGetOrSet(cacheKey, getSource, new DistributedCacheEntryOptions {
+            AbsoluteExpiration = DateTimeOffset.UtcNow.Add(absoluteExpiration ?? TimeSpan.FromHours(1))
+        });
     }
 }
