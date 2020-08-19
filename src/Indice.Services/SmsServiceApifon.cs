@@ -20,7 +20,7 @@ namespace Indice.Services
         private bool _disposed = false;
 
         /// <summary>
-        /// The settings required to configure the service
+        /// The settings required to configure the service.
         /// </summary>
         protected SmsServiceApifonSettings Settings { get; }
         /// <summary>
@@ -42,50 +42,42 @@ namespace Indice.Services
             HttpClient = httpClient ?? new HttpClient();
             Settings = settings ?? throw new ArgumentNullException(nameof(settings));
             Logger = logger ?? throw new ArgumentNullException(nameof(logger));
-
             if (string.IsNullOrWhiteSpace(Settings.Token)) {
-                throw new ArgumentException("Sms settings Token key is empty");
+                throw new ArgumentException($"SMS settings {nameof(SmsServiceApifonSettings.Token)} is empty.");
             }
             if (string.IsNullOrWhiteSpace(Settings.ApiKey)) {
-                throw new ArgumentException("Sms settings Api key is empty");
+                throw new ArgumentException($"SMS settings {nameof(SmsServiceApifonSettings.ApiKey)} is empty.");
             }
-
         }
 
-        /// <summary>
-        /// Send an sms to a recipient
-        /// </summary>
-        /// <param name="destination"></param>
-        /// <param name="subject"></param>
-        /// <param name="body"></param>
-        /// <returns></returns>
+        /// <inheritdoc/>
         public async Task SendAsync(string destination, string subject, string body) {
             HttpResponseMessage httpResponse;
             ApifonResponse response;
-            var recipients = (destination ?? "").Split(new string[] { "," }, StringSplitOptions.RemoveEmptyEntries);
-            if (recipients == null)
+            var recipients = (destination ?? string.Empty).Split(new string[] { "," }, StringSplitOptions.RemoveEmptyEntries);
+            if (recipients == null) {
                 throw new ArgumentNullException(nameof(recipients));
-            if (recipients.Length == 0)
-                throw new ArgumentException("Recipients list is empty", nameof(recipients));
-            if (recipients.Any(telephone => telephone.Any(telNumber => !char.IsNumber(telNumber))))
+            }
+            if (recipients.Length == 0) {
+                throw new ArgumentException("Recipients list cannot be empty.", nameof(recipients));
+            }
+            if (recipients.Any(phoneNumber => phoneNumber.Any(numberChar => !char.IsNumber(numberChar)))) {
                 throw new ArgumentException("Invalid recipients. Recipients cannot contain letters.", nameof(recipients));
-
+            }
             var request = new ApifonRequest(Settings.Sender ?? Settings.SenderName, recipients, body);
             var signature = request.Sign(Settings.ApiKey, "POST", "/services/api/v1/sms/send");
             HttpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
             HttpClient.DefaultRequestHeaders.Add("X-ApifonWS-Date", request.RequestDate.ToString("r"));
             HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("ApifonWS", $"{Settings.Token}:{signature}");
-
             try {
                 httpResponse = await HttpClient.PostAsync("send", new StringContent(request.ToJson(), Encoding.UTF8, "application/json")).ConfigureAwait(false);
-            } catch (Exception ex) {
-                throw new SmsServiceException($"SMS Delivery took too long.", ex);
+            } catch (Exception exception) {
+                throw new SmsServiceException($"SMS Delivery took too long.", exception);
             }
             var stringifyResponse = await httpResponse.Content.ReadAsStringAsync();
             if (!httpResponse.IsSuccessStatusCode) {
                 throw new SmsServiceException($"SMS Delivery failed. {httpResponse.StatusCode} : {stringifyResponse}");
             }
-
             response = JsonSerializer.Deserialize<ApifonResponse>(stringifyResponse, new JsonSerializerOptions {
                 PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
                 IgnoreNullValues = true,
@@ -177,17 +169,15 @@ namespace Indice.Services
             public int StatusCode { get; set; }
 
             public string Description { get; set; }
-
         }
     }
 
     internal class ApifonRequest
     {
-
         public ApifonRequest() { }
 
         public ApifonRequest(string from, string[] to, string message) {
-            foreach(var subNumber in to) {
+            foreach (var subNumber in to) {
                 Subscribers.Add(new Subscribers { To = subNumber });
             }
             Message.From = from;
@@ -196,24 +186,24 @@ namespace Indice.Services
 
         [JsonPropertyName("message")]
         public Message Message { get; set; } = new Message();
+
         [JsonPropertyName("subscribers")]
         public List<Subscribers> Subscribers { get; set; } = new List<Subscribers>();
+
         /// <summary>
-        /// Sms validity period
-        /// min 30
-        /// max 4320 (default)
+        /// SMS validity period. Min 30 - Max 4320 (default).
         /// </summary>
         [JsonPropertyName("tte")]
         public int? ValidityPeriod { get; set; }
+
         /// <summary>
-        /// If set, the callback (delivery / status report) will be delivered to this URL, 
-        /// otherwise no callback will take place. 
+        /// If set, the callback (delivery / status report) will be delivered to this URL, otherwise no callback will take place.
         /// </summary>
         [JsonPropertyName("callback_url")]
         public string CallbackUrl { get; set; }
+
         /// <summary>
-        /// The date that the message will be sent on UTC/GMT TIMEZONE.
-        /// If omitted it will be sent immediately.
+        /// The date that the message will be sent on UTC/GMT TIMEZONE. If omitted it will be sent immediately.
         /// </summary>
         [JsonPropertyName("date")]
         public DateTime? DateToSend { get; set; }
@@ -221,23 +211,23 @@ namespace Indice.Services
         [JsonIgnore]
         public DateTime RequestDate { get; set; } = DateTime.Now.ToUniversalTime();
 
-        public string ToJson() {
-            // Serialize our concrete class into a JSON String
-            return JsonSerializer.Serialize(this, new JsonSerializerOptions {
-                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-                IgnoreNullValues = true,
-            });
-        }
+        /// <summary>
+        /// Serialize our concrete class into a JSON String.
+        /// </summary>
+        /// <returns></returns>
+        public string ToJson() => JsonSerializer.Serialize(this, new JsonSerializerOptions {
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+            IgnoreNullValues = true,
+        });
 
         public string Sign(string secretKey, string method, string uri) {
             var toSign = method + "\n"
-                    + uri + "\n"
-                    + ToJson() + "\n"
-                    + RequestDate.ToString("r");
-
+                + uri + "\n"
+                + ToJson() + "\n"
+                + RequestDate.ToString("r");
             var encoding = new UTF8Encoding();
-            using (var hmacsha256 = new HMACSHA256(encoding.GetBytes(secretKey))) {
-                return Convert.ToBase64String(hmacsha256.ComputeHash(encoding.GetBytes(toSign)));
+            using (var hmacSha256 = new HMACSHA256(encoding.GetBytes(secretKey))) {
+                return Convert.ToBase64String(hmacSha256.ComputeHash(encoding.GetBytes(toSign)));
             }
         }
     }
@@ -245,12 +235,10 @@ namespace Indice.Services
     internal class Message
     {
         /// <summary>
-        /// Contains the body of the SMS message to be delivered to the destination device.One can optionally specify keys within the message body that
-        /// will be replaced later with values given by the params field in the SUBSCRIBERS* object. See 'params' in the SUBSCRIBERS* section for more
-        /// information on supplying the value for these keys. Each placeholder must be specified as { KEY}, where KEY is a key name in the params list.
-        /// For this feature to be used, GSM7 or UCS2 encoding must be used.
-        ///
-        /// In the event your text is longer than 160 characters in 7bit, 140 in 8bit or 70 in 16bit, Apifon will split the message into parts.
+        /// Contains the body of the SMS message to be delivered to the destination device. One can optionally specify keys within the message body that will be replaced later with values given by 
+        /// the params field in the SUBSCRIBERS* object. See 'params' in the SUBSCRIBERS* section for more information on supplying the value for these keys. Each placeholder must be specified as 
+        /// { KEY}, where KEY is a key name in the params list. For this feature to be used, GSM7 or UCS2 encoding must be used. In the event your text is longer than 160 characters in 7bit, 140 in 
+        /// 8bit or 70 in 16bit, Apifon will split the message into parts.
         /// </summary>
         [JsonPropertyName("text")]
         public string Text { get; set; }
@@ -273,7 +261,7 @@ namespace Indice.Services
         public string Encoding { get; set; }
 
         /// <summary>
-        /// Numeric (maximum number of digits: 16) or alphanumeric characters (maximum number of characters: 11)
+        /// Numeric (maximum number of digits: 16) or alphanumeric characters (maximum number of characters: 11).
         /// </summary>
         [JsonPropertyName("sender_id")]
         public string From { get; set; }
@@ -282,15 +270,13 @@ namespace Indice.Services
     internal class Subscribers
     {
         /// <summary>
-        /// Mobile number to deliver the message to. Number is in international format and is only digits between 7-15 digits long.
-        /// First digit cannot be a 0.
+        /// Mobile number to deliver the message to. Number is in international format and is only digits between 7-15 digits long. First digit cannot be a 0.
         /// </summary>
         [JsonPropertyName("number")]
         public string To { get; set; }
 
         /// <summary>
-        /// f your message content contains placeholders for personalized messages per destination, 
-        /// this field is required to populate the value for each recipient.
+        /// If your message content contains placeholders for personalized messages per destination, this field is required to populate the value for each recipient.
         /// </summary>
         public Dictionary<string, string> Params { get; set; }
     }
