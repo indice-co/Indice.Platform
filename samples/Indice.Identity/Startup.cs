@@ -83,6 +83,7 @@ namespace Indice.Identity
             services.AddMessageDescriber<ExtendedMessageDescriber>();
             services.AddResponseCaching();
             services.AddDataProtectionLocal(options => options.FromConfiguration());
+            services.AddEmailService(Configuration);
             services.AddCsp(options => {
                 options.ScriptSrc = CSP.Self;
                 options.AddSandbox("allow-popups")

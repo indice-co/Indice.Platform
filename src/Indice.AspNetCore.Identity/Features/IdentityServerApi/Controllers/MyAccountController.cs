@@ -159,7 +159,7 @@ namespace Indice.AspNetCore.Identity.Features
                 return NotFound();
             }
             var currentPhoneNumber = await _userManager.GetPhoneNumberAsync(user);
-            if (currentPhoneNumber.Equals(request.PhoneNumber, StringComparison.OrdinalIgnoreCase)) {
+            if (currentPhoneNumber.Equals(request.PhoneNumber, StringComparison.OrdinalIgnoreCase) && await _userManager.IsPhoneNumberConfirmedAsync(user)) {
                 ModelState.AddModelError(nameof(request.PhoneNumber).ToLower(), _messageDescriber.UserAlreadyHasPhoneNumber(request.PhoneNumber));
                 return BadRequest(new ValidationProblemDetails(ModelState));
             }
@@ -170,10 +170,11 @@ namespace Indice.AspNetCore.Identity.Features
             if (!_identityServerApiEndpointsOptions.PhoneNumber.SendOtpOnUpdate) {
                 return NoContent();
             }
+            if (await _userManager.IsPhoneNumberConfirmedAsync(user)) {
+                return NoContent();
+            }
             if (_smsService == null) {
-                var message = $"No concrete implementation of {nameof(ISmsService)} is registered. " +
-                              $"Check {nameof(ServiceCollectionExtensions.AddSmsServiceYouboto)} extension on {nameof(IServiceCollection)} or provide your own implementation.";
-                throw new Exception(message);
+                throw new Exception($"No concrete implementation of {nameof(ISmsService)} is registered.");
             }
             var token = await _userManager.GenerateChangePhoneNumberTokenAsync(user, request.PhoneNumber);
             await _smsService.SendAsync(request.PhoneNumber, string.Empty, _messageDescriber.PhoneNumberVerificationMessage(token));
