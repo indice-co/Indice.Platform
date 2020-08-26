@@ -2,9 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace Indice.Validation
 {
@@ -16,7 +14,7 @@ namespace Indice.Validation
     {
         static readonly IDictionary<string, string[]> supportedCountryMap = new Dictionary<string, string[]> {
                 // Note - VAT codes without the "**" in the comment do not have check digit checking.
-               { "AT", new [] { "^(AT)?U(\\d{8})$" } } ,                      //** Austria
+               { "AT", new [] { "^(AT)?U(\\d{8})$" } } ,                     //** Austria
                { "BE", new [] { "^(BE)?(0?\\d{9})$" } },                     //** Belgium 
                { "BG", new [] { "^(BG)?(\\d{9,10})$" } },                    //** Bulgaria 
                { "CH", new [] { "^(CHE)?(\\d{9})(MWST|TVA|IVA)?$" } },       //** Switzerland
@@ -79,32 +77,28 @@ namespace Indice.Validation
                 case "UK": countryCode = "GB"; break;
                 case "CH": countryCode = "CHE"; break;
             }
-            // Array holds the regular expressions for the valid VAT number
-            var vatexp = !string.IsNullOrEmpty(countryISO) ? supportedCountryMap[countryISO] : supportedCountryMap.Values.SelectMany(x => x);
-
-            // Load up the string to check
-            var VATNumber = taxIdentificationNumber.ToUpperInvariant();
-
-            // Remove spaces etc. from the VAT number to help validation
-            VATNumber = new Regex("(\\s|-|\\.)+").Replace(VATNumber, "");
-
-            // Assume we're not going to find a valid VAT number
+            // Array holds the regular expressions for the valid VAT number.
+            var vatExpression = !string.IsNullOrEmpty(countryISO) ? supportedCountryMap[countryISO] : supportedCountryMap.Values.SelectMany(x => x);
+            // Load up the string to check.
+            var vatNumber = taxIdentificationNumber.ToUpperInvariant();
+            // Remove spaces etc. From the VAT number to help validation.
+            vatNumber = new Regex("(\\s|-|\\.)+").Replace(vatNumber, string.Empty);
+            // Assume we're not going to find a valid VAT number.
             var valid = false;
-
-            // Check the string against the regular expressions for all types of VAT numbers
-            foreach (var expression in vatexp) {
-                // Have we recognised the VAT number?
-                var match = Regex.Match(VATNumber, expression);
+            // Check the string against the regular expressions for all types of VAT numbers.
+            foreach (var expression in vatExpression) {
+                // Have we recognised the VAT number.
+                var match = Regex.Match(vatNumber, expression);
                 if (match.Success) {
-
                     // Yes - we have
-                    var cCode = match.Groups[1].Value;                             // Isolate country code
-                    var cNumber = match.Groups[2].Value;                           // Isolate the number
-                    if (cCode.Length == 0) cCode = countryCode;           // Set up default country code
-
-                    if (cCode == null)
+                    var cCode = match.Groups[1].Value;   // Isolate country code.
+                    var cNumber = match.Groups[2].Value; // Isolate the number.
+                    if (cCode.Length == 0) {
+                        cCode = countryCode;             // Set up default country code. 
+                    }
+                    if (cCode == null) {
                         continue;
-
+                    }
                     // Call the appropriate country VAT validation routine depending on the country code
                     var methodName = cCode + "CheckDigit";
 #if !NETSTANDARD14
