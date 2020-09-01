@@ -64,6 +64,13 @@ namespace Indice.Services
             if (recipients.Any(phoneNumber => phoneNumber.Any(numberChar => !char.IsNumber(numberChar)))) {
                 throw new ArgumentException("Invalid recipients. Recipients cannot contain letters.", nameof(recipients));
             }
+            // TODO: Create a universal way to handle country codes.
+            // Quick and bad fix for Apifon which only accepts MSISDN -> https://docs.apifon.com/apireference.html#sms-request
+            recipients = recipients.Select(
+                phoneNumber => phoneNumber.StartsWith("30") 
+                    ? phoneNumber 
+                    : $"30{phoneNumber}"
+            ).ToArray();
             var request = new ApifonRequest(Settings.Sender ?? Settings.SenderName, recipients, body);
             var signature = request.Sign(Settings.ApiKey, "POST", "/services/api/v1/sms/send");
             HttpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
