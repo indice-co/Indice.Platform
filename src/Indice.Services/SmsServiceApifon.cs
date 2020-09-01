@@ -70,22 +70,22 @@ namespace Indice.Services
             HttpClient.DefaultRequestHeaders.Add("X-ApifonWS-Date", request.RequestDate.ToString("r"));
             HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("ApifonWS", $"{Settings.Token}:{signature}");
             try {
-                httpResponse = await HttpClient.PostAsync("send", new StringContent(request.ToJson(), Encoding.UTF8, "application/json")).ConfigureAwait(false);
+                httpResponse = await HttpClient.PostAsync("send", new StringContent(request.ToJson(), Encoding.UTF8, "application/json"));
             } catch (Exception exception) {
                 throw new SmsServiceException($"SMS Delivery took too long.", exception);
             }
-            var stringifyResponse = await httpResponse.Content.ReadAsStringAsync();
+            var responseString = await httpResponse.Content.ReadAsStringAsync();
             if (!httpResponse.IsSuccessStatusCode) {
-                throw new SmsServiceException($"SMS Delivery failed. {httpResponse.StatusCode} : {stringifyResponse}");
+                throw new SmsServiceException($"SMS Delivery failed. {httpResponse.StatusCode} : {responseString}");
             }
-            response = JsonSerializer.Deserialize<ApifonResponse>(stringifyResponse, new JsonSerializerOptions {
+            response = JsonSerializer.Deserialize<ApifonResponse>(responseString, new JsonSerializerOptions {
                 PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-                IgnoreNullValues = true,
+                IgnoreNullValues = true
             });
             if (response.HasError) {
                 throw new SmsServiceException($"SMS Delivery failed. {response.Status.Description}");
             } else {
-                Logger?.LogInformation("SMS message successfully sent: {1}", response.Results.FirstOrDefault());
+                Logger.LogInformation("SMS message successfully sent: {1}", response.Results.FirstOrDefault());
             }
         }
 
