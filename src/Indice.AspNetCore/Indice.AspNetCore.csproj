@@ -4,7 +4,7 @@
     <Copyright>Copyright (c) 2018 Indice</Copyright>
     <AssemblyTitle>Indice.AspNetCore</AssemblyTitle>
     <VersionPrefix>4.0.0</VersionPrefix>
-    <VersionSuffix>beta3</VersionSuffix>
+    <VersionSuffix>beta4</VersionSuffix>
     <Authors>c.leftheris, g.manoltzas</Authors>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <AssemblyName>Indice.AspNetCore</AssemblyName>
@@ -37,7 +37,7 @@
     <PackageReference Include="FluentValidation.AspNetCore" Version="9.0.1" />
     <PackageReference Include="Humanizer.Core" Version="2.8.26" />
     <PackageReference Include="Indice.EntityFrameworkCore" Version="3.1.1" />
-    <PackageReference Include="Indice.Services" Version="4.0.0-beta3" />
+    <PackageReference Include="Indice.Services" Version="4.0.0-beta4" />
     <PackageReference Include="Markdig" Version="0.20.0" />
     <PackageReference Include="Microsoft.AspNetCore.DataProtection.AzureStorage" Version="3.1.6" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Formatters.Json" Version="2.2.0" />
