@@ -38,7 +38,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CodeFlowInlineFrame", "samp
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Indice.EntityFrameworkCore", "src\Indice.EntityFrameworkCore\Indice.EntityFrameworkCore.csproj", "{CD98B358-A5DD-4E3C-963E-69CADA485059}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Indice.Services.Tests", "test\Indice.Services.Tests\Indice.Services.Tests.csproj", "{CC1D70BD-1FBD-491F-B85A-DA4B9CF08C05}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Indice.Services.Tests", "test\Indice.Services.Tests\Indice.Services.Tests.csproj", "{CC1D70BD-1FBD-491F-B85A-DA4B9CF08C05}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
