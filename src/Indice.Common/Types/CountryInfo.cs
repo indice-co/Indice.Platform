@@ -7,12 +7,9 @@ namespace Indice.Globalization
     /// <summary>
     /// Contains information about the countries. Based on 2018-2019.
     /// </summary>
-    public class CountryInfo {
-        /// <summary>
-        /// Collection of countries
-        /// </summary>
-        public static readonly ICollection<CountryInfo> Countries;
-        private static readonly Dictionary<string, string> continentNamesMap = new Dictionary<string, string> {
+    public class CountryInfo
+    {
+        private static readonly Dictionary<string, string> _continentNamesMap = new Dictionary<string, string> {
             { "AS", "Asia" },
             { "AF", "Africa" },
             { "NA", "North America" },
@@ -21,6 +18,21 @@ namespace Indice.Globalization
             { "EU", "Europe" },
             { "OC", "Australia" },
         };
+
+        /// <summary>
+        /// Collection of countries
+        /// </summary>
+        public static readonly ICollection<CountryInfo> Countries;
+
+        internal CountryInfo(string continent, string twoLetterCode, int numericCode, string fullName, string capital, string twoLetterLanguageCode, string callingCode) {
+            Name = fullName;
+            Capital = capital;
+            ContinentCode = continent;
+            TwoLetterCode = twoLetterCode;
+            NumericCode = numericCode;
+            TwoLetterLanguageCode = string.IsNullOrWhiteSpace(twoLetterLanguageCode) ? null : twoLetterLanguageCode;
+            CallingCode = string.IsNullOrWhiteSpace(callingCode) ? null : callingCode;
+        }
 
         static CountryInfo() {
             Countries = new List<CountryInfo>
@@ -281,54 +293,49 @@ namespace Indice.Globalization
         }
 
         /// <summary>
-        /// The name
+        /// The name.
         /// </summary>
         public string Name { get; private set; }
-
         /// <summary>
-        /// The capital if available
+        /// The capital if available.
         /// </summary>
         public string Capital { get; private set; }
-
         /// <summary>
-        /// The two letter continent code
+        /// The two letter continent code.
         /// </summary>
         public string ContinentCode { get; private set; }
-
         /// <summary>
-        /// The name of the continent in English
+        /// The name of the continent in English.
         /// </summary>
-        public string ContinentName => continentNamesMap[ContinentCode];
-
+        public string ContinentName => _continentNamesMap[ContinentCode];
         /// <summary>
-        /// ISO two letter country code
+        /// ISO two letter country code.
         /// </summary>
         public string TwoLetterCode { get; private set; }
-
         /// <summary>
-        /// ISO three letter country code
+        /// ISO three letter country code.
         /// </summary>
         public string TwoLetterLanguageCode { get; private set; }
-
         /// <summary>
-        /// Numeric country code
+        /// Numeric country code.
         /// </summary>
         public int NumericCode { get; private set; }
-
         /// <summary>
-        /// Country Calling code
+        /// Country Calling code.
         /// </summary>
         public string CallingCode { get; private set; }
-
         /// <summary>
         /// Default Country Calling code
         /// </summary>
         public int CallingCodeDefault => string.IsNullOrWhiteSpace(CallingCode) ? -1 : int.Parse(CallingCode.Split(',')[0].Trim().Replace("+", "").Replace(" ", ""));
+        /// <summary>
+        /// Culture code locale.
+        /// </summary>
+        public string Locale => TwoLetterLanguageCode != null ? $"{TwoLetterLanguageCode?.Split(',')[0]}-{TwoLetterCode}" : null;
 
         /// <summary>
-        /// Curency Symbol if available
+        /// Curency Symbol if available.
         /// </summary>
-        /// <returns></returns>
         public string GetCurrencyISO() {
             try {
                 var region = new System.Globalization.RegionInfo(TwoLetterCode);
@@ -338,37 +345,20 @@ namespace Indice.Globalization
         }
 
         /// <summary>
-        /// Culture code locale
-        /// </summary>
-        public string Locale => TwoLetterLanguageCode != null ? $"{TwoLetterLanguageCode?.Split(',')[0]}-{TwoLetterCode}" : null;
-
-        /// <summary>
-        /// String representation
+        /// String representation.
         /// </summary>
         /// <returns></returns>
         public override string ToString() => $"{TwoLetterCode} {Name}";
 
-        internal CountryInfo(string continent, string twoLetterCode, int numericCode, string fullName, string capital, string twoLetterLanguageCode, string callingCode) {
-            Name = fullName;
-            Capital = capital;
-            ContinentCode = continent;
-            TwoLetterCode = twoLetterCode;
-            NumericCode = numericCode;
-            TwoLetterLanguageCode = string.IsNullOrWhiteSpace(twoLetterLanguageCode) ? null : twoLetterLanguageCode;
-            CallingCode = string.IsNullOrWhiteSpace(callingCode) ? null : callingCode;
-        }
-
         /// <summary>
-        /// Get <see cref="CountryInfo"/> by numeric code
+        /// Get <see cref="CountryInfo"/> by numeric code.
         /// </summary>
         /// <param name="code"></param>
-        /// <returns></returns>
         public static CountryInfo GetCountryByNumericCode(int code) {
             var data = Countries.FirstOrDefault(cd => cd.NumericCode == code);
-
-            if (data == null)
-                throw new ArgumentException(string.Format("{0} is an invalid numeric countrycode!", code), "code");
-
+            if (data == null) {
+                throw new ArgumentException(string.Format("{0} is an invalid numeric country code.", code), nameof(code));
+            }
             return data;
         }
 
@@ -376,28 +366,26 @@ namespace Indice.Globalization
         /// Search the first match <see cref="CountryInfo"/> by name or twoletter ISO. Throws if none found.
         /// </summary>
         /// <param name="nameOrTwoLetterCode"></param>
-        /// <returns></returns>
         public static CountryInfo GetCountryByNameOrCode(string nameOrTwoLetterCode) {
             var data = Countries.FirstOrDefault(cd => string.Equals(cd.Name, nameOrTwoLetterCode, StringComparison.CurrentCultureIgnoreCase) || string.Equals(cd.TwoLetterCode, nameOrTwoLetterCode, StringComparison.CurrentCultureIgnoreCase));
-
-            if (data == null)
-                throw new ArgumentException(string.Format("CountryData with name or two letter code {0} does not exist!", nameOrTwoLetterCode), "nameOrTwoLetterCode");
-
+            if (data == null) {
+                throw new ArgumentException(string.Format("CountryData with name or two letter code {0} does not exist.", nameOrTwoLetterCode), nameof(nameOrTwoLetterCode));
+            }
             return data;
         }
 
         /// <summary>
-        /// Try <see cref="GetCountryByNameOrCode(string)"/>
+        /// Try <see cref="GetCountryByNameOrCode(string)"/>.
         /// </summary>
         /// <param name="nameOrTwoLetterCode"></param>
         /// <param name="countryInfo"></param>
-        /// <returns></returns>
         public static bool TryGetCountryByNameOrCode(string nameOrTwoLetterCode, out CountryInfo countryInfo) {
             var success = true;
-            countryInfo = default(CountryInfo);
+            countryInfo = default;
             try {
-                if (!string.IsNullOrEmpty(nameOrTwoLetterCode))
+                if (!string.IsNullOrEmpty(nameOrTwoLetterCode)) {
                     countryInfo = GetCountryByNameOrCode(nameOrTwoLetterCode.ToUpper());
+                }
             } catch {
                 success = false;
             }
@@ -408,11 +396,7 @@ namespace Indice.Globalization
         /// Check the name or two letter code for existence
         /// </summary>
         /// <param name="nameOrTwoLetterCode"></param>
-        /// <returns></returns>
-        public static bool ValidCountryNameOrCode(string nameOrTwoLetterCode) {
-            return Countries.Where(cd => string.Equals(cd.Name, nameOrTwoLetterCode, StringComparison.CurrentCultureIgnoreCase) || string.Equals(cd.TwoLetterCode, nameOrTwoLetterCode, StringComparison.CurrentCultureIgnoreCase))
-                            .Any();
-
-        }
+        public static bool ValidCountryNameOrCode(string nameOrTwoLetterCode) =>
+            Countries.Where(cd => string.Equals(cd.Name, nameOrTwoLetterCode, StringComparison.CurrentCultureIgnoreCase) || string.Equals(cd.TwoLetterCode, nameOrTwoLetterCode, StringComparison.CurrentCultureIgnoreCase)).Any();
     }
 }

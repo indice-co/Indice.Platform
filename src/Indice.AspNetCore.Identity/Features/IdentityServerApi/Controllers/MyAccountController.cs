@@ -158,7 +158,8 @@ namespace Indice.AspNetCore.Identity.Features
             if (user == null) {
                 return NotFound();
             }
-            var currentPhoneNumber = await _userManager.GetPhoneNumberAsync(user);
+            //var currentPhoneNumber = await _userManager.GetPhoneNumberAsync(user); /* This raises an exception if phone number is null. */
+            var currentPhoneNumber = user.PhoneNumber ?? string.Empty;
             if (currentPhoneNumber.Equals(request.PhoneNumber, StringComparison.OrdinalIgnoreCase) && await _userManager.IsPhoneNumberConfirmedAsync(user)) {
                 ModelState.AddModelError(nameof(request.PhoneNumber).ToLower(), _messageDescriber.UserAlreadyHasPhoneNumber(request.PhoneNumber));
                 return BadRequest(new ValidationProblemDetails(ModelState));
