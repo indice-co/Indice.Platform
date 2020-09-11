@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -24,8 +22,8 @@ namespace Indice.Hosting.Quartz
         /// <param name="serviceProvider"></param>
         /// <param name="logger"></param>
         public QuartzJobRunner(IServiceProvider serviceProvider, ILogger<QuartzJobRunner> logger) {
-            _serviceProvider = serviceProvider;
-            _logger = logger;
+            _serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
         /// <summary>
@@ -39,11 +37,10 @@ namespace Indice.Hosting.Quartz
                 using (var scope = _serviceProvider.CreateScope()) {
                     var jobType = context.JobDetail.JobType;
                     var job = scope.ServiceProvider.GetRequiredService(jobType) as IJob;
-
                     await job.Execute(context);
                 }
-            } catch (Exception ex) {
-                _logger.LogError(ex, "An unhandled exception occured while executing job {0}", context.JobDetail.JobType.Name);
+            } catch (Exception exception) {
+                _logger.LogError(exception, "An unhandled exception occured while executing job {0}", context.JobDetail.JobType.Name);
                 throw;
             }
         }

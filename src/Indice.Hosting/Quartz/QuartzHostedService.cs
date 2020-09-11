@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Hosting;
@@ -19,15 +17,12 @@ namespace Indice.Hosting.Quartz
         private readonly IEnumerable<JobSchedule> _jobSchedules;
 
         /// <summary>
-        /// Constructor
+        /// Constructor.
         /// </summary>
         /// <param name="schedulerFactory"></param>
         /// <param name="jobSchedules"></param>
         /// <param name="jobFactory"></param>
-        public QuartzHostedService(
-            ISchedulerFactory schedulerFactory,
-            IEnumerable<JobSchedule> jobSchedules,
-            IJobFactory jobFactory) {
+        public QuartzHostedService(ISchedulerFactory schedulerFactory, IEnumerable<JobSchedule> jobSchedules, IJobFactory jobFactory) {
             _schedulerFactory = schedulerFactory;
             _jobSchedules = jobSchedules;
             _jobFactory = jobFactory;
@@ -42,18 +37,14 @@ namespace Indice.Hosting.Quartz
         /// Triggered when the application host is ready to start the service.
         /// </summary>
         /// <param name="cancellationToken"></param>
-        /// <returns></returns>
         public async Task StartAsync(CancellationToken cancellationToken) {
             Scheduler = await _schedulerFactory.GetScheduler(cancellationToken);
             Scheduler.JobFactory = _jobFactory;
-
             foreach (var jobSchedule in _jobSchedules) {
                 var job = CreateJob(jobSchedule);
                 var trigger = CreateTrigger(jobSchedule);
-
                 await Scheduler.ScheduleJob(job, trigger, cancellationToken);
             }
-
             await Scheduler.Start(cancellationToken);
         }
 
@@ -61,7 +52,6 @@ namespace Indice.Hosting.Quartz
         /// Triggered when the application host is performing a graceful shutdown.
         /// </summary>
         /// <param name="cancellationToken"></param>
-        /// <returns></returns>
         public async Task StopAsync(CancellationToken cancellationToken) {
             await Scheduler?.Shutdown(cancellationToken);
         }

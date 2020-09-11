@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using Indice.Hosting.Quartz;
 using Quartz;
 using Quartz.Impl;
@@ -9,12 +7,12 @@ using Quartz.Spi;
 namespace Microsoft.Extensions.DependencyInjection
 {
     /// <summary>
-    /// Configuration extension methods for Quartz based jobs
+    /// Configuration extension methods for Quartz based jobs.
     /// </summary>
     public static class QuartzConfiguration
     {
         /// <summary>
-        /// Bootstraps the Quartz services and components required to run jobs in the container
+        /// Bootstraps the Quartz services and components required to run jobs in the container.
         /// </summary>
         /// <param name="services"></param>
         /// <returns></returns>
@@ -28,23 +26,22 @@ namespace Microsoft.Extensions.DependencyInjection
         }
 
         /// <summary>
-        /// Adds a scoped Job
+        /// Adds a scoped job.
         /// </summary>
         /// <typeparam name="TJob"></typeparam>
         /// <param name="builder"></param>
         /// <param name="cronExpression"></param>
-        /// <param name="group">Job group</param>
-        /// <param name="description">The job description</param>
-        /// <returns></returns>
+        /// <param name="group">Job group.</param>
+        /// <param name="description">The job description.</param>
         public static QuartzBuilder AddJob<TJob>(this QuartzBuilder builder, string cronExpression, string group = null, string description = null) where TJob : class, IJob {
-            // Add our job
+            // Add our job.
             builder.Services.AddScoped<TJob>();
             builder.Services.AddSingleton(new JobSchedule(
                 jobType: typeof(TJob),
                 cronExpression: cronExpression,
                 group: group,
-                description: description));
-
+                description: description)
+            );
             return builder;
         }
     }
@@ -55,15 +52,15 @@ namespace Microsoft.Extensions.DependencyInjection
     public class QuartzBuilder
     {
         /// <summary>
-        /// constructs the builder
+        /// Constructs the builder.
         /// </summary>
         /// <param name="services"></param>
         public QuartzBuilder(IServiceCollection services) {
-            Services = services;
+            Services = services ?? throw new ArgumentNullException(nameof(services));
         }
 
         /// <summary>
-        /// The service collection
+        /// The service collection.
         /// </summary>
         public IServiceCollection Services { get; }
     }

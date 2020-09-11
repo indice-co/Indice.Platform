@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Indice.Hosting.Quartz
 {
@@ -24,22 +22,19 @@ namespace Indice.Hosting.Quartz
         }
 
         /// <summary>
-        /// The clr type for the job.
+        /// The CLR type for the job.
         /// </summary>
         public Type JobType { get; }
-
         /// <summary>
-        /// The cron expression
+        /// The cron expression.
         /// </summary>
         public string CronExpression { get; }
-
         /// <summary>
-        /// The job description
+        /// The job description.
         /// </summary>
         public string Description { get; }
-
         /// <summary>
-        /// The job group
+        /// The job group.
         /// </summary>
         public string Group { get; }
     }
