@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using Indice.AspNetCore.Identity.Models;
 
 namespace Indice.AspNetCore.Identity.Features
@@ -41,5 +42,9 @@ namespace Indice.AspNetCore.Identity.Features
         /// Forces the user to change his password after created by the system admin.
         /// </summary>
         public bool? ChangePasswordAfterFirstSignIn { get; set; }
+        /// <summary>
+        /// Dynamic claims that have been marked as required.
+        /// </summary>
+        public List<BasicClaimInfo> Claims { get; set; } = new List<BasicClaimInfo>();
     }
 }

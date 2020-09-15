@@ -206,7 +206,7 @@ namespace Indice.AspNetCore.Identity.Features
             if (request.ChangePasswordAfterFirstSignIn.HasValue && request.ChangePasswordAfterFirstSignIn.Value == true) {
                 await _userManager.SetPasswordExpiredAsync(user, true);
             }
-            var claims = new List<Claim>();
+            var claims = request?.Claims?.Count() > 0 ? request.Claims.Select(x => new Claim(x.Type, x.Value)).ToList() : new List<Claim>();
             if (!string.IsNullOrEmpty(request.FirstName)) {
                 claims.Add(new Claim(JwtClaimTypes.GivenName, request.FirstName));
             }

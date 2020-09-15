@@ -13,7 +13,7 @@ namespace Indice.Validation
     public static class TaxCodeValidator
     {
         static readonly IDictionary<string, string[]> supportedCountryMap = new Dictionary<string, string[]> {
-                // Note - VAT codes without the "**" in the comment do not have check digit checking.
+               // Note - VAT codes without the "**" in the comment do not have check digit checking.
                { "AT", new [] { "^(AT)?U(\\d{8})$" } } ,                     //** Austria
                { "BE", new [] { "^(BE)?(0?\\d{9})$" } },                     //** Belgium 
                { "BG", new [] { "^(BG)?(\\d{9,10})$" } },                    //** Bulgaria 
