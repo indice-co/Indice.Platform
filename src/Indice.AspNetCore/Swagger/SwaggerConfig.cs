@@ -18,32 +18,28 @@ namespace Indice.AspNetCore.Swagger
 {
     /// <summary>
     /// Swagger configuration extensions the Indice way. Exposes usefull defaults for hosting an API. 
-    /// Also leverages appsettings.json configuration through <see cref="GeneralSettings"/> for api setup
+    /// Also leverages appsettings.json configuration through <see cref="GeneralSettings"/> for API setup.
     /// </summary>
     public static class SwaggerConfig
     {
         /// <summary>
-        /// Since swashbackle 4.0 release the support for for parameters of type IFormFile is out-of-the-box. 
+        /// Since Swashbackle 4.0 release the support for for parameters of type IFormFile is out-of-the-box. 
         /// That is, the generator will automatically detect these and generate the correct Swagger to describe parameters that are passed in formData.
         /// So this is exported to a seperate operation just in case we still need of it.
         /// </summary>
-        /// <param name="options">The options to confugure</param>
-        public static void AddFormFileSupport(this SwaggerGenOptions options) {
-            options.OperationFilter<FormFileOperationFilter>();
-        }
+        /// <param name="options">The options used to generate the swagger.json file.</param>
+        public static void AddFormFileSupport(this SwaggerGenOptions options) => options.OperationFilter<FormFileOperationFilter>();
 
         /// <summary>
         /// Adds support for Fluent validation.
         /// </summary>
-        /// <param name="options">The options to confugure</param>
-        public static void AddFluentValidationSupport(this SwaggerGenOptions options) {
-            options.SchemaFilter<SchemaFluentValidationFilter>();
-        }
+        /// <param name="options">The options used to generate the swagger.json file.</param>
+        public static void AddFluentValidationSupport(this SwaggerGenOptions options) => options.SchemaFilter<SchemaFluentValidationFilter>();
 
         /// <summary>
         /// Simplifies generics and removes 'info' suffix.
         /// </summary>
-        /// <param name="options">The options to configure.</param>
+        /// <param name="options">The options used to generate the swagger.json file.</param>
         public static void AddCustomSchemaIds(this SwaggerGenOptions options) {
             // Simplifies generics:
             options.CustomSchemaIds(type => {
@@ -90,7 +86,7 @@ namespace Indice.AspNetCore.Swagger
         /// <summary>
         /// Adds polymorphism.
         /// </summary>
-        /// <param name="options">The options to configure.</param>
+        /// <param name="options">The options used to generate the swagger.json file.</param>
         /// <param name="assembliesToScan">Assemblies that will be searched for <see cref="JsonNetPolymorphicConverter"/> annotations.</param>
         public static void AddPolymorphismJsonNet(this SwaggerGenOptions options, params Assembly[] assembliesToScan) {
             var attribute = assembliesToScan.SelectMany(x => x.ExportedTypes)
@@ -109,7 +105,7 @@ namespace Indice.AspNetCore.Swagger
         /// <summary>
         /// Adds polymorphism.
         /// </summary>
-        /// <param name="options">The options to configure.</param>
+        /// <param name="options">The options used to generate the swagger.json file.</param>
         /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
         public static void AddPolymorphism(this SwaggerGenOptions options, IServiceCollection services) {
             var serviceProvider = services.BuildServiceProvider();
@@ -139,34 +135,36 @@ namespace Indice.AspNetCore.Swagger
         }
 
         /// <summary>
-        /// Add a new swagger document based on a subscope of the existing api.
+        /// Add a new Swagger document based on a subscope of the existing API.
         /// </summary>
-        /// <param name="options">The options to confugure</param>
-        /// <param name="settings"></param>
-        /// <param name="scopeOrGroup">The url segment that the schild scope will live under</param>
-        /// <param name="description"></param>
+        /// <param name="options">The options used to generate the swagger.json file.</param>
+        /// <param name="settings">General settings for an ASP.NET Core application.</param>
+        /// <param name="scopeOrGroup">The URL segment that the child scope will live under.</param>
+        /// <param name="description">An API description.</param>
         public static OpenApiInfo AddDoc(this SwaggerGenOptions options, GeneralSettings settings, string scopeOrGroup, string description) {
             var apiSettings = settings?.Api ?? new ApiSettings();
             var version = $"v{apiSettings.DefaultVersion}";
             var scope = scopeOrGroup;
             var license = apiSettings.License == null ? null : new OpenApiLicense { Name = apiSettings.License.Name, Url = new Uri(apiSettings.License.Url) };
             var contact = apiSettings.Contact == null ? null : new OpenApiContact { Name = apiSettings.Contact.Name, Url = new Uri(apiSettings.Contact.Url), Email = apiSettings.Contact.Email };
-            var title = $"{apiSettings.FriendlyName}. {scopeOrGroup}";
-            apiSettings.Scopes.TryGetValue(scopeOrGroup, out title);
+            string title;
+            if (!apiSettings.Scopes.TryGetValue(scopeOrGroup, out title)) {
+                title = $"{apiSettings.FriendlyName}. {scopeOrGroup}";
+            }
             return options.AddDoc(scope, title, description, version, apiSettings.TermsOfServiceUrl, license, contact);
         }
 
         /// <summary>
-        /// Add a new swagger document based on a subscope of the existing api.
+        /// Add a new Swagger document based on a subscope of the existing API.
         /// </summary>
-        /// <param name="options">The options to confugure</param>
-        /// <param name="scopeOrGroup">The url segment that the schild scope will live under</param>
-        /// <param name="title"></param>
-        /// <param name="description"></param>
-        /// <param name="version"></param>
+        /// <param name="options">The options used to generate the swagger.json file.</param>
+        /// <param name="scopeOrGroup">The URL segment that the schild scope will live under</param>
+        /// <param name="title">An API title.</param>
+        /// <param name="description">An API description.</param>
+        /// <param name="version">The API version.</param>
         /// <param name="termsOfService"></param>
-        /// <param name="license"></param>
-        /// <param name="contact"></param>
+        /// <param name="license">An API license URL.</param>
+        /// <param name="contact">A contact to communicate for the API.</param>
         public static OpenApiInfo AddDoc(this SwaggerGenOptions options, string scopeOrGroup, string title, string description, string version = "v1", string termsOfService = null, OpenApiLicense license = null, OpenApiContact contact = null) {
             var info = new OpenApiInfo {
                 Version = version,
@@ -181,13 +179,12 @@ namespace Indice.AspNetCore.Swagger
         }
 
         /// <summary>
-        /// Adds requirements to the operations protected by the Authorize attribute
+        /// Adds requirements to the operations protected by the Authorize attribute.
         /// </summary>
-        /// <param name="options"></param>
+        /// <param name="options">The options used to generate the swagger.json file.</param>
         /// <param name="name">The security scheme name to protect.</param>
-        /// <param name="settings"></param>
-        /// <param name="clearOther"></param>
-        /// <returns></returns>
+        /// <param name="settings">General settings for an ASP.NET Core application.</param>
+        /// <param name="clearOther">Decides whether to clear existing security requirements.</param>
         public static SwaggerGenOptions AddSecurityRequirements(this SwaggerGenOptions options, string name, GeneralSettings settings, bool clearOther = false) {
             if (clearOther) {
                 var filters = options.OperationFilterDescriptors.Where(x => x.Type == typeof(SecurityRequirementsOperationFilter));
@@ -200,14 +197,13 @@ namespace Indice.AspNetCore.Swagger
         }
 
         /// <summary>
-        /// adds Basic authentication via header as a security scheme.
+        /// Adds Basic authentication via header as a security scheme.
         /// </summary>
-        /// <param name="options"></param>
-        /// <param name="settings"></param>
+        /// <param name="options">The options used to generate the swagger.json file.</param>
+        /// <param name="settings">General settings for an ASP.NET Core application.</param>
         /// <param name="name">A unique name for the scheme.</param>
         public static SwaggerGenOptions AddBasicAuthentication(this SwaggerGenOptions options, GeneralSettings settings, string name = "basicAuth") {
-            //options.SwaggerGeneratorOptions.SecuritySchemes.Clear();
-            options.AddSecurityDefinition(name, new OpenApiSecurityScheme() {
+            options.AddSecurityDefinition(name, new OpenApiSecurityScheme {
                 Type = SecuritySchemeType.Http,
                 Scheme = "basic",
                 Description = "Input your username and password to access this API",
@@ -219,10 +215,27 @@ namespace Indice.AspNetCore.Swagger
         }
 
         /// <summary>
-        /// adds OpenId connect security scheme.
+        /// Adds the ability to directly put your JWT for authentication.
         /// </summary>
-        /// <param name="options"></param>
-        /// <param name="settings"></param>
+        /// <param name="options">The options used to generate the swagger.json file.</param>
+        /// <param name="settings">General settings for an ASP.NET Core application.</param>
+        public static SwaggerGenOptions AddJwt(this SwaggerGenOptions options, GeneralSettings settings) {
+            options.AddSecurityDefinition("JWT", new OpenApiSecurityScheme() {
+                Type = SecuritySchemeType.Http,
+                Scheme = "bearer",
+                Description = "Input your JWT access token",
+                Name = "Authorization",
+                In = ParameterLocation.Header
+            });
+            options.AddSecurityRequirements("JWT", settings);
+            return options;
+        }
+
+        /// <summary>
+        /// Adds OpenId Connect security scheme.
+        /// </summary>
+        /// <param name="options">The options used to generate the swagger.json file.</param>
+        /// <param name="settings">General settings for an ASP.NET Core application.</param>
         /// <param name="name">A unique name for the scheme.</param>
         public static SwaggerGenOptions AddOpenIdConnect(this SwaggerGenOptions options, GeneralSettings settings, string name = "openId") {
             // https://swagger.io/docs/specification/authentication/
@@ -236,10 +249,10 @@ namespace Indice.AspNetCore.Swagger
         }
 
         /// <summary>
-        /// adds OpenId connect security scheme.
+        /// Adds OpenId Connect security scheme.
         /// </summary>
-        /// <param name="options"></param>
-        /// <param name="settings"></param>
+        /// <param name="options">The options used to generate the swagger.json file.</param>
+        /// <param name="settings">General settings for an ASP.NET Core application.</param>
         /// <param name="name">A unique name for the scheme.</param>
         public static SwaggerGenOptions AddOAuth2(this SwaggerGenOptions options, GeneralSettings settings, string name = "oauth2") {
             var apiSettings = settings?.Api ?? new ApiSettings();
@@ -253,7 +266,7 @@ namespace Indice.AspNetCore.Swagger
             // https://swagger.io/docs/specification/authentication/
             options.AddSecurityDefinition(name, new OpenApiSecurityScheme {
                 Type = SecuritySchemeType.OAuth2,
-                Description = "Identity Server oAuth2",
+                Description = "Identity Server OAuth2",
                 Flows = new OpenApiOAuthFlows {
                     Implicit = new OpenApiOAuthFlow {
                         TokenUrl = new Uri(settings?.Authority + "/connect/token"),
@@ -274,10 +287,10 @@ namespace Indice.AspNetCore.Swagger
         }
 
         /// <summary>
-        /// A set of defaults for exposing an API.
+        /// A set of default settings for exposing an API.
         /// </summary>
-        /// <param name="options">The options to confugure</param>
-        /// <param name="settings"></param>
+        /// <param name="options">The options used to generate the swagger.json file.</param>
+        /// <param name="settings">General settings for an ASP.NET Core application.</param>
         public static void IndiceDefaults(this SwaggerGenOptions options, GeneralSettings settings) {
             var apiSettings = settings?.Api ?? new ApiSettings();
             var version = $"v{apiSettings.DefaultVersion}";
@@ -292,8 +305,7 @@ namespace Indice.AspNetCore.Swagger
             if (File.Exists(xmlPath)) {
                 options.IncludeXmlComments(xmlPath);
             }
-            //options.UseReferencedDefinitionsForEnums();
-            options.OrderActionsBy(d => d.RelativePath);
+            options.OrderActionsBy(x => x.RelativePath);
             options.MapType<Stream>(() => new OpenApiSchema {
                 Type = "string",
                 Format = "binary"
@@ -308,7 +320,7 @@ namespace Indice.AspNetCore.Swagger
         }
 
         /// <summary>
-        /// Include xml comments from an external assembly. Useful when models are located in more than one assembly.
+        /// Includes XML comments from an external assembly. Useful when models are located in more than one assembly.
         /// </summary>
         /// <param name="options">The options to configure.</param>
         /// <param name="assembly">The assembly to scan for XML comments.</param>

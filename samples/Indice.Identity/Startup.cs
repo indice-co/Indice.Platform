@@ -78,6 +78,7 @@ namespace Indice.Identity
             services.AddSwaggerGen(options => {
                 options.IndiceDefaults(Settings);
                 options.AddOAuth2(Settings);
+                options.AddJwt(Settings);
                 options.IncludeXmlComments(Assembly.Load(IdentityServerApi.AssemblyName));
             });
             services.AddMessageDescriber<ExtendedMessageDescriber>();
@@ -90,7 +91,6 @@ namespace Indice.Identity
                        .AddFontSrc(CSP.Data)
                        .AddConnectSrc(CSP.Self)
                        .AddConnectSrc("https://dc.services.visualstudio.com")
-                       //.AddScriptSrc("'report-sample'")
                        .AddFrameAncestors("https://localhost:2002");
             });
             services.AddSpaStaticFiles(options => {

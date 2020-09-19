@@ -16,9 +16,8 @@ namespace Indice.Types
         /// The internal <see cref="Id"/> value.
         /// </summary>
         public Guid Id { get; }
-
         /// <summary>
-        /// Construct the type from a <see cref="Guid" />
+        /// Construct the type from a <see cref="Guid" />.
         /// </summary>
         /// <param name="id"></param>
         public Base64Id(Guid id) => Id = id;
@@ -26,7 +25,6 @@ namespace Indice.Types
         /// <summary>
         /// Returns the hashcode for this instance
         /// </summary>
-        /// <returns></returns>
         public override int GetHashCode() => Id.GetHashCode();
 
         /// <summary>
@@ -39,7 +37,6 @@ namespace Indice.Types
                 var other = ((Base64Id)obj);
                 return other.Id == Id;
             }
-
             return base.Equals(obj);
         }
 
@@ -59,7 +56,6 @@ namespace Indice.Types
                 if (Guid.TryParse(base64, out Guid id)) {
                     return new Base64Id(id);
                 }
-
                 var guid = new Guid(base64.FromBase64UrlSafe());
                 return new Base64Id(guid);
             } else {
@@ -68,29 +64,24 @@ namespace Indice.Types
         }
 
         /// <summary>
-        /// Implicit cast from <see cref="Base64Id"/> to <seealso cref="string"/>
+        /// Implicit cast from <see cref="Base64Id"/> to <seealso cref="string"/>.
         /// </summary>
-        /// <param name="value">The value to convert</param>
+        /// <param name="value">The value to convert.</param>
         public static implicit operator string(Base64Id value) => value.ToString();
-
-
         /// <summary>
         /// Implicit cast from <see cref="Base64Id"/> to <seealso cref="Guid"/>
         /// </summary>
-        /// <param name="value">The value to convert</param>
+        /// <param name="value">The value to convert.</param>
         public static implicit operator Guid(Base64Id value) => value.Id;
-
-
         /// <summary>
         /// Explicit cast from <see cref="string"/> to <seealso cref="Base64Id"/>
         /// </summary>
-        /// <param name="value">The value to convert</param>
+        /// <param name="value">The value to convert.</param>
         public static explicit operator Base64Id(string value) => Parse(value);
-
         /// <summary>
         /// Explicit cast from <see cref="Guid"/> to <seealso cref="Base64Id"/>
         /// </summary>
-        /// <param name="value">The value to convert</param>
+        /// <param name="value">The value to convert.</param>
         public static explicit operator Base64Id(Guid value) => new Base64Id(value);
     }
 
@@ -104,43 +95,37 @@ namespace Indice.Types
         /// </summary>
         /// <param name="context"></param>
         /// <param name="sourceType"></param>
-        /// <returns></returns>
         public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType) {
             if (sourceType == typeof(string)) {
                 return true;
             }
-
             return base.CanConvertFrom(context, sourceType);
         }
 
         /// <summary>
-        /// Supply conversion from <see cref="string"/> to <seealso cref="Base64Id"/> otherwise use default implementation
+        /// Supply conversion from <see cref="string"/> to <seealso cref="Base64Id"/> otherwise use default implementation.
         /// </summary>
         /// <param name="context"></param>
         /// <param name="culture"></param>
         /// <param name="value"></param>
-        /// <returns></returns>
         public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value) {
             if (value is string) {
                 return Base64Id.Parse((string)value);
             }
-
             return base.ConvertFrom(context, culture, value);
         }
 
         /// <summary>
-        /// from <seealso cref="Base64Id"/> to <see cref="string"/> otherwise use default implementation
+        /// from <seealso cref="Base64Id"/> to <see cref="string"/> otherwise use default implementation.
         /// </summary>
         /// <param name="context"></param>
         /// <param name="culture"></param>
         /// <param name="value"></param>
         /// <param name="destinationType"></param>
-        /// <returns></returns>
         public override object ConvertTo(ITypeDescriptorContext context, CultureInfo culture, object value, Type destinationType) {
             if (destinationType == typeof(string)) {
                 return ((Base64Id)value).ToString();
             }
-
             return base.ConvertTo(context, culture, value, destinationType);
         }
     }
