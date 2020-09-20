@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Indice.BackgroundTasks.Abstractions;
@@ -17,11 +18,11 @@ namespace Indice.BackgroundTasks
         private readonly SemaphoreSlim _signal = new SemaphoreSlim(0);
 
         /// <inheritdoc />
-        public void Enqueue(Func<CancellationToken, Task> workItem) {
+        public void Enqueue(Expression<Func<CancellationToken, Task>> workItem) {
             if (workItem == null) {
                 throw new ArgumentNullException(nameof(workItem));
             }
-            _workItems.Enqueue(workItem);
+            _workItems.Enqueue(workItem.Compile());
             _signal.Release();
         }
 

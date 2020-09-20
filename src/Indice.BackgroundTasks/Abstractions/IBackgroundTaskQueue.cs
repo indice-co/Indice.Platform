@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -13,7 +14,7 @@ namespace Indice.BackgroundTasks.Abstractions
         /// Schedules a task which can run in the background.
         /// </summary>
         /// <param name="workItem">A unit of execution.</param>
-        void Enqueue(Func<CancellationToken, Task> workItem);
+        void Enqueue(Expression<Func<CancellationToken, Task>> workItem);
         /// <summary>
         /// Removes the background task from the scheduler.
         /// </summary>
