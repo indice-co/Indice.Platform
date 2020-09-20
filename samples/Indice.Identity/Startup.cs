@@ -85,6 +85,7 @@ namespace Indice.Identity
             services.AddResponseCaching();
             services.AddDataProtectionLocal(options => options.FromConfiguration());
             services.AddEmailService(Configuration);
+            services.AddBackgroundTasks();
             services.AddCsp(options => {
                 options.ScriptSrc = CSP.Self;
                 options.AddSandbox("allow-popups")

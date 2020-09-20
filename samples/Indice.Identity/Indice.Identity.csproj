@@ -23,6 +23,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\Indice.AspNetCore.Identity\Indice.AspNetCore.Identity.csproj" />
+    <ProjectReference Include="..\..\src\Indice.BackgroundTasks.AspNetCore\Indice.BackgroundTasks.AspNetCore.csproj" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Update="Resources\Services\ExtendedMessageDescriber.el.resx">
