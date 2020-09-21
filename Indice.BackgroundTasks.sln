@@ -15,6 +15,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Indice.BackgroundTasks.AspN
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Indice.Hosting", "src\Indice.Hosting\Indice.Hosting.csproj", "{84983B92-A26C-493B-92B9-EC431B1CD788}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{73A033C5-17DC-450F-97D3-A33D21B4B3A9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Indice.BackgroundTasks.Tests", "test\Indice.BackgroundTasks.Tests\Indice.BackgroundTasks.Tests.csproj", "{5652D960-2EA1-4D6B-A035-BDC3BDB11273}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -37,6 +41,10 @@ Global
 		{84983B92-A26C-493B-92B9-EC431B1CD788}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{84983B92-A26C-493B-92B9-EC431B1CD788}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{84983B92-A26C-493B-92B9-EC431B1CD788}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5652D960-2EA1-4D6B-A035-BDC3BDB11273}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5652D960-2EA1-4D6B-A035-BDC3BDB11273}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5652D960-2EA1-4D6B-A035-BDC3BDB11273}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5652D960-2EA1-4D6B-A035-BDC3BDB11273}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -46,6 +54,7 @@ Global
 		{5679D3D1-0A63-42C5-BB31-AE175D963FB4} = {A5FCCBDF-732A-4B58-B27D-D4C52BC56585}
 		{242C833A-3234-42A5-9D84-E5926B008EA2} = {A5FCCBDF-732A-4B58-B27D-D4C52BC56585}
 		{84983B92-A26C-493B-92B9-EC431B1CD788} = {A5FCCBDF-732A-4B58-B27D-D4C52BC56585}
+		{5652D960-2EA1-4D6B-A035-BDC3BDB11273} = {73A033C5-17DC-450F-97D3-A33D21B4B3A9}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {94B1DD98-9079-4F77-9987-B2AA9509F30B}

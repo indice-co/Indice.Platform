@@ -89,15 +89,15 @@ namespace Indice.Identity.Controllers
 #if DEBUG
             viewModel.UserName = "company@indice.gr";
 #endif
-            //_backgroundTaskQueue.Enqueue(cancellationToken => LongRunningTask(cancellationToken));
-            _backgroundJobs.Enqueue(() => LongRunningTask());
+            //_backgroundTaskQueue.Enqueue(cancellationToken => CalculateTotal(3, 4, cancellationToken));
+            _backgroundJobs.Enqueue(() => CalculateTotal(3, 4, new CancellationTokenSource().Token));
             _logger.LogInformation($"{nameof(AccountController)} inserted a new task in the queue.");
             return View(viewModel);
         }
 
-        public async Task LongRunningTask() {
-            await Task.Delay(3000);
-            _logger.LogInformation($"Long running task from {nameof(AccountController)} completed.");
+        public static async Task<int> CalculateTotal(int x, int y, CancellationToken cancellationToken) {
+            await Task.Delay(1000, cancellationToken);
+            return x + y;
         }
 
         /// <summary>

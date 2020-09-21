@@ -80,7 +80,7 @@ namespace Indice.Identity
             services.AddSwaggerGen(options => {
                 options.IndiceDefaults(Settings);
                 options.AddOAuth2(Settings);
-                options.AddJwt(Settings);
+                //options.AddJwt(Settings);
                 options.IncludeXmlComments(Assembly.Load(IdentityServerApi.AssemblyName));
             });
             services.AddMessageDescriber<ExtendedMessageDescriber>();

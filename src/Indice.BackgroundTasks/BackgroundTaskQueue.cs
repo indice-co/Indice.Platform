@@ -11,11 +11,15 @@ namespace Indice.BackgroundTasks
     /// </summary>
     public sealed class BackgroundTaskQueue : IBackgroundTaskQueue
     {
+        private readonly IBackgroundTaskStorage _backgroundTaskStorage;
+
         /// <summary>
         /// 
         /// </summary>
         /// <param name="backgroundTaskStorage"></param>
-        public BackgroundTaskQueue(IBackgroundTaskStorage backgroundTaskStorage) { }
+        public BackgroundTaskQueue(IBackgroundTaskStorage backgroundTaskStorage) {
+            _backgroundTaskStorage = backgroundTaskStorage ?? throw new ArgumentNullException(nameof(backgroundTaskStorage));
+        }
 
         /// <inheritdoc />
         public void Enqueue(Expression<Func<CancellationToken, Task>> workItem) {
