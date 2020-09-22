@@ -327,7 +327,7 @@ namespace Indice.Globalization
         /// <summary>
         /// Default Country Calling code
         /// </summary>
-        public int CallingCodeDefault => string.IsNullOrWhiteSpace(CallingCode) ? -1 : int.Parse(CallingCode.Split(',')[0].Trim().Replace("+", "").Replace(" ", ""));
+        public int CallingCodeDefault => string.IsNullOrWhiteSpace(CallingCode) ? -1 : int.Parse(CallingCode.Split(',').First().Replace("-", string.Empty));
         /// <summary>
         /// Culture code locale.
         /// </summary>
