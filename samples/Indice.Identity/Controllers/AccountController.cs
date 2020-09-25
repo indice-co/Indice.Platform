@@ -2,7 +2,6 @@
 using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
-using Hangfire;
 using IdentityModel;
 using IdentityServer4.Events;
 using IdentityServer4.Extensions;
@@ -13,7 +12,6 @@ using Indice.AspNetCore.Filters;
 using Indice.AspNetCore.Identity.Extensions;
 using Indice.AspNetCore.Identity.Models;
 using Indice.AspNetCore.Identity.Services;
-using Indice.BackgroundTasks.Abstractions;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -35,8 +33,6 @@ namespace Indice.Identity.Controllers
         private readonly ExtendedSignInManager<User> _signInManager;
         private readonly AccountService _accountService;
         private readonly ILogger<AccountController> _logger;
-        private readonly IBackgroundTaskQueue _backgroundTaskQueue;
-        private readonly IBackgroundJobClient _backgroundJobs;
         /// <summary>
         /// The name of the controller.
         /// </summary>
@@ -53,10 +49,8 @@ namespace Indice.Identity.Controllers
         /// <param name="schemeProvider">Responsible for managing what authenticationSchemes are supported.</param>
         /// <param name="httpContextAccessor">Provides access to the current HTTP context.</param>
         /// <param name="logger">Represents a type used to perform logging.</param>
-        /// <param name="backgroundTaskQueue"></param>
-        /// <param name="backgroundJobs"></param>
         public AccountController(IIdentityServerInteractionService interaction, IEventService events, IClientStore clientStore, ExtendedUserManager<User> userManager, ExtendedSignInManager<User> signInManager, IAuthenticationSchemeProvider schemeProvider,
-            IHttpContextAccessor httpContextAccessor, ILogger<AccountController> logger, IBackgroundTaskQueue backgroundTaskQueue, IBackgroundJobClient backgroundJobs) {
+            IHttpContextAccessor httpContextAccessor, ILogger<AccountController> logger) {
             _interaction = interaction ?? throw new ArgumentNullException(nameof(interaction));
             _events = events ?? throw new ArgumentNullException(nameof(events));
             _clientStore = clientStore ?? throw new ArgumentNullException(nameof(clientStore));
@@ -64,8 +58,6 @@ namespace Indice.Identity.Controllers
             _signInManager = signInManager ?? throw new ArgumentNullException(nameof(signInManager));
             _accountService = new AccountService(interaction, httpContextAccessor, schemeProvider, clientStore);
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            _backgroundTaskQueue = backgroundTaskQueue ?? throw new ArgumentNullException(nameof(backgroundTaskQueue));
-            _backgroundJobs = backgroundJobs ?? throw new ArgumentNullException(nameof(backgroundJobs));
         }
 
         public string UserId => User.FindFirstValue(JwtClaimTypes.Subject);
@@ -89,8 +81,6 @@ namespace Indice.Identity.Controllers
 #if DEBUG
             viewModel.UserName = "company@indice.gr";
 #endif
-            //_backgroundTaskQueue.Enqueue(cancellationToken => CalculateTotal(3, 4, cancellationToken));
-            _backgroundJobs.Enqueue(() => CalculateTotal(3, 4, new CancellationTokenSource().Token));
             _logger.LogInformation($"{nameof(AccountController)} inserted a new task in the queue.");
             return View(viewModel);
         }

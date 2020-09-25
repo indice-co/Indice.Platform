@@ -53,7 +53,7 @@ namespace Indice.Types
         /// <returns></returns>
         public static Base64Id Parse(string base64) {
             if (base64 != null) {
-                if (Guid.TryParse(base64, out Guid id)) {
+                if (Guid.TryParse(base64, out var id)) {
                     return new Base64Id(id);
                 }
                 var guid = new Guid(base64.FromBase64UrlSafe());
