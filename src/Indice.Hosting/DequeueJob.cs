@@ -10,12 +10,12 @@ namespace Indice.Hosting
     public class DequeueJob<TWorkItem> : IJob where TWorkItem : WorkItem
     {
         private readonly IWorkItemQueue<TWorkItem> _workItemQueue;
-        private readonly WorkItemHandler<TWorkItem> _workItemHandler;
+        private readonly IWorkItemHandler<TWorkItem> _workItemHandler;
 
         /// <summary>
         /// 
         /// </summary>
-        public DequeueJob(IWorkItemQueue<TWorkItem> workItemQueue, WorkItemHandler<TWorkItem> workItemHandler) {
+        public DequeueJob(IWorkItemQueue<TWorkItem> workItemQueue, IWorkItemHandler<TWorkItem> workItemHandler) {
             _workItemQueue = workItemQueue ?? throw new ArgumentNullException(nameof(workItemQueue));
             _workItemHandler = workItemHandler ?? throw new ArgumentNullException(nameof(workItemHandler));
         }

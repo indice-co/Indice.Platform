@@ -5,16 +5,16 @@ using Microsoft.Extensions.Logging;
 
 namespace Indice.Identity.Hosting
 {
-    public class UserMessageHandler : WorkItemHandler<UserMessage>
+    public class UserMessageHandler : IWorkItemHandler<UserMessage>
     {
-        private ILogger<UserMessageHandler> _logger;
+        private readonly ILogger<UserMessageHandler> _logger;
 
         public UserMessageHandler(ILogger<UserMessageHandler> logger) {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-        public override Task Process(UserMessage workItem) {
-            _logger.LogDebug("Received work item: {WorkItem}", workItem);
+        public Task Process(UserMessage workItem) {
+            _logger.LogInformation("Processing work item: {WorkItem} at {Timestamp}", workItem, DateTime.UtcNow);
             return Task.CompletedTask;
         }
     }

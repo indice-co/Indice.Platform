@@ -1,10 +1,8 @@
 ﻿using System;
-using System.Linq;
-using System.Threading.Tasks;
 using Indice.Hosting;
-using Microsoft.Extensions.Hosting;
 using Quartz;
 using Quartz.Impl;
+using Quartz.Spi;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
@@ -18,9 +16,11 @@ namespace Microsoft.Extensions.DependencyInjection
         /// </summary>
         /// <param name="services"></param>
         /// <param name="configureAction"></param>
-        /// <returns></returns>
+        /// <returns>The builder used to configure the background tasks.</returns>
         public static BackgroundTasksBuilder AddBackgroundTasks(this IServiceCollection services, Action<BackgroundTasksBuilder> configureAction) {
             services.AddSingleton<ISchedulerFactory, StdSchedulerFactory>();
+            services.AddSingleton<IJobFactory, JobFactory>();
+            services.AddSingleton<QuartzJobRunner>();
             services.AddHostedService<QueuedHostedService>();
             var builder = new BackgroundTasksBuilder(services);
             configureAction.Invoke(builder);
@@ -36,27 +36,17 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <param name="configureAction"></param>
         /// <returns></returns>
         public static BackgroundTasksBuilder AddQueue<TWorkItemHandler, TWorkItem>(this BackgroundTasksBuilder builder, Action<QueueOptions> configureAction = null)
-            where TWorkItemHandler : WorkItemHandler<TWorkItem>
+            where TWorkItemHandler : IWorkItemHandler<TWorkItem>
             where TWorkItem : WorkItem {
             var options = new QueueOptions {
                 Services = builder.Services
             };
             configureAction?.Invoke(options);
-            options.Services.AddScoped(typeof(DequeueJob<>).MakeGenericType(typeof(TWorkItem)));
-            options.Services.AddScoped(typeof(IWorkItemQueue<>).MakeGenericType(typeof(TWorkItem)), typeof(TWorkItem).MakeGenericType(typeof(TWorkItem)));
-            var serviceProvider = options.Services.BuildServiceProvider();
+            options.Services.AddSingleton(typeof(DequeueJob<>).MakeGenericType(typeof(TWorkItem)));
+            options.Services.AddSingleton(typeof(IWorkItemQueue<>).MakeGenericType(typeof(TWorkItem)), typeof(DefaultWorkItemQueue<>).MakeGenericType(typeof(TWorkItem)));
+            options.Services.AddSingleton(typeof(IWorkItemHandler<>).MakeGenericType(typeof(TWorkItem)), typeof(TWorkItemHandler));
+            options.Services.AddSingleton(serviceProvider => new DequeueJobSchedule(typeof(TWorkItem), options.QueueName, options.PollingIntervalInSeconds));
             options.Services = null;
-            var hostedService = serviceProvider.GetServices<IHostedService>().OfType<QueuedHostedService>().SingleOrDefault();
-            var scheduler = hostedService.Scheduler;
-            var jobDetails = JobBuilder.Create<DequeueJob<TWorkItem>>()
-                                       .WithIdentity(name: options.QueueName, group: JobGroups.InternalJobsGroup)
-                                       .Build();
-            var jobTrigger = TriggerBuilder.Create()
-                                           .WithIdentity(name: TriggerNames.DequeueJobTrigger, group: JobGroups.InternalJobsGroup)
-                                           .StartNow()
-                                           .WithSimpleSchedule(x => x.WithIntervalInSeconds(options.PollingIntervalInSeconds).RepeatForever())
-                                           .Build();
-            Task.Run(async () => await scheduler.ScheduleJob(jobDetails, jobTrigger)).ConfigureAwait(false).GetAwaiter().GetResult();
             return builder;
         }
     }

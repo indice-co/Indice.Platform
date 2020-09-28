@@ -8,6 +8,7 @@ using Indice.AspNetCore.Filters;
 using Indice.AspNetCore.Identity.Features;
 using Indice.AspNetCore.Swagger;
 using Indice.Configuration;
+using Indice.Hosting;
 using Indice.Identity.Configuration;
 using Indice.Identity.Hosting;
 using Indice.Identity.Security;
@@ -85,12 +86,16 @@ namespace Indice.Identity
             services.AddResponseCaching();
             services.AddDataProtectionLocal(options => options.FromConfiguration());
             services.AddEmailService(Configuration);
-            //services.AddBackgroundTasks(config => {
-            //    config.AddQueue<UserMessageHandler, UserMessage>(x => {
-            //        x.QueueName = "user-messages";
-            //        x.PollingIntervalInSeconds = 120;
-            //    });
-            //});
+            services.AddBackgroundTasks(config => {
+                config.AddQueue<UserMessageHandler, UserMessage>(x => {
+                    x.QueueName = "user-messages";
+                    x.PollingIntervalInSeconds = 20;
+                });
+                config.AddQueue<UserMessageHandler, UserMessage>(x => {
+                    x.QueueName = "user-messages";
+                    x.PollingIntervalInSeconds = 20;
+                });
+            });
             services.AddCsp(options => {
                 options.ScriptSrc = CSP.Self;
                 options.AddSandbox("allow-popups")
@@ -108,7 +113,13 @@ namespace Indice.Identity
         /// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         /// </summary>
         /// <param name="app">Defines a class that provides the mechanisms to configure an application's request pipeline.</param>
-        public void Configure(IApplicationBuilder app) {
+        /// <param name="workItemQueue"></param>
+        public void Configure(IApplicationBuilder app, IWorkItemQueue<UserMessage> workItemQueue) {
+            workItemQueue.Enqueue(new UserMessage("6992731575", "Hello there!"));
+            workItemQueue.Enqueue(new UserMessage("6992731576", "How are you today?"));
+            workItemQueue.Enqueue(new UserMessage("6992731577", "You look nice!"));
+            workItemQueue.Enqueue(new UserMessage("6992731578", "Let's go..."));
+            workItemQueue.Enqueue(new UserMessage("6992731579", "Hello there again!"));
             if (HostingEnvironment.IsDevelopment()) {
                 app.UseDeveloperExceptionPage();
                 app.IdentityServerStoreSetup<ExtendedConfigurationDbContext>(Clients.Get(), Resources.GetIdentityResources(), Resources.GetApis(), Resources.GetApiScopes());
