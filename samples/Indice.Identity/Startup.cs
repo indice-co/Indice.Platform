@@ -79,19 +79,18 @@ namespace Indice.Identity
             services.AddSwaggerGen(options => {
                 options.IndiceDefaults(Settings);
                 options.AddOAuth2(Settings);
-                options.AddJwt(Settings);
                 options.IncludeXmlComments(Assembly.Load(IdentityServerApi.AssemblyName));
             });
             services.AddMessageDescriber<ExtendedMessageDescriber>();
             services.AddResponseCaching();
             services.AddDataProtectionLocal(options => options.FromConfiguration());
             services.AddEmailService(Configuration);
-            services.AddBackgroundTasks(config => {
-                config.AddQueue<UserMessageHandler, UserMessage>(x => {
-                    x.QueueName = "user-messages";
-                    x.PollingIntervalInSeconds = 120;
-                });
-            });
+            //services.AddBackgroundTasks(config => {
+            //    config.AddQueue<UserMessageHandler, UserMessage>(x => {
+            //        x.QueueName = "user-messages";
+            //        x.PollingIntervalInSeconds = 120;
+            //    });
+            //});
             services.AddCsp(options => {
                 options.ScriptSrc = CSP.Self;
                 options.AddSandbox("allow-popups")

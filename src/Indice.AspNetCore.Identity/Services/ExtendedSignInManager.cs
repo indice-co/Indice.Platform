@@ -148,10 +148,11 @@ namespace Indice.AspNetCore.Identity.Services
             }
             var result = await base.SignInOrTwoFactorAsync(user, isPersistent, loginProvider, bypassTwoFactor);
             if (result.Succeeded && (user is User)) {
-                try { 
-                user.LastSignInDate = DateTimeOffset.UtcNow;
-                await UserManager.UpdateAsync(user);
-                } catch { ; }
+                try {
+                    user.LastSignInDate = DateTimeOffset.UtcNow;
+                    await UserManager.UpdateAsync(user);
+                } 
+                catch { ; }
             }
             return result;
         }
@@ -237,7 +238,7 @@ namespace Indice.AspNetCore.Identity.Services
         /// Returns a flag indication whether the user attempting to sign-in requires an immediate password change due to expiration.
         /// </summary>
         /// <value>True if the user attempting to sign-in requires a password change, otherwise false.</value>
-        public bool RequiresPasswordChange { get; set; }
+        public bool RequiresPasswordChange { get; }
     }
 
     /// <summary>

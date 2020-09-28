@@ -147,8 +147,7 @@ namespace Indice.AspNetCore.Swagger
             var scope = scopeOrGroup;
             var license = apiSettings.License == null ? null : new OpenApiLicense { Name = apiSettings.License.Name, Url = new Uri(apiSettings.License.Url) };
             var contact = apiSettings.Contact == null ? null : new OpenApiContact { Name = apiSettings.Contact.Name, Url = new Uri(apiSettings.Contact.Url), Email = apiSettings.Contact.Email };
-            string title;
-            if (!apiSettings.Scopes.TryGetValue(scopeOrGroup, out title)) {
+            if (!apiSettings.Scopes.TryGetValue(scopeOrGroup, out var title)) {
                 title = $"{apiSettings.FriendlyName}. {scopeOrGroup}";
             }
             return options.AddDoc(scope, title, description, version, apiSettings.TermsOfServiceUrl, license, contact);
