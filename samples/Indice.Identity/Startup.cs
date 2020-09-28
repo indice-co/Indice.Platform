@@ -9,6 +9,7 @@ using Indice.AspNetCore.Identity.Features;
 using Indice.AspNetCore.Swagger;
 using Indice.Configuration;
 using Indice.Identity.Configuration;
+using Indice.Identity.Hosting;
 using Indice.Identity.Security;
 using Indice.Identity.Services;
 using Microsoft.AspNetCore.Builder;
@@ -85,6 +86,12 @@ namespace Indice.Identity
             services.AddResponseCaching();
             services.AddDataProtectionLocal(options => options.FromConfiguration());
             services.AddEmailService(Configuration);
+            services.AddBackgroundTasks(config => {
+                config.AddQueue<UserMessageHandler, UserMessage>(x => {
+                    x.QueueName = "user-messages";
+                    x.PollingIntervalInSeconds = 120;
+                });
+            });
             services.AddCsp(options => {
                 options.ScriptSrc = CSP.Self;
                 options.AddSandbox("allow-popups")
