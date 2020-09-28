@@ -91,10 +91,6 @@ namespace Indice.Identity
                     x.QueueName = "user-messages";
                     x.PollingIntervalInSeconds = 20;
                 });
-                config.AddQueue<UserMessageHandler, UserMessage>(x => {
-                    x.QueueName = "user-messages";
-                    x.PollingIntervalInSeconds = 20;
-                });
             });
             services.AddCsp(options => {
                 options.ScriptSrc = CSP.Self;
