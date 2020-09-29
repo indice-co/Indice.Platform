@@ -1,5 +1,6 @@
 ﻿using System;
 using Indice.Hosting;
+using Indice.Services;
 using Quartz;
 using Quartz.Impl;
 using Quartz.Spi;
@@ -35,7 +36,7 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <param name="builder"></param>
         /// <param name="configureAction"></param>
         /// <returns></returns>
-        public static BackgroundTasksBuilder AddQueue<TWorkItemHandler, TWorkItem>(this BackgroundTasksBuilder builder, Action<QueueOptions> configureAction = null)
+        public static QueueBuilder AddQueue<TWorkItemHandler, TWorkItem>(this BackgroundTasksBuilder builder, Action<QueueOptions> configureAction = null)
             where TWorkItemHandler : IWorkItemHandler<TWorkItem>
             where TWorkItem : WorkItem {
             var options = new QueueOptions {
@@ -46,7 +47,15 @@ namespace Microsoft.Extensions.DependencyInjection
             options.Services.AddSingleton(typeof(IWorkItemQueue<>).MakeGenericType(typeof(TWorkItem)), typeof(DefaultWorkItemQueue<>).MakeGenericType(typeof(TWorkItem)));
             options.Services.AddSingleton(typeof(IWorkItemHandler<>).MakeGenericType(typeof(TWorkItem)), typeof(TWorkItemHandler));
             options.Services.AddSingleton(serviceProvider => new DequeueJobSchedule(typeof(TWorkItem), options.QueueName, options.PollingIntervalInSeconds));
-            options.Services = null;
+            return new QueueBuilder(options.Services);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="TLockManager"></typeparam>
+        /// <param name="builder"></param>
+        public static QueueBuilder UseLockManager<TLockManager>(this QueueBuilder builder) where TLockManager : ILockManager {
             return builder;
         }
     }
