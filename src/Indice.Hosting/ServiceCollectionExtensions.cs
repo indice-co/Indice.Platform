@@ -22,6 +22,7 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddSingleton<ISchedulerFactory, StdSchedulerFactory>();
             services.AddSingleton<IJobFactory, JobFactory>();
             services.AddSingleton<QuartzJobRunner>();
+            services.AddSingleton<ILockManager, DefaultLockManager>();
             services.AddHostedService<QueuedHostedService>();
             var builder = new BackgroundTasksBuilder(services);
             configureAction.Invoke(builder);
@@ -56,6 +57,7 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <typeparam name="TLockManager"></typeparam>
         /// <param name="builder"></param>
         public static QueueBuilder UseLockManager<TLockManager>(this QueueBuilder builder) where TLockManager : ILockManager {
+            builder.Services.AddSingleton<ILockManager, DefaultLockManager>();
             return builder;
         }
     }

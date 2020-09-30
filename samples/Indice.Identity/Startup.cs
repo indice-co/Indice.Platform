@@ -89,7 +89,7 @@ namespace Indice.Identity
             services.AddBackgroundTasks(config => {
                 config.AddQueue<UserMessageHandler, UserMessage>(options => {
                     options.QueueName = "user-messages";
-                    options.PollingIntervalInSeconds = 20;
+                    options.PollingIntervalInSeconds = 5;
                 });
             });
             services.AddCsp(options => {

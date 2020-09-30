@@ -13,9 +13,14 @@ namespace Indice.Identity.Hosting
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-        public Task Process(UserMessage workItem) {
-            _logger.LogInformation("Processing work item: {WorkItem} at {Timestamp}", workItem, DateTime.UtcNow);
-            return Task.CompletedTask;
+        public async Task Process(UserMessage workItem) {
+            if (workItem == null) {
+                return;
+            }
+            _logger.LogInformation("Processing work item: {WorkItem} at {Timestamp} with lease id {LeaseId}", workItem, DateTime.UtcNow, workItem.LeaseId);
+            var waitTime = new Random().Next(5, 10) * 1000;
+            _logger.LogInformation("Process will last {0}ms", waitTime);
+            await Task.Delay(waitTime);
         }
     }
 }

@@ -137,11 +137,11 @@ namespace Indice.Services
         /// <param name="manager"></param>
         /// <param name="name"></param>
         /// <param name="retryCount"></param>
-        /// <param name="sleepDurationInMilliseconds"></param>
+        /// <param name="retryAfter"></param>
         /// <returns></returns>
-        public static async Task<LockLeaseResult> TryAquireLockWithRetryPolicy(this ILockManager manager, string name, int retryCount = 3, int sleepDurationInMilliseconds = 60) {
+        public static async Task<LockLeaseResult> TryAquireLockWithRetryPolicy(this ILockManager manager, string name, int retryCount = 3, int retryAfter = 3) {
             var policy = Policy.HandleResult<LockLeaseResult>(lockLeaseResult => !lockLeaseResult.Ok)
-                               .WaitAndRetryAsync(retryCount, retryAttempt => TimeSpan.FromMilliseconds(retryAttempt * sleepDurationInMilliseconds));
+                               .WaitAndRetryAsync(retryCount, retryAttempt => TimeSpan.FromSeconds(retryAfter));
             return await policy.ExecuteAsync(async () => await manager.TryAquireLock(name));
         }
     }
