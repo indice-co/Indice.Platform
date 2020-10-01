@@ -46,6 +46,9 @@ namespace Indice.Hosting
             foreach (var job in _dequeueJobSchedules) {
                 var jobDetails = JobBuilder.Create(typeof(DequeueJob<>).MakeGenericType(job.WorkItemType))
                                            .WithIdentity(name: job.Name, group: JobGroups.InternalJobsGroup)
+                                           .SetJobData(new JobDataMap(new Dictionary<string, string> { 
+                                               { JobDataKeys.QueueName, job.Name }
+                                           }))
                                            .Build();
                 var jobTrigger = TriggerBuilder.Create()
                                                .WithIdentity(name: TriggerNames.DequeueJobTrigger, group: JobGroups.InternalJobsGroup)

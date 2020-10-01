@@ -9,4 +9,9 @@
     {
         public const string DequeueJobTrigger = nameof(DequeueJobTrigger);
     }
+
+    internal class JobDataKeys 
+    {
+        public const string QueueName = nameof(QueueName);
+    }
 }

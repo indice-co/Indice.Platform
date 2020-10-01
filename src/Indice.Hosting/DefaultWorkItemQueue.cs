@@ -32,7 +32,11 @@ namespace Indice.Hosting
         /// <inheritdoc />
         public Task<TWorkItem> Dequeue() {
             _workItems.TryDequeue(out var workItem);
-            _logger.LogInformation("Work item '{WorkItem}' was dequeued.", workItem);
+            if (workItem == null) {
+                _logger.LogInformation("There are no other items available in the queue to process.");
+            } else {
+                _logger.LogInformation("Work item '{WorkItem}' was dequeued.", workItem);
+            }
             return Task.FromResult(workItem);
         }
     }

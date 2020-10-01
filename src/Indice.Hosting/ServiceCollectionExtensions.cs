@@ -1,6 +1,7 @@
 ﻿using System;
 using Indice.Hosting;
 using Indice.Services;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Quartz;
 using Quartz.Impl;
 using Quartz.Spi;
@@ -22,10 +23,10 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddSingleton<ISchedulerFactory, StdSchedulerFactory>();
             services.AddSingleton<IJobFactory, JobFactory>();
             services.AddSingleton<QuartzJobRunner>();
-            services.AddSingleton<ILockManager, DefaultLockManager>();
             services.AddHostedService<QueuedHostedService>();
             var builder = new BackgroundTasksBuilder(services);
             configureAction.Invoke(builder);
+            services.TryAddSingleton<ILockManager, DefaultLockManager>();
             return builder;
         }
 
@@ -54,11 +55,21 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <summary>
         /// 
         /// </summary>
-        /// <typeparam name="TLockManager"></typeparam>
-        /// <param name="builder"></param>
-        public static QueueBuilder UseLockManager<TLockManager>(this QueueBuilder builder) where TLockManager : ILockManager {
-            builder.Services.AddSingleton<ILockManager, DefaultLockManager>();
-            return builder;
+        /// <typeparam name="TLockManager">The concrete type of <see cref="ILockManager"/> to use.</typeparam>
+        /// <param name="options"></param>
+        public static void UseLockManager<TLockManager>(this QueueOptions options) where TLockManager : ILockManager {
+            options.Services.RemoveAll<ILockManager>();
+            options.Services.AddSingleton(typeof(ILockManager), typeof(TLockManager));
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="TWorkItemQueue"></typeparam>
+        /// <typeparam name="TWorkItem"></typeparam>
+        /// <param name="options"></param>
+        public static void UseWorkItemQueue<TWorkItemQueue, TWorkItem>(this QueueOptions options) where TWorkItemQueue : IWorkItemQueue<TWorkItem> where TWorkItem : WorkItem {
+
         }
     }
 

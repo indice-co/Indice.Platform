@@ -13,6 +13,7 @@ using Indice.Identity.Configuration;
 using Indice.Identity.Hosting;
 using Indice.Identity.Security;
 using Indice.Identity.Services;
+using Indice.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -86,10 +87,17 @@ namespace Indice.Identity
             services.AddResponseCaching();
             services.AddDataProtectionLocal(options => options.FromConfiguration());
             services.AddEmailService(Configuration);
+            //services.AddWorkerHost(x => x.UseAzureStorage()
+            //                          .UseIndiceSqlStorage()
+            //                          .UseAseCahniaSqlStorage())
+            //        .AddJob<MyHandler>().WithQueueTrigger<UserMessage>("queuename")
+            //        .AddJob<MyHandler>().WithQueueTrigger<string>("queuename")
+            //        .AddJob<MyHandler2>().WithScheduleTrigger("* */ d / 12 ")
             services.AddBackgroundTasks(config => {
                 config.AddQueue<UserMessageHandler, UserMessage>(options => {
                     options.QueueName = "user-messages";
-                    options.PollingIntervalInSeconds = 5;
+                    options.PollingIntervalInSeconds = 1;
+                    options.UseLockManager<LockManagerAzure>();
                 });
             });
             services.AddCsp(options => {
