@@ -11,7 +11,7 @@ namespace Indice.Hosting
     /// An "intermediary" <see cref="IJob"/> implementation, <see cref="QuartzJobRunner"/>, that sits between the <seealso cref="IJobFactory"/> and the <seealso cref="IJob "/> you want to run. 
     /// It takes care of instansiating your real jobs while managing scope.
     /// </summary>
-    public class QuartzJobRunner : IJob
+    internal class QuartzJobRunner : IJob
     {
         private readonly IServiceProvider _serviceProvider;
         private readonly ILogger<QuartzJobRunner> _logger;

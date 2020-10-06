@@ -1,26 +1,25 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Indice.Services;
 using Indice.Types;
 using Microsoft.Extensions.Logging;
 
-namespace Indice.Hosting
+namespace Indice.Services
 {
     /// <summary>
     /// Implementation of <see cref="ILockManager"/>.
     /// </summary>
     /// <remarks>https://docs.microsoft.com/en-us/dotnet/api/system.threading.monitor</remarks>
-    public class DefaultLockManager : ILockManager
+    public class LockManagerInMemory : ILockManager
     {
-        private readonly ILogger<DefaultLockManager> _logger;
+        private readonly ILogger<LockManagerInMemory> _logger;
         private readonly SemaphoreSlim _signal = new SemaphoreSlim(0);
 
         /// <summary>
         /// 
         /// </summary>
         /// <param name="logger"></param>
-        public DefaultLockManager(ILogger<DefaultLockManager> logger) {
+        public LockManagerInMemory(ILogger<LockManagerInMemory> logger) {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _signal.Release();
         }

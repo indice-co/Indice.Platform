@@ -87,19 +87,6 @@ namespace Indice.Identity
             services.AddResponseCaching();
             services.AddDataProtectionLocal(options => options.FromConfiguration());
             services.AddEmailService(Configuration);
-            //services.AddWorkerHost(x => x.UseAzureStorage()
-            //                          .UseIndiceSqlStorage()
-            //                          .UseAseCahniaSqlStorage())
-            //        .AddJob<MyHandler>().WithQueueTrigger<UserMessage>("queuename")
-            //        .AddJob<MyHandler>().WithQueueTrigger<string>("queuename")
-            //        .AddJob<MyHandler2>().WithScheduleTrigger("* */ d / 12 ")
-            services.AddBackgroundTasks(config => {
-                config.AddQueue<UserMessageHandler, UserMessage>(options => {
-                    options.QueueName = "user-messages";
-                    options.PollingIntervalInSeconds = 1;
-                    options.UseLockManager<LockManagerAzure>();
-                });
-            });
             services.AddCsp(options => {
                 options.ScriptSrc = CSP.Self;
                 options.AddSandbox("allow-popups")
@@ -110,6 +97,16 @@ namespace Indice.Identity
             });
             services.AddSpaStaticFiles(options => {
                 options.RootPath = "wwwroot/admin-ui";
+            });
+            // Setup worker host for executing background tasks.
+            services.AddWorkerHost(options => {
+                options.UseAzureStorageLock();
+                options.UseInMemoryStorage();
+            })
+            .AddJob<UserMessageJobHandler>()
+            .WithQueueTrigger<UserMessage>(options => {
+                options.QueueName = "user-messages";
+                options.PollingIntervalInSeconds = 20;
             });
         }
 

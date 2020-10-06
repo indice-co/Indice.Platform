@@ -13,5 +13,6 @@
     internal class JobDataKeys 
     {
         public const string QueueName = nameof(QueueName);
+        public const string JobHandlerType = nameof(JobHandlerType);
     }
 }

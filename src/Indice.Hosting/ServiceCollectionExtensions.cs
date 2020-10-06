@@ -1,7 +1,6 @@
 ﻿using System;
 using Indice.Hosting;
 using Indice.Services;
-using Microsoft.Extensions.DependencyInjection.Extensions;
 using Quartz;
 using Quartz.Impl;
 using Quartz.Spi;
@@ -16,94 +15,97 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="services"></param>
+        /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
         /// <param name="configureAction"></param>
-        /// <returns>The builder used to configure the background tasks.</returns>
-        public static BackgroundTasksBuilder AddBackgroundTasks(this IServiceCollection services, Action<BackgroundTasksBuilder> configureAction) {
+        /// <returns>The builder used to configure the worker host.</returns>
+        public static WorkerHostBuilder AddWorkerHost(this IServiceCollection services, Action<WorkerHostOptions> configureAction) {
             services.AddSingleton<ISchedulerFactory, StdSchedulerFactory>();
             services.AddSingleton<IJobFactory, JobFactory>();
             services.AddSingleton<QuartzJobRunner>();
             services.AddHostedService<QueuedHostedService>();
-            var builder = new BackgroundTasksBuilder(services);
-            configureAction.Invoke(builder);
-            services.TryAddSingleton<ILockManager, DefaultLockManager>();
-            return builder;
+            configureAction.Invoke(new WorkerHostOptions(services));
+            return new WorkerHostBuilder(services);
+        }
+
+        /// <summary>
+        /// Uses Azure Storage service as the store for distributed locking.
+        /// </summary>
+        /// <param name="options">The <see cref="WorkerHostOptions"/> that configures the worker host.</param>
+        /// <returns>The <see cref="StorageBuilder"/> used to configure locking and queue persistence.</returns>
+        public static StorageBuilder UseAzureStorageLock(this WorkerHostOptions options) => options.UseLock<LockManagerAzure>();
+
+        /// <summary>
+        /// Manages access to queues using an in-memory mechanism. Not suitable for distributed scenarios.
+        /// </summary>
+        /// <param name="options">The <see cref="WorkerHostOptions"/> that configures the worker host.</param>
+        /// <returns>The <see cref="StorageBuilder"/> used to configure locking and queue persistence.</returns>
+        public static StorageBuilder UseInMemoryLock(this WorkerHostOptions options) => options.UseLock<LockManagerInMemory>();
+
+        /// <summary>
+        /// Registers an implementation of <see cref="ILockManager"/> which is used for distributed locking.
+        /// </summary>
+        /// <typeparam name="TLockManager">The concrete type of <see cref="ILockManager"/> to use.</typeparam>
+        /// <param name="options">The <see cref="StorageBuilder"/> used to configure locking and queue persistence.</param>
+        public static StorageBuilder UseLock<TLockManager>(this WorkerHostOptions options) where TLockManager : ILockManager {
+            options.Services.AddSingleton(typeof(ILockManager), typeof(TLockManager));
+            return new StorageBuilder(options.Services);
         }
 
         /// <summary>
         /// 
         /// </summary>
-        /// <typeparam name="TWorkItemHandler"></typeparam>
-        /// <typeparam name="TWorkItem"></typeparam>
+        /// <param name="options"></param>
+        /// <returns></returns>
+        public static StorageBuilder UseInMemoryStorage(this WorkerHostOptions options) {
+            //options.Services.AddSingleton(typeof(IWorkItemQueue<>).MakeGenericType(typeof(TWorkItem)), typeof(WorkItemQueueInMemory<>).MakeGenericType(typeof(TWorkItem)));
+            return new StorageBuilder(options.Services);
+        }
+
+        public static StorageBuilder UseStorage<TWorkItemQueueType>(this WorkerHostOptions options) {
+            //options.Services.AddSingleton(typeof(IWorkItemQueue<>).MakeGenericType(typeof(TWorkItem)), typeof(WorkItemQueueInMemory<>).MakeGenericType(typeof(TWorkItem)));
+            return new StorageBuilder(options.Services);
+        }
+
+        /// <summary>
+        /// Registers a job that will be processed by the worker host. Usually followed by a <see cref="WithQueueTrigger{TWorkItem}(JobTriggerBuilder, Action{QueueOptions})"/> call to configure the way that a job is triggered.
+        /// </summary>
+        /// <typeparam name="TJobHandler">The type of the class that will handle the job. Must inherit from <see cref="JobHandler"/>.</typeparam>
+        /// <param name="builder">A helper class to configure the worker host.</param>
+        /// <returns></returns>
+        public static JobTriggerBuilder AddJob<TJobHandler>(this WorkerHostBuilder builder) where TJobHandler : JobHandler {
+            builder.Services.AddScoped<TJobHandler>();
+            return new JobTriggerBuilder(builder.Services, typeof(TJobHandler));
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
         /// <param name="builder"></param>
         /// <param name="configureAction"></param>
         /// <returns></returns>
-        public static QueueBuilder AddQueue<TWorkItemHandler, TWorkItem>(this BackgroundTasksBuilder builder, Action<QueueOptions> configureAction = null)
-            where TWorkItemHandler : IWorkItemHandler<TWorkItem>
-            where TWorkItem : WorkItem {
+        public static WorkerHostBuilder WithQueueTrigger<TWorkItem>(this JobTriggerBuilder builder, Action<QueueOptions> configureAction = null) where TWorkItem : WorkItem {
             var options = new QueueOptions {
                 Services = builder.Services
             };
             configureAction?.Invoke(options);
             options.Services.AddSingleton(typeof(DequeueJob<>).MakeGenericType(typeof(TWorkItem)));
-            options.Services.AddSingleton(typeof(IWorkItemQueue<>).MakeGenericType(typeof(TWorkItem)), typeof(DefaultWorkItemQueue<>).MakeGenericType(typeof(TWorkItem)));
-            options.Services.AddSingleton(typeof(IWorkItemHandler<>).MakeGenericType(typeof(TWorkItem)), typeof(TWorkItemHandler));
-            options.Services.AddSingleton(serviceProvider => new DequeueJobSchedule(typeof(TWorkItem), options.QueueName, options.PollingIntervalInSeconds));
-            return new QueueBuilder(options.Services);
+            options.Services.AddSingleton(serviceProvider => new DequeueJobSchedule(builder.JobHandlerType, typeof(TWorkItem), options.QueueName, options.PollingIntervalInSeconds));
+            return new WorkerHostBuilder(options.Services);
         }
 
         /// <summary>
         /// 
         /// </summary>
-        /// <typeparam name="TLockManager">The concrete type of <see cref="ILockManager"/> to use.</typeparam>
-        /// <param name="options"></param>
-        public static void UseLockManager<TLockManager>(this QueueOptions options) where TLockManager : ILockManager {
-            options.Services.RemoveAll<ILockManager>();
-            options.Services.AddSingleton(typeof(ILockManager), typeof(TLockManager));
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <typeparam name="TWorkItemQueue"></typeparam>
         /// <typeparam name="TWorkItem"></typeparam>
-        /// <param name="options"></param>
-        public static void UseWorkItemQueue<TWorkItemQueue, TWorkItem>(this QueueOptions options) where TWorkItemQueue : IWorkItemQueue<TWorkItem> where TWorkItem : WorkItem {
-
-        }
-    }
-
-    /// <summary>
-    /// A helper class to configure the background tasks.
-    /// </summary>
-    public class BackgroundTasksBuilder
-    {
-        /// <summary>
-        /// Creates a new instance of <see cref="BackgroundTasksBuilder"/>.
-        /// </summary>
-        /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
-        public BackgroundTasksBuilder(IServiceCollection services) => Services = services;
-
-        /// <summary>
-        /// Specifies the contract for a collection of service descriptors.
-        /// </summary>
-        public IServiceCollection Services { get; }
-    }
-
-    /// <summary>
-    /// A helper class to configure a queue.
-    /// </summary>
-    public class QueueBuilder
-    {
-        /// <summary>
-        /// Creates a new instance of <see cref="QueueBuilder"/>.
-        /// </summary>
-        /// <param name="services"></param>
-        public QueueBuilder(IServiceCollection services) => Services = services;
-
-        /// <summary>
-        /// Specifies the contract for a collection of service descriptors.
-        /// </summary>
-        public IServiceCollection Services { get; }
+        /// <param name="builder"></param>
+        /// <param name="queueName"></param>
+        /// <param name="pollingIntervalInSeconds"></param>
+        /// <returns></returns>
+        public static WorkerHostBuilder WithQueueTrigger<TWorkItem>(this JobTriggerBuilder builder, string queueName, int pollingIntervalInSeconds) where TWorkItem : WorkItem =>
+            builder.WithQueueTrigger<TWorkItem>(options => new QueueOptions {
+                Services = builder.Services,
+                QueueName = queueName,
+                PollingIntervalInSeconds = pollingIntervalInSeconds
+            });
     }
 }

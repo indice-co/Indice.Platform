@@ -12,7 +12,7 @@ namespace Indice.Hosting
     /// <summary>
     /// 
     /// </summary>
-    public class QueuedHostedService : IHostedService
+    internal class QueuedHostedService : IHostedService
     {
         private readonly ISchedulerFactory _schedulerFactory;
         private readonly ILogger<QueuedHostedService> _logger;
@@ -43,17 +43,18 @@ namespace Indice.Hosting
             _logger.LogInformation("Queued Hosted Service is running.");
             Scheduler = await _schedulerFactory.GetScheduler(cancellationToken);
             Scheduler.JobFactory = _jobFactory;
-            foreach (var job in _dequeueJobSchedules) {
-                var jobDetails = JobBuilder.Create(typeof(DequeueJob<>).MakeGenericType(job.WorkItemType))
-                                           .WithIdentity(name: job.Name, group: JobGroups.InternalJobsGroup)
-                                           .SetJobData(new JobDataMap(new Dictionary<string, string> { 
-                                               { JobDataKeys.QueueName, job.Name }
-                                           }))
+            foreach (var dequeueJobSchedule in _dequeueJobSchedules) {
+                var jobDetails = JobBuilder.Create(typeof(DequeueJob<>).MakeGenericType(dequeueJobSchedule.WorkItemType))
+                                           .WithIdentity(name: dequeueJobSchedule.Name, group: JobGroups.InternalJobsGroup)
+                                           .SetJobData(new JobDataMap(new Dictionary<string, object> {
+                                               { JobDataKeys.QueueName, dequeueJobSchedule.Name },
+                                               { JobDataKeys.JobHandlerType, dequeueJobSchedule.JobHandlerType }
+                                           } as IDictionary<string, object>))
                                            .Build();
                 var jobTrigger = TriggerBuilder.Create()
                                                .WithIdentity(name: TriggerNames.DequeueJobTrigger, group: JobGroups.InternalJobsGroup)
                                                .StartNow()
-                                               .WithSimpleSchedule(x => x.WithIntervalInSeconds(job.PollingIntervalInSeconds).RepeatForever())
+                                               .WithSimpleSchedule(x => x.WithIntervalInSeconds(dequeueJobSchedule.PollingIntervalInSeconds).RepeatForever())
                                                .Build();
                 await Scheduler.ScheduleJob(jobDetails, jobTrigger);
             }
