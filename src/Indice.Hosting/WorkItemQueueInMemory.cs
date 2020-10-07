@@ -14,9 +14,9 @@ namespace Indice.Hosting
         private readonly ILogger<WorkItemQueueInMemory<TWorkItem>> _logger;
 
         /// <summary>
-        /// 
+        /// Creates a new instance of <see cref="WorkItemQueueInMemory{TWorkItem}"/>.
         /// </summary>
-        /// <param name="logger"></param>
+        /// <param name="logger">Represents a type used to perform logging.</param>
         public WorkItemQueueInMemory(ILogger<WorkItemQueueInMemory<TWorkItem>> logger) {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }

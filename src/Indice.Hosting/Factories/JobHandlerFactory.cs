@@ -1,16 +1,26 @@
 ﻿using System;
-using Indice.Hosting.Abstractions;
+using System.Linq;
+using System.Reflection;
 
 namespace Indice.Hosting
 {
-    /// <summary>
-    /// 
-    /// </summary>
     internal class JobHandlerFactory : IJobHandlerFactory
     {
-        /// <inheritdoc />
+        private readonly IServiceProvider _serviceProvider;
+
+        public JobHandlerFactory(IServiceProvider serviceProvider) {
+            _serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
+        }
+
         public JobHandler Create(Type jobHandlerType, WorkItem workItem) {
-            throw new NotImplementedException();
+            var constructors = jobHandlerType.GetConstructors(BindingFlags.Instance | BindingFlags.Public);
+            var constructor = constructors.OrderByDescending(x => x.GetParameters().Length).First();
+            var arguments = constructor
+                .GetParameters()
+                .Select(x => typeof(WorkItem).IsAssignableFrom(x.ParameterType) ? workItem : _serviceProvider.GetService(x.ParameterType))
+                .ToArray();
+            dynamic jobHandler = Convert.ChangeType(constructor.Invoke(arguments), jobHandlerType);
+            return jobHandler;
         }
     }
 }

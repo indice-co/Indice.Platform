@@ -100,13 +100,13 @@ namespace Indice.Identity
             });
             // Setup worker host for executing background tasks.
             services.AddWorkerHost(options => {
-                options.UseAzureStorageLock();
-                options.UseInMemoryStorage();
+                options.UseAzureStorageLock()
+                       .UseInMemoryStorage();
             })
             .AddJob<UserMessageJobHandler>()
             .WithQueueTrigger<UserMessage>(options => {
                 options.QueueName = "user-messages";
-                options.PollingIntervalInSeconds = 20;
+                options.PollingIntervalInSeconds = 120;
             });
         }
 

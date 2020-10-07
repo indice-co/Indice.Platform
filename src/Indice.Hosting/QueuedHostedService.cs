@@ -10,7 +10,7 @@ using Quartz.Spi;
 namespace Indice.Hosting
 {
     /// <summary>
-    /// 
+    /// A hosted service that manages the lifetime of configured background tasks.
     /// </summary>
     internal class QueuedHostedService : IHostedService
     {

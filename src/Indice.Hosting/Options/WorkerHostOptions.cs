@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using System;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Indice.Hosting
 {
@@ -10,12 +11,15 @@ namespace Indice.Hosting
         /// <summary>
         /// Creates a new instance of <see cref="WorkerHostOptions"/>.
         /// </summary>
-        /// <param name="services"></param>
-        public WorkerHostOptions(IServiceCollection services) => Services = services;
+        /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
+        public WorkerHostOptions(IServiceCollection services) : this(services, null) { }
 
-        /// <summary>
-        /// Specifies the contract for a collection of service descriptors.
-        /// </summary>
-        public IServiceCollection Services { get; }
+        internal WorkerHostOptions(IServiceCollection services, Type workItemQueueType) {
+            Services = services;
+            WorkItemQueueType = workItemQueueType;
+        }
+
+        internal IServiceCollection Services { get; }
+        internal Type WorkItemQueueType { get; set; }
     }
 }
