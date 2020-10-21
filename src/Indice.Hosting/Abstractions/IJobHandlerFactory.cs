@@ -4,6 +4,6 @@ namespace Indice.Hosting
 {
     internal interface IJobHandlerFactory
     {
-        JobHandler Create(Type jobHandlerType, WorkItem workItem);
+        JobHandler Create(Type jobHandlerType, WorkItemBase workItem);
     }
 }

@@ -3,11 +3,20 @@ using Indice.Types;
 
 namespace Indice.Hosting
 {
+    public class WorkItem : WorkItemBase
+    {
+        public string Payload { get; set; }
+    }
+
     /// <summary>
     /// The base class that a work item needs to inherit.
     /// </summary>
-    public abstract class WorkItem
+    public abstract class WorkItemBase
     {
+        /// <summary>
+        /// 
+        /// </summary>
+        public string Topic { get; set; }
         /// <summary>
         /// The <see cref="DateTime"/> that indicates the end of lease.
         /// </summary>
@@ -15,7 +24,7 @@ namespace Indice.Hosting
         /// <summary>
         /// The id that a work item owns when it is processed.
         /// </summary>
-        public string LeaseId { get; } = new Base64Id(Guid.NewGuid());
+        public string LeaseId { get; set; } = new Base64Id(Guid.NewGuid());
         /// <summary>
         /// The status of the work item.
         /// </summary>
@@ -23,7 +32,7 @@ namespace Indice.Hosting
     }
 
     /// <summary>
-    /// Describes the current status of a <see cref="WorkItem"/>.
+    /// Describes the current status of a <see cref="WorkItemBase"/>.
     /// </summary>
     public enum WorkItemStatus
     {

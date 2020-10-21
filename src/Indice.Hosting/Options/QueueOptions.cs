@@ -22,7 +22,6 @@ namespace Indice.Hosting
         /// Specifies the time interval between two attempts to dequeue new items. Defaults to 15 seconds.
         /// </summary>
         public int PollingIntervalInSeconds { get; set; } = 15;
-
         internal IServiceCollection Services { get; }
     }
 }

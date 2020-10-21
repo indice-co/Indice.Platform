@@ -8,7 +8,7 @@ namespace Indice.Hosting
     /// <summary>
     /// A default implementation of <see cref="IWorkItemQueue{TWorkItem}"/> which manages work items in-memory using a <see cref="ConcurrentQueue{TWorkItem}"/>.
     /// </summary>
-    public class WorkItemQueueInMemory<TWorkItem> : IWorkItemQueue<TWorkItem> where TWorkItem : WorkItem
+    public class WorkItemQueueInMemory<TWorkItem> : IWorkItemQueue<TWorkItem> where TWorkItem : WorkItemBase
     {
         private readonly ConcurrentQueue<TWorkItem> _workItems = new ConcurrentQueue<TWorkItem>();
         private readonly ILogger<WorkItemQueueInMemory<TWorkItem>> _logger;
@@ -22,11 +22,12 @@ namespace Indice.Hosting
         }
 
         /// <inheritdoc />
-        public void Enqueue(TWorkItem workItem) {
+        public Task Enqueue(TWorkItem workItem) {
             if (workItem == null) {
                 throw new ArgumentNullException(nameof(workItem));
             }
             _workItems.Enqueue(workItem);
+            return Task.CompletedTask;
         }
 
         /// <inheritdoc />

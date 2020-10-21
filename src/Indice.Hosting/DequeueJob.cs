@@ -6,7 +6,7 @@ using Quartz;
 
 namespace Indice.Hosting
 {
-    internal class DequeueJob<TWorkItem> : IJob where TWorkItem : WorkItem
+    internal class DequeueJob<TWorkItem> : IJob where TWorkItem : WorkItemBase
     {
         private readonly IWorkItemQueue<TWorkItem> _workItemQueue;
         private readonly IJobHandlerFactory _jobHandlerFactory;

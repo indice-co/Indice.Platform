@@ -10,14 +10,15 @@ using Indice.AspNetCore.Swagger;
 using Indice.Configuration;
 using Indice.Hosting;
 using Indice.Identity.Configuration;
+using Indice.Identity.Data;
 using Indice.Identity.Hosting;
 using Indice.Identity.Security;
 using Indice.Identity.Services;
-using Indice.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Localization;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -75,6 +76,14 @@ namespace Indice.Identity
                 options.LoginPath = new PathString("/login");
                 options.LogoutPath = new PathString("/logout");
             });
+            services.AddDbContext<IndiceDbContext>(builder => {
+                if (HostingEnvironment.IsDevelopment()) {
+                    builder.EnableDetailedErrors();
+                    builder.EnableSensitiveDataLogging();
+                }
+                var migrationsAssembly = typeof(Startup).GetTypeInfo().Assembly.GetName().Name;
+                builder.UseSqlServer(Configuration.GetConnectionString("IndiceDb"), options => options.MigrationsAssembly(migrationsAssembly));
+            });
             services.AddProblemDetailsConfig(HostingEnvironment);
             services.ConfigureNonBreakingSameSiteCookies();
             services.AddSmsServiceYouboto(Configuration);
@@ -101,12 +110,17 @@ namespace Indice.Identity
             // Setup worker host for executing background tasks.
             services.AddWorkerHost(options => {
                 options.UseAzureStorageLock()
-                       .UseInMemoryStorage();
+                       //.UseInMemoryLock()
+                       //.UseInMemoryStorage()
+                       .UseSqlServerStorage(x => {
+                           x.ConnectionStringName = "IndiceDb";
+                           x.TableName = "UserMessage";
+                       });
             })
             .AddJob<UserMessageJobHandler>()
             .WithQueueTrigger<UserMessage>(options => {
                 options.QueueName = "user-messages";
-                options.PollingIntervalInSeconds = 120;
+                options.PollingIntervalInSeconds = 5;
             });
         }
 
@@ -115,12 +129,12 @@ namespace Indice.Identity
         /// </summary>
         /// <param name="app">Defines a class that provides the mechanisms to configure an application's request pipeline.</param>
         /// <param name="workItemQueue"></param>
-        public void Configure(IApplicationBuilder app, IWorkItemQueue<UserMessage> workItemQueue) {
-            workItemQueue.Enqueue(new UserMessage("6992731575", "Hello there!"));
-            workItemQueue.Enqueue(new UserMessage("6992731576", "How are you today?"));
-            workItemQueue.Enqueue(new UserMessage("6992731577", "You look nice!"));
-            workItemQueue.Enqueue(new UserMessage("6992731578", "Let's go..."));
-            workItemQueue.Enqueue(new UserMessage("6992731579", "Hello there again!"));
+        public void Configure(IApplicationBuilder app, IWorkItemQueue<UserMessage> workItemQueue, IndiceDbContext indiceDbContext) {
+            workItemQueue.Enqueue(new UserMessage(Guid.NewGuid().ToString(), "6992731575", "Hello there!")).Wait();
+            workItemQueue.Enqueue(new UserMessage(Guid.NewGuid().ToString(), "6992731576", "How are you today?")).Wait();
+            workItemQueue.Enqueue(new UserMessage(Guid.NewGuid().ToString(), "6992731577", "You look nice!")).Wait();
+            workItemQueue.Enqueue(new UserMessage(Guid.NewGuid().ToString(), "6992731578", "Let's go...")).Wait();
+            workItemQueue.Enqueue(new UserMessage(Guid.NewGuid().ToString(), "6992731579", "Hello there again!")).Wait();
             if (HostingEnvironment.IsDevelopment()) {
                 app.UseDeveloperExceptionPage();
                 app.IdentityServerStoreSetup<ExtendedConfigurationDbContext>(Clients.Get(), Resources.GetIdentityResources(), Resources.GetApis(), Resources.GetApiScopes());
