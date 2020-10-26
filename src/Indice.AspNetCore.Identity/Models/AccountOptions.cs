@@ -29,7 +29,7 @@ namespace Indice.AspNetCore.Identity.Models
         /// <summary>
         /// Automatic redirect after sign out.
         /// </summary>
-        public static bool AutomaticRedirectAfterSignOut = false;
+        public static bool AutomaticRedirectAfterSignOut = true;
         /// <summary>
         /// Invalid username or password.
         /// </summary>
