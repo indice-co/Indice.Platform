@@ -134,8 +134,9 @@ namespace Indice.AspNetCore.Identity.Services
             if (user is User) {
                 isPasswordExpired = user.HasExpiredPassword() || user.PasswordExpired;
             }
-            var doPartialSignIn = (!isEmailConfirmed || !isPhoneConfirmed) && (RequirePostSignInConfirmedEmail || RequirePostSignInConfirmedPhoneNumber);
-            doPartialSignIn = doPartialSignIn || isPasswordExpired;
+            var doPartialSignIn = (!isEmailConfirmed && RequirePostSignInConfirmedEmail) 
+                               || (!isPhoneConfirmed && RequirePostSignInConfirmedPhoneNumber) 
+                               || isPasswordExpired;
             if (doPartialSignIn) {
                 // Store the userId for use after two factor check.
                 var userId = await UserManager.GetUserIdAsync(user);
@@ -144,17 +145,19 @@ namespace Indice.AspNetCore.Identity.Services
                     RedirectUri = returnUrl,
                     IsPersistent = isPersistent
                 });
-                return new ExtendedSigninResult(!isEmailConfirmed && RequirePostSignInConfirmedEmail, !isPhoneConfirmed && RequirePostSignInConfirmedPhoneNumber, isPasswordExpired);
+                var requiresEmailValidation = !isEmailConfirmed && RequirePostSignInConfirmedEmail;
+                var requiresPhoneNumberValidation = !isPhoneConfirmed && RequirePostSignInConfirmedPhoneNumber;
+                var requiresPasswordChange = isPasswordExpired;
+                return new ExtendedSigninResult(requiresEmailValidation, requiresPhoneNumberValidation, requiresPasswordChange);
             }
-            var result = await base.SignInOrTwoFactorAsync(user, isPersistent, loginProvider, bypassTwoFactor);
-            if (result.Succeeded && (user is User)) {
+            var signInResult = await base.SignInOrTwoFactorAsync(user, isPersistent, loginProvider, bypassTwoFactor);
+            if (signInResult.Succeeded && (user is User)) {
                 try {
                     user.LastSignInDate = DateTimeOffset.UtcNow;
                     await UserManager.UpdateAsync(user);
-                } 
-                catch { ; }
+                } catch {; }
             }
-            return result;
+            return signInResult;
         }
 
         /// <summary>
@@ -218,10 +221,10 @@ namespace Indice.AspNetCore.Identity.Services
         /// <summary>
         /// Construct an instance of <see cref="ExtendedSigninResult"/>.
         /// </summary>
-        public ExtendedSigninResult(bool requiresEmailValidation, bool requiresPhoneNumberValidation, bool requiredPasswordChange) {
+        public ExtendedSigninResult(bool requiresEmailValidation, bool requiresPhoneNumberValidation, bool requiresPasswordChange) {
             RequiresEmailValidation = requiresEmailValidation;
             RequiresPhoneNumberValidation = requiresPhoneNumberValidation;
-            RequiresPasswordChange = requiredPasswordChange;
+            RequiresPasswordChange = requiresPasswordChange;
         }
 
         /// <summary>
