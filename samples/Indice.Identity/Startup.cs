@@ -10,7 +10,6 @@ using Indice.AspNetCore.Swagger;
 using Indice.Configuration;
 using Indice.Hosting;
 using Indice.Identity.Configuration;
-using Indice.Identity.Data;
 using Indice.Identity.Hosting;
 using Indice.Identity.Security;
 using Indice.Identity.Services;
@@ -76,14 +75,6 @@ namespace Indice.Identity
                 options.LoginPath = new PathString("/login");
                 options.LogoutPath = new PathString("/logout");
             });
-            services.AddDbContext<IndiceDbContext>(builder => {
-                if (HostingEnvironment.IsDevelopment()) {
-                    builder.EnableDetailedErrors();
-                    builder.EnableSensitiveDataLogging();
-                }
-                var migrationsAssembly = typeof(Startup).GetTypeInfo().Assembly.GetName().Name;
-                builder.UseSqlServer(Configuration.GetConnectionString("IndiceDb"), options => options.MigrationsAssembly(migrationsAssembly));
-            });
             services.AddProblemDetailsConfig(HostingEnvironment);
             services.ConfigureNonBreakingSameSiteCookies();
             services.AddSmsServiceYouboto(Configuration);
@@ -109,12 +100,16 @@ namespace Indice.Identity
             });
             // Setup worker host for executing background tasks.
             services.AddWorkerHost(options => {
-                options.UseAzureStorageLock()
+                options//.UseAzureStorageLock()
                        //.UseInMemoryLock()
                        //.UseInMemoryStorage()
                        .UseSqlServerStorage(x => {
-                           x.ConnectionStringName = "IndiceDb";
-                           x.TableName = "UserMessage";
+                           if (HostingEnvironment.IsDevelopment()) {
+                               x.EnableDetailedErrors();
+                               x.EnableSensitiveDataLogging();
+                           }
+                           var migrationsAssembly = typeof(Startup).GetTypeInfo().Assembly.GetName().Name;
+                           x.UseSqlServer(Configuration.GetConnectionString("IndiceDb"), options => options.MigrationsAssembly(migrationsAssembly));
                        });
             })
             .AddJob<UserMessageJobHandler>()
@@ -128,13 +123,13 @@ namespace Indice.Identity
         /// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         /// </summary>
         /// <param name="app">Defines a class that provides the mechanisms to configure an application's request pipeline.</param>
-        /// <param name="workItemQueue"></param>
-        public void Configure(IApplicationBuilder app, IWorkItemQueue<UserMessage> workItemQueue, IndiceDbContext indiceDbContext) {
-            workItemQueue.Enqueue(new UserMessage(Guid.NewGuid().ToString(), "6992731575", "Hello there!")).Wait();
-            workItemQueue.Enqueue(new UserMessage(Guid.NewGuid().ToString(), "6992731576", "How are you today?")).Wait();
-            workItemQueue.Enqueue(new UserMessage(Guid.NewGuid().ToString(), "6992731577", "You look nice!")).Wait();
-            workItemQueue.Enqueue(new UserMessage(Guid.NewGuid().ToString(), "6992731578", "Let's go...")).Wait();
-            workItemQueue.Enqueue(new UserMessage(Guid.NewGuid().ToString(), "6992731579", "Hello there again!")).Wait();
+        /// <param name="queue"></param>
+        public void Configure(IApplicationBuilder app, IMessageQueue<UserMessage> queue) {
+            queue.Enqueue(new UserMessage(Guid.NewGuid().ToString(), "6992731575", "Hello there!")).Wait();
+            queue.Enqueue(new UserMessage(Guid.NewGuid().ToString(), "6992731576", "How are you today?")).Wait();
+            queue.Enqueue(new UserMessage(Guid.NewGuid().ToString(), "6992731577", "You look nice!")).Wait();
+            queue.Enqueue(new UserMessage(Guid.NewGuid().ToString(), "6992731578", "Let's go...")).Wait();
+            queue.Enqueue(new UserMessage(Guid.NewGuid().ToString(), "6992731579", "Hello there again!")).Wait();
             if (HostingEnvironment.IsDevelopment()) {
                 app.UseDeveloperExceptionPage();
                 app.IdentityServerStoreSetup<ExtendedConfigurationDbContext>(Clients.Get(), Resources.GetIdentityResources(), Resources.GetApis(), Resources.GetApiScopes());

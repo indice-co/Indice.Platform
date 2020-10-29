@@ -6,22 +6,22 @@ namespace Indice.Hosting
     /// <summary>
     /// A helper class to configure the way that a job is triggered.
     /// </summary>
-    public class JobTriggerBuilder
+    public class TaskTriggerBuilder
     {
         /// <summary>
-        /// Creates a new instance of <see cref="JobTriggerBuilder"/>.
+        /// Creates a new instance of <see cref="TaskTriggerBuilder"/>.
         /// </summary>
         /// <param name="services"></param>
-        public JobTriggerBuilder(IServiceCollection services) : this(services, null, null) { }
+        public TaskTriggerBuilder(IServiceCollection services) : this(services, null, null) { }
 
-        internal JobTriggerBuilder(IServiceCollection services, Type jobHandlerType, Type workItemQueueType) {
+        internal TaskTriggerBuilder(IServiceCollection services, Type jobHandlerType, Type queueType) {
             Services = services;
             JobHandlerType = jobHandlerType;
-            WorkItemQueueType = workItemQueueType;
+            QueueType = queueType;
         }
 
         internal IServiceCollection Services { get; }
         internal Type JobHandlerType { get; }
-        internal Type WorkItemQueueType { get; }
+        internal Type QueueType { get; }
     }
 }

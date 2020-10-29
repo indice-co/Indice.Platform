@@ -3,8 +3,11 @@ using Indice.Hosting;
 
 namespace Indice.Identity.Hosting
 {
-    public class UserMessage : WorkItemBase
+    public class UserMessage
     {
+        public UserMessage() {
+
+        }
         public UserMessage(string userId, string phoneNumber, string message) {
             Id = Guid.NewGuid();
             UserId = userId;
