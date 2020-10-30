@@ -15,7 +15,7 @@ namespace Indice.Identity.Hosting
             Message = message;
         }
 
-        public Guid Id { get; }
+        public Guid Id { get; set; }
         public string UserId { get; set; }
         public string PhoneNumber { get; set; }
         public string Message { get; set; }

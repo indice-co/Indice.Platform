@@ -102,7 +102,7 @@ namespace Microsoft.Extensions.DependencyInjection
             options.Services.AddTransient(typeof(IQueueNameResolver<>).MakeGenericType(typeof(TWorkItem)), sp => Activator.CreateInstance(typeof(DefaultQueueNameResolver<>).MakeGenericType(typeof(TWorkItem)), new object[] { options }));
             options.Services.AddTransient(typeof(IMessageQueue<>).MakeGenericType(typeof(TWorkItem)), builder.QueueType.MakeGenericType(typeof(TWorkItem)));
             options.Services.AddTransient(typeof(DequeueJob<>).MakeGenericType(typeof(TWorkItem)));
-            options.Services.AddTransient(serviceProvider => new DequeueJobSchedule(builder.JobHandlerType, typeof(TWorkItem), serviceProvider.GetService<IQueueNameResolver<TWorkItem>>().Resolve(), options.PollingIntervalInSeconds));
+            options.Services.AddTransient(serviceProvider => new DequeueJobSchedule(builder.JobHandlerType, typeof(TWorkItem), serviceProvider.GetService<IQueueNameResolver<TWorkItem>>().Resolve(), options.PollingInterval, options.MaxPollingInterval, options.InstanceCount));
             return new WorkerHostBuilder(options.Services, builder.QueueType);
         }
 
@@ -117,7 +117,7 @@ namespace Microsoft.Extensions.DependencyInjection
         public static WorkerHostBuilder WithQueueTrigger<TWorkItem>(this TaskTriggerBuilder builder, string queueName, int pollingIntervalInSeconds) where TWorkItem : class =>
             builder.WithQueueTrigger<TWorkItem>(options => new QueueOptions(builder.Services) {
                 QueueName = queueName,
-                PollingIntervalInSeconds = pollingIntervalInSeconds
+                PollingInterval = pollingIntervalInSeconds
             });
 
         private static WorkerHostOptions UseStorage(this WorkerHostOptions options, Type workItemQueueType) {

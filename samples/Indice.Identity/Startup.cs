@@ -115,7 +115,8 @@ namespace Indice.Identity
             .AddJob<UserMessageJobHandler>()
             .WithQueueTrigger<UserMessage>(options => {
                 options.QueueName = "user-messages";
-                options.PollingIntervalInSeconds = 5;
+                options.PollingInterval = 500;
+                options.InstanceCount = 1;
             });
         }
 

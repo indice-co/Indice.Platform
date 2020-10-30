@@ -19,9 +19,17 @@ namespace Indice.Hosting
         /// </summary>
         public string QueueName { get; set; } = Guid.NewGuid().ToString();
         /// <summary>
-        /// Specifies the time interval between two attempts to dequeue new items. Defaults to 15 seconds.
+        /// Specifies the time interval between two attempts to dequeue new items. Defaults to 300 milliseconds.
         /// </summary>
-        public int PollingIntervalInSeconds { get; set; } = 15;
+        public int PollingInterval { get; set; } = 300;
+        /// <summary>
+        /// Specifies the maximum time interval between two attempts to dequeue new items. Used as a backoff strategy threshold. Defaults to 300 milliseconds.
+        /// </summary>
+        public int MaxPollingInterval { get; set; } = 5000;
+        /// <summary>
+        /// Specifies number of concurrent instances. Defaults to one.
+        /// </summary>
+        public int InstanceCount { get; set; } = 1;
         internal IServiceCollection Services { get; }
     }
 }

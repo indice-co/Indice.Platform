@@ -45,18 +45,26 @@ namespace Indice.Hosting
             Scheduler.JobFactory = _jobFactory;
             foreach (var dequeueJobSchedule in _dequeueJobSchedules) {
                 var jobDetails = JobBuilder.Create(typeof(DequeueJob<>).MakeGenericType(dequeueJobSchedule.WorkItemType))
+                                           .StoreDurably() // this is needed in case of multiple consumers (triggers)
                                            .WithIdentity(name: dequeueJobSchedule.Name, group: JobGroups.InternalJobsGroup)
                                            .SetJobData(new JobDataMap(new Dictionary<string, object> {
                                                { JobDataKeys.QueueName, dequeueJobSchedule.Name },
+                                               { JobDataKeys.PollingInterval, dequeueJobSchedule.PollingInterval },
+                                               { JobDataKeys.MaxPollingInterval, dequeueJobSchedule.MaxPollingInterval },
                                                { JobDataKeys.JobHandlerType, dequeueJobSchedule.JobHandlerType }
                                            } as IDictionary<string, object>))
                                            .Build();
-                var jobTrigger = TriggerBuilder.Create()
-                                               .WithIdentity(name: TriggerNames.DequeueJobTrigger, group: JobGroups.InternalJobsGroup)
-                                               .StartNow()
-                                               .WithSimpleSchedule(x => x.WithIntervalInSeconds(dequeueJobSchedule.PollingIntervalInSeconds).RepeatForever())
-                                               .Build();
-                await Scheduler.ScheduleJob(jobDetails, jobTrigger);
+
+                await Scheduler.AddJob(jobDetails, replace: true);
+                for (var i = 1; i <= dequeueJobSchedule.InstanceCount; i++) {
+                    var jobTrigger = TriggerBuilder.Create()
+                                                   .ForJob(jobDetails)
+                                                   .WithIdentity(name: TriggerNames.DequeueJobTrigger + i, group: JobGroups.InternalJobsGroup)
+                                                   .StartNow()
+                                                   .WithSimpleSchedule(x => x.WithInterval(TimeSpan.FromMilliseconds(dequeueJobSchedule.PollingInterval + 100 * i)).RepeatForever())
+                                                   .Build();
+                    await Scheduler.ScheduleJob(jobTrigger);
+                }
             }
             await Scheduler.Start(cancellationToken);
         }

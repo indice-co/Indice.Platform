@@ -17,10 +17,11 @@ namespace Indice.Identity.Hosting
             if (userMessage == null) {
                 return;
             }
-            _logger.LogInformation("Processing work item: {userMessage} at {Timestamp} with message {message}", userMessage, DateTime.UtcNow, userMessage.Message);
+            _logger.LogInformation("Start: {Id} at {Timestamp} with message {message}", userMessage.Id, DateTime.UtcNow, userMessage.Message);
             var waitTime = new Random().Next(5, 10) * 1000;
-            _logger.LogInformation("Process will last {0}ms", waitTime);
+            _logger.LogInformation("Durat: {Id} Process will last {0}ms", userMessage.Id, waitTime);
             await Task.Delay(waitTime);
+            _logger.LogInformation("Ended: {Id} at {Timestamp} ", userMessage.Id, DateTime.UtcNow);
         }
     }
 }

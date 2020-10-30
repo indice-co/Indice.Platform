@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Indice.Services;
 using Microsoft.Extensions.Logging;
@@ -6,6 +7,7 @@ using Quartz;
 
 namespace Indice.Hosting
 {
+    [PersistJobDataAfterExecution]
     internal class DequeueJob<TWorkItem> : IJob where TWorkItem : class
     {
         private readonly IMessageQueue<TWorkItem> _workItemQueue;
@@ -25,12 +27,53 @@ namespace Indice.Hosting
             var jobHandlerType = jobDataMap[JobDataKeys.JobHandlerType] as Type;
             TWorkItem workItem = await _workItemQueue.Dequeue();
             if (workItem != null) {
+                jobDataMap[JobDataKeys.BackoffIndex] = 0;
                 try {
                     await _taskHandlerActivator.Invoke(jobHandlerType, workItem);
                 } catch (Exception exception) {
+                    //await _workItemQueue.Enqueue(workItem); // enque to poison. queue.
                     _logger.LogError("An error occured while processing work item '{WorkItem}'. Exception is: {Exception}", workItem, exception);
                 }
+            } else {
+                jobDataMap[JobDataKeys.BackoffIndex] = (int)(jobDataMap[JobDataKeys.BackoffIndex] ?? 0) + 1;
+                Reschedule(context);
             }
+        }
+
+        /// <summary>
+        /// Re-schedules the current job
+        /// </summary>
+        /// <param name="context">Job execution context</param>
+        private void Reschedule(IJobExecutionContext context) {
+            var jobDataMap = context.JobDetail.JobDataMap;
+            var pollingInterval = jobDataMap.GetInt(JobDataKeys.PollingInterval);
+            var threshold = jobDataMap.GetInt(JobDataKeys.MaxPollingInterval);
+            var backoffIndex = jobDataMap.GetInt(JobDataKeys.BackoffIndex);
+            var backoffTime = Enumerable.Range(1, backoffIndex + 1).Select(x => x * pollingInterval).Sum();
+            if (threshold < backoffTime) {
+                backoffTime = threshold;
+                jobDataMap[JobDataKeys.BackoffIndex] = backoffIndex - 1;
+            }
+            _logger.LogInformation("Backoff: {time}", backoffTime);
+            // Get the next execution date
+            DateTime nextExecutionDate = DateTime.Now.AddMilliseconds(backoffTime);
+            
+
+            // Get the current trigger
+            ITrigger currentTrigger = context.Trigger;
+            // Get a new builder instance from the current trigger
+            TriggerBuilder builder = currentTrigger.GetTriggerBuilder();
+
+            // Create a new trigger instance using the builder from the current trigger
+            // and set its start time to the next executed date obtained before.
+            // This will use the same configuration parameters
+            ITrigger newTrigger = builder
+                 .StartAt(nextExecutionDate)
+                 .ForJob(context.JobDetail)
+                 .Build();
+
+            // Re-schedule the job using the current trigger key and the new trigger configuration
+            context.Scheduler.RescheduleJob(currentTrigger.Key, newTrigger);
         }
     }
 }
