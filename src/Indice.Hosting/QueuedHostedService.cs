@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Indice.Hosting.Tasks;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Quartz;
@@ -16,7 +17,8 @@ namespace Indice.Hosting
     {
         private readonly ISchedulerFactory _schedulerFactory;
         private readonly ILogger<QueuedHostedService> _logger;
-        private readonly IEnumerable<DequeueJobSchedule> _dequeueJobSchedules;
+        private readonly IEnumerable<DequeueJobSettings> _dequeueJobSchedules;
+        private readonly IEnumerable<ScheduledJobSettings> _scheduledJobSettings;
         private readonly IJobFactory _jobFactory;
 
         /// <summary>
@@ -24,12 +26,14 @@ namespace Indice.Hosting
         /// </summary>
         /// <param name="schedulerFactory">rovides a mechanism for obtaining client-usable handles to <see cref="IScheduler"/> instances.</param>
         /// <param name="logger">Represents a type used to perform logging.</param>
-        /// <param name="dequeueJobSchedules">Contains medata about the <see cref="DequeueJob{TWorkItem}"/> instances that have been configured.</param>
+        /// <param name="dequeueJobSettings">Contains medata about the <see cref="DequeueJob{TWorkItem}"/> instances that have been configured.</param>
+        /// <param name="scheduledJobSettings"></param>
         /// <param name="jobFactory">A JobFactory is responsible for producing instances of <see cref="IJob"/> classes.</param>
-        public QueuedHostedService(ISchedulerFactory schedulerFactory, ILogger<QueuedHostedService> logger, IEnumerable<DequeueJobSchedule> dequeueJobSchedules, IJobFactory jobFactory) {
+        public QueuedHostedService(ISchedulerFactory schedulerFactory, ILogger<QueuedHostedService> logger, IEnumerable<DequeueJobSettings> dequeueJobSettings, IEnumerable<ScheduledJobSettings> scheduledJobSettings, IJobFactory jobFactory) {
             _schedulerFactory = schedulerFactory ?? throw new ArgumentNullException(nameof(schedulerFactory));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            _dequeueJobSchedules = dequeueJobSchedules ?? throw new ArgumentNullException(nameof(dequeueJobSchedules));
+            _dequeueJobSchedules = dequeueJobSettings ?? throw new ArgumentNullException(nameof(dequeueJobSettings));
+            _scheduledJobSettings = scheduledJobSettings ?? throw new ArgumentNullException(nameof(scheduledJobSettings));
             _jobFactory = jobFactory ?? throw new ArgumentNullException(nameof(jobFactory));
         }
 
@@ -65,6 +69,29 @@ namespace Indice.Hosting
                                                    .Build();
                     await Scheduler.ScheduleJob(jobTrigger);
                 }
+            }
+            foreach (var schedule in _scheduledJobSettings) {
+                var jobId = schedule.JobHandlerType.FullName;
+                if (schedule.Description != null) {
+                    jobId = $"{schedule.Description} ({schedule.JobHandlerType.FullName})";
+                }
+                var jobDetails = JobBuilder.Create(typeof(ScheduledJob<>).MakeGenericType(schedule.JobHandlerType))
+                                           .StoreDurably() // this is needed in case of multiple consumers (triggers)
+                                           .WithIdentity(name: jobId, group: schedule.Group ?? JobGroups.InternalJobsGroup)
+                                           .SetJobData(new JobDataMap(new Dictionary<string, object> {
+                                               { JobDataKeys.JobHandlerType, schedule.JobHandlerType }
+                                           } as IDictionary<string, object>))
+                                           .Build();
+
+                await Scheduler.AddJob(jobDetails, replace: true);
+                var jobTrigger = TriggerBuilder.Create()
+                                                   .ForJob(jobDetails)
+                                                   .WithIdentity(name: $"{jobId}.trigger", group: schedule.Group ?? JobGroups.InternalJobsGroup)
+                                                   .StartNow()
+                                                   .WithCronSchedule(schedule.CronExpression)
+                                                   .WithDescription(schedule.CronExpression)
+                                                   .Build();
+                await Scheduler.ScheduleJob(jobTrigger);
             }
             await Scheduler.Start(cancellationToken);
         }

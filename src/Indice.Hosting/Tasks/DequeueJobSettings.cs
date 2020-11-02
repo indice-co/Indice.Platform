@@ -5,11 +5,11 @@ namespace Indice.Hosting
     /// <summary>
     /// Contains metadata about a job to execute.
     /// </summary>
-    internal class DequeueJobSchedule
+    internal class DequeueJobSettings
     {
 
         /// <summary>
-        /// Creates a new instance of <see cref="DequeueJobSchedule"/>.
+        /// Creates a new instance of <see cref="DequeueJobSettings"/>.
         /// </summary>
         /// <param name="jobHandlerType">The CLR type of the job's handler.</param>
         /// <param name="workItemType">The CLR type of the job's work item.</param>
@@ -17,7 +17,7 @@ namespace Indice.Hosting
         /// <param name="pollingInterval">The time interval between two attempts to dequeue new items. In milliseconds</param>
         /// <param name="backoffThreshold">The maximum time interval between two attempts to dequeue new items. In milliseconds</param>
         /// <param name="instanceCount">Number of concurrent instances</param>
-        public DequeueJobSchedule(Type jobHandlerType, Type workItemType, string jobName, int pollingInterval, int backoffThreshold, int instanceCount) {
+        public DequeueJobSettings(Type jobHandlerType, Type workItemType, string jobName, int pollingInterval, int backoffThreshold, int instanceCount) {
             JobHandlerType = jobHandlerType;
             WorkItemType = workItemType;
             Name = jobName;

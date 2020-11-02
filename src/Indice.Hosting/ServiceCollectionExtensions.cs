@@ -102,8 +102,28 @@ namespace Microsoft.Extensions.DependencyInjection
             options.Services.AddTransient(typeof(IQueueNameResolver<>).MakeGenericType(typeof(TWorkItem)), sp => Activator.CreateInstance(typeof(DefaultQueueNameResolver<>).MakeGenericType(typeof(TWorkItem)), new object[] { options }));
             options.Services.AddTransient(typeof(IMessageQueue<>).MakeGenericType(typeof(TWorkItem)), builder.QueueType.MakeGenericType(typeof(TWorkItem)));
             options.Services.AddTransient(typeof(DequeueJob<>).MakeGenericType(typeof(TWorkItem)));
-            options.Services.AddTransient(serviceProvider => new DequeueJobSchedule(builder.JobHandlerType, typeof(TWorkItem), serviceProvider.GetService<IQueueNameResolver<TWorkItem>>().Resolve(), options.PollingInterval, options.MaxPollingInterval, options.InstanceCount));
+            options.Services.AddTransient(serviceProvider => new DequeueJobSettings(builder.JobHandlerType, typeof(TWorkItem), serviceProvider.GetService<IQueueNameResolver<TWorkItem>>().Resolve(), options.PollingInterval, options.MaxPollingInterval, options.InstanceCount));
             return new WorkerHostBuilder(options.Services, builder.QueueType);
+        }
+
+        /// <summary>
+        /// Specifies that the configured job will be triggered by an item inserted to the a queue.
+        /// </summary>
+        /// <param name="builder">The <see cref="TaskTriggerBuilder"/> used to configure the way that a job is triggered.</param>
+        /// <param name="cronExpression">Corn expressinon</param>
+        /// <param name="configureAction">The delegate used to configure the queue options.</param>
+        /// <returns>The <see cref="WorkerHostBuilder"/> used to configure the worker host.</returns>
+        public static WorkerHostBuilder WithScheduleTrigger(this TaskTriggerBuilder builder, string cronExpression, Action<ScheduleOptions> configureAction = null) {
+            if (string.IsNullOrWhiteSpace(cronExpression)) {
+                throw new ArgumentException($"'{nameof(cronExpression)}' cannot be null or whitespace", nameof(cronExpression));
+            }
+            var options = new ScheduleOptions(builder.Services);
+            options.CronExpression = cronExpression;
+            configureAction?.Invoke(options);
+            options.Services.AddTransient(builder.JobHandlerType);
+            options.Services.AddTransient(typeof(ScheduledJob<>).MakeGenericType(builder.JobHandlerType));
+            options.Services.AddTransient(serviceProvider => new ScheduledJobSettings(builder.JobHandlerType, cronExpression, options.Group, options.Description));
+            return new WorkerHostBuilder(options.Services);
         }
 
         /// <summary>

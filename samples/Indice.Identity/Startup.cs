@@ -117,6 +117,10 @@ namespace Indice.Identity
                 options.QueueName = "user-messages";
                 options.PollingInterval = 500;
                 options.InstanceCount = 1;
+            }).AddJob<TestJobHandler>()
+            .WithScheduleTrigger("0/30 * * * * ?", o => {
+                o.Description = "La lala";
+                o.Group = "indice";
             });
         }
 
