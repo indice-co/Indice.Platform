@@ -15,15 +15,16 @@ namespace Indice.Hosting
         /// Removes and returns the object at the beginning of the <see cref="IMessageQueue{T}"/>.
         /// </summary>
         /// <returns>The object that is removed from the beginning of the <see cref="IMessageQueue{T}"/></returns>
-        Task<T> Dequeue();
-       
+        Task<QMessage<T>> Dequeue();
+
         /// <summary>
         /// Adds an object to the end of the <see cref="IMessageQueue{T}"/>
         /// </summary>
         /// <param name="item">
-        /// The object to add to the <see cref="IMessageQueue{T}"/>.</param>
+        /// The object to add to the <see cref="IMessageQueue{T}"/>. If the <paramref name="messageId"/> is specified this model will be ignored</param>
+        /// <param name="messageId">Optionally add an existing item id so that a failed item can be re-processed</param>
         /// <returns></returns>
-        Task Enqueue(T item);
+        Task Enqueue(T item, Guid? messageId);
         
         /// <summary>
         /// Returns the object at the beginning of the <see cref="IMessageQueue{T}"/> without removing it.
@@ -37,5 +38,37 @@ namespace Indice.Hosting
         /// <returns>the number of elements</returns>
         Task<int> Count();
 
+    }
+
+    /// <summary>
+    /// Extension methods on <see cref="IMessageQueue{T}"/>
+    /// </summary>
+    public static class MessageQueueExtensions
+    {
+        /// <summary>
+        /// Shorthand dequeue to extract the payload directly
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="queue"></param>
+        /// <returns></returns>
+        public static async Task<T> DequeueValue<T>(this IMessageQueue<T> queue) where T : class => (await queue.Dequeue())?.Value;
+        
+        /// <summary>
+        /// Enqueue a new item
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="queue"></param>
+        /// <param name="item"></param>
+        /// <returns></returns>
+        public static async Task Enqueue<T>(this IMessageQueue<T> queue, T item) where T : class => await queue.Enqueue(item, null);
+        
+        /// <summary>
+        /// Enqueue an existing item by id
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="queue"></param>
+        /// <param name="messageId"></param>
+        /// <returns></returns>
+        public static async Task ReEnqueue<T>(this IMessageQueue<T> queue, Guid messageId) where T : class => await queue.Enqueue(null, messageId);
     }
 }

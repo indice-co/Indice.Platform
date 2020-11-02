@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Text.Json;
 
 namespace Indice.Hosting.Tasks.Data
 {
@@ -26,7 +27,7 @@ namespace Indice.Hosting.Tasks.Data
         /// </summary>
         public DateTime Date { get; set; }
         /// <summary>
-        /// The date.
+        /// The row version.
         /// </summary>
         public byte[] RowVersion { get; set; }
         /// <summary>
@@ -37,5 +38,20 @@ namespace Indice.Hosting.Tasks.Data
         /// The status.
         /// </summary>
         public QMessageStatus Status { get; set; }
+
+        /// <summary>
+        /// Generate the dto for this <see cref="DbQMessage"/>
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public QMessage<T> ToModel<T>() where T : class {
+            return new QMessage<T> {
+                Id = Id,
+                Date = Date,
+                DequeueCount = DequeueCount,
+                QueueName = QueueName,
+                Value = JsonSerializer.Deserialize<T>(Payload)
+            };
+        }
     }
 }

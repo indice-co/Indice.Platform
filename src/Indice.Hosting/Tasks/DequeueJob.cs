@@ -25,13 +25,17 @@ namespace Indice.Hosting
             var jobDataMap = context.JobDetail.JobDataMap;
             //var queueName = jobDataMap[JobDataKeys.QueueName].ToString();
             var jobHandlerType = jobDataMap[JobDataKeys.JobHandlerType] as Type;
-            TWorkItem workItem = await _workItemQueue.Dequeue();
+            var workItem = await _workItemQueue.Dequeue();
             if (workItem != null) {
                 jobDataMap[JobDataKeys.BackoffIndex] = 0;
                 try {
-                    await _taskHandlerActivator.Invoke(jobHandlerType, workItem);
+                    await _taskHandlerActivator.Invoke(jobHandlerType, workItem.Value);
                 } catch (Exception exception) {
-                    //await _workItemQueue.Enqueue(workItem); // enque to poison. queue.
+                    if (workItem.DequeueCount < 3) {
+                        await _workItemQueue.ReEnqueue(workItem.Id); // re-enque to retry.
+                    } else {
+                        // enque to poison.queue?
+                    }
                     _logger.LogError("An error occured while processing work item '{WorkItem}'. Exception is: {Exception}", workItem, exception);
                 }
             } else {
