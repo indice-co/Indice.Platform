@@ -29,7 +29,7 @@ namespace Indice.Hosting
             if (workItem != null) {
                 jobDataMap[JobDataKeys.BackoffIndex] = 0;
                 try {
-                    await _taskHandlerActivator.Invoke(jobHandlerType, context.CancellationToken, workItem.Value);
+                    await _taskHandlerActivator.Invoke(jobHandlerType, jobDataMap, context.CancellationToken, workItem.Value);
                 } catch (Exception exception) {
                     if (workItem.DequeueCount < 3) {
                         await _workItemQueue.ReEnqueue(workItem.Id); // re-enque to retry.

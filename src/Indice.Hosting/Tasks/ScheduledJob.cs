@@ -8,6 +8,7 @@ using Quartz;
 namespace Indice.Hosting.Tasks
 {
     [PersistJobDataAfterExecution]
+    [DisallowConcurrentExecution]
     internal class ScheduledJob<TTaskHandler> : IJob where TTaskHandler : class
     {
         private readonly TaskHandlerActivator _taskHandlerActivator;
@@ -23,7 +24,7 @@ namespace Indice.Hosting.Tasks
             //var queueName = jobDataMap[JobDataKeys.QueueName].ToString();
             var jobHandlerType = jobDataMap[JobDataKeys.JobHandlerType] as Type;
             try {
-                await _taskHandlerActivator.Invoke(jobHandlerType, context.CancellationToken);
+                await _taskHandlerActivator.Invoke(jobHandlerType, jobDataMap, context.CancellationToken);
             } catch (Exception exception) {
                 //await _workItemQueue.Enqueue(workItem); // enque to poison. queue.
                 _logger.LogError("An error occured while executing task '{TaskHandlerName}'. Exception is: {Exception}", jobHandlerType.Name, exception);

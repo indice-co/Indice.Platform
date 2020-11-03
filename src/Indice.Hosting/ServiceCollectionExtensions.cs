@@ -74,7 +74,13 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <param name="configureAction">The delegate used to configure the SQL Server table that contains the background jobs.</param>
         /// <returns>The <see cref="WorkerHostOptions"/> used to configure locking and queue persistence.</returns>
         public static WorkerHostOptions UseSqlServerStorage(this WorkerHostOptions options, Action<DbContextOptionsBuilder> configureAction = null) {
-            options.Services.AddDbContext<TaskDbContext>(configureAction);
+            if (configureAction != null) {
+                options.Services.AddDbContext<TaskDbContext>(configureAction);
+            } else {
+                options.Services.AddDbContext<TaskDbContext>((sp, opt) => {
+                    opt.UseSqlServer(sp.GetService<IConfiguration>().GetConnectionString("WorkerDb"));
+                });
+            }
             return options.UseStorage(typeof(EFMessageQueue<>));
         }
 

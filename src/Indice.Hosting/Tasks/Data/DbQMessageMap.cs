@@ -10,7 +10,7 @@ namespace Indice.Hosting.Tasks.Data
     {
         public void Configure(EntityTypeBuilder<DbQMessage> builder) {
             // Configure table name.
-            builder.ToTable("QMessage", "dbo");
+            builder.ToTable("QMessage", "work");
             // Configure primary key.
             builder.HasKey(x => x.Id);
             builder.Property(x => x.RowVersion).IsRowVersion();

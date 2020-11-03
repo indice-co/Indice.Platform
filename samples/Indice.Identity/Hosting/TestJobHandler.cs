@@ -15,8 +15,9 @@ namespace Indice.Identity.Hosting
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-        public async Task Process(CancellationToken cancellationToken) {
-            _logger.LogInformation("Start: {Id} at {Timestamp}", nameof(TestJobHandler), DateTime.UtcNow);
+        public async Task Process(IDictionary<string, object> state, CancellationToken cancellationToken) {
+            state["DemoCounter"] = (int)(state["DemoCounter"] ?? 0) + 1;
+            _logger.LogInformation("Start: {Id} at {Timestamp} {counter}", nameof(TestJobHandler), DateTime.UtcNow, state["DemoCounter"]);
             var waitTime = new Random().Next(5, 10) * 1000;
             _logger.LogInformation("Durat: {Id} Process will last {0}ms", nameof(TestJobHandler), waitTime);
             await Task.Delay(waitTime);

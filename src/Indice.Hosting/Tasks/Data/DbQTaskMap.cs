@@ -10,7 +10,7 @@ namespace Indice.Hosting.Tasks.Data
     {
         public void Configure(EntityTypeBuilder<DbQTask> builder) {
             // Configure table name.
-            builder.ToTable("QTask", "dbo");
+            builder.ToTable("QTask", "work");
             // Configure primary key.
             builder.HasKey(x => x.Id);
             builder.HasIndex(x => x.Type);

@@ -103,14 +103,7 @@ namespace Indice.Identity
                 options//.UseAzureStorageLock()
                        //.UseInMemoryLock()
                        //.UseInMemoryStorage()
-                       .UseSqlServerStorage(x => {
-                           if (HostingEnvironment.IsDevelopment()) {
-                               x.EnableDetailedErrors();
-                               x.EnableSensitiveDataLogging();
-                           }
-                           var migrationsAssembly = typeof(Startup).GetTypeInfo().Assembly.GetName().Name;
-                           x.UseSqlServer(Configuration.GetConnectionString("IndiceDb"), options => options.MigrationsAssembly(migrationsAssembly));
-                       });
+                       .UseSqlServerStorage();
             })
             .AddJob<UserMessageJobHandler>()
             .WithQueueTrigger<UserMessage>(options => {
@@ -118,7 +111,7 @@ namespace Indice.Identity
                 options.PollingInterval = 500;
                 options.InstanceCount = 1;
             }).AddJob<TestJobHandler>()
-            .WithScheduleTrigger("0/30 * * * * ?", o => {
+            .WithScheduleTrigger("0/5 * * * * ?", o => {
                 o.Description = "La lala";
                 o.Group = "indice";
             });
