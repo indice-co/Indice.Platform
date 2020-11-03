@@ -23,8 +23,9 @@ namespace Indice.Hosting
         /// <param name="item">
         /// The object to add to the <see cref="IMessageQueue{T}"/>. If the <paramref name="messageId"/> is specified this model will be ignored</param>
         /// <param name="messageId">Optionally add an existing item id so that a failed item can be re-processed</param>
+        /// <param name="isPoison">Markes the given <paramref name="messageId"/> as poison message</param>
         /// <returns></returns>
-        Task Enqueue(T item, Guid? messageId);
+        Task Enqueue(T item, Guid? messageId, bool isPoison);
         
         /// <summary>
         /// Returns the object at the beginning of the <see cref="IMessageQueue{T}"/> without removing it.
@@ -60,7 +61,7 @@ namespace Indice.Hosting
         /// <param name="queue"></param>
         /// <param name="item"></param>
         /// <returns></returns>
-        public static async Task Enqueue<T>(this IMessageQueue<T> queue, T item) where T : class => await queue.Enqueue(item, null);
+        public static async Task Enqueue<T>(this IMessageQueue<T> queue, T item) where T : class => await queue.Enqueue(item, null, isPoison: false);
         
         /// <summary>
         /// Enqueue an existing item by id
@@ -69,6 +70,15 @@ namespace Indice.Hosting
         /// <param name="queue"></param>
         /// <param name="messageId"></param>
         /// <returns></returns>
-        public static async Task ReEnqueue<T>(this IMessageQueue<T> queue, Guid messageId) where T : class => await queue.Enqueue(null, messageId);
+        public static async Task ReEnqueue<T>(this IMessageQueue<T> queue, Guid messageId) where T : class => await queue.Enqueue(null, messageId, isPoison: false);
+
+        /// <summary>
+        /// Mark an existing message as poison. After multiple consecutive failures
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="queue"></param>
+        /// <param name="messageId"></param>
+        /// <returns></returns>
+        public static async Task MarkPoison<T>(this IMessageQueue<T> queue, Guid messageId) where T : class => await queue.Enqueue(null, messageId, isPoison:true);
     }
 }

@@ -54,7 +54,7 @@ namespace Indice.Hosting.Tasks.Data
             return message.ToModel<T>();
         }
         /// <inheritdoc/>
-        public async Task Enqueue(T item, Guid? messageId) {
+        public async Task Enqueue(T item, Guid? messageId, bool isPoison) {
             if (!messageId.HasValue) {
                 var message = new DbQMessage() {
                     Id = Guid.NewGuid(),
@@ -66,7 +66,7 @@ namespace Indice.Hosting.Tasks.Data
                 _DbContext.Add(message);
             } else {
                 var message = await _DbContext.Queue.Where(x => x.Id == messageId.Value).SingleAsync();
-                message.Status = QMessageStatus.New;
+                message.Status = isPoison ? QMessageStatus.Poison : QMessageStatus.New;
                 message.DequeueCount++;
                 _DbContext.Update(message);
             }

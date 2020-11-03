@@ -10,6 +10,10 @@ namespace Indice.Hosting.Tasks
     public enum QMessageStatus
     {
         /// <summary>
+        /// Marks a poison message.
+        /// </summary>
+        Poison = -1,
+        /// <summary>
         /// Not dequeued (processed)
         /// </summary>
         New = 0,

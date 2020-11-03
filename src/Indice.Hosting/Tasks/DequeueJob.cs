@@ -34,7 +34,7 @@ namespace Indice.Hosting
                     if (workItem.DequeueCount < 3) {
                         await _workItemQueue.ReEnqueue(workItem.Id); // re-enque to retry.
                     } else {
-                        // enque to poison.queue?
+                        await _workItemQueue.MarkPoison(workItem.Id); // enque to poison.queue?
                     }
                     _logger.LogError("An error occured while processing work item '{WorkItem}'. Exception is: {Exception}", workItem, exception);
                 }
