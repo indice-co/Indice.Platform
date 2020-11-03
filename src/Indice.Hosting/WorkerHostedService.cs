@@ -13,23 +13,23 @@ namespace Indice.Hosting
     /// <summary>
     /// A hosted service that manages the lifetime of configured background tasks.
     /// </summary>
-    internal class QueuedHostedService : IHostedService
+    internal class WorkerHostedService : IHostedService
     {
         private readonly ISchedulerFactory _schedulerFactory;
-        private readonly ILogger<QueuedHostedService> _logger;
+        private readonly ILogger<WorkerHostedService> _logger;
         private readonly IEnumerable<DequeueJobSettings> _dequeueJobSchedules;
         private readonly IEnumerable<ScheduledJobSettings> _scheduledJobSettings;
         private readonly IJobFactory _jobFactory;
 
         /// <summary>
-        /// Creates a new instance of <see cref="QueuedHostedService"/>.
+        /// Creates a new instance of <see cref="WorkerHostedService"/>.
         /// </summary>
         /// <param name="schedulerFactory">rovides a mechanism for obtaining client-usable handles to <see cref="IScheduler"/> instances.</param>
         /// <param name="logger">Represents a type used to perform logging.</param>
         /// <param name="dequeueJobSettings">Contains medata about the <see cref="DequeueJob{TWorkItem}"/> instances that have been configured.</param>
         /// <param name="scheduledJobSettings"></param>
         /// <param name="jobFactory">A JobFactory is responsible for producing instances of <see cref="IJob"/> classes.</param>
-        public QueuedHostedService(ISchedulerFactory schedulerFactory, ILogger<QueuedHostedService> logger, IEnumerable<DequeueJobSettings> dequeueJobSettings, IEnumerable<ScheduledJobSettings> scheduledJobSettings, IJobFactory jobFactory) {
+        public WorkerHostedService(ISchedulerFactory schedulerFactory, ILogger<WorkerHostedService> logger, IEnumerable<DequeueJobSettings> dequeueJobSettings, IEnumerable<ScheduledJobSettings> scheduledJobSettings, IJobFactory jobFactory) {
             _schedulerFactory = schedulerFactory ?? throw new ArgumentNullException(nameof(schedulerFactory));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _dequeueJobSchedules = dequeueJobSettings ?? throw new ArgumentNullException(nameof(dequeueJobSettings));

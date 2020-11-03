@@ -28,7 +28,7 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddSingleton<IJobFactory, JobFactory>();
             services.AddSingleton<TaskHandlerActivator>();
             services.AddSingleton<QuartzJobRunner>();
-            services.AddHostedService<QueuedHostedService>();
+            services.AddHostedService<WorkerHostedService>();
             var workerHostOptions = new WorkerHostOptions(services);
             configureAction.Invoke(workerHostOptions);
             return new WorkerHostBuilder(services, workerHostOptions.WorkItemQueueType);
