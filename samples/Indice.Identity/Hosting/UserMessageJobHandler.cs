@@ -13,7 +13,7 @@ namespace Indice.Identity.Hosting
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-        public async Task Process(UserMessage userMessage) {
+        public async Task Process(SampleDto userMessage) {
             if (userMessage == null) {
                 return;
             }

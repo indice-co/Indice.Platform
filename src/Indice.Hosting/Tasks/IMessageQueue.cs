@@ -32,13 +32,6 @@ namespace Indice.Hosting
         /// </summary>
         /// <returns>The object at the beginning of the <see cref="IMessageQueue{T}"/></returns>
         Task<T> Peek();
-
-        /// <summary>
-        /// Gets the number of elements contained in the <see cref="IMessageQueue{T}"/>.
-        /// </summary>
-        /// <returns>the number of elements</returns>
-        Task<int> Count();
-
     }
 
     /// <summary>

@@ -43,7 +43,7 @@ namespace Indice.Hosting.Tasks.Data
                 if (message == null)
                     return default(QMessage<T>);
                 message.DequeueCount++;
-                message.Status = QMessageStatus.Dequeued;
+                message.State = QMessageState.Dequeued;
                 try {
                     await _DbContext.SaveChangesAsync();
                     successfullLock = true;
@@ -59,14 +59,14 @@ namespace Indice.Hosting.Tasks.Data
                 var message = new DbQMessage() {
                     Id = Guid.NewGuid(),
                     Date = DateTime.UtcNow,
-                    Status = QMessageStatus.New,
+                    State = QMessageState.New,
                     Payload = JsonSerializer.Serialize(item),
                     QueueName = _QueueName
                 };
                 _DbContext.Add(message);
             } else {
                 var message = await _DbContext.Queue.Where(x => x.Id == messageId.Value).SingleAsync();
-                message.Status = isPoison ? QMessageStatus.Poison : QMessageStatus.New;
+                message.State = isPoison ? QMessageState.Poison : QMessageState.New;
                 message.DequeueCount++;
                 _DbContext.Update(message);
             }
@@ -79,7 +79,7 @@ namespace Indice.Hosting.Tasks.Data
         }
 
         private IQueryable<DbQMessage> GetAvailableItems() {
-            return _DbContext.Queue.Where(x => x.QueueName == _QueueName && x.Status == QMessageStatus.New).OrderBy(x => x.Date);
+            return _DbContext.Queue.Where(x => x.QueueName == _QueueName && x.State == QMessageState.New).OrderBy(x => x.Date);
         }
     }
 }

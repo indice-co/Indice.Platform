@@ -3,12 +3,12 @@ using Indice.Hosting;
 
 namespace Indice.Identity.Hosting
 {
-    public class UserMessage
+    public class SampleDto
     {
-        public UserMessage() {
+        public SampleDto() {
 
         }
-        public UserMessage(string userId, string phoneNumber, string message) {
+        public SampleDto(string userId, string phoneNumber, string message) {
             Id = Guid.NewGuid();
             UserId = userId;
             PhoneNumber = phoneNumber;

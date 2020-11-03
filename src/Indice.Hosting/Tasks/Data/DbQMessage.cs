@@ -37,7 +37,7 @@ namespace Indice.Hosting.Tasks.Data
         /// <summary>
         /// The status.
         /// </summary>
-        public QMessageStatus Status { get; set; }
+        public QMessageState State { get; set; }
 
         /// <summary>
         /// Generate the dto for this <see cref="DbQMessage"/>

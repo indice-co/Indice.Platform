@@ -7,7 +7,7 @@ namespace Indice.Hosting.Tasks
     /// <summary>
     /// The queue message status
     /// </summary>
-    public enum QMessageStatus
+    public enum QMessageState
     {
         /// <summary>
         /// Marks a poison message.
