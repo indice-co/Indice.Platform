@@ -2,7 +2,7 @@
   <PropertyGroup>
     <Description>Indice.Hosting Class Library</Description>
     <Copyright>Copyright (c) 2019 Indice</Copyright>
-    <VersionPrefix>4.0.1</VersionPrefix>
+    <VersionPrefix>4.0.2</VersionPrefix>
     <!--<VersionSuffix>beta1</VersionSuffix>-->
     <Authors>c.leftheris</Authors>
     <TargetFramework>netstandard2.0</TargetFramework>
@@ -34,8 +34,7 @@
   <ItemGroup>
     <PackageReference Include="Dapper" Version="2.0.35" />
     <PackageReference Include="Dapper.Contrib" Version="2.0.35" />
-    <PackageReference Include="Indice.Common" Version="1.6.7" />
-    <PackageReference Include="Indice.Services" Version="1.5.21" />
+    <PackageReference Include="Indice.Services" Version="4.0.0-beta6" />
     <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="3.1.9" />
     <PackageReference Include="Microsoft.Extensions.Configuration.CommandLine" Version="3.1.9" />
