@@ -5,15 +5,15 @@ using Microsoft.Extensions.Logging;
 
 namespace Indice.Identity.Hosting
 {
-    public class UserMessageJobHandler
+    public class SendSMSFunctionHandler
     {
-        private readonly ILogger<UserMessageJobHandler> _logger;
+        private readonly ILogger<SendSMSFunctionHandler> _logger;
 
-        public UserMessageJobHandler(ILogger<UserMessageJobHandler> logger) {
+        public SendSMSFunctionHandler(ILogger<SendSMSFunctionHandler> logger) {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-        public async Task Process(SampleDto userMessage) {
+        public async Task Process(SMSDto userMessage) {
             if (userMessage == null) {
                 return;
             }

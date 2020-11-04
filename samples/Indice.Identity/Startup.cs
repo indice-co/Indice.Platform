@@ -105,12 +105,12 @@ namespace Indice.Identity
                        //.UseInMemoryStorage()
                        .UseSqlServerStorage();
             })
-            .AddJob<UserMessageJobHandler>().WithQueueTrigger<SampleDto>(options => {
+            .AddJob<SendSMSFunctionHandler>().WithQueueTrigger<SMSDto>(options => {
                                                 options.QueueName = "user-messages";
                                                 options.PollingInterval = 500;
                                                 options.InstanceCount = 1;
                                             })
-            .AddJob<TestJobHandler>().WithScheduleTrigger("0/5 * * * * ?", o => {
+            .AddJob<LoadAvailableAlertsHandler>().WithScheduleTrigger("0/5 * * * * ?", o => {
                                         o.Description = "La lala";
                                         o.Group = "indice";
                                     });
@@ -121,12 +121,12 @@ namespace Indice.Identity
         /// </summary>
         /// <param name="app">Defines a class that provides the mechanisms to configure an application's request pipeline.</param>
         /// <param name="queue"></param>
-        public void Configure(IApplicationBuilder app, IMessageQueue<SampleDto> queue) {
-            queue.Enqueue(new SampleDto(Guid.NewGuid().ToString(), "6992731575", "Hello there!")).Wait();
-            queue.Enqueue(new SampleDto(Guid.NewGuid().ToString(), "6992731576", "How are you today?")).Wait();
-            queue.Enqueue(new SampleDto(Guid.NewGuid().ToString(), "6992731577", "You look nice!")).Wait();
-            queue.Enqueue(new SampleDto(Guid.NewGuid().ToString(), "6992731578", "Let's go...")).Wait();
-            queue.Enqueue(new SampleDto(Guid.NewGuid().ToString(), "6992731579", "Hello there again!")).Wait();
+        public void Configure(IApplicationBuilder app, IMessageQueue<SMSDto> queue) {
+            queue.Enqueue(new SMSDto(Guid.NewGuid().ToString(), "6992731575", "Hello there!")).Wait();
+            queue.Enqueue(new SMSDto(Guid.NewGuid().ToString(), "6992731576", "How are you today?")).Wait();
+            queue.Enqueue(new SMSDto(Guid.NewGuid().ToString(), "6992731577", "You look nice!")).Wait();
+            queue.Enqueue(new SMSDto(Guid.NewGuid().ToString(), "6992731578", "Let's go...")).Wait();
+            queue.Enqueue(new SMSDto(Guid.NewGuid().ToString(), "6992731579", "Hello there again!")).Wait();
             if (HostingEnvironment.IsDevelopment()) {
                 app.UseDeveloperExceptionPage();
                 app.IdentityServerStoreSetup<ExtendedConfigurationDbContext>(Clients.Get(), Resources.GetIdentityResources(), Resources.GetApis(), Resources.GetApiScopes());
