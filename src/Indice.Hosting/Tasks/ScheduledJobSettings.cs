@@ -2,22 +2,22 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Indice.Hosting.Quartz
+namespace Indice.Hosting
 {
     /// <summary>
     /// Job schedule. This is what to execute and when.
     /// </summary>
-    public class JobSchedule
+    public class ScheduledJobSettings
     {
         /// <summary>
         /// Constructs the schedule given a job type and the cron expression
         /// </summary>
-        /// <param name="jobType"></param>
+        /// <param name="jobHandlerType"></param>
         /// <param name="cronExpression"></param>
         /// <param name="group">Job group</param>
         /// <param name="description">The job description</param>
-        public JobSchedule(Type jobType, string cronExpression, string group, string description) {
-            JobType = jobType;
+        public ScheduledJobSettings(Type jobHandlerType, string cronExpression, string group, string description) {
+            JobHandlerType = jobHandlerType;
             CronExpression = cronExpression;
             Group = group;
             Description = description;
@@ -26,7 +26,7 @@ namespace Indice.Hosting.Quartz
         /// <summary>
         /// The clr type for the job.
         /// </summary>
-        public Type JobType { get; }
+        public Type JobHandlerType { get; }
 
         /// <summary>
         /// The cron expression
