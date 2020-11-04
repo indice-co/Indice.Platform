@@ -55,6 +55,7 @@ namespace Indice.AspNetCore.Identity.Data
             builder.Entity<IdentityUserLogin<string>>().ToTable("UserLogin", "auth");
             builder.ApplyConfiguration(new UserMap<TUser>());
             builder.ApplyConfiguration(new UserPasswordMap<TUser>());
+            builder.ApplyConfiguration(new UserDeviceMap<TUser>());
             builder.ApplyConfiguration(new AppSettingMap());
         }
     }
