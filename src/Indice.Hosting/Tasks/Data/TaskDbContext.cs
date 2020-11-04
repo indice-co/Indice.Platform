@@ -15,9 +15,9 @@ namespace Indice.Hosting.Tasks.Data
         /// </summary>
         /// <param name="options"></param>
         public TaskDbContext(DbContextOptions options) : base(options) {
-#if DEBUG
-            Database.EnsureCreated();
-#endif
+            if (System.Diagnostics.Debugger.IsAttached) { 
+                Database.EnsureCreated();
+            }
         }
 
         /// <summary>

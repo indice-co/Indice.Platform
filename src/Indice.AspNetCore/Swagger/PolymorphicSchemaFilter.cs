@@ -93,8 +93,7 @@ namespace Indice.AspNetCore.Swagger
                     Mapping = DiscriminatorMap 
                 };
                 foreach (var type in DerivedTypes.Where(x => x.Name != BaseType.Name && !context.SchemaRepository.Schemas.ContainsKey(x.Name))) {
-                    var derivedSchema = default(OpenApiSchema);
-                    if (!context.SchemaRepository.TryGetIdFor(type, out var derivedSchemaId)) {
+                    if (!context.SchemaRepository.TryLookupByType(type, out var derivedSchema)) {
                         derivedSchema = context.SchemaGenerator.GenerateSchema(type, context.SchemaRepository);
                     }
                     if (context.SchemaRepository.Schemas.ContainsKey(derivedSchema.Reference?.Id ?? type.Name)) {

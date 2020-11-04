@@ -2,12 +2,21 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Indice.Hosting.Tasks.Data
+namespace Indice.Hosting.Tasks
 {
     /// <summary>
-    /// Tracks a queue message task
+    /// The default implementation for the <see cref="QTask{TState}"/> with state as <see cref="Dictionary{String, Object}"/>
     /// </summary>
-    public class DbQTask
+    public class QTaskDefault : QTask<Dictionary<string, object>>
+    { 
+    
+    }
+
+    /// <summary>
+    /// A dto representing a worker task 
+    /// </summary>
+    /// <typeparam name="TState"></typeparam>
+    public class QTask<TState> where TState : class
     {
         /// <summary>
         /// The id
@@ -52,7 +61,7 @@ namespace Indice.Hosting.Tasks.Data
         /// <summary>
         /// The payload
         /// </summary>
-        public string Payload { get; set; }
+        public TState State { get; set; }
         /// <summary>
         /// The status.
         /// </summary>

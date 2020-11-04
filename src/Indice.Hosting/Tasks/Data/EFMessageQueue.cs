@@ -5,6 +5,8 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
+using Org.BouncyCastle.Math.EC.Rfc7748;
 
 namespace Indice.Hosting.Tasks.Data
 {
@@ -34,15 +36,15 @@ namespace Indice.Hosting.Tasks.Data
         }
 
         /// <inheritdoc/>
-        public async Task<T> Dequeue() {
+        public async Task<QMessage<T>> Dequeue() {
             bool successfullLock = false;
             DbQMessage message;
             do {
                 message = await GetAvailableItems().FirstOrDefaultAsync();
                 if (message == null)
-                    return default(T);
+                    return default(QMessage<T>);
                 message.DequeueCount++;
-                message.Status = QMessageStatus.Dequeued;
+                message.State = QMessageState.Dequeued;
                 try {
                     await _DbContext.SaveChangesAsync();
                     successfullLock = true;
@@ -50,18 +52,25 @@ namespace Indice.Hosting.Tasks.Data
                     // could not aquire lock. will try again.
                 }
             } while (!successfullLock);
-            return JsonSerializer.Deserialize<T>(message.Payload);
+            return message.ToModel<T>();
         }
         /// <inheritdoc/>
-        public async Task Enqueue(T item) {
-            var message = new DbQMessage() {
-                Id = Guid.NewGuid(),
-                Date = DateTime.UtcNow,
-                Status = QMessageStatus.New,
-                Payload = JsonSerializer.Serialize(item),
-                QueueName = _QueueName
-            };
-            _DbContext.Add(message);
+        public async Task Enqueue(T item, Guid? messageId, bool isPoison) {
+            if (!messageId.HasValue) {
+                var message = new DbQMessage() {
+                    Id = Guid.NewGuid(),
+                    Date = DateTime.UtcNow,
+                    State = QMessageState.New,
+                    Payload = JsonSerializer.Serialize(item),
+                    QueueName = _QueueName
+                };
+                _DbContext.Add(message);
+            } else {
+                var message = await _DbContext.Queue.Where(x => x.Id == messageId.Value).SingleAsync();
+                message.State = isPoison ? QMessageState.Poison : QMessageState.New;
+                message.DequeueCount++;
+                _DbContext.Update(message);
+            }
             await _DbContext.SaveChangesAsync();
         }
         /// <inheritdoc/>
@@ -71,7 +80,7 @@ namespace Indice.Hosting.Tasks.Data
         }
 
         private IQueryable<DbQMessage> GetAvailableItems() {
-            return _DbContext.Queue.Where(x => x.QueueName == _QueueName && x.Status == QMessageStatus.New).OrderBy(x => x.Date);
+            return _DbContext.Queue.Where(x => x.QueueName == _QueueName && x.State == QMessageState.New).OrderBy(x => x.Date);
         }
     }
 }
