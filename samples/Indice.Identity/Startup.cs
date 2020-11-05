@@ -8,7 +8,9 @@ using Indice.AspNetCore.Filters;
 using Indice.AspNetCore.Identity.Features;
 using Indice.AspNetCore.Swagger;
 using Indice.Configuration;
+using Indice.Hosting;
 using Indice.Identity.Configuration;
+using Indice.Identity.Hosting;
 using Indice.Identity.Security;
 using Indice.Identity.Services;
 using Microsoft.AspNetCore.Builder;
@@ -56,7 +58,7 @@ namespace Indice.Identity
         /// This method gets called by the runtime. Use this method to add services to the container.
         /// </summary>
         /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
-        public void ConfigureServices(IServiceCollection services) {
+        public void ConfigureServices(IServiceCollection services) { 
             services.AddMvcConfig(Configuration);
             services.AddLocalization(options => options.ResourcesPath = "Resources");
             services.AddCors(options => options.AddDefaultPolicy(builder => {
@@ -97,6 +99,25 @@ namespace Indice.Identity
             });
             services.AddSpaStaticFiles(options => {
                 options.RootPath = "wwwroot/admin-ui";
+            });
+            
+            // Setup worker host for executing background tasks.
+            services.AddWorkerHost(options => {
+                options//.UseAzureStorageLock()
+                       //.UseInMemoryLock()
+                       //.UseInMemoryStorage()
+                       .UseSqlServerStorage();
+            })
+            .AddJob<SMSAlertHandler>().WithQueueTrigger<SMSDto>(options => {
+                options.QueueName = "user-messages";
+                options.PollingInterval = 500;
+                options.InstanceCount = 1;
+                options.CleanUpBatchSize = 20;
+                options.CleanUpInterval = 10;
+            })
+            .AddJob<LoadAvailableAlertsHandler>().WithScheduleTrigger("0/5 * * * * ?", o => {
+                o.Description = "La lala";
+                o.Group = "indice";
             });
         }
 
