@@ -146,7 +146,6 @@ namespace Microsoft.Extensions.DependencyInjection
         /// </summary>
         /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
         /// <param name="configure">Configure the available options. Null to use defaults.</param>
-        /// <returns></returns>
         public static IServiceCollection AddPushNotificationServiceAzure(this IServiceCollection services, Action<PushNotificationServiceAzure.PushNotificationOptions> configure = null) {
             services.AddTransient<IPushNotificationService, PushNotificationServiceAzure>(serviceProvider => {
                 var options = new PushNotificationServiceAzure.PushNotificationOptions {
