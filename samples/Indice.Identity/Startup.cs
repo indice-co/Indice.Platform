@@ -98,6 +98,7 @@ namespace Indice.Identity
             services.AddSpaStaticFiles(options => {
                 options.RootPath = "wwwroot/admin-ui";
             });
+            
             // Setup worker host for executing background tasks.
             services.AddWorkerHost(options => {
                 options//.UseAzureStorageLock()
@@ -105,28 +106,25 @@ namespace Indice.Identity
                        //.UseInMemoryStorage()
                        .UseSqlServerStorage();
             })
-            .AddJob<UserMessageJobHandler>().WithQueueTrigger<SampleDto>(options => {
-                                                options.QueueName = "user-messages";
-                                                options.PollingInterval = 500;
-                                                options.InstanceCount = 1;
-                                            })
-            .AddJob<TestJobHandler>().WithScheduleTrigger("0/5 * * * * ?", o => {
-                                        o.Description = "La lala";
-                                        o.Group = "indice";
-                                    });
+            .AddJob<SMSAlertHandler>().WithQueueTrigger<SMSDto>(options => {
+                options.QueueName = "user-messages";
+                options.PollingInterval = 500;
+                options.InstanceCount = 1;
+                options.MaxPollingInterval = 5000;
+                options.CleanUpBatchSize = 20;
+                options.CleanUpInterval = 10;
+            })
+            .AddJob<LoadAvailableAlertsHandler>().WithScheduleTrigger("0/5 * * * * ?", o => {
+                o.Description = "La lala";
+                o.Group = "indice";
+            });
         }
 
         /// <summary>
         /// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         /// </summary>
         /// <param name="app">Defines a class that provides the mechanisms to configure an application's request pipeline.</param>
-        /// <param name="queue"></param>
-        public void Configure(IApplicationBuilder app, IMessageQueue<SampleDto> queue) {
-            queue.Enqueue(new SampleDto(Guid.NewGuid().ToString(), "6992731575", "Hello there!")).Wait();
-            queue.Enqueue(new SampleDto(Guid.NewGuid().ToString(), "6992731576", "How are you today?")).Wait();
-            queue.Enqueue(new SampleDto(Guid.NewGuid().ToString(), "6992731577", "You look nice!")).Wait();
-            queue.Enqueue(new SampleDto(Guid.NewGuid().ToString(), "6992731578", "Let's go...")).Wait();
-            queue.Enqueue(new SampleDto(Guid.NewGuid().ToString(), "6992731579", "Hello there again!")).Wait();
+        public void Configure(IApplicationBuilder app) { 
             if (HostingEnvironment.IsDevelopment()) {
                 app.UseDeveloperExceptionPage();
                 app.IdentityServerStoreSetup<ExtendedConfigurationDbContext>(Clients.Get(), Resources.GetIdentityResources(), Resources.GetApis(), Resources.GetApiScopes());

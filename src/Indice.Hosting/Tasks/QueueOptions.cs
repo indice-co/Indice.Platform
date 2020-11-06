@@ -27,6 +27,14 @@ namespace Indice.Hosting
         /// </summary>
         public int MaxPollingInterval { get; set; } = 5000;
         /// <summary>
+        /// Specifies the time interval between two attempts to cleanup items. Defaults to 3600 seconds (one hour).
+        /// </summary>
+        public int CleanUpInterval { get; set; } = 3600;
+        /// <summary>
+        /// Specifies the cleanup batch size.
+        /// </summary>
+        public int CleanUpBatchSize { get; set; } = 1000;
+        /// <summary>
         /// Specifies number of concurrent instances. Defaults to one.
         /// </summary>
         public int InstanceCount { get; set; } = 1;

@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.Azure.Storage;
 using Microsoft.Azure.Storage.Blob;
-using Microsoft.Extensions.Configuration;
 
 namespace Indice.Services
 {
@@ -19,15 +17,15 @@ namespace Indice.Services
         public CloudBlobContainer BlobContainer { get; }
 
         /// <summary>
-        /// 
+        /// Create the lockmanager
         /// </summary>
-        /// <param name="configuration"></param>
-        /// <param name="hostingEnvironment"></param>
-        public LockManagerAzure(IConfiguration configuration, IHostingEnvironment hostingEnvironment) {
-            configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
-            var environment = hostingEnvironment ?? throw new ArgumentNullException(nameof(hostingEnvironment));
-            var environmentName = Regex.Replace(environment.EnvironmentName ?? "Development", @"\s+", "-").ToLowerInvariant();
-            var storageAccount = CloudStorageAccount.Parse(configuration.GetConnectionString("StorageConnection"));
+        /// <param name="options"></param>
+        public LockManagerAzure(LockManagerAzureOptions options) {
+            if (options == null) throw new ArgumentNullException(nameof(options));
+            if (options.EnvironmentName == null) throw new ArgumentNullException(nameof(options.EnvironmentName));
+            if (options.StorageConnection == null) throw new ArgumentNullException(nameof(options.StorageConnection));
+            var environmentName = Regex.Replace(options.EnvironmentName ?? "Development", @"\s+", "-").ToLowerInvariant();
+            var storageAccount = CloudStorageAccount.Parse(options.StorageConnection);
             var blobClient = storageAccount.CreateCloudBlobClient();
             BlobContainer = blobClient.GetContainerReference(environmentName);
         }
@@ -48,5 +46,20 @@ namespace Indice.Services
                 LeaseId = @lock.LeaseId
             });
         }
+    }
+
+    /// <summary>
+    /// Options that allow lockmanager configuration
+    /// </summary>
+    public class LockManagerAzureOptions
+    {
+        /// <summary>
+        /// Hosting environment name
+        /// </summary>
+        public string EnvironmentName { get; set; }
+        /// <summary>
+        /// Storage connection.
+        /// </summary>
+        public string StorageConnection { get; set; }
     }
 }

@@ -23,7 +23,6 @@ namespace Indice.Hosting
         public async Task Execute(IJobExecutionContext context) {
             _logger.LogInformation("Dequeue job run at: {Timestamp}", DateTime.UtcNow);
             var jobDataMap = context.JobDetail.JobDataMap;
-            //var queueName = jobDataMap[JobDataKeys.QueueName].ToString();
             var jobHandlerType = jobDataMap[JobDataKeys.JobHandlerType] as Type;
             var workItem = await _workItemQueue.Dequeue();
             if (workItem != null) {

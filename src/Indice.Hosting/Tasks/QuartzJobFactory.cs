@@ -8,15 +8,15 @@ namespace Indice.Hosting
     /// <summary>
     /// The <see cref="IJobFactory"/> implementation that uses the DI to construct <seealso cref="IJob"/> instances.
     /// </summary>
-    internal class JobFactory : IJobFactory
+    internal class QuartzJobFactory : IJobFactory
     {
         private readonly IServiceProvider _serviceProvider;
 
         /// <summary>
-        /// Constructs the <see cref="JobFactory"/>.
+        /// Constructs the <see cref="QuartzJobFactory"/>.
         /// </summary>
         /// <param name="serviceProvider"></param>
-        public JobFactory(IServiceProvider serviceProvider) => _serviceProvider = serviceProvider;
+        public QuartzJobFactory(IServiceProvider serviceProvider) => _serviceProvider = serviceProvider;
 
         /// <inheritdoc />
         public IJob NewJob(TriggerFiredBundle bundle, IScheduler scheduler) => _serviceProvider.GetRequiredService<QuartzJobRunner>();
