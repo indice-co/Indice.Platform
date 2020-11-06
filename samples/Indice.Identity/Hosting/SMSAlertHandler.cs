@@ -5,11 +5,11 @@ using Microsoft.Extensions.Logging;
 
 namespace Indice.Identity.Hosting
 {
-    public class SendSMSFunctionHandler
+    public class SMSAlertHandler
     {
-        private readonly ILogger<SendSMSFunctionHandler> _logger;
+        private readonly ILogger<SMSAlertHandler> _logger;
 
-        public SendSMSFunctionHandler(ILogger<SendSMSFunctionHandler> logger) {
+        public SMSAlertHandler(ILogger<SMSAlertHandler> logger) {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 

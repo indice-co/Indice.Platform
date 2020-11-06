@@ -98,6 +98,7 @@ namespace Indice.Identity
             services.AddSpaStaticFiles(options => {
                 options.RootPath = "wwwroot/admin-ui";
             });
+            
             // Setup worker host for executing background tasks.
             services.AddWorkerHost(options => {
                 options.UseSqlServerStorage();

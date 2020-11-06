@@ -16,6 +16,7 @@
         public const string JobHandlerType = nameof(JobHandlerType);
         public const string PollingInterval = nameof(PollingInterval);
         public const string MaxPollingInterval = nameof(MaxPollingInterval);
+        public const string CleanUpBatchSize = nameof(CleanUpBatchSize);
         public const string BackoffIndex = nameof(BackoffIndex);
     }
 }
