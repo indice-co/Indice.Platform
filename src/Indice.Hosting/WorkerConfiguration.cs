@@ -6,6 +6,7 @@ using Indice.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Hosting;
 using Quartz;
 using Quartz.Impl;
 using Quartz.Spi;
@@ -15,7 +16,7 @@ namespace Microsoft.Extensions.DependencyInjection
     /// <summary>
     /// Extension methods on <see cref="IServiceCollection"/> that help register required services for background task processing.
     /// </summary>
-    public static class ServiceCollectionExtensions
+    public static class WorkerConfigurationExtensions
     {
         /// <summary>
         /// Registers a hosted service that manages and configures the lifetime of background tasks.
@@ -25,9 +26,9 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <returns>The <see cref="WorkerHostBuilder"/> used to configure the worker host.</returns>
         public static WorkerHostBuilder AddWorkerHost(this IServiceCollection services, Action<WorkerHostOptions> configureAction) {
             services.AddSingleton<ISchedulerFactory, StdSchedulerFactory>();
-            services.AddSingleton<IJobFactory, JobFactory>();
-            services.AddSingleton<TaskHandlerActivator>();
+            services.AddSingleton<IJobFactory, QuartzJobFactory>();
             services.AddSingleton<QuartzJobRunner>();
+            services.AddTransient<TaskHandlerActivator>();
             services.AddHostedService<WorkerHostedService>();
             var workerHostOptions = new WorkerHostOptions(services);
             configureAction.Invoke(workerHostOptions);
@@ -38,8 +39,19 @@ namespace Microsoft.Extensions.DependencyInjection
         /// Uses Azure Storage service as the store for distributed locking.
         /// </summary>
         /// <param name="options">The <see cref="WorkerHostOptions"/> used to configure locking and queue persistence.</param>
+        /// <param name="configureAction">Configure the azure options.</param>
         /// <returns>The <see cref="WorkerHostOptions"/> used to configure locking and queue persistence.</returns>
-        public static WorkerHostOptions UseAzureStorageLock(this WorkerHostOptions options) => options.UseLock<LockManagerAzure>();
+        public static WorkerHostOptions UseAzureStorageLock(this WorkerHostOptions options, Action<LockManagerAzureOptions> configureAction = null) {
+            options.Services.TryAddSingleton(typeof(ILockManager), sp => {
+                var azureOptions = new LockManagerAzureOptions {
+                    StorageConnection = sp.GetService<IConfiguration>().GetConnectionString("StorageConnection"),
+                    EnvironmentName = sp.GetService<IHostEnvironment>().EnvironmentName
+                };
+                configureAction?.Invoke(azureOptions);
+                return new LockManagerAzure(azureOptions);
+            });
+            return options;
+        }
 
         /// <summary>
         /// Manages access to queues using an in-memory mechanism. Not suitable for distributed scenarios.
@@ -130,11 +142,14 @@ namespace Microsoft.Extensions.DependencyInjection
             options.Services.AddTransient(typeof(IQueueNameResolver<TWorkItem>), sp => Activator.CreateInstance(typeof(DefaultQueueNameResolver<TWorkItem>), new object[] { options }));
             options.Services.AddTransient(typeof(IMessageQueue<TWorkItem>), queueStoreType);
             options.Services.AddTransient(typeof(DequeueJob<TWorkItem>));
+            options.Services.AddTransient(typeof(DequeuedCleanupJob<TWorkItem>));
             options.Services.AddTransient(serviceProvider => new DequeueJobSettings(builder.JobHandlerType, 
                                                                                     typeof(TWorkItem), 
                                                                                     serviceProvider.GetService<IQueueNameResolver<TWorkItem>>().Resolve(), 
                                                                                     options.PollingInterval, 
                                                                                     options.MaxPollingInterval, 
+                                                                                    options.CleanUpInterval,
+                                                                                    options.CleanUpBatchSize,
                                                                                     options.InstanceCount));
             return new WorkerHostBuilderForQueue(options.Services, builder.QueueType, typeof(TWorkItem));
         }

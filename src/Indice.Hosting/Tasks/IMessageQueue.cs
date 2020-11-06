@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
@@ -26,12 +27,32 @@ namespace Indice.Hosting
         /// <param name="isPoison">Markes the given <paramref name="messageId"/> as poison message</param>
         /// <returns></returns>
         Task Enqueue(T item, Guid? messageId, bool isPoison);
-        
+
+        /// <summary>
+        /// Adds a range of items to the end of the <see cref="IMessageQueue{T}"/>
+        /// </summary>
+        /// <param name="items">
+        /// The a collection of objects to the <see cref="IMessageQueue{T}"/>.</param>
+        /// <returns></returns>
+        Task EnqueueRange(IEnumerable<T> items);
+
         /// <summary>
         /// Returns the object at the beginning of the <see cref="IMessageQueue{T}"/> without removing it.
         /// </summary>
         /// <returns>The object at the beginning of the <see cref="IMessageQueue{T}"/></returns>
         Task<T> Peek();
+
+        /// <summary>
+        /// Gets the number of elements contained in the <see cref="IMessageQueue{T}"/>.
+        /// </summary>
+        /// <returns>The number of elements contained in the <see cref="IMessageQueue{T}"/>.</returns>
+        Task<int> Count();
+
+        /// <summary>
+        /// Does cleanup of the <see cref="IMessageQueue{T}"/>.
+        /// </summary>
+        /// <param name="batchSize">If specified will cleanup the first <paramref name="batchSize"/> number of items</param>
+        Task Cleanup(int? batchSize = null);
     }
 
     /// <summary>

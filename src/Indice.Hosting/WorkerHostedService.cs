@@ -48,7 +48,7 @@ namespace Indice.Hosting
             Scheduler = await _schedulerFactory.GetScheduler(cancellationToken);
             Scheduler.JobFactory = _jobFactory;
             foreach (var dequeueJobSchedule in _dequeueJobSchedules) {
-                var jobDetails = JobBuilder.Create(typeof(DequeueJob<>).MakeGenericType(dequeueJobSchedule.WorkItemType))
+                var dequeueJob = JobBuilder.Create(typeof(DequeueJob<>).MakeGenericType(dequeueJobSchedule.WorkItemType))
                                            .StoreDurably() // this is needed in case of multiple consumers (triggers)
                                            .WithIdentity(name: dequeueJobSchedule.Name, group: JobGroups.InternalJobsGroup)
                                            .SetJobData(new JobDataMap(new Dictionary<string, object> {
@@ -59,16 +59,32 @@ namespace Indice.Hosting
                                            } as IDictionary<string, object>))
                                            .Build();
 
-                await Scheduler.AddJob(jobDetails, replace: true);
+                await Scheduler.AddJob(dequeueJob, replace: true);
                 for (var i = 1; i <= dequeueJobSchedule.InstanceCount; i++) {
                     var jobTrigger = TriggerBuilder.Create()
-                                                   .ForJob(jobDetails)
+                                                   .ForJob(dequeueJob)
                                                    .WithIdentity(name: TriggerNames.DequeueJobTrigger + i, group: JobGroups.InternalJobsGroup)
                                                    .StartNow()
                                                    .WithSimpleSchedule(x => x.WithInterval(TimeSpan.FromMilliseconds(dequeueJobSchedule.PollingInterval + 100 * i)).RepeatForever())
                                                    .Build();
                     await Scheduler.ScheduleJob(jobTrigger);
                 }
+                var cleanUpJob = JobBuilder.Create(typeof(DequeuedCleanupJob<>).MakeGenericType(dequeueJobSchedule.WorkItemType))
+                                           .StoreDurably() // this is needed in case of multiple consumers (triggers)
+                                           .WithIdentity(name: dequeueJobSchedule.Name + "CleanUp", group: JobGroups.InternalJobsGroup)
+                                           .SetJobData(new JobDataMap(new Dictionary<string, object> {
+                                               { JobDataKeys.QueueName, dequeueJobSchedule.Name },
+                                               { JobDataKeys.CleanUpBatchSize, dequeueJobSchedule.CleanupBatchSize },
+                                           } as IDictionary<string, object>))
+                                           .Build();
+                await Scheduler.AddJob(cleanUpJob, replace: true);
+                var cleanUpTrigger = TriggerBuilder.Create()
+                                                   .ForJob(cleanUpJob)
+                                                   .WithIdentity(name: cleanUpJob.Key.Name + "Trigger", group: JobGroups.InternalJobsGroup)
+                                                   .StartNow()
+                                                   .WithSimpleSchedule(x => x.WithInterval(TimeSpan.FromSeconds(dequeueJobSchedule.CleanupInterval)).RepeatForever())
+                                                   .Build();
+                await Scheduler.ScheduleJob(cleanUpTrigger);
             }
             foreach (var schedule in _scheduledJobSettings) {
                 var jobId = schedule.JobHandlerType.FullName;
@@ -82,7 +98,6 @@ namespace Indice.Hosting
                                                { JobDataKeys.JobHandlerType, schedule.JobHandlerType }
                                            } as IDictionary<string, object>))
                                            .Build();
-
                 await Scheduler.AddJob(jobDetails, replace: true);
                 var jobTrigger = TriggerBuilder.Create()
                                                    .ForJob(jobDetails)
