@@ -13,6 +13,16 @@ namespace Indice.Services
     public class PushNotificationServiceAzure : IPushNotificationService
     {
         /// <summary>
+        /// The connection string parameter name. The setting key that will be searched inside the configuration.
+        /// </summary>
+        public const string CONNECTION_STRING_NAME = "PushNotificationsConnection";
+
+        /// <summary>
+        /// The push notification hub path string parameter name. The setting key that will be searched inside the configuration.
+        /// </summary>
+        public const string NOTIFICATIONS_HUB_PATH = "PushNotificationsHubPath";
+
+        /// <summary>
         /// Notifications hub instance
         /// </summary>
         protected NotificationHubClient NotificationHub { get; }
@@ -21,6 +31,7 @@ namespace Indice.Services
         /// Represents a type used to perform logging.
         /// </summary>
         protected ILogger<PushNotificationServiceAzure> Logger { get; }
+
         /// <summary>
         /// Constructs the <see cref="PushNotificationServiceAzure"/>
         /// </summary>
@@ -36,17 +47,10 @@ namespace Indice.Services
             NotificationHub = NotificationHubClient.CreateClientFromConnectionString(connectionString, notificationHubPath);
         }
 
-        /// <summary>
-        /// Register a device to azure notification hub
-        /// </summary>
-        /// <param name="deviceId">The device id to register</param>
-        /// <param name="pnsHandle">Platform Notification Service(pns) obtained from client app</param>
-        /// <param name="tags">Tags are used to route notifications to the correct set of device handles</param>
-        /// <param name="devicePlatform">Client device platform</param>
-        /// <returns></returns>
+        ///<inheritdoc/>
         public async Task Register(string deviceId, string pnsHandle, IList<string> tags, DevicePlatform devicePlatform) {
-            if(string.IsNullOrEmpty(deviceId)) {
-                throw new ArgumentNullException("DeviceId is null");
+            if (string.IsNullOrEmpty(deviceId)) {
+                throw new ArgumentNullException(nameof(deviceId));
             }
             if (tags.Count == 0) {
                 throw new ArgumentException("Tags list is empty");
@@ -71,18 +75,61 @@ namespace Indice.Services
                 case DevicePlatform.Android:
                     installationRequest.Platform = NotificationPlatform.Fcm;
                     break;
+                case DevicePlatform.None:
                 default:
                     throw new ArgumentException("Device platform not supported", nameof(devicePlatform));
             }
             await NotificationHub.CreateOrUpdateInstallationAsync(installationRequest);
         }
 
-        public Task SendAsync() {
-            throw new NotImplementedException();
+        ///<inheritdoc/>
+        public async Task UnRegister(string deviceId) {
+            if (string.IsNullOrEmpty(deviceId)) {
+                throw new ArgumentNullException(nameof(deviceId));
+            }
+            await NotificationHub.DeleteInstallationAsync(deviceId);
         }
 
-        public Task UnRegister() {
-            throw new NotImplementedException();
+        ///<inheritdoc/>
+        public async Task SendAsync(string message, IList<string> tags, DevicePlatform devicePlatform) {
+            if (string.IsNullOrEmpty(message)) {
+                throw new ArgumentNullException(nameof(message));
+            }
+            if (tags.Count == 0) {
+                throw new ArgumentException("Tags list is empty");
+            }
+            switch (devicePlatform) {
+                case DevicePlatform.WindowsPhone:
+                    await NotificationHub.SendMpnsNativeNotificationAsync(message, tags);
+                    break;
+                case DevicePlatform.UWP:
+                    await NotificationHub.SendWindowsNativeNotificationAsync(message, tags);
+                    break;
+                case DevicePlatform.iOS:
+                    await NotificationHub.SendAppleNativeNotificationAsync(message, tags);
+                    break;
+                case DevicePlatform.Android:
+                    await NotificationHub.SendFcmNativeNotificationAsync(message, tags);
+                    break;
+                case DevicePlatform.None:
+                default:
+                    throw new ArgumentException("Device platform not supported", nameof(devicePlatform));
+            }
+        }
+
+        /// <summary>
+        /// Push notification service options specific to Azure.
+        /// </summary>
+        public class PushNotificationOptions
+        {
+            /// <summary>
+            /// The connection string to the Azure Push notification account.
+            /// </summary>
+            public string ConnectionString { get; set; }
+            /// <summary>
+            /// Notifications hub name
+            /// </summary>
+            public string NotificationHubPath { get; set; }
         }
     }
 }
