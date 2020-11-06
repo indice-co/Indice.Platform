@@ -28,10 +28,10 @@ namespace Indice.Identity.Hosting
 
             var count = (int)(state["DemoCounter"] ?? 0) + 1;
             state["DemoCounter"] = count;
-            if (count > 100) { 
+            if (count > 100) {
                 return;
             }
-            await _messageQueue.EnqueueRange(new List<SMSDto> { 
+            await _messageQueue.EnqueueRange(new List<SMSDto> {
                 new SMSDto(Guid.NewGuid().ToString(), "6992731575", $"Hello there! {count}"),
                 new SMSDto(Guid.NewGuid().ToString(), "6992731576", $"How are you today? {count}"),
                 new SMSDto(Guid.NewGuid().ToString(), "6992731577", $"You look nice! {count}"),
