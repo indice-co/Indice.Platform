@@ -20,15 +20,19 @@ namespace Indice.Services
         Task Register(string deviceId, string pnsHandle, IList<string> tags, DevicePlatform devicePlatform);
 
         /// <summary>
-        /// 
+        /// Unregister device from receiving notifications
         /// </summary>
+        /// <param name="deviceId">The device id to unregister</param>
         /// <returns></returns>
-        Task UnRegister();
+        Task UnRegister(string deviceId);
 
         /// <summary>
-        /// 
+        /// Send notifications to specified tags
         /// </summary>
+        /// <param name="message">Message of notifications</param>
+        /// <param name="tags">Tags are used to route notifications to the correct set of device handles</param>
+        /// <param name="devicePlatform">Client device platform</param>
         /// <returns></returns>
-        Task SendAsync();
+        Task SendAsync(string message, IList<string> tags, DevicePlatform devicePlatform);
     }
 }
