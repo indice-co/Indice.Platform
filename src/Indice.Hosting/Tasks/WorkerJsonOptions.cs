@@ -28,11 +28,7 @@ namespace Indice.Hosting
                 PropertyNamingPolicy = JsonNamingPolicy.CamelCase
             };
             options.Converters.Add(new JsonStringEnumConverter());
-            options.Converters.Add(new Indice.Serialization.JsonStringDecimalConverter());
-            options.Converters.Add(new Indice.Serialization.JsonStringDoubleConverter());
-            options.Converters.Add(new Indice.Serialization.JsonStringInt32Converter());
-            options.Converters.Add(new Indice.Serialization.JsonObjectToInferredTypeConverter());
-            options.Converters.Add(new Indice.Serialization.TypeConverterJsonAdapter());
+            options.Converters.Add(new Serialization.TypeConverterJsonAdapterFactory());
             return options;
         }
     }
