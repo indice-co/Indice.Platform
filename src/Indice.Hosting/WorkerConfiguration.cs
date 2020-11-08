@@ -32,6 +32,7 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddHostedService<WorkerHostedService>();
             var workerHostOptions = new WorkerHostOptions(services);
             configureAction.Invoke(workerHostOptions);
+            services.AddSingleton(workerHostOptions.JsonOptions);
             return new WorkerHostBuilder(services, workerHostOptions.WorkItemQueueType);
         }
 

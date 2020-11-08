@@ -15,21 +15,10 @@ namespace Indice.Hosting
         /// </summary>
         /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
         public WorkerHostOptions(IServiceCollection services) : this(services, null, null) { }
-        internal WorkerHostOptions(IServiceCollection services, Type workItemQueueType, JsonSerializerOptions jsonSerializerOptions) {
+        internal WorkerHostOptions(IServiceCollection services, Type workItemQueueType, WorkerJsonOptions jsonOptions) {
             Services = services;
             WorkItemQueueType = workItemQueueType;
-            JsonSerializerOptions = jsonSerializerOptions ?? new JsonSerializerOptions() {
-                IgnoreNullValues = true,
-                PropertyNameCaseInsensitive = true,
-                WriteIndented = false,
-                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-            };
-            JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
-            JsonSerializerOptions.Converters.Add(new Indice.Serialization.JsonStringDecimalConverter());
-            JsonSerializerOptions.Converters.Add(new Indice.Serialization.JsonStringDoubleConverter());
-            JsonSerializerOptions.Converters.Add(new Indice.Serialization.JsonStringInt32Converter());
-            JsonSerializerOptions.Converters.Add(new Indice.Serialization.JsonObjectToInferredTypeConverter());
-            JsonSerializerOptions.Converters.Add(new Indice.Serialization.TypeConverterJsonAdapter());
+            JsonOptions = jsonOptions ?? new WorkerJsonOptions();
         }
 
         internal IServiceCollection Services { get; }
@@ -38,6 +27,6 @@ namespace Indice.Hosting
         /// <summary>
         /// Gets the <see cref="System.Text.Json.JsonSerializerOptions"/> used internally whenever a payload needs to be persisted. 
         /// </summary>
-        public JsonSerializerOptions JsonSerializerOptions { get; }
+        public WorkerJsonOptions JsonOptions { get; }
     }
 }

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Indice.Hosting;
+using Indice.Types;
 using Microsoft.Extensions.Logging;
 
 namespace Indice.Identity.Hosting
@@ -32,7 +33,9 @@ namespace Indice.Identity.Hosting
                 return;
             }
             await _messageQueue.EnqueueRange(new List<SMSDto> {
-                new SMSDto(Guid.NewGuid().ToString(), "6992731575", $"Hello there! {count}"),
+                new SMSDto(Guid.NewGuid().ToString(), "6992731575", $"Hello there! {count}") { 
+                    Filters = new [] { new FilterClause("name", "Constantinos, George", FilterOperator.In, JsonDataType.String) }
+                },
                 new SMSDto(Guid.NewGuid().ToString(), "6992731576", $"How are you today? {count}"),
                 new SMSDto(Guid.NewGuid().ToString(), "6992731577", $"You look nice! {count}"),
                 new SMSDto(Guid.NewGuid().ToString(), "6992731578", $"Let's go... {count}"),
