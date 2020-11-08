@@ -8,7 +8,6 @@ using Indice.AspNetCore.Filters;
 using Indice.AspNetCore.Identity.Features;
 using Indice.AspNetCore.Swagger;
 using Indice.Configuration;
-using Indice.Hosting;
 using Indice.Identity.Configuration;
 using Indice.Identity.Hosting;
 using Indice.Identity.Security;
@@ -17,7 +16,6 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Localization;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -109,11 +107,11 @@ namespace Indice.Identity
                 options.PollingInterval = 500;
                 options.InstanceCount = 1;
             })
-            .AddJob<LoadAvailableAlertsHandler>()
-            .WithScheduleTrigger("0/5 * * * * ?", o => {
-                o.Description = "La lala";
-                o.Group = "indice";
-            });
+            /*.AddJob<LoadAvailableAlertsHandler>()
+            .WithScheduleTrigger("0/5 * * * * ?", options => {
+                options.Description = "La lala";
+                options.Group = "indice";
+            })*/;
         }
 
         /// <summary>

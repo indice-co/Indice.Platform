@@ -4,7 +4,6 @@ using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
-using Org.BouncyCastle.Math.EC.Rfc7748;
 
 namespace Indice.Hosting.Tasks.Data
 {
@@ -29,19 +28,19 @@ namespace Indice.Hosting.Tasks.Data
 
         /// <inheritdoc/>
         public async Task<QMessage<T>> Dequeue() {
-            bool successfullLock = false;
+            var successfullLock = false;
             DbQMessage message;
             do {
                 message = await GetAvailableItems().FirstOrDefaultAsync();
                 if (message == null)
-                    return default(QMessage<T>);
+                    return default;
                 message.DequeueCount++;
                 message.State = QMessageState.Dequeued;
                 try {
                     await _DbContext.SaveChangesAsync();
                     successfullLock = true;
                 } catch (DbUpdateException) {
-                    // could not aquire lock. will try again.
+                    // Could not aquire lock. Will try again.
                 }
             } while (!successfullLock);
             return message.ToModel<T>();
@@ -101,15 +100,15 @@ namespace Indice.Hosting.Tasks.Data
             //    .ToListAsync();
             //_DbContext.RemoveRange(items);
             //await _DbContext.SaveChangesAsync();
-            await _DbContext.Database.ExecuteSqlRawAsync(
-@"DELETE FROM [work].[QMessage] 
-WHERE Id IN (SELECT TOP ({0}) Id FROM [work].[QMessage] 
-             WHERE [State] = {1}
-             ORDER BY Date)", batchSize ?? 1000, QMessageState.Dequeued);
+            var query = @"
+                DELETE FROM [work].[QMessage] 
+                WHERE Id IN (SELECT TOP ({0}) Id FROM [work].[QMessage] 
+                WHERE [State] = {1}
+                ORDER BY Date);
+            ";
+            await _DbContext.Database.ExecuteSqlRawAsync(query, batchSize ?? 1000, QMessageState.Dequeued);
         }
 
-        private IQueryable<DbQMessage> GetAvailableItems() {
-            return _DbContext.Queue.Where(x => x.QueueName == _QueueName && x.State == QMessageState.New).OrderBy(x => x.Date);
-        }
+        private IQueryable<DbQMessage> GetAvailableItems() => _DbContext.Queue.Where(x => x.QueueName == _QueueName && x.State == QMessageState.New).OrderBy(x => x.Date);
     }
 }

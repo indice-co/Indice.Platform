@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
-using Indice.Services;
 using Microsoft.Extensions.Logging;
 using Quartz;
 
@@ -31,9 +30,9 @@ namespace Indice.Hosting
                     await _taskHandlerActivator.Invoke(jobHandlerType, jobDataMap, context.CancellationToken, workItem.Value);
                 } catch (Exception exception) {
                     if (workItem.DequeueCount < 3) {
-                        await _workItemQueue.ReEnqueue(workItem.Id); // re-enque to retry.
+                        await _workItemQueue.ReEnqueue(workItem.Id); // Re-enqueue to retry.
                     } else {
-                        await _workItemQueue.MarkPoison(workItem.Id); // enque to poison.queue?
+                        await _workItemQueue.MarkPoison(workItem.Id); // Enqueue to poison enqueue.
                     }
                     _logger.LogError("An error occured while processing work item '{WorkItem}'. Exception is: {Exception}", workItem, exception);
                 }
@@ -44,9 +43,9 @@ namespace Indice.Hosting
         }
 
         /// <summary>
-        /// Re-schedules the current job
+        /// Re-schedules the current job.
         /// </summary>
-        /// <param name="context">Job execution context</param>
+        /// <param name="context">Job execution context.</param>
         private void Reschedule(IJobExecutionContext context) {
             var jobDataMap = context.JobDetail.JobDataMap;
             var pollingInterval = jobDataMap.GetInt(JobDataKeys.PollingInterval);
@@ -59,23 +58,18 @@ namespace Indice.Hosting
             }
             _logger.LogInformation("Backoff: {time}", backoffTime);
             // Get the next execution date
-            DateTime nextExecutionDate = DateTime.Now.AddMilliseconds(backoffTime);
-            
-
-            // Get the current trigger
-            ITrigger currentTrigger = context.Trigger;
-            // Get a new builder instance from the current trigger
-            TriggerBuilder builder = currentTrigger.GetTriggerBuilder();
-
-            // Create a new trigger instance using the builder from the current trigger
-            // and set its start time to the next executed date obtained before.
-            // This will use the same configuration parameters
-            ITrigger newTrigger = builder
-                 .StartAt(nextExecutionDate)
-                 .ForJob(context.JobDetail)
-                 .Build();
-
-            // Re-schedule the job using the current trigger key and the new trigger configuration
+            var nextExecutionDate = DateTime.Now.AddMilliseconds(backoffTime);
+            // Get the current trigger.
+            var currentTrigger = context.Trigger;
+            // Get a new builder instance from the current trigger.
+            var builder = currentTrigger.GetTriggerBuilder();
+            // Create a new trigger instance using the builder from the current trigger and set its start time to the next executed date obtained before.
+            // This will use the same configuration parameters.
+            var newTrigger = builder
+                .StartAt(nextExecutionDate)
+                .ForJob(context.JobDetail)
+                .Build();
+            // Re-schedule the job using the current trigger key and the new trigger configuration.
             context.Scheduler.RescheduleJob(currentTrigger.Key, newTrigger);
         }
     }

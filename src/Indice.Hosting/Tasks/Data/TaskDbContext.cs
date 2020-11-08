@@ -1,7 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Diagnostics;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Indice.Hosting.Tasks.Data
 {
@@ -10,13 +10,20 @@ namespace Indice.Hosting.Tasks.Data
     /// </summary>
     public class TaskDbContext : DbContext
     {
+        private static bool _alreadyCreated = false;
+
         /// <summary>
         /// create the DbContext 
         /// </summary>
         /// <param name="options"></param>
         public TaskDbContext(DbContextOptions options) : base(options) {
-            if (System.Diagnostics.Debugger.IsAttached) { 
-                Database.EnsureCreated();
+            if (Debugger.IsAttached) {
+                var exists = Database.GetService<IRelationalDatabaseCreator>().Exists();
+                if (!exists && !_alreadyCreated) {
+                    // When no databases have been created, this ensures that the database creation process will run once.
+                    _alreadyCreated = true;
+                    Database.EnsureCreated();
+                }
             }
         }
 
