@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Indice.Serialization;
@@ -18,12 +17,12 @@ namespace Indice.Common.Tests
             options.Converters.Add(new JsonStringEnumConverter());
             options.IgnoreNullValues = true;
             var model = new { Field = "text field here", Value = 12.34 };
-            var expectedJson = JsonSerializer.Serialize(model, options) ;
+            var expectedJson = JsonSerializer.Serialize(model, options);
             var doc = JsonDocument.Parse(expectedJson);
             var outputJson = JsonSerializer.Serialize(doc.RootElement);
             Assert.Equal(expectedJson, outputJson);
         }
-        
+
         [Fact]
         public void RoundtripTypeConverterAdapter() {
             var options = new JsonSerializerOptions {
@@ -47,14 +46,18 @@ namespace Indice.Common.Tests
                 PropertyNamingPolicy = JsonNamingPolicy.CamelCase
             };
             options.Converters.Add(new JsonStringEnumConverter());
-            options.Converters.Add(new TypeConverterJsonAdapter());
+            //options.Converters.Add(new TypeConverterJsonAdapter());
+            options.Converters.Add(new TypeConverterJsonAdapterFactory());
             options.Converters.Add(new JsonObjectToInferredTypeConverter());
             options.IgnoreNullValues = true;
-            var model = new TestTypeConverters { 
-                Point = GeoPoint.Parse("37.9888529,23.7037796"), 
-                Id = new Base64Id(Guid.Parse("04F39650-F015-4831-8592-D2D82E70589F")), 
-                Mystery = new TheMystery() { FirstName = "Constantinos", LastName = "Leftheris" },
-                Filters = new [] {
+            var model = new TestTypeConverters {
+                Point = GeoPoint.Parse("37.9888529,23.7037796"),
+                Id = new Base64Id(Guid.Parse("04F39650-F015-4831-8592-D2D82E70589F")),
+                Mystery = new TheMystery {
+                    FirstName = "Constantinos",
+                    LastName = "Leftheris"
+                },
+                Filters = new[] {
                     FilterClause.Parse("name::In::(String)Constantinos, George")
                 }
             };
@@ -69,7 +72,7 @@ namespace Indice.Common.Tests
             Assert.Equal(json, json2);
         }
 
-        class TestTypeConverters
+        public class TestTypeConverters
         {
             public GeoPoint Point { get; set; }
             public Base64Id Id { get; set; }
@@ -82,7 +85,7 @@ namespace Indice.Common.Tests
             public string FirstName { get; set; }
             public string LastName { get; set; }
         }
-        
+
         ////https://github.com/dotnet/runtime/blob/master/src/libraries/System.Text.Json/src/System/Text/Json/Serialization/Converters/Collection/ArrayConverter.cs
         ///// <summary>
         ///// Converter for <cref>System.Array</cref>.

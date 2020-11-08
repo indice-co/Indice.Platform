@@ -10,17 +10,17 @@ namespace Indice.Serialization
     /// <summary>
     /// Adapter between <see cref="TypeConverter"/> and <see cref="JsonConverter"/>.
     /// </summary>
-    public class TypeConverterJsonAdapter : JsonConverter<object>
+    public class TypeConverterJsonAdapter<T> : JsonConverter<T>
     {
         /// <inheritdoc/>
-        public override object Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) {
+        public override T Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) {
             var converter = TypeDescriptor.GetConverter(typeToConvert);
             var text = reader.GetString();
-            return converter.ConvertFromString(text);
+            return (T)converter.ConvertFromString(text);
         }
 
         /// <inheritdoc/>
-        public override void Write(Utf8JsonWriter writer, object objectToWrite, JsonSerializerOptions options) {
+        public override void Write(Utf8JsonWriter writer, T objectToWrite, JsonSerializerOptions options) {
             var converter = TypeDescriptor.GetConverter(objectToWrite);
             var text = converter.ConvertToString(objectToWrite);
             writer.WriteStringValue(text);
@@ -35,4 +35,7 @@ namespace Indice.Serialization
             return true;
         }
     }
+
+    /// <inheritdoc />
+    public class TypeConverterJsonAdapter : TypeConverterJsonAdapter<object> { }
 }

@@ -33,8 +33,8 @@ namespace Indice.Types
         /// <param name="obj"></param>
         /// <returns></returns>
         public override bool Equals(object obj) {
-            if (obj != null && obj is Base64Id) {
-                var other = ((Base64Id)obj);
+            if (obj != null && obj is Base64Id id) {
+                var other = id;
                 return other.Id == Id;
             }
             return base.Equals(obj);
