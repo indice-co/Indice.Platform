@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Indice.Serialization;
@@ -72,6 +73,28 @@ namespace Indice.Common.Tests
             Assert.Equal(json, json2);
         }
 
+        [Fact]
+        public void RoundtripTypeConverterAdapter_WithCollections2() {
+            var options = new JsonSerializerOptions();
+            options.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+            options.Converters.Add(new JsonStringEnumConverter());
+            options.Converters.Add(new TypeConverterJsonAdapterFactory());
+            options.IgnoreNullValues = true;
+            var model = new TestModel {
+                Point = GeoPoint.Parse("37.9888529,23.7037796"),
+                PointList = new List<GeoPoint> {
+                    GeoPoint.Parse("37.9888529,23.7037796"),
+                    GeoPoint.Parse("37.9689383,23.7309977")
+                }
+            };
+            var jsonExpected = "{\"point\":\"37.9888529,23.7037796\",\"pointList\":[\"37.9888529,23.7037796\",\"37.9689383,23.7309977\"]}";
+            var json = JsonSerializer.Serialize(model, options);
+            Assert.Equal(jsonExpected, json);
+            var output = JsonSerializer.Deserialize<TestModel>(json, options);
+            Assert.Equal(model.Point.Latitude, output.Point.Latitude);
+        }
+
+
         public class TestTypeConverters
         {
             public GeoPoint Point { get; set; }
@@ -79,65 +102,17 @@ namespace Indice.Common.Tests
             public FilterClause[] Filters { get; set; }
             public object Mystery { get; set; }
         }
+        public class TestModel
+        {
+            public GeoPoint Point { get; set; }
+            public List<GeoPoint> PointList { get; set; }
+        }
 
         public class TheMystery
         {
             public string FirstName { get; set; }
             public string LastName { get; set; }
         }
-
-        ////https://github.com/dotnet/runtime/blob/master/src/libraries/System.Text.Json/src/System/Text/Json/Serialization/Converters/Collection/ArrayConverter.cs
-        ///// <summary>
-        ///// Converter for <cref>System.Array</cref>.
-        ///// </summary>
-        //internal sealed class ArrayConverter<TCollection, TElement>
-        //: IEnumerableDefaultConverter<TCollection, TElement>
-        //where TCollection : IEnumerable
-        //{
-        //    internal override bool CanHaveIdMetadata => false;
-
-        //    protected override void Add(in TElement value, ref ReadStack state) {
-        //        ((List<TElement>)state.Current.ReturnValue!).Add(value);
-        //    }
-
-        //    protected override void CreateCollection(ref Utf8JsonReader reader, ref ReadStack state, JsonSerializerOptions options) {
-        //        state.Current.ReturnValue = new List<TElement>();
-        //    }
-
-        //    protected override void ConvertCollection(ref ReadStack state, JsonSerializerOptions options) {
-        //        List<TElement> list = (List<TElement>)state.Current.ReturnValue!;
-        //        state.Current.ReturnValue = list.ToArray();
-        //    }
-
-        //    protected override bool OnWriteResume(Utf8JsonWriter writer, TCollection value, JsonSerializerOptions options, ref WriteStack state) {
-        //        TElement[] array = (TElement[])(IEnumerable)value;
-
-        //        int index = state.Current.EnumeratorIndex;
-
-        //        JsonConverter<TElement> elementConverter = GetElementConverter(ref state);
-        //        if (elementConverter.CanUseDirectReadOrWrite && state.Current.NumberHandling == null) {
-        //            // Fast path that avoids validation and extra indirection.
-        //            for (; index < array.Length; index++) {
-        //                elementConverter.Write(writer, array[index], options);
-        //            }
-        //        } else {
-        //            for (; index < array.Length; index++) {
-        //                TElement element = array[index];
-        //                if (!elementConverter.TryWrite(writer, element, options, ref state)) {
-        //                    state.Current.EnumeratorIndex = index;
-        //                    return false;
-        //                }
-
-        //                if (ShouldFlush(writer, ref state)) {
-        //                    state.Current.EnumeratorIndex = ++index;
-        //                    return false;
-        //                }
-        //            }
-        //        }
-
-        //        return true;
-        //    }
-        //}
     }
 
 }
