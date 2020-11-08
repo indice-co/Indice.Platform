@@ -44,13 +44,13 @@ namespace Indice.Hosting.Tasks.Data
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        public QMessage<T> ToModel<T>() where T : class {
+        public QMessage<T> ToModel<T>(JsonSerializerOptions options = null) where T : class {
             return new QMessage<T> {
                 Id = Id,
                 Date = Date,
                 DequeueCount = DequeueCount,
                 QueueName = QueueName,
-                Value = JsonSerializer.Deserialize<T>(Payload)
+                Value = JsonSerializer.Deserialize<T>(Payload, options ?? WorkerJsonOptions.GetDefaultSettings())
             };
         }
     }
