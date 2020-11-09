@@ -9,14 +9,14 @@ using Microsoft.EntityFrameworkCore;
 namespace Indice.Hosting.Tasks.Data
 {
     /// <summary>
-    /// Entity framework backed store implementation for <see cref="IScheduledTaskStore"/>
+    /// Entity framework backed store implementation for <see cref="IScheduledTaskStore{TState}"/>
     /// </summary>
-    public class EFScheduledTaskStore : IScheduledTaskStore
+    public class EFScheduledTaskStore<TState> : IScheduledTaskStore<TState> where TState : class
     {
         private readonly TaskDbContext _DbContext;
         private readonly JsonSerializerOptions _JsonOptions;
         /// <summary>
-        /// creates the <see cref="EFScheduledTaskStore"/>
+        /// creates the <see cref="EFScheduledTaskStore{TState}"/>
         /// </summary>
         /// <param name="dbContext"></param>
         /// <param name="workerJsonOptions"></param>
@@ -26,15 +26,17 @@ namespace Indice.Hosting.Tasks.Data
         }
 
         /// <inheritdoc/>
-        public async Task<ScheduledTask> GetById(string taskId) {
-            return (await _DbContext.Tasks.AsNoTracking().Where(x => x.Id == taskId).SingleOrDefaultAsync())?.ToModel(_JsonOptions);
+        public async Task<ScheduledTask<TState>> GetById(string taskId) {
+            return (await _DbContext.Tasks.AsNoTracking().Where(x => x.Id == taskId).SingleOrDefaultAsync())?.ToModel<TState>(_JsonOptions);
         }
         /// <inheritdoc/>
-        public async Task Save(ScheduledTask scheduledTask) {
-            if (await _DbContext.Tasks.AnyAsync(x => x.Id == scheduledTask.Id)) {
-                _DbContext.Tasks.Update(DbScheduledTask.FromModel(scheduledTask));
+        public async Task Save(ScheduledTask<TState> scheduledTask) {
+            var dbTask = (await _DbContext.Tasks.Where(x => x.Id == scheduledTask.Id).SingleOrDefaultAsync());
+            if (dbTask != null) {
+                dbTask.From(scheduledTask, _JsonOptions);
+                _DbContext.Tasks.Update(dbTask);
             } else {
-                _DbContext.Tasks.Add(DbScheduledTask.FromModel(scheduledTask));
+                _DbContext.Tasks.Add(new DbScheduledTask().From(scheduledTask, _JsonOptions));
             }
             await _DbContext.SaveChangesAsync();    
         }

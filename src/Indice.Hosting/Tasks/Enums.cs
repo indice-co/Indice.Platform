@@ -31,14 +31,10 @@ namespace Indice.Hosting
         /// <summary>
         /// Task waiting to be executed
         /// </summary>
-        New = 0,
+        Idle = 0,
         /// <summary>
         /// Running task
         /// </summary>
         Running = 1,
-        /// <summary>
-        /// Completed task
-        /// </summary>
-        Completed= 1
     }
 }

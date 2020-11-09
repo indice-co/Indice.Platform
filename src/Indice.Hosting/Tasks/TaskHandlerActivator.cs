@@ -16,25 +16,26 @@ namespace Indice.Hosting
             _serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
         }
 
-        public async Task Invoke(Type jobHandlerType, IDictionary<string, object> state, CancellationToken cancellationToken, object workItem = null) {
+        public async Task Invoke(Type jobHandlerType, object state, CancellationToken cancellationToken, object workItem = null) {
             var methods = jobHandlerType.GetMethods(BindingFlags.Instance | BindingFlags.Public);
             var handler = _serviceProvider.GetService(jobHandlerType);
             var processMethod = methods.Where(x => "Process".Equals(x.Name, StringComparison.OrdinalIgnoreCase)).First();
+            var stateType = (state?.GetType() ?? typeof(IDictionary<string, object>));
             object[] arguments;
             if (workItem != null) {
                 var workItemType = workItem.GetType();
                 arguments = processMethod
                     .GetParameters()
-                    .Select(x => workItemType.IsAssignableFrom(x.ParameterType) ? workItem :
-                                 typeof(CancellationToken).IsAssignableFrom(x.ParameterType) ? cancellationToken :
-                                 typeof(IDictionary<string, object>).IsAssignableFrom(x.ParameterType) ? state : 
+                    .Select(x => x.ParameterType.IsAssignableFrom(workItemType) ? workItem :
+                                 x.ParameterType.IsAssignableFrom(typeof(CancellationToken)) ? cancellationToken :
+                                 x.ParameterType.IsAssignableFrom(stateType) ? state : 
                                  _serviceProvider.GetService(x.ParameterType))
                     .ToArray();
             } else {
                 arguments = processMethod
                         .GetParameters()
-                        .Select(x => typeof(CancellationToken).IsAssignableFrom(x.ParameterType) ? cancellationToken :
-                                     typeof(IDictionary<string, object>).IsAssignableFrom(x.ParameterType) ? state : 
+                        .Select(x => x.ParameterType.IsAssignableFrom(typeof(CancellationToken)) ? cancellationToken :
+                                     x.ParameterType.IsAssignableFrom(stateType) ? state : 
                                      _serviceProvider.GetService(x.ParameterType))
                         .ToArray();
             }

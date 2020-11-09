@@ -41,15 +41,15 @@ namespace Indice.Hosting
         /// <summary>
         /// The date.
         /// </summary>
-        public DateTime Lastxecution { get; set; }
+        public DateTimeOffset Lastxecution { get; set; }
         /// <summary>
         /// The date.
         /// </summary>
-        public DateTime? NextExecution { get; set; }
+        public DateTimeOffset? NextExecution { get; set; }
         /// <summary>
         /// The date.
         /// </summary>
-        public DateTime ExecutionCount { get; set; }
+        public int ExecutionCount { get; set; }
         /// <summary>
         /// The status.
         /// </summary>

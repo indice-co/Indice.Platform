@@ -109,7 +109,8 @@ namespace Indice.Identity
                 //options.InstanceCount = 1;
             })
             .AddJob<LoadAvailableAlertsHandler>()
-            .WithScheduleTrigger("0/5 * * * * ?", options => {
+            .WithScheduleTrigger<DemoCounterModel>("0/5 * * * * ?", options => {
+                options.Name = "LoadAvailableAlerts";
                 options.Description = "La lala";
                 options.Group = "indice";
             });

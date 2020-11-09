@@ -33,15 +33,15 @@ namespace Indice.Hosting.Tasks.Data
         /// <summary>
         /// The date.
         /// </summary>
-        public DateTime Lastxecution { get; set; }
+        public DateTimeOffset Lastxecution { get; set; }
         /// <summary>
         /// The date.
         /// </summary>
-        public DateTime? NextExecution { get; set; }
+        public DateTimeOffset? NextExecution { get; set; }
         /// <summary>
         /// The date.
         /// </summary>
-        public DateTime ExecutionCount { get; set; }
+        public int ExecutionCount { get; set; }
         /// <summary>
         /// The status.
         /// </summary>
@@ -64,8 +64,8 @@ namespace Indice.Hosting.Tasks.Data
         /// </summary>
         /// <param name="options"></param>
         /// <returns></returns>
-        public ScheduledTask ToModel(JsonSerializerOptions options = null) {
-            return new ScheduledTask {
+        public ScheduledTask<TState> ToModel<TState>(JsonSerializerOptions options = null) where TState : class {
+            return new ScheduledTask<TState> {
                 Id = Id,
                 Description = Description,
                 Group = Group,
@@ -74,35 +74,27 @@ namespace Indice.Hosting.Tasks.Data
                 Lastxecution = Lastxecution,
                 NextExecution = NextExecution,
                 Progress = Progress,
-                State = JsonSerializer.Deserialize<Dictionary<string, object>>(Payload, options ?? WorkerJsonOptions.GetDefaultSettings()),
+                State = JsonSerializer.Deserialize<TState>(Payload, options ?? WorkerJsonOptions.GetDefaultSettings()),
                 Status = Status,
                 Type = Type,
                 WorkerId = WorkerId
             };
         }
 
-        /// <summary>
-        /// Converts the <see cref="ScheduledTask"/> back to the EF representation
-        /// </summary>
-        /// <typeparam name="TState"></typeparam>
-        /// <param name="model"></param>
-        /// <param name="options"></param>
-        /// <returns></returns>
-        public static DbScheduledTask FromModel<TState>(ScheduledTask<TState> model, JsonSerializerOptions options = null) where TState : class {
-            return new DbScheduledTask {
-                Id = model.Id,
-                Description = model.Description,
-                Group = model.Group,
-                Errors = model.Errors,
-                ExecutionCount = model.ExecutionCount,
-                Lastxecution = model.Lastxecution,
-                NextExecution = model.NextExecution,
-                Progress = model.Progress,
-                Payload = JsonSerializer.Serialize(model.State, options ?? WorkerJsonOptions.GetDefaultSettings()),
-                Status = model.Status,
-                Type = model.Type,
-                WorkerId = model.WorkerId
-            };
+        internal DbScheduledTask From<TState>(ScheduledTask<TState> model, JsonSerializerOptions options = null) where TState : class {
+            Id = model.Id;
+            Description = model.Description;
+            Group = model.Group;
+            Errors = model.Errors;
+            ExecutionCount = model.ExecutionCount;
+            Lastxecution = model.Lastxecution;
+            NextExecution = model.NextExecution;
+            Progress = model.Progress;
+            Payload = JsonSerializer.Serialize(model.State, options ?? WorkerJsonOptions.GetDefaultSettings());
+            Status = model.Status;
+            Type = model.Type;
+            WorkerId = model.WorkerId;
+            return this;
         }
     }
 }

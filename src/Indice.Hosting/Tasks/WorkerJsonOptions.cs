@@ -29,6 +29,7 @@ namespace Indice.Hosting
             };
             options.Converters.Add(new JsonStringEnumConverter());
             options.Converters.Add(new Serialization.TypeConverterJsonAdapterFactory());
+            options.Converters.Add(new Serialization.JsonObjectToInferredTypeConverter());
             return options;
         }
     }

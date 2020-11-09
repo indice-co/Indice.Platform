@@ -35,6 +35,10 @@ namespace Indice.Hosting.Tasks.Data
         /// Tasks
         /// </summary>
         public DbSet<DbScheduledTask> Tasks { get; set; }
+        /// <summary>
+        /// Locks
+        /// </summary>
+        public DbSet<DbLock> Locks { get; set; }
 
         /// <summary>
         /// Configure the context
@@ -44,6 +48,7 @@ namespace Indice.Hosting.Tasks.Data
             base.OnModelCreating(builder);
             builder.ApplyConfiguration(new DbQMessageMap());
             builder.ApplyConfiguration(new DbScheduledTaskMap());
+            builder.ApplyConfiguration(new DbLockMap());
         }
     }
 }
