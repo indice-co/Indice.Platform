@@ -162,13 +162,16 @@ namespace Indice.Identity
             app.UseSwagger();
             var enableSwagger = HostingEnvironment.IsDevelopment() || Configuration.GetValue<bool>($"{GeneralSettings.Name}:SwaggerUI");
             if (enableSwagger) {
-                app.UseSwaggerUI(swaggerOptions => {
-                    swaggerOptions.RoutePrefix = "docs";
-                    swaggerOptions.SwaggerEndpoint($"/swagger/{IdentityServerApi.Scope}/swagger.json", IdentityServerApi.Scope);
-                    swaggerOptions.OAuth2RedirectUrl($"{Settings.Host}/docs/oauth2-redirect.html");
-                    swaggerOptions.OAuthClientId("swagger-ui");
-                    swaggerOptions.OAuthAppName("Swagger UI");
-                    swaggerOptions.DocExpansion(DocExpansion.None);
+                app.UseSwaggerUI(options => {
+                    options.RoutePrefix = "docs";
+                    options.SwaggerEndpoint($"/swagger/{IdentityServerApi.Scope}/swagger.json", IdentityServerApi.Scope);
+                    options.OAuth2RedirectUrl($"{Settings.Host}/docs/oauth2-redirect.html");
+                    options.OAuthClientId("swagger-ui");
+                    options.OAuthClientSecret("M2YwNTlkMTgtYWQzNy00MGNjLWFiYjQtZWQ3Y2Y4N2M3YWU3");
+                    options.OAuthAppName("Swagger UI");
+                    options.DocExpansion(DocExpansion.List);
+                    options.OAuthUsePkce();
+                    options.OAuthScopeSeparator(" ");
                 });
             }
             app.UseEndpoints(endpoints => {
