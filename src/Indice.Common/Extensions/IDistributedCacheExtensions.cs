@@ -39,15 +39,15 @@ namespace Microsoft.Extensions.Caching.Distributed
         /// <param name="cancellationToken">Propagates notification that operations should be canceled.</param>
         /// <returns>The item found in the cache under the specified key.</returns>
         public static async Task<T> TryGetAndSetAsync<T>(this IDistributedCache cache, string cacheKey, Func<Task<T>> getSourceAsync, DistributedCacheEntryOptions options, JsonSerializerOptions jsonSerializerOptions = null, CancellationToken cancellationToken = default) {
-            var item = await cache.GetAsync<T>(cacheKey, jsonSerializerOptions, cancellationToken);
-            if (item == null) {
-                return item;
+            var itemJson = await cache.GetStringAsync(cacheKey, cancellationToken);
+            if (!string.IsNullOrEmpty(itemJson)) {
+                return JsonSerializer.Deserialize<T>(itemJson, jsonSerializerOptions);
             }
             var result = await getSourceAsync();
             if (result == null) {
                 return await Task.FromResult(default(T));
             }
-            var itemJson = JsonSerializer.Serialize(result, jsonSerializerOptions);
+            itemJson = JsonSerializer.Serialize(result, jsonSerializerOptions);
             await cache.SetStringAsync(cacheKey, itemJson, options, cancellationToken);
             return result;
         }

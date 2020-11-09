@@ -85,14 +85,14 @@ namespace Microsoft.Extensions.DependencyInjection
         /// Uses a SQL Server database table, in order to manage queue items.
         /// </summary>
         /// <param name="options">The <see cref="WorkerHostOptions"/> used to configure locking and queue persistence.</param>
-        /// <param name="configureAction">The delegate used to configure the SQL Server table that contains the background jobs.</param>
+        /// <param name="configureAction">The delegate used to configure the database table that contains the background jobs.</param>
         /// <returns>The <see cref="WorkerHostOptions"/> used to configure locking and queue persistence.</returns>
-        public static WorkerHostOptions UseSqlServerStorage(this WorkerHostOptions options, Action<DbContextOptionsBuilder> configureAction = null) {
+        public static WorkerHostOptions UseEntityFrameworkStorage(this WorkerHostOptions options, Action<DbContextOptionsBuilder> configureAction = null) {
             if (configureAction != null) {
                 options.Services.AddDbContext<TaskDbContext>(configureAction);
             } else {
-                options.Services.AddDbContext<TaskDbContext>((sp, opt) => {
-                    opt.UseSqlServer(sp.GetService<IConfiguration>().GetConnectionString("WorkerDb"));
+                options.Services.AddDbContext<TaskDbContext>((serviceProvider, builder) => {
+                    builder.UseSqlServer(serviceProvider.GetService<IConfiguration>().GetConnectionString("WorkerDb"));
                 });
             }
             options.ScheduledTaskStoreType = typeof(EFScheduledTaskStore<>);
@@ -111,7 +111,6 @@ namespace Microsoft.Extensions.DependencyInjection
         public static TaskTriggerBuilder AddJob<TJobHandler>(this WorkerHostBuilder builder) where TJobHandler : class {
             return new TaskTriggerBuilder(builder.Services, builder.Options, typeof(TJobHandler));
         }
-            
 
         /// <summary>
         /// Specifies that the configured job will be triggered by an item inserted to the a queue.
@@ -122,7 +121,6 @@ namespace Microsoft.Extensions.DependencyInjection
         public static WorkerHostBuilderForQueue WithQueueTrigger<TWorkItem>(this TaskTriggerBuilder builder, Action<QueueOptions> configureAction = null) where TWorkItem : class {
             return WithQueueTrigger<TWorkItem>(builder, builder.Options.QueueStoreType.MakeGenericType(typeof(TWorkItem)), configureAction);
         }
-
 
         /// <summary>
         /// Specifies that the configured job will be triggered by an item inserted to the a queue.
