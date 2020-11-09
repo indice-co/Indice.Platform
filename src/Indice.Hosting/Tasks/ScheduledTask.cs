@@ -2,21 +2,30 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Indice.Hosting.Tasks.Data
+namespace Indice.Hosting
 {
     /// <summary>
-    /// Tracks a queue message task
+    /// The default implementation for the <see cref="ScheduledTask{TState}"/> with state as <see cref="Dictionary{String, Object}"/>
     /// </summary>
-    public class DbQTask
+    public class ScheduledTask : ScheduledTask<Dictionary<string, object>>
+    { 
+    
+    }
+
+    /// <summary>
+    /// A dto representing a worker task 
+    /// </summary>
+    /// <typeparam name="TState"></typeparam>
+    public class ScheduledTask<TState> where TState : class
     {
         /// <summary>
         /// The id
         /// </summary>
-        public Guid Id { get; set; }
+        public string Id { get; set; } = Guid.NewGuid().ToString();
         /// <summary>
-        /// Alias (alternate key)
+        /// The worker id
         /// </summary>
-        public string Alias { get; set; }
+        public string WorkerId { get; set; }
         /// <summary>
         /// Task group
         /// </summary>
@@ -32,11 +41,11 @@ namespace Indice.Hosting.Tasks.Data
         /// <summary>
         /// The date.
         /// </summary>
-        public DateTime DateStarted { get; set; }
+        public DateTime Lastxecution { get; set; }
         /// <summary>
         /// The date.
         /// </summary>
-        public DateTime DateCompleted { get; set; }
+        public DateTime? NextExecution { get; set; }
         /// <summary>
         /// The date.
         /// </summary>
@@ -44,7 +53,7 @@ namespace Indice.Hosting.Tasks.Data
         /// <summary>
         /// The status.
         /// </summary>
-        public QTaskStatus Status { get; set; }
+        public ScheduledTaskStatus Status { get; set; }
         /// <summary>
         /// The errors
         /// </summary>
@@ -52,7 +61,7 @@ namespace Indice.Hosting.Tasks.Data
         /// <summary>
         /// The payload
         /// </summary>
-        public string Payload { get; set; }
+        public TState State { get; set; }
         /// <summary>
         /// The status.
         /// </summary>

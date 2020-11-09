@@ -1,18 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Xml.Linq;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Indice.Hosting.Tasks.Data
 {
-    class DbQTaskMap : IEntityTypeConfiguration<DbQTask>
+    class DbScheduledTaskMap : IEntityTypeConfiguration<DbScheduledTask>
     {
-        public void Configure(EntityTypeBuilder<DbQTask> builder) {
+        public void Configure(EntityTypeBuilder<DbScheduledTask> builder) {
             // Configure table name.
-            builder.ToTable("QTask", "work");
+            builder.ToTable("ScheduledTask", "work");
             // Configure primary key.
             builder.HasKey(x => x.Id);
+            builder.HasIndex(x => x.WorkerId);
             builder.HasIndex(x => x.Type);
         }
     }

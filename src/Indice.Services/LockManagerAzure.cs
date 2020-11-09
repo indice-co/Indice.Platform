@@ -7,7 +7,7 @@ using Microsoft.Azure.Storage.Blob;
 namespace Indice.Services
 {
     /// <summary>
-    /// 
+    /// <see cref="ILockManager"/> implementation with Azure blob storage as the backing store.
     /// </summary>
     public class LockManagerAzure : ILockManager
     {
