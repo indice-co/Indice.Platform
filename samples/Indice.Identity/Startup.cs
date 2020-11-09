@@ -100,7 +100,7 @@ namespace Indice.Identity
             // Setup worker host for executing background tasks.
             services.AddWorkerHost(options => {
                 options.JsonOptions.JsonSerializerOptions.WriteIndented = true;
-                options.UseSqlServerStorage();
+                options.UseEntityFrameworkStorage();
             })
             .AddJob<SMSAlertHandler>()
             .WithQueueTrigger<SMSDto>(options => {

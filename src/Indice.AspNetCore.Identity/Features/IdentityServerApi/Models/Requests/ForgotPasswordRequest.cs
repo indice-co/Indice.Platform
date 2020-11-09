@@ -8,10 +8,6 @@ namespace Indice.AspNetCore.Identity.Features
     public class ForgotPasswordRequest
     {
         /// <summary>
-        /// The URL to return to.
-        /// </summary>
-        public string ReturnUrl { get; set; }
-        /// <summary>
         /// The email.
         /// </summary>
         [Required]
