@@ -34,7 +34,7 @@ namespace Indice.Hosting.Tasks.Data
         /// <summary>
         /// Tasks
         /// </summary>
-        public DbSet<DbQTask> Tasks { get; set; }
+        public DbSet<DbScheduledTask> Tasks { get; set; }
 
         /// <summary>
         /// Configure the context
@@ -43,7 +43,7 @@ namespace Indice.Hosting.Tasks.Data
         protected override void OnModelCreating(ModelBuilder builder) {
             base.OnModelCreating(builder);
             builder.ApplyConfiguration(new DbQMessageMap());
-            builder.ApplyConfiguration(new DbQTaskMap());
+            builder.ApplyConfiguration(new DbScheduledTaskMap());
         }
     }
 }

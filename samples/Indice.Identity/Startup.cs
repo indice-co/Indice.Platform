@@ -106,13 +106,13 @@ namespace Indice.Identity
             .WithQueueTrigger<SMSDto>(options => {
                 options.QueueName = "user-messages";
                 options.PollingInterval = 500;
-                options.InstanceCount = 1;
+                //options.InstanceCount = 1;
             })
-            /*.AddJob<LoadAvailableAlertsHandler>()
+            .AddJob<LoadAvailableAlertsHandler>()
             .WithScheduleTrigger("0/5 * * * * ?", options => {
                 options.Description = "La lala";
                 options.Group = "indice";
-            })*/;
+            });
         }
 
         /// <summary>
