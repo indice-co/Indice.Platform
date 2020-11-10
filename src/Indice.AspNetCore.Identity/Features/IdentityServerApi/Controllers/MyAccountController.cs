@@ -90,7 +90,7 @@ namespace Indice.AspNetCore.Identity.Features
             }
             var result = await _userManager.SetEmailAsync(user, request.Email);
             if (!result.Succeeded) {
-                return BadRequest(result.Errors.ToValidationProblemDetails());
+                return BadRequest(result.Errors.AsValidationProblemDetails());
             }
             if (!_identityServerApiEndpointsOptions.Email.SendEmailOnUpdate) {
                 return NoContent();
@@ -134,7 +134,7 @@ namespace Indice.AspNetCore.Identity.Features
             }
             var result = await _userManager.ConfirmEmailAsync(user, request.Token);
             if (!result.Succeeded) {
-                return BadRequest(result.Errors.ToValidationProblemDetails());
+                return BadRequest(result.Errors.AsValidationProblemDetails());
             }
             var eventInfo = user.ToBasicUserInfo();
             await _eventService.Raise(new UserEmailConfirmedEvent(eventInfo));
@@ -163,7 +163,7 @@ namespace Indice.AspNetCore.Identity.Features
             }
             var result = await _userManager.SetPhoneNumberAsync(user, request.PhoneNumber);
             if (!result.Succeeded) {
-                return BadRequest(result.Errors.ToValidationProblemDetails());
+                return BadRequest(result.Errors.AsValidationProblemDetails());
             }
             if (!_identityServerApiEndpointsOptions.PhoneNumber.SendOtpOnUpdate) {
                 return NoContent();
@@ -190,10 +190,7 @@ namespace Indice.AspNetCore.Identity.Features
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
         public async Task<IActionResult> ConfirmPhoneNumber([FromBody] ConfirmPhoneNumberRequest request) {
             var userId = User.FindFirstValue(JwtClaimTypes.Subject);
-            var user = await _userManager.Users
-                                         .Include(x => x.Claims)
-                                         .Where(x => x.Id == userId)
-                                         .SingleOrDefaultAsync();
+            var user = await _userManager.Users.Include(x => x.Claims).Where(x => x.Id == userId).SingleOrDefaultAsync();
             if (user == null) {
                 return NotFound();
             }
@@ -203,7 +200,7 @@ namespace Indice.AspNetCore.Identity.Features
             }
             var result = await _userManager.ChangePhoneNumberAsync(user, user.PhoneNumber, request.Token);
             if (!result.Succeeded) {
-                return BadRequest(result.Errors.ToValidationProblemDetails());
+                return BadRequest(result.Errors.AsValidationProblemDetails());
             }
             var eventInfo = user.ToBasicUserInfo();
             await _eventService.Raise(new UserPhoneNumberConfirmedEvent(eventInfo));
@@ -226,7 +223,7 @@ namespace Indice.AspNetCore.Identity.Features
             }
             var result = await _userManager.SetUserNameAsync(user, request.UserName);
             if (!result.Succeeded) {
-                return BadRequest(result.Errors.ToValidationProblemDetails());
+                return BadRequest(result.Errors.AsValidationProblemDetails());
             }
             return Ok();
         }
@@ -247,8 +244,53 @@ namespace Indice.AspNetCore.Identity.Features
             }
             var result = await _userManager.ChangePasswordAsync(user, request.OldPassword, request.NewPassword);
             if (!result.Succeeded) {
-                return BadRequest(result.Errors.ToValidationProblemDetails());
+                return BadRequest(result.Errors.AsValidationProblemDetails());
             }
+            return NoContent();
+        }
+
+        /// <summary>
+        /// Generates a token 
+        /// </summary>
+        /// <param name="request">Contains info about the user password to change.</param>
+        /// <response code="204">No Content</response>
+        /// <response code="400">Bad Request</response>
+        [HttpPost("my/account/forgot-password")]
+        [AllowAnonymous]
+        [ProducesResponseType(statusCode: StatusCodes.Status204NoContent, type: typeof(void))]
+        [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest, type: typeof(ValidationProblemDetails))]
+        public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordRequest request) {
+            if (string.IsNullOrEmpty(request.Email)) {
+                ModelState.AddModelError("email", "Please provide your email address.");
+                return BadRequest(new ValidationProblemDetails(ModelState));
+            }
+            var user = await _userManager.FindByEmailAsync(request.Email);
+            if (user == null) {
+                return NoContent();
+            }
+            var code = await _userManager.GeneratePasswordResetTokenAsync(user);
+            await _emailService.SendAsync(user.Email, _messageDescriber.ForgotPasswordMessageSubject, _messageDescriber.ForgotPasswordMessageBody(user, code));
+            return NoContent();
+        }
+
+        [HttpPut("my/account/forgot-password/confirmation")]
+        [AllowAnonymous]
+        [ProducesResponseType(statusCode: StatusCodes.Status204NoContent, type: typeof(void))]
+        [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest, type: typeof(ValidationProblemDetails))]
+        public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordVerifyModel request) {
+            if (!ModelState.IsValid) {
+                return BadRequest(ModelState);
+            }
+            var user = await _userManager.FindByEmailAsync(request.Email);
+            if (user == null) {
+                return BadRequest();
+            }
+            var result = await _userManager.ResetPasswordAsync(user, request.Code, request.NewPassword);
+            if (!result.Succeeded) {
+                return BadRequest(result.Errors.AsValidationProblemDetails());
+            }
+            await _userManager.RemovePasswordAsync(user);
+            await _userManager.AddPasswordAsync(user, request.NewPassword);
             return NoContent();
         }
 
