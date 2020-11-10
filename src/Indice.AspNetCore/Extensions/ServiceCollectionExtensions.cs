@@ -142,23 +142,6 @@ namespace Microsoft.Extensions.DependencyInjection
         }
 
         /// <summary>
-        /// Adds an instance of <see cref="IPushNotificationService"/> using Microsoft.Azure.NotificationHubs for sending push notifications
-        /// </summary>
-        /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
-        /// <param name="configure">Configure the available options. Null to use defaults.</param>
-        public static IServiceCollection AddPushNotificationServiceAzure(this IServiceCollection services, Action<PushNotificationServiceAzure.PushNotificationOptions> configure = null) {
-            services.AddTransient<IPushNotificationService, PushNotificationServiceAzure>(serviceProvider => {
-                var options = new PushNotificationServiceAzure.PushNotificationOptions {
-                    ConnectionString = serviceProvider.GetRequiredService<IConfiguration>().GetConnectionString(PushNotificationServiceAzure.CONNECTION_STRING_NAME),
-                    NotificationHubPath = serviceProvider.GetRequiredService<IConfiguration>().GetValue<string>(PushNotificationServiceAzure.NOTIFICATIONS_HUB_PATH)
-                };
-                configure?.Invoke(options);
-                return new PushNotificationServiceAzure(options.ConnectionString, options.NotificationHubPath);
-            });
-            return services;
-        }
-
-        /// <summary>
         /// Adds an instance of <see cref="ISmsService"/> using Youboto Omni for sending Viber messages.
         /// </summary>
         /// <param name="services">Specifies the contract for a collection of service descriptors.</param>

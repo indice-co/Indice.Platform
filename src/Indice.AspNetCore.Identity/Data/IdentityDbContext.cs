@@ -1,4 +1,5 @@
 ﻿using Indice.AspNetCore.Identity.Data.Mappings;
+using Indice.AspNetCore.Identity.Data.Models;
 using Indice.AspNetCore.Identity.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
@@ -36,6 +37,10 @@ namespace Indice.AspNetCore.Identity.Data
         /// Stores all previous passwords of a user for future validation checks.
         /// </summary>
         public DbSet<UserPassword> UserPasswordHistory { get; set; }
+        /// <summary>
+        /// Stores user devices in database
+        /// </summary>
+        public DbSet<UserDevice> UserDevices { get; set; }
         /// <summary>
         /// Stores system settings in the database.
         /// </summary>
