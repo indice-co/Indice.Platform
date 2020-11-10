@@ -41,7 +41,7 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <summary>
         /// Adds all required stuff in order for Push notifications to work.
         /// </summary>
-        /// <typeparam name="PushNotificationServiceAzure">The type of <see cref="ITotpService"/> service implementation to use.</typeparam>
+        /// <typeparam name="PushNotificationServiceAzure">The type of <see cref="IPushNotificationService"/> service implementation to use.</typeparam>
         /// <param name="builder">IdentityServer builder Interface.</param>
         /// <param name="configure">Configuration used in <see cref="Rfc6238AuthenticationService"/> service.</param>
         public static IIdentityServerBuilder AddPushNotifications<PushNotificationServiceAzure>(this IIdentityServerBuilder builder, Action<PushNotificationOptions> configure = null) where PushNotificationServiceAzure : class, IPushNotificationService {
@@ -51,7 +51,6 @@ namespace Microsoft.Extensions.DependencyInjection
                     endpoint = options.IssuerUri.TrimEnd('/') + "/devices"
                 });
             });
-            builder.AddExtensionGrantValidator<TotpGrantValidator>();
             return builder;
         }
     }
