@@ -1,7 +1,7 @@
 ﻿using System;
 using Indice.Types;
 
-namespace Indice.AspNetCore.Identity.Data.Models
+namespace Indice.AspNetCore.Identity.Models
 {
     /// <summary>
     /// User devices representation

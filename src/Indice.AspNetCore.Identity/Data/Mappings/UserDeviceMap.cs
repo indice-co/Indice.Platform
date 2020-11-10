@@ -1,5 +1,4 @@
 ﻿using System;
-using Indice.AspNetCore.Identity.Data.Models;
 using Indice.AspNetCore.Identity.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;

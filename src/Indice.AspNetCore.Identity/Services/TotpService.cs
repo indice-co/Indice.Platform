@@ -35,8 +35,7 @@ namespace Indice.AspNetCore.Identity
         public TotpService(UserManager<User> userManager, ISmsServiceFactory smsServiceFactory, IPushNotificationService pushNotificationService, IDistributedCache distributedCache, IStringLocalizer<TotpService> localizer, ILogger<TotpService> logger, Rfc6238AuthenticationService rfc6238AuthenticationService) {
             UserManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
             SmsServiceFactory = smsServiceFactory ?? throw new ArgumentNullException(nameof(smsServiceFactory));
-            //pushNotificationService can actually be null for not supported clients
-            PushNotificationService = pushNotificationService;
+            PushNotificationService = pushNotificationService ?? throw new ArgumentNullException(nameof(pushNotificationService));
             Cache = distributedCache ?? throw new ArgumentNullException(nameof(distributedCache));
             Localizer = localizer ?? throw new ArgumentNullException(nameof(localizer));
             Logger = logger ?? throw new ArgumentNullException(nameof(logger));

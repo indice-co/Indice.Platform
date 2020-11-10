@@ -4,7 +4,6 @@ using System.Linq;
 using System.Net.Mime;
 using System.Threading.Tasks;
 using Indice.AspNetCore.Identity.Data;
-using Indice.AspNetCore.Identity.Data.Models;
 using Indice.AspNetCore.Identity.Models;
 using Indice.AspNetCore.Identity.Services;
 using Indice.Services;
