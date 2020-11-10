@@ -1,5 +1,4 @@
 ﻿using Indice.AspNetCore.Identity.Data.Mappings;
-using Indice.AspNetCore.Identity.Data.Models;
 using Indice.AspNetCore.Identity.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;

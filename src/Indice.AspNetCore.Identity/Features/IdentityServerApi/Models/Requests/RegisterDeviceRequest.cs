@@ -22,7 +22,7 @@ namespace Indice.AspNetCore.Identity.Features
         /// <summary>
         /// Device name
         /// </summary>
-        [Required]
+        [Required, MaxLength(250)]
         public string DeviceName { get; set; }
         /// <summary>
         /// Client device platform
