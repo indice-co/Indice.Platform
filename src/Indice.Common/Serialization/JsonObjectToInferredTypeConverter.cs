@@ -36,6 +36,6 @@ namespace Indice.Serialization
         }
 
         /// <inheritdoc/>
-        public override void Write(Utf8JsonWriter writer, object value, JsonSerializerOptions options) => throw new InvalidOperationException("Should not get here.");
+        public override void Write(Utf8JsonWriter writer, object value, JsonSerializerOptions options) => JsonSerializer.Serialize(writer, value, value.GetType(), options);
     }
 }

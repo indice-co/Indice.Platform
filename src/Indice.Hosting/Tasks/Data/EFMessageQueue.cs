@@ -4,7 +4,6 @@ using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
-using Org.BouncyCastle.Math.EC.Rfc7748;
 
 namespace Indice.Hosting.Tasks.Data
 {
@@ -16,35 +15,38 @@ namespace Indice.Hosting.Tasks.Data
     {
         private readonly TaskDbContext _DbContext;
         private readonly string _QueueName;
+        private readonly JsonSerializerOptions _JsonOptions;
 
         /// <summary>
         /// constructor
         /// </summary>
         /// <param name="dbContext"></param>
         /// <param name="nameResolver"></param>
-        public EFMessageQueue(TaskDbContext dbContext, IQueueNameResolver<T> nameResolver) {
+        /// <param name="workerJsonOptions"></param>
+        public EFMessageQueue(TaskDbContext dbContext, IQueueNameResolver<T> nameResolver, WorkerJsonOptions workerJsonOptions) {
             _DbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
             _QueueName = nameResolver?.Resolve() ?? throw new ArgumentNullException(nameof(nameResolver));
+            _JsonOptions = workerJsonOptions?.JsonSerializerOptions ?? throw new ArgumentNullException(nameof(workerJsonOptions));
         }
 
         /// <inheritdoc/>
         public async Task<QMessage<T>> Dequeue() {
-            bool successfullLock = false;
+            var successfullLock = false;
             DbQMessage message;
             do {
                 message = await GetAvailableItems().FirstOrDefaultAsync();
                 if (message == null)
-                    return default(QMessage<T>);
+                    return default;
                 message.DequeueCount++;
                 message.State = QMessageState.Dequeued;
                 try {
                     await _DbContext.SaveChangesAsync();
                     successfullLock = true;
                 } catch (DbUpdateException) {
-                    // could not aquire lock. will try again.
+                    // Could not aquire lock. Will try again.
                 }
             } while (!successfullLock);
-            return message.ToModel<T>();
+            return message.ToModel<T>(_JsonOptions);
         }
 
         /// <inheritdoc/>
@@ -54,7 +56,7 @@ namespace Indice.Hosting.Tasks.Data
                     Id = Guid.NewGuid(),
                     Date = DateTime.UtcNow,
                     State = QMessageState.New,
-                    Payload = JsonSerializer.Serialize(item),
+                    Payload = JsonSerializer.Serialize(item, _JsonOptions),
                     QueueName = _QueueName
                 };
                 _DbContext.Add(message);
@@ -73,7 +75,7 @@ namespace Indice.Hosting.Tasks.Data
                 Id = Guid.NewGuid(),
                 Date = DateTime.UtcNow,
                 State = QMessageState.New,
-                Payload = JsonSerializer.Serialize(x),
+                Payload = JsonSerializer.Serialize(x, _JsonOptions),
                 QueueName = _QueueName
             }));
             await _DbContext.SaveChangesAsync();
@@ -82,7 +84,7 @@ namespace Indice.Hosting.Tasks.Data
         /// <inheritdoc/>
         public async Task<T> Peek() {
             var message = await GetAvailableItems().SingleOrDefaultAsync();
-            return JsonSerializer.Deserialize<T>(message.Payload);
+            return JsonSerializer.Deserialize<T>(message.Payload, _JsonOptions);
         }
 
         /// <inheritdoc/>
@@ -101,15 +103,15 @@ namespace Indice.Hosting.Tasks.Data
             //    .ToListAsync();
             //_DbContext.RemoveRange(items);
             //await _DbContext.SaveChangesAsync();
-            await _DbContext.Database.ExecuteSqlRawAsync(
-@"DELETE FROM [work].[QMessage] 
-WHERE Id IN (SELECT TOP ({0}) Id FROM [work].[QMessage] 
-             WHERE [State] = {1}
-             ORDER BY Date)", batchSize ?? 1000, QMessageState.Dequeued);
+            var query = @"
+                DELETE FROM [work].[QMessage] 
+                WHERE Id IN (SELECT TOP ({0}) Id FROM [work].[QMessage] 
+                WHERE [State] = {1} AND [QueueName] = {2}
+                ORDER BY Date);
+            ";
+            await _DbContext.Database.ExecuteSqlRawAsync(query, batchSize ?? 1000, QMessageState.Dequeued, _QueueName);
         }
 
-        private IQueryable<DbQMessage> GetAvailableItems() {
-            return _DbContext.Queue.Where(x => x.QueueName == _QueueName && x.State == QMessageState.New).OrderBy(x => x.Date);
-        }
+        private IQueryable<DbQMessage> GetAvailableItems() => _DbContext.Queue.Where(x => x.QueueName == _QueueName && x.State == QMessageState.New).OrderBy(x => x.Date);
     }
 }

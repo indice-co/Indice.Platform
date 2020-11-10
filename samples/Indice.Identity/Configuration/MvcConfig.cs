@@ -38,8 +38,8 @@ namespace Microsoft.Extensions.DependencyInjection
                                // Enable events and register handlers.
                                options.CanRaiseEvents = true;
                                options.DisableCache = false;
-                               options.AddEventHandler<ClientCreatedEvent, ClientCreatedEventHandler>()
-                                      .AddEventHandler<UserEmailConfirmedEvent, UserEmailConfirmedEventHandler>();
+                               options.AddEventHandler<ClientCreatedEvent, ClientCreatedEventHandler>();
+                               options.AddEventHandler<UserEmailConfirmedEvent, UserEmailConfirmedEventHandler>();
                                // Update email options.
                                options.Email.SendEmailOnUpdate = true;
                                // Update phone number options.

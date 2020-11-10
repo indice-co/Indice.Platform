@@ -107,8 +107,8 @@ namespace Indice.AspNetCore.Identity.Features
             };
             await _emailService.SendAsync<User>(message =>
                 message.To(user.Email)
-                       .WithSubject(_messageDescriber.EmailUpdateMessageSubject)
-                       .WithBody(_messageDescriber.EmailUpdateMessageBody(request.ReturnUrl, user, token))
+                       .WithSubject(_messageDescriber.UpdateEmailMessageSubject)
+                       .WithBody(_messageDescriber.UpdateEmailMessageBody(user, token, request.ReturnUrl))
                        .WithData(data));
             return NoContent();
         }
@@ -124,10 +124,7 @@ namespace Indice.AspNetCore.Identity.Features
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
         public async Task<IActionResult> ConfirmEmail([FromBody] ConfirmEmailRequest request) {
             var userId = User.FindFirstValue(JwtClaimTypes.Subject);
-            var user = await _userManager.Users
-                                         .Include(x => x.Claims)
-                                         .Where(x => x.Id == userId)
-                                         .SingleOrDefaultAsync();
+            var user = await _userManager.Users.Include(x => x.Claims).Where(x => x.Id == userId).SingleOrDefaultAsync();
             if (user == null) {
                 return NotFound();
             }
@@ -185,7 +182,7 @@ namespace Indice.AspNetCore.Identity.Features
         /// <summary>
         /// Confirms the phone number of the user, using the OTP token.
         /// </summary>
-        /// <param name="request"></param>
+        /// <param name="request">Models the request of a user for phone number confirmation.</param>
         /// <response code="204">No Content</response>
         /// <response code="404">Not Found</response>
         [HttpPut("my/account/phone-number/confirmation")]

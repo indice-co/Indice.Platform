@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Indice.Hosting
@@ -12,14 +14,19 @@ namespace Indice.Hosting
         /// Creates a new instance of <see cref="WorkerHostOptions"/>.
         /// </summary>
         /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
-        public WorkerHostOptions(IServiceCollection services) : this(services, null) { }
-
-        internal WorkerHostOptions(IServiceCollection services, Type workItemQueueType) {
+        public WorkerHostOptions(IServiceCollection services) {
             Services = services;
-            WorkItemQueueType = workItemQueueType;
+            JsonOptions = new WorkerJsonOptions();
         }
 
         internal IServiceCollection Services { get; }
-        internal Type WorkItemQueueType { get; set; }
+        internal Type QueueStoreType { get; set; }
+        internal Type ScheduledTaskStoreType { get; set; }
+        internal Type LockStoreType { get; set; }
+
+        /// <summary>
+        /// Gets the <see cref="System.Text.Json.JsonSerializerOptions"/> used internally whenever a payload needs to be persisted. 
+        /// </summary>
+        public WorkerJsonOptions JsonOptions { get; }
     }
 }

@@ -248,36 +248,58 @@ namespace Indice.AspNetCore.Swagger
         }
 
         /// <summary>
-        /// Adds OpenId Connect security scheme.
+        /// Adds OAuth 2.0 security scheme using the Authorization Code flow and client credentials.
         /// </summary>
         /// <param name="options">The options used to generate the swagger.json file.</param>
         /// <param name="settings">General settings for an ASP.NET Core application.</param>
         /// <param name="name">A unique name for the scheme.</param>
         public static SwaggerGenOptions AddOAuth2(this SwaggerGenOptions options, GeneralSettings settings, string name = "oauth2") {
-            var apiSettings = settings?.Api ?? new ApiSettings();
-            // Define the OAuth2.0 scheme that's in use (i.e. Implicit Flow).
-            var scopes = new Dictionary<string, string> {
-                { apiSettings.ResourceName, $"Access to {apiSettings.FriendlyName}"},
-            };
-            foreach (var scope in apiSettings.Scopes) {
-                scopes.Add($"{apiSettings.ResourceName}:{scope.Key}", scope.Value);
-            }
             // https://swagger.io/docs/specification/authentication/
             options.AddSecurityDefinition(name, new OpenApiSecurityScheme {
                 Type = SecuritySchemeType.OAuth2,
-                Description = "Identity Server OAuth2",
+                Description = "Identity Server OAuth2 - Authorization Code",
                 Flows = new OpenApiOAuthFlows {
-                    Implicit = new OpenApiOAuthFlow {
+                    AuthorizationCode = new OpenApiOAuthFlow {
                         TokenUrl = new Uri(settings?.Authority + "/connect/token"),
                         RefreshUrl = new Uri(settings?.Authority + "/connect/token"),
                         AuthorizationUrl = new Uri(settings?.Authority + "/connect/authorize"),
-                        Scopes = scopes
+                        Scopes = GetScopes(settings)
                     },
                     ClientCredentials = new OpenApiOAuthFlow {
                         TokenUrl = new Uri(settings?.Authority + "/connect/token"),
                         RefreshUrl = new Uri(settings?.Authority + "/connect/token"),
                         AuthorizationUrl = new Uri(settings?.Authority + "/connect/authorize"),
-                        Scopes = scopes
+                        Scopes = GetScopes(settings)
+                    }
+                }
+            });
+            options.AddSecurityRequirements(name, settings);
+            return options;
+        }
+
+        /// <summary>
+        /// Adds OAuth 2.0 security scheme using the Implicit flow and client credentials.
+        /// </summary>
+        /// <param name="options">The options used to generate the swagger.json file.</param>
+        /// <param name="settings">General settings for an ASP.NET Core application.</param>
+        /// <param name="name">A unique name for the scheme.</param>
+        public static SwaggerGenOptions AddOAuth2ImplicitFlow(this SwaggerGenOptions options, GeneralSettings settings, string name = "oauth2") {
+            // https://swagger.io/docs/specification/authentication/
+            options.AddSecurityDefinition(name, new OpenApiSecurityScheme {
+                Type = SecuritySchemeType.OAuth2,
+                Description = "Identity Server OAuth2 - Implicit Flow",
+                Flows = new OpenApiOAuthFlows {
+                    Implicit = new OpenApiOAuthFlow {
+                        TokenUrl = new Uri(settings?.Authority + "/connect/token"),
+                        RefreshUrl = new Uri(settings?.Authority + "/connect/token"),
+                        AuthorizationUrl = new Uri(settings?.Authority + "/connect/authorize"),
+                        Scopes = GetScopes(settings)
+                    },
+                    ClientCredentials = new OpenApiOAuthFlow {
+                        TokenUrl = new Uri(settings?.Authority + "/connect/token"),
+                        RefreshUrl = new Uri(settings?.Authority + "/connect/token"),
+                        AuthorizationUrl = new Uri(settings?.Authority + "/connect/authorize"),
+                        Scopes = GetScopes(settings)
                     }
                 }
             });
@@ -315,6 +337,12 @@ namespace Indice.AspNetCore.Swagger
             options.MapType<GeoPoint>(() => new OpenApiSchema {
                 Type = "string"
             });
+            options.MapType<Base64Id>(() => new OpenApiSchema {
+                Type = "string"
+            });
+            options.MapType<Base64Host>(() => new OpenApiSchema {
+                Type = "string"
+            });
             options.CustomOperationIds(x => (x.ActionDescriptor as ControllerActionDescriptor)?.ActionName);
         }
 
@@ -328,6 +356,18 @@ namespace Indice.AspNetCore.Swagger
             if (File.Exists(xmlPath)) {
                 options.IncludeXmlComments(xmlPath);
             }
+        }
+
+        private static Dictionary<string, string> GetScopes(GeneralSettings settings) {
+            var apiSettings = settings?.Api ?? new ApiSettings();
+            // Define the OAuth2.0 scheme that's in use (i.e. Implicit Flow).
+            var scopes = new Dictionary<string, string> {
+                { apiSettings.ResourceName, $"Access to {apiSettings.FriendlyName}"},
+            };
+            foreach (var scope in apiSettings.Scopes) {
+                scopes.Add($"{apiSettings.ResourceName}:{scope.Key}", scope.Value);
+            }
+            return scopes;
         }
     }
 }

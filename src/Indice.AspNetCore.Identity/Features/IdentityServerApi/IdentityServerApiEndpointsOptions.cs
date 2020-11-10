@@ -13,11 +13,11 @@ namespace Indice.AspNetCore.Identity.Features
         /// <summary>
         /// Options for the SMS sent when a user updates his phone number.
         /// </summary>
-        public UpdatePhoneNumberOptions PhoneNumber { get; set; } = new UpdatePhoneNumberOptions();
+        public PhoneNumberOptions PhoneNumber { get; set; } = new PhoneNumberOptions();
         /// <summary>
         /// Options for the email sent when a user updates his email address.
         /// </summary>
-        public UpdateEmailOptions Email { get; set; } = new UpdateEmailOptions();
+        public EmailOptions Email { get; set; } = new EmailOptions();
         /// <summary>
         /// If true, it seeds the database with some initial data for users, roles etc. Works only when environment is 'Development'. Default is false.
         /// </summary>

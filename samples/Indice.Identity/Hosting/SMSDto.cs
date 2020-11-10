@@ -1,5 +1,6 @@
 ﻿using System;
 using Indice.Hosting;
+using Indice.Types;
 
 namespace Indice.Identity.Hosting
 {

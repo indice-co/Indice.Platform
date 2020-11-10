@@ -21,6 +21,11 @@ namespace Indice.Hosting.Tasks
         public string CronExpression { get; set; }
 
         /// <summary>
+        /// Job name
+        /// </summary>
+        public string Name { get; set; }
+
+        /// <summary>
         /// The job description
         /// </summary>
         public string Description { get; set; }

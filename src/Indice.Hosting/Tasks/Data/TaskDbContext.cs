@@ -1,7 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Diagnostics;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Indice.Hosting.Tasks.Data
 {
@@ -10,13 +10,20 @@ namespace Indice.Hosting.Tasks.Data
     /// </summary>
     public class TaskDbContext : DbContext
     {
+        private static bool _alreadyCreated = false;
+
         /// <summary>
         /// create the DbContext 
         /// </summary>
         /// <param name="options"></param>
         public TaskDbContext(DbContextOptions options) : base(options) {
-            if (System.Diagnostics.Debugger.IsAttached) { 
-                Database.EnsureCreated();
+            if (Debugger.IsAttached) {
+                var exists = Database.GetService<IRelationalDatabaseCreator>().Exists();
+                if (!exists && !_alreadyCreated) {
+                    // When no databases have been created, this ensures that the database creation process will run once.
+                    _alreadyCreated = true;
+                    Database.EnsureCreated();
+                }
             }
         }
 
@@ -27,7 +34,11 @@ namespace Indice.Hosting.Tasks.Data
         /// <summary>
         /// Tasks
         /// </summary>
-        public DbSet<DbQTask> Tasks { get; set; }
+        public DbSet<DbScheduledTask> Tasks { get; set; }
+        /// <summary>
+        /// Locks
+        /// </summary>
+        public DbSet<DbLock> Locks { get; set; }
 
         /// <summary>
         /// Configure the context
@@ -36,7 +47,8 @@ namespace Indice.Hosting.Tasks.Data
         protected override void OnModelCreating(ModelBuilder builder) {
             base.OnModelCreating(builder);
             builder.ApplyConfiguration(new DbQMessageMap());
-            builder.ApplyConfiguration(new DbQTaskMap());
+            builder.ApplyConfiguration(new DbScheduledTaskMap());
+            builder.ApplyConfiguration(new DbLockMap());
         }
     }
 }

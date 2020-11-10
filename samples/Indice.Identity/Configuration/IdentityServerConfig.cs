@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Reflection;
 using System.Security.Cryptography.X509Certificates;
 using Indice.AspNetCore.Identity.Extensions;
@@ -47,6 +48,8 @@ namespace Microsoft.Extensions.DependencyInjection
                 options.SetupTables();
                 options.ConfigureDbContext = builder => builder.UseSqlServer(configuration.GetConnectionString("OperationalDb"), sqlServerOptions => sqlServerOptions.MigrationsAssembly(migrationsAssembly));
                 options.EnableTokenCleanup = true;
+                options.TokenCleanupInterval = (int)TimeSpan.FromHours(1).TotalSeconds;
+                options.TokenCleanupBatchSize = 100;
             })
             .AddConfigurationStore<ExtendedConfigurationDbContext>(options => {
                 options.SetupTables();

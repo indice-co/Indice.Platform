@@ -5,7 +5,7 @@ namespace Indice.AspNetCore.Identity.Features
     /// <summary>
     /// Options for the email sent when a user updates his email address.
     /// </summary>
-    public class UpdateEmailOptions
+    public class EmailOptions
     {
         /// <summary>
         /// Controls whether an email is sent to the user when the email is updated, containing a verification token, or not. Defaults to false.

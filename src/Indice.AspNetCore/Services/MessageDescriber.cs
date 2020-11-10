@@ -33,11 +33,19 @@ namespace Indice.Services
         /// <summary>
         /// Confirm your account.
         /// </summary>
-        public virtual string EmailUpdateMessageSubject => string.Format(Resources.Culture, Resources.EmailUpdateMessageSubject);
+        public virtual string UpdateEmailMessageSubject => string.Format(Resources.Culture, Resources.EmailUpdateMessageSubject);
         /// <summary>
         /// Email verification code is {0}.
         /// </summary>
-        public virtual string EmailUpdateMessageBody<TUser>(string returnUrl, TUser user, string token) where TUser : class => string.Format(Resources.Culture, Resources.EmailUpdateMessageBody);
+        public virtual string UpdateEmailMessageBody<TUser>(TUser user, string token, string returnUrl) where TUser : class => string.Format(Resources.Culture, Resources.EmailUpdateMessageBody, token);
+        /// <summary>
+        /// Forgot password.
+        /// </summary>
+        public virtual string ForgotPasswordMessageSubject => string.Format(Resources.Culture, Resources.ForgotPasswordMessageSubject);
+        /// <summary>
+        /// Email verification code is {0}.
+        /// </summary>
+        public virtual string ForgotPasswordMessageBody<TUser>(TUser user, string token, string returnUrl) where TUser : class => string.Format(Resources.Culture, Resources.ForgotPasswordMessageBody, token);
         /// <summary>
         /// Your password is very common to use.
         /// </summary>

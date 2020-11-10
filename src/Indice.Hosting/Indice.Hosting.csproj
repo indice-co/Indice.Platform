@@ -2,7 +2,7 @@
   <PropertyGroup>
     <Description>Indice.Hosting Class Library</Description>
     <Copyright>Copyright (c) 2019 Indice</Copyright>
-    <VersionPrefix>4.0.5</VersionPrefix>
+    <VersionPrefix>4.0.7</VersionPrefix>
     <!--<VersionSuffix>beta1</VersionSuffix>-->
     <Authors>c.leftheris</Authors>
     <TargetFramework>netstandard2.0</TargetFramework>
@@ -32,7 +32,7 @@
     <None Include="..\..\icon\icon-310.png" Pack="true" Visible="false" PackagePath="" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Indice.Services" Version="4.0.0-beta7" />
+    <PackageReference Include="Indice.Services" Version="4.0.0-beta9" />
     <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="3.1.9" />
     <PackageReference Include="Microsoft.Extensions.Configuration.CommandLine" Version="3.1.9" />

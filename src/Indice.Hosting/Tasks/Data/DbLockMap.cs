@@ -12,7 +12,7 @@ namespace Indice.Hosting.Tasks.Data
             // Configure table name.
             builder.ToTable("Lock", "work");
             // Configure primary key.
-            builder.HasKey(x => new { x.Id, x.Name });
+            builder.HasKey(x => x.Name);
             builder.Property(x => x.Name).HasMaxLength(256);
         }
     }

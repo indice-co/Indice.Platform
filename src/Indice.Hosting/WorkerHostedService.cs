@@ -87,13 +87,10 @@ namespace Indice.Hosting
                 await Scheduler.ScheduleJob(cleanUpTrigger);
             }
             foreach (var schedule in _scheduledJobSettings) {
-                var jobId = schedule.JobHandlerType.FullName;
-                if (schedule.Description != null) {
-                    jobId = $"{schedule.Description} ({schedule.JobHandlerType.FullName})";
-                }
-                var jobDetails = JobBuilder.Create(typeof(ScheduledJob<>).MakeGenericType(schedule.JobHandlerType))
+                var jobDetails = JobBuilder.Create(typeof(ScheduledJob<,>).MakeGenericType(schedule.JobHandlerType, schedule.JobStateType))
                                            .StoreDurably() // this is needed in case of multiple consumers (triggers)
-                                           .WithIdentity(name: jobId, group: schedule.Group ?? JobGroups.InternalJobsGroup)
+                                           .WithIdentity(name: schedule.Name, group: schedule.Group ?? JobGroups.InternalJobsGroup)
+                                           .WithDescription(schedule.Description)
                                            .SetJobData(new JobDataMap(new Dictionary<string, object> {
                                                { JobDataKeys.JobHandlerType, schedule.JobHandlerType }
                                            } as IDictionary<string, object>))
@@ -101,7 +98,7 @@ namespace Indice.Hosting
                 await Scheduler.AddJob(jobDetails, replace: true);
                 var jobTrigger = TriggerBuilder.Create()
                                                    .ForJob(jobDetails)
-                                                   .WithIdentity(name: $"{jobId}.trigger", group: schedule.Group ?? JobGroups.InternalJobsGroup)
+                                                   .WithIdentity(name: $"{schedule.Name}.trigger", group: schedule.Group ?? JobGroups.InternalJobsGroup)
                                                    .StartNow()
                                                    .WithCronSchedule(schedule.CronExpression)
                                                    .WithDescription(schedule.CronExpression)
