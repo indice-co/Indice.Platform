@@ -51,7 +51,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 options.Discovery.CustomEntries.Add("totp", new {
                     endpoint = options.IssuerUri.TrimEnd('/') + "/totp",
                     providers = new[] { $"{TotpProviderType.Phone}", $"{TotpProviderType.EToken}" },
-                    channels = new[] { $"{TotpDeliveryChannel.Sms}" }
+                    channels = new[] { $"{TotpDeliveryChannel.Sms}", $"{TotpDeliveryChannel.PushNotification}" }
                 });
             });
             builder.AddExtensionGrantValidator<TotpGrantValidator>();

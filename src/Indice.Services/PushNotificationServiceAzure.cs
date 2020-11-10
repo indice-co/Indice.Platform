@@ -23,6 +23,21 @@ namespace Indice.Services
         public const string NOTIFICATIONS_HUB_PATH = "PushNotificationsHubPath";
 
         /// <summary>
+        /// Windows phone template
+        /// </summary>
+        private readonly string WindowsPhoneTemplate = @"<toast><visual><binding template=""ToastText01""><text id=""1"">$(message)</text><text id=""1"">$(data)</text></binding></visual></toast>";
+
+        /// <summary>
+        /// iOS template
+        /// </summary>
+        private readonly string IOSTemplate = @"{""aps"":{""alert"":""$(message)""}, ""payload"":{""data"":""$(data)""}}";
+
+        /// <summary>
+        /// Android template
+        /// </summary>
+        private readonly string AndroidTemplate = @"{""data"":{""message"":""$(message)"", ""data"":""$(data)""}}";
+
+        /// <summary>
         /// Notifications hub instance
         /// </summary>
         protected NotificationHubClient NotificationHub { get; }
@@ -35,45 +50,57 @@ namespace Indice.Services
         /// <summary>
         /// Constructs the <see cref="PushNotificationServiceAzure"/>
         /// </summary>
-        /// <param name="connectionString">Connection string for azure</param>
-        /// <param name="notificationHubPath">Notifications hub name</param>
-        public PushNotificationServiceAzure(string connectionString, string notificationHubPath) {
-            if (string.IsNullOrEmpty(connectionString)) {
-                throw new ArgumentNullException(nameof(connectionString));
+        /// <param name="options">Connection string for azure and Notifications hub name</param>
+        public PushNotificationServiceAzure(PushNotificationOptions options) {
+            if (string.IsNullOrEmpty(options.ConnectionString)) {
+                throw new ArgumentNullException(nameof(options.ConnectionString));
             }
-            if (string.IsNullOrEmpty(notificationHubPath)) {
-                throw new ArgumentNullException(nameof(notificationHubPath));
+            if (string.IsNullOrEmpty(options.NotificationHubPath)) {
+                throw new ArgumentNullException(nameof(options.NotificationHubPath));
             }
-            NotificationHub = NotificationHubClient.CreateClientFromConnectionString(connectionString, notificationHubPath);
+            NotificationHub = NotificationHubClient.CreateClientFromConnectionString(options.ConnectionString, options.NotificationHubPath);
         }
 
         ///<inheritdoc/>
-        public async Task Register(string deviceId, string pnsHandle, IList<string> tags, DevicePlatform devicePlatform) {
+        public async Task Register(string deviceId, string pnsHandle, DevicePlatform devicePlatform, IList<string> tags) {
             if (string.IsNullOrEmpty(deviceId)) {
                 throw new ArgumentNullException(nameof(deviceId));
             }
-            if (tags.Count == 0) {
+            if (!(tags?.Count > 0)) {
                 throw new ArgumentException("Tags list is empty");
             }
             var installationRequest = new Installation() {
                 InstallationId = deviceId,
                 PushChannel = pnsHandle,
-                Tags = tags
+                Tags = tags,
+                Templates = new Dictionary<string, InstallationTemplate>()
             };
             switch (devicePlatform) {
                 //For windows phone 8 or Windows Phone 8.1 Silverlight applications
                 case DevicePlatform.WindowsPhone:
                     installationRequest.Platform = NotificationPlatform.Mpns;
+                    installationRequest.Templates.Add(
+                        "DefaultMessage", new InstallationTemplate() { Body = WindowsPhoneTemplate }
+                    );
                     break;
                 //For universal windows platform applications
                 case DevicePlatform.UWP:
                     installationRequest.Platform = NotificationPlatform.Wns;
+                    installationRequest.Templates.Add(
+                        "DefaultMessage", new InstallationTemplate() { Body = WindowsPhoneTemplate }
+                    );
                     break;
                 case DevicePlatform.iOS:
                     installationRequest.Platform = NotificationPlatform.Apns;
+                    installationRequest.Templates.Add(
+                        "DefaultMessage", new InstallationTemplate() { Body = IOSTemplate }
+                    );
                     break;
                 case DevicePlatform.Android:
                     installationRequest.Platform = NotificationPlatform.Fcm;
+                    installationRequest.Templates.Add(
+                        "DefaultMessage", new InstallationTemplate() { Body = AndroidTemplate }
+                    );
                     break;
                 case DevicePlatform.None:
                 default:
@@ -91,30 +118,20 @@ namespace Indice.Services
         }
 
         ///<inheritdoc/>
-        public async Task SendAsync(string message, IList<string> tags, DevicePlatform devicePlatform) {
+        public async Task SendAsync(string message, IList<string> tags, string data = null) {
             if (string.IsNullOrEmpty(message)) {
                 throw new ArgumentNullException(nameof(message));
             }
-            if (tags.Count == 0) {
+            if (!(tags?.Count > 0)) {
                 throw new ArgumentException("Tags list is empty");
             }
-            switch (devicePlatform) {
-                case DevicePlatform.WindowsPhone:
-                    await NotificationHub.SendMpnsNativeNotificationAsync(message, tags);
-                    break;
-                case DevicePlatform.UWP:
-                    await NotificationHub.SendWindowsNativeNotificationAsync(message, tags);
-                    break;
-                case DevicePlatform.iOS:
-                    await NotificationHub.SendAppleNativeNotificationAsync(message, tags);
-                    break;
-                case DevicePlatform.Android:
-                    await NotificationHub.SendFcmNativeNotificationAsync(message, tags);
-                    break;
-                case DevicePlatform.None:
-                default:
-                    throw new ArgumentException("Device platform not supported", nameof(devicePlatform));
+            var notification = new Dictionary<string, string> {
+                { "message", message }
+            };
+            if (!string.IsNullOrEmpty(data)) {
+                notification.Add("data", data);
             }
+            await NotificationHub.SendTemplateNotificationAsync(notification, tags);
         }
 
         /// <summary>

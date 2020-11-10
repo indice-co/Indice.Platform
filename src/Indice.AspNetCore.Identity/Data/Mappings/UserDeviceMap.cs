@@ -1,4 +1,5 @@
-﻿using Indice.AspNetCore.Identity.Data.Models;
+﻿using System;
+using Indice.AspNetCore.Identity.Data.Models;
 using Indice.AspNetCore.Identity.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -20,6 +21,10 @@ namespace Indice.AspNetCore.Identity.Data.Mappings
             builder.ToTable(nameof(UserDevice), "auth");
             // Configure primary key.
             builder.HasKey(x => x.Id);
+            //Device name length
+            builder.Property(x => x.DeviceName).HasMaxLength(256);
+            //Default value for DateCreated
+            builder.Property(x => x.DateCreated).HasDefaultValue(DateTime.Now);
             // Configure relationships.
             builder.HasOne<TUser>().WithMany().HasForeignKey(x => x.UserId).OnDelete(DeleteBehavior.Cascade);
         }

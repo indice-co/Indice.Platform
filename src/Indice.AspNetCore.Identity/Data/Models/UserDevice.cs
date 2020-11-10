@@ -39,5 +39,9 @@ namespace Indice.AspNetCore.Identity.Data.Models
         /// The date this password was created.
         /// </summary>
         public DateTimeOffset DateCreated { get; set; }
+        /// <summary>
+        /// Flag that determines if push notifications are enabled for this device
+        /// </summary>
+        public bool IsPushNotificationsEnabled { get; set; }
     }
 }
