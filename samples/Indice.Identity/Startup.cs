@@ -96,7 +96,6 @@ namespace Indice.Identity
             services.AddSpaStaticFiles(options => {
                 options.RootPath = "wwwroot/admin-ui";
             });
-
             // Setup worker host for executing background tasks.
             services.AddWorkerHost(options => {
                 options.JsonOptions.JsonSerializerOptions.WriteIndented = true;
@@ -106,7 +105,6 @@ namespace Indice.Identity
             .WithQueueTrigger<SMSDto>(options => {
                 options.QueueName = "user-messages";
                 options.PollingInterval = 500;
-                //options.InstanceCount = 1;
             })
             .AddJob<LoadAvailableAlertsHandler>()
             .WithScheduleTrigger<DemoCounterModel>("0/5 * * * * ?", options => {
