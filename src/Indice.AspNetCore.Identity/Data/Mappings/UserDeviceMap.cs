@@ -23,7 +23,7 @@ namespace Indice.AspNetCore.Identity.Data.Mappings
             //Device name length
             builder.Property(x => x.DeviceName).HasMaxLength(256);
             //Default value for DateCreated
-            builder.Property(x => x.DateCreated).HasDefaultValue(DateTime.Now);
+            builder.Property(x => x.DateCreated).HasDefaultValue(DateTimeOffset.Now);
             // Configure relationships.
             builder.HasOne<TUser>().WithMany().HasForeignKey(x => x.UserId).OnDelete(DeleteBehavior.Cascade);
         }
