@@ -163,7 +163,6 @@ namespace Indice.AspNetCore.Identity.Models
         /// The new password.
         /// </summary>
         public string NewPassword { get; set; }
-
         /// <summary>
         /// The new password confirmed (optional).
         /// </summary>

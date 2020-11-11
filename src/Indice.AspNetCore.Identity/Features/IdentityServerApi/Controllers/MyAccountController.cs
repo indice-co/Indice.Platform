@@ -250,7 +250,7 @@ namespace Indice.AspNetCore.Identity.Features
         }
 
         /// <summary>
-        /// Generates a token 
+        /// Generates a password reset token and sends it to the user via email.
         /// </summary>
         /// <param name="request">Contains info about the user password to change.</param>
         /// <response code="204">No Content</response>
@@ -273,24 +273,28 @@ namespace Indice.AspNetCore.Identity.Features
             return NoContent();
         }
 
+        /// <summary>
+        /// Changes the password of the user confirming the code received during forgot password process.
+        /// </summary>
+        /// <param name="request">Contains info about the user password to change.</param>
+        /// <response code="204">No Content</response>
+        /// <response code="400">Bad Request</response>
         [HttpPut("my/account/forgot-password/confirmation")]
         [AllowAnonymous]
         [ProducesResponseType(statusCode: StatusCodes.Status204NoContent, type: typeof(void))]
         [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest, type: typeof(ValidationProblemDetails))]
-        public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordVerifyModel request) {
+        public async Task<IActionResult> ForgotPasswordConfirmation([FromBody] ForgotPasswordVerifyModel request) {
             if (!ModelState.IsValid) {
                 return BadRequest(ModelState);
             }
             var user = await _userManager.FindByEmailAsync(request.Email);
             if (user == null) {
-                return BadRequest();
+                return NoContent();
             }
             var result = await _userManager.ResetPasswordAsync(user, request.Code, request.NewPassword);
             if (!result.Succeeded) {
                 return BadRequest(result.Errors.AsValidationProblemDetails());
             }
-            await _userManager.RemovePasswordAsync(user);
-            await _userManager.AddPasswordAsync(user, request.NewPassword);
             return NoContent();
         }
 
