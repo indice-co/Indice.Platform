@@ -35,7 +35,7 @@ namespace Indice.Services
     }
 
     /// <summary>
-    /// Extensions for <see cref="PushNotificationServiceExtensions"/>
+    /// Extensions for <see cref="IPushNotificationService"/>
     /// </summary>
     public static class PushNotificationServiceExtensions
     {
