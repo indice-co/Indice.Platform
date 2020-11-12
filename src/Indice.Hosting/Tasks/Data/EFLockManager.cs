@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.SqlClient;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -28,8 +29,9 @@ namespace Indice.Hosting.Tasks.Data
         public async Task<ILockLease> AcquireLock(string name, TimeSpan? timeout = null) {
             var @lock = new DbLock { Id = Guid.NewGuid(), Name = name, ExrirationDate = DateTime.UtcNow.Add(timeout ?? TimeSpan.FromSeconds(30)) };
             var success = false;
-            _DbContext.Locks.Add(@lock);
+            
             try {
+                _DbContext.Locks.Add(@lock);
                 await _DbContext.SaveChangesAsync();
                 success = true;
             } catch (DbUpdateException) {
