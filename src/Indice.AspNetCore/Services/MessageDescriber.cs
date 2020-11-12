@@ -45,7 +45,7 @@ namespace Indice.Services
         /// <summary>
         /// Email verification code is {0}.
         /// </summary>
-        public virtual string ForgotPasswordMessageBody<TUser>(TUser user, string token, string returnUrl) where TUser : class => string.Format(Resources.Culture, Resources.ForgotPasswordMessageBody, token);
+        public virtual string ForgotPasswordMessageBody<TUser>(TUser user, string token) where TUser : class => string.Format(Resources.Culture, Resources.ForgotPasswordMessageBody, token);
         /// <summary>
         /// Your password is very common to use.
         /// </summary>

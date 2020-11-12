@@ -82,5 +82,13 @@ namespace Microsoft.Extensions.Configuration
         /// <returns>The proxy's IP address.</returns>
         /// <remarks>Checks for the Proxy:Ip option in appsettings.json file.</remarks>
         public static string GetProxyIp(this IConfiguration configuration) => configuration.GetSection(ProxyOptions.Name).GetValue<string>(nameof(ProxyOptions.Ip));
+
+        /// <summary>
+        /// Indicates whether to stop the worker host, running the background tasks.
+        /// </summary>
+        /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
+        /// <returns>True if specified flag is set to true, otherwise false.</returns>
+        /// <remarks>Checks for the General:StopWorkerHost option in appsettings.json file.</remarks>
+        public static bool StopWorkerHost(this IConfiguration configuration) => configuration.GetSection(GeneralSettings.Name).GetValue<bool>("StopWorkerHost");
     }
 }

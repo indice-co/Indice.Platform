@@ -15,7 +15,7 @@ namespace Indice.AspNetCore.Identity.Features
         /// Converts a list of <see cref="IdentityError"/> objects to <see cref="ValidationProblemDetails"/>.
         /// </summary>
         /// <param name="errors">The list of <see cref="IdentityError"/> occured.</param>
-        public static ValidationProblemDetails ToValidationProblemDetails(this IEnumerable<IdentityError> errors) => 
+        public static ValidationProblemDetails AsValidationProblemDetails(this IEnumerable<IdentityError> errors) => 
             new ValidationProblemDetails(errors.ToDictionary(x => x.Code.Camelize(), x => new[] { x.Description }));
     }
 }
