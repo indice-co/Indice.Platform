@@ -105,7 +105,7 @@ namespace Indice.AspNetCore.Identity.Features
             if(device?.IsPushNotificationsEnabled == true) {
                 return NoContent();
             }
-            await _pushNotificationService.Register(request.DeviceId.ToString(), request.PnsHandle, request.DevicePlatform, user.Id,  request.Tags.ToArray());
+            await _pushNotificationService.Register(request.DeviceId.ToString(), request.PnsHandle, request.DevicePlatform, user.Id,  request.Tags?.ToArray());
             var deviceId = default(Guid);
             if (device != null) {
                 device.IsPushNotificationsEnabled = true;
