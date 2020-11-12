@@ -6,14 +6,14 @@ using Microsoft.EntityFrameworkCore.Storage;
 namespace Indice.Hosting.Tasks.Data
 {
     /// <summary>
-    /// A db context for hosting multiple <see cref="IMessageQueue{T}"/> 
+    /// A <see cref="DbContext"/> for hosting multiple <see cref="IMessageQueue{T}"/>.
     /// </summary>
     public class TaskDbContext : DbContext
     {
         private static bool _alreadyCreated = false;
 
         /// <summary>
-        /// create the DbContext 
+        /// Creates a new instance of <see cref="TaskDbContext"/>.
         /// </summary>
         /// <param name="options"></param>
         public TaskDbContext(DbContextOptions options) : base(options) {
@@ -28,22 +28,19 @@ namespace Indice.Hosting.Tasks.Data
         }
 
         /// <summary>
-        /// Queue messages
+        /// Queue messages.
         /// </summary>
         public DbSet<DbQMessage> Queue { get; set; }
         /// <summary>
-        /// Tasks
+        /// Tasks.
         /// </summary>
         public DbSet<DbScheduledTask> Tasks { get; set; }
         /// <summary>
-        /// Locks
+        /// Locks.
         /// </summary>
         public DbSet<DbLock> Locks { get; set; }
 
-        /// <summary>
-        /// Configure the context
-        /// </summary>
-        /// <param name="builder"></param>
+        /// <inheritdoc />
         protected override void OnModelCreating(ModelBuilder builder) {
             base.OnModelCreating(builder);
             builder.ApplyConfiguration(new DbQMessageMap());

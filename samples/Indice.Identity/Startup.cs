@@ -93,13 +93,11 @@ namespace Indice.Identity
                        .AddConnectSrc("https://dc.services.visualstudio.com")
                        .AddFrameAncestors("https://localhost:2002");
             });
-            services.AddSpaStaticFiles(options => {
-                options.RootPath = "wwwroot/admin-ui";
-            });
+            services.AddSpaStaticFiles(options => options.RootPath = "wwwroot/admin-ui");
             // Setup worker host for executing background tasks.
             services.AddWorkerHost(options => {
                 options.JsonOptions.JsonSerializerOptions.WriteIndented = true;
-                options.UseEntityFrameworkStorage();
+                options.UseEntityFrameworkStorage<ExtendedTaskDbContext>();
             })
             .AddJob<SMSAlertHandler>()
             .WithQueueTrigger<SMSDto>(options => {
