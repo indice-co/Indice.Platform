@@ -29,6 +29,8 @@ namespace Indice.Hosting.Tasks.Data
             _JsonOptions = workerJsonOptions?.JsonSerializerOptions ?? throw new ArgumentNullException(nameof(workerJsonOptions));
         }
 
+        // https://thinkrethink.net/2017/10/02/implement-pessimistic-concurrency-in-entity-framework-core/
+        // for pessimistic concurrency check the link above.
         /// <inheritdoc/>
         public async Task<QMessage<T>> Dequeue() {
             var successfullLock = false;
@@ -40,7 +42,7 @@ namespace Indice.Hosting.Tasks.Data
                 message.DequeueCount++;
                 message.State = QMessageState.Dequeued;
                 try {
-                    await _DbContext.SaveChangesAsync();
+                    await _DbContext.SaveChangesAsync(); 
                     successfullLock = true;
                 } catch (DbUpdateException) {
                     // Could not aquire lock. Will try again.

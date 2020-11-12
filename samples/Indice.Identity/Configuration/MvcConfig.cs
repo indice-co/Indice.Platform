@@ -28,6 +28,12 @@ namespace Microsoft.Extensions.DependencyInjection
             return services.AddControllersWithViews()
                            .AddRazorRuntimeCompilation()
                            .AddTotp()
+                           .AddPushNotifications(
+                                options => {
+                                    options.ConnectionString = configuration.GetConnectionString("PushNotificationsConnection");
+                                    options.NotificationHubPath = configuration["PushNotifications:PushNotificationsHubPath"];
+                                }
+                            )
                            .AddIdentityServerApiEndpoints(options => {
                                // Configure the DbContext.
                                options.AddDbContext(identityOptions => {
