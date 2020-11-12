@@ -25,6 +25,7 @@ namespace Microsoft.Extensions.DependencyInjection
             => services.Configure(ExtendedIdentityConstants.ExtendedValidationUserIdScheme, configure);
 
         internal static IServiceCollection AddDefaultTotpService(this IServiceCollection services, Action<TotpOptions> configure = null) {
+            services.TryAddTransient<IPushNotificationService, DefaultPushNotificationService>();
             services.TryAddTransient<ITotpService, TotpService>();
             services.TryAddSingleton(serviceProvider => {
                 var options = new TotpOptions {
@@ -32,6 +33,23 @@ namespace Microsoft.Extensions.DependencyInjection
                 };
                 configure?.Invoke(options);
                 return new Rfc6238AuthenticationService(options);
+            });
+            return services;
+        }
+
+        /// <summary>
+        /// Adds an instance of <see cref="IPushNotificationService"/> using Microsoft.Azure.NotificationHubs for sending push notifications
+        /// </summary>
+        /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
+        /// <param name="configure">Configure the available options. Null to use defaults.</param>
+        internal static IServiceCollection AddPushNotificationServiceAzure(this IServiceCollection services, Action<PushNotificationServiceAzure.PushNotificationOptions> configure = null) {
+            services.AddTransient<IPushNotificationService, PushNotificationServiceAzure>(serviceProvider => {
+                var options = new PushNotificationServiceAzure.PushNotificationOptions {
+                    ConnectionString = serviceProvider.GetRequiredService<IConfiguration>().GetConnectionString(PushNotificationServiceAzure.CONNECTION_STRING_NAME),
+                    NotificationHubPath = serviceProvider.GetRequiredService<IConfiguration>().GetValue<string>(PushNotificationServiceAzure.NOTIFICATIONS_HUB_PATH)
+                };
+                configure?.Invoke(options);
+                return new PushNotificationServiceAzure(options);
             });
             return services;
         }
