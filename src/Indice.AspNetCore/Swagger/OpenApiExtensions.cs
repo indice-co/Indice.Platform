@@ -3,10 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Text;
-using Humanizer;
 using Microsoft.OpenApi.Any;
-using Newtonsoft.Json;
 
 namespace Indice.AspNetCore.Swagger
 {
@@ -16,27 +13,25 @@ namespace Indice.AspNetCore.Swagger
     public static class OpenApiExtensions
     {
         /// <summary>
-        /// Converts an isntance to an openApi counterpart
+        /// Converts an isntance to an OpenApi counterpart.
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="instance"></param>
         /// <returns></returns>
-        public static IOpenApiAny ToOpenApiAny<T>(this T instance) where T : class {
-            return ToOpenApiAny(typeof(T), instance);
-        }
+        public static IOpenApiAny ToOpenApiAny<T>(this T instance) where T : class => ToOpenApiAny(typeof(T), instance);
+
         private static IOpenApiAny ToOpenApiAny(Type type, object instance) {
             var arrayResult = ToOpenApiArray(type, instance);
-            if (arrayResult != null)
+            if (arrayResult != null) {
                 return arrayResult;
+            }
             var result = new OpenApiObject();
             foreach (var property in type.GetRuntimeProperties()) {
                 var value = property.GetValue(instance);
-
                 if (value != null) {
-                    var key = char.ToLower(property.Name[0]) + property.Name.Substring(1);
+                    var key = char.ToLower(property.Name[0]) + property.Name[1..];
                     if (IsPrimitive(property.PropertyType)) {
                         var openValue = GetStructValue(property.PropertyType, value);
-
                         if (openValue != null) {
                             if (result.ContainsKey(key)) {
                                 result[key] = openValue;
@@ -64,7 +59,6 @@ namespace Indice.AspNetCore.Swagger
                     }
                 }
             }
-
             return result;
         }
 
@@ -78,17 +72,19 @@ namespace Indice.AspNetCore.Swagger
             return array;
         }
 
-        private static bool IsPrimitive(Type type) {
-            return type.IsValueType || type.IsPrimitive || type.Namespace.StartsWith("System") || type.IsEnum || type == typeof(string);
-        }
+        private static bool IsPrimitive(Type type) =>
+            type.IsValueType || type.IsPrimitive || type.Namespace.StartsWith("System") || type.IsEnum || type == typeof(string);
 
         private static IOpenApiPrimitive GetStructValue(Type type, object value) {
             var openValue = default(IOpenApiPrimitive);
-
             if (type == typeof(DateTime?) && ((DateTime?)value).HasValue) {
                 openValue = new OpenApiDate(((DateTime?)value).Value.ToUniversalTime());
-            } else if (type == typeof(DateTime) && ((DateTime)value) != default(DateTime)) {
+            } else if (type == typeof(DateTime) && ((DateTime)value) != default) {
                 openValue = new OpenApiDate(((DateTime)value).ToUniversalTime());
+            } else if (type == typeof(DateTimeOffset) && ((DateTimeOffset)value) != default) {
+                openValue = new OpenApiDateTime(((DateTimeOffset)value).DateTime.ToUniversalTime());
+            } else if (type == typeof(DateTimeOffset?) && ((DateTimeOffset?)value).HasValue) {
+                openValue = new OpenApiDateTime(((DateTimeOffset?)value).Value.DateTime.ToUniversalTime());
             } else if (type == typeof(string)) {
                 openValue = new OpenApiString((string)value);
             } else if (type == typeof(int) || type == typeof(int?)) {
@@ -119,25 +115,22 @@ namespace Indice.AspNetCore.Swagger
             } else if (type.IsValueType && !type.IsPrimitive && !type.Namespace.StartsWith("System") && !type.IsEnum) {
                 openValue = new OpenApiString($"{value}");
             }
-
             return openValue;
         }
 
         private static Type GetAnyElementType(Type type) {
-            // Type is Array
-            // short-circuit if you expect lots of arrays 
-            if (type.IsArray)
+            // Type is Array. Short-circuit if you expect lots of arrays.
+            if (type.IsArray) {
                 return type.GetElementType();
-
-            // type is IEnumerable<T>;
-            if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(IEnumerable<>))
+            }
+            // Type is IEnumerable<T>.
+            if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(IEnumerable<>)) {
                 return type.GetGenericArguments()[0];
-
-            // type implements/extends IEnumerable<T>;
+            }
+            // Type implements/extends IEnumerable<T>.
             var enumType = type.GetInterfaces()
-                                    .Where(t => t.IsGenericType &&
-                                           t.GetGenericTypeDefinition() == typeof(IEnumerable<>))
-                                    .Select(t => t.GenericTypeArguments[0]).FirstOrDefault();
+                               .Where(x => x.IsGenericType && x.GetGenericTypeDefinition() == typeof(IEnumerable<>))
+                               .Select(x => x.GenericTypeArguments[0]).FirstOrDefault();
             return enumType;
         }
     }
