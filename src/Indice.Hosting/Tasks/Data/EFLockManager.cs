@@ -27,7 +27,7 @@ namespace Indice.Hosting.Tasks.Data
 
         /// <inheritdoc/>
         public async Task<ILockLease> AcquireLock(string name, TimeSpan? timeout = null) {
-            var @lock = new DbLock { Id = Guid.NewGuid(), Name = name, ExrirationDate = DateTime.UtcNow.Add(timeout ?? TimeSpan.FromSeconds(30)) };
+            var @lock = new DbLock { Id = Guid.NewGuid(), Name = name, ExpirationDate = DateTime.UtcNow.Add(timeout ?? TimeSpan.FromSeconds(30)) };
             var success = false;
             
             try {
@@ -35,7 +35,7 @@ namespace Indice.Hosting.Tasks.Data
                 await _DbContext.SaveChangesAsync();
                 success = true;
             } catch (DbUpdateException) {
-                var oldlock = await _DbContext.Locks.Where(x => x.Name == name && x.ExrirationDate <= DateTime.UtcNow).SingleOrDefaultAsync();
+                var oldlock = await _DbContext.Locks.Where(x => x.Name == name && x.ExpirationDate <= DateTime.UtcNow).SingleOrDefaultAsync();
                 if (oldlock != null) {
                     _DbContext.Locks.Remove(oldlock);
                     _DbContext.Locks.Add(@lock);

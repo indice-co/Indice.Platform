@@ -18,6 +18,6 @@ namespace Indice.Hosting.Tasks.Data
         /// <summary>
         /// Lock lease expiration date.
         /// </summary>
-        public DateTime ExrirationDate { get; set; }
+        public DateTime ExpirationDate { get; set; }
     }
 }
