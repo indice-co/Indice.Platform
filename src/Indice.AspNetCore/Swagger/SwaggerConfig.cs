@@ -28,7 +28,10 @@ namespace Indice.AspNetCore.Swagger
         /// So this is exported to a seperate operation just in case we still need of it.
         /// </summary>
         /// <param name="options">The options used to generate the swagger.json file.</param>
-        public static void AddFormFileSupport(this SwaggerGenOptions options) => options.OperationFilter<FormFileOperationFilter>();
+        public static void AddFormFileSupport(this SwaggerGenOptions options) {
+            options.OperationFilter<FileUploadOperationFilter>();
+            options.OperationFilter<FileDownloadOperationFilter>();
+        }
 
         /// <summary>
         /// Adds support for Fluent validation.
@@ -74,6 +77,8 @@ namespace Indice.AspNetCore.Swagger
                         }
                         return $"{prefix}{name}Of{paramName}";
                     }
+                } else if (typeof(ProblemDetails).IsAssignableFrom(typeInfo)) {
+                    return typeInfo.Name;
                 } else if (type.Namespace.Contains("Models")) {
                     var name = type.Name.Replace(type.Namespace, string.Empty);
                     name = name.Replace("Info", string.Empty);
@@ -319,7 +324,10 @@ namespace Indice.AspNetCore.Swagger
                 Version = version,
                 Title = apiSettings.FriendlyName,
                 TermsOfService = apiSettings.TermsOfServiceUrl == null ? null : new Uri(apiSettings.TermsOfServiceUrl),
-                License = apiSettings.License == null ? null : new OpenApiLicense { Name = apiSettings.License.Name, Url = new Uri(apiSettings.License.Url) }
+                License = apiSettings.License == null ? null : new OpenApiLicense {
+                    Name = apiSettings.License.Name,
+                    Url = new Uri(apiSettings.License.Url)
+                }
             });
             var xmlFile = $"{Assembly.GetEntryAssembly().GetName().Name}.xml";
             var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);

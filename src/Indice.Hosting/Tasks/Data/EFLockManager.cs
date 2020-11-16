@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Data.SqlClient;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Indice.Services;
 using Indice.Types;
@@ -18,7 +15,7 @@ namespace Indice.Hosting.Tasks.Data
         private readonly TaskDbContext _DbContext;
 
         /// <summary>
-        /// Constructs the <see cref="EFLockManager"/>
+        /// Constructs the <see cref="EFLockManager"/>.
         /// </summary>
         /// <param name="dbContext"></param>
         public EFLockManager(TaskDbContext dbContext) {
@@ -27,9 +24,12 @@ namespace Indice.Hosting.Tasks.Data
 
         /// <inheritdoc/>
         public async Task<ILockLease> AcquireLock(string name, TimeSpan? timeout = null) {
-            var @lock = new DbLock { Id = Guid.NewGuid(), Name = name, ExpirationDate = DateTime.UtcNow.Add(timeout ?? TimeSpan.FromSeconds(30)) };
+            var @lock = new DbLock { 
+                Id = Guid.NewGuid(), 
+                Name = name, 
+                ExpirationDate = DateTime.UtcNow.Add(timeout ?? TimeSpan.FromSeconds(30)) 
+            };
             var success = false;
-            
             try {
                 _DbContext.Locks.Add(@lock);
                 await _DbContext.SaveChangesAsync();
@@ -43,8 +43,9 @@ namespace Indice.Hosting.Tasks.Data
                     success = true;
                 }
             }
-            if (!success)
-                throw new Exception($"Unable to aquire lease {name}");
+            if (!success) {
+                throw new Exception($"Unable to aquire lease {name}.");
+            }
             return new LockLease(new Base64Id(@lock.Id), name, this);
         }
 

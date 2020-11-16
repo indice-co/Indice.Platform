@@ -108,13 +108,13 @@ namespace Indice.AspNetCore.Swagger
                                                .Where(p => p.Value.Reference?.Id == BaseType.Name)
                                                .Union(schema.Properties.Where(p => p.Value.Items?.Reference?.Id == BaseType.Name))
                                                .ToList();
-                foreach (var prop in baseTypeProperties) {
-                    if (prop.Value.Reference?.Id == BaseType.Name) {
-                        prop.Value.Reference = null;
-                        prop.Value.OneOf = AllOfReferences;
+                foreach (var property in baseTypeProperties) {
+                    if (property.Value.Reference?.Id == BaseType.Name) {
+                        property.Value.Reference = null;
+                        property.Value.OneOf = AllOfReferences;
                     } else {
-                        prop.Value.Items.Reference = null;
-                        prop.Value.Items.AnyOf = AllOfReferences;
+                        property.Value.Items.Reference = null;
+                        property.Value.Items.AnyOf = AllOfReferences;
                     }
                 }
             }

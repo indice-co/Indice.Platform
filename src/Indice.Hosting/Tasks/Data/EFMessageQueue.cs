@@ -30,15 +30,16 @@ namespace Indice.Hosting.Tasks.Data
         }
 
         // https://thinkrethink.net/2017/10/02/implement-pessimistic-concurrency-in-entity-framework-core/
-        // for pessimistic concurrency check the link above.
+        // For pessimistic concurrency check the link above.
         /// <inheritdoc/>
         public async Task<QMessage<T>> Dequeue() {
             var successfullLock = false;
             DbQMessage message;
             do {
                 message = await GetAvailableItems().FirstOrDefaultAsync();
-                if (message == null)
+                if (message == null) {
                     return default;
+                }
                 message.DequeueCount++;
                 message.State = QMessageState.Dequeued;
                 try {
@@ -47,7 +48,8 @@ namespace Indice.Hosting.Tasks.Data
                 } catch (DbUpdateException) {
                     // Could not aquire lock. Will try again.
                 }
-            } while (!successfullLock);
+            } 
+            while (!successfullLock);
             return message.ToModel<T>(_JsonOptions);
         }
 
