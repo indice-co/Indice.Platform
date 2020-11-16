@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using System.Threading.Tasks;
 using Indice.Services;
 using Indice.Types;
@@ -15,7 +14,7 @@ namespace Indice.Hosting.Tasks.Data
         private readonly TaskDbContext _DbContext;
 
         /// <summary>
-        /// Constructs the <see cref="EFLockManager"/>.
+        /// Constructs the <see cref="EFLockManager"/>
         /// </summary>
         /// <param name="dbContext"></param>
         public EFLockManager(TaskDbContext dbContext) {
@@ -24,38 +23,33 @@ namespace Indice.Hosting.Tasks.Data
 
         /// <inheritdoc/>
         public async Task<ILockLease> AcquireLock(string name, TimeSpan? timeout = null) {
-            var @lock = new DbLock { 
-                Id = Guid.NewGuid(), 
-                Name = name, 
-                ExpirationDate = DateTime.UtcNow.Add(timeout ?? TimeSpan.FromSeconds(30)) 
-            };
+            var @lock = new DbLock { Id = Guid.NewGuid(), Name = name, ExpirationDate = DateTime.UtcNow.Add(timeout ?? TimeSpan.FromSeconds(30)) };
             var success = false;
             try {
-                _DbContext.Locks.Add(@lock);
-                await _DbContext.SaveChangesAsync();
+                //_DbContext.Locks.Add(@lock);
+                //await _DbContext.SaveChangesAsync();
+                var query = @"INSERT INTO [work].[Lock] ([Id], [Name], [ExpirationDate]) VALUES ({0}, {1}, {2});";
+                await _DbContext.Database.ExecuteSqlRawAsync(query, @lock.Id, @lock.Name, @lock.ExpirationDate);
                 success = true;
-            } catch (DbUpdateException) {
-                var oldlock = await _DbContext.Locks.Where(x => x.Name == name && x.ExpirationDate <= DateTime.UtcNow).SingleOrDefaultAsync();
-                if (oldlock != null) {
-                    _DbContext.Locks.Remove(oldlock);
-                    _DbContext.Locks.Add(@lock);
-                    await _DbContext.SaveChangesAsync();
-                    success = true;
-                }
+            } catch (Microsoft.Data.SqlClient.SqlException) {
+                await Cleanup();
+                success = false;
             }
-            if (!success) {
-                throw new Exception($"Unable to aquire lease {name}.");
-            }
+            if (!success)
+                throw new LockManagerLockException($"Unable to aquire lease {name}");
             return new LockLease(new Base64Id(@lock.Id), name, this);
         }
 
         /// <inheritdoc/>
         public async Task ReleaseLock(ILockLease @lock) {
-            var oldlock = await _DbContext.Locks.Where(x => x.Name == @lock.Name && x.Id == Base64Id.Parse(@lock.LeaseId).Id).SingleOrDefaultAsync();
-            if (oldlock != null) {
-                _DbContext.Locks.Remove(oldlock);
-                await _DbContext.SaveChangesAsync();
-            }
+            var query = @"DELETE FROM [work].[Lock] WHERE ([Name] = {0} AND [Id] < {1}) OR [ExpirationDate] < GetDate();";
+            await _DbContext.Database.ExecuteSqlRawAsync(query, @lock.Name, Base64Id.Parse(@lock.LeaseId).Id);
+        }
+
+        /// <inheritdoc/>
+        public async Task Cleanup() {
+            var query = @"DELETE FROM [work].[Lock] Where [ExpirationDate] < GetDate();";
+            await _DbContext.Database.ExecuteSqlRawAsync(query);
         }
     }
 }

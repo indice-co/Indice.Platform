@@ -23,7 +23,7 @@ namespace Indice.Hosting
         /// </summary>
         public int PollingInterval { get; set; } = 300;
         /// <summary>
-        /// Specifies the maximum time interval between two attempts to dequeue new items. Used as a backoff strategy threshold. Defaults to 300 milliseconds.
+        /// Specifies the maximum time interval between two attempts to dequeue new items. Used as a backoff strategy threshold. Defaults to 5000 milliseconds.
         /// </summary>
         public int MaxPollingInterval { get; set; } = 5000;
         /// <summary>

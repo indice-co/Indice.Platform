@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Indice.Hosting;
 using Indice.Services;
+using Indice.Types;
 using Microsoft.Extensions.Logging;
 
 namespace Indice.Identity.Hosting
@@ -13,6 +14,7 @@ namespace Indice.Identity.Hosting
         public int DemoCounter { get; set; }
     }
 
+
     public class LoadAvailableAlertsHandler
     {
         private readonly ILogger<LoadAvailableAlertsHandler> _logger;
@@ -21,20 +23,21 @@ namespace Indice.Identity.Hosting
         public LoadAvailableAlertsHandler(ILogger<LoadAvailableAlertsHandler> logger, IMessageQueue<SMSDto> messageQueue) {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _messageQueue = messageQueue ?? throw new ArgumentNullException(nameof(messageQueue));
+            //_lockManager = lockManager;
         }
 
         public async Task Process(DemoCounterModel state, ILockManager lockManager, CancellationToken cancellationToken) {
-            /*var lockResult = await lockManager.TryAquireLock(nameof(LoadAvailableAlertsHandler));
-            if (!lockResult.Ok) {
-                return;
-            }
-            using (lockResult.Lock) {*/
-                // 1.Load 10.000 items from source.
-                // 2.Find max source id,
-                // 3.Bach Enqueue to IMessageQueue.
-                // 4.Update as processed where source up until max source id.
-                // 5.Save max source id to state as mark.
-                state.DemoCounter++;
+            //var lockResult = await lockManager.TryAquireLock(nameof(LoadAvailableAlertsHandler));
+            //if (!lockResult.Ok) {
+            //    return;
+            //}
+            //using (lockResult.Lock) {
+            // 1. load 10.000 items from source ()
+            // 2. Find max source ID
+            // 3. Bach Enqueue to IMessageQueue
+            // 4. Update as processed where source up until max source ID.
+            // 5. save max source ID to state as MARK
+            state.DemoCounter++;
                 if (state.DemoCounter > 100) {
                     return;
                 }
@@ -50,7 +53,7 @@ namespace Indice.Identity.Hosting
                 _logger.LogInformation("Durat: {Id} Process will last {0}ms", nameof(LoadAvailableAlertsHandler), waitTime);
                 await Task.Delay(waitTime);
                 _logger.LogInformation("Ended: {Id} at {Timestamp} ", nameof(LoadAvailableAlertsHandler), DateTime.UtcNow);
-            /*}*/
+           //}
         }
     }
 }
