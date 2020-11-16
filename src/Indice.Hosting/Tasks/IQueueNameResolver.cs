@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Indice.Hosting.Tasks
+﻿namespace Indice.Hosting.Tasks
 {
     /// <summary>
     /// Resolves the queue name. 
@@ -10,7 +6,6 @@ namespace Indice.Hosting.Tasks
     /// <typeparam name="TWorkItem">The type of the workitem in the queue</typeparam>
     public interface IQueueNameResolver<TWorkItem> where TWorkItem : class
     {
-
         /// <summary>
         /// Resolves the name of the queue.
         /// </summary>

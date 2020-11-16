@@ -1,25 +1,23 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Text.Json;
 
 namespace Indice.Hosting.Tasks.Data
 {
     /// <summary>
-    /// A queue message
+    /// A queue message.
     /// </summary>
     public class DbQMessage
     {
         /// <summary>
-        /// The id
+        /// The id.
         /// </summary>
         public Guid Id { get; set; }
         /// <summary>
-        /// The Queue name
+        /// The queue name.
         /// </summary>
         public string QueueName { get; set; }
         /// <summary>
-        /// The payload
+        /// The payload.
         /// </summary>
         public string Payload { get; set; }
         /// <summary>
@@ -40,18 +38,15 @@ namespace Indice.Hosting.Tasks.Data
         public QMessageState State { get; set; }
 
         /// <summary>
-        /// Generate the dto for this <see cref="DbQMessage"/>
+        /// Generate the DTO for this <see cref="DbQMessage"/>.
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <returns></returns>
-        public QMessage<T> ToModel<T>() where T : class {
-            return new QMessage<T> {
-                Id = Id,
-                Date = Date,
-                DequeueCount = DequeueCount,
-                QueueName = QueueName,
-                Value = JsonSerializer.Deserialize<T>(Payload)
-            };
-        }
+        /// <typeparam name="T">The type of message to convert to.</typeparam>
+        public QMessage<T> ToModel<T>(JsonSerializerOptions options = null) where T : class => new QMessage<T> {
+            Id = Id,
+            Date = Date,
+            DequeueCount = DequeueCount,
+            QueueName = QueueName,
+            Value = JsonSerializer.Deserialize<T>(Payload, options ?? WorkerJsonOptions.GetDefaultSettings())
+        };
     }
 }

@@ -1,42 +1,51 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Diagnostics;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Indice.Hosting.Tasks.Data
 {
     /// <summary>
-    /// A db context for hosting multiple <see cref="IMessageQueue{T}"/> 
+    /// A <see cref="DbContext"/> for hosting multiple <see cref="IMessageQueue{T}"/>.
     /// </summary>
     public class TaskDbContext : DbContext
     {
+        private static bool _alreadyCreated = false;
+
         /// <summary>
-        /// create the DbContext 
+        /// Creates a new instance of <see cref="TaskDbContext"/>.
         /// </summary>
         /// <param name="options"></param>
         public TaskDbContext(DbContextOptions options) : base(options) {
-            if (System.Diagnostics.Debugger.IsAttached) { 
-                Database.EnsureCreated();
+            if (Debugger.IsAttached) {
+                var exists = Database.GetService<IRelationalDatabaseCreator>().Exists();
+                if (!exists && !_alreadyCreated) {
+                    // When no databases have been created, this ensures that the database creation process will run once.
+                    _alreadyCreated = true;
+                    Database.EnsureCreated();
+                }
             }
         }
 
         /// <summary>
-        /// Queue messages
+        /// Queue messages.
         /// </summary>
         public DbSet<DbQMessage> Queue { get; set; }
         /// <summary>
-        /// Tasks
+        /// Tasks.
         /// </summary>
-        public DbSet<DbQTask> Tasks { get; set; }
-
+        public DbSet<DbScheduledTask> Tasks { get; set; }
         /// <summary>
-        /// Configure the context
+        /// Locks.
         /// </summary>
-        /// <param name="builder"></param>
+        public DbSet<DbLock> Locks { get; set; }
+
+        /// <inheritdoc />
         protected override void OnModelCreating(ModelBuilder builder) {
             base.OnModelCreating(builder);
             builder.ApplyConfiguration(new DbQMessageMap());
-            builder.ApplyConfiguration(new DbQTaskMap());
+            builder.ApplyConfiguration(new DbScheduledTaskMap());
+            builder.ApplyConfiguration(new DbLockMap());
         }
     }
 }

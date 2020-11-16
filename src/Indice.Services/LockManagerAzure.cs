@@ -7,7 +7,7 @@ using Microsoft.Azure.Storage.Blob;
 namespace Indice.Services
 {
     /// <summary>
-    /// 
+    /// <see cref="ILockManager"/> implementation with Azure blob storage as the backing store.
     /// </summary>
     public class LockManagerAzure : ILockManager
     {
@@ -24,8 +24,8 @@ namespace Indice.Services
             if (options == null) throw new ArgumentNullException(nameof(options));
             if (options.EnvironmentName == null) throw new ArgumentNullException(nameof(options.EnvironmentName));
             if (options.StorageConnection == null) throw new ArgumentNullException(nameof(options.StorageConnection));
-            var environmentName = Regex.Replace((string)(options.EnvironmentName ?? "Development"), @"\s+", "-").ToLowerInvariant();
-            var storageAccount = CloudStorageAccount.Parse((string)options.StorageConnection);
+            var environmentName = Regex.Replace(options.EnvironmentName ?? "Development", @"\s+", "-").ToLowerInvariant();
+            var storageAccount = CloudStorageAccount.Parse(options.StorageConnection);
             var blobClient = storageAccount.CreateCloudBlobClient();
             BlobContainer = blobClient.GetContainerReference(environmentName);
         }
@@ -45,6 +45,11 @@ namespace Indice.Services
             return lockFileBlob.ReleaseLeaseAsync(new AccessCondition {
                 LeaseId = @lock.LeaseId
             });
+        }
+
+        /// <inheritdoc />
+        public Task Cleanup() {
+            return Task.CompletedTask;
         }
     }
 

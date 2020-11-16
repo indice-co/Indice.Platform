@@ -14,13 +14,13 @@ namespace Indice.Hosting
         /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
         public WorkerHostBuilder(IServiceCollection services) : this(services, null) { }
 
-        internal WorkerHostBuilder(IServiceCollection services, Type queueType) {
+        internal WorkerHostBuilder(IServiceCollection services, WorkerHostOptions options) {
             Services = services;
-            QueueType = queueType;
+            Options = options;
         }
 
         internal IServiceCollection Services { get; }
-        internal Type QueueType { get; }
+        internal WorkerHostOptions Options { get; }
     }
 
     /// <summary>
@@ -28,7 +28,7 @@ namespace Indice.Hosting
     /// </summary>
     public class WorkerHostBuilderForQueue : WorkerHostBuilder
     {
-        internal WorkerHostBuilderForQueue(IServiceCollection services, Type queueType, Type workItemType) : base(services, queueType) {
+        internal WorkerHostBuilderForQueue(IServiceCollection services, WorkerHostOptions options, Type workItemType) : base(services, options) {
             WorkItemType = workItemType;
         }
 

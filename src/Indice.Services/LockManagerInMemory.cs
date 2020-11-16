@@ -33,6 +33,11 @@ namespace Indice.Services
         }
 
         /// <inheritdoc />
+        public Task Cleanup() {
+            return Task.CompletedTask;
+        }
+
+        /// <inheritdoc />
         public Task ReleaseLock(ILockLease @lock) {
             _signal.Release();
             _logger.LogInformation("Item with lease id {0} released the lock.", @lock.LeaseId);

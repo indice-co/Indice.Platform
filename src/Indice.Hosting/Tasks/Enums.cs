@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Indice.Hosting.Tasks
+namespace Indice.Hosting
 {
     /// <summary>
     /// The queue message status
@@ -26,19 +26,15 @@ namespace Indice.Hosting.Tasks
     /// <summary>
     /// Task status. As in Job state persisted state (in quarz lingo)
     /// </summary>
-    public enum QTaskStatus
+    public enum ScheduledTaskStatus
     {
         /// <summary>
         /// Task waiting to be executed
         /// </summary>
-        New = 0,
+        Idle = 0,
         /// <summary>
         /// Running task
         /// </summary>
         Running = 1,
-        /// <summary>
-        /// Completed task
-        /// </summary>
-        Completed= 1
     }
 }

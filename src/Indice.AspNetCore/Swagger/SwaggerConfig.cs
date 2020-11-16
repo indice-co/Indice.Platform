@@ -78,6 +78,8 @@ namespace Indice.AspNetCore.Swagger
                         }
                         return $"{prefix}{name}Of{paramName}";
                     }
+                } else if (typeof(ProblemDetails).IsAssignableFrom(typeInfo)) {
+                    return typeInfo.Name;
                 } else if (type.Namespace.Contains("Models")) {
                     var name = type.Name.Replace(type.Namespace, string.Empty);
                     name = name.Replace("Info", string.Empty);

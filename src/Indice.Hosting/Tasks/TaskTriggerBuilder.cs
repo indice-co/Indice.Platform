@@ -14,14 +14,14 @@ namespace Indice.Hosting
         /// <param name="services"></param>
         public TaskTriggerBuilder(IServiceCollection services) : this(services, null, null) { }
 
-        internal TaskTriggerBuilder(IServiceCollection services, Type jobHandlerType, Type queueType) {
+        internal TaskTriggerBuilder(IServiceCollection services, WorkerHostOptions options, Type jobHandlerType) {
             Services = services;
             JobHandlerType = jobHandlerType;
-            QueueType = queueType;
+            Options = options;
         }
 
         internal IServiceCollection Services { get; }
         internal Type JobHandlerType { get; }
-        internal Type QueueType { get; }
+        internal WorkerHostOptions Options { get; }
     }
 }
