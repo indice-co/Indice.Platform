@@ -37,6 +37,10 @@ namespace Indice.AspNetCore.Identity.Data
         /// </summary>
         public DbSet<UserPassword> UserPasswordHistory { get; set; }
         /// <summary>
+        /// Stores user devices in database
+        /// </summary>
+        public DbSet<UserDevice> UserDevices { get; set; }
+        /// <summary>
         /// Stores system settings in the database.
         /// </summary>
         internal DbSet<AppSetting> AppSettings { get; set; }
@@ -55,6 +59,7 @@ namespace Indice.AspNetCore.Identity.Data
             builder.Entity<IdentityUserLogin<string>>().ToTable("UserLogin", "auth");
             builder.ApplyConfiguration(new UserMap<TUser>());
             builder.ApplyConfiguration(new UserPasswordMap<TUser>());
+            builder.ApplyConfiguration(new UserDeviceMap<TUser>());
             builder.ApplyConfiguration(new AppSettingMap());
         }
     }

@@ -311,6 +311,12 @@ namespace Indice.Services
         /// </summary>
         /// <returns></returns>
         ITotpPurposeBuilder UsingTelephone();
+
+        /// <summary>
+        /// Sets the <see cref="TotpMessageBuilder.DeliveryChannel"/> property.
+        /// </summary>
+        /// <returns></returns>
+        ITotpPurposeBuilder UsingPushNotification();
     }
 
     /// <inheritdoc/>
@@ -343,6 +349,13 @@ namespace Indice.Services
         /// <inheritdoc/>
         public ITotpPurposeBuilder UsingViber() {
             _totpMessageBuilder.DeliveryChannel = TotpDeliveryChannel.Viber;
+            var totpPurposeBuilder = new TotpPurposeBuilder(_totpMessageBuilder);
+            return totpPurposeBuilder;
+        }
+
+        /// <inheritdoc/>
+        public ITotpPurposeBuilder UsingPushNotification() {
+            _totpMessageBuilder.DeliveryChannel = TotpDeliveryChannel.PushNotification;
             var totpPurposeBuilder = new TotpPurposeBuilder(_totpMessageBuilder);
             return totpPurposeBuilder;
         }
@@ -461,7 +474,11 @@ namespace Indice.Services
         /// <summary>
         /// E-token
         /// </summary>
-        EToken = 5
+        EToken = 5,
+        /// <summary>
+        /// Push notification
+        /// </summary>
+        PushNotification = 6
     }
 
     /// <summary>
