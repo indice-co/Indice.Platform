@@ -106,7 +106,7 @@ namespace Indice.Identity
                 options//.UseAzureStorageLock()
                        //.UseInMemoryLock()
                        //.UseInMemoryStorage()
-                       .UseSqlServerStorage();
+                       .UseEntityFrameworkStorage();
             })
             .AddJob<SMSAlertHandler>().WithQueueTrigger<SMSDto>(options => {
                 options.QueueName = "user-messages";
