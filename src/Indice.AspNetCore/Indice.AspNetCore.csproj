@@ -4,7 +4,7 @@
     <Copyright>Copyright (c) 2018 Indice</Copyright>
     <AssemblyTitle>Indice.AspNetCore</AssemblyTitle>
     <VersionPrefix>4.0.0</VersionPrefix>
-    <VersionSuffix>beta10</VersionSuffix>
+    <VersionSuffix>beta11</VersionSuffix>
     <Authors>c.leftheris, g.manoltzas</Authors>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <AssemblyName>Indice.AspNetCore</AssemblyName>
@@ -14,7 +14,7 @@
   <PropertyGroup Label="Package">
     <PackageId>Indice.AspNetCore</PackageId>
     <PackageTags>AspNetCore;TagHelpers;Grid;Sorting;Paging</PackageTags>
-    <PackageReleaseNotes>Update Indice.Services.</PackageReleaseNotes>
+    <PackageReleaseNotes>Update Indice.Services. Fix missing mapping for DateTimeOffset in ToOpenApiAny() method.</PackageReleaseNotes>
     <PackageIcon>icon-310.png</PackageIcon>
     <PackageProjectUrl>https://github.com/indice-co/Indice.AspNet</PackageProjectUrl>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
@@ -37,7 +37,7 @@
     <PackageReference Include="FluentValidation.AspNetCore" Version="9.0.1" />
     <PackageReference Include="Humanizer.Core" Version="2.8.26" />
     <PackageReference Include="Indice.EntityFrameworkCore" Version="4.0.0-beta4" />
-    <PackageReference Include="Indice.Services" Version="4.0.0-beta9" />
+    <PackageReference Include="Indice.Services" Version="4.0.0-beta10" />
     <PackageReference Include="Markdig" Version="0.22.0" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="3.1.9" />
     <PackageReference Include="Microsoft.AspNetCore.DataProtection.AzureStorage" Version="3.1.9" />

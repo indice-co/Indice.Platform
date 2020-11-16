@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 namespace Indice.Hosting.Tasks.Data
 {
     /// <summary>
-    /// EF message quueue.
+    /// EF message queue.
     /// </summary>
     /// <typeparam name="T"></typeparam>
     public class EFMessageQueue<T> : IMessageQueue<T> where T : class
@@ -42,7 +42,7 @@ namespace Indice.Hosting.Tasks.Data
                 message.DequeueCount++;
                 message.State = QMessageState.Dequeued;
                 try {
-                    await _DbContext.SaveChangesAsync(); 
+                    await _DbContext.SaveChangesAsync();
                     successfullLock = true;
                 } catch (DbUpdateException) {
                     // Could not aquire lock. Will try again.
@@ -96,15 +96,6 @@ namespace Indice.Hosting.Tasks.Data
 
         /// <inheritdoc/>
         public async Task Cleanup(int? batchSize = null) {
-            //var items = await _DbContext.Queue
-            //    .AsNoTracking()
-            //    .Where(x => /*x.Date <= DateTime.Now.AddDays(-7) && */x.State == QMessageState.Dequeued)
-            //    .OrderBy(x => x.Date)
-            //    .Take(batchSize ?? 1000)
-            //    //.Select(x => new DbQMessage { Id = x.Id, RowVersion = x.RowVersion })
-            //    .ToListAsync();
-            //_DbContext.RemoveRange(items);
-            //await _DbContext.SaveChangesAsync();
             var query = @"
                 DELETE FROM [work].[QMessage] 
                 WHERE Id IN (SELECT TOP ({0}) Id FROM [work].[QMessage] 

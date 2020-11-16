@@ -79,6 +79,7 @@ namespace Indice.Identity
             services.AddSwaggerGen(options => {
                 options.IndiceDefaults(Settings);
                 options.AddOAuth2(Settings);
+                options.SchemaFilter<CreateUserRequestSchemaFilter>();
                 options.IncludeXmlComments(Assembly.Load(IdentityServerApi.AssemblyName));
             });
             services.AddMessageDescriber<ExtendedMessageDescriber>();
@@ -93,13 +94,11 @@ namespace Indice.Identity
                        .AddConnectSrc("https://dc.services.visualstudio.com")
                        .AddFrameAncestors("https://localhost:2002");
             });
-            services.AddSpaStaticFiles(options => {
-                options.RootPath = "wwwroot/admin-ui";
-            });
+            services.AddSpaStaticFiles(options => options.RootPath = "wwwroot/admin-ui");
             // Setup worker host for executing background tasks.
             services.AddWorkerHost(options => {
                 options.JsonOptions.JsonSerializerOptions.WriteIndented = true;
-                options.UseEntityFrameworkStorage();
+                options.UseEntityFrameworkStorage<ExtendedTaskDbContext>();
             })
             .AddJob<SMSAlertHandler>()
             .WithQueueTrigger<SMSDto>(options => {
@@ -118,7 +117,10 @@ namespace Indice.Identity
         /// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         /// </summary>
         /// <param name="app">Defines a class that provides the mechanisms to configure an application's request pipeline.</param>
-        public void Configure(IApplicationBuilder app) {
+        /// <param name="serviceProvider"></param>
+        public void Configure(IApplicationBuilder app, IServiceProvider serviceProvider) {
+            var taskDbContext = serviceProvider.GetRequiredService<ExtendedTaskDbContext>();
+            taskDbContext.Database.EnsureCreated();
             if (HostingEnvironment.IsDevelopment()) {
                 app.UseDeveloperExceptionPage();
                 app.IdentityServerStoreSetup<ExtendedConfigurationDbContext>(Clients.Get(), Resources.GetIdentityResources(), Resources.GetApis(), Resources.GetApiScopes());
@@ -168,7 +170,7 @@ namespace Indice.Identity
                     options.OAuthClientId("swagger-ui");
                     options.OAuthClientSecret("M2YwNTlkMTgtYWQzNy00MGNjLWFiYjQtZWQ3Y2Y4N2M3YWU3");
                     options.OAuthAppName("Swagger UI");
-                    options.DocExpansion(DocExpansion.List);
+                    options.DocExpansion(DocExpansion.None);
                     options.OAuthUsePkce();
                     options.OAuthScopeSeparator(" ");
                 });

@@ -1,16 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace Indice.Hosting
 {
     /// <summary>
     /// The default implementation for the <see cref="ScheduledTask{TState}"/> with state as <see cref="Dictionary{String, Object}"/>
     /// </summary>
-    public class ScheduledTask : ScheduledTask<Dictionary<string, object>>
-    { 
-    
-    }
+    public class ScheduledTask : ScheduledTask<Dictionary<string, object>> { }
 
     /// <summary>
     /// A dto representing a worker task 
@@ -23,25 +19,25 @@ namespace Indice.Hosting
         /// </summary>
         public string Id { get; set; } = Guid.NewGuid().ToString();
         /// <summary>
-        /// The worker id
+        /// The worker id.
         /// </summary>
         public string WorkerId { get; set; }
         /// <summary>
-        /// Task group
+        /// Task group.
         /// </summary>
         public string Group { get; set; }
         /// <summary>
-        /// Task name
+        /// Task name.
         /// </summary>
         public string Description { get; set; }
         /// <summary>
-        /// The type name
+        /// The type name.
         /// </summary>
         public string Type { get; set; }
         /// <summary>
         /// The date.
         /// </summary>
-        public DateTimeOffset Lastxecution { get; set; }
+        public DateTimeOffset LastExecution { get; set; }
         /// <summary>
         /// The date.
         /// </summary>
@@ -55,11 +51,11 @@ namespace Indice.Hosting
         /// </summary>
         public ScheduledTaskStatus Status { get; set; }
         /// <summary>
-        /// The errors
+        /// The errors.
         /// </summary>
         public string Errors { get; set; }
         /// <summary>
-        /// The payload
+        /// The payload.
         /// </summary>
         public TState State { get; set; }
         /// <summary>

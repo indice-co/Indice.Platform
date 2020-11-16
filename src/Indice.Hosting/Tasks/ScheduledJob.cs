@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Quartz;
@@ -20,6 +18,7 @@ namespace Indice.Hosting.Tasks
             _Store = scheduledTaskStore ?? throw new ArgumentNullException(nameof(scheduledTaskStore));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
+
         public async Task Execute(IJobExecutionContext context) {
             _logger.LogInformation("Scheduled job run at: {Timestamp}", DateTime.UtcNow);
             var jobDataMap = context.JobDetail.JobDataMap;
@@ -32,7 +31,7 @@ namespace Indice.Hosting.Tasks
                     Description = context.JobDetail.Description,
                     ExecutionCount = 0,
                     Group = context.JobDetail.Key.Group,
-                    Lastxecution = context.FireTimeUtc,
+                    LastExecution = context.FireTimeUtc,
                     NextExecution = context.NextFireTimeUtc,
                     Progress = 0,
                     State = new TState(),
@@ -42,7 +41,7 @@ namespace Indice.Hosting.Tasks
                 };
             } 
             scheduledTask.ExecutionCount++;
-            scheduledTask.Lastxecution = context.FireTimeUtc;
+            scheduledTask.LastExecution = context.FireTimeUtc;
             scheduledTask.NextExecution = context.NextFireTimeUtc;
             scheduledTask.Status = ScheduledTaskStatus.Running;
             scheduledTask.WorkerId = context.Scheduler.SchedulerName;

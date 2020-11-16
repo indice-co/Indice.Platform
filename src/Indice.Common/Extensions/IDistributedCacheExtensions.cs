@@ -63,7 +63,7 @@ namespace Microsoft.Extensions.Caching.Distributed
         /// <param name="jsonSerializerOptions">Provides options to be used with <see cref="JsonSerializer"/>.</param>
         /// <param name="cancellationToken">Propagates notification that operations should be canceled.</param>
         /// <returns>The item found in the cache under the specified key.</returns>
-        public static async Task<T> TryGetAndSetAsync<T>(this IDistributedCache cache, string cacheKey, Func<Task<T>> getSourceAsync, TimeSpan? absoluteExpiration, JsonSerializerOptions jsonSerializerOptions = null, CancellationToken cancellationToken = default) =>
+        public static async Task<T> TryGetAndSetAsync<T>(this IDistributedCache cache, string cacheKey, Func<Task<T>> getSourceAsync, TimeSpan? absoluteExpiration = null, JsonSerializerOptions jsonSerializerOptions = null, CancellationToken cancellationToken = default) =>
             await cache.TryGetAndSetAsync(cacheKey, getSourceAsync, new DistributedCacheEntryOptions {
                 AbsoluteExpiration = DateTimeOffset.UtcNow.Add(absoluteExpiration ?? TimeSpan.FromHours(1))
             }, jsonSerializerOptions, cancellationToken);
@@ -102,7 +102,7 @@ namespace Microsoft.Extensions.Caching.Distributed
         /// <param name="absoluteExpiration">The expiration timespan used to keep the item in the cache. If not provided, 1 hour is used by default.</param>
         /// <param name="jsonSerializerOptions">Provides options to be used with <see cref="JsonSerializer"/>.</param>
         /// <returns>The item found in the cache under the specified key.</returns>
-        public static T TryGetAndSet<T>(this IDistributedCache cache, string cacheKey, Func<T> getSource, TimeSpan? absoluteExpiration, JsonSerializerOptions jsonSerializerOptions = null) =>
+        public static T TryGetAndSet<T>(this IDistributedCache cache, string cacheKey, Func<T> getSource, TimeSpan? absoluteExpiration = null, JsonSerializerOptions jsonSerializerOptions = null) =>
             cache.TryGetAndSet(cacheKey, getSource, new DistributedCacheEntryOptions {
                 AbsoluteExpiration = DateTimeOffset.UtcNow.Add(absoluteExpiration ?? TimeSpan.FromHours(1))
             }, jsonSerializerOptions);
