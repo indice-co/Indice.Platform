@@ -46,6 +46,11 @@ namespace Indice.Services
                 LeaseId = @lock.LeaseId
             });
         }
+
+        /// <inheritdoc />
+        public Task Cleanup() {
+            return Task.CompletedTask;
+        }
     }
 
     /// <summary>

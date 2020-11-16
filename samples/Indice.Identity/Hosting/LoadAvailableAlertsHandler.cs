@@ -32,12 +32,12 @@ namespace Indice.Identity.Hosting
             //    return;
             //}
             //using (lockResult.Lock) {
-                // 1. load 10.000 items from source ()
-                // 2. Find max source ID
-                // 3. Bach Enqueue to IMessageQueue
-                // 4. Update as processed where source up until max source ID.
-                // 5. save max source ID to state as MARK
-                state.DemoCounter++;
+            // 1. load 10.000 items from source ()
+            // 2. Find max source ID
+            // 3. Bach Enqueue to IMessageQueue
+            // 4. Update as processed where source up until max source ID.
+            // 5. save max source ID to state as MARK
+            state.DemoCounter++;
                 if (state.DemoCounter > 100) {
                     return;
                 }
