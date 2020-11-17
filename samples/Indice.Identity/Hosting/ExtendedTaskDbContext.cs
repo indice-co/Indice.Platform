@@ -7,7 +7,7 @@ namespace Indice.Identity.Hosting
 {
     public class ExtendedTaskDbContext : TaskDbContext
     {
-        public ExtendedTaskDbContext(DbContextOptions options) : base(options) { }
+        public ExtendedTaskDbContext(DbContextOptions<ExtendedTaskDbContext> options) : base(options) { }
 
         protected override void OnModelCreating(ModelBuilder builder) {
             base.OnModelCreating(builder);

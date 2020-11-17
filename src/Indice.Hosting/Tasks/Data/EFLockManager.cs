@@ -17,7 +17,7 @@ namespace Indice.Hosting.Tasks.Data
         /// Constructs the <see cref="EFLockManager"/>
         /// </summary>
         /// <param name="dbContext"></param>
-        public EFLockManager(TaskDbContext dbContext) {
+        public EFLockManager(LockDbContext dbContext) {
             _DbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
         }
 

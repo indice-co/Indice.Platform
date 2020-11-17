@@ -28,7 +28,7 @@ namespace Microsoft.Extensions.DependencyInjection
         public static WorkerHostBuilder AddWorkerHost(this IServiceCollection services, Action<WorkerHostOptions> configureAction) {
             services.AddSingleton<ISchedulerFactory, StdSchedulerFactory>();
             services.AddSingleton<IJobFactory, QuartzJobFactory>();
-            services.AddSingleton<QuartzJobRunner>();
+            services.AddTransient<QuartzJobRunner>();
             services.AddTransient<TaskHandlerActivator>();
             services.AddHostedService<WorkerHostedService>();
             var workerHostOptions = new WorkerHostOptions(services);
@@ -94,6 +94,7 @@ namespace Microsoft.Extensions.DependencyInjection
             Action<DbContextOptionsBuilder> sqlServerConfiguration = builder => builder.UseSqlServer(serviceProvider.GetService<IConfiguration>().GetConnectionString("WorkerDb"));
             configureAction = configureAction ?? sqlServerConfiguration;
             options.Services.AddDbContext<TContext>(configureAction);
+            options.Services.AddDbContext<LockDbContext>(configureAction);
             if (!isDefaultContext) {
                 options.Services.AddScoped<TaskDbContext, TContext>();
             }

@@ -27,17 +27,17 @@ namespace Indice.Identity.Hosting
         }
 
         public async Task Process(DemoCounterModel state, ILockManager lockManager, CancellationToken cancellationToken) {
-            //var lockResult = await lockManager.TryAquireLock(nameof(LoadAvailableAlertsHandler));
-            //if (!lockResult.Ok) {
-            //    return;
-            //}
-            //using (lockResult.Lock) {
-            // 1. load 10.000 items from source ()
-            // 2. Find max source ID
-            // 3. Bach Enqueue to IMessageQueue
-            // 4. Update as processed where source up until max source ID.
-            // 5. save max source ID to state as MARK
-            state.DemoCounter++;
+            var lockResult = await lockManager.TryAquireLock(nameof(LoadAvailableAlertsHandler));
+            if (!lockResult.Ok) {
+                return;
+            }
+            using (lockResult.Lock) {
+                // 1. load 10.000 items from source ()
+                // 2. Find max source ID
+                // 3. Bach Enqueue to IMessageQueue
+                // 4. Update as processed where source up until max source ID.
+                // 5. save max source ID to state as MARK
+                state.DemoCounter++;
                 if (state.DemoCounter > 100) {
                     return;
                 }
@@ -53,7 +53,7 @@ namespace Indice.Identity.Hosting
                 _logger.LogInformation("Durat: {Id} Process will last {0}ms", nameof(LoadAvailableAlertsHandler), waitTime);
                 await Task.Delay(waitTime);
                 _logger.LogInformation("Ended: {Id} at {Timestamp} ", nameof(LoadAvailableAlertsHandler), DateTime.UtcNow);
-           //}
+            }
         }
     }
 }
