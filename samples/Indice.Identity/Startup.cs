@@ -105,12 +105,12 @@ namespace Indice.Identity
                 options.QueueName = "user-messages";
                 options.PollingInterval = 500;
             })
-            .AddJob<LoadAvailableAlertsHandler>()
+            /*.AddJob<LoadAvailableAlertsHandler>()
             .WithScheduleTrigger<DemoCounterModel>("0/5 * * * * ?", options => {
                 options.Name = "LoadAvailableAlerts";
                 options.Description = "La lala";
                 options.Group = "indice";
-            });
+            })*/;
         }
 
         /// <summary>

@@ -13,7 +13,7 @@ namespace Indice.AspNetCore.Swagger
     public static class OpenApiExtensions
     {
         /// <summary>
-        /// Converts an isntance to an OpenApi counterpart.
+        /// Converts an instance to an OpenApi counterpart.
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="instance"></param>

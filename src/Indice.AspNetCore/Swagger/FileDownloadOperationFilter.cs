@@ -1,31 +1,26 @@
 ﻿using System.IO;
 using System.Linq;
+using System.Net.Mime;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.OpenApi.Models;
-using Swashbuckle.AspNetCore.Swagger;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace Indice.AspNetCore.Swagger
 {
     /// <summary>
-    /// Converts response to string of bytes when an action has a produces response type of <see cref="Stream"/>. 
-    /// This is obsolete use respnse type of <see cref="IFormFile"/> instead.
+    /// Converts response to string of bytes when an action produces a response type of <see cref="IFormFile"/> <see cref="Stream"/>.
     /// </summary>
-    public class FileOperationFilter : IOperationFilter
+    public class FileDownloadOperationFilter : IOperationFilter
     {
-        /// <summary>
-        /// Apply method of the fileter
-        /// </summary>
-        /// <param name="operation"></param>
-        /// <param name="context"></param>
+        /// <inheritdoc />
         public void Apply(OpenApiOperation operation, OperationFilterContext context) {
-            if (context.ApiDescription.SupportedResponseTypes.Any(x => x.Type == typeof(Stream))) {
-
+            if (context.ApiDescription.SupportedResponseTypes.Any(x => x.Type == typeof(IFormFile) || x.Type == typeof(Stream))) {
                 foreach (var responseType in operation.Responses) {
                     int.TryParse(responseType.Key, out var responseCode);
                     if (responseCode >= 200 && responseCode < 300) {
-                        if (responseType.Value.Content.ContainsKey("application/octet-stream")) {
-                            responseType.Value.Content["application/octet-stream"] = new OpenApiMediaType() {
+                        if (responseType.Value.Content.ContainsKey(MediaTypeNames.Application.Octet)) {
+                            responseType.Value.Content[MediaTypeNames.Application.Octet] = new OpenApiMediaType {
                                 Schema = new OpenApiSchema {
                                     Type = "string",
                                     Format = "binary"
@@ -33,7 +28,7 @@ namespace Indice.AspNetCore.Swagger
                             };
                         } else {
                             responseType.Value.Content.Clear();
-                            responseType.Value.Content.Add("application/octet-stream", new OpenApiMediaType() {
+                            responseType.Value.Content.Add(MediaTypeNames.Application.Octet, new OpenApiMediaType {
                                 Schema = new OpenApiSchema {
                                     Type = "string",
                                     Format = "binary"
@@ -43,9 +38,13 @@ namespace Indice.AspNetCore.Swagger
                         continue;
                     } else {
                         responseType.Value.Content.Clear();
-                        responseType.Value.Content.Add("application/json", new OpenApiMediaType() {
+                        responseType.Value.Content.Add(MediaTypeNames.Application.Json, new OpenApiMediaType {
                             Schema = new OpenApiSchema {
                                 Type = "object",
+                                Reference = new OpenApiReference {
+                                    Type = ReferenceType.Schema,
+                                    Id = responseCode == 400 ? typeof(ValidationProblemDetails).FullName : typeof(ProblemDetails).FullName
+                                }
                             }
                         });
                     }

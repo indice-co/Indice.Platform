@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Mime;
 using Indice.Configuration;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.OpenApi.Models;
@@ -26,19 +27,19 @@ namespace Indice.AspNetCore.Swagger
             var requireScopes = authAttributes.Select(x => x.Policy);
             if (requireScopes.Any()) {
                 if (!operation.Responses.ContainsKey("401")) {
-                    operation.Responses.Add("401", new OpenApiResponse { 
-                        Description = "Unauthorized", 
-                        Content = new Dictionary<string, OpenApiMediaType> { 
-                            { "application/json", new OpenApiMediaType { Schema = new OpenApiSchema { Type = "object" } } } 
-                        } 
+                    operation.Responses.Add("401", new OpenApiResponse {
+                        Description = "Unauthorized",
+                        Content = new Dictionary<string, OpenApiMediaType> {
+                            { MediaTypeNames.Application.Json, new OpenApiMediaType { Schema = new OpenApiSchema { Type = "object" } } }
+                        }
                     });
                 }
                 if (!operation.Responses.ContainsKey("403")) {
-                    operation.Responses.Add("403", new OpenApiResponse { 
-                        Description = "Forbidden", 
-                        Content = new Dictionary<string, OpenApiMediaType> { 
-                            { "application/json", new OpenApiMediaType { Schema = new OpenApiSchema { Type = "object" } } } 
-                        } 
+                    operation.Responses.Add("403", new OpenApiResponse {
+                        Description = "Forbidden",
+                        Content = new Dictionary<string, OpenApiMediaType> {
+                            { MediaTypeNames.Application.Json, new OpenApiMediaType { Schema = new OpenApiSchema { Type = "object" } } }
+                        }
                     });
                 }
                 var scopes = new[] { _apiSettings.ResourceName }.Union(_apiSettings.Scopes.Keys.Select(x => $"{_apiSettings.ResourceName}:{x}"));
