@@ -43,7 +43,8 @@ namespace Indice.AspNetCore.Swagger
                                 Type = "object",
                                 Reference = new OpenApiReference {
                                     Type = ReferenceType.Schema,
-                                    Id = responseCode == 400 ? typeof(ValidationProblemDetails).FullName : typeof(ProblemDetails).FullName
+                                    // This requires to use the Name of the type, instead of FullName, when the AddCustomSchemaIds method is used.
+                                    Id = responseCode == 400 ? typeof(ValidationProblemDetails).Name : typeof(ProblemDetails).Name
                                 }
                             }
                         });
