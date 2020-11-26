@@ -81,13 +81,7 @@ namespace Indice.Identity.Controllers
 #if DEBUG
             viewModel.UserName = "company@indice.gr";
 #endif
-            _logger.LogInformation($"{nameof(AccountController)} inserted a new task in the queue.");
             return View(viewModel);
-        }
-
-        public static async Task<int> CalculateTotal(int x, int y, CancellationToken cancellationToken) {
-            await Task.Delay(1000, cancellationToken);
-            return x + y;
         }
 
         /// <summary>
