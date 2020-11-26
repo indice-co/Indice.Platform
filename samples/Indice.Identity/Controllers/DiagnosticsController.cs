@@ -14,13 +14,12 @@ namespace Indice.Identity.Controllers
     /// </summary>
     [SecurityHeaders]
     [Authorize]
+    [ApiExplorerSettings(IgnoreApi = true)]
     public class DiagnosticsController : Controller
     {
         /// <summary>
         /// Displays the diagnostics page.
         /// </summary>
-        /// <returns></returns>
-        [ApiExplorerSettings(IgnoreApi = true)]
         [HttpGet]
         public async Task<IActionResult> Index() {
             var localAddresses = new string[] { "127.0.0.1", "::1", HttpContext.Connection.LocalIpAddress.ToString() };
