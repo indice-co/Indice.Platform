@@ -119,9 +119,9 @@ namespace Indice.Identity
         /// <param name="app">Defines a class that provides the mechanisms to configure an application's request pipeline.</param>
         /// <param name="serviceProvider"></param>
         public void Configure(IApplicationBuilder app, IServiceProvider serviceProvider) {
-            var taskDbContext = serviceProvider.GetRequiredService<ExtendedTaskDbContext>();
-            taskDbContext.Database.EnsureCreated();
             if (HostingEnvironment.IsDevelopment()) {
+                var taskDbContext = serviceProvider.GetRequiredService<ExtendedTaskDbContext>();
+                taskDbContext.Database.EnsureCreated();
                 app.UseDeveloperExceptionPage();
                 app.IdentityServerStoreSetup<ExtendedConfigurationDbContext>(Clients.Get(), Resources.GetIdentityResources(), Resources.GetApis(), Resources.GetApiScopes());
             } else {
