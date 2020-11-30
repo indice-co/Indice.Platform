@@ -17,7 +17,7 @@ namespace Indice.AspNetCore.Identity.Features
     /// <summary>
     /// Contains operations for device push notifications
     /// </summary>
-    [Route("devices")]
+    [Route("api/my/devices")]
     [ApiController]
     [ApiExplorerSettings(GroupName = "identity")]
     [Produces(MediaTypeNames.Application.Json)]
