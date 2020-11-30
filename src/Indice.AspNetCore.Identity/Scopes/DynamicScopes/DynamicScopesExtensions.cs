@@ -9,7 +9,7 @@ namespace Indice.AspNetCore.Identity.Scopes
     /// <summary>
     /// Extension methods on <see cref="DynamicScope"/>.
     /// </summary>
-    public static class DynamicScopesExtensions
+    internal static class DynamicScopesExtensions
     {
         /// <summary>
         /// Test a scope name for patterns.

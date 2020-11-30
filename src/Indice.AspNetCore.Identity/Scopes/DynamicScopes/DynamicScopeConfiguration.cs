@@ -1,24 +1,21 @@
 ﻿using System;
 using System.Linq;
-using IdentityServer4.EntityFramework.Interfaces;
 using IdentityServer4.ResponseHandling;
 using IdentityServer4.Services;
 using IdentityServer4.Stores;
-using IdentityServer4.Stores.Serialization;
 using Indice.AspNetCore.Identity.Scopes;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using Microsoft.Extensions.Logging;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
     /// <summary>
-    /// Dependency Injection Configuration extensions
+    /// Dependency injection configuration extensions.
     /// </summary>
-    public static class DynamicScopeConfiguration
+    internal static class DynamicScopeConfiguration
     {
         /// <summary>
-        /// Adds the scope metadata endpoint that will resolve the scope displayname/description. Default configuration.
+        /// Adds the scope metadata endpoint that will resolve the scope display name/description. Default configuration.
         /// </summary>
         /// <typeparam name="TScopeMetadataService"></typeparam>
         /// <param name="builder"></param>
@@ -95,7 +92,7 @@ namespace Microsoft.Extensions.DependencyInjection
         }
 
         /// <summary>
-        /// Adds the scope metadata endpoint that will resolve the scope displayname/description. Default configuration.
+        /// Adds the required services in order to notify the consumer about scopes that have been revoked or granted.
         /// </summary>
         /// <typeparam name="TDynamicScopeNotificationService"></typeparam>
         /// <param name="builder">The <see cref="IIdentityServerBuilder"/> builder.</param>

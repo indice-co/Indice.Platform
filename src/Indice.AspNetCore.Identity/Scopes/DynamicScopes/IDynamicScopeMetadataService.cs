@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
+﻿using System.Globalization;
 using System.Threading.Tasks;
-using IdentityServer4.Models;
 
 namespace Indice.AspNetCore.Identity.Scopes
 {
@@ -11,7 +7,7 @@ namespace Indice.AspNetCore.Identity.Scopes
     /// A service that will provide metadata for a scope. 
     /// This is useful for dynamic scopes that may need dynamic names and descriptions.
     /// </summary>
-    public interface IDynamicScopeMetadataService
+    internal interface IDynamicScopeMetadataService
     {
         /// <summary>
         /// Resolve metadata for the given dynamic scope. 

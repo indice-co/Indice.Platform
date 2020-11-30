@@ -1,9 +1,9 @@
 ﻿namespace Indice.AspNetCore.Identity.Scopes
 {
     /// <summary>
-    /// Options for configuring <see cref="IDynamicScopeNotificationService"/>.
+    /// Options for configuring <see cref="IParsedScopeNotificationService"/>.
     /// </summary>
-    public class DynamicScopeNotificationOptions
+    public class ParsedScopeNotificationOptions
     {
         /// <summary>
         /// The endpoint to use when notifying an API that a grant was removed or updated.

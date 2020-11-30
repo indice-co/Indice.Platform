@@ -15,7 +15,7 @@ namespace Indice.AspNetCore.Identity.Scopes
     /// <summary>
     /// Dynamic scopes notifications decorator for <see cref="IPersistedGrantService"/>.
     /// </summary>
-    public class DynamicScopePersistedGrantService<T> : IPersistedGrantService where T : IPersistedGrantService
+    internal class DynamicScopePersistedGrantService<T> : IPersistedGrantService where T : IPersistedGrantService
     {
         private readonly IPersistedGrantService _inner;
         private readonly IPersistedGrantDbContext _persistedGrantDbContext;

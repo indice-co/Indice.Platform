@@ -10,7 +10,7 @@ namespace Indice.AspNetCore.Identity.Scopes
     /// collection of strings in that it checks the string to see if it represents a pattern. 
     /// It implements a custom version of <see cref="ICollection{T}.Contains(T)"/> that will do regex match if an internal item is Identified as a regex.
     /// </summary>
-    public class DynamicScopeNameCollection : ICollection<string>, IEnumerable
+    internal class DynamicScopeNameCollection : ICollection<string>, IEnumerable
     {
         /// <summary>
         /// The source collection

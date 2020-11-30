@@ -13,7 +13,7 @@ namespace Indice.AspNetCore.Identity.Scopes
     /// </summary>
     /// <typeparam name="T"></typeparam>
     /// <seealso cref="IdentityServer4.ResponseHandling.IIntrospectionResponseGenerator" />
-    public class DynamicScopeIntrospectionResponseGenerator<T> : IIntrospectionResponseGenerator where T : IIntrospectionResponseGenerator
+    internal class DynamicScopeIntrospectionResponseGenerator<T> : IIntrospectionResponseGenerator where T : IIntrospectionResponseGenerator
     {
         private readonly IIntrospectionResponseGenerator _inner;
 

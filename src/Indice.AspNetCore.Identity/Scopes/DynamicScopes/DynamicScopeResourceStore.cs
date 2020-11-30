@@ -11,7 +11,7 @@ namespace Indice.AspNetCore.Identity.Scopes
     /// Dynamic scopes decorator for <see cref="IResourceStore"/>.
     /// </summary>
     /// <typeparam name="T">The type of store.</typeparam>
-    public class DynamicScopeResourceStore<T> : IResourceStore where T : IResourceStore
+    internal class DynamicScopeResourceStore<T> : IResourceStore where T : IResourceStore
     {
         private readonly IResourceStore _inner;
 

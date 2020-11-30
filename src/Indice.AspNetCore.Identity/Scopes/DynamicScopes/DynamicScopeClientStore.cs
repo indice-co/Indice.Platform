@@ -8,7 +8,7 @@ namespace Indice.AspNetCore.Identity.Scopes
     /// Dynamic scopes Decorator for <see cref="IClientStore"/>
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public class DynamicScopeClientStore<T> : IClientStore where T : IClientStore
+    internal class DynamicScopeClientStore<T> : IClientStore where T : IClientStore
     {
 
         private readonly T _innerStore;
@@ -21,14 +21,7 @@ namespace Indice.AspNetCore.Identity.Scopes
             _innerStore = inner;
         }
 
-
-        /// <summary>
-        /// Finds a client by id
-        /// </summary>
-        /// <param name="clientId">The client id</param>
-        /// <returns>
-        /// The client
-        /// </returns>
+        /// <inheritdoc />
         public async Task<Client> FindClientByIdAsync(string clientId) {
             var client = await _innerStore.FindClientByIdAsync(clientId);
             if (client != null && !(client.AllowedScopes is DynamicScopeNameCollection)) {

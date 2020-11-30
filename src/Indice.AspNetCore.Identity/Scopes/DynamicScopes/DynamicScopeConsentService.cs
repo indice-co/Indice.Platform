@@ -12,7 +12,7 @@ namespace Indice.AspNetCore.Identity.Scopes
     /// <summary>
     /// Dynamic scopes notifications decorator for <see cref="IConsentService"/>.
     /// </summary>
-    public class DynamicScopeConsentService<T> : IConsentService where T : IConsentService
+    internal class DynamicScopeConsentService<T> : IConsentService where T : IConsentService
     {
         private readonly T _inner;
         private readonly IDynamicScopeNotificationService _dynamicScopeNotificationService;

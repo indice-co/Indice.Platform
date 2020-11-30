@@ -7,7 +7,7 @@ namespace Indice.AspNetCore.Identity.Scopes
     /// <summary>
     /// Encapsulates a pattern along with the value (name).
     /// </summary>
-    public class DynamicScope : ApiScope, ICloneable
+    internal class DynamicScope : ApiScope, ICloneable
     {
         /// <summary>
         /// Construct the <see cref="DynamicScope"/>.

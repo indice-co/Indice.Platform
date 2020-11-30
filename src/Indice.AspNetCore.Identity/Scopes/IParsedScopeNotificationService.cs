@@ -7,7 +7,7 @@ namespace Indice.AspNetCore.Identity.Scopes
     /// <summary>
     /// Contains methods to notify an API when a dynamic consent is altered.
     /// </summary>
-    public interface IDynamicScopeNotificationService
+    public interface IParsedScopeNotificationService
     {
         /// <summary>
         /// Abstracts the way that an API is notified.
@@ -15,20 +15,20 @@ namespace Indice.AspNetCore.Identity.Scopes
         /// <param name="clientId">The id of the client.</param>
         /// <param name="parsedScopes">The scopes that were altered.</param>
         /// <param name="notificationType">Describes the way that a dynamic consent was altered.</param>
-        Task Notify(string clientId, IEnumerable<ParsedScopeValue> parsedScopes, DynamicScopeNotificationType notificationType);
+        Task Notify(string clientId, IEnumerable<ParsedScopeValue> parsedScopes, ParsedScopeNotificationType notificationType);
     }
 
     /// <summary>
-    /// Describes the way that a dynamic consent was altered.
+    /// Describes the way that a dynamic consent was modified.
     /// </summary>
-    public enum DynamicScopeNotificationType
+    public enum ParsedScopeNotificationType
     {
         /// <summary>
-        /// Grants revoked.
+        /// Grants was revoked.
         /// </summary>
         GrantsRevoked,
         /// <summary>
-        /// Consent granted.
+        /// Consent was granted.
         /// </summary>
         ConsentGranted
     }
