@@ -4,7 +4,7 @@
     <Copyright>Copyright (c) 2020 Indice</Copyright>
     <AssemblyTitle>Indice.EntityFrameworkCore</AssemblyTitle>
     <VersionPrefix>4.0.0</VersionPrefix>
-    <VersionSuffix>beta4</VersionSuffix>
+    <!--<VersionSuffix>beta4</VersionSuffix>-->
     <Authors>c.leftheris, g.manoltzas</Authors>
     <TargetFrameworks>netstandard2.0;netcoreapp3.1</TargetFrameworks>
     <AssemblyName>Indice.EntityFrameworkCore</AssemblyName>

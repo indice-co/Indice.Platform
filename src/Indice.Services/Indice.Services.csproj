@@ -4,7 +4,7 @@
     <Copyright>Copyright (c) 2018 Indice</Copyright>
     <AssemblyTitle>Indice.Services</AssemblyTitle>
     <VersionPrefix>4.0.0</VersionPrefix>
-    <VersionSuffix>beta10</VersionSuffix>
+    <!--<VersionSuffix>beta10</VersionSuffix>-->
     <Authors>c.leftheris, g.manoltzas</Authors>
     <TargetFramework>netstandard2.0</TargetFramework>
     <AssemblyName>Indice.Services</AssemblyName>
