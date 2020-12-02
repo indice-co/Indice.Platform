@@ -40,5 +40,9 @@ namespace Indice.AspNetCore.Identity.Models
         /// Extra data for the scope.
         /// </summary>
         public object Metadata { get; set; }
+        /// <summary>
+        /// An id for an optionally selected resource. 
+        /// </summary>
+        public string ResourceId { get; set; }
     }
 }
