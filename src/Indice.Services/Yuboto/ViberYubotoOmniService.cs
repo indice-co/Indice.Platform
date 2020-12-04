@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Net.Http;
 using System.Text;
 using System.Text.Json;
@@ -20,10 +19,7 @@ namespace Indice.Services.Yuboto
         /// <param name="httpClient"></param>
         /// <param name="settings"></param>
         /// <param name="logger"></param>
-        public ViberYubotoOmniService(HttpClient httpClient, SmsServiceSettings settings, ILogger<ViberYubotoOmniService> logger)
-            : base(httpClient, settings, logger) {
-
-        }
+        public ViberYubotoOmniService(HttpClient httpClient, SmsServiceSettings settings, ILogger<ViberYubotoOmniService> logger) : base(httpClient, settings, logger) { }
 
         /// <summary>
         /// <inheritdoc/>
@@ -37,17 +33,15 @@ namespace Indice.Services.Yuboto
             var requestBody = SendRequest.CreateViber(phoneNumbers, Settings.Sender ?? Settings.SenderName, body);
             var jsonData = JsonSerializer.Serialize(requestBody, GetJsonSerializerOptions());
             var data = new StringContent(jsonData, Encoding.UTF8, "application/json");
-
-            var httpResponseMessage = await HttpClient.PostAsync($"Send", data);
+            var httpResponseMessage = await HttpClient.PostAsync("Send", data);
             if (!httpResponseMessage.IsSuccessStatusCode) {
-                var errorMessage = "SMS Delivery failed.\n ";
+                var errorMessage = "SMS Delivery failed.\n";
                 if (httpResponseMessage.Content != null) {
                     errorMessage += await httpResponseMessage.Content.ReadAsStringAsync();
                 }
                 Logger?.LogError(errorMessage);
                 throw new SmsServiceException(errorMessage);
             }
-
             var responseContent = await httpResponseMessage.Content.ReadAsStringAsync();
             var response = JsonSerializer.Deserialize<SendResponse>(responseContent);
             if (!response.IsSuccess) {
@@ -55,7 +49,6 @@ namespace Indice.Services.Yuboto
                 Logger?.LogError(errorMessage);
                 throw new SmsServiceException(errorMessage);
             }
-
             Logger?.LogInformation("SMS message successfully sent: \n", JsonSerializer.Serialize(response.Messages));
         }
 
