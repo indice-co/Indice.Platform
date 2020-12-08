@@ -65,13 +65,12 @@ namespace Indice.Services
             }
 
             // TODO: Create a universal way to handle country codes.
-            // Quick and bad fix for Apifon which only accepts MSISDN -> https://docs.apifon.com/apireference.html#sms-request
+            // Quick and ugly fix for Apifon which only accepts MSISDN and no leading zeroes -> https://docs.apifon.com/apireference.html#sms-request
             recipients = recipients.Select(
                 phoneNumber => phoneNumber.StartsWith("30")
                     ? phoneNumber
-                    : $"30{phoneNumber}"
+                    : phoneNumber.StartsWith("0") ? phoneNumber.TrimStart('0') : $"30{phoneNumber}"
             ).ToArray();
-
             var payload = new ApifonRequest(Settings.Sender ?? Settings.SenderName, recipients, body);
             var signature = payload.Sign(Settings.ApiKey, HttpMethod.Post.ToString(), "/services/api/v1/sms/send");
             var request = new HttpRequestMessage {
