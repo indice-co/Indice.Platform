@@ -130,7 +130,6 @@ namespace Indice.Types
             if (sourceType == typeof(string)) {
                 return true;
             }
-
             return base.CanConvertFrom(context, sourceType);
         }
 
@@ -142,10 +141,9 @@ namespace Indice.Types
         /// <param name="value"></param>
         /// <returns></returns>
         public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value) {
-            if (value is string) {
-                return FilterClause.Parse((string)value);
+            if (value is string @string) {
+                return FilterClause.Parse(@string);
             }
-
             return base.ConvertFrom(context, culture, value);
         }
 
@@ -161,7 +159,6 @@ namespace Indice.Types
             if (destinationType == typeof(string)) {
                 return ((FilterClause)value).ToString();
             }
-
             return base.ConvertTo(context, culture, value, destinationType);
         }
     }

@@ -201,12 +201,12 @@ namespace Indice.AspNetCore.Identity.Features
                 result = await _userManager.CreateAsync(user, request.Password);
             }
             if (!result.Succeeded) {
-                return BadRequest(result.Errors.ToValidationProblemDetails());
+                return BadRequest(result.Errors.AsValidationProblemDetails());
             }
             if (request.ChangePasswordAfterFirstSignIn.HasValue && request.ChangePasswordAfterFirstSignIn.Value == true) {
                 await _userManager.SetPasswordExpiredAsync(user, true);
             }
-            var claims = new List<Claim>();
+            var claims = request?.Claims?.Count() > 0 ? request.Claims.Select(x => new Claim(x.Type, x.Value)).ToList() : new List<Claim>();
             if (!string.IsNullOrEmpty(request.FirstName)) {
                 claims.Add(new Claim(JwtClaimTypes.GivenName, request.FirstName));
             }
@@ -256,9 +256,7 @@ namespace Indice.AspNetCore.Identity.Features
             user.UserName = request.UserName;
             user.PhoneNumber = request.PhoneNumber;
             user.Email = request.Email;
-            user.LockoutEnabled = request.LockoutEnabled;
             user.TwoFactorEnabled = request.TwoFactorEnabled;
-            user.LockoutEnd = request.LockoutEnd;
             user.PasswordExpirationPolicy = request.PasswordExpirationPolicy;
             user.Admin = request.IsAdmin;
             user.EmailConfirmed = request.EmailConfirmed;
@@ -533,7 +531,7 @@ namespace Indice.AspNetCore.Identity.Features
             user.Blocked = request.Blocked;
             var result = await _userManager.UpdateAsync(user);
             if (!result.Succeeded) {
-                return BadRequest(result.Errors.ToValidationProblemDetails());
+                return BadRequest(result.Errors.AsValidationProblemDetails());
             }
             return NoContent();
         }
@@ -555,11 +553,11 @@ namespace Indice.AspNetCore.Identity.Features
             }
             var result = await _userManager.SetLockoutEndDateAsync(user, null);
             if (!result.Succeeded) {
-                return BadRequest(result.Errors.ToValidationProblemDetails());
+                return BadRequest(result.Errors.AsValidationProblemDetails());
             }
             result = await _userManager.ResetAccessFailedCountAsync(user);
             if (!result.Succeeded) {
-                return BadRequest(result.Errors.ToValidationProblemDetails());
+                return BadRequest(result.Errors.AsValidationProblemDetails());
             }
             return Ok();
         }
@@ -569,10 +567,10 @@ namespace Indice.AspNetCore.Identity.Features
         /// </summary>
         /// <param name="userId">The identifier of the user.</param>
         /// <param name="request">Contains info about the user password to change.</param>
-        /// <response code="200">OK</response>
+        /// <response code="204">No Content</response>
         /// <response code="404">Not Found</response>
         [HttpPut("{userId}/set-password")]
-        [ProducesResponseType(statusCode: StatusCodes.Status200OK, type: typeof(void))]
+        [ProducesResponseType(statusCode: StatusCodes.Status204NoContent, type: typeof(void))]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
         [CacheResourceFilter(DependentPaths = new string[] { "{userId}" })]
         public async Task<IActionResult> SetPassword([FromRoute] string userId, [FromBody] SetPasswordRequest request) {
@@ -585,17 +583,21 @@ namespace Indice.AspNetCore.Identity.Features
             if (hasPassword) {
                 result = await _userManager.RemovePasswordAsync(user);
                 if (!result.Succeeded) {
-                    return BadRequest(result.Errors.ToValidationProblemDetails());
+                    return BadRequest(result.Errors.AsValidationProblemDetails());
                 }
             }
             result = await _userManager.AddPasswordAsync(user, request.Password);
             if (!result.Succeeded) {
-                return BadRequest(result.Errors.ToValidationProblemDetails());
+                return BadRequest(result.Errors.AsValidationProblemDetails());
             }
             if (request.ChangePasswordAfterFirstSignIn.HasValue && request.ChangePasswordAfterFirstSignIn.Value == true) {
                 await _userManager.SetPasswordExpiredAsync(user, true);
             }
-            return Ok();
+            result = await _userManager.SetLockoutEndDateAsync(user, null);
+            if (!result.Succeeded) {
+                return BadRequest(result.Errors.AsValidationProblemDetails());
+            }
+            return NoContent();
         }
     }
 }

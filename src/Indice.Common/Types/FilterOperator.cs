@@ -32,6 +32,14 @@
         /// <summary>
         /// Contains.
         /// </summary>
-        Contains
+        Contains,
+        /// <summary>
+        /// Any one of a range of values.
+        /// </summary>
+        In,
+        /// <summary>
+        /// Between a couple of values.
+        /// </summary>
+        Between
     }
 }

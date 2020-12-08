@@ -23,17 +23,17 @@ namespace Indice.AspNetCore.Identity.Services
         private readonly IAuthenticationSchemeProvider _schemeProvider;
 
         /// <summary>
-        /// Constructs the <see cref="AccountService"/>
+        /// Constructs the <see cref="AccountService"/>.
         /// </summary>
         /// <param name="interaction"></param>
         /// <param name="httpContextAccessor"></param>
         /// <param name="schemeProvider"></param>
         /// <param name="clientStore"></param>
         public AccountService(IIdentityServerInteractionService interaction, IHttpContextAccessor httpContextAccessor, IAuthenticationSchemeProvider schemeProvider, IClientStore clientStore) {
-            _interaction = interaction;
-            _httpContextAccessor = httpContextAccessor;
-            _schemeProvider = schemeProvider;
-            _clientStore = clientStore;
+            _interaction = interaction ?? throw new ArgumentNullException(nameof(interaction));
+            _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
+            _schemeProvider = schemeProvider ?? throw new ArgumentNullException(nameof(schemeProvider));
+            _clientStore = clientStore ?? throw new ArgumentNullException(nameof(clientStore));
         }
 
         /// <summary>
@@ -43,60 +43,54 @@ namespace Indice.AspNetCore.Identity.Services
         public async Task<LoginViewModel> BuildLoginViewModelAsync(string returnUrl) {
             var context = await _interaction.GetAuthorizationContextAsync(returnUrl);
             if (context?.IdP != null && await _schemeProvider.GetSchemeAsync(context.IdP) != null) {
-                var local = context.IdP == IdentityServer4.IdentityServerConstants.LocalIdentityProvider;
-
-                // this is meant to short circuit the UI and only trigger the one external IdP
-                var vm = new LoginViewModel {
+                var local = context.IdP == IdentityServerConstants.LocalIdentityProvider;
+                // This is meant to short circuit the UI and only trigger the one external IdP.
+                var viewModel = new LoginViewModel {
                     EnableLocalLogin = local,
                     ReturnUrl = returnUrl,
-                    Username = context?.LoginHint,
+                    UserName = context?.LoginHint
                 };
-
                 if (!local) {
-                    vm.ExternalProviders = new[] { new ExternalProvider { AuthenticationScheme = context.IdP } };
+                    viewModel.ExternalProviders = new[] { new ExternalProvider { AuthenticationScheme = context.IdP } };
                 }
-
-                return vm;
+                return viewModel;
             }
-
             var schemes = await _schemeProvider.GetAllSchemesAsync();
-
             var providers = schemes
                 .Where(x => x.DisplayName != null)
                 .Select(x => new ExternalProvider {
                     DisplayName = x.DisplayName ?? x.Name,
                     AuthenticationScheme = x.Name
-                }).ToList();
-
+                })
+                .ToList();
             var allowLocal = true;
             if (context?.Client.ClientId != null) {
                 var client = await _clientStore.FindEnabledClientByIdAsync(context.Client.ClientId);
                 if (client != null) {
                     allowLocal = client.EnableLocalLogin;
-
                     if (client.IdentityProviderRestrictions != null && client.IdentityProviderRestrictions.Any()) {
                         providers = providers.Where(provider => client.IdentityProviderRestrictions.Contains(provider.AuthenticationScheme)).ToList();
                     }
                 }
             }
-
             return new LoginViewModel {
                 AllowRememberLogin = AccountOptions.AllowRememberLogin,
                 EnableLocalLogin = allowLocal && AccountOptions.AllowLocalLogin,
                 ReturnUrl = returnUrl,
-                Username = context?.LoginHint,
+                UserName = context?.LoginHint,
                 ExternalProviders = providers.ToArray(),
-                ClientId = context?.Client?.ClientId
+                ClientId = context?.Client?.ClientId,
+                Operation = context?.Parameters?.AllKeys?.Contains(ExtraQueryParamNames.Operation) == true ? context?.Parameters[ExtraQueryParamNames.Operation] : null
             };
         }
 
         /// <summary>
         /// Builds the <see cref="LoginViewModel"/> from the posted request <see cref="LoginInputModel"/>.
         /// </summary>
-        /// <param name="model">the request model.</param>
+        /// <param name="model">The request model.</param>
         public async Task<LoginViewModel> BuildLoginViewModelAsync(LoginInputModel model) {
             var viewModel = await BuildLoginViewModelAsync(model.ReturnUrl);
-            viewModel.Username = model.Username;
+            viewModel.UserName = model.UserName;
             viewModel.RememberLogin = model.RememberLogin;
             return viewModel;
         }
@@ -115,31 +109,25 @@ namespace Indice.AspNetCore.Identity.Services
         public async Task<TRegisterViewModel> BuildRegisterViewModelAsync<TRegisterViewModel>(string returnUrl) where TRegisterViewModel : RegisterViewModel, new() {
             var context = await _interaction.GetAuthorizationContextAsync(returnUrl);
             if (context?.IdP != null && await _schemeProvider.GetSchemeAsync(context.IdP) != null) {
-                var local = context.IdP == IdentityServer4.IdentityServerConstants.LocalIdentityProvider;
-
-                // this is meant to short circuit the UI and only trigger the one external IdP
-                var vm = new TRegisterViewModel {
-                    //EnableLocalLogin = local,
+                var local = context.IdP == IdentityServerConstants.LocalIdentityProvider;
+                // This is meant to short circuit the UI and only trigger the one external IdP.
+                var viewModel = new TRegisterViewModel {
                     ReturnUrl = returnUrl,
                     Username = context?.LoginHint,
                 };
-
                 if (!local) {
-                    vm.ExternalProviders = new[] { new ExternalProvider { AuthenticationScheme = context.IdP } };
+                    viewModel.ExternalProviders = new[] { new ExternalProvider { AuthenticationScheme = context.IdP } };
                 }
-
-                return vm;
+                return viewModel;
             }
-
             var schemes = await _schemeProvider.GetAllSchemesAsync();
-
             var providers = schemes
                 .Where(x => x.DisplayName != null)
                 .Select(x => new ExternalProvider {
                     DisplayName = x.DisplayName ?? x.Name,
                     AuthenticationScheme = x.Name
-                }).ToList();
-
+                })
+                .ToList();
             var allowLocal = true;
             if (context?.Client.ClientId != null) {
                 var client = await _clientStore.FindEnabledClientByIdAsync(context.Client.ClientId);
@@ -151,7 +139,6 @@ namespace Indice.AspNetCore.Identity.Services
                     }
                 }
             }
-
             return new TRegisterViewModel {
                 ReturnUrl = returnUrl,
                 Username = context?.LoginHint,
@@ -184,28 +171,24 @@ namespace Indice.AspNetCore.Identity.Services
         /// <param name="logoutId"></param>
         public async Task<LogoutViewModel> BuildLogoutViewModelAsync(string logoutId) {
             var user = _httpContextAccessor.HttpContext.User;
-            var vm = new LogoutViewModel { 
-                LogoutId = logoutId, 
-                ShowLogoutPrompt = AccountOptions.ShowLogoutPrompt 
+            var viewModel = new LogoutViewModel {
+                LogoutId = logoutId,
+                ShowLogoutPrompt = AccountOptions.ShowLogoutPrompt
             };
-
             if (user?.Identity.IsAuthenticated != true) {
-                // if the user is not authenticated, then just show logged out page
-                vm.ShowLogoutPrompt = false;
-                return vm;
+                // If the user is not authenticated, then just show logged out page.
+                viewModel.ShowLogoutPrompt = false;
+                return viewModel;
             }
-
             var context = await _interaction.GetLogoutContextAsync(logoutId);
-            vm.ClientId = context?.ClientId;
+            viewModel.ClientId = context?.ClientId;
             if (context?.ShowSignoutPrompt == false) {
-                // it's safe to automatically sign-out
-                vm.ShowLogoutPrompt = false;
-                return vm;
+                // it's safe to automatically sign-out.
+                viewModel.ShowLogoutPrompt = false;
+                return viewModel;
             }
-
-            // show the logout prompt. this prevents attacks where the user
-            // is automatically signed out by another malicious web page.
-            return vm;
+            // Show the logout prompt. this prevents attacks where the user is automatically signed out by another malicious web page.
+            return viewModel;
         }
 
         /// <summary>
@@ -213,10 +196,9 @@ namespace Indice.AspNetCore.Identity.Services
         /// </summary>
         /// <param name="logoutId"></param>
         public async Task<LoggedOutViewModel> BuildLoggedOutViewModelAsync(string logoutId) {
-            // get context information (client name, post logout redirect URI and iframe for federated signout)
+            // Get context information (client name, post logout redirect URI and iframe for federated signout).
             var logout = await _interaction.GetLogoutContextAsync(logoutId);
-
-            var vm = new LoggedOutViewModel {
+            var viewModel = new LoggedOutViewModel {
                 AutomaticRedirectAfterSignOut = AccountOptions.AutomaticRedirectAfterSignOut,
                 PostLogoutRedirectUri = logout?.PostLogoutRedirectUri,
                 ClientId = logout?.ClientId,
@@ -227,22 +209,18 @@ namespace Indice.AspNetCore.Identity.Services
             var user = _httpContextAccessor.HttpContext.User;
             if (user?.Identity.IsAuthenticated == true) {
                 var idp = user.FindFirst(JwtClaimTypes.IdentityProvider)?.Value;
-                if (idp != null && idp != IdentityServer4.IdentityServerConstants.LocalIdentityProvider) {
+                if (idp != null && idp != IdentityServerConstants.LocalIdentityProvider) {
                     var providerSupportsSignout = await _httpContextAccessor.HttpContext.GetSchemeSupportsSignOutAsync(idp);
                     if (providerSupportsSignout) {
-                        if (vm.LogoutId == null) {
-                            // if there's no current logout context, we need to create one
-                            // this captures necessary info from the current logged in user
-                            // before we signout and redirect away to the external IdP for signout
-                            vm.LogoutId = await _interaction.CreateLogoutContextAsync();
+                        if (viewModel.LogoutId == null) {
+                            // If there's no current logout context, we need to create one. This captures necessary info from the current logged in user before we signout and redirect away to the external IdP for signout
+                            viewModel.LogoutId = await _interaction.CreateLogoutContextAsync();
                         }
-
-                        vm.ExternalAuthenticationScheme = idp;
+                        viewModel.ExternalAuthenticationScheme = idp;
                     }
                 }
             }
-
-            return vm;
+            return viewModel;
         }
     }
 }

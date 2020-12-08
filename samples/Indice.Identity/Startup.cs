@@ -9,6 +9,7 @@ using Indice.AspNetCore.Identity.Features;
 using Indice.AspNetCore.Swagger;
 using Indice.Configuration;
 using Indice.Identity.Configuration;
+using Indice.Identity.Hosting;
 using Indice.Identity.Security;
 using Indice.Identity.Services;
 using Microsoft.AspNetCore.Builder;
@@ -78,31 +79,49 @@ namespace Indice.Identity
             services.AddSwaggerGen(options => {
                 options.IndiceDefaults(Settings);
                 options.AddOAuth2(Settings);
+                options.SchemaFilter<CreateUserRequestSchemaFilter>();
                 options.IncludeXmlComments(Assembly.Load(IdentityServerApi.AssemblyName));
             });
             services.AddMessageDescriber<ExtendedMessageDescriber>();
             services.AddResponseCaching();
             services.AddDataProtectionLocal(options => options.FromConfiguration());
+            services.AddEmailService(Configuration);
             services.AddCsp(options => {
                 options.ScriptSrc = CSP.Self;
                 options.AddSandbox("allow-popups")
                        .AddFontSrc(CSP.Data)
                        .AddConnectSrc(CSP.Self)
                        .AddConnectSrc("https://dc.services.visualstudio.com")
-                       //.AddScriptSrc("'report-sample'")
                        .AddFrameAncestors("https://localhost:2002");
             });
-            services.AddSpaStaticFiles(options => {
-                options.RootPath = "wwwroot/admin-ui";
-            });
+            services.AddSpaStaticFiles(options => options.RootPath = "wwwroot/admin-ui");
+            // Setup worker host for executing background tasks.
+            services.AddWorkerHost(options => {
+                options.JsonOptions.JsonSerializerOptions.WriteIndented = true;
+                options.UseEntityFrameworkStorage<ExtendedTaskDbContext>();
+            })
+            .AddJob<SMSAlertHandler>()
+            .WithQueueTrigger<SMSDto>(options => {
+                options.QueueName = "user-messages";
+                options.PollingInterval = 500;
+            })
+            /*.AddJob<LoadAvailableAlertsHandler>()
+            .WithScheduleTrigger<DemoCounterModel>("0/5 * * * * ?", options => {
+                options.Name = "LoadAvailableAlerts";
+                options.Description = "La lala";
+                options.Group = "indice";
+            })*/;
         }
 
         /// <summary>
         /// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         /// </summary>
         /// <param name="app">Defines a class that provides the mechanisms to configure an application's request pipeline.</param>
-        public void Configure(IApplicationBuilder app) {
+        /// <param name="serviceProvider"></param>
+        public void Configure(IApplicationBuilder app, IServiceProvider serviceProvider) {
             if (HostingEnvironment.IsDevelopment()) {
+                var taskDbContext = serviceProvider.GetRequiredService<ExtendedTaskDbContext>();
+                taskDbContext.Database.EnsureCreated();
                 app.UseDeveloperExceptionPage();
                 app.IdentityServerStoreSetup<ExtendedConfigurationDbContext>(Clients.Get(), Resources.GetIdentityResources(), Resources.GetApis(), Resources.GetApiScopes());
             } else {
@@ -144,13 +163,16 @@ namespace Indice.Identity
             app.UseSwagger();
             var enableSwagger = HostingEnvironment.IsDevelopment() || Configuration.GetValue<bool>($"{GeneralSettings.Name}:SwaggerUI");
             if (enableSwagger) {
-                app.UseSwaggerUI(swaggerOptions => {
-                    swaggerOptions.RoutePrefix = "docs";
-                    swaggerOptions.SwaggerEndpoint($"/swagger/{IdentityServerApi.Scope}/swagger.json", IdentityServerApi.Scope);
-                    swaggerOptions.OAuth2RedirectUrl($"{Settings.Host}/docs/oauth2-redirect.html");
-                    swaggerOptions.OAuthClientId("swagger-ui");
-                    swaggerOptions.OAuthAppName("Swagger UI");
-                    swaggerOptions.DocExpansion(DocExpansion.None);
+                app.UseSwaggerUI(options => {
+                    options.RoutePrefix = "docs";
+                    options.SwaggerEndpoint($"/swagger/{IdentityServerApi.Scope}/swagger.json", IdentityServerApi.Scope);
+                    options.OAuth2RedirectUrl($"{Settings.Host}/docs/oauth2-redirect.html");
+                    options.OAuthClientId("swagger-ui");
+                    options.OAuthClientSecret("M2YwNTlkMTgtYWQzNy00MGNjLWFiYjQtZWQ3Y2Y4N2M3YWU3");
+                    options.OAuthAppName("Swagger UI");
+                    options.DocExpansion(DocExpansion.None);
+                    options.OAuthUsePkce();
+                    options.OAuthScopeSeparator(" ");
                 });
             }
             app.UseEndpoints(endpoints => {

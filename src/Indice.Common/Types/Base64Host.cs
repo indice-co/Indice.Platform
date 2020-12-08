@@ -2,9 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Globalization;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace Indice.Types
 {
@@ -13,7 +11,8 @@ namespace Indice.Types
     /// Use this class to wrap a Guid into a representiation that is shortened and obfuscated for querystring use. 
     /// </summary>
     [TypeConverter(typeof(Base64HostTypeConverter))]
-    public struct Base64Host {
+    public struct Base64Host
+    {
 #if NETSTANDARD14
         private const string UriSchemeHttps = "https";
         private const string UriSchemeHttp = "http";
@@ -58,11 +57,10 @@ namespace Indice.Types
         /// <param name="obj"></param>
         /// <returns></returns>
         public override bool Equals(object obj) {
-            if (obj != null && obj is Base64Host) {
-                var other = ((Base64Host)obj);
+            if (obj != null && obj is Base64Host host) {
+                var other = host;
                 return other.Host == Host;
             }
-
             return base.Equals(obj);
         }
 
@@ -108,10 +106,12 @@ namespace Indice.Types
                 return new Base64Host();
             }
         }
-        static ushort ToShort(byte byte1, byte byte2) {   // using Int32 because that is what all the operations return anyway...
+
+        private static ushort ToShort(byte byte1, byte byte2) {   // using Int32 because that is what all the operations return anyway...
             return (ushort)((((int)byte1) << 8) | (int)byte2);
         }
-        static void FromShort(ushort number, out byte byte1, out byte byte2) {
+
+        private static void FromShort(ushort number, out byte byte1, out byte byte2) {
             byte1 = (byte)(number >> 8); // to treat as same byte 1 from above
             byte2 = (byte)number;
         }
@@ -132,7 +132,6 @@ namespace Indice.Types
             if (sourceType == typeof(string)) {
                 return true;
             }
-
             return base.CanConvertFrom(context, sourceType);
         }
 
@@ -144,10 +143,9 @@ namespace Indice.Types
         /// <param name="value"></param>
         /// <returns></returns>
         public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value) {
-            if (value is string) {
-                return Base64Host.Parse((string)value);
+            if (value is string @string) {
+                return Base64Host.Parse(@string);
             }
-
             return base.ConvertFrom(context, culture, value);
         }
 
@@ -163,7 +161,6 @@ namespace Indice.Types
             if (destinationType == typeof(string)) {
                 return ((Base64Host)value).ToString();
             }
-
             return base.ConvertTo(context, culture, value, destinationType);
         }
     }

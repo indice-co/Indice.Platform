@@ -135,12 +135,15 @@ namespace Indice.Identity.Security
                 ClientId = "swagger-ui",
                 ClientName = "Swagger UI",
                 AccessTokenType = AccessTokenType.Jwt,
-                AllowAccessTokensViaBrowser = true,
+                AllowAccessTokensViaBrowser = false,
                 AllowedCorsOrigins = {
                     "https://localhost:2000",
                     "https://idsrv-admin-ui.azurewebsites.net"
                 },
-                AllowedGrantTypes = GrantTypes.Implicit,
+                ClientSecrets = {
+                    new Secret("M2YwNTlkMTgtYWQzNy00MGNjLWFiYjQtZWQ3Y2Y4N2M3YWU3".ToSha256())
+                },
+                AllowedGrantTypes = GrantTypes.Code,
                 AllowedScopes = {
                     IdentityServerApi.Scope,
                     IdentityServerApi.SubScopes.Clients,
@@ -158,7 +161,9 @@ namespace Indice.Identity.Security
                     "https://localhost:2000/docs/oauth2-redirect.html",
                     "https://idsrv-admin-ui.azurewebsites.net/docs/oauth2-redirect.html"
                 },
-                RequireConsent = true
+                RequireConsent = true,
+                RequirePkce = true,
+                RequireClientSecret = false
             }
         };
     }

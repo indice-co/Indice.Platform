@@ -562,7 +562,7 @@ export interface IIdentityApiService {
      * Sets the password for a given user.
      * @param userId The identifier of the user.
      * @param body (optional) Contains info about the user password to change.
-     * @return OK
+     * @return No Content
      */
     setPassword(userId: string | null, body?: SetPasswordRequest | undefined): Observable<void>;
     /**
@@ -7604,7 +7604,7 @@ export class IdentityApiService implements IIdentityApiService {
      * Sets the password for a given user.
      * @param userId The identifier of the user.
      * @param body (optional) Contains info about the user password to change.
-     * @return OK
+     * @return No Content
      */
     setPassword(userId: string | null, body?: SetPasswordRequest | undefined): Observable<void> {
         let url_ = this.baseUrl + "/api/users/{userId}/set-password";
@@ -7666,7 +7666,7 @@ export class IdentityApiService implements IIdentityApiService {
             result403 = ProblemDetails.fromJS(resultData403);
             return throwException("Forbidden", status, _responseText, _headers, result403);
             }));
-        } else if (status === 200) {
+        } else if (status === 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
             return _observableOf<void>(<any>null);
             }));
@@ -12099,12 +12099,8 @@ export interface IBasicClaimInfo {
 
 /** Models a user that will be updated on the server. */
 export class UpdateUserRequest implements IUpdateUserRequest {
-    /** Indicates whether lockout feature is enabled for the user. */
-    lockoutEnabled?: boolean;
     /** Indicates whether two-factor authentication is enabled for the user. */
     twoFactorEnabled?: boolean;
-    /** The datetime where the lockout period ends. */
-    lockoutEnd?: Date | undefined;
     /** User's email address. */
     email?: string | undefined;
     /** User's phone number. */
@@ -12132,9 +12128,7 @@ export class UpdateUserRequest implements IUpdateUserRequest {
 
     init(_data?: any) {
         if (_data) {
-            this.lockoutEnabled = _data["lockoutEnabled"];
             this.twoFactorEnabled = _data["twoFactorEnabled"];
-            this.lockoutEnd = _data["lockoutEnd"] ? new Date(_data["lockoutEnd"].toString()) : <any>undefined;
             this.email = _data["email"];
             this.phoneNumber = _data["phoneNumber"];
             this.userName = _data["userName"];
@@ -12159,9 +12153,7 @@ export class UpdateUserRequest implements IUpdateUserRequest {
 
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
-        data["lockoutEnabled"] = this.lockoutEnabled;
         data["twoFactorEnabled"] = this.twoFactorEnabled;
-        data["lockoutEnd"] = this.lockoutEnd ? this.lockoutEnd.toISOString() : <any>undefined;
         data["email"] = this.email;
         data["phoneNumber"] = this.phoneNumber;
         data["userName"] = this.userName;
@@ -12180,12 +12172,8 @@ export class UpdateUserRequest implements IUpdateUserRequest {
 
 /** Models a user that will be updated on the server. */
 export interface IUpdateUserRequest {
-    /** Indicates whether lockout feature is enabled for the user. */
-    lockoutEnabled?: boolean;
     /** Indicates whether two-factor authentication is enabled for the user. */
     twoFactorEnabled?: boolean;
-    /** The datetime where the lockout period ends. */
-    lockoutEnd?: Date | undefined;
     /** User's email address. */
     email?: string | undefined;
     /** User's phone number. */
