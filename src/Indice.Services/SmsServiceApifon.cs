@@ -15,10 +15,8 @@ namespace Indice.Services
     /// <summary>
     /// Sms Service implementation using the Apifon sms service gateway.
     /// </summary>
-    public class SmsServiceApifon : ISmsService, IDisposable
+    public class SmsServiceApifon : ISmsService
     {
-        private bool _disposed = false;
-
         /// <summary>
         /// The settings required to configure the service
         /// </summary>
@@ -70,14 +68,18 @@ namespace Indice.Services
             if (recipients.Any(telephone => telephone.Any(telNumber => !char.IsNumber(telNumber))))
                 throw new ArgumentException("Invalid recipients. Recipients cannot contain letters.", nameof(recipients));
 
-            var request = new ApifonRequest(Settings.Sender ?? Settings.SenderName, recipients, body);
-            var signature = request.Sign(Settings.ApiKey, "POST", "/services/api/v1/sms/send");
-            HttpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-            HttpClient.DefaultRequestHeaders.Add("X-ApifonWS-Date", request.RequestDate.ToString("r"));
-            HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("ApifonWS", $"{Settings.Token}:{signature}");
-
+            var payload = new ApifonRequest(Settings.Sender ?? Settings.SenderName, recipients, body);
+            var signature = payload.Sign(Settings.ApiKey, HttpMethod.Post.ToString(), "/services/api/v1/sms/send");
+            var request = new HttpRequestMessage {
+                Content = new StringContent(payload.ToJson(), Encoding.UTF8, "application/json"),
+                Method = HttpMethod.Post,
+                RequestUri = new Uri(HttpClient.BaseAddress, "send")
+            };
+            request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+            request.Headers.Add("X-ApifonWS-Date", payload.RequestDate.ToString("r"));
+            request.Headers.Authorization = new AuthenticationHeaderValue("ApifonWS", $"{Settings.Token}:{signature}");
             try {
-                httpResponse = await HttpClient.PostAsync("send", new StringContent(request.ToJson(), Encoding.UTF8, "application/json")).ConfigureAwait(false);
+                httpResponse = await HttpClient.SendAsync(request).ConfigureAwait(false);
             } catch (Exception ex) {
                 throw new SmsServiceException($"SMS Delivery took too long.", ex);
             }
@@ -95,31 +97,6 @@ namespace Indice.Services
             } else {
                 Logger?.LogInformation("SMS message successfully sent: {1}", response.Results.FirstOrDefault());
             }
-        }
-
-        /// <summary>
-        /// Disposes the <see cref="System.Net.Http.HttpClient"/> if not managed by the DI.
-        /// </summary>
-        public void Dispose() {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        /// https://docs.microsoft.com/en-us/dotnet/standard/garbage-collection/implementing-dispose
-        /// <summary>
-        /// Protected implementation of Dispose pattern.
-        /// </summary>
-        /// <param name="disposing"></param>
-        protected virtual void Dispose(bool disposing) {
-            if (_disposed) {
-                return;
-            }
-            if (disposing) {
-                // Free any other managed objects here.
-                HttpClient.Dispose();
-            }
-            // Free any unmanaged objects here.
-            _disposed = true;
         }
 
         /// <summary>
@@ -187,7 +164,7 @@ namespace Indice.Services
         public ApifonRequest() { }
 
         public ApifonRequest(string from, string[] to, string message) {
-            foreach(var subNumber in to) {
+            foreach (var subNumber in to) {
                 Subscribers.Add(new Subscribers { To = subNumber });
             }
             Message.From = from;
