@@ -24,7 +24,7 @@ namespace Indice.Services.Yuboto
         /// <inheritdoc />
         public async Task SendAsync(string destination, string subject, string body) {
             var phoneNumbers = GetRecipientsFromDestination(destination);
-            var requestBody = SendRequest.CreateViber(phoneNumbers, Settings.Sender ?? Settings.SenderName, body);
+            var requestBody = SendRequest.CreateViber(phoneNumbers, Settings.Sender ?? Settings.SenderName, body, Settings.ViberFallbackEnabled);
             var jsonData = JsonSerializer.Serialize(requestBody, GetJsonSerializerOptions());
             Logger.LogInformation("The following payload was sent to Yuboto: {0}", jsonData);
             var data = new StringContent(jsonData, Encoding.UTF8, "application/json");

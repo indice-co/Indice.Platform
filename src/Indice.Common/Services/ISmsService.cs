@@ -52,6 +52,10 @@ namespace Indice.Services
         /// If true then test mode should not charge any credits.
         /// </summary>
         public bool TestMode { get; set; }
+        /// <summary>
+        /// In case of viber failure fallback to sms
+        /// </summary>
+        public bool ViberFallbackEnabled { get; set; } = false;
     }
 
     /// <summary>

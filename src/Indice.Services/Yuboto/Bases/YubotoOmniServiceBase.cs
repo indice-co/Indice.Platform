@@ -135,20 +135,29 @@ namespace Indice.Services.Yuboto.Bases
             };
 
             /// <summary>
-            ///  Create a Send Viber request
+            /// Create a Send Viber request.
             /// </summary>
             /// <param name="phoneNumbers"></param>
             /// <param name="sender"></param>
             /// <param name="message"></param>
             /// <param name="expiredMessage"></param>
+            /// <param name="viberFallbackEnabled"></param>
             /// <returns></returns>
-            public static SendRequest CreateViber(string[] phoneNumbers, string sender, string message, string expiredMessage = "Message is expired.") => new SendRequest {
+            public static SendRequest CreateViber(string[] phoneNumbers, string sender, string message, bool viberFallbackEnabled, string expiredMessage = "Message is expired.") => new SendRequest {
                 PhoneNumbers = phoneNumbers,
                 Viber = new ViberObj {
                     Sender = sender,
                     Text = message,
-                    ExpiryText = expiredMessage
-                }
+                    ExpiryText = expiredMessage,
+                    Priority = 0
+                },
+                Sms = viberFallbackEnabled ? new SmsObj {
+                    Sender = sender,
+                    Text = message,
+                    TypeSms = "sms",
+                    LongSms = message.Length > 160,
+                    Priority = 1
+                } : default
             };
 
             /// <summary>
