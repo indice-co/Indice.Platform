@@ -81,19 +81,21 @@ namespace Indice.Services
             request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
             request.Headers.Add("X-ApifonWS-Date", payload.RequestDate.ToString("r"));
             request.Headers.Authorization = new AuthenticationHeaderValue("ApifonWS", $"{Settings.Token}:{signature}");
-            Logger.LogInformation("The following payload was sent to Apifon: {0}", payload.ToJson());
             try {
+                Logger.LogInformation("The following payload was sent to Apifon: {0}", payload.ToJson());
                 httpResponse = await HttpClient.SendAsync(request).ConfigureAwait(false);
             } catch (Exception ex) {
+                Logger.LogInformation("SMS Delivery took too long.: {0}", ex);
                 throw new SmsServiceException($"SMS Delivery took too long.", ex);
             }
             var responseString = await httpResponse.Content.ReadAsStringAsync();
             if (!httpResponse.IsSuccessStatusCode) {
+                Logger.LogInformation($"SMS Delivery failed. {httpResponse.StatusCode} : {responseString}");
                 throw new SmsServiceException($"SMS Delivery failed. {httpResponse.StatusCode} : {responseString}");
             }
             response = JsonSerializer.Deserialize<ApifonResponse>(responseString, GetJsonSerializerOptions());
-            Logger.LogInformation("The following response was received from Apifon: {0}", response);
             if (response.HasError) {
+                Logger.LogInformation($"SMS Delivery failed. {response.Status.Description}");
                 throw new SmsServiceException($"SMS Delivery failed. {response.Status.Description}");
             } else {
                 Logger.LogInformation("SMS message successfully sent: {1}", response.Results.FirstOrDefault());
