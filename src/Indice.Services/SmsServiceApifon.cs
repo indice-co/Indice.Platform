@@ -82,6 +82,7 @@ namespace Indice.Services
             request.Headers.Add("X-ApifonWS-Date", payload.RequestDate.ToString("r"));
             request.Headers.Authorization = new AuthenticationHeaderValue("ApifonWS", $"{Settings.Token}:{signature}");
             try {
+                Logger.LogInformation("The full request sent to Apifon: {0}", JsonSerializer.Serialize(request, GetJsonSerializerOptions()));
                 Logger.LogInformation("The following payload was sent to Apifon: {0}", payload.ToJson());
                 httpResponse = await HttpClient.SendAsync(request).ConfigureAwait(false);
             } catch (Exception ex) {
