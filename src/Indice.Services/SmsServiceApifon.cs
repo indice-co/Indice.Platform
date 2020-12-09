@@ -81,6 +81,7 @@ namespace Indice.Services
             request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
             request.Headers.Add("X-ApifonWS-Date", payload.RequestDate.ToString("r"));
             request.Headers.Authorization = new AuthenticationHeaderValue("ApifonWS", $"{Settings.Token}:{signature}");
+            Logger.LogInformation("The following payload was sent to Apifon: {0}", payload.ToJson());
             try {
                 httpResponse = await HttpClient.SendAsync(request).ConfigureAwait(false);
             } catch (Exception ex) {
@@ -90,10 +91,8 @@ namespace Indice.Services
             if (!httpResponse.IsSuccessStatusCode) {
                 throw new SmsServiceException($"SMS Delivery failed. {httpResponse.StatusCode} : {responseString}");
             }
-            response = JsonSerializer.Deserialize<ApifonResponse>(responseString, new JsonSerializerOptions {
-                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-                IgnoreNullValues = true
-            });
+            response = JsonSerializer.Deserialize<ApifonResponse>(responseString, GetJsonSerializerOptions());
+            Logger.LogInformation("The following response was received from Apifon: {0}", response);
             if (response.HasError) {
                 throw new SmsServiceException($"SMS Delivery failed. {response.Status.Description}");
             } else {
@@ -107,6 +106,15 @@ namespace Indice.Services
         /// <param name="deliveryChannel">A string representing the delivery channel. ie 'SMS'</param>
         /// <returns></returns>
         public bool Supports(string deliveryChannel) => "SMS".Equals(deliveryChannel, StringComparison.OrdinalIgnoreCase);
+
+
+        /// <summary>
+        /// Get default Json Serializer Options: CamelCase, ignore null values.
+        /// </summary>
+        protected JsonSerializerOptions GetJsonSerializerOptions() => new JsonSerializerOptions {
+            IgnoreNullValues = true,
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+        };
     }
 
     /// <summary>
