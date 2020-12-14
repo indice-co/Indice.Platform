@@ -267,7 +267,6 @@ namespace Indice.AspNetCore.Identity.Features
         /// <response code="204">No Content</response>
         /// <response code="400">Bad Request</response>
         [HttpPost("my/account/forgot-password")]
-        [AllowAnonymous]
         [ProducesResponseType(statusCode: StatusCodes.Status204NoContent, type: typeof(void))]
         [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest, type: typeof(ValidationProblemDetails))]
         public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordRequest request) {
@@ -291,7 +290,6 @@ namespace Indice.AspNetCore.Identity.Features
         /// <response code="204">No Content</response>
         /// <response code="400">Bad Request</response>
         [HttpPut("my/account/forgot-password/confirmation")]
-        [AllowAnonymous]
         [ProducesResponseType(statusCode: StatusCodes.Status204NoContent, type: typeof(void))]
         [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest, type: typeof(ValidationProblemDetails))]
         public async Task<IActionResult> ForgotPasswordConfirmation([FromBody] ForgotPasswordVerifyModel request) {
