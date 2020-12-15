@@ -56,6 +56,10 @@ namespace Indice.Services
         /// In case of viber failure fallback to sms
         /// </summary>
         public bool ViberFallbackEnabled { get; set; } = false;
+        /// <summary>
+        /// The number of a seconds that a message is considered active. Defaults to 4320 seconds.
+        /// </summary>
+        public int Validity { get; set; } = 4320;
     }
 
     /// <summary>

@@ -18,19 +18,6 @@ namespace Indice.Services.Yuboto.Bases
         private bool _disposed = false;
 
         /// <summary>
-        /// The settings required to configure the service.
-        /// </summary>
-        protected SmsServiceSettings Settings { get; }
-        /// <summary>
-        /// The <see cref="System.Net.Http.HttpClient"/>.
-        /// </summary>
-        protected HttpClient HttpClient { get; }
-        /// <summary>
-        /// Represents a type used to perform logging.
-        /// </summary>
-        protected ILogger<YubotoOmniServiceBase> Logger { get; }
-
-        /// <summary>
         /// Constructs the <see cref="YubotoOmniServiceBase"/> using the <seealso cref="SmsServiceSettings"/>.
         /// </summary>
         /// <param name="settings">The settings required to configure the service.</param>
@@ -48,9 +35,22 @@ namespace Indice.Services.Yuboto.Bases
             }
         }
 
+        /// <summary>
+        /// The settings required to configure the service.
+        /// </summary>
+        protected SmsServiceSettings Settings { get; }
+        /// <summary>
+        /// The <see cref="System.Net.Http.HttpClient"/>.
+        /// </summary>
+        protected HttpClient HttpClient { get; }
+        /// <summary>
+        /// Represents a type used to perform logging.
+        /// </summary>
+        protected ILogger<YubotoOmniServiceBase> Logger { get; }
+
         #region Helper Methods
         /// <summary>
-        /// Get list of phone numbers from destination
+        /// Get list of phone numbers from destination.
         /// </summary>
         /// <param name="destination"></param>
         protected string[] GetRecipientsFromDestination(string destination) {
@@ -94,11 +94,11 @@ namespace Indice.Services.Yuboto.Bases
             GC.SuppressFinalize(this);
         }
 
-        // https://docs.microsoft.com/en-us/dotnet/standard/garbage-collection/implementing-dispose
         /// <summary>
         /// Protected implementation of Dispose pattern.
         /// </summary>
-        /// <param name="disposing"></param>
+        /// <param name="disposing">To detect redundant calls.</param>
+        /// <example>https://docs.microsoft.com/en-us/dotnet/standard/garbage-collection/implementing-dispose</example>
         protected virtual void Dispose(bool disposing) {
             if (_disposed) {
                 return;
@@ -112,51 +112,35 @@ namespace Indice.Services.Yuboto.Bases
         }
 
         #region Models
-        /// <summary>
-        /// The request body.
-        /// </summary>
-        public class SendRequest
+        internal class SendRequest
         {
-            /// <summary>
-            /// Create a Send SMS request 
-            /// </summary>
-            /// <param name="phoneNumbers"></param>
-            /// <param name="sender"></param>
-            /// <param name="message"></param>
-            /// <returns></returns>
-            public static SendRequest CreateSms(string[] phoneNumbers, string sender, string message) => new SendRequest {
+            public static SendRequest CreateSms(string[] phoneNumbers, string sender, string message, int validity) => new SendRequest {
                 PhoneNumbers = phoneNumbers,
                 Sms = new SmsObj {
                     Sender = sender,
                     Text = message,
                     TypeSms = "sms",
-                    LongSms = message.Length > 160
+                    LongSms = message.Length > 160,
+                    Validity = validity
                 }
             };
 
-            /// <summary>
-            /// Create a Send Viber request.
-            /// </summary>
-            /// <param name="phoneNumbers"></param>
-            /// <param name="sender"></param>
-            /// <param name="message"></param>
-            /// <param name="expiredMessage"></param>
-            /// <param name="viberFallbackEnabled"></param>
-            /// <returns></returns>
-            public static SendRequest CreateViber(string[] phoneNumbers, string sender, string message, bool viberFallbackEnabled, string expiredMessage = "Message is expired.") => new SendRequest {
+            public static SendRequest CreateViber(string[] phoneNumbers, string sender, string message, bool viberFallbackEnabled, int validity, string expiredMessage = "Message is expired.") => new SendRequest {
                 PhoneNumbers = phoneNumbers,
                 Viber = new ViberObj {
                     Sender = sender,
                     Text = message,
                     ExpiryText = expiredMessage,
-                    Priority = 0
+                    Priority = 0,
+                    Validity = validity
                 },
                 Sms = viberFallbackEnabled ? new SmsObj {
                     Sender = sender,
                     Text = message,
                     TypeSms = "sms",
                     LongSms = message.Length > 160,
-                    Priority = 1
+                    Priority = 1,
+                    Validity = validity
                 } : default
             };
 
@@ -171,7 +155,7 @@ namespace Indice.Services.Yuboto.Bases
             /// Indicates the date you wish to send the message. If this is omitted, the message is sent instantly.
             /// Not Required
             /// ΥΥΥΥΜΜDD 
-            /// YYYY refers to the year ΜΜ refers to the month DD refers to the day
+            /// YYYY refers to the year ΜΜ refers to the month DD refers to the day.
             /// </summary>
             [JsonPropertyName("dateinToSend")]
             public int? DateInToSend { get; set; }
@@ -184,7 +168,7 @@ namespace Indice.Services.Yuboto.Bases
             [JsonPropertyName("timeinToSend")]
             public int? TimeInToSend { get; set; }
             /// <summary>
-            /// The flag indicates if delivery receipt request must be sent to customer’s application. (Default: false)
+            /// The flag indicates if delivery receipt request must be sent to customer’s application. (Default: false).
             /// </summary>
             [JsonPropertyName("dlr")]
             public bool Dlr { get; set; } = false;
@@ -196,15 +180,15 @@ namespace Indice.Services.Yuboto.Bases
             [JsonPropertyName("callbackUrl")]
             public string CallbackUrl { get; set; }
             /// <summary>
-            /// User defined value that will be included in the call to the provided callback_url
-            /// Option1 and Option2 Parameters will be available for retrieve only if you pass dlr:true and a callbackUrl parameter
+            /// User defined value that will be included in the call to the provided callback_url.
+            /// Option1 and Option2 Parameters will be available for retrieve only if you pass dlr:true and a callbackUrl parameter.
             /// Not Required
             /// </summary>
             [JsonPropertyName("option1")]
             public string Option1 { get; set; }
             /// <summary>
             /// User defined value that will be included in the call to the provided callback_url.
-            /// Option1 and Option2 Parameters will be available for retrieve only if you pass dlr:true and a callbackUrl parameter
+            /// Option1 and Option2 Parameters will be available for retrieve only if you pass dlr:true and a callbackUrl parameter.
             /// Not Required
             /// </summary>
             [JsonPropertyName("option2")]
@@ -218,7 +202,8 @@ namespace Indice.Services.Yuboto.Bases
             [JsonPropertyName("sms")]
             public SmsObj Sms { get; set; }
             /// <summary>
-            /// This object is required if a list of channels contains VIBER channel. Parameters text, buttonCaption + buttonAction and image make Viber Service Message content. There are 4 possible combinations of Viber Service Message content: text only, image only, text + button, text + button + image
+            /// This object is required if a list of channels contains VIBER channel. Parameters text, buttonCaption + buttonAction and image make Viber Service Message content. 
+            /// There are 4 possible combinations of Viber Service Message content: text only, image only, text + button, text + button + image.
             /// One of Sms/Viber parameters must always exists.
             /// Not Required
             /// <see cref="ViberObj"/>
@@ -227,12 +212,12 @@ namespace Indice.Services.Yuboto.Bases
             public ViberObj Viber { get; set; }
 
             /// <summary>
-            /// The Sms Object of SendRequest
+            /// The Sms Object of SendRequest.
             /// </summary>
             public class SmsObj
             {
                 /// <summary>
-                /// SMS originator (“sender”) that will be displayed on mobile device’s screen. Alphanumeric origin, max. 11 characters | Numeric origin, max. 20 characters
+                /// SMS originator (“sender”) that will be displayed on mobile device’s screen. Alphanumeric origin, max. 11 characters | Numeric origin, max. 20 characters.
                 /// Required
                 /// </summary>
                 [JsonPropertyName("sender")]
@@ -270,7 +255,7 @@ namespace Indice.Services.Yuboto.Bases
                 [JsonPropertyName("longsms")]
                 public bool LongSms { get; set; } = false;
                 /// <summary>
-                /// Indicates which channel has priority when it comes to omni messaging (default value is: 0)
+                /// Indicates which channel has priority when it comes to omni messaging (default value is: 0).
                 /// Not Required
                 /// </summary>
                 [JsonPropertyName("priority")]
@@ -289,7 +274,7 @@ namespace Indice.Services.Yuboto.Bases
             public class ViberObj
             {
                 /// <summary>
-                /// Viber message originator (“sender”) that will be displayed on mobile device’s screen. Alphanumeric origin, max. 20 characters
+                /// Viber message originator (“sender”) that will be displayed on mobile device’s screen. Alphanumeric origin, max. 20 characters.
                 /// Required
                 /// </summary>
                 [JsonPropertyName("sender")]
@@ -348,12 +333,12 @@ namespace Indice.Services.Yuboto.Bases
             }
 
             /// <summary>
-            /// The Two Factor Object of ViberObj | SmsObj
+            /// The Two Factor Object of ViberObj | SmsObj.
             /// </summary>
             public class TwoFaObj
             {
                 /// <summary>
-                /// The length of the pin to be generated Min:4 Max: 32
+                /// The length of the pin to be generated Min:4 Max: 32.
                 /// Required
                 /// </summary>
                 [JsonPropertyName("pinLength")]
@@ -377,7 +362,7 @@ namespace Indice.Services.Yuboto.Bases
                 [JsonPropertyName("isCaseSensitive")]
                 public bool IsCaseSensitive { get; set; }
                 /// <summary>
-                /// The time the pin will be active. Accepted values between 60-600 (in seconds)
+                /// The time the pin will be active. Accepted values between 60-600 (in seconds).
                 /// Required
                 /// </summary>
                 [JsonPropertyName("expiration")]
@@ -385,10 +370,7 @@ namespace Indice.Services.Yuboto.Bases
             }
         }
 
-        /// <summary>
-        /// The SendRequest response 
-        /// </summary>
-        public class SendResponse
+        internal class SendResponse
         {
             /// <summary>
             /// The response error code for this call. This will be 0 if successful.
@@ -401,7 +383,7 @@ namespace Indice.Services.Yuboto.Bases
             [JsonPropertyName("ErrorMessage")]
             public string ErrorMessage { get; set; }
             /// <summary>
-            /// A list which contains the status of the messages. <see cref="MessageStatus"/>
+            /// A list which contains the status of the messages. <see cref="MessageStatus"/>.
             /// </summary>
             [JsonPropertyName("Message")]
             public List<MessageStatus> Messages { get; set; }
@@ -411,7 +393,7 @@ namespace Indice.Services.Yuboto.Bases
             public bool IsSuccess => ErrorCode == 0;
 
             /// <summary>
-            /// MessageStatus model
+            /// MessageStatus model.
             /// </summary>
             public class MessageStatus
             {

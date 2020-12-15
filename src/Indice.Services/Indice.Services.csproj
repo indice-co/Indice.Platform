@@ -3,7 +3,7 @@
     <Description>Indice.Services Class Library</Description>
     <Copyright>Copyright (c) 2018 Indice</Copyright>
     <AssemblyTitle>Indice.Services</AssemblyTitle>
-    <VersionPrefix>4.0.5</VersionPrefix>
+    <VersionPrefix>4.0.6</VersionPrefix>
     <!--<VersionSuffix>beta10</VersionSuffix>-->
     <Authors>c.leftheris, g.manoltzas</Authors>
     <TargetFramework>netstandard2.0</TargetFramework>
@@ -14,7 +14,7 @@
   <PropertyGroup Label="Package">
     <PackageId>Indice.Services</PackageId>
     <PackageTags>dotnetcore;Files;Emails;Sms</PackageTags>
-    <PackageReleaseNotes>More logging on Apifon SMS service.</PackageReleaseNotes>
+    <PackageReleaseNotes>Add validity option on SMS settings.</PackageReleaseNotes>
     <PackageIcon>icon-310.png</PackageIcon>
     <PackageProjectUrl>https://github.com/indice-co/Indice.AspNet</PackageProjectUrl>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
@@ -31,7 +31,7 @@
     <None Include="..\..\icon\icon-310.png" Pack="true" Visible="false" PackagePath="" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Indice.Common" Version="4.0.1" />
+    <PackageReference Include="Indice.Common" Version="4.0.2" />
     <PackageReference Include="MailKit" Version="2.10.0" />
     <PackageReference Include="Microsoft.Azure.NotificationHubs" Version="4.1.0" />
     <PackageReference Include="Microsoft.Azure.Storage.Blob" Version="11.2.2" />

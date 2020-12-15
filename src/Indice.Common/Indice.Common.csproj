@@ -3,7 +3,7 @@
     <Description>Indice.Common Class Library</Description>
     <Copyright>Copyright (c) 2018 Indice</Copyright>
     <AssemblyTitle>Indice.Common</AssemblyTitle>
-    <VersionPrefix>4.0.1</VersionPrefix>
+    <VersionPrefix>4.0.2</VersionPrefix>
     <!--<VersionSuffix>beta7</VersionSuffix>-->
     <Authors>c.leftheris</Authors>
     <TargetFrameworks>netstandard2.0;netcoreapp3.1</TargetFrameworks>
@@ -15,7 +15,7 @@
   <PropertyGroup Label="Package">
     <PackageId>Indice.Common</PackageId>
     <PackageTags>AspNet;Api;Utilities</PackageTags>
-    <PackageReleaseNotes>Add Period type.</PackageReleaseNotes>
+    <PackageReleaseNotes>Add validity option on SMS settings.</PackageReleaseNotes>
     <PackageIcon>icon-310.png</PackageIcon>
     <PackageProjectUrl>https://github.com/indice-co/Indice.AspNet</PackageProjectUrl>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
