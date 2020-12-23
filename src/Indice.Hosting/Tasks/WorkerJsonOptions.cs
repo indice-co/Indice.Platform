@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Text.Json;
+﻿using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace Indice.Hosting
@@ -12,14 +9,13 @@ namespace Indice.Hosting
     public class WorkerJsonOptions
     {
         /// <summary>
-        /// Serializer options
+        /// Serializer options.
         /// </summary>
         public JsonSerializerOptions JsonSerializerOptions { get; set; } = GetDefaultSettings();
 
         /// <summary>
         /// Json options Defaults.
         /// </summary>
-        /// <returns></returns>
         public static JsonSerializerOptions GetDefaultSettings() {
             var options = new JsonSerializerOptions() {
                 IgnoreNullValues = true,

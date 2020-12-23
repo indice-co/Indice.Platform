@@ -2,7 +2,7 @@
   <PropertyGroup>
     <Description>Indice.Hosting Class Library</Description>
     <Copyright>Copyright (c) 2019 Indice</Copyright>
-    <VersionPrefix>4.0.10</VersionPrefix>
+    <VersionPrefix>4.0.11</VersionPrefix>
     <!--<VersionSuffix>beta1</VersionSuffix>-->
     <Authors>c.leftheris</Authors>
     <TargetFramework>netstandard2.0</TargetFramework>
@@ -13,7 +13,7 @@
   <PropertyGroup Label="Package">
     <PackageId>Indice.Hosting</PackageId>
     <PackageTags>dotnetcore;Hosting</PackageTags>
-    <PackageReleaseNotes>Rename wrong property name on DbLock entity, fix bug on dequeue job trigger identity (when adding multiple instances).</PackageReleaseNotes>
+    <PackageReleaseNotes>Add ability to enable/disable worker host from appsettings.</PackageReleaseNotes>
     <PackageIcon>icon-310.png</PackageIcon>
     <PackageProjectUrl>https://github.com/indice-co/Indice.AspNet</PackageProjectUrl>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>

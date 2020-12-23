@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
@@ -29,6 +27,7 @@ namespace Indice.Hosting.Tasks.Data
         public async Task<ScheduledTask<TState>> GetById(string taskId) {
             return (await _DbContext.Tasks.AsNoTracking().Where(x => x.Id == taskId).SingleOrDefaultAsync())?.ToModel<TState>(_JsonOptions);
         }
+
         /// <inheritdoc/>
         public async Task Save(ScheduledTask<TState> scheduledTask) {
             var dbTask = (await _DbContext.Tasks.Where(x => x.Id == scheduledTask.Id).SingleOrDefaultAsync());

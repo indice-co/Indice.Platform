@@ -105,12 +105,12 @@ namespace Indice.Identity
                 options.QueueName = "user-messages";
                 options.PollingInterval = 500;
             })
-            /*.AddJob<LoadAvailableAlertsHandler>()
+            .AddJob<LoadAvailableAlertsHandler>()
             .WithScheduleTrigger<DemoCounterModel>("0/5 * * * * ?", options => {
-                options.Name = "LoadAvailableAlerts";
-                options.Description = "La lala";
+                options.Name = "load-available-alerts";
+                options.Description = "Load alerts for the queue.";
                 options.Group = "indice";
-            })*/;
+            });
         }
 
         /// <summary>
@@ -120,8 +120,6 @@ namespace Indice.Identity
         /// <param name="serviceProvider"></param>
         public void Configure(IApplicationBuilder app, IServiceProvider serviceProvider) {
             if (HostingEnvironment.IsDevelopment()) {
-                var taskDbContext = serviceProvider.GetRequiredService<ExtendedTaskDbContext>();
-                taskDbContext.Database.EnsureCreated();
                 app.UseDeveloperExceptionPage();
                 app.IdentityServerStoreSetup<ExtendedConfigurationDbContext>(Clients.Get(), Resources.GetIdentityResources(), Resources.GetApis(), Resources.GetApiScopes());
             } else {

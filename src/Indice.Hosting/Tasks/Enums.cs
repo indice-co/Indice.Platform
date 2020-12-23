@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Indice.Hosting
+﻿namespace Indice.Hosting
 {
     /// <summary>
     /// The queue message status

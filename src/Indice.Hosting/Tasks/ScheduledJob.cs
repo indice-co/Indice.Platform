@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Quartz;
 
@@ -12,14 +13,19 @@ namespace Indice.Hosting.Tasks
         private readonly TaskHandlerActivator _taskHandlerActivator;
         private readonly ILogger<ScheduledJob<TTaskHandler, TState>> _logger;
         private readonly IScheduledTaskStore<TState> _Store;
+        private readonly IConfiguration _configuration;
 
-        public ScheduledJob(TaskHandlerActivator taskHandlerActivator, IScheduledTaskStore<TState> scheduledTaskStore, ILogger<ScheduledJob<TTaskHandler, TState>> logger) {
+        public ScheduledJob(TaskHandlerActivator taskHandlerActivator, IScheduledTaskStore<TState> scheduledTaskStore, ILogger<ScheduledJob<TTaskHandler, TState>> logger, IConfiguration configuration) {
             _taskHandlerActivator = taskHandlerActivator ?? throw new ArgumentNullException(nameof(taskHandlerActivator));
             _Store = scheduledTaskStore ?? throw new ArgumentNullException(nameof(scheduledTaskStore));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
         }
 
         public async Task Execute(IJobExecutionContext context) {
+            if (_configuration.StopWorkerHost()) {
+                return;
+            }
             _logger.LogInformation("Scheduled job run at: {Timestamp}", DateTime.UtcNow);
             var jobDataMap = context.JobDetail.JobDataMap;
             var jobHandlerType = jobDataMap[JobDataKeys.JobHandlerType] as Type;
@@ -39,7 +45,7 @@ namespace Indice.Hosting.Tasks
                     Type = context.JobDetail.JobType.ToString(),
                     WorkerId = context.Scheduler.SchedulerName
                 };
-            } 
+            }
             scheduledTask.ExecutionCount++;
             scheduledTask.LastExecution = context.FireTimeUtc;
             scheduledTask.NextExecution = context.NextFireTimeUtc;

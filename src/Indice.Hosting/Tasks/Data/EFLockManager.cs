@@ -24,10 +24,8 @@ namespace Indice.Hosting.Tasks.Data
         /// <inheritdoc/>
         public async Task<ILockLease> AcquireLock(string name, TimeSpan? timeout = null) {
             var @lock = new DbLock { Id = Guid.NewGuid(), Name = name, ExpirationDate = DateTime.UtcNow.Add(timeout ?? TimeSpan.FromSeconds(30)) };
-            var success = false;
+            bool success;
             try {
-                //_DbContext.Locks.Add(@lock);
-                //await _DbContext.SaveChangesAsync();
                 var query = @"INSERT INTO [work].[Lock] ([Id], [Name], [ExpirationDate]) VALUES ({0}, {1}, {2});";
                 await _DbContext.Database.ExecuteSqlRawAsync(query, @lock.Id, @lock.Name, @lock.ExpirationDate);
                 success = true;

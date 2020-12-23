@@ -89,6 +89,6 @@ namespace Microsoft.Extensions.Configuration
         /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
         /// <returns>True if specified flag is set to true, otherwise false.</returns>
         /// <remarks>Checks for the General:StopWorkerHost option in appsettings.json file.</remarks>
-        public static bool StopWorkerHost(this IConfiguration configuration) => configuration.GetSection(GeneralSettings.Name).GetValue<bool>("StopWorkerHost");
+        public static bool StopWorkerHost(this IConfiguration configuration) => configuration.GetSection(GeneralSettings.Name).GetValue<bool>("StopWorkerHost") || configuration.GetValue<bool>("StopWorkerHost");
     }
 }

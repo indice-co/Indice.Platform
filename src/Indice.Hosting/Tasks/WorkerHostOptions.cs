@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Indice.Hosting
@@ -25,7 +24,7 @@ namespace Indice.Hosting
         internal Type LockStoreType { get; set; }
 
         /// <summary>
-        /// Gets the <see cref="System.Text.Json.JsonSerializerOptions"/> used internally whenever a payload needs to be persisted. 
+        /// Gets the <see cref="JsonSerializerOptions"/> used internally whenever a payload needs to be persisted. 
         /// </summary>
         public WorkerJsonOptions JsonOptions { get; }
     }

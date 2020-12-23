@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 
 namespace Indice.Hosting.Tasks
 {
@@ -16,22 +13,19 @@ namespace Indice.Hosting.Tasks
         /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
         public ScheduleOptions(IServiceCollection services) => Services = services;
         /// <summary>
-        /// The cron expression
+        /// The cron expression.
         /// </summary>
         public string CronExpression { get; set; }
-
         /// <summary>
-        /// Job name
+        /// Job name.
         /// </summary>
         public string Name { get; set; }
-
         /// <summary>
-        /// The job description
+        /// The job description.
         /// </summary>
         public string Description { get; set; }
-
         /// <summary>
-        /// The job group
+        /// The job group.
         /// </summary>
         public string Group { get; set; }
         internal IServiceCollection Services { get; }

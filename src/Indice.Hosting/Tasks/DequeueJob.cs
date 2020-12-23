@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Quartz;
 
@@ -12,14 +13,19 @@ namespace Indice.Hosting
         private readonly IMessageQueue<TWorkItem> _workItemQueue;
         private readonly TaskHandlerActivator _taskHandlerActivator;
         private readonly ILogger<DequeueJob<TWorkItem>> _logger;
+        private readonly IConfiguration _configuration;
 
-        public DequeueJob(IMessageQueue<TWorkItem> workItemQueue, TaskHandlerActivator taskHandlerActivator, ILogger<DequeueJob<TWorkItem>> logger) {
+        public DequeueJob(IMessageQueue<TWorkItem> workItemQueue, TaskHandlerActivator taskHandlerActivator, ILogger<DequeueJob<TWorkItem>> logger, IConfiguration configuration) {
             _workItemQueue = workItemQueue ?? throw new ArgumentNullException(nameof(workItemQueue));
             _taskHandlerActivator = taskHandlerActivator ?? throw new ArgumentNullException(nameof(taskHandlerActivator));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
         }
 
         public async Task Execute(IJobExecutionContext context) {
+            if (_configuration.StopWorkerHost()) {
+                return;
+            }
             _logger.LogInformation("Dequeue job run at: {Timestamp}", DateTime.UtcNow);
             var jobDataMap = context.JobDetail.JobDataMap;
             var jobHandlerType = jobDataMap[JobDataKeys.JobHandlerType] as Type;

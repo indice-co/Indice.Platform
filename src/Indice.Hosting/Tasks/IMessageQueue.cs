@@ -13,7 +13,7 @@ namespace Indice.Hosting
         /// <summary>
         /// Removes and returns the object at the beginning of the <see cref="IMessageQueue{T}"/>.
         /// </summary>
-        /// <returns>The object that is removed from the beginning of the <see cref="IMessageQueue{T}"/></returns>
+        /// <returns>The object that is removed from the beginning of the <see cref="IMessageQueue{T}"/>.</returns>
         Task<QMessage<T>> Dequeue();
         /// <summary>
         /// Adds an object to the end of the <see cref="IMessageQueue{T}"/>
