@@ -85,7 +85,7 @@ namespace Indice.AspNetCore.Identity.Features
                 return NotFound();
             }
             var currentEmail = await _userManager.GetEmailAsync(user);
-            if (currentEmail.Equals(request.Email, StringComparison.OrdinalIgnoreCase)) {
+            if (currentEmail.Equals(request.Email, StringComparison.OrdinalIgnoreCase) && await _userManager.IsEmailConfirmedAsync(user)) {
                 ModelState.AddModelError(nameof(request.Email).ToLower(), _messageDescriber.EmailAlreadyExists(request.Email));
                 return BadRequest(new ValidationProblemDetails(ModelState));
             }
@@ -160,7 +160,6 @@ namespace Indice.AspNetCore.Identity.Features
             if (user == null) {
                 return NotFound();
             }
-            //var currentPhoneNumber = await _userManager.GetPhoneNumberAsync(user); /* This raises an exception if phone number is null. */
             var currentPhoneNumber = user.PhoneNumber ?? string.Empty;
             if (currentPhoneNumber.Equals(request.PhoneNumber, StringComparison.OrdinalIgnoreCase) && await _userManager.IsPhoneNumberConfirmedAsync(user)) {
                 ModelState.AddModelError(nameof(request.PhoneNumber).ToLower(), _messageDescriber.UserAlreadyHasPhoneNumber(request.PhoneNumber));
@@ -171,9 +170,6 @@ namespace Indice.AspNetCore.Identity.Features
                 return BadRequest(result.Errors.AsValidationProblemDetails());
             }
             if (!_identityServerApiEndpointsOptions.PhoneNumber.SendOtpOnUpdate) {
-                return NoContent();
-            }
-            if (await _userManager.IsPhoneNumberConfirmedAsync(user)) {
                 return NoContent();
             }
             if (_smsService == null) {
