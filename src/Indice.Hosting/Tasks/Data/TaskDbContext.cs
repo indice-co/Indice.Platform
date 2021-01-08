@@ -16,7 +16,7 @@ namespace Indice.Hosting.Tasks.Data
         /// Creates a new instance of <see cref="TaskDbContext"/>.
         /// </summary>
         /// <param name="options"></param>
-        public TaskDbContext(DbContextOptions options) : base(options) {
+        public TaskDbContext(DbContextOptions<TaskDbContext> options) : base(options) {
             if (Debugger.IsAttached) {
                 var exists = Database.GetService<IRelationalDatabaseCreator>().Exists();
                 if (!exists && !_alreadyCreated) {
