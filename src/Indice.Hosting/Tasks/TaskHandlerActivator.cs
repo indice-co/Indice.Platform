@@ -19,7 +19,7 @@ namespace Indice.Hosting
             var methods = jobHandlerType.GetMethods(BindingFlags.Instance | BindingFlags.Public);
             var handler = _serviceProvider.GetService(jobHandlerType);
             var processMethod = methods.Where(x => "Process".Equals(x.Name, StringComparison.OrdinalIgnoreCase)).First();
-            var stateType = (state?.GetType() ?? typeof(IDictionary<string, object>));
+            var stateType = state?.GetType() ?? typeof(IDictionary<string, object>);
             object[] arguments;
             if (workItem != null) {
                 var workItemType = workItem.GetType();
