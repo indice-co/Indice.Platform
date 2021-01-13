@@ -191,7 +191,7 @@ namespace Microsoft.Extensions.DependencyInjection
         /// Specifies that the configured job will be triggered by an item inserted to the a queue.
         /// </summary>
         /// <param name="builder">The <see cref="TaskTriggerBuilder"/> used to configure the way that a job is triggered.</param>
-        /// <param name="cronExpression">Corn expressinon</param>
+        /// <param name="cronExpression">Cron expression</param>
         /// <param name="configureAction">The delegate used to configure the queue options.</param>
         /// <returns>The <see cref="WorkerHostBuilder"/> used to configure the worker host.</returns>
         public static WorkerHostBuilder WithScheduleTrigger(this TaskTriggerBuilder builder, string cronExpression, Action<ScheduleOptions> configureAction = null) => 
@@ -202,7 +202,7 @@ namespace Microsoft.Extensions.DependencyInjection
         /// </summary>
         /// <typeparam name="TState">The type of the persisted job state. This is a DTO to share state between every execution</typeparam>
         /// <param name="builder">The <see cref="TaskTriggerBuilder"/> used to configure the way that a job is triggered.</param>
-        /// <param name="cronExpression">Corn expressinon</param>
+        /// <param name="cronExpression">Cron expression</param>
         /// <param name="configureAction">The delegate used to configure the queue options.</param>
         /// <returns>The <see cref="WorkerHostBuilder"/> used to configure the worker host.</returns>
         public static WorkerHostBuilder WithScheduleTrigger<TState>(this TaskTriggerBuilder builder, string cronExpression, Action<ScheduleOptions> configureAction = null) where TState : class {
