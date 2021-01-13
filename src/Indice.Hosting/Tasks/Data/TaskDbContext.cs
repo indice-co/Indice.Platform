@@ -15,17 +15,14 @@ namespace Indice.Hosting.Tasks.Data
         /// <summary>
         /// Creates a new instance of <see cref="TaskDbContext"/>.
         /// </summary>
-        /// <param name="options"></param>
-        public TaskDbContext(DbContextOptions<TaskDbContext> options) : base(options) {
-            if (Debugger.IsAttached) {
-                var exists = Database.GetService<IRelationalDatabaseCreator>().Exists();
-                if (!exists && !_alreadyCreated) {
-                    // When no databases have been created, this ensures that the database creation process will run once.
-                    _alreadyCreated = true;
-                    Database.EnsureCreated();
-                }
-            }
-        }
+        /// <param name="options">The options to be used by a <see cref="DbContext"/>.</param>
+        public TaskDbContext(DbContextOptions<TaskDbContext> options) : base(options) => EnsuredCreated();
+
+        /// <summary>
+        /// Creates a new instance of <see cref="TaskDbContext"/>.
+        /// </summary>
+        /// <param name="options">The options to be used by a <see cref="DbContext"/>.</param>
+        protected TaskDbContext(DbContextOptions options) : base(options) => EnsuredCreated();
 
         /// <summary>
         /// Queue messages.
@@ -46,6 +43,17 @@ namespace Indice.Hosting.Tasks.Data
             builder.ApplyConfiguration(new DbQMessageMap());
             builder.ApplyConfiguration(new DbScheduledTaskMap());
             builder.ApplyConfiguration(new DbLockMap());
+        }
+
+        private void EnsuredCreated() {
+            if (Debugger.IsAttached) {
+                var exists = Database.GetService<IRelationalDatabaseCreator>().Exists();
+                if (!exists && !_alreadyCreated) {
+                    // When no databases have been created, this ensures that the database creation process will run once.
+                    _alreadyCreated = true;
+                    Database.EnsureCreated();
+                }
+            }
         }
     }
 }
