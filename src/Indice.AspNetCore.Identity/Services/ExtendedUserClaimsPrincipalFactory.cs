@@ -52,7 +52,7 @@ namespace Indice.AspNetCore.Identity.Services
             : base(userManager, roleManager, optionsAccessor) { }
 
         /// <summary>
-        ///  Generates the claims for a user.
+        /// Generates the claims for a user.
         /// </summary>
         /// <param name="user">The user to create a <see cref="ClaimsIdentity"/> from.</param>
         /// <returns>The claim-based identity of the user.</returns>
