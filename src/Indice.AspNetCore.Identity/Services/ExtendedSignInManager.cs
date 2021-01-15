@@ -15,7 +15,6 @@ using Microsoft.Extensions.Options;
 
 namespace Indice.AspNetCore.Identity.Services
 {
-
     /// <summary>
     /// Provides the APIs for user sign in.
     /// </summary>
@@ -85,7 +84,7 @@ namespace Indice.AspNetCore.Identity.Services
                 if (!items.ContainsKey(XsrfKey)) {
                     return null;
                 }
-                var userId = items[XsrfKey] as string;
+                var userId = items[XsrfKey];
                 if (userId != expectedXsrf) {
                     return null;
                 }
