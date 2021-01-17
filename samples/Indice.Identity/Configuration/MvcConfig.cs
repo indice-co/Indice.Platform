@@ -51,7 +51,7 @@ namespace Microsoft.Extensions.DependencyInjection
                                // Update phone number options.
                                options.PhoneNumber.SendOtpOnUpdate = true;
                                // Add custom initial user and enable test data.
-                               options.UseInitialData = false;
+                               options.UseInitialData = true;
                                options.InitialUsers = new List<User> {
                                    new User {
                                        Admin = true,
