@@ -61,18 +61,14 @@ namespace Indice.Identity
             services.AddMvcConfig(Configuration);
             services.AddLocalization(options => options.ResourcesPath = "Resources");
             services.AddCors(options => options.AddDefaultPolicy(builder => {
-                builder.WithOrigins(Configuration.GetSection("AllowedHosts").Get<string[]>())
+                builder.WithOrigins(Configuration.GetSection("AllowedOrigins").Get<string[]>())
                        .WithMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                        .WithHeaders("Authorization", "Content-Type")
                        .WithExposedHeaders("Content-Disposition");
             }));
+            services.AddAuthenticationConfig(Configuration);
             services.AddIdentityConfig(Configuration);
             services.AddIdentityServerConfig(HostingEnvironment, Configuration, Settings);
-            services.ConfigureApplicationCookie(options => {
-                options.AccessDeniedPath = new PathString("/access-denied");
-                options.LoginPath = new PathString("/login");
-                options.LogoutPath = new PathString("/logout");
-            });
             services.AddProblemDetailsConfig(HostingEnvironment);
             services.ConfigureNonBreakingSameSiteCookies();
             services.AddSmsServiceYouboto(Configuration);
@@ -94,7 +90,6 @@ namespace Indice.Identity
                        .AddConnectSrc("https://dc.services.visualstudio.com")
                        .AddFrameAncestors("https://localhost:2002");
             });
-            services.AddSpaStaticFiles(options => options.RootPath = "wwwroot/admin-ui");
             // Setup worker host for executing background tasks.
             services.AddWorkerHost(options => {
                 options.JsonOptions.JsonSerializerOptions.WriteIndented = true;
@@ -175,13 +170,8 @@ namespace Indice.Identity
             }
             app.UseEndpoints(endpoints => {
                 endpoints.MapControllers();
+                endpoints.MapDefaultControllerRoute();
             });
-            if (!HostingEnvironment.IsDevelopment()) {
-                app.UseSpaStaticFiles();
-                app.UseSpa(builder => {
-                    builder.Options.SourcePath = "wwwroot/admin-ui";
-                });
-            }
         }
     }
 }

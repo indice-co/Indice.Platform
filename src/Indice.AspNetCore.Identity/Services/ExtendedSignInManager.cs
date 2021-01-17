@@ -181,6 +181,9 @@ namespace Indice.AspNetCore.Identity.Services
             if (schemes.Any(x => x.Name == ExtendedIdentityConstants.ExtendedValidationUserIdScheme)) {
                 await Context.SignOutAsync(ExtendedIdentityConstants.ExtendedValidationUserIdScheme);
             }
+            if (schemes.Any(x => x.Name == ExternalScheme)) {
+                await Context.SignOutAsync(ExternalScheme);
+            }
             await base.SignOutAsync();
         }
 
