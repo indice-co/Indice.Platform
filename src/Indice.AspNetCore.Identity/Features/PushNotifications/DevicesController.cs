@@ -117,7 +117,8 @@ namespace Indice.AspNetCore.Identity.Features
                     DeviceName = request.DeviceName,
                     DevicePlatform = request.DevicePlatform,
                     IsPushNotificationsEnabled = true,
-                    UserId = user.Id
+                    UserId = user.Id,
+                    DateCreated = DateTimeOffset.Now
                 };
                 _dbContext.UserDevices.Add(deviceToAdd);
                 deviceId = deviceToAdd.Id;
