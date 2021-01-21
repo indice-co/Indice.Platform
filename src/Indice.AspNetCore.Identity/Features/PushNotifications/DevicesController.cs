@@ -102,9 +102,6 @@ namespace Indice.AspNetCore.Identity.Features
                 return NotFound();
             }
             var device = await _dbContext.UserDevices.SingleOrDefaultAsync(x => x.UserId == user.Id && x.DeviceId == request.DeviceId);
-            if(device?.IsPushNotificationsEnabled == true) {
-                return NoContent();
-            }
             await _pushNotificationService.Register(request.DeviceId.ToString(), request.PnsHandle, request.DevicePlatform, user.Id,  request.Tags?.ToArray());
             var deviceId = default(Guid);
             if (device != null) {
