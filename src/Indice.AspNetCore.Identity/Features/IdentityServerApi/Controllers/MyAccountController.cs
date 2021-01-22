@@ -110,6 +110,7 @@ namespace Indice.AspNetCore.Identity.Features
                 message.To(user.Email)
                        .WithSubject(_messageDescriber.UpdateEmailMessageSubject)
                        .WithBody(_messageDescriber.UpdateEmailMessageBody(user, token, request.ReturnUrl))
+                       .UsingTemplate(_identityServerApiEndpointsOptions.Email.TemplateName)
                        .WithData(data));
             return NoContent();
         }
