@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using Indice.AspNetCore.Middleware;
 using Microsoft.Extensions.Logging;
 using static Indice.AspNetCore.Middleware.RequestResponseLoggingMiddleware;
@@ -16,7 +17,7 @@ namespace Microsoft.AspNetCore.Builder
         /// <param name="builder">Defines a class that provides the mechanisms to configure an application's request pipeline.</param>
         /// <param name="logHandler"></param>
         /// <returns>The builder</returns>
-        public static IApplicationBuilder UseRequestResponseLogging(this IApplicationBuilder builder, Action<ILogger<RequestProfilerModel>, RequestProfilerModel> logHandler = null) => 
+        public static IApplicationBuilder UseRequestResponseLogging(this IApplicationBuilder builder, Func<ILogger<RequestProfilerModel>, RequestProfilerModel, Task> logHandler = null) => 
             builder.UseMiddleware<RequestResponseLoggingMiddleware>(logHandler ?? DefaultLoggingHandler);
     }
 }

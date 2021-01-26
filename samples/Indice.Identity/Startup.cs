@@ -136,6 +136,10 @@ namespace Indice.Identity
             app.UseStaticFiles(staticFileOptions);
             app.UseCookiePolicy();
             app.UseRouting();
+
+            //app.UseRequestResponseLogging((logger, model) => {
+            //    return System.Threading.Tasks.Task.CompletedTask;
+            //});
             app.UseIdentityServer();
             app.UseCors();
             app.UseAuthentication();
