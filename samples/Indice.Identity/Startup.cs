@@ -131,10 +131,22 @@ namespace Indice.Identity
             app.UseStaticFiles(staticFileOptions);
             app.UseCookiePolicy();
             app.UseRouting();
-
-            app.UseRequestResponseLogging(new[] { "application/json", "text/html" }, (logger, model) => {
-                return System.Threading.Tasks.Task.CompletedTask;
-            });
+ 
+            // use the middleware with parameters to log request responses to the ILogger
+            // or use custom parameters to lets say take request response snapshots for testing purposes.
+            app.UseRequestResponseLogging(/* 
+            new[] { "application/json", "text/html" }, async (logger, model) => {
+                var filename = $"{model.RequestTime:yyyyMMdd.HHmmss}_{model.RequestTarget.Replace('/', '-')}_{model.StatusCode}";
+                var folder = System.IO.Path.Combine(HostingEnvironment.ContentRootPath, @"App_Data\snapshots");
+                if (!System.IO.Directory.Exists(folder)) {
+                    System.IO.Directory.CreateDirectory(folder);
+                }
+                if (!string.IsNullOrEmpty(model.RequestBody))
+                await System.IO.File.WriteAllTextAsync(System.IO.Path.Combine(folder, $"{filename}_request.txt"), model.RequestBody);
+                await System.IO.File.WriteAllTextAsync(System.IO.Path.Combine(folder, $"{filename}_response.txt"), model.ResponseBody);
+                //return System.Threading.Tasks.Task.CompletedTask;
+            }*/
+                );
             app.UseIdentityServer();
             app.UseCors();
             app.UseAuthentication();
