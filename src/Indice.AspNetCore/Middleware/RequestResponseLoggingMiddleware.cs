@@ -14,7 +14,6 @@ namespace Indice.AspNetCore.Middleware
     // https://stackoverflow.com/a/52328142/3563013
     // https://stackoverflow.com/a/43404745/3563013
     // https://gist.github.com/elanderson/c50b2107de8ee2ed856353dfed9168a2#gistcomment-2319007
-
     /// <summary>
     /// Middleware that handles the logging of requests and responses.
     /// </summary>
@@ -43,10 +42,9 @@ namespace Indice.AspNetCore.Middleware
         /// <param name="logger">Represents a type used to perform logging.</param>
         public async Task Invoke(HttpContext context, ILogger<RequestProfilerModel> logger) {
             var loggingHandler = _requestResponseHandler ?? DefaultLoggingHandler;
-            
             var model = new RequestProfilerModel(context);
             await model.SnapRequestBody();
-            if (await model.NextAndSnapResponceBody(_next, _contentTypes)) { 
+            if (await model.NextAndSnapResponceBody(_next, _contentTypes)) {
                 await loggingHandler(logger, model);
             }
         }
@@ -101,9 +99,9 @@ namespace Indice.AspNetCore.Middleware
     {
         private const int ReadChunkBufferLength = 4096;
         /// <summary>
-        /// construct the model by passing the httpContext
+        /// Constructs the model by passing the <see cref="HttpContext"/>.
         /// </summary>
-        /// <param name="httpContext"></param>
+        /// <param name="httpContext">Encapsulates all HTTP-specific information about an individual HTTP request.</param>
         public RequestProfilerModel(HttpContext httpContext) {
             Context = httpContext;
             var dateText = Context.Request.Headers["Date"];
@@ -112,16 +110,15 @@ namespace Indice.AspNetCore.Middleware
             }
             RequestTime = date;
         }
+
         /// <summary>
         /// Request target is the http request method followed by the request path
         /// </summary>
         public string RequestTarget => $"{Context.Request.Method.ToLowerInvariant()} {Context.Request.Path}".Trim();
-
         /// <summary>
         /// HTTP status code
         /// </summary>
         public int StatusCode => Context.Response.StatusCode;
-
         /// <summary>
         /// The request time.
         /// </summary>
@@ -134,7 +131,6 @@ namespace Indice.AspNetCore.Middleware
         /// The duration.
         /// </summary>
         public TimeSpan Duration => (ResponseTime - RequestTime);
-
         /// <summary>
         /// The <see cref="HttpContext"/> when the request happended.
         /// </summary>
@@ -176,7 +172,7 @@ namespace Indice.AspNetCore.Middleware
             await newResponseBody.CopyToAsync(originalBody);
             newResponseBody.Seek(0, SeekOrigin.Begin);
             var ok = allowedContentTypes == null || string.IsNullOrEmpty(Context.Response.ContentType) || allowedContentTypes.Contains(Context.Response.ContentType.Split(';')[0], StringComparer.OrdinalIgnoreCase);
-            if (ok) { 
+            if (ok) {
                 ResponseBody = ReadStreamInChunks(newResponseBody);
             }
             ResponseTime = DateTimeOffset.UtcNow;
