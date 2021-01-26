@@ -132,9 +132,9 @@ namespace Indice.Identity
             app.UseCookiePolicy();
             app.UseRouting();
 
-            //app.UseRequestResponseLogging((logger, model) => {
-            //    return System.Threading.Tasks.Task.CompletedTask;
-            //});
+            app.UseRequestResponseLogging(new[] { "application/json", "text/html" }, (logger, model) => {
+                return System.Threading.Tasks.Task.CompletedTask;
+            });
             app.UseIdentityServer();
             app.UseCors();
             app.UseAuthentication();

@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Globalization;
 using System.IO;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
@@ -20,14 +22,17 @@ namespace Indice.AspNetCore.Middleware
     {
         private readonly RequestDelegate _next;
         private readonly Func<ILogger<RequestProfilerModel>, RequestProfilerModel, Task> _requestResponseHandler;
+        private readonly List<string> _contentTypes;
 
         /// <summary>
         /// Constructs the <see cref="RequestResponseLoggingMiddleware"/>.
         /// </summary>
         /// <param name="next">A function that can process an HTTP request.</param>
+        /// <param name="contentTypes">These are the response content types that will be tracked. Others are filtered out. Whern null or empty array uses defaults application/json and text/html</param>
         /// <param name="requestResponseHandler"></param>
-        public RequestResponseLoggingMiddleware(RequestDelegate next, Func<ILogger<RequestProfilerModel>, RequestProfilerModel, Task> requestResponseHandler) {
+        public RequestResponseLoggingMiddleware(RequestDelegate next, string[] contentTypes, Func<ILogger<RequestProfilerModel>, RequestProfilerModel, Task> requestResponseHandler) {
             _next = next ?? throw new ArgumentNullException(nameof(next));
+            _contentTypes = new List<string>(contentTypes);
             _requestResponseHandler = requestResponseHandler ?? throw new ArgumentNullException(nameof(requestResponseHandler));
         }
 
@@ -38,10 +43,12 @@ namespace Indice.AspNetCore.Middleware
         /// <param name="logger">Represents a type used to perform logging.</param>
         public async Task Invoke(HttpContext context, ILogger<RequestProfilerModel> logger) {
             var loggingHandler = _requestResponseHandler ?? DefaultLoggingHandler;
+            
             var model = new RequestProfilerModel(context);
             await model.SnapRequestBody();
-            await model.NextAndSnapResponceBody(_next);
-            await loggingHandler(logger, model);
+            if (await model.NextAndSnapResponceBody(_next, _contentTypes)) { 
+                await loggingHandler(logger, model);
+            }
         }
 
         /// <summary>
@@ -158,8 +165,9 @@ namespace Indice.AspNetCore.Middleware
         /// Takes a snapshot of the response body.
         /// </summary>
         /// <param name="next"></param>
+        /// <param name="allowedContentTypes"></param>
         /// <returns></returns>
-        internal async Task NextAndSnapResponceBody(RequestDelegate next) {
+        internal async Task<bool> NextAndSnapResponceBody(RequestDelegate next, List<string> allowedContentTypes = null) {
             var originalBody = Context.Response.Body;
             using var newResponseBody = new MemoryStream();
             Context.Response.Body = newResponseBody;
@@ -167,8 +175,12 @@ namespace Indice.AspNetCore.Middleware
             newResponseBody.Seek(0, SeekOrigin.Begin);
             await newResponseBody.CopyToAsync(originalBody);
             newResponseBody.Seek(0, SeekOrigin.Begin);
-            ResponseBody = ReadStreamInChunks(newResponseBody);
+            var ok = allowedContentTypes == null || string.IsNullOrEmpty(Context.Response.ContentType) || allowedContentTypes.Contains(Context.Response.ContentType.Split(';')[0], StringComparer.OrdinalIgnoreCase);
+            if (ok) { 
+                ResponseBody = ReadStreamInChunks(newResponseBody);
+            }
             ResponseTime = DateTimeOffset.UtcNow;
+            return ok;
         }
 
         private static string ReadStreamInChunks(Stream stream) {
