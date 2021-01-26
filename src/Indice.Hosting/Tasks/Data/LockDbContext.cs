@@ -11,6 +11,6 @@ namespace Indice.Hosting.Tasks.Data
         /// 
         /// </summary>
         /// <param name="options"></param>
-        public LockDbContext(DbContextOptions<TaskDbContext> options) : base(options) { }
+        public LockDbContext(DbContextOptions<LockDbContext> options) : base(options) { }
     }
 }

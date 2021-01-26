@@ -12,11 +12,17 @@ namespace Indice.Identity.Controllers
     /// <summary>
     /// Diagnostics controller.
     /// </summary>
-    [SecurityHeaders]
-    [Authorize]
     [ApiExplorerSettings(IgnoreApi = true)]
+    [Authorize]
+    [Route("diagnostics")]
+    [SecurityHeaders]
     public class DiagnosticsController : Controller
     {
+        /// <summary>
+        /// The name of the controller.
+        /// </summary>
+        public const string Name = "Diagnostics";
+
         /// <summary>
         /// Displays the diagnostics page.
         /// </summary>

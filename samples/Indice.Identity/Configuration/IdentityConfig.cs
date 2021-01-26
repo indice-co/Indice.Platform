@@ -1,4 +1,5 @@
-﻿using Indice.AspNetCore.Identity.Data;
+﻿using System.IdentityModel.Tokens.Jwt;
+using Indice.AspNetCore.Identity.Data;
 using Indice.AspNetCore.Identity.Features;
 using Indice.AspNetCore.Identity.Models;
 using Indice.AspNetCore.Identity.Services;
@@ -21,20 +22,21 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
         /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
         public static IdentityBuilder AddIdentityConfig(this IServiceCollection services, IConfiguration configuration) {
+            JwtSecurityTokenHandler.DefaultMapInboundClaims = false;
             services.AddTransient<IClaimsTransformation, ClaimsTransformer>();
             services.Configure<IdentityOptions>(configuration.GetSection(nameof(IdentityOptions)));
             return services.AddIdentity<User, Role>()
-                           .AddExtendedSignInManager()
-                           .AddUserStore<ExtendedUserStore<ExtendedIdentityDbContext<User, Role>, User, Role>>()
-                           .AddPasswordValidator<PreviousPasswordAwareValidator<ExtendedIdentityDbContext<User, Role>, User, Role>>()
-                           .AddPasswordValidator<UserNameAsPasswordValidator>()
-                           .AddPasswordValidator<LatinCharactersPasswordValidator>()
-                           .AddNonCommonPasswordValidator()
-                           .AddErrorDescriber<ExtendedIdentityErrorDescriber>()
-                           .AddEntityFrameworkStores<ExtendedIdentityDbContext<User, Role>>()
                            .AddClaimsTransform<ExtendedUserClaimsPrincipalFactory<User, Role>>()
                            .AddDefaultTokenProviders()
-                           .AddExtendedPhoneNumberTokenProvider();
+                           .AddEntityFrameworkStores<ExtendedIdentityDbContext<User, Role>>()
+                           .AddErrorDescriber<ExtendedIdentityErrorDescriber>()
+                           .AddExtendedPhoneNumberTokenProvider()
+                           .AddExtendedSignInManager()
+                           .AddNonCommonPasswordValidator()
+                           .AddPasswordValidator<LatinCharactersPasswordValidator>()
+                           .AddPasswordValidator<PreviousPasswordAwareValidator<ExtendedIdentityDbContext<User, Role>, User, Role>>()
+                           .AddPasswordValidator<UserNameAsPasswordValidator>()
+                           .AddUserStore<ExtendedUserStore<ExtendedIdentityDbContext<User, Role>, User, Role>>();
         }
     }
 }

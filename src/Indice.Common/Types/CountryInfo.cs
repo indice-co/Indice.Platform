@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 
 namespace Indice.Globalization
@@ -288,7 +289,7 @@ namespace Indice.Globalization
                 { new CountryInfo("AF", "EH", 732, "Western Sahara", "El-Aaiun", "ar,mey", "212") },
                 { new CountryInfo("AS", "YE", 887, "Yemen", "Sanaa", "ar", "967") },
                 { new CountryInfo("AF", "ZM", 894, "Zambia", "Lusaka", "bem,en", "260") },
-                { new CountryInfo("AF", "ZW", 716, "Zimbabwe", "Harare", "en,nd,sn", "263") },
+                { new CountryInfo("AF", "ZW", 716, "Zimbabwe", "Harare", "en,nd,sn", "263") }
             };
         }
 
@@ -338,7 +339,7 @@ namespace Indice.Globalization
         /// </summary>
         public string GetCurrencyISO() {
             try {
-                var region = new System.Globalization.RegionInfo(TwoLetterCode);
+                var region = new RegionInfo(TwoLetterCode);
                 return region.ISOCurrencySymbol;
             } catch { };
             return null;

@@ -80,6 +80,7 @@ namespace Indice.Identity.Controllers
             }
 #if DEBUG
             viewModel.UserName = "company@indice.gr";
+            viewModel.Password = "123abc!";
 #endif
             return View(viewModel);
         }

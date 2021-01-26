@@ -1,11 +1,23 @@
 @model LoginViewModel
 
+@{
+    LoginTempData loginTempData = TempData.Get<LoginTempData>(nameof(loginTempData));
+}
+
 <div class="login-page">
     <div class="lead">
         <h1>Login</h1>
         <p>Choose how to login</p>
     </div>
     <partial name="_ValidationSummary" />
+    <div class="alert alert-danger" role="alert" indice-if="loginTempData?.Errors.Any() == true">
+        <ul>
+            @foreach (var error in loginTempData.Errors)
+            {
+                <li>@error</li>
+            }
+        </ul>
+    </div>
     <div class="row">
         @if (Model.EnableLocalLogin)
         {
@@ -57,10 +69,10 @@
                             {
                                 <li class="list-inline-item">
                                     <a class="btn btn-secondary"
-                                       asp-controller="External"
-                                       asp-action="Challenge"
-                                       asp-route-scheme="@provider.AuthenticationScheme"
-                                       asp-route-returnUrl="@Model.ReturnUrl">
+                                       asp-controller="@ExternalController.Name"
+                                       asp-action="@nameof(ExternalController.Challenge)"
+                                       asp-route-provider="@provider.AuthenticationScheme"
+                                       asp-route-returnUrl="@(Model.ReturnUrl ?? Url.Action(nameof(GrantsController.Index), GrantsController.Name))">
                                         @provider.DisplayName
                                     </a>
                                 </li>

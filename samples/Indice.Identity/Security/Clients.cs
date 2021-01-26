@@ -71,7 +71,8 @@ namespace Indice.Identity.Security
                 AllowAccessTokensViaBrowser = false,
                 AllowedCorsOrigins = {
                     "http://localhost:4200",
-                    "https://idsrv-admin-ui.azurewebsites.net"
+                    "https://idsrvadminui.z1.web.core.windows.net",
+                    "https://indice-admin-ui.azureedge.net"
                 },
                 AllowedGrantTypes = GrantTypes.Code,
                 AllowedScopes = {
@@ -85,16 +86,19 @@ namespace Indice.Identity.Security
                     JwtClaimTypes.Role
                 },
                 AllowOfflineAccess = true,
-                ClientUri = "https://idsrv-admin-ui.azurewebsites.net",
+                ClientUri = "https://indice-admin-ui.azureedge.net",
                 PostLogoutRedirectUris = {
                     "http://localhost:4200/logged-out",
-                    "https://idsrv-admin-ui.azurewebsites.net/logged-out"
+                    "https://idsrvadminui.z1.web.core.windows.net/#/logged-out",
+                    "https://indice-admin-ui.azureedge.net/#/logged-out"
                 },
                 RedirectUris = {
                     "http://localhost:4200/auth-callback",
-                    "https://idsrv-admin-ui.azurewebsites.net/auth-callback",
+                    "https://idsrvadminui.z1.web.core.windows.net/#/auth-callback",
+                    "https://indice-admin-ui.azureedge.net/#/auth-callback",
                     "http://localhost:4200/auth-renew",
-                    "https://idsrv-admin-ui.azurewebsites.net/auth-renew"
+                    "https://idsrvadminui.z1.web.core.windows.net/#/auth-renew",
+                    "https://indice-admin-ui.azureedge.net/#/auth-renew"
                 },
                 RequireClientSecret  = false,
                 RequirePkce = true,
