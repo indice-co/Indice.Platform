@@ -2,6 +2,7 @@
 using System.Collections;
 using System.IO;
 using System.Text.RegularExpressions;
+using Indice.AspNetCore.Configuration;
 using Indice.AspNetCore.Filters;
 using Indice.AspNetCore.TagHelpers;
 using Indice.Configuration;
@@ -104,14 +105,20 @@ namespace Microsoft.Extensions.DependencyInjection
         /// </summary>
         /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
         /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
-        public static IServiceCollection AddSmsServiceApifon(this IServiceCollection services, IConfiguration configuration) {
+        /// <param name="configure">Configure the available options. Null to use defaults.</param>
+        public static IServiceCollection AddSmsServiceApifon(this IServiceCollection services, IConfiguration configuration, Action<SmsServiceApifonOptions> configure = null) {
             services.Configure<SmsServiceApifonSettings>(configuration.GetSection(SmsServiceSettings.Name));
             services.AddTransient(serviceProvider => serviceProvider.GetRequiredService<IOptions<SmsServiceApifonSettings>>().Value);
             services.TryAddTransient<ISmsServiceFactory, DefaultSmsServiceFactory>();
-            services.AddHttpClient<ISmsService, SmsServiceApifon>(options => {
-                options.BaseAddress = new Uri("https://ars.apifon.com/services/api/v1/sms/");
+            var options = new SmsServiceApifonOptions();
+            configure?.Invoke(options);
+            var httpClientBuilder = services.AddHttpClient<ISmsService, SmsServiceApifon>(httpClient => {
+                httpClient.BaseAddress = new Uri("https://ars.apifon.com/services/api/v1/sms/");
             })
             .SetHandlerLifetime(TimeSpan.FromMinutes(5));
+            if (options.PrimaryHttpMessageHandler != null) {
+                httpClientBuilder.ConfigurePrimaryHttpMessageHandler(() => options.PrimaryHttpMessageHandler);
+            }
             return services;
         }
 
