@@ -86,8 +86,8 @@ namespace Indice.Services
                 Logger.LogInformation("The following payload was sent to Apifon: {0}", payload.ToJson());
                 httpResponse = await HttpClient.SendAsync(request).ConfigureAwait(false);
             } catch (Exception ex) {
-                Logger.LogInformation("SMS Delivery took too long.: {0}", ex);
-                throw new SmsServiceException($"SMS Delivery took too long.", ex);
+                Logger.LogInformation("SMS Delivery took too long: {0}", ex);
+                throw new SmsServiceException($"SMS Delivery took too long", ex);
             }
             var responseString = await httpResponse.Content.ReadAsStringAsync();
             if (!httpResponse.IsSuccessStatusCode) {
