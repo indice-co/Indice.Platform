@@ -29,7 +29,12 @@ namespace Indice.AspNetCore.Identity.Services
         /// <param name="httpContextAccessor"></param>
         /// <param name="schemeProvider"></param>
         /// <param name="clientStore"></param>
-        public AccountService(IIdentityServerInteractionService interaction, IHttpContextAccessor httpContextAccessor, IAuthenticationSchemeProvider schemeProvider, IClientStore clientStore) {
+        public AccountService(
+            IIdentityServerInteractionService interaction,
+            IHttpContextAccessor httpContextAccessor,
+            IAuthenticationSchemeProvider schemeProvider,
+            IClientStore clientStore
+        ) {
             _interaction = interaction ?? throw new ArgumentNullException(nameof(interaction));
             _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
             _schemeProvider = schemeProvider ?? throw new ArgumentNullException(nameof(schemeProvider));

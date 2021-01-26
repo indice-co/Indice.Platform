@@ -3,7 +3,6 @@ using Indice.Extensions.Configuration.EFCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
 using Serilog;
-using Serilog.Events;
 
 namespace Indice.Identity
 {
@@ -18,16 +17,8 @@ namespace Indice.Identity
         /// <param name="args">Optional command line arguments.</param>
         public static int Main(string[] args) {
             Log.Logger = new LoggerConfiguration()
-               .MinimumLevel.Information()
-               .MinimumLevel.Override("Microsoft", LogEventLevel.Warning)
-               .MinimumLevel.Override("Microsoft.AspNetCore", LogEventLevel.Warning)
-               .MinimumLevel.Override("Microsoft.Hosting.Lifetime", LogEventLevel.Warning)
-               .Enrich.WithMachineName()
-               .Enrich.WithThreadId()
-               .Enrich.FromLogContext()
-               .WriteTo.Console()
-               .WriteTo.File("logs/log.txt", rollingInterval: RollingInterval.Day, rollOnFileSizeLimit: true)
-               .CreateLogger();
+                .WriteTo.Console()
+                .CreateLogger();
             try {
                 Log.Information("Starting web host.");
                 CreateHostBuilder(args).Build().Run();
@@ -51,7 +42,7 @@ namespace Indice.Identity
                            webHostBuilder.UseStartup<Startup>();
                        })
                        .UseEFConfiguration(reloadInterval: TimeSpan.FromHours(1), connectionStringName: "IdentityDb")
-                       .UseSerilog();
+                       .UseSerilog((hostingContext, loggerConfiguration) => loggerConfiguration.ReadFrom.Configuration(hostingContext.Configuration));
         }
     }
 }

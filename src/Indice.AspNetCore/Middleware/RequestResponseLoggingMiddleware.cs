@@ -1,5 +1,8 @@
 ﻿using System;
+using System.Globalization;
 using System.IO;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
@@ -11,23 +14,24 @@ namespace Indice.AspNetCore.Middleware
     // https://stackoverflow.com/a/52328142/3563013
     // https://stackoverflow.com/a/43404745/3563013
     // https://gist.github.com/elanderson/c50b2107de8ee2ed856353dfed9168a2#gistcomment-2319007
-
     /// <summary>
     /// Middleware that handles the logging of requests and responses.
     /// </summary>
     public class RequestResponseLoggingMiddleware
     {
         private readonly RequestDelegate _next;
-        private readonly Action<ILogger<RequestProfilerModel>, RequestProfilerModel> _requestResponseHandler;
-        private const int ReadChunkBufferLength = 4096;
+        private readonly Func<ILogger<RequestProfilerModel>, RequestProfilerModel, Task> _requestResponseHandler;
+        private readonly List<string> _contentTypes;
 
         /// <summary>
         /// Constructs the <see cref="RequestResponseLoggingMiddleware"/>.
         /// </summary>
         /// <param name="next">A function that can process an HTTP request.</param>
+        /// <param name="contentTypes">These are the response content types that will be tracked. Others are filtered out. Whern null or empty array uses defaults application/json and text/html</param>
         /// <param name="requestResponseHandler"></param>
-        public RequestResponseLoggingMiddleware(RequestDelegate next, Action<ILogger<RequestProfilerModel>, RequestProfilerModel> requestResponseHandler) {
+        public RequestResponseLoggingMiddleware(RequestDelegate next, string[] contentTypes, Func<ILogger<RequestProfilerModel>, RequestProfilerModel, Task> requestResponseHandler) {
             _next = next ?? throw new ArgumentNullException(nameof(next));
+            _contentTypes = new List<string>(contentTypes);
             _requestResponseHandler = requestResponseHandler ?? throw new ArgumentNullException(nameof(requestResponseHandler));
         }
 
@@ -38,21 +42,11 @@ namespace Indice.AspNetCore.Middleware
         /// <param name="logger">Represents a type used to perform logging.</param>
         public async Task Invoke(HttpContext context, ILogger<RequestProfilerModel> logger) {
             var loggingHandler = _requestResponseHandler ?? DefaultLoggingHandler;
-            var model = new RequestProfilerModel {
-                RequestTime = new DateTimeOffset(),
-                Context = context,
-                Request = await FormatRequest(context)
-            };
-            var originalBody = context.Response.Body;
-            using var newResponseBody = new MemoryStream();
-            context.Response.Body = newResponseBody;
-            await _next(context);
-            newResponseBody.Seek(0, SeekOrigin.Begin);
-            await newResponseBody.CopyToAsync(originalBody);
-            newResponseBody.Seek(0, SeekOrigin.Begin);
-            model.Response = FormatResponse(context, newResponseBody);
-            model.ResponseTime = new DateTimeOffset();
-            loggingHandler(logger, model);
+            var model = new RequestProfilerModel(context);
+            await model.SnapRequestBody();
+            if (await model.NextAndSnapResponceBody(_next, _contentTypes)) {
+                await loggingHandler(logger, model);
+            }
         }
 
         /// <summary>
@@ -60,47 +54,129 @@ namespace Indice.AspNetCore.Middleware
         /// </summary>
         /// <param name="logger">Represents a type used to perform logging.</param>
         /// <param name="model">Represents a request and response in order to be logged.</param>
-        public static void DefaultLoggingHandler(ILogger<RequestProfilerModel> logger, RequestProfilerModel model) {
+        public static Task DefaultLoggingHandler(ILogger<RequestProfilerModel> logger, RequestProfilerModel model) {
             if (model.Context.Response.StatusCode >= 500) {
-                logger.LogError(model.Request);
-                logger.LogError(model.Response);
+                logger.LogError(FormatRequest(model));
+                logger.LogError(FormatResponse(model));
             } else if (model.Context.Response.StatusCode >= 400) {
-                logger.LogWarning(model.Request);
-                logger.LogWarning(model.Response);
+                logger.LogWarning(FormatRequest(model));
+                logger.LogWarning(FormatResponse(model));
             } else {
-                logger.LogInformation(model.Request);
-                logger.LogInformation(model.Response);
+                logger.LogInformation(FormatRequest(model));
+                logger.LogInformation(FormatResponse(model));
             }
+            return Task.CompletedTask;
         }
 
-        private string FormatResponse(HttpContext context, MemoryStream newResponseBody) {
-            var request = context.Request;
-            var response = context.Response;
+        private static string FormatResponse(RequestProfilerModel model) {
+            var request = model.Context.Request;
+            var response = model.Context.Response;
             return $"Http Response Information: {Environment.NewLine}" +
                    $"Scheme: {request.Scheme} {Environment.NewLine}" +
                    $"Host: {request.Host} {Environment.NewLine}" +
                    $"Path: {request.Path} {Environment.NewLine}" +
                    $"QueryString: {request.QueryString} {Environment.NewLine}" +
                    $"StatusCode: {response.StatusCode} {Environment.NewLine}" +
-                   $"Response Body: {ReadStreamInChunks(newResponseBody)}";
+                   $"Response Body: {model.ResponseBody}";
         }
 
-        private async Task<string> FormatRequest(HttpContext context) {
-            var request = context.Request;
+        private static string FormatRequest(RequestProfilerModel model) {
+            var request = model.Context.Request;
             return $"Http Request Information: {Environment.NewLine}" +
                    $"Scheme: {request.Scheme} {Environment.NewLine}" +
                    $"Host: {request.Host} {Environment.NewLine}" +
                    $"Path: {request.Path} {Environment.NewLine}" +
                    $"QueryString: {request.QueryString} {Environment.NewLine}" +
-                   $"Request Body: {await GetRequestBody(request)}";
+                   $"Request Body: {model.RequestBody}";
         }
 
-        private async Task<string> GetRequestBody(HttpRequest request) {
+    }
+
+    /// <summary>
+    /// Represents a request and response in order to be logged.
+    /// </summary>
+    public class RequestProfilerModel
+    {
+        private const int ReadChunkBufferLength = 4096;
+        /// <summary>
+        /// Constructs the model by passing the <see cref="HttpContext"/>.
+        /// </summary>
+        /// <param name="httpContext">Encapsulates all HTTP-specific information about an individual HTTP request.</param>
+        public RequestProfilerModel(HttpContext httpContext) {
+            Context = httpContext;
+            var dateText = Context.Request.Headers["Date"];
+            if (!DateTime.TryParseExact((string)dateText, "r", CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal, out var date)) {
+                date = DateTime.UtcNow;
+            }
+            RequestTime = date;
+        }
+
+        /// <summary>
+        /// Request target is the http request method followed by the request path
+        /// </summary>
+        public string RequestTarget => $"{Context.Request.Method.ToLowerInvariant()} {Context.Request.Path}".Trim();
+        /// <summary>
+        /// HTTP status code
+        /// </summary>
+        public int StatusCode => Context.Response.StatusCode;
+        /// <summary>
+        /// The request time.
+        /// </summary>
+        public DateTimeOffset RequestTime { get; }
+        /// <summary>
+        /// the response time.
+        /// </summary>
+        public DateTimeOffset ResponseTime { get; private set; }
+        /// <summary>
+        /// The duration.
+        /// </summary>
+        public TimeSpan Duration => (ResponseTime - RequestTime);
+        /// <summary>
+        /// The <see cref="HttpContext"/> when the request happended.
+        /// </summary>
+        public HttpContext Context { get; }
+        /// <summary>
+        /// The request message.
+        /// </summary>
+        public string RequestBody { get; private set; }
+        /// <summary>
+        /// Τhe response message.
+        /// </summary>
+        public string ResponseBody { get; private set; }
+
+        /// <summary>
+        /// Takes a snapshot of the current request body.
+        /// </summary>
+        /// <returns></returns>
+        internal async Task SnapRequestBody() {
+            var request = Context.Request;
             request.EnableBuffering();
             using var requestStream = new MemoryStream();
             await request.Body.CopyToAsync(requestStream);
             request.Body.Seek(0, SeekOrigin.Begin);
-            return ReadStreamInChunks(requestStream);
+            RequestBody = ReadStreamInChunks(requestStream);
+        }
+
+        /// <summary>
+        /// Takes a snapshot of the response body.
+        /// </summary>
+        /// <param name="next"></param>
+        /// <param name="allowedContentTypes"></param>
+        /// <returns></returns>
+        internal async Task<bool> NextAndSnapResponceBody(RequestDelegate next, List<string> allowedContentTypes = null) {
+            var originalBody = Context.Response.Body;
+            using var newResponseBody = new MemoryStream();
+            Context.Response.Body = newResponseBody;
+            await next(Context);
+            newResponseBody.Seek(0, SeekOrigin.Begin);
+            await newResponseBody.CopyToAsync(originalBody);
+            newResponseBody.Seek(0, SeekOrigin.Begin);
+            var ok = allowedContentTypes == null || string.IsNullOrEmpty(Context.Response.ContentType) || allowedContentTypes.Contains(Context.Response.ContentType.Split(';')[0], StringComparer.OrdinalIgnoreCase);
+            if (ok) {
+                ResponseBody = ReadStreamInChunks(newResponseBody);
+            }
+            ResponseTime = DateTimeOffset.UtcNow;
+            return ok;
         }
 
         private static string ReadStreamInChunks(Stream stream) {
@@ -119,36 +195,5 @@ namespace Indice.AspNetCore.Middleware
             }
             return result;
         }
-    }
-
-    /// <summary>
-    /// Represents a request and response in order to be logged.
-    /// </summary>
-    public class RequestProfilerModel
-    {
-        /// <summary>
-        /// The request time.
-        /// </summary>
-        public DateTimeOffset RequestTime { get; set; }
-        /// <summary>
-        /// the response time.
-        /// </summary>
-        public DateTimeOffset ResponseTime { get; set; }
-        /// <summary>
-        /// The duration.
-        /// </summary>
-        public TimeSpan Duration => (ResponseTime - RequestTime);
-        /// <summary>
-        /// The <see cref="HttpContext"/> when the request happended.
-        /// </summary>
-        public HttpContext Context { get; set; }
-        /// <summary>
-        /// The request message.
-        /// </summary>
-        public string Request { get; set; }
-        /// <summary>
-        /// Τhe response message.
-        /// </summary>
-        public string Response { get; set; }
     }
 }

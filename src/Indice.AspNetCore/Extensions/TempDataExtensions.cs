@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc.ViewFeatures;
-using Newtonsoft.Json;
+using System.Text.Json;
 
 namespace Indice.AspNetCore.Extensions
 {
@@ -15,7 +15,7 @@ namespace Indice.AspNetCore.Extensions
         /// <param name="tempData">Represents a set of data that persists only from one request to the next.</param>
         /// <param name="key">The key to use in the <see cref="TempDataDictionary"/>.</param>
         /// <param name="value">The value to persist.</param>
-        public static void Put<T>(this ITempDataDictionary tempData, string key, T value) => tempData[key] = JsonConvert.SerializeObject(value);
+        public static void Put<T>(this ITempDataDictionary tempData, string key, T value) => tempData[key] = JsonSerializer.Serialize(value);
 
         /// <summary>
         /// Retrieves information from the <see cref="TempDataDictionary"/> using a specified key.
@@ -26,7 +26,7 @@ namespace Indice.AspNetCore.Extensions
         /// <returns>The data persisted in the <see cref="TempDataDictionary"/> under the specified key.</returns>
         public static T Get<T>(this ITempDataDictionary tempData, string key) {
             tempData.TryGetValue(key, out var @object);
-            return @object == null ? default : JsonConvert.DeserializeObject<T>((string)@object);
+            return @object == null ? default : JsonSerializer.Deserialize<T>((string)@object);
         }
 
         /// <summary>
@@ -39,7 +39,7 @@ namespace Indice.AspNetCore.Extensions
         public static T Peek<T>(this ITempDataDictionary tempData, string key) {
             var item = tempData.Peek(key);
             if (item != null) {
-                return JsonConvert.DeserializeObject<T>((string)item);
+                return JsonSerializer.Deserialize<T>((string)item);
             }
             return default;
         }

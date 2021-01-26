@@ -14,17 +14,17 @@ namespace Indice.Services.Yuboto
     public class ViberYubotoOmniService : YubotoOmniServiceBase, ISmsService
     {
         /// <summary>
-        /// <inheritdoc/>
+        /// Creates a new instance of <see cref="ViberYubotoOmniService"/>.
         /// </summary>
-        /// <param name="httpClient"></param>
-        /// <param name="settings"></param>
-        /// <param name="logger"></param>
+        /// <param name="httpClient">Provides a base class for sending HTTP requests and receiving HTTP responses from a resource identified by a URI.</param>
+        /// <param name="settings">Settings class for configuring SMS service clients.</param>
+        /// <param name="logger">Represents a type used to perform logging.</param>
         public ViberYubotoOmniService(HttpClient httpClient, SmsServiceSettings settings, ILogger<ViberYubotoOmniService> logger) : base(httpClient, settings, logger) { }
 
         /// <inheritdoc />
         public async Task SendAsync(string destination, string subject, string body) {
             var phoneNumbers = GetRecipientsFromDestination(destination);
-            var requestBody = SendRequest.CreateViber(phoneNumbers, Settings.Sender ?? Settings.SenderName, body, Settings.ViberFallbackEnabled);
+            var requestBody = SendRequest.CreateViber(phoneNumbers, Settings.Sender ?? Settings.SenderName, body, Settings.ViberFallbackEnabled, Settings.Validity);
             var jsonData = JsonSerializer.Serialize(requestBody, GetJsonSerializerOptions());
             Logger.LogInformation("The following payload was sent to Yuboto: {0}", jsonData);
             var data = new StringContent(jsonData, Encoding.UTF8, "application/json");

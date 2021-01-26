@@ -1,18 +1,15 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Indice.Hosting
 {
     /// <summary>
-    /// A queue message
+    /// A queue message.
     /// </summary>
-    /// <typeparam name="T">The message value type</typeparam>
+    /// <typeparam name="T">The message value type.</typeparam>
     public sealed class QMessage<T> where T : class
     {
-        internal QMessage() {
+        internal QMessage() { }
 
-        }
         /// <summary>
         /// The id
         /// </summary>

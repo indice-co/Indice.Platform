@@ -50,7 +50,7 @@ namespace Indice.Configuration
         /// <summary>
         /// A flag that indicates whether to redirect http to https.
         /// </summary>
-        public bool UseUseHttpsRedirection { get; set; }
+        public bool UseHttpsRedirection { get; set; }
         /// <summary>
         /// A list of endpoints used throughout the application.
         /// </summary>

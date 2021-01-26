@@ -94,7 +94,6 @@ namespace Indice.Common.Tests
             Assert.Equal(model.Point.Latitude, output.Point.Latitude);
         }
 
-
         public class TestTypeConverters
         {
             public GeoPoint Point { get; set; }
@@ -102,6 +101,7 @@ namespace Indice.Common.Tests
             public FilterClause[] Filters { get; set; }
             public object Mystery { get; set; }
         }
+
         public class TestModel
         {
             public GeoPoint Point { get; set; }
@@ -114,5 +114,4 @@ namespace Indice.Common.Tests
             public string LastName { get; set; }
         }
     }
-
 }

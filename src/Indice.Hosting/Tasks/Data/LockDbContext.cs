@@ -1,16 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 
 namespace Indice.Hosting.Tasks.Data
 {
     /// <summary>
-    /// Only use with caution in <see cref="EFLockManager"/>
+    /// Only use with caution in <see cref="EFLockManager"/>.
     /// </summary>
     public class LockDbContext : TaskDbContext
     {
-        public LockDbContext(DbContextOptions<LockDbContext> options) : base(options) {
-        }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="options"></param>
+        public LockDbContext(DbContextOptions<LockDbContext> options) : base(options) { }
     }
 }

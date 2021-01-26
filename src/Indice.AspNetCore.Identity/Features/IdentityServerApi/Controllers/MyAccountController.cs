@@ -85,7 +85,7 @@ namespace Indice.AspNetCore.Identity.Features
                 return NotFound();
             }
             var currentEmail = await _userManager.GetEmailAsync(user);
-            if (currentEmail.Equals(request.Email, StringComparison.OrdinalIgnoreCase)) {
+            if (currentEmail.Equals(request.Email, StringComparison.OrdinalIgnoreCase) && await _userManager.IsEmailConfirmedAsync(user)) {
                 ModelState.AddModelError(nameof(request.Email).ToLower(), _messageDescriber.EmailAlreadyExists(request.Email));
                 return BadRequest(new ValidationProblemDetails(ModelState));
             }
@@ -110,6 +110,7 @@ namespace Indice.AspNetCore.Identity.Features
                 message.To(user.Email)
                        .WithSubject(_messageDescriber.UpdateEmailMessageSubject)
                        .WithBody(_messageDescriber.UpdateEmailMessageBody(user, token, request.ReturnUrl))
+                       .UsingTemplate(_identityServerApiEndpointsOptions.Email.TemplateName)
                        .WithData(data));
             return NoContent();
         }
@@ -160,7 +161,6 @@ namespace Indice.AspNetCore.Identity.Features
             if (user == null) {
                 return NotFound();
             }
-            //var currentPhoneNumber = await _userManager.GetPhoneNumberAsync(user); /* This raises an exception if phone number is null. */
             var currentPhoneNumber = user.PhoneNumber ?? string.Empty;
             if (currentPhoneNumber.Equals(request.PhoneNumber, StringComparison.OrdinalIgnoreCase) && await _userManager.IsPhoneNumberConfirmedAsync(user)) {
                 ModelState.AddModelError(nameof(request.PhoneNumber).ToLower(), _messageDescriber.UserAlreadyHasPhoneNumber(request.PhoneNumber));
@@ -171,9 +171,6 @@ namespace Indice.AspNetCore.Identity.Features
                 return BadRequest(result.Errors.AsValidationProblemDetails());
             }
             if (!_identityServerApiEndpointsOptions.PhoneNumber.SendOtpOnUpdate) {
-                return NoContent();
-            }
-            if (await _userManager.IsPhoneNumberConfirmedAsync(user)) {
                 return NoContent();
             }
             if (_smsService == null) {
@@ -267,7 +264,6 @@ namespace Indice.AspNetCore.Identity.Features
         /// <response code="204">No Content</response>
         /// <response code="400">Bad Request</response>
         [HttpPost("my/account/forgot-password")]
-        [AllowAnonymous]
         [ProducesResponseType(statusCode: StatusCodes.Status204NoContent, type: typeof(void))]
         [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest, type: typeof(ValidationProblemDetails))]
         public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordRequest request) {
@@ -291,7 +287,6 @@ namespace Indice.AspNetCore.Identity.Features
         /// <response code="204">No Content</response>
         /// <response code="400">Bad Request</response>
         [HttpPut("my/account/forgot-password/confirmation")]
-        [AllowAnonymous]
         [ProducesResponseType(statusCode: StatusCodes.Status204NoContent, type: typeof(void))]
         [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest, type: typeof(ValidationProblemDetails))]
         public async Task<IActionResult> ForgotPasswordConfirmation([FromBody] ForgotPasswordVerifyModel request) {

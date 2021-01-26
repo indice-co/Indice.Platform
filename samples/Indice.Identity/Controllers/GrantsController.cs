@@ -14,8 +14,9 @@ using Microsoft.AspNetCore.Mvc;
 namespace Indice.Identity.Controllers
 {
     [ApiExplorerSettings(IgnoreApi = true)]
-    [SecurityHeaders]
     [Authorize]
+    [Route("grants")]
+    [SecurityHeaders]
     public class GrantsController : Controller
     {
         private readonly IIdentityServerInteractionService _interaction;

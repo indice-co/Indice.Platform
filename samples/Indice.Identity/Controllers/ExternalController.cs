@@ -8,10 +8,12 @@ using IdentityServer4.Events;
 using IdentityServer4.Extensions;
 using IdentityServer4.Services;
 using IdentityServer4.Stores;
+using Indice.AspNetCore.Extensions;
 using Indice.AspNetCore.Filters;
 using Indice.AspNetCore.Identity.Extensions;
 using Indice.AspNetCore.Identity.Models;
 using Indice.AspNetCore.Identity.Services;
+using Indice.Identity.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
@@ -34,7 +36,13 @@ namespace Indice.Identity.Controllers
         /// </summary>
         public const string Name = "External";
 
-        public ExternalController(IIdentityServerInteractionService interaction, IClientStore clientStore, IEventService events, ExtendedSignInManager<User> signInManager, ExtendedUserManager<User> userManager) {
+        public ExternalController(
+            IIdentityServerInteractionService interaction,
+            IClientStore clientStore,
+            IEventService events,
+            ExtendedSignInManager<User> signInManager,
+            ExtendedUserManager<User> userManager
+        ) {
             _interaction = interaction ?? throw new ArgumentNullException(nameof(interaction));
             _clientStore = clientStore ?? throw new ArgumentNullException(nameof(clientStore));
             _events = events ?? throw new ArgumentNullException(nameof(events));
@@ -72,7 +80,7 @@ namespace Indice.Identity.Controllers
             // This is triggered when HttpContext.AuthenticateAsync method is called (which is done inside GetExternalLoginInfoAsync method of SignInManager).
             var externalLoginInfo = await _signInManager.GetExternalLoginInfoAsync();
             if (externalLoginInfo == null) {
-                throw new Exception($"Cannot read external login information from {externalLoginInfo.LoginProvider}.");
+                throw new Exception($"Cannot read external login information from external login provider.");
             }
             var user = await _userManager.FindByLoginAsync(externalLoginInfo.LoginProvider, externalLoginInfo.ProviderKey);
             // If user with the specified login is null, this means that we have to do with a brand new user.
@@ -80,7 +88,14 @@ namespace Indice.Identity.Controllers
                 // Retrieve claims of the external user.
                 var claims = externalLoginInfo.Principal.Claims.ToList();
                 // We can choose to auto-provision the user or initiate a custom workflow for user registration.
-                user = await AutoProvisionExternalUserAsync(Guid.NewGuid().ToString(), claims);
+                var autoProvisionResult = await AutoProvisionExternalUser(Guid.NewGuid().ToString(), claims);
+                if (autoProvisionResult.Succeeded) {
+                    user = autoProvisionResult.User;
+                } else {
+                    var loginTempData = new LoginTempData { Errors = autoProvisionResult.Errors };
+                    TempData.Put(nameof(loginTempData), loginTempData);
+                    return RedirectToAction(nameof(AccountController.Login), AccountController.Name);
+                }
                 // Save user external login.
                 await _userManager.AddLoginAsync(user, externalLoginInfo);
             }
@@ -100,7 +115,7 @@ namespace Indice.Identity.Controllers
             return Redirect(returnUrl);
         }
 
-        private async Task<User> AutoProvisionExternalUserAsync(string userId, List<Claim> claims) {
+        private async Task<(User User, bool Succeeded, IEnumerable<string> Errors)> AutoProvisionExternalUser(string userId, List<Claim> claims) {
             var email = claims.Single(x => x.Type == JwtClaimTypes.Email).Value;
             // New user auto-registration flow.
             var user = new User(email, userId) {
@@ -120,9 +135,9 @@ namespace Indice.Identity.Controllers
             }
             var result = await _userManager.CreateAsync(user);
             if (!result.Succeeded) {
-                throw new Exception("Failed to automatically create external user.");
+                return (null, false, result.Errors.Select(x => x.Description));
             }
-            return user;
+            return (user, true, new List<string>());
         }
     }
 }

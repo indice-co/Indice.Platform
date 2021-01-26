@@ -21,7 +21,7 @@ namespace Indice.AspNetCore.Identity.Features
             where TUser : User, new()
             where TRole : Role, new() {
             // Create an admin account.
-            const string adminEmail = "company@indice.gr";
+            const string adminEmail = "g.manoltzas@indice.gr";
             var admin = new TUser {
                 Id = "ab9769f1-d532-4b7d-9922-3da003157ebd",
                 Admin = true,

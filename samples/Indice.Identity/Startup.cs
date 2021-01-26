@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
 using System.Linq;
-using System.Net.Http;
+using System.Net;
 using System.Reflection;
 using Hellang.Middleware.ProblemDetails;
 using Indice.AspNetCore.Filters;
@@ -62,18 +63,14 @@ namespace Indice.Identity
             services.AddMvcConfig(Configuration);
             services.AddLocalization(options => options.ResourcesPath = "Resources");
             services.AddCors(options => options.AddDefaultPolicy(builder => {
-                builder.WithOrigins(Configuration.GetSection("AllowedHosts").Get<string[]>())
+                builder.WithOrigins(Configuration.GetSection("AllowedOrigins").Get<string[]>())
                        .WithMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                        .WithHeaders("Authorization", "Content-Type")
                        .WithExposedHeaders("Content-Disposition");
             }));
+            services.AddAuthenticationConfig(Configuration);
             services.AddIdentityConfig(Configuration);
             services.AddIdentityServerConfig(HostingEnvironment, Configuration, Settings);
-            services.ConfigureApplicationCookie(options => {
-                options.AccessDeniedPath = new PathString("/access-denied");
-                options.LoginPath = new PathString("/login");
-                options.LogoutPath = new PathString("/logout");
-            });
             services.AddProblemDetailsConfig(HostingEnvironment);
             services.ConfigureNonBreakingSameSiteCookies();
             services.AddSmsServiceYouboto(Configuration);
@@ -96,7 +93,6 @@ namespace Indice.Identity
                        .AddConnectSrc("https://dc.services.visualstudio.com")
                        .AddFrameAncestors("https://localhost:2002");
             });
-            services.AddSpaStaticFiles(options => options.RootPath = "wwwroot/admin-ui");
             // Setup worker host for executing background tasks.
             services.AddWorkerHost(options => {
                 options.JsonOptions.JsonSerializerOptions.WriteIndented = true;
@@ -107,12 +103,12 @@ namespace Indice.Identity
                 options.QueueName = "user-messages";
                 options.PollingInterval = 500;
             })
-            /*.AddJob<LoadAvailableAlertsHandler>()
+            .AddJob<LoadAvailableAlertsHandler>()
             .WithScheduleTrigger<DemoCounterModel>("0/5 * * * * ?", options => {
-                options.Name = "LoadAvailableAlerts";
-                options.Description = "La lala";
+                options.Name = "load-available-alerts";
+                options.Description = "Load alerts for the queue.";
                 options.Group = "indice";
-            })*/;
+            });
         }
 
         /// <summary>
@@ -122,8 +118,6 @@ namespace Indice.Identity
         /// <param name="serviceProvider"></param>
         public void Configure(IApplicationBuilder app, IServiceProvider serviceProvider) {
             if (HostingEnvironment.IsDevelopment()) {
-                var taskDbContext = serviceProvider.GetRequiredService<ExtendedTaskDbContext>();
-                taskDbContext.Database.EnsureCreated();
                 app.UseDeveloperExceptionPage();
                 app.IdentityServerStoreSetup<ExtendedConfigurationDbContext>(Clients.Get(), Resources.GetIdentityResources(), Resources.GetApis(), Resources.GetApiScopes());
             } else {
@@ -140,6 +134,20 @@ namespace Indice.Identity
             app.UseStaticFiles(staticFileOptions);
             app.UseCookiePolicy();
             app.UseRouting();
+            // Use the middleware with parameters to log request responses to the ILogger or use custom parameters to lets say take request response snapshots for testing purposes.
+            app.UseRequestResponseLogging(
+                new[] { MediaTypeNames.Application.Json, MediaTypeNames.Text.Html }, async (logger, model) => {
+                    var filename = $"{model.RequestTime:yyyyMMdd.HHmmss}_{model.RequestTarget.Replace('/', '-')}_{model.StatusCode}";
+                    var folder = Path.Combine(HostingEnvironment.ContentRootPath, @"App_Data\snapshots");
+                    if (!Directory.Exists(folder)) {
+                        Directory.CreateDirectory(folder);
+                    }
+                    if (!string.IsNullOrEmpty(model.RequestBody)) {
+                        await File.WriteAllTextAsync(Path.Combine(folder, $"{filename}_request.txt"), model.RequestBody);
+                    }
+                    await File.WriteAllTextAsync(Path.Combine(folder, $"{filename}_response.txt"), model.ResponseBody);
+                }
+            );
             app.UseIdentityServer();
             app.UseCors();
             app.UseAuthentication();
@@ -179,13 +187,8 @@ namespace Indice.Identity
             }
             app.UseEndpoints(endpoints => {
                 endpoints.MapControllers();
+                endpoints.MapDefaultControllerRoute();
             });
-            if (!HostingEnvironment.IsDevelopment()) {
-                app.UseSpaStaticFiles();
-                app.UseSpa(builder => {
-                    builder.Options.SourcePath = "wwwroot/admin-ui";
-                });
-            }
         }
     }
 }

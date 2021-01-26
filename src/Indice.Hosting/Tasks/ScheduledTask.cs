@@ -9,13 +9,13 @@ namespace Indice.Hosting
     public class ScheduledTask : ScheduledTask<Dictionary<string, object>> { }
 
     /// <summary>
-    /// A dto representing a worker task 
+    /// A dto representing a worker task.
     /// </summary>
     /// <typeparam name="TState"></typeparam>
     public class ScheduledTask<TState> where TState : class
     {
         /// <summary>
-        /// The id
+        /// The id.
         /// </summary>
         public string Id { get; set; } = Guid.NewGuid().ToString();
         /// <summary>

@@ -1,14 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace Indice.Services
 {
     /// <summary>
     /// Factory for <see cref="ISmsService"/>
     /// </summary>
-    public interface ISmsServiceFactory {
-
+    public interface ISmsServiceFactory
+    {
         /// <summary>
         /// Create the <see cref="ISmsService"/> given the requested delivery channel. 
         /// If an available implementation maches the given delivery Channel then an instance will be be returned else 
@@ -48,8 +47,9 @@ namespace Indice.Services
         /// <exception cref="NotSupportedException"></exception>
         public ISmsService Create(string channel) {
             foreach (var service in Services) {
-                if (service.Supports(channel))
+                if (service.Supports(channel)) {
                     return service;
+                }
             }
             throw new NotSupportedException(channel);
         }
