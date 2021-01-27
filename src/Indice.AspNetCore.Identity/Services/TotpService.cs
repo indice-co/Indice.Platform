@@ -121,7 +121,7 @@ namespace Indice.AspNetCore.Identity
                     if(PushNotificationService == null) {
                         throw new ArgumentNullException(nameof(PushNotificationService));
                     }
-                    await PushNotificationService.SendAsync(Localizer[message, token], user.Id);
+                    await PushNotificationService.SendAsync(Localizer[message, token], token, user.Id);
                     break;
                 default:
                     break;
