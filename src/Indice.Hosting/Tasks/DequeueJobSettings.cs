@@ -7,7 +7,6 @@ namespace Indice.Hosting
     /// </summary>
     internal class DequeueJobSettings
     {
-
         /// <summary>
         /// Creates a new instance of <see cref="DequeueJobSettings"/>.
         /// </summary>

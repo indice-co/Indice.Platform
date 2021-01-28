@@ -37,7 +37,7 @@ namespace Indice.Services
         /// <param name="httpClient">Injected <see cref="System.Net.Http.HttpClient"/> managed by the DI.</param>
         /// <param name="logger">Represents a type used to perform logging.</param>
         public SmsServiceApifon(HttpClient httpClient, SmsServiceApifonSettings settings, ILogger<SmsServiceApifon> logger) {
-            HttpClient = httpClient ?? new HttpClient();
+            HttpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
             Settings = settings ?? throw new ArgumentNullException(nameof(settings));
             Logger = logger ?? throw new ArgumentNullException(nameof(logger));
             if (string.IsNullOrWhiteSpace(Settings.Token)) {
@@ -59,8 +59,7 @@ namespace Indice.Services
             if (recipients.Length == 0) {
                 throw new ArgumentException("Recipients list cannot be empty.", nameof(recipients));
             }
-            if (recipients.Any(phoneNumber => phoneNumber.Any(numberChar => !char.IsNumber(numberChar))))
-            {
+            if (recipients.Any(phoneNumber => phoneNumber.Any(numberChar => !char.IsNumber(numberChar)))) {
                 throw new ArgumentException("Invalid recipients. Recipients cannot contain letters.", nameof(recipients));
             }
             // TODO: Create a universal way to handle country codes.
@@ -114,7 +113,7 @@ namespace Indice.Services
         /// <summary>
         /// Get default Json Serializer Options: CamelCase, ignore null values.
         /// </summary>
-        protected JsonSerializerOptions GetJsonSerializerOptions() => new JsonSerializerOptions {
+        protected static JsonSerializerOptions GetJsonSerializerOptions() => new JsonSerializerOptions {
             IgnoreNullValues = true,
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase
         };
