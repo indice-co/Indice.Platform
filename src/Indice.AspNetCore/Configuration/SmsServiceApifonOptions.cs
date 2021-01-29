@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Net.Http;
 using Indice.Services;
+using Microsoft.Extensions.Http;
 
 namespace Indice.AspNetCore.Configuration
 {
@@ -10,8 +11,8 @@ namespace Indice.AspNetCore.Configuration
     public class SmsServiceApifonOptions
     {
         /// <summary>
-        /// Optional options for <see cref="HttpClientHandler"/>
+        /// Optional options for <see cref="HttpMessageHandler"/>
         /// </summary>
-        public HttpClientHandler PrimaryHttpMessageHandler { get; set; }
+        public Func<IServiceProvider, HttpMessageHandler> ConfigurePrimaryHttpMessageHandler { get; set; }
     }
 }

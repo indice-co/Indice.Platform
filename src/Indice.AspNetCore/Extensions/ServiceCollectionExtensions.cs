@@ -116,8 +116,8 @@ namespace Microsoft.Extensions.DependencyInjection
                                             .ConfigureHttpClient(httpClient => {
                                                 httpClient.BaseAddress = new Uri("https://ars.apifon.com/services/api/v1/sms/");
                                             });
-            if (options.PrimaryHttpMessageHandler != null) {
-                httpClientBuilder.ConfigurePrimaryHttpMessageHandler(serviceProvider => options.PrimaryHttpMessageHandler);
+            if (options.ConfigurePrimaryHttpMessageHandler != null) {
+                httpClientBuilder.ConfigurePrimaryHttpMessageHandler(options.ConfigurePrimaryHttpMessageHandler);
             }
             return services;
         }

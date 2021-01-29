@@ -18,19 +18,6 @@ namespace Indice.Services
     public class SmsServiceApifon : ISmsService
     {
         /// <summary>
-        /// The settings required to configure the service.
-        /// </summary>
-        protected SmsServiceApifonSettings Settings { get; }
-        /// <summary>
-        /// The <see cref="System.Net.Http.HttpClient"/>.
-        /// </summary>
-        protected HttpClient HttpClient { get; }
-        /// <summary>
-        /// Represents a type used to perform logging.
-        /// </summary>
-        protected ILogger<SmsServiceApifon> Logger { get; }
-
-        /// <summary>
         /// Constructs the <see cref="SmsServiceApifon"/> using the <seealso cref="SmsServiceSettings"/>.
         /// </summary>
         /// <param name="settings">The settings required to configure the service.</param>
@@ -47,6 +34,19 @@ namespace Indice.Services
                 throw new ArgumentException($"SMS settings {nameof(SmsServiceApifonSettings.ApiKey)} is empty.");
             }
         }
+
+        /// <summary>
+        /// The settings required to configure the service.
+        /// </summary>
+        protected SmsServiceApifonSettings Settings { get; }
+        /// <summary>
+        /// The <see cref="System.Net.Http.HttpClient"/>.
+        /// </summary>
+        protected HttpClient HttpClient { get; }
+        /// <summary>
+        /// Represents a type used to perform logging.
+        /// </summary>
+        protected ILogger<SmsServiceApifon> Logger { get; }
 
         /// <inheritdoc/>
         public async Task SendAsync(string destination, string subject, string body) {
@@ -83,7 +83,7 @@ namespace Indice.Services
             try {
                 Logger.LogInformation("The full request sent to Apifon: {0}", JsonSerializer.Serialize(request, GetJsonSerializerOptions()));
                 Logger.LogInformation("The following payload was sent to Apifon: {0}", payload.ToJson());
-                httpResponse = await HttpClient.SendAsync(request).ConfigureAwait(false);
+                httpResponse = await HttpClient.SendAsync(request);
             } catch (Exception ex) {
                 Logger.LogInformation("SMS Delivery took too long: {0}", ex);
                 throw new SmsServiceException($"SMS Delivery took too long", ex);
@@ -109,7 +109,6 @@ namespace Indice.Services
         /// <returns></returns>
         public bool Supports(string deliveryChannel) => "SMS".Equals(deliveryChannel, StringComparison.OrdinalIgnoreCase);
 
-
         /// <summary>
         /// Get default Json Serializer Options: CamelCase, ignore null values.
         /// </summary>
@@ -134,45 +133,34 @@ namespace Indice.Services
     {
         [JsonPropertyName("request_id")]
         public string Id { get; set; }
-
         public Dictionary<string, ResultDetails[]> Results { get; set; }
-
         [JsonPropertyName("result_info")]
         public ResultInfo Status { get; set; }
-
         public bool HasError => !(Status?.StatusCode >= 200 && Status?.StatusCode < 300);
 
         internal class ResultDetails
         {
             [JsonPropertyName("message_id")]
             public string Id { get; set; }
-
             [JsonPropertyName("custom_id")]
             public string CustomId { get; set; }
-
             public int Length { get; set; }
-
             [JsonPropertyName("short_url")]
             public string ShortUrl { get; set; }
-
             [JsonPropertyName("short_code")]
             public string ShortCode { get; set; }
-
         }
 
         internal class ResultInfo
         {
             [JsonPropertyName("status_code")]
             public int StatusCode { get; set; }
-
             public string Description { get; set; }
         }
     }
 
     internal class ApifonRequest
     {
-        public ApifonRequest() { }
-
         public ApifonRequest(string from, string[] to, string message) {
             foreach (var subNumber in to) {
                 Subscribers.Add(new Subscribers { To = subNumber });
@@ -183,28 +171,23 @@ namespace Indice.Services
 
         [JsonPropertyName("message")]
         public Message Message { get; set; } = new Message();
-
         [JsonPropertyName("subscribers")]
         public List<Subscribers> Subscribers { get; set; } = new List<Subscribers>();
-
         /// <summary>
         /// SMS validity period. Min 30 - Max 4320 (default).
         /// </summary>
         [JsonPropertyName("tte")]
         public int? ValidityPeriod { get; set; }
-
         /// <summary>
         /// If set, the callback (delivery / status report) will be delivered to this URL, otherwise no callback will take place.
         /// </summary>
         [JsonPropertyName("callback_url")]
         public string CallbackUrl { get; set; }
-
         /// <summary>
         /// The date that the message will be sent on UTC/GMT TIMEZONE. If omitted it will be sent immediately.
         /// </summary>
         [JsonPropertyName("date")]
         public DateTime? DateToSend { get; set; }
-
         [JsonIgnore]
         public DateTime RequestDate { get; set; } = DateTime.Now.ToUniversalTime();
 
@@ -239,7 +222,6 @@ namespace Indice.Services
         /// </summary>
         [JsonPropertyName("text")]
         public string Text { get; set; }
-
         /// <summary>
         /// Contains the information on how the text is encoded.
         /// The maximum number of characters you can fit into a single message depends on the encoding you are using:
@@ -256,7 +238,6 @@ namespace Indice.Services
         /// </summary>
         [JsonPropertyName("dc")]
         public string Encoding { get; set; }
-
         /// <summary>
         /// Numeric (maximum number of digits: 16) or alphanumeric characters (maximum number of characters: 11).
         /// </summary>
@@ -271,7 +252,6 @@ namespace Indice.Services
         /// </summary>
         [JsonPropertyName("number")]
         public string To { get; set; }
-
         /// <summary>
         /// If your message content contains placeholders for personalized messages per destination, this field is required to populate the value for each recipient.
         /// </summary>
