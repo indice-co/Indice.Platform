@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using System.Net.Http;
 using System.Reflection;
 using Hellang.Middleware.ProblemDetails;
 using Indice.AspNetCore.Filters;
@@ -83,12 +82,11 @@ namespace Indice.Identity
             services.AddResponseCaching();
             services.AddDataProtectionLocal(options => options.FromConfiguration());
             services.AddEmailService(Configuration);
-            services.AddSmsServiceApifon(Configuration, options => {
-                options.ConfigurePrimaryHttpMessageHandler = (serviceProvider) =>
-                   new HttpClientHandler {
+            services.AddSmsServiceApifon(Configuration/*, options => {
+                options.ConfigurePrimaryHttpMessageHandler = (serviceProvider) => new System.Net.Http.HttpClientHandler {
                     ServerCertificateCustomValidationCallback = (httpRequestMessage, certificate, chain, sslPolicyErrors) => true
                 };
-            });
+            }*/);
             services.AddCsp(options => {
                 options.ScriptSrc = CSP.Self;
                 options.AddSandbox("allow-popups")
