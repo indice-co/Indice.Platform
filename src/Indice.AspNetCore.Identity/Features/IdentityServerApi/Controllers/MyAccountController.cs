@@ -53,9 +53,17 @@ namespace Indice.AspNetCore.Identity.Features
         /// </summary>
         public const string Name = "MyAccount";
 
-        public MyAccountController(ExtendedUserManager<User> userManager, IOptions<GeneralSettings> generalSettings, IOptionsSnapshot<IdentityOptions> identityOptions,
-            IdentityServerApiEndpointsOptions identityServerApiEndpointsOptions, IEventService eventService, ISmsServiceFactory smsServiceFactory, IEmailService emailService,
-            MessageDescriber messageDescriber, ExtendedIdentityDbContext<User, Role> dbContext) {
+        public MyAccountController(
+            ExtendedUserManager<User> userManager,
+            IOptions<GeneralSettings> generalSettings,
+            IOptionsSnapshot<IdentityOptions> identityOptions,
+            IdentityServerApiEndpointsOptions identityServerApiEndpointsOptions,
+            IEventService eventService,
+            ISmsServiceFactory smsServiceFactory,
+            IEmailService emailService,
+            MessageDescriber messageDescriber,
+            ExtendedIdentityDbContext<User, Role> dbContext
+        ) {
             _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
             _generalSettings = generalSettings?.Value ?? throw new ArgumentNullException(nameof(generalSettings));
             _identityOptions = identityOptions?.Value ?? throw new ArgumentNullException(nameof(identityOptions));
