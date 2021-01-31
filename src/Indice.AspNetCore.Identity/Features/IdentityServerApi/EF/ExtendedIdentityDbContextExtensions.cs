@@ -21,7 +21,7 @@ namespace Indice.AspNetCore.Identity.Features
             where TUser : User, new()
             where TRole : Role, new() {
             // Create an admin account.
-            const string adminEmail = "g.manoltzas@indice.gr";
+            const string adminEmail = "company@indice.gr";
             var admin = new TUser {
                 Id = "ab9769f1-d532-4b7d-9922-3da003157ebd",
                 Admin = true,
@@ -33,7 +33,7 @@ namespace Indice.AspNetCore.Identity.Features
                 NormalizedEmail = adminEmail.ToUpper(),
                 NormalizedUserName = adminEmail.ToUpper(),
                 PasswordHash = "AH6SA/wuxp9YEfLGROaj2CgjhxZhXDkMB1nD8V7lfQAI+WTM4lGMItjLhhV5ASsq+Q==",
-                PhoneNumber = "+30 2106985955",
+                PhoneNumber = "69XXXXXXXX",
                 PhoneNumberConfirmed = true,
                 SecurityStamp = $"{Guid.NewGuid()}",
                 UserName = adminEmail

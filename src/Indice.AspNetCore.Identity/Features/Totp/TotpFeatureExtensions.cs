@@ -57,5 +57,22 @@ namespace Microsoft.Extensions.DependencyInjection
             builder.AddExtensionGrantValidator<TotpGrantValidator>();
             return builder;
         }
+
+        /// <summary>
+        /// Registers the <see cref="TotpDbContext"/> to be used by the application.
+        /// </summary>
+        /// <param name="options">Options for configuring the IdentityServer API feature.</param>
+        /// <param name="configureAction">Configuration for <see cref="TotpDbContext"/>.</param>
+        public static void AddDbContext(this TotpOptions options, Action<TotpDbContextOptions> configureAction) {
+            var dbContextOptions = new TotpDbContextOptions();
+            configureAction?.Invoke(dbContextOptions);
+            options.Services.AddSingleton(dbContextOptions);
+            if (dbContextOptions.ResolveDbContextOptions != null) {
+                options.Services.AddDbContext<TotpDbContext>(dbContextOptions.ResolveDbContextOptions);
+            } else {
+                options.Services.AddDbContext<TotpDbContext>(dbContextOptions.ConfigureDbContext);
+            }
+            options.Services.AddTransient<Func<TotpDbContext>>(provider => provider.GetService<TotpDbContext>);
+        }
     }
 }

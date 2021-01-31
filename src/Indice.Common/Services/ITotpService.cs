@@ -487,11 +487,11 @@ namespace Indice.Services
     public enum TotpProviderType
     {
         /// <summary>
-        /// Phone
+        /// Phone.
         /// </summary>
         Phone = 1,
         /// <summary>
-        /// E-token
+        /// E-token.
         /// </summary>
         EToken = 3
     }
