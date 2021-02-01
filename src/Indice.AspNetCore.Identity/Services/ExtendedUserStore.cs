@@ -142,10 +142,18 @@ namespace Indice.AspNetCore.Identity.Data
 
         /// <inheritdoc/>
         public override async Task SetEmailAsync(TUser user, string email, CancellationToken cancellationToken = default) {
-            await base.SetEmailAsync(user, email, cancellationToken);
             if (EmailAsUserName.HasValue && EmailAsUserName.Value) {
                 await base.SetUserNameAsync(user, email, cancellationToken);
             }
+            await base.SetEmailAsync(user, email, cancellationToken);
+        }
+
+        /// <inheritdoc/>
+        public override async Task SetUserNameAsync(TUser user, string userName, CancellationToken cancellationToken = default) {
+            if (EmailAsUserName.HasValue && EmailAsUserName.Value) {
+                await base.SetUserNameAsync(user, userName, cancellationToken);
+            }
+            await base.SetEmailAsync(user, userName, cancellationToken);
         }
     }
 }
