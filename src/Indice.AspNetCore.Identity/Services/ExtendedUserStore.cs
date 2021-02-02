@@ -52,6 +52,8 @@ namespace Indice.AspNetCore.Identity.Data
                                    configuration.GetSection(nameof(PasswordOptions)).GetValue<int?>(nameof(PasswordHistoryLimit));
             PasswordExpirationPolicy = configuration.GetSection($"{nameof(IdentityOptions)}:{nameof(IdentityOptions.Password)}").GetValue<PasswordExpirationPolicy?>(nameof(PasswordExpirationPolicy)) ??
                                        configuration.GetSection(nameof(PasswordOptions)).GetValue<PasswordExpirationPolicy?>(nameof(PasswordExpirationPolicy));
+            EmailAsUserName = configuration.GetSection($"{nameof(IdentityOptions)}:{nameof(IdentityOptions.User)}").GetValue<bool?>(nameof(EmailAsUserName)) ??
+                              configuration.GetSection(nameof(UserOptions)).GetValue<bool?>(nameof(EmailAsUserName));
         }
 
         /// <inheritdoc/>
@@ -60,6 +62,8 @@ namespace Indice.AspNetCore.Identity.Data
         public double? PasswordHistoryRetentionDays { get; protected set; }
         /// <inheritdoc/>
         public PasswordExpirationPolicy? PasswordExpirationPolicy { get; protected set; }
+        /// <inheritdoc/>
+        public bool? EmailAsUserName { get; protected set; }
 
         /// <inheritdoc/>
         public override async Task SetPasswordHashAsync(TUser user, string passwordHash, CancellationToken cancellationToken = default) {
@@ -114,6 +118,10 @@ namespace Indice.AspNetCore.Identity.Data
         public override Task<IdentityResult> UpdateAsync(TUser user, CancellationToken cancellationToken = default) {
             // Calculate expiration date based on policy.
             user.PasswordExpirationDate = user.CalculatePasswordExpirationDate();
+            // If EmailAsUserName option is enabled and a username is not set, then assign email to username.
+            if (EmailAsUserName.HasValue && EmailAsUserName.Value && string.IsNullOrWhiteSpace(user.UserName)) {
+                user.UserName = user.Email;
+            }
             return base.UpdateAsync(user, cancellationToken);
         }
 
@@ -125,7 +133,27 @@ namespace Indice.AspNetCore.Identity.Data
                 user.PasswordExpirationPolicy = PasswordExpirationPolicy;
             }
             user.PasswordExpirationDate = user.CalculatePasswordExpirationDate();
+            // If EmailAsUserName option is enabled and a username is not set, then assign email to username.
+            if (EmailAsUserName.HasValue && EmailAsUserName.Value && string.IsNullOrWhiteSpace(user.UserName)) {
+                user.UserName = user.Email;
+            }
             return base.CreateAsync(user, cancellationToken);
+        }
+
+        /// <inheritdoc/>
+        public override async Task SetEmailAsync(TUser user, string email, CancellationToken cancellationToken = default) {
+            if (EmailAsUserName.HasValue && EmailAsUserName.Value) {
+                await base.SetUserNameAsync(user, email, cancellationToken);
+            }
+            await base.SetEmailAsync(user, email, cancellationToken);
+        }
+
+        /// <inheritdoc/>
+        public override async Task SetUserNameAsync(TUser user, string userName, CancellationToken cancellationToken = default) {
+            if (EmailAsUserName.HasValue && EmailAsUserName.Value) {
+                await base.SetUserNameAsync(user, userName, cancellationToken);
+            }
+            await base.SetEmailAsync(user, userName, cancellationToken);
         }
     }
 }

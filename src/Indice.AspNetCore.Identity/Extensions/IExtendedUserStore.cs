@@ -28,6 +28,11 @@ namespace Indice.AspNetCore.Identity.Extensions
         /// </summary>
         PasswordExpirationPolicy? PasswordExpirationPolicy { get; }
         /// <summary>
+        /// Some applications treat email (which is most cases is used only for communication purposes) as username. When this identity option is set to true,
+        /// every operation that is applied to the email is also applied in the username. For example changing the email will also change the username.
+        /// </summary>
+        bool? EmailAsUserName { get; }
+        /// <summary>
         /// Sets the password expiration policy for the specified user.
         /// </summary>
         /// <param name="user">The user whose password expiration policy to set.</param>

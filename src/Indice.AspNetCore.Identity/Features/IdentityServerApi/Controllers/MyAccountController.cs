@@ -459,6 +459,7 @@ namespace Indice.AspNetCore.Identity.Features
         /// <response code="302">Found</response>
         /// <response code="400">Bad Request</response>
         /// <response code="404">Not Found</response>
+        /// <response code="410">Gone</response>
         [AllowAnonymous]
         [HttpPost("account/username-exists")]
         [ProducesResponseType(statusCode: StatusCodes.Status302Found, type: typeof(void))]
