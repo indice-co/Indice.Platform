@@ -16,6 +16,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
@@ -48,14 +49,24 @@ namespace Indice.AspNetCore.Identity.Features
         private readonly IEventService _eventService;
         private readonly ISmsServiceFactory _smsServiceFactory;
         private readonly MessageDescriber _messageDescriber;
+        private readonly IConfiguration _configuration;
         /// <summary>
         /// The name of the controller.
         /// </summary>
         public const string Name = "MyAccount";
 
-        public MyAccountController(ExtendedUserManager<User> userManager, IOptions<GeneralSettings> generalSettings, IOptionsSnapshot<IdentityOptions> identityOptions,
-            IdentityServerApiEndpointsOptions identityServerApiEndpointsOptions, IEventService eventService, ISmsServiceFactory smsServiceFactory, IEmailService emailService,
-            MessageDescriber messageDescriber, ExtendedIdentityDbContext<User, Role> dbContext) {
+        public MyAccountController(
+            ExtendedUserManager<User> userManager,
+            IOptions<GeneralSettings> generalSettings,
+            IOptionsSnapshot<IdentityOptions> identityOptions,
+            IdentityServerApiEndpointsOptions identityServerApiEndpointsOptions,
+            IEventService eventService,
+            ISmsServiceFactory smsServiceFactory,
+            IEmailService emailService,
+            MessageDescriber messageDescriber,
+            ExtendedIdentityDbContext<User, Role> dbContext,
+            IConfiguration configuration
+        ) {
             _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
             _generalSettings = generalSettings?.Value ?? throw new ArgumentNullException(nameof(generalSettings));
             _identityOptions = identityOptions?.Value ?? throw new ArgumentNullException(nameof(identityOptions));
@@ -64,6 +75,7 @@ namespace Indice.AspNetCore.Identity.Features
             _smsServiceFactory = smsServiceFactory ?? throw new ArgumentNullException(nameof(smsServiceFactory));
             _messageDescriber = messageDescriber ?? throw new ArgumentNullException(nameof(messageDescriber));
             _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
+            _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
             _smsService = _smsServiceFactory.Create("Sms");
             _emailService = emailService;
         }
@@ -452,7 +464,12 @@ namespace Indice.AspNetCore.Identity.Features
         [ProducesResponseType(statusCode: StatusCodes.Status302Found, type: typeof(void))]
         [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest, type: typeof(ValidationProblemDetails))]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(void))]
+        [ProducesResponseType(statusCode: StatusCodes.Status410Gone, type: typeof(void))]
         public async Task<IActionResult> CheckUserNameExists([FromBody] ValidateUserNameRequest request) {
+            var allowUserEnumeration = _configuration.GetSection(GeneralSettings.Name).GetValue<bool?>("AllowUserEnumeration") ?? _configuration.GetValue<bool?>("AllowUserEnumeration") ?? true;
+            if (!allowUserEnumeration) {
+                return StatusCode(StatusCodes.Status410Gone);
+            }
             if (!ModelState.IsValid) {
                 return BadRequest(new ValidationProblemDetails(ModelState));
             }
