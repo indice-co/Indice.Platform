@@ -6,8 +6,10 @@ using Indice.AspNetCore.Identity.Authorization;
 using Indice.Configuration;
 using Indice.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Hosting;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
@@ -31,17 +33,19 @@ namespace Microsoft.Extensions.DependencyInjection
             var totpOptions = new TotpOptions {
                 Services = services,
                 CodeDuration = totpSection.GetValue<int?>(nameof(TotpOptions.CodeDuration)) ?? TotpOptions.DefaultCodeDuration,
-                CodeLength = totpSection.GetValue<int?>(nameof(TotpOptions.CodeLength)) ?? TotpOptions.DefaultCodeLength
+                CodeLength = totpSection.GetValue<int?>(nameof(TotpOptions.CodeLength)) ?? TotpOptions.DefaultCodeLength,
+                EnableDeveloperTotp = totpSection.GetValue<bool>(nameof(TotpOptions.EnableDeveloperTotp))
             };
+            var hostingEnvironment = serviceProvider.GetRequiredService<IWebHostEnvironment>();
             configure?.Invoke(totpOptions);
             totpOptions.Services = null;
             services.TryAddTransient<IPushNotificationService, DefaultPushNotificationService>();
             services.TryAddTransient<ITotpService, TotpService>();
             services.TryAddSingleton(new Rfc6238AuthenticationService(totpOptions.Timestep, totpOptions.CodeLength));
-            if (totpOptions.EnablePersistedCodes) {
+            if (totpOptions.EnableDeveloperTotp && !hostingEnvironment.IsProduction()) {
                 var implementation = services.Where(x => x.ServiceType == typeof(ITotpService)).LastOrDefault()?.ImplementationType;
                 if (implementation != null) {
-                    var decoratorType = typeof(PersistedTotpService);
+                    var decoratorType = typeof(DeveloperTotpService);
                     services.TryAddTransient(implementation);
                     services.AddTransient(typeof(ITotpService), decoratorType);
                 }

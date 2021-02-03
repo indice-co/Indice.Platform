@@ -82,11 +82,11 @@ namespace Indice.Identity
             services.AddResponseCaching();
             services.AddDataProtectionLocal(options => options.FromConfiguration());
             services.AddEmailService(Configuration);
-            services.AddSmsServiceApifon(Configuration/*, options => {
+            /*services.AddSmsServiceApifon(Configuration, options => {
                 options.ConfigurePrimaryHttpMessageHandler = (serviceProvider) => new System.Net.Http.HttpClientHandler {
                     ServerCertificateCustomValidationCallback = (httpRequestMessage, certificate, chain, sslPolicyErrors) => true
                 };
-            }*/);
+            });*/
             services.AddCsp(options => {
                 options.ScriptSrc = CSP.Self;
                 options.AddSandbox("allow-popups")

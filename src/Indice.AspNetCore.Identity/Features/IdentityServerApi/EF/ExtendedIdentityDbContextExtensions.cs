@@ -38,6 +38,7 @@ namespace Indice.AspNetCore.Identity.Features
                 SecurityStamp = $"{Guid.NewGuid()}",
                 UserName = adminEmail
             };
+            admin.GenerateDeveloperTotp();
             dbContext.Users.Add(admin);
             dbContext.UserClaims.Add(new IdentityUserClaim<string> {
                 ClaimType = JwtClaimTypes.GivenName,

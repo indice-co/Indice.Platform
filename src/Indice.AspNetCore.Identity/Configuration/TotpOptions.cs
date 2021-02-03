@@ -1,7 +1,4 @@
-﻿using System;
-using System.Security;
-using Indice.AspNetCore.Identity.Features;
-using Microsoft.EntityFrameworkCore;
+﻿using System.Security;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Indice.Configuration
@@ -37,23 +34,8 @@ namespace Indice.Configuration
         /// </summary>
         public int CodeLength { get; set; } = DefaultCodeLength;
         /// <summary>
-        /// Enables saving OTPs in the database (used mainly for development purposes). Defaults to false.
+        /// Enables saving standard OTPs in a certain claim (used mainly for development purposes). Defaults to false.
         /// </summary>
-        public bool EnablePersistedCodes { get; set; } = false;
-    }
-
-    /// <summary>
-    /// Options for configuring <see cref="TotpDbContext"/>.
-    /// </summary>
-    public class TotpDbContextOptions
-    {
-        /// <summary>
-        /// Callback to configure the EF DbContext.
-        /// </summary>
-        public Action<DbContextOptionsBuilder> ConfigureDbContext { get; set; }
-        /// <summary>
-        /// Callback in DI to resolve the EF DbContextOptions. If set, ConfigureDbContext will not be used.
-        /// </summary>
-        public Action<IServiceProvider, DbContextOptionsBuilder> ResolveDbContextOptions { get; set; }
+        public bool EnableDeveloperTotp { get; set; } = false;
     }
 }

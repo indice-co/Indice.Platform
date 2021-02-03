@@ -5,6 +5,8 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using IdentityServer4.Extensions;
 using Indice.AspNetCore.Identity.Features;
+using Indice.AspNetCore.Identity.Models;
+using Indice.Security;
 using Indice.Services;
 using Microsoft.EntityFrameworkCore;
 
@@ -13,26 +15,29 @@ namespace Indice.AspNetCore.Identity
     /// <summary>
     /// 
     /// </summary>
-    public class PersistedTotpService : ITotpService
+    public class DeveloperTotpService : ITotpService
     {
         /// <summary>
-        /// Constructs a new <see cref="PersistedTotpService"/>.
+        /// Constructs a new <see cref="DeveloperTotpService"/>.
         /// </summary>
         /// <param name="totpService">Used to generate, send and verify time based one time passwords.</param>
-        /// <param name="totpDbContext">A <see cref="Microsoft.EntityFrameworkCore.DbContext"/> used to maintain the generated OTP codes of a user.</param>
-        public PersistedTotpService(ITotpService totpService, TotpDbContext totpDbContext) {
+        /// <param name="identityDbContext"><see cref="Microsoft.EntityFrameworkCore.DbContext"/> for the Identity Framework.</param>
+        public DeveloperTotpService(
+            TotpService totpService,
+            ExtendedIdentityDbContext<User, Role> identityDbContext
+        ) {
             TotpService = totpService ?? throw new ArgumentNullException(nameof(totpService));
-            DbContext = totpDbContext ?? throw new ArgumentNullException(nameof(totpDbContext));
+            DbContext = identityDbContext ?? throw new ArgumentNullException(nameof(identityDbContext));
         }
 
         /// <summary>
         /// Used to generate, send and verify time based one time passwords.
         /// </summary>
-        public ITotpService TotpService { get; }
+        public TotpService TotpService { get; }
         /// <summary>
-        /// A <see cref="Microsoft.EntityFrameworkCore.DbContext"/> used to maintain the generated OTP codes of a user.
+        /// <see cref="Microsoft.EntityFrameworkCore.DbContext"/> for the Identity Framework.
         /// </summary>
-        public TotpDbContext DbContext { get; set; }
+        public ExtendedIdentityDbContext<User, Role> DbContext { get; set; }
 
         /// <inheritdoc />
         public Task<Dictionary<string, TotpProviderMetadata>> GetProviders(ClaimsPrincipal user) => TotpService.GetProviders(user);
@@ -41,8 +46,8 @@ namespace Indice.AspNetCore.Identity
         public async Task<TotpResult> Send(ClaimsPrincipal principal, string message, TotpDeliveryChannel channel = TotpDeliveryChannel.Sms, string purpose = null, string securityToken = null, string phoneNumberOrEmail = null) {
             var userId = principal.GetSubjectId();
             if (!string.IsNullOrEmpty(userId)) {
-                var hasPersistedCode = await DbContext.UserTotp.AnyAsync(x => x.UserId == userId);
-                if (hasPersistedCode) {
+                var hasDeveloperTotp = await DbContext.UserClaims.Where(x => x.UserId == userId && x.ClaimType == BasicClaimTypes.DeveloperTotp).AnyAsync();
+                if (hasDeveloperTotp) {
                     return TotpResult.SuccessResult;
                 }
             }
@@ -53,8 +58,8 @@ namespace Indice.AspNetCore.Identity
         public async Task<TotpResult> Verify(ClaimsPrincipal principal, string code, TotpProviderType? provider = null, string purpose = null, string securityToken = null, string phoneNumberOrEmail = null) {
             var userId = principal.GetSubjectId();
             if (!string.IsNullOrEmpty(userId)) {
-                var userCode = await DbContext.UserTotp.Where(x => x.UserId == userId).Select(x => x.Code).SingleOrDefaultAsync();
-                if (userCode == code) {
+                var developerTotpClaim = await DbContext.UserClaims.SingleOrDefaultAsync(x => x.UserId == userId && x.ClaimType == BasicClaimTypes.DeveloperTotp);
+                if (developerTotpClaim?.ClaimValue == code) {
                     return TotpResult.SuccessResult;
                 }
             }
