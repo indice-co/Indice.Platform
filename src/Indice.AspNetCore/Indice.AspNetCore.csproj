@@ -3,7 +3,7 @@
     <Description>Indice.AspNetCore Class Library</Description>
     <Copyright>Copyright (c) 2018 Indice</Copyright>
     <AssemblyTitle>Indice.AspNetCore</AssemblyTitle>
-    <VersionPrefix>4.0.12</VersionPrefix>
+    <VersionPrefix>4.0.14</VersionPrefix>
     <!--<VersionSuffix>beta13</VersionSuffix>-->
     <Authors>c.leftheris, g.manoltzas</Authors>
     <TargetFramework>netcoreapp3.1</TargetFramework>
@@ -14,7 +14,7 @@
   <PropertyGroup Label="Package">
     <PackageId>Indice.AspNetCore</PackageId>
     <PackageTags>AspNetCore;TagHelpers;Grid;Sorting;Paging</PackageTags>
-    <PackageReleaseNotes>Add ability to configure inner handler for Apifon SMS service.</PackageReleaseNotes>
+    <PackageReleaseNotes>Manage option for configuring http handler for Apifon SMS service.</PackageReleaseNotes>
     <PackageIcon>icon-310.png</PackageIcon>
     <PackageProjectUrl>https://github.com/indice-co/Indice.AspNet</PackageProjectUrl>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
@@ -37,7 +37,7 @@
     <PackageReference Include="FluentValidation.AspNetCore" Version="9.3.0" />
     <PackageReference Include="Humanizer.Core" Version="2.8.26" />
     <PackageReference Include="Indice.EntityFrameworkCore" Version="4.0.0" />
-    <PackageReference Include="Indice.Services" Version="4.0.7" />
+    <PackageReference Include="Indice.Services" Version="4.0.8" />
     <PackageReference Include="Markdig" Version="0.22.0" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="3.1.10" />
     <PackageReference Include="Microsoft.AspNetCore.DataProtection.AzureStorage" Version="3.1.10" />

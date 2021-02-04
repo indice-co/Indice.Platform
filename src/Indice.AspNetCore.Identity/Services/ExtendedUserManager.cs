@@ -29,10 +29,17 @@ namespace Indice.AspNetCore.Identity.Services
         /// <param name="errors">The <see cref="IdentityErrorDescriber"/> used to provider error messages.</param>
         /// <param name="services">The <see cref="IServiceProvider"/> used to resolve services.</param>
         /// <param name="logger">The logger used to log messages, warnings and errors.</param>
-        public ExtendedUserManager(IUserStore<TUser> userStore, IOptionsSnapshot<IdentityOptions> optionsAccessor, IPasswordHasher<TUser> passwordHasher, IEnumerable<IUserValidator<TUser>> userValidators,
-            IEnumerable<IPasswordValidator<TUser>> passwordValidators, ILookupNormalizer keyNormalizer, IdentityErrorDescriber errors, IServiceProvider services, ILogger<ExtendedUserManager<TUser>> logger)
-            : base(userStore, optionsAccessor, passwordHasher, userValidators, passwordValidators, keyNormalizer, errors, services, logger) {
-        }
+        public ExtendedUserManager(
+            IdentityErrorDescriber errors,
+            IEnumerable<IPasswordValidator<TUser>> passwordValidators,
+            IEnumerable<IUserValidator<TUser>> userValidators,
+            ILogger<ExtendedUserManager<TUser>> logger,
+            ILookupNormalizer keyNormalizer,
+            IOptionsSnapshot<IdentityOptions> optionsAccessor,
+            IPasswordHasher<TUser> passwordHasher,
+            IServiceProvider services,
+            IUserStore<TUser> userStore
+        ) : base(userStore, optionsAccessor, passwordHasher, userValidators, passwordValidators, keyNormalizer, errors, services, logger) { }
 
         /// <summary>
         /// Sets the password expiration policy for the specified user.

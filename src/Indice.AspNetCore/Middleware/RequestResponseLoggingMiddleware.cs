@@ -89,7 +89,6 @@ namespace Indice.AspNetCore.Middleware
                    $"QueryString: {request.QueryString} {Environment.NewLine}" +
                    $"Request Body: {model.RequestBody}";
         }
-
     }
 
     /// <summary>
@@ -105,7 +104,7 @@ namespace Indice.AspNetCore.Middleware
         public RequestProfilerModel(HttpContext httpContext) {
             Context = httpContext;
             var dateText = Context.Request.Headers["Date"];
-            if (!DateTime.TryParseExact((string)dateText, "r", CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal, out var date)) {
+            if (!DateTime.TryParseExact(dateText, "r", CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal, out var date)) {
                 date = DateTime.UtcNow;
             }
             RequestTime = date;

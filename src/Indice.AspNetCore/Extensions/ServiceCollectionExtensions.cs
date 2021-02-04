@@ -112,12 +112,12 @@ namespace Microsoft.Extensions.DependencyInjection
             services.TryAddTransient<ISmsServiceFactory, DefaultSmsServiceFactory>();
             var options = new SmsServiceApifonOptions();
             configure?.Invoke(options);
-            var httpClientBuilder = services.AddHttpClient<ISmsService, SmsServiceApifon>(httpClient => {
-                httpClient.BaseAddress = new Uri("https://ars.apifon.com/services/api/v1/sms/");
-            })
-            .SetHandlerLifetime(TimeSpan.FromMinutes(5));
-            if (options.PrimaryHttpMessageHandler != null) {
-                httpClientBuilder.ConfigurePrimaryHttpMessageHandler(() => options.PrimaryHttpMessageHandler);
+            var httpClientBuilder = services.AddHttpClient<ISmsService, SmsServiceApifon>()
+                                            .ConfigureHttpClient(httpClient => {
+                                                httpClient.BaseAddress = new Uri("https://ars.apifon.com/services/api/v1/sms/");
+                                            });
+            if (options.ConfigurePrimaryHttpMessageHandler != null) {
+                httpClientBuilder.ConfigurePrimaryHttpMessageHandler(options.ConfigurePrimaryHttpMessageHandler);
             }
             return services;
         }

@@ -113,6 +113,10 @@ namespace Indice.AspNetCore.Identity.Models
         /// The user's email.
         /// </summary>
         public string Email { get; set; }
+        /// <summary>
+        /// The url to return to.
+        /// </summary>
+        public string ReturnUrl { get; set; }
     }
 
     /// <summary>
@@ -167,6 +171,10 @@ namespace Indice.AspNetCore.Identity.Models
         /// The new password confirmed (optional).
         /// </summary>
         public string NewPasswordConfirmation { get; set; }
+        /// <summary>
+        /// The url to return to.
+        /// </summary>
+        public string ReturnUrl { get; set; }
     }
 
     /// <summary>
