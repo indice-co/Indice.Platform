@@ -12,10 +12,11 @@ namespace Microsoft.Extensions.DependencyInjection
         /// Add the Avatar feature to MVC.
         /// </summary>
         /// <param name="mvcBuilder">An interface for configuring MVC services.</param>
-        public static IMvcBuilder AddAvatars(this IMvcBuilder mvcBuilder) {
+        /// <param name="palette">The color palette to use.</param>
+        public static IMvcBuilder AddAvatars(this IMvcBuilder mvcBuilder, params AvatarColor[] palette) {
             mvcBuilder.ConfigureApplicationPartManager(apm => apm.FeatureProviders.Add(new AvatarFeatureProvider()));
             mvcBuilder.Services.AddResponseCaching();
-            mvcBuilder.Services.AddSingleton(sp => new AvatarGenerator());
+            mvcBuilder.Services.AddSingleton(sp => new AvatarGenerator(palette));
             return mvcBuilder;
         }
     }
