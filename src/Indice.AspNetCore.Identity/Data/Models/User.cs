@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using Indice.Security;
 using Microsoft.AspNetCore.Identity;
 
 namespace Indice.AspNetCore.Identity.Models
 {
     /// <summary>
-    /// Represents a user in the Identity System
+    /// Represents a user in the Identity system.
     /// </summary>
     public class User : IdentityUser
     {
@@ -13,14 +15,14 @@ namespace Indice.AspNetCore.Identity.Models
         /// Initializes a new instance of <see cref="IdentityUser"/>.
         /// </summary>
         public User() : this(string.Empty, Guid.NewGuid()) { }
-        
+
         /// <summary>
         /// Initializes a new instance of <see cref="IdentityUser"/>.
         /// </summary>
         /// <remarks>The Id property is initialized to from a new GUID string value.</remarks>
         /// <param name="userName">The user name</param>
         public User(string userName) : base(userName) { }
-        
+
         /// <summary>
         /// Initializes a new instance of <see cref="IdentityUser"/>.
         /// </summary>
@@ -90,8 +92,7 @@ namespace Indice.AspNetCore.Identity.Models
                 return null;
             }
             var lastChange = LastPasswordChangeDate ?? DateTime.UtcNow;
-            return PasswordExpirationPolicy.Value switch
-            {
+            return PasswordExpirationPolicy.Value switch {
                 Models.PasswordExpirationPolicy.Never => null,
                 Models.PasswordExpirationPolicy.Monthly => lastChange.AddMonths(1),
                 Models.PasswordExpirationPolicy.Quarterly => lastChange.AddMonths(3),
@@ -114,6 +115,31 @@ namespace Indice.AspNetCore.Identity.Models
                 expired = expirationDate.HasValue && expirationDate <= now;
             }
             return expired;
+        }
+    }
+
+    /// <summary>
+    /// Helper methods for <see cref="User"/> type.
+    /// </summary>
+    public static class UserExtensions
+    {
+        /// <summary>
+        /// Adds the developer-totp claim to the provided user instance and provides a random 6-digit code.
+        /// </summary>
+        /// <param name="user">Represents a user in the Identity system.</param>
+        public static void GenerateDeveloperTotp(this User user) {
+            var developerTotpClaims = user.Claims.Where(x => x.ClaimType == BasicClaimTypes.DeveloperTotp).ToList();
+            if (developerTotpClaims?.Count() > 0) {
+                foreach (var claim in developerTotpClaims) {
+                    user.Claims.Remove(claim);
+                }
+            }
+            var developerTotp = new Random(Convert.ToInt32(DateTime.UtcNow.ToString("ffffff"))).Next(100000, 999999);
+            user.Claims.Add(new IdentityUserClaim<string> {
+                ClaimType = BasicClaimTypes.DeveloperTotp,
+                ClaimValue = developerTotp.ToString(),
+                UserId = user.Id
+            });
         }
     }
 }

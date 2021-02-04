@@ -14,6 +14,12 @@ namespace Indice.AspNetCore.Identity.Features
                 Name = "Administrator",
                 NormalizedName = "ADMINISTRATOR",
                 Description = "Administrator of Admin UI, which has access to every operation."
+            },
+            new TRole {
+                Id = $"{Guid.NewGuid()}",
+                Name = "Developer",
+                NormalizedName = "DEVELOPER",
+                Description = "A user that has the role of a software developer."
             }
         };
 

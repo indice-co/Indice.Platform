@@ -1,10 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text.Json;
+﻿using System.Text.Json;
 using System.Text.Json.Serialization;
 using FluentValidation.AspNetCore;
 using Indice.AspNetCore.Identity.Features;
-using Indice.AspNetCore.Identity.Models;
 using Indice.Identity;
 using Indice.Identity.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -52,20 +49,6 @@ namespace Microsoft.Extensions.DependencyInjection
                                options.PhoneNumber.SendOtpOnUpdate = true;
                                // Add custom initial user and enable test data.
                                options.UseInitialData = true;
-                               options.InitialUsers = new List<User> {
-                                   new User {
-                                       Admin = true,
-                                       Email = "company@indice.gr",
-                                       NormalizedEmail = "company@indice.gr".ToUpper(),
-                                       UserName = "company@indice.gr",
-                                       NormalizedUserName = "company@indice.gr".ToUpper(),
-                                       PasswordHash = "AH6SA/wuxp9YEfLGROaj2CgjhxZhXDkMB1nD8V7lfQAI+WTM4lGMItjLhhV5ASsq+Q==",
-                                       EmailConfirmed = true,
-                                       PhoneNumber = "+30 6992731575",
-                                       PhoneNumberConfirmed = true,
-                                       CreateDate = DateTimeOffset.UtcNow
-                                   }
-                               };
                            })
                            .SetCompatibilityVersion(CompatibilityVersion.Latest)
                            .ConfigureApiBehaviorOptions(options => {

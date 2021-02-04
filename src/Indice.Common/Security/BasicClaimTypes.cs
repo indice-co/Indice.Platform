@@ -3,7 +3,7 @@
 namespace Indice.Security
 {
     /// <summary>
-    /// Common Claim types used in all Indice applications.
+    /// Common claim types used in all Indice applications.
     /// </summary>
     public static class BasicClaimTypes
     {
@@ -68,6 +68,10 @@ namespace Indice.Security
         /// Defines the period in which a password expires.
         /// </summary>
         public const string PasswordExpirationPolicy = "password_expiration_policy";
+        /// <summary>
+        /// Defines a standard OTP code used for bypassing OTP verification for developement environment.
+        /// </summary>
+        public const string DeveloperTotp = "developer_totp";
         /// <summary>
         /// All possible user related claims
         /// </summary>
