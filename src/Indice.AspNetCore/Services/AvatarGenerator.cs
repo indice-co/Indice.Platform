@@ -49,6 +49,8 @@ namespace Indice.Services
                     new AvatarColor("bdbdbd", "000000"), // grey
                     new AvatarColor("607d8b", "ffffff"), // blue-grey
                 };
+            } else {
+                _backgroundColours = palette;
             }
             _openSansFont = new FontCollection();
             _openSansFont.Install(GetFontResourceStream("open-sans", "OpenSans-Regular.ttf"));
