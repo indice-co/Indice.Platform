@@ -10,11 +10,13 @@ using Indice.AspNetCore.Identity.Services;
 using Indice.Configuration;
 using Indice.Security;
 using Indice.Services;
+using Indice.Types;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
@@ -23,7 +25,6 @@ namespace Indice.AspNetCore.Identity.Features
     /// <summary>
     /// Contains operations for managing a user's account.
     /// </summary>
-    /// <response code="400">Bad Request</response>
     /// <response code="401">Unauthorized</response>
     /// <response code="403">Forbidden</response>
     /// <response code="500">Internal Server Error</response>
@@ -32,7 +33,6 @@ namespace Indice.AspNetCore.Identity.Features
     [ApiExplorerSettings(GroupName = "identity")]
     [Produces(MediaTypeNames.Application.Json)]
     [Consumes(MediaTypeNames.Application.Json)]
-    [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest, type: typeof(ValidationProblemDetails))]
     [ProducesResponseType(statusCode: StatusCodes.Status401Unauthorized, type: typeof(ProblemDetails))]
     [ProducesResponseType(statusCode: StatusCodes.Status403Forbidden, type: typeof(ProblemDetails))]
     [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme, Policy = IdentityServerApi.Scope)]
@@ -49,14 +49,24 @@ namespace Indice.AspNetCore.Identity.Features
         private readonly IEventService _eventService;
         private readonly ISmsServiceFactory _smsServiceFactory;
         private readonly MessageDescriber _messageDescriber;
+        private readonly IConfiguration _configuration;
         /// <summary>
         /// The name of the controller.
         /// </summary>
         public const string Name = "MyAccount";
 
-        public MyAccountController(ExtendedUserManager<User> userManager, IOptions<GeneralSettings> generalSettings, IOptionsSnapshot<IdentityOptions> identityOptions,
-            IdentityServerApiEndpointsOptions identityServerApiEndpointsOptions, IEventService eventService, ISmsServiceFactory smsServiceFactory, IEmailService emailService,
-            MessageDescriber messageDescriber, ExtendedIdentityDbContext<User, Role> dbContext) {
+        public MyAccountController(
+            ExtendedUserManager<User> userManager,
+            IOptions<GeneralSettings> generalSettings,
+            IOptionsSnapshot<IdentityOptions> identityOptions,
+            IdentityServerApiEndpointsOptions identityServerApiEndpointsOptions,
+            IEventService eventService,
+            ISmsServiceFactory smsServiceFactory,
+            IEmailService emailService,
+            MessageDescriber messageDescriber,
+            ExtendedIdentityDbContext<User, Role> dbContext,
+            IConfiguration configuration
+        ) {
             _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
             _generalSettings = generalSettings?.Value ?? throw new ArgumentNullException(nameof(generalSettings));
             _identityOptions = identityOptions?.Value ?? throw new ArgumentNullException(nameof(identityOptions));
@@ -65,6 +75,7 @@ namespace Indice.AspNetCore.Identity.Features
             _smsServiceFactory = smsServiceFactory ?? throw new ArgumentNullException(nameof(smsServiceFactory));
             _messageDescriber = messageDescriber ?? throw new ArgumentNullException(nameof(messageDescriber));
             _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
+            _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
             _smsService = _smsServiceFactory.Create("Sms");
             _emailService = emailService;
         }
@@ -74,9 +85,11 @@ namespace Indice.AspNetCore.Identity.Features
         /// </summary>
         /// <param name="request">Models a request for changing the email address.</param>
         /// <response code="204">No Content</response>
+        /// <response code="400">Bad Request</response>
         /// <response code="404">Not Found</response>
         [HttpPut("my/account/email")]
         [ProducesResponseType(statusCode: StatusCodes.Status204NoContent, type: typeof(void))]
+        [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest, type: typeof(ValidationProblemDetails))]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
         public async Task<IActionResult> UpdateEmail([FromBody] UpdateUserEmailRequest request) {
             var user = await _userManager.GetUserAsync(User);
@@ -84,13 +97,13 @@ namespace Indice.AspNetCore.Identity.Features
                 return NotFound();
             }
             var currentEmail = await _userManager.GetEmailAsync(user);
-            if (currentEmail.Equals(request.Email, StringComparison.OrdinalIgnoreCase)) {
+            if (currentEmail.Equals(request.Email, StringComparison.OrdinalIgnoreCase) && await _userManager.IsEmailConfirmedAsync(user)) {
                 ModelState.AddModelError(nameof(request.Email).ToLower(), _messageDescriber.EmailAlreadyExists(request.Email));
                 return BadRequest(new ValidationProblemDetails(ModelState));
             }
             var result = await _userManager.SetEmailAsync(user, request.Email);
             if (!result.Succeeded) {
-                return BadRequest(result.Errors.ToValidationProblemDetails());
+                return BadRequest(result.Errors.AsValidationProblemDetails());
             }
             if (!_identityServerApiEndpointsOptions.Email.SendEmailOnUpdate) {
                 return NoContent();
@@ -107,8 +120,9 @@ namespace Indice.AspNetCore.Identity.Features
             };
             await _emailService.SendAsync<User>(message =>
                 message.To(user.Email)
-                       .WithSubject(_messageDescriber.EmailUpdateMessageSubject)
-                       .WithBody(_messageDescriber.EmailUpdateMessageBody(request.ReturnUrl, user, token))
+                       .WithSubject(_messageDescriber.UpdateEmailMessageSubject)
+                       .WithBody(_messageDescriber.UpdateEmailMessageBody(user, token, request.ReturnUrl))
+                       .UsingTemplate(_identityServerApiEndpointsOptions.Email.TemplateName)
                        .WithData(data));
             return NoContent();
         }
@@ -118,16 +132,15 @@ namespace Indice.AspNetCore.Identity.Features
         /// </summary>
         /// <param name="request"></param>
         /// <response code="204">No Content</response>
+        /// <response code="400">Bad Request</response>
         /// <response code="404">Not Found</response>
         [HttpPut("my/account/email/confirmation")]
         [ProducesResponseType(statusCode: StatusCodes.Status204NoContent, type: typeof(void))]
+        [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest, type: typeof(ValidationProblemDetails))]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
         public async Task<IActionResult> ConfirmEmail([FromBody] ConfirmEmailRequest request) {
             var userId = User.FindFirstValue(JwtClaimTypes.Subject);
-            var user = await _userManager.Users
-                                         .Include(x => x.Claims)
-                                         .Where(x => x.Id == userId)
-                                         .SingleOrDefaultAsync();
+            var user = await _userManager.Users.Include(x => x.Claims).Where(x => x.Id == userId).SingleOrDefaultAsync();
             if (user == null) {
                 return NotFound();
             }
@@ -137,7 +150,7 @@ namespace Indice.AspNetCore.Identity.Features
             }
             var result = await _userManager.ConfirmEmailAsync(user, request.Token);
             if (!result.Succeeded) {
-                return BadRequest(result.Errors.ToValidationProblemDetails());
+                return BadRequest(result.Errors.AsValidationProblemDetails());
             }
             var eventInfo = user.ToBasicUserInfo();
             await _eventService.Raise(new UserEmailConfirmedEvent(eventInfo));
@@ -149,31 +162,31 @@ namespace Indice.AspNetCore.Identity.Features
         /// </summary>
         /// <param name="request">Models a request for changing the phone number.</param>
         /// <response code="204">No Content</response>
+        /// <response code="400">Bad Request</response>
         /// <response code="404">Not Found</response>
         [HttpPut("my/account/phone-number")]
         [ProducesResponseType(statusCode: StatusCodes.Status204NoContent, type: typeof(void))]
+        [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest, type: typeof(ValidationProblemDetails))]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
         public async Task<IActionResult> UpdatePhoneNumber([FromBody] UpdateUserPhoneNumberRequest request) {
             var user = await _userManager.GetUserAsync(User);
             if (user == null) {
                 return NotFound();
             }
-            var currentPhoneNumber = await _userManager.GetPhoneNumberAsync(user);
-            if (currentPhoneNumber.Equals(request.PhoneNumber, StringComparison.OrdinalIgnoreCase)) {
+            var currentPhoneNumber = user.PhoneNumber ?? string.Empty;
+            if (currentPhoneNumber.Equals(request.PhoneNumber, StringComparison.OrdinalIgnoreCase) && await _userManager.IsPhoneNumberConfirmedAsync(user)) {
                 ModelState.AddModelError(nameof(request.PhoneNumber).ToLower(), _messageDescriber.UserAlreadyHasPhoneNumber(request.PhoneNumber));
                 return BadRequest(new ValidationProblemDetails(ModelState));
             }
             var result = await _userManager.SetPhoneNumberAsync(user, request.PhoneNumber);
             if (!result.Succeeded) {
-                return BadRequest(result.Errors.ToValidationProblemDetails());
+                return BadRequest(result.Errors.AsValidationProblemDetails());
             }
             if (!_identityServerApiEndpointsOptions.PhoneNumber.SendOtpOnUpdate) {
                 return NoContent();
             }
             if (_smsService == null) {
-                var message = $"No concrete implementation of {nameof(ISmsService)} is registered. " +
-                              $"Check {nameof(ServiceCollectionExtensions.AddSmsServiceYouboto)} extension on {nameof(IServiceCollection)} or provide your own implementation.";
-                throw new Exception(message);
+                throw new Exception($"No concrete implementation of {nameof(ISmsService)} is registered.");
             }
             var token = await _userManager.GenerateChangePhoneNumberTokenAsync(user, request.PhoneNumber);
             await _smsService.SendAsync(request.PhoneNumber, string.Empty, _messageDescriber.PhoneNumberVerificationMessage(token));
@@ -183,18 +196,17 @@ namespace Indice.AspNetCore.Identity.Features
         /// <summary>
         /// Confirms the phone number of the user, using the OTP token.
         /// </summary>
-        /// <param name="request"></param>
+        /// <param name="request">Models the request of a user for phone number confirmation.</param>
         /// <response code="204">No Content</response>
+        /// <response code="400">Bad Request</response>
         /// <response code="404">Not Found</response>
         [HttpPut("my/account/phone-number/confirmation")]
         [ProducesResponseType(statusCode: StatusCodes.Status204NoContent, type: typeof(void))]
+        [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest, type: typeof(ValidationProblemDetails))]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
         public async Task<IActionResult> ConfirmPhoneNumber([FromBody] ConfirmPhoneNumberRequest request) {
             var userId = User.FindFirstValue(JwtClaimTypes.Subject);
-            var user = await _userManager.Users
-                                         .Include(x => x.Claims)
-                                         .Where(x => x.Id == userId)
-                                         .SingleOrDefaultAsync();
+            var user = await _userManager.Users.Include(x => x.Claims).Where(x => x.Id == userId).SingleOrDefaultAsync();
             if (user == null) {
                 return NotFound();
             }
@@ -204,7 +216,7 @@ namespace Indice.AspNetCore.Identity.Features
             }
             var result = await _userManager.ChangePhoneNumberAsync(user, user.PhoneNumber, request.Token);
             if (!result.Succeeded) {
-                return BadRequest(result.Errors.ToValidationProblemDetails());
+                return BadRequest(result.Errors.AsValidationProblemDetails());
             }
             var eventInfo = user.ToBasicUserInfo();
             await _eventService.Raise(new UserPhoneNumberConfirmedEvent(eventInfo));
@@ -216,9 +228,11 @@ namespace Indice.AspNetCore.Identity.Features
         /// </summary>
         /// <param name="request">Models a request for changing the username.</param>
         /// <response code="200">OK</response>
+        /// <response code="400">Bad Request</response>
         /// <response code="404">Not Found</response>
         [HttpPut("my/account/username")]
         [ProducesResponseType(statusCode: StatusCodes.Status200OK, type: typeof(void))]
+        [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest, type: typeof(ValidationProblemDetails))]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
         public async Task<IActionResult> UpdateUserName([FromBody] UpdateUserNameRequest request) {
             var user = await _userManager.GetUserAsync(User);
@@ -227,7 +241,7 @@ namespace Indice.AspNetCore.Identity.Features
             }
             var result = await _userManager.SetUserNameAsync(user, request.UserName);
             if (!result.Succeeded) {
-                return BadRequest(result.Errors.ToValidationProblemDetails());
+                return BadRequest(result.Errors.AsValidationProblemDetails());
             }
             return Ok();
         }
@@ -237,9 +251,11 @@ namespace Indice.AspNetCore.Identity.Features
         /// </summary>
         /// <param name="request">Contains info about the user password to change.</param>
         /// <response code="204">No Content</response>
+        /// <response code="400">Bad Request</response>
         /// <response code="404">Not Found</response>
         [HttpPut("my/account/password")]
         [ProducesResponseType(statusCode: StatusCodes.Status204NoContent, type: typeof(void))]
+        [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest, type: typeof(ValidationProblemDetails))]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
         public async Task<IActionResult> UpdatePassword([FromBody] ChangePasswordRequest request) {
             var user = await _userManager.GetUserAsync(User);
@@ -248,7 +264,54 @@ namespace Indice.AspNetCore.Identity.Features
             }
             var result = await _userManager.ChangePasswordAsync(user, request.OldPassword, request.NewPassword);
             if (!result.Succeeded) {
-                return BadRequest(result.Errors.ToValidationProblemDetails());
+                return BadRequest(result.Errors.AsValidationProblemDetails());
+            }
+            return NoContent();
+        }
+
+        /// <summary>
+        /// Generates a password reset token and sends it to the user via email.
+        /// </summary>
+        /// <param name="request">Contains info about the user password to change.</param>
+        /// <response code="204">No Content</response>
+        /// <response code="400">Bad Request</response>
+        [HttpPost("my/account/forgot-password")]
+        [ProducesResponseType(statusCode: StatusCodes.Status204NoContent, type: typeof(void))]
+        [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest, type: typeof(ValidationProblemDetails))]
+        public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordRequest request) {
+            if (string.IsNullOrEmpty(request.Email)) {
+                ModelState.AddModelError("email", "Please provide your email address.");
+                return BadRequest(new ValidationProblemDetails(ModelState));
+            }
+            var user = await _userManager.FindByEmailAsync(request.Email);
+            if (user == null) {
+                return NoContent();
+            }
+            var code = await _userManager.GeneratePasswordResetTokenAsync(user);
+            await _emailService.SendAsync(user.Email, _messageDescriber.ForgotPasswordMessageSubject, _messageDescriber.ForgotPasswordMessageBody(user, code));
+            return NoContent();
+        }
+
+        /// <summary>
+        /// Changes the password of the user confirming the code received during forgot password process.
+        /// </summary>
+        /// <param name="request">Contains info about the user password to change.</param>
+        /// <response code="204">No Content</response>
+        /// <response code="400">Bad Request</response>
+        [HttpPut("my/account/forgot-password/confirmation")]
+        [ProducesResponseType(statusCode: StatusCodes.Status204NoContent, type: typeof(void))]
+        [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest, type: typeof(ValidationProblemDetails))]
+        public async Task<IActionResult> ForgotPasswordConfirmation([FromBody] ForgotPasswordVerifyModel request) {
+            if (!ModelState.IsValid) {
+                return BadRequest(ModelState);
+            }
+            var user = await _userManager.FindByEmailAsync(request.Email);
+            if (user == null) {
+                return NoContent();
+            }
+            var result = await _userManager.ResetPasswordAsync(user, request.Code, request.NewPassword);
+            if (!result.Succeeded) {
+                return BadRequest(result.Errors.AsValidationProblemDetails());
             }
             return NoContent();
         }
@@ -269,6 +332,28 @@ namespace Indice.AspNetCore.Identity.Features
             }
             await _userManager.SetPasswordExpirationPolicyAsync(user, request.Policy);
             return NoContent();
+        }
+
+        /// <summary>
+        /// Gets the claims of the user.
+        /// </summary>
+        /// <response code="200">OK</response>
+        /// <response code="404">Not Found</response>
+        [HttpGet("my/account/claims")]
+        [ProducesResponseType(statusCode: StatusCodes.Status200OK, type: typeof(ResultSet<ClaimInfo>))]
+        [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
+        public async Task<IActionResult> GetClaims() {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null) {
+                return NotFound();
+            }
+            var claims = await _dbContext.UserClaims.Where(x => x.UserId == user.Id).ToListAsync();
+            var response = claims.Select(x => new ClaimInfo {
+                Id = x.Id,
+                Type = x.ClaimType,
+                Value = x.ClaimValue
+            });
+            return Ok(new ResultSet<ClaimInfo>(response, response.Count()));
         }
 
         /// <summary>
@@ -372,12 +457,20 @@ namespace Indice.AspNetCore.Identity.Features
         /// Checks if a username already exists in the database.
         /// </summary>
         /// <response code="302">Found</response>
+        /// <response code="400">Bad Request</response>
         /// <response code="404">Not Found</response>
+        /// <response code="410">Gone</response>
         [AllowAnonymous]
         [HttpPost("account/username-exists")]
         [ProducesResponseType(statusCode: StatusCodes.Status302Found, type: typeof(void))]
+        [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest, type: typeof(ValidationProblemDetails))]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(void))]
+        [ProducesResponseType(statusCode: StatusCodes.Status410Gone, type: typeof(void))]
         public async Task<IActionResult> CheckUserNameExists([FromBody] ValidateUserNameRequest request) {
+            var allowUserEnumeration = _configuration.GetSection(GeneralSettings.Name).GetValue<bool?>("AllowUserEnumeration") ?? _configuration.GetValue<bool?>("AllowUserEnumeration") ?? true;
+            if (!allowUserEnumeration) {
+                return StatusCode(StatusCodes.Status410Gone);
+            }
             if (!ModelState.IsValid) {
                 return BadRequest(new ValidationProblemDetails(ModelState));
             }
@@ -388,9 +481,12 @@ namespace Indice.AspNetCore.Identity.Features
         /// <summary>
         /// Validates a user's password against one or more configured <see cref="IPasswordValidator{TUser}"/>.
         /// </summary>
+        /// <response code="200">OK</response>
+        /// <response code="400">Bad Request</response>
         [AllowAnonymous]
         [HttpPost("account/validate-password")]
         [ProducesResponseType(statusCode: StatusCodes.Status200OK, type: typeof(CredentialsValidationInfo))]
+        [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest, type: typeof(ValidationProblemDetails))]
         public async Task<IActionResult> ValidatePassword([FromBody] ValidatePasswordRequest request) {
             if (!ModelState.IsValid) {
                 return BadRequest(new ValidationProblemDetails(ModelState));

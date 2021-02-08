@@ -15,7 +15,6 @@ using Microsoft.Extensions.Options;
 
 namespace Indice.AspNetCore.Identity.Services
 {
-
     /// <summary>
     /// Provides the APIs for user sign in.
     /// </summary>
@@ -38,13 +37,22 @@ namespace Indice.AspNetCore.Identity.Services
         /// <param name="confirmation">The <see cref="IUserConfirmation{TUser}"/> used check whether a user account is confirmed.</param>
         /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
         /// <param name="authenticationSchemeProvider">Responsible for managing what authenticationSchemes are supported.</param>
-        public ExtendedSignInManager(UserManager<TUser> userManager, IHttpContextAccessor contextAccessor, IUserClaimsPrincipalFactory<TUser> claimsFactory, IOptionsSnapshot<IdentityOptions> optionsAccessor,
-            ILogger<SignInManager<TUser>> logger, IAuthenticationSchemeProvider schemes, IUserConfirmation<TUser> confirmation, IConfiguration configuration, IAuthenticationSchemeProvider authenticationSchemeProvider)
-            : base(userManager, contextAccessor, claimsFactory, optionsAccessor, logger, schemes, confirmation) {
+        public ExtendedSignInManager(
+            UserManager<TUser> userManager,
+            IHttpContextAccessor contextAccessor,
+            IUserClaimsPrincipalFactory<TUser> claimsFactory,
+            IOptionsSnapshot<IdentityOptions> optionsAccessor,
+            ILogger<SignInManager<TUser>> logger,
+            IAuthenticationSchemeProvider schemes,
+            IUserConfirmation<TUser> confirmation,
+            IConfiguration configuration,
+            IAuthenticationSchemeProvider authenticationSchemeProvider
+        ) : base(userManager, contextAccessor, claimsFactory, optionsAccessor, logger, schemes, confirmation) {
             RequirePostSignInConfirmedEmail = configuration.GetSection($"{nameof(IdentityOptions)}:{nameof(IdentityOptions.SignIn)}").GetValue<bool?>(nameof(RequirePostSignInConfirmedEmail)) == true ||
                                               configuration.GetSection(nameof(SignInOptions)).GetValue<bool?>(nameof(RequirePostSignInConfirmedEmail)) == true;
             RequirePostSignInConfirmedPhoneNumber = configuration.GetSection($"{nameof(IdentityOptions)}:{nameof(IdentityOptions.SignIn)}").GetValue<bool?>(nameof(RequirePostSignInConfirmedPhoneNumber)) == true ||
                                                     configuration.GetSection(nameof(SignInOptions)).GetValue<bool?>(nameof(RequirePostSignInConfirmedPhoneNumber)) == true;
+            ExternalScheme = configuration.GetSection($"{nameof(IdentityOptions)}:{nameof(IdentityOptions.SignIn)}").GetValue<string>(nameof(ExternalScheme)) ?? IdentityConstants.ExternalScheme;
             _authenticationSchemeProvider = authenticationSchemeProvider ?? throw new ArgumentNullException(nameof(authenticationSchemeProvider));
         }
 
@@ -56,6 +64,10 @@ namespace Indice.AspNetCore.Identity.Services
         /// Enables the feature post login phone number confirmation.
         /// </summary>
         public bool RequirePostSignInConfirmedPhoneNumber { get; }
+        /// <summary>
+        /// The scheme used to identify external authentication cookies.
+        /// </summary>
+        public string ExternalScheme { get; }
 
         /// <summary>
         /// Gets the external login information for the current login, as an asynchronous operation.
@@ -63,7 +75,7 @@ namespace Indice.AspNetCore.Identity.Services
         /// <param name="expectedXsrf">Flag indication whether a Cross Site Request Forgery token was expected in the current request.</param>
         /// <returns>The task object representing the asynchronous operation containing the <see name="ExternalLoginInfo"/> for the sign-in attempt.</returns>
         public override async Task<ExternalLoginInfo> GetExternalLoginInfoAsync(string expectedXsrf = null) {
-            var auth = await Context.AuthenticateAsync(IdentityConstants.ExternalScheme);
+            var auth = await Context.AuthenticateAsync(ExternalScheme);
             var items = auth?.Properties?.Items;
             if (auth?.Principal == null || items == null || !items.ContainsKey(LoginProviderKey)) {
                 return null;
@@ -72,7 +84,7 @@ namespace Indice.AspNetCore.Identity.Services
                 if (!items.ContainsKey(XsrfKey)) {
                     return null;
                 }
-                var userId = items[XsrfKey] as string;
+                var userId = items[XsrfKey];
                 if (userId != expectedXsrf) {
                     return null;
                 }
@@ -134,8 +146,9 @@ namespace Indice.AspNetCore.Identity.Services
             if (user is User) {
                 isPasswordExpired = user.HasExpiredPassword() || user.PasswordExpired;
             }
-            var doPartialSignIn = (!isEmailConfirmed || !isPhoneConfirmed) && (RequirePostSignInConfirmedEmail || RequirePostSignInConfirmedPhoneNumber);
-            doPartialSignIn = doPartialSignIn || isPasswordExpired;
+            var doPartialSignIn = (!isEmailConfirmed && RequirePostSignInConfirmedEmail)
+                               || (!isPhoneConfirmed && RequirePostSignInConfirmedPhoneNumber)
+                               || isPasswordExpired;
             if (doPartialSignIn) {
                 // Store the userId for use after two factor check.
                 var userId = await UserManager.GetUserIdAsync(user);
@@ -144,16 +157,19 @@ namespace Indice.AspNetCore.Identity.Services
                     RedirectUri = returnUrl,
                     IsPersistent = isPersistent
                 });
-                return new ExtendedSigninResult(!isEmailConfirmed && RequirePostSignInConfirmedEmail, !isPhoneConfirmed && RequirePostSignInConfirmedPhoneNumber, isPasswordExpired);
+                var requiresEmailValidation = !isEmailConfirmed && RequirePostSignInConfirmedEmail;
+                var requiresPhoneNumberValidation = !isPhoneConfirmed && RequirePostSignInConfirmedPhoneNumber;
+                var requiresPasswordChange = isPasswordExpired;
+                return new ExtendedSigninResult(requiresEmailValidation, requiresPhoneNumberValidation, requiresPasswordChange);
             }
-            var result = await base.SignInOrTwoFactorAsync(user, isPersistent, loginProvider, bypassTwoFactor);
-            if (result.Succeeded && (user is User)) {
-                try { 
-                user.LastSignInDate = DateTimeOffset.UtcNow;
-                await UserManager.UpdateAsync(user);
-                } catch { ; }
+            var signInResult = await base.SignInOrTwoFactorAsync(user, isPersistent, loginProvider, bypassTwoFactor);
+            if (signInResult.Succeeded && (user is User)) {
+                try {
+                    user.LastSignInDate = DateTimeOffset.UtcNow;
+                    await UserManager.UpdateAsync(user);
+                } catch {; }
             }
-            return result;
+            return signInResult;
         }
 
         /// <summary>
@@ -164,6 +180,9 @@ namespace Indice.AspNetCore.Identity.Services
             // Check if authentication scheme is registered before trying to signout out, to avoid errors.
             if (schemes.Any(x => x.Name == ExtendedIdentityConstants.ExtendedValidationUserIdScheme)) {
                 await Context.SignOutAsync(ExtendedIdentityConstants.ExtendedValidationUserIdScheme);
+            }
+            if (schemes.Any(x => x.Name == ExternalScheme)) {
+                await Context.SignOutAsync(ExternalScheme);
             }
             await base.SignOutAsync();
         }
@@ -217,10 +236,10 @@ namespace Indice.AspNetCore.Identity.Services
         /// <summary>
         /// Construct an instance of <see cref="ExtendedSigninResult"/>.
         /// </summary>
-        public ExtendedSigninResult(bool requiresEmailValidation, bool requiresPhoneNumberValidation, bool requiredPasswordChange) {
+        public ExtendedSigninResult(bool requiresEmailValidation, bool requiresPhoneNumberValidation, bool requiresPasswordChange) {
             RequiresEmailValidation = requiresEmailValidation;
             RequiresPhoneNumberValidation = requiresPhoneNumberValidation;
-            RequiresPasswordChange = requiredPasswordChange;
+            RequiresPasswordChange = requiresPasswordChange;
         }
 
         /// <summary>
@@ -237,7 +256,7 @@ namespace Indice.AspNetCore.Identity.Services
         /// Returns a flag indication whether the user attempting to sign-in requires an immediate password change due to expiration.
         /// </summary>
         /// <value>True if the user attempting to sign-in requires a password change, otherwise false.</value>
-        public bool RequiresPasswordChange { get; set; }
+        public bool RequiresPasswordChange { get; }
     }
 
     /// <summary>
@@ -251,12 +270,10 @@ namespace Indice.AspNetCore.Identity.Services
         /// <param name="result"></param>
         /// <returns></returns>
         public static bool RequiresPhoneNumberConfirmation(this SignInResult result) => (result as ExtendedSigninResult)?.RequiresPhoneNumberValidation == true;
-
         /// <summary>
         /// Returns a flag indication whether the user attempting to sign-in requires email confirmation .
         /// </summary>
         public static bool RequiresEmailConfirmation(this SignInResult result) => (result as ExtendedSigninResult)?.RequiresEmailValidation == true;
-
         /// <summary>
         /// Returns a flag indication whether the user attempting to sign-in requires email confirmation .
         /// </summary>

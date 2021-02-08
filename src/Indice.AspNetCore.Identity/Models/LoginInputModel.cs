@@ -11,7 +11,7 @@ namespace Indice.AspNetCore.Identity.Models
         /// <summary>
         /// The user name.
         /// </summary>
-        public string Username { get; set; }
+        public string UserName { get; set; }
         /// <summary>
         /// The password
         /// </summary>

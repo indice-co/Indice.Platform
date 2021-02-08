@@ -8,64 +8,64 @@ namespace Indice.Configuration
     public class ApiSettings
     {
         /// <summary>
-        /// Security wise the name of the api. Used for identifyinh the api as a resource in oAuth2 as well as the main scope.
+        /// Security wise the name of the API. Used for identifying the API as a resource in OAuth2 as well as the main scope.
         /// </summary>
         public string ResourceName { get; set; } = "api1";
         /// <summary>
-        /// List of secrets. Usualy here is the apisecret used to communicate with IdSrv in order to exchange the reference tokens with actual info.
+        /// List of secrets. Usualy here is the API secret used to communicate with IdentityServer in order to exchange the reference tokens with actual info.
         /// </summary>
         public Dictionary<string, string> Secrets { get; set; } = new Dictionary<string, string>();
         /// <summary>
-        /// The sub scopes avialable for the api.
+        /// The sub scopes avialable for the API.
         /// </summary>
         public Dictionary<string, string> Scopes { get; set; } = new Dictionary<string, string>();
         /// <summary>
-        /// Friendly name for the api
+        /// Friendly name for the API.
         /// </summary>
-        public string FriendlyName { get; set; } = "My Api Name";
+        public string FriendlyName { get; set; } = "My API Name";
         /// <summary>
-        /// The api verison number.
+        /// The API verison number.
         /// </summary>
         public string DefaultVersion { get; set; } = "1";
         /// <summary>
-        /// The api terms of service url.
+        /// The API terms of service url.
         /// </summary>
         public string TermsOfServiceUrl { get; set; }
         /// <summary>
-        /// The api licence url.
+        /// The API licence url.
         /// </summary>
         public LegalDocument License { get; set; }
         /// <summary>
-        /// Api contact info. (developer) Will appear usualy on the swagger documentation page.
+        /// API contact info (e.x. developer). Will appear usualy on the swagger documentation page.
         /// </summary>
         public ApiContact Contact { get; set; }
 
         /// <summary>
         /// Used to configure a legal document resource name and location
         /// </summary>
-        public class LegalDocument {
-            
+        public class LegalDocument
+        {
             /// <summary>
-            /// The name of the document
+            /// The name of the document.
             /// </summary>
             public string Name { get; set; }
-            
             /// <summary>
-            /// The name of the document
+            /// The name of the document.
             /// </summary>
             public string Url { get; set; }
         }
 
         /// <summary>
-        /// Api contact info. (developer) Will appear usualy on the swagger documentation page.
+        /// API contact info (e.x. developer). Will appear usualy on the swagger documentation page.
         /// </summary>
-        public class ApiContact {
+        public class ApiContact
+        {
             /// <summary>
             /// The name of the contact.
             /// </summary>
             public string Name { get; set; }
             /// <summary>
-            /// A URL to the developer portal or github account/repo.
+            /// A URL to the developer portal or GitHub account/repo.
             /// </summary>
             public string Url { get; set; }
             /// <summary>

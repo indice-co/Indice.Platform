@@ -27,8 +27,14 @@ namespace Indice.Services
         /// <param name="viewEngine">Represents an <see cref="IViewEngine"/> that delegates to one of a collection of view engines.</param>
         /// <param name="tempDataProvider">Defines the contract for temporary-data providers that store data that is viewed on the next request.</param>
         /// <param name="httpContextAccessor">Used to access the <see cref="HttpContext"/> through the <see cref="IHttpContextAccessor"/> interface and its default implementation <see cref="HttpContextAccessor"/>.</param>
-        public EmailServiceSmtpRazor(EmailServiceSettings settings, ICompositeViewEngine viewEngine, ITempDataProvider tempDataProvider, IHttpContextAccessor httpContextAccessor)
-            : base(viewEngine, tempDataProvider, httpContextAccessor) => _settings = settings ?? throw new ArgumentNullException(nameof(settings));
+        /// <param name="serviceProvider">Defines a mechanism for retrieving a service object; that is, an object that provides custom support to other objects.</param>
+        public EmailServiceSmtpRazor(
+            EmailServiceSettings settings,
+            ICompositeViewEngine viewEngine,
+            ITempDataProvider tempDataProvider,
+            IHttpContextAccessor httpContextAccessor,
+            IServiceProvider serviceProvider
+        ) : base(viewEngine, tempDataProvider, httpContextAccessor, serviceProvider) => _settings = settings ?? throw new ArgumentNullException(nameof(settings));
 
         /// <inheritdoc/>
         public override async Task SendAsync<TModel>(string[] recipients, string subject, string body, string template, TModel data, FileAttachment[] attachments = null) {

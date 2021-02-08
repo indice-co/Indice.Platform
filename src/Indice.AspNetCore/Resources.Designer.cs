@@ -88,6 +88,24 @@ namespace Indice.AspNetCore {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Email verification code is {0}..
+        /// </summary>
+        internal static string ForgotPasswordMessageBody {
+            get {
+                return ResourceManager.GetString("ForgotPasswordMessageBody", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Forgot password.
+        /// </summary>
+        internal static string ForgotPasswordMessageSubject {
+            get {
+                return ResourceManager.GetString("ForgotPasswordMessageSubject", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Password cannot contain non latin characters..
         /// </summary>
         internal static string PasswordHasNonLatinChars {

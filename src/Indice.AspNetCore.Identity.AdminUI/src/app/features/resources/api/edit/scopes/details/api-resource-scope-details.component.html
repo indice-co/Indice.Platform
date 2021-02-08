@@ -55,23 +55,6 @@
         </div>
     </div>
     <div class="form-group row">
-        <label for="scope-required"
-               class="col-sm-2 col-form-label">Required</label>
-        <div class="col-sm-10">
-            <div class="form-check col-form-label custom-control custom-checkbox">
-                <input class="form-check-input custom-control-input"
-                       type="checkbox"
-                       [id]="'scope-required-' + discriminator"
-                       [name]="'scope-required-' + discriminator"
-                       [(ngModel)]="scope.required"
-                       #required="ngModel" />
-                <label class="custom-control-label"
-                       [for]="'scope-required-' + discriminator">
-                </label>
-            </div>
-        </div>
-    </div>
-    <div class="form-group row">
         <label for="scope-show-in-dd"
                class="col-sm-2 col-form-label">Show in Discovery Document</label>
         <div class="col-sm-10">

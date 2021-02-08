@@ -52,6 +52,14 @@ namespace Indice.Services
         /// If true then test mode should not charge any credits.
         /// </summary>
         public bool TestMode { get; set; }
+        /// <summary>
+        /// In case of viber failure fallback to sms
+        /// </summary>
+        public bool ViberFallbackEnabled { get; set; } = false;
+        /// <summary>
+        /// The number of a seconds that a message is considered active. Defaults to 4320 seconds.
+        /// </summary>
+        public int Validity { get; set; } = 4320;
     }
 
     /// <summary>
@@ -60,12 +68,11 @@ namespace Indice.Services
     public interface ISmsService
     {
         /// <summary>
-        /// Checkes the implementation if supports the givern <paramref name="deliveryChannel"/>.
+        /// Checkes the implementation if supports the given <paramref name="deliveryChannel"/>.
         /// </summary>
         /// <param name="deliveryChannel">A string representing the delivery channel. ie 'SMS'</param>
         /// <returns></returns>
         bool Supports(string deliveryChannel);
-
         /// <summary>
         /// Sends the SMS using the configured provider.
         /// </summary>

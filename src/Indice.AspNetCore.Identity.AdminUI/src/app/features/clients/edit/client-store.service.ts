@@ -4,7 +4,7 @@ import { AsyncSubject, Observable, forkJoin } from 'rxjs';
 import { map } from 'rxjs/operators';
 import {
     IdentityApiService, SingleClientInfo, IdentityResourceInfoResultSet, IdentityResourceInfo, ApiResourceInfo, CreateClaimRequest, ClaimInfo, UpdateClientRequest, IUpdateClientRequest,
-    ScopeInfo, ScopeInfoResultSet, GrantTypeInfo, UpdateClientUrls, CreateSecretRequest, SecretInfo, ApiSecretInfo, ClientSecretInfo
+    ApiScopeInfo, ApiScopeInfoResultSet, GrantTypeInfo, UpdateClientUrls, CreateSecretRequest, SecretInfo, ApiSecretInfo, ClientSecretInfo
 } from 'src/app/core/services/identity-api.service';
 import { UrlType } from './urls/models/urlType';
 
@@ -12,7 +12,7 @@ import { UrlType } from './urls/models/urlType';
 export class ClientStore {
     private _client: AsyncSubject<SingleClientInfo>;
     private _identityResources: AsyncSubject<IdentityResourceInfo[]>;
-    private _apiScopes: AsyncSubject<ScopeInfo[]>;
+    private _apiScopes: AsyncSubject<ApiScopeInfo[]>;
 
     constructor(private _api: IdentityApiService) { }
 
@@ -128,10 +128,10 @@ export class ClientStore {
         return this._identityResources;
     }
 
-    public getApiScopes(): Observable<ScopeInfo[]> {
+    public getApiScopes(): Observable<ApiScopeInfo[]> {
         if (!this._apiScopes) {
             this._apiScopes = new AsyncSubject<ApiResourceInfo[]>();
-            this._api.getApiScopes(1, 2147483647, 'name+', undefined).subscribe((response: ScopeInfoResultSet) => {
+            this._api.getApiScopes(1, 2147483647, 'name+', undefined).subscribe((response: ApiScopeInfoResultSet) => {
                 this._apiScopes.next(response.items);
                 this._apiScopes.complete();
             });

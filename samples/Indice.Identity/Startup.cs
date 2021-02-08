@@ -9,6 +9,7 @@ using Indice.AspNetCore.Identity.Features;
 using Indice.AspNetCore.Swagger;
 using Indice.Configuration;
 using Indice.Identity.Configuration;
+using Indice.Identity.Hosting;
 using Indice.Identity.Security;
 using Indice.Identity.Services;
 using Microsoft.AspNetCore.Builder;
@@ -60,42 +61,55 @@ namespace Indice.Identity
             services.AddMvcConfig(Configuration);
             services.AddLocalization(options => options.ResourcesPath = "Resources");
             services.AddCors(options => options.AddDefaultPolicy(builder => {
-                builder.WithOrigins(Configuration.GetSection("AllowedHosts").Get<string[]>())
+                builder.WithOrigins(Configuration.GetSection("AllowedOrigins").Get<string[]>())
                        .WithMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                        .WithHeaders("Authorization", "Content-Type")
                        .WithExposedHeaders("Content-Disposition");
             }));
+            services.AddAuthenticationConfig(Configuration);
             services.AddIdentityConfig(Configuration);
             services.AddIdentityServerConfig(HostingEnvironment, Configuration, Settings);
-            services.ConfigureApplicationCookie(options => {
-                options.AccessDeniedPath = new PathString("/access-denied");
-                options.LoginPath = new PathString("/login");
-                options.LogoutPath = new PathString("/logout");
-            });
             services.AddProblemDetailsConfig(HostingEnvironment);
             services.ConfigureNonBreakingSameSiteCookies();
             services.AddSmsServiceYouboto(Configuration);
-            services.AddSmsServiceViber(Configuration);
-            services.AddEmailServiceSmtpRazor(Configuration);
             services.AddSwaggerGen(options => {
                 options.IndiceDefaults(Settings);
                 options.AddOAuth2(Settings);
+                options.SchemaFilter<CreateUserRequestSchemaFilter>();
                 options.IncludeXmlComments(Assembly.Load(IdentityServerApi.AssemblyName));
             });
             services.AddMessageDescriber<ExtendedMessageDescriber>();
             services.AddResponseCaching();
             services.AddDataProtectionLocal(options => options.FromConfiguration());
+            services.AddEmailService(Configuration);
+            /*services.AddSmsServiceApifon(Configuration, options => {
+                options.ConfigurePrimaryHttpMessageHandler = (serviceProvider) => new System.Net.Http.HttpClientHandler {
+                    ServerCertificateCustomValidationCallback = (httpRequestMessage, certificate, chain, sslPolicyErrors) => true
+                };
+            });*/
             services.AddCsp(options => {
+                options.ScriptSrc = CSP.Self;
                 options.AddSandbox("allow-popups")
-                       .AddFontSrc(CSP.Data) // Allows fonts as data URLs.
+                       .AddFontSrc(CSP.Data)
                        .AddConnectSrc(CSP.Self)
                        .AddConnectSrc("https://dc.services.visualstudio.com")
-                       .AddScriptSrc("cdnjs.cloudflare.com")
-                       .AddScriptSrc(CSP.UnsafeEval)
                        .AddFrameAncestors("https://localhost:2002");
             });
-            services.AddSpaStaticFiles(options => {
-                options.RootPath = "wwwroot/admin-ui";
+            // Setup worker host for executing background tasks.
+            services.AddWorkerHost(options => {
+                options.JsonOptions.JsonSerializerOptions.WriteIndented = true;
+                options.UseEntityFrameworkStorage<ExtendedTaskDbContext>();
+            })
+            .AddJob<SMSAlertHandler>()
+            .WithQueueTrigger<SMSDto>(options => {
+                options.QueueName = "user-messages";
+                options.PollingInterval = 500;
+            })
+            .AddJob<LoadAvailableAlertsHandler>()
+            .WithScheduleTrigger<DemoCounterModel>("0/5 * * * * ?", options => {
+                options.Name = "load-available-alerts";
+                options.Description = "Load alerts for the queue.";
+                options.Group = "indice";
             });
         }
 
@@ -103,23 +117,39 @@ namespace Indice.Identity
         /// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         /// </summary>
         /// <param name="app">Defines a class that provides the mechanisms to configure an application's request pipeline.</param>
-        public void Configure(IApplicationBuilder app) {
+        /// <param name="serviceProvider"></param>
+        public void Configure(IApplicationBuilder app, IServiceProvider serviceProvider) {
             if (HostingEnvironment.IsDevelopment()) {
                 app.UseDeveloperExceptionPage();
-                app.IdentityServerStoreSetup<ExtendedConfigurationDbContext>(Clients.Get(), Resources.GetIdentityResources(), Resources.GetApiResources());
+                app.IdentityServerStoreSetup<ExtendedConfigurationDbContext>(Clients.Get(), Resources.GetIdentityResources(), Resources.GetApis(), Resources.GetApiScopes());
             } else {
                 app.UseHsts();
                 app.UseHttpsRedirection();
             }
-            app.UseStaticFiles(new StaticFileOptions {
+            var staticFileOptions = new StaticFileOptions {
                 OnPrepareResponse = context => {
                     const int durationInSeconds = 60 * 60 * 24;
                     context.Context.Response.Headers[HeaderNames.CacheControl] = $"public,max-age={durationInSeconds}";
                     context.Context.Response.Headers.Append(HeaderNames.Expires, DateTime.UtcNow.AddSeconds(durationInSeconds).ToString("R", CultureInfo.InvariantCulture));
                 }
-            });
+            };
+            app.UseStaticFiles(staticFileOptions);
             app.UseCookiePolicy();
             app.UseRouting();
+            // Use the middleware with parameters to log request responses to the ILogger or use custom parameters to lets say take request response snapshots for testing purposes.
+            app.UseRequestResponseLogging(
+            //new[] { MediaTypeNames.Application.Json, MediaTypeNames.Text.Html }, async (logger, model) => {
+            //    var filename = $"{model.RequestTime:yyyyMMdd.HHmmss}_{model.RequestTarget.Replace('/', '-')}_{model.StatusCode}";
+            //    var folder = System.IO.Path.Combine(HostingEnvironment.ContentRootPath, @"App_Data\snapshots");
+            //    if (System.IO.Directory.Exists(folder)) {
+            //        System.IO.Directory.CreateDirectory(folder);
+            //    }
+            //    if (!string.IsNullOrEmpty(model.RequestBody)) {
+            //        await System.IO.File.WriteAllTextAsync(System.IO.Path.Combine(folder, $"{filename}_request.txt"), model.RequestBody);
+            //    }
+            //    await System.IO.File.WriteAllTextAsync(System.IO.Path.Combine(folder, $"{filename}_response.txt"), model.ResponseBody);
+            //}
+            );
             app.UseIdentityServer();
             app.UseCors();
             app.UseAuthentication();
@@ -145,24 +175,22 @@ namespace Indice.Identity
             app.UseSwagger();
             var enableSwagger = HostingEnvironment.IsDevelopment() || Configuration.GetValue<bool>($"{GeneralSettings.Name}:SwaggerUI");
             if (enableSwagger) {
-                app.UseSwaggerUI(swaggerOptions => {
-                    swaggerOptions.RoutePrefix = "docs";
-                    swaggerOptions.SwaggerEndpoint($"/swagger/{IdentityServerApi.Scope}/swagger.json", IdentityServerApi.Scope);
-                    swaggerOptions.OAuth2RedirectUrl($"{Settings.Host}/docs/oauth2-redirect.html");
-                    swaggerOptions.OAuthClientId("swagger-ui");
-                    swaggerOptions.OAuthAppName("Swagger UI");
-                    swaggerOptions.DocExpansion(DocExpansion.None);
+                app.UseSwaggerUI(options => {
+                    options.RoutePrefix = "docs";
+                    options.SwaggerEndpoint($"/swagger/{IdentityServerApi.Scope}/swagger.json", IdentityServerApi.Scope);
+                    options.OAuth2RedirectUrl($"{Settings.Host}/docs/oauth2-redirect.html");
+                    options.OAuthClientId("swagger-ui");
+                    options.OAuthClientSecret("M2YwNTlkMTgtYWQzNy00MGNjLWFiYjQtZWQ3Y2Y4N2M3YWU3");
+                    options.OAuthAppName("Swagger UI");
+                    options.DocExpansion(DocExpansion.None);
+                    options.OAuthUsePkce();
+                    options.OAuthScopeSeparator(" ");
                 });
             }
             app.UseEndpoints(endpoints => {
                 endpoints.MapControllers();
+                endpoints.MapDefaultControllerRoute();
             });
-            if (!HostingEnvironment.IsDevelopment()) {
-                app.UseSpaStaticFiles();
-                app.UseSpa(builder => {
-                    builder.Options.SourcePath = "wwwroot/admin-ui";
-                });
-            }
         }
     }
 }

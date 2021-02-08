@@ -14,9 +14,9 @@ namespace Indice.Identity.Services
 
         public override string PhoneNumberVerificationMessage(string token) => _localizer["SMS verification code is {0}.", token];
 
-        public override string EmailUpdateMessageSubject => _localizer["Confirm your account"];
+        public override string UpdateEmailMessageSubject => _localizer["Confirm your account"];
 
-        public override string EmailUpdateMessageBody<TUser>(string returnUrl, TUser user, string token) => _localizer["Email verification code is {0}.", token];
+        public override string UpdateEmailMessageBody<TUser>(TUser user, string token, string returnUrl) => _localizer["Email verification code is {0}.", token];
 
         public override string PasswordIsCommon() => _localizer["Your password is very common to use."];
 

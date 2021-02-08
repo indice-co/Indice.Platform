@@ -3,8 +3,8 @@ import { Injectable } from '@angular/core';
 import { AsyncSubject, Observable, forkJoin } from 'rxjs';
 import { map } from 'rxjs/operators';
 import {
-    ApiResourceInfo, IdentityApiService, ScopeInfo, ClaimTypeInfo, ClaimTypeInfoResultSet, UpdateApiResourceRequest, IUpdateApiResourceRequest, CreateApiScopeRequest,
-    UpdateApiScopeRequest, IUpdateApiScopeRequest, CreateSecretRequest, ApiSecretInfo, ICreateSecretRequest, SecretInfo
+    ApiResourceInfo, IdentityApiService, ApiScopeInfo, ClaimTypeInfo, ClaimTypeInfoResultSet, UpdateApiResourceRequest, IUpdateApiResourceRequest, CreateApiScopeRequest,
+    UpdateApiScopeRequest, IUpdateApiScopeRequest, CreateSecretRequest, ApiSecretInfo, SecretInfo
 } from 'src/app/core/services/identity-api.service';
 
 @Injectable()
@@ -19,8 +19,8 @@ export class ApiResourceStore {
             this._apiResource = new AsyncSubject<ApiResourceInfo>();
             this._api.getApiResource(apiResourceId).subscribe((apiResource: ApiResourceInfo) => {
                 apiResource.secrets = apiResource.secrets || [];
-                apiResource.scopes = apiResource.scopes.sort((left: ScopeInfo, right: ScopeInfo) => (left.name > right.name ? 1 : -1));
-                apiResource.scopes.forEach((value: ScopeInfo) => {
+                apiResource.scopes = apiResource.scopes.sort((left: ApiScopeInfo, right: ApiScopeInfo) => (left.name > right.name ? 1 : -1));
+                apiResource.scopes.forEach((value: ApiScopeInfo) => {
                     (value as any).isOpen = false;
                     value.userClaims = value.userClaims || [];
                 });
@@ -100,26 +100,25 @@ export class ApiResourceStore {
         const getApiResource = this.getApiResource(apiResourceId);
         scope.showInDiscoveryDocument = true;
         const addScope = this._api.addApiResourceScope(apiResourceId, scope);
-        return forkJoin([getApiResource, addScope]).pipe(map((responses: [ApiResourceInfo, ScopeInfo]) => {
+        return forkJoin([getApiResource, addScope]).pipe(map((responses: [ApiResourceInfo, ApiScopeInfo]) => {
             return {
                 apiResource: responses[0],
                 addedScope: responses[1]
             };
-        })).pipe(map((result: { apiResource: ApiResourceInfo, addedScope: ScopeInfo }) => {
+        })).pipe(map((result: { apiResource: ApiResourceInfo, addedScope: ApiScopeInfo }) => {
             result.apiResource.scopes.push(result.addedScope);
-            result.apiResource.scopes = result.apiResource.scopes.sort((left: ScopeInfo, right: ScopeInfo) => (left.name > right.name ? 1 : -1));
+            result.apiResource.scopes = result.apiResource.scopes.sort((left: ApiScopeInfo, right: ApiScopeInfo) => (left.name > right.name ? 1 : -1));
             this._apiResource.next(result.apiResource);
             this._apiResource.complete();
         }));
     }
 
-    public updateApiResourceScope(apiResourceId: number, scope: ScopeInfo) {
+    public updateApiResourceScope(apiResourceId: number, scope: ApiScopeInfo) {
         const getApiResource = this.getApiResource(apiResourceId);
         const updateScope = this._api.updateApiResourceScope(apiResourceId, scope.id, new UpdateApiScopeRequest({
             displayName: scope.displayName,
             description: scope.description,
             emphasize: scope.emphasize,
-            required: scope.required,
             showInDiscoveryDocument: scope.showInDiscoveryDocument
         } as IUpdateApiScopeRequest));
         return forkJoin([getApiResource, updateScope]).pipe(map((responses: [ApiResourceInfo, null]) => {

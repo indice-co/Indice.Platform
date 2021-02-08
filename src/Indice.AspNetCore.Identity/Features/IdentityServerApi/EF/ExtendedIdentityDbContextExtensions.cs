@@ -33,11 +33,12 @@ namespace Indice.AspNetCore.Identity.Features
                 NormalizedEmail = adminEmail.ToUpper(),
                 NormalizedUserName = adminEmail.ToUpper(),
                 PasswordHash = "AH6SA/wuxp9YEfLGROaj2CgjhxZhXDkMB1nD8V7lfQAI+WTM4lGMItjLhhV5ASsq+Q==",
-                PhoneNumber = "+30 2106985955",
+                PhoneNumber = "69XXXXXXXX",
                 PhoneNumberConfirmed = true,
                 SecurityStamp = $"{Guid.NewGuid()}",
                 UserName = adminEmail
             };
+            admin.GenerateDeveloperTotp();
             dbContext.Users.Add(admin);
             dbContext.UserClaims.Add(new IdentityUserClaim<string> {
                 ClaimType = JwtClaimTypes.GivenName,

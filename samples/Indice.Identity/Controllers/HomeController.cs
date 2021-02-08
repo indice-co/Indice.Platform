@@ -1,12 +1,9 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using IdentityServer4.Services;
 using Indice.AspNetCore.Filters;
 using Indice.AspNetCore.Identity.Models;
 using Indice.Configuration;
-using Indice.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 

@@ -26,8 +26,8 @@ namespace Indice.AspNetCore.Swagger
         /// <inheritdoc/>
         public void Apply(OpenApiOperation operation, OperationFilterContext context) {
             if (context.ApiDescription.ActionDescriptor.Parameters.Any(x => x.ParameterType == Configuration.BaseType || EnumerableOfBaseType.IsAssignableFrom(x.ParameterType))) {
-                foreach (var contenType in operation.RequestBody.Content) {
-                    var request = contenType.Value.Schema;
+                foreach (var contenτType in operation.RequestBody.Content) {
+                    var request = contenτType.Value.Schema;
                     if (request.Reference?.Id == Configuration.BaseType.Name ||
                         request.Items?.Reference?.Id == Configuration.BaseType.Name) {
                         if (request.Reference?.Id == Configuration.BaseType.Name) {

@@ -2,6 +2,7 @@
 using System.Collections;
 using System.IO;
 using System.Text.RegularExpressions;
+using Indice.AspNetCore.Configuration;
 using Indice.AspNetCore.Filters;
 using Indice.AspNetCore.TagHelpers;
 using Indice.Configuration;
@@ -94,6 +95,7 @@ namespace Microsoft.Extensions.DependencyInjection
         public static IServiceCollection AddSmsServiceYouboto(this IServiceCollection services, IConfiguration configuration) {
             services.Configure<SmsServiceSettings>(configuration.GetSection(SmsServiceSettings.Name));
             services.AddTransient(serviceProvider => serviceProvider.GetRequiredService<IOptions<SmsServiceSettings>>().Value);
+            services.TryAddTransient<ISmsServiceFactory, DefaultSmsServiceFactory>();
             services.AddHttpClient<ISmsService, SmsServiceYuboto>().SetHandlerLifetime(TimeSpan.FromMinutes(5));
             return services;
         }
@@ -103,14 +105,20 @@ namespace Microsoft.Extensions.DependencyInjection
         /// </summary>
         /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
         /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
-        public static IServiceCollection AddSmsServiceApifon(this IServiceCollection services, IConfiguration configuration) {
+        /// <param name="configure">Configure the available options. Null to use defaults.</param>
+        public static IServiceCollection AddSmsServiceApifon(this IServiceCollection services, IConfiguration configuration, Action<SmsServiceApifonOptions> configure = null) {
             services.Configure<SmsServiceApifonSettings>(configuration.GetSection(SmsServiceSettings.Name));
             services.AddTransient(serviceProvider => serviceProvider.GetRequiredService<IOptions<SmsServiceApifonSettings>>().Value);
-            services.AddHttpClient<ISmsService, SmsServiceApifon>(options => {
-                options.BaseAddress = new Uri("https://ars.apifon.com/services/api/v1/sms/");
-            })
-                .SetHandlerLifetime(TimeSpan.FromMinutes(5));
-            services.AddTransient<ISmsServiceFactory, DefaultSmsServiceFactory>();
+            services.TryAddTransient<ISmsServiceFactory, DefaultSmsServiceFactory>();
+            var options = new SmsServiceApifonOptions();
+            configure?.Invoke(options);
+            var httpClientBuilder = services.AddHttpClient<ISmsService, SmsServiceApifon>()
+                                            .ConfigureHttpClient(httpClient => {
+                                                httpClient.BaseAddress = new Uri("https://ars.apifon.com/services/api/v1/sms/");
+                                            });
+            if (options.ConfigurePrimaryHttpMessageHandler != null) {
+                httpClientBuilder.ConfigurePrimaryHttpMessageHandler(options.ConfigurePrimaryHttpMessageHandler);
+            }
             return services;
         }
 
@@ -122,11 +130,12 @@ namespace Microsoft.Extensions.DependencyInjection
         public static IServiceCollection AddSmsServiceViber(this IServiceCollection services, IConfiguration configuration) {
             services.Configure<SmsServiceViberSettings>(configuration.GetSection(SmsServiceViberSettings.Name));
             services.AddTransient(serviceProvider => serviceProvider.GetRequiredService<IOptions<SmsServiceViberSettings>>().Value);
+            services.TryAddTransient<ISmsServiceFactory, DefaultSmsServiceFactory>();
             services.AddHttpClient<ISmsService, SmsServiceViber>().SetHandlerLifetime(TimeSpan.FromMinutes(5));
             return services;
         }
 
-        // <summary>
+        /// <summary>
         /// Adds an instance of <see cref="ISmsService"/> using Youboto Omni from sending regular SMS messages.
         /// </summary>
         /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
@@ -134,12 +143,12 @@ namespace Microsoft.Extensions.DependencyInjection
         public static IServiceCollection AddSmsServiceYubotoOmni(this IServiceCollection services, IConfiguration configuration) {
             services.Configure<SmsServiceSettings>(configuration.GetSection(SmsServiceSettings.Name));
             services.AddTransient(serviceProvider => serviceProvider.GetRequiredService<IOptions<SmsServiceSettings>>().Value);
+            services.TryAddTransient<ISmsServiceFactory, DefaultSmsServiceFactory>();
             services.AddHttpClient<ISmsService, SmsYubotoOmniService>().SetHandlerLifetime(TimeSpan.FromMinutes(5));
-            services.AddTransient<ISmsServiceFactory, DefaultSmsServiceFactory>();
             return services;
         }
 
-        // <summary>
+        /// <summary>
         /// Adds an instance of <see cref="ISmsService"/> using Youboto Omni for sending Viber messages.
         /// </summary>
         /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
@@ -147,8 +156,8 @@ namespace Microsoft.Extensions.DependencyInjection
         public static IServiceCollection AddViberServiceYubotoOmni(this IServiceCollection services, IConfiguration configuration) {
             services.Configure<SmsServiceSettings>(configuration.GetSection(SmsServiceSettings.Name));
             services.AddTransient(serviceProvider => serviceProvider.GetRequiredService<IOptions<SmsServiceSettings>>().Value);
+            services.TryAddTransient<ISmsServiceFactory, DefaultSmsServiceFactory>();
             services.AddHttpClient<ISmsService, ViberYubotoOmniService>().SetHandlerLifetime(TimeSpan.FromMinutes(5));
-            services.AddTransient<ISmsServiceFactory, DefaultSmsServiceFactory>();
             return services;
         }
 

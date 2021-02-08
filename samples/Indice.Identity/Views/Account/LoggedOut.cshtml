@@ -4,7 +4,7 @@
     ViewData["signed-out"] = true;
 }
 
-<div class="page-header logged-out">
+<div class="logged-out-page">
     <h1>
         Logout
         <small>You are now logged out</small>
@@ -12,7 +12,8 @@
     @if (Model.PostLogoutRedirectUri != null)
     {
         <div>
-            Click <a class="PostLogoutRedirectUri" href="@Model.PostLogoutRedirectUri">here</a> to return to the <span>@Model.ClientName</span> application.
+            Click <a class="PostLogoutRedirectUri" href="@Model.PostLogoutRedirectUri">here</a> to return to the
+            <span>@Model.ClientName</span> application.
         </div>
     }
     @if (Model.SignOutIframeUrl != null)
@@ -25,6 +26,6 @@
 {
     @if (Model.AutomaticRedirectAfterSignOut)
     {
-        <script type="text/javascript" src="~/js/signout-redirect.js"></script>
+        <script src="~/js/signout-redirect.js" asp-append-version="true"></script>
     }
 }

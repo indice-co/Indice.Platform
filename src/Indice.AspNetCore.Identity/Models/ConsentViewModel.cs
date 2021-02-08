@@ -38,7 +38,7 @@ namespace Indice.AspNetCore.Identity.Models
         /// <summary>
         /// Resource scopes
         /// </summary>
-        public IEnumerable<ScopeViewModel> ResourceScopes { get; set; }
+        public IEnumerable<ScopeViewModel> ApiScopes { get; set; }
 
         /// <summary>
         /// Available Sca Methods
@@ -61,6 +61,6 @@ namespace Indice.AspNetCore.Identity.Models
         /// <summary>
         /// Requires Strong customer authentication
         /// </summary>
-        public bool RequiresSca => ResourceScopes?.Where(x => x.RequiresSca).Any() == true;
+        public bool RequiresSca => ApiScopes?.Where(x => x.RequiresSca).Any() == true;
     }
 }

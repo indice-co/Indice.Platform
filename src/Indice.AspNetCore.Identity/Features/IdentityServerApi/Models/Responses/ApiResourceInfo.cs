@@ -38,7 +38,7 @@ namespace Indice.AspNetCore.Identity.Features
         /// <summary>
         /// List of all scopes included in the resource. At least one scope must be included. 
         /// </summary>
-        public IEnumerable<ScopeInfo> Scopes { get; set; }
+        public IEnumerable<ApiScopeInfo> Scopes { get; set; }
         /// <summary>
         /// 
         /// </summary>

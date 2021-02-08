@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -24,21 +25,17 @@ namespace Indice.Types
             if (null == replacements) {
                 throw new ArgumentNullException(nameof(replacements));
             }
-
             var overrides = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase).Merge(replacements, typeof(TReplacements));
             var sortings = options.GetSortings();
             var sortKey = nameof(options.Sort).ToLower();
-
             if (overrides.ContainsKey(sortKey)) {
                 var sort = overrides[sortKey].ToString();
-
                 if (sortings.Any(s => s.Path.Equals(sort))) {
                     overrides[sortKey] = sortings.Select(s => s.Path.Equals(sort) ? s.NextState() : s).Where(s => s.HasValue).Select(s => s.Value).ToUriString();
                 } else {
                     overrides[sortKey] = sortings.Union(new[] { SortByClause.Parse(sort) }).ToUriString();
                 }
             }
-
             return options.ToDictionary().Merge(overrides, null);
         }
 
@@ -54,38 +51,29 @@ namespace Indice.Types
                         dictionary.Add(keyValue.Key, keyValue.Value);
                     }
                 }
-
                 return dictionary;
             } else if (instance is ListOptions options) {
                 return dictionary.Merge(options.ToDictionary());
             }
-
             type = type ?? instance?.GetType();
-
             foreach (var property in type.GetRuntimeProperties()) {
                 var value = property.GetValue(instance);
-
                 if (value is ListOptions options) {
                     dictionary.Merge(options.ToDictionary());
                 } else if (value != null) {
                     var textValue = GetStructValue(property.PropertyType, value);
                     var key = $"{prefix}{property.Name}";
-
                     if (!string.IsNullOrEmpty(textValue)) {
                         if (dictionary.ContainsKey(key)) {
                             dictionary[key] = textValue;
                         } else {
                             dictionary.Add(key, textValue);
                         }
-
                         continue;
                     }
-
                     var itemType = default(Type);
-
                     if (property.PropertyType.IsArray || (itemType = property.PropertyType.GetElementType()) != null) {
                         var array = ((IEnumerable)value).Cast<object>().Select(x => GetStructValue(itemType ?? x.GetType(), x)).ToArray();
-
                         if (dictionary.ContainsKey(key)) {
                             dictionary[key] = array;
                         } else {
@@ -94,7 +82,6 @@ namespace Indice.Types
                     }
                 }
             }
-
             return dictionary;
         }
 
@@ -107,13 +94,14 @@ namespace Indice.Types
 
         private static string GetStructValue(Type type, object value) {
             var textValue = string.Empty;
-
             if (type == typeof(DateTime?) && ((DateTime?)value).HasValue) {
                 textValue = ((DateTime?)value).Value.ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ssZ");
-            } else if (type == typeof(DateTime) && ((DateTime)value) != default(DateTime)) {
+            } else if (type == typeof(DateTime) && ((DateTime)value) != default) {
                 textValue = ((DateTime)value).ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ssZ");
             } else if (
                 type == typeof(string)
+             || type == typeof(bool)
+             || type == typeof(bool?)
              || type == typeof(int)
              || type == typeof(int?)
              || type == typeof(decimal)
@@ -128,9 +116,8 @@ namespace Indice.Types
 #else
                 type.IsEnum || Nullable.GetUnderlyingType(type)?.IsEnum == true) {
 #endif
-                textValue = string.Format(System.Globalization.CultureInfo.InvariantCulture, "{0}", value);
+                textValue = string.Format(CultureInfo.InvariantCulture, "{0}", value);
             }
-
             return textValue;
         }
 
@@ -144,20 +131,13 @@ namespace Indice.Types
                 if (kv.Value == null) {
                     return null;
                 }
-
                 if (kv.Value.GetType().IsArray) {
                     if (kv.Key.ToLowerInvariant() == nameof(ListOptions.Sort).ToLowerInvariant()) {
-                        return new[] {
-                            new KeyValuePair<string, string>(kv.Key, string.Join(",", (IList)kv.Value))
-                        };
+                        return new[] { new KeyValuePair<string, string>(kv.Key, string.Join(",", (IList)kv.Value)) };
                     }
-
                     return ((IList)kv.Value).Cast<object>().Select(x => new KeyValuePair<string, string>(kv.Key, x?.ToString()));
                 }
-
-                return new[] {
-                    new KeyValuePair<string, string>(kv.Key, kv.Value.ToString())
-                };
+                return new[] { new KeyValuePair<string, string>(kv.Key, kv.Value.ToString()) };
             });
         }
 
@@ -183,16 +163,13 @@ namespace Indice.Types
         public static void AddSortRedirect<TSource, TDestination>(this ListOptions options, Expression<Func<TSource, object>> from, Expression<Func<TDestination, object>> to) {
             string GetExpressionMemberName(Expression expression, string parentPropertyName = null) {
                 var isProperty = expression.NodeType == ExpressionType.MemberAccess && expression is MemberExpression;
-
                 if (isProperty) {
                     var memberExpression = (MemberExpression)expression;
                     parentPropertyName = $"{memberExpression.Member.Name}{(parentPropertyName != null ? $".{parentPropertyName}" : string.Empty)}";
                     return GetExpressionMemberName(memberExpression.Expression, parentPropertyName);
                 }
-
                 return parentPropertyName;
             }
-
             var fromExpressionName = GetExpressionMemberName(from.Body);
             var toExpressionName = GetExpressionMemberName(to.Body);
             options.AddSortRedirect(fromExpressionName, toExpressionName);

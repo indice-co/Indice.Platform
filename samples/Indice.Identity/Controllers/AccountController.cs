@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Security.Claims;
+using System.Threading;
 using System.Threading.Tasks;
 using IdentityModel;
 using IdentityServer4.Events;
@@ -78,7 +79,7 @@ namespace Indice.Identity.Controllers
                 });
             }
 #if DEBUG
-            viewModel.Username = "company@indice.gr";
+            viewModel.UserName = "company@indice.gr";
 #endif
             return View(viewModel);
         }
@@ -98,13 +99,11 @@ namespace Indice.Identity.Controllers
                 if (context != null) {
                     // If the user cancels, send a result back into IdentityServer as if they denied the consent (even if this client does not require consent).
                     // This will send back an access denied OIDC error response to the client.
-                    await _interaction.GrantConsentAsync(context, ConsentResponse.Denied);
+                    await _interaction.DenyAuthorizationAsync(context, AuthorizationError.AccessDenied);
                     // We can trust model.ReturnUrl since GetAuthorizationContextAsync returned non-null.
-                    if (await _clientStore.IsPkceClientAsync(context.ClientId)) {
-                        // If the client is PKCE then we assume it's native, so this change in how to return the response is for better UX for the end user.
-                        return View("Redirect", new RedirectViewModel {
-                            RedirectUrl = model.ReturnUrl
-                        });
+                    if (context.IsNativeClient()) {
+                        // The client is native, so this change in how to return the response is for better UX for the end user.
+                        return this.LoadingPage("Redirect", model.ReturnUrl);
                     }
                     return Redirect(model.ReturnUrl);
                 } else {
@@ -114,18 +113,16 @@ namespace Indice.Identity.Controllers
             }
             if (ModelState.IsValid) {
                 // Validate username/password against database.
-                var result = await _signInManager.PasswordSignInAsync(model.Username, model.Password, AccountOptions.AllowRememberLogin && model.RememberLogin, lockoutOnFailure: true);
+                var result = await _signInManager.PasswordSignInAsync(model.UserName, model.Password, AccountOptions.AllowRememberLogin && model.RememberLogin, lockoutOnFailure: true);
                 User user = null;
                 if (result.Succeeded) {
-                    user = await _userManager.FindByNameAsync(model.Username);
+                    user = await _userManager.FindByNameAsync(model.UserName);
                     await _events.RaiseAsync(new UserLoginSuccessEvent(user.UserName, user.Id, user.UserName));
                     _logger.LogInformation("User '{UserName}' was successfully logged in.", user.UserName, user.Email);
                     if (context != null) {
-                        if (await _clientStore.IsPkceClientAsync(context.ClientId)) {
-                            // If the client is PKCE then we assume it's native, so this change in how to return the response is for better UX for the end user.
-                            return View("Redirect", new RedirectViewModel {
-                                RedirectUrl = model.ReturnUrl
-                            });
+                        if (context.IsNativeClient()) {
+                            // The client is native, so this change in how to return the response is for better UX for the end user.
+                            return this.LoadingPage("Redirect", model.ReturnUrl);
                         }
                         // We can trust model.ReturnUrl since GetAuthorizationContextAsync returned non-null.
                         return Redirect(model.ReturnUrl);
@@ -143,11 +140,11 @@ namespace Indice.Identity.Controllers
                 }
                 if (result.IsLockedOut) {
                     _logger.LogWarning("User '{UserName}' was locked out after {WrongLoginsNumber} unsuccessful login attempts.", UserName, user?.AccessFailedCount);
-                    await _events.RaiseAsync(new UserLoginFailureEvent(model.Username, "User locked out."));
+                    await _events.RaiseAsync(new UserLoginFailureEvent(model.UserName, "User locked out."));
                     ModelState.AddModelError(string.Empty, "Your account is temporarily locked. Please contact system administrator.");
                 } else {
                     _logger.LogWarning("User '{UserName}' entered invalid credentials during login.", UserName);
-                    await _events.RaiseAsync(new UserLoginFailureEvent(model.Username, "Invalid credentials."));
+                    await _events.RaiseAsync(new UserLoginFailureEvent(model.UserName, "Invalid credentials."));
                     ModelState.AddModelError(string.Empty, "Please check your credentials.");
                 }
             }

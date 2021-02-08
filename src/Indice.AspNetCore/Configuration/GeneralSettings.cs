@@ -1,4 +1,6 @@
-﻿namespace Indice.Configuration
+﻿using System.Collections.Generic;
+
+namespace Indice.Configuration
 {
     /// <summary>
     /// General settings for an ASP.NET Core application.
@@ -10,7 +12,7 @@
         /// </summary>
         public static readonly string Name = "General";
         /// <summary>
-        /// Url that the app is Hosted under.
+        /// Url that the app is hosted under.
         /// </summary>
         public string Host { get; set; }
         /// <summary>
@@ -18,7 +20,7 @@
         /// </summary>
         public string Authority { get; set; }
         /// <summary>
-        /// The name of the app. Usually used for the Layout page Title inside an Html header. 
+        /// The name of the app. Usually used for the Layout page Title inside an HTML header. 
         /// </summary>
         public string ApplicationName { get; set; } = "My App name";
         /// <summary>
@@ -38,8 +40,24 @@
         /// </summary>
         public ApiSettings Api { get; set; }
         /// <summary>
-        /// Swagger endpoint toggle.
+        /// A flag that indicates whether to enable the Swagger UI.
         /// </summary>
         public bool EnableSwagger { get; set; }
+        /// <summary>
+        /// A flag that indicates whether to register mock implementations of services in the DI.
+        /// </summary>
+        public bool MockServices { get; set; }
+        /// <summary>
+        /// A flag that indicates whether to redirect http to https.
+        /// </summary>
+        public bool UseHttpsRedirection { get; set; }
+        /// <summary>
+        /// A list of endpoints used throughout the application.
+        /// </summary>
+        public Dictionary<string, string> Endpoints { get; set; }
+        /// <summary>
+        /// A flag that indicates whether to enable HSTS (HTTP Strict Transport Security).
+        /// </summary>
+        public bool HstsEnabled { get; set; }
     }
 }

@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 
 namespace Indice.AspNetCore.Identity.Features
 {
@@ -11,6 +12,8 @@ namespace Indice.AspNetCore.Identity.Features
         /// The phone number.
         /// </summary>
         [Required(AllowEmptyStrings = false)]
+        [RegularExpression(@"^\d+$")]
+        [DisplayName("phoneNumber")]
         public string PhoneNumber { get; set; }
     }
 }

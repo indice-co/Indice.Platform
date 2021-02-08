@@ -59,8 +59,16 @@ namespace Indice.Services
         /// <param name="httpContextAccessor">Used to access the <see cref="HttpContext"/> through the <see cref="IHttpContextAccessor"/> interface and its default implementation <see cref="HttpContextAccessor"/>.</param>
         /// <param name="httpClient">The http client to use (DI managed)</param>
         /// <param name="logger">Represents a type used to perform logging.</param>
-        public EmailServiceSparkpost(EmailServiceSparkPostSettings settings, ICompositeViewEngine viewEngine, ITempDataProvider tempDataProvider, IHttpContextAccessor httpContextAccessor, HttpClient httpClient, ILogger<EmailServiceSparkpost> logger)
-            : base(viewEngine, tempDataProvider, httpContextAccessor) {
+        /// <param name="serviceProvider">Defines a mechanism for retrieving a service object; that is, an object that provides custom support to other objects.</param>
+        public EmailServiceSparkpost(
+            EmailServiceSparkPostSettings settings,
+            ICompositeViewEngine viewEngine,
+            ITempDataProvider tempDataProvider,
+            IHttpContextAccessor httpContextAccessor,
+            HttpClient httpClient,
+            ILogger<EmailServiceSparkpost> logger,
+            IServiceProvider serviceProvider
+        ) : base(viewEngine, tempDataProvider, httpContextAccessor, serviceProvider) {
             _settings = settings ?? throw new ArgumentNullException(nameof(settings));
             _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));

@@ -12,6 +12,10 @@ namespace Indice.AspNetCore.Identity.Features
         /// </summary>
         public string Name { get; set; }
         /// <summary>
+        /// List of allowed signing algorithms for access token. If empty, will use the server default signing algorithm.
+        /// </summary>
+        public string AllowedAccessTokenSigningAlgorithms { get; set; }
+        /// <summary>
         /// List of accociated user claims that should be included when this resource is requested.
         /// </summary>
         public List<string> UserClaims { get; set; }

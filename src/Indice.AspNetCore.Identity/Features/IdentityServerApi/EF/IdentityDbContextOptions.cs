@@ -1,10 +1,11 @@
 ﻿using System;
+using Indice.AspNetCore.Identity.Data;
 using Microsoft.EntityFrameworkCore;
 
 namespace Indice.AspNetCore.Identity.Features
 {
     /// <summary>
-    /// Options for configuring IdentityDbContext.
+    /// Options for configuring <see cref="IdentityDbContext"/>.
     /// </summary>
     public class IdentityDbContextOptions
     {

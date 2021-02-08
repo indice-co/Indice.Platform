@@ -30,7 +30,7 @@ const appRoutes: Routes = [
 ];
 
 @NgModule({
-    imports: [RouterModule.forRoot(appRoutes, { preloadingStrategy: NoPreloading })],
+    imports: [RouterModule.forRoot(appRoutes, { preloadingStrategy: NoPreloading, useHash: true })],
     exports: [RouterModule]
 })
 export class CoreRoutingModule { }

@@ -71,7 +71,8 @@ namespace Indice.Identity.Security
                 AllowAccessTokensViaBrowser = false,
                 AllowedCorsOrigins = {
                     "http://localhost:4200",
-                    "https://idsrv-admin-ui.azurewebsites.net"
+                    "https://idsrvadminui.z1.web.core.windows.net",
+                    "https://indice-admin-ui.azureedge.net"
                 },
                 AllowedGrantTypes = GrantTypes.Code,
                 AllowedScopes = {
@@ -85,16 +86,19 @@ namespace Indice.Identity.Security
                     JwtClaimTypes.Role
                 },
                 AllowOfflineAccess = true,
-                ClientUri = "https://idsrv-admin-ui.azurewebsites.net",
+                ClientUri = "https://indice-admin-ui.azureedge.net",
                 PostLogoutRedirectUris = {
                     "http://localhost:4200/logged-out",
-                    "https://idsrv-admin-ui.azurewebsites.net/logged-out"
+                    "https://idsrvadminui.z1.web.core.windows.net/#/logged-out",
+                    "https://indice-admin-ui.azureedge.net/#/logged-out"
                 },
                 RedirectUris = {
                     "http://localhost:4200/auth-callback",
-                    "https://idsrv-admin-ui.azurewebsites.net/auth-callback",
+                    "https://idsrvadminui.z1.web.core.windows.net/#/auth-callback",
+                    "https://indice-admin-ui.azureedge.net/#/auth-callback",
                     "http://localhost:4200/auth-renew",
-                    "https://idsrv-admin-ui.azurewebsites.net/auth-renew"
+                    "https://idsrvadminui.z1.web.core.windows.net/#/auth-renew",
+                    "https://indice-admin-ui.azureedge.net/#/auth-renew"
                 },
                 RequireClientSecret  = false,
                 RequirePkce = true,
@@ -135,12 +139,15 @@ namespace Indice.Identity.Security
                 ClientId = "swagger-ui",
                 ClientName = "Swagger UI",
                 AccessTokenType = AccessTokenType.Jwt,
-                AllowAccessTokensViaBrowser = true,
+                AllowAccessTokensViaBrowser = false,
                 AllowedCorsOrigins = {
                     "https://localhost:2000",
                     "https://idsrv-admin-ui.azurewebsites.net"
                 },
-                AllowedGrantTypes = GrantTypes.Implicit,
+                ClientSecrets = {
+                    new Secret("M2YwNTlkMTgtYWQzNy00MGNjLWFiYjQtZWQ3Y2Y4N2M3YWU3".ToSha256())
+                },
+                AllowedGrantTypes = GrantTypes.Code,
                 AllowedScopes = {
                     IdentityServerApi.Scope,
                     IdentityServerApi.SubScopes.Clients,
@@ -158,7 +165,9 @@ namespace Indice.Identity.Security
                     "https://localhost:2000/docs/oauth2-redirect.html",
                     "https://idsrv-admin-ui.azurewebsites.net/docs/oauth2-redirect.html"
                 },
-                RequireConsent = true
+                RequireConsent = true,
+                RequirePkce = true,
+                RequireClientSecret = false
             }
         };
     }

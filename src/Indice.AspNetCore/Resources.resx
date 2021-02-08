@@ -126,6 +126,12 @@
   <data name="EmailUpdateMessageSubject" xml:space="preserve">
     <value>Confirm your account.</value>
   </data>
+  <data name="ForgotPasswordMessageBody" xml:space="preserve">
+    <value>Email verification code is {0}.</value>
+  </data>
+  <data name="ForgotPasswordMessageSubject" xml:space="preserve">
+    <value>Forgot password</value>
+  </data>
   <data name="PasswordHasNonLatinChars" xml:space="preserve">
     <value>Password cannot contain non latin characters.</value>
   </data>

@@ -1,10 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text.Json;
+﻿using System.Text.Json;
 using System.Text.Json.Serialization;
 using FluentValidation.AspNetCore;
 using Indice.AspNetCore.Identity.Features;
-using Indice.AspNetCore.Identity.Models;
 using Indice.Identity;
 using Indice.Identity.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -28,6 +25,12 @@ namespace Microsoft.Extensions.DependencyInjection
             return services.AddControllersWithViews()
                            .AddRazorRuntimeCompilation()
                            .AddTotp()
+                           /*.AddPushNotifications(
+                                options => {
+                                    options.ConnectionString = configuration.GetConnectionString("PushNotificationsConnection");
+                                    options.NotificationHubPath = configuration["PushNotifications:PushNotificationsHubPath"];
+                                }
+                            )*/
                            .AddIdentityServerApiEndpoints(options => {
                                // Configure the DbContext.
                                options.AddDbContext(identityOptions => {
@@ -38,28 +41,14 @@ namespace Microsoft.Extensions.DependencyInjection
                                // Enable events and register handlers.
                                options.CanRaiseEvents = true;
                                options.DisableCache = false;
-                               options.AddEventHandler<ClientCreatedEvent, ClientCreatedEventHandler>()
-                                      .AddEventHandler<UserEmailConfirmedEvent, UserEmailConfirmedEventHandler>();
+                               options.AddEventHandler<ClientCreatedEvent, ClientCreatedEventHandler>();
+                               options.AddEventHandler<UserEmailConfirmedEvent, UserEmailConfirmedEventHandler>();
                                // Update email options.
                                options.Email.SendEmailOnUpdate = true;
                                // Update phone number options.
                                options.PhoneNumber.SendOtpOnUpdate = true;
                                // Add custom initial user and enable test data.
                                options.UseInitialData = true;
-                               options.InitialUsers = new List<User> {
-                                   new User {
-                                       Admin = true,
-                                       Email = "g.manoltzas@indice.gr",
-                                       NormalizedEmail = "g.manoltzas@indice.gr".ToUpper(),
-                                       UserName = "gmanoltzas",
-                                       NormalizedUserName = "gmanoltzas".ToUpper(),
-                                       PasswordHash = "AH6SA/wuxp9YEfLGROaj2CgjhxZhXDkMB1nD8V7lfQAI+WTM4lGMItjLhhV5ASsq+Q==",
-                                       EmailConfirmed = true,
-                                       PhoneNumber = "+30 6992731575",
-                                       PhoneNumberConfirmed = true,
-                                       CreateDate = DateTimeOffset.UtcNow
-                                   }
-                               };
                            })
                            .SetCompatibilityVersion(CompatibilityVersion.Latest)
                            .ConfigureApiBehaviorOptions(options => {

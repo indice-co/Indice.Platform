@@ -3,7 +3,7 @@ import { ActivatedRoute } from '@angular/router';
 
 import { Subscription } from 'rxjs';
 import { SwalComponent } from '@sweetalert2/ngx-sweetalert2';
-import { ScopeInfo } from 'src/app/core/services/identity-api.service';
+import { ApiScopeInfo } from 'src/app/core/services/identity-api.service';
 import { ToastService } from 'src/app/layout/services/app-toast.service';
 import { ApiResourceStore } from '../../../api-resource-store.service';
 import { UtilitiesService } from 'src/app/core/services/utilities.services';
@@ -21,7 +21,7 @@ export class ApiResourceScopeDetailsComponent implements OnInit, OnDestroy {
 
     constructor(private _route: ActivatedRoute, private _apiResourceStore: ApiResourceStore, public _toast: ToastService, public utilities: UtilitiesService) { }
 
-    @Input() public scope = new ScopeInfo();
+    @Input() public scope = new ApiScopeInfo();
     @Input() public editable = false;
     public discriminator = this.utilities.newGuid();
 
@@ -41,7 +41,7 @@ export class ApiResourceScopeDetailsComponent implements OnInit, OnDestroy {
         }
     }
 
-    public deletePrompt(scope: ScopeInfo): void {
+    public deletePrompt(scope: ApiScopeInfo): void {
         this.scope = scope;
         setTimeout(() => this._deleteAlert.fire(), 0);
     }

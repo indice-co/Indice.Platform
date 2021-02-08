@@ -5,7 +5,6 @@ using System.Diagnostics;
 using System.Net;
 using System.Security.Cryptography;
 using System.Text;
-using Indice.Configuration;
 
 namespace System.Security
 {
@@ -14,27 +13,25 @@ namespace System.Security
     /// </summary>
     public class Rfc6238AuthenticationService
     {
-        private const double _MIN_TIMESTEP = 0.5;
-        private const double _MAX_TIMESTEP = 3;
-        private readonly TotpOptions _options;
+        private const double MIN_TIMESTEP = 0.5;
+        private const double MAX_TIMESTEP = 3;
+        private const int MIN_LENGTH = 6;
         private readonly DateTime _unixEpoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
-        private readonly TimeSpan _timestep = TimeSpan.FromMinutes(_MIN_TIMESTEP);
+        private readonly TimeSpan _timestep = TimeSpan.FromMinutes(MIN_TIMESTEP);
+        private readonly int _codeLength = MIN_LENGTH;
         private readonly Encoding _encoding = new UTF8Encoding(encoderShouldEmitUTF8Identifier: false, throwOnInvalidBytes: true);
 
         /// <summary>
         /// Creates a new instance of <see cref="Rfc6238AuthenticationService"/>.
         /// </summary>
-        public Rfc6238AuthenticationService(TotpOptions options) {
-            _options = options ?? throw new ArgumentNullException(nameof(options));
-            if (_options.Timestep.HasValue) {
-                var timestep = _options.Timestep.Value;
-                if (timestep < _MIN_TIMESTEP) {
-                    timestep = _MIN_TIMESTEP;
-                } else if (timestep > _MAX_TIMESTEP) {
-                    timestep = _MAX_TIMESTEP;
-                }
-                _timestep = TimeSpan.FromMinutes(timestep);
+        public Rfc6238AuthenticationService(double timestep, int codeLength) {
+            if (timestep < MIN_TIMESTEP) {
+                timestep = MIN_TIMESTEP;
+            } else if (timestep > MAX_TIMESTEP) {
+                timestep = MAX_TIMESTEP;
             }
+            _timestep = TimeSpan.FromMinutes(timestep);
+            _codeLength = codeLength < 6 ? 6 : codeLength;
         }
 
         /// <summary>
@@ -78,7 +75,7 @@ namespace System.Security
 
         private int ComputeTotp(HashAlgorithm hashAlgorithm, ulong timestepNumber, string modifier) {
             // # of 0's = length of pin.
-            const int Mod = 1000000;
+            var mod = (int)Math.Pow(10, _codeLength);
             // See https://tools.ietf.org/html/rfc4226
             // We can add an optional modifier.
             var timestepAsBytes = BitConverter.GetBytes(IPAddress.HostToNetworkOrder((long)timestepNumber));
@@ -87,7 +84,7 @@ namespace System.Security
             var offset = hash[hash.Length - 1] & 0xf;
             Debug.Assert(offset + 4 < hash.Length);
             var binaryCode = (hash[offset] & 0x7f) << 24 | (hash[offset + 1] & 0xff) << 16 | (hash[offset + 2] & 0xff) << 8 | (hash[offset + 3] & 0xff);
-            return binaryCode % Mod;
+            return binaryCode % mod;
         }
 
         private byte[] ApplyModifier(byte[] input, string modifier) {

@@ -4,7 +4,9 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using IdentityModel;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace Indice.Identity.Security
 {
@@ -14,13 +16,16 @@ namespace Indice.Identity.Security
     public class ClaimsTransformer : IClaimsTransformation
     {
         private readonly ILogger<ClaimsTransformer> _logger;
+        private readonly IdentityOptions _identityOptions;
 
         /// <summary>
         /// Creates an instance of <see cref="ClaimsTransformer"/>.
         /// </summary>
         /// <param name="logger">Represents a type used to perform logging.</param>
-        public ClaimsTransformer(ILogger<ClaimsTransformer> logger) {
+        /// <param name="identityOptions">Represents all the options you can use to configure the identity system.</param>
+        public ClaimsTransformer(ILogger<ClaimsTransformer> logger, IOptions<IdentityOptions> identityOptions) {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _identityOptions = identityOptions?.Value ?? throw new ArgumentNullException(nameof(identityOptions));
         }
 
         /// <summary>
@@ -40,20 +45,36 @@ namespace Indice.Identity.Security
             // Try to determine the unique id of the external user (issued by the provider). 
             // The most common claim type for that are the sub and the NameIdentifier claims. 
             // Depending on the external provider, some other claim type might be used.
-            var subjectClaim = (claims.FirstOrDefault(x => x.Type == JwtClaimTypes.Subject) ??
-                                claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)) ??
-                                claims.FirstOrDefault(x => x.Type == "oid");
-            if (subjectClaim == null) {
-                _logger.LogInformation($"Cannot determine subject for tenant.");
+            var idClaim = claims.FirstOrDefault(x => x.Type == JwtClaimTypes.Subject) ??
+                          claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier) ??
+                          claims.FirstOrDefault(x => x.Type == "oid");
+            if (idClaim != null) {
+                identity.TryRemoveClaim(idClaim);
+                identity.AddClaim(new Claim(_identityOptions.ClaimsIdentity.UserIdClaimType ?? JwtClaimTypes.Subject, idClaim.Value));
             }
-            var userEmailClaim = claims.FirstOrDefault(x => x.Type == JwtClaimTypes.Email);
-            if (userEmailClaim == null) {
-                _logger.LogInformation($"Cannot determine email for tenant.");
+            var emailClaim = claims.FirstOrDefault(x => x.Type == ClaimTypes.Email);
+            if (emailClaim != null) {
+                identity.TryRemoveClaim(emailClaim);
+                identity.AddClaim(new Claim(JwtClaimTypes.Email, emailClaim.Value));
+            }
+            var firstName = claims.FirstOrDefault(x => x.Type == ClaimTypes.GivenName);
+            if (firstName != null) {
+                identity.TryRemoveClaim(firstName);
+                identity.AddClaim(new Claim(JwtClaimTypes.GivenName, firstName.Value));
+            }
+            var surname = claims.FirstOrDefault(x => x.Type == ClaimTypes.Surname);
+            if (surname != null) {
+                identity.TryRemoveClaim(surname);
+                identity.AddClaim(new Claim(JwtClaimTypes.FamilyName, surname.Value));
             }
             // We do not want to keep these claims, so discard them.
             var preferredUserNameClaim = claims.FirstOrDefault(x => x.Type == JwtClaimTypes.PreferredUserName);
             if (preferredUserNameClaim != null) {
                 identity.TryRemoveClaim(preferredUserNameClaim);
+            }
+            var nameClaim = claims.FirstOrDefault(x => x.Type == ClaimTypes.Name);
+            if (nameClaim != null) {
+                identity.TryRemoveClaim(nameClaim);
             }
             // Finally return the modified principal.
             return Task.FromResult(principal);

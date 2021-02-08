@@ -27,13 +27,23 @@ namespace Indice.AspNetCore.Identity
         /// </summary>
         /// <param name="userManager">Provides the APIs for managing user in a persistence store.</param>
         /// <param name="smsServiceFactory">Sms Service Factory</param>
+        /// <param name="pushNotificationService">Push Notification service</param>
         /// <param name="distributedCache">Represents a distributed cache of serialized values.</param>
         /// <param name="localizer">Represents a service that provides localized strings.</param>
         /// <param name="logger">Represents a type used to perform logging.</param>
         /// <param name="rfc6238AuthenticationService">Time-Based One-Time Password Algorithm service.</param>
-        public TotpService(UserManager<User> userManager, ISmsServiceFactory smsServiceFactory, IDistributedCache distributedCache, IStringLocalizer<TotpService> localizer, ILogger<TotpService> logger, Rfc6238AuthenticationService rfc6238AuthenticationService) {
+        public TotpService(
+            UserManager<User> userManager,
+            ISmsServiceFactory smsServiceFactory,
+            IPushNotificationService pushNotificationService,
+            IDistributedCache distributedCache,
+            IStringLocalizer<TotpService> localizer,
+            ILogger<TotpService> logger,
+            Rfc6238AuthenticationService rfc6238AuthenticationService
+        ) {
             UserManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
             SmsServiceFactory = smsServiceFactory ?? throw new ArgumentNullException(nameof(smsServiceFactory));
+            PushNotificationService = pushNotificationService ?? throw new ArgumentNullException(nameof(pushNotificationService));
             Cache = distributedCache ?? throw new ArgumentNullException(nameof(distributedCache));
             Localizer = localizer ?? throw new ArgumentNullException(nameof(localizer));
             Logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -44,12 +54,14 @@ namespace Indice.AspNetCore.Identity
         /// Provides the APIs for managing user in a persistence store.
         /// </summary>
         public UserManager<User> UserManager { get; }
-
         /// <summary>
         /// Sms service factory.
         /// </summary>
         public ISmsServiceFactory SmsServiceFactory { get; }
-
+        /// <summary>
+        /// Push notification service.
+        /// </summary>
+        public IPushNotificationService PushNotificationService { get; }
         /// <summary>
         /// Represents a distributed cache of serialized values.
         /// </summary>
@@ -99,7 +111,6 @@ namespace Indice.AspNetCore.Identity
                 return TotpResult.ErrorResult(Localizer["Last token has not expired yet. Please wait a few seconds and try again."]);
             }
             Logger.LogInformation($"User: '{userName}' - Token generated successfully.");
-
             switch (channel) {
                 case TotpDeliveryChannel.Sms:
                 case TotpDeliveryChannel.Viber:
@@ -110,10 +121,15 @@ namespace Indice.AspNetCore.Identity
                 case TotpDeliveryChannel.Telephone:
                 case TotpDeliveryChannel.EToken:
                     throw new NotSupportedException($"EToken delivery channel {channel} is not implemented.");
+                case TotpDeliveryChannel.PushNotification:
+                    if (PushNotificationService == null) {
+                        throw new ArgumentNullException(nameof(PushNotificationService));
+                    }
+                    await PushNotificationService.SendAsync(Localizer[message, token], token, user.Id);
+                    break;
                 default:
                     break;
             }
-
             await AddCacheKey(cacheKey);
             return TotpResult.SuccessResult;
         }
