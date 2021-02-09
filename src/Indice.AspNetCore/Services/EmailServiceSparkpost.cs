@@ -20,8 +20,7 @@ namespace Indice.Services
     /// <summary>
     /// Custom settings that are used to send emails via SparkPost.
     /// </summary>
-    public class EmailServiceSparkPostSettings
-    {
+    public class EmailServiceSparkPostSettings {
         /// <summary>
         /// The config section name.
         /// </summary>
@@ -30,6 +29,14 @@ namespace Indice.Services
         /// The default sender address (ex. no-reply@indice.gr).
         /// </summary>
         public string Sender { get; set; }
+        /// <summary>
+        /// The default sender name (ex. INDICE OE)
+        /// </summary>
+        public string SenderName { get; set; }
+        /// <summary>
+        /// Optional email addresses that are always added as blind carbon copy recipients.
+        /// </summary>
+        public string BccRecipients { get; set; }
         /// <summary>
         /// The SparkPost API key.
         /// </summary>
@@ -44,8 +51,7 @@ namespace Indice.Services
     /// SparkPost implementation for the email service abstraction.
     /// https://developers.sparkpost.com/api/transmissions.html
     /// </summary>
-    public class EmailServiceSparkpost : EmailServiceRazorBase
-    {
+    public class EmailServiceSparkpost : EmailServiceRazorBase {
         private readonly EmailServiceSparkPostSettings _settings;
         private readonly HttpClient _httpClient;
         private readonly ILogger<EmailServiceSparkpost> _logger;
@@ -80,15 +86,28 @@ namespace Indice.Services
 
         /// <inheritdoc/>
         public override async Task SendAsync<TModel>(string[] recipients, string subject, string body, string template, TModel data, FileAttachment[] attachments = null) {
+            var bccRecipients = (_settings.BccRecipients ?? "").Split(';', ',');
+            var recipientAddresses = recipients.Select(recipient => new SparkPostRecipient {
+                Address = new SparkPostRecipientEmailAddress {
+                    Email = recipient
+                }
+            });
+            var bccAddresses = bccRecipients.SelectMany(bcc => recipients.Select(recipient => new SparkPostRecipient {
+                Address = new SparkPostRecipientEmailAddress {
+                    Email = bcc,
+                    Header_To = recipient
+                }
+            }));
             var request = new SparkPostRequest {
                 Content = new SparkPostContent {
-                    From = _settings.Sender,
+                    From = new SparkPostSenderAddress {
+                        Email = _settings.Sender,
+                        Name = _settings.SenderName
+                    },
                     Subject = subject,
                     Html = await GetHtmlAsync(body, subject, template.ToString(), data)
                 },
-                Recipients = recipients.Select(recipient => new SparkPostRecipient {
-                    Address = recipient
-                }).ToArray()
+                Recipients = recipientAddresses.Concat(bccAddresses).ToArray()
             };
             if (attachments?.Length > 0) {
                 var attachmentsList = new List<SparkPostAttachment>();
@@ -115,23 +134,35 @@ namespace Indice.Services
     }
 
     #region SparkPost Models
-    internal class SparkPostRequest
-    {
+    internal class SparkPostRequest {
         public SparkPostContent Content { get; set; }
         public SparkPostRecipient[] Recipients { get; set; }
     }
 
-    internal class SparkPostContent
-    {
-        public string From { get; set; }
+    internal class SparkPostContent {
+        public SparkPostSenderAddress From { get; set; }
         public string Subject { get; set; }
         public string Html { get; set; }
         public SparkPostAttachment[] Attachments { get; set; }
     }
 
-    internal class SparkPostRecipient
+    internal class SparkPostSenderAddress
     {
-        public string Address { get; set; }
+        public string Email { get; set; }
+        public string Name { get; set; }
+    }
+
+    internal class SparkPostRecipient {
+        public SparkPostRecipientEmailAddress Address { get; set; }
+    }
+
+    internal class SparkPostRecipientEmailAddress {
+        public string Email { get; set; }
+        /// <summary>
+        /// Decides whether this email address will be associated with an other one. 
+        /// If left blank the address will receive a separate email.
+        /// </summary>
+        public string Header_To { get; set; }
     }
 
     internal class SparkPostAttachment
