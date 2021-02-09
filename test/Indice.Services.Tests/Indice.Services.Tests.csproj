@@ -20,6 +20,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\src\Indice.AspNetCore\Indice.AspNetCore.csproj" />
     <ProjectReference Include="..\..\src\Indice.Services\Indice.Services.csproj" />
   </ItemGroup>
 

@@ -3,7 +3,7 @@
     <Description>Indice.Services Class Library</Description>
     <Copyright>Copyright (c) 2018 Indice</Copyright>
     <AssemblyTitle>Indice.Services</AssemblyTitle>
-    <VersionPrefix>4.0.9</VersionPrefix>
+    <VersionPrefix>4.0.10</VersionPrefix>
     <!--<VersionSuffix>beta10</VersionSuffix>-->
     <Authors>c.leftheris, g.manoltzas</Authors>
     <TargetFramework>netstandard2.0</TargetFramework>
@@ -14,7 +14,7 @@
   <PropertyGroup Label="Package">
     <PackageId>Indice.Services</PackageId>
     <PackageTags>dotnetcore;Files;Emails;Sms</PackageTags>
-    <PackageReleaseNotes>Update Indice.Common.</PackageReleaseNotes>
+    <PackageReleaseNotes>Minor change on Apifon service.</PackageReleaseNotes>
     <PackageIcon>icon-310.png</PackageIcon>
     <PackageProjectUrl>https://github.com/indice-co/Indice.AspNet</PackageProjectUrl>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>

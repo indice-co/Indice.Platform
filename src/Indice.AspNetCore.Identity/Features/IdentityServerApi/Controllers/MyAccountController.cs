@@ -44,7 +44,6 @@ namespace Indice.AspNetCore.Identity.Features
         private readonly GeneralSettings _generalSettings;
         private readonly IdentityOptions _identityOptions;
         private readonly IdentityServerApiEndpointsOptions _identityServerApiEndpointsOptions;
-        private readonly ISmsService _smsService;
         private readonly IEmailService _emailService;
         private readonly IEventService _eventService;
         private readonly ISmsServiceFactory _smsServiceFactory;
@@ -76,7 +75,6 @@ namespace Indice.AspNetCore.Identity.Features
             _messageDescriber = messageDescriber ?? throw new ArgumentNullException(nameof(messageDescriber));
             _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
             _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
-            _smsService = _smsServiceFactory.Create("Sms");
             _emailService = emailService;
         }
 
@@ -185,11 +183,12 @@ namespace Indice.AspNetCore.Identity.Features
             if (!_identityServerApiEndpointsOptions.PhoneNumber.SendOtpOnUpdate) {
                 return NoContent();
             }
-            if (_smsService == null) {
+            var smsService = _smsServiceFactory.Create(request.DeliveryChannel);
+            if (smsService == null) {
                 throw new Exception($"No concrete implementation of {nameof(ISmsService)} is registered.");
             }
             var token = await _userManager.GenerateChangePhoneNumberTokenAsync(user, request.PhoneNumber);
-            await _smsService.SendAsync(request.PhoneNumber, string.Empty, _messageDescriber.PhoneNumberVerificationMessage(token));
+            await smsService.SendAsync(request.PhoneNumber, string.Empty, _messageDescriber.PhoneNumberVerificationMessage(token));
             return NoContent();
         }
 

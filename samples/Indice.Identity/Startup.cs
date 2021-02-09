@@ -81,7 +81,8 @@ namespace Indice.Identity
             services.AddMessageDescriber<ExtendedMessageDescriber>();
             services.AddResponseCaching();
             services.AddDataProtectionLocal(options => options.FromConfiguration());
-            services.AddEmailService(Configuration);
+            //services.AddEmailService(Configuration);
+            services.AddEmailServiceSparkpost(Configuration);
             /*services.AddSmsServiceApifon(Configuration, options => {
                 options.ConfigurePrimaryHttpMessageHandler = (serviceProvider) => new System.Net.Http.HttpClientHandler {
                     ServerCertificateCustomValidationCallback = (httpRequestMessage, certificate, chain, sslPolicyErrors) => true

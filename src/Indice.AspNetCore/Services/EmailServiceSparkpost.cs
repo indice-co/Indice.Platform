@@ -4,7 +4,10 @@ using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Net.Mime;
 using System.Text;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using Indice.Configuration;
 using Indice.Extensions;
@@ -12,8 +15,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.ViewEngines;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
 
 namespace Indice.Services
 {
@@ -42,9 +43,9 @@ namespace Indice.Services
         /// </summary>
         public string ApiKey { get; set; }
         /// <summary>
-        /// The SparkPost API URL (ex. https://api.eu.sparkpost.com/api/v1).
+        /// The SparkPost API URL (ex. https://api.sparkpost.com/api/v1).
         /// </summary>
-        public string Api { get; set; } = "https://api.eu.sparkpost.com/api/v1";
+        public string Api { get; set; } = "https://api.sparkpost.com/api/v1/";
     }
 
     /// <summary>
@@ -95,7 +96,7 @@ namespace Indice.Services
             var bccAddresses = bccRecipients.SelectMany(bcc => recipients.Select(recipient => new SparkPostRecipient {
                 Address = new SparkPostRecipientEmailAddress {
                     Email = bcc,
-                    Header_To = recipient
+                    HeaderTo = recipient
                 }
             }));
             var request = new SparkPostRequest {
@@ -105,7 +106,7 @@ namespace Indice.Services
                         Name = _settings.SenderName
                     },
                     Subject = subject,
-                    Html = await GetHtmlAsync(body, subject, template.ToString(), data)
+                    Html = "<h1>Works</h1>"//await GetHtmlAsync(body, subject, template.ToString(), data)
                 },
                 Recipients = recipientAddresses.Concat(bccAddresses).ToArray()
             };
@@ -120,10 +121,11 @@ namespace Indice.Services
                 }
                 request.Content.Attachments = attachmentsList.ToArray();
             }
-            var requestJson = JsonConvert.SerializeObject(request, new JsonSerializerSettings {
-                ContractResolver = new CamelCasePropertyNamesContractResolver()
+            var requestJson = JsonSerializer.Serialize(request, new JsonSerializerOptions {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                IgnoreNullValues = true
             });
-            var response = await _httpClient.PostAsync("transmissions", new StringContent(requestJson, Encoding.UTF8, "application/json"));
+            var response = await _httpClient.PostAsync("transmissions", new StringContent(requestJson, Encoding.UTF8, MediaTypeNames.Application.Json));
             if (!response.IsSuccessStatusCode) {
                 var content = await response.Content.ReadAsStringAsync();
                 var message = $"SparkPost service could not send email to recipients '{string.Join(", ", recipients)}'. Error is: '{content}'.";
@@ -162,7 +164,8 @@ namespace Indice.Services
         /// Decides whether this email address will be associated with an other one. 
         /// If left blank the address will receive a separate email.
         /// </summary>
-        public string Header_To { get; set; }
+        [JsonPropertyName("header_to")]
+        public string HeaderTo { get; set; }
     }
 
     internal class SparkPostAttachment
