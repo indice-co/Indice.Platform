@@ -35,9 +35,9 @@ namespace Indice.Services
         /// </summary>
         public string ApiKey { get; set; }
         /// <summary>
-        /// The SparkPost API URL (ex. https://api.sparkpost.com/api/v1/).
+        /// The SparkPost API URL (ex. https://api.eu.sparkpost.com/api/v1).
         /// </summary>
-        public string Api { get; set; } = "https://api.sparkpost.com/api/v1/";
+        public string Api { get; set; } = "https://api.eu.sparkpost.com/api/v1";
     }
 
     /// <summary>
@@ -88,7 +88,8 @@ namespace Indice.Services
                 },
                 Recipients = recipients.Select(recipient => new SparkPostRecipient {
                     Address = recipient
-                }).ToArray()
+                })
+                .ToArray()
             };
             if (attachments?.Length > 0) {
                 var attachmentsList = new List<SparkPostAttachment>();
