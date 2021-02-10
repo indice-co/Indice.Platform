@@ -34,7 +34,7 @@ namespace Indice.AspNetCore.Identity.Models
         /// <summary>
         /// The username that will be used.
         /// </summary>
-        public string Username { get; set; }
+        public string UserName { get; set; }
         /// <summary>
         /// The password.
         /// </summary>

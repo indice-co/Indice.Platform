@@ -118,7 +118,7 @@ namespace Indice.AspNetCore.Identity.Services
                 // This is meant to short circuit the UI and only trigger the one external IdP.
                 var viewModel = new TRegisterViewModel {
                     ReturnUrl = returnUrl,
-                    Username = context?.LoginHint,
+                    UserName = context?.LoginHint,
                 };
                 if (!local) {
                     viewModel.ExternalProviders = new[] { new ExternalProvider { AuthenticationScheme = context.IdP } };
@@ -146,7 +146,7 @@ namespace Indice.AspNetCore.Identity.Services
             }
             return new TRegisterViewModel {
                 ReturnUrl = returnUrl,
-                Username = context?.LoginHint,
+                UserName = context?.LoginHint,
                 ExternalProviders = providers.ToArray(),
                 ClientId = context?.Client?.ClientId
             };
@@ -166,7 +166,11 @@ namespace Indice.AspNetCore.Identity.Services
         /// <param name="model"></param>
         public async Task<TRegisterViewModel> BuildRegisterViewModelAsync<TRegisterViewModel>(RegisterRequest model) where TRegisterViewModel : RegisterViewModel, new() {
             var viewModel = await BuildRegisterViewModelAsync<TRegisterViewModel>(model.ReturnUrl);
-            viewModel.Username = model.Username;
+            viewModel.UserName = model.UserName;
+            viewModel.FirstName = model.FirstName;
+            viewModel.LastName = model.LastName;
+            viewModel.PhoneNumber = model.PhoneNumber;
+            viewModel.Password = model.Password;
             return viewModel;
         }
 
