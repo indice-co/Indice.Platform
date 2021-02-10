@@ -278,7 +278,7 @@ namespace Microsoft.Extensions.DependencyInjection
                                                     EncryptionAlgorithm = EncryptionAlgorithm.AES_256_GCM,
                                                     ValidationAlgorithm = ValidationAlgorithm.HMACSHA512
                                                 })
-                                                .PersistKeysToAzureBlobStorage(container, "Keys")
+                                                .PersistKeysToAzureBlobStorage(container, "keys.xml")
                                                 // Configure the system to use a key lifetime. Default is 90 days.
                                                 .SetDefaultKeyLifetime(TimeSpan.FromDays(options.KeyLifetime))
                                                 // This prevents the apps from understanding each other's protected payloads (e.x Azure slots). To share protected payloads between two apps, 
