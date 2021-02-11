@@ -1,6 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace Indice.AspNetCore.Identity.Features
+﻿namespace Indice.AspNetCore.Identity.Features
 {
     /// <summary>
     /// Class that models the request for validating a user's password.
@@ -14,7 +12,6 @@ namespace Indice.AspNetCore.Identity.Features
         /// <summary>
         /// The password.
         /// </summary>
-        [Required]
         public string Password { get; set; }
     }
 }

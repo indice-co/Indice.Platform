@@ -5,21 +5,22 @@ using Indice.AspNetCore.Identity.Models;
 using Indice.Extensions;
 using Indice.Services;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Configuration;
 
 namespace Indice.AspNetCore.Identity.Services
 {
     /// <inheritdoc/>
-    public class LatinCharactersPasswordValidator : LatinCharactersPasswordValidator<User>
+    public class LatinLettersOnlyPasswordValidator : LatinLettersOnlyPasswordValidator<User>
     {
         /// <inheritdoc/>
-        public LatinCharactersPasswordValidator(MessageDescriber messageDescriber) : base(messageDescriber) { }
+        public LatinLettersOnlyPasswordValidator(MessageDescriber messageDescriber, IConfiguration configuration) : base(messageDescriber, configuration) { }
     }
 
     /// <summary>
     /// A validator that checks that the letters contained in the password are only latin English characters.
     /// </summary>
     /// <typeparam name="TUser">The type of user instance.</typeparam>
-    public class LatinCharactersPasswordValidator<TUser> : IPasswordValidator<TUser> where TUser : User
+    public class LatinLettersOnlyPasswordValidator<TUser> : IPasswordValidator<TUser> where TUser : User
     {
         private readonly MessageDescriber _messageDescriber;
         /// <summary>
@@ -28,18 +29,29 @@ namespace Indice.AspNetCore.Identity.Services
         public const string ErrorDescriber = "PasswordContainsNonLatinLetters";
 
         /// <summary>
-        /// Creates a new instance of <see cref="LatinCharactersPasswordValidator"/>.
+        /// Creates a new instance of <see cref="LatinLettersOnlyPasswordValidator"/>.
         /// </summary>
         /// <param name="messageDescriber">Provides the various messages used throughout Indice packages.</param>
-        public LatinCharactersPasswordValidator(MessageDescriber messageDescriber) {
+        /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
+        public LatinLettersOnlyPasswordValidator(MessageDescriber messageDescriber, IConfiguration configuration) {
             _messageDescriber = messageDescriber ?? throw new ArgumentNullException(nameof(messageDescriber));
+            AllowUnicodeCharacters = configuration.GetSection($"{nameof(IdentityOptions)}:{nameof(IdentityOptions.Password)}").GetValue<bool?>(nameof(AllowUnicodeCharacters)) ??
+                                     configuration.GetSection(nameof(PasswordOptions)).GetValue<bool?>(nameof(AllowUnicodeCharacters));
         }
+
+        /// <summary>
+        /// Indicates whether to allow non-latin characters to be included in the password. Defaults to false.
+        /// </summary>
+        public bool? AllowUnicodeCharacters { get; }
 
         /// <inheritdoc/>
         public Task<IdentityResult> ValidateAsync(UserManager<TUser> manager, TUser user, string password) {
             var result = IdentityResult.Success;
+            if (AllowUnicodeCharacters.HasValue && AllowUnicodeCharacters.Value) {
+                return Task.FromResult(result);
+            }
             var isValid = password.All(x => x.IsDigit() || x.IsSpecial() || x.IsLatinLetter());
-            if (!isValid) {
+            if (!isValid || string.IsNullOrWhiteSpace(password)) {
                 result = IdentityResult.Failed(new IdentityError {
                     Code = ErrorDescriber,
                     Description = _messageDescriber.PasswordHasNonLatinChars()

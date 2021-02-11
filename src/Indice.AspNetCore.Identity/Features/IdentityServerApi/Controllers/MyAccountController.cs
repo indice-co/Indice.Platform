@@ -308,7 +308,7 @@ namespace Indice.AspNetCore.Identity.Features
             if (user == null) {
                 return NoContent();
             }
-            var result = await _userManager.ResetPasswordAsync(user, request.Code, request.NewPassword);
+            var result = await _userManager.ResetPasswordAsync(user, request.Token, request.NewPassword);
             if (!result.Succeeded) {
                 return BadRequest(result.Errors.AsValidationProblemDetails());
             }
@@ -490,15 +490,16 @@ namespace Indice.AspNetCore.Identity.Features
             if (!ModelState.IsValid) {
                 return BadRequest(new ValidationProblemDetails(ModelState));
             }
-            var userNameWasProvided = !string.IsNullOrWhiteSpace(request.UserName);
-            var availableRules = GetAvailableRules(userNameProvided: !string.IsNullOrWhiteSpace(request.UserName)).ToDictionary(x => x.Key, x => new PasswordRuleInfo {
+            var userNameProvided = !string.IsNullOrWhiteSpace(request.UserName);
+            var passwordProvided = !string.IsNullOrWhiteSpace(request.Password);
+            var availableRules = GetAvailableRules(userNameProvided, passwordProvided).ToDictionary(x => x.Key, x => new PasswordRuleInfo {
                 Name = x.Key,
                 IsValid = true,
                 Description = x.Value
             });
             var user = new User { UserName = request.UserName ?? string.Empty, Id = User.FindSubjectId() ?? string.Empty };
             foreach (var validator in _userManager.PasswordValidators) {
-                var result = await validator.ValidateAsync(_userManager, user, request.Password);
+                var result = await validator.ValidateAsync(_userManager, user, request.Password ?? string.Empty);
                 if (!result.Succeeded) {
                     foreach (var error in result.Errors) {
                         if (availableRules.ContainsKey(error.Code)) {
@@ -512,7 +513,7 @@ namespace Indice.AspNetCore.Identity.Features
             });
         }
 
-        private IDictionary<string, string> GetAvailableRules(bool userNameProvided) {
+        private IDictionary<string, string> GetAvailableRules(bool userNameProvided, bool passwordProvided) {
             var result = new Dictionary<string, string>();
             var passwordOptions = _userManager.Options.Password;
             var errorDescriber = _userManager.ErrorDescriber;
@@ -536,17 +537,24 @@ namespace Indice.AspNetCore.Identity.Features
             foreach (var validator in validators) {
                 var validatorType = validator.GetType();
                 validatorType = validatorType.IsGenericType ? validatorType.GetGenericTypeDefinition() : validatorType;
-                if (validatorType == typeof(NonCommonPasswordValidator) || validatorType == typeof(NonCommonPasswordValidator<>)) {
+                var isNonCommonPasswordValidator = validatorType == typeof(NonCommonPasswordValidator) || validatorType == typeof(NonCommonPasswordValidator<>);
+                if (isNonCommonPasswordValidator) {
                     result.Add(NonCommonPasswordValidator.ErrorDescriber, _messageDescriber.PasswordIsCommon());
                 }
-                if ((validatorType == typeof(UserNameAsPasswordValidator) || validatorType == typeof(UserNameAsPasswordValidator<>)) && userNameProvided) {
+                var isUserNameAsPasswordValidator = validatorType == typeof(UserNameAsPasswordValidator) || validatorType == typeof(UserNameAsPasswordValidator<>);
+                if (isUserNameAsPasswordValidator && userNameProvided) {
                     result.Add(UserNameAsPasswordValidator.ErrorDescriber, _messageDescriber.PasswordIdenticalToUserName());
                 }
-                if (validatorType == typeof(PreviousPasswordAwareValidator) || validatorType == typeof(PreviousPasswordAwareValidator<>) || validatorType == typeof(PreviousPasswordAwareValidator<,>) || validatorType == typeof(PreviousPasswordAwareValidator<,,>)) {
+                var isPreviousPasswordAwareValidator = validatorType == typeof(PreviousPasswordAwareValidator) 
+                    || validatorType == typeof(PreviousPasswordAwareValidator<>) 
+                    || validatorType == typeof(PreviousPasswordAwareValidator<,>) 
+                    || validatorType == typeof(PreviousPasswordAwareValidator<,,>);
+                if (isPreviousPasswordAwareValidator && userNameProvided) {
                     result.Add(PreviousPasswordAwareValidator.ErrorDescriber, _messageDescriber.PasswordRecentlyUsed());
                 }
-                if (validatorType == typeof(LatinCharactersPasswordValidator) || validatorType == typeof(LatinCharactersPasswordValidator<>)) {
-                    result.Add(LatinCharactersPasswordValidator.ErrorDescriber, _messageDescriber.PasswordIdenticalToUserName());
+                var isLatinCharactersPasswordValidator = validatorType == typeof(LatinLettersOnlyPasswordValidator) || validatorType == typeof(LatinLettersOnlyPasswordValidator<>);
+                if (isLatinCharactersPasswordValidator) {
+                    result.Add(LatinLettersOnlyPasswordValidator.ErrorDescriber, _messageDescriber.PasswordHasNonLatinChars());
                 }
             }
             return result;

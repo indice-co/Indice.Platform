@@ -1,6 +1,7 @@
 ﻿using System;
 using Indice.AspNetCore.Identity;
 using Indice.AspNetCore.Identity.Authorization;
+using Indice.AspNetCore.Identity.Features;
 using Indice.AspNetCore.Identity.Models;
 using Indice.AspNetCore.Identity.Services;
 using Indice.Configuration;
@@ -53,6 +54,41 @@ namespace Microsoft.AspNetCore.Identity
             builder.Services.AddDefaultTotpService(configure);
             var providerType = typeof(ExtendedPhoneNumberTokenProvider<>).MakeGenericType(builder.UserType);
             builder.AddTokenProvider(TokenOptions.DefaultPhoneProvider, providerType);
+            return builder;
+        }
+
+        /// <summary>
+        /// Registers <see cref="NonCommonPasswordValidator{T}"/> as a password validator along with two <see cref="IPasswordBlacklistProvider"/>, the <see cref="DefaultPasswordBlacklistProvider"/>
+        /// and <see cref="ConfigPasswordBlacklistProvider"/>.
+        /// </summary>
+        /// <typeparam name="TUser">The type of the <see cref="IdentityUser"/>.</typeparam>
+        /// <param name="builder">Helper functions for configuring identity services.</param>
+        /// <returns>The <see cref="IdentityBuilder"/>.</returns>
+        public static IdentityBuilder AddNonCommonPasswordValidator<TUser>(this IdentityBuilder builder) where TUser : User {
+            builder.Services.AddSingleton<IPasswordBlacklistProvider, DefaultPasswordBlacklistProvider>();
+            builder.Services.AddSingleton<IPasswordBlacklistProvider, ConfigPasswordBlacklistProvider>();
+            builder.AddPasswordValidator<NonCommonPasswordValidator<TUser>>();
+            return builder;
+        }
+
+        /// <summary>
+        /// Registers <see cref="NonCommonPasswordValidator"/> as a password validator along with two <see cref="IPasswordBlacklistProvider"/>, the <see cref="DefaultPasswordBlacklistProvider"/>
+        /// and <see cref="ConfigPasswordBlacklistProvider"/>, using <see cref="User"/> class as a user type.
+        /// </summary>
+        /// <param name="builder">Helper functions for configuring identity services.</param>
+        /// <returns>The <see cref="IdentityBuilder"/>.</returns>
+        public static IdentityBuilder AddNonCommonPasswordValidator(this IdentityBuilder builder) => builder.AddNonCommonPasswordValidator<User>();
+
+        /// <summary>
+        /// Registers the recommended password validators: <see cref="NonCommonPasswordValidator"/>, <see cref="LatinLettersOnlyPasswordValidator"/>, <see cref="PreviousPasswordAwareValidator"/> and <see cref="UserNameAsPasswordValidator"/>.
+        /// </summary>
+        /// <param name="builder">Helper functions for configuring identity services.</param>
+        /// <returns>The <see cref="IdentityBuilder"/>.</returns>
+        public static IdentityBuilder AddDefaultPasswordValidators(this IdentityBuilder builder) {
+            builder.AddNonCommonPasswordValidator();
+            builder.AddPasswordValidator<LatinLettersOnlyPasswordValidator>();
+            builder.AddPasswordValidator<PreviousPasswordAwareValidator<ExtendedIdentityDbContext<User, Role>, User, Role>>();
+            builder.AddPasswordValidator<UserNameAsPasswordValidator>();
             return builder;
         }
     }

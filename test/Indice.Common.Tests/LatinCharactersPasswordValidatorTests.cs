@@ -13,7 +13,7 @@ namespace Indice.Common.Tests
         [InlineData("K1$Λ")]
         [InlineData("K1$ e")]
         public async Task CheckInvalidPasswords(string password) {
-            var validator = new LatinCharactersPasswordValidator<User>(new MessageDescriber());
+            var validator = new LatinLettersOnlyPasswordValidator<User>(new MessageDescriber(), null);
             var identityResult = await validator.ValidateAsync(null, new User(), password);
             Assert.False(identityResult.Succeeded);
         }
@@ -21,7 +21,7 @@ namespace Indice.Common.Tests
         [Theory]
         [InlineData(@"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789~!@#$%^&*()_+-={}[]:"";',./<>?")]
         public async Task CheckValidPasswords(string password) {
-            var validator = new LatinCharactersPasswordValidator<User>(new MessageDescriber());
+            var validator = new LatinLettersOnlyPasswordValidator<User>(new MessageDescriber(), null);
             var identityResult = await validator.ValidateAsync(null, new User(), password);
             Assert.True(identityResult.Succeeded);
         }

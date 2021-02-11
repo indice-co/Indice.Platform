@@ -44,7 +44,7 @@ namespace Indice.AspNetCore.Identity.Services
         /// <inheritdoc/>
         public Task<IdentityResult> ValidateAsync(UserManager<TUser> manager, TUser user, string password) {
             var result = IdentityResult.Success;
-            if (_commonPasswords.Contains(password)) {
+            if (string.IsNullOrWhiteSpace(password) || _commonPasswords.Contains(password)) {
                 result = IdentityResult.Failed(new IdentityError {
                     Code = ErrorDescriber,
                     Description = _messageDescriber.PasswordIsCommon()

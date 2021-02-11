@@ -26,17 +26,14 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddTransient<IClaimsTransformation, ClaimsTransformer>();
             services.Configure<IdentityOptions>(configuration.GetSection(nameof(IdentityOptions)));
             return services.AddIdentity<User, Role>()
-                           .AddClaimsTransform<ExtendedUserClaimsPrincipalFactory<User, Role>>()
-                           .AddDefaultTokenProviders()
-                           .AddEntityFrameworkStores<ExtendedIdentityDbContext<User, Role>>()
                            .AddErrorDescriber<ExtendedIdentityErrorDescriber>()
-                           .AddExtendedPhoneNumberTokenProvider()
+                           .AddClaimsTransform<ExtendedUserClaimsPrincipalFactory<User, Role>>()
+                           .AddEntityFrameworkStores<ExtendedIdentityDbContext<User, Role>>()
+                           .AddUserStore<ExtendedUserStore<ExtendedIdentityDbContext<User, Role>, User, Role>>()
                            .AddExtendedSignInManager()
-                           .AddNonCommonPasswordValidator()
-                           .AddPasswordValidator<LatinCharactersPasswordValidator>()
-                           .AddPasswordValidator<PreviousPasswordAwareValidator<ExtendedIdentityDbContext<User, Role>, User, Role>>()
-                           .AddPasswordValidator<UserNameAsPasswordValidator>()
-                           .AddUserStore<ExtendedUserStore<ExtendedIdentityDbContext<User, Role>, User, Role>>();
+                           .AddDefaultPasswordValidators()
+                           .AddExtendedPhoneNumberTokenProvider()
+                           .AddDefaultTokenProviders();
         }
     }
 }
