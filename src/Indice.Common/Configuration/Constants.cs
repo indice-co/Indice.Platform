@@ -46,4 +46,15 @@
         /// </summary>
         public const int L4096 = 4096;
     }
+
+    /// <summary>
+    /// Contains names for custom headers used.
+    /// </summary>
+    public class CustomHeaderNames 
+    {
+        /// <summary>
+        /// Header name for requests that need to contain an antiforgery token.
+        /// </summary>
+        public const string AntiforgeryHeaderName = "X-CSRF-TOKEN";
+    }
 }

@@ -4,6 +4,7 @@ using Indice.AspNetCore.Identity.Models;
 using Indice.AspNetCore.Identity.Services;
 using Indice.Configuration;
 using Indice.Security;
+using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -63,6 +64,10 @@ namespace Indice.AspNetCore.Identity.Features
                           .RequireAuthenticatedUser()
                           .RequireAssertion(x => x.User.HasClaim(JwtClaimTypes.Scope, IdentityServerApi.Scope) && (x.User.IsAdmin() || x.User.IsSystemClient()));
                 });
+            });
+            // Configure antiforgery token options.
+            services.Configure<AntiforgeryOptions>(options => {
+                options.HeaderName = CustomHeaderNames.AntiforgeryHeaderName;
             });
             // Try register the extended version of UserManager<User>.
             services.TryAddScoped<ExtendedUserManager<User>>();

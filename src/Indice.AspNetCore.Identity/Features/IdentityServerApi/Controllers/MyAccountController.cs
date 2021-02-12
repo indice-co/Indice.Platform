@@ -508,9 +508,7 @@ namespace Indice.AspNetCore.Identity.Features
                     }
                 }
             }
-            return Ok(new CredentialsValidationInfo {
-                PasswordRules = availableRules.Values.ToList()
-            });
+            return Ok(new CredentialsValidationInfo { PasswordRules = availableRules.Values.ToList() });
         }
 
         private IDictionary<string, string> GetAvailableRules(bool userNameProvided, bool passwordProvided) {

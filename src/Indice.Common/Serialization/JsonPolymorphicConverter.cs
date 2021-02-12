@@ -16,13 +16,13 @@ namespace Indice.Serialization
         private readonly IDictionary<Type, string> _typeToNameMap;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="JsonNetPolymorphicConverter"/> class.
+        /// Initializes a new instance of the <see cref="JsonPolymorphicConverter"/> class.
         /// </summary>
         /// <param name="typeMapping">The type names to use when serializing types.</param>
         public JsonPolymorphicConverter(IDictionary<string, Type> typeMapping) : this("discriminator", typeMapping) { }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="JsonNetPolymorphicConverter"/> class.
+        /// Initializes a new instance of the <see cref="JsonPolymorphicConverter"/> class.
         /// </summary>
         /// <param name="typePropertyName">The name of the property in which to serialize the type name.</param>
         /// <param name="typeMapping">The type names to use when serializing types.</param>
@@ -179,7 +179,7 @@ namespace Indice.Serialization
     public class JsonPolymorphicConverter<T> : JsonPolymorphicConverter
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="JsonNetPolymorphicConverter{T}"/> class.
+        /// Initializes a new instance of the <see cref="JsonPolymorphicConverter{T}"/> class.
         /// </summary>
         /// <param name="typePropertName">The name of the property in which to serialize the type name.</param>
         public JsonPolymorphicConverter(string typePropertName) : base(typePropertName, GetTypeMapping(typeof(T), typePropertName)) { }
