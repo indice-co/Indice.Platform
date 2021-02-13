@@ -119,7 +119,7 @@ namespace Indice.AspNetCore.Identity.Services
                 if (usedPasswords.Length > 0 && isUsedBefore) {
                     result = IdentityResult.Failed(new IdentityError {
                         Code = ErrorDescriber,
-                        Description = MessageDescriber.PasswordRecentlyUsed()
+                        Description = MessageDescriber.PasswordRecentlyUsed
                     });
                 }
             }

@@ -61,7 +61,7 @@ namespace Indice.AspNetCore.Identity.Services
             if (user.UserName.Equals(password, StringComparison.InvariantCultureIgnoreCase)) {
                 result = IdentityResult.Failed(new IdentityError {
                     Code = ErrorDescriber,
-                    Description = _messageDescriber.PasswordIdenticalToUserName()
+                    Description = _messageDescriber.PasswordIdenticalToUserName
                 });
                 return Task.FromResult(result);
             }
@@ -77,7 +77,7 @@ namespace Indice.AspNetCore.Identity.Services
             if (userNameSubstrings.Any(userNameSubstring => password.Contains(userNameSubstring, StringComparison.OrdinalIgnoreCase))) {
                 result = IdentityResult.Failed(new IdentityError {
                     Code = ErrorDescriber,
-                    Description = _messageDescriber.PasswordIdenticalToUserName()
+                    Description = _messageDescriber.PasswordIdenticalToUserName
                 });
             }
             return Task.FromResult(result);

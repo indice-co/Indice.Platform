@@ -115,11 +115,29 @@ namespace Indice.AspNetCore {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Your password cannot contain non-Latin characters, which is required by the password policy..
+        /// </summary>
+        internal static string PasswordHasNonLatinCharsHint {
+            get {
+                return ResourceManager.GetString("PasswordHasNonLatinCharsHint", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Your password is identical to your username..
         /// </summary>
         internal static string PasswordIdenticalToUserName {
             get {
                 return ResourceManager.GetString("PasswordIdenticalToUserName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Your password looks a lot like your username which can lead to your account been hacked..
+        /// </summary>
+        internal static string PasswordIdenticalToUserNameHint {
+            get {
+                return ResourceManager.GetString("PasswordIdenticalToUserNameHint", resourceCulture);
             }
         }
         
@@ -133,11 +151,83 @@ namespace Indice.AspNetCore {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Your password is very easy to guess, please choose a more complex one..
+        /// </summary>
+        internal static string PasswordIsCommonHint {
+            get {
+                return ResourceManager.GetString("PasswordIsCommonHint", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to This password has been used recently..
         /// </summary>
         internal static string PasswordRecentlyUsed {
             get {
                 return ResourceManager.GetString("PasswordRecentlyUsed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to It is a good practise not to re-use your past password..
+        /// </summary>
+        internal static string PasswordRecentlyUsedHint {
+            get {
+                return ResourceManager.GetString("PasswordRecentlyUsedHint", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Your password must contain a numeric character, which is required by the password policy..
+        /// </summary>
+        internal static string PasswordRequiresDigitHint {
+            get {
+                return ResourceManager.GetString("PasswordRequiresDigitHint", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Your password must contain a lower case letter, which is required by the password policy..
+        /// </summary>
+        internal static string PasswordRequiresLowerHint {
+            get {
+                return ResourceManager.GetString("PasswordRequiresLowerHint", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Your password must contain a non-alphanumeric character, which is required by the password policy..
+        /// </summary>
+        internal static string PasswordRequiresNonAlphanumericHint {
+            get {
+                return ResourceManager.GetString("PasswordRequiresNonAlphanumericHint", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Your password must meet the minimum number of unique chars required..
+        /// </summary>
+        internal static string PasswordRequiresUniqueCharsHint {
+            get {
+                return ResourceManager.GetString("PasswordRequiresUniqueCharsHint", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Your password must contain an upper case letter, which is required by the password policy..
+        /// </summary>
+        internal static string PasswordRequiresUpperHint {
+            get {
+                return ResourceManager.GetString("PasswordRequiresUpperHint", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Your password&apos;s specified length does not meet the minimum length requirements..
+        /// </summary>
+        internal static string PasswordTooShortHint {
+            get {
+                return ResourceManager.GetString("PasswordTooShortHint", resourceCulture);
             }
         }
         

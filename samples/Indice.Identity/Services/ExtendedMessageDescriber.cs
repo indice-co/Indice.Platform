@@ -18,12 +18,12 @@ namespace Indice.Identity.Services
 
         public override string UpdateEmailMessageBody<TUser>(TUser user, string token, string returnUrl) => _localizer["Email verification code is {0}.", token];
 
-        public override string PasswordIsCommon() => _localizer["Your password is very common to use."];
+        public override string PasswordIsCommon => _localizer["Your password is very common to use."];
 
-        public override string PasswordHasNonLatinChars() => _localizer["Password cannot contain non latin characters."];
+        public override string PasswordHasNonLatinChars => _localizer["Password cannot contain non latin characters."];
 
-        public override string PasswordIdenticalToUserName() => _localizer["Your password is identical to your username."];
+        public override string PasswordIdenticalToUserName => _localizer["Your password is identical to your username."];
 
-        public override string PasswordRecentlyUsed() => _localizer["This password has been used recently."];
+        public override string PasswordRecentlyUsed => _localizer["This password has been used recently."];
     }
 }

@@ -1,4 +1,6 @@
-﻿namespace Indice.AspNetCore.Identity.Features
+﻿using Indice.Types;
+
+namespace Indice.AspNetCore.Identity.Features
 {
     /// <summary>
     /// Class that models the request for validating a user's password.
@@ -6,9 +8,9 @@
     public class ValidatePasswordRequest
     {
         /// <summary>
-        /// The username.
+        /// A token representing the user id.
         /// </summary>
-        public string UserName { get; set; }
+        public string Token { get; set; }
         /// <summary>
         /// The password.
         /// </summary>

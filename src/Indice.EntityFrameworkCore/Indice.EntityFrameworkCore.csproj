@@ -3,7 +3,7 @@
     <Description>Indice.EntityFrameworkCore Class Library</Description>
     <Copyright>Copyright (c) 2020 Indice</Copyright>
     <AssemblyTitle>Indice.EntityFrameworkCore</AssemblyTitle>
-    <VersionPrefix>4.0.0</VersionPrefix>
+    <VersionPrefix>4.0.1</VersionPrefix>
     <!--<VersionSuffix>beta4</VersionSuffix>-->
     <Authors>c.leftheris, g.manoltzas</Authors>
     <TargetFrameworks>netstandard2.0;netcoreapp3.1</TargetFrameworks>
@@ -16,7 +16,7 @@
   <PropertyGroup Label="Package">
     <PackageId>Indice.EntityFrameworkCore</PackageId>
     <PackageTags>AspNet;Api;Utilities</PackageTags>
-    <PackageReleaseNotes>Update to newer major version.</PackageReleaseNotes>
+    <PackageReleaseNotes>Update Indice.Common.</PackageReleaseNotes>
     <PackageIcon>icon-310.png</PackageIcon>
     <PackageProjectUrl>https://github.com/indice-co/Indice.AspNet</PackageProjectUrl>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
@@ -36,7 +36,7 @@
     <None Include="..\..\icon\icon-310.png" Pack="true" Visible="false" PackagePath="" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Indice.Common" Version="4.0.0" />
+    <PackageReference Include="Indice.Common" Version="4.0.5" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.1.12" />
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
   </ItemGroup>

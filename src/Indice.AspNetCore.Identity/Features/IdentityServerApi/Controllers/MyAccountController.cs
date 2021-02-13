@@ -490,16 +490,22 @@ namespace Indice.AspNetCore.Identity.Features
             if (!ModelState.IsValid) {
                 return BadRequest(new ValidationProblemDetails(ModelState));
             }
-            var userNameProvided = !string.IsNullOrWhiteSpace(request.UserName);
-            var passwordProvided = !string.IsNullOrWhiteSpace(request.Password);
-            var availableRules = GetAvailableRules(userNameProvided, passwordProvided).ToDictionary(x => x.Key, x => new PasswordRuleInfo {
-                Name = x.Key,
+            User user = null;
+            if (!string.IsNullOrWhiteSpace(request.Token)) {
+                var canParse = Base64Id.TryParse(request.Token, out var userId);
+                if (canParse) {
+                    user = await _userManager.FindByIdAsync(userId.Id.ToString());
+                }
+            }
+            var userNameAvailable = !string.IsNullOrWhiteSpace(user?.UserName);
+            var availableRules = GetAvailableRules(userNameAvailable).ToDictionary(rule => rule.Key, rule => new PasswordRuleInfo {
+                Code = rule.Key,
                 IsValid = true,
-                Description = x.Value
+                Description = rule.Value.Description,
+                Hint = rule.Value.Hint
             });
-            var user = new User { UserName = request.UserName ?? string.Empty, Id = User.FindSubjectId() ?? string.Empty };
             foreach (var validator in _userManager.PasswordValidators) {
-                var result = await validator.ValidateAsync(_userManager, user, request.Password ?? string.Empty);
+                var result = await validator.ValidateAsync(_userManager, user ?? new User(), request.Password ?? string.Empty);
                 if (!result.Succeeded) {
                     foreach (var error in result.Errors) {
                         if (availableRules.ContainsKey(error.Code)) {
@@ -511,25 +517,25 @@ namespace Indice.AspNetCore.Identity.Features
             return Ok(new CredentialsValidationInfo { PasswordRules = availableRules.Values.ToList() });
         }
 
-        private IDictionary<string, string> GetAvailableRules(bool userNameProvided, bool passwordProvided) {
-            var result = new Dictionary<string, string>();
+        private IDictionary<string, (string Description, string Hint)> GetAvailableRules(bool userNameAvailable) {
+            var result = new Dictionary<string, (string Description, string Hint)>();
             var passwordOptions = _userManager.Options.Password;
             var errorDescriber = _userManager.ErrorDescriber;
-            result.Add(nameof(IdentityErrorDescriber.PasswordTooShort), errorDescriber.PasswordTooShort(passwordOptions.RequiredLength).Description);
+            result.Add(nameof(IdentityErrorDescriber.PasswordTooShort), (errorDescriber.PasswordTooShort(passwordOptions.RequiredLength).Description, Hint: _messageDescriber.PasswordTooShortHint));
             if (passwordOptions.RequiredUniqueChars > 1) {
-                result.Add(nameof(IdentityErrorDescriber.PasswordRequiresUniqueChars), errorDescriber.PasswordRequiresUniqueChars(passwordOptions.RequiredUniqueChars).Description);
+                result.Add(nameof(IdentityErrorDescriber.PasswordRequiresUniqueChars), (errorDescriber.PasswordRequiresUniqueChars(passwordOptions.RequiredUniqueChars).Description, Hint: _messageDescriber.PasswordRequiresUniqueCharsHint));
             }
             if (passwordOptions.RequireNonAlphanumeric) {
-                result.Add(nameof(IdentityErrorDescriber.PasswordRequiresNonAlphanumeric), errorDescriber.PasswordRequiresNonAlphanumeric().Description);
+                result.Add(nameof(IdentityErrorDescriber.PasswordRequiresNonAlphanumeric), (errorDescriber.PasswordRequiresNonAlphanumeric().Description, Hint: _messageDescriber.PasswordRequiresNonAlphanumericHint));
             }
             if (passwordOptions.RequireDigit) {
-                result.Add(nameof(IdentityErrorDescriber.PasswordRequiresDigit), errorDescriber.PasswordRequiresDigit().Description);
+                result.Add(nameof(IdentityErrorDescriber.PasswordRequiresDigit), (errorDescriber.PasswordRequiresDigit().Description, Hint: _messageDescriber.PasswordRequiresDigitHint));
             }
             if (passwordOptions.RequireLowercase) {
-                result.Add(nameof(IdentityErrorDescriber.PasswordRequiresLower), errorDescriber.PasswordRequiresLower().Description);
+                result.Add(nameof(IdentityErrorDescriber.PasswordRequiresLower), (errorDescriber.PasswordRequiresLower().Description, Hint: _messageDescriber.PasswordRequiresLowerHint));
             }
             if (passwordOptions.RequireUppercase) {
-                result.Add(nameof(IdentityErrorDescriber.PasswordRequiresUpper), errorDescriber.PasswordRequiresUpper().Description);
+                result.Add(nameof(IdentityErrorDescriber.PasswordRequiresUpper), (errorDescriber.PasswordRequiresUpper().Description, Hint: _messageDescriber.PasswordRequiresUpperHint));
             }
             var validators = _userManager.PasswordValidators;
             foreach (var validator in validators) {
@@ -537,22 +543,22 @@ namespace Indice.AspNetCore.Identity.Features
                 validatorType = validatorType.IsGenericType ? validatorType.GetGenericTypeDefinition() : validatorType;
                 var isNonCommonPasswordValidator = validatorType == typeof(NonCommonPasswordValidator) || validatorType == typeof(NonCommonPasswordValidator<>);
                 if (isNonCommonPasswordValidator) {
-                    result.Add(NonCommonPasswordValidator.ErrorDescriber, _messageDescriber.PasswordIsCommon());
+                    result.Add(NonCommonPasswordValidator.ErrorDescriber, (Description: _messageDescriber.PasswordIsCommon, Hint: _messageDescriber.PasswordIsCommonHint));
                 }
                 var isUserNameAsPasswordValidator = validatorType == typeof(UserNameAsPasswordValidator) || validatorType == typeof(UserNameAsPasswordValidator<>);
-                if (isUserNameAsPasswordValidator && userNameProvided) {
-                    result.Add(UserNameAsPasswordValidator.ErrorDescriber, _messageDescriber.PasswordIdenticalToUserName());
+                if (isUserNameAsPasswordValidator && userNameAvailable) {
+                    result.Add(UserNameAsPasswordValidator.ErrorDescriber, (Description: _messageDescriber.PasswordIdenticalToUserName, Hint: _messageDescriber.PasswordIdenticalToUserNameHint));
                 }
-                var isPreviousPasswordAwareValidator = validatorType == typeof(PreviousPasswordAwareValidator) 
-                    || validatorType == typeof(PreviousPasswordAwareValidator<>) 
-                    || validatorType == typeof(PreviousPasswordAwareValidator<,>) 
+                var isPreviousPasswordAwareValidator = validatorType == typeof(PreviousPasswordAwareValidator)
+                    || validatorType == typeof(PreviousPasswordAwareValidator<>)
+                    || validatorType == typeof(PreviousPasswordAwareValidator<,>)
                     || validatorType == typeof(PreviousPasswordAwareValidator<,,>);
-                if (isPreviousPasswordAwareValidator && userNameProvided) {
-                    result.Add(PreviousPasswordAwareValidator.ErrorDescriber, _messageDescriber.PasswordRecentlyUsed());
+                if (isPreviousPasswordAwareValidator && userNameAvailable) {
+                    result.Add(PreviousPasswordAwareValidator.ErrorDescriber, (Description: _messageDescriber.PasswordRecentlyUsed, Hint: _messageDescriber.PasswordRecentlyUsedHint));
                 }
                 var isLatinCharactersPasswordValidator = validatorType == typeof(LatinLettersOnlyPasswordValidator) || validatorType == typeof(LatinLettersOnlyPasswordValidator<>);
                 if (isLatinCharactersPasswordValidator) {
-                    result.Add(LatinLettersOnlyPasswordValidator.ErrorDescriber, _messageDescriber.PasswordHasNonLatinChars());
+                    result.Add(LatinLettersOnlyPasswordValidator.ErrorDescriber, (Description: _messageDescriber.PasswordHasNonLatinChars, Hint: _messageDescriber.PasswordHasNonLatinCharsHint));
                 }
             }
             return result;

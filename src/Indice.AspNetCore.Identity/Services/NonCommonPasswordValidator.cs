@@ -47,7 +47,7 @@ namespace Indice.AspNetCore.Identity.Services
             if (string.IsNullOrWhiteSpace(password) || _commonPasswords.Contains(password)) {
                 result = IdentityResult.Failed(new IdentityError {
                     Code = ErrorDescriber,
-                    Description = _messageDescriber.PasswordIsCommon()
+                    Description = _messageDescriber.PasswordIsCommon
                 });
             }
             return Task.FromResult(result);

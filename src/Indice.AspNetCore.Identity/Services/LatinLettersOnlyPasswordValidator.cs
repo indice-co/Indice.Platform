@@ -54,7 +54,7 @@ namespace Indice.AspNetCore.Identity.Services
             if (!isValid || string.IsNullOrWhiteSpace(password)) {
                 result = IdentityResult.Failed(new IdentityError {
                     Code = ErrorDescriber,
-                    Description = _messageDescriber.PasswordHasNonLatinChars()
+                    Description = _messageDescriber.PasswordHasNonLatinChars
                 });
             }
             return Task.FromResult(result);
