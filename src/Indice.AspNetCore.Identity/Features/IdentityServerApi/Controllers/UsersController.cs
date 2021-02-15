@@ -9,7 +9,6 @@ using IdentityServer4.Services;
 using IdentityServer4.Stores;
 using Indice.AspNetCore.Filters;
 using Indice.AspNetCore.Identity.Models;
-using Indice.AspNetCore.Identity.Services;
 using Indice.Configuration;
 using Indice.Types;
 using Microsoft.AspNetCore.Authorization;

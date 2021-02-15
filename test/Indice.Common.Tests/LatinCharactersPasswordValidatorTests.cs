@@ -1,8 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
+using Indice.AspNetCore.Identity;
 using Indice.AspNetCore.Identity.Models;
-using Indice.AspNetCore.Identity.Services;
-using Indice.Services;
 using Microsoft.Extensions.Configuration;
 using Xunit;
 
@@ -24,7 +23,7 @@ namespace Indice.Common.Tests
         [InlineData("K1$Λ")]
         [InlineData("K1$ e")]
         public async Task CheckInvalidPasswords(string password) {
-            var validator = new LatinLettersOnlyPasswordValidator<User>(new MessageDescriber(), _configuration);
+            var validator = new LatinLettersOnlyPasswordValidator<User>(new IdentityMessageDescriber(), _configuration);
             var identityResult = await validator.ValidateAsync(null, new User(), password);
             Assert.False(identityResult.Succeeded);
         }
@@ -32,7 +31,7 @@ namespace Indice.Common.Tests
         [Theory]
         [InlineData(@"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789~!@#$%^&*()_+-={}[]:"";',./<>?")]
         public async Task CheckValidPasswords(string password) {
-            var validator = new LatinLettersOnlyPasswordValidator<User>(new MessageDescriber(), _configuration);
+            var validator = new LatinLettersOnlyPasswordValidator<User>(new IdentityMessageDescriber(), _configuration);
             var identityResult = await validator.ValidateAsync(null, new User(), password);
             Assert.True(identityResult.Succeeded);
         }

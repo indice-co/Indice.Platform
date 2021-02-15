@@ -15,5 +15,9 @@ namespace Indice.AspNetCore.Identity.Features
         /// The password.
         /// </summary>
         public string Password { get; set; }
+        /// <summary>
+        /// The username.
+        /// </summary>
+        public string UserName { get; set; }
     }
 }

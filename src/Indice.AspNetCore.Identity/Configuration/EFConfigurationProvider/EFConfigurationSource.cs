@@ -1,7 +1,7 @@
 ﻿using System;
 using Microsoft.Extensions.Configuration;
 
-namespace Indice.Extensions.Configuration.EFCore
+namespace Indice.Extensions.Configuration.EntityFrameworkCore
 {
     /// <summary>
     /// Represents database secrets as an <see cref="IConfigurationSource"/>.

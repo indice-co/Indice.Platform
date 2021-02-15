@@ -133,46 +133,46 @@
     <value>Forgot password</value>
   </data>
   <data name="PasswordHasNonLatinChars" xml:space="preserve">
-    <value>Password cannot contain non latin characters.</value>
+    <value>Password cannot contain non-Latin characters.</value>
   </data>
-  <data name="PasswordHasNonLatinCharsHint" xml:space="preserve">
-    <value>Your password cannot contain non-Latin characters, which is required by the password policy.</value>
+  <data name="PasswordHasNonLatinCharsRequirement" xml:space="preserve">
+    <value>Does not contain non-Latin characters.</value>
   </data>
   <data name="PasswordIdenticalToUserName" xml:space="preserve">
-    <value>Your password is identical to your username.</value>
-  </data>
-  <data name="PasswordIdenticalToUserNameHint" xml:space="preserve">
     <value>Your password looks a lot like your username which can lead to your account been hacked.</value>
   </data>
-  <data name="PasswordIsCommon" xml:space="preserve">
-    <value>Your password is very common to use.</value>
+  <data name="PasswordIdenticalToUserNameRequirement" xml:space="preserve">
+    <value>Does not contain part of your username.</value>
   </data>
-  <data name="PasswordIsCommonHint" xml:space="preserve">
-    <value>Your password is very easy to guess, please choose a more complex one.</value>
+  <data name="PasswordIsCommon" xml:space="preserve">
+    <value>Password is very easy to guess, please choose a more complex one.</value>
+  </data>
+  <data name="PasswordIsCommonRequirement" xml:space="preserve">
+    <value>Not easy to guess.</value>
   </data>
   <data name="PasswordRecentlyUsed" xml:space="preserve">
-    <value>This password has been used recently.</value>
+    <value>This password has been used recently. It is a good practise not to re-use your previous password.</value>
   </data>
-  <data name="PasswordRecentlyUsedHint" xml:space="preserve">
-    <value>It is a good practise not to re-use your past password.</value>
+  <data name="PasswordRecentlyUsedRequirement" xml:space="preserve">
+    <value>Not recently used.</value>
   </data>
-  <data name="PasswordRequiresDigitHint" xml:space="preserve">
-    <value>Your password must contain a numeric character, which is required by the password policy.</value>
+  <data name="PasswordRequiresDigitRequirement" xml:space="preserve">
+    <value>A numeric character.</value>
   </data>
-  <data name="PasswordRequiresLowerHint" xml:space="preserve">
-    <value>Your password must contain a lower case letter, which is required by the password policy.</value>
+  <data name="PasswordRequiresLowerRequirement" xml:space="preserve">
+    <value>A lower case letter.</value>
   </data>
-  <data name="PasswordRequiresNonAlphanumericHint" xml:space="preserve">
-    <value>Your password must contain a non-alphanumeric character, which is required by the password policy.</value>
+  <data name="PasswordRequiresNonAlphanumericRequirement" xml:space="preserve">
+    <value>A non-alphanumeric character.</value>
   </data>
-  <data name="PasswordRequiresUniqueCharsHint" xml:space="preserve">
-    <value>Your password must meet the minimum number of unique chars required.</value>
+  <data name="PasswordRequiresUniqueCharsRequirement" xml:space="preserve">
+    <value>{0} unique chars required.</value>
   </data>
-  <data name="PasswordRequiresUpperHint" xml:space="preserve">
-    <value>Your password must contain an upper case letter, which is required by the password policy.</value>
+  <data name="PasswordRequiresUpperRequirement" xml:space="preserve">
+    <value>An upper case letter.</value>
   </data>
-  <data name="PasswordTooShortHint" xml:space="preserve">
-    <value>Your password's specified length does not meet the minimum length requirements.</value>
+  <data name="PasswordTooShortRequirement" xml:space="preserve">
+    <value>At least {0} characters long.</value>
   </data>
   <data name="PhoneNumberAlreadyConfirmed" xml:space="preserve">
     <value>User's phone number is already confirmed.</value>

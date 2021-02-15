@@ -1,7 +1,6 @@
 ﻿using System;
 using IdentityModel;
 using Indice.AspNetCore.Identity.Models;
-using Indice.AspNetCore.Identity.Services;
 using Indice.Configuration;
 using Indice.Security;
 using Microsoft.AspNetCore.Antiforgery;
@@ -71,6 +70,7 @@ namespace Indice.AspNetCore.Identity.Features
             });
             // Try register the extended version of UserManager<User>.
             services.TryAddScoped<ExtendedUserManager<User>>();
+            services.TryAddScoped<IdentityMessageDescriber>();
             // Register the authentication handler, using a custom scheme name, for local APIs.
             services.AddAuthentication()
                     .AddLocalApi(IdentityServerApi.AuthenticationScheme, options => {

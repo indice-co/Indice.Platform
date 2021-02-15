@@ -27,9 +27,9 @@ namespace Indice.AspNetCore.Identity.Features
         /// </summary>
         public string Description { get; set; }
         /// <summary>
-        /// An optional hint for the rule.
+        /// The requirement for the rule.
         /// </summary>
-        public string Hint { get; set; }
+        public string Requirement { get; set; }
         /// <summary>
         /// Determines if rule validation was successful or not.
         /// </summary>

@@ -1,11 +1,9 @@
-﻿using Indice.AspNetCore;
-
-namespace Indice.Services
+﻿namespace Indice.AspNetCore.Identity
 {
     /// <summary>
-    /// Provides the various messages used throughout Indice packages.
+    /// Provides an extensibility point for altering localizing used inside the package.
     /// </summary>
-    public class MessageDescriber
+    public class IdentityMessageDescriber
     {
         /// <summary>
         /// User already has email '0'.
@@ -63,44 +61,20 @@ namespace Indice.Services
         /// </summary>
         public virtual string PasswordHasNonLatinChars => string.Format(Resources.Culture, Resources.PasswordHasNonLatinChars);
         /// <summary>
-        /// Your password must meet the minimum number of unique chars required.
-        /// </summary>
-        public virtual string PasswordRequiresUniqueCharsHint => string.Format(Resources.Culture, Resources.PasswordRequiresUniqueCharsHint);
-        /// <summary>
-        /// Your password must contain a non-alphanumeric character, which is required by the password policy.
-        /// </summary>
-        public virtual string PasswordRequiresNonAlphanumericHint => string.Format(Resources.Culture, Resources.PasswordRequiresNonAlphanumericHint);
-        /// <summary>
-        /// Your password must contain a numeric character, which is required by the password policy.
-        /// </summary>
-        public virtual string PasswordRequiresDigitHint => string.Format(Resources.Culture, Resources.PasswordRequiresDigitHint);
-        /// <summary>
-        /// Your password must contain a lower case letter, which is required by the password policy.
-        /// </summary>
-        public virtual string PasswordRequiresLowerHint => string.Format(Resources.Culture, Resources.PasswordRequiresLowerHint);
-        /// <summary>
-        /// Your password must contain an upper case letter, which is required by the password policy.
-        /// </summary>
-        public virtual string PasswordRequiresUpperHint => string.Format(Resources.Culture, Resources.PasswordRequiresUpperHint);
-        /// <summary>
         /// Your password is very easy to guess, please choose a more complex one.
         /// </summary>
-        public virtual string PasswordIsCommonHint => string.Format(Resources.Culture, Resources.PasswordIsCommonHint);
+        public virtual string PasswordIsCommonRequirement => string.Format(Resources.Culture, Resources.PasswordIsCommonRequirement);
         /// <summary>
         /// Your password looks a lot like your username which can lead to your account been hacked.
         /// </summary>
-        public virtual string PasswordIdenticalToUserNameHint => string.Format(Resources.Culture, Resources.PasswordIdenticalToUserNameHint);
+        public virtual string PasswordIdenticalToUserNameRequirement => string.Format(Resources.Culture, Resources.PasswordIdenticalToUserNameRequirement);
         /// <summary>
         /// It is a good practise not to re-use your past password.
         /// </summary>
-        public virtual string PasswordRecentlyUsedHint => string.Format(Resources.Culture, Resources.PasswordRecentlyUsedHint);
+        public virtual string PasswordRecentlyUsedRequirement => string.Format(Resources.Culture, Resources.PasswordRecentlyUsedRequirement);
         /// <summary>
         /// Your password cannot contain non-Latin characters, which is required by the password policy.
         /// </summary>
-        public virtual string PasswordHasNonLatinCharsHint => string.Format(Resources.Culture, Resources.PasswordHasNonLatinCharsHint);
-        /// <summary>
-        /// Your password's specified length does not meet the minimum length requirements.
-        /// </summary>
-        public virtual string PasswordTooShortHint => string.Format(Resources.Culture, Resources.PasswordTooShortHint);
+        public virtual string PasswordHasNonLatinCharsRequirement => string.Format(Resources.Culture, Resources.PasswordHasNonLatinCharsRequirement);
     }
 }

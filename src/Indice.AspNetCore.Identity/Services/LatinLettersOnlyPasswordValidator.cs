@@ -3,17 +3,16 @@ using System.Linq;
 using System.Threading.Tasks;
 using Indice.AspNetCore.Identity.Models;
 using Indice.Extensions;
-using Indice.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 
-namespace Indice.AspNetCore.Identity.Services
+namespace Indice.AspNetCore.Identity
 {
     /// <inheritdoc/>
     public class LatinLettersOnlyPasswordValidator : LatinLettersOnlyPasswordValidator<User>
     {
         /// <inheritdoc/>
-        public LatinLettersOnlyPasswordValidator(MessageDescriber messageDescriber, IConfiguration configuration) : base(messageDescriber, configuration) { }
+        public LatinLettersOnlyPasswordValidator(IdentityMessageDescriber messageDescriber, IConfiguration configuration) : base(messageDescriber, configuration) { }
     }
 
     /// <summary>
@@ -22,7 +21,7 @@ namespace Indice.AspNetCore.Identity.Services
     /// <typeparam name="TUser">The type of user instance.</typeparam>
     public class LatinLettersOnlyPasswordValidator<TUser> : IPasswordValidator<TUser> where TUser : User
     {
-        private readonly MessageDescriber _messageDescriber;
+        private readonly IdentityMessageDescriber _messageDescriber;
         /// <summary>
         /// The code used when describing the <see cref="IdentityError"/>.
         /// </summary>
@@ -33,7 +32,7 @@ namespace Indice.AspNetCore.Identity.Services
         /// </summary>
         /// <param name="messageDescriber">Provides the various messages used throughout Indice packages.</param>
         /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
-        public LatinLettersOnlyPasswordValidator(MessageDescriber messageDescriber, IConfiguration configuration) {
+        public LatinLettersOnlyPasswordValidator(IdentityMessageDescriber messageDescriber, IConfiguration configuration) {
             _messageDescriber = messageDescriber ?? throw new ArgumentNullException(nameof(messageDescriber));
             AllowUnicodeCharacters = configuration.GetSection($"{nameof(IdentityOptions)}:{nameof(IdentityOptions.Password)}").GetValue<bool?>(nameof(AllowUnicodeCharacters)) ??
                                      configuration.GetSection(nameof(PasswordOptions)).GetValue<bool?>(nameof(AllowUnicodeCharacters));

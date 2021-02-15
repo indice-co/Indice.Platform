@@ -47,7 +47,6 @@ namespace Microsoft.Extensions.DependencyInjection
         public static IServiceCollection AddIndiceServices(this IServiceCollection services, IConfiguration configuration) {
             services.Configure<GeneralSettings>(configuration.GetSection(GeneralSettings.Name));
             services.TryAddTransient(serviceProvider => serviceProvider.GetRequiredService<IOptions<GeneralSettings>>().Value);
-            services.TryAddScoped<MessageDescriber>();
             return services;
         }
 
@@ -363,16 +362,6 @@ namespace Microsoft.Extensions.DependencyInjection
             var configuration = serviceProvider.GetRequiredService<IConfiguration>();
             configuration.Bind(section ?? AzureDataProtectionOptions.Name, options);
             return options;
-        }
-
-        /// <summary>
-        /// Adds an overridden implementation of <see cref="MessageDescriber"/>.
-        /// </summary>
-        /// <typeparam name="TDescriber">The type of message describer.</typeparam>
-        /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
-        public static IServiceCollection AddMessageDescriber<TDescriber>(this IServiceCollection services) where TDescriber : MessageDescriber {
-            services.AddScoped<MessageDescriber, TDescriber>();
-            return services;
         }
     }
 }

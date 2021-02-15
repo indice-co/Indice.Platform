@@ -13,7 +13,7 @@ using Microsoft.EntityFrameworkCore;
 namespace Indice.AspNetCore.Identity
 {
     /// <summary>
-    /// 
+    /// An implementation of <see cref="ITotpService"/> used for development purposes, that check for a standard TOTP in user claims.
     /// </summary>
     public class DeveloperTotpService : ITotpService
     {

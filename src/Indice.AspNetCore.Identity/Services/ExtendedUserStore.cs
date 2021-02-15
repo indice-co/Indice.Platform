@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 
-namespace Indice.AspNetCore.Identity.Data
+namespace Indice.AspNetCore.Identity.EntityFrameworkCore
 {
     /// <inheritdoc/>
     public class ExtendedUserStore : ExtendedUserStore<IdentityDbContext, User, IdentityRole>

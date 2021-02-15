@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
-namespace Indice.AspNetCore.Identity.Data
+namespace Indice.AspNetCore.Identity.EntityFrameworkCore
 {
     /// <summary>
     /// <see cref="DbContext"/> for the Identity Framework.

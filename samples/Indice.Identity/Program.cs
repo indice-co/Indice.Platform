@@ -1,5 +1,5 @@
 ﻿using System;
-using Indice.Extensions.Configuration.EFCore;
+using Indice.Extensions.Configuration.EntityFrameworkCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
 using Serilog;

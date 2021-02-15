@@ -2,14 +2,14 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using Indice.AspNetCore.Identity.Data;
+using Indice.AspNetCore.Identity.EntityFrameworkCore;
 using Indice.AspNetCore.Identity.Extensions;
 using Indice.AspNetCore.Identity.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-namespace Indice.AspNetCore.Identity.Services
+namespace Indice.AspNetCore.Identity
 {
     /// <summary>
     /// Provides the APIs for managing user in a persistence store.
@@ -21,6 +21,7 @@ namespace Indice.AspNetCore.Identity.Services
         /// Creates a new instance of <see cref="ExtendedUserManager{TUser}"/>.
         /// </summary>
         /// <param name="userStore">The persistence store the manager will operate over.</param>
+        /// <param name="identityMessageDescriber">Provides an extensibility point for localizing messages used inside the package.</param>
         /// <param name="optionsAccessor">The accessor used to access the <see cref="IdentityOptions"/>.</param>
         /// <param name="passwordHasher">The password hashing implementation to use when saving passwords.</param>
         /// <param name="userValidators">A collection of <see cref="IUserValidator{TUser}"/> to validate users against.</param>
@@ -31,6 +32,7 @@ namespace Indice.AspNetCore.Identity.Services
         /// <param name="logger">The logger used to log messages, warnings and errors.</param>
         public ExtendedUserManager(
             IdentityErrorDescriber errors,
+            IdentityMessageDescriber identityMessageDescriber,
             IEnumerable<IPasswordValidator<TUser>> passwordValidators,
             IEnumerable<IUserValidator<TUser>> userValidators,
             ILogger<ExtendedUserManager<TUser>> logger,
@@ -39,7 +41,14 @@ namespace Indice.AspNetCore.Identity.Services
             IPasswordHasher<TUser> passwordHasher,
             IServiceProvider services,
             IUserStore<TUser> userStore
-        ) : base(userStore, optionsAccessor, passwordHasher, userValidators, passwordValidators, keyNormalizer, errors, services, logger) { }
+        ) : base(userStore, optionsAccessor, passwordHasher, userValidators, passwordValidators, keyNormalizer, errors, services, logger) {
+            MessageDescriber = identityMessageDescriber ?? throw new ArgumentNullException(nameof(identityMessageDescriber));
+        }
+
+        /// <summary>
+        /// Provides an extensibility point for localizing messages used inside the package.
+        /// </summary>
+        public IdentityMessageDescriber MessageDescriber { get; set; }
 
         /// <summary>
         /// Sets the password expiration policy for the specified user.

@@ -28,7 +28,7 @@
     <ProjectReference Include="..\..\src\Indice.Hosting\Indice.Hosting.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Update="Resources\Services\ExtendedMessageDescriber.el.resx">
+    <EmbeddedResource Update="Resources\Services\LocalizedIdentityMessageDescriber.el.resx">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </EmbeddedResource>
     <Content Include="indice-idsrv.pfx">
