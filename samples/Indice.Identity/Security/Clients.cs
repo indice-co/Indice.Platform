@@ -88,15 +88,15 @@ namespace Indice.Identity.Security
                 AllowOfflineAccess = true,
                 ClientUri = "https://indice-admin-ui.azureedge.net",
                 PostLogoutRedirectUris = {
-                    "http://localhost:4200/logged-out",
+                    "http://localhost:4200/#/logged-out",
                     "https://idsrvadminui.z1.web.core.windows.net/#/logged-out",
                     "https://indice-admin-ui.azureedge.net/#/logged-out"
                 },
                 RedirectUris = {
-                    "http://localhost:4200/auth-callback",
+                    "http://localhost:4200/#/auth-callback",
                     "https://idsrvadminui.z1.web.core.windows.net/#/auth-callback",
                     "https://indice-admin-ui.azureedge.net/#/auth-callback",
-                    "http://localhost:4200/auth-renew",
+                    "http://localhost:4200/#/auth-renew",
                     "https://idsrvadminui.z1.web.core.windows.net/#/auth-renew",
                     "https://indice-admin-ui.azureedge.net/#/auth-renew"
                 },

@@ -1,0 +1,44 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <AssemblyName>Indice.AspNetCore.Identity.AdminUI</AssemblyName>
+    <AssemblyTitle>Indice.AspNetCore.Identity.AdminUI</AssemblyTitle>
+    <Authors>Constantinos Leftheris, Georgios Manoltzas</Authors>
+    <Copyright>Copyright (c) 2021 Indice</Copyright>
+    <Description>Indice.AspNetCore.Identity.AdminUI Class Library</Description>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <GenerateEmbeddedFilesManifest>true</GenerateEmbeddedFilesManifest>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <VersionPrefix>4.0.0</VersionPrefix>
+    <!--<VersionSuffix>beta20</VersionSuffix>-->
+  </PropertyGroup>
+  <PropertyGroup Label="Package">
+    <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
+    <Company>Indice</Company>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageIcon>icon-310.png</PackageIcon>
+    <PackageId>Indice.AspNetCore.Identity.AdminUI</PackageId>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/indice-co/Indice.AspNet</PackageProjectUrl>
+    <PackageReleaseNotes>Initial Release.</PackageReleaseNotes>
+    <PackageTags>AspNetCore;IdentityServer;AdminUI</PackageTags>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <RepositoryUrl>https://github.com/indice-co/Indice.AspNet</RepositoryUrl>
+  </PropertyGroup>
+  <ItemGroup>
+    <None Include="..\..\icon\icon-310.png" Pack="true" Visible="false" PackagePath="" />
+  </ItemGroup>
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
+    <PackageReference Include="Microsoft.Extensions.FileProviders.Embedded" Version="3.1.12" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="admin-ui/**/*" />
+  </ItemGroup>
+  <!-- Use Visual Studio npm package if it is installed. -->
+  <PropertyGroup Condition="Exists('$(VsInstallRoot)\Web\External\npm.cmd')">
+    <Path>$(Path)$(VsInstallRoot)\Web\External\;</Path>
+  </PropertyGroup>
+</Project>
