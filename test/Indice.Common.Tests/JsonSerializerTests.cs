@@ -8,7 +8,7 @@ using Xunit;
 
 namespace Indice.Common.Tests
 {
-    public class TextJsonTests
+    public class JsonSerializerTests
     {
         [Fact]
         public void RoundtripStringToObjectTest() {
@@ -47,7 +47,6 @@ namespace Indice.Common.Tests
                 PropertyNamingPolicy = JsonNamingPolicy.CamelCase
             };
             options.Converters.Add(new JsonStringEnumConverter());
-            //options.Converters.Add(new TypeConverterJsonAdapter());
             options.Converters.Add(new TypeConverterJsonAdapterFactory());
             options.Converters.Add(new JsonObjectToInferredTypeConverter());
             options.IgnoreNullValues = true;
@@ -75,8 +74,9 @@ namespace Indice.Common.Tests
 
         [Fact]
         public void RoundtripTypeConverterAdapter_WithCollections2() {
-            var options = new JsonSerializerOptions();
-            options.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+            var options = new JsonSerializerOptions {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            };
             options.Converters.Add(new JsonStringEnumConverter());
             options.Converters.Add(new TypeConverterJsonAdapterFactory());
             options.IgnoreNullValues = true;
