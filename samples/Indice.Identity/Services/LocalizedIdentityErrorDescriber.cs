@@ -1,14 +1,15 @@
 ﻿using System;
+using Indice.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Localization;
 
 namespace Indice.Identity.Services
 {
-    public class ExtendedIdentityErrorDescriber : IdentityErrorDescriber
+    public class LocalizedIdentityErrorDescriber : ExtendedIdentityErrorDescriber
     {
-        private readonly IStringLocalizer<ExtendedIdentityErrorDescriber> _localizer;
+        private readonly IStringLocalizer<LocalizedIdentityErrorDescriber> _localizer;
 
-        public ExtendedIdentityErrorDescriber(IStringLocalizer<ExtendedIdentityErrorDescriber> localizer) {
+        public LocalizedIdentityErrorDescriber(IStringLocalizer<LocalizedIdentityErrorDescriber> localizer) {
             _localizer = localizer ?? throw new ArgumentNullException(nameof(localizer));
         }
 
@@ -41,5 +42,12 @@ namespace Indice.Identity.Services
             Code = nameof(IdentityErrorDescriber.PasswordRequiresUniqueChars),
             Description = _localizer["Passwords must use at least {0} different characters.", uniqueChars]
         };
+
+        public override string PasswordRequiresDigitRequirement => _localizer["A numeric character."];
+        public override string PasswordRequiresLowerRequirement => _localizer["A lower case letter."];
+        public override string PasswordTooShortRequirement(int length) => _localizer["At least {0} characters long.", length];
+        public override string PasswordRequiresNonAlphanumericRequirement => _localizer["A non-alphanumeric character."];
+        public override string PasswordRequiresUniqueCharsRequirement(int uniqueChars) => _localizer["{0} unique chars required.", uniqueChars];
+        public override string PasswordRequiresUpperRequirement => _localizer["An upper case letter."];
     }
 }

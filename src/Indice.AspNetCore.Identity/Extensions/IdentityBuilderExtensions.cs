@@ -3,7 +3,6 @@ using Indice.AspNetCore.Identity;
 using Indice.AspNetCore.Identity.Authorization;
 using Indice.AspNetCore.Identity.Features;
 using Indice.AspNetCore.Identity.Models;
-using Indice.AspNetCore.Identity.Services;
 using Indice.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -89,6 +88,16 @@ namespace Microsoft.AspNetCore.Identity
             builder.AddPasswordValidator<LatinLettersOnlyPasswordValidator>();
             builder.AddPasswordValidator<PreviousPasswordAwareValidator<ExtendedIdentityDbContext<User, Role>, User, Role>>();
             builder.AddPasswordValidator<UserNameAsPasswordValidator>();
+            return builder;
+        }
+
+        /// <summary>
+        /// Adds an overridden implementation of <see cref="IdentityMessageDescriber"/>.
+        /// </summary>
+        /// <typeparam name="TDescriber">The type of message describer.</typeparam>
+        /// <param name="builder">Helper functions for configuring identity services.</param>
+        public static IdentityBuilder AddIdentityMessageDescriber<TDescriber>(this IdentityBuilder builder) where TDescriber : IdentityMessageDescriber {
+            builder.Services.AddScoped<IdentityMessageDescriber, TDescriber>();
             return builder;
         }
     }

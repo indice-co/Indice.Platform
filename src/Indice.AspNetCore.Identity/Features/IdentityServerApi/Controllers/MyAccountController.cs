@@ -6,7 +6,6 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using IdentityModel;
 using Indice.AspNetCore.Identity.Models;
-using Indice.AspNetCore.Identity.Services;
 using Indice.Configuration;
 using Indice.Security;
 using Indice.Services;
@@ -42,40 +41,38 @@ namespace Indice.AspNetCore.Identity.Features
         private readonly ExtendedIdentityDbContext<User, Role> _dbContext;
         private readonly ExtendedUserManager<User> _userManager;
         private readonly GeneralSettings _generalSettings;
+        private readonly IConfiguration _configuration;
         private readonly IdentityOptions _identityOptions;
         private readonly IdentityServerApiEndpointsOptions _identityServerApiEndpointsOptions;
         private readonly IEmailService _emailService;
         private readonly IEventService _eventService;
         private readonly ISmsServiceFactory _smsServiceFactory;
-        private readonly MessageDescriber _messageDescriber;
-        private readonly IConfiguration _configuration;
+
         /// <summary>
         /// The name of the controller.
         /// </summary>
         public const string Name = "MyAccount";
 
         public MyAccountController(
+            ExtendedIdentityDbContext<User, Role> dbContext,
             ExtendedUserManager<User> userManager,
+            IConfiguration configuration,
+            IdentityServerApiEndpointsOptions identityServerApiEndpointsOptions,
+            IEmailService emailService,
+            IEventService eventService,
             IOptions<GeneralSettings> generalSettings,
             IOptionsSnapshot<IdentityOptions> identityOptions,
-            IdentityServerApiEndpointsOptions identityServerApiEndpointsOptions,
-            IEventService eventService,
-            ISmsServiceFactory smsServiceFactory,
-            IEmailService emailService,
-            MessageDescriber messageDescriber,
-            ExtendedIdentityDbContext<User, Role> dbContext,
-            IConfiguration configuration
+            ISmsServiceFactory smsServiceFactory
         ) {
-            _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
+            _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
+            _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
+            _emailService = emailService;
+            _eventService = eventService ?? throw new ArgumentNullException(nameof(eventService));
             _generalSettings = generalSettings?.Value ?? throw new ArgumentNullException(nameof(generalSettings));
             _identityOptions = identityOptions?.Value ?? throw new ArgumentNullException(nameof(identityOptions));
             _identityServerApiEndpointsOptions = identityServerApiEndpointsOptions ?? throw new ArgumentNullException(nameof(identityServerApiEndpointsOptions));
-            _eventService = eventService ?? throw new ArgumentNullException(nameof(eventService));
             _smsServiceFactory = smsServiceFactory ?? throw new ArgumentNullException(nameof(smsServiceFactory));
-            _messageDescriber = messageDescriber ?? throw new ArgumentNullException(nameof(messageDescriber));
-            _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
-            _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
-            _emailService = emailService;
+            _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
         }
 
         /// <summary>
@@ -96,7 +93,7 @@ namespace Indice.AspNetCore.Identity.Features
             }
             var currentEmail = await _userManager.GetEmailAsync(user);
             if (currentEmail.Equals(request.Email, StringComparison.OrdinalIgnoreCase) && await _userManager.IsEmailConfirmedAsync(user)) {
-                ModelState.AddModelError(nameof(request.Email).ToLower(), _messageDescriber.EmailAlreadyExists(request.Email));
+                ModelState.AddModelError(nameof(request.Email).ToLower(), _userManager.MessageDescriber.EmailAlreadyExists(request.Email));
                 return BadRequest(new ValidationProblemDetails(ModelState));
             }
             var result = await _userManager.SetEmailAsync(user, request.Email);
@@ -118,8 +115,8 @@ namespace Indice.AspNetCore.Identity.Features
             };
             await _emailService.SendAsync<User>(message =>
                 message.To(user.Email)
-                       .WithSubject(_messageDescriber.UpdateEmailMessageSubject)
-                       .WithBody(_messageDescriber.UpdateEmailMessageBody(user, token, request.ReturnUrl))
+                       .WithSubject(_userManager.MessageDescriber.UpdateEmailMessageSubject)
+                       .WithBody(_userManager.MessageDescriber.UpdateEmailMessageBody(user, token, request.ReturnUrl))
                        .UsingTemplate(_identityServerApiEndpointsOptions.Email.TemplateName)
                        .WithData(data));
             return NoContent();
@@ -143,7 +140,7 @@ namespace Indice.AspNetCore.Identity.Features
                 return NotFound();
             }
             if (user.EmailConfirmed) {
-                ModelState.AddModelError(nameof(request.Token).ToLower(), _messageDescriber.EmailAlreadyConfirmed);
+                ModelState.AddModelError(nameof(request.Token).ToLower(), _userManager.MessageDescriber.EmailAlreadyConfirmed);
                 return BadRequest(new ValidationProblemDetails(ModelState));
             }
             var result = await _userManager.ConfirmEmailAsync(user, request.Token);
@@ -173,7 +170,7 @@ namespace Indice.AspNetCore.Identity.Features
             }
             var currentPhoneNumber = user.PhoneNumber ?? string.Empty;
             if (currentPhoneNumber.Equals(request.PhoneNumber, StringComparison.OrdinalIgnoreCase) && await _userManager.IsPhoneNumberConfirmedAsync(user)) {
-                ModelState.AddModelError(nameof(request.PhoneNumber).ToLower(), _messageDescriber.UserAlreadyHasPhoneNumber(request.PhoneNumber));
+                ModelState.AddModelError(nameof(request.PhoneNumber).ToLower(), _userManager.MessageDescriber.UserAlreadyHasPhoneNumber(request.PhoneNumber));
                 return BadRequest(new ValidationProblemDetails(ModelState));
             }
             var result = await _userManager.SetPhoneNumberAsync(user, request.PhoneNumber);
@@ -188,7 +185,7 @@ namespace Indice.AspNetCore.Identity.Features
                 throw new Exception($"No concrete implementation of {nameof(ISmsService)} is registered.");
             }
             var token = await _userManager.GenerateChangePhoneNumberTokenAsync(user, request.PhoneNumber);
-            await smsService.SendAsync(request.PhoneNumber, string.Empty, _messageDescriber.PhoneNumberVerificationMessage(token));
+            await smsService.SendAsync(request.PhoneNumber, string.Empty, _userManager.MessageDescriber.PhoneNumberVerificationMessage(token));
             return NoContent();
         }
 
@@ -210,7 +207,7 @@ namespace Indice.AspNetCore.Identity.Features
                 return NotFound();
             }
             if (user.PhoneNumberConfirmed) {
-                ModelState.AddModelError(nameof(request.Token).ToLower(), _messageDescriber.PhoneNumberAlreadyConfirmed);
+                ModelState.AddModelError(nameof(request.Token).ToLower(), _userManager.MessageDescriber.PhoneNumberAlreadyConfirmed);
                 return BadRequest(new ValidationProblemDetails(ModelState));
             }
             var result = await _userManager.ChangePhoneNumberAsync(user, user.PhoneNumber, request.Token);
@@ -287,7 +284,7 @@ namespace Indice.AspNetCore.Identity.Features
                 return NoContent();
             }
             var code = await _userManager.GeneratePasswordResetTokenAsync(user);
-            await _emailService.SendAsync(user.Email, _messageDescriber.ForgotPasswordMessageSubject, _messageDescriber.ForgotPasswordMessageBody(user, code));
+            await _emailService.SendAsync(user.Email, _userManager.MessageDescriber.ForgotPasswordMessageSubject, _userManager.MessageDescriber.ForgotPasswordMessageBody(user, code));
             return NoContent();
         }
 
@@ -491,18 +488,16 @@ namespace Indice.AspNetCore.Identity.Features
                 return BadRequest(new ValidationProblemDetails(ModelState));
             }
             User user = null;
-            if (!string.IsNullOrWhiteSpace(request.Token)) {
-                var canParse = Base64Id.TryParse(request.Token, out var userId);
-                if (canParse) {
-                    user = await _userManager.FindByIdAsync(userId.Id.ToString());
-                }
+            if (!string.IsNullOrWhiteSpace(request.Token) && Base64Id.TryParse(request.Token, out var userId)) {
+                user = await _userManager.FindByIdAsync(userId.Id.ToString());
             }
-            var userNameAvailable = !string.IsNullOrWhiteSpace(user?.UserName);
-            var availableRules = GetAvailableRules(userNameAvailable).ToDictionary(rule => rule.Key, rule => new PasswordRuleInfo {
+            var userAvailable = user != null;
+            var userNameAvailable = !string.IsNullOrWhiteSpace(request.UserName);
+            var availableRules = GetAvailableRules(userAvailable, userNameAvailable).ToDictionary(rule => rule.Key, rule => new PasswordRuleInfo {
                 Code = rule.Key,
                 IsValid = true,
                 Description = rule.Value.Description,
-                Hint = rule.Value.Hint
+                Requirement = rule.Value.Hint
             });
             foreach (var validator in _userManager.PasswordValidators) {
                 var result = await validator.ValidateAsync(_userManager, user ?? new User(), request.Password ?? string.Empty);
@@ -517,25 +512,29 @@ namespace Indice.AspNetCore.Identity.Features
             return Ok(new CredentialsValidationInfo { PasswordRules = availableRules.Values.ToList() });
         }
 
-        private IDictionary<string, (string Description, string Hint)> GetAvailableRules(bool userNameAvailable) {
+        private IDictionary<string, (string Description, string Hint)> GetAvailableRules(bool userAvailable, bool userNameAvailable) {
             var result = new Dictionary<string, (string Description, string Hint)>();
             var passwordOptions = _userManager.Options.Password;
-            var errorDescriber = _userManager.ErrorDescriber;
-            result.Add(nameof(IdentityErrorDescriber.PasswordTooShort), (errorDescriber.PasswordTooShort(passwordOptions.RequiredLength).Description, Hint: _messageDescriber.PasswordTooShortHint));
+            var errorDescriber = _userManager.ErrorDescriber as ExtendedIdentityErrorDescriber;
+            var messageDescriber = _userManager.MessageDescriber;
+            result.Add(nameof(IdentityErrorDescriber.PasswordTooShort), 
+                (_userManager.ErrorDescriber.PasswordTooShort(passwordOptions.RequiredLength).Description, Hint: errorDescriber?.PasswordTooShortRequirement(passwordOptions.RequiredLength)));
             if (passwordOptions.RequiredUniqueChars > 1) {
-                result.Add(nameof(IdentityErrorDescriber.PasswordRequiresUniqueChars), (errorDescriber.PasswordRequiresUniqueChars(passwordOptions.RequiredUniqueChars).Description, Hint: _messageDescriber.PasswordRequiresUniqueCharsHint));
+                result.Add(nameof(IdentityErrorDescriber.PasswordRequiresUniqueChars), 
+                    (_userManager.ErrorDescriber.PasswordRequiresUniqueChars(passwordOptions.RequiredUniqueChars).Description, Hint: errorDescriber?.PasswordRequiresUniqueCharsRequirement(passwordOptions.RequiredUniqueChars)));
             }
             if (passwordOptions.RequireNonAlphanumeric) {
-                result.Add(nameof(IdentityErrorDescriber.PasswordRequiresNonAlphanumeric), (errorDescriber.PasswordRequiresNonAlphanumeric().Description, Hint: _messageDescriber.PasswordRequiresNonAlphanumericHint));
+                result.Add(nameof(IdentityErrorDescriber.PasswordRequiresNonAlphanumeric), 
+                    (_userManager.ErrorDescriber.PasswordRequiresNonAlphanumeric().Description, Hint: errorDescriber?.PasswordRequiresNonAlphanumericRequirement));
             }
             if (passwordOptions.RequireDigit) {
-                result.Add(nameof(IdentityErrorDescriber.PasswordRequiresDigit), (errorDescriber.PasswordRequiresDigit().Description, Hint: _messageDescriber.PasswordRequiresDigitHint));
+                result.Add(nameof(IdentityErrorDescriber.PasswordRequiresDigit), (_userManager.ErrorDescriber.PasswordRequiresDigit().Description, Hint: errorDescriber?.PasswordRequiresDigitRequirement));
             }
             if (passwordOptions.RequireLowercase) {
-                result.Add(nameof(IdentityErrorDescriber.PasswordRequiresLower), (errorDescriber.PasswordRequiresLower().Description, Hint: _messageDescriber.PasswordRequiresLowerHint));
+                result.Add(nameof(IdentityErrorDescriber.PasswordRequiresLower), (_userManager.ErrorDescriber.PasswordRequiresLower().Description, Hint: errorDescriber?.PasswordRequiresLowerRequirement));
             }
             if (passwordOptions.RequireUppercase) {
-                result.Add(nameof(IdentityErrorDescriber.PasswordRequiresUpper), (errorDescriber.PasswordRequiresUpper().Description, Hint: _messageDescriber.PasswordRequiresUpperHint));
+                result.Add(nameof(IdentityErrorDescriber.PasswordRequiresUpper), (_userManager.ErrorDescriber.PasswordRequiresUpper().Description, Hint: errorDescriber?.PasswordRequiresUpperRequirement));
             }
             var validators = _userManager.PasswordValidators;
             foreach (var validator in validators) {
@@ -543,22 +542,22 @@ namespace Indice.AspNetCore.Identity.Features
                 validatorType = validatorType.IsGenericType ? validatorType.GetGenericTypeDefinition() : validatorType;
                 var isNonCommonPasswordValidator = validatorType == typeof(NonCommonPasswordValidator) || validatorType == typeof(NonCommonPasswordValidator<>);
                 if (isNonCommonPasswordValidator) {
-                    result.Add(NonCommonPasswordValidator.ErrorDescriber, (Description: _messageDescriber.PasswordIsCommon, Hint: _messageDescriber.PasswordIsCommonHint));
+                    result.Add(NonCommonPasswordValidator.ErrorDescriber, (Description: messageDescriber.PasswordIsCommon, Hint: messageDescriber.PasswordIsCommonRequirement));
                 }
                 var isUserNameAsPasswordValidator = validatorType == typeof(UserNameAsPasswordValidator) || validatorType == typeof(UserNameAsPasswordValidator<>);
                 if (isUserNameAsPasswordValidator && userNameAvailable) {
-                    result.Add(UserNameAsPasswordValidator.ErrorDescriber, (Description: _messageDescriber.PasswordIdenticalToUserName, Hint: _messageDescriber.PasswordIdenticalToUserNameHint));
+                    result.Add(UserNameAsPasswordValidator.ErrorDescriber, (Description: messageDescriber.PasswordIdenticalToUserName, Hint: messageDescriber.PasswordIdenticalToUserNameRequirement));
                 }
                 var isPreviousPasswordAwareValidator = validatorType == typeof(PreviousPasswordAwareValidator)
                     || validatorType == typeof(PreviousPasswordAwareValidator<>)
                     || validatorType == typeof(PreviousPasswordAwareValidator<,>)
                     || validatorType == typeof(PreviousPasswordAwareValidator<,,>);
-                if (isPreviousPasswordAwareValidator && userNameAvailable) {
-                    result.Add(PreviousPasswordAwareValidator.ErrorDescriber, (Description: _messageDescriber.PasswordRecentlyUsed, Hint: _messageDescriber.PasswordRecentlyUsedHint));
+                if (isPreviousPasswordAwareValidator && userAvailable) {
+                    result.Add(PreviousPasswordAwareValidator.ErrorDescriber, (Description: messageDescriber.PasswordRecentlyUsed, Hint: messageDescriber.PasswordRecentlyUsedRequirement));
                 }
                 var isLatinCharactersPasswordValidator = validatorType == typeof(LatinLettersOnlyPasswordValidator) || validatorType == typeof(LatinLettersOnlyPasswordValidator<>);
                 if (isLatinCharactersPasswordValidator) {
-                    result.Add(LatinLettersOnlyPasswordValidator.ErrorDescriber, (Description: _messageDescriber.PasswordHasNonLatinChars, Hint: _messageDescriber.PasswordHasNonLatinCharsHint));
+                    result.Add(LatinLettersOnlyPasswordValidator.ErrorDescriber, (Description: messageDescriber.PasswordHasNonLatinChars, Hint: messageDescriber.PasswordHasNonLatinCharsRequirement));
                 }
             }
             return result;

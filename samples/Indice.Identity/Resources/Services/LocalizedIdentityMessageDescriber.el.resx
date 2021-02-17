@@ -120,11 +120,26 @@
   <data name="Confirm your account" xml:space="preserve">
     <value>Επιβεβαίωση λογαριασμού</value>
   </data>
+  <data name="Does not contain non-Latin characters." xml:space="preserve">
+    <value>Δεν περιέχει μη Λατινικούς χαρακτήρες.</value>
+  </data>
+  <data name="Does not contain part of your username." xml:space="preserve">
+    <value>Δεν περιέχει μέρος του ονόματος χρήστη.</value>
+  </data>
   <data name="Email verification code is {0}." xml:space="preserve">
     <value>Ο κωδικός επιβεβαίωσης της ηλεκτρονικής σας διεύθυνσης είναι {0}.</value>
   </data>
-  <data name="Password cannot contain non latin characters." xml:space="preserve">
+  <data name="Not easy to guess." xml:space="preserve">
+    <value>Δύσκολο να το μαντέψουν.</value>
+  </data>
+  <data name="Not recently used." xml:space="preserve">
+    <value>Δεν έχει χρησιμοποιηθεί πρόσφατα.</value>
+  </data>
+  <data name="Password cannot contain non-Latin characters." xml:space="preserve">
     <value>Ο κωδικός δεν μπορεί να περιέχει μη λατινικούς χαρακτήρες.</value>
+  </data>
+  <data name="Password is very easy to guess, please choose a more complex one." xml:space="preserve">
+    <value>Ο κωδικός είναι πολύ εύκολος για να τον μαντέψουν, παρακαλώ χρησιμοποιήστε ένα πιο περίπλοκο.</value>
   </data>
   <data name="SMS verification code is {0}." xml:space="preserve">
     <value>Ο κωδικός επιβεβαίωσης του κινητού σας τηλεφώνου είναι {0}.</value>
@@ -134,8 +149,5 @@
   </data>
   <data name="Your password is identical to your username." xml:space="preserve">
     <value>Ο κωδικός μοιάζει με το όνομα χρήστη.</value>
-  </data>
-  <data name="Your password is very common to use." xml:space="preserve">
-    <value>Ο κωδικός είναι πολύ κοινός για να χρησιμοποιηθεί.</value>
   </data>
 </root>

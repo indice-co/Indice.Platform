@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Indice.AspNetCore.Identity.Data;
+using Indice.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 
-namespace Indice.Extensions.Configuration.EFCore
+namespace Indice.Extensions.Configuration.EntityFrameworkCore
 {
     /// <summary>
     /// An Entity Framework Core based <see cref="ConfigurationProvider"/>.

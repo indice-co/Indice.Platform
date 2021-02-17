@@ -9,7 +9,7 @@ using Indice.Security;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
 
-namespace Indice.AspNetCore.Identity.Services
+namespace Indice.AspNetCore.Identity
 {
     /// <summary>
     /// Generate the claims for a user. Extends the default principal created by the IdentityServer with custom claims.

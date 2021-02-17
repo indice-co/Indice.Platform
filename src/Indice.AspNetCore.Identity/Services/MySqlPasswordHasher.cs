@@ -3,7 +3,7 @@ using System.Text;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
 
-namespace Indice.AspNetCore.Identity.Services
+namespace Indice.AspNetCore.Identity
 {
 
     //https://stackoverflow.com/questions/868482/simulating-mysqls-password-encryption-using-net-or-ms-sql

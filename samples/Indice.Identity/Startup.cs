@@ -78,7 +78,6 @@ namespace Indice.Identity
                 options.SchemaFilter<CreateUserRequestSchemaFilter>();
                 options.IncludeXmlComments(Assembly.Load(IdentityServerApi.AssemblyName));
             });
-            services.AddMessageDescriber<ExtendedMessageDescriber>();
             services.AddResponseCaching();
             services.AddDataProtectionLocal(options => options.FromConfiguration());
             //services.AddEmailService(Configuration);
