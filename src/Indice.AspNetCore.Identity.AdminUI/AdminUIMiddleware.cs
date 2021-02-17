@@ -50,6 +50,9 @@ namespace Indice.AspNetCore.Identity.AdminUI
         /// </summary>
         /// <param name="httpContext">Encapsulates all HTTP-specific information about an individual HTTP request.</param>
         public async Task Invoke(HttpContext httpContext) {
+            if (!_options.Enabled) {
+                await NotFound(httpContext.Response);
+            }
             var requestMethod = httpContext.Request.Method;
             var requestPath = httpContext.Request.Path.Value;
             // If method is of type GET and path is the configured one, then handle the request and respond with the SPA's index.html page.
@@ -92,6 +95,12 @@ namespace Indice.AspNetCore.Identity.AdminUI
                     await response.WriteAsync(htmlBuilder.ToString(), Encoding.UTF8);
                 }
             }
+        }
+
+        private async Task NotFound(HttpResponse response) {
+            response.StatusCode = StatusCodes.Status404NotFound;
+            response.Headers.Clear();
+            await response.WriteAsync(string.Empty);
         }
 
         private IDictionary<string, string> GetIndexArguments() => new Dictionary<string, string>() {

@@ -189,13 +189,13 @@ namespace Indice.Identity
                 });
             }
             app.UseAdminUI(options => {
-                options.Authority = Settings.Authority;
+                options.Path = "admin";
                 options.ClientId = "idsrv-admin-ui";
                 options.DocumentTitle = "Admin UI";
-                options.Enabled = true;
+                options.Authority = Settings.Authority;
                 options.Host = Settings.Host;
+                options.Enabled = true;
                 options.OnPrepareResponse = staticFileOptions.OnPrepareResponse;
-                options.Path = "admin";
             });
             app.UseEndpoints(endpoints => {
                 endpoints.MapControllers();
