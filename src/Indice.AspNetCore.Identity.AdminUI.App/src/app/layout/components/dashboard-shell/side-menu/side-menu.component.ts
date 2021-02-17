@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 
 import { MenuService } from 'src/app/layout/services/menu.service';
 import { MenuItem } from 'src/app/layout/services/models/menu-item';
-import * as settings from 'src/app/core/models/settings';
+import * as app from 'src/app/core/models/settings';
 
 @Component({
     selector: 'app-side-menu',
@@ -14,8 +14,8 @@ export class SideMenuComponent {
     }
 
     public menuItems: MenuItem[];
-    public apiDocsUrl = settings.getAppSettings().api_docs;
-    public authority = settings.getAppSettings().auth_settings.authority;
+    public apiDocsUrl = app.settings.api_docs;
+    public authority = app.settings.auth_settings.authority;
 
     public toggleMenuItem(menuItem: MenuItem): void {
         this.menuService.toggleMenuItem(menuItem);

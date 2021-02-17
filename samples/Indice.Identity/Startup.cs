@@ -195,6 +195,7 @@ namespace Indice.Identity
                 options.Enabled = true;
                 options.Host = Settings.Host;
                 options.Path = "admin";
+                //options.OnPrepareResponse = staticFileOptions.OnPrepareResponse;
             });
             app.UseEndpoints(endpoints => {
                 endpoints.MapControllers();

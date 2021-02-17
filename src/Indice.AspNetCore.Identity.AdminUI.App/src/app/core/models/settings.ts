@@ -1,17 +1,23 @@
 import { environment } from 'src/environments/environment';
 import { IAppSettings, IAuthSettings } from './settings.model';
 
-export function getAppSettings(): IAppSettings {
+function createAppSettings(): IAppSettings {
+    console.log('Create app settings.');
     const isTemplate = environment.isTemplate;
-    let authority, clientId, appBaseAddress;
+    let authority, clientId, host, baseHref;
     if (isTemplate) {
         const appRoot = document.getElementsByTagName('app-root')[0];
         authority = appRoot.getAttribute('authority');
         clientId = appRoot.getAttribute('clientId');
-        appBaseAddress = appRoot.getAttribute('baseAddress');
-        if (!authority || !clientId || !appBaseAddress) {
+        host = appRoot.getAttribute('host');
+        baseHref = appRoot.getAttribute('baseHref');
+        if (!authority || !clientId || !host) {
             throw new Error('Please provide authority, clientId and baseAddress as properties of app-root element.');
         }
+        appRoot.attributes.removeNamedItem('authority');
+        appRoot.attributes.removeNamedItem('clientId');
+        appRoot.attributes.removeNamedItem('host');
+        appRoot.attributes.removeNamedItem('baseHref');
     }
     return {
         api_url: !isTemplate ? environment.api_url : authority,
@@ -21,13 +27,15 @@ export function getAppSettings(): IAppSettings {
             client_id: !isTemplate ? environment.auth_settings.client_id : clientId,
             filterProtocolClaims: environment.auth_settings.filterProtocolClaims,
             loadUserInfo: environment.auth_settings.loadUserInfo,
-            post_logout_redirect_uri: !isTemplate ? environment.auth_settings.post_logout_redirect_uri : appBaseAddress,
-            redirect_uri: !isTemplate ? environment.auth_settings.redirect_uri : `${appBaseAddress}/${environment.auth_settings.redirect_uri}`,
+            post_logout_redirect_uri: !isTemplate ? environment.auth_settings.post_logout_redirect_uri : `${host}/${baseHref}/${environment.auth_settings.post_logout_redirect_uri}`,
+            redirect_uri: !isTemplate ? environment.auth_settings.redirect_uri : `${host}/${baseHref}/${environment.auth_settings.redirect_uri}`,
             response_type: environment.auth_settings.response_type,
             scope: environment.auth_settings.scope,
-            silent_redirect_uri: !isTemplate ? environment.auth_settings.silent_redirect_uri : `${appBaseAddress}/${environment.auth_settings.silent_redirect_uri}`
+            silent_redirect_uri: !isTemplate ? environment.auth_settings.silent_redirect_uri : `${host}/${baseHref}/${environment.auth_settings.silent_redirect_uri}`
         } as IAuthSettings,
         isTemplate: environment.isTemplate,
         production: environment.production
     };
 }
+
+export const settings = createAppSettings();

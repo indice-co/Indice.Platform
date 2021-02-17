@@ -10,7 +10,7 @@ namespace Indice.Extensions
     public static class FileExtensions
     {
         private static readonly IDictionary<string, string> _mappings = new Dictionary<string, string>(StringComparer.CurrentCultureIgnoreCase) {
-        #region Big freaking list of mime types.
+            #region Big freaking list of mime types.
             // Combination of values from Windows 7 Registry and from C:\Windows\System32\inetsrv\config\applicationHost.config.
             // Some other added, including .7z and .dat.
             {".323", "text/h323"},
@@ -214,7 +214,7 @@ namespace Indice.Extensions
             {".jpe", "image/jpeg"},
             {".jpeg", "image/jpeg"},
             {".jpg", "image/jpeg"},
-            {".js", "application/x-javascript"},
+            {".js", "application/javascript"},
             {".jsx", "text/jscript"},
             {".jsxbin", "text/plain"},
             {".latex", "application/x-latex"},
@@ -455,7 +455,7 @@ namespace Indice.Extensions
             {".trx", "application/xml"},
             {".ts", "video/vnd.dlna.mpeg-tts"},
             {".tsv", "text/tab-separated-values"},
-            {".ttf", "application/octet-stream"},
+            {".ttf", "font/ttf"},
             {".tts", "video/vnd.dlna.mpeg-tts"},
             {".txt", "text/plain"},
             {".u32", "application/octet-stream"},
@@ -523,6 +523,8 @@ namespace Indice.Extensions
             {".wmv", "video/x-ms-wmv"},
             {".wmx", "video/x-ms-wmx"},
             {".wmz", "application/x-ms-wmz"},
+            {".woff", "font/woff" },
+            {".woff2", "font/woff2" },
             {".wpl", "application/vnd.ms-wpl"},
             {".wps", "application/vnd.ms-works"},
             {".wri", "application/x-mswrite"},
@@ -574,7 +576,7 @@ namespace Indice.Extensions
             {".z", "application/x-compress"},
             {".zip", "application/x-zip-compressed"},
             {".pkpass", "application/vnd.apple.pkpass" }
-        #endregion
+            #endregion
         };
 
         /// <summary>

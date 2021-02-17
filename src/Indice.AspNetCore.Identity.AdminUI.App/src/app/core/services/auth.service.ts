@@ -4,14 +4,14 @@ import { map } from 'rxjs/operators';
 import { Observable, from, throwError, interval } from 'rxjs';
 import { UserManager, User, SignoutResponse } from 'oidc-client';
 import { LoggerService } from './logger.service';
-import * as settings from '../models/settings';
+import * as app from '../models/settings';
 
 @Injectable({
     providedIn: 'root'
 })
 export class AuthService {
     constructor(private logger: LoggerService) {
-        this.userManager = new UserManager(settings.getAppSettings().auth_settings);
+        this.userManager = new UserManager(app.settings.auth_settings);
         this.monitorTokenExpiration();
         this.userManager.getUser().then(user => {
             this.user = user;

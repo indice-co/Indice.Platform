@@ -11,7 +11,7 @@ import { ClientStore } from '../../client-store.service';
 import { GrantTypeStateMatrixService } from './grant-type-state-matrix.service';
 import { SingleClientInfo } from 'src/app/core/services/identity-api.service';
 import { ToastService } from 'src/app/layout/services/app-toast.service';
-import * as settings from 'src/app/core/models/settings';
+import * as app from 'src/app/core/models/settings';
 
 @Component({
     selector: 'app-client-grant-types',
@@ -49,7 +49,7 @@ export class ClientGrantTypesComponent implements OnInit, OnDestroy {
         ];
         const clientId = this.route.parent.parent.snapshot.params.id;
         const getClient = this.clientStore.getClient(clientId);
-        const getDiscoveryDocument = this.httpClient.get(`${settings.getAppSettings().auth_settings.authority}/.well-known/openid-configuration`);
+        const getDiscoveryDocument = this.httpClient.get(`${app.settings.auth_settings.authority}/.well-known/openid-configuration`);
         this.getDataSubscription = forkJoin([getClient, getDiscoveryDocument]).pipe(map((responses: [SingleClientInfo, any]) => {
             return {
                 client: responses[0],

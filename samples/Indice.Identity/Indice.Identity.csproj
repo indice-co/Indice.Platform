@@ -37,10 +37,6 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="App_Data\" />
-    <Folder Include="logs\" />
-  </ItemGroup>
-  <ItemGroup>
     <None Include="bundleconfig.json" />
   </ItemGroup>
 </Project>

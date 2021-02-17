@@ -6,11 +6,11 @@ export const environment = {
         client_id: '',
         filterProtocolClaims: true,
         loadUserInfo: true,
-        post_logout_redirect_uri: '',
-        redirect_uri: '#/auth-callback',
+        post_logout_redirect_uri: 'logged-out',
+        redirect_uri: 'auth-callback',
         response_type: 'code',
         scope: 'openid profile email role offline_access identity identity:clients identity:users',
-        silent_redirect_uri: '#/auth-renew'
+        silent_redirect_uri: 'auth-renew'
     },
     isTemplate: true,
     production: true

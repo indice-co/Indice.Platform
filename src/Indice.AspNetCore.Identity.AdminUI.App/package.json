@@ -2,7 +2,7 @@
   "name": "indice-aspnetcore-identity-adminui",
   "version": "1.0.0",
   "scripts": {
-    "build:template": "ng build --aot --buildOptimizer --optimization -c template",
+    "build:template": "ng build --aot --buildOptimizer --optimization --output-hashing none -c template",
     "build": "ng build --prod --aot --buildOptimizer --optimization",
     "e2e": "ng e2e",
     "lint": "ng lint",

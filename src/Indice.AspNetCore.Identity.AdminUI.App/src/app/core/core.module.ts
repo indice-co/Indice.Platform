@@ -11,7 +11,7 @@ import { AuthRenewComponent } from './components/auth-renew/auth-renew.component
 import { CoreRoutingModule } from './core-routing.module';
 import { IDENTITY_API_BASE_URL } from './services/identity-api.service';
 import { LayoutModule } from '../layout/layout.module';
-import * as settings from './models/settings';
+import * as app from './models/settings';
 
 @NgModule({
     declarations: [
@@ -32,7 +32,7 @@ import * as settings from './models/settings';
     ],
     providers: [
         { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true },
-        { provide: IDENTITY_API_BASE_URL, useFactory: () => settings.getAppSettings().api_url }
+        { provide: IDENTITY_API_BASE_URL, useFactory: () => app.settings.api_url }
     ]
 })
 export class CoreModule { }

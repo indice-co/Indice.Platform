@@ -1,10 +1,14 @@
-﻿namespace Indice.AspNetCore.Identity.AdminUI
+﻿using System;
+using Microsoft.AspNetCore.StaticFiles;
+
+namespace Indice.AspNetCore.Identity.AdminUI
 {
     /// <summary>
     /// Options for configuring <see cref="AdminUIMiddleware"/> middleware.
     /// </summary>
     public class AdminUIOptions
     {
+        private string _defaultPath = "backoffice";
         /// <summary>
         /// The name of the section used in appsettings.json file.
         /// </summary>
@@ -34,6 +38,14 @@
         /// The path that the back-office application is served. Defaults to 'backoffice'.
         /// </summary>
         /// <example>https://identity.example.com/backoffice</example>
-        public string Path { get; set; } = "backoffice";
+        public string Path {
+            get => _defaultPath;
+            set => _defaultPath = string.IsNullOrWhiteSpace(value) ? _defaultPath : value.Trim('/');
+        }
+        /// <summary>
+        ///     Called after the status code and headers have been set, but before the body has
+        ///     been written. This can be used to add or change the response headers.
+        /// </summary>
+        public Action<StaticFileResponseContext> OnPrepareResponse { get; set; }
     }
 }
