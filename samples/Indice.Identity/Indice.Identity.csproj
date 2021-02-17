@@ -24,6 +24,7 @@
     <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" Version="5.6.3" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\src\Indice.AspNetCore.Identity.AdminUI\Indice.AspNetCore.Identity.AdminUI.csproj" />
     <ProjectReference Include="..\..\src\Indice.AspNetCore.Identity\Indice.AspNetCore.Identity.csproj" />
     <ProjectReference Include="..\..\src\Indice.Hosting\Indice.Hosting.csproj" />
   </ItemGroup>
@@ -36,10 +37,11 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="App_Data\" />
-    <Folder Include="logs\" />
+    <None Include="bundleconfig.json" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="bundleconfig.json" />
+    <Folder Include="App_Data\" />
+    <Folder Include="logs\" />
+    <Folder Include="wwwroot\admin\assets\img\" />
   </ItemGroup>
 </Project>

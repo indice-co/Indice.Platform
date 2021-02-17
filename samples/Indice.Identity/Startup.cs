@@ -137,19 +137,19 @@ namespace Indice.Identity
             app.UseCookiePolicy();
             app.UseRouting();
             // Use the middleware with parameters to log request responses to the ILogger or use custom parameters to lets say take request response snapshots for testing purposes.
-            app.UseRequestResponseLogging(
-            //new[] { MediaTypeNames.Application.Json, MediaTypeNames.Text.Html }, async (logger, model) => {
-            //    var filename = $"{model.RequestTime:yyyyMMdd.HHmmss}_{model.RequestTarget.Replace('/', '-')}_{model.StatusCode}";
-            //    var folder = System.IO.Path.Combine(HostingEnvironment.ContentRootPath, @"App_Data\snapshots");
-            //    if (System.IO.Directory.Exists(folder)) {
-            //        System.IO.Directory.CreateDirectory(folder);
+            //app.UseRequestResponseLogging(
+            //    new[] { System.Net.Mime.MediaTypeNames.Application.Json, System.Net.Mime.MediaTypeNames.Text.Html }, async (logger, model) => {
+            //        var filename = $"{model.RequestTime:yyyyMMdd.HHmmss}_{model.RequestTarget.Replace('/', '-')}_{model.StatusCode}";
+            //        var folder = System.IO.Path.Combine(HostingEnvironment.ContentRootPath, @"App_Data\snapshots");
+            //        if (System.IO.Directory.Exists(folder)) {
+            //            System.IO.Directory.CreateDirectory(folder);
+            //        }
+            //        if (!string.IsNullOrEmpty(model.RequestBody)) {
+            //            await System.IO.File.WriteAllTextAsync(System.IO.Path.Combine(folder, $"{filename}_request.txt"), model.RequestBody);
+            //        }
+            //        await System.IO.File.WriteAllTextAsync(System.IO.Path.Combine(folder, $"{filename}_response.txt"), model.ResponseBody);
             //    }
-            //    if (!string.IsNullOrEmpty(model.RequestBody)) {
-            //        await System.IO.File.WriteAllTextAsync(System.IO.Path.Combine(folder, $"{filename}_request.txt"), model.RequestBody);
-            //    }
-            //    await System.IO.File.WriteAllTextAsync(System.IO.Path.Combine(folder, $"{filename}_response.txt"), model.ResponseBody);
-            //}
-            );
+            //);
             app.UseIdentityServer();
             app.UseCors();
             app.UseAuthentication();
@@ -187,6 +187,15 @@ namespace Indice.Identity
                     options.OAuthScopeSeparator(" ");
                 });
             }
+            app.UseAdminUI(options => {
+                options.Path = "admin";
+                options.ClientId = "idsrv-admin-ui";
+                options.DocumentTitle = "Admin UI";
+                options.Authority = Settings.Authority;
+                options.Host = Settings.Host;
+                options.Enabled = true;
+                options.OnPrepareResponse = staticFileOptions.OnPrepareResponse;
+            });
             app.UseEndpoints(endpoints => {
                 endpoints.MapControllers();
                 endpoints.MapDefaultControllerRoute();

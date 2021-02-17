@@ -288,12 +288,7 @@ __pycache__/
 *.xsd.cs
 
 # Other
-samples/Indice.Identity/tempkey.rsa
-samples/Indice.Identity/package-lock.json
-samples/Indice.Identity/wwwroot/lib
-samples/Indice.Identity/wwwroot/admin-ui
-samples/Indice.Identity/logs
-samples/Indice.Identity/compilerconfig.json
-samples/Indice.Identity/compilerconfig.json.defaults
-samples/Indice.Identity/App_data
-samples/Indice.Identity/**/Properties/ServiceDependencies
+App_Data
+**/Properties/ServiceDependencies
+logs
+package-lock.json
