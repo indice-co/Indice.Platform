@@ -34,12 +34,8 @@
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Indice.Common" Version="4.0.5" />
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
     <PackageReference Include="Microsoft.Extensions.FileProviders.Embedded" Version="3.1.12" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Indice.Common\Indice.Common.csproj" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="admin-ui-dist/**/*" />

@@ -43,8 +43,7 @@ namespace Indice.AspNetCore.Identity.AdminUI
             set => _defaultPath = string.IsNullOrWhiteSpace(value) ? _defaultPath : value.Trim('/');
         }
         /// <summary>
-        ///     Called after the status code and headers have been set, but before the body has
-        ///     been written. This can be used to add or change the response headers.
+        /// Called after the status code and headers have been set, but before the body has been written. This can be used to add or change the response headers.
         /// </summary>
         public Action<StaticFileResponseContext> OnPrepareResponse { get; set; }
     }
