@@ -26,6 +26,7 @@ namespace Indice.AspNetCore.Identity.AdminUI
         private readonly RequestDelegate _next;
         private readonly StaticFileMiddleware _staticFileMiddleware;
         private StaticFileOptions _staticFileOptions;
+        private ILogger<AdminUIMiddleware> _logger;
 
         /// <summary>
         /// Constructs a new instance of <see cref="AdminUIMiddleware"/>.
@@ -43,6 +44,7 @@ namespace Indice.AspNetCore.Identity.AdminUI
             _options = options ?? new AdminUIOptions();
             _next = next;
             _staticFileMiddleware = CreateStaticFileMiddleware(hostingEnvironment, loggerFactory, options);
+            _logger = loggerFactory.CreateLogger<AdminUIMiddleware>();
         }
 
         /// <summary>
@@ -50,18 +52,17 @@ namespace Indice.AspNetCore.Identity.AdminUI
         /// </summary>
         /// <param name="httpContext">Encapsulates all HTTP-specific information about an individual HTTP request.</param>
         public async Task Invoke(HttpContext httpContext) {
-            if (!_options.Enabled) {
-                await NotFound(httpContext.Response);
-            }
             var requestMethod = httpContext.Request.Method;
             var requestPath = httpContext.Request.Path.Value;
+            _logger.LogDebug("[AdminUIMiddleware] Invoking StaticFileMiddleware for request path: {0}", requestPath);
+            await _staticFileMiddleware.Invoke(httpContext);
             // If method is of type GET and path is the configured one, then handle the request and respond with the SPA's index.html page.
+            _logger.LogDebug("[AdminUIMiddleware] Checking if index.html should be served for request path: {0}", requestPath);
             var shouldDisplayIndex = requestMethod == HttpMethod.Get.Method && Regex.IsMatch(requestPath, $"^/?{Regex.Escape(_options.Path)}/?(?!.*\\.(js|css|jpg|woff|woff2|svg|ttf|eot|png)($|\\?)).*", RegexOptions.IgnoreCase);
             if (shouldDisplayIndex) {
                 await RespondWithIndexHtml(httpContext.Response);
                 return;
             }
-            await _staticFileMiddleware.Invoke(httpContext);
         }
 
         /// <summary>
@@ -74,7 +75,7 @@ namespace Indice.AspNetCore.Identity.AdminUI
         private StaticFileMiddleware CreateStaticFileMiddleware(IWebHostEnvironment hostingEnvironment, ILoggerFactory loggerFactory, AdminUIOptions options) {
             _staticFileOptions = new StaticFileOptions {
                 RequestPath = string.IsNullOrEmpty(options.Path) ? string.Empty : $"/{options.Path}",
-                FileProvider = new EmbeddedFileProvider(typeof(AdminUIMiddleware).GetTypeInfo().Assembly, EmbeddedFilesNamespace)
+                FileProvider = new SpaFileProvider(new EmbeddedFileProvider(typeof(AdminUIMiddleware).GetTypeInfo().Assembly, EmbeddedFilesNamespace))
             };
             if (options.OnPrepareResponse != null) {
                 _staticFileOptions.OnPrepareResponse = options.OnPrepareResponse;
@@ -95,12 +96,6 @@ namespace Indice.AspNetCore.Identity.AdminUI
                     await response.WriteAsync(htmlBuilder.ToString(), Encoding.UTF8);
                 }
             }
-        }
-
-        private async Task NotFound(HttpResponse response) {
-            response.StatusCode = StatusCodes.Status404NotFound;
-            response.Headers.Clear();
-            await response.WriteAsync(string.Empty);
         }
 
         private IDictionary<string, string> GetIndexArguments() => new Dictionary<string, string>() {

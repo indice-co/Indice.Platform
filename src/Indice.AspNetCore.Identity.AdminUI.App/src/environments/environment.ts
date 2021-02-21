@@ -11,10 +11,10 @@ export const environment = {
     filterProtocolClaims: true,
     loadUserInfo: true,
     post_logout_redirect_uri: 'http://localhost:4200',
-    redirect_uri: 'http://localhost:4200/#/auth-callback',
+    redirect_uri: 'http://localhost:4200/admin/auth-callback',
     response_type: 'code',
     scope: 'openid profile email role offline_access identity identity:clients identity:users',
-    silent_redirect_uri: 'http://localhost:4200/#/auth-renew'
+    silent_redirect_uri: 'http://localhost:4200/admin/auth-renew'
   },
   isTemplate: false,
   production: false

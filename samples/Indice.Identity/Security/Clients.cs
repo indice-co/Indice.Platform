@@ -97,16 +97,12 @@ namespace Indice.Identity.Security
                     "https://localhost:2000/admin/logged-out"
                 },
                 RedirectUris = {
-                    "http://localhost:4200/#/auth-callback",
-                    "http://localhost:4200/#/auth-renew",
-                    "http://localhost:4200/admin/#/auth-callback",
-                    "http://localhost:4200/admin/#/auth-renew",
-                    "https://idsrvadminui.z1.web.core.windows.net/#/auth-callback",
-                    "https://idsrvadminui.z1.web.core.windows.net/#/auth-renew",
-                    "https://indice-admin-ui.azureedge.net/#/auth-callback",
-                    "https://indice-admin-ui.azureedge.net/#/auth-renew",
-                    "https://localhost:2000/admin/#/auth-callback",
-                    "https://localhost:2000/admin/#/auth-renew",
+                    "http://localhost:4200/admin/auth-callback",
+                    "http://localhost:4200/admin/auth-renew",
+                    "https://idsrvadminui.z1.web.core.windows.net/auth-callback",
+                    "https://idsrvadminui.z1.web.core.windows.net/auth-renew",
+                    "https://indice-admin-ui.azureedge.net/auth-callback",
+                    "https://indice-admin-ui.azureedge.net/auth-renew",
                     "https://localhost:2000/admin/auth-callback",
                     "https://localhost:2000/admin/auth-renew"
                 },

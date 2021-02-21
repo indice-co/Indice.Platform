@@ -15,7 +15,10 @@ namespace Microsoft.AspNetCore.Builder
         /// <param name="builder">Defines a class that provides the mechanisms to configure an application's request pipeline.</param>
         /// <param name="options">Options for configuring <see cref="AdminUIMiddleware"/> middleware.</param>
         public static IApplicationBuilder UseAdminUI(this IApplicationBuilder builder, AdminUIOptions options) {
-            return builder.UseMiddleware<AdminUIMiddleware>(options);
+            if (options.Enabled) {
+                builder.UseMiddleware<AdminUIMiddleware>(options);
+            }
+            return builder;
         }
 
         /// <summary>

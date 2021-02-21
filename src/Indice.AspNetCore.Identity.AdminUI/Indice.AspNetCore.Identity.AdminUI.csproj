@@ -9,7 +9,7 @@
     <GenerateEmbeddedFilesManifest>true</GenerateEmbeddedFilesManifest>
     <SpaDistFolder>..\Indice.AspNetCore.Identity.AdminUI.App\dist\indice_admin_ui</SpaDistFolder>
     <TargetFramework>netcoreapp3.1</TargetFramework>
-    <VersionPrefix>4.0.0</VersionPrefix>
+    <VersionPrefix>4.0.1</VersionPrefix>
     <!--<VersionSuffix>beta20</VersionSuffix>-->
   </PropertyGroup>
   <PropertyGroup Label="Package">
@@ -21,7 +21,7 @@
     <PackageId>Indice.AspNetCore.Identity.AdminUI</PackageId>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/indice-co/Indice.AspNet</PackageProjectUrl>
-    <PackageReleaseNotes>Initial Release.</PackageReleaseNotes>
+    <PackageReleaseNotes>Minor change on users list table.</PackageReleaseNotes>
     <PackageTags>AspNetCore;IdentityServer;AdminUI</PackageTags>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <RepositoryType>git</RepositoryType>

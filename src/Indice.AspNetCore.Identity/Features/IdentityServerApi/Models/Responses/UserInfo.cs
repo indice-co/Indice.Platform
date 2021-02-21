@@ -14,6 +14,10 @@ namespace Indice.AspNetCore.Identity.Features
         /// The names of the roles that the user belongs to.
         /// </summary>
         public List<string> Roles { get; set; } = new List<string>();
+        /// <summary>
+        /// User metadata expressed as claims.
+        /// </summary>
+        public IEnumerable<ClaimInfo> Claims { get; set; } = new List<ClaimInfo>();
     }
 
     /// <summary>
@@ -61,10 +65,6 @@ namespace Indice.AspNetCore.Identity.Features
         /// The username.
         /// </summary>
         public string UserName { get; set; }
-        /// <summary>
-        /// User metadata expressed as claims.
-        /// </summary>
-        public IEnumerable<ClaimInfo> Claims { get; set; } = new List<ClaimInfo>();
         /// <summary>
         /// Indicates whether the user is forcefully blocked.
         /// </summary>
@@ -122,13 +122,7 @@ namespace Indice.AspNetCore.Identity.Features
             Blocked = user.Blocked,
             PasswordExpirationPolicy = user.PasswordExpirationPolicy,
             IsAdmin = user.Admin,
-            AccessFailedCount = user.AccessFailedCount,
-            Claims = user.Claims.Select(x => new ClaimInfo {
-                Id = x.Id,
-                Type = x.ClaimType,
-                Value = x.ClaimValue
-            })
-            .ToList()
+            AccessFailedCount = user.AccessFailedCount
         };
     }
 }
