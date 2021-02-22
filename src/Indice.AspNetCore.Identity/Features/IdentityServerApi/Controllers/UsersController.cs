@@ -89,24 +89,21 @@ namespace Indice.AspNetCore.Identity.Features
         [CacheResourceFilter(Expiration = 1)]
         public async Task<IActionResult> GetUsers([FromQuery] ListOptions<UserListFilter> options) {
             var query = _dbContext.Users.AsNoTracking();
-            if (!string.IsNullOrEmpty(options?.Search)) {
-                var searchTerm = options.Search.ToLower();
-                query = query.Where(x => x.Email.ToLower().Contains(searchTerm)
-                                      || x.PhoneNumber.Contains(searchTerm)
-                                      || x.UserName.ToLower().Contains(searchTerm)
-                                      || x.Claims.Any(x => x.ClaimValue.ToLower().Contains(searchTerm))
-                                      || searchTerm.Contains(x.Id.ToLower()));
-            }
             if (options?.Filter != null) {
                 var filter = options.Filter;
                 query = query.Where(x => filter.Claim == null || x.Claims.Any(x => x.ClaimType == filter.Claim.Type && x.ClaimValue == filter.Claim.Value));
             }
-            var users = await (
+            var usersQuery = (
                 from user in query
+                join fnl in _dbContext.UserClaims on user.Id equals fnl.UserId into fnLeft
+                from fn in fnLeft.DefaultIfEmpty()
+                join lnl in _dbContext.UserClaims on user.Id equals lnl.UserId into lnLeft
+                from ln in lnLeft.DefaultIfEmpty()
+                where fn.ClaimType == JwtClaimTypes.GivenName && ln.ClaimType == JwtClaimTypes.FamilyName
                 select new UserInfo {
                     Id = user.Id,
-                    FirstName = _dbContext.UserClaims.Where(x => x.UserId == user.Id && x.ClaimType == JwtClaimTypes.GivenName).Select(x => x.ClaimValue).FirstOrDefault(),
-                    LastName = _dbContext.UserClaims.Where(x => x.UserId == user.Id && x.ClaimType == JwtClaimTypes.FamilyName).Select(x => x.ClaimValue).FirstOrDefault(),
+                    FirstName = fn.ClaimValue,
+                    LastName = ln.ClaimValue,
                     Email = user.Email,
                     EmailConfirmed = user.EmailConfirmed,
                     PhoneNumber = user.PhoneNumber,
@@ -121,9 +118,17 @@ namespace Indice.AspNetCore.Identity.Features
                     IsAdmin = user.Admin,
                     AccessFailedCount = user.AccessFailedCount
                 }
-            )
-            .ToResultSetAsync(options);
-            return Ok(users);
+            );
+            if (!string.IsNullOrEmpty(options?.Search)) {
+                var searchTerm = options.Search.ToLower();
+                usersQuery = usersQuery.Where(x => x.Email.ToLower().Contains(searchTerm)
+                                      || x.PhoneNumber.Contains(searchTerm)
+                                      || x.UserName.ToLower().Contains(searchTerm)
+                                      || x.FirstName.ToLower().Contains(searchTerm)
+                                      || x.LastName.ToLower().Contains(searchTerm)
+                                      || searchTerm.Contains(x.Id.ToLower()));
+            }
+            return Ok(await usersQuery.ToResultSetAsync(options));
         }
 
         /// <summary>

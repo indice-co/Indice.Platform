@@ -43,7 +43,7 @@ namespace Indice.Services
         /// </summary>
         public string ApiKey { get; set; }
         /// <summary>
-        /// The SparkPost API URL (ex. https://api.sparkpost.com/api/v1).
+        /// The SparkPost API URL (ex. https://api.sparkpost.com/api/v1/).
         /// </summary>
         public string Api { get; set; } = "https://api.sparkpost.com/api/v1/";
     }
@@ -80,7 +80,7 @@ namespace Indice.Services
             _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             if (_httpClient.BaseAddress == null) {
-                _httpClient.BaseAddress = new Uri(_settings.Api);
+                _httpClient.BaseAddress = new Uri(_settings.Api.TrimEnd('/') + "/");
                 _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(_settings.ApiKey);
             }
         }
@@ -106,7 +106,7 @@ namespace Indice.Services
                         Name = _settings.SenderName
                     },
                     Subject = subject,
-                    Html = "<h1>Works</h1>"//await GetHtmlAsync(body, subject, template.ToString(), data)
+                    Html = await GetHtmlAsync(body, subject, template.ToString(), data)
                 },
                 Recipients = recipientAddresses.Concat(bccAddresses).ToArray()
             };
