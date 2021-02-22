@@ -81,6 +81,14 @@ namespace Indice.AspNetCore.Identity.Features
         /// The number of failed login attempts for the user.
         /// </summary>
         public int AccessFailedCount { get; set; }
+        /// <summary>
+        /// Gets or sets the date and time, in UTC, when the user last signed in.
+        /// </summary>
+        public DateTimeOffset? LastSignInDate { get; set; }
+        /// <summary>
+        /// If set, it represents the date when the current password will expire.
+        /// </summary>
+        public DateTimeOffset? PasswordExpirationDate { get; set; }
     }
 
     /// <summary>

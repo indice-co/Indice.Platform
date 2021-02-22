@@ -1,10 +1,5 @@
-﻿using System.Collections.Generic;
-using System.IO;
-using System.Net.Http;
-using System.Net.Mime;
+﻿using System;
 using System.Reflection;
-using System.Text;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -54,15 +49,14 @@ namespace Indice.AspNetCore.Identity.AdminUI
         public async Task Invoke(HttpContext httpContext) {
             var requestMethod = httpContext.Request.Method;
             var requestPath = httpContext.Request.Path.Value;
-            _logger.LogDebug("[AdminUIMiddleware] Invoking StaticFileMiddleware for request path: {0}", requestPath);
-            await _staticFileMiddleware.Invoke(httpContext);
-            // If method is of type GET and path is the configured one, then handle the request and respond with the SPA's index.html page.
-            _logger.LogDebug("[AdminUIMiddleware] Checking if index.html should be served for request path: {0}", requestPath);
-            var shouldDisplayIndex = requestMethod == HttpMethod.Get.Method && Regex.IsMatch(requestPath, $"^/?{Regex.Escape(_options.Path)}/?(?!.*\\.(js|css|jpg|woff|woff2|svg|ttf|eot|png)($|\\?)).*", RegexOptions.IgnoreCase);
-            if (shouldDisplayIndex) {
-                await RespondWithIndexHtml(httpContext.Response);
+            if (_next != null && !requestPath.StartsWith(_options.Path, StringComparison.OrdinalIgnoreCase)) {
+                await _next.Invoke(httpContext);
                 return;
             }
+            if (requestPath.StartsWith(_options.Path, StringComparison.OrdinalIgnoreCase) && !_staticFileOptions.ContentTypeProvider.TryGetContentType(requestPath, out var _)) {
+                httpContext.Request.Path = new PathString($"{_options.Path}/index.html");
+            }
+            await _staticFileMiddleware.Invoke(httpContext);
         }
 
         /// <summary>
@@ -71,39 +65,16 @@ namespace Indice.AspNetCore.Identity.AdminUI
         /// <param name="hostingEnvironment">Provides information about the web hosting environment an application is running in.</param>
         /// <param name="loggerFactory">Represents a type used to configure the logging system.</param>
         /// <param name="options">Options for configuring <see cref="AdminUIMiddleware"/> middleware.</param>
-        /// <example>https://docs.microsoft.com/en-us/aspnet/core/fundamentals/file-providers?view=aspnetcore-5.0#manifestembeddedfileprovider</example>
         private StaticFileMiddleware CreateStaticFileMiddleware(IWebHostEnvironment hostingEnvironment, ILoggerFactory loggerFactory, AdminUIOptions options) {
             _staticFileOptions = new StaticFileOptions {
-                RequestPath = string.IsNullOrEmpty(options.Path) ? string.Empty : $"/{options.Path}",
-                FileProvider = new SpaFileProvider(new EmbeddedFileProvider(typeof(AdminUIMiddleware).GetTypeInfo().Assembly, EmbeddedFilesNamespace))
+                RequestPath = string.IsNullOrEmpty(options.Path) ? string.Empty : options.Path,
+                FileProvider = new SpaFileProvider(new EmbeddedFileProvider(typeof(AdminUIMiddleware).GetTypeInfo().Assembly, EmbeddedFilesNamespace), _options),
+                ContentTypeProvider = new FileExtensionContentTypeProvider()
             };
             if (options.OnPrepareResponse != null) {
                 _staticFileOptions.OnPrepareResponse = options.OnPrepareResponse;
             }
             return new StaticFileMiddleware(_next, hostingEnvironment, Options.Create(_staticFileOptions), loggerFactory);
         }
-
-        private async Task RespondWithIndexHtml(HttpResponse response) {
-            response.StatusCode = StatusCodes.Status200OK;
-            response.ContentType = $"{MediaTypeNames.Text.Html};charset=utf-8";
-            var indexFileInfo = _staticFileOptions.FileProvider.GetFileInfo("index.html");
-            using (var stream = indexFileInfo.CreateReadStream()) {
-                using (var streamReader = new StreamReader(stream)) {
-                    var htmlBuilder = new StringBuilder(streamReader.ReadToEnd());
-                    foreach (var argument in GetIndexArguments()) {
-                        htmlBuilder.Replace(argument.Key, argument.Value);
-                    }
-                    await response.WriteAsync(htmlBuilder.ToString(), Encoding.UTF8);
-                }
-            }
-        }
-
-        private IDictionary<string, string> GetIndexArguments() => new Dictionary<string, string>() {
-            { "%(Authority)", _options.Authority },
-            { "%(ClientId)", _options.ClientId },
-            { "%(DocumentTitle)", _options.DocumentTitle },
-            { "%(Host)", _options.Host },
-            { "%(Path)", _options.Path }
-        };
     }
 }

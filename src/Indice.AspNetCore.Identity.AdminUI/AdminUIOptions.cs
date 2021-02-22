@@ -8,7 +8,7 @@ namespace Indice.AspNetCore.Identity.AdminUI
     /// </summary>
     public class AdminUIOptions
     {
-        private string _defaultPath = "backoffice";
+        private string _defaultPath = "/backoffice";
         /// <summary>
         /// The name of the section used in appsettings.json file.
         /// </summary>
@@ -35,12 +35,12 @@ namespace Indice.AspNetCore.Identity.AdminUI
         /// </summary>
         public string Host { get; set; }
         /// <summary>
-        /// The path that the back-office application is served. Defaults to 'backoffice'.
+        /// The path that the back-office application is served. Defaults to '/backoffice'.
         /// </summary>
         /// <example>https://identity.example.com/backoffice</example>
         public string Path {
             get => _defaultPath;
-            set => _defaultPath = string.IsNullOrWhiteSpace(value) ? _defaultPath : value.Trim('/');
+            set => _defaultPath = string.IsNullOrWhiteSpace(value) ? _defaultPath : $"/{value.Trim('/')}";
         }
         /// <summary>
         /// Called after the status code and headers have been set, but before the body has been written. This can be used to add or change the response headers.

@@ -28,6 +28,7 @@ export class UsersComponent implements OnInit {
       { prop: 'firstName', name: 'First Name', draggable: false, canAutoResize: true, sortable: true, resizeable: true, cellTemplate: this._optionalTemplate },
       { prop: 'phoneNumber', name: 'Phone Number', draggable: false, canAutoResize: true, sortable: false, resizeable: true, cellTemplate: this._usersList.phoneNumberTemplate },
       { prop: 'createDate', name: 'Create Date', draggable: false, canAutoResize: false, sortable: true, resizeable: false, cellTemplate: this._usersList.dateTimeTemplate, width: 200 },
+      { prop: 'lastSignInDate', name: 'Last Sign In', draggable: false, canAutoResize: false, sortable: true, resizeable: false, cellTemplate: this._usersList.dateTimeTemplate, width: 200 },
       { prop: 'isAdmin', name: 'Admin', draggable: false, canAutoResize: false, sortable: true, resizeable: false, cellTemplate: this._usersList.booleanTemplate, width: 80 },
       { prop: 'id', name: 'Actions', draggable: false, canAutoResize: false, sortable: false, resizeable: false, cellTemplate: this._actionsTemplate, cellClass: 'd-flex align-items-center', width: 100 }
     ];

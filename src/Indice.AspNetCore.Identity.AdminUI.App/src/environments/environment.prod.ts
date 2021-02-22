@@ -12,6 +12,7 @@ export const environment = {
     scope: 'openid profile email role offline_access identity identity:clients identity:users',
     silent_redirect_uri : 'https://indice-admin-ui.azureedge.net/#/auth-renew'
   },
+  culture: 'el',
   isTemplate: false,
   production: true
 };

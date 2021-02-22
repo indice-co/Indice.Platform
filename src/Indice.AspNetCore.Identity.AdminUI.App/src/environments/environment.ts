@@ -16,6 +16,7 @@ export const environment = {
     scope: 'openid profile email role offline_access identity identity:clients identity:users',
     silent_redirect_uri: 'http://localhost:4200/admin/auth-renew'
   },
+  culture: 'en-GB',
   isTemplate: false,
   production: false
 };

@@ -2,6 +2,7 @@ export interface IAppSettings {
     api_url: string;
     api_docs: string;
     auth_settings: IAuthSettings;
+    culture: string;
     isTemplate: boolean,
     production: boolean;
 }

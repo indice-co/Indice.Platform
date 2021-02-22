@@ -80,7 +80,7 @@
 <ng-template let-row="row"
              let-value="value"
              #dateTimeTemplate>
-    <span *ngIf="value">{{ value | date:'medium' }}</span>
+    <span *ngIf="value">{{ value | date: 'dd/MM/yyyy HH:mm' }}</span>
     <span *ngIf="!value"> - </span>
 </ng-template>
 <ng-template let-row="row"

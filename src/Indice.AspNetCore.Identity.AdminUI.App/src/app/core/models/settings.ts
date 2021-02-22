@@ -2,15 +2,15 @@ import { environment } from 'src/environments/environment';
 import { IAppSettings, IAuthSettings } from './settings.model';
 
 function createAppSettings(): IAppSettings {
-    console.log('Create app settings.');
     const isTemplate = environment.isTemplate;
-    let authority, clientId, host, baseHref;
+    let authority, clientId, host, baseHref, culture;
     if (isTemplate) {
         const appRoot = document.getElementsByTagName('app-root')[0];
         authority = appRoot.getAttribute('authority');
         clientId = appRoot.getAttribute('clientId');
         host = appRoot.getAttribute('host');
-        baseHref = appRoot.getAttribute('baseHref');
+        baseHref = appRoot.getAttribute('baseHref').trim
+        culture = appRoot.getAttribute('culture');
         if (!authority || !clientId || !host) {
             throw new Error('Please provide authority, clientId and baseAddress as properties of app-root element.');
         }
@@ -18,6 +18,7 @@ function createAppSettings(): IAppSettings {
         appRoot.attributes.removeNamedItem('clientId');
         appRoot.attributes.removeNamedItem('host');
         appRoot.attributes.removeNamedItem('baseHref');
+        appRoot.attributes.removeNamedItem('culture');
     }
     return {
         api_url: !isTemplate ? environment.api_url : authority,
@@ -33,6 +34,7 @@ function createAppSettings(): IAppSettings {
             scope: environment.auth_settings.scope,
             silent_redirect_uri: !isTemplate ? environment.auth_settings.silent_redirect_uri : `${host}/${baseHref}/${environment.auth_settings.silent_redirect_uri}`
         } as IAuthSettings,
+        culture: !isTemplate ? environment.culture : culture,
         isTemplate: environment.isTemplate,
         production: environment.production
     };

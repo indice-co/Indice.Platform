@@ -12076,6 +12076,10 @@ export class UserInfo implements IUserInfo {
     isAdmin?: boolean;
     /** The number of failed login attempts for the user. */
     accessFailedCount?: number;
+    /** Gets or sets the date and time, in UTC, when the user last signed in. */
+    lastSignInDate?: Date | undefined;
+    /** If set, it represents the date when the current password will expire. */
+    passwordExpirationDate?: Date | undefined;
     /** User's first name. */
     firstName?: string | undefined;
     /** User's last name. */
@@ -12106,6 +12110,8 @@ export class UserInfo implements IUserInfo {
             this.passwordExpirationPolicy = _data["passwordExpirationPolicy"];
             this.isAdmin = _data["isAdmin"];
             this.accessFailedCount = _data["accessFailedCount"];
+            this.lastSignInDate = _data["lastSignInDate"] ? new Date(_data["lastSignInDate"].toString()) : <any>undefined;
+            this.passwordExpirationDate = _data["passwordExpirationDate"] ? new Date(_data["passwordExpirationDate"].toString()) : <any>undefined;
             this.firstName = _data["firstName"];
             this.lastName = _data["lastName"];
         }
@@ -12134,6 +12140,8 @@ export class UserInfo implements IUserInfo {
         data["passwordExpirationPolicy"] = this.passwordExpirationPolicy;
         data["isAdmin"] = this.isAdmin;
         data["accessFailedCount"] = this.accessFailedCount;
+        data["lastSignInDate"] = this.lastSignInDate ? this.lastSignInDate.toISOString() : <any>undefined;
+        data["passwordExpirationDate"] = this.passwordExpirationDate ? this.passwordExpirationDate.toISOString() : <any>undefined;
         data["firstName"] = this.firstName;
         data["lastName"] = this.lastName;
         return data; 
@@ -12169,6 +12177,10 @@ export interface IUserInfo {
     isAdmin?: boolean;
     /** The number of failed login attempts for the user. */
     accessFailedCount?: number;
+    /** Gets or sets the date and time, in UTC, when the user last signed in. */
+    lastSignInDate?: Date | undefined;
+    /** If set, it represents the date when the current password will expire. */
+    passwordExpirationDate?: Date | undefined;
     /** User's first name. */
     firstName?: string | undefined;
     /** User's last name. */
@@ -12392,6 +12404,10 @@ export class SingleUserInfo implements ISingleUserInfo {
     isAdmin?: boolean;
     /** The number of failed login attempts for the user. */
     accessFailedCount?: number;
+    /** Gets or sets the date and time, in UTC, when the user last signed in. */
+    lastSignInDate?: Date | undefined;
+    /** If set, it represents the date when the current password will expire. */
+    passwordExpirationDate?: Date | undefined;
     /** The names of the roles that the user belongs to. */
     roles?: string[] | undefined;
     /** User metadata expressed as claims. */
@@ -12422,6 +12438,8 @@ export class SingleUserInfo implements ISingleUserInfo {
             this.passwordExpirationPolicy = _data["passwordExpirationPolicy"];
             this.isAdmin = _data["isAdmin"];
             this.accessFailedCount = _data["accessFailedCount"];
+            this.lastSignInDate = _data["lastSignInDate"] ? new Date(_data["lastSignInDate"].toString()) : <any>undefined;
+            this.passwordExpirationDate = _data["passwordExpirationDate"] ? new Date(_data["passwordExpirationDate"].toString()) : <any>undefined;
             if (Array.isArray(_data["roles"])) {
                 this.roles = [] as any;
                 for (let item of _data["roles"])
@@ -12458,6 +12476,8 @@ export class SingleUserInfo implements ISingleUserInfo {
         data["passwordExpirationPolicy"] = this.passwordExpirationPolicy;
         data["isAdmin"] = this.isAdmin;
         data["accessFailedCount"] = this.accessFailedCount;
+        data["lastSignInDate"] = this.lastSignInDate ? this.lastSignInDate.toISOString() : <any>undefined;
+        data["passwordExpirationDate"] = this.passwordExpirationDate ? this.passwordExpirationDate.toISOString() : <any>undefined;
         if (Array.isArray(this.roles)) {
             data["roles"] = [];
             for (let item of this.roles)
@@ -12501,6 +12521,10 @@ export interface ISingleUserInfo {
     isAdmin?: boolean;
     /** The number of failed login attempts for the user. */
     accessFailedCount?: number;
+    /** Gets or sets the date and time, in UTC, when the user last signed in. */
+    lastSignInDate?: Date | undefined;
+    /** If set, it represents the date when the current password will expire. */
+    passwordExpirationDate?: Date | undefined;
     /** The names of the roles that the user belongs to. */
     roles?: string[] | undefined;
     /** User metadata expressed as claims. */

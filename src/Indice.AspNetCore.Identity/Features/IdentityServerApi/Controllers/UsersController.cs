@@ -116,17 +116,20 @@ namespace Indice.AspNetCore.Identity.Features
                     Blocked = user.Blocked,
                     PasswordExpirationPolicy = user.PasswordExpirationPolicy,
                     IsAdmin = user.Admin,
-                    AccessFailedCount = user.AccessFailedCount
+                    AccessFailedCount = user.AccessFailedCount,
+                    LastSignInDate = user.LastSignInDate,
+                    PasswordExpirationDate = user.PasswordExpirationDate
                 }
             );
-            if (!string.IsNullOrEmpty(options?.Search)) {
+            if (options?.Search?.Length > 2) {
                 var searchTerm = options.Search.ToLower();
-                usersQuery = usersQuery.Where(x => x.Email.ToLower().Contains(searchTerm)
-                                      || x.PhoneNumber.Contains(searchTerm)
-                                      || x.UserName.ToLower().Contains(searchTerm)
-                                      || x.FirstName.ToLower().Contains(searchTerm)
-                                      || x.LastName.ToLower().Contains(searchTerm)
-                                      || searchTerm.Contains(x.Id.ToLower()));
+                var idsFromClaims = await _dbContext.UserClaims.Where(x => (x.ClaimType == JwtClaimTypes.GivenName || x.ClaimType == JwtClaimTypes.FamilyName) && EF.Functions.Like(x.ClaimValue, $"%{searchTerm}%")).Select(x => x.UserId).ToArrayAsync();
+                usersQuery = usersQuery.Where(x => EF.Functions.Like(x.Email, $"%{searchTerm}%")
+                 || EF.Functions.Like(x.PhoneNumber, $"%{searchTerm}%")
+                 || EF.Functions.Like(x.UserName, $"%{searchTerm}%")
+                 || EF.Functions.Like(x.Email, $"%{searchTerm}%")
+                 || searchTerm == x.Id.ToLower()
+                 || idsFromClaims.Contains(x.Id));
             }
             return Ok(await usersQuery.ToResultSetAsync(options));
         }
@@ -160,6 +163,8 @@ namespace Indice.AspNetCore.Identity.Features
                     PasswordExpirationPolicy = user.PasswordExpirationPolicy,
                     IsAdmin = user.Admin,
                     AccessFailedCount = user.AccessFailedCount,
+                    LastSignInDate = user.LastSignInDate,
+                    PasswordExpirationDate = user.PasswordExpirationDate,
                     Claims = user.Claims.Select(claim => new ClaimInfo {
                         Id = claim.Id,
                         Type = claim.ClaimType,
