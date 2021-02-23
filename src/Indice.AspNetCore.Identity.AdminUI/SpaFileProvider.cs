@@ -21,7 +21,7 @@ namespace Indice.AspNetCore.Identity.AdminUI
         public IDirectoryContents GetDirectoryContents(string subpath) => _inner.GetDirectoryContents(subpath);
 
         public IFileInfo GetFileInfo(string subpath) {
-            if (subpath.StartsWith("/index.html")) {
+            if (subpath.Equals("/index.html", StringComparison.OrdinalIgnoreCase)) {
                 return new SpaIndexFileInfo(_inner.GetFileInfo("index.html"), _options);
             }
             return _inner.GetFileInfo(subpath);
@@ -55,11 +55,8 @@ namespace Indice.AspNetCore.Identity.AdminUI
         }
 
         public string PhysicalPath => null;
-
         public string Name => _template.Name;
-
         public DateTimeOffset LastModified => _template.LastModified;
-
         public bool IsDirectory => false;
 
         public Stream CreateReadStream() {
@@ -80,7 +77,7 @@ namespace Indice.AspNetCore.Identity.AdminUI
             { "%(DocumentTitle)", _options.DocumentTitle },
             { "%(Host)", _options.Host.TrimEnd('/') },
             { "%(Path)", _options.Path.Trim('/') },
-            { "%(Culture)", CultureInfo.CurrentCulture.TwoLetterISOLanguageName },
+            { "%(Culture)", CultureInfo.CurrentCulture.TwoLetterISOLanguageName }
         };
     }
 }

@@ -9,7 +9,7 @@ function createAppSettings(): IAppSettings {
         authority = appRoot.getAttribute('authority');
         clientId = appRoot.getAttribute('clientId');
         host = appRoot.getAttribute('host');
-        baseHref = appRoot.getAttribute('baseHref').trim
+        baseHref = appRoot.getAttribute('baseHref');
         culture = appRoot.getAttribute('culture');
         if (!authority || !clientId || !host) {
             throw new Error('Please provide authority, clientId and baseAddress as properties of app-root element.');

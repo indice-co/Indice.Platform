@@ -53,7 +53,7 @@ namespace Indice.AspNetCore.Identity.AdminUI
                 await _next.Invoke(httpContext);
                 return;
             }
-            if (requestPath.StartsWith(_options.Path, StringComparison.OrdinalIgnoreCase) && !_staticFileOptions.ContentTypeProvider.TryGetContentType(requestPath, out var _)) {
+            if (!_staticFileOptions.ContentTypeProvider.TryGetContentType(requestPath, out var _)) {
                 httpContext.Request.Path = new PathString($"{_options.Path}/index.html");
             }
             await _staticFileMiddleware.Invoke(httpContext);
