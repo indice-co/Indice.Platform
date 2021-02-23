@@ -17,6 +17,10 @@ namespace Indice.AspNetCore.Identity.Data.Mappings
         public void Configure(EntityTypeBuilder<TUser> entityBuilder) {
             // Configure table name and schema.
             entityBuilder.ToTable(nameof(User), "auth");
+            // Configure indexes.
+            entityBuilder.HasIndex(x => x.UserName);
+            entityBuilder.HasIndex(x => x.CreateDate);
+            entityBuilder.HasIndex(x => x.LastSignInDate);
             // Configure relationships.
             entityBuilder.HasMany(x => x.Claims).WithOne().HasForeignKey(x => x.UserId);
             entityBuilder.HasMany(x => x.Logins).WithOne().HasForeignKey(x => x.UserId);

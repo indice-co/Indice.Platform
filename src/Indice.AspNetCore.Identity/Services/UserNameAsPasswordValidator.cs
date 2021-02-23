@@ -3,17 +3,16 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Indice.AspNetCore.Identity.Models;
-using Indice.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 
-namespace Indice.AspNetCore.Identity.Services
+namespace Indice.AspNetCore.Identity
 {
     /// <inheritdoc/>
     public class UserNameAsPasswordValidator : UserNameAsPasswordValidator<User>
     {
         /// <inheritdoc/>
-        public UserNameAsPasswordValidator(IConfiguration configuration, MessageDescriber messageDescriber) : base(configuration, messageDescriber) { }
+        public UserNameAsPasswordValidator(IConfiguration configuration, IdentityMessageDescriber messageDescriber) : base(configuration, messageDescriber) { }
     }
 
     /// <summary>
@@ -22,7 +21,7 @@ namespace Indice.AspNetCore.Identity.Services
     /// <typeparam name="TUser">The type of user instance.</typeparam>
     public class UserNameAsPasswordValidator<TUser> : IPasswordValidator<TUser> where TUser : User
     {
-        private readonly MessageDescriber _messageDescriber;
+        private readonly IdentityMessageDescriber _messageDescriber;
         /// <summary>
         /// The code used when describing the <see cref="IdentityError"/>.
         /// </summary>
@@ -33,7 +32,7 @@ namespace Indice.AspNetCore.Identity.Services
         /// </summary>
         /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
         /// <param name="messageDescriber">Provides the various messages used throughout Indice packages.</param>
-        public UserNameAsPasswordValidator(IConfiguration configuration, MessageDescriber messageDescriber) {
+        public UserNameAsPasswordValidator(IConfiguration configuration, IdentityMessageDescriber messageDescriber) {
             _messageDescriber = messageDescriber;
             MaxAllowedUserNameSubset = configuration.GetSection($"{nameof(IdentityOptions)}:{nameof(IdentityOptions.Password)}").GetValue<int?>(nameof(MaxAllowedUserNameSubset)) ??
                                        configuration.GetSection(nameof(PasswordOptions)).GetValue<int?>(nameof(MaxAllowedUserNameSubset));
@@ -61,7 +60,7 @@ namespace Indice.AspNetCore.Identity.Services
             if (user.UserName.Equals(password, StringComparison.InvariantCultureIgnoreCase)) {
                 result = IdentityResult.Failed(new IdentityError {
                     Code = ErrorDescriber,
-                    Description = _messageDescriber.PasswordIdenticalToUserName()
+                    Description = _messageDescriber.PasswordIdenticalToUserName
                 });
                 return Task.FromResult(result);
             }
@@ -77,7 +76,7 @@ namespace Indice.AspNetCore.Identity.Services
             if (userNameSubstrings.Any(userNameSubstring => password.Contains(userNameSubstring, StringComparison.OrdinalIgnoreCase))) {
                 result = IdentityResult.Failed(new IdentityError {
                     Code = ErrorDescriber,
-                    Description = _messageDescriber.PasswordIdenticalToUserName()
+                    Description = _messageDescriber.PasswordIdenticalToUserName
                 });
             }
             return Task.FromResult(result);

@@ -40,7 +40,7 @@ namespace Indice.AspNetCore.Identity.Models
         }
 
         /// <summary>
-        /// Date that the user was created
+        /// Date that the user was created.
         /// </summary>
         public DateTimeOffset CreateDate { get; set; }
         /// <summary>

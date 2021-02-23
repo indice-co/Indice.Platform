@@ -1,5 +1,5 @@
 ﻿using System.Text.Json;
-using System.Text.Json.Serialization;
+using Indice.Serialization;
 
 namespace Indice.Hosting
 {
@@ -14,19 +14,8 @@ namespace Indice.Hosting
         public JsonSerializerOptions JsonSerializerOptions { get; set; } = GetDefaultSettings();
 
         /// <summary>
-        /// Json options Defaults.
+        /// Json options defaults.
         /// </summary>
-        public static JsonSerializerOptions GetDefaultSettings() {
-            var options = new JsonSerializerOptions() {
-                IgnoreNullValues = true,
-                PropertyNameCaseInsensitive = true,
-                WriteIndented = false,
-                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-            };
-            options.Converters.Add(new JsonStringEnumConverter());
-            options.Converters.Add(new Serialization.TypeConverterJsonAdapterFactory());
-            options.Converters.Add(new Serialization.JsonObjectToInferredTypeConverter());
-            return options;
-        }
+        public static JsonSerializerOptions GetDefaultSettings() => JsonSerializerDefaults.GetDefaultSettings();
     }
 }

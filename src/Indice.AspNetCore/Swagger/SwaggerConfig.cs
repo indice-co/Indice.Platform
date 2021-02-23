@@ -89,10 +89,11 @@ namespace Indice.AspNetCore.Swagger
         }
 
         /// <summary>
-        /// Adds polymorphism.
+        /// Adds polymorphism. By extension will be replaced by <see cref="AddPolymorphism(SwaggerGenOptions, IServiceCollection)"/>.
         /// </summary>
         /// <param name="options">The options used to generate the swagger.json file.</param>
         /// <param name="assembliesToScan">Assemblies that will be searched for <see cref="JsonNetPolymorphicConverter"/> annotations.</param>
+        [Obsolete]
         public static void AddPolymorphismJsonNet(this SwaggerGenOptions options, params Assembly[] assembliesToScan) {
             var attribute = assembliesToScan.SelectMany(x => x.ExportedTypes)
                                             .Select(x => x.GetCustomAttribute<JsonConverterAttribute>(false))

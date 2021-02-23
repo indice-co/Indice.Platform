@@ -2,17 +2,16 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Indice.AspNetCore.Identity.Models;
-using Indice.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 
-namespace Indice.AspNetCore.Identity.Services
+namespace Indice.AspNetCore.Identity
 {
     /// <inheritdoc/>
     public class NonCommonPasswordValidator : NonCommonPasswordValidator<User>
     {
         /// <inheritdoc/>
-        public NonCommonPasswordValidator(IEnumerable<IPasswordBlacklistProvider> providers, MessageDescriber messageDescriber) : base(providers, messageDescriber) { }
+        public NonCommonPasswordValidator(IEnumerable<IPasswordBlacklistProvider> providers, IdentityMessageDescriber messageDescriber) : base(providers, messageDescriber) { }
     }
 
     /// <summary>
@@ -22,7 +21,7 @@ namespace Indice.AspNetCore.Identity.Services
     public class NonCommonPasswordValidator<TUser> : IPasswordValidator<TUser> where TUser : User
     {
         private readonly HashSet<string> _commonPasswords;
-        private readonly MessageDescriber _messageDescriber;
+        private readonly IdentityMessageDescriber _messageDescriber;
         /// <summary>
         /// The code used when describing the <see cref="IdentityError"/>.
         /// </summary>
@@ -33,7 +32,7 @@ namespace Indice.AspNetCore.Identity.Services
         /// </summary>
         /// <param name="providers">The list of <see cref="IPasswordBlacklistProvider"/> providers to use.</param>
         /// <param name="messageDescriber">Provides the various messages used throughout Indice packages.</param>
-        public NonCommonPasswordValidator(IEnumerable<IPasswordBlacklistProvider> providers, MessageDescriber messageDescriber) {
+        public NonCommonPasswordValidator(IEnumerable<IPasswordBlacklistProvider> providers, IdentityMessageDescriber messageDescriber) {
             _messageDescriber = messageDescriber ?? throw new ArgumentNullException(nameof(messageDescriber));
             _commonPasswords = new HashSet<string>();
             foreach (var provider in providers) {
@@ -44,10 +43,10 @@ namespace Indice.AspNetCore.Identity.Services
         /// <inheritdoc/>
         public Task<IdentityResult> ValidateAsync(UserManager<TUser> manager, TUser user, string password) {
             var result = IdentityResult.Success;
-            if (_commonPasswords.Contains(password)) {
+            if (string.IsNullOrWhiteSpace(password) || _commonPasswords.Contains(password)) {
                 result = IdentityResult.Failed(new IdentityError {
                     Code = ErrorDescriber,
-                    Description = _messageDescriber.PasswordIsCommon()
+                    Description = _messageDescriber.PasswordIsCommon
                 });
             }
             return Task.FromResult(result);

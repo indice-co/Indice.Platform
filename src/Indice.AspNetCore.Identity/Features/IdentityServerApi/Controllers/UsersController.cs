@@ -9,7 +9,6 @@ using IdentityServer4.Services;
 using IdentityServer4.Stores;
 using Indice.AspNetCore.Filters;
 using Indice.AspNetCore.Identity.Models;
-using Indice.AspNetCore.Identity.Services;
 using Indice.Configuration;
 using Indice.Types;
 using Microsoft.AspNetCore.Authorization;
@@ -87,45 +86,52 @@ namespace Indice.AspNetCore.Identity.Features
         /// <response code="200">OK</response>
         [HttpGet]
         [ProducesResponseType(statusCode: StatusCodes.Status200OK, type: typeof(ResultSet<UserInfo>))]
+        [CacheResourceFilter(Expiration = 1)]
         public async Task<IActionResult> GetUsers([FromQuery] ListOptions<UserListFilter> options) {
-            var query = _userManager.Users.AsNoTracking();
-            if (!string.IsNullOrEmpty(options?.Search)) {
-                var searchTerm = options.Search.ToLower();
-                query = query.Where(x => x.Email.ToLower().Contains(searchTerm)
-                                      || x.PhoneNumber.Contains(searchTerm)
-                                      || x.UserName.ToLower().Contains(searchTerm)
-                                      || x.Claims.Any(x => x.ClaimValue.ToLower().Contains(searchTerm))
-                                      || searchTerm.Contains(x.Id.ToLower()));
-            }
+            var query = _dbContext.Users.AsNoTracking();
             if (options?.Filter != null) {
                 var filter = options.Filter;
                 query = query.Where(x => filter.Claim == null || x.Claims.Any(x => x.ClaimType == filter.Claim.Type && x.ClaimValue == filter.Claim.Value));
             }
-            var users = await query.Select(x => new UserInfo {
-                Id = x.Id,
-                FirstName = x.Claims.FirstOrDefault(x => x.ClaimType == JwtClaimTypes.GivenName).ClaimValue,
-                LastName = x.Claims.FirstOrDefault(x => x.ClaimType == JwtClaimTypes.FamilyName).ClaimValue,
-                Email = x.Email,
-                EmailConfirmed = x.EmailConfirmed,
-                PhoneNumber = x.PhoneNumber,
-                PhoneNumberConfirmed = x.PhoneNumberConfirmed,
-                UserName = x.UserName,
-                CreateDate = x.CreateDate,
-                LockoutEnabled = x.LockoutEnabled,
-                LockoutEnd = x.LockoutEnd,
-                TwoFactorEnabled = x.TwoFactorEnabled,
-                Blocked = x.Blocked,
-                PasswordExpirationPolicy = x.PasswordExpirationPolicy,
-                IsAdmin = x.Admin,
-                AccessFailedCount = x.AccessFailedCount,
-                Claims = x.Claims.Select(x => new ClaimInfo {
-                    Id = x.Id,
-                    Type = x.ClaimType,
-                    Value = x.ClaimValue
-                })
-            })
-            .ToResultSetAsync(options);
-            return Ok(users);
+            var usersQuery = (
+                from user in query
+                join fnl in _dbContext.UserClaims on user.Id equals fnl.UserId into fnLeft
+                from fn in fnLeft.DefaultIfEmpty()
+                join lnl in _dbContext.UserClaims on user.Id equals lnl.UserId into lnLeft
+                from ln in lnLeft.DefaultIfEmpty()
+                where fn.ClaimType == JwtClaimTypes.GivenName && ln.ClaimType == JwtClaimTypes.FamilyName
+                select new UserInfo {
+                    Id = user.Id,
+                    FirstName = fn.ClaimValue,
+                    LastName = ln.ClaimValue,
+                    Email = user.Email,
+                    EmailConfirmed = user.EmailConfirmed,
+                    PhoneNumber = user.PhoneNumber,
+                    PhoneNumberConfirmed = user.PhoneNumberConfirmed,
+                    UserName = user.UserName,
+                    CreateDate = user.CreateDate,
+                    LockoutEnabled = user.LockoutEnabled,
+                    LockoutEnd = user.LockoutEnd,
+                    TwoFactorEnabled = user.TwoFactorEnabled,
+                    Blocked = user.Blocked,
+                    PasswordExpirationPolicy = user.PasswordExpirationPolicy,
+                    IsAdmin = user.Admin,
+                    AccessFailedCount = user.AccessFailedCount,
+                    LastSignInDate = user.LastSignInDate,
+                    PasswordExpirationDate = user.PasswordExpirationDate
+                }
+            );
+            if (options?.Search?.Length > 2) {
+                var searchTerm = options.Search.ToLower();
+                var idsFromClaims = await _dbContext.UserClaims.Where(x => (x.ClaimType == JwtClaimTypes.GivenName || x.ClaimType == JwtClaimTypes.FamilyName) && EF.Functions.Like(x.ClaimValue, $"%{searchTerm}%")).Select(x => x.UserId).ToArrayAsync();
+                usersQuery = usersQuery.Where(x => EF.Functions.Like(x.Email, $"%{searchTerm}%")
+                 || EF.Functions.Like(x.PhoneNumber, $"%{searchTerm}%")
+                 || EF.Functions.Like(x.UserName, $"%{searchTerm}%")
+                 || EF.Functions.Like(x.Email, $"%{searchTerm}%")
+                 || searchTerm == x.Id.ToLower()
+                 || idsFromClaims.Contains(x.Id));
+            }
+            return Ok(await usersQuery.ToResultSetAsync(options));
         }
 
         /// <summary>
@@ -139,43 +145,46 @@ namespace Indice.AspNetCore.Identity.Features
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
         [CacheResourceFilter(Expiration = 60)]
         public async Task<IActionResult> GetUser([FromRoute] string userId) {
-            var user = await _dbContext.Users
-                                       .AsNoTracking()
-                                       .Where(x => x.Id == userId)
-                                       .Select(x => new SingleUserInfo {
-                                           Id = userId,
-                                           CreateDate = x.CreateDate,
-                                           Email = x.Email,
-                                           EmailConfirmed = x.EmailConfirmed,
-                                           LockoutEnabled = x.LockoutEnabled,
-                                           LockoutEnd = x.LockoutEnd,
-                                           PhoneNumber = x.PhoneNumber,
-                                           PhoneNumberConfirmed = x.PhoneNumberConfirmed,
-                                           TwoFactorEnabled = x.TwoFactorEnabled,
-                                           UserName = x.UserName,
-                                           Blocked = x.Blocked,
-                                           PasswordExpirationPolicy = x.PasswordExpirationPolicy,
-                                           IsAdmin = x.Admin,
-                                           AccessFailedCount = x.AccessFailedCount,
-                                           Claims = x.Claims.Select(x => new ClaimInfo {
-                                               Id = x.Id,
-                                               Type = x.ClaimType,
-                                               Value = x.ClaimValue
-                                           })
-                                          .ToList(),
-                                           Roles = _dbContext.UserRoles.Where(x => x.UserId == userId).Join(
-                                               _dbContext.Roles,
-                                               userRole => userRole.RoleId,
-                                               role => role.Id,
-                                               (userRole, role) => role.Name
-                                           )
-                                           .ToList()
-                                       })
-                                       .SingleOrDefaultAsync();
-            if (user == null) {
+            var foundUser = await (
+                from user in _dbContext.Users.AsNoTracking()
+                where user.Id == userId
+                select new SingleUserInfo {
+                    Id = userId,
+                    CreateDate = user.CreateDate,
+                    Email = user.Email,
+                    EmailConfirmed = user.EmailConfirmed,
+                    LockoutEnabled = user.LockoutEnabled,
+                    LockoutEnd = user.LockoutEnd,
+                    PhoneNumber = user.PhoneNumber,
+                    PhoneNumberConfirmed = user.PhoneNumberConfirmed,
+                    TwoFactorEnabled = user.TwoFactorEnabled,
+                    UserName = user.UserName,
+                    Blocked = user.Blocked,
+                    PasswordExpirationPolicy = user.PasswordExpirationPolicy,
+                    IsAdmin = user.Admin,
+                    AccessFailedCount = user.AccessFailedCount,
+                    LastSignInDate = user.LastSignInDate,
+                    PasswordExpirationDate = user.PasswordExpirationDate,
+                    Claims = user.Claims.Select(claim => new ClaimInfo {
+                        Id = claim.Id,
+                        Type = claim.ClaimType,
+                        Value = claim.ClaimValue
+                    })
+                    .ToList(),
+                    Roles = _dbContext.UserRoles.Where(role => role.UserId == userId).Join(
+                        _dbContext.Roles,
+                        userRole => userRole.RoleId,
+                        role => role.Id,
+                        (userRole, role) => role.Name
+                    )
+                    .ToList()
+                }
+            )
+            .SingleOrDefaultAsync();
+            if (foundUser == null) {
                 return NotFound();
             }
-            return Ok(user);
+            return Ok(foundUser);
         }
 
         /// <summary>

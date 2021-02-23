@@ -1,0 +1,99 @@
+<div class="col-sm-12 col-md-4 m-auto"
+     [hidden]="!canFilter">
+    <input class="search mt-0"
+           type="text"
+           [placeholder]="'Type at least ' + minimumSearchCharacters + ' characters to filter results...'"
+           [(ngModel)]="searchTerm"
+           #filterInput />
+</div>
+<ngx-datatable class="material expandable"
+               trackByProp="id"
+               [rows]="rows"
+               [columns]="columns"
+               [columnMode]="'force'"
+               [count]="count"
+               [rowHeight]="50"
+               [headerHeight]="50"
+               [footerHeight]="50"
+               [limit]="rowsPerPage"
+               reorderable="false"
+               [externalPaging]="!clientSide"
+               [externalSorting]="!clientSide"
+               [loadingIndicator]="isLoading"
+               (page)="setPage($event)"
+               (sort)="setSort($event)"
+               #dataTable>
+</ngx-datatable>
+<ng-template let-row="row"
+             let-value="value"
+             #usernameTemplate>
+    <span *ngIf="value"
+          style="padding-right: 16px; position: relative;">
+        <i *ngIf="row.blocked"
+           class="material-icons font-14 checkmark"
+           style="color: rgba(255, 81, 81, 0.61) !important;"
+           title="Account is blocked">
+            block
+        </i>
+        <i *ngIf="row.accessFailedCount > 0 && row.lockoutEnd && !row.blocked"
+           class="material-icons font-14 checkmark"
+           style="color: rgba(255, 81, 81, 0.61) !important;"
+           title="Account is locked">
+            vpn_key
+        </i>
+        {{ value }}
+    </span>
+    <span *ngIf="!value"> - </span>
+</ng-template>
+<ng-template let-row="row"
+             let-value="value"
+             #emailTemplate>
+    <a *ngIf="value"
+       [href]="'mailto:' + value"
+       style="padding-right: 16px; position: relative;">
+        <i *ngIf="row.emailConfirmed"
+           class="material-icons font-14 checkmark"
+           style="color: #32CD32 !important;"
+           title="Email is confirmed">
+            check
+        </i>
+        {{ value }}
+    </a>
+    <span *ngIf="!value"> - </span>
+</ng-template>
+<ng-template let-row="row"
+             let-value="value"
+             #phoneNumberTemplate>
+    <a *ngIf="value"
+       [href]="'tel:' + value"
+       style="padding-right: 16px; position: relative;">
+        <i *ngIf="row.phoneNumberConfirmed"
+           class="material-icons font-14 checkmark"
+           style="color: #32CD32 !important;"
+           title="Phone number is confirmed">
+            check
+        </i>
+        {{ value }}
+    </a>
+    <span *ngIf="!value"> - </span>
+</ng-template>
+<ng-template let-row="row"
+             let-value="value"
+             #dateTimeTemplate>
+    <span *ngIf="value">{{ value | date: 'dd/MM/yyyy HH:mm' }}</span>
+    <span *ngIf="!value"> - </span>
+</ng-template>
+<ng-template let-row="row"
+             let-value="value"
+             #booleanTemplate>
+    <i *ngIf="value === true"
+       class="material-icons"
+       style="color: #32CD32 !important;">
+        check
+    </i>
+    <i *ngIf="value === false"
+       class="material-icons"
+       style="color: #CC0000 !important;">
+        remove
+    </i>
+</ng-template>

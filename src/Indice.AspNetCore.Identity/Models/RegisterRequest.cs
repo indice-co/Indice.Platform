@@ -150,7 +150,7 @@ namespace Indice.AspNetCore.Identity.Models
         /// <summary>
         /// The token.
         /// </summary>
-        public string Code { get; set; }
+        public string Token { get; set; }
     }
 
     /// <summary>

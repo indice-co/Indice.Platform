@@ -54,9 +54,9 @@ namespace Indice.AspNetCore.Swagger
         public string Discriminator { get; }
 
         /// <summary>
-        /// Construcs the schema filter
+        /// Constructs the schema filter.
         /// </summary>
-        /// <param name="baseType">The base type</param>
+        /// <param name="baseType">The base type.</param>
         /// <param name="discriminator">The property that will be used or added to the schema as the Type discriminator.</param>
         /// <param name="map">A dictionary that provides the value to <see cref="Type"/> name.</param>
         public PolymorphicSchemaFilter(Type baseType, string discriminator, IDictionary<string, Type> map) {

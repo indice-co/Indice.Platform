@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 using System.Xml;
 using Indice.AspNetCore.Filters;
 using Indice.AspNetCore.Identity.Models;
-using Indice.AspNetCore.Identity.Services;
 using Indice.Types;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;

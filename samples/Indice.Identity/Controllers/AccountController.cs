@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Security.Claims;
-using System.Threading;
 using System.Threading.Tasks;
 using IdentityModel;
 using IdentityServer4.Events;
@@ -9,9 +8,9 @@ using IdentityServer4.Models;
 using IdentityServer4.Services;
 using IdentityServer4.Stores;
 using Indice.AspNetCore.Filters;
+using Indice.AspNetCore.Identity;
 using Indice.AspNetCore.Identity.Extensions;
 using Indice.AspNetCore.Identity.Models;
-using Indice.AspNetCore.Identity.Services;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;

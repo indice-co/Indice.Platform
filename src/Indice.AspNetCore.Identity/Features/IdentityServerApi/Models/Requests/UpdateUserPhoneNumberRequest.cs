@@ -15,5 +15,9 @@ namespace Indice.AspNetCore.Identity.Features
         [RegularExpression(@"^\d+$")]
         [DisplayName("phoneNumber")]
         public string PhoneNumber { get; set; }
+        /// <summary>
+        /// 
+        /// </summary>
+        public string DeliveryChannel { get; set; } = "Sms";
     }
 }

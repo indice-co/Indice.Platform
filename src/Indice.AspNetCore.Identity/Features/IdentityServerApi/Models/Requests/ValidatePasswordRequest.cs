@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Indice.Types;
 
 namespace Indice.AspNetCore.Identity.Features
 {
@@ -8,13 +8,16 @@ namespace Indice.AspNetCore.Identity.Features
     public class ValidatePasswordRequest
     {
         /// <summary>
-        /// The username.
+        /// A token representing the user id.
         /// </summary>
-        public string UserName { get; set; }
+        public string Token { get; set; }
         /// <summary>
         /// The password.
         /// </summary>
-        [Required]
         public string Password { get; set; }
+        /// <summary>
+        /// The username.
+        /// </summary>
+        public string UserName { get; set; }
     }
 }

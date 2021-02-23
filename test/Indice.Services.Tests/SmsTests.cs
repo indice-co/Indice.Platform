@@ -15,14 +15,15 @@ namespace Indice.Services.Tests
             var excepion = default(Exception);
             try {
                 var service = new SmsYubotoOmniService(
-                                    new HttpClient(),
-                                    new SmsServiceSettings {
-                                        ApiKey = apiKey,
-                                        Sender = sender,
-                                        SenderName = senderName,
-                                        TestMode = true
-                                    },
-                                    new NullLogger<SmsYubotoOmniService>());
+                    new HttpClient(),
+                    new SmsServiceSettings {
+                        ApiKey = apiKey,
+                        Sender = sender,
+                        SenderName = senderName,
+                        TestMode = true
+                    },
+                    new NullLogger<SmsYubotoOmniService>()
+             );
                 await service.SendAsync(phoneNumber, subject, body);
             } catch (Exception smsServiceException) {
                 excepion = smsServiceException;
@@ -36,15 +37,16 @@ namespace Indice.Services.Tests
             var excepion = default(Exception);
             try {
                 var service = new SmsServiceApifon(
-                                    new HttpClient() { BaseAddress = new Uri("https://ars.apifon.com/services/api/v1/sms/") },
-                                    new SmsServiceApifonSettings {
-                                        ApiKey = apiKey,
-                                        Token = token,
-                                        Sender = sender,
-                                        SenderName = senderName,
-                                        TestMode = true
-                                    },
-                                    new NullLogger<SmsServiceApifon>());
+                    new HttpClient { BaseAddress = new Uri("https://ars.apifon.com/services/api/v1/sms/") },
+                    new SmsServiceApifonSettings {
+                        ApiKey = apiKey,
+                        Token = token,
+                        Sender = sender,
+                        SenderName = senderName,
+                        TestMode = true
+                    },
+                    new NullLogger<SmsServiceApifon>()
+                );
                 await service.SendAsync(phoneNumber, subject, body);
             } catch (Exception smsServiceException) {
                 excepion = smsServiceException;
@@ -52,5 +54,4 @@ namespace Indice.Services.Tests
             Assert.Null(excepion);
         }
     }
-
 }

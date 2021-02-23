@@ -72,7 +72,8 @@ namespace Indice.Identity.Security
                 AllowedCorsOrigins = {
                     "http://localhost:4200",
                     "https://idsrvadminui.z1.web.core.windows.net",
-                    "https://indice-admin-ui.azureedge.net"
+                    "https://indice-admin-ui.azureedge.net",
+                    "https://localhost:2000"
                 },
                 AllowedGrantTypes = GrantTypes.Code,
                 AllowedScopes = {
@@ -88,17 +89,22 @@ namespace Indice.Identity.Security
                 AllowOfflineAccess = true,
                 ClientUri = "https://indice-admin-ui.azureedge.net",
                 PostLogoutRedirectUris = {
-                    "http://localhost:4200/logged-out",
+                    "http://localhost:4200/#/logged-out",
+                    "http://localhost:4200/admin/#/logged-out",
                     "https://idsrvadminui.z1.web.core.windows.net/#/logged-out",
-                    "https://indice-admin-ui.azureedge.net/#/logged-out"
+                    "https://indice-admin-ui.azureedge.net/#/logged-out",
+                    "https://localhost:2000/admin/#/logged-out",
+                    "https://localhost:2000/admin/logged-out"
                 },
                 RedirectUris = {
-                    "http://localhost:4200/auth-callback",
-                    "https://idsrvadminui.z1.web.core.windows.net/#/auth-callback",
-                    "https://indice-admin-ui.azureedge.net/#/auth-callback",
-                    "http://localhost:4200/auth-renew",
-                    "https://idsrvadminui.z1.web.core.windows.net/#/auth-renew",
-                    "https://indice-admin-ui.azureedge.net/#/auth-renew"
+                    "http://localhost:4200/admin/auth-callback",
+                    "http://localhost:4200/admin/auth-renew",
+                    "https://idsrvadminui.z1.web.core.windows.net/auth-callback",
+                    "https://idsrvadminui.z1.web.core.windows.net/auth-renew",
+                    "https://indice-admin-ui.azureedge.net/auth-callback",
+                    "https://indice-admin-ui.azureedge.net/auth-renew",
+                    "https://localhost:2000/admin/auth-callback",
+                    "https://localhost:2000/admin/auth-renew"
                 },
                 RequireClientSecret  = false,
                 RequirePkce = true,

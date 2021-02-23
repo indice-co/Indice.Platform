@@ -49,8 +49,7 @@ namespace Indice.Types
         /// <summary>
         /// Parse from a string url safe base64 representation. 
         /// </summary>
-        /// <param name="base64"></param>
-        /// <returns></returns>
+        /// <param name="base64">The base64 string to convert.</param>
         public static Base64Id Parse(string base64) {
             if (base64 != null) {
                 if (Guid.TryParse(base64, out var id)) {
@@ -60,6 +59,22 @@ namespace Indice.Types
                 return new Base64Id(guid);
             } else {
                 return new Base64Id();
+            }
+        }
+
+        /// <summary>
+        /// Tries to convert the specified <paramref name="base64"/> to a <see cref="Base64Id"/>.
+        /// </summary>
+        /// <param name="base64">The base64 string to convert.</param>
+        /// <param name="base64Id">The converted <see cref="Base64Id"/>.</param>
+        /// <returns>True if conversion is successful, otherwise false.</returns>
+        public static bool TryParse(string base64, out Base64Id base64Id) {
+            base64Id = default;
+            try {
+                base64Id = Parse(base64);
+                return true;
+            } catch {
+                return false;
             }
         }
 

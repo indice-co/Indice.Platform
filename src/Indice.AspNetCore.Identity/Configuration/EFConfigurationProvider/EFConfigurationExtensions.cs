@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 
-namespace Indice.Extensions.Configuration.EFCore
+namespace Indice.Extensions.Configuration.EntityFrameworkCore
 {
     /// <summary>
     /// Extension methods for registering <see cref="EFConfigurationProvider"/> with <see cref="IConfigurationBuilder"/>.

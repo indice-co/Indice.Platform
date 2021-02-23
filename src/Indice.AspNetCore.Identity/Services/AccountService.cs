@@ -10,7 +10,7 @@ using Indice.AspNetCore.Identity.Models;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
 
-namespace Indice.AspNetCore.Identity.Services
+namespace Indice.AspNetCore.Identity
 {
     /// <summary>
     /// Account service wraps account controllers operations regarding creating and validating viewmodels.

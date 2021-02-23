@@ -47,7 +47,6 @@ namespace Microsoft.Extensions.DependencyInjection
         public static IServiceCollection AddIndiceServices(this IServiceCollection services, IConfiguration configuration) {
             services.Configure<GeneralSettings>(configuration.GetSection(GeneralSettings.Name));
             services.TryAddTransient(serviceProvider => serviceProvider.GetRequiredService<IOptions<GeneralSettings>>().Value);
-            services.TryAddScoped<MessageDescriber>();
             return services;
         }
 
@@ -278,7 +277,7 @@ namespace Microsoft.Extensions.DependencyInjection
                                                     EncryptionAlgorithm = EncryptionAlgorithm.AES_256_GCM,
                                                     ValidationAlgorithm = ValidationAlgorithm.HMACSHA512
                                                 })
-                                                .PersistKeysToAzureBlobStorage(container, "Keys")
+                                                .PersistKeysToAzureBlobStorage(container, "keys.xml")
                                                 // Configure the system to use a key lifetime. Default is 90 days.
                                                 .SetDefaultKeyLifetime(TimeSpan.FromDays(options.KeyLifetime))
                                                 // This prevents the apps from understanding each other's protected payloads (e.x Azure slots). To share protected payloads between two apps, 
@@ -363,16 +362,6 @@ namespace Microsoft.Extensions.DependencyInjection
             var configuration = serviceProvider.GetRequiredService<IConfiguration>();
             configuration.Bind(section ?? AzureDataProtectionOptions.Name, options);
             return options;
-        }
-
-        /// <summary>
-        /// Adds an overridden implementation of <see cref="MessageDescriber"/>.
-        /// </summary>
-        /// <typeparam name="TDescriber">The type of message describer.</typeparam>
-        /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
-        public static IServiceCollection AddMessageDescriber<TDescriber>(this IServiceCollection services) where TDescriber : MessageDescriber {
-            services.AddScoped<MessageDescriber, TDescriber>();
-            return services;
         }
     }
 }

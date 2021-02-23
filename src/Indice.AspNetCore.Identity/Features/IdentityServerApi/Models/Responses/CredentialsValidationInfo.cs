@@ -21,11 +21,15 @@ namespace Indice.AspNetCore.Identity.Features
         /// <summary>
         /// The name of the rule checked.
         /// </summary>
-        public string Name { get; set; }
+        public string Code { get; set; }
         /// <summary>
-        /// The description.
+        /// The rule error description.
         /// </summary>
         public string Description { get; set; }
+        /// <summary>
+        /// The requirement for the rule.
+        /// </summary>
+        public string Requirement { get; set; }
         /// <summary>
         /// Determines if rule validation was successful or not.
         /// </summary>

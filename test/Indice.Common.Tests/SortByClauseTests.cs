@@ -1,7 +1,6 @@
-using System;
+using System.Linq;
 using Indice.Types;
 using Xunit;
-using System.Linq;
 
 namespace Indice.Common.Tests
 {

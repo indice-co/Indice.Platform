@@ -1,4 +1,4 @@
-﻿using Indice.AspNetCore.Identity.Data;
+﻿using Indice.AspNetCore.Identity.EntityFrameworkCore;
 using Indice.AspNetCore.Identity.Models;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
