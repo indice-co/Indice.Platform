@@ -16,32 +16,26 @@ namespace Indice.Services
         /// The connection string parameter name. The setting key that will be searched inside the configuration.
         /// </summary>
         public const string CONNECTION_STRING_NAME = "PushNotificationsConnection";
-
         /// <summary>
         /// The push notification hub path string parameter name. The setting key that will be searched inside the configuration.
         /// </summary>
         public const string NOTIFICATIONS_HUB_PATH = "PushNotificationsHubPath";
-
         /// <summary>
         /// Windows phone template
         /// </summary>
         private readonly string WindowsPhoneTemplate = @"<toast><visual><binding template=""ToastText01""><text id=""1"">$(message)</text><text id=""1"">$(data)</text></binding></visual></toast>";
-
         /// <summary>
-        /// iOS template
+        /// iOS template.
         /// </summary>
         private readonly string IOSTemplate = @"{""aps"":{""alert"":""$(message)""}, ""payload"":{""data"":""$(data)""}}";
-
         /// <summary>
-        /// Android template
+        /// Android template.
         /// </summary>
         private readonly string AndroidTemplate = @"{""data"":{""message"":""$(message)"", ""data"":""$(data)""}}";
-
         /// <summary>
-        /// Notifications hub instance
+        /// Notifications hub instance.
         /// </summary>
         protected NotificationHubClient NotificationHub { get; }
-
         /// <summary>
         /// Represents a type used to perform logging.
         /// </summary>
@@ -50,7 +44,7 @@ namespace Indice.Services
         /// <summary>
         /// Constructs the <see cref="PushNotificationServiceAzure"/>
         /// </summary>
-        /// <param name="options">Connection string for azure and Notifications hub name</param>
+        /// <param name="options">Connection string for azure and Notifications hub name.</param>
         public PushNotificationServiceAzure(PushNotificationOptions options) {
             if (string.IsNullOrEmpty(options.ConnectionString)) {
                 throw new ArgumentNullException(nameof(options.ConnectionString));
@@ -76,30 +70,30 @@ namespace Indice.Services
                 Templates = new Dictionary<string, InstallationTemplate>()
             };
             switch (devicePlatform) {
-                //For windows phone 8 or Windows Phone 8.1 Silverlight applications
+                //For windows phone 8 or Windows Phone 8.1 Silverlight applications.
                 case DevicePlatform.WindowsPhone:
                     installationRequest.Platform = NotificationPlatform.Mpns;
                     installationRequest.Templates.Add(
-                        "DefaultMessage", new InstallationTemplate() { Body = WindowsPhoneTemplate }
+                        "DefaultMessage", new InstallationTemplate { Body = WindowsPhoneTemplate }
                     );
                     break;
-                //For universal windows platform applications
+                //For universal windows platform applications.
                 case DevicePlatform.UWP:
                     installationRequest.Platform = NotificationPlatform.Wns;
                     installationRequest.Templates.Add(
-                        "DefaultMessage", new InstallationTemplate() { Body = WindowsPhoneTemplate }
+                        "DefaultMessage", new InstallationTemplate { Body = WindowsPhoneTemplate }
                     );
                     break;
                 case DevicePlatform.iOS:
                     installationRequest.Platform = NotificationPlatform.Apns;
                     installationRequest.Templates.Add(
-                        "DefaultMessage", new InstallationTemplate() { Body = IOSTemplate }
+                        "DefaultMessage", new InstallationTemplate { Body = IOSTemplate }
                     );
                     break;
                 case DevicePlatform.Android:
                     installationRequest.Platform = NotificationPlatform.Fcm;
                     installationRequest.Templates.Add(
-                        "DefaultMessage", new InstallationTemplate() { Body = AndroidTemplate }
+                        "DefaultMessage", new InstallationTemplate { Body = AndroidTemplate }
                     );
                     break;
                 case DevicePlatform.None:

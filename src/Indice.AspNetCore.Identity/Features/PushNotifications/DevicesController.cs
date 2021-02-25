@@ -69,7 +69,8 @@ namespace Indice.AspNetCore.Identity.Features
                 DeviceName = x.DeviceName,
                 DevicePlatform = x.DevicePlatform,
                 IsPushNotificationsEnabled = x.IsPushNotificationsEnabled
-            }).ToArrayAsync();
+            })
+            .ToArrayAsync();
             return Ok(devices);
         }
 

@@ -29,9 +29,7 @@ namespace Indice.Services
         /// <param name="settings">The settings required to configure the service.</param>
         /// <param name="httpClient">Injected <see cref="System.Net.Http.HttpClient"/> managed by the DI.</param>
         /// <param name="logger">Represents a type used to perform logging.</param>
-        public SmsServiceViber(HttpClient httpClient, SmsServiceViberSettings settings, ILogger<SmsServiceViber> logger) {
-
-        }
+        public SmsServiceViber(HttpClient httpClient, SmsServiceViberSettings settings, ILogger<SmsServiceViber> logger) { }
 
         /// <inheritdoc/>
         public Task SendAsync(string destination, string subject, string body) {
