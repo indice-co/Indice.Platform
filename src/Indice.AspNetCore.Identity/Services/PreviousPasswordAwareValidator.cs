@@ -106,16 +106,21 @@ namespace Indice.AspNetCore.Identity
         /// <returns></returns>
         public async Task<IdentityResult> ValidateAsync(UserManager<TUser> manager, TUser user, string password) {
             var result = IdentityResult.Success;
-            if (PasswordHistoryLimit.HasValue) {
+            if (PasswordHistoryLimit > 0) {
                 var usedPasswords = await DbContext.UserPasswordHistory
                                                    .Where(x => x.UserId == user.Id)
                                                    .OrderByDescending(x => x.DateCreated)
                                                    .Take(PasswordHistoryLimit.Value)
                                                    .Select(x => x.PasswordHash)
-                                                   .ToArrayAsync();
-                var isUsedBefore = usedPasswords.Where(hash => !string.IsNullOrEmpty(hash))
+                                                   .ToListAsync();
+                // We need to check the current password if the user has nothing in the password history table.
+                // This essentially means the feature has recently been enabled and the user has not since changed his password.
+                usedPasswords.Insert(0, user.PasswordHash);
+                var isUsedBefore = usedPasswords.Count > 0 &&
+                                   usedPasswords.Where(hash => !string.IsNullOrEmpty(hash))
+                                                .Distinct()
                                                 .Any(hash => manager.PasswordHasher.VerifyHashedPassword(user, hash, password) == PasswordVerificationResult.Success);
-                if (usedPasswords.Length > 0 && isUsedBefore) {
+                if (isUsedBefore) {
                     result = IdentityResult.Failed(new IdentityError {
                         Code = ErrorDescriber,
                         Description = MessageDescriber.PasswordRecentlyUsed
