@@ -80,7 +80,6 @@ namespace Indice.Identity
             });
             services.AddResponseCaching();
             services.AddDataProtectionLocal(options => options.FromConfiguration());
-            //services.AddEmailService(Configuration);
             services.AddEmailServiceSparkpost(Configuration);
             /*services.AddSmsServiceApifon(Configuration, options => {
                 options.ConfigurePrimaryHttpMessageHandler = (serviceProvider) => new System.Net.Http.HttpClientHandler {

@@ -13,16 +13,19 @@ namespace Indice.Identity.Security
     public static class Resources
     {
         private static readonly IEnumerable<string> _userClaims = new[] {
-            JwtClaimTypes.Role,
             BasicClaimTypes.Admin,
-            BasicClaimTypes.System,
             BasicClaimTypes.PasswordExpirationDate,
             BasicClaimTypes.PasswordExpirationPolicy,
-            JwtClaimTypes.Subject,
-            JwtClaimTypes.Name,
+            BasicClaimTypes.System,
             JwtClaimTypes.Email,
+            JwtClaimTypes.EmailVerified,
+            JwtClaimTypes.FamilyName,
             JwtClaimTypes.GivenName,
-            JwtClaimTypes.FamilyName
+            JwtClaimTypes.Name,
+            JwtClaimTypes.PhoneNumber,
+            JwtClaimTypes.PhoneNumberVerified,
+            JwtClaimTypes.Role,
+            JwtClaimTypes.Subject
         };
 
         /// <summary>
@@ -62,22 +65,26 @@ namespace Indice.Identity.Security
                 DisplayName = nameof(IdentityResources.Email),
                 Name = nameof(IdentityResources.Email).ToLower(),
                 Required = true
+            },
+            new IdentityResources.Phone {
+                Description = "Your phone number.",
+                DisplayName = nameof(IdentityResources.Phone),
+                Name = nameof(IdentityResources.Phone).ToLower(),
+                Required = true
             }
         };
 
-        public static IEnumerable<ApiScope> GetApiScopes() {
-            return new[] {
-                new ApiScope(IdentityServerApi.Scope, "IdentityServer API", _userClaims) {
-                    Description  = "API backing the IdentityServer Management Tool."
-                },
-                new ApiScope(IdentityServerApi.SubScopes.Clients, "IdentityServer Clients API", _userClaims) {
-                    Description = "Provides access to the clients management API."
-                },
-                new ApiScope(IdentityServerApi.SubScopes.Users, "IdentityServer Users API", _userClaims) {
-                    Description = "Provides access to the users management API."
-                }
-            };
-        }
+        public static IEnumerable<ApiScope> GetApiScopes() => new[] {
+            new ApiScope(IdentityServerApi.Scope, "IdentityServer API", _userClaims) {
+                Description  = "API backing the IdentityServer Management Tool."
+            },
+            new ApiScope(IdentityServerApi.SubScopes.Clients, "IdentityServer Clients API", _userClaims) {
+                Description = "Provides access to the clients management API."
+            },
+            new ApiScope(IdentityServerApi.SubScopes.Users, "IdentityServer Users API", _userClaims) {
+                Description = "Provides access to the users management API."
+            }
+        };
 
         /// <summary>
         /// Gets the system's predefined APIs.

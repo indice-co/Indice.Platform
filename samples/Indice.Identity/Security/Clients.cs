@@ -71,8 +71,7 @@ namespace Indice.Identity.Security
                 AllowAccessTokensViaBrowser = false,
                 AllowedCorsOrigins = {
                     "http://localhost:4200",
-                    "https://idsrvadminui.z1.web.core.windows.net",
-                    "https://indice-admin-ui.azureedge.net",
+                    "https://indice-idsrv.azurewebsites.net",
                     "https://localhost:2000"
                 },
                 AllowedGrantTypes = GrantTypes.Code,
@@ -87,22 +86,14 @@ namespace Indice.Identity.Security
                     JwtClaimTypes.Role
                 },
                 AllowOfflineAccess = true,
-                ClientUri = "https://indice-admin-ui.azureedge.net",
+                ClientUri = "https://indice-idsrv.azurewebsites.net/admin",
                 PostLogoutRedirectUris = {
-                    "http://localhost:4200/#/logged-out",
-                    "http://localhost:4200/admin/#/logged-out",
-                    "https://idsrvadminui.z1.web.core.windows.net/#/logged-out",
-                    "https://indice-admin-ui.azureedge.net/#/logged-out",
-                    "https://localhost:2000/admin/#/logged-out",
+                    "http://localhost:4200/logged-out",
                     "https://localhost:2000/admin/logged-out"
                 },
                 RedirectUris = {
-                    "http://localhost:4200/admin/auth-callback",
-                    "http://localhost:4200/admin/auth-renew",
-                    "https://idsrvadminui.z1.web.core.windows.net/auth-callback",
-                    "https://idsrvadminui.z1.web.core.windows.net/auth-renew",
-                    "https://indice-admin-ui.azureedge.net/auth-callback",
-                    "https://indice-admin-ui.azureedge.net/auth-renew",
+                    "http://localhost:4200/auth-callback",
+                    "http://localhost:4200/auth-renew",
                     "https://localhost:2000/admin/auth-callback",
                     "https://localhost:2000/admin/auth-renew"
                 },
