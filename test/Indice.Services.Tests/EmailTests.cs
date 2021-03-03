@@ -23,5 +23,19 @@ namespace Indice.Services.Tests
             Assert.True(true);
 
         }
+        [Fact]
+        public async Task EmailBuilderTestNoBody() {
+            IEmailService emailService = new EmailServiceMoq();
+            await emailService.SendAsync(x => x.WithSubject("This will blow your mind")
+                                         .To("c.leftheris@indice.gr")
+                                         .UsingTemplate("MyFantasticTemplate")
+                                         .WithData(new {
+                                             FirstName = "Constantinos",
+                                             LastName = "Leftheris"
+                                         }));
+
+            Assert.True(true);
+
+        }
     }
 }

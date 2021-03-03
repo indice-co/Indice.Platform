@@ -21,7 +21,10 @@ namespace Indice.Services
         public EmailMessage(IList<string> recipients, string subject, string body, string template, object data, IList<FileAttachment> attachments) {
             Recipients = recipients ?? throw new ArgumentNullException(nameof(recipients));
             Subject = subject ?? throw new ArgumentNullException(nameof(subject));
-            Body = body ?? throw new ArgumentNullException(nameof(body));
+            if (string.IsNullOrEmpty(body) && string.IsNullOrEmpty(template)) {
+                throw new ArgumentNullException($"{nameof(body)} if no template is used then the body parameter cannot be null");
+            }
+            Body = body;
             Template = template;
             Attachments = attachments;
             Data = data;
