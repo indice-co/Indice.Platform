@@ -1,6 +1,7 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Indice.Hosting.SqlClient;
+using Microsoft.EntityFrameworkCore;
 
-namespace Indice.Hosting.Tasks.Data
+namespace Indice.Hosting.EntityFrameworkCore
 {
     /// <summary>
     /// Only use with caution in <see cref="SqlServerLockManager"/>.
@@ -8,7 +9,7 @@ namespace Indice.Hosting.Tasks.Data
     public class LockDbContext : TaskDbContext
     {
         /// <summary>
-        /// 
+        /// Constructs a new <see cref="LockDbContext"/>.
         /// </summary>
         /// <param name="options"></param>
         public LockDbContext(DbContextOptions<LockDbContext> options) : base(options) { }

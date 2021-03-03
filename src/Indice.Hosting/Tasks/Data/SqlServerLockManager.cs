@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Data.SqlClient;
 using System.Threading.Tasks;
+using Indice.Hosting.EntityFrameworkCore;
 using Indice.Services;
 using Indice.Types;
 using Microsoft.EntityFrameworkCore;
 
-namespace Indice.Hosting.Tasks.Data
+namespace Indice.Hosting.SqlClient
 {
     /// <summary>
     /// SQL Server <see cref="ILockManager"/> implementation.

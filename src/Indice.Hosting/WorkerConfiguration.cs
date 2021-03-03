@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using Indice.Hosting;
-using Indice.Hosting.Tasks;
-using Indice.Hosting.Tasks.Data;
+using Indice.Hosting.EntityFrameworkCore;
+using Indice.Hosting.SqlClient;
 using Indice.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;

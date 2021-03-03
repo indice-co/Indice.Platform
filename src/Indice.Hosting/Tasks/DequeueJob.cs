@@ -63,7 +63,7 @@ namespace Indice.Hosting
                 jobDataMap[JobDataKeys.BackoffIndex] = backoffIndex - 1;
             }
             _logger.LogInformation("Backoff: {time}", backoffTime);
-            // Get the next execution date
+            // Get the next execution date.
             var nextExecutionDate = DateTime.Now.AddMilliseconds(backoffTime);
             // Get the current trigger.
             var currentTrigger = context.Trigger;

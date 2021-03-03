@@ -5,12 +5,12 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 
-namespace Indice.Hosting.Tasks.Data
+namespace Indice.Hosting.EntityFrameworkCore
 {
     /// <summary>
-    /// EF message queue.
+    /// An implementation of <see cref="IMessageQueue{T}"/> using Entity Framework Core.
     /// </summary>
-    /// <typeparam name="T"></typeparam>
+    /// <typeparam name="T">The type of queue item.</typeparam>
     public class EFMessageQueue<T> : IMessageQueue<T> where T : class
     {
         private readonly TaskDbContext _dbContext;
@@ -92,9 +92,7 @@ namespace Indice.Hosting.Tasks.Data
         }
 
         /// <inheritdoc/>
-        public async Task<int> Count() {
-            return await GetAvailableItems().CountAsync();
-        }
+        public async Task<int> Count() => await GetAvailableItems().CountAsync();
 
         /// <inheritdoc/>
         public async Task Cleanup(int? batchSize = null) {

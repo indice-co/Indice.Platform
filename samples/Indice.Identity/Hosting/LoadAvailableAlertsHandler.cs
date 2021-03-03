@@ -17,9 +17,9 @@ namespace Indice.Identity.Hosting
     public class LoadAvailableAlertsHandler
     {
         private readonly ILogger<LoadAvailableAlertsHandler> _logger;
-        private readonly IMessageQueue<SMSDto> _messageQueue;
+        private readonly IMessageQueue<SmsDto> _messageQueue;
 
-        public LoadAvailableAlertsHandler(ILogger<LoadAvailableAlertsHandler> logger, IMessageQueue<SMSDto> messageQueue) {
+        public LoadAvailableAlertsHandler(ILogger<LoadAvailableAlertsHandler> logger, IMessageQueue<SmsDto> messageQueue) {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _messageQueue = messageQueue ?? throw new ArgumentNullException(nameof(messageQueue));
         }
@@ -27,8 +27,8 @@ namespace Indice.Identity.Hosting
         public async Task Process(DemoCounterModel state, ILockManager lockManager, CancellationToken cancellationToken) {
             var timer = new Stopwatch();
             timer.Start();
-            var tasksList = new List<SMSDto>();
-            var task = new SMSDto(userId: Guid.NewGuid().ToString(), phoneNumber: "6992731575", message: $"Transaction {Guid.NewGuid()} has been taken place.");
+            var tasksList = new List<SmsDto>();
+            var task = new SmsDto(userId: Guid.NewGuid().ToString(), phoneNumber: "6992731575", message: $"Transaction {Guid.NewGuid()} has been taken place.");
             for (var i = 0; i < 2345; i++) {
                 tasksList.Add(task);
             }

@@ -8,7 +8,7 @@ using Microsoft.Extensions.Logging;
 namespace Indice.Services
 {
     /// <summary>
-    /// Push notification service implementation using Microsoft.Azure.NotificationHubs
+    /// Push notification service implementation using <see cref="Microsoft.Azure.NotificationHubs"/>.
     /// </summary>
     public class PushNotificationServiceAzure : IPushNotificationService
     {
@@ -21,7 +21,7 @@ namespace Indice.Services
         /// </summary>
         public const string NOTIFICATIONS_HUB_PATH = "PushNotificationsHubPath";
         /// <summary>
-        /// Windows phone template
+        /// Windows phone template.
         /// </summary>
         private readonly string WindowsPhoneTemplate = @"<toast><visual><binding template=""ToastText01""><text id=""1"">$(message)</text><text id=""1"">$(data)</text></binding></visual></toast>";
         /// <summary>
@@ -42,7 +42,7 @@ namespace Indice.Services
         protected ILogger<PushNotificationServiceAzure> Logger { get; }
 
         /// <summary>
-        /// Constructs the <see cref="PushNotificationServiceAzure"/>
+        /// Constructs the <see cref="PushNotificationServiceAzure"/>.
         /// </summary>
         /// <param name="options">Connection string for azure and Notifications hub name.</param>
         public PushNotificationServiceAzure(PushNotificationOptions options) {
@@ -63,21 +63,19 @@ namespace Indice.Services
             if (!(tags?.Count > 0)) {
                 throw new ArgumentException("Tags list is empty");
             }
-            var installationRequest = new Installation() {
+            var installationRequest = new Installation {
                 InstallationId = deviceId,
                 PushChannel = pnsHandle,
                 Tags = tags,
                 Templates = new Dictionary<string, InstallationTemplate>()
             };
             switch (devicePlatform) {
-                //For windows phone 8 or Windows Phone 8.1 Silverlight applications.
                 case DevicePlatform.WindowsPhone:
                     installationRequest.Platform = NotificationPlatform.Mpns;
                     installationRequest.Templates.Add(
                         "DefaultMessage", new InstallationTemplate { Body = WindowsPhoneTemplate }
                     );
                     break;
-                //For universal windows platform applications.
                 case DevicePlatform.UWP:
                     installationRequest.Platform = NotificationPlatform.Wns;
                     installationRequest.Templates.Add(
@@ -127,20 +125,24 @@ namespace Indice.Services
             }
             await NotificationHub.SendTemplateNotificationAsync(notification, tags);
         }
+    }
 
+    /// <summary>
+    /// Push notification service options specific to Azure.
+    /// </summary>
+    public class PushNotificationOptions
+    {
         /// <summary>
-        /// Push notification service options specific to Azure.
+        /// The section name in application settings.
         /// </summary>
-        public class PushNotificationOptions
-        {
-            /// <summary>
-            /// The connection string to the Azure Push notification account.
-            /// </summary>
-            public string ConnectionString { get; set; }
-            /// <summary>
-            /// Notifications hub name
-            /// </summary>
-            public string NotificationHubPath { get; set; }
-        }
+        public const string Name = "PushNotifications";
+        /// <summary>
+        /// The connection string to the Azure Push notification account.
+        /// </summary>
+        public string ConnectionString { get; set; }
+        /// <summary>
+        /// Notifications hub name
+        /// </summary>
+        public string NotificationHubPath { get; set; }
     }
 }

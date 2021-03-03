@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Text.Json;
 
-namespace Indice.Hosting.Tasks.Data
+namespace Indice.Hosting.EntityFrameworkCore
 {
     /// <summary>
     /// A queue message.

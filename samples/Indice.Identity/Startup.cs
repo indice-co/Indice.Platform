@@ -101,17 +101,17 @@ namespace Indice.Identity
                 //options.UseEntityFrameworkStorage<ExtendedTaskDbContext>();
             })
             .AddJob<SMSAlertHandler>()
-            .WithQueueTrigger<SMSDto>(options => {
+            .WithQueueTrigger<SmsDto>(options => {
                 options.QueueName = "user-messages";
                 options.PollingInterval = 300;
-                options.InstanceCount = 50;
+                options.InstanceCount = 64;
             })
-            .AddJob<LoadAvailableAlertsHandler>()
+            /*.AddJob<LoadAvailableAlertsHandler>()
             .WithScheduleTrigger<DemoCounterModel>("0/5 * * * * ?", options => {
                 options.Name = "load-available-alerts";
                 options.Description = "Load alerts for the queue.";
                 options.Group = "indice";
-            });
+            })*/;
         }
 
         /// <summary>

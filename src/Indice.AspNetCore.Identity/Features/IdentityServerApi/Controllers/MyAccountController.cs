@@ -113,7 +113,7 @@ namespace Indice.AspNetCore.Identity.Features
             var data = new User {
                 UserName = User.FindDisplayName() ?? user.UserName
             };
-            await _emailService.SendAsync<User>(message =>
+            await _emailService.SendAsync(message =>
                 message.To(user.Email)
                        .WithSubject(_userManager.MessageDescriber.UpdateEmailMessageSubject)
                        .WithBody(_userManager.MessageDescriber.UpdateEmailMessageBody(user, token, request.ReturnUrl))
@@ -517,14 +517,14 @@ namespace Indice.AspNetCore.Identity.Features
             var passwordOptions = _userManager.Options.Password;
             var errorDescriber = _userManager.ErrorDescriber as ExtendedIdentityErrorDescriber;
             var messageDescriber = _userManager.MessageDescriber;
-            result.Add(nameof(IdentityErrorDescriber.PasswordTooShort), 
+            result.Add(nameof(IdentityErrorDescriber.PasswordTooShort),
                 (_userManager.ErrorDescriber.PasswordTooShort(passwordOptions.RequiredLength).Description, Hint: errorDescriber?.PasswordTooShortRequirement(passwordOptions.RequiredLength)));
             if (passwordOptions.RequiredUniqueChars > 1) {
-                result.Add(nameof(IdentityErrorDescriber.PasswordRequiresUniqueChars), 
+                result.Add(nameof(IdentityErrorDescriber.PasswordRequiresUniqueChars),
                     (_userManager.ErrorDescriber.PasswordRequiresUniqueChars(passwordOptions.RequiredUniqueChars).Description, Hint: errorDescriber?.PasswordRequiresUniqueCharsRequirement(passwordOptions.RequiredUniqueChars)));
             }
             if (passwordOptions.RequireNonAlphanumeric) {
-                result.Add(nameof(IdentityErrorDescriber.PasswordRequiresNonAlphanumeric), 
+                result.Add(nameof(IdentityErrorDescriber.PasswordRequiresNonAlphanumeric),
                     (_userManager.ErrorDescriber.PasswordRequiresNonAlphanumeric().Description, Hint: errorDescriber?.PasswordRequiresNonAlphanumericRequirement));
             }
             if (passwordOptions.RequireDigit) {

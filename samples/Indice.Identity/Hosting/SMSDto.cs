@@ -2,11 +2,11 @@
 
 namespace Indice.Identity.Hosting
 {
-    public class SMSDto
+    public class SmsDto
     {
-        public SMSDto() { }
+        public SmsDto() { }
 
-        public SMSDto(string userId, string phoneNumber, string message) {
+        public SmsDto(string userId, string phoneNumber, string message) {
             Id = Guid.NewGuid();
             UserId = userId;
             PhoneNumber = phoneNumber;

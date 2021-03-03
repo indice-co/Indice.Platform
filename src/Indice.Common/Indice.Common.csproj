@@ -3,9 +3,9 @@
     <Description>Indice.Common Class Library</Description>
     <Copyright>Copyright (c) 2018 Indice</Copyright>
     <AssemblyTitle>Indice.Common</AssemblyTitle>
-    <VersionPrefix>4.0.5</VersionPrefix>
+    <VersionPrefix>4.0.6</VersionPrefix>
     <!--<VersionSuffix>beta7</VersionSuffix>-->
-    <Authors>c.leftheris</Authors>
+    <Authors>Constantinos Leftheris</Authors>
     <TargetFrameworks>netstandard2.0;netcoreapp3.1</TargetFrameworks>
     <AssemblyName>Indice.Common</AssemblyName>
     <AssemblyTitle>Indice.Common</AssemblyTitle>
@@ -15,7 +15,7 @@
   <PropertyGroup Label="Package">
     <PackageId>Indice.Common</PackageId>
     <PackageTags>AspNet;Api;Utilities</PackageTags>
-    <PackageReleaseNotes>Update packages.</PackageReleaseNotes>
+    <PackageReleaseNotes>Improved email message builder.</PackageReleaseNotes>
     <PackageIcon>icon-310.png</PackageIcon>
     <PackageProjectUrl>https://github.com/indice-co/Indice.AspNet</PackageProjectUrl>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>

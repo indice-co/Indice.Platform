@@ -2,7 +2,7 @@
 using System.Data;
 using System.Data.SqlClient;
 
-namespace Indice.Hosting.Tasks.Data
+namespace Indice.Hosting.SqlClient
 {
     /// <summary>
     /// A factory class that generates instances of type <see cref="IDbConnection"/>.

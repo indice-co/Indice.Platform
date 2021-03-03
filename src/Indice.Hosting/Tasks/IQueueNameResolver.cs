@@ -1,7 +1,7 @@
-﻿namespace Indice.Hosting.Tasks
+﻿namespace Indice.Hosting
 {
     /// <summary>
-    /// Resolves the queue name. 
+    /// Resolves the queue name.
     /// </summary>
     /// <typeparam name="TWorkItem">The type of the workitem in the queue</typeparam>
     public interface IQueueNameResolver<TWorkItem> where TWorkItem : class

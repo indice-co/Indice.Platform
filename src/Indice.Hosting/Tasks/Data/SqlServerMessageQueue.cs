@@ -4,8 +4,9 @@ using System.Data;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
+using Indice.Hosting.EntityFrameworkCore;
 
-namespace Indice.Hosting.Tasks.Data
+namespace Indice.Hosting.SqlClient
 {
     /// <summary>
     /// An implementation of <see cref="IMessageQueue{T}"/> for SQL Server.
@@ -18,35 +19,51 @@ namespace Indice.Hosting.Tasks.Data
         private readonly JsonSerializerOptions _jsonSerializerOptions;
 
         /// <summary>
-        /// 
+        /// Constructs a new <see cref="SqlServerMessageQueue{T}"/>.
         /// </summary>
-        /// <param name="dbConnectionFactory"></param>
-        /// <param name="queueNameResolver"></param>
-        /// <param name="workerJsonOptions"></param>
+        /// <param name="dbConnectionFactory">A factory class that generates instances of type <see cref="IDbConnection"/>.</param>
+        /// <param name="queueNameResolver">Resolves the queue name.</param>
+        /// <param name="workerJsonOptions">These are the options regarding json Serialization. They are used internally for persisting payloads.</param>
         public SqlServerMessageQueue(IDbConnectionFactory dbConnectionFactory, IQueueNameResolver<T> queueNameResolver, WorkerJsonOptions workerJsonOptions) {
             _dbConnectionFactory = dbConnectionFactory ?? throw new ArgumentNullException(nameof(dbConnectionFactory));
             _queueName = queueNameResolver?.Resolve() ?? throw new ArgumentNullException(nameof(queueNameResolver));
             _jsonSerializerOptions = workerJsonOptions?.JsonSerializerOptions ?? throw new ArgumentNullException(nameof(workerJsonOptions));
         }
 
+        // We do not need to implement this method here, since when an item is dequeued it is also removed at the same time.
         /// <inheritdoc/>
         public Task Cleanup(int? batchSize = null) => Task.CompletedTask;
 
         /// <inheritdoc/>
         public Task<int> Count() {
-            throw new NotImplementedException();
+            var sql = @"
+                SELECT COUNT(*)
+                FROM [work].[QMessage]
+                WHERE [QueueName] = @QueueName;
+            ";
+            using (var dbConnection = _dbConnectionFactory.Create()) {
+                dbConnection.Open();
+                var command = dbConnection.CreateCommand();
+                command.AddParameterWithValue("@QueueName", _queueName, DbType.String);
+                command.CommandText = sql;
+                command.CommandType = CommandType.Text;
+                var count = command.ExecuteScalar();
+                return Task.FromResult((int)count);
+            }
         }
 
         /// <inheritdoc/>
         public Task<QMessage<T>> Dequeue() {
-            var sql = "SET NOCOUNT ON; " +
-                      "WITH cte AS (" +
-                          "SELECT TOP(1) * " +
-                          "FROM[work].[QMessage] WITH (ROWLOCK, READPAST) " +
-                          "ORDER BY [Date] ASC" +
-                      ")" +
-                      "DELETE FROM cte " +
-                      "OUTPUT [deleted].*";
+            var sql = @"
+                SET NOCOUNT ON; 
+                WITH cte AS (
+                    SELECT TOP(1) * 
+                    FROM[work].[QMessage] WITH (ROWLOCK, READPAST) 
+                    ORDER BY [Date] ASC
+                )
+                DELETE FROM cte 
+                OUTPUT [deleted].*;
+            ";
             using (var dbConnection = _dbConnectionFactory.Create()) {
                 dbConnection.Open();
                 var command = dbConnection.CreateCommand();
@@ -71,8 +88,10 @@ namespace Indice.Hosting.Tasks.Data
 
         /// <inheritdoc/>
         public Task Enqueue(T item, Guid? messageId, bool isPoison) {
-            var sql = "INSERT INTO [work].[QMessage] ([Id], [QueueName], [Payload], [Date], [DequeueCount], [State]) " +
-                      "VALUES (NEWID(), @QueueName, @Payload, GETUTCDATE(), 0, 0)";
+            var sql = @"
+                INSERT INTO [work].[QMessage] ([Id], [QueueName], [Payload], [Date], [DequeueCount], [State]) 
+                VALUES (NEWID(), @QueueName, @Payload, GETUTCDATE(), 0, 0);
+            ";
             using (var dbConnection = _dbConnectionFactory.Create()) {
                 dbConnection.Open();
                 var command = dbConnection.CreateCommand();
@@ -87,15 +106,15 @@ namespace Indice.Hosting.Tasks.Data
 
         /// <inheritdoc/>
         public Task EnqueueRange(IEnumerable<T> items) {
-            var initialSql = @"INSERT INTO [work].[QMessage] ([Id], [QueueName], [Payload], [Date], [DequeueCount], [State]) VALUES";
+            var initialSql = "INSERT INTO [work].[QMessage] ([Id], [QueueName], [Payload], [Date], [DequeueCount], [State]) VALUES";
             var sql = initialSql;
             using (var dbConnection = _dbConnectionFactory.Create()) {
                 dbConnection.Open();
                 const double maxBatchSize = 1000d;
                 var batches = Math.Ceiling(items.Count() / maxBatchSize);
                 for (var i = 0; i < batches; i++) {
-                    var remainingItems = items.Count() - (i * maxBatchSize);
-                    var iterationLength = remainingItems >= maxBatchSize ? maxBatchSize : remainingItems;
+                    var remainingItemsCount = items.Count() - (i * maxBatchSize);
+                    var iterationLength = remainingItemsCount >= maxBatchSize ? maxBatchSize : remainingItemsCount;
                     var command = dbConnection.CreateCommand();
                     for (var j = 0; j < iterationLength; j++) {
                         sql += $"(NEWID(), @QueueName{j}, @Payload{j}, GETUTCDATE(), 0, 0)";
@@ -115,7 +134,23 @@ namespace Indice.Hosting.Tasks.Data
 
         /// <inheritdoc/>
         public Task<T> Peek() {
-            throw new NotImplementedException();
+            var sql = @"
+                SELECT TOP(1) [Payload] 
+                FROM[work].[QMessage] WITH (ROWLOCK, READPAST) 
+                ORDER BY [Date] ASC;
+            ";
+            using (var dbConnection = _dbConnectionFactory.Create()) {
+                dbConnection.Open();
+                var command = dbConnection.CreateCommand();
+                command.CommandText = sql;
+                command.CommandType = CommandType.Text;
+                var dataReader = command.ExecuteReader();
+                string payload = null;
+                while (dataReader.Read()) {
+                    payload = dataReader.IsDBNull(0) ? default : dataReader.GetString(2);
+                }
+                return Task.FromResult(!string.IsNullOrEmpty(payload) ? JsonSerializer.Deserialize<T>(payload, _jsonSerializerOptions) : default);
+            }
         }
     }
 }

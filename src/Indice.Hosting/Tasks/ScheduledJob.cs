@@ -4,19 +4,19 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Quartz;
 
-namespace Indice.Hosting.Tasks
+namespace Indice.Hosting
 {
     [PersistJobDataAfterExecution]
     internal class ScheduledJob<TTaskHandler, TState> : IJob where TTaskHandler : class where TState : class, new()
     {
         private readonly TaskHandlerActivator _taskHandlerActivator;
         private readonly ILogger<ScheduledJob<TTaskHandler, TState>> _logger;
-        private readonly IScheduledTaskStore<TState> _Store;
+        private readonly IScheduledTaskStore<TState> _scheduledTaskStore;
         private readonly IConfiguration _configuration;
 
         public ScheduledJob(TaskHandlerActivator taskHandlerActivator, IScheduledTaskStore<TState> scheduledTaskStore, ILogger<ScheduledJob<TTaskHandler, TState>> logger, IConfiguration configuration) {
             _taskHandlerActivator = taskHandlerActivator ?? throw new ArgumentNullException(nameof(taskHandlerActivator));
-            _Store = scheduledTaskStore ?? throw new ArgumentNullException(nameof(scheduledTaskStore));
+            _scheduledTaskStore = scheduledTaskStore ?? throw new ArgumentNullException(nameof(scheduledTaskStore));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
         }
@@ -28,8 +28,7 @@ namespace Indice.Hosting.Tasks
             _logger.LogInformation("Scheduled job run at: {Timestamp}", DateTime.UtcNow);
             var jobDataMap = context.JobDetail.JobDataMap;
             var jobHandlerType = jobDataMap[JobDataKeys.JobHandlerType] as Type;
-
-            var scheduledTask = await _Store.GetById(context.JobDetail.Key.ToString());
+            var scheduledTask = await _scheduledTaskStore.GetById(context.JobDetail.Key.ToString());
             if (scheduledTask == null) {
                 scheduledTask = new ScheduledTask<TState> {
                     Id = context.JobDetail.Key.ToString(),
@@ -50,7 +49,7 @@ namespace Indice.Hosting.Tasks
             scheduledTask.NextExecution = context.NextFireTimeUtc;
             scheduledTask.Status = ScheduledTaskStatus.Running;
             scheduledTask.WorkerId = context.Scheduler.SchedulerName;
-            await _Store.Save(scheduledTask);
+            await _scheduledTaskStore.Save(scheduledTask);
             try {
                 await _taskHandlerActivator.Invoke(jobHandlerType, scheduledTask.State, context.CancellationToken);
             } catch (Exception exception) {
@@ -58,7 +57,7 @@ namespace Indice.Hosting.Tasks
                 _logger.LogError("An error occured while executing task '{TaskHandlerName}'. Exception is: {Exception}", jobHandlerType.Name, exception);
             } finally {
                 scheduledTask.Status = ScheduledTaskStatus.Idle;
-                await _Store.Save(scheduledTask);
+                await _scheduledTaskStore.Save(scheduledTask);
             }
         }
     }

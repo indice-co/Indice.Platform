@@ -4,7 +4,7 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 
-namespace Indice.Hosting.Tasks.Data
+namespace Indice.Hosting.EntityFrameworkCore
 {
     /// <summary>
     /// Entity framework backed store implementation for <see cref="IScheduledTaskStore{TState}"/>
