@@ -1,14 +1,11 @@
 ﻿using System;
-using Indice.Hosting;
-using Indice.Types;
 
 namespace Indice.Identity.Hosting
 {
     public class SMSDto
     {
-        public SMSDto() {
+        public SMSDto() { }
 
-        }
         public SMSDto(string userId, string phoneNumber, string message) {
             Id = Guid.NewGuid();
             UserId = userId;

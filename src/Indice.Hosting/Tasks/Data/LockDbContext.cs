@@ -3,7 +3,7 @@
 namespace Indice.Hosting.Tasks.Data
 {
     /// <summary>
-    /// Only use with caution in <see cref="EFLockManager"/>.
+    /// Only use with caution in <see cref="SqlServerLockManager"/>.
     /// </summary>
     public class LockDbContext : TaskDbContext
     {

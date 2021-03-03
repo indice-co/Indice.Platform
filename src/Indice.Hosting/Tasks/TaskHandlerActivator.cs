@@ -32,11 +32,11 @@ namespace Indice.Hosting
                     .ToArray();
             } else {
                 arguments = processMethod
-                        .GetParameters()
-                        .Select(x => x.ParameterType.IsAssignableFrom(typeof(CancellationToken)) ? cancellationToken :
-                                     x.ParameterType.IsAssignableFrom(stateType) ? state : 
-                                     _serviceProvider.GetService(x.ParameterType))
-                        .ToArray();
+                    .GetParameters()
+                    .Select(x => x.ParameterType.IsAssignableFrom(typeof(CancellationToken)) ? cancellationToken :
+                                 x.ParameterType.IsAssignableFrom(stateType) ? state : 
+                                 _serviceProvider.GetService(x.ParameterType))
+                    .ToArray();
             }
             var isAwaitable = typeof(Task).IsAssignableFrom(processMethod.ReturnType);
             if (isAwaitable) {

@@ -97,12 +97,14 @@ namespace Indice.Identity
             // Setup worker host for executing background tasks.
             services.AddWorkerHost(options => {
                 options.JsonOptions.JsonSerializerOptions.WriteIndented = true;
-                options.UseEntityFrameworkStorage<ExtendedTaskDbContext>();
+                options.UseSqlServerStorage();
+                //options.UseEntityFrameworkStorage<ExtendedTaskDbContext>();
             })
             .AddJob<SMSAlertHandler>()
             .WithQueueTrigger<SMSDto>(options => {
                 options.QueueName = "user-messages";
-                options.PollingInterval = 500;
+                options.PollingInterval = 300;
+                options.InstanceCount = 50;
             })
             .AddJob<LoadAvailableAlertsHandler>()
             .WithScheduleTrigger<DemoCounterModel>("0/5 * * * * ?", options => {
