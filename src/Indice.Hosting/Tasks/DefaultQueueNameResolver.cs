@@ -6,19 +6,25 @@
     /// <typeparam name="TWorkItem">The type of the workitem in the queue</typeparam>
     public class DefaultQueueNameResolver<TWorkItem> : IQueueNameResolver<TWorkItem> where TWorkItem : class
     {
-        private readonly string _Name;
+        private readonly string _queueName;
         /// <summary>
         /// Creates a new instance of <see cref="DefaultQueueNameResolver{T}"/>.
         /// </summary>
         /// <param name="queueOptions"></param>
         public DefaultQueueNameResolver(QueueOptions queueOptions) {
-            _Name = queueOptions.QueueName;
+            _queueName = queueOptions.QueueName;
         }
 
         /// <summary>
         /// Resolves the name of the queue.
         /// </summary>
         /// <returns>The name of the queue.</returns>
-        public string Resolve() => _Name ?? typeof(TWorkItem).Name;
+        public string Resolve(bool isPoison = false) {
+            var queueName = _queueName ?? typeof(TWorkItem).Name;
+            if (isPoison) {
+                queueName += "-poison";
+            }
+            return queueName;
+        }
     }
 }

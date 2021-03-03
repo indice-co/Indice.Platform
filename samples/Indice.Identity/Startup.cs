@@ -100,7 +100,7 @@ namespace Indice.Identity
                 options.UseSqlServerStorage();
                 //options.UseEntityFrameworkStorage<ExtendedTaskDbContext>();
             })
-            .AddJob<SMSAlertHandler>()
+            .AddJob<SmsAlertHandler>()
             .WithQueueTrigger<SmsDto>(options => {
                 options.QueueName = "user-messages";
                 options.PollingInterval = 300;

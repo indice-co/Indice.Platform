@@ -5,11 +5,11 @@ using Microsoft.Extensions.Logging;
 
 namespace Indice.Identity.Hosting
 {
-    public class SMSAlertHandler
+    public class SmsAlertHandler
     {
-        private readonly ILogger<SMSAlertHandler> _logger;
+        private readonly ILogger<SmsAlertHandler> _logger;
 
-        public SMSAlertHandler(ILogger<SMSAlertHandler> logger) {
+        public SmsAlertHandler(ILogger<SmsAlertHandler> logger) {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
@@ -21,7 +21,7 @@ namespace Indice.Identity.Hosting
             timer.Start();
             var waitTime = new Random().Next(5, 10) * 100;
             await Task.Delay(waitTime);
-            _logger.LogDebug($"{nameof(SMSAlertHandler)} took {timer.ElapsedMilliseconds}ms to execute.");
+            _logger.LogDebug($"{nameof(SmsAlertHandler)} took {timer.ElapsedMilliseconds}ms to execute.");
         }
     }
 }

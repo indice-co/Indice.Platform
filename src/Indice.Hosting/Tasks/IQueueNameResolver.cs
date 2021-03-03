@@ -9,7 +9,7 @@
         /// <summary>
         /// Resolves the name of the queue.
         /// </summary>
-        /// <returns>The name of the queue</returns>
-        string Resolve();
+        /// <returns>The name of the queue.</returns>
+        string Resolve(bool isPoison = false);
     }
 }

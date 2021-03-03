@@ -7,7 +7,7 @@ namespace Indice.Hosting
     /// <summary>
     /// Represents a first-in, first-out collection of objects.
     /// </summary>
-    /// <typeparam name="T"></typeparam>
+    /// <typeparam name="T">The type of the queue item.</typeparam>
     public interface IMessageQueue<T> where T : class
     {
         /// <summary>
@@ -48,40 +48,36 @@ namespace Indice.Hosting
     }
 
     /// <summary>
-    /// Extension methods on <see cref="IMessageQueue{T}"/>
+    /// Extension methods on <see cref="IMessageQueue{T}"/>.
     /// </summary>
     public static class MessageQueueExtensions
     {
         /// <summary>
         /// Shorthand dequeue to extract the payload directly.
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="queue"></param>
-        /// <returns></returns>
+        /// <typeparam name="T">The type of message.</typeparam>
+        /// <param name="queue">The message queue.</param>
         public static async Task<T> DequeueValue<T>(this IMessageQueue<T> queue) where T : class => (await queue.Dequeue())?.Value;
         /// <summary>
         /// Enqueue a new item.
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="queue"></param>
-        /// <param name="item"></param>
-        /// <returns></returns>
+        /// <typeparam name="T">The type of message.</typeparam>
+        /// <param name="queue">The message queue.</param>
+        /// <param name="item">The message item.</param>
         public static async Task Enqueue<T>(this IMessageQueue<T> queue, T item) where T : class => await queue.Enqueue(item, null, isPoison: false);
         /// <summary>
         /// Enqueue an existing item by id.
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="queue"></param>
-        /// <param name="messageId"></param>
-        /// <returns></returns>
+        /// <typeparam name="T">The type of message.</typeparam>
+        /// <param name="queue">The message queue.</param>
+        /// <param name="messageId">The message id.</param>
         public static async Task ReEnqueue<T>(this IMessageQueue<T> queue, Guid messageId) where T : class => await queue.Enqueue(null, messageId, isPoison: false);
         /// <summary>
         /// Mark an existing message as poison. After multiple consecutive failures.
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="queue"></param>
-        /// <param name="messageId"></param>
-        /// <returns></returns>
+        /// <typeparam name="T">The type of message.</typeparam>
+        /// <param name="queue">The message queue.</param>
+        /// <param name="messageId">The message id.</param>
         public static async Task MarkPoison<T>(this IMessageQueue<T> queue, Guid messageId) where T : class => await queue.Enqueue(null, messageId, isPoison: true);
     }
 }

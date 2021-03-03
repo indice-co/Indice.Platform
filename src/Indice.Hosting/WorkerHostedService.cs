@@ -63,7 +63,7 @@ namespace Indice.Hosting
                                                    .ForJob(dequeueJob)
                                                    .WithIdentity(name: $"{dequeueJobSchedule.Name}{TriggerNames.DequeueJobTrigger}{i}", group: JobGroups.InternalJobsGroup)
                                                    .StartNow()
-                                                   .WithSimpleSchedule(x => x.WithInterval(TimeSpan.FromMilliseconds(dequeueJobSchedule.PollingInterval + 50 * i)).RepeatForever())
+                                                   .WithSimpleSchedule(x => x.WithInterval(TimeSpan.FromMilliseconds(dequeueJobSchedule.PollingInterval + (dequeueJobSchedule.PollingInterval / dequeueJobSchedule.InstanceCount * (i - 1)))).RepeatForever())
                                                    .Build();
                     await Scheduler.ScheduleJob(jobTrigger);
                 }
