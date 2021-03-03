@@ -150,10 +150,10 @@ namespace Indice.AspNetCore.Identity.EntityFrameworkCore
 
         /// <inheritdoc/>
         public override async Task SetUserNameAsync(TUser user, string userName, CancellationToken cancellationToken = default) {
+            await base.SetUserNameAsync(user, userName, cancellationToken);
             if (EmailAsUserName.HasValue && EmailAsUserName.Value) {
-                await base.SetUserNameAsync(user, userName, cancellationToken);
+                await base.SetEmailAsync(user, userName, cancellationToken);
             }
-            await base.SetEmailAsync(user, userName, cancellationToken);
         }
     }
 }
