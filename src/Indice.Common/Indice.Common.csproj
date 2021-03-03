@@ -3,7 +3,7 @@
     <Description>Indice.Common Class Library</Description>
     <Copyright>Copyright (c) 2018 Indice</Copyright>
     <AssemblyTitle>Indice.Common</AssemblyTitle>
-    <VersionPrefix>4.0.6</VersionPrefix>
+    <VersionPrefix>4.0.7</VersionPrefix>
     <!--<VersionSuffix>beta7</VersionSuffix>-->
     <Authors>Constantinos Leftheris</Authors>
     <TargetFrameworks>netstandard2.0;netcoreapp3.1</TargetFrameworks>
