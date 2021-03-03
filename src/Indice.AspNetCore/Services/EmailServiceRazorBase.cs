@@ -91,8 +91,12 @@ namespace Indice.Services
         }
 
         private static ExpandoObject ToExpandoObject<T>(T value) {
+            var type = typeof(T);
+            if (type.Equals(typeof(object)) && value != null) {
+                type = value.GetType();
+            }
             var obj = new ExpandoObject() as IDictionary<string, object>;
-            foreach (var property in typeof(T).GetProperties(BindingFlags.Public | BindingFlags.Instance)) {
+            foreach (var property in type.GetProperties(BindingFlags.Public | BindingFlags.Instance)) {
                 obj.Add(property.Name, property.GetValue(value, null));
             }
             return obj as ExpandoObject;

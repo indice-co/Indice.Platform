@@ -2,21 +2,8 @@
 using System.Collections.Generic;
 using System.IO;
 
-namespace Indice.Configuration
+namespace Indice.Services
 {
-    /// <inheritdoc/>
-    public class EmailMessage<TModel> : EmailMessage where TModel : class
-    {
-        /// <inheritdoc/>
-        public EmailMessage(IList<string> recipients, string subject, string body, string template, TModel data, IList<FileAttachment> attachments) 
-            : base(recipients, subject, body, template, attachments) => Data = data;
-
-        /// <summary>
-        /// Data that are passed to the email template.
-        /// </summary>
-        public TModel Data { get; }
-    }
-
     /// <summary>
     /// Models the data that are sent in an email message.
     /// </summary>
@@ -29,13 +16,15 @@ namespace Indice.Configuration
         /// <param name="subject">The subject of the message.</param>
         /// <param name="body">The body of the message.</param>
         /// <param name="template">The template used to render the email. Defaults to 'Email'.</param>
+        /// <param name="data">Data that are passed to the email template.</param>
         /// <param name="attachments">Optional attachments contained in the message.</param>
-        public EmailMessage(IList<string> recipients, string subject, string body, string template, IList<FileAttachment> attachments) {
+        public EmailMessage(IList<string> recipients, string subject, string body, string template, object data, IList<FileAttachment> attachments) {
             Recipients = recipients ?? throw new ArgumentNullException(nameof(recipients));
             Subject = subject ?? throw new ArgumentNullException(nameof(subject));
             Body = body ?? throw new ArgumentNullException(nameof(body));
             Template = template;
             Attachments = attachments;
+            Data = data;
         }
 
         /// <summary>
@@ -54,6 +43,10 @@ namespace Indice.Configuration
         /// The template used to render the email. Defaults to 'Email'.
         /// </summary>
         public string Template { get; }
+        /// <summary>
+        /// Data that are passed to the email template.
+        /// </summary>
+        public object Data { get; }
         /// <summary>
         /// Optional attachments contained in the message.
         /// </summary>

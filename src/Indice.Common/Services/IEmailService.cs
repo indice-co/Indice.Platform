@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using Indice.Configuration;
 
@@ -119,28 +120,11 @@ namespace Indice.Services
         /// </summary>
         /// <param name="emailService">Abstraction for sending email through different providers and implementations. SMTP, SparkPost, Mailchimp etc.</param>
         /// <param name="configureMessage">The delegate that will be used to build the message.</param>
-        public static async Task SendAsync(this IEmailService emailService, Action<EmailMessageBuilder> configureMessage) {
+        public static async Task SendAsync(this IEmailService emailService, Func<EmailMessageBuilder, EmailMessageBuilder> configureMessage) {
             if (configureMessage == null) {
                 throw new ArgumentNullException(nameof(configureMessage));
             }
-            var messageBuilder = new EmailMessageBuilder();
-            configureMessage(messageBuilder);
-            var message = messageBuilder.Build();
-            await emailService.SendAsync(message.Recipients.ToArray(), message.Subject, message.Body, message.Attachments.ToArray());
-        }
-
-        /// <summary>
-        /// Sends an email, along with template data, by using a fluent configuration.
-        /// </summary>
-        /// <typeparam name="TModel">The type of the data that will be applied to the template.</typeparam>
-        /// <param name="emailService">Abstraction for sending email through different providers and implementations. SMTP, SparkPost, Mailchimp etc.</param>
-        /// <param name="configureMessage">The delegate that will be used to build the message.</param>
-        public static async Task SendAsync<TModel>(this IEmailService emailService, Action<EmailMessageBuilder<TModel>> configureMessage) where TModel : class {
-            if (configureMessage == null) {
-                throw new ArgumentNullException(nameof(configureMessage));
-            }
-            var messageBuilder = new EmailMessageBuilder<TModel>();
-            configureMessage(messageBuilder);
+            var messageBuilder = configureMessage(new EmailMessageBuilder());
             var message = messageBuilder.Build();
             await emailService.SendAsync(message.Recipients.ToArray(), message.Subject, message.Body, message.Template, message.Data, message.Attachments.ToArray());
         }
