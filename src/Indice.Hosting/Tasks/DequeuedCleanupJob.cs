@@ -4,7 +4,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Quartz;
 
-namespace Indice.Hosting.Tasks
+namespace Indice.Hosting
 {
     [PersistJobDataAfterExecution]
     internal class DequeuedCleanupJob<TWorkItem> : IJob where TWorkItem : class

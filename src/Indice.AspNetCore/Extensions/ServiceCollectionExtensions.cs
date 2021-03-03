@@ -51,6 +51,18 @@ namespace Microsoft.Extensions.DependencyInjection
         }
 
         /// <summary>
+        /// Adds an implementation of <see cref="IPushNotificationService"/> using Azure cloud infrastructure for sending push nitifications.
+        /// </summary>
+        /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
+        /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
+        public static IServiceCollection AddPushNotificationServiceAzure(this IServiceCollection services, IConfiguration configuration) {
+            services.Configure<PushNotificationOptions>(configuration.GetSection(PushNotificationOptions.Name));
+            services.AddTransient(serviceProvider => serviceProvider.GetRequiredService<IOptions<PushNotificationOptions>>().Value);
+            services.AddTransient<IPushNotificationService, PushNotificationServiceAzure>();
+            return services;
+        }
+
+        /// <summary>
         /// Adds an instance of <see cref="IEmailService"/> that uses Sparkpost to send and Razor templates.
         /// </summary>
         /// <param name="services">Specifies the contract for a collection of service descriptors.</param>

@@ -52,7 +52,7 @@ namespace Indice.Hosting
         /// <summary>
         /// The concurrent instance count.
         /// </summary>
-        public int InstanceCount { get; set; } = 1;
+        public int InstanceCount { get; set; } = 10;
         /// <summary>
         /// Cleanup interval in secconds
         /// </summary>

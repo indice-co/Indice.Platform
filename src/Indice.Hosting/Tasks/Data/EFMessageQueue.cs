@@ -5,28 +5,28 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 
-namespace Indice.Hosting.Tasks.Data
+namespace Indice.Hosting.EntityFrameworkCore
 {
     /// <summary>
-    /// EF message queue.
+    /// An implementation of <see cref="IMessageQueue{T}"/> using Entity Framework Core.
     /// </summary>
-    /// <typeparam name="T"></typeparam>
+    /// <typeparam name="T">The type of queue item.</typeparam>
     public class EFMessageQueue<T> : IMessageQueue<T> where T : class
     {
-        private readonly TaskDbContext _DbContext;
-        private readonly string _QueueName;
-        private readonly JsonSerializerOptions _JsonOptions;
+        private readonly TaskDbContext _dbContext;
+        private readonly string _queueName;
+        private readonly JsonSerializerOptions _jsonSerializerOptions;
 
         /// <summary>
         /// constructor
         /// </summary>
         /// <param name="dbContext"></param>
-        /// <param name="nameResolver"></param>
+        /// <param name="queueNameResolver"></param>
         /// <param name="workerJsonOptions"></param>
-        public EFMessageQueue(TaskDbContext dbContext, IQueueNameResolver<T> nameResolver, WorkerJsonOptions workerJsonOptions) {
-            _DbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
-            _QueueName = nameResolver?.Resolve() ?? throw new ArgumentNullException(nameof(nameResolver));
-            _JsonOptions = workerJsonOptions?.JsonSerializerOptions ?? throw new ArgumentNullException(nameof(workerJsonOptions));
+        public EFMessageQueue(TaskDbContext dbContext, IQueueNameResolver<T> queueNameResolver, WorkerJsonOptions workerJsonOptions) {
+            _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
+            _queueName = queueNameResolver?.Resolve() ?? throw new ArgumentNullException(nameof(queueNameResolver));
+            _jsonSerializerOptions = workerJsonOptions?.JsonSerializerOptions ?? throw new ArgumentNullException(nameof(workerJsonOptions));
         }
 
         // https://thinkrethink.net/2017/10/02/implement-pessimistic-concurrency-in-entity-framework-core/
@@ -43,58 +43,56 @@ namespace Indice.Hosting.Tasks.Data
                 message.DequeueCount++;
                 message.State = QMessageState.Dequeued;
                 try {
-                    await _DbContext.SaveChangesAsync();
+                    await _dbContext.SaveChangesAsync();
                     successfullLock = true;
                 } catch (DbUpdateException) {
                     // Could not aquire lock. Will try again.
                 }
             } 
             while (!successfullLock);
-            return message.ToModel<T>(_JsonOptions);
+            return message.ToModel<T>(_jsonSerializerOptions);
         }
 
         /// <inheritdoc/>
         public async Task Enqueue(T item, Guid? messageId, bool isPoison) {
             if (!messageId.HasValue) {
-                var message = new DbQMessage() {
+                var message = new DbQMessage {
                     Id = Guid.NewGuid(),
                     Date = DateTime.UtcNow,
                     State = QMessageState.New,
-                    Payload = JsonSerializer.Serialize(item, _JsonOptions),
-                    QueueName = _QueueName
+                    Payload = JsonSerializer.Serialize(item, _jsonSerializerOptions),
+                    QueueName = _queueName
                 };
-                _DbContext.Add(message);
+                _dbContext.Add(message);
             } else {
-                var message = await _DbContext.Queue.Where(x => x.Id == messageId.Value).SingleAsync();
+                var message = await _dbContext.Queue.Where(x => x.Id == messageId.Value).SingleAsync();
                 message.State = isPoison ? QMessageState.Poison : QMessageState.New;
                 message.DequeueCount++;
-                _DbContext.Update(message);
+                _dbContext.Update(message);
             }
-            await _DbContext.SaveChangesAsync();
+            await _dbContext.SaveChangesAsync();
         }
 
         /// <inheritdoc/>
         public async Task EnqueueRange(IEnumerable<T> items) {
-            _DbContext.AddRange(items.Select(x => new DbQMessage() {
+            _dbContext.AddRange(items.Select(x => new DbQMessage() {
                 Id = Guid.NewGuid(),
                 Date = DateTime.UtcNow,
                 State = QMessageState.New,
-                Payload = JsonSerializer.Serialize(x, _JsonOptions),
-                QueueName = _QueueName
+                Payload = JsonSerializer.Serialize(x, _jsonSerializerOptions),
+                QueueName = _queueName
             }));
-            await _DbContext.SaveChangesAsync();
+            await _dbContext.SaveChangesAsync();
         }
 
         /// <inheritdoc/>
         public async Task<T> Peek() {
             var message = await GetAvailableItems().SingleOrDefaultAsync();
-            return JsonSerializer.Deserialize<T>(message.Payload, _JsonOptions);
+            return JsonSerializer.Deserialize<T>(message.Payload, _jsonSerializerOptions);
         }
 
         /// <inheritdoc/>
-        public async Task<int> Count() {
-            return await GetAvailableItems().CountAsync();
-        }
+        public async Task<int> Count() => await GetAvailableItems().CountAsync();
 
         /// <inheritdoc/>
         public async Task Cleanup(int? batchSize = null) {
@@ -104,9 +102,9 @@ namespace Indice.Hosting.Tasks.Data
                 WHERE [State] = {1} AND [QueueName] = {2}
                 ORDER BY Date);
             ";
-            await _DbContext.Database.ExecuteSqlRawAsync(query, batchSize ?? 1000, QMessageState.Dequeued, _QueueName);
+            await _dbContext.Database.ExecuteSqlRawAsync(query, batchSize ?? 1000, QMessageState.Dequeued, _queueName);
         }
 
-        private IQueryable<DbQMessage> GetAvailableItems() => _DbContext.Queue.Where(x => x.QueueName == _QueueName && x.State == QMessageState.New).OrderBy(x => x.Date);
+        private IQueryable<DbQMessage> GetAvailableItems() => _dbContext.Queue.Where(x => x.QueueName == _queueName && x.State == QMessageState.New).OrderBy(x => x.Date);
     }
 }

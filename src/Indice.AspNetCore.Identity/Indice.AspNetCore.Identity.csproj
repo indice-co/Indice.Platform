@@ -3,9 +3,9 @@
     <Description>Indice.AspNetCore.Identity Class Library</Description>
     <Copyright>Copyright (c) 2018 Indice</Copyright>
     <AssemblyTitle>Indice.AspNetCore.Identity</AssemblyTitle>
-    <VersionPrefix>4.0.27</VersionPrefix>
+    <VersionPrefix>4.0.28</VersionPrefix>
     <!--<VersionSuffix>beta20</VersionSuffix>-->
-    <Authors>c.leftheris, g.manoltzas</Authors>
+    <Authors>Constantinos Leftheris, Georgios Manoltzas</Authors>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <AssemblyName>Indice.AspNetCore.Identity</AssemblyName>
     <AssemblyTitle>Indice.AspNetCore.Identity</AssemblyTitle>
@@ -14,7 +14,7 @@
   <PropertyGroup Label="Package">
     <PackageId>Indice.AspNetCore.Identity</PackageId>
     <PackageTags>AspNetCore;IdentityServer;</PackageTags>
-    <PackageReleaseNotes>Consider checking user's current password in PreviousPasswordAwareValidator.</PackageReleaseNotes>
+    <PackageReleaseNotes>Fix bug after updating EmailService.</PackageReleaseNotes>
     <PackageIcon>icon-310.png</PackageIcon>
     <PackageProjectUrl>https://github.com/indice-co/Indice.AspNet</PackageProjectUrl>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
@@ -35,7 +35,7 @@
     <PackageReference Include="IdentityServer4" Version="4.1.1" />
     <PackageReference Include="IdentityServer4.AccessTokenValidation" Version="3.0.1" />
     <PackageReference Include="IdentityServer4.EntityFramework" Version="4.1.1" />
-    <PackageReference Include="Indice.AspNetCore" Version="4.0.18" />
+    <PackageReference Include="Indice.AspNetCore" Version="4.0.19" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="3.1.12" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="3.1.12" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="3.1.12" />

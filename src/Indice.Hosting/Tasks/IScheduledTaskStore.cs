@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
 
-namespace Indice.Hosting.Tasks
+namespace Indice.Hosting
 {
     /// <summary>
     /// Scheduled task store abstraction.
@@ -10,15 +10,12 @@ namespace Indice.Hosting.Tasks
         /// <summary>
         /// Persist the schedule task.
         /// </summary>
-        /// <param name="scheduledTask"></param>
-        /// <returns></returns>
+        /// <param name="scheduledTask">The task item to persist.</param>
         Task Save(ScheduledTask<TState> scheduledTask);
-
         /// <summary>
-        /// Find a persisted schedule task
+        /// Find a persisted schedule task.
         /// </summary>
-        /// <param name="taskId"></param>
-        /// <returns></returns>
+        /// <param name="taskId">The unique id of the task item.</param>
         Task<ScheduledTask<TState>> GetById(string taskId);
     }
 }

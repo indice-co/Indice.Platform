@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using Indice.Hosting;
-using Indice.Hosting.Tasks;
-using Indice.Hosting.Tasks.Data;
+using Indice.Hosting.EntityFrameworkCore;
+using Indice.Hosting.SqlClient;
 using Indice.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -26,14 +27,17 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <param name="configureAction">The delegate used to configure the worker host options.</param>
         /// <returns>The <see cref="WorkerHostBuilder"/> used to configure the worker host.</returns>
         public static WorkerHostBuilder AddWorkerHost(this IServiceCollection services, Action<WorkerHostOptions> configureAction) {
-            services.AddSingleton<ISchedulerFactory, StdSchedulerFactory>();
+            var workerHostOptions = new WorkerHostOptions(services);
+            configureAction.Invoke(workerHostOptions);
+            services.AddSingleton(workerHostOptions.JsonOptions);
+            var quartzConfiguration = new NameValueCollection {
+                { "quartz.threadPool.maxConcurrency", "100" }
+            };
+            services.AddSingleton<ISchedulerFactory>(serviceProvider => new StdSchedulerFactory(quartzConfiguration));
             services.AddSingleton<IJobFactory, QuartzJobFactory>();
             services.AddTransient<QuartzJobRunner>();
             services.AddTransient<TaskHandlerActivator>();
             services.AddHostedService<WorkerHostedService>();
-            var workerHostOptions = new WorkerHostOptions(services);
-            configureAction.Invoke(workerHostOptions);
-            services.AddSingleton(workerHostOptions.JsonOptions);
             return new WorkerHostBuilder(services, workerHostOptions);
         }
 
@@ -82,7 +86,8 @@ namespace Microsoft.Extensions.DependencyInjection
             throw new NotImplementedException();
 
         /// <summary>
-        /// Uses a database table, in order to manage queue items. If no <paramref name="configureAction"/> is provided, then SQL Server is used as a default provider.
+        /// Uses a database table, in order to manage queue items. The underlying database access is managed by Entity Framework. 
+        /// If no <paramref name="configureAction"/> is provided, then SQL Server is used as a default provider.
         /// </summary>
         /// /// <typeparam name="TContext"></typeparam>
         /// <param name="options">The <see cref="WorkerHostOptions"/> used to configure locking and queue persistence.</param>
@@ -100,8 +105,27 @@ namespace Microsoft.Extensions.DependencyInjection
             }
             options.ScheduledTaskStoreType = typeof(EFScheduledTaskStore<>);
             options.QueueStoreType = typeof(EFMessageQueue<>);
-            options.LockStoreType = typeof(EFLockManager);
-            options.Services.AddTransient<ILockManager, EFLockManager>();
+            options.LockStoreType = typeof(SqlServerLockManager);
+            options.Services.AddTransient<ILockManager, SqlServerLockManager>();
+            return options;
+        }
+
+        /// <summary>
+        /// Uses a database table, in order to manage queue items. The underlying database access is managed by pure T-SQL queries.
+        /// </summary>
+        /// <param name="options">The <see cref="WorkerHostOptions"/> used to configure locking and queue persistence.</param>
+        /// <returns>The <see cref="WorkerHostOptions"/> used to configure locking and queue persistence.</returns>
+        public static WorkerHostOptions UseSqlServerStorage(this WorkerHostOptions options) {
+            options.ScheduledTaskStoreType = typeof(EFScheduledTaskStore<>);
+            options.QueueStoreType = typeof(SqlServerMessageQueue<>);
+            options.LockStoreType = typeof(SqlServerLockManager);
+            // This should be removed. SqlServerLockManager must not depend on TaskDbContext.
+            var serviceProvider = options.Services.BuildServiceProvider();
+            Action<DbContextOptionsBuilder> sqlServerConfiguration = builder => builder.UseSqlServer(serviceProvider.GetService<IConfiguration>().GetConnectionString("WorkerDb"));
+            options.Services.AddDbContext<TaskDbContext>(sqlServerConfiguration);
+            options.Services.AddDbContext<LockDbContext>(sqlServerConfiguration);
+            options.Services.AddTransient<ILockManager, SqlServerLockManager>();
+            options.Services.AddScoped<IDbConnectionFactory>(x => new SqlServerConnectionFactory(serviceProvider.GetService<IConfiguration>().GetConnectionString("WorkerDb")));
             return options;
         }
 
@@ -159,17 +183,17 @@ namespace Microsoft.Extensions.DependencyInjection
         /// Specifies that the configured job will be triggered by an item inserted to the a queue.
         /// </summary>
         /// <param name="builder">The <see cref="TaskTriggerBuilder"/> used to configure the way that a job is triggered.</param>
-        /// <param name="queueStoreTypeImpl">CLR type of the implementation of an <see cref="IMessageQueue{T}"/></param>
+        /// <param name="queueStoreTypeImplementation">CLR type of the implementation of an <see cref="IMessageQueue{T}"/></param>
         /// <param name="configureAction">The delegate used to configure the queue options.</param>
         /// <returns>The <see cref="WorkerHostBuilder"/> used to configure the worker host.</returns>
-        private static WorkerHostBuilderForQueue WithQueueTrigger<TWorkItem>(this TaskTriggerBuilder builder, Type queueStoreTypeImpl, Action<QueueOptions> configureAction = null) where TWorkItem : class {
+        private static WorkerHostBuilderForQueue WithQueueTrigger<TWorkItem>(this TaskTriggerBuilder builder, Type queueStoreTypeImplementation, Action<QueueOptions> configureAction = null) where TWorkItem : class {
             var options = new QueueOptions(builder.Services);
             configureAction?.Invoke(options);
             options.Services.AddTransient(builder.JobHandlerType);
             options.Services.AddTransient(typeof(IQueueNameResolver<TWorkItem>), sp => Activator.CreateInstance(typeof(DefaultQueueNameResolver<TWorkItem>), new object[] { options }));
-            options.Services.AddTransient(typeof(IMessageQueue<TWorkItem>), queueStoreTypeImpl);
+            options.Services.AddTransient(typeof(IMessageQueue<TWorkItem>), queueStoreTypeImplementation);
             var queueStoreTypeDefault = builder.Options.QueueStoreType.MakeGenericType(typeof(TWorkItem));
-            if (!queueStoreTypeDefault.Equals(queueStoreTypeImpl)) {
+            if (!queueStoreTypeDefault.Equals(queueStoreTypeImplementation)) {
                 options.Services.AddTransient(queueStoreTypeDefault);
             }
             options.Services.AddTransient(typeof(DequeueJob<TWorkItem>));
