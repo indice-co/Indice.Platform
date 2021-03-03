@@ -48,10 +48,10 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <param name="configureAction">Configure the azure options.</param>
         /// <returns>The <see cref="WorkerHostOptions"/> used to configure locking and queue persistence.</returns>
         public static WorkerHostOptions UseAzureStorageLock(this WorkerHostOptions options, Action<LockManagerAzureOptions> configureAction = null) {
-            options.Services.TryAddSingleton(typeof(ILockManager), sp => {
+            options.Services.TryAddSingleton(typeof(ILockManager), serviceProvider => {
                 var azureOptions = new LockManagerAzureOptions {
-                    StorageConnection = sp.GetService<IConfiguration>().GetConnectionString("StorageConnection"),
-                    EnvironmentName = sp.GetService<IHostEnvironment>().EnvironmentName
+                    StorageConnection = serviceProvider.GetService<IConfiguration>().GetConnectionString("StorageConnection"),
+                    EnvironmentName = serviceProvider.GetService<IHostEnvironment>().EnvironmentName
                 };
                 configureAction?.Invoke(azureOptions);
                 return new LockManagerAzure(azureOptions);
@@ -118,13 +118,9 @@ namespace Microsoft.Extensions.DependencyInjection
         public static WorkerHostOptions UseSqlServerStorage(this WorkerHostOptions options) {
             options.ScheduledTaskStoreType = typeof(EFScheduledTaskStore<>);
             options.QueueStoreType = typeof(SqlServerMessageQueue<>);
-            options.LockStoreType = typeof(SqlServerLockManager);
-            // This should be removed. SqlServerLockManager must not depend on TaskDbContext.
             var serviceProvider = options.Services.BuildServiceProvider();
             Action<DbContextOptionsBuilder> sqlServerConfiguration = builder => builder.UseSqlServer(serviceProvider.GetService<IConfiguration>().GetConnectionString("WorkerDb"));
             options.Services.AddDbContext<TaskDbContext>(sqlServerConfiguration);
-            options.Services.AddDbContext<LockDbContext>(sqlServerConfiguration);
-            options.Services.AddTransient<ILockManager, SqlServerLockManager>();
             options.Services.AddScoped<IDbConnectionFactory>(x => new SqlServerConnectionFactory(serviceProvider.GetService<IConfiguration>().GetConnectionString("WorkerDb")));
             return options;
         }

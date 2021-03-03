@@ -103,23 +103,22 @@ namespace Indice.Identity
             .AddJob<SmsAlertHandler>()
             .WithQueueTrigger<SmsDto>(options => {
                 options.QueueName = "user-messages";
-                options.PollingInterval = 300;
-                options.InstanceCount = 64;
+                options.PollingInterval = 1000;
+                options.InstanceCount = 1;
             })
-            /*.AddJob<LoadAvailableAlertsHandler>()
+            .AddJob<LoadAvailableAlertsHandler>()
             .WithScheduleTrigger<DemoCounterModel>("0/5 * * * * ?", options => {
                 options.Name = "load-available-alerts";
                 options.Description = "Load alerts for the queue.";
                 options.Group = "indice";
-            })*/;
+            });
         }
 
         /// <summary>
         /// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         /// </summary>
         /// <param name="app">Defines a class that provides the mechanisms to configure an application's request pipeline.</param>
-        /// <param name="serviceProvider"></param>
-        public void Configure(IApplicationBuilder app, IServiceProvider serviceProvider) {
+        public void Configure(IApplicationBuilder app) {
             if (HostingEnvironment.IsDevelopment()) {
                 app.UseDeveloperExceptionPage();
                 app.IdentityServerStoreSetup<ExtendedConfigurationDbContext>(Clients.Get(), Resources.GetIdentityResources(), Resources.GetApis(), Resources.GetApiScopes());

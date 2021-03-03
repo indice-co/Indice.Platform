@@ -15,7 +15,7 @@ namespace Indice.Hosting.SqlClient
     public class SqlServerMessageQueue<T> : IMessageQueue<T> where T : class
     {
         private readonly IDbConnectionFactory _dbConnectionFactory;
-        private readonly string _queueName;
+        private readonly IQueueNameResolver<T> _queueNameResolver;
         private readonly JsonSerializerOptions _jsonSerializerOptions;
 
         /// <summary>
@@ -26,7 +26,7 @@ namespace Indice.Hosting.SqlClient
         /// <param name="workerJsonOptions">These are the options regarding json Serialization. They are used internally for persisting payloads.</param>
         public SqlServerMessageQueue(IDbConnectionFactory dbConnectionFactory, IQueueNameResolver<T> queueNameResolver, WorkerJsonOptions workerJsonOptions) {
             _dbConnectionFactory = dbConnectionFactory ?? throw new ArgumentNullException(nameof(dbConnectionFactory));
-            _queueName = queueNameResolver?.Resolve() ?? throw new ArgumentNullException(nameof(queueNameResolver));
+            _queueNameResolver = queueNameResolver ?? throw new ArgumentNullException(nameof(queueNameResolver));
             _jsonSerializerOptions = workerJsonOptions?.JsonSerializerOptions ?? throw new ArgumentNullException(nameof(workerJsonOptions));
         }
 
@@ -44,7 +44,7 @@ namespace Indice.Hosting.SqlClient
             using (var dbConnection = _dbConnectionFactory.Create()) {
                 dbConnection.Open();
                 var command = dbConnection.CreateCommand();
-                command.AddParameterWithValue("@QueueName", _queueName, DbType.String);
+                command.AddParameterWithValue("@QueueName", _queueNameResolver.Resolve(), DbType.String);
                 command.CommandText = sql;
                 command.CommandType = CommandType.Text;
                 var count = command.ExecuteScalar();
@@ -58,7 +58,8 @@ namespace Indice.Hosting.SqlClient
                 SET NOCOUNT ON; 
                 WITH cte AS (
                     SELECT TOP(1) * 
-                    FROM[work].[QMessage] WITH (ROWLOCK, READPAST) 
+                    FROM [work].[QMessage] WITH (ROWLOCK, READPAST)
+                    WHERE [QueueName] = @QueueName
                     ORDER BY [Date] ASC
                 )
                 DELETE FROM cte 
@@ -67,6 +68,7 @@ namespace Indice.Hosting.SqlClient
             using (var dbConnection = _dbConnectionFactory.Create()) {
                 dbConnection.Open();
                 var command = dbConnection.CreateCommand();
+                command.AddParameterWithValue("@QueueName", _queueNameResolver.Resolve(), DbType.String);
                 command.CommandText = sql;
                 command.CommandType = CommandType.Text;
                 var dataReader = command.ExecuteReader();
@@ -87,16 +89,19 @@ namespace Indice.Hosting.SqlClient
         }
 
         /// <inheritdoc/>
-        public Task Enqueue(T item, Guid? messageId, bool isPoison) {
+        public Task Enqueue(QMessage<T> item, bool isPoison) {
             var sql = @"
                 INSERT INTO [work].[QMessage] ([Id], [QueueName], [Payload], [Date], [DequeueCount], [State]) 
-                VALUES (NEWID(), @QueueName, @Payload, GETUTCDATE(), 0, 0);
+                VALUES (@Id, @QueueName, @Payload, @Date, @DequeueCount, 0);
             ";
             using (var dbConnection = _dbConnectionFactory.Create()) {
                 dbConnection.Open();
                 var command = dbConnection.CreateCommand();
-                command.AddParameterWithValue("@QueueName", _queueName, DbType.String);
-                command.AddParameterWithValue("@Payload", JsonSerializer.Serialize(item, _jsonSerializerOptions), DbType.String);
+                command.AddParameterWithValue("@Id", item.Id, DbType.Guid);
+                command.AddParameterWithValue("@QueueName", _queueNameResolver.Resolve(isPoison), DbType.String);
+                command.AddParameterWithValue("@Payload", JsonSerializer.Serialize(item.Value, _jsonSerializerOptions), DbType.String);
+                command.AddParameterWithValue("@Date", item.Date, DbType.DateTime2);
+                command.AddParameterWithValue("@DequeueCount", item.DequeueCount, DbType.Int32);
                 command.CommandText = sql;
                 command.CommandType = CommandType.Text;
                 var rowsAffected = command.ExecuteNonQuery();
@@ -120,7 +125,7 @@ namespace Indice.Hosting.SqlClient
                         sql += $"(NEWID(), @QueueName{j}, @Payload{j}, GETUTCDATE(), 0, 0)";
                         var isLastItem = j == iterationLength - 1;
                         sql += !isLastItem ? ", " : ";";
-                        command.AddParameterWithValue($"@QueueName{j}", _queueName, DbType.String);
+                        command.AddParameterWithValue($"@QueueName{j}", _queueNameResolver.Resolve(), DbType.String);
                         command.AddParameterWithValue($"@Payload{j}", JsonSerializer.Serialize(items.ElementAt(j), _jsonSerializerOptions), DbType.String);
                     }
                     command.CommandText = sql;

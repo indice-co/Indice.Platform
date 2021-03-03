@@ -35,10 +35,10 @@ namespace Indice.Hosting
                 try {
                     await _taskHandlerActivator.Invoke(jobHandlerType, jobDataMap, context.CancellationToken, workItem.Value);
                 } catch (Exception exception) {
-                    if (workItem.DequeueCount < 3) {
-                        await _workItemQueue.ReEnqueue(workItem.Id); // Re-enqueue to retry.
+                    if (workItem.DequeueCount < 5) {
+                        await _workItemQueue.ReEnqueue(workItem); // Re-enqueue to retry.
                     } else {
-                        await _workItemQueue.MarkPoison(workItem.Id); // Enqueue to poison enqueue.
+                        await _workItemQueue.MarkPoison(workItem); // Enqueue to poison enqueue.
                     }
                     _logger.LogError("An error occured while processing work item '{WorkItem}'. Exception is: {Exception}", workItem, exception);
                 }

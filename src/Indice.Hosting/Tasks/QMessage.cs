@@ -2,9 +2,7 @@
 
 namespace Indice.Hosting
 {
-    /// <summary>
-    /// A queue message.
-    /// </summary>
+    /// <summary>A queue message.</summary>
     /// <typeparam name="T">The message value type.</typeparam>
     public sealed class QMessage<T> where T : class
     {
@@ -30,5 +28,9 @@ namespace Indice.Hosting
         /// The dequeue count.
         /// </summary>
         public int DequeueCount { get; internal set; }
+        /// <summary>
+        /// A property that indicates if the message is new or already exists in the queue. Only for internal use.
+        /// </summary>
+        internal bool IsNew { get; set; }
     }
 }

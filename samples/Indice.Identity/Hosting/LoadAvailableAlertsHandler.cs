@@ -29,7 +29,7 @@ namespace Indice.Identity.Hosting
             timer.Start();
             var tasksList = new List<SmsDto>();
             var task = new SmsDto(userId: Guid.NewGuid().ToString(), phoneNumber: "6992731575", message: $"Transaction {Guid.NewGuid()} has been taken place.");
-            for (var i = 0; i < 2345; i++) {
+            for (var i = 0; i < 10; i++) {
                 tasksList.Add(task);
             }
             await _messageQueue.EnqueueRange(tasksList);

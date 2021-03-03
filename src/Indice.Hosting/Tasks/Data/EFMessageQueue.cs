@@ -54,20 +54,21 @@ namespace Indice.Hosting.EntityFrameworkCore
         }
 
         /// <inheritdoc/>
-        public async Task Enqueue(T item, Guid? messageId, bool isPoison) {
-            if (!messageId.HasValue) {
-                var message = new DbQMessage {
-                    Id = Guid.NewGuid(),
-                    Date = DateTime.UtcNow,
+        public async Task Enqueue(QMessage<T> item, bool isPoison) {
+            DbQMessage message;
+            if (item.IsNew) {
+                message = new DbQMessage {
+                    Id = item.Id,
+                    Date = item.Date,
                     State = QMessageState.New,
-                    Payload = JsonSerializer.Serialize(item, _jsonSerializerOptions),
+                    Payload = JsonSerializer.Serialize(item.Value, _jsonSerializerOptions),
                     QueueName = _queueName
                 };
                 _dbContext.Add(message);
             } else {
-                var message = await _dbContext.Queue.Where(x => x.Id == messageId.Value).SingleAsync();
+                message = await _dbContext.Queue.Where(x => x.Id == item.Id).SingleAsync();
                 message.State = isPoison ? QMessageState.Poison : QMessageState.New;
-                message.DequeueCount++;
+                message.DequeueCount = item.DequeueCount;
                 _dbContext.Update(message);
             }
             await _dbContext.SaveChangesAsync();
