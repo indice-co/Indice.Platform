@@ -26,6 +26,10 @@ namespace Indice.AspNetCore.Identity.AdminUI
         /// </summary>
         public string DocumentTitle { get; set; } = "Indice Admin UI";
         /// <summary>
+        /// Gets or sets additional content to place in the head of the SPA page
+        /// </summary>
+        public string HeadContent { get; set; }
+        /// <summary>
         /// Specifies whether the back-office application is served in the specified path, as dictated by the <see cref="Path"/> property.
         /// Can be used in scenarios where the back-office application needs to be hidden. Defaults to true.
         /// </summary>

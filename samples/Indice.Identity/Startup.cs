@@ -195,6 +195,7 @@ namespace Indice.Identity
                 options.Host = Settings.Host;
                 options.Enabled = true;
                 options.OnPrepareResponse = staticFileOptions.OnPrepareResponse;
+                options.InjectStylesheet("/css/admin-ui-overrides.css");
             });
             app.UseEndpoints(endpoints => {
                 endpoints.MapControllers();

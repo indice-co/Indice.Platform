@@ -1,0 +1,10 @@
+﻿.topbar .navbar-custom {
+    background-color: rgba(255, 0, 0, 0.8)
+}
+.button-menu-mobile {
+    background-color: rgba(255, 0, 0, 0.8)
+}
+.topbar .logo img {
+    -webkit-filter: drop-shadow(2px 2px 6px rgba(0,0,0,.7));
+    filter: drop-shadow(2px 2px 6px rgba(0,0,0,.7))
+}

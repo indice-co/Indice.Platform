@@ -77,6 +77,7 @@ namespace Indice.AspNetCore.Identity.AdminUI
             { "%(DocumentTitle)", _options.DocumentTitle },
             { "%(Host)", _options.Host.TrimEnd('/') },
             { "%(Path)", _options.Path.Trim('/') },
+            { "%(HeadContent)", _options.HeadContent },
             { "%(Culture)", CultureInfo.CurrentCulture.TwoLetterISOLanguageName }
         };
     }
