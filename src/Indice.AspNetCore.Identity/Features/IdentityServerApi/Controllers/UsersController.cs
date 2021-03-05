@@ -93,13 +93,13 @@ namespace Indice.AspNetCore.Identity.Features
                 var filter = options.Filter;
                 query = query.Where(x => filter.Claim == null || x.Claims.Any(x => x.ClaimType == filter.Claim.Type && x.ClaimValue == filter.Claim.Value));
             }
-            var usersQuery = (
+            var usersQuery = 
                 from user in query
                 join fnl in _dbContext.UserClaims on user.Id equals fnl.UserId into fnLeft
                 from fn in fnLeft.DefaultIfEmpty()
                 join lnl in _dbContext.UserClaims on user.Id equals lnl.UserId into lnLeft
                 from ln in lnLeft.DefaultIfEmpty()
-                where fn.ClaimType == JwtClaimTypes.GivenName && ln.ClaimType == JwtClaimTypes.FamilyName
+                where (fn == null || fn.ClaimType == JwtClaimTypes.GivenName) && (ln == null || ln.ClaimType == JwtClaimTypes.FamilyName)
                 select new UserInfo {
                     Id = user.Id,
                     FirstName = fn.ClaimValue,
@@ -120,7 +120,7 @@ namespace Indice.AspNetCore.Identity.Features
                     LastSignInDate = user.LastSignInDate,
                     PasswordExpirationDate = user.PasswordExpirationDate
                 }
-            );
+            ;
             if (options?.Search?.Length > 2) {
                 var searchTerm = options.Search.ToLower();
                 var idsFromClaims = await _dbContext.UserClaims.Where(x => (x.ClaimType == JwtClaimTypes.GivenName || x.ClaimType == JwtClaimTypes.FamilyName) && EF.Functions.Like(x.ClaimValue, $"%{searchTerm}%")).Select(x => x.UserId).ToArrayAsync();

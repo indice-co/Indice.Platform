@@ -26,7 +26,7 @@ namespace Indice.AspNetCore.Identity.AdminUI
         /// </summary>
         public string DocumentTitle { get; set; } = "Indice Admin UI";
         /// <summary>
-        /// Gets or sets additional content to place in the head of the SPA page
+        /// Gets or sets additional content to place in the head of the SPA page.
         /// </summary>
         public string HeadContent { get; set; }
         /// <summary>
