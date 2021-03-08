@@ -9,7 +9,7 @@ namespace Microsoft.AspNetCore.Builder
     public static class AdminUIOptionsExtensions
     {
         /// <summary>
-        /// Injects additional Javascript files into the index.html page
+        /// Injects additional Javascript files into the index.html page.
         /// </summary>
         /// <param name="options">Options for configuring <see cref="AdminUIMiddleware"/> middleware.</param>
         /// <param name="path">A path to the javascript - i.e. the script "src" attribute.</param>

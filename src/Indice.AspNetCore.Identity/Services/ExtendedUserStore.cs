@@ -119,7 +119,7 @@ namespace Indice.AspNetCore.Identity.EntityFrameworkCore
             // Calculate expiration date based on policy.
             user.PasswordExpirationDate = user.CalculatePasswordExpirationDate();
             // If EmailAsUserName option is enabled and a username is not set, then assign email to username.
-            if (EmailAsUserName.HasValue && EmailAsUserName.Value && string.IsNullOrWhiteSpace(user.UserName)) {
+            if (EmailAsUserName.HasValue && EmailAsUserName.Value) {
                 user.UserName = user.Email;
             }
             return base.UpdateAsync(user, cancellationToken);
