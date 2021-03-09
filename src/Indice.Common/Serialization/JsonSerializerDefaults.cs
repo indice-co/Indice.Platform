@@ -6,14 +6,15 @@ namespace Indice.Serialization
     /// <summary>
     /// 
     /// </summary>
-    public static class JsonSerializerDefaults
+    public static class JsonSerializerOptionDefaults
+
     {
         /// <summary>
         /// Json options defaults.
         /// </summary>
         /// <returns></returns>
         public static JsonSerializerOptions GetDefaultSettings() {
-            var options = new JsonSerializerOptions() {
+            var options = new JsonSerializerOptions {
                 IgnoreNullValues = true,
                 PropertyNameCaseInsensitive = true,
                 WriteIndented = false,

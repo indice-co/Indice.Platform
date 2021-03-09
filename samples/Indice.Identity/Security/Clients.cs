@@ -88,12 +88,12 @@ namespace Indice.Identity.Security
                 AllowOfflineAccess = true,
                 ClientUri = "https://indice-idsrv.azurewebsites.net/admin",
                 PostLogoutRedirectUris = {
-                    "http://localhost:4200/logged-out",
+                    "http://localhost:4200/admin/logged-out",
                     "https://localhost:2000/admin/logged-out"
                 },
                 RedirectUris = {
-                    "http://localhost:4200/auth-callback",
-                    "http://localhost:4200/auth-renew",
+                    "http://localhost:4200/admin/auth-callback",
+                    "http://localhost:4200/admin/auth-renew",
                     "https://localhost:2000/admin/auth-callback",
                     "https://localhost:2000/admin/auth-renew"
                 },

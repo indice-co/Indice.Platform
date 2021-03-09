@@ -47,14 +47,14 @@ namespace Indice.AspNetCore.Middleware
                 context.Result = RuleResult.ContinueRules;
                 return;
             }
-            if (Host != null) {
+            if (Host.HasValue) {
                 // If the current request host is the same as our setting, then continue execution.
                 if (requestHostWithScheme.Equals(Host.Value, StringComparison.OrdinalIgnoreCase)) {
                     context.Result = RuleResult.SkipRemainingRules;
                     return;
                 }
             }
-            var newHost = Host != null ? Host : new HostString(requestHost.Value.Replace("www", string.Empty));
+            var newHost = Host.HasValue ? Host : new HostString(requestHost.Value.Replace("www", string.Empty));
             var newPath = $"{newHost}{request.PathBase}{request.Path}{request.QueryString}";
             var response = context.HttpContext.Response;
             response.StatusCode = StatusCode;
