@@ -16,6 +16,6 @@ namespace Indice.Hosting
         /// <summary>
         /// Json options defaults.
         /// </summary>
-        public static JsonSerializerOptions GetDefaultSettings() => JsonSerializerDefaults.GetDefaultSettings();
+        public static JsonSerializerOptions GetDefaultSettings() => JsonSerializerOptionDefaults.GetDefaultSettings();
     }
 }
