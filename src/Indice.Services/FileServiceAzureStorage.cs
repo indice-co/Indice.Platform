@@ -43,6 +43,7 @@ namespace Indice.Services
         /// <param name="filepath">The path that the file is saved to.</param>
         /// <param name="stream">The content of the file represented as a <see cref="Stream"/>.</param>
         public async Task SaveAsync(string filepath, Stream stream) {
+            filepath = filepath.TrimStart('\\', '/');
             var folder = _environmentName ?? Path.GetDirectoryName(filepath);
             var filename = _environmentName == null ? filepath.Substring(folder.Length) : filepath;
             var blobClient = _storageAccount.CreateCloudBlobClient();
@@ -64,6 +65,7 @@ namespace Indice.Services
         /// </summary>
         /// <param name="filepath">The path to the file.</param>
         public async Task<byte[]> GetAsync(string filepath) {
+            filepath = filepath.TrimStart('\\', '/');
             var folder = _environmentName ?? Path.GetDirectoryName(filepath);
             var filename = _environmentName == null ? filepath.Substring(folder.Length) : filepath;
             var blobClient = _storageAccount.CreateCloudBlobClient();
@@ -92,6 +94,7 @@ namespace Indice.Services
         /// </summary>
         /// <param name="filepath">The path to the file.</param>
         public async Task<IEnumerable<string>> SearchAsync(string filepath) {
+            filepath = filepath.TrimStart('\\', '/');
             var folder = _environmentName ?? Path.GetDirectoryName(filepath);
             var filename = _environmentName == null ? filepath.Substring(folder.Length) : filepath;
             var blobClient = _storageAccount.CreateCloudBlobClient();
@@ -117,6 +120,7 @@ namespace Indice.Services
         /// </summary>
         /// <param name="filepath">The path to the file.</param>
         public async Task<FileProperties> GetPropertiesAsync(string filepath) {
+            filepath = filepath.TrimStart('\\', '/');
             var folder = _environmentName ?? Path.GetDirectoryName(filepath);
             var filename = _environmentName == null ? filepath.Substring(folder.Length) : filepath;
             var blobClient = _storageAccount.CreateCloudBlobClient();
@@ -149,6 +153,7 @@ namespace Indice.Services
         /// <param name="filepath">The path to the file.</param>
         /// <param name="isDirectory">Determines if the <paramref name="filepath"/> points to a single file or a directory.</param>
         public async Task<bool> DeleteAsync(string filepath, bool isDirectory = false) {
+            filepath = filepath.TrimStart('\\', '/');
             var folder = _environmentName ?? Path.GetDirectoryName(filepath);
             var filename = _environmentName == null ? filepath.Substring(folder.Length) : filepath;
             var blobClient = _storageAccount.CreateCloudBlobClient();
