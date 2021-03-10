@@ -14,7 +14,7 @@
   <PropertyGroup Label="Package">
     <PackageId>Indice.Services</PackageId>
     <PackageTags>dotnetcore;Files;Emails;Sms</PackageTags>
-    <PackageReleaseNotes>Update Indice.Common.</PackageReleaseNotes>
+    <PackageReleaseNotes>.ΝΕΤ 5.0 upgrade</PackageReleaseNotes>
     <PackageIcon>icon-310.png</PackageIcon>
     <PackageProjectUrl>https://github.com/indice-co/Indice.AspNet</PackageProjectUrl>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>

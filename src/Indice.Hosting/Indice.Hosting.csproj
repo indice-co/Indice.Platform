@@ -13,7 +13,7 @@
   <PropertyGroup Label="Package">
     <PackageId>Indice.Hosting</PackageId>
     <PackageTags>dotnetcore;Hosting</PackageTags>
-    <PackageReleaseNotes>Created new message queue provider for SQL Server.</PackageReleaseNotes>
+    <PackageReleaseNotes>.ΝΕΤ 5.0 upgrade</PackageReleaseNotes>
     <PackageIcon>icon-310.png</PackageIcon>
     <PackageProjectUrl>https://github.com/indice-co/Indice.AspNet</PackageProjectUrl>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
