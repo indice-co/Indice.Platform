@@ -28,11 +28,11 @@ namespace Indice.Services.Tests
             
             var duration = TimeSpan.FromSeconds(15);
             var name = "constantinos"; // using a random name :)
-            var @lock = _LockManager.AcquireLock(name, duration);
+            var @lock = await _LockManager.AcquireLock(name, duration);
             using (@lock) {
                 await Task.Delay(TimeSpan.FromSeconds(0.5));
             }
-            var @lock2 = _LockManager.AcquireLock(name, duration);
+            var @lock2 = await _LockManager.AcquireLock(name, duration);
             using (@lock2) {
                 await Task.Delay(TimeSpan.FromSeconds(0.5));
             }

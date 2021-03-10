@@ -133,7 +133,10 @@ namespace Indice.AspNetCore.Swagger
             var scope = scopeOrGroup;
             var license = apiSettings.License == null ? null : new OpenApiLicense { Name = apiSettings.License.Name, Url = new Uri(apiSettings.License.Url) };
             var contact = apiSettings.Contact == null ? null : new OpenApiContact { Name = apiSettings.Contact.Name, Url = new Uri(apiSettings.Contact.Url), Email = apiSettings.Contact.Email };
-            if (!apiSettings.Scopes.TryGetValue(scopeOrGroup, out var title)) {
+            var scopes = apiSettings.ScopesDictionary;
+            if (!scopes.TryGetValue(scopeOrGroup, out var title) && 
+                !scopes.TryGetValue($"{apiSettings.ResourceName}.{scopeOrGroup}", out title) &&
+                !scopes.TryGetValue($"{apiSettings.ResourceName}:{scopeOrGroup}", out title)) {
                 title = $"{apiSettings.FriendlyName}. {scopeOrGroup}";
             }
             return options.AddDoc(scope, title, description, version, apiSettings.TermsOfServiceUrl, license, contact);
@@ -354,7 +357,7 @@ namespace Indice.AspNetCore.Swagger
                 { apiSettings.ResourceName, $"Access to {apiSettings.FriendlyName}"},
             };
             foreach (var scope in apiSettings.Scopes) {
-                scopes.Add($"{apiSettings.ResourceName}:{scope.Key}", scope.Value);
+                scopes.Add(scope.Name, scope.Description);
             }
             return scopes;
         }

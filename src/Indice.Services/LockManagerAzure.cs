@@ -45,9 +45,12 @@ namespace Indice.Services
             var lockFileBlob = BlobContainer.GetBlobClient($"locks/{@lock.Name}.lock");
             var lockFileLease = lockFileBlob.GetBlobLeaseClient(@lock.LeaseId);
             await lockFileLease.ReleaseAsync();
-            try {
-                var response = await lockFileBlob.DeleteIfExistsAsync();
-            } catch {; }
+            // the following code that tries to delete had side-effects.
+            // Not deleting is not problem whatsoever but 
+            // there are multiple zero byte files that are never deleted on storage.
+            //try {
+            //    var response = await lockFileBlob.DeleteIfExistsAsync();
+            //} catch {; }
         }
 
         /// <inheritdoc />

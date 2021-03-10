@@ -52,6 +52,10 @@ namespace Indice.Configuration
         /// </summary>
         public bool UseHttpsRedirection { get; set; }
         /// <summary>
+        /// A flag that indicates whether to redirect the setting that is definded in <see cref="Host"/>.
+        /// </summary>
+        public bool UseRedirectToHost { get; set; }
+        /// <summary>
         /// A list of endpoints used throughout the application.
         /// </summary>
         public Dictionary<string, string> Endpoints { get; set; }
