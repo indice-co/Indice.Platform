@@ -13,7 +13,7 @@ namespace Indice.Services.Tests
     public class FileServiceAzureTests
     {
         private readonly string _connectionString = "UseDevelopmentStorage=true;DevelopmentStorageProxyUri=http://127.0.0.1";
-        private readonly FileServiceAzureStorage _FileService;
+        private readonly IFileService _FileService;
 
         public FileServiceAzureTests() {
             if (_connectionString.StartsWith("UseDevelopmentStorage=true;")) { 
@@ -24,22 +24,25 @@ namespace Indice.Services.Tests
         [Fact]
         public async Task UploadFile() {
             var folder = new Base64Id(Guid.NewGuid());
-            var filename = @"{new Base64Id(Guid.NewGuid())}.txt";
+            var filename = $"{new Base64Id(Guid.NewGuid())}.txt";
             var contents = Encoding.UTF8.GetBytes($"This is the contents of the file. {DateTime.UtcNow:D}");
             await _FileService.SaveAsync($"uploads/{folder}/{filename}", contents);
             var properties = await _FileService.GetPropertiesAsync($"uploads/{folder}/{filename}");
             Assert.Equal("text/plain", properties.ContentType);
             Assert.Equal(contents.Length, properties.Length);
+            await _FileService.SaveAsync($"uploads/{folder}/{filename}", Encoding.UTF8.GetBytes("Updated contents"));
+            await _FileService.DeleteAsync($"uploads");
         }
 
         [Fact]
         public async Task GetFileTest() {
             var folder = new Base64Id(Guid.NewGuid());
-            var filename = @"{new Base64Id(Guid.NewGuid())}.txt";
+            var filename = $"{new Base64Id(Guid.NewGuid())}.txt";
             await _FileService.SaveAsync($"getfiles/{folder}/{filename}", Encoding.UTF8.GetBytes($"This is the contents of the file. {DateTime.UtcNow:D}"));
             var data = await _FileService.GetAsync($"getfiles/{folder}/{filename}");
             var contents = Encoding.UTF8.GetString(data);
             Assert.StartsWith("This is the contents of the file", contents);
+            await _FileService.DeleteAsync($"getfiles");
         }
 
         [Fact]
@@ -50,16 +53,16 @@ namespace Indice.Services.Tests
             await _FileService.SaveAsync($"listing/{folder}/{new Base64Id(Guid.NewGuid())}.txt", Encoding.UTF8.GetBytes($"This is the contents of the file. {DateTime.UtcNow:D}"));
             await _FileService.SaveAsync($"listing/{folder}/{new Base64Id(Guid.NewGuid())}.txt", Encoding.UTF8.GetBytes($"This is the contents of the file. {DateTime.UtcNow:D}"));
             var list = await _FileService.SearchAsync($"listing/{folder}/");
-            //var list2 = await _FileService.SearchAsync($"listing/{folder}");
-            //var list3 = await _FileService.SearchAsync($"listing");
-
+            var list2 = await _FileService.SearchAsync($"listing/{folder}");
+            var list3 = await _FileService.SearchAsync($"listing");
+            await _FileService.DeleteAsync($"listing");
             Assert.Equal(4, list.Count());
         }
 
         [Fact]
         public async Task DeleteFileTest() {
             var folder = new Base64Id(Guid.NewGuid());
-            var filename = @"{new Base64Id(Guid.NewGuid())}.txt";
+            var filename = $"{new Base64Id(Guid.NewGuid())}.txt";
             await _FileService.SaveAsync($"deletefiles/{folder}/{filename}", Encoding.UTF8.GetBytes($"This is the contents of the file. {DateTime.UtcNow:D}"));
             await _FileService.SaveAsync($"deletefiles/{folder}/2_{filename}", Encoding.UTF8.GetBytes($"This is the contents of the file. {DateTime.UtcNow:D}"));
             await _FileService.SaveAsync($"deletefiles/{folder}/3_{filename}", Encoding.UTF8.GetBytes($"This is the contents of the file. {DateTime.UtcNow:D}"));
@@ -67,7 +70,8 @@ namespace Indice.Services.Tests
             Assert.True(ok);
             var ok2 = await _FileService.DeleteAsync($"deletefiles/{folder}/", isDirectory: true);
             Assert.True(ok2);
-            var list = await _FileService.SearchAsync($"listing/{folder}");
+            var list = await _FileService.SearchAsync($"deletefiles/{folder}");
+            await _FileService.DeleteAsync($"deletefiles");
             Assert.Empty(list);
         }
 

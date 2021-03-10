@@ -4,7 +4,7 @@ using System.Text.Json.Serialization;
 namespace Indice.Serialization
 {
     /// <summary>
-    /// 
+    /// Carries Default Json serializer Settings for the most common scenarios. 
     /// </summary>
     public static class JsonSerializerOptionDefaults
 
@@ -23,6 +23,7 @@ namespace Indice.Serialization
             options.Converters.Add(new JsonStringEnumConverter());
             options.Converters.Add(new TypeConverterJsonAdapterFactory());
             options.Converters.Add(new JsonObjectToInferredTypeConverter());
+            options.Converters.Add(new ValueTupleJsonConverterFactory());
             return options;
         }
     }

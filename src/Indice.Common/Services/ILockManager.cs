@@ -15,10 +15,10 @@ namespace Indice.Services
         /// Aquire a lock or throws
         /// </summary>
         /// <param name="name"></param>
-        /// <param name="timeout"></param>
+        /// <param name="duration">The duration the lease will be active. Defaults 30 seconds</param>
         /// <exception cref="LockManagerLockException">Occures when the lock cannot be aquired</exception>
         /// <returns></returns>
-        Task<ILockLease> AcquireLock(string name, TimeSpan? timeout = null);
+        Task<ILockLease> AcquireLock(string name, TimeSpan? duration = null);
         /// <summary>
         /// Releases a lock
         /// </summary>

@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using Azure;
+using Azure.Storage.Blobs;
+using Azure.Storage.Blobs.Models;
 using Indice.Extensions;
-using Microsoft.Azure.Storage;
-using Microsoft.Azure.Storage.Blob;
 
 namespace Indice.Services
 {
@@ -18,8 +20,8 @@ namespace Indice.Services
         /// The conection string parameter name. The setting key that will be searched inside the configuration.
         /// </summary>
         public const string CONNECTION_STRING_NAME = "StorageConnection";
-        private readonly CloudStorageAccount _storageAccount;
         private readonly string _environmentName;
+        private readonly string _connectionString;
 
         /// <summary>
         /// Constructs the service.
@@ -30,10 +32,11 @@ namespace Indice.Services
             if (string.IsNullOrEmpty(connectionString)) {
                 throw new ArgumentNullException(nameof(connectionString));
             }
+
             if (string.IsNullOrEmpty(environmentName)) {
                 _environmentName = "production";
             }
-            _storageAccount = CloudStorageAccount.Parse(connectionString);
+            _connectionString = connectionString;
             _environmentName = Regex.Replace(environmentName ?? "Development", @"\s+", "-").ToLowerInvariant();
         }
 
@@ -46,16 +49,16 @@ namespace Indice.Services
             filepath = filepath.TrimStart('\\', '/');
             var folder = _environmentName ?? Path.GetDirectoryName(filepath);
             var filename = _environmentName == null ? filepath.Substring(folder.Length) : filepath;
-            var blobClient = _storageAccount.CreateCloudBlobClient();
-            var container = blobClient.GetContainerReference(folder);
+            var container = new BlobContainerClient(_connectionString, folder);
             await container.CreateIfNotExistsAsync();
-            var blob = container.GetBlockBlobReference(filename);
+            var blob = container.GetBlobClient(filename);
             var extension = Path.GetExtension(filepath);
-            if (!string.IsNullOrEmpty(extension)) {
-                blob.Properties.ContentType = FileExtensions.GetMimeType(extension);
-            }
             stream.Position = 0;
-            await blob.UploadFromStreamAsync(stream);
+            if (!string.IsNullOrEmpty(extension)) {
+                var result = await blob.UploadAsync(stream, new BlobHttpHeaders { ContentType = FileExtensions.GetMimeType(extension) });
+            } else {
+                var result = await blob.UploadAsync(stream, overwrite: true);
+            }
         }
 
         // Instead of streaming the blob through your server, you could download it directly from the blob storage.
@@ -68,25 +71,26 @@ namespace Indice.Services
             filepath = filepath.TrimStart('\\', '/');
             var folder = _environmentName ?? Path.GetDirectoryName(filepath);
             var filename = _environmentName == null ? filepath.Substring(folder.Length) : filepath;
-            var blobClient = _storageAccount.CreateCloudBlobClient();
-            var container = blobClient.GetContainerReference(folder);
+            var container = new BlobContainerClient(_connectionString, folder);
+            await container.CreateIfNotExistsAsync();
             var exists = await container.ExistsAsync();
             if (!exists) {
                 throw new FileNotFoundServiceException($"Container {folder} not found.");
             }
-            var blob = container.GetBlockBlobReference(filename);
-            exists = await blob.ExistsAsync();
-            if (!exists) {
+            var blob = container.GetBlobClient(filename);
+            //exists = await blob.ExistsAsync();
+            //if (!exists) {
+            //    throw new FileNotFoundServiceException($"File {filename} not found.");
+            //}
+            try {
+                using (var s = new MemoryStream()) {
+                    await blob.DownloadToAsync(s);
+                    return s.ToArray();
+                }
+            } catch (RequestFailedException ex)
+                  when (ex.ErrorCode == BlobErrorCode.BlobNotFound) {
                 throw new FileNotFoundServiceException($"File {filename} not found.");
             }
-            await blob.FetchAttributesAsync();
-            var bytesLength = blob.Properties.Length;
-            var bytes = new byte[bytesLength];
-            for (var i = 0; i < bytesLength; i++) {
-                bytes[i] = 0x20;
-            }
-            await blob.DownloadToByteArrayAsync(bytes, 0);
-            return bytes;
         }
 
         /// <summary>
@@ -97,21 +101,29 @@ namespace Indice.Services
             filepath = filepath.TrimStart('\\', '/');
             var folder = _environmentName ?? Path.GetDirectoryName(filepath);
             var filename = _environmentName == null ? filepath.Substring(folder.Length) : filepath;
-            var blobClient = _storageAccount.CreateCloudBlobClient();
-            var container = blobClient.GetContainerReference(folder);
+            var container = new BlobContainerClient(_connectionString, folder);
             var exists = await container.ExistsAsync();
             if (!exists) {
                 throw new FileNotFoundServiceException($"Container {folder} not found.");
             }
             var results = new List<string>();
-            var directory = container.GetDirectoryReference(filename);
-            var list = await directory.ListBlobsSegmentedAsync(true, BlobListingDetails.All, null, null, null, null);
-            foreach (var blob in list.Results) {
-                if (blob.GetType() == typeof(CloudBlob) || blob.GetType().BaseType == typeof(CloudBlob)) {
-                    results.Add(blob.Uri.ToString());
-                }
+            var segment = container.GetBlobsAsync(prefix: filename);
+
+            // Enumerate the blobs returned for each page.
+            await foreach (var blob in segment) {
+                results.Add(blob.Name);
             }
             return results;
+            /* in the future we may need to get the contents of a specific folder structure 
+             * the following code will be verry usefull
+            var results = new List<string>();
+            var resultSegment = container.GetBlobsByHierarchyAsync(prefix: filename, delimiter: "/").AsPages(default, null);
+            // Enumerate the blobs returned for each page.
+            await foreach (var page in resultSegment) {
+                results.AddRange(page.Values.Where(item => item.IsBlob).Select(item => $"{item.Prefix}{item.Blob.Name}"));
+            }
+            return results;
+            */
         }
 
         // Instead of streaming the blob through your server, you could download it directly from the blob storage. http://stackoverflow.com/questions/24312527/azure-blob-storage-downloadtobytearray-vs-downloadtostream
@@ -123,32 +135,32 @@ namespace Indice.Services
             filepath = filepath.TrimStart('\\', '/');
             var folder = _environmentName ?? Path.GetDirectoryName(filepath);
             var filename = _environmentName == null ? filepath.Substring(folder.Length) : filepath;
-            var blobClient = _storageAccount.CreateCloudBlobClient();
-            var container = blobClient.GetContainerReference(folder);
+            var container = new BlobContainerClient(_connectionString, folder);
             var exists = await container.ExistsAsync();
             if (!exists) {
                 throw new FileNotFoundServiceException($"Container {folder} not found.");
             }
-            var blob = container.GetBlockBlobReference(filename);
-            exists = await blob.ExistsAsync();
-            if (!exists) {
+            var blob = container.GetBlobClient(filename);
+            try {
+                var response = await blob.GetPropertiesAsync();
+                return new FileProperties {
+                    CacheControl = response.Value.CacheControl,
+                    ContentDisposition = response.Value.ContentDisposition,
+                    ContentEncoding = response.Value.ContentEncoding,
+                    ContentHash = System.Text.Encoding.UTF8.GetString(response.Value.ContentHash),
+                    ContentType = response.Value.ContentType,
+                    Length = response.Value.ContentLength,
+                    ETag = response.Value.ETag.ToString(),
+                    LastModified = response.Value.LastModified
+                };
+            } catch (RequestFailedException ex)
+                  when (ex.ErrorCode == BlobErrorCode.BlobNotFound) {
                 throw new FileNotFoundServiceException($"File {filename} not found.");
             }
-            await blob.FetchAttributesAsync();
-            return new FileProperties {
-                CacheControl = blob.Properties.CacheControl,
-                ContentDisposition = blob.Properties.ContentDisposition,
-                ContentEncoding = blob.Properties.ContentEncoding,
-                ContentMD5 = blob.Properties.ContentMD5,
-                ContentType = blob.Properties.ContentType,
-                Length = blob.Properties.Length,
-                ETag = blob.Properties.ETag,
-                LastModified = blob.Properties.LastModified
-            };
         }
 
         /// <summary>
-        /// Deletes a file.
+        /// Deletes a file or folder.
         /// </summary>
         /// <param name="filepath">The path to the file.</param>
         /// <param name="isDirectory">Determines if the <paramref name="filepath"/> points to a single file or a directory.</param>
@@ -156,23 +168,19 @@ namespace Indice.Services
             filepath = filepath.TrimStart('\\', '/');
             var folder = _environmentName ?? Path.GetDirectoryName(filepath);
             var filename = _environmentName == null ? filepath.Substring(folder.Length) : filepath;
-            var blobClient = _storageAccount.CreateCloudBlobClient();
-            var container = blobClient.GetContainerReference(folder);
+            var container = new BlobContainerClient(_connectionString, folder);
             var exists = await container.ExistsAsync();
             if (!exists) {
                 throw new FileNotFoundServiceException($"Container {folder} not found.");
             }
             bool deleted;
             if (!isDirectory) {
-                var blob = container.GetBlockBlobReference(filename);
+                var blob = container.GetBlobClient(filename);
                 deleted = await blob.DeleteIfExistsAsync();
             } else {
-                var directory = container.GetDirectoryReference(filename);
-                var list = await directory.ListBlobsSegmentedAsync(true, BlobListingDetails.All, null, null, null, null);
-                foreach (var blob in list.Results) {
-                    if (blob.GetType() == typeof(CloudBlob) || blob.GetType().BaseType == typeof(CloudBlob)) {
-                        await ((CloudBlob)blob).DeleteIfExistsAsync();
-                    }
+                var segment = container.GetBlobsAsync(prefix: filename);
+                await foreach (var blob in segment) {
+                    await container.DeleteBlobIfExistsAsync(blob.Name, DeleteSnapshotsOption.IncludeSnapshots);
                 }
                 deleted = true;
             }

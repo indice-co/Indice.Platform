@@ -5,10 +5,9 @@ using System.Threading.Tasks;
 using Indice.Extensions;
 using Indice.Types;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Azure.Storage;
-using Microsoft.Azure.Storage.Queue;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
+using Azure.Storage.Queues;
+using System.Text.Json;
+using Indice.Serialization;
 
 namespace Indice.Services
 {
@@ -17,10 +16,11 @@ namespace Indice.Services
     {
         public const string CONNECTION_STRING_NAME = "StorageConnection";
         private readonly bool _enabled;
-        private readonly CloudStorageAccount _storageAccount;
         private readonly IHttpContextAccessor _httpContextAccessor;
-        private readonly JsonSerializerSettings _jsonSerializerSettings;
+        private readonly JsonSerializerOptions _jsonSerializerOptions;
         private readonly string _environmentName;
+        private readonly string _connectionString;
+
 
         /// <summary>
         /// Create a new <see cref="EventDispatcherAzure"/> instance.
@@ -38,18 +38,13 @@ namespace Indice.Services
             }
             _enabled = enabled;
             _environmentName = Regex.Replace(environmentName ?? "Development", @"\s+", "-").ToLowerInvariant();
+            _connectionString = connectionString;
             _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
-            _jsonSerializerSettings = new JsonSerializerSettings {
-                ContractResolver = new CamelCasePropertyNamesContractResolver(),
-                DateTimeZoneHandling = DateTimeZoneHandling.Utc,
-                DefaultValueHandling = DefaultValueHandling.IgnoreAndPopulate,
-                NullValueHandling = NullValueHandling.Ignore
-            };
-            _storageAccount = CloudStorageAccount.Parse(connectionString);
+            _jsonSerializerOptions = JsonSerializerOptionDefaults.GetDefaultSettings();
         }
 
         /// <inheritdoc/>
-        public async Task RaiseEventAsync<TEvent>(TEvent payload, ClaimsPrincipal actingPrincipal = null, TimeSpan? initialVisibilityDelay = null) where TEvent : class, new() {
+        public async Task RaiseEventAsync<TEvent>(TEvent payload, ClaimsPrincipal actingPrincipal = null, TimeSpan? visibilityDelay = null) where TEvent : class, new() {
             if (!_enabled) {
                 return;
             }
@@ -57,16 +52,14 @@ namespace Indice.Services
             var queue = await EnsureExistsAsync(queueName);
             var user = actingPrincipal ?? _httpContextAccessor.HttpContext.User;
             // Create a message and add it to the queue.
-            var serializedMessage = JsonConvert.SerializeObject(Envelope.Create(user, payload), _jsonSerializerSettings);
-            var envelope = new CloudQueueMessage(serializedMessage);
-            await queue.AddMessageAsync(envelope, null, initialVisibilityDelay, null, null);
+            var serializedMessage = JsonSerializer.Serialize(Envelope.Create(user, payload), _jsonSerializerOptions);
+            await queue.SendMessageAsync(serializedMessage, visibilityTimeout: visibilityDelay);
         }
 
-        private async Task<CloudQueue> EnsureExistsAsync(string queueName) {
-            var queueClient = _storageAccount.CreateCloudQueueClient();
-            var queue = queueClient.GetQueueReference(queueName);
-            await queue.CreateIfNotExistsAsync();
-            return queue;
+        private async Task<QueueClient> EnsureExistsAsync(string queueName) {
+            var queueClient = new QueueClient(_connectionString, queueName);
+            await queueClient.CreateIfNotExistsAsync();
+            return queueClient;
         }
     }
 

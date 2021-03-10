@@ -2,6 +2,7 @@
 using System.Collections;
 using System.IO;
 using System.Text.RegularExpressions;
+using Azure.Storage.Blobs;
 using Indice.AspNetCore.Configuration;
 using Indice.AspNetCore.Filters;
 using Indice.AspNetCore.TagHelpers;
@@ -13,8 +14,6 @@ using Microsoft.AspNetCore.DataProtection.AuthenticatedEncryption;
 using Microsoft.AspNetCore.DataProtection.AuthenticatedEncryption.ConfigurationModel;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Azure.Storage;
-using Microsoft.Azure.Storage.Blob;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
@@ -277,10 +276,8 @@ namespace Microsoft.Extensions.DependencyInjection
             if (options.KeyLifetime <= 0) {
                 options.KeyLifetime = defaultKeyLifetime;
             }
-            var storageAccount = CloudStorageAccount.Parse(options.StorageConnectionString);
-            var blobClient = storageAccount.CreateCloudBlobClient();
-            var container = blobClient.GetContainerReference(options.ContainerName);
-            container.CreateIfNotExistsAsync().Wait();
+            var container = new BlobContainerClient(options.StorageConnectionString, options.ContainerName);
+            container.CreateIfNotExists();
             // Enables data protection services to the specified IServiceCollection.
             var dataProtectionBuilder = services.AddDataProtection()
                                                 // Configures the data protection system to use the specified cryptographic algorithms by default when generating protected payloads.
@@ -289,7 +286,7 @@ namespace Microsoft.Extensions.DependencyInjection
                                                     EncryptionAlgorithm = EncryptionAlgorithm.AES_256_GCM,
                                                     ValidationAlgorithm = ValidationAlgorithm.HMACSHA512
                                                 })
-                                                .PersistKeysToAzureBlobStorage(container, "keys.xml")
+                                                .PersistKeysToAzureBlobStorage(options.StorageConnectionString, options.ContainerName, "keys.xml")
                                                 // Configure the system to use a key lifetime. Default is 90 days.
                                                 .SetDefaultKeyLifetime(TimeSpan.FromDays(options.KeyLifetime))
                                                 // This prevents the apps from understanding each other's protected payloads (e.x Azure slots). To share protected payloads between two apps, 

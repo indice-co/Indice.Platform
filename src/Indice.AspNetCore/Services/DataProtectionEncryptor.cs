@@ -1,6 +1,7 @@
 ﻿using System;
+using System.Text.Json;
+using Indice.Serialization;
 using Microsoft.AspNetCore.DataProtection;
-using Newtonsoft.Json;
 
 namespace Indice.Services
 {
@@ -11,6 +12,7 @@ namespace Indice.Services
     public class DataProtectionEncryptor<T> : IDataProtectionEncryptor<T> where T : new()
     {
         private readonly IDataProtector _protector;
+        private JsonSerializerOptions _serializerOptions;
 
         /// <summary>
         /// Class constructor.
@@ -21,6 +23,7 @@ namespace Indice.Services
                 throw new ArgumentNullException(nameof(provider));
             }
             _protector = provider.CreateProtector(typeof(T).FullName);
+            _serializerOptions = JsonSerializerOptionDefaults.GetDefaultSettings();
         }
 
         /// <summary>
@@ -28,7 +31,7 @@ namespace Indice.Services
         /// </summary>
         /// <param name="object">A piece of plaintext data to protect.</param>
         public string Encrypt(T @object) {
-            var json = JsonConvert.SerializeObject(@object);
+            var json = JsonSerializer.Serialize(@object, _serializerOptions);
             return _protector.Protect(json);
         }
 
@@ -41,7 +44,7 @@ namespace Indice.Services
         public bool TryDecrypt(string encryptedText, out T @object) {
             try {
                 var decryptedText = _protector.Unprotect(encryptedText);
-                @object = JsonConvert.DeserializeObject<T>(decryptedText);
+                @object = JsonSerializer.Deserialize<T>(decryptedText, _serializerOptions);
                 return true;
             } catch (Exception) {
                 @object = default;

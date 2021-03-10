@@ -94,6 +94,31 @@ namespace Indice.Common.Tests
             Assert.Equal(model.Point.Latitude, output.Point.Latitude);
         }
 
+        [Fact]
+        public void SupportValueTuple() {
+            var objectWithValueTuple = new WeatherForecastValueTuple {
+                Location = (3, 7),
+                Temp = new ValueTuple<string>("FOO"),
+                Thruple = (
+                    8,
+                    new Poco {
+                        Alpha = 9,
+                        Beta = (new List<int>() { -1, 0, -1 }, "a list")
+                    },
+                    new ValueTuple<string>("Bar"))
+            };
+
+            var options = new JsonSerializerOptions();
+            options.Converters.Add(new ValueTupleJsonConverterFactory());
+
+            string jsonString = JsonSerializer.Serialize(objectWithValueTuple, options);
+            Console.WriteLine(jsonString);
+
+            WeatherForecastValueTuple roundTrip = JsonSerializer.Deserialize<WeatherForecastValueTuple>(jsonString, options);
+            Assert.Equal((3, 7), roundTrip.Location);
+            Assert.Equal(new ValueTuple<string>("FOO"), roundTrip.Temp);
+        }
+
         public class TestTypeConverters
         {
             public GeoPoint Point { get; set; }
@@ -112,6 +137,19 @@ namespace Indice.Common.Tests
         {
             public string FirstName { get; set; }
             public string LastName { get; set; }
+        }
+
+        public class WeatherForecastValueTuple
+        {
+            public ValueTuple<string> Temp { get; set; }
+            public (int x, int y) Location { get; set; }
+            public (int a, Poco b, ValueTuple<string> c) Thruple { get; set; }
+        }
+
+        public class Poco
+        {
+            public int Alpha { get; set; }
+            public (List<int>, string) Beta { get; set; }
         }
     }
 }
