@@ -10,7 +10,7 @@
     <SpaDistFolder>..\Indice.AspNetCore.Identity.AdminUI.App\dist\indice_admin_ui</SpaDistFolder>
     <TargetFrameworks>netcoreapp3.1;net5.0</TargetFrameworks>
     <VersionPrefix>5.0.0</VersionPrefix>
-    <VersionSuffix>beta-02</VersionSuffix>
+    <!--<VersionSuffix>beta-02</VersionSuffix>-->
     <LangVersion>Latest</LangVersion>
   </PropertyGroup>
   <PropertyGroup Label="Package">
