@@ -184,7 +184,7 @@ namespace Microsoft.Extensions.DependencyInjection
                     EnvironmentName = serviceProvider.GetRequiredService<IWebHostEnvironment>().EnvironmentName
                 };
                 configure?.Invoke(options);
-                return new EventDispatcherAzure(options.ConnectionString, options.EnvironmentName, options.Enabled, serviceProvider.GetRequiredService<IHttpContextAccessor>());
+                return new EventDispatcherAzure(options.ConnectionString, options.EnvironmentName, options.Enabled, () => serviceProvider.GetRequiredService<IHttpContextAccessor>().HttpContext.User);
             });
             return services;
         }

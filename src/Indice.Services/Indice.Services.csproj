@@ -32,6 +32,7 @@
     <None Include="..\..\icon\icon-310.png" Pack="true" Visible="false" PackagePath="" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="Azure.Storage.Queues" Version="12.6.0" />
     <PackageReference Include="Indice.Common" Version="5.0.0-beta-02" />
     <PackageReference Include="MailKit" Version="2.10.1" />
     <PackageReference Include="Microsoft.Azure.NotificationHubs" Version="4.1.0" />

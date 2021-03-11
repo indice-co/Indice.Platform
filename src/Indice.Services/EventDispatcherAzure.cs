@@ -4,7 +4,6 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Indice.Extensions;
 using Indice.Types;
-using Microsoft.AspNetCore.Http;
 using Azure.Storage.Queues;
 using System.Text.Json;
 using Indice.Serialization;
@@ -12,11 +11,11 @@ using Indice.Serialization;
 namespace Indice.Services
 {
     /// <inheritdoc/>
-    internal class EventDispatcherAzure : IEventDispatcher
+    public class EventDispatcherAzure : IEventDispatcher
     {
         public const string CONNECTION_STRING_NAME = "StorageConnection";
         private readonly bool _enabled;
-        private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly Func<ClaimsPrincipal> _getUserFunc;
         private readonly JsonSerializerOptions _jsonSerializerOptions;
         private readonly string _environmentName;
         private readonly string _connectionString;
@@ -28,8 +27,8 @@ namespace Indice.Services
         /// <param name="connectionString">The connection string to the Azure Storage account. By default it searches for <see cref="CONNECTION_STRING_NAME"/> application setting inside ConnectionStrings section.</param>
         /// <param name="environmentName">The environment name to use. Defaults to 'Production'.</param>
         /// <param name="enabled">Provides a way to enable/disable event dispatching at will. Defaults to true.</param>
-        /// <param name="httpContextAccessor">Provides a way to access the current <see cref="HttpContext"/> inside a service.</param>
-        public EventDispatcherAzure(string connectionString, string environmentName, bool enabled, IHttpContextAccessor httpContextAccessor) {
+        /// <param name="getUserFunc">Provides a way to access the current <see cref="ClaimsPrincipal"/> inside a service.</param>
+        public EventDispatcherAzure(string connectionString, string environmentName, bool enabled, Func<ClaimsPrincipal> getUserFunc) {
             if (string.IsNullOrEmpty(connectionString)) {
                 throw new ArgumentNullException(nameof(connectionString));
             }
@@ -39,7 +38,7 @@ namespace Indice.Services
             _enabled = enabled;
             _environmentName = Regex.Replace(environmentName ?? "Development", @"\s+", "-").ToLowerInvariant();
             _connectionString = connectionString;
-            _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
+            _getUserFunc = getUserFunc ?? throw new ArgumentNullException(nameof(getUserFunc));
             _jsonSerializerOptions = JsonSerializerOptionDefaults.GetDefaultSettings();
         }
 
@@ -50,7 +49,7 @@ namespace Indice.Services
             }
             var queueName = $"{_environmentName}-{typeof(TEvent).Name.ToKebabCase()}";
             var queue = await EnsureExistsAsync(queueName);
-            var user = actingPrincipal ?? _httpContextAccessor.HttpContext.User;
+            var user = actingPrincipal ?? _getUserFunc?.Invoke();
             // Create a message and add it to the queue.
             var serializedMessage = JsonSerializer.Serialize(Envelope.Create(user, payload), _jsonSerializerOptions);
             await queue.SendMessageAsync(serializedMessage, visibilityTimeout: visibilityDelay);
@@ -81,4 +80,6 @@ namespace Indice.Services
         /// </summary>
         public bool Enabled { get; set; }
     }
+
+
 }
