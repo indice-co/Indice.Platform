@@ -13,6 +13,9 @@ namespace Indice.Services
     /// <inheritdoc/>
     public class EventDispatcherAzure : IEventDispatcher
     {
+        /// <summary>
+        /// The name of the storage connection string
+        /// </summary>
         public const string CONNECTION_STRING_NAME = "StorageConnection";
         private readonly bool _enabled;
         private readonly Func<ClaimsPrincipal> _getUserFunc;
