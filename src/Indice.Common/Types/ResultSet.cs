@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Newtonsoft.Json;
 
 namespace Indice.Types
 {
@@ -29,7 +28,6 @@ namespace Indice.Types
         /// <summary>
         /// Total results count.
         /// </summary>
-        [JsonProperty(DefaultValueHandling = DefaultValueHandling.Include)]
         public int Count { get; set; }
         /// <summary>
         /// The actual items collection. These could be less in number than the <see cref="Count"/> if the results refers to a page.

@@ -8,9 +8,10 @@
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <GenerateEmbeddedFilesManifest>true</GenerateEmbeddedFilesManifest>
     <SpaDistFolder>..\Indice.AspNetCore.Identity.AdminUI.App\dist\indice_admin_ui</SpaDistFolder>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
-    <VersionPrefix>4.0.3</VersionPrefix>
-    <!--<VersionSuffix>beta20</VersionSuffix>-->
+    <TargetFrameworks>netcoreapp3.1;net5.0</TargetFrameworks>
+    <VersionPrefix>5.0.0</VersionPrefix>
+    <VersionSuffix>beta-02</VersionSuffix>
+    <LangVersion>Latest</LangVersion>
   </PropertyGroup>
   <PropertyGroup Label="Package">
     <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
@@ -21,7 +22,7 @@
     <PackageId>Indice.AspNetCore.Identity.AdminUI</PackageId>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/indice-co/Indice.AspNet</PackageProjectUrl>
-    <PackageReleaseNotes>Add extension to inject custom css.</PackageReleaseNotes>
+    <PackageReleaseNotes>.ΝΕΤ 5.0 upgrade</PackageReleaseNotes>
     <PackageTags>AspNetCore;IdentityServer;AdminUI</PackageTags>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <RepositoryType>git</RepositoryType>
@@ -35,7 +36,12 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
-    <PackageReference Include="Microsoft.Extensions.FileProviders.Embedded" Version="3.1.12" />
+  </ItemGroup>
+  <ItemGroup Condition=" '$(TargetFramework)' != 'netcoreapp3.1' ">
+    <PackageReference Include="Microsoft.Extensions.FileProviders.Embedded" Version="5.0.0" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
+    <PackageReference Include="Microsoft.Extensions.FileProviders.Embedded" Version="3.1.13" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="admin-ui-dist/**/*" />

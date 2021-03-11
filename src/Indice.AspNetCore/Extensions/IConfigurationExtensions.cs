@@ -26,6 +26,14 @@ namespace Microsoft.Extensions.Configuration
         public static bool UseHttpsRedirection(this IConfiguration configuration) => configuration.GetSection(GeneralSettings.Name).GetValue<bool>(nameof(GeneralSettings.UseHttpsRedirection));
 
         /// <summary>
+        /// A flag that indicates whether to redirect the setting that is definded in <see cref="GeneralSettings.Host"/>.
+        /// </summary>
+        /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
+        /// <returns>True if specified flag is set to true, otherwise false.</returns>
+        /// <remarks>Checks for the General:UseRedirectToHost option in appsettings.json file.</remarks>
+        public static bool UseRedirectToHost(this IConfiguration configuration) => configuration.GetSection(GeneralSettings.Name).GetValue<bool>(nameof(GeneralSettings.UseRedirectToHost));
+
+        /// <summary>
         /// Indicates whether to enable the Swagger UI.
         /// </summary>
         /// <param name="configuration">Represents a set of key/value application configuration properties.</param>

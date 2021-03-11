@@ -1,8 +1,10 @@
 ﻿using System;
+using System.IO;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using Microsoft.Azure.Storage;
-using Microsoft.Azure.Storage.Blob;
+using Azure.Storage.Blobs;
+using Azure.Storage.Blobs.Models;
+using Azure.Storage.Blobs.Specialized;
 
 namespace Indice.Services
 {
@@ -12,9 +14,9 @@ namespace Indice.Services
     public class LockManagerAzure : ILockManager
     {
         /// <summary>
-        /// 
+        /// The cloud container client
         /// </summary>
-        public CloudBlobContainer BlobContainer { get; }
+        public BlobContainerClient BlobContainer { get; }
 
         /// <summary>
         /// Create the lockmanager
@@ -25,26 +27,30 @@ namespace Indice.Services
             if (options.EnvironmentName == null) throw new ArgumentNullException(nameof(options.EnvironmentName));
             if (options.StorageConnection == null) throw new ArgumentNullException(nameof(options.StorageConnection));
             var environmentName = Regex.Replace(options.EnvironmentName ?? "Development", @"\s+", "-").ToLowerInvariant();
-            var storageAccount = CloudStorageAccount.Parse(options.StorageConnection);
-            var blobClient = storageAccount.CreateCloudBlobClient();
-            BlobContainer = blobClient.GetContainerReference(environmentName);
+            BlobContainer = new BlobContainerClient(options.StorageConnection, environmentName);
         }
 
         /// <inheritdoc />
-        public async Task<ILockLease> AcquireLock(string name, TimeSpan? timeout = null) {
+        public async Task<ILockLease> AcquireLock(string name, TimeSpan? duration = null) {
             await BlobContainer.CreateIfNotExistsAsync();
-            var lockFileBlob = BlobContainer.GetBlockBlobReference($"{name}.lock");
-            await lockFileBlob.UploadTextAsync(string.Empty);
-            var leaseId = await lockFileBlob.AcquireLeaseAsync(timeout, null, AccessCondition.GenerateIfNotExistsCondition(), null, null);
-            return new LockLease(leaseId, name, this);
+            var lockFileBlob = BlobContainer.GetBlobClient($"locks/{name}.lock");
+            await lockFileBlob.UploadAsync(new MemoryStream(System.Text.Encoding.ASCII.GetBytes("0")), overwrite: true);
+            var lockFileLease = lockFileBlob.GetBlobLeaseClient();
+            var leaseResponse = await lockFileLease.AcquireAsync(duration ?? TimeSpan.FromSeconds(30));
+            return new LockLease(leaseResponse.Value.LeaseId, name, this);
         }
 
         /// <inheritdoc />
-        public Task ReleaseLock(ILockLease @lock) {
-            var lockFileBlob = BlobContainer.GetBlockBlobReference($"{@lock.Name}.lock");
-            return lockFileBlob.ReleaseLeaseAsync(new AccessCondition {
-                LeaseId = @lock.LeaseId
-            });
+        public async Task ReleaseLock(ILockLease @lock) {
+            var lockFileBlob = BlobContainer.GetBlobClient($"locks/{@lock.Name}.lock");
+            var lockFileLease = lockFileBlob.GetBlobLeaseClient(@lock.LeaseId);
+            await lockFileLease.ReleaseAsync();
+            // the following code that tries to delete had side-effects.
+            // Not deleting is not problem whatsoever but 
+            // there are multiple zero byte files that are never deleted on storage.
+            //try {
+            //    var response = await lockFileBlob.DeleteIfExistsAsync();
+            //} catch {; }
         }
 
         /// <inheritdoc />

@@ -3,18 +3,19 @@
     <Description>Indice.AspNetCore Class Library</Description>
     <Copyright>Copyright (c) 2018 Indice</Copyright>
     <AssemblyTitle>Indice.AspNetCore</AssemblyTitle>
-    <VersionPrefix>4.0.20</VersionPrefix>
-    <!--<VersionSuffix>beta13</VersionSuffix>-->
+    <VersionPrefix>5.0.0</VersionPrefix>
+    <VersionSuffix>beta-02</VersionSuffix>
     <Authors>Constantinos Leftheris, Georgios Manoltzas</Authors>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFrameworks>netcoreapp3.1;net5.0</TargetFrameworks>
     <AssemblyName>Indice.AspNetCore</AssemblyName>
     <AssemblyTitle>Indice.AspNetCore</AssemblyTitle>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <LangVersion>Latest</LangVersion>
   </PropertyGroup>
   <PropertyGroup Label="Package">
     <PackageId>Indice.AspNetCore</PackageId>
     <PackageTags>AspNetCore;TagHelpers;Grid;Sorting;Paging</PackageTags>
-    <PackageReleaseNotes>Enhance EmailServiceRazorBase.</PackageReleaseNotes>
+    <PackageReleaseNotes>.ΝΕΤ 5.0 upgrade</PackageReleaseNotes>
     <PackageIcon>icon-310.png</PackageIcon>
     <PackageProjectUrl>https://github.com/indice-co/Indice.AspNet</PackageProjectUrl>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
@@ -34,20 +35,25 @@
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="FluentValidation.AspNetCore" Version="9.5.1" />
+    <PackageReference Include="Azure.Extensions.AspNetCore.DataProtection.Blobs" Version="1.2.0" />
+    <PackageReference Include="FluentValidation.AspNetCore" Version="9.5.2" />
     <PackageReference Include="Humanizer.Core" Version="2.8.26" />
-    <PackageReference Include="Indice.EntityFrameworkCore" Version="4.0.1" />
-    <PackageReference Include="Indice.Services" Version="4.0.13" />
+    <PackageReference Include="Indice.EntityFrameworkCore" Version="5.0.0-beta-02" />
+    <PackageReference Include="Indice.Services" Version="5.0.0-beta-02" />
     <PackageReference Include="Markdig" Version="0.23.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="3.1.12" />
-    <PackageReference Include="Microsoft.AspNetCore.DataProtection.AzureStorage" Version="3.1.12" />
-    <PackageReference Include="Microsoft.Azure.Storage.Queue" Version="11.2.2" />
-    <PackageReference Include="Microsoft.Extensions.Http" Version="3.1.12" />
-    <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="3.1.12" />
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
     <PackageReference Include="SixLabors.ImageSharp.Drawing" Version="1.0.0-beta0007" />
-    <PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" Version="5.6.3" />
-    <PackageReference Include="System.Security.Claims" Version="4.3.0" />
+    <PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" Version="6.1.0" />
+  </ItemGroup>
+  <ItemGroup Condition=" '$(TargetFramework)' != 'netcoreapp3.1' ">
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="5.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Http" Version="5.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="5.0.0" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="3.1.13" />
+    <PackageReference Include="Microsoft.Extensions.Http" Version="3.1.13" />
+    <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="3.1.13" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Indice.EntityFrameworkCore\Indice.EntityFrameworkCore.csproj" />

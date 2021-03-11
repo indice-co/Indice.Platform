@@ -1,4 +1,4 @@
-version: 3.1.{build}
+version: 5.0.{build}
 image: Visual Studio 2019
 before_build:
 - cmd: dotnet restore

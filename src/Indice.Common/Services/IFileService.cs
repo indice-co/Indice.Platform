@@ -102,7 +102,7 @@ namespace Indice.Services
         /// <summary>
         /// Content MD5 hash
         /// </summary>
-        public string ContentMD5 { get; set; }
+        public string ContentHash { get; set; }
         /// <summary>
         /// Size in Bytes
         /// </summary>

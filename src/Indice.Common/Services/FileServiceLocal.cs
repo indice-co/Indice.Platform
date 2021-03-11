@@ -100,7 +100,7 @@ namespace Indice.Services
                 LastModified = info.LastWriteTimeUtc,
                 ContentType = FileExtensions.GetMimeType(info.Extension),
                 ContentDisposition = $"attachment; filename={Path.GetFileName(info.FullName)}",
-                ContentMD5 = null,
+                ContentHash = null,
                 ETag = $"\"{info.LastWriteTimeUtc.Ticks}\"",
             });
         }

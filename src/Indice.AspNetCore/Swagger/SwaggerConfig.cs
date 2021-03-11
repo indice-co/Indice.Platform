@@ -89,26 +89,6 @@ namespace Indice.AspNetCore.Swagger
         }
 
         /// <summary>
-        /// Adds polymorphism. By extension will be replaced by <see cref="AddPolymorphism(SwaggerGenOptions, IServiceCollection)"/>.
-        /// </summary>
-        /// <param name="options">The options used to generate the swagger.json file.</param>
-        /// <param name="assembliesToScan">Assemblies that will be searched for <see cref="JsonNetPolymorphicConverter"/> annotations.</param>
-        [Obsolete]
-        public static void AddPolymorphismJsonNet(this SwaggerGenOptions options, params Assembly[] assembliesToScan) {
-            var attribute = assembliesToScan.SelectMany(x => x.ExportedTypes)
-                                            .Select(x => x.GetCustomAttribute<JsonConverterAttribute>(false))
-                                            .Where(x => x != null && typeof(JsonNetPolymorphicConverter)
-                                            .IsAssignableFrom(x.ConverterType));
-            foreach (var item in attribute) {
-                var baseType = item.ConverterType.GenericTypeArguments[0];
-                var discriminator = item.ConverterParameters?.FirstOrDefault() as string;
-                var mapping = JsonNetPolymorphicConverter.GetTypeMapping(baseType, discriminator);
-                options.SchemaFilter<PolymorphicSchemaFilter>(baseType, discriminator, mapping);
-                options.OperationFilter<PolymorphicOperationFilter>(new PolymorphicSchemaFilter(baseType, discriminator, mapping));
-            }
-        }
-
-        /// <summary>
         /// Adds polymorphism.
         /// </summary>
         /// <param name="options">The options used to generate the swagger.json file.</param>
@@ -153,7 +133,10 @@ namespace Indice.AspNetCore.Swagger
             var scope = scopeOrGroup;
             var license = apiSettings.License == null ? null : new OpenApiLicense { Name = apiSettings.License.Name, Url = new Uri(apiSettings.License.Url) };
             var contact = apiSettings.Contact == null ? null : new OpenApiContact { Name = apiSettings.Contact.Name, Url = new Uri(apiSettings.Contact.Url), Email = apiSettings.Contact.Email };
-            if (!apiSettings.Scopes.TryGetValue(scopeOrGroup, out var title)) {
+            var scopes = apiSettings.ScopesDictionary;
+            if (!scopes.TryGetValue(scopeOrGroup, out var title) && 
+                !scopes.TryGetValue($"{apiSettings.ResourceName}.{scopeOrGroup}", out title) &&
+                !scopes.TryGetValue($"{apiSettings.ResourceName}:{scopeOrGroup}", out title)) {
                 title = $"{apiSettings.FriendlyName}. {scopeOrGroup}";
             }
             return options.AddDoc(scope, title, description, version, apiSettings.TermsOfServiceUrl, license, contact);
@@ -374,7 +357,7 @@ namespace Indice.AspNetCore.Swagger
                 { apiSettings.ResourceName, $"Access to {apiSettings.FriendlyName}"},
             };
             foreach (var scope in apiSettings.Scopes) {
-                scopes.Add($"{apiSettings.ResourceName}:{scope.Key}", scope.Value);
+                scopes.Add(scope.Name, scope.Description);
             }
             return scopes;
         }

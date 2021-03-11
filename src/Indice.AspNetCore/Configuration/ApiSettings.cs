@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace Indice.Configuration
 {
@@ -16,9 +17,16 @@ namespace Indice.Configuration
         /// </summary>
         public Dictionary<string, string> Secrets { get; set; } = new Dictionary<string, string>();
         /// <summary>
-        /// The sub scopes avialable for the API.
+        /// The scopes available for the API.
         /// </summary>
-        public Dictionary<string, string> Scopes { get; set; } = new Dictionary<string, string>();
+        public List<Scope> Scopes { get; set; } = new List<Scope>();
+        /// <summary>
+        /// The scopes as dictionary.
+        /// </summary>
+        public Dictionary<string, string> ScopesDictionary {
+            get => Scopes.ToDictionary(x => x.Name, x => x.Description);
+            set => Scopes = value.Select(x => new Scope { Name = x.Key, Description = x.Value }).ToList();
+        }
         /// <summary>
         /// Friendly name for the API.
         /// </summary>
@@ -72,6 +80,21 @@ namespace Indice.Configuration
             /// The contact email.
             /// </summary>
             public string Email { get; set; }
+        }
+
+        /// <summary>
+        /// ApiSettings scope entry
+        /// </summary>
+        public class Scope
+        {
+            /// <summary>
+            /// The scope value (ie identity.users)
+            /// </summary>
+            public string Name { get; set; }
+            /// <summary>
+            /// The scope descriptions
+            /// </summary>
+            public string Description { get; set; }
         }
     }
 }
