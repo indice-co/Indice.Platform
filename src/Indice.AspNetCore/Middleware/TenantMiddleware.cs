@@ -15,7 +15,7 @@ namespace Indice.AspNetCore.Middleware
     /// </summary>
     /// <typeparam name="TDbContext">MyDbContext that contains the <typeparamref name="TTenant"/> table</typeparam>
     /// <typeparam name="TTenant">The entity that represents the subscription</typeparam>
-    public class TenantMiddleware<TDbContext, TTenant>
+    internal class TenantMiddleware<TDbContext, TTenant>
         where TDbContext : DbContext
         where TTenant : class, ITenant
     {
@@ -130,6 +130,7 @@ namespace Indice.AspNetCore.Middleware
         /// Examples of RouteBase for a multitenant api (subscriptions ... accounts ...)
         /// </param>
         /// <returns></returns>
+        [Obsolete("This version of the multitenancy is obsolete. Use the new one from Indice.AspNetCore.MultiTenancy nuget")]
         public static IApplicationBuilder UseTenantFromRoute<TDbContext, TTenant>(this IApplicationBuilder applicationBuilder, string routeBase)
             where TDbContext : DbContext
             where TTenant : class, ITenant {
