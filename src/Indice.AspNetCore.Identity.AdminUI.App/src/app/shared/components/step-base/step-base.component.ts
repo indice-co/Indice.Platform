@@ -1,6 +1,9 @@
 
-import { Output, EventEmitter, Input } from '@angular/core';
+import { Output, EventEmitter, Input, Component } from '@angular/core';
 
+@Component({
+    template: ''
+})
 export abstract class StepBaseComponent<T> {
     constructor() {
         this.formValidated.subscribe((value: boolean) => {

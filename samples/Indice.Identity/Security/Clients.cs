@@ -135,14 +135,11 @@ namespace Indice.Identity.Security
             new Client {
                 ClientId = "swagger-ui",
                 ClientName = "Swagger UI",
-                AccessTokenType = AccessTokenType.Jwt,
+                AccessTokenType = AccessTokenType.Reference,
                 AllowAccessTokensViaBrowser = false,
                 AllowedCorsOrigins = {
                     "https://localhost:2000",
                     "https://idsrv-admin-ui.azurewebsites.net"
-                },
-                ClientSecrets = {
-                    new Secret("M2YwNTlkMTgtYWQzNy00MGNjLWFiYjQtZWQ3Y2Y4N2M3YWU3".ToSha256())
                 },
                 AllowedGrantTypes = GrantTypes.Code,
                 AllowedScopes = {

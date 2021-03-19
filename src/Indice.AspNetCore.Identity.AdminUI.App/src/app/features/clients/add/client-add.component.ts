@@ -2,12 +2,13 @@ import { Component, OnInit, ChangeDetectorRef, ViewChild, ComponentFactoryResolv
 import { FormBuilder, FormGroup, Validators, FormControl } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 
-import { Subscription } from 'rxjs';
+import { forkJoin, Subscription } from 'rxjs';
+import { concatMap } from 'rxjs/operators';
 import { ClientsWizardService } from './wizard/clients-wizard.service';
 import { ClientType } from './wizard/models/client-type';
 import { WizardStepDescriptor } from 'src/app/shared/components/step-base/models/wizard-step-descriptor';
 import { WizardStepDirective } from '../../../shared/components/step-base/wizard-step.directive';
-import { CreateClientRequest, IdentityApiService, ClientInfo } from 'src/app/core/services/identity-api.service';
+import { CreateClientRequest, IdentityApiService, ClientInfo, ClientSecretInfo, SecretInfo, FileParameter, CreateSecretRequest } from 'src/app/core/services/identity-api.service';
 import { ClientWizardModel } from './wizard/models/client-wizard-model';
 import { StepBaseComponent } from 'src/app/shared/components/step-base/step-base.component';
 import { ToastService } from 'src/app/layout/services/app-toast.service';
@@ -23,8 +24,16 @@ export class ClientAddComponent implements OnInit {
   private _loadedStepInstance: StepBaseComponent<ClientWizardModel>;
   private _formValidatedSubscription: Subscription;
 
-  constructor(private _wizardService: ClientsWizardService, private _changeDetectionRef: ChangeDetectorRef, private _componentFactoryResolver: ComponentFactoryResolver,
-              private _formBuilder: FormBuilder, private _api: IdentityApiService, private _router: Router, private _route: ActivatedRoute, private _toast: ToastService) { }
+  constructor(
+    private _wizardService: ClientsWizardService,
+    private _changeDetectionRef: ChangeDetectorRef,
+    private _componentFactoryResolver: ComponentFactoryResolver,
+    private _formBuilder: FormBuilder,
+    private _api: IdentityApiService,
+    private _router: Router,
+    private _route: ActivatedRoute,
+    private _toast: ToastService
+  ) { }
 
   public clientTypes: ClientType[] = [];
   public selectedClientType: ClientType;
@@ -65,7 +74,8 @@ export class ClientAddComponent implements OnInit {
       postLogoutUrl: ['', Validators.maxLength(2000)],
       identityResources: [[]],
       apiResources: [[]],
-      secrets: [[]]
+      secrets: [[]],
+      certificates: [[]]
     });
   }
 
@@ -106,7 +116,7 @@ export class ClientAddComponent implements OnInit {
   }
 
   public saveClient(): void {
-    this._api.createClient({
+    const createClientRequest = {
       clientType: this.form.get('clientType').value,
       clientId: this.form.get('clientId').value,
       clientName: this.form.get('clientName').value,
@@ -118,11 +128,21 @@ export class ClientAddComponent implements OnInit {
       postLogoutRedirectUri: this.form.get('postLogoutUrl').value,
       identityResources: this.form.get('identityResources').value,
       apiResources: this.form.get('apiResources').value,
-      secrets: this.form.get('secrets').value
-    } as CreateClientRequest).subscribe((client: ClientInfo) => {
-      this._toast.showSuccess(`Client '${client.clientId}' was created successfully.`);
-      this._router.navigate(['../'], { relativeTo: this._route });
-    });
+      secrets: (this.form.get('secrets').value as CreateSecretRequest[]).filter(x => (x as any).type === 'SharedSecret')
+    } as CreateClientRequest;
+    this._api
+      .createClient(createClientRequest)
+      .pipe(concatMap((createdClient: ClientInfo) => {
+        const uploads = (this.form.get('certificates').value as File[]).map((file: File) => {
+          const fileParameter: FileParameter = { data: file, fileName: file.name };
+          return this._api.uploadCertificate(createClientRequest.clientId, fileParameter);
+        });
+        return forkJoin(uploads);
+      }))
+      .subscribe(_ => {
+        this._toast.showSuccess(`Client '${createClientRequest.clientId}' was created successfully.`);
+        this._router.navigate(['../'], { relativeTo: this._route });
+      });
   }
 
   private validateFormFields(formGroup: FormGroup) {

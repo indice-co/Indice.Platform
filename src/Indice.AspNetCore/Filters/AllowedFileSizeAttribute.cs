@@ -9,7 +9,7 @@ namespace Indice.AspNetCore.Filters
     /// <summary>
     /// Sets the maximum allowed file size for the request body.
     /// </summary>
-    [AttributeUsage(AttributeTargets.Method)]
+    [AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
     public class AllowedFileSizeAttribute : Attribute, IActionFilter
     {
         private readonly long _sizeLimit;

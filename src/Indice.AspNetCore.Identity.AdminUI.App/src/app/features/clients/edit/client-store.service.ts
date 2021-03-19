@@ -4,7 +4,7 @@ import { AsyncSubject, Observable, forkJoin } from 'rxjs';
 import { map } from 'rxjs/operators';
 import {
     IdentityApiService, SingleClientInfo, IdentityResourceInfoResultSet, IdentityResourceInfo, ApiResourceInfo, CreateClaimRequest, ClaimInfo, UpdateClientRequest, IUpdateClientRequest,
-    ApiScopeInfo, ApiScopeInfoResultSet, GrantTypeInfo, UpdateClientUrls, CreateSecretRequest, SecretInfo, ApiSecretInfo, ClientSecretInfo
+    ApiScopeInfo, ApiScopeInfoResultSet, GrantTypeInfo, UpdateClientUrls, CreateSecretRequest, SecretInfo, ApiSecretInfo, ClientSecretInfo, FileParameter
 } from 'src/app/core/services/identity-api.service';
 import { UrlType } from './urls/models/urlType';
 
@@ -228,20 +228,13 @@ export class ClientStore {
         return this._api.deleteClientGrantType(clientId, grantType);
     }
 
-    public addSecret(clientId: string, secret: CreateSecretRequest): Observable<void> {
-        const getClient = this.getClient(clientId);
-        const addSecret = this._api.addClientSecret(clientId, secret);
-        return forkJoin([getClient, addSecret]).pipe(map((responses: [SingleClientInfo, SecretInfo]) => {
-            return {
-                client: responses[0],
-                addedSecret: responses[1]
-            };
-        })).pipe(map((result: { client: SingleClientInfo, addedSecret: ClientSecretInfo }) => {
-            (result.addedSecret as any).valueText = 'Value is hidden';
-            result.client.secrets.push(result.addedSecret);
-            this._client.next(result.client);
-            this._client.complete();
-        }));
+    public addSharedSecret(clientId: string, secret: CreateSecretRequest): Observable<void> {
+        return this.addSecret(clientId, this._api.addClientSecret(clientId, secret));
+    }
+
+    public addCertificate(clientId: string, file: File): Observable<void> {
+        const fileParameter: FileParameter = { data: file, fileName: file.name };
+        return this.addSecret(clientId, this._api.uploadCertificate(clientId, fileParameter));
     }
 
     public deleteClientSecret(clientId: string, secret: ClientSecretInfo): Observable<void> {
@@ -258,5 +251,19 @@ export class ClientStore {
 
     public deleteClient(clientId: string): Observable<void> {
         return this._api.deleteClient(clientId);
+    }
+
+    private addSecret(clientId: string, addSecretObservable: Observable<ClientSecretInfo>): Observable<void> {
+        const getClient = this.getClient(clientId);
+        return forkJoin([getClient, addSecretObservable]).pipe(map((responses: [SingleClientInfo, SecretInfo]) => {
+            return {
+                client: responses[0],
+                addedSecret: responses[1]
+            };
+        })).pipe(map((result: { client: SingleClientInfo, addedSecret: ClientSecretInfo }) => {
+            result.client.secrets.push(result.addedSecret);
+            this._client.next(result.client);
+            this._client.complete();
+        }));
     }
 }

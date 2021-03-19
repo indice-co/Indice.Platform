@@ -3,14 +3,10 @@
 namespace Indice.AspNetCore.Identity.Features
 {
     /// <summary>
-    /// Models a secret value used for a client or API.
+    /// Models a secret.
     /// </summary>
-    public class SecretInfo
+    public class SecretInfoBase
     {
-        /// <summary>
-        /// The identifier for the API secret.
-        /// </summary>
-        public int Id { get; set; }
         /// <summary>
         /// Description of client secret.
         /// </summary>
@@ -27,6 +23,17 @@ namespace Indice.AspNetCore.Identity.Features
         /// The type of client secret.
         /// </summary>
         public string Type { get; set; }
+    }
+
+    /// <summary>
+    /// Models a secret value used for a client or API.
+    /// </summary>
+    public class SecretInfo : SecretInfoBase
+    {
+        /// <summary>
+        /// The identifier for the API secret.
+        /// </summary>
+        public int Id { get; set; }
     }
 
     /// <summary>

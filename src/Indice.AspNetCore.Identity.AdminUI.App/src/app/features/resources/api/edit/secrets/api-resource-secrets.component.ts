@@ -7,7 +7,7 @@ import { TableColumn } from '@swimlane/ngx-datatable';
 import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 import { SwalComponent } from '@sweetalert2/ngx-sweetalert2';
 import { NgbDateCustomParserFormatter } from 'src/app/shared/services/custom-parser-formatter.service';
-import { SecretType, ApiResourceInfo, ApiSecretInfo, ICreateSecretRequest, CreateSecretRequest, SecretInfo } from 'src/app/core/services/identity-api.service';
+import { ApiResourceInfo, ApiSecretInfo, CreateSecretRequest } from 'src/app/core/services/identity-api.service';
 import { UtilitiesService } from 'src/app/core/services/utilities.services';
 import { ListViewComponent } from 'src/app/shared/components/list-view/list-view.component';
 import { ApiResourceStore } from '../../api-resource-store.service';
@@ -33,9 +33,8 @@ export class ApiResourceSecretsComponent implements OnInit, OnDestroy {
     public rows: ApiSecretInfo[] = [];
     public apiResource: ApiResourceInfo;
     public secretToDelete: ApiSecretInfo;
-    public apiSecret: CreateSecretRequest = new CreateSecretRequest({
-        type: SecretType.SharedSecret
-    } as ICreateSecretRequest);
+    public apiSecret: CreateSecretRequest = new CreateSecretRequest();
+    public selectedSecretType = 'SharedSecret';
 
     public ngOnInit(): void {
         this.columns = [
@@ -68,7 +67,7 @@ export class ApiResourceSecretsComponent implements OnInit, OnDestroy {
     }
 
     public update(): void {
-        if (!this.apiSecret.type || !this.apiSecret.value) {
+        if (!this.apiSecret.value) {
             return;
         }
         const expiration = (this.apiSecret as any).expiration as NgbDateStruct;
@@ -76,7 +75,7 @@ export class ApiResourceSecretsComponent implements OnInit, OnDestroy {
         this._apiResourceStore.addApiResourceSecret(this._apiResourceId, this.apiSecret).subscribe(_ => {
             this.rows = [...this.apiResource.secrets];
             this._form.resetForm({
-                'client-secret-type': SecretType.SharedSecret,
+                'client-secret-type': 'SharedSecret',
                 'client-secret-value': '',
                 'expiration-date': '',
                 description: ''

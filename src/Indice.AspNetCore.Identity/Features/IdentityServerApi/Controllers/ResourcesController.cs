@@ -4,6 +4,7 @@ using System.Linq;
 using System.Net.Mime;
 using System.Threading.Tasks;
 using IdentityModel;
+using IdentityServer4;
 using IdentityServer4.EntityFramework.Entities;
 using Indice.AspNetCore.Filters;
 using Indice.Types;
@@ -440,7 +441,7 @@ namespace Indice.AspNetCore.Identity.Features
                 Description = request.Description,
                 Value = request.Value.ToSha256(),
                 Expiration = request.Expiration,
-                Type = $"{request.Type}"
+                Type = IdentityServerConstants.SecretTypes.SharedSecret
             };
             resource.Secrets = new List<ApiResourceSecret> {
                 secretToAdd

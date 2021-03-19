@@ -74,8 +74,8 @@ namespace Indice.Identity
             services.AddSmsServiceYouboto(Configuration);
             services.AddSwaggerGen(options => {
                 options.IndiceDefaults(Settings);
-                options.AddOAuth2(Settings);
-                //options.AddOpenIdConnect(Settings);
+                options.AddOAuth2AuthorizationCodeFlow(Settings);
+                options.AddFormFileSupport();
                 options.SchemaFilter<CreateUserRequestSchemaFilter>();
                 options.IncludeXmlComments(Assembly.Load(IdentityServerApi.AssemblyName));
             });
@@ -181,7 +181,6 @@ namespace Indice.Identity
                     options.SwaggerEndpoint($"/swagger/{IdentityServerApi.Scope}/swagger.json", IdentityServerApi.Scope);
                     options.OAuth2RedirectUrl($"{Settings.Host}/docs/oauth2-redirect.html");
                     options.OAuthClientId("swagger-ui");
-                    options.OAuthClientSecret("M2YwNTlkMTgtYWQzNy00MGNjLWFiYjQtZWQ3Y2Y4N2M3YWU3");
                     options.OAuthAppName("Swagger UI");
                     options.DocExpansion(DocExpansion.None);
                     options.OAuthUsePkce();

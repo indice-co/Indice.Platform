@@ -32,6 +32,7 @@ export class ListViewComponent extends ListView implements OnInit, OnDestroy {
             debounceTime(1000), // Time in milliseconds between key events.
             distinctUntilChanged() // If previous query is different from current.
         ).subscribe(_ => {
+            this.page = 1;
             this.setFilter();
         });
     }

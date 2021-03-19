@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 
 import { StepBaseComponent } from '../../../../../../shared/components/step-base/step-base.component';
-import { CreateClientRequest } from 'src/app/core/services/identity-api.service';
+import { CreateClientRequest, CreateSecretRequest } from 'src/app/core/services/identity-api.service';
 import { ToastService } from 'src/app/layout/services/app-toast.service';
 import { ClientWizardModel } from '../../models/client-wizard-model';
 
@@ -15,6 +15,7 @@ export class SummaryStepComponent extends StepBaseComponent<ClientWizardModel> i
     }
 
     public summary: CreateClientRequest = new CreateClientRequest();
+    public certificates: File[];
 
     public ngOnInit(): void {
         const form = this.data.form;
@@ -30,8 +31,9 @@ export class SummaryStepComponent extends StepBaseComponent<ClientWizardModel> i
             postLogoutRedirectUri: form.get('postLogoutUrl').value,
             identityResources: form.get('identityResources').value,
             apiResources: form.get('apiResources').value,
-            secrets: form.get('secrets').value
+            secrets: (form.get('secrets').value as CreateSecretRequest[]).filter(x => (x as any).type === 'SharedSecret'),
         } as CreateClientRequest;
+        this.certificates = form.get('certificates').value;
     }
 
     public isValid(): boolean {

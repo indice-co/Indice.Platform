@@ -19,24 +19,5 @@ namespace Indice.AspNetCore.Identity.Features
         /// Optional expiration of client secret.
         /// </summary>
         public DateTime? Expiration { get; set; }
-        /// <summary>
-        /// The type of client secret.
-        /// </summary>
-        public SecretType Type { get; set; }
-    }
-
-    /// <summary>
-    /// The type of client secret.
-    /// </summary>
-    public enum SecretType
-    {
-        /// <summary>
-        /// X509 Thumbprint.
-        /// </summary>
-        X509Thumbprint,
-        /// <summary>
-        /// Shared Secret.
-        /// </summary>
-        SharedSecret
     }
 }

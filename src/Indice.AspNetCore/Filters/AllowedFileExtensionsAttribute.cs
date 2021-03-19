@@ -11,7 +11,7 @@ namespace Indice.AspNetCore.Filters
     /// <summary>
     /// Sets the accepted file extensions for the request body.
     /// </summary>
-    [AttributeUsage(AttributeTargets.All)]
+    [AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
     public class AllowedFileExtensionsAttribute : Attribute, IActionFilter
     {
         private List<string> AllowedExtensions { get; }
@@ -20,8 +20,8 @@ namespace Indice.AspNetCore.Filters
         /// Creates a new instance of <see cref="AllowedFileExtensionsAttribute"/>.
         /// </summary>
         /// <param name="fileExtensions">Allowed file extensions as a comma or space separated string.</param>
-        public AllowedFileExtensionsAttribute(string fileExtensions) {
-            AllowedExtensions = fileExtensions.Split(new[] { ',', ' ' }, StringSplitOptions.RemoveEmptyEntries).ToList();
+        public AllowedFileExtensionsAttribute(params string[] fileExtensions) {
+            AllowedExtensions = fileExtensions.ToList();
         }
 
         /// <inheritdoc />
@@ -30,7 +30,7 @@ namespace Indice.AspNetCore.Filters
             foreach (var file in files) {
                 if (!AllowedExtensions.Any(x => file.FileName.ToLowerInvariant().EndsWith(x))) {
                     context.ModelState.AddModelError($"{file.FileName}", $"File with extension {Path.GetExtension(file.FileName)} is not permitted. Allowed file extensions are {string.Join(", ", AllowedExtensions)}");
-                    context.Result = new BadRequestObjectResult(context.ModelState);
+                    context.Result = new BadRequestObjectResult(new ValidationProblemDetails(context.ModelState));
                 }
             }
         }

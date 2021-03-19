@@ -27,6 +27,7 @@
     "@sweetalert2/ngx-sweetalert2": "8.1.1",
     "@swimlane/ngx-datatable": "17.0.0",
     "bootstrap": "4.5.0",
+    "file-saver": "2.0.5",
     "material-design-icons": "3.0.1",
     "oidc-client": "1.10.1",
     "rxjs": "6.5.5",

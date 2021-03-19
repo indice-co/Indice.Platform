@@ -1,9 +1,12 @@
-import { Output, EventEmitter, Input, ViewChild, TemplateRef } from '@angular/core';
+import { Output, EventEmitter, Input, ViewChild, TemplateRef, Component } from '@angular/core';
 
 import { TableColumn, DatatableComponent } from '@swimlane/ngx-datatable';
 import { Subscription } from 'rxjs';
 import { SearchEvent } from './search-event';
 
+@Component({
+    template: ''
+})
 export class ListView {
     // Properties.
     @ViewChild('dataTable', { static: true }) protected dataTable: DatatableComponent;
@@ -22,6 +25,7 @@ export class ListView {
     @Input() public isLoading = false;
     @Input() public clientSide = false;
     @Input() public canFilter = false;
+    @Input() public rowHeight = 50;
     public minimumSearchCharacters = 3;
     public searchTerm?: string;
     protected queryParamsSubscription: Subscription;

@@ -100,7 +100,7 @@
         </div>
     </div>
     <div class="form-group row"
-         *ngIf="summary.secrets && summary.clientType === 'Machine'">
+         *ngIf="(summary.secrets || certificates) && summary.clientType === 'Machine'">
         <label class="col-sm-2 col-form-label">
             Secrets
         </label>
@@ -108,7 +108,7 @@
             <span class="col-form-label"
                   id="client-secrets"
                   name="client-secrets">
-                {{ summary.secrets.length }} configured secrets.
+                {{ ((summary.secrets?.length || 0) + (certificates?.length || 0)) }} configured secret(s).
             </span>
         </div>
     </div>
