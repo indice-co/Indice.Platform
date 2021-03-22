@@ -11,7 +11,7 @@ namespace Indice.AspNetCore.Identity.Features
     public class RegisterDeviceRequest
     {
         /// <summary>
-        /// The deviceId to register for push notifications.
+        /// The device id to register for push notifications.
         /// </summary>
         [Required]
         public Guid DeviceId { get; set; }

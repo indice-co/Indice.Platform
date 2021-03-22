@@ -13,7 +13,7 @@ using Microsoft.EntityFrameworkCore;
 namespace Indice.AspNetCore.Identity.Features
 {
     /// <summary>
-    /// Contains operations for device push notifications
+    /// Contains operations for device push notifications.
     /// </summary>
     [Route("api/my/devices")]
     [ApiController]
@@ -35,14 +35,18 @@ namespace Indice.AspNetCore.Identity.Features
         /// </summary>
         public const string Name = "Devices";
 
-        public DevicesController(ExtendedUserManager<User> userManager, IPushNotificationService pushNotificationService, ExtendedIdentityDbContext<User, Role> dbContext) {
+        public DevicesController(
+            ExtendedUserManager<User> userManager,
+            IPushNotificationService pushNotificationService,
+            ExtendedIdentityDbContext<User, Role> dbContext
+        ) {
             _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
             _pushNotificationService = pushNotificationService ?? throw new ArgumentNullException(nameof(pushNotificationService));
             _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
         }
 
         /// <summary>
-        /// Returns user devices
+        /// Returns a list of registered user devices.
         /// </summary>
         /// <response code="200">OK</response>
         /// <response code="401">Unauthorized</response>
@@ -75,9 +79,9 @@ namespace Indice.AspNetCore.Identity.Features
         }
 
         /// <summary>
-        /// Enables push notifications for device
+        /// Enables push notifications for a device.
         /// </summary>
-        /// <param name="request"><see cref="RegisterDeviceRequest"/></param>
+        /// <param name="request">Contains information about the device to register.</param>
         /// <response code="201">Created</response>
         /// <response code="204">No Content</response>
         /// <response code="401">Unauthorized</response>
@@ -101,7 +105,7 @@ namespace Indice.AspNetCore.Identity.Features
                 return NotFound();
             }
             var device = await _dbContext.UserDevices.SingleOrDefaultAsync(x => x.UserId == user.Id && x.DeviceId == request.DeviceId);
-            await _pushNotificationService.Register(request.DeviceId.ToString(), request.PnsHandle, request.DevicePlatform, user.Id,  request.Tags?.ToArray());
+            await _pushNotificationService.Register(request.DeviceId.ToString(), request.PnsHandle, request.DevicePlatform, user.Id, request.Tags?.ToArray());
             var deviceId = default(Guid);
             if (device != null) {
                 device.IsPushNotificationsEnabled = true;
@@ -124,9 +128,9 @@ namespace Indice.AspNetCore.Identity.Features
         }
 
         /// <summary>
-        /// Disable push noitications for this device
+        /// Disable push notifications for this device.
         /// </summary>
-        /// <param name="deviceId"></param>
+        /// <param name="deviceId">The id of the device.</param>
         /// <response code="204">No Content</response>
         /// <response code="401">Unauthorized</response>
         /// <response code="403">Forbidden</response>

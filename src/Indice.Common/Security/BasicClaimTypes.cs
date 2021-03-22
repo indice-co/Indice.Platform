@@ -73,6 +73,10 @@ namespace Indice.Security
         /// </summary>
         public const string DeveloperTotp = "developer_totp";
         /// <summary>
+        /// A client claim that indicates if the client is allowed to perform public/private key authentication.
+        /// </summary>
+        public const string TrustedDevice = "trusted_device";
+        /// <summary>
         /// All possible user related claims
         /// </summary>
         public static readonly string[] UserClaims = {
