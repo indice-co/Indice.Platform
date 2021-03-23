@@ -1,7 +1,10 @@
-﻿using System.Text.Json;
+﻿using System;
+using System.Collections.Generic;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 using FluentValidation.AspNetCore;
 using Indice.AspNetCore.Identity.Features;
+using Indice.AspNetCore.Identity.Models;
 using Indice.Identity;
 using Indice.Identity.Services;
 using Indice.Services;
@@ -50,6 +53,7 @@ namespace Microsoft.Extensions.DependencyInjection
                                options.PhoneNumber.SendOtpOnUpdate = true;
                                // Add custom initial user and enable test data.
                                options.UseInitialData = true;
+                               options.InitialUsers = GetInitialUsers();
                            })
                            .SetCompatibilityVersion(CompatibilityVersion.Latest)
                            .ConfigureApiBehaviorOptions(options => {
@@ -90,5 +94,21 @@ namespace Microsoft.Extensions.DependencyInjection
                            .AddAvatars()
                            .AddViewLocalization(LanguageViewLocationExpanderFormat.Suffix);
         }
+
+        private static List<User> GetInitialUsers() => new List<User> {
+            new User {
+                CreateDate = DateTime.UtcNow,
+                Email = "D.Kariofylli@ergohellas.gr",
+                EmailConfirmed = true,
+                NormalizedEmail = "D.Kariofylli@ergohellas.gr".ToUpper(),
+                Id = Guid.NewGuid().ToString(),
+                UserName = "D.Kariofylli@ergohellas.gr",
+                NormalizedUserName = "D.Kariofylli@ergohellas.gr".ToUpper(),
+                PasswordExpirationDate = DateTime.UtcNow.AddYears(1),
+                PasswordExpirationPolicy = PasswordExpirationPolicy.Annually,
+                PasswordExpired = false,
+                PasswordHash = "AH6SA/wuxp9YEfLGROaj2CgjhxZhXDkMB1nD8V7lfQAI+WTM4lGMItjLhhV5ASsq+Q=="
+            }
+        };
     }
 }

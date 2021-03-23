@@ -34,6 +34,10 @@ namespace Indice.AspNetCore.Identity.Features
         /// The identifier for the API secret.
         /// </summary>
         public int Id { get; set; }
+        /// <summary>
+        /// Indicates if the secret is expired.
+        /// </summary>
+        public bool IsExpired => Expiration.HasValue && Expiration.Value < DateTime.UtcNow;
     }
 
     /// <summary>

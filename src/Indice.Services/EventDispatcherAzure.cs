@@ -23,7 +23,6 @@ namespace Indice.Services
         private readonly string _environmentName;
         private readonly string _connectionString;
 
-
         /// <summary>
         /// Create a new <see cref="EventDispatcherAzure"/> instance.
         /// </summary>

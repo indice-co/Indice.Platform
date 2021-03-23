@@ -10,8 +10,9 @@ import { saveAs } from 'file-saver';
 import { ListViewComponent } from 'src/app/shared/components/list-view/list-view.component';
 import { UtilitiesService } from 'src/app/core/services/utilities.services';
 import { ToastService } from 'src/app/layout/services/app-toast.service';
-import { CreateSecretRequest, SingleClientInfo, ClientSecretInfo, IdentityApiService, FileResponse } from 'src/app/core/services/identity-api.service';
+import { CreateSecretRequest, SingleClientInfo, ClientSecretInfo, IdentityApiService, FileResponse, ValidationProblemDetails, ProblemDetails } from 'src/app/core/services/identity-api.service';
 import { ClientStore } from '../client-store.service';
+import { ValidationSummaryComponent } from 'src/app/shared/components/validation-summary/validation-summary.component';
 
 @Component({
     selector: 'app-client-secrets',
@@ -24,6 +25,8 @@ export class ClientSecretsComponent implements OnInit, OnDestroy {
     @ViewChild('optionalTemplate', { static: true }) private _optionalTemplate: TemplateRef<HTMLElement>;
     @ViewChild('form', { static: false }) private _form: NgForm;
     @ViewChild('deleteAlert', { static: false }) private _deleteAlert: SwalComponent;
+    @ViewChild('expiredTemplate', { static: true }) private _expiredTemplate: TemplateRef<HTMLElement>;
+    @ViewChild('validationSummary', { static: false }) private _validationSummary: ValidationSummaryComponent;
     private _getDataSubscription: Subscription;
     private _clientId: string;
 
@@ -36,13 +39,14 @@ export class ClientSecretsComponent implements OnInit, OnDestroy {
     public clientSecret: CreateSecretRequest = new CreateSecretRequest();
     public selectedSecretType = 'SharedSecret';
     public fileToUpload: File;
+    public problemDetails: ProblemDetails;
 
     public ngOnInit(): void {
         this.columns = [
-            { prop: 'type', name: 'Type', draggable: false, canAutoResize: true, sortable: false, resizeable: false },
-            { prop: 'value', name: 'Value', draggable: false, canAutoResize: true, sortable: false, resizeable: false, cellTemplate: this._wrapContentTemplate },
-            { prop: 'expiration', name: 'Expiration', draggable: false, canAutoResize: true, sortable: false, resizeable: false, cellTemplate: this._clientSecretsList.dateTimeTemplate, cellClass: 'd-flex align-items-center' },
-            { prop: 'description', name: 'Description', draggable: false, canAutoResize: true, sortable: false, resizeable: false, cellTemplate: this._optionalTemplate, cellClass: 'd-flex align-items-center' },
+            { prop: 'type', name: 'Type', draggable: false, canAutoResize: true, sortable: false, resizeable: false, cellClass: 'd-flex align-items-center' },
+            { prop: 'value', name: 'Value', draggable: false, canAutoResize: true, sortable: false, resizeable: false, cellTemplate: this._wrapContentTemplate, cellClass: 'd-flex align-items-center' },
+            { prop: 'expiration', name: 'Expiration', draggable: false, canAutoResize: true, sortable: false, resizeable: false, cellTemplate: this._expiredTemplate, cellClass: 'd-flex align-items-center' },
+            { prop: 'description', name: 'Description', draggable: false, canAutoResize: true, sortable: false, resizeable: false, cellTemplate: this._wrapContentTemplate, cellClass: 'd-flex align-items-center' },
             { prop: 'id', name: 'Actions', draggable: false, canAutoResize: true, sortable: false, resizeable: false, cellTemplate: this._actionsTemplate, cellClass: 'd-flex align-items-center' }
         ];
         this._clientId = this._route.parent.snapshot.params.id;
@@ -119,6 +123,9 @@ export class ClientSecretsComponent implements OnInit, OnDestroy {
             this.rows = [...this.client.secrets];
             this._form.resetForm({ 'client-secret-type': 'X509CertificateBase64' });
             this._toast.showSuccess(`Certificate was uploaded successfully for client '${this.client.clientName}'.`);
+        }, (problemDetails: ValidationProblemDetails) => {
+            this.problemDetails = problemDetails
+            setTimeout(() => this._validationSummary.clear(), 5000);
         });
     }
 }

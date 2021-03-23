@@ -9,7 +9,7 @@
     <GenerateEmbeddedFilesManifest>true</GenerateEmbeddedFilesManifest>
     <SpaDistFolder>..\Indice.AspNetCore.Identity.AdminUI.App\dist\indice_admin_ui</SpaDistFolder>
     <TargetFrameworks>netcoreapp3.1;net5.0</TargetFrameworks>
-    <VersionPrefix>5.0.0</VersionPrefix>
+    <VersionPrefix>5.0.1</VersionPrefix>
     <!--<VersionSuffix>beta-02</VersionSuffix>-->
     <LangVersion>Latest</LangVersion>
   </PropertyGroup>
@@ -22,7 +22,7 @@
     <PackageId>Indice.AspNetCore.Identity.AdminUI</PackageId>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/indice-co/Indice.AspNet</PackageProjectUrl>
-    <PackageReleaseNotes>.ΝΕΤ 5.0 upgrade</PackageReleaseNotes>
+    <PackageReleaseNotes>Client certificate management UI.</PackageReleaseNotes>
     <PackageTags>AspNetCore;IdentityServer;AdminUI</PackageTags>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <RepositoryType>git</RepositoryType>

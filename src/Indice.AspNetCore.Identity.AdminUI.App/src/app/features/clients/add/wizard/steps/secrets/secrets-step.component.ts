@@ -4,9 +4,10 @@ import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 import { TableColumn } from '@swimlane/ngx-datatable';
 import { StepBaseComponent } from '../../../../../../shared/components/step-base/step-base.component';
 import { UtilitiesService } from 'src/app/core/services/utilities.services';
-import { CreateSecretRequest, FileParameter, IdentityApiService, SecretInfoBase } from 'src/app/core/services/identity-api.service';
+import { CreateSecretRequest, FileParameter, IdentityApiService, ProblemDetails, SecretInfoBase, ValidationProblemDetails } from 'src/app/core/services/identity-api.service';
 import { ListViewComponent } from 'src/app/shared/components/list-view/list-view.component';
 import { ClientWizardModel } from '../../models/client-wizard-model';
+import { ValidationSummaryComponent } from 'src/app/shared/components/validation-summary/validation-summary.component';
 
 @Component({
     selector: 'app-secrets-step',
@@ -15,12 +16,15 @@ import { ClientWizardModel } from '../../models/client-wizard-model';
 export class SecretsStepComponent extends StepBaseComponent<ClientWizardModel> implements OnInit {
     @ViewChild('actionsTemplate', { static: true }) private _actionsTemplate: TemplateRef<HTMLElement>;
     @ViewChild('wrapContentTemplate', { static: true }) private _wrapContentTemplate: ListViewComponent;
-    @ViewChild('optionalTemplate', { static: true }) private _optionalTemplate: TemplateRef<HTMLElement>;
     @ViewChild('clientSecretsList', { static: true }) private _clientSecretsList: ListViewComponent;
+    @ViewChild('validationSummary', { static: false }) private _validationSummary: ValidationSummaryComponent;
     private _initialSecrets: CreateSecretRequest[];
     private _certificates: File[] = [];
 
-    constructor(private _utilities: UtilitiesService, private _api: IdentityApiService) {
+    constructor(
+        private _utilities: UtilitiesService,
+        private _api: IdentityApiService
+    ) {
         super();
     }
 
@@ -29,14 +33,15 @@ export class SecretsStepComponent extends StepBaseComponent<ClientWizardModel> i
     public clientSecret: CreateSecretRequest = new CreateSecretRequest();
     public selectedSecretType = 'SharedSecret';
     public fileToUpload: File;
+    public problemDetails: ProblemDetails;
 
     public ngOnInit(): void {
         this._initialSecrets = this.data.form.get('secrets').value as CreateSecretRequest[];
         this.columns = [
-            { prop: 'type', name: 'Type', draggable: false, canAutoResize: true, sortable: false, resizeable: false },
-            { prop: 'value', name: 'Value', draggable: false, canAutoResize: true, sortable: false, resizeable: false, cellTemplate: this._wrapContentTemplate },
+            { prop: 'type', name: 'Type', draggable: false, canAutoResize: true, sortable: false, resizeable: false, cellClass: 'd-flex align-items-center' },
+            { prop: 'value', name: 'Value', draggable: false, canAutoResize: true, sortable: false, resizeable: false, cellTemplate: this._wrapContentTemplate, cellClass: 'd-flex align-items-center' },
             { prop: 'expiration', name: 'Expiration', draggable: false, canAutoResize: true, sortable: false, resizeable: false, cellTemplate: this._clientSecretsList.dateTimeTemplate, cellClass: 'd-flex align-items-center' },
-            { prop: 'description', name: 'Description', draggable: false, canAutoResize: true, sortable: false, resizeable: false, cellTemplate: this._optionalTemplate, cellClass: 'd-flex align-items-center' },
+            { prop: 'description', name: 'Description', draggable: false, canAutoResize: true, sortable: false, resizeable: false, cellTemplate: this._wrapContentTemplate, cellClass: 'd-flex align-items-center' },
             { prop: 'value', name: 'Actions', draggable: false, canAutoResize: true, sortable: false, resizeable: false, cellTemplate: this._actionsTemplate, cellClass: 'd-flex align-items-center' }
         ];
         if (this._initialSecrets.length > 0) {
@@ -103,6 +108,9 @@ export class SecretsStepComponent extends StepBaseComponent<ClientWizardModel> i
             this.data.form.get('certificates').setValue([...this._certificates]);
             this.formValidated.emit(false);
             this.clientSecret = new CreateSecretRequest();
+        }, (problemDetails: ValidationProblemDetails) => {
+            this.problemDetails = problemDetails
+            setTimeout(() => this._validationSummary.clear(), 5000);
         });
     }
 }

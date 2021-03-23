@@ -3,7 +3,7 @@
     <Description>Indice.AspNetCore Class Library</Description>
     <Copyright>Copyright (c) 2018 Indice</Copyright>
     <AssemblyTitle>Indice.AspNetCore</AssemblyTitle>
-    <VersionPrefix>5.0.0</VersionPrefix>
+    <VersionPrefix>5.0.1</VersionPrefix>
     <!--<VersionSuffix>beta-02</VersionSuffix>-->
     <Authors>Constantinos Leftheris, Georgios Manoltzas</Authors>
     <TargetFrameworks>netcoreapp3.1;net5.0</TargetFrameworks>
@@ -15,7 +15,7 @@
   <PropertyGroup Label="Package">
     <PackageId>Indice.AspNetCore</PackageId>
     <PackageTags>AspNetCore;TagHelpers;Grid;Sorting;Paging</PackageTags>
-    <PackageReleaseNotes>.ΝΕΤ 5.0 upgrade</PackageReleaseNotes>
+    <PackageReleaseNotes>Improve filters for file upload.</PackageReleaseNotes>
     <PackageIcon>icon-310.png</PackageIcon>
     <PackageProjectUrl>https://github.com/indice-co/Indice.AspNet</PackageProjectUrl>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
