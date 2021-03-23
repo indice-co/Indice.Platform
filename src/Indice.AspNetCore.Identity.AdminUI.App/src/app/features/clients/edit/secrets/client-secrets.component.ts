@@ -24,6 +24,7 @@ export class ClientSecretsComponent implements OnInit, OnDestroy {
     @ViewChild('optionalTemplate', { static: true }) private _optionalTemplate: TemplateRef<HTMLElement>;
     @ViewChild('form', { static: false }) private _form: NgForm;
     @ViewChild('deleteAlert', { static: false }) private _deleteAlert: SwalComponent;
+    @ViewChild('expiredTemplate', { static: true }) private _expiredTemplate: TemplateRef<HTMLElement>;
     private _getDataSubscription: Subscription;
     private _clientId: string;
 
@@ -39,9 +40,9 @@ export class ClientSecretsComponent implements OnInit, OnDestroy {
 
     public ngOnInit(): void {
         this.columns = [
-            { prop: 'type', name: 'Type', draggable: false, canAutoResize: true, sortable: false, resizeable: false },
-            { prop: 'value', name: 'Value', draggable: false, canAutoResize: true, sortable: false, resizeable: false, cellTemplate: this._wrapContentTemplate },
-            { prop: 'expiration', name: 'Expiration', draggable: false, canAutoResize: true, sortable: false, resizeable: false, cellTemplate: this._clientSecretsList.dateTimeTemplate, cellClass: 'd-flex align-items-center' },
+            { prop: 'type', name: 'Type', draggable: false, canAutoResize: true, sortable: false, resizeable: false, cellClass: 'd-flex align-items-center' },
+            { prop: 'value', name: 'Value', draggable: false, canAutoResize: true, sortable: false, resizeable: false, cellTemplate: this._wrapContentTemplate, cellClass: 'd-flex align-items-center' },
+            { prop: 'expiration', name: 'Expiration', draggable: false, canAutoResize: true, sortable: false, resizeable: false, cellTemplate: this._expiredTemplate, cellClass: 'd-flex align-items-center' },
             { prop: 'description', name: 'Description', draggable: false, canAutoResize: true, sortable: false, resizeable: false, cellTemplate: this._optionalTemplate, cellClass: 'd-flex align-items-center' },
             { prop: 'id', name: 'Actions', draggable: false, canAutoResize: true, sortable: false, resizeable: false, cellTemplate: this._actionsTemplate, cellClass: 'd-flex align-items-center' }
         ];

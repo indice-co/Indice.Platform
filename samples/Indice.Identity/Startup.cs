@@ -81,7 +81,7 @@ namespace Indice.Identity
             });
             services.AddResponseCaching();
             services.AddDataProtectionLocal(options => options.FromConfiguration());
-            services.AddEmailServiceSparkpost(Configuration);
+            services.AddEmailServiceSmtpRazor(Configuration);
             /*services.AddSmsServiceApifon(Configuration, options => {
                 options.ConfigurePrimaryHttpMessageHandler = (serviceProvider) => new System.Net.Http.HttpClientHandler {
                     ServerCertificateCustomValidationCallback = (httpRequestMessage, certificate, chain, sslPolicyErrors) => true
