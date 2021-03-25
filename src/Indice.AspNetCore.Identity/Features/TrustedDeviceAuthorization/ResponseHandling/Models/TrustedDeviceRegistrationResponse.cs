@@ -2,8 +2,6 @@
 {
     internal class TrustedDeviceRegistrationResponse
     {
-        public string UserId { get; }
-        public string DeviceFriendlyName { get; }
-        public byte[] Challenge { get; }
+        public string Challenge { get; set; }
     }
 }

@@ -12,15 +12,12 @@ using Microsoft.Extensions.Logging;
 
 namespace Indice.AspNetCore.Identity.Features
 {
-    /// <summary>
-    /// 
-    /// </summary>
     internal class TrustedDeviceRegistrationEndpoint : IEndpointHandler
     {
-        private readonly BearerTokenUsageValidator _tokenUsageValidator;
+        private readonly BearerTokenUsageValidator _token;
         private readonly ILogger<TrustedDeviceRegistrationEndpoint> _logger;
-        private readonly ITrustedDeviceRegistrationRequestValidator _requestValidator;
-        private readonly ITrustedDeviceRegistrationResponseGenerator _responseGenerator;
+        private readonly ITrustedDeviceRegistrationRequestValidator _request;
+        private readonly ITrustedDeviceRegistrationResponseGenerator _response;
 
         public TrustedDeviceRegistrationEndpoint(
             BearerTokenUsageValidator tokenUsageValidator,
@@ -29,9 +26,9 @@ namespace Indice.AspNetCore.Identity.Features
             ITrustedDeviceRegistrationResponseGenerator responseGenerator
         ) {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            _requestValidator = requestValidator ?? throw new ArgumentNullException(nameof(requestValidator));
-            _responseGenerator = responseGenerator ?? throw new ArgumentNullException(nameof(responseGenerator));
-            _tokenUsageValidator = tokenUsageValidator ?? throw new ArgumentNullException(nameof(tokenUsageValidator));
+            _request = requestValidator ?? throw new ArgumentNullException(nameof(requestValidator));
+            _response = responseGenerator ?? throw new ArgumentNullException(nameof(responseGenerator));
+            _token = tokenUsageValidator ?? throw new ArgumentNullException(nameof(tokenUsageValidator));
         }
 
         /// <inheritdoc />
@@ -45,19 +42,19 @@ namespace Indice.AspNetCore.Identity.Features
                 return Error(OidcConstants.TokenErrors.InvalidRequest);
             }
             // Ensure that a valid 'Authorization' header exists.
-            var tokenUsageResult = await _tokenUsageValidator.ValidateAsync(context);
+            var tokenUsageResult = await _token.Validate(context);
             if (!tokenUsageResult.TokenFound) {
                 _logger.LogError("No access token found.");
                 return Error(OidcConstants.ProtectedResourceErrors.InvalidToken);
             }
             // Validate request data.
-            var form = (await context.Request.ReadFormAsync()).AsNameValueCollection();
-            var requestValidationResult = await _requestValidator.ValidateAsync(form);
+            var parameters = (await context.Request.ReadFormAsync()).AsNameValueCollection();
+            var requestValidationResult = await _request.Validate(tokenUsageResult.Token, parameters);
             if (requestValidationResult.IsError) {
                 return Error(requestValidationResult.Error, requestValidationResult.ErrorDescription);
             }
             // Create application response.
-            var response = await _responseGenerator.ProcessAsync(requestValidationResult);
+            var response = await _response.Generate(requestValidationResult);
             _logger.LogDebug("Trusted device authorization endpoint success.");
             return new TrustedDeviceRegistrationResult(response);
         }

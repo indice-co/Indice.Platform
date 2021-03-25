@@ -28,28 +28,28 @@ namespace IdentityServer4.Validation
         /// <summary>
         /// Validates the request.
         /// </summary>
-        /// <param name="context">The context.</param>
-        public async Task<BearerTokenUsageValidationResult> ValidateAsync(HttpContext context) {
+        /// <param name="context">The current HTTP context.</param>
+        public async Task<BearerTokenUsageValidationResult> Validate(HttpContext context) {
             var result = ValidateAuthorizationHeader(context);
             if (result.TokenFound) {
                 _logger.LogDebug("Bearer token found in header.");
                 return result;
             }
             if (context.Request.HasApplicationFormContentType()) {
-                result = await ValidatePostBodyAsync(context);
+                result = await ValidatePostBody(context);
                 if (result.TokenFound) {
                     _logger.LogDebug("Bearer token found in body.");
                     return result;
                 }
             }
-            _logger.LogDebug("Bearer token not found.");
+            _logger.LogDebug("Bearer token was not found.");
             return new BearerTokenUsageValidationResult();
         }
 
         /// <summary>
         /// Validates the authorization header.
         /// </summary>
-        /// <param name="context">The context.</param>
+        /// <param name="context">The current HTTP context.</param>
         public BearerTokenUsageValidationResult ValidateAuthorizationHeader(HttpContext context) {
             var authorizationHeader = context.Request.Headers["Authorization"].FirstOrDefault();
             if (!string.IsNullOrWhiteSpace(authorizationHeader)) {
@@ -73,8 +73,8 @@ namespace IdentityServer4.Validation
         /// <summary>
         /// Validates the post body.
         /// </summary>
-        /// <param name="context">The context.</param>
-        public static async Task<BearerTokenUsageValidationResult> ValidatePostBodyAsync(HttpContext context) {
+        /// <param name="context">The current HTTP context.</param>
+        public static async Task<BearerTokenUsageValidationResult> ValidatePostBody(HttpContext context) {
             var token = (await context.Request.ReadFormAsync())["access_token"].FirstOrDefault();
             if (!string.IsNullOrWhiteSpace(token)) {
                 return new BearerTokenUsageValidationResult {

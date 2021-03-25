@@ -1,30 +1,22 @@
-﻿using IdentityServer4.Services;
+﻿using System.Threading.Tasks;
+using IdentityServer4.Extensions;
+using IdentityServer4.Services;
 using IdentityServer4.Stores;
 using IdentityServer4.Stores.Serialization;
 using Microsoft.Extensions.Logging;
 
 namespace Indice.AspNetCore.Identity.Features
 {
-    /// <summary>
-    /// 
-    /// </summary>
-    public class DefaultDeviceAuthorizationCodeChallengeStore : DefaultGrantStore<TrustedDeviceAuthorizationCode>, IDeviceAuthorizationCodeChallengeStore
+    public class DefaultTrustedDeviceAuthorizationCodeChallengeStore : DefaultGrantStore<TrustedDeviceAuthorizationCode>, ITrustedDeviceAuthorizationCodeChallengeStore
     {
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="grantType"></param>
-        /// <param name="store"></param>
-        /// <param name="serializer"></param>
-        /// <param name="handleGenerationService"></param>
-        /// <param name="logger"></param>
-        protected DefaultDeviceAuthorizationCodeChallengeStore(
-            string grantType,
+        public DefaultTrustedDeviceAuthorizationCodeChallengeStore(
             IPersistedGrantStore store,
             IPersistentGrantSerializer serializer,
-            IHandleGenerationService handleGenerationService, 
-            ILogger logger
-        ) : base(grantType, store, serializer, handleGenerationService, logger) {
-        }
+            IHandleGenerationService handleGenerationService,
+            ILogger<DefaultTrustedDeviceAuthorizationCodeChallengeStore> logger
+        ) : base("trusted_device_authorization_code", store, serializer, handleGenerationService, logger) { }
+
+        public Task<string> Store(TrustedDeviceAuthorizationCode code) =>
+            CreateItemAsync(code, code.ClientId, code.Subject.GetSubjectId(), null, code.Description, code.CreationTime, code.Lifetime);
     }
 }

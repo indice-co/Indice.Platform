@@ -5,6 +5,6 @@ namespace Indice.AspNetCore.Identity.Features
 {
     internal interface ITrustedDeviceRegistrationRequestValidator
     {
-        Task<TrustedDeviceRegistrationRequestValidationResult> ValidateAsync(NameValueCollection parameters);
+        Task<TrustedDeviceRegistrationRequestValidationResult> Validate(string accessToken, NameValueCollection parameters);
     }
 }

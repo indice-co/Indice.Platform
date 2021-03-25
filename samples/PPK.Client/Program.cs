@@ -3,18 +3,22 @@
  */
 
 using System;
+using System.Collections.Generic;
+using System.Net.Http;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
-using System.Threading.Tasks;
-using Microsoft.Extensions.Hosting;
+using IdentityModel.Client;
 using Microsoft.IdentityModel.Tokens;
 
 namespace PPK.Client
 {
     public class Program
     {
+        private static readonly HttpClient _httpClient = new() { BaseAddress = new Uri(AUTHORITY) };
+        private static string _accessToken;
         #region Constants
+        private const string AUTHORITY = "https://localhost:2000";
         private const string PRIVATE_KEY =
             @"-----BEGIN PRIVATE KEY-----
               MIIJQgIBADANBgkqhkiG9w0BAQEFAASCCSwwggkoAgEAAoICAQC+7EiyKVTsn0f2
@@ -104,19 +108,85 @@ namespace PPK.Client
               gQLav9xgiiMMZW7BOIkRFMUP+iaYU+5vWeauFWjMWmUBhhKcOPv+wnpE3E0kRnPz
               YjOCOx+uBC7N1Mz4PPYRoF3vGcHt5Q7QEPBymdcGecUOIJZT06HwmwAoaHA5SMPs
               2rm8
-              -----END CERTIFICATE-----"; 
+              -----END CERTIFICATE-----";
         #endregion
 
-        public static async Task Main(string[] args) {
-            /* https://docs.microsoft.com/en-us/dotnet/core/extensions/configuration#configure-console-apps */
-            using var host = CreateHostBuilder(args).Build();
+        public static void Main(string[] args) {
+            DrawMenu();
             var x509SigningCredentials = GetSigningCredentials();
             var message = "This is a sample for .NET 5 private/public cryptography";
             var signature = SignMessage(message, x509SigningCredentials);
             var certificate = new X509Certificate2(Convert.FromBase64String(PUBLIC_KEY.Replace("-----BEGIN CERTIFICATE-----", string.Empty).Replace("-----END CERTIFICATE-----", string.Empty)));
             var securityKey = new X509SecurityKey(certificate);
             var isValidMessage = ValidateMessage(message, signature, securityKey);
-            await host.RunAsync();
+            Console.ReadKey();
+        }
+
+        private static void MenuItemSelectedEventHandler(object sender, EventArgs eventArgs) {
+            var selectedItemIndex = ((MenuItemEventArgs)eventArgs).SelectedItemIndex;
+            switch (selectedItemIndex) {
+                case 0:
+                    StartLoginWithCredentialsFlow();
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        private static void StartLoginWithCredentialsFlow() {
+            Console.WriteLine("Please enter your username:");
+            var userName = Console.ReadLine();
+            Console.WriteLine("Please enter your password:");
+            var password = Console.ReadLine();
+            // Get discovery document.
+            var discoveryDocument = _httpClient
+                .GetDiscoveryDocumentAsync()
+                .ConfigureAwait(false)
+                .GetAwaiter()
+                .GetResult();
+            if (discoveryDocument.IsError) {
+                Console.WriteLine("Could not obtain discovery document.");
+                return;
+            }
+            // Perform a request to the token endpoint using the 'password' grant.
+            var tokenResponse = _httpClient.RequestPasswordTokenAsync(new PasswordTokenRequest {
+                Address = discoveryDocument.TokenEndpoint,
+                ClientId = "ppk-client",
+                ClientSecret = "JUEKX2XugFv5XrX3",
+                Scope = "openid phone",
+                UserName = userName,
+                Password = password
+            })
+            .ConfigureAwait(false)
+            .GetAwaiter()
+            .GetResult();
+            Console.WriteLine();
+            if (tokenResponse.IsError) {
+                Console.BackgroundColor = ConsoleColor.Red;
+                Console.ForegroundColor = ConsoleColor.White;
+                Console.WriteLine("Could not obtain access token: {0}", tokenResponse.Error);
+                Console.ResetColor();
+                Console.WriteLine();
+                DrawMenu();
+                return;
+            }
+            _accessToken = tokenResponse.AccessToken;
+            Console.BackgroundColor = ConsoleColor.Green;
+            Console.ForegroundColor = ConsoleColor.White;
+            Console.WriteLine("Access token was issued: {0}", tokenResponse.AccessToken);
+            Console.ResetColor();
+            Console.WriteLine();
+            DrawMenu();
+        }
+
+        private static void DrawMenu() {
+            var menu = new ConsoleMenu("Please choose the operation to perform:", new List<string> {
+                "1) Log in with username/password",
+                "2) Register device",
+                "3) Log in with certificate"
+            });
+            menu.MenuItemSelected += MenuItemSelectedEventHandler;
+            menu.Draw();
         }
 
         private static X509SigningCredentials GetSigningCredentials() {
@@ -135,14 +205,12 @@ namespace PPK.Client
             return SignMessage(messageBytes, x509SigningCredentials);
         }
 
-        public static bool ValidateMessage(string message, string signature, SecurityKey securityKey) {
+        private static bool ValidateMessage(string message, string signature, SecurityKey securityKey) {
             var cryptoProviderFactory = securityKey.CryptoProviderFactory;
             var signatureProvider = cryptoProviderFactory.CreateForVerifying(securityKey, "http://www.w3.org/2001/04/xmldsig-more#rsa-sha256");
             var canVerifyMessage = signatureProvider.Verify(Encoding.UTF8.GetBytes(message), Convert.FromBase64String(signature));
             cryptoProviderFactory.ReleaseSignatureProvider(signatureProvider);
             return canVerifyMessage;
         }
-
-        private static IHostBuilder CreateHostBuilder(string[] args) => Host.CreateDefaultBuilder(args);
     }
 }

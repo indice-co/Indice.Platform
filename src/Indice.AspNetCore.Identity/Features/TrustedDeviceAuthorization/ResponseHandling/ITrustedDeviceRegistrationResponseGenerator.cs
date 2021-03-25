@@ -4,6 +4,6 @@ namespace Indice.AspNetCore.Identity.Features
 {
     internal interface ITrustedDeviceRegistrationResponseGenerator
     {
-        Task<TrustedDeviceRegistrationResponse> ProcessAsync(TrustedDeviceRegistrationRequestValidationResult validationResult);
+        Task<TrustedDeviceRegistrationResponse> Generate(TrustedDeviceRegistrationRequestValidationResult validationResult);
     }
 }

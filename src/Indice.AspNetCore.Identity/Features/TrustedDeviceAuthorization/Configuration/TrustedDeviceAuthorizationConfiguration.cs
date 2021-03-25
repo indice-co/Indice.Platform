@@ -15,9 +15,10 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <param name="builder"></param>
         public static IIdentityServerBuilder AddTrustedDeviceAuthorization(this IIdentityServerBuilder builder) {
             builder.AddEndpoint<TrustedDeviceRegistrationEndpoint>("TrustedDeviceAuthorization", "/my/devices");
+            builder.Services.AddTransient<ITrustedDeviceAuthorizationCodeChallengeStore, DefaultTrustedDeviceAuthorizationCodeChallengeStore>();
             builder.Services.AddTransient<BearerTokenUsageValidator>();
-            builder.Services.TryAddTransient<ITrustedDeviceRegistrationRequestValidator, TrustedDeviceRegistrationRequestValidator>();
-            builder.Services.TryAddTransient<ITrustedDeviceRegistrationResponseGenerator, TrustedDeviceRegistrationResponseGenerator>();
+            builder.Services.AddTransient<ITrustedDeviceRegistrationRequestValidator, TrustedDeviceRegistrationRequestValidator>();
+            builder.Services.AddTransient<ITrustedDeviceRegistrationResponseGenerator, TrustedDeviceRegistrationResponseGenerator>();
             return builder;
         }
     }
