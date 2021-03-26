@@ -19,5 +19,14 @@ namespace Indice.AspNetCore.MultiTenancy
         /// <param name="identifier">Can be anything from a (sub)domain,name or an alias of some sort</param>
         /// <returns></returns>
         Task<T> GetTenantAsync(string identifier);
+
+        /// <summary>
+        /// Checks access on behalf of a user against the store and the tenant.
+        /// </summary>
+        /// <param name="tenantId">tenant id</param>
+        /// <param name="userId">User id</param>
+        /// <param name="level">The minimum access level requirement</param>
+        /// <returns></returns>
+        Task<bool> CheckAccessAsync(string tenantId, string userId, int? level);
     }
 }
