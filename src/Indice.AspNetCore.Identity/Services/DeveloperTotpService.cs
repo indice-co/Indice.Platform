@@ -40,7 +40,7 @@ namespace Indice.AspNetCore.Identity
         public ExtendedIdentityDbContext<User, Role> DbContext { get; set; }
 
         /// <inheritdoc />
-        public Task<Dictionary<string, TotpProviderMetadata>> GetProviders(ClaimsPrincipal user) => TotpService.GetProviders(user);
+        public Task<Dictionary<string, TotpProviderMetadata>> GetProviders(ClaimsPrincipal principal) => TotpService.GetProviders(principal);
 
         /// <inheritdoc />
         public async Task<TotpResult> Send(ClaimsPrincipal principal, string message, TotpDeliveryChannel channel = TotpDeliveryChannel.Sms, string purpose = null, string securityToken = null, string phoneNumberOrEmail = null) {

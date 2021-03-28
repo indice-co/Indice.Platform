@@ -76,7 +76,7 @@ namespace CodeFlowInlineFrame.Controllers
                 ClientId = _clientSettings.Id,
                 Code = authorizationResponse.Code,
                 RedirectUri = $"{_generalSettings.Host}/account/auth-callback",
-                CodeVerifier = codeVerifier.ToString()
+                CodeVerifier = codeVerifier?.ToString()
             });
             if (tokenResponse.IsError) {
                 throw new Exception("There was an error retrieving the access token.", tokenResponse.Exception);

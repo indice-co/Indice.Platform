@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 using IdentityModel;
@@ -22,7 +23,7 @@ namespace IdentityServer4.Validation
         /// </summary>
         /// <param name="logger">The logger.</param>
         public BearerTokenUsageValidator(ILogger<BearerTokenUsageValidator> logger) {
-            _logger = logger;
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
         /// <summary>
@@ -32,17 +33,17 @@ namespace IdentityServer4.Validation
         public async Task<BearerTokenUsageValidationResult> Validate(HttpContext context) {
             var result = ValidateAuthorizationHeader(context);
             if (result.TokenFound) {
-                _logger.LogDebug("Bearer token found in header.");
+                _logger.LogDebug("Bearer token found in header");
                 return result;
             }
             if (context.Request.HasApplicationFormContentType()) {
                 result = await ValidatePostBody(context);
                 if (result.TokenFound) {
-                    _logger.LogDebug("Bearer token found in body.");
+                    _logger.LogDebug("Bearer token found in body");
                     return result;
                 }
             }
-            _logger.LogDebug("Bearer token was not found.");
+            _logger.LogDebug("Bearer token was not found");
             return new BearerTokenUsageValidationResult();
         }
 
@@ -50,22 +51,23 @@ namespace IdentityServer4.Validation
         /// Validates the authorization header.
         /// </summary>
         /// <param name="context">The current HTTP context.</param>
-        public BearerTokenUsageValidationResult ValidateAuthorizationHeader(HttpContext context) {
+        private BearerTokenUsageValidationResult ValidateAuthorizationHeader(HttpContext context) {
             var authorizationHeader = context.Request.Headers["Authorization"].FirstOrDefault();
-            if (!string.IsNullOrWhiteSpace(authorizationHeader)) {
-                var header = authorizationHeader.Trim();
-                if (header.StartsWith(OidcConstants.AuthenticationSchemes.AuthorizationHeaderBearer)) {
-                    var value = header[OidcConstants.AuthenticationSchemes.AuthorizationHeaderBearer.Length..].Trim();
-                    if (!string.IsNullOrWhiteSpace(value)) {
-                        return new BearerTokenUsageValidationResult {
-                            TokenFound = true,
-                            Token = value,
-                            UsageType = BearerTokenUsageType.AuthorizationHeader
-                        };
-                    }
-                } else {
-                    _logger.LogTrace("Unexpected header format: {header}", header);
+            if (string.IsNullOrWhiteSpace(authorizationHeader)) {
+                return new BearerTokenUsageValidationResult();
+            }
+            var header = authorizationHeader.Trim();
+            if (header.StartsWith(OidcConstants.AuthenticationSchemes.AuthorizationHeaderBearer)) {
+                var value = header[OidcConstants.AuthenticationSchemes.AuthorizationHeaderBearer.Length..].Trim();
+                if (!string.IsNullOrWhiteSpace(value)) {
+                    return new BearerTokenUsageValidationResult {
+                        TokenFound = true,
+                        Token = value,
+                        UsageType = BearerTokenUsageType.AuthorizationHeader
+                    };
                 }
+            } else {
+                _logger.LogTrace("Unexpected header format: {Header}", header);
             }
             return new BearerTokenUsageValidationResult();
         }
@@ -74,7 +76,7 @@ namespace IdentityServer4.Validation
         /// Validates the post body.
         /// </summary>
         /// <param name="context">The current HTTP context.</param>
-        public static async Task<BearerTokenUsageValidationResult> ValidatePostBody(HttpContext context) {
+        private static async Task<BearerTokenUsageValidationResult> ValidatePostBody(HttpContext context) {
             var token = (await context.Request.ReadFormAsync())["access_token"].FirstOrDefault();
             if (!string.IsNullOrWhiteSpace(token)) {
                 return new BearerTokenUsageValidationResult {

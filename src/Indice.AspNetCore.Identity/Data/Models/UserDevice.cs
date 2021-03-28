@@ -18,21 +18,21 @@ namespace Indice.AspNetCore.Identity.Models
         /// <summary>
         /// The primary key.
         /// </summary>
-        public Guid Id { get; set; }
+        public Guid Id { get; }
         /// <summary>
         /// The user id related.
         /// </summary>
         public string UserId { get; set; }
         /// <summary>
-        /// Device id
+        /// Device id.
         /// </summary>
         public Guid DeviceId { get; set; }
         /// <summary>
-        /// Device operating system
+        /// Device operating system.
         /// </summary>
         public DevicePlatform DevicePlatform { get; set; }
         /// <summary>
-        /// Device name
+        /// Device name.
         /// </summary>
         public string DeviceName { get; set; }
         /// <summary>
@@ -40,7 +40,7 @@ namespace Indice.AspNetCore.Identity.Models
         /// </summary>
         public DateTimeOffset DateCreated { get; set; }
         /// <summary>
-        /// Flag that determines if push notifications are enabled for this device
+        /// Flag that determines if push notifications are enabled for this device.
         /// </summary>
         public bool IsPushNotificationsEnabled { get; set; }
     }

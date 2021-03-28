@@ -43,7 +43,7 @@ namespace Microsoft.Extensions.DependencyInjection
             services.TryAddTransient<ITotpService, TotpService>();
             services.TryAddSingleton(new Rfc6238AuthenticationService(totpOptions.Timestep, totpOptions.CodeLength));
             if (totpOptions.EnableDeveloperTotp && !hostingEnvironment.IsProduction()) {
-                var implementation = services.Where(x => x.ServiceType == typeof(ITotpService)).LastOrDefault()?.ImplementationType;
+                var implementation = services.LastOrDefault(x => x.ServiceType == typeof(ITotpService))?.ImplementationType;
                 if (implementation != null) {
                     var decoratorType = typeof(DeveloperTotpService);
                     services.TryAddTransient(implementation);
@@ -61,8 +61,8 @@ namespace Microsoft.Extensions.DependencyInjection
         internal static IServiceCollection AddPushNotificationServiceAzure(this IServiceCollection services, Action<PushNotificationOptions> configure = null) {
             services.AddTransient<IPushNotificationService, PushNotificationServiceAzure>(serviceProvider => {
                 var options = new PushNotificationOptions {
-                    ConnectionString = serviceProvider.GetRequiredService<IConfiguration>().GetConnectionString(PushNotificationServiceAzure.CONNECTION_STRING_NAME),
-                    NotificationHubPath = serviceProvider.GetRequiredService<IConfiguration>().GetValue<string>(PushNotificationServiceAzure.NOTIFICATIONS_HUB_PATH)
+                    ConnectionString = serviceProvider.GetRequiredService<IConfiguration>().GetConnectionString(PushNotificationServiceAzure.ConnectionStringName),
+                    NotificationHubPath = serviceProvider.GetRequiredService<IConfiguration>().GetValue<string>(PushNotificationServiceAzure.NotificationsHubPath)
                 };
                 configure?.Invoke(options);
                 return new PushNotificationServiceAzure(options);

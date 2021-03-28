@@ -1,5 +1,5 @@
 ﻿using System;
-using Indice.AspNetCore.Identity.Data;
+using Indice.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace Indice.AspNetCore.Identity.Features

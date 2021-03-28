@@ -14,14 +14,22 @@ namespace Indice.AspNetCore.Identity.Features
         }
 
         public async Task<TrustedDeviceRegistrationResponse> Generate(TrustedDeviceRegistrationRequestValidationResult validationResult) {
-            var id = await _codeChallengeStore.Store(new TrustedDeviceAuthorizationCode { 
+            if (validationResult.InteractionMode == InteractionMode.Fingerprint) {
+                return await GenerateFingerprintResponse(validationResult);
+            }
+            return null;
+        }
+
+        private async Task<TrustedDeviceRegistrationResponse> GenerateFingerprintResponse(TrustedDeviceRegistrationRequestValidationResult validationResult) {
+            var authorizationCode = new TrustedDeviceAuthorizationCode {
                 ClientId = validationResult.Client.ClientId,
                 CreationTime = DateTime.UtcNow.Date,
                 Subject = validationResult.Principal,
                 Lifetime = validationResult.Client.AuthorizationCodeLifetime,
                 RequestedScopes = validationResult.RequestedScopes
-            });
-            return new TrustedDeviceRegistrationResponse { 
+            };
+            var id = await _codeChallengeStore.Create(authorizationCode);
+            return new TrustedDeviceRegistrationResponse {
                 Challenge = id
             };
         }

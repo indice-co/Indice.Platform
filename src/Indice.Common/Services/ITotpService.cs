@@ -18,7 +18,7 @@ namespace Indice.Services
         /// <param name="principal">The <see cref="ClaimsPrincipal"/>.</param>
         /// <param name="message">The message to be sent in the SMS. It's important for the message to contain the {0} placeholder in the position where the OTP should be placed.</param>
         /// <param name="channel">Delivery channel.</param>
-        /// <param name="purpose">Optionaly pass the reason to generate the TOTP.</param>
+        /// <param name="purpose">Optionally pass the reason to generate the TOTP.</param>
         /// <param name="securityToken">The generated security token to use, if no <paramref name="principal"/> is provided.</param>
         /// <param name="phoneNumberOrEmail">The phone number to use, if no <paramref name="principal"/> is provided.</param>
         /// <exception cref="TotpServiceException">Used to pass errors between service and the caller.</exception>
@@ -28,8 +28,8 @@ namespace Indice.Services
         /// </summary>
         /// <param name="principal">The <see cref="ClaimsPrincipal"/>.</param>
         /// <param name="code">The TOTP code.</param>
-        /// <param name="provider">Optionaly pass the provider to use to verify. Defaults to DefaultPhoneProvider.</param>
-        /// <param name="purpose">Optionaly pass the reason used to generate the TOTP.</param>
+        /// <param name="provider">Optionally pass the provider to use to verify. Defaults to DefaultPhoneProvider.</param>
+        /// <param name="purpose">Optionally pass the reason used to generate the TOTP.</param>
         /// <param name="securityToken">The generated security token to use, if no <paramref name="principal"/> is provided.</param>
         /// <param name="phoneNumberOrEmail">The phone number to use, if no <paramref name="principal"/> is provided.</param>
         /// <exception cref="TotpServiceException">Used to pass errors between service and the caller.</exception>
@@ -37,9 +37,9 @@ namespace Indice.Services
         /// <summary>
         /// Gets list of available providers for the given claims principal.
         /// </summary>
-        /// <param name="user">The user.</param>
+        /// <param name="principal">The user.</param>
         /// <exception cref="TotpServiceException">used to pass errors between service and the caller.</exception>
-        Task<Dictionary<string, TotpProviderMetadata>> GetProviders(ClaimsPrincipal user);
+        Task<Dictionary<string, TotpProviderMetadata>> GetProviders(ClaimsPrincipal principal);
     }
 
     /// <summary>
@@ -81,8 +81,8 @@ namespace Indice.Services
         /// <param name="service">The service to use.</param>
         /// <param name="userId">The user id.</param>
         /// <param name="code">The TOTP code.</param>
-        /// <param name="provider">Optionaly pass the provider to use to verify. Defaults to DefaultPhoneProvider</param>
-        /// <param name="reason">Optionaly pass the reason used to generate the TOTP.</param>
+        /// <param name="provider">Optionally pass the provider to use to verify. Defaults to DefaultPhoneProvider</param>
+        /// <param name="reason">Optionally pass the reason used to generate the TOTP.</param>
         public static Task<TotpResult> Verify(this ITotpService service, string userId, string code, TotpProviderType? provider = null, string reason = null) =>
             service.Verify(new ClaimsPrincipal(new ClaimsIdentity(new[] { new Claim(BasicClaimTypes.Subject, userId) })), code, provider, reason);
 
@@ -132,9 +132,6 @@ namespace Indice.Services
         /// <param name="claimsPrincipal">The claims principal.</param>
         /// <returns>The <see cref="ITotpContactBuilder"/>.</returns>
         public ITotpMessageContentBuilder UsePrincipal(ClaimsPrincipal claimsPrincipal) {
-            if (claimsPrincipal == null) {
-                throw new ArgumentNullException($"Parameter {nameof(claimsPrincipal)} cannot be null.");
-            }
             ClaimsPrincipal = claimsPrincipal ?? throw new ArgumentNullException($"Parameter {nameof(claimsPrincipal)} cannot be null.");
             var totpMessageContentBuilder = new TotpMessageContentBuilder(this);
             return totpMessageContentBuilder;
@@ -147,7 +144,7 @@ namespace Indice.Services
         /// <returns>The <see cref="ITotpContactBuilder"/>.</returns>
         public ITotpMessageContentBuilder UseSecurityToken(string securityToken) {
             if (string.IsNullOrEmpty(securityToken)) {
-                throw new ArgumentNullException($"Parameter {nameof(securityToken)} cannot be null or empty.");
+                throw new ArgumentNullException(nameof(securityToken), $"Parameter {nameof(securityToken)} cannot be null or empty.");
             }
             SecurityToken = securityToken;
             var totpMessageContentBuilder = new TotpMessageContentBuilder(this);
@@ -157,7 +154,7 @@ namespace Indice.Services
         /// <summary>
         /// Builds the <see cref="TotpMessage"/>.
         /// </summary>
-        public TotpMessage Build() => new TotpMessage {
+        public TotpMessage Build() => new() {
             ClaimsPrincipal = ClaimsPrincipal,
             Message = Message,
             SecurityToken = SecurityToken,
@@ -196,7 +193,7 @@ namespace Indice.Services
         /// <inheritdoc/>
         public ITotpContactBuilder WithMessage(string message) {
             if (string.IsNullOrEmpty(message)) {
-                throw new ArgumentNullException($"Parameter {nameof(message)} cannot be null or empty.");
+                throw new ArgumentNullException(nameof(message), $"Parameter {nameof(message)} cannot be null or empty.");
             }
             _totpMessageBuilder.Message = message;
             var totpContactBuilder = new TotpContactBuilder(_totpMessageBuilder);
@@ -221,9 +218,14 @@ namespace Indice.Services
         /// <param name="phoneNumber">Phone number.</param>
         /// <returns></returns>
         ITotpPhoneProviderBuilder ToPhoneNumber(string phoneNumber);
+        /// <summary>
+        /// Sets the <see cref="TotpMessageBuilder.Purpose"/> property.
+        /// </summary>
+        /// <param name="purpose">The purpose.</param>
+        void WithPurpose(string purpose);
     }
 
-    /// <inheritdoc/>
+    /// <inheritdoc cref="ITotpContactBuilder" />
     public class TotpContactBuilder : TotpPhoneProviderBuilder, ITotpContactBuilder
     {
         private readonly TotpMessageBuilder _totpMessageBuilder;
@@ -239,7 +241,7 @@ namespace Indice.Services
         /// <inheritdoc/>
         public ITotpPurposeBuilder ToEmail(string email) {
             if (string.IsNullOrEmpty(email)) {
-                throw new ArgumentNullException($"Parameter {nameof(email)} cannot be null or empty.");
+                throw new ArgumentNullException(nameof(email), $"Parameter {nameof(email)} cannot be null or empty.");
             }
             _totpMessageBuilder.PhoneNumberOrEmail = email;
             var totpPurposeBuilder = new TotpPurposeBuilder(_totpMessageBuilder);
@@ -249,11 +251,19 @@ namespace Indice.Services
         /// <inheritdoc/>
         public ITotpPhoneProviderBuilder ToPhoneNumber(string phoneNumber) {
             if (string.IsNullOrEmpty(phoneNumber)) {
-                throw new ArgumentNullException($"Parameter {nameof(phoneNumber)} cannot be null or empty.");
+                throw new ArgumentNullException(nameof(phoneNumber), $"Parameter {nameof(phoneNumber)} cannot be null or empty.");
             }
             _totpMessageBuilder.PhoneNumberOrEmail = phoneNumber;
             var totpPhoneProviderBuilder = new TotpPhoneProviderBuilder(_totpMessageBuilder);
             return totpPhoneProviderBuilder;
+        }
+
+        /// <inheritdoc/>
+        public void WithPurpose(string purpose) {
+            if (string.IsNullOrEmpty(purpose)) {
+                throw new ArgumentNullException(nameof(purpose), $"Parameter {nameof(purpose)} cannot be null or empty.");
+            }
+            _totpMessageBuilder.Purpose = purpose;
         }
     }
 
@@ -285,7 +295,7 @@ namespace Indice.Services
         /// <inheritdoc/>
         public void WithPurpose(string purpose) {
             if (string.IsNullOrEmpty(purpose)) {
-                throw new ArgumentNullException($"Parameter {nameof(purpose)} cannot be null or empty.");
+                throw new ArgumentNullException(nameof(purpose), $"Parameter {nameof(purpose)} cannot be null or empty.");
             }
             _totpMessageBuilder.Purpose = purpose;
         }
@@ -372,32 +382,28 @@ namespace Indice.Services
         /// Constructs an error result.
         /// </summary>
         /// <param name="error">The error.</param>
-        /// <param name="moreErrors">Additional errors.</param>
-        public static TotpResult ErrorResult(string error, params string[] moreErrors) {
-            var result = new TotpResult();
-            result.Errors.Add(error);
-            if (moreErrors?.Length > 0) {
-                result.Errors.AddRange(moreErrors);
-            }
-            return result;
+        public static TotpResult ErrorResult(string error) {
+            return new TotpResult { 
+                Error = error 
+            };
         }
 
         /// <summary>
         /// Constructs a success result.
         /// </summary>
-        public static TotpResult SuccessResult => new TotpResult { Success = true };
+        public static TotpResult SuccessResult => new() { Success = true };
         /// <summary>
         /// Indicates success.
         /// </summary>
         public bool Success { get; set; }
         /// <summary>
-        /// List of errors.
+        /// The error occured.
         /// </summary>
-        public List<string> Errors { get; set; } = new List<string>();
+        public string Error { get; set; }
     }
 
     /// <summary>
-    /// Spesific exception used to pass errors between <see cref="ITotpService"/> and the caller.
+    /// Specific exception used to pass errors between <see cref="ITotpService"/> and the caller.
     /// </summary>
     [Serializable]
     public class TotpServiceException : Exception

@@ -106,7 +106,7 @@ namespace Indice.AspNetCore.Identity.Features
             }
             var device = await _dbContext.UserDevices.SingleOrDefaultAsync(x => x.UserId == user.Id && x.DeviceId == request.DeviceId);
             await _pushNotificationService.Register(request.DeviceId.ToString(), request.PnsHandle, request.DevicePlatform, user.Id, request.Tags?.ToArray());
-            var deviceId = default(Guid);
+            Guid deviceId;
             if (device != null) {
                 device.IsPushNotificationsEnabled = true;
                 device.DeviceName = request.DeviceName;

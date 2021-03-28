@@ -37,11 +37,11 @@ namespace Indice.AspNetCore.Identity.EntityFrameworkCore
         /// </summary>
         public DbSet<UserPassword> UserPasswordHistory { get; set; }
         /// <summary>
-        /// Stores user devices in database
+        /// Stores user devices in database.
         /// </summary>
         public DbSet<UserDevice> UserDevices { get; set; }
         /// <summary>
-        /// Stores system settings in the database.
+        /// Stores application settings in the database.
         /// </summary>
         internal DbSet<AppSetting> AppSettings { get; set; }
 

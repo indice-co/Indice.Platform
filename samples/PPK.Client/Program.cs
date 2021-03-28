@@ -13,13 +13,15 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace PPK.Client
 {
-    public class Program
+    public static class Program
     {
-        private static readonly HttpClient _httpClient = new() { BaseAddress = new Uri(AUTHORITY) };
+        private static readonly HttpClient HttpClient = new() {
+            BaseAddress = new Uri(Authority)
+        };
         private static string _accessToken;
         #region Constants
-        private const string AUTHORITY = "https://localhost:2000";
-        private const string PRIVATE_KEY =
+        private const string Authority = "https://localhost:2000";
+        private const string PrivateKey =
             @"-----BEGIN PRIVATE KEY-----
               MIIJQgIBADANBgkqhkiG9w0BAQEFAASCCSwwggkoAgEAAoICAQC+7EiyKVTsn0f2
               1eKi4i+HrQHc3HyO8DMsH3qp5OvOBpt2fw5eN3zXgEN8sO2/LOOZZXfp7q+U1zpP
@@ -72,7 +74,7 @@ namespace PPK.Client
               /6qaj9293DECAx8VZz49Uio92gG/AVB8yIia6c6o6Z/evFnr8g7FDfW6UHObnF7u
               vA6PRDilnESC/XzvUJA+jT4BR04VfA==
               -----END PRIVATE KEY-----";
-        private const string PUBLIC_KEY =
+        private const string PublicKey =
             @"-----BEGIN CERTIFICATE-----
               MIIGLzCCBBegAwIBAgIUSLkvBFFZ1VKfSe6pbwji4daEIEIwDQYJKoZIhvcNAQEL
               BQAwgaYxCzAJBgNVBAYTAkdSMQ8wDQYDVQQIDAZBdHRpY2ExDzANBgNVBAcMBkF0
@@ -116,7 +118,7 @@ namespace PPK.Client
             var x509SigningCredentials = GetSigningCredentials();
             var message = "This is a sample for .NET 5 private/public cryptography";
             var signature = SignMessage(message, x509SigningCredentials);
-            var certificate = new X509Certificate2(Convert.FromBase64String(PUBLIC_KEY.Replace("-----BEGIN CERTIFICATE-----", string.Empty).Replace("-----END CERTIFICATE-----", string.Empty)));
+            var certificate = new X509Certificate2(Convert.FromBase64String(PublicKey.Replace("-----BEGIN CERTIFICATE-----", string.Empty).Replace("-----END CERTIFICATE-----", string.Empty)));
             var securityKey = new X509SecurityKey(certificate);
             var isValidMessage = ValidateMessage(message, signature, securityKey);
             Console.ReadKey();
@@ -128,8 +130,6 @@ namespace PPK.Client
                 case 0:
                     StartLoginWithCredentialsFlow();
                     break;
-                default:
-                    break;
             }
         }
 
@@ -139,7 +139,7 @@ namespace PPK.Client
             Console.WriteLine("Please enter your password:");
             var password = Console.ReadLine();
             // Get discovery document.
-            var discoveryDocument = _httpClient
+            var discoveryDocument = HttpClient
                 .GetDiscoveryDocumentAsync()
                 .ConfigureAwait(false)
                 .GetAwaiter()
@@ -149,7 +149,7 @@ namespace PPK.Client
                 return;
             }
             // Perform a request to the token endpoint using the 'password' grant.
-            var tokenResponse = _httpClient.RequestPasswordTokenAsync(new PasswordTokenRequest {
+            var tokenResponse = HttpClient.RequestPasswordTokenAsync(new PasswordTokenRequest {
                 Address = discoveryDocument.TokenEndpoint,
                 ClientId = "ppk-client",
                 ClientSecret = "JUEKX2XugFv5XrX3",
@@ -190,14 +190,14 @@ namespace PPK.Client
         }
 
         private static X509SigningCredentials GetSigningCredentials() {
-            var certificate = X509Certificate2.CreateFromPem(PUBLIC_KEY, PRIVATE_KEY);
+            var certificate = X509Certificate2.CreateFromPem(PublicKey, PrivateKey);
             var signingCredentials = new X509SigningCredentials(certificate, SecurityAlgorithms.RsaSha256Signature);
             return signingCredentials;
         }
 
         private static string SignMessage(byte[] message, X509SigningCredentials x509SigningCredentials) {
             using var key = x509SigningCredentials.Certificate.GetRSAPrivateKey();
-            return Convert.ToBase64String(key.SignData(message, HashAlgorithmName.SHA256, RSASignaturePadding.Pkcs1));
+            return Convert.ToBase64String(key?.SignData(message, HashAlgorithmName.SHA256, RSASignaturePadding.Pkcs1) ?? Array.Empty<byte>());
         }
 
         private static string SignMessage(string message, X509SigningCredentials x509SigningCredentials) {
