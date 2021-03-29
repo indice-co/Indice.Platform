@@ -20,8 +20,17 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <param name="policyName"></param>
         /// <param name="accessLevel"></param>
         public static void AddTenantMemberPolicy(this AuthorizationOptions options, string policyName, int accessLevel = 0) {
-            options.AddPolicy(policyName, policyBuilder => policyBuilder.RequireAuthenticatedUser().AddRequirements(new BeTenantMemberRequirement(accessLevel)));
+            options.AddPolicy(policyName, policyBuilder => policyBuilder.RequireAuthenticatedUser()
+                                                                        .RequireTenantMembership(accessLevel));
         }
+
+        /// <summary>
+        /// Add tenant member Authorization according to accessLevel.
+        /// </summary>
+        /// <param name="builder"></param>
+        /// <param name="accessLevel"></param>
+        public static AuthorizationPolicyBuilder RequireTenantMembership(this AuthorizationPolicyBuilder builder, int accessLevel = 0)
+            => builder.AddRequirements(new BeTenantMemberRequirement(accessLevel));
 
         /// <summary>
         /// Checks if the current principal is a client owned by the system.

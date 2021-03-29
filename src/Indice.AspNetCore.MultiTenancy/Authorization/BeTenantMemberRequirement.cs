@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
@@ -12,7 +13,7 @@ namespace Indice.AspNetCore.MultiTenancy.Authorization
 {
     /// <summary>
     /// This authorization requirement specifies that an endpoint must be 
-    /// available only to members. Furthermore, members must have at leat a specific <see cref="TenantAccessLevel"/> and above.
+    /// available only to members. Furthermore, members must have at leat a specific access level and above.
     /// </summary>
     public class BeTenantMemberRequirement : IAuthorizationRequirement
     {
@@ -33,13 +34,16 @@ namespace Indice.AspNetCore.MultiTenancy.Authorization
         /// The minimum access Level requirement. Zero means plain member (default)
         /// </summary>
         public int Level { get; set; }
+
+        /// <inheritdoc/>
+        public override string ToString() => $"{nameof(BeTenantMemberRequirement)}: Requires access Level '{Level}' for the current user or client.";
     }
 
     /// <summary>
     /// Authorization handler corresponding to the <see cref="BeTenantMemberRequirement"/> 
     /// </summary>
     /// <typeparam name="TTenant"></typeparam>
-    public class BeTenantMemberHandler<TTenant> : AuthorizationHandler<BeTenantMemberRequirement>, IAuthorizationRequirement where TTenant : Tenant
+    public class BeTenantMemberHandler<TTenant> : AuthorizationHandler<BeTenantMemberRequirement> where TTenant : Tenant
     {
         private readonly ITenantStore<TTenant> _tenantStore;
         private readonly ITenantAccessor<TTenant> _tenantAccessor;
@@ -62,6 +66,12 @@ namespace Indice.AspNetCore.MultiTenancy.Authorization
 
         /// <inheritdoc/>
         protected override async Task HandleRequirementAsync(AuthorizationHandlerContext context, BeTenantMemberRequirement requirement) {
+            var userIsAnonymous =
+               context.User?.Identity == null ||
+               !context.User.Identities.Any(i => i.IsAuthenticated);
+            if (userIsAnonymous) {
+                return;
+            }
             var userId = context.User.FindFirstValue(JwtClaimTypesInternal.Subject);
             if (_tenantAccessor.Tenant is null) {
                 // If you cannot determine if requirement succeeded or not, please do nothing.

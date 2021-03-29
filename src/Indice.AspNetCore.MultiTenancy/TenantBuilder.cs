@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using Indice.AspNetCore.MultiTenancy.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -26,7 +27,7 @@ namespace Indice.AspNetCore.MultiTenancy
             }
             services.AddTransient<TenantAccessService<T>>();
             services.AddTransient<ITenantAccessor<T>, TenantAccessor<T>>();
-            services.AddTransient<BeTenantMemberHandler<T>>();
+            services.AddTransient<IAuthorizationHandler, BeTenantMemberHandler <T>>();
             _services = services;
         }
 
