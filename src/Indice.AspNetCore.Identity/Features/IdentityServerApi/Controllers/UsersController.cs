@@ -119,8 +119,7 @@ namespace Indice.AspNetCore.Identity.Features
                     AccessFailedCount = user.AccessFailedCount,
                     LastSignInDate = user.LastSignInDate,
                     PasswordExpirationDate = user.PasswordExpirationDate
-                }
-            ;
+                };
             if (options?.Search?.Length > 2) {
                 var searchTerm = options.Search.ToLower();
                 var idsFromClaims = await _dbContext.UserClaims.Where(x => (x.ClaimType == JwtClaimTypes.GivenName || x.ClaimType == JwtClaimTypes.FamilyName) && EF.Functions.Like(x.ClaimValue, $"%{searchTerm}%")).Select(x => x.UserId).ToArrayAsync();
