@@ -50,8 +50,15 @@ namespace Microsoft.Extensions.DependencyInjection
             builder.Services.Configure<IdentityServerOptions>((options) => {
                 options.Discovery.CustomEntries.Add("totp", new {
                     endpoint = options.IssuerUri.TrimEnd('/') + "/totp",
-                    providers = new[] { $"{TotpProviderType.Phone}", $"{TotpProviderType.EToken}" },
-                    channels = new[] { $"{TotpDeliveryChannel.Sms}", $"{TotpDeliveryChannel.PushNotification}" }
+                    providers = new[] { 
+                        $"{TotpProviderType.Phone}", 
+                        $"{TotpProviderType.EToken}" 
+                    },
+                    channels = new[] { 
+                        $"{TotpDeliveryChannel.Sms}", 
+                        $"{TotpDeliveryChannel.Viber}", 
+                        $"{TotpDeliveryChannel.PushNotification}" 
+                    }
                 });
             });
             builder.AddExtensionGrantValidator<TotpGrantValidator>();

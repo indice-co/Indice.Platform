@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Indice.Security;
 
 namespace Indice.AspNetCore.Identity.Features
 {
@@ -17,8 +18,8 @@ namespace Indice.AspNetCore.Identity.Features
             },
             new TRole {
                 Id = $"{Guid.NewGuid()}",
-                Name = "Developer",
-                NormalizedName = "DEVELOPER",
+                Name = BasicRoleNames.Developer,
+                NormalizedName = BasicRoleNames.Developer.ToUpper(),
                 Description = "A user that has the role of a software developer."
             }
         };
