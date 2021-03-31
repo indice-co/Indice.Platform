@@ -66,8 +66,17 @@ namespace Indice.AspNetCore.Identity.Features
         /// <param name="eventService">Models the event mechanism used to raise events inside the IdentityServer API.</param>
         /// <param name="generalSettings">General settings for an ASP.NET Core application.</param>
         /// <param name="localizer">Represents an <see cref="IStringLocalizer"/> that provides strings for <see cref="UsersController"/>.</param>
-        public UsersController(ExtendedUserManager<User> userManager, RoleManager<Role> roleManager, ExtendedIdentityDbContext<User, Role> dbContext, IPersistedGrantService persistedGrantService,
-            IClientStore clientStore, IdentityServerApiEndpointsOptions apiEndpointsOptions, IEventService eventService, IOptions<GeneralSettings> generalSettings, IStringLocalizer<UsersController> localizer) {
+        public UsersController(
+            ExtendedUserManager<User> userManager, 
+            RoleManager<Role> roleManager, 
+            ExtendedIdentityDbContext<User, Role> dbContext, 
+            IPersistedGrantService persistedGrantService,
+            IClientStore clientStore, 
+            IdentityServerApiEndpointsOptions apiEndpointsOptions, 
+            IEventService eventService, 
+            IOptions<GeneralSettings> generalSettings, 
+            IStringLocalizer<UsersController> localizer
+        ) {
             _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
             _roleManager = roleManager ?? throw new ArgumentNullException(nameof(roleManager));
             _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
@@ -542,6 +551,8 @@ namespace Indice.AspNetCore.Identity.Features
             if (!result.Succeeded) {
                 return BadRequest(result.Errors.AsValidationProblemDetails());
             }
+            // When blocking a user we need to make sure we also revoke all of his tokens.
+            await _persistedGrantService.RemoveAllGrantsAsync(userId);
             return NoContent();
         }
 
