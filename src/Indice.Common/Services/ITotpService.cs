@@ -37,7 +37,7 @@ namespace Indice.Services
         /// <summary>
         /// Gets list of available providers for the given claims principal.
         /// </summary>
-        /// <param name="principal">The user.</param>
+        /// <param name="principal">The <see cref="ClaimsPrincipal"/>.</param>
         /// <exception cref="TotpServiceException">used to pass errors between service and the caller.</exception>
         Task<Dictionary<string, TotpProviderMetadata>> GetProviders(ClaimsPrincipal principal);
     }
@@ -321,7 +321,6 @@ namespace Indice.Services
         /// </summary>
         /// <returns></returns>
         ITotpPurposeBuilder UsingTelephone();
-
         /// <summary>
         /// Sets the <see cref="TotpMessageBuilder.DeliveryChannel"/> property.
         /// </summary>
@@ -484,7 +483,11 @@ namespace Indice.Services
         /// <summary>
         /// Push notification
         /// </summary>
-        PushNotification = 6
+        PushNotification = 6,
+        /// <summary>
+        /// None
+        /// </summary>
+        None
     }
 
     /// <summary>
@@ -499,7 +502,11 @@ namespace Indice.Services
         /// <summary>
         /// E-token.
         /// </summary>
-        EToken = 3
+        EToken = 3,
+        /// <summary>
+        /// Standard OTP.
+        /// </summary>
+        StandardOtp = 4
     }
 
     /// <summary>

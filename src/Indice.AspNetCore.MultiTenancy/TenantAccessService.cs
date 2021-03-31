@@ -9,7 +9,8 @@ namespace Indice.AspNetCore.MultiTenancy
     /// Tenant access service
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public class TenantAccessService<T> where T : Tenant
+    public class TenantAccessService
+        <T> where T : Tenant
     {
         private readonly IEnumerable<ITenantResolutionStrategy> _tenantResolutionStrategies;
         private readonly ITenantStore<T> _tenantStore;

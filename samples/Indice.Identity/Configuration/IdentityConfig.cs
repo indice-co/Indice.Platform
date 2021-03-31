@@ -33,8 +33,8 @@ namespace Microsoft.Extensions.DependencyInjection
                            .AddUserStore<ExtendedUserStore<ExtendedIdentityDbContext<User, Role>, User, Role>>()
                            .AddExtendedSignInManager()
                            .AddDefaultPasswordValidators()
-                           .AddExtendedPhoneNumberTokenProvider()
-                           .AddDefaultTokenProviders();
+                           .AddDefaultTokenProviders()
+                           .AddExtendedPhoneNumberTokenProvider();
         }
     }
 }

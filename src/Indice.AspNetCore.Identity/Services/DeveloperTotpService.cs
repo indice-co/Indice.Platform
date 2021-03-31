@@ -8,6 +8,7 @@ using Indice.AspNetCore.Identity.Features;
 using Indice.AspNetCore.Identity.Models;
 using Indice.Security;
 using Indice.Services;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 namespace Indice.AspNetCore.Identity
@@ -17,53 +18,66 @@ namespace Indice.AspNetCore.Identity
     /// </summary>
     public class DeveloperTotpService : ITotpService
     {
+        private readonly TotpService _totpService;
+        private readonly ExtendedIdentityDbContext<User, Role> _dbContext;
+        private readonly UserManager<User> _userManager;
+
         /// <summary>
         /// Constructs a new <see cref="DeveloperTotpService"/>.
         /// </summary>
         /// <param name="totpService">Used to generate, send and verify time based one time passwords.</param>
         /// <param name="identityDbContext"><see cref="Microsoft.EntityFrameworkCore.DbContext"/> for the Identity Framework.</param>
+        /// <param name="userManager">Provides the APIs for managing user in a persistence store.</param>
         public DeveloperTotpService(
             TotpService totpService,
-            ExtendedIdentityDbContext<User, Role> identityDbContext
+            ExtendedIdentityDbContext<User, Role> identityDbContext,
+            UserManager<User> userManager
         ) {
-            TotpService = totpService ?? throw new ArgumentNullException(nameof(totpService));
-            DbContext = identityDbContext ?? throw new ArgumentNullException(nameof(identityDbContext));
+            _totpService = totpService ?? throw new ArgumentNullException(nameof(totpService));
+            _dbContext = identityDbContext ?? throw new ArgumentNullException(nameof(identityDbContext));
+            _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
         }
 
-        /// <summary>
-        /// Used to generate, send and verify time based one time passwords.
-        /// </summary>
-        public TotpService TotpService { get; }
-        /// <summary>
-        /// <see cref="Microsoft.EntityFrameworkCore.DbContext"/> for the Identity Framework.
-        /// </summary>
-        public ExtendedIdentityDbContext<User, Role> DbContext { get; set; }
-
         /// <inheritdoc />
-        public Task<Dictionary<string, TotpProviderMetadata>> GetProviders(ClaimsPrincipal principal) => TotpService.GetProviders(principal);
+        public async Task<Dictionary<string, TotpProviderMetadata>> GetProviders(ClaimsPrincipal principal) {
+            var user = await _userManager.GetUserAsync(principal);
+            var isDeveloper = await _userManager.IsInRoleAsync(user, BasicRoleNames.Developer);
+            if (!isDeveloper) {
+                return await _totpService.GetProviders(principal);
+            }
+            var metadata = new TotpProviderMetadata {
+                Type = TotpProviderType.StandardOtp,
+                Channel = TotpDeliveryChannel.None,
+                DisplayName = "Standard OTP",
+                CanGenerate = false
+            };
+            return new Dictionary<string, TotpProviderMetadata> { 
+                { metadata.Name, metadata } 
+            };
+        }
 
         /// <inheritdoc />
         public async Task<TotpResult> Send(ClaimsPrincipal principal, string message, TotpDeliveryChannel channel = TotpDeliveryChannel.Sms, string purpose = null, string securityToken = null, string phoneNumberOrEmail = null) {
             var userId = principal.GetSubjectId();
             if (!string.IsNullOrEmpty(userId)) {
-                var hasDeveloperTotp = await DbContext.UserClaims.Where(x => x.UserId == userId && x.ClaimType == BasicClaimTypes.DeveloperTotp).AnyAsync();
+                var hasDeveloperTotp = await _dbContext.UserClaims.Where(x => x.UserId == userId && x.ClaimType == BasicClaimTypes.DeveloperTotp).AnyAsync();
                 if (hasDeveloperTotp) {
                     return TotpResult.SuccessResult;
                 }
             }
-            return await TotpService.Send(principal, message, channel, purpose, securityToken, phoneNumberOrEmail);
+            return await _totpService.Send(principal, message, channel, purpose, securityToken, phoneNumberOrEmail);
         }
 
         /// <inheritdoc />
         public async Task<TotpResult> Verify(ClaimsPrincipal principal, string code, TotpProviderType? provider = null, string purpose = null, string securityToken = null, string phoneNumberOrEmail = null) {
             var userId = principal.GetSubjectId();
             if (!string.IsNullOrEmpty(userId)) {
-                var developerTotpClaim = await DbContext.UserClaims.SingleOrDefaultAsync(x => x.UserId == userId && x.ClaimType == BasicClaimTypes.DeveloperTotp);
+                var developerTotpClaim = await _dbContext.UserClaims.SingleOrDefaultAsync(x => x.UserId == userId && x.ClaimType == BasicClaimTypes.DeveloperTotp);
                 if (developerTotpClaim?.ClaimValue == code) {
                     return TotpResult.SuccessResult;
                 }
             }
-            return await TotpService.Verify(principal, code, provider, purpose, securityToken, phoneNumberOrEmail);
+            return await _totpService.Verify(principal, code, provider, purpose, securityToken, phoneNumberOrEmail);
         }
     }
 }

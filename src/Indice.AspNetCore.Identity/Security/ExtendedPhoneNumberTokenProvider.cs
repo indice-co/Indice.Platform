@@ -17,6 +17,7 @@ namespace Indice.AspNetCore.Identity
         /// <summary>
         /// Creates a new instance of <see cref="ExtendedPhoneNumberTokenProvider{TUser}"/>.
         /// </summary>
+        /// <param name="rfc6238AuthenticationService">Time-Based One-Time Password Algorithm service.</param>
         public ExtendedPhoneNumberTokenProvider(Rfc6238AuthenticationService rfc6238AuthenticationService) {
             Rfc6238AuthenticationService = rfc6238AuthenticationService ?? throw new ArgumentNullException(nameof(rfc6238AuthenticationService));
         }

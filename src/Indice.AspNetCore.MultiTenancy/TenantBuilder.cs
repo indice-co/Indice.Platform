@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using Indice.AspNetCore.MultiTenancy.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -22,10 +24,10 @@ namespace Indice.AspNetCore.MultiTenancy
         public TenantBuilder(IServiceCollection services) {
             if (typeof(T).Equals(typeof(Tenant))) {
                 services.AddTransient<TenantAccessService>();
-                services.AddTransient<TenantAccessService<T>>();
-            } else {
-                services.AddTransient<TenantAccessService<T>>();
             }
+            services.AddTransient<TenantAccessService<T>>();
+            services.AddTransient<ITenantAccessor<T>, TenantAccessor<T>>();
+            services.AddTransient<IAuthorizationHandler, BeTenantMemberHandler <T>>();
             _services = services;
         }
 

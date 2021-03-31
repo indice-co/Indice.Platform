@@ -10,8 +10,10 @@ using IdentityServer4.Services;
 using IdentityServer4.Stores;
 using IdentityServer4.Validation;
 using Indice.AspNetCore.Filters;
+using Indice.AspNetCore.Identity;
 using Indice.AspNetCore.Identity.Extensions;
 using Indice.AspNetCore.Identity.Models;
+using Indice.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -32,6 +34,7 @@ namespace Indice.Identity.Controllers
         private readonly IResourceStore _resourceStore;
         private readonly IEventService _events;
         private readonly ILogger<ConsentController> _logger;
+        private readonly ITotpService _totpService;
 
         /// <summary>
         /// Creates a new instance of <see cref="ConsentController"/>.
@@ -41,12 +44,21 @@ namespace Indice.Identity.Controllers
         /// <param name="resourceStore">Resource retrieval.</param>
         /// <param name="events">Interface for the event service.</param>
         /// <param name="logger">Represents a type used to perform logging.</param>
-        public ConsentController(IIdentityServerInteractionService interaction, IClientStore clientStore, IResourceStore resourceStore, IEventService events, ILogger<ConsentController> logger) {
+        /// <param name="totpService"></param>
+        public ConsentController(
+            IIdentityServerInteractionService interaction, 
+            IClientStore clientStore, 
+            IResourceStore resourceStore, 
+            IEventService events, 
+            ILogger<ConsentController> logger,
+            ITotpService totpService
+        ) {
             _interaction = interaction ?? throw new ArgumentNullException(nameof(interaction));
             _clientStore = clientStore ?? throw new ArgumentNullException(nameof(clientStore));
             _resourceStore = resourceStore ?? throw new ArgumentNullException(nameof(resourceStore));
             _events = events ?? throw new ArgumentNullException(nameof(events));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _totpService = totpService ?? throw new ArgumentNullException(nameof(totpService));
         }
 
         /// <summary>
@@ -57,6 +69,10 @@ namespace Indice.Identity.Controllers
         public async Task<IActionResult> Index(string returnUrl) {
             var viewModel = await BuildViewModelAsync(returnUrl);
             if (viewModel != null) {
+                var providers = await _totpService.GetProviders(User);
+                foreach (var provider in providers) {
+                    _logger.LogDebug("Provider {Key}:{Value}", provider.Key, provider.Value);
+                }
                 return View(nameof(Index), viewModel);
             }
             return View("Error");

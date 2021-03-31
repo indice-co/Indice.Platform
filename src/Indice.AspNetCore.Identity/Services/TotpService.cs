@@ -50,7 +50,7 @@ namespace Indice.AspNetCore.Identity
         ) {
             _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
             _smsServiceFactory = smsServiceFactory ?? throw new ArgumentNullException(nameof(smsServiceFactory));
-            _pushNotificationService = pushNotificationService ?? throw new ArgumentNullException(nameof(pushNotificationService));
+            _pushNotificationService = pushNotificationService;
             _cache = distributedCache ?? throw new ArgumentNullException(nameof(distributedCache));
             _localizer = localizer ?? throw new ArgumentNullException(nameof(localizer));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -101,7 +101,7 @@ namespace Indice.AspNetCore.Identity
                     throw new NotSupportedException($"EToken delivery channel {channel} is not implemented.");
                 case TotpDeliveryChannel.PushNotification:
                     if (_pushNotificationService == null) {
-                        throw new ArgumentNullException(nameof(_pushNotificationService));
+                        throw new ArgumentNullException(nameof(_pushNotificationService), $"Cannot send push notification since there is no implementation of {nameof(IPushNotificationService)}.");
                     }
                     await _pushNotificationService.SendAsync(_localizer[message, token], token, user.Id);
                     break;
@@ -155,6 +155,12 @@ namespace Indice.AspNetCore.Identity
                     Type = TotpProviderType.Phone,
                     Channel = TotpDeliveryChannel.Sms,
                     DisplayName = "SMS",
+                    CanGenerate = true
+                },
+                new TotpProviderMetadata {
+                    Type = TotpProviderType.Phone,
+                    Channel = TotpDeliveryChannel.Viber,
+                    DisplayName = "Viber",
                     CanGenerate = true
                 },
                 new TotpProviderMetadata {

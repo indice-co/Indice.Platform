@@ -1,12 +1,14 @@
 ﻿using System;
-using Indice.AspNetCore.Identity;
 using Indice.AspNetCore.Identity.Authorization;
 using Indice.AspNetCore.Identity.Features;
 using Indice.AspNetCore.Identity.Models;
 using Indice.Configuration;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 
-namespace Microsoft.AspNetCore.Identity
+namespace Indice.AspNetCore.Identity
 {
     /// <summary>
     /// Extensions on <see cref="IdentityBuilder"/>
@@ -44,14 +46,23 @@ namespace Microsoft.AspNetCore.Identity
         public static IdentityBuilder AddExtendedSignInManager(this IdentityBuilder builder) => builder.AddExtendedSignInManager<User>();
 
         /// <summary>
-        /// Adds the <see cref="ExtendedPhoneNumberTokenProvider{TUser}"/> as a default phone provider.
+        /// Adds the <see cref="ExtendedPhoneNumberTokenProvider{TUser}"/> as the default phone provider. 
+        /// Make sure you call this method after using <see cref="Microsoft.AspNetCore.Identity.IdentityBuilderExtensions.AddDefaultTokenProviders(IdentityBuilder)"/>.
         /// </summary>
         /// <param name="builder">Helper functions for configuring identity services.</param>
-        /// <param name="configure"></param>
+        /// <param name="configure">Action used to configure the <see cref="TotpOptions"/>.</param>
         /// <returns>The configured <see cref="IdentityBuilder"/>.</returns>
         public static IdentityBuilder AddExtendedPhoneNumberTokenProvider(this IdentityBuilder builder, Action<TotpOptions> configure = null) {
             builder.Services.AddDefaultTotpService(configure);
-            var providerType = typeof(ExtendedPhoneNumberTokenProvider<>).MakeGenericType(builder.UserType);
+            var serviceProvider = builder.Services.BuildServiceProvider();
+            var configuredTotpOptions = serviceProvider.GetRequiredService<TotpOptions>();
+            var hostingEnvironment = serviceProvider.GetRequiredService<IWebHostEnvironment>();
+            Type providerType;
+            if (configuredTotpOptions.EnableDeveloperTotp && !hostingEnvironment.IsProduction()) {
+                providerType = typeof(DeveloperPhoneNumberTokenProvider<>).MakeGenericType(builder.UserType);
+            } else {
+                providerType = typeof(ExtendedPhoneNumberTokenProvider<>).MakeGenericType(builder.UserType);
+            }
             builder.AddTokenProvider(TokenOptions.DefaultPhoneProvider, providerType);
             return builder;
         }

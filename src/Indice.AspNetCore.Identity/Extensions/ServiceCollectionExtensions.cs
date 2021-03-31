@@ -39,6 +39,7 @@ namespace Microsoft.Extensions.DependencyInjection
             var hostingEnvironment = serviceProvider.GetRequiredService<IWebHostEnvironment>();
             configure?.Invoke(totpOptions);
             totpOptions.Services = null;
+            services.TryAddSingleton(totpOptions);
             services.TryAddTransient<IPushNotificationService, DefaultPushNotificationService>();
             services.TryAddTransient<ITotpService, TotpService>();
             services.TryAddSingleton(new Rfc6238AuthenticationService(totpOptions.Timestep, totpOptions.CodeLength));
