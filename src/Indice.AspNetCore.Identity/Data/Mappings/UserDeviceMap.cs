@@ -20,9 +20,12 @@ namespace Indice.AspNetCore.Identity.Data.Mappings
             builder.ToTable(nameof(UserDevice), "auth");
             // Configure primary key.
             builder.HasKey(x => x.Id);
+            // Configure indexes.
+            builder.HasIndex(x => x.DeviceId).IsUnique();
             // Device properties.
             builder.Property(x => x.DeviceName).HasMaxLength(256);
             builder.Property(x => x.UserId).IsRequired();
+            builder.Property(x => x.DeviceId).IsRequired();
             // Configure relationships.
             builder.HasOne<TUser>().WithMany().HasForeignKey(x => x.UserId).OnDelete(DeleteBehavior.Cascade);
         }

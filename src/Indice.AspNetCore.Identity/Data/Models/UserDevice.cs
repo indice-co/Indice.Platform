@@ -4,21 +4,19 @@ using Indice.Types;
 namespace Indice.AspNetCore.Identity.Models
 {
     /// <summary>
-    /// User devices representation
+    /// User devices representation.
     /// </summary>
     public class UserDevice
     {
         /// <summary>
         /// Constructs a new instance of <see cref="UserDevice"/> with a new Guid Id.
         /// </summary>
-        public UserDevice() {
-            Id = Guid.NewGuid();
-        }
+        public UserDevice() { }
 
         /// <summary>
         /// The primary key.
         /// </summary>
-        public Guid Id { get; }
+        public Guid Id { get; } = Guid.NewGuid();
         /// <summary>
         /// The user id related.
         /// </summary>
@@ -26,7 +24,7 @@ namespace Indice.AspNetCore.Identity.Models
         /// <summary>
         /// Device id.
         /// </summary>
-        public Guid DeviceId { get; set; }
+        public string DeviceId { get; set; }
         /// <summary>
         /// Device operating system.
         /// </summary>

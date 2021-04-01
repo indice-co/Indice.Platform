@@ -10,6 +10,7 @@ using Indice.AspNetCore.Extensions;
 using Indice.AspNetCore.Identity.Models;
 using Indice.Services;
 using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 namespace Indice.AspNetCore.Identity.Features
@@ -35,6 +36,7 @@ namespace Indice.AspNetCore.Identity.Features
             _request = requestValidator ?? throw new ArgumentNullException(nameof(requestValidator));
             _response = responseGenerator ?? throw new ArgumentNullException(nameof(responseGenerator));
             _totpService = totpService ?? throw new ArgumentNullException(nameof(totpService));
+            _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
             _token = tokenUsageValidator ?? throw new ArgumentNullException(nameof(tokenUsageValidator));
         }
 
@@ -60,11 +62,16 @@ namespace Indice.AspNetCore.Identity.Features
                 return Error(requestValidationResult.Error, requestValidationResult.ErrorDescription);
             }
             // Ensure device is not already registered or belongs to any other user.
-            
+            var existingDevice = await _dbContext.UserDevices.SingleOrDefaultAsync(x => x.DeviceId == requestValidationResult.DeviceId);
+            if (existingDevice != null) {
+                _logger.LogError("Device is already registered.");
+                return Error(OidcConstants.ProtectedResourceErrors.InvalidToken);
+            }
             // Send OTP code.
             var totpResult = await _totpService.Send(message =>
                 message.UsePrincipal(requestValidationResult.Principal)
                        .WithMessage("Device registration OTP code is {0}.")
+                       .UsingSms()
                        .WithPurpose($"device-registration:{requestValidationResult.UserId}:{requestValidationResult.DeviceId}")
             );
             if (!totpResult.Success) {

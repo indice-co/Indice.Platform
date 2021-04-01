@@ -17,7 +17,7 @@ namespace Indice.AspNetCore.Identity.Features
             if (validationResult.InteractionMode == InteractionMode.Fingerprint) {
                 return await GenerateFingerprintResponse(validationResult);
             }
-            return null;
+            return await Task.FromResult<TrustedDeviceRegistrationResponse>(null);
         }
 
         private async Task<TrustedDeviceRegistrationResponse> GenerateFingerprintResponse(TrustedDeviceRegistrationRequestValidationResult validationResult) {

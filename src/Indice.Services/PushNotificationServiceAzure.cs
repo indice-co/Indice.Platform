@@ -35,7 +35,7 @@ namespace Indice.Services
         /// <summary>
         /// Constructs the <see cref="PushNotificationServiceAzure"/>.
         /// </summary>
-        /// <param name="options">Connection string for azure and Notifications hub name.</param>
+        /// <param name="options">Connection string for Azure and Notifications hub name.</param>
         public PushNotificationServiceAzure(PushNotificationOptions options) {
             if (string.IsNullOrEmpty(options.ConnectionString)) {
                 throw new ArgumentNullException(nameof(options.ConnectionString));
