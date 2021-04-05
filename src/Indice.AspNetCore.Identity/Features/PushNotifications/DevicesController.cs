@@ -146,7 +146,7 @@ namespace Indice.AspNetCore.Identity.Features
         [HttpDelete("{deviceId}/unregister")]
         [ProducesResponseType(statusCode: StatusCodes.Status204NoContent, type: typeof(void))]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
-        public async Task<IActionResult> UnRegisterDevice([FromRoute] Guid deviceId) {
+        public async Task<IActionResult> UnRegisterDevice([FromRoute] string deviceId) {
             var user = await _userManager.GetUserAsync(User);
             if (user == null) {
                 return NotFound();
