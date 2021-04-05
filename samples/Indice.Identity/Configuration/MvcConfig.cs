@@ -98,12 +98,12 @@ namespace Microsoft.Extensions.DependencyInjection
         private static List<User> GetInitialUsers() => new List<User> {
             new User {
                 CreateDate = DateTime.UtcNow,
-                Email = "D.Kariofylli@ergohellas.gr",
+                Email = "g.manoltzas@indice.gr",
                 EmailConfirmed = true,
-                NormalizedEmail = "D.Kariofylli@ergohellas.gr".ToUpper(),
+                NormalizedEmail = "g.manoltzas@indice.gr".ToUpper(),
                 Id = Guid.NewGuid().ToString(),
-                UserName = "D.Kariofylli@ergohellas.gr",
-                NormalizedUserName = "D.Kariofylli@ergohellas.gr".ToUpper(),
+                UserName = "g.manoltzas@indice.gr",
+                NormalizedUserName = "g.manoltzas@indice.gr".ToUpper(),
                 PasswordExpirationDate = DateTime.UtcNow.AddYears(1),
                 PasswordExpirationPolicy = PasswordExpirationPolicy.Annually,
                 PasswordExpired = false,

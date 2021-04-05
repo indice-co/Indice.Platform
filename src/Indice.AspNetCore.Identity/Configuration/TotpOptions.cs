@@ -10,9 +10,9 @@ namespace Indice.Configuration
     {
         internal IServiceCollection Services;
         /// <summary>
-        /// The default code duration;
+        /// The default code duration in minutes.
         /// </summary>
-        public const int DefaultCodeDuration = 1;
+        public const int DefaultCodeDuration = 2;
         /// <summary>
         /// The default code length;
         /// </summary>

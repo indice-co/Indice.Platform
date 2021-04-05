@@ -52,8 +52,7 @@ namespace Indice.Security
         /// </summary>
         public const string FullName = "full_name";
         /// <summary>
-        /// String from the time zone database (http://www.twinsun.com/tz/tz-link.htm) representing
-        /// the End-User's time zone. For example, Europe/Paris or America/Los_Angeles.
+        /// String from the time zone database (http://www.twinsun.com/tz/tz-link.htm) representing the End-User's time zone. For example, Europe/Paris or America/Los_Angeles.
         /// </summary>
         public const string ZoneInfo = "zoneinfo";
         /// <summary>
@@ -73,7 +72,7 @@ namespace Indice.Security
         /// </summary>
         public const string DeveloperTotp = "developer_totp";
         /// <summary>
-        /// All possible user related claims
+        /// All possible user related claims.
         /// </summary>
         public static readonly string[] UserClaims = {
             "sub",

@@ -3,7 +3,7 @@
     <Description>Indice.Common Class Library</Description>
     <Copyright>Copyright (c) 2018 Indice</Copyright>
     <AssemblyTitle>Indice.Common</AssemblyTitle>
-    <VersionPrefix>5.0.0</VersionPrefix>
+    <VersionPrefix>5.0.1</VersionPrefix>
     <!--<VersionSuffix>beta-02</VersionSuffix>-->
     <Authors>Constantinos Leftheris</Authors>
     <TargetFrameworks>net5.0;netstandard2.0</TargetFrameworks>
@@ -16,7 +16,7 @@
   <PropertyGroup Label="Package">
     <PackageId>Indice.Common</PackageId>
     <PackageTags>AspNet;Api;Utilities</PackageTags>
-    <PackageReleaseNotes>.ΝΕΤ 5.0 upgrade</PackageReleaseNotes>
+    <PackageReleaseNotes>Added constants for basic role names.</PackageReleaseNotes>
     <PackageIcon>icon-310.png</PackageIcon>
     <PackageProjectUrl>https://github.com/indice-co/Indice.AspNet</PackageProjectUrl>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
