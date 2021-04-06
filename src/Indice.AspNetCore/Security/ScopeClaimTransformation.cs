@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Authentication;
 namespace Microsoft.Extensions.DependencyInjection
 {
     //https://leastprivilege.com/2020/07/06/flexible-access-token-validation-in-asp-net-core/
+    //https://github.com/IdentityModel/IdentityModel.AspNetCore.AccessTokenValidation/blob/main/src/ScopeClaimsTransformer.cs
     /// <summary>
     /// The scope claim is a space delimited string. 
     /// This does not play nicely with .NET claims, hence we included a little claim transformer, that turns that string into individual claims:
@@ -31,7 +32,7 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <param name="services"></param>
         /// <returns></returns>
         public static IServiceCollection AddScopeTransformation(this IServiceCollection services) {
-            return services.AddTransient<IClaimsTransformation, ScopeClaimTransformation>();
+            return services.AddSingleton<IClaimsTransformation, ScopeClaimTransformation>();
         }
     }
 }
