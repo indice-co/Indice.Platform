@@ -7,9 +7,7 @@ namespace Indice.AspNetCore.Identity.Features
     {
         private readonly ITrustedDeviceAuthorizationCodeChallengeStore _codeChallengeStore;
 
-        public TrustedDeviceRegistrationResponseGenerator(
-            ITrustedDeviceAuthorizationCodeChallengeStore trustedDeviceAuthorizationCodeChallengeStore
-        ) {
+        public TrustedDeviceRegistrationResponseGenerator(ITrustedDeviceAuthorizationCodeChallengeStore trustedDeviceAuthorizationCodeChallengeStore) {
             _codeChallengeStore = trustedDeviceAuthorizationCodeChallengeStore ?? throw new ArgumentNullException(nameof(trustedDeviceAuthorizationCodeChallengeStore));
         }
 
@@ -23,10 +21,12 @@ namespace Indice.AspNetCore.Identity.Features
         private async Task<TrustedDeviceRegistrationResponse> GenerateFingerprintResponse(TrustedDeviceRegistrationRequestValidationResult validationResult) {
             var authorizationCode = new TrustedDeviceAuthorizationCode {
                 ClientId = validationResult.Client.ClientId,
+                CodeChallenge = validationResult.CodeChallenge,
+                CodeChallengeMethod = validationResult.CodeChallengeMethod,
                 CreationTime = DateTime.UtcNow.Date,
-                Subject = validationResult.Principal,
                 Lifetime = validationResult.Client.AuthorizationCodeLifetime,
-                RequestedScopes = validationResult.RequestedScopes
+                RequestedScopes = validationResult.RequestedScopes,
+                Subject = validationResult.Principal
             };
             var id = await _codeChallengeStore.Create(authorizationCode);
             return new TrustedDeviceRegistrationResponse {

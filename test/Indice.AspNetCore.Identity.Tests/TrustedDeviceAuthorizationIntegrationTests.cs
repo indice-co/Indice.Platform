@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Security.Claims;
+using System.Security.Cryptography;
+using System.Text;
 using System.Threading.Tasks;
 using IdentityModel;
 using IdentityModel.Client;
@@ -39,6 +41,7 @@ namespace Indice.AspNetCore.Identity.Tests
                 .AddInMemoryIdentityResources(GetIdentityResources())
                 .AddInMemoryClients(GetClients())
                 .AddTestUsers(GetTestUsers())
+                .AddInMemoryPersistedGrants()
                 .AddTrustedDeviceAuthorization()
                 .AddDeveloperSigningCredential(persistKey: false);
             });
@@ -47,13 +50,15 @@ namespace Indice.AspNetCore.Identity.Tests
             });
             var server = new TestServer(builder);
             var handler = server.CreateHandler();
-            _httpClient = new HttpClient(handler) { BaseAddress = new Uri(BaseUrl) };
+            _httpClient = new HttpClient(handler) {
+                BaseAddress = new Uri(BaseUrl)
+            };
         }
 
         [Fact]
         public async Task CanRegisterDevice() {
             var accessToken = await LoginWithPasswordGrant(userName: "alice", password: "alice");
-            await InitiateDeviceRegistration(accessToken);
+            await InitiateDeviceRegistrationUsingFingerprint(accessToken);
         }
 
         private async Task<string> LoginWithPasswordGrant(string userName, string password) {
@@ -69,14 +74,29 @@ namespace Indice.AspNetCore.Identity.Tests
             return tokenResponse.AccessToken;
         }
 
-        private async Task InitiateDeviceRegistration(string accessToken) {
+        private async Task InitiateDeviceRegistrationUsingFingerprint(string accessToken) {
+            var codeVerifier = GenerateCodeVerifier();
             var data = new Dictionary<string, string> {
                 { "mode", "fingerprint" },
-                { "device_id", _deviceId.ToString() }
+                { "device_id", _deviceId.ToString() },
+                { "code_challenge", GenerateCodeChallenge(codeVerifier) },
+                { "code_challenge_method", "S256" }
             };
             var form = new FormUrlEncodedContent(data);
             _httpClient.SetBearerToken(accessToken);
             var response = await _httpClient.PostAsync(_deviceRegistrationInitiationUrl, form);
+            if (!response.IsSuccessStatusCode) { }
+        }
+
+        private static string GenerateCodeVerifier() => CryptoRandom.CreateUniqueId(32);
+
+        private static string GenerateCodeChallenge(string codeVerifier) {
+            string codeChallenge;
+            using (var sha256 = SHA256.Create()) {
+                var challengeBytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(codeVerifier));
+                codeChallenge = Base64Url.Encode(challengeBytes);
+            }
+            return codeChallenge;
         }
 
         #region IdentityServer Configuration
@@ -87,14 +107,21 @@ namespace Indice.AspNetCore.Identity.Tests
                 AccessTokenType = AccessTokenType.Jwt,
                 AllowAccessTokensViaBrowser = false,
                 AllowedGrantTypes = GrantTypes.ResourceOwnerPasswordAndClientCredentials,
-                ClientSecrets = { new Secret(ClientSecret.ToSha256()) },
-                AllowedScopes = { IdentityServerConstants.StandardScopes.OpenId, IdentityServerConstants.StandardScopes.Phone },
+                ClientSecrets = {
+                    new Secret(ClientSecret.ToSha256())
+                },
+                AllowedScopes = {
+                    IdentityServerConstants.StandardScopes.OpenId,
+                    IdentityServerConstants.StandardScopes.Phone
+                },
                 RequireConsent = false,
                 RequirePkce = false,
                 RequireClientSecret = true,
                 AllowOfflineAccess = true,
                 AlwaysSendClientClaims = true,
-                Claims = { new ClientClaim(BasicClaimTypes.TrustedDevice, bool.TrueString.ToLower()) }
+                Claims = {
+                    new ClientClaim(BasicClaimTypes.TrustedDevice, "true", ClaimValueTypes.Boolean)
+                }
             }
         };
 

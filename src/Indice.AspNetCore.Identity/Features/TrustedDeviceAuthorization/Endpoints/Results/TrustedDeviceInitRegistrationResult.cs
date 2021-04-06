@@ -7,9 +7,9 @@ using Microsoft.AspNetCore.Http;
 
 namespace Indice.AspNetCore.Identity.Features
 {
-    internal class TrustedDeviceRegistrationResult : IEndpointResult
+    internal class TrustedDeviceInitRegistrationResult : IEndpointResult
     {
-        public TrustedDeviceRegistrationResult(TrustedDeviceRegistrationResponse response) {
+        public TrustedDeviceInitRegistrationResult(TrustedDeviceRegistrationResponse response) {
             Response = response;
         }
 

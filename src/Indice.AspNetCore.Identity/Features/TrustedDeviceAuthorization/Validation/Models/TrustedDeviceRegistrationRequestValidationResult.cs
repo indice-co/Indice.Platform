@@ -13,5 +13,7 @@ namespace Indice.AspNetCore.Identity.Features
         public InteractionMode InteractionMode { get; set; }
         public string DeviceId { get; set; }
         public string UserId { get; set; }
+        public string CodeChallenge { get; set; }
+        public string CodeChallengeMethod { get; set; }
     }
 }

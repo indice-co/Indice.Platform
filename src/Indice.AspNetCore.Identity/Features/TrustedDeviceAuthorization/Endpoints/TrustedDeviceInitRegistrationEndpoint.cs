@@ -7,36 +7,34 @@ using IdentityServer4.Hosting;
 using IdentityServer4.ResponseHandling;
 using IdentityServer4.Validation;
 using Indice.AspNetCore.Extensions;
-using Indice.AspNetCore.Identity.Models;
 using Indice.Services;
 using Microsoft.AspNetCore.Http;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 namespace Indice.AspNetCore.Identity.Features
 {
-    internal class TrustedDeviceRegistrationEndpoint : IEndpointHandler
+    internal class TrustedDeviceInitRegistrationEndpoint : IEndpointHandler
     {
         private readonly BearerTokenUsageValidator _token;
-        private readonly ILogger<TrustedDeviceRegistrationEndpoint> _logger;
+        private readonly ILogger<TrustedDeviceInitRegistrationEndpoint> _logger;
         private readonly ITrustedDeviceRegistrationRequestValidator _request;
         private readonly ITrustedDeviceRegistrationResponseGenerator _response;
         private readonly ITotpService _totpService;
-        private readonly ExtendedIdentityDbContext<User, Role> _dbContext;
+        private readonly IUserDeviceStore _userDeviceStore;
 
-        public TrustedDeviceRegistrationEndpoint(
+        public TrustedDeviceInitRegistrationEndpoint(
             BearerTokenUsageValidator tokenUsageValidator,
-            ILogger<TrustedDeviceRegistrationEndpoint> logger,
+            ILogger<TrustedDeviceInitRegistrationEndpoint> logger,
             ITrustedDeviceRegistrationRequestValidator requestValidator,
             ITrustedDeviceRegistrationResponseGenerator responseGenerator,
             ITotpService totpService,
-            ExtendedIdentityDbContext<User, Role> dbContext
+            IUserDeviceStore userDeviceStore
         ) {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _request = requestValidator ?? throw new ArgumentNullException(nameof(requestValidator));
             _response = responseGenerator ?? throw new ArgumentNullException(nameof(responseGenerator));
             _totpService = totpService ?? throw new ArgumentNullException(nameof(totpService));
-            _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
+            _userDeviceStore = userDeviceStore ?? throw new ArgumentNullException(nameof(userDeviceStore));
             _token = tokenUsageValidator ?? throw new ArgumentNullException(nameof(tokenUsageValidator));
         }
 
@@ -62,7 +60,7 @@ namespace Indice.AspNetCore.Identity.Features
                 return Error(requestValidationResult.Error, requestValidationResult.ErrorDescription);
             }
             // Ensure device is not already registered or belongs to any other user.
-            var existingDevice = await _dbContext.UserDevices.SingleOrDefaultAsync(x => x.DeviceId == requestValidationResult.DeviceId);
+            var existingDevice = await _userDeviceStore.GetByDeviceId(requestValidationResult.DeviceId);
             if (existingDevice != null) {
                 _logger.LogError("Device is already registered.");
                 return Error(OidcConstants.ProtectedResourceErrors.InvalidToken);
@@ -72,7 +70,7 @@ namespace Indice.AspNetCore.Identity.Features
                 message.UsePrincipal(requestValidationResult.Principal)
                        .WithMessage("Device registration OTP code is {0}.")
                        .UsingSms()
-                       .WithPurpose($"device-registration:{requestValidationResult.UserId}:{requestValidationResult.DeviceId}")
+                       .WithPurpose($"trusted-device-registration:{requestValidationResult.UserId}:{requestValidationResult.DeviceId}")
             );
             if (!totpResult.Success) {
                 return Error(totpResult.Error);
@@ -80,7 +78,7 @@ namespace Indice.AspNetCore.Identity.Features
             // Create application response.
             var response = await _response.Generate(requestValidationResult);
             _logger.LogDebug("Trusted device authorization endpoint success");
-            return new TrustedDeviceRegistrationResult(response);
+            return new TrustedDeviceInitRegistrationResult(response);
         }
 
         private TrustedDeviceAuthorizationErrorResult Error(string error, string errorDescription = null, Dictionary<string, object> custom = null) {

@@ -6,6 +6,8 @@ namespace Indice.AspNetCore.Identity.Features
     {
         public const string Mode = "mode";
         public const string DeviceId = "device_id";
+        public const string CodeChallenge = "code_challenge"; 
+        public const string CodeChallengeMethod = "code_challenge_method";
 
         public static InteractionMode? GetInteractionMode(string mode) {
             if (string.IsNullOrWhiteSpace(mode)) {
