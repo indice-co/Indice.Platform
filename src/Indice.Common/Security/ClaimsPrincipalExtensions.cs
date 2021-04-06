@@ -115,8 +115,8 @@ namespace Indice.Security
 
                 foreach (var claim in id.Claims) {
                     if (claim.Type == "scope") {
-                        if (claim.Value.Contains(' ')) {
-                            var scopes = claim.Value.Split(separator, StringSplitOptions.RemoveEmptyEntries);
+                        if (claim.Value.Contains(" ")) {
+                            var scopes = claim.Value.Split(new [] { separator }, StringSplitOptions.RemoveEmptyEntries);
 
                             foreach (var scope in scopes) {
                                 identity.AddClaim(new Claim("scope", scope, claim.ValueType, claim.Issuer));
