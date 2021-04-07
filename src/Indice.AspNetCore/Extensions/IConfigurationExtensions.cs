@@ -38,7 +38,7 @@ namespace Microsoft.Extensions.Configuration
         /// </summary>
         /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
         /// <returns>True if specified flag is set to true, otherwise false.</returns>
-        /// <remarks>Checks for the General:SwaggerUI option in appsettings.json file.</remarks>
+        /// <remarks>Checks for the General:EnableSwagger option in appsettings.json file.</remarks>
         public static bool EnableSwaggerUi(this IConfiguration configuration) => configuration.GetSection(GeneralSettings.Name).GetValue<bool>(nameof(GeneralSettings.EnableSwagger));
 
         /// <summary>
