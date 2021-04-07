@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Humanizer;
-using Indice.AspNetCore.Identity.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.EntityFrameworkCore;
@@ -15,14 +14,14 @@ namespace Indice.AspNetCore.Identity.Features
     /// </summary>
     internal class CreateClaimTypeRequestValidationFilter : IAsyncActionFilter
     {
-        private readonly Func<ExtendedIdentityDbContext<User, Role>> _getDbContext;
+        private readonly ExtendedConfigurationDbContext _configurationDbContext;
 
         /// <summary>
         /// Creates a new instance of <see cref="CreateClaimTypeRequestValidationFilter"/>.
         /// </summary>
-        /// <param name="getDbContext"></param>
-        public CreateClaimTypeRequestValidationFilter(Func<ExtendedIdentityDbContext<User, Role>> getDbContext) {
-            _getDbContext = getDbContext ?? throw new ArgumentNullException(nameof(getDbContext));
+        /// <param name="configurationDbContext"></param>
+        public CreateClaimTypeRequestValidationFilter(ExtendedConfigurationDbContext configurationDbContext) {
+            _configurationDbContext = configurationDbContext ?? throw new ArgumentNullException(nameof(configurationDbContext));
         }
 
         /// <summary>
@@ -39,8 +38,7 @@ namespace Indice.AspNetCore.Identity.Features
                 return;
             }
             var claimTypeName = ((CreateClaimTypeRequest)body.Value).Name;
-            var dbContext = _getDbContext();
-            var exists = await dbContext.ClaimTypes.AsNoTracking().AnyAsync(x => x.Name == claimTypeName);
+            var exists = await _configurationDbContext.ClaimTypes.AsNoTracking().AnyAsync(x => x.Name == claimTypeName);
             if (exists) {
                 context.Result = new BadRequestObjectResult(new ValidationProblemDetails(new Dictionary<string, string[]> {
                     { nameof(CreateClaimTypeRequest.Name).Camelize(), new string[] { $"A claim type with name {claimTypeName} already exists." } }

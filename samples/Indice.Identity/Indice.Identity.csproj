@@ -23,6 +23,7 @@
     <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" Version="6.1.1" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\src\Indice.AspNetCore.Identity.AdminUI\Indice.AspNetCore.Identity.AdminUI.csproj" />
     <ProjectReference Include="..\..\src\Indice.AspNetCore.Identity\Indice.AspNetCore.Identity.csproj" />
     <ProjectReference Include="..\..\src\Indice.Hosting\Indice.Hosting.csproj" />
   </ItemGroup>

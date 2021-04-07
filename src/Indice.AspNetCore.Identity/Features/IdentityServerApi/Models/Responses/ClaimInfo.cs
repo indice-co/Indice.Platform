@@ -9,6 +9,10 @@
         /// The id of the user claim entry.
         /// </summary>
         public int Id { get; set; }
+        /// <summary>
+        /// The display name of the claim.
+        /// </summary>
+        public string DisplayName { get; set; }
     }
 
     /// <summary>

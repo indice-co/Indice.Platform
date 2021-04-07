@@ -38,7 +38,7 @@ namespace Indice.Security
         public static string FindSubjectId(this ClaimsPrincipal principal) => principal.FindFirst(BasicClaimTypes.Subject)?.Value;
 
         private static bool TryFindFirstValue<T>(this ClaimsPrincipal principal, string claimType, out T result) where T : struct {
-            result = default(T);
+            result = default;
             var valueString = principal.FindFirst(c => c.Type == claimType)?.Value;
             object value = default(T);
             if (valueString == null) {
@@ -102,22 +102,18 @@ namespace Indice.Security
         public static bool IsExternal(this ClaimsPrincipal principal) => principal.FindFirst("idp")?.Value != "local";
 
         /// <summary>
-        /// Logic for normalizing scope claims to separate claim types
+        /// Logic for normalizing scope claims to separate claim types.
         /// </summary>
-        /// <param name="principal"></param>
-        /// <param name="separator"></param>
-        /// <returns></returns>
+        /// <param name="principal">The current principal.</param>
+        /// <param name="separator">The character that separates scopes.</param>
         public static ClaimsPrincipal NormalizeScopeClaims(this ClaimsPrincipal principal, char separator = ' ') {
             var identities = new List<ClaimsIdentity>();
-
             foreach (var id in principal.Identities) {
                 var identity = new ClaimsIdentity(id.AuthenticationType, id.NameClaimType, id.RoleClaimType);
-
                 foreach (var claim in id.Claims) {
                     if (claim.Type == "scope") {
                         if (claim.Value.Contains(" ")) {
-                            var scopes = claim.Value.Split(new [] { separator }, StringSplitOptions.RemoveEmptyEntries);
-
+                            var scopes = claim.Value.Split(new[] { separator }, StringSplitOptions.RemoveEmptyEntries);
                             foreach (var scope in scopes) {
                                 identity.AddClaim(new Claim("scope", scope, claim.ValueType, claim.Issuer));
                             }
@@ -128,10 +124,8 @@ namespace Indice.Security
                         identity.AddClaim(claim);
                     }
                 }
-
                 identities.Add(identity);
             }
-
             return new ClaimsPrincipal(identities);
         }
     }

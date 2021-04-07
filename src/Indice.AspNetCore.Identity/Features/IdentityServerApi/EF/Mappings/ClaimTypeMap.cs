@@ -16,7 +16,7 @@ namespace Indice.AspNetCore.Identity.Features
         /// <param name="builder">Provides a simple API for configuring an <see cref="EntityType"/>.</param>
         public void Configure(EntityTypeBuilder<ClaimType> builder) {
             // Configure table name and schema.
-            builder.ToTable(nameof(ClaimType), "auth");
+            builder.ToTable(nameof(ClaimType), "config");
             // Configure primary key.
             builder.HasKey(x => x.Id);
             // Configure fields.

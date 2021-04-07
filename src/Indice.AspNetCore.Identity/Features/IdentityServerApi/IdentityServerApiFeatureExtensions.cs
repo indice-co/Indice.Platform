@@ -93,7 +93,6 @@ namespace Indice.AspNetCore.Identity.Features
             } else {
                 options.Services.AddDbContext<ExtendedIdentityDbContext<User, Role>>(dbContextOptions.ConfigureDbContext);
             }
-            options.Services.AddTransient<Func<ExtendedIdentityDbContext<User, Role>>>(provider => provider.GetService<ExtendedIdentityDbContext<User, Role>>);
         }
 
         /// <summary>

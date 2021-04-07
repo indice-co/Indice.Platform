@@ -1,10 +1,19 @@
 .menu-title {
   padding: 12px 25px !important;
-  letter-spacing: .035em;
+  letter-spacing: 0.035em;
   pointer-events: none;
   cursor: default;
   font-size: 13px;
   color: $muted;
+}
+
+.powered-by {
+  bottom: 10px;
+  padding: 0 10px;
+}
+
+.heart {
+  color: red;
 }
 
 .side-menu {
@@ -17,16 +26,16 @@
   position: absolute;
   z-index: 99;
   box-shadow: $shadow;
-  .left-side-logo{
-    .logo{
+  .left-side-logo {
+    .logo {
       line-height: 70px;
     }
   }
 }
 
-body{
+body {
   &.fixed-left {
-    .side-menu{
+    .side-menu {
       &.left {
         bottom: 50px;
         height: $height;
@@ -47,7 +56,10 @@ body{
   height: $height;
 }
 
-#sidebar-menu, #sidebar-menu ul, #sidebar-menu li, #sidebar-menu a {
+#sidebar-menu,
+#sidebar-menu ul,
+#sidebar-menu li,
+#sidebar-menu a {
   border: 0;
   font-weight: normal;
   line-height: 1;
@@ -76,7 +88,7 @@ body{
         }
       }
       a {
-        color: rgba($dark,0.8);
+        color: rgba($dark, 0.8);
         display: block;
         padding: 12px 25px 12px 60px;
         &:hover {
@@ -105,7 +117,7 @@ body{
         padding: 14px 25px;
         background-color: $left-bar;
         font-size: 13.5px;
-      
+
         &:hover {
           color: $dark;
           text-decoration: none;
@@ -113,12 +125,12 @@ body{
 
         &.active {
           color: $dark;
-        
+
           i {
             color: $dark;
           }
         }
-      
+
         span {
           vertical-align: middle;
           i {
@@ -141,10 +153,9 @@ body{
   }
 }
 
-#wrapper{
+#wrapper {
   &.enlarged {
-
-    .left{
+    .left {
       &.side-menu {
         padding-top: 0;
         z-index: 5;
@@ -161,7 +172,7 @@ body{
 }
 
 @media (max-width: 768px) {
-  .side-menu{
+  .side-menu {
     &.left {
       margin-left: -100%;
       top: 0px;
@@ -170,12 +181,12 @@ body{
   }
 
   .enlarged {
-    .side-menu{
+    .side-menu {
       &.left {
         margin-left: 0 !important;
       }
     }
-    .left{
+    .left {
       &.side-menu {
         margin-left: -75px;
       }

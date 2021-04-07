@@ -47,6 +47,7 @@ namespace Indice.AspNetCore.Identity.Features
         private readonly IEmailService _emailService;
         private readonly IEventService _eventService;
         private readonly ISmsServiceFactory _smsServiceFactory;
+        private readonly ExtendedConfigurationDbContext _configurationDbContext;
 
         /// <summary>
         /// The name of the controller.
@@ -62,7 +63,8 @@ namespace Indice.AspNetCore.Identity.Features
             IEventService eventService,
             IOptions<GeneralSettings> generalSettings,
             IOptionsSnapshot<IdentityOptions> identityOptions,
-            ISmsServiceFactory smsServiceFactory
+            ISmsServiceFactory smsServiceFactory,
+            ExtendedConfigurationDbContext configurationDbContext
         ) {
             _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
             _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
@@ -73,6 +75,7 @@ namespace Indice.AspNetCore.Identity.Features
             _identityServerApiEndpointsOptions = identityServerApiEndpointsOptions ?? throw new ArgumentNullException(nameof(identityServerApiEndpointsOptions));
             _smsServiceFactory = smsServiceFactory ?? throw new ArgumentNullException(nameof(smsServiceFactory));
             _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
+            _configurationDbContext = configurationDbContext ?? throw new ArgumentNullException(nameof(configurationDbContext));
         }
 
         /// <summary>
@@ -368,11 +371,12 @@ namespace Indice.AspNetCore.Identity.Features
             if (user == null) {
                 return NotFound();
             }
-            var allowedClaims = await _dbContext.ClaimTypes
-                                                .Where(x => claims.Select(x => x.Type).Contains(x.Name) && x.UserEditable)
-                                                .Select(x => x.Name)
-                                                .ToListAsync();
-            if (allowedClaims.Count() != claims.Count()) {
+            var allowedClaims = await _configurationDbContext
+                .ClaimTypes
+                .Where(x => claims.Select(x => x.Type).Contains(x.Name) && x.UserEditable)
+                .Select(x => x.Name)
+                .ToListAsync();
+            if (allowedClaims.Count != claims.Count()) {
                 var notAllowedClaims = claims.Select(x => x.Type).Except(allowedClaims);
                 ModelState.AddModelError(nameof(claims), $"The following claims are not allowed to add: '{string.Join(", ", notAllowedClaims)}'.");
                 return BadRequest(new ValidationProblemDetails(ModelState));
@@ -410,7 +414,7 @@ namespace Indice.AspNetCore.Identity.Features
             if (userClaim == null) {
                 return NotFound();
             }
-            var claimType = await _dbContext.ClaimTypes.SingleOrDefaultAsync(x => x.Name == userClaim.ClaimType);
+            var claimType = await _configurationDbContext.ClaimTypes.SingleOrDefaultAsync(x => x.Name == userClaim.ClaimType);
             if (claimType == null) {
                 return NotFound();
             }

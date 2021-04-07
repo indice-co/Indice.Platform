@@ -49,6 +49,7 @@ namespace Indice.AspNetCore.Identity.Features
         private readonly IEventService _eventService;
         private readonly GeneralSettings _generalSettings;
         private readonly IStringLocalizer<UsersController> _localizer;
+        private readonly ExtendedConfigurationDbContext _configurationDbContext;
         /// <summary>
         /// The name of the controller.
         /// </summary>
@@ -66,6 +67,7 @@ namespace Indice.AspNetCore.Identity.Features
         /// <param name="eventService">Models the event mechanism used to raise events inside the IdentityServer API.</param>
         /// <param name="generalSettings">General settings for an ASP.NET Core application.</param>
         /// <param name="localizer">Represents an <see cref="IStringLocalizer"/> that provides strings for <see cref="UsersController"/>.</param>
+        /// <param name="configurationDbContext">Extended DbContext for the IdentityServer configuration data.</param>
         public UsersController(
             ExtendedUserManager<User> userManager, 
             RoleManager<Role> roleManager, 
@@ -75,7 +77,8 @@ namespace Indice.AspNetCore.Identity.Features
             IdentityServerApiEndpointsOptions apiEndpointsOptions, 
             IEventService eventService, 
             IOptions<GeneralSettings> generalSettings, 
-            IStringLocalizer<UsersController> localizer
+            IStringLocalizer<UsersController> localizer,
+            ExtendedConfigurationDbContext configurationDbContext
         ) {
             _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
             _roleManager = roleManager ?? throw new ArgumentNullException(nameof(roleManager));
@@ -86,6 +89,7 @@ namespace Indice.AspNetCore.Identity.Features
             _eventService = eventService ?? throw new ArgumentNullException(nameof(eventService));
             _generalSettings = generalSettings?.Value ?? throw new ArgumentNullException(nameof(generalSettings));
             _localizer = localizer ?? throw new ArgumentNullException(nameof(localizer));
+            _configurationDbContext = configurationDbContext ?? throw new ArgumentNullException(nameof(configurationDbContext));
         }
 
         /// <summary>
@@ -192,6 +196,13 @@ namespace Indice.AspNetCore.Identity.Features
             .SingleOrDefaultAsync();
             if (foundUser == null) {
                 return NotFound();
+            }
+            var claimTypes = await _configurationDbContext.ClaimTypes.ToListAsync();
+            foreach (var claim in foundUser.Claims) {
+                var claimType = claimTypes.SingleOrDefault(x => x.Name == claim.Type);
+                if (claimType != null) {
+                    claim.DisplayName = claimType.DisplayName;
+                }
             }
             return Ok(foundUser);
         }

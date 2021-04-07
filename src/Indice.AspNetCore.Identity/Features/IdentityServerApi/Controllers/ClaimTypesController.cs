@@ -3,7 +3,6 @@ using System.Linq;
 using System.Net.Mime;
 using System.Threading.Tasks;
 using Indice.AspNetCore.Filters;
-using Indice.AspNetCore.Identity.Models;
 using Indice.Types;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -30,7 +29,7 @@ namespace Indice.AspNetCore.Identity.Features
     [ProblemDetailsExceptionFilter]
     internal class ClaimTypesController : ControllerBase
     {
-        private readonly ExtendedIdentityDbContext<User, Role> _dbContext;
+        private readonly ExtendedConfigurationDbContext _configurationDbContext;
         /// <summary>
         /// The name of the controller.
         /// </summary>
@@ -39,9 +38,9 @@ namespace Indice.AspNetCore.Identity.Features
         /// <summary>
         /// Creates an instance of <see cref="ClaimTypesController"/>.
         /// </summary>
-        /// <param name="dbContext"><see cref="DbContext"/> for the Identity Framework.</param>
-        public ClaimTypesController(ExtendedIdentityDbContext<User, Role> dbContext) {
-            _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
+        /// <param name="configurationDbContext">Extended DbContext for the IdentityServer configuration data.</param>
+        public ClaimTypesController(ExtendedConfigurationDbContext configurationDbContext) {
+            _configurationDbContext = configurationDbContext ?? throw new ArgumentNullException(nameof(configurationDbContext));
         }
 
         /// <summary>
@@ -53,7 +52,7 @@ namespace Indice.AspNetCore.Identity.Features
         [ProducesResponseType(statusCode: StatusCodes.Status200OK, type: typeof(ResultSet<ClaimTypeInfo>))]
         [NoCache]
         public async Task<IActionResult> GetClaimTypes([FromQuery] ListOptions<ClaimTypesListFilter> options) {
-            var query = _dbContext.ClaimTypes.AsNoTracking().AsQueryable();
+            var query = _configurationDbContext.ClaimTypes.AsNoTracking().AsQueryable();
             if (!string.IsNullOrEmpty(options.Search)) {
                 var searchTerm = options.Search.ToLower();
                 query = query.Where(x => x.Name.ToLower().Contains(searchTerm) || x.Description.Contains(searchTerm));
@@ -86,7 +85,7 @@ namespace Indice.AspNetCore.Identity.Features
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
         [HttpGet("{id}")]
         public async Task<IActionResult> GetClaimType([FromRoute] string id) {
-            var claimType = await _dbContext.ClaimTypes.AsNoTracking().Select(x => new ClaimTypeInfo {
+            var claimType = await _configurationDbContext.ClaimTypes.AsNoTracking().Select(x => new ClaimTypeInfo {
                 Id = x.Id,
                 Name = x.Name,
                 DisplayName = x.DisplayName,
@@ -126,8 +125,8 @@ namespace Indice.AspNetCore.Identity.Features
                 Reserved = false,
                 UserEditable = request.UserEditable
             };
-            _dbContext.ClaimTypes.Add(claimType);
-            await _dbContext.SaveChangesAsync();
+            _configurationDbContext.ClaimTypes.Add(claimType);
+            await _configurationDbContext.SaveChangesAsync();
             return CreatedAtAction(nameof(GetClaimType), Name, new { id = claimType.Id }, new ClaimTypeInfo {
                 Id = claimType.Id,
                 Name = claimType.Name,
@@ -152,7 +151,7 @@ namespace Indice.AspNetCore.Identity.Features
         [ProducesResponseType(statusCode: StatusCodes.Status200OK, type: typeof(ClaimTypeInfo))]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
         public async Task<IActionResult> UpdateClaimType([FromRoute] string id, [FromBody] UpdateClaimTypeRequest request) {
-            var claimType = await _dbContext.ClaimTypes.SingleOrDefaultAsync(x => x.Id == id);
+            var claimType = await _configurationDbContext.ClaimTypes.SingleOrDefaultAsync(x => x.Id == id);
             if (claimType == null) {
                 return NotFound();
             }
@@ -162,9 +161,9 @@ namespace Indice.AspNetCore.Identity.Features
             claimType.Rule = request.Rule;
             claimType.ValueType = request.ValueType;
             claimType.Required = request.Required;
-            claimType.UserEditable = request.UserEditable;
+            claimType.UserEditable = !claimType.Reserved ? request.UserEditable : false;
             // Commit changes to database.
-            await _dbContext.SaveChangesAsync();
+            await _configurationDbContext.SaveChangesAsync();
             // Send the response.
             return Ok(new ClaimTypeInfo {
                 Id = claimType.Id,
@@ -183,19 +182,25 @@ namespace Indice.AspNetCore.Identity.Features
         /// Permanently deletes an existing claim type.
         /// </summary>
         /// <param name="id">The id of the claim to delete.</param>
-        /// <response code="200">OK</response>
+        /// <response code="204">No Content</response>
+        /// <response code="400">Bad Request</response>
         /// <response code="404">Not Found</response>
         [HttpDelete("{id}")]
-        [ProducesResponseType(statusCode: StatusCodes.Status200OK)]
+        [ProducesResponseType(statusCode: StatusCodes.Status204NoContent)]
+        [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest, type: typeof(ValidationProblemDetails))]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
         public async Task<IActionResult> DeleteClaimType([FromRoute] string id) {
-            var claimType = await _dbContext.ClaimTypes.AsNoTracking().SingleOrDefaultAsync(x => x.Id == id);
+            var claimType = await _configurationDbContext.ClaimTypes.AsNoTracking().SingleOrDefaultAsync(x => x.Id == id);
             if (claimType == null) {
                 return NotFound();
             }
-            _dbContext.ClaimTypes.Remove(claimType);
-            await _dbContext.SaveChangesAsync();
-            return Ok();
+            if (claimType.Reserved) {
+                ModelState.AddModelError(string.Empty, "Cannot delete a reserved claim type.");
+                return BadRequest(new ValidationProblemDetails(ModelState));
+            }
+            _configurationDbContext.ClaimTypes.Remove(claimType);
+            await _configurationDbContext.SaveChangesAsync();
+            return NoContent();
         }
     }
 }

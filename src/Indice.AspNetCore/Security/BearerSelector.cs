@@ -17,8 +17,7 @@ namespace Microsoft.Extensions.DependencyInjection
         public static Func<HttpContext, string> ForwardReferenceToken(string introspectionScheme = "introspection") {
             string Select(HttpContext context) {
                 var (scheme, credential) = GetSchemeAndCredential(context);
-                if (scheme.Equals("Bearer", StringComparison.OrdinalIgnoreCase) &&
-                    !credential.Contains(".")) {
+                if (scheme.Equals("Bearer", StringComparison.OrdinalIgnoreCase) && !credential.Contains(".")) {
                     return introspectionScheme;
                 }
                 return null;

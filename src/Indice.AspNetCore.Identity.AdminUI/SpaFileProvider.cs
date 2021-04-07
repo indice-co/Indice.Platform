@@ -78,7 +78,8 @@ namespace Indice.AspNetCore.Identity.AdminUI
             { "%(Host)", _options.Host.TrimEnd('/') },
             { "%(Path)", _options.Path.Trim('/') },
             { "%(HeadContent)", _options.HeadContent },
-            { "%(Culture)", CultureInfo.CurrentCulture.TwoLetterISOLanguageName }
+            { "%(Culture)", CultureInfo.CurrentCulture.TwoLetterISOLanguageName },
+            { "%(ProductVersion)", typeof(AdminUIMiddleware).Assembly.GetName().Version.ToString(fieldCount: 3) }
         };
     }
 }

@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Security.Claims;
-using System.Text;
+﻿using System.Security.Claims;
 using System.Threading.Tasks;
 using Indice.Security;
 using Microsoft.AspNetCore.Authentication;
@@ -20,7 +17,7 @@ namespace Microsoft.Extensions.DependencyInjection
     }
 
     /// <summary>
-    /// Extensions on the aspnet core authentication regarding <see cref="ScopeClaimTransformation"/>
+    /// Extensions on the aspnet core authentication regarding <see cref="ScopeClaimTransformation"/>.
     /// </summary>
     public static class ScopeClaimTransformationConfiguration
     {
@@ -28,8 +25,7 @@ namespace Microsoft.Extensions.DependencyInjection
         /// The scope claim is a space delimited string. 
         /// This does not play nicely with .NET claims, hence we included a little claim transformer, that turns that string into individual claims.
         /// </summary>
-        /// <param name="services"></param>
-        /// <returns></returns>
+        /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
         public static IServiceCollection AddScopeTransformation(this IServiceCollection services) {
             return services.AddTransient<IClaimsTransformation, ScopeClaimTransformation>();
         }

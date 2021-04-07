@@ -5,6 +5,7 @@ export interface IAppSettings {
     culture: string;
     isTemplate: boolean,
     production: boolean;
+    version: string;
 }
 
 export interface IAuthSettings {

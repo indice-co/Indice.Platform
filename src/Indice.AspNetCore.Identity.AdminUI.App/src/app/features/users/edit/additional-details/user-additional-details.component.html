@@ -22,7 +22,7 @@
                 </option>
                 <option *ngFor="let claim of claims"
                         [value]="claim.name">
-                    {{ claim.name }}
+                    {{ claim.displayName || claim.name }}
                 </option>
             </select>
             <div *ngIf="form.submitted && claim.invalid"
@@ -77,4 +77,11 @@
        href="#"
        role="button"
        [routerLink]="value + '/edit'">Edit</a>
+</ng-template>
+<ng-template let-row="row"
+             let-value="value"
+             #nameTemplate>
+    <span>
+        {{ row.displayName ? row.displayName : row.type }}
+    </span>
 </ng-template>

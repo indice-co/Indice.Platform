@@ -19,9 +19,9 @@ namespace Indice.AspNetCore.Identity.Features
         /// </summary>
         public EmailOptions Email { get; set; } = new EmailOptions();
         /// <summary>
-        /// If true, it seeds the database with some initial data for users, roles etc. Works only when environment is 'Development'. Default is false.
+        /// If true, it seeds the database with some initial data for users. Works only when environment is 'Development'. Default is false.
         /// </summary>
-        public bool UseInitialData { get; set; } = false;
+        public bool SeedDummyUsers { get; set; } = false;
         /// <summary>
         /// If true, various events (user or client created etc.) are raised from the API. Default is false.
         /// </summary>
@@ -29,7 +29,11 @@ namespace Indice.AspNetCore.Identity.Features
         /// <summary>
         /// A list of initial users to be inserted in the database on startup. Works only when environment is 'Development'.
         /// </summary>
-        public IEnumerable<User> InitialUsers { get; set; }
+        public IEnumerable<User> InitialUsers { get; set; } = new List<User>();
+        /// <summary>
+        /// A list of custom claim types to be inserted in the database on startup. Works only when environment is 'Development'.
+        /// </summary>
+        public IEnumerable<ClaimType> CustomClaims { get; set; } = new List<ClaimType>();
         /// <summary>
         /// Disables the cache for all the endpoints in the IdentityServer API. Defaults to false.
         /// </summary>

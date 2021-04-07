@@ -19,20 +19,19 @@ namespace Indice.AspNetCore.Identity.Features
         /// <param name="dbContextOptions">The options to be used by a <see cref="DbContext"/>.</param>
         /// <param name="options">Options for configuring the IdentityServer API feature.</param>
         /// <param name="webHostEnvironment">Provides information about the web hosting environment an application is running in.</param>
-        public ExtendedIdentityDbContext(DbContextOptions<ExtendedIdentityDbContext<TUser, TRole>> dbContextOptions, IdentityServerApiEndpointsOptions options,
-            IWebHostEnvironment webHostEnvironment) : base(dbContextOptions) {
-            if (Database.EnsureCreated() && webHostEnvironment.IsDevelopment()) {
-                if (options.UseInitialData) {
-                    this.Seed();
+        public ExtendedIdentityDbContext(
+            DbContextOptions<ExtendedIdentityDbContext<TUser, TRole>> dbContextOptions,
+            IdentityServerApiEndpointsOptions options,
+            IWebHostEnvironment webHostEnvironment
+        ) : base(dbContextOptions) {
+            if (webHostEnvironment.IsDevelopment() && Database.EnsureCreated()) {
+                this.SeedAdminUser();
+                if (options.SeedDummyUsers) {
+                    this.SeedDummyUsers();
                 }
-                this.Seed(options.InitialUsers);
+                this.SeedCustomUsers(options.InitialUsers);
             }
         }
-
-        /// <summary>
-        /// A table that contains all the available claim types of the application.
-        /// </summary>
-        public DbSet<ClaimType> ClaimTypes { get; set; }
 
         /// <summary>
         /// Register extended configuration methods when the database is being created.
@@ -40,7 +39,6 @@ namespace Indice.AspNetCore.Identity.Features
         /// <param name="modelBuilder">Provides a simple API surface for configuring a <see cref="DbContext"/>.</param>
         protected override void OnModelCreating(ModelBuilder modelBuilder) {
             base.OnModelCreating(modelBuilder);
-            modelBuilder.ApplyConfiguration(new ClaimTypeMap());
         }
     }
 }
