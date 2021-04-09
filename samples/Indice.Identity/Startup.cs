@@ -11,7 +11,7 @@ using Indice.Configuration;
 using Indice.Identity.Configuration;
 using Indice.Identity.Hosting;
 using Indice.Identity.Security;
-using Indice.Identity.Services;
+using Microsoft.ApplicationInsights.AspNetCore.Extensions;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -19,6 +19,7 @@ using Microsoft.AspNetCore.Localization;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using Microsoft.Net.Http.Headers;
 using Swashbuckle.AspNetCore.SwaggerUI;
 
@@ -34,10 +35,12 @@ namespace Indice.Identity
         /// </summary>
         /// <param name="hostingEnvironment">Provides information about the web hosting environment an application is running in.</param>
         /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
-        public Startup(IWebHostEnvironment hostingEnvironment, IConfiguration configuration) {
+        /// <param name="logger">Represents a type used to perform logging.</param>
+        public Startup(IWebHostEnvironment hostingEnvironment, IConfiguration configuration, ILogger<Startup> logger) {
             HostingEnvironment = hostingEnvironment ?? throw new ArgumentNullException(nameof(hostingEnvironment));
             Configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
             Settings = Configuration.GetSection(GeneralSettings.Name).Get<GeneralSettings>();
+            Logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
         /// <summary>
@@ -52,12 +55,21 @@ namespace Indice.Identity
         /// General settings for an ASP.NET Core application.
         /// </summary>
         public GeneralSettings Settings { get; }
+        /// <summary>
+        /// Represents a type used to perform logging.
+        /// </summary>
+        public ILogger<Startup> Logger { get; }
 
         /// <summary>
         /// This method gets called by the runtime. Use this method to add services to the container.
         /// </summary>
         /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
         public void ConfigureServices(IServiceCollection services) {
+            // https://docs.microsoft.com/en-us/azure/azure-monitor/app/asp-net-core#using-applicationinsightsserviceoptions
+            var aiOptions = new ApplicationInsightsServiceOptions();
+            // https://docs.microsoft.com/en-us/azure/azure-monitor/app/asp-net-core
+            services.AddApplicationInsightsTelemetry(aiOptions);
+            Logger.LogInformation("Application started configuring services.");
             services.AddMvcConfig(Configuration);
             services.AddLocalization(options => options.ResourcesPath = "Resources");
             services.AddCors(options => options.AddDefaultPolicy(builder => {
@@ -90,9 +102,11 @@ namespace Indice.Identity
             services.AddCsp(options => {
                 options.ScriptSrc = CSP.Self;
                 options.AddSandbox("allow-popups")
+                       .AddScriptSrc("https://az416426.vo.msecnd.net")
                        .AddFontSrc(CSP.Data)
                        .AddConnectSrc(CSP.Self)
                        .AddConnectSrc("https://dc.services.visualstudio.com")
+                       .AddConnectSrc("https://switzerlandnorth-0.in.applicationinsights.azure.com//v2/track")
                        .AddFrameAncestors("https://localhost:2002");
             });
             // Setup worker host for executing background tasks.
@@ -121,9 +135,11 @@ namespace Indice.Identity
         /// <param name="app">Defines a class that provides the mechanisms to configure an application's request pipeline.</param>
         public void Configure(IApplicationBuilder app) {
             if (HostingEnvironment.IsDevelopment()) {
+                Logger.LogInformation("Configuring for Development environment.");
                 app.UseDeveloperExceptionPage();
                 app.IdentityServerStoreSetup<ExtendedConfigurationDbContext>(Clients.Get(), Resources.GetIdentityResources(), Resources.GetApis(), Resources.GetApiScopes());
             } else {
+                Logger.LogInformation("Configuring for Production environment.");
                 app.UseHsts();
                 app.UseHttpsRedirection();
             }

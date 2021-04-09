@@ -1,4 +1,5 @@
 ﻿using System;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
@@ -37,7 +38,21 @@ namespace Indice.Extensions.Configuration.EntityFrameworkCore
         /// <param name="connectionStringName">The name of the connection string to user. Default is 'IdentityDb'</param>
         /// <returns>The <see cref="IHostBuilder"/>.</returns>
         public static IHostBuilder UseEFConfiguration(this IHostBuilder hostBuilder, TimeSpan? reloadInterval = null, string connectionStringName = "DefaultConnection") {
-            hostBuilder.ConfigureAppConfiguration((hostBuilderContext, configurationBuilder) => {
+            hostBuilder.ConfigureWebHost(webHostBuilder => {
+                webHostBuilder.UseEFConfiguration(reloadInterval, connectionStringName);
+            });
+            return hostBuilder;
+        }
+
+        /// <summary>
+        /// Registers and configures the <see cref="EFConfigurationProvider"/> using some default values.
+        /// </summary>
+        /// <param name="webHostBuilder">A builder for <see cref="IWebHost"/>./param>
+        /// <param name="reloadInterval">The <see cref="TimeSpan"/> to wait in between each attempt at polling the database for changes. Default is null which indicates no reloading.</param>
+        /// <param name="connectionStringName">The name of the connection string to user. Default is 'IdentityDb'</param>
+        /// <returns>The <see cref="IHostBuilder"/>.</returns>
+        public static IWebHostBuilder UseEFConfiguration(this IWebHostBuilder webHostBuilder, TimeSpan? reloadInterval = null, string connectionStringName = "DefaultConnection") {
+            webHostBuilder.ConfigureAppConfiguration((hostBuilderContext, configurationBuilder) => {
                 var builder = configurationBuilder.Build();
                 configurationBuilder.AddEFConfiguration(options => {
                     options.ReloadInterval = reloadInterval;
@@ -47,7 +62,7 @@ namespace Indice.Extensions.Configuration.EntityFrameworkCore
                     });
                 });
             });
-            return hostBuilder;
+            return webHostBuilder;
         }
     }
 }

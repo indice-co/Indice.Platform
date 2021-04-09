@@ -98,5 +98,12 @@ namespace Microsoft.Extensions.Configuration
         /// <returns>True if specified flag is set to true, otherwise false.</returns>
         /// <remarks>Checks for the General:StopWorkerHost option in appsettings.json file.</remarks>
         public static bool StopWorkerHost(this IConfiguration configuration) => configuration.GetSection(GeneralSettings.Name).GetValue<bool>("StopWorkerHost") || configuration.GetValue<bool>("StopWorkerHost");
+
+        /// <summary>
+        /// Gets the Application Insights instrumentation key.
+        /// </summary>
+        /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
+        /// <returns>Checks for the ApplicationInsights:InstrumentationKey option in appsettings.json file.</returns>
+        public static string GetInstrumentationKey(this IConfiguration configuration) => configuration.GetSection("ApplicationInsights").GetValue<string>("InstrumentationKey");
     }
 }

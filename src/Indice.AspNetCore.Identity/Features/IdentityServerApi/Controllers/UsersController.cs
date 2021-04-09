@@ -99,7 +99,6 @@ namespace Indice.AspNetCore.Identity.Features
         /// <response code="200">OK</response>
         [HttpGet]
         [ProducesResponseType(statusCode: StatusCodes.Status200OK, type: typeof(ResultSet<UserInfo>))]
-        [CacheResourceFilter(Expiration = 1)]
         public async Task<IActionResult> GetUsers([FromQuery] ListOptions<UserListFilter> options) {
             var query = _dbContext.Users.AsNoTracking();
             if (options?.Filter != null) {
