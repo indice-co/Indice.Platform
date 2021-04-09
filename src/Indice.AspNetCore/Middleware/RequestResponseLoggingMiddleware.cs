@@ -6,9 +6,12 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
+using System.Text;
 
 namespace Indice.AspNetCore.Middleware
 {
+    //https://www.azureblue.io/how-to-log-http-request-body-with-asp-net-core-application-insights/ 
+
     // https://exceptionnotfound.net/using-middleware-to-log-requests-and-responses-in-asp-net-core/
     // https://gist.github.com/elanderson/c50b2107de8ee2ed856353dfed9168a2
     // https://stackoverflow.com/a/52328142/3563013
@@ -20,19 +23,16 @@ namespace Indice.AspNetCore.Middleware
     public class RequestResponseLoggingMiddleware
     {
         private readonly RequestDelegate _next;
-        private readonly Func<ILogger<RequestProfilerModel>, RequestProfilerModel, Task> _requestResponseHandler;
-        private readonly List<string> _contentTypes;
+        private RequestResponseLoggingOptions _options;
 
         /// <summary>
         /// Constructs the <see cref="RequestResponseLoggingMiddleware"/>.
         /// </summary>
         /// <param name="next">A function that can process an HTTP request.</param>
-        /// <param name="contentTypes">These are the response content types that will be tracked. Others are filtered out. Whern null or empty array uses defaults application/json and text/html</param>
-        /// <param name="requestResponseHandler"></param>
-        public RequestResponseLoggingMiddleware(RequestDelegate next, string[] contentTypes, Func<ILogger<RequestProfilerModel>, RequestProfilerModel, Task> requestResponseHandler) {
+        /// <param name="options">Available configuration options</param>
+        public RequestResponseLoggingMiddleware(RequestDelegate next, RequestResponseLoggingOptions options) {
             _next = next ?? throw new ArgumentNullException(nameof(next));
-            _contentTypes = new List<string>(contentTypes);
-            _requestResponseHandler = requestResponseHandler ?? throw new ArgumentNullException(nameof(requestResponseHandler));
+            _options = options ?? throw new ArgumentNullException(nameof(next));
         }
 
         /// <summary>
@@ -41,10 +41,11 @@ namespace Indice.AspNetCore.Middleware
         /// <param name="context">The <see cref="HttpContext"/>.</param>
         /// <param name="logger">Represents a type used to perform logging.</param>
         public async Task Invoke(HttpContext context, ILogger<RequestProfilerModel> logger) {
-            var loggingHandler = _requestResponseHandler ?? DefaultLoggingHandler;
+            // Write request body to App Insights
+            var loggingHandler = _options.LogHandler ?? DefaultLoggingHandler;
             var model = new RequestProfilerModel(context);
             await model.SnapRequestBody();
-            if (await model.NextAndSnapResponceBody(_next, _contentTypes)) {
+            if (await model.NextAndSnapResponceBody(_next, _options.ContentTypes)) {
                 await loggingHandler(logger, model);
             }
         }
@@ -54,41 +55,39 @@ namespace Indice.AspNetCore.Middleware
         /// </summary>
         /// <param name="logger">Represents a type used to perform logging.</param>
         /// <param name="model">Represents a request and response in order to be logged.</param>
-        public static Task DefaultLoggingHandler(ILogger<RequestProfilerModel> logger, RequestProfilerModel model) {
-            if (model.Context.Response.StatusCode >= 500) {
-                logger.LogError(FormatRequest(model));
-                logger.LogError(FormatResponse(model));
-            } else if (model.Context.Response.StatusCode >= 400) {
-                logger.LogWarning(FormatRequest(model));
-                logger.LogWarning(FormatResponse(model));
+        public static Task DefaultLoggingHandler(ILogger logger, RequestProfilerModel model) {
+            if (model.HttpContext.Response.StatusCode >= 500) {
+                logger.LogError(LOG_MESSAGE_FROMAT, model.Duration,
+                                                    model.HostUri,
+                                                    model.RequestTarget,
+                                                    model.StatusCode,
+                                                    model.RequestBody,
+                                                    model.ResponseBody);
+            } else if (model.HttpContext.Response.StatusCode >= 400) {
+                logger.LogWarning(LOG_MESSAGE_FROMAT, model.Duration,
+                                                    model.HostUri,
+                                                    model.RequestTarget,
+                                                    model.StatusCode,
+                                                    model.RequestBody,
+                                                    model.ResponseBody);
             } else {
-                logger.LogInformation(FormatRequest(model));
-                logger.LogInformation(FormatResponse(model));
+                logger.LogInformation(LOG_MESSAGE_FROMAT, model.Duration,
+                                                    model.HostUri,
+                                                    model.RequestTarget,
+                                                    model.StatusCode,
+                                                    model.RequestBody,
+                                                    model.ResponseBody);
             }
             return Task.CompletedTask;
         }
 
-        private static string FormatResponse(RequestProfilerModel model) {
-            var request = model.Context.Request;
-            var response = model.Context.Response;
-            return $"Http Response Information: {Environment.NewLine}" +
-                   $"Scheme: {request.Scheme} {Environment.NewLine}" +
-                   $"Host: {request.Host} {Environment.NewLine}" +
-                   $"Path: {request.Path} {Environment.NewLine}" +
-                   $"QueryString: {request.QueryString} {Environment.NewLine}" +
-                   $"StatusCode: {response.StatusCode} {Environment.NewLine}" +
-                   $"Response Body: {model.ResponseBody}";
-        }
-
-        private static string FormatRequest(RequestProfilerModel model) {
-            var request = model.Context.Request;
-            return $"Http Request Information: {Environment.NewLine}" +
-                   $"Scheme: {request.Scheme} {Environment.NewLine}" +
-                   $"Host: {request.Host} {Environment.NewLine}" +
-                   $"Path: {request.Path} {Environment.NewLine}" +
-                   $"QueryString: {request.QueryString} {Environment.NewLine}" +
-                   $"Request Body: {model.RequestBody}";
-        }
+        private const string LOG_MESSAGE_FROMAT = @"Http request 
+Duration: {Duration}
+Host: {Host}
+RequestTarget: {RequestTarget}
+StatusCode: {StatusCode}
+RequestBody: {RequestBody}
+ResponseBody: {ResponseBody}";
     }
 
     /// <summary>
@@ -98,12 +97,12 @@ namespace Indice.AspNetCore.Middleware
     {
         private const int ReadChunkBufferLength = 4096;
         /// <summary>
-        /// Constructs the model by passing the <see cref="HttpContext"/>.
+        /// Constructs the model by passing the <see cref="Microsoft.AspNetCore.Http.HttpContext"/>.
         /// </summary>
         /// <param name="httpContext">Encapsulates all HTTP-specific information about an individual HTTP request.</param>
         public RequestProfilerModel(HttpContext httpContext) {
-            Context = httpContext;
-            var dateText = Context.Request.Headers["Date"];
+            HttpContext = httpContext;
+            var dateText = HttpContext.Request.Headers["Date"];
             if (!DateTime.TryParseExact(dateText, "r", CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal, out var date)) {
                 date = DateTime.UtcNow;
             }
@@ -113,11 +112,16 @@ namespace Indice.AspNetCore.Middleware
         /// <summary>
         /// Request target is the http request method followed by the request path
         /// </summary>
-        public string RequestTarget => $"{Context.Request.Method.ToLowerInvariant()} {Context.Request.Path}".Trim();
+        public string HostUri => $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host}".Trim();
+
+        /// <summary>
+        /// Request target is the http request method followed by the request path
+        /// </summary>
+        public string RequestTarget => $"{HttpContext.Request.Method.ToLowerInvariant()} {HttpContext.Request.Path}".Trim();
         /// <summary>
         /// HTTP status code
         /// </summary>
-        public int StatusCode => Context.Response.StatusCode;
+        public int StatusCode => HttpContext.Response.StatusCode;
         /// <summary>
         /// The request time.
         /// </summary>
@@ -131,9 +135,9 @@ namespace Indice.AspNetCore.Middleware
         /// </summary>
         public TimeSpan Duration => (ResponseTime - RequestTime);
         /// <summary>
-        /// The <see cref="HttpContext"/> when the request happended.
+        /// The <see cref="Microsoft.AspNetCore.Http.HttpContext"/> when the request happended.
         /// </summary>
-        public HttpContext Context { get; }
+        public HttpContext HttpContext { get; }
         /// <summary>
         /// The request message.
         /// </summary>
@@ -148,7 +152,28 @@ namespace Indice.AspNetCore.Middleware
         /// </summary>
         /// <returns></returns>
         internal async Task SnapRequestBody() {
-            var request = Context.Request;
+            var method = HttpContext.Request.Method;
+            HttpContext.Request.EnableBuffering();
+            // Only if we are dealing with POST or PUT, GET and others shouldn't have a body
+            if (HttpContext.Request.Body.CanRead && (HttpMethods.IsPost(method) || HttpMethods.IsPut(method) || HttpMethods.IsPatch(method))) {
+                // Leave stream open so next middleware can read it
+                using var reader = new StreamReader(
+                    HttpContext.Request.Body,
+                    Encoding.UTF8,
+                    detectEncodingFromByteOrderMarks: false,
+                    bufferSize: 512, leaveOpen: true);
+                RequestBody = await reader.ReadToEndAsync();
+                // Reset stream position, so next middleware can read it
+                HttpContext.Request.Body.Seek(0, SeekOrigin.Begin);
+            }
+        }
+
+        /// <summary>
+        /// Takes a snapshot of the current request body.
+        /// </summary>
+        /// <returns></returns>
+        internal async Task SnapRequestBodyOld() {
+            var request = HttpContext.Request;
             request.EnableBuffering();
             using var requestStream = new MemoryStream();
             await request.Body.CopyToAsync(requestStream);
@@ -163,14 +188,14 @@ namespace Indice.AspNetCore.Middleware
         /// <param name="allowedContentTypes"></param>
         /// <returns></returns>
         internal async Task<bool> NextAndSnapResponceBody(RequestDelegate next, List<string> allowedContentTypes = null) {
-            var originalBody = Context.Response.Body;
+            var originalBody = HttpContext.Response.Body;
             using var newResponseBody = new MemoryStream();
-            Context.Response.Body = newResponseBody;
-            await next(Context);
+            HttpContext.Response.Body = newResponseBody;
+            await next(HttpContext);
             newResponseBody.Seek(0, SeekOrigin.Begin);
             await newResponseBody.CopyToAsync(originalBody);
             newResponseBody.Seek(0, SeekOrigin.Begin);
-            var ok = allowedContentTypes == null || string.IsNullOrEmpty(Context.Response.ContentType) || allowedContentTypes.Contains(Context.Response.ContentType.Split(';')[0], StringComparer.OrdinalIgnoreCase);
+            var ok = allowedContentTypes == null || string.IsNullOrEmpty(HttpContext.Response.ContentType) || allowedContentTypes.Contains(HttpContext.Response.ContentType.Split(';')[0], StringComparer.OrdinalIgnoreCase);
             if (ok) {
                 ResponseBody = ReadStreamInChunks(newResponseBody);
             }

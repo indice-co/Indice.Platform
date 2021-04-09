@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
 using Hellang.Middleware.ProblemDetails;
 using Indice.AspNetCore.Filters;
 using Indice.AspNetCore.Identity.Features;
@@ -12,6 +13,7 @@ using Indice.Identity.Configuration;
 using Indice.Identity.Hosting;
 using Indice.Identity.Security;
 using Microsoft.ApplicationInsights.AspNetCore.Extensions;
+using Microsoft.ApplicationInsights.DataContracts;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -154,19 +156,26 @@ namespace Indice.Identity
             app.UseCookiePolicy();
             app.UseRouting();
             // Use the middleware with parameters to log request responses to the ILogger or use custom parameters to lets say take request response snapshots for testing purposes.
-            //app.UseRequestResponseLogging(
-            //    new[] { System.Net.Mime.MediaTypeNames.Application.Json, System.Net.Mime.MediaTypeNames.Text.Html }, async (logger, model) => {
-            //        var filename = $"{model.RequestTime:yyyyMMdd.HHmmss}_{model.RequestTarget.Replace('/', '-')}_{model.StatusCode}";
-            //        var folder = System.IO.Path.Combine(HostingEnvironment.ContentRootPath, @"App_Data\snapshots");
-            //        if (System.IO.Directory.Exists(folder)) {
-            //            System.IO.Directory.CreateDirectory(folder);
-            //        }
-            //        if (!string.IsNullOrEmpty(model.RequestBody)) {
-            //            await System.IO.File.WriteAllTextAsync(System.IO.Path.Combine(folder, $"{filename}_request.txt"), model.RequestBody);
-            //        }
-            //        await System.IO.File.WriteAllTextAsync(System.IO.Path.Combine(folder, $"{filename}_response.txt"), model.ResponseBody);
-            //    }
-            //);
+            app.UseRequestResponseLogging((options) => {
+                //options.LogHandler = async (logger, model) => {
+                //    var filename = $"{model.RequestTime:yyyyMMdd.HHmmss}_{model.RequestTarget.Replace('/', '-')}_{model.StatusCode}";
+                //    var folder = System.IO.Path.Combine(HostingEnvironment.ContentRootPath, @"App_Data\snapshots");
+                //    if (System.IO.Directory.Exists(folder)) {
+                //        System.IO.Directory.CreateDirectory(folder);
+                //    }
+                //    if (!string.IsNullOrEmpty(model.RequestBody)) {
+                //        await System.IO.File.WriteAllTextAsync(System.IO.Path.Combine(folder, $"{filename}_request.txt"), model.RequestBody);
+                //    }
+                //    await System.IO.File.WriteAllTextAsync(System.IO.Path.Combine(folder, $"{filename}_response.txt"), model.ResponseBody);
+                //};
+                options.LogHandler = (logger, model) => {
+                    // Write response body to App Insights
+                    var requestTelemetry = model.HttpContext.Features.Get<RequestTelemetry>();
+                    requestTelemetry?.Properties.Add(nameof(model.ResponseBody), model.ResponseBody);
+                    requestTelemetry?.Properties.Add(nameof(model.RequestBody), model.RequestBody);
+                    return Task.CompletedTask;
+                };
+            });
             app.UseIdentityServer();
             app.UseCors();
             app.UseAuthentication();
