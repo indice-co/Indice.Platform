@@ -130,16 +130,16 @@ namespace Indice.AspNetCore.Swagger
         public static OpenApiInfo AddDoc(this SwaggerGenOptions options, GeneralSettings settings, string scopeOrGroup, string description) {
             var apiSettings = settings?.Api ?? new ApiSettings();
             var version = $"v{apiSettings.DefaultVersion}";
-            var scope = scopeOrGroup;
             var license = apiSettings.License == null ? null : new OpenApiLicense { Name = apiSettings.License.Name, Url = new Uri(apiSettings.License.Url) };
             var contact = apiSettings.Contact == null ? null : new OpenApiContact { Name = apiSettings.Contact.Name, Url = new Uri(apiSettings.Contact.Url), Email = apiSettings.Contact.Email };
-            var scopes = apiSettings.ScopesDictionary;
-            if (!scopes.TryGetValue(scopeOrGroup, out var title) &&
-                !scopes.TryGetValue($"{apiSettings.ResourceName}.{scopeOrGroup}", out title) &&
-                !scopes.TryGetValue($"{apiSettings.ResourceName}:{scopeOrGroup}", out title)) {
+            var scope = apiSettings.GetScope(scopeOrGroup)
+                ?? apiSettings.GetScope($"{apiSettings.ResourceName}.{scopeOrGroup}")
+                ?? apiSettings.GetScope($"{apiSettings.ResourceName}:{scopeOrGroup}");
+            var title = scope?.Description;
+            if (scope is null) {
                 title = $"{apiSettings.FriendlyName}. {scopeOrGroup}";
             }
-            return options.AddDoc(scope, title, description, version, apiSettings.TermsOfServiceUrl, license, contact);
+            return options.AddDoc(scopeOrGroup, title, description, version, apiSettings.TermsOfServiceUrl, license, contact);
         }
 
         /// <summary>

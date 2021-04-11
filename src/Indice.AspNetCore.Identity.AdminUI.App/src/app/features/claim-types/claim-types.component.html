@@ -32,14 +32,13 @@
     <a class="btn btn-success"
        href="#"
        role="button"
-       *ngIf="!row.reserved"
        [routerLink]="value + '/edit'">
         Edit
     </a>
-    <span *ngIf="row.reserved"
+    <!-- <span *ngIf="row.reserved"
           class="badge badge-warning">
         system reserved
-    </span>
+    </span> -->
 </ng-template>
 <ng-template let-row="row"
              let-value="value"
@@ -51,12 +50,16 @@
 <ng-template let-row="row"
              let-value="value"
              #nameTemplate>
-    <span *ngIf="row.description">
-        <i [title]="row.description"
-           class="material-icons align-middle">
-            info
+    <span>
+        <span class="mr-1">{{ row.displayName }}</span>
+        <span class="badge badge-primary mr-1"
+              [title]="row.description">
+            {{ row.name }}
+        </span>
+        <i *ngIf="row.reserved"
+           title="reserved"
+           class="material-icons align-middle text-warning">
+            lock
         </i>
-        {{ row.displayName || row.name }}
     </span>
-    <span *ngIf="!row.description">{{ value }}</span>
 </ng-template>

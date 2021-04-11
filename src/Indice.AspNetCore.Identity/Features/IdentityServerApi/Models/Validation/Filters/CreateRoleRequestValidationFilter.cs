@@ -15,14 +15,14 @@ namespace Indice.AspNetCore.Identity.Features
     /// </summary>
     internal class CreateRoleRequestValidationFilter : IAsyncActionFilter
     {
-        private readonly Func<ExtendedIdentityDbContext<User, Role>> _getDbContext;
+        private readonly ExtendedIdentityDbContext<User, Role> _dbContext;
 
         /// <summary>
         /// Creates a new instance of <see cref="CreateClaimTypeRequestValidationFilter"/>.
         /// </summary>
-        /// <param name="getDbContext"></param>
-        public CreateRoleRequestValidationFilter(Func<ExtendedIdentityDbContext<User, Role>> getDbContext) {
-            _getDbContext = getDbContext ?? throw new ArgumentNullException(nameof(getDbContext));
+        /// <param name="dbContext">An extended <see cref="DbContext"/> for the Identity framework.</param>
+        public CreateRoleRequestValidationFilter(ExtendedIdentityDbContext<User, Role> dbContext) {
+            _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
         }
 
         /// <summary>
@@ -39,8 +39,7 @@ namespace Indice.AspNetCore.Identity.Features
                 return;
             }
             var roleName = ((CreateRoleRequest)body.Value).Name;
-            var dbContext = _getDbContext();
-            var exists = await dbContext.Roles.AsNoTracking().AnyAsync(x => x.Name == roleName);
+            var exists = await _dbContext.Roles.AsNoTracking().AnyAsync(x => x.Name == roleName);
             if (exists) {
                 context.Result = new BadRequestObjectResult(new ValidationProblemDetails(new Dictionary<string, string[]> {
                     { nameof(CreateClaimTypeRequest.Name).Camelize(), new string[] { $"A role with name {roleName} already exists." } }

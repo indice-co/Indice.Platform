@@ -1,4 +1,5 @@
-﻿using IdentityServer4.EntityFramework.DbContexts;
+﻿using System.Linq;
+using IdentityServer4.EntityFramework.DbContexts;
 using IdentityServer4.EntityFramework.Options;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
@@ -17,9 +18,18 @@ namespace Indice.AspNetCore.Identity.Features
         /// <param name="options">The options to be used by a <see cref="DbContext"/>.</param>
         /// <param name="storeOptions">Options for configuring the <see cref="ExtendedConfigurationDbContext"/>.</param>
         /// <param name="webHostEnvironment">Provides information about the web hosting environment an application is running in.</param>
-        public ExtendedConfigurationDbContext(DbContextOptions<ExtendedConfigurationDbContext> options, ConfigurationStoreOptions storeOptions, IWebHostEnvironment webHostEnvironment) : base(options, storeOptions) {
-            if (webHostEnvironment.IsDevelopment()) {
-                Database.EnsureCreated();
+        /// <param name="apiOptions">Options for configuring the IdentityServer API feature.</param>
+        public ExtendedConfigurationDbContext(
+            DbContextOptions<ExtendedConfigurationDbContext> options,
+            ConfigurationStoreOptions storeOptions,
+            IWebHostEnvironment webHostEnvironment,
+            IdentityServerApiEndpointsOptions apiOptions
+        ) : base(options, storeOptions) {
+            if (webHostEnvironment.IsDevelopment() && Database.EnsureCreated()) {
+                this.SeedInitialClaimTypes();
+                if (apiOptions.CustomClaims.Any()) {
+                    this.SeedCustomClaimTypes(apiOptions.CustomClaims);
+                }
             }
         }
 
@@ -31,6 +41,10 @@ namespace Indice.AspNetCore.Identity.Features
         /// A table that contains custom data for a client secret.
         /// </summary>
         public DbSet<ClientSecretExtended> ClientSecretExtras { get; set; }
+        /// <summary>
+        /// A table that contains all the available claim types of the application.
+        /// </summary>
+        public DbSet<ClaimType> ClaimTypes { get; set; }
 
         /// <summary>
         /// Register extended configuration methods when the database is being created.
@@ -40,6 +54,7 @@ namespace Indice.AspNetCore.Identity.Features
             base.OnModelCreating(modelBuilder);
             modelBuilder.ApplyConfiguration(new ClientUserMap());
             modelBuilder.ApplyConfiguration(new ClientSecretExtendedMap());
+            modelBuilder.ApplyConfiguration(new ClaimTypeMap());
         }
     }
 }

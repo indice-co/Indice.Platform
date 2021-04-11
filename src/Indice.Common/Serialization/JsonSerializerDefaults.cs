@@ -4,15 +4,13 @@ using System.Text.Json.Serialization;
 namespace Indice.Serialization
 {
     /// <summary>
-    /// Carries Default Json serializer Settings for the most common scenarios. 
+    /// Carries default JSON serializer settings for the most common scenarios. 
     /// </summary>
     public static class JsonSerializerOptionDefaults
-
     {
         /// <summary>
-        /// Json options defaults.
+        /// JSON options defaults.
         /// </summary>
-        /// <returns></returns>
         public static JsonSerializerOptions GetDefaultSettings() {
             var options = new JsonSerializerOptions {
                 IgnoreNullValues = true,

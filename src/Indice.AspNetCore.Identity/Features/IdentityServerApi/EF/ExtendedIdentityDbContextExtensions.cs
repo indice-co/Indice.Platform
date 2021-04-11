@@ -14,13 +14,14 @@ namespace Indice.AspNetCore.Identity.Features
     internal static class ExtendedIdentityDbContextExtensions
     {
         /// <summary>
-        /// A method that seeds the database with initial realistic data.
+        /// A method that seeds the database with an admin account.
         /// </summary>
+        /// <typeparam name="TUser">The type of user.</typeparam>
+        /// <typeparam name="TRole">The type of role.</typeparam>
         /// <param name="dbContext">An extended <see cref="DbContext"/> for the Identity framework.</param>
-        public static void Seed<TUser, TRole>(this ExtendedIdentityDbContext<TUser, TRole> dbContext)
+        public static void SeedAdminUser<TUser, TRole>(this ExtendedIdentityDbContext<TUser, TRole> dbContext)
             where TUser : User, new()
             where TRole : Role, new() {
-            // Create an admin account.
             const string adminEmail = "company@indice.gr";
             var admin = new TUser {
                 Id = "ab9769f1-d532-4b7d-9922-3da003157ebd",
@@ -33,7 +34,7 @@ namespace Indice.AspNetCore.Identity.Features
                 NormalizedEmail = adminEmail.ToUpper(),
                 NormalizedUserName = adminEmail.ToUpper(),
                 PasswordHash = "AH6SA/wuxp9YEfLGROaj2CgjhxZhXDkMB1nD8V7lfQAI+WTM4lGMItjLhhV5ASsq+Q==",
-                PhoneNumber = "69XXXXXXXX",
+                PhoneNumber = "699XXXXXXX",
                 PhoneNumberConfirmed = true,
                 SecurityStamp = $"{Guid.NewGuid()}",
                 UserName = adminEmail
@@ -50,21 +51,41 @@ namespace Indice.AspNetCore.Identity.Features
                 ClaimValue = "Company",
                 UserId = admin.Id
             });
-            dbContext.Users.AddRange(InitialUsers<TUser>.Get(2000));
-            dbContext.ClaimTypes.AddRange(InitialClaimTypes.Get());
+            var initialRoles = InitialRoles<TRole>.Get();
             dbContext.Roles.AddRange(InitialRoles<TRole>.Get());
+            foreach (var role in initialRoles) {
+                dbContext.UserRoles.Add(new IdentityUserRole<string> { 
+                    UserId = admin.Id,
+                    RoleId = role.Id
+                });
+            }
             dbContext.SaveChanges();
         }
 
         /// <summary>
         /// A method that seeds the database with initial realistic data.
         /// </summary>
+        /// <typeparam name="TUser">The type of user.</typeparam>
+        /// <typeparam name="TRole">The type of role.</typeparam>
         /// <param name="dbContext">An extended <see cref="DbContext"/> for the Identity framework.</param>
-        /// <param name="initialUsers">A list of initial users provided by the consumer in order to be inserted in the application startup.</param>
-        public static void Seed<TUser, TRole>(this ExtendedIdentityDbContext<TUser, TRole> dbContext, IEnumerable<User> initialUsers = null)
+        public static void SeedDummyUsers<TUser, TRole>(this ExtendedIdentityDbContext<TUser, TRole> dbContext)
             where TUser : User, new()
             where TRole : Role, new() {
-            if (initialUsers?.Any() == true) {
+            dbContext.Users.AddRange(InitialUsers<TUser>.Get(2000));
+            dbContext.SaveChanges();
+        }
+
+        /// <summary>
+        /// A method that seeds the database with initial realistic data.
+        /// </summary>
+        /// <typeparam name="TUser">The type of user.</typeparam>
+        /// <typeparam name="TRole">The type of role.</typeparam>
+        /// <param name="dbContext">An extended <see cref="DbContext"/> for the Identity framework.</param>
+        /// <param name="initialUsers">A list of initial users provided by the consumer in order to be inserted in the application startup.</param>
+        public static void SeedCustomUsers<TUser, TRole>(this ExtendedIdentityDbContext<TUser, TRole> dbContext, IEnumerable<User> initialUsers = null)
+            where TUser : User, new()
+            where TRole : Role, new() {
+            if (initialUsers.Any()) {
                 dbContext.Users.AddRange(initialUsers.Cast<TUser>());
                 dbContext.SaveChanges();
             }

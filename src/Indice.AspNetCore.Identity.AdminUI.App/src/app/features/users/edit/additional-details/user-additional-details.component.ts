@@ -20,10 +20,16 @@ import { ToastService } from 'src/app/layout/services/app-toast.service';
 export class UserAdditionalDetailsComponent implements OnInit, OnDestroy {
     @ViewChild('form', { static: false }) private _form: NgForm;
     @ViewChild('actionsTemplate', { static: true }) private _actionsTemplate: TemplateRef<HTMLElement>;
+    @ViewChild('nameTemplate', { static: true }) public _nameTemplate: TemplateRef<HTMLElement>;
     private _getDataSubscription: Subscription;
     private _user: SingleUserInfo;
 
-    constructor(private _userStore: UserStore, private _route: ActivatedRoute, private _dateParser: NgbDateCustomParserFormatter, public _toast: ToastService) { }
+    constructor(
+        private _userStore: UserStore, 
+        private _route: ActivatedRoute, 
+        private _dateParser: NgbDateCustomParserFormatter, 
+        public _toast: ToastService
+    ) { }
 
     public claims: ClaimType[];
     public selectedClaimName = '';
@@ -35,7 +41,7 @@ export class UserAdditionalDetailsComponent implements OnInit, OnDestroy {
 
     public ngOnInit(): void {
         this.columns = [
-            { prop: 'type', name: 'Type', draggable: false, canAutoResize: true, sortable: true, resizeable: false },
+            { prop: 'type', name: 'Type', draggable: false, canAutoResize: true, sortable: true, resizeable: false, cellTemplate: this._nameTemplate },
             { prop: 'value', name: 'Value', draggable: false, canAutoResize: true, sortable: true, resizeable: false },
             { prop: 'id', name: 'Actions', draggable: false, canAutoResize: true, sortable: false, resizeable: false, cellTemplate: this._actionsTemplate, cellClass: 'd-flex align-items-center' }
         ];
@@ -80,7 +86,7 @@ export class UserAdditionalDetailsComponent implements OnInit, OnDestroy {
                 'claims-select': '',
                 'claim-value': ''
             });
-            this.rows = [...this.rows];
+            this.rows = [...this._user.claims];
         });
     }
 }

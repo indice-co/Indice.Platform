@@ -3,7 +3,7 @@ import { IAppSettings, IAuthSettings } from './settings.model';
 
 function createAppSettings(): IAppSettings {
     const isTemplate = environment.isTemplate;
-    let authority, clientId, host, baseHref, culture;
+    let authority, clientId, host, baseHref, culture, version;
     if (isTemplate) {
         const appRoot = document.getElementsByTagName('app-root')[0];
         authority = appRoot.getAttribute('authority');
@@ -11,6 +11,7 @@ function createAppSettings(): IAppSettings {
         host = appRoot.getAttribute('host');
         baseHref = appRoot.getAttribute('baseHref');
         culture = appRoot.getAttribute('culture');
+        version = appRoot.getAttribute('version');
         if (!authority || !clientId || !host) {
             throw new Error('Please provide authority, clientId and baseAddress as properties of app-root element.');
         }
@@ -19,6 +20,7 @@ function createAppSettings(): IAppSettings {
         appRoot.attributes.removeNamedItem('host');
         appRoot.attributes.removeNamedItem('baseHref');
         appRoot.attributes.removeNamedItem('culture');
+        appRoot.attributes.removeNamedItem('version');
     }
     return {
         api_url: !isTemplate ? environment.api_url : authority,
@@ -36,7 +38,8 @@ function createAppSettings(): IAppSettings {
         } as IAuthSettings,
         culture: !isTemplate ? environment.culture : culture,
         isTemplate: environment.isTemplate,
-        production: environment.production
+        production: environment.production,
+        version: version || '1.0.0'
     };
 }
 

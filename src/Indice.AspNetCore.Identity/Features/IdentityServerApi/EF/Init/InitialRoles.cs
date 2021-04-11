@@ -9,13 +9,7 @@ namespace Indice.AspNetCore.Identity.Features
     /// </summary>
     internal class InitialRoles<TRole> where TRole : Role, new()
     {
-        private static readonly List<TRole> Roles = new List<TRole> {
-            new TRole {
-                Id = $"{Guid.NewGuid()}",
-                Name = "Administrator",
-                NormalizedName = "ADMINISTRATOR",
-                Description = "Administrator of Admin UI, which has access to every operation."
-            },
+        private static readonly List<TRole> Roles = new() {
             new TRole {
                 Id = $"{Guid.NewGuid()}",
                 Name = BasicRoleNames.Developer,

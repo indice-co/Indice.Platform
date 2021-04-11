@@ -7,11 +7,12 @@ using Indice.AspNetCore.Identity.Features;
 using Indice.AspNetCore.Identity.Models;
 using Indice.Identity;
 using Indice.Identity.Services;
-using Indice.Services;
+using Indice.Security;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using ValueType = Indice.AspNetCore.Identity.Features.ValueType;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
@@ -52,8 +53,9 @@ namespace Microsoft.Extensions.DependencyInjection
                                // Update phone number options.
                                options.PhoneNumber.SendOtpOnUpdate = true;
                                // Add custom initial user and enable test data.
-                               options.UseInitialData = true;
+                               options.SeedDummyUsers = true;
                                options.InitialUsers = GetInitialUsers();
+                               options.CustomClaims = GetCustomClaimTypes();
                            })
                            .SetCompatibilityVersion(CompatibilityVersion.Latest)
                            .ConfigureApiBehaviorOptions(options => {
@@ -95,7 +97,7 @@ namespace Microsoft.Extensions.DependencyInjection
                            .AddViewLocalization(LanguageViewLocationExpanderFormat.Suffix);
         }
 
-        private static List<User> GetInitialUsers() => new List<User> {
+        private static List<User> GetInitialUsers() => new() {
             new User {
                 CreateDate = DateTime.UtcNow,
                 Email = "g.manoltzas@indice.gr",
@@ -110,5 +112,18 @@ namespace Microsoft.Extensions.DependencyInjection
                 PasswordHash = "AH6SA/wuxp9YEfLGROaj2CgjhxZhXDkMB1nD8V7lfQAI+WTM4lGMItjLhhV5ASsq+Q=="
             }
         };
+
+        private static List<ClaimType> GetCustomClaimTypes() {
+            return new List<ClaimType> { 
+                new ClaimType {
+                    Id = $"{Guid.NewGuid()}", 
+                    Name = BasicClaimTypes.DeveloperTotp, 
+                    Reserved = false, 
+                    Required = false, 
+                    UserEditable = false, 
+                    ValueType = ValueType.String
+                }
+            };
+        }
     }
 }

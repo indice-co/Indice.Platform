@@ -24,19 +24,14 @@ namespace Indice.AspNetCore.Identity.Features
             IdentityServerApiEndpointsOptions options,
             IWebHostEnvironment webHostEnvironment
         ) : base(dbContextOptions) {
-            if (!Database.EnsureCreated() || !webHostEnvironment.IsDevelopment()) {
-                return;
+            if (webHostEnvironment.IsDevelopment() && Database.EnsureCreated()) {
+                this.SeedAdminUser();
+                if (options.SeedDummyUsers) {
+                    this.SeedDummyUsers();
+                }
+                this.SeedCustomUsers(options.InitialUsers);
             }
-            if (options.UseInitialData) {
-                this.Seed();
-            }
-            this.Seed(options.InitialUsers);
         }
-
-        /// <summary>
-        /// A table that contains all the available claim types of the application.
-        /// </summary>
-        public DbSet<ClaimType> ClaimTypes { get; set; }
 
         /// <summary>
         /// Register extended configuration methods when the database is being created.
@@ -44,7 +39,6 @@ namespace Indice.AspNetCore.Identity.Features
         /// <param name="modelBuilder">Provides a simple API surface for configuring a <see cref="DbContext"/>.</param>
         protected override void OnModelCreating(ModelBuilder modelBuilder) {
             base.OnModelCreating(modelBuilder);
-            modelBuilder.ApplyConfiguration(new ClaimTypeMap());
         }
     }
 }

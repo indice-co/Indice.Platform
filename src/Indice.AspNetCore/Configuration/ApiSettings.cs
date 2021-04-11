@@ -21,13 +21,6 @@ namespace Indice.Configuration
         /// </summary>
         public List<Scope> Scopes { get; set; } = new List<Scope>();
         /// <summary>
-        /// The scopes as dictionary.
-        /// </summary>
-        public Dictionary<string, string> ScopesDictionary {
-            get => Scopes.ToDictionary(x => x.Name, x => x.Description);
-            set => Scopes = value.Select(x => new Scope { Name = x.Key, Description = x.Value }).ToList();
-        }
-        /// <summary>
         /// Friendly name for the API.
         /// </summary>
         public string FriendlyName { get; set; } = "My API Name";
@@ -47,6 +40,12 @@ namespace Indice.Configuration
         /// API contact info (e.x. developer). Will appear usualy on the swagger documentation page.
         /// </summary>
         public ApiContact Contact { get; set; }
+
+        /// <summary>
+        /// Searches <see cref="Scopes"/> list for the given scope name.
+        /// </summary>
+        /// <param name="scopeName">The scope name to look for. Must be fully qualified (e.x. facade:customers).</param>
+        public Scope GetScope(string scopeName) => Scopes?.FirstOrDefault(x => x.Name == scopeName);
 
         /// <summary>
         /// Used to configure a legal document resource name and location

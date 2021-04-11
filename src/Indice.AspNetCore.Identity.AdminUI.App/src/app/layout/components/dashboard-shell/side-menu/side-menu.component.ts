@@ -16,6 +16,7 @@ export class SideMenuComponent {
     public menuItems: MenuItem[];
     public apiDocsUrl = app.settings.api_docs;
     public authority = app.settings.auth_settings.authority;
+    public version = app.settings.version;
 
     public toggleMenuItem(menuItem: MenuItem): void {
         this.menuService.toggleMenuItem(menuItem);

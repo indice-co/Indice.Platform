@@ -134,7 +134,8 @@
                                        name="claim-type-editable"
                                        type="checkbox"
                                        class="form-check-input custom-control-input"
-                                       [(ngModel)]="claimType.userEditable" />
+                                       [(ngModel)]="claimType.userEditable"
+                                       [disabled]="claimType.reserved" />
                                 <label class="custom-control-label"
                                        for="claim-type-editable">
                                 </label>
@@ -149,7 +150,8 @@
                             </button>
                             <button type="button"
                                     class="btn btn-danger m-r-5 float-right"
-                                    (click)="deleteAlert.fire()">
+                                    (click)="deleteAlert.fire()"
+                                    *ngIf="!claimType.reserved">
                                 Delete
                             </button>
                         </div>
