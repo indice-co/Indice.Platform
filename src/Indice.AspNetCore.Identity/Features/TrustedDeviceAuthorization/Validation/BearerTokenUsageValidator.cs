@@ -33,17 +33,17 @@ namespace IdentityServer4.Validation
         public async Task<BearerTokenUsageValidationResult> Validate(HttpContext context) {
             var result = ValidateAuthorizationHeader(context);
             if (result.TokenFound) {
-                _logger.LogDebug("Bearer token found in header");
+                _logger.LogDebug("Bearer token found in header.");
                 return result;
             }
             if (context.Request.HasApplicationFormContentType()) {
                 result = await ValidatePostBody(context);
                 if (result.TokenFound) {
-                    _logger.LogDebug("Bearer token found in body");
+                    _logger.LogDebug("Bearer token found in body.");
                     return result;
                 }
             }
-            _logger.LogDebug("Bearer token was not found");
+            _logger.LogDebug("Bearer token was not found.");
             return new BearerTokenUsageValidationResult();
         }
 
@@ -67,7 +67,7 @@ namespace IdentityServer4.Validation
                     };
                 }
             } else {
-                _logger.LogTrace("Unexpected header format: {Header}", header);
+                _logger.LogTrace("Unexpected header format: '{Header}'.", header);
             }
             return new BearerTokenUsageValidationResult();
         }

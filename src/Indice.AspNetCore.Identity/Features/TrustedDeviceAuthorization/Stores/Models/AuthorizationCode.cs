@@ -7,7 +7,7 @@ namespace Indice.AspNetCore.Identity.Features
     /// <summary>
     /// Models an authorization code for a trusted device.
     /// </summary>
-    public class TrustedDeviceAuthorizationCode
+    internal class AuthorizationCode
     {
         /// <summary>
         /// The <see cref="DateTime"/> that the code was created.

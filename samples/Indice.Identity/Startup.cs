@@ -210,6 +210,7 @@ namespace Indice.Identity
                     options.DocExpansion(DocExpansion.None);
                     options.OAuthUsePkce();
                     options.OAuthScopeSeparator(" ");
+                    options.EnableDeepLinking();
                 });
             }
             app.UseAdminUI(options => {

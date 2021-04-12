@@ -5,7 +5,7 @@ using IdentityServer4.Validation;
 
 namespace Indice.AspNetCore.Identity.Features
 {
-    internal class TrustedDeviceRegistrationRequestValidationResult : ValidationResult
+    internal class InitRegistrationRequestValidationResult : ValidationResult
     {
         public ClaimsPrincipal Principal { get; set; }
         public Client Client { get; set; }

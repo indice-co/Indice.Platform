@@ -7,13 +7,13 @@ using Microsoft.AspNetCore.Http;
 
 namespace Indice.AspNetCore.Identity.Features
 {
-    internal class TrustedDeviceInitRegistrationResult : IEndpointResult
+    internal class InitRegistrationResult : IEndpointResult
     {
-        public TrustedDeviceInitRegistrationResult(TrustedDeviceRegistrationResponse response) {
+        public InitRegistrationResult(InitRegistrationResponse response) {
             Response = response;
         }
 
-        public TrustedDeviceRegistrationResponse Response { get; }
+        public InitRegistrationResponse Response { get; }
 
         public async Task ExecuteAsync(HttpContext context) {
             context.Response.SetNoCache();

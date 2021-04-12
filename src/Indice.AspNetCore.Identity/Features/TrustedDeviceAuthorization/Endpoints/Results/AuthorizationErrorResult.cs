@@ -9,11 +9,11 @@ using Microsoft.AspNetCore.Http;
 
 namespace Indice.AspNetCore.Identity.Features
 {
-    internal class TrustedDeviceAuthorizationErrorResult : IEndpointResult
+    internal class AuthorizationErrorResult : IEndpointResult
     {
         private readonly TokenErrorResponse _tokenErrorResponse;
 
-        public TrustedDeviceAuthorizationErrorResult(TokenErrorResponse tokenErrorResponse) {
+        public AuthorizationErrorResult(TokenErrorResponse tokenErrorResponse) {
             if (string.IsNullOrWhiteSpace(tokenErrorResponse.Error)) {
                 throw new ArgumentNullException(nameof(tokenErrorResponse.Error), "Error must be set.");
             }

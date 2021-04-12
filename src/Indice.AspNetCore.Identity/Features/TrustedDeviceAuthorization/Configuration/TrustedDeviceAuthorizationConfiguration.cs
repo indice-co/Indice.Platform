@@ -22,14 +22,16 @@ namespace Microsoft.Extensions.DependencyInjection
             };
             configureAction?.Invoke(options);
             // Register endpoints.
-            builder.AddEndpoint<TrustedDeviceInitRegistrationEndpoint>("TrustedDeviceRegistration", "/my/devices/register/init");
+            builder.AddEndpoint<InitRegistrationEndpoint>("TrustedDeviceInitRegistration", "/my/devices/register/init");
+            builder.AddEndpoint<CompleteRegistrationEndpoint>("TrustedDeviceCompleteRegistration", "/my/devices/register/complete");
             // Register stores.
-            builder.Services.AddTransient<ITrustedDeviceAuthorizationCodeChallengeStore, DefaultTrustedDeviceAuthorizationCodeChallengeStore>();
+            builder.Services.AddTransient<IAuthorizationCodeChallengeStore, DefaultAuthorizationCodeChallengeStore>();
             options.AddInMemoryUserDeviceStore();
             // Register other services.
             builder.Services.AddTransient<BearerTokenUsageValidator>();
-            builder.Services.AddTransient<ITrustedDeviceRegistrationRequestValidator, TrustedDeviceRegistrationRequestValidator>();
-            builder.Services.AddTransient<ITrustedDeviceRegistrationResponseGenerator, TrustedDeviceRegistrationResponseGenerator>();
+            builder.Services.AddTransient<InitRegistrationRequestValidator>();
+            builder.Services.AddTransient<InitRegistrationResponseGenerator>();
+            builder.Services.AddTransient<CompleteRegistrationRequestValidator>();
             return builder;
         }
 

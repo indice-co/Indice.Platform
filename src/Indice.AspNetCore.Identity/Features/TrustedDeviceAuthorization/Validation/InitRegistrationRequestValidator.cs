@@ -10,9 +10,9 @@ using Microsoft.Extensions.Logging;
 
 namespace Indice.AspNetCore.Identity.Features
 {
-    internal class TrustedDeviceRegistrationRequestValidator : ITrustedDeviceRegistrationRequestValidator
+    internal class InitRegistrationRequestValidator
     {
-        private readonly ILogger<TrustedDeviceRegistrationRequestValidator> _logger;
+        private readonly ILogger<InitRegistrationRequestValidator> _logger;
         private readonly ITokenValidator _tokenValidator;
         private readonly IClientStore _clientStore;
         private static readonly string[] ProtocolClaimsFilter = {
@@ -32,8 +32,8 @@ namespace Indice.AspNetCore.Identity.Features
             JwtClaimTypes.Scope
         };
 
-        public TrustedDeviceRegistrationRequestValidator(
-            ILogger<TrustedDeviceRegistrationRequestValidator> logger,
+        public InitRegistrationRequestValidator(
+            ILogger<InitRegistrationRequestValidator> logger,
             ITokenValidator tokenValidator,
             IClientStore clientStore
         ) {
@@ -42,57 +42,51 @@ namespace Indice.AspNetCore.Identity.Features
             _clientStore = clientStore ?? throw new ArgumentNullException(nameof(clientStore));
         }
 
-        public async Task<TrustedDeviceRegistrationRequestValidationResult> Validate(string accessToken, NameValueCollection parameters) {
-            _logger.LogDebug($"{nameof(TrustedDeviceRegistrationRequestValidator)}: Started trusted device registration request validation.");
+        public async Task<InitRegistrationRequestValidationResult> Validate(string accessToken, NameValueCollection parameters) {
+            _logger.LogDebug($"{nameof(InitRegistrationRequestValidator)}: Started trusted device registration request validation.");
             // The access token needs to be valid and have at least the openid scope.
             var tokenResult = await _tokenValidator.ValidateAccessTokenAsync(accessToken, IdentityServerConstants.StandardScopes.OpenId);
             if (tokenResult.IsError) {
-                return Error(tokenResult.Error);
+                return Error(tokenResult.Error, "Provided access token is not valid.");
             }
             // The access token must have a 'sub' claim.
             var subjectClaim = tokenResult.Claims.SingleOrDefault(claim => claim.Type == JwtClaimTypes.Subject);
             if (subjectClaim == null) {
-                _logger.LogError($"{nameof(TrustedDeviceRegistrationRequestValidator)}: Token does not contain a 'sub' claim.");
-                return Error(OidcConstants.ProtectedResourceErrors.InvalidToken, "Token must contain the 'sub' claim.");
+                return Error(OidcConstants.ProtectedResourceErrors.InvalidToken, $"Access token must contain the '{nameof(JwtClaimTypes.Subject)}' claim.");
             }
             // The access token must have a 'client_id' claim.
             var clientIdClaim = tokenResult.Claims.SingleOrDefault(claim => claim.Type == JwtClaimTypes.ClientId);
             if (clientIdClaim == null) {
-                _logger.LogError($"{nameof(TrustedDeviceRegistrationRequestValidator)}: Token does not contain a 'client_id' claim.");
-                return Error(OidcConstants.ProtectedResourceErrors.InvalidToken, "Token must contain the 'client_id' claim.");
+                return Error(OidcConstants.ProtectedResourceErrors.InvalidToken, $"Access token must contain the '{nameof(JwtClaimTypes.ClientId)}' claim.");
             }
             // Check if the consumer specified the desired interaction.
             var modeString = parameters.Get(TrustedDeviceRegistrationRequest.Mode);
             var mode = TrustedDeviceRegistrationRequest.GetInteractionMode(modeString);
             if (!mode.HasValue) {
-                _logger.LogError($"{nameof(TrustedDeviceRegistrationRequestValidator)}: Client specified an invalid interaction mode.");
-                return Error(OidcConstants.TokenErrors.InvalidRequest, "Please specify the mode used for registration (fingerprint or 4pin).");
+                return Error(OidcConstants.TokenErrors.InvalidRequest, $"Parameter '{nameof(TrustedDeviceRegistrationRequest.Mode)}' used for registration (fingerprint or 4pin) is not specified.");
             }
             // Check if the consumer specified the device id.
             var deviceId = parameters.Get(TrustedDeviceRegistrationRequest.DeviceId);
             if (string.IsNullOrWhiteSpace(deviceId)) {
-                _logger.LogError($"{nameof(TrustedDeviceRegistrationRequestValidator)}: Client did not specified a device id.");
-                return Error(OidcConstants.TokenErrors.InvalidRequest, "Please specify the device id.");
+                return Error(OidcConstants.TokenErrors.InvalidRequest, $"Parameter '{nameof(TrustedDeviceRegistrationRequest.DeviceId)}' is not specified.");
             }
-            // Check if the consumer specified a code challenge and the used method.
+            // Check if the consumer specified a code challenge and the used hash function.
             var codeChallenge = parameters.Get(TrustedDeviceRegistrationRequest.CodeChallenge);
             var codeChallengeMethod = parameters.Get(TrustedDeviceRegistrationRequest.CodeChallengeMethod);
             if (string.IsNullOrWhiteSpace(codeChallenge) || string.IsNullOrWhiteSpace(codeChallengeMethod)) {
-                _logger.LogError($"{nameof(TrustedDeviceRegistrationRequestValidator)}: Client did not specified a code challenge or the used hash function.");
-                return Error(OidcConstants.TokenErrors.InvalidRequest, "Please specify a code challenge and the used hash function.");
+                return Error(OidcConstants.TokenErrors.InvalidRequest, $"Parameter '{nameof(TrustedDeviceRegistrationRequest.CodeChallenge)}' or '{TrustedDeviceRegistrationRequest.CodeChallengeMethod}' is not specified.");
             }
             // Load client.
             var client = await _clientStore.FindEnabledClientByIdAsync(clientIdClaim.Value);
             if (client == null) {
-                _logger.LogError("Client with id '{ClientId}' is unknown or not enabled.", clientIdClaim.Value);
-                return Error(OidcConstants.AuthorizeErrors.UnauthorizedClient, "Unknown client or client not enabled.");
+                return Error(OidcConstants.AuthorizeErrors.UnauthorizedClient, $"Client with id '{clientIdClaim.Value}' is unknown or not enabled.");
             }
             // Find requested scopes.
             var requestedScopes = tokenResult.Claims.Where(claim => claim.Type == JwtClaimTypes.Scope).Select(claim => claim.Value).ToList();
             // Create principal from incoming access token excluding protocol claims.
             var claims = tokenResult.Claims.Where(x => !ProtocolClaimsFilter.Contains(x.Type));
             var principal = Principal.Create("TrustedDevice", claims.ToArray());
-            return new TrustedDeviceRegistrationRequestValidationResult {
+            return new InitRegistrationRequestValidationResult {
                 Client = client,
                 CodeChallenge = codeChallenge,
                 CodeChallengeMethod = codeChallengeMethod,
@@ -105,7 +99,7 @@ namespace Indice.AspNetCore.Identity.Features
             };
         }
 
-        private static TrustedDeviceRegistrationRequestValidationResult Error(string error, string errorDescription = null) => new() {
+        private static InitRegistrationRequestValidationResult Error(string error, string errorDescription = null) => new() {
             Error = error,
             ErrorDescription = errorDescription,
             IsError = true
