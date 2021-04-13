@@ -1,11 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Indice.Security
+﻿namespace Indice.Security
 {
     /// <summary>
-    /// Statndaed Scope names
+    /// Standard scope names.
     /// </summary>
     public static class StandardScopeNames
     {
@@ -13,7 +9,6 @@ namespace Indice.Security
         /// Inserts the subject claim into the access_token &amp; allows you to exchange it with the user information Using openid connect "connect/userinfo" endpoint.
         /// </summary>
         public const string OpenId = "openid";
-
         /// <summary>
         /// Equivelant with refresh tokens. This is a request type of scope. As : I am requesting offline_access.
         /// </summary>
