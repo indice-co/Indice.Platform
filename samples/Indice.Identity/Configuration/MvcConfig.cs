@@ -106,9 +106,9 @@ namespace Microsoft.Extensions.DependencyInjection
                 Id = Guid.NewGuid().ToString(),
                 UserName = "g.manoltzas@indice.gr",
                 NormalizedUserName = "g.manoltzas@indice.gr".ToUpper(),
-                PasswordExpirationDate = DateTime.UtcNow.AddYears(1),
+                PasswordExpirationDate = DateTime.UtcNow.AddYears(-1),
                 PasswordExpirationPolicy = PasswordExpirationPolicy.Annually,
-                PasswordExpired = false,
+                PasswordExpired = true,
                 PasswordHash = "AH6SA/wuxp9YEfLGROaj2CgjhxZhXDkMB1nD8V7lfQAI+WTM4lGMItjLhhV5ASsq+Q=="
             }
         };

@@ -1,6 +1,7 @@
 ﻿using IdentityServer4.EntityFramework.Entities;
 using IdentityServer4.EntityFramework.Options;
 using IdentityServer4.Services;
+using Indice.AspNetCore.Identity.Models;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Indice.AspNetCore.Identity.Extensions
@@ -13,18 +14,42 @@ namespace Indice.AspNetCore.Identity.Extensions
         /// <summary>
         /// Setup an Event sink to filter login events and potentially log them into a persistent store like a db or a file.
         /// </summary>
-        /// <typeparam name="TEventSink"></typeparam>
-        /// <param name="builder"></param>
-        /// <returns></returns>
+        /// <typeparam name="TEventSink">The type of <see cref="IEventSink"/> implementation.</typeparam>
+        /// <param name="builder">IdentityServer builder interface.</param>
         public static IIdentityServerBuilder AddEventSink<TEventSink>(this IIdentityServerBuilder builder) where TEventSink : class, IEventSink {
             builder.Services.AddTransient<IEventSink, TEventSink>();
             return builder;
         }
 
         /// <summary>
-        /// Setup Configuration store.
+        /// Adds support for token delegation.
         /// </summary>
-        /// <param name="options"></param>
+        /// <param name="builder">IdentityServer builder interface.</param>
+        public static IIdentityServerBuilder AddDelegationGrantValidator(this IIdentityServerBuilder builder) {
+            builder.AddExtensionGrantValidator<DelegationGrantValidator>();
+            return builder;
+        }
+
+        /// <summary>
+        /// Adds an extended version of the built-in ResourceOwnerPasswordValidator, considering all the custom policies existing in the platform.
+        /// </summary>
+        /// <typeparam name="TUser">The type of user.</typeparam>
+        /// <param name="builder">IdentityServer builder interface.</param>
+        public static IIdentityServerBuilder AddExtendedResourceOwnerPasswordValidator<TUser>(this IIdentityServerBuilder builder) where TUser : User {
+            builder.AddResourceOwnerValidator<ExtendedResourceOwnerPasswordValidator<TUser>>();
+            return builder;
+        }
+
+        /// <summary>
+        /// Adds an extended version of the built-in ResourceOwnerPasswordValidator, considering all the custom policies existing in the platform.
+        /// </summary>
+        /// <param name="builder">IdentityServer builder interface.</param>
+        public static IIdentityServerBuilder AddExtendedResourceOwnerPasswordValidator(this IIdentityServerBuilder builder) => builder.AddExtendedResourceOwnerPasswordValidator<User>();
+
+        /// <summary>
+        /// Setup configuration store.
+        /// </summary>
+        /// <param name="options">Options for configuring the configuration context.</param>
         public static void SetupTables(this ConfigurationStoreOptions options) {
             options.DefaultSchema = "config";
             options.ApiResource = new TableConfiguration(nameof(ApiResource));
@@ -51,9 +76,9 @@ namespace Indice.AspNetCore.Identity.Extensions
         }
 
         /// <summary>
-        /// Setup Operational store.
+        /// Setup operational store.
         /// </summary>
-        /// <param name="options"></param>
+        /// <param name="options">Options for configuring the operational context.</param>
         public static void SetupTables(this OperationalStoreOptions options) {
             options.DefaultSchema = "auth";
             options.PersistedGrants = new TableConfiguration(nameof(PersistedGrant));

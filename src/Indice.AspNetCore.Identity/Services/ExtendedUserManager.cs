@@ -48,9 +48,7 @@ namespace Indice.AspNetCore.Identity
         /// <summary>
         /// Gets a flag indicating whether the backing user store supports usernames that are the same as emails
         /// </summary>
-        public bool SupportsEmailAsUserName {
-            get => GetUserStore()?.EmailAsUserName == true;
-        }
+        public bool SupportsEmailAsUserName => GetUserStore()?.EmailAsUserName == true;
 
         /// <summary>
         /// Provides an extensibility point for localizing messages used inside the package.
