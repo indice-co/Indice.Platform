@@ -42,7 +42,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Indice.Hosting", "src\Indic
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Indice.AspNetCore.Identity.AdminUI", "src\Indice.AspNetCore.Identity.AdminUI\Indice.AspNetCore.Identity.AdminUI.csproj", "{6C5B31E5-3CAE-4B07-B7EA-5C08AC46D486}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Indice.AspNetCore.MultiTenancy", "src\Indice.AspNetCore.MultiTenancy\Indice.AspNetCore.MultiTenancy.csproj", "{2385A145-8440-4B25-9029-B01576177D2D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Indice.AspNetCore.MultiTenancy", "src\Indice.AspNetCore.MultiTenancy\Indice.AspNetCore.MultiTenancy.csproj", "{2385A145-8440-4B25-9029-B01576177D2D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
