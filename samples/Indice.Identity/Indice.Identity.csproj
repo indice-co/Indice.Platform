@@ -18,7 +18,6 @@
     <PackageReference Include="Microsoft.AspNetCore.AzureAppServices.HostingStartup" Version="5.0.5" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="5.0.5" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="5.0.5" />
-    <PackageReference Include="Microsoft.Extensions.Logging.ApplicationInsights" Version="2.17.0" />
     <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" Version="6.1.1" />
   </ItemGroup>
   <ItemGroup>
