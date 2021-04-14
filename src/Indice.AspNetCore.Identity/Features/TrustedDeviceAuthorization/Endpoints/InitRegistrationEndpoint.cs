@@ -50,10 +50,10 @@ namespace Indice.AspNetCore.Identity.Features
         }
 
         public async Task<IEndpointResult> ProcessAsync(HttpContext httpContext) {
-            _logger.LogDebug("[InitRegistrationEndpoint] Started processing trusted device registration endpoint.");
+            _logger.LogDebug($"[{nameof(InitRegistrationEndpoint)}] Started processing trusted device registration endpoint.");
             var isPostRequest = HttpMethods.IsPost(httpContext.Request.Method);
             var isApplicationFormContentType = httpContext.Request.HasApplicationFormContentType();
-            // Validate HTTP request type.
+            // Validate HTTP request type and method.
             if (!isPostRequest || !isApplicationFormContentType) {
                 return Error(OidcConstants.TokenErrors.InvalidRequest, "Request must be of type 'POST' and have a Content-Type equal to 'application/x-www-form-urlencoded'.");
             }
@@ -105,7 +105,7 @@ namespace Indice.AspNetCore.Identity.Features
             }
             // Create application response.
             var response = await _response.Generate(requestValidationResult);
-            _logger.LogDebug("[InitRegistrationEndpoint] Trusted device authorization endpoint success.");
+            _logger.LogDebug($"[{nameof(InitRegistrationEndpoint)}] Trusted device authorization endpoint success.");
             return new InitRegistrationResult(response);
         }
 
@@ -115,7 +115,7 @@ namespace Indice.AspNetCore.Identity.Features
                 ErrorDescription = errorDescription,
                 Custom = custom
             };
-            _logger.LogError("[InitRegistrationEndpoint] Trusted device authorization endpoint error: {Error}:{ErrorDescription}", error, errorDescription ?? "-no message-");
+            _logger.LogError("[{EndpointName}] Trusted device authorization endpoint error: {Error}:{ErrorDescription}", nameof(InitRegistrationEndpoint), error, errorDescription ?? " -no message-");
             return new AuthorizationErrorResult(response);
         }
     }

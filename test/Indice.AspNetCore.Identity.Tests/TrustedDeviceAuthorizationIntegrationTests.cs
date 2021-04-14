@@ -198,10 +198,11 @@ namespace Indice.AspNetCore.Identity.Tests
             var data = new Dictionary<string, string> {
                 { "mode", "fingerprint" },
                 { "device_id", deviceId },
-                { "code_verifier", codeVerifier },
                 { "public_key", PublicKey },
-                { "challenge_signature", signature },
-                { "otp", "" }
+                { "code", codeChallenge },
+                { "code_verifier", codeVerifier },
+                { "code_signature", signature },
+                { "otp", "123456" }
             };
             var form = new FormUrlEncodedContent(data);
             _httpClient.SetBearerToken(accessToken);

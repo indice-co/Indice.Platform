@@ -8,6 +8,7 @@ using IdentityModel;
 using Indice.AspNetCore.Extensions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
+using Microsoft.Net.Http.Headers;
 
 namespace IdentityServer4.Validation
 {
@@ -33,17 +34,17 @@ namespace IdentityServer4.Validation
         public async Task<BearerTokenUsageValidationResult> Validate(HttpContext context) {
             var result = ValidateAuthorizationHeader(context);
             if (result.TokenFound) {
-                _logger.LogDebug("Bearer token found in header.");
+                _logger.LogDebug($"[{nameof(BearerTokenUsageValidator)}] Bearer token found in header.");
                 return result;
             }
             if (context.Request.HasApplicationFormContentType()) {
                 result = await ValidatePostBody(context);
                 if (result.TokenFound) {
-                    _logger.LogDebug("Bearer token found in body.");
+                    _logger.LogDebug($"[{nameof(BearerTokenUsageValidator)}] Bearer token found in body.");
                     return result;
                 }
             }
-            _logger.LogDebug("Bearer token was not found.");
+            _logger.LogDebug($"[{nameof(BearerTokenUsageValidator)}] Bearer token was not found.");
             return new BearerTokenUsageValidationResult();
         }
 
@@ -52,7 +53,7 @@ namespace IdentityServer4.Validation
         /// </summary>
         /// <param name="context">The current HTTP context.</param>
         private BearerTokenUsageValidationResult ValidateAuthorizationHeader(HttpContext context) {
-            var authorizationHeader = context.Request.Headers["Authorization"].FirstOrDefault();
+            var authorizationHeader = context.Request.Headers[HeaderNames.Authorization].FirstOrDefault();
             if (string.IsNullOrWhiteSpace(authorizationHeader)) {
                 return new BearerTokenUsageValidationResult();
             }
@@ -67,7 +68,7 @@ namespace IdentityServer4.Validation
                     };
                 }
             } else {
-                _logger.LogTrace("Unexpected header format: '{Header}'.", header);
+                _logger.LogTrace("[{ClassName}] Unexpected header format: '{Header}'.", nameof(BearerTokenUsageValidator), header);
             }
             return new BearerTokenUsageValidationResult();
         }
