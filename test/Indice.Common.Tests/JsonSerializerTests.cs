@@ -99,7 +99,7 @@ namespace Indice.Common.Tests
             var objectWithValueTuple = new WeatherForecastValueTuple {
                 Location = (3, 7),
                 Temp = new ValueTuple<string>("FOO"),
-                Thruple = (
+                Tuple = (
                     8,
                     new Poco {
                         Alpha = 9,
@@ -143,7 +143,7 @@ namespace Indice.Common.Tests
         {
             public ValueTuple<string> Temp { get; set; }
             public (int x, int y) Location { get; set; }
-            public (int a, Poco b, ValueTuple<string> c) Thruple { get; set; }
+            public (int a, Poco b, ValueTuple<string> c) Tuple { get; set; }
         }
 
         public class Poco

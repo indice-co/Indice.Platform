@@ -64,8 +64,8 @@ namespace Indice.AspNetCore.Swagger
             if (discriminator == null) {
                 discriminator = baseType.GetRuntimeProperties().Where(x => x.PropertyType.IsEnum).FirstOrDefault()?.Name;
             }
-            discriminator ??= "discriminator";
-            map ??= JsonPolymorphicConverter.GetTypeMapping(baseType, discriminator);
+            discriminator ??= JsonPolymorphicUtils.DEFAULT_DISCRIMINATOR_PROPERTY_NAME;
+            map ??= JsonPolymorphicUtils.GetTypeMapping(baseType, discriminator);
             DiscriminatorMap = map.ToDictionary(x => x.Key, x => new OpenApiReference { 
                 Type = ReferenceType.Schema, 
                 Id = x.Value.Name 

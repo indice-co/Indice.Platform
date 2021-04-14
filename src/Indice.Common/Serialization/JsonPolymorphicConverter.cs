@@ -10,19 +10,19 @@ namespace Indice.Serialization
     /// <summary>
     /// A JSON converter that helps serialize and deserialize types that make use of inheritance.
     /// </summary>
-    public class JsonPolymorphicConverter : JsonConverter<object>
+    public class JsonPolymorphicConverter<T> : JsonConverter<T>
     {
         private readonly IDictionary<string, Type> _nameToTypeMap;
         private readonly IDictionary<Type, string> _typeToNameMap;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="JsonPolymorphicConverter"/> class.
+        /// Initializes a new instance of the <see cref="JsonPolymorphicUtils"/> class.
         /// </summary>
         /// <param name="typeMapping">The type names to use when serializing types.</param>
-        public JsonPolymorphicConverter(IDictionary<string, Type> typeMapping) : this("discriminator", typeMapping) { }
+        public JsonPolymorphicConverter(IDictionary<string, Type> typeMapping) : this(JsonPolymorphicUtils.DEFAULT_DISCRIMINATOR_PROPERTY_NAME, typeMapping) { }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="JsonPolymorphicConverter"/> class.
+        /// Initializes a new instance of the <see cref="JsonPolymorphicUtils"/> class.
         /// </summary>
         /// <param name="typePropertyName">The name of the property in which to serialize the type name.</param>
         /// <param name="typeMapping">The type names to use when serializing types.</param>
@@ -36,6 +36,12 @@ namespace Indice.Serialization
         }
 
         /// <summary>
+        /// Initializes a new instance of the <see cref="JsonPolymorphicConverter{T}"/> class.
+        /// </summary>
+        /// <param name="typePropertName">The name of the property in which to serialize the type name.</param>
+        public JsonPolymorphicConverter(string typePropertName) : this(typePropertName, JsonPolymorphicUtils.GetTypeMapping(typeof(T), typePropertName)) { }
+
+        /// <summary>
         /// Gets the name of the property in which to serialize the type name.
         /// </summary>
         public string TypePropertyName { get; private set; }
@@ -47,7 +53,7 @@ namespace Indice.Serialization
         }
 
         /// <inheritdoc />
-        public override object Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) {
+        public override T Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) {
             if (reader.TokenType != JsonTokenType.StartObject) {
                 throw new JsonException();
             }
@@ -55,7 +61,7 @@ namespace Indice.Serialization
                 throw new NotSupportedException("Deserialization is not supported without specifying a default object type.");
             }
             if (reader.TokenType == JsonTokenType.Null) {
-                return null;
+                return default;
             }
             var canParse = JsonDocument.TryParseValue(ref reader, out var jsonDocument);
             if (!canParse) {
@@ -68,11 +74,11 @@ namespace Indice.Serialization
             var rawJson = jsonDocument.RootElement.GetRawText();
             var jsonSerializerOptions = CopyJsonSerializerOptions(options);
             var target = JsonSerializer.Deserialize(rawJson, typeToCreate, jsonSerializerOptions);
-            return target;
+            return (T)target;
         }
 
         /// <inheritdoc />
-        public override void Write(Utf8JsonWriter writer, object value, JsonSerializerOptions options) {
+        public override void Write(Utf8JsonWriter writer, T value, JsonSerializerOptions options) {
             if (writer == null) {
                 throw new ArgumentNullException(nameof(writer));
             }
@@ -89,6 +95,40 @@ namespace Indice.Serialization
             // making an infinite loop that results in a stack overflow exception.
             JsonSerializer.Serialize(writer, value, valueType, jsonSerializerOptions);
         }
+
+        private static JsonSerializerOptions CopyJsonSerializerOptions(JsonSerializerOptions options) {
+            var jsonSerializerOptions = new JsonSerializerOptions {
+                AllowTrailingCommas = options.AllowTrailingCommas,
+                DefaultBufferSize = options.DefaultBufferSize,
+                DictionaryKeyPolicy = options.DictionaryKeyPolicy,
+                Encoder = options.Encoder,
+                IgnoreNullValues = options.IgnoreNullValues,
+                IgnoreReadOnlyProperties = options.IgnoreReadOnlyProperties,
+                MaxDepth = options.MaxDepth,
+                PropertyNameCaseInsensitive = options.PropertyNameCaseInsensitive,
+                PropertyNamingPolicy = options.PropertyNamingPolicy,
+                ReadCommentHandling = options.ReadCommentHandling,
+                WriteIndented = options.WriteIndented
+            };
+            foreach (var converter in options.Converters) {
+                var converterType = converter.GetType();
+                if (!(converterType.IsGenericType && converterType.GetGenericTypeDefinition().IsAssignableFrom(typeof(JsonPolymorphicConverterFactory<>)))) {
+                    jsonSerializerOptions.Converters.Add(converter);
+                }
+            }
+            return jsonSerializerOptions;
+        }
+    }
+
+    /// <summary>
+    /// Helper methods for <see cref="JsonPolymorphicConverter{T}"/>.
+    /// </summary>
+    public class JsonPolymorphicUtils
+    {
+        /// <summary>
+        /// Default property name used as discriminator.
+        /// </summary>
+        public const string DEFAULT_DISCRIMINATOR_PROPERTY_NAME = "discriminator";
 
         /// <summary>
         /// Gets all type name mappings in a type hierarchy.
@@ -109,15 +149,6 @@ namespace Indice.Serialization
                 typeMapping.Add(name, type);
             }
             return typeMapping;
-        }
-
-        /// <summary>
-        /// Finds the property name that serves as a discriminator so to discover the concrete type.
-        /// </summary>
-        /// <typeparam name="T">The type of the base class.</typeparam>
-        protected static string FindDiscriminatorProperty<T>() {
-            var discriminatorProperty = typeof(T).GetRuntimeProperties().Where(x => x.PropertyType.GetTypeInfo().IsEnum).FirstOrDefault()?.Name;
-            return discriminatorProperty;
         }
 
         /// <summary>
@@ -147,42 +178,6 @@ namespace Indice.Serialization
             }
             return value;
         }
-
-        private JsonSerializerOptions CopyJsonSerializerOptions(JsonSerializerOptions options) {
-            var jsonSerializerOptions = new JsonSerializerOptions {
-                AllowTrailingCommas = options.AllowTrailingCommas,
-                DefaultBufferSize = options.DefaultBufferSize,
-                DictionaryKeyPolicy = options.DictionaryKeyPolicy,
-                Encoder = options.Encoder,
-                IgnoreNullValues = options.IgnoreNullValues,
-                IgnoreReadOnlyProperties = options.IgnoreReadOnlyProperties,
-                MaxDepth = options.MaxDepth,
-                PropertyNameCaseInsensitive = options.PropertyNameCaseInsensitive,
-                PropertyNamingPolicy = options.PropertyNamingPolicy,
-                ReadCommentHandling = options.ReadCommentHandling,
-                WriteIndented = options.WriteIndented
-            };
-            foreach (var converter in options.Converters) {
-                var converterType = converter.GetType();
-                if (!(converterType.IsGenericType && converterType.GetGenericTypeDefinition().IsAssignableFrom(typeof(JsonPolymorphicConverterFactory<>)))) {
-                    jsonSerializerOptions.Converters.Add(converter);
-                }
-            }
-            return jsonSerializerOptions;
-        }
-    }
-
-    /// <summary>
-    /// Converts an object to and from JSON.
-    /// </summary>
-    /// <typeparam name="T">The type of the base class in the inheritance hierarchy.</typeparam>
-    public class JsonPolymorphicConverter<T> : JsonPolymorphicConverter
-    {
-        /// <summary>
-        /// Initializes a new instance of the <see cref="JsonPolymorphicConverter{T}"/> class.
-        /// </summary>
-        /// <param name="typePropertName">The name of the property in which to serialize the type name.</param>
-        public JsonPolymorphicConverter(string typePropertName) : base(typePropertName, GetTypeMapping(typeof(T), typePropertName)) { }
     }
 
     /// <summary>
