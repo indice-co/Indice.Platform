@@ -29,7 +29,7 @@ namespace Indice.AspNetCore.Identity.Features
         }
 
         public async Task<IEndpointResult> ProcessAsync(HttpContext httpContext) {
-            _logger.LogDebug("[CompleteRegistrationEndpoint] Started processing trusted device registration endpoint.");
+            _logger.LogInformation($"[{nameof(CompleteRegistrationEndpoint)}] Started processing trusted device registration endpoint.");
             var isPostRequest = HttpMethods.IsPost(httpContext.Request.Method);
             var isApplicationFormContentType = httpContext.Request.HasApplicationFormContentType();
             // Validate HTTP request type.

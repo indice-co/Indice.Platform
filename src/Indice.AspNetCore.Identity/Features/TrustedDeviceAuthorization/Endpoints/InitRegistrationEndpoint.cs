@@ -50,7 +50,7 @@ namespace Indice.AspNetCore.Identity.Features
         }
 
         public async Task<IEndpointResult> ProcessAsync(HttpContext httpContext) {
-            _logger.LogDebug($"[{nameof(InitRegistrationEndpoint)}] Started processing trusted device registration endpoint.");
+            _logger.LogInformation($"[{nameof(InitRegistrationEndpoint)}] Started processing trusted device registration endpoint.");
             var isPostRequest = HttpMethods.IsPost(httpContext.Request.Method);
             var isApplicationFormContentType = httpContext.Request.HasApplicationFormContentType();
             // Validate HTTP request type and method.
@@ -105,7 +105,7 @@ namespace Indice.AspNetCore.Identity.Features
             }
             // Create application response.
             var response = await _response.Generate(requestValidationResult);
-            _logger.LogDebug($"[{nameof(InitRegistrationEndpoint)}] Trusted device authorization endpoint success.");
+            _logger.LogInformation($"[{nameof(InitRegistrationEndpoint)}] Trusted device authorization endpoint success.");
             return new InitRegistrationResult(response);
         }
 
