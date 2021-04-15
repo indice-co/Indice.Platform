@@ -119,6 +119,34 @@ namespace Indice.Common.Tests
             Assert.Equal(new ValueTuple<string>("FOO"), roundTrip.Temp);
         }
 
+        [Fact]
+        public void DictioaryOfEnumObject_MustSerialize() {
+            var options = new JsonSerializerOptions {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            };
+            options.Converters.Add(new JsonStringEnumConverter());
+            options.Converters.Add(new DictionaryEnumConverter());
+            options.IgnoreNullValues = true;
+            var model = new MusicLibrary { 
+                Tracks = new Dictionary<MusicGenre, List<MusicTrack>> { 
+                    [MusicGenre.Metal] = new List<MusicTrack> { 
+                        new MusicTrack { Genre = MusicGenre.Metal, Name = "For whoom the bell tolls", Artist = "Metallica", ReleaseDate = DateTime.Parse("2021-04-15T18:36:09.2769853+03:00")},
+                        new MusicTrack { Genre = MusicGenre.Metal, Name = "Tornado of souls", Artist = "Megadeth", ReleaseDate = DateTime.Parse("2021-04-15T18:36:09.2769853+03:00") },
+                    },
+                    [MusicGenre.Pop] = new List<MusicTrack> {
+                        new MusicTrack { Genre = MusicGenre.Pop, Name = "Saturday night fever", Artist = "BGs", ReleaseDate = DateTime.Parse("2021-04-15T18:36:09.2769853+03:00") },
+                    },
+                    [MusicGenre.Rock] = new List<MusicTrack> {
+                        new MusicTrack { Genre = MusicGenre.Rock, Name = "Rock of ages", Artist = "Def Leppard", ReleaseDate = DateTime.Parse("2021-04-15T18:36:09.2769853+03:00") },
+                    }
+                }
+            };
+            var jsonExpected = "{\"tracks\":{\"Metal\":[{\"name\":\"For whoom the bell tolls\",\"genre\":\"Metal\",\"artist\":\"Metallica\",\"releaseDate\":\"2021-04-15T18:36:09.2769853+03:00\"},{\"name\":\"Tornado of souls\",\"genre\":\"Metal\",\"artist\":\"Megadeth\",\"releaseDate\":\"2021-04-15T18:36:09.2769853+03:00\"}],\"Pop\":[{\"name\":\"Saturday night fever\",\"genre\":\"Pop\",\"artist\":\"BGs\",\"releaseDate\":\"2021-04-15T18:36:09.2769853+03:00\"}],\"Rock\":[{\"name\":\"Rock of ages\",\"genre\":\"Rock\",\"artist\":\"Def Leppard\",\"releaseDate\":\"2021-04-15T18:36:09.2769853+03:00\"}]}}";
+            var json = JsonSerializer.Serialize(model, options);
+            Assert.Equal(jsonExpected, json);
+            var output = JsonSerializer.Deserialize<MusicLibrary>(json, options);
+        }
+
         public class TestTypeConverters
         {
             public GeoPoint Point { get; set; }
@@ -150,6 +178,29 @@ namespace Indice.Common.Tests
         {
             public int Alpha { get; set; }
             public (List<int>, string) Beta { get; set; }
+        }
+
+        public enum MusicGenre : int
+        { 
+            Metal = 1,
+            Rock,
+            Goth,
+            Pop,
+            Disco,
+            RnB
+        }
+
+        public class MusicTrack
+        {
+            public string Name { get; set; }
+            public MusicGenre Genre { get; set; }
+            public string Artist { get; set; }
+            public DateTime ReleaseDate { get; set; }
+        }
+
+        public class MusicLibrary 
+        {
+            public Dictionary<MusicGenre, List<MusicTrack>> Tracks { get; set; } = new Dictionary<MusicGenre, List<MusicTrack>>();
         }
     }
 }
