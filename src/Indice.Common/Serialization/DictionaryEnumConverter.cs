@@ -17,6 +17,7 @@ namespace Indice.Serialization
     /// Sample JSON for <see cref="Dictionary{MyEnum, int}"/>: {"MyEnumValue":42}
     /// </summary>
     /// <remarks>
+    /// USE ONLY FOR System.Text.Json 4.x.x 
     /// A case-insensitive parse is performed for the Enum value.
     /// A <see cref="JsonException"/> is thrown when deserializing if the Enum value is not found.
     /// </remarks>

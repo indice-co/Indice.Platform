@@ -17,8 +17,9 @@ namespace Indice.Common.Tests
                 PropertyNamingPolicy = JsonNamingPolicy.CamelCase
             };
             Options.Converters.Add(new JsonStringEnumConverter());
+            // ORDER is IMPORTANT in case of multiple type hierarchies with different discriminators. Specific goes first then the generic
+            Options.Converters.Add(new JsonPolymorphicConverterFactory<Parent>("sex"));
             Options.Converters.Add(new JsonPolymorphicConverterFactory<Person>("type"));
-            Options.Converters.Add(new JsonPolymorphicConverterFactory<Parent>("Sex"));
             Options.IgnoreNullValues = true;
         }
 
@@ -54,7 +55,7 @@ namespace Indice.Common.Tests
 
         [Fact]
         public void SerializePolymorphicObjectListTest() {
-            var json = @"[{""type"":""Teacher"",""firstName"":""Jim"",""lastName"":""Bidis""},{""type"":""Teacher"",""firstName"":""John"",""lastName"":""Doe""},{""type"":""Student"",""firstName"":""Jane"",""lastName"":""Mary""}]";
+            var json = @"[{""firstName"":""Jim"",""lastName"":""Bidis"",""type"":""Teacher""},{""firstName"":""John"",""lastName"":""Doe"",""type"":""Teacher""},{""firstName"":""Jane"",""lastName"":""Mary"",""type"":""Student""}]";
             var people = new Person[] {
                 new Teacher { FirstName = "Jim", LastName = "Bidis" },
                 new Teacher { FirstName = "John", LastName = "Doe" },

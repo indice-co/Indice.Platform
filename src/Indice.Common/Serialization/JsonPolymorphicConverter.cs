@@ -93,7 +93,29 @@ namespace Indice.Serialization
             // Don't pass in the options object when recursively calling Serialize or Deserialize. 
             // The options object contains the Converters collection. If you pass it in to Serialize or Deserialize, the custom converter calls into itself, 
             // making an infinite loop that results in a stack overflow exception.
-            JsonSerializer.Serialize(writer, value, valueType, jsonSerializerOptions);
+
+            writer.WriteStartObject();
+
+            bool containsDiscriminator = false;
+
+            foreach (var property in valueType.GetProperties(BindingFlags.Instance | BindingFlags.Public)) {
+                var propertyName = property.Name;
+                writer.WritePropertyName
+                    (options.PropertyNamingPolicy?.ConvertName(propertyName) ?? propertyName);
+                JsonSerializer.Serialize(writer, property.GetValue(value, null), jsonSerializerOptions);
+                if (TypePropertyName.Equals(propertyName, StringComparison.OrdinalIgnoreCase)) {
+                    containsDiscriminator = true;
+                }
+            }
+            if (!containsDiscriminator) {
+                writer.WritePropertyName
+                        (options.PropertyNamingPolicy?.ConvertName(TypePropertyName) ?? TypePropertyName);
+                writer.WriteStringValue(_typeToNameMap[valueType]);
+            }
+            writer.WriteEndObject();
+
+
+            //JsonSerializer.Serialize(writer, value, valueType, jsonSerializerOptions);
         }
 
         private static JsonSerializerOptions CopyJsonSerializerOptions(JsonSerializerOptions options) {
