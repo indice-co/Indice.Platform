@@ -130,14 +130,14 @@ namespace Indice.Common.Tests
             var model = new MusicLibrary { 
                 Tracks = new Dictionary<MusicGenre, List<MusicTrack>> { 
                     [MusicGenre.Metal] = new List<MusicTrack> { 
-                        new MusicTrack { Genre = MusicGenre.Metal, Name = "For whoom the bell tolls", Artist = "Metallica", ReleaseDate = DateTime.Parse("2021-04-15T18:36:09.2769853+03:00")},
-                        new MusicTrack { Genre = MusicGenre.Metal, Name = "Tornado of souls", Artist = "Megadeth", ReleaseDate = DateTime.Parse("2021-04-15T18:36:09.2769853+03:00") },
+                        new MusicTrack { Genre = MusicGenre.Metal, Name = "For whoom the bell tolls", Artist = "Metallica", ReleaseDate = DateTimeOffset.Parse("2021-04-15T18:36:09.2769853+03:00")},
+                        new MusicTrack { Genre = MusicGenre.Metal, Name = "Tornado of souls", Artist = "Megadeth", ReleaseDate = DateTimeOffset.Parse("2021-04-15T18:36:09.2769853+03:00") },
                     },
                     [MusicGenre.Pop] = new List<MusicTrack> {
-                        new MusicTrack { Genre = MusicGenre.Pop, Name = "Saturday night fever", Artist = "BGs", ReleaseDate = DateTime.Parse("2021-04-15T18:36:09.2769853+03:00") },
+                        new MusicTrack { Genre = MusicGenre.Pop, Name = "Saturday night fever", Artist = "BGs", ReleaseDate = DateTimeOffset.Parse("2021-04-15T18:36:09.2769853+03:00") },
                     },
                     [MusicGenre.Rock] = new List<MusicTrack> {
-                        new MusicTrack { Genre = MusicGenre.Rock, Name = "Rock of ages", Artist = "Def Leppard", ReleaseDate = DateTime.Parse("2021-04-15T18:36:09.2769853+03:00") },
+                        new MusicTrack { Genre = MusicGenre.Rock, Name = "Rock of ages", Artist = "Def Leppard", ReleaseDate = DateTimeOffset.Parse("2021-04-15T18:36:09.2769853+03:00") },
                     }
                 }
             };
@@ -195,7 +195,7 @@ namespace Indice.Common.Tests
             public string Name { get; set; }
             public MusicGenre Genre { get; set; }
             public string Artist { get; set; }
-            public DateTime ReleaseDate { get; set; }
+            public DateTimeOffset ReleaseDate { get; set; }
         }
 
         public class MusicLibrary 
