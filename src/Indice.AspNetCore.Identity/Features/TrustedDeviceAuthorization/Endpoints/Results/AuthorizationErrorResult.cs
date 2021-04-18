@@ -21,7 +21,7 @@ namespace Indice.AspNetCore.Identity.Features
         }
 
         public async Task ExecuteAsync(HttpContext context) {
-            context.Response.StatusCode = 400;
+            context.Response.StatusCode = StatusCodes.Status400BadRequest;
             context.Response.SetNoCache();
             var result = new ErrorResultDto {
                 Error = _tokenErrorResponse.Error,

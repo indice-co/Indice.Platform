@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using IdentityModel;
 using IdentityServer4;
+using IdentityServer4.Models;
 using IdentityServer4.Stores;
 using IdentityServer4.Validation;
 using Microsoft.Extensions.Logging;
@@ -54,10 +55,13 @@ namespace Indice.AspNetCore.Identity.Features
             if (!mode.HasValue) {
                 return Error(OidcConstants.TokenErrors.InvalidRequest, $"Parameter '{nameof(RegistrationRequestParameters.Mode)}' used for registration (fingerprint or 4pin) is not valid.");
             }
-            // Load client.
+            // Load client and validate that it allows the 'password' flow.
             var client = await LoadClient(tokenValidationResult);
             if (client == null) {
-                return Error(OidcConstants.AuthorizeErrors.UnauthorizedClient, $"Client with id '{client.ClientId}' is unknown or not enabled.");
+                return Error(OidcConstants.AuthorizeErrors.UnauthorizedClient, $"Client is unknown or not enabled.");
+            }
+            if (!client.AllowedGrantTypes.Contains(GrantType.ResourceOwnerPassword)) {
+                return Error(OidcConstants.AuthorizeErrors.UnauthorizedClient, $"Client not authorized for 'password' grant type.");
             }
             // Find requested scopes.
             var requestedScopes = tokenValidationResult.Claims.Where(claim => claim.Type == JwtClaimTypes.Scope).Select(claim => claim.Value).ToList();
@@ -65,6 +69,7 @@ namespace Indice.AspNetCore.Identity.Features
             var claims = tokenValidationResult.Claims.Where(x => !ProtocolClaimsFilter.Contains(x.Type));
             var principal = Principal.Create("TrustedDevice", claims.ToArray());
             var userId = tokenValidationResult.Claims.Single(x => x.Type == JwtClaimTypes.Subject).Value;
+            // Finally return result.
             return new InitRegistrationRequestValidationResult {
                 Client = client,
                 CodeChallenge = parameters.Get(RegistrationRequestParameters.CodeChallenge),

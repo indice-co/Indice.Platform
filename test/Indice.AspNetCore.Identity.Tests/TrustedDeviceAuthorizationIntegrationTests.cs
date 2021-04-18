@@ -5,12 +5,14 @@ using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 using IdentityModel;
 using IdentityModel.Client;
 using IdentityServer4;
 using IdentityServer4.Models;
 using IdentityServer4.Test;
+using Indice.AspNetCore.Identity.Tests.Models;
 using Indice.Security;
 using Indice.Services;
 using Microsoft.AspNetCore.Builder;
@@ -147,23 +149,21 @@ namespace Indice.AspNetCore.Identity.Tests
             });
             var server = new TestServer(builder);
             var handler = server.CreateHandler();
-            _httpClient = new HttpClient(handler) {
-                BaseAddress = new Uri(BaseUrl)
-            };
+            _httpClient = new HttpClient(handler) { BaseAddress = new Uri(BaseUrl) };
         }
 
         [Fact]
-        public async Task CanInitiateDeviceRegistrationUsingFingerprint() {
+        public async Task CanRegisterNewDeviceUsingFingerprint() {
             var accessToken = await LoginWithPasswordGrant(userName: "alice", password: "alice");
             var codeVerifier = GenerateCodeVerifier();
             var deviceId = Guid.NewGuid().ToString();
-            var response = await InitiateDeviceRegistrationUsingFingerprint(accessToken, codeVerifier, deviceId);
-            var isSuccessStatusCode = response.IsSuccessStatusCode;
-            if (!isSuccessStatusCode) {
+            var challenge = await InitiateDeviceRegistrationUsingFingerprint(accessToken, codeVerifier, deviceId);
+            var response = await CompleteDeviceRegistrationUsingFingerprint(accessToken, codeVerifier, deviceId, challenge);
+            if (!response.IsSuccessStatusCode) {
                 var responseJson = await response.Content.ReadAsStringAsync();
                 _output.WriteLine(responseJson);
             }
-            Assert.True(isSuccessStatusCode);
+            Assert.True(response.IsSuccessStatusCode);
         }
 
         #region Helper Methods
@@ -180,28 +180,36 @@ namespace Indice.AspNetCore.Identity.Tests
             return tokenResponse.AccessToken;
         }
 
-        private async Task<HttpResponseMessage> InitiateDeviceRegistrationUsingFingerprint(string accessToken, string codeVerifier, string deviceId) {
+        private async Task<string> InitiateDeviceRegistrationUsingFingerprint(string accessToken, string codeVerifier, string deviceId) {
+            var codeChallenge = GenerateCodeChallenge(codeVerifier);
             var data = new Dictionary<string, string> {
                 { "mode", "fingerprint" },
                 { "device_id", deviceId },
-                { "code_challenge", GenerateCodeChallenge(codeVerifier) },
-                { "code_challenge_method", "S256" }
+                { "code_challenge", codeChallenge },
+                { "code_challenge_method", OidcConstants.CodeChallengeMethods.Sha256 }
             };
             var form = new FormUrlEncodedContent(data);
             _httpClient.SetBearerToken(accessToken);
-            return await _httpClient.PostAsync(_deviceRegistrationInitiationUrl, form);
+            var response = await _httpClient.PostAsync(_deviceRegistrationInitiationUrl, form);
+            var responseJson = await response.Content.ReadAsStringAsync();
+            if (!response.IsSuccessStatusCode) {
+                _output.WriteLine(responseJson);
+                throw new HttpRequestException();
+            }
+            var result = JsonSerializer.Deserialize<TrustedDeviceAuthorizationResultDto>(responseJson);
+            return result.Challenge;
         }
 
-        private async Task<HttpResponseMessage> CompleteDeviceRegistrationUsingFingerprint(string accessToken, string codeVerifier, string deviceId, string codeChallenge) {
+        private async Task<HttpResponseMessage> CompleteDeviceRegistrationUsingFingerprint(string accessToken, string codeVerifier, string deviceId, string challenge) {
             var x509SigningCredentials = GetSigningCredentials();
-            var signature = SignMessage(codeChallenge, x509SigningCredentials);
+            var signature = SignMessage(challenge, x509SigningCredentials);
             var data = new Dictionary<string, string> {
                 { "mode", "fingerprint" },
                 { "device_id", deviceId },
                 { "public_key", PublicKey },
-                { "code", codeChallenge },
-                { "code_verifier", codeVerifier },
+                { "code", challenge },
                 { "code_signature", signature },
+                { "code_verifier", codeVerifier },
                 { "otp", "123456" }
             };
             var form = new FormUrlEncodedContent(data);

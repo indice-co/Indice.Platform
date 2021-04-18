@@ -1,15 +1,22 @@
 ﻿using System;
 using System.Threading.Tasks;
+using IdentityServer4.Models;
+using Microsoft.AspNetCore.Authentication;
 
 namespace Indice.AspNetCore.Identity.Features
 {
     internal class InitRegistrationResponseGenerator
     {
-        private readonly IAuthorizationCodeChallengeStore _codeChallengeStore;
-
-        public InitRegistrationResponseGenerator(IAuthorizationCodeChallengeStore authorizationCodeChallengeStore) {
-            _codeChallengeStore = authorizationCodeChallengeStore ?? throw new ArgumentNullException(nameof(authorizationCodeChallengeStore));
+        public InitRegistrationResponseGenerator(
+            IAuthorizationCodeChallengeStore authorizationCodeChallengeStore, 
+            ISystemClock systemClock
+        ) {
+            CodeChallengeStore = authorizationCodeChallengeStore ?? throw new ArgumentNullException(nameof(authorizationCodeChallengeStore));
+            SystemClock = systemClock ?? throw new ArgumentNullException(nameof(systemClock));
         }
+
+        public IAuthorizationCodeChallengeStore CodeChallengeStore { get; }
+        public ISystemClock SystemClock { get; }
 
         public async Task<InitRegistrationResponse> Generate(InitRegistrationRequestValidationResult validationResult) {
             if (validationResult.InteractionMode == InteractionMode.Fingerprint) {
@@ -21,17 +28,15 @@ namespace Indice.AspNetCore.Identity.Features
         private async Task<InitRegistrationResponse> GenerateFingerprintResponse(InitRegistrationRequestValidationResult validationResult) {
             var authorizationCode = new AuthorizationCode {
                 ClientId = validationResult.Client.ClientId,
-                CodeChallenge = validationResult.CodeChallenge,
+                CodeChallenge = validationResult.CodeChallenge.Sha256(),
                 CodeChallengeMethod = validationResult.CodeChallengeMethod,
-                CreationTime = DateTime.UtcNow.Date,
+                CreationTime = SystemClock.UtcNow.UtcDateTime,
                 Lifetime = validationResult.Client.AuthorizationCodeLifetime,
                 RequestedScopes = validationResult.RequestedScopes,
                 Subject = validationResult.Principal
             };
-            var id = await _codeChallengeStore.Create(authorizationCode);
-            return new InitRegistrationResponse {
-                Challenge = id
-            };
+            var challenge = await CodeChallengeStore.GenerateChallenge(authorizationCode);
+            return new InitRegistrationResponse { Challenge = challenge };
         }
     }
 }

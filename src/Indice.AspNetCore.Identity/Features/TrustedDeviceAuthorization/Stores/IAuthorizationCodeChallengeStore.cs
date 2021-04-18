@@ -11,6 +11,16 @@ namespace Indice.AspNetCore.Identity.Features
         /// Stores the authorization code.
         /// </summary>
         /// <param name="code">The code to store.</param>
-        Task<string> Create(AuthorizationCode code);
+        Task<string> GenerateChallenge(AuthorizationCode code);
+        /// <summary>
+        /// Retrieves an authorization code by it's key.
+        /// </summary>
+        /// <param name="key">The key to search for.</param>
+        Task<AuthorizationCode> GetAuthorizationCode(string key);
+        /// <summary>
+        /// Removes an authorization code by it's key.
+        /// </summary>
+        /// <param name="key">The key to delete.</param>
+        Task RemoveAuthorizationCode(string key);
     }
 }

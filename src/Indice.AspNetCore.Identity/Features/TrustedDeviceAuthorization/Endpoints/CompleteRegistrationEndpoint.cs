@@ -14,22 +14,22 @@ namespace Indice.AspNetCore.Identity.Features
 {
     internal class CompleteRegistrationEndpoint : IEndpointHandler
     {
-        private readonly BearerTokenUsageValidator _token;
-        private readonly CompleteRegistrationRequestValidator _request;
-        private readonly ILogger<CompleteRegistrationEndpoint> _logger;
-
         public CompleteRegistrationEndpoint(
             BearerTokenUsageValidator tokenUsageValidator,
             CompleteRegistrationRequestValidator requestValidator,
             ILogger<CompleteRegistrationEndpoint> logger
         ) {
-            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            _request = requestValidator ?? throw new ArgumentNullException(nameof(requestValidator));
-            _token = tokenUsageValidator ?? throw new ArgumentNullException(nameof(tokenUsageValidator));
+            Logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            Request = requestValidator ?? throw new ArgumentNullException(nameof(requestValidator));
+            Token = tokenUsageValidator ?? throw new ArgumentNullException(nameof(tokenUsageValidator));
         }
 
+        public BearerTokenUsageValidator Token { get; }
+        public CompleteRegistrationRequestValidator Request { get; }
+        public ILogger<CompleteRegistrationEndpoint> Logger { get; }
+
         public async Task<IEndpointResult> ProcessAsync(HttpContext httpContext) {
-            _logger.LogInformation($"[{nameof(CompleteRegistrationEndpoint)}] Started processing trusted device registration endpoint.");
+            Logger.LogInformation($"[{nameof(CompleteRegistrationEndpoint)}] Started processing trusted device registration endpoint.");
             var isPostRequest = HttpMethods.IsPost(httpContext.Request.Method);
             var isApplicationFormContentType = httpContext.Request.HasApplicationFormContentType();
             // Validate HTTP request type.
@@ -37,13 +37,13 @@ namespace Indice.AspNetCore.Identity.Features
                 return Error(OidcConstants.TokenErrors.InvalidRequest, "Request must be of type 'POST' and have a Content-Type equal to 'application/x-www-form-urlencoded'.");
             }
             // Ensure that a valid 'Authorization' header exists.
-            var tokenUsageResult = await _token.Validate(httpContext);
+            var tokenUsageResult = await Token.Validate(httpContext);
             if (!tokenUsageResult.TokenFound) {
                 return Error(OidcConstants.ProtectedResourceErrors.InvalidToken, "No access token is present in the request.");
             }
             // Validate request data and access token.
             var parameters = (await httpContext.Request.ReadFormAsync()).AsNameValueCollection();
-            var requestValidationResult = await _request.Validate(tokenUsageResult.Token, parameters);
+            var requestValidationResult = await Request.Validate(tokenUsageResult.Token, parameters);
             if (requestValidationResult.IsError) {
                 return Error(requestValidationResult.Error, requestValidationResult.ErrorDescription);
             }
@@ -56,7 +56,7 @@ namespace Indice.AspNetCore.Identity.Features
                 ErrorDescription = errorDescription,
                 Custom = custom
             };
-            _logger.LogError("[CompleteRegistrationEndpoint] Trusted device authorization endpoint error: {Error}:{ErrorDescription}", error, errorDescription ?? "-no message-");
+            Logger.LogError("[{EndpointName}] Trusted device authorization endpoint error: {Error}:{ErrorDescription}", nameof(CompleteRegistrationEndpoint), error, errorDescription ?? "-no message-");
             return new AuthorizationErrorResult(response);
         }
     }

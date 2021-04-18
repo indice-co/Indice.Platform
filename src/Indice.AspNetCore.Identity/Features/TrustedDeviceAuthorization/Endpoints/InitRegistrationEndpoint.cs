@@ -20,15 +20,6 @@ namespace Indice.AspNetCore.Identity.Features
 {
     internal class InitRegistrationEndpoint : IEndpointHandler
     {
-        private readonly BearerTokenUsageValidator _token;
-        private readonly ILogger<InitRegistrationEndpoint> _logger;
-        private readonly InitRegistrationRequestValidator _request;
-        private readonly InitRegistrationResponseGenerator _response;
-        private readonly IProfileService _profileService;
-        private readonly IResourceStore _resourceStore;
-        private readonly ITotpService _totpService;
-        private readonly IUserDeviceStore _userDeviceStore;
-
         public InitRegistrationEndpoint(
             BearerTokenUsageValidator tokenUsageValidator,
             ILogger<InitRegistrationEndpoint> logger,
@@ -39,18 +30,27 @@ namespace Indice.AspNetCore.Identity.Features
             ITotpService totpService,
             IUserDeviceStore userDeviceStore
         ) {
-            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            _profileService = profileService ?? throw new ArgumentNullException(nameof(profileService));
-            _request = requestValidator ?? throw new ArgumentNullException(nameof(requestValidator));
-            _resourceStore = resourceStore;
-            _response = responseGenerator ?? throw new ArgumentNullException(nameof(responseGenerator));
-            _token = tokenUsageValidator ?? throw new ArgumentNullException(nameof(tokenUsageValidator));
-            _totpService = totpService ?? throw new ArgumentNullException(nameof(totpService));
-            _userDeviceStore = userDeviceStore ?? throw new ArgumentNullException(nameof(userDeviceStore));
+            Logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            ProfileService = profileService ?? throw new ArgumentNullException(nameof(profileService));
+            Request = requestValidator ?? throw new ArgumentNullException(nameof(requestValidator));
+            ResourceStore = resourceStore;
+            Response = responseGenerator ?? throw new ArgumentNullException(nameof(responseGenerator));
+            Token = tokenUsageValidator ?? throw new ArgumentNullException(nameof(tokenUsageValidator));
+            TotpService = totpService ?? throw new ArgumentNullException(nameof(totpService));
+            UserDeviceStore = userDeviceStore ?? throw new ArgumentNullException(nameof(userDeviceStore));
         }
 
+        public BearerTokenUsageValidator Token { get; }
+        public ILogger<InitRegistrationEndpoint> Logger { get; }
+        public InitRegistrationRequestValidator Request { get; }
+        public InitRegistrationResponseGenerator Response { get; }
+        public IProfileService ProfileService { get; }
+        public IResourceStore ResourceStore { get; }
+        public ITotpService TotpService { get; }
+        public IUserDeviceStore UserDeviceStore { get; }
+
         public async Task<IEndpointResult> ProcessAsync(HttpContext httpContext) {
-            _logger.LogInformation($"[{nameof(InitRegistrationEndpoint)}] Started processing trusted device registration endpoint.");
+            Logger.LogInformation($"[{nameof(InitRegistrationEndpoint)}] Started processing trusted device registration endpoint.");
             var isPostRequest = HttpMethods.IsPost(httpContext.Request.Method);
             var isApplicationFormContentType = httpContext.Request.HasApplicationFormContentType();
             // Validate HTTP request type and method.
@@ -58,25 +58,25 @@ namespace Indice.AspNetCore.Identity.Features
                 return Error(OidcConstants.TokenErrors.InvalidRequest, "Request must be of type 'POST' and have a Content-Type equal to 'application/x-www-form-urlencoded'.");
             }
             // Ensure that a valid 'Authorization' header exists.
-            var tokenUsageResult = await _token.Validate(httpContext);
+            var tokenUsageResult = await Token.Validate(httpContext);
             if (!tokenUsageResult.TokenFound) {
                 return Error(OidcConstants.ProtectedResourceErrors.InvalidToken, "No access token is present in the request.");
             }
             // Validate request data and access token.
             var parameters = (await httpContext.Request.ReadFormAsync()).AsNameValueCollection();
-            var requestValidationResult = await _request.Validate(tokenUsageResult.Token, parameters);
+            var requestValidationResult = await Request.Validate(tokenUsageResult.Token, parameters);
             if (requestValidationResult.IsError) {
                 return Error(requestValidationResult.Error, requestValidationResult.ErrorDescription);
             }
             // Ensure device is not already registered or belongs to any other user.
-            var existingDevice = await _userDeviceStore.GetByDeviceId(requestValidationResult.DeviceId);
+            var existingDevice = await UserDeviceStore.GetByDeviceId(requestValidationResult.DeviceId);
             if (existingDevice != null) {
                 return Error(OidcConstants.ProtectedResourceErrors.InvalidToken, "Device is already registered.");
             }
             // Ensure that the principal has declared a phone number which is also confirmed.
             // We will get these 2 claims by retrieving the identity resources from the store (using the requested scopes existing in the access token) and then calling the profile service.
             // This will help us make sure that the 'phone' scope was requested and finally allowed in the token endpoint.
-            var identityResources = await _resourceStore.FindEnabledIdentityResourcesByScopeAsync(requestValidationResult.RequestedScopes);
+            var identityResources = await ResourceStore.FindEnabledIdentityResourcesByScopeAsync(requestValidationResult.RequestedScopes);
             var resources = new IdentityServer4.Models.Resources(identityResources, Enumerable.Empty<ApiResource>(), Enumerable.Empty<ApiScope>());
             var validatedResources = new ResourceValidationResult(resources);
             if (!validatedResources.Succeeded) {
@@ -86,7 +86,7 @@ namespace Indice.AspNetCore.Identity.Features
             var profileDataRequestContext = new ProfileDataRequestContext(requestValidationResult.Principal, requestValidationResult.Client, IdentityServerConstants.ProfileDataCallers.UserInfoEndpoint, requestedClaimTypes) {
                 RequestedResources = validatedResources
             };
-            await _profileService.GetProfileDataAsync(profileDataRequestContext);
+            await ProfileService.GetProfileDataAsync(profileDataRequestContext);
             var profileClaims = profileDataRequestContext.IssuedClaims;
             var phoneNumberClaim = profileClaims.FirstOrDefault(x => x.Type == JwtClaimTypes.PhoneNumber);
             var phoneNumberVerifiedClaim = profileClaims.FirstOrDefault(x => x.Type == JwtClaimTypes.PhoneNumberVerified);
@@ -94,18 +94,18 @@ namespace Indice.AspNetCore.Identity.Features
                 return Error(OidcConstants.ProtectedResourceErrors.InvalidToken, "User does not have a phone number or the phone number is not verified.");
             }
             // Send OTP code.
-            var totpResult = await _totpService.Send(message =>
+            var totpResult = await TotpService.Send(message =>
                 message.UsePrincipal(requestValidationResult.Principal)
                        .WithMessage("Device registration OTP code is {0}.")
                        .UsingSms()
-                       .WithPurpose($"trusted-device-registration:{requestValidationResult.UserId}:{requestValidationResult.DeviceId}")
+                       .WithPurpose(Constants.TrustedDeviceOtpPurpose(requestValidationResult.UserId, requestValidationResult.DeviceId))
             );
             if (!totpResult.Success) {
                 return Error(totpResult.Error);
             }
             // Create application response.
-            var response = await _response.Generate(requestValidationResult);
-            _logger.LogInformation($"[{nameof(InitRegistrationEndpoint)}] Trusted device authorization endpoint success.");
+            var response = await Response.Generate(requestValidationResult);
+            Logger.LogInformation($"[{nameof(InitRegistrationEndpoint)}] Trusted device authorization endpoint success.");
             return new InitRegistrationResult(response);
         }
 
@@ -115,7 +115,7 @@ namespace Indice.AspNetCore.Identity.Features
                 ErrorDescription = errorDescription,
                 Custom = custom
             };
-            _logger.LogError("[{EndpointName}] Trusted device authorization endpoint error: {Error}:{ErrorDescription}", nameof(InitRegistrationEndpoint), error, errorDescription ?? " -no message-");
+            Logger.LogError("[{EndpointName}] Trusted device authorization endpoint error: {Error}:{ErrorDescription}", nameof(InitRegistrationEndpoint), error, errorDescription ?? " -no message-");
             return new AuthorizationErrorResult(response);
         }
     }

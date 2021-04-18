@@ -10,17 +10,16 @@ namespace Indice.AspNetCore.Identity.Features
     internal class InitRegistrationResult : IEndpointResult
     {
         public InitRegistrationResult(InitRegistrationResponse response) {
-            Response = response;
+            Response = response ?? throw new ArgumentNullException(nameof(response));
         }
 
         public InitRegistrationResponse Response { get; }
 
         public async Task ExecuteAsync(HttpContext context) {
+            context.Response.StatusCode = StatusCodes.Status200OK;
             context.Response.SetNoCache();
-            if (Response != null) {
-                var result = new TrustedDeviceAuthorizationResultDto(Response.Challenge);
-                await context.Response.WriteJsonAsync(result);
-            }
+            var result = new TrustedDeviceAuthorizationResultDto(Response.Challenge);
+            await context.Response.WriteJsonAsync(result);
         }
     }
 
