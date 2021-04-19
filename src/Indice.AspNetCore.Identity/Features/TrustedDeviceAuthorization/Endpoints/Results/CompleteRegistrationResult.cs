@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using IdentityServer4.Extensions;
 using IdentityServer4.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -7,8 +8,14 @@ namespace Indice.AspNetCore.Identity.Features
 {
     internal class CompleteRegistrationResult : IEndpointResult
     {
+        public CompleteRegistrationResult(CompleteRegistrationResponse response) {
+            Response = response ?? throw new ArgumentNullException(nameof(response));
+        }
+
+        public CompleteRegistrationResponse Response { get; }
+
         public Task ExecuteAsync(HttpContext context) {
-            context.Response.StatusCode = StatusCodes.Status200OK;
+            context.Response.StatusCode = StatusCodes.Status204NoContent;
             context.Response.SetNoCache();
             return Task.CompletedTask;
         }

@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Authentication;
 
 namespace Indice.AspNetCore.Identity.Features
 {
-    internal class InitRegistrationResponseGenerator
+    internal class InitRegistrationResponseGenerator : IResponseGenerator<InitRegistrationRequestValidationResult, InitRegistrationResponse>
     {
         public InitRegistrationResponseGenerator(
             IAuthorizationCodeChallengeStore authorizationCodeChallengeStore, 
@@ -35,6 +35,7 @@ namespace Indice.AspNetCore.Identity.Features
                 RequestedScopes = validationResult.RequestedScopes,
                 Subject = validationResult.Principal
             };
+            // Challenge is created but also stored in persisted grants.
             var challenge = await CodeChallengeStore.GenerateChallenge(authorizationCode);
             return new InitRegistrationResponse { Challenge = challenge };
         }

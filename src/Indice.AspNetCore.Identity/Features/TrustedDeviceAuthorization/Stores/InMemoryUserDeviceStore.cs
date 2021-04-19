@@ -10,12 +10,21 @@ namespace Indice.AspNetCore.Identity.Features
     /// </summary>
     public class InMemoryUserDeviceStore : IUserDeviceStore
     {
-        private readonly IEnumerable<UserDevice> _userDevices = new List<UserDevice>();
+        private readonly IList<UserDevice> _userDevices = new List<UserDevice>();
+
+        /// <inheritdoc />
+        public Task<IEnumerable<UserDevice>> GetUserDevices(string userId) => Task.FromResult(_userDevices.Where(x => x.UserId == userId));
 
         /// <inheritdoc />
         public Task<UserDevice> GetByDeviceId(string deviceId) {
             var userDevice = _userDevices.SingleOrDefault(x => x.DeviceId == deviceId);
             return Task.FromResult(userDevice);
+        }
+
+        /// <inheritdoc />
+        public Task CreateDevice(UserDevice device) {
+            _userDevices.Add(device);
+            return Task.CompletedTask;
         }
     }
 }

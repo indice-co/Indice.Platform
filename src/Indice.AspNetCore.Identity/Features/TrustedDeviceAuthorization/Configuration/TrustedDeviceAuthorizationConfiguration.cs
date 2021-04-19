@@ -32,6 +32,7 @@ namespace Microsoft.Extensions.DependencyInjection
             builder.Services.AddTransient<InitRegistrationRequestValidator>();
             builder.Services.AddTransient<InitRegistrationResponseGenerator>();
             builder.Services.AddTransient<CompleteRegistrationRequestValidator>();
+            builder.Services.AddTransient<CompleteRegistrationResponseGenerator>();
             return builder;
         }
 

@@ -103,7 +103,7 @@ namespace Indice.AspNetCore.Identity.Features
             if (!totpResult.Success) {
                 return Error(totpResult.Error);
             }
-            // Create application response.
+            // Create endpoint response.
             var response = await Response.Generate(requestValidationResult);
             Logger.LogInformation($"[{nameof(InitRegistrationEndpoint)}] Trusted device authorization endpoint success.");
             return new InitRegistrationResult(response);

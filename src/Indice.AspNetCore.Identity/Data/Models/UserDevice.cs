@@ -11,12 +11,14 @@ namespace Indice.AspNetCore.Identity.Models
         /// <summary>
         /// Constructs a new instance of <see cref="UserDevice"/> with a new Guid Id.
         /// </summary>
-        public UserDevice() { }
+        public UserDevice() {
+            Id = Guid.NewGuid();
+        }
 
         /// <summary>
         /// The primary key.
         /// </summary>
-        public Guid Id { get; } = Guid.NewGuid();
+        public Guid Id { get; }
         /// <summary>
         /// The user id related.
         /// </summary>
