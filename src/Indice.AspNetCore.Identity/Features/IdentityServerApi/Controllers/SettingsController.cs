@@ -76,6 +76,7 @@ namespace Indice.AspNetCore.Identity.Features
         /// </summary>
         /// <param name="hardRefresh"></param>
         /// <response code="200">OK</response>
+        [ApiExplorerSettings(IgnoreApi = true)]
         [HttpPost("load")]
         [ProducesResponseType(statusCode: 200, type: typeof(void))]
         public async Task<IActionResult> LoadFromAppSettings([FromQuery] bool hardRefresh = false) {

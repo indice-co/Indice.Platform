@@ -72,6 +72,22 @@ namespace Indice.Security
         /// </summary>
         public const string DeveloperTotp = "developer_totp";
         /// <summary>
+        /// Commercial consent.
+        /// </summary>
+        public const string ConsentCommencial = "consent_commencial";
+        /// <summary>
+        /// Terms of service consent.
+        /// </summary>
+        public const string ConsentTerms = "consent_terms";
+        /// <summary>
+        /// Commercial consent date.
+        /// </summary>
+        public const string ConsentCommencialDate = "consent_commencial_date";
+        /// <summary>
+        /// Terms of service consent date.
+        /// </summary>
+        public const string ConsentTermsDate = "consent_terms_date";
+        /// <summary>
         /// All possible user related claims.
         /// </summary>
         public static readonly string[] UserClaims = {

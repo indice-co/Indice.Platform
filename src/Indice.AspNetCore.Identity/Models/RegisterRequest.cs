@@ -42,7 +42,7 @@ namespace Indice.AspNetCore.Identity.Models
         /// <summary>
         /// The password confirmed (optional).
         /// </summary>
-        public string PasswordConfiramation { get; set; }
+        public string PasswordConfirmation { get; set; }
         /// <summary>
         /// The users email.
         /// </summary>

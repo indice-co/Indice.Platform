@@ -418,7 +418,9 @@ namespace Indice.AspNetCore.Identity.Features
             if (claimType == null) {
                 return NotFound();
             }
-            if (!claimType.UserEditable) {
+            var isSystemClient = User.IsSystemClient();
+            var canEditClaim = claimType.UserEditable || isSystemClient;
+            if (!canEditClaim) {
                 ModelState.AddModelError(nameof(claimType), $"Claim '{claimType.Name}' is not editable.");
                 return BadRequest(new ValidationProblemDetails(ModelState));
             }
@@ -514,6 +516,108 @@ namespace Indice.AspNetCore.Identity.Features
                 }
             }
             return Ok(new CredentialsValidationInfo { PasswordRules = availableRules.Values.ToList() });
+        }
+
+        /// <summary>
+        /// Self-service user registration endpoint.
+        /// </summary>
+        /// <response code="200">No Content</response>
+        /// <response code="400">Bad Request</response>
+        [AllowAnonymous]
+        [HttpPost("account/register")]
+        [ProducesResponseType(statusCode: StatusCodes.Status204NoContent, type: typeof(void))]
+        [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest, type: typeof(ValidationProblemDetails))]
+        public async Task<IActionResult> Register([FromBody] RegisterRequest request) {
+            var user = CreateUserFromRequest(request);
+            var requestClaimTypes = request.Claims.Select(x => x.Type);
+            var claimTypes = await _configurationDbContext.ClaimTypes.Where(x => requestClaimTypes.Contains(x.Name)).ToListAsync();
+            var unknownClaimTypes = requestClaimTypes.Except(claimTypes.Select(x => x.Name));
+            if (unknownClaimTypes.Any()) {
+                ModelState.AddModelError(string.Empty, $"The following claim types are not supported: '{string.Join(", ", unknownClaimTypes)}'.");
+                return BadRequest(new ValidationProblemDetails(ModelState));
+            }
+            var canAddClaims = claimTypes.All(x => x.UserEditable) || User.IsSystemClient();
+            if (!canAddClaims) {
+                ModelState.AddModelError(string.Empty, $"The following claims are not editable: '{string.Join(", ", claimTypes.Where(x => !x.UserEditable))}'.");
+                return BadRequest(new ValidationProblemDetails(ModelState));
+            }
+            foreach (var claim in request.Claims) {
+                user.Claims.Add(new IdentityUserClaim<string> {
+                    ClaimType = claim.Type,
+                    ClaimValue = claim.Value ?? string.Empty,
+                    UserId = user.Id
+                });
+            }
+            var result = await _userManager.CreateAsync(user, request.Password);
+            if (!result.Succeeded) {
+                foreach (var error in result.Errors) {
+                    ModelState.AddModelError(error.Code, error.Description);
+                }
+                return BadRequest(new ValidationProblemDetails(ModelState));
+            }
+            var createdUser = new SingleUserInfo {
+                Id = user.Id,
+                UserName = user.UserName,
+                Email = user.Email,
+                PhoneNumber = user.PhoneNumber,
+                PasswordExpirationPolicy = user.PasswordExpirationPolicy,
+                IsAdmin = user.Admin,
+                TwoFactorEnabled = user.TwoFactorEnabled,
+                EmailConfirmed = user.EmailConfirmed,
+                PhoneNumberConfirmed = user.PhoneNumberConfirmed,
+                Claims = user.Claims?.Select(x => new ClaimInfo {
+                    Id = x.Id,
+                    Type = x.ClaimType,
+                    Value = x.ClaimValue
+                })
+                .ToList()
+            };
+            var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+            await _eventService.Raise(new UserRegisteredEvent(createdUser, token));
+            return NoContent();
+        }
+
+        private static User CreateUserFromRequest(RegisterRequest request) {
+            var user = new User {
+                UserName = request.UserName,
+                Email = request.Email,
+                PhoneNumber = request.PhoneNumber
+            };
+            if (!string.IsNullOrWhiteSpace(request.FirstName)) {
+                user.Claims.Add(new IdentityUserClaim<string> {
+                    ClaimType = JwtClaimTypes.GivenName,
+                    ClaimValue = request.FirstName ?? string.Empty,
+                    UserId = user.Id
+                });
+            }
+            if (!string.IsNullOrWhiteSpace(request.LastName)) {
+                user.Claims.Add(new IdentityUserClaim<string> {
+                    ClaimType = JwtClaimTypes.FamilyName,
+                    ClaimValue = request.LastName ?? string.Empty,
+                    UserId = user.Id
+                });
+            }
+            user.Claims.Add(new IdentityUserClaim<string> {
+                ClaimType = BasicClaimTypes.ConsentCommencial,
+                ClaimValue = request.HasAcceptedTerms ? bool.TrueString.ToLower() : bool.FalseString.ToLower(),
+                UserId = user.Id
+            });
+            user.Claims.Add(new IdentityUserClaim<string> {
+                ClaimType = BasicClaimTypes.ConsentTerms,
+                ClaimValue = request.HasReadPrivacyPolicy ? bool.TrueString.ToLower() : bool.FalseString.ToLower(),
+                UserId = user.Id
+            });
+            user.Claims.Add(new IdentityUserClaim<string> {
+                ClaimType = BasicClaimTypes.ConsentTermsDate,
+                ClaimValue = $"{DateTime.UtcNow:O}",
+                UserId = user.Id
+            });
+            user.Claims.Add(new IdentityUserClaim<string> {
+                ClaimType = BasicClaimTypes.ConsentCommencialDate,
+                ClaimValue = $"{DateTime.UtcNow:O}",
+                UserId = user.Id
+            });
+            return user;
         }
 
         private IDictionary<string, (string Description, string Hint)> GetAvailableRules(bool userAvailable, bool userNameAvailable) {
