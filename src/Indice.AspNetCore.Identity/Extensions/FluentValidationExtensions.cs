@@ -1,7 +1,6 @@
-﻿using FluentValidation;
-using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Identity;
 
-namespace Indice.AspNetCore.Identity.Extensions
+namespace FluentValidation
 {
     /// <summary>
     /// Extensions that enhance the fluent validation with additional validator methods.
@@ -16,7 +15,8 @@ namespace Indice.AspNetCore.Identity.Extensions
         /// <param name="userOptions">Represents all user related options for the ASP.NET Identity. It retrieves the <see cref="UserOptions.AllowedUserNameCharacters"/>.</param>
         /// <returns></returns>
         public static IRuleBuilderOptions<T, string> UserName<T>(this IRuleBuilder<T, string> ruleBuilder, UserOptions userOptions) => 
-            ruleBuilder.Matches($"^[{userOptions.AllowedUserNameCharacters.Replace("-", "\\-")}]*$").WithMessage($"The field '{{PropertyName}}' has some invalid characters. Allowed characters are \"{userOptions.AllowedUserNameCharacters}\"");
+            ruleBuilder.Matches($"^[{userOptions.AllowedUserNameCharacters.Replace("-", "\\-")}]*$")
+                .WithMessage($"The field '{{PropertyName}}' has some invalid characters. Allowed characters are \"{userOptions.AllowedUserNameCharacters}\"");
 
         //copy paste material: "Το πεδίο '{PropertyName}' δέχεται νούμερα, κεφαλαίους και πεζούς λατινικούς χαρακτήρες καθώς και τα σύμβολα -._@+"
     }
