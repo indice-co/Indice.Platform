@@ -7,7 +7,7 @@ namespace Microsoft.Extensions.DependencyInjection
     /// <summary>
     /// Extensions on the <see cref="IServiceCollection"/>
     /// </summary>
-    public static class ServiceCollectionExtensions
+    public static class IndiceServicesServiceCollectionExtensions
     {
         /// <summary>
         /// Add a decorator pattern implementation.
