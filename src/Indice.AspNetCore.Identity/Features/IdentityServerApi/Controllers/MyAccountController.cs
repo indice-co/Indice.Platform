@@ -18,6 +18,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
+using Microsoft.FeatureManagement.Mvc;
 
 namespace Indice.AspNetCore.Identity.Features
 {
@@ -524,6 +525,7 @@ namespace Indice.AspNetCore.Identity.Features
         /// <response code="200">No Content</response>
         /// <response code="400">Bad Request</response>
         [AllowAnonymous]
+        [FeatureGate(IdentityServerApiFeatures.PublicRegistration)]
         [HttpPost("account/register")]
         [ProducesResponseType(statusCode: StatusCodes.Status204NoContent, type: typeof(void))]
         [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest, type: typeof(ValidationProblemDetails))]
@@ -555,23 +557,7 @@ namespace Indice.AspNetCore.Identity.Features
                 }
                 return BadRequest(new ValidationProblemDetails(ModelState));
             }
-            var createdUser = new SingleUserInfo {
-                Id = user.Id,
-                UserName = user.UserName,
-                Email = user.Email,
-                PhoneNumber = user.PhoneNumber,
-                PasswordExpirationPolicy = user.PasswordExpirationPolicy,
-                IsAdmin = user.Admin,
-                TwoFactorEnabled = user.TwoFactorEnabled,
-                EmailConfirmed = user.EmailConfirmed,
-                PhoneNumberConfirmed = user.PhoneNumberConfirmed,
-                Claims = user.Claims?.Select(x => new ClaimInfo {
-                    Id = x.Id,
-                    Type = x.ClaimType,
-                    Value = x.ClaimValue
-                })
-                .ToList()
-            };
+            var createdUser = new SingleUserInfo(user);
             var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
             await _eventService.Raise(new UserRegisteredEvent(createdUser, token));
             return NoContent();

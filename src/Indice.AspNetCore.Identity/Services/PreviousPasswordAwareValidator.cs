@@ -79,6 +79,8 @@ namespace Indice.AspNetCore.Identity
         public PreviousPasswordAwareValidator(TContext dbContext, IConfiguration configuration, IdentityMessageDescriber messageDescriber) {
             DbContext = dbContext;
             MessageDescriber = messageDescriber ?? throw new ArgumentNullException(nameof(messageDescriber));
+            MaximumPasswordAge = configuration.GetSection($"{nameof(IdentityOptions)}:{nameof(IdentityOptions.Password)}").GetValue<TimeSpan?>(nameof(MaximumPasswordAge)) ??
+                                 configuration.GetSection(nameof(PasswordOptions)).GetValue<TimeSpan?>(nameof(MaximumPasswordAge));
             PasswordHistoryLimit = configuration.GetSection($"{nameof(IdentityOptions)}:{nameof(IdentityOptions.Password)}").GetValue<int?>(nameof(PasswordHistoryLimit)) ??
                                    configuration.GetSection(nameof(PasswordOptions)).GetValue<int?>(nameof(PasswordHistoryLimit));
         }
@@ -93,9 +95,17 @@ namespace Indice.AspNetCore.Identity
         /// </summary>
         public int? PasswordHistoryLimit { get; }
         /// <summary>
+        /// How long the user must keep a password before being allowed to change it (stops changing, then changing back again). Not implemented by design.
+        /// </summary>
+        public TimeSpan? MinimumPasswordAge { get; }
+        /// <summary>
+        /// A timespan written in dd:hh:mm:ss or (null is never).
+        /// </summary>
+        public TimeSpan? MaximumPasswordAge { get; }
+        /// <summary>
         /// Provides the various messages used throughout Indice packages.
         /// </summary>
-        public IdentityMessageDescriber MessageDescriber { get; set; }
+        public IdentityMessageDescriber MessageDescriber { get; }
 
         /// <summary>
         /// Validates a password as an asynchronous operation.
@@ -107,12 +117,16 @@ namespace Indice.AspNetCore.Identity
         public async Task<IdentityResult> ValidateAsync(UserManager<TUser> manager, TUser user, string password) {
             var result = IdentityResult.Success;
             if (PasswordHistoryLimit > 0) {
-                var usedPasswords = await DbContext.UserPasswordHistory
-                                                   .Where(x => x.UserId == user.Id)
-                                                   .OrderByDescending(x => x.DateCreated)
-                                                   .Take(PasswordHistoryLimit.Value)
-                                                   .Select(x => x.PasswordHash)
-                                                   .ToListAsync();
+                var query = DbContext.UserPasswordHistory
+                                     .Where(x => x.UserId == user.Id);
+                if (MaximumPasswordAge.HasValue && MaximumPasswordAge.Value > TimeSpan.Zero) {
+                    var ageMax = DateTime.UtcNow.Add(-MaximumPasswordAge.Value);
+                    query = query.Where(x => x.DateCreated >= ageMax);
+                }
+                var usedPasswords = await query.OrderByDescending(x => x.DateCreated)
+                                               .Take(PasswordHistoryLimit.Value)
+                                               .Select(x => x.PasswordHash)
+                                               .ToListAsync();
                 // We need to check the current password if the user has nothing in the password history table.
                 // This essentially means the feature has recently been enabled and the user has not since changed his password.
                 usedPasswords.Insert(0, user.PasswordHash);

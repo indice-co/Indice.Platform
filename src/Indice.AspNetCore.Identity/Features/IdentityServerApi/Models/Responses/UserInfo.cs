@@ -11,6 +11,33 @@ namespace Indice.AspNetCore.Identity.Features
     public class SingleUserInfo : BasicUserInfo
     {
         /// <summary>
+        /// Creates a new instance of <see cref="SingleUserInfo"/>.
+        /// </summary>
+        public SingleUserInfo() { }
+
+        /// <summary>
+        /// Creates a new instace of <see cref="SingleUserInfo"/> from a <see cref="User"/> object.
+        /// </summary>
+        /// <param name="user">The user instance.</param>
+        public SingleUserInfo(User user) {
+            Id = user.Id;
+            UserName = user.UserName;
+            Email = user.Email;
+            PhoneNumber = user.PhoneNumber;
+            PasswordExpirationPolicy = user.PasswordExpirationPolicy;
+            IsAdmin = user.Admin;
+            TwoFactorEnabled = user.TwoFactorEnabled;
+            EmailConfirmed = user.EmailConfirmed;
+            PhoneNumberConfirmed = user.PhoneNumberConfirmed;
+            Claims = user.Claims?.Select(x => new ClaimInfo {
+                Id = x.Id,
+                Type = x.ClaimType,
+                Value = x.ClaimValue
+            })
+            .ToList();
+        }
+
+        /// <summary>
         /// The names of the roles that the user belongs to.
         /// </summary>
         public List<string> Roles { get; set; } = new List<string>();

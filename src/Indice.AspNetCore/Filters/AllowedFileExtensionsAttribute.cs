@@ -21,7 +21,7 @@ namespace Indice.AspNetCore.Filters
         /// </summary>
         /// <param name="fileExtensions">Allowed file extensions as a comma or space separated string.</param>
         public AllowedFileExtensionsAttribute(params string[] fileExtensions) {
-            AllowedExtensions = fileExtensions.ToList();
+            AllowedExtensions = fileExtensions.Select(x => x.Trim()).ToList();
         }
 
         /// <inheritdoc />

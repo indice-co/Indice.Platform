@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace Indice.AspNetCore.Identity.Features
 {
@@ -18,18 +19,22 @@ namespace Indice.AspNetCore.Identity.Features
         /// <summary>
         /// The username used to login.
         /// </summary>
+        [Required]
         public string UserName { get; set; }
         /// <summary>
         /// User password.
         /// </summary>
+        [Required(AllowEmptyStrings = false)]
         public string Password { get; set; }
         /// <summary>
         /// User password confirmation.
         /// </summary>
+        [Compare(nameof(Password))]
         public string PasswordConfirmation { get; set; }
         /// <summary>
         /// Email.
         /// </summary>
+        [Required]
         public string Email { get; set; }
         /// <summary>
         /// Phone number.
@@ -46,6 +51,6 @@ namespace Indice.AspNetCore.Identity.Features
         /// <summary>
         /// User claims.
         /// </summary>
-        public List<BasicClaimInfo> Claims { get; set; }
+        public List<BasicClaimInfo> Claims { get; set; } = new List<BasicClaimInfo>();
     }
 }

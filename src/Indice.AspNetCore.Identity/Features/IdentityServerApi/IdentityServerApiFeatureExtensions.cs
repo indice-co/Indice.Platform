@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.FeatureManagement;
 
 namespace Indice.AspNetCore.Identity.Features
 {
@@ -33,6 +34,7 @@ namespace Indice.AspNetCore.Identity.Features
             configureAction?.Invoke(apiEndpointsOptions);
             apiEndpointsOptions.Services = null;
             services.AddDistributedMemoryCache();
+            services.AddFeatureManagement(configuration.GetSection("IdentityServerApiFeatureManagement"));
             // Configure options for CacheResourceFilter.
             services.Configure<CacheResourceFilterOptions>(options => options.DisableCache = apiEndpointsOptions.DisableCache);
             // Invoke action provided by developer to override default options.
