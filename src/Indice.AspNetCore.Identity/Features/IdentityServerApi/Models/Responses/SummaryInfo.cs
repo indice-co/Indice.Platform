@@ -1,4 +1,4 @@
-﻿namespace Indice.AspNetCore.Identity.Features
+﻿namespace Indice.AspNetCore.Identity.Api.Models
 {
     /// <summary>
     /// Contains summary information about the system.

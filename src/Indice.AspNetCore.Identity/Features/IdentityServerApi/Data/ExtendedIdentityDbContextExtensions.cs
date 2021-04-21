@@ -2,11 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using IdentityModel;
-using Indice.AspNetCore.Identity.Models;
+using Indice.AspNetCore.Identity.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
-namespace Indice.AspNetCore.Identity.Features
+namespace Indice.AspNetCore.Identity.EntityFrameworkCore
 {
     /// <summary>
     /// Extensions on type <see cref="ExtendedIdentityDbContext{TUser, TRole}"/>.
@@ -54,7 +54,7 @@ namespace Indice.AspNetCore.Identity.Features
             var initialRoles = InitialRoles<TRole>.Get();
             dbContext.Roles.AddRange(InitialRoles<TRole>.Get());
             foreach (var role in initialRoles) {
-                dbContext.UserRoles.Add(new IdentityUserRole<string> { 
+                dbContext.UserRoles.Add(new IdentityUserRole<string> {
                     UserId = admin.Id,
                     RoleId = role.Id
                 });

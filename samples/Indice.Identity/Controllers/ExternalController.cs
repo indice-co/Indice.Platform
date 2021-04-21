@@ -11,6 +11,7 @@ using IdentityServer4.Stores;
 using Indice.AspNetCore.Extensions;
 using Indice.AspNetCore.Filters;
 using Indice.AspNetCore.Identity;
+using Indice.AspNetCore.Identity.Entities;
 using Indice.AspNetCore.Identity.Extensions;
 using Indice.AspNetCore.Identity.Models;
 using Indice.Identity.Models;

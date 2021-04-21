@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using IdentityServer4.Models;
 using IdentityServer4.Validation;
-using Indice.AspNetCore.Identity.Models;
+using Indice.AspNetCore.Identity.Entities;
 using Microsoft.Extensions.Logging;
 using static IdentityModel.OidcConstants;
 

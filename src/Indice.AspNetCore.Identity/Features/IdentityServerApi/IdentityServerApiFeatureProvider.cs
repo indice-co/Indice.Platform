@@ -1,10 +1,11 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Indice.AspNetCore.Identity.Api.Controllers;
 using Microsoft.AspNetCore.Mvc.ApplicationParts;
 using Microsoft.AspNetCore.Mvc.Controllers;
 
-namespace Indice.AspNetCore.Identity.Features
+namespace Indice.AspNetCore.Identity.Api
 {
     /// <summary>
     /// A provider for <see cref="ControllerFeature"/>.

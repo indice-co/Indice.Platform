@@ -1,9 +1,8 @@
-﻿using System;
-using Indice.AspNetCore.Identity.Models;
+﻿using Indice.AspNetCore.Identity.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace Indice.AspNetCore.Identity.Data.Mappings
+namespace Indice.AspNetCore.Identity.EntityFrameworkCore
 {
     /// <summary>
     /// Entity Framework mapping for type <see cref="UserDevice"/>.

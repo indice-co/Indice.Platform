@@ -4,7 +4,7 @@ using System.Linq;
 using Indice.Security;
 using Microsoft.AspNetCore.Identity;
 
-namespace Indice.AspNetCore.Identity.Models
+namespace Indice.AspNetCore.Identity.Entities
 {
     /// <summary>
     /// Represents a user in the Identity system.
@@ -93,12 +93,12 @@ namespace Indice.AspNetCore.Identity.Models
             }
             var lastChange = LastPasswordChangeDate ?? DateTime.UtcNow;
             return PasswordExpirationPolicy.Value switch {
-                Models.PasswordExpirationPolicy.Never => null,
-                Models.PasswordExpirationPolicy.Monthly => lastChange.AddMonths(1),
-                Models.PasswordExpirationPolicy.Quarterly => lastChange.AddMonths(3),
-                Models.PasswordExpirationPolicy.Semesterly => lastChange.AddMonths(6),
-                Models.PasswordExpirationPolicy.Annually => lastChange.AddMonths(12),
-                Models.PasswordExpirationPolicy.Biannually => lastChange.AddMonths(24),
+                Entities.PasswordExpirationPolicy.Never => null,
+                Entities.PasswordExpirationPolicy.Monthly => lastChange.AddMonths(1),
+                Entities.PasswordExpirationPolicy.Quarterly => lastChange.AddMonths(3),
+                Entities.PasswordExpirationPolicy.Semesterly => lastChange.AddMonths(6),
+                Entities.PasswordExpirationPolicy.Annually => lastChange.AddMonths(12),
+                Entities.PasswordExpirationPolicy.Biannually => lastChange.AddMonths(24),
                 _ => lastChange.AddDays((int)PasswordExpirationPolicy.Value)
             };
         }
@@ -113,7 +113,7 @@ namespace Indice.AspNetCore.Identity.Models
     /// <summary>
     /// Helper methods for <see cref="User"/> type.
     /// </summary>
-    public static class UserExtensions
+    public static class DbUserExtensions
     {
         /// <summary>
         /// Adds the developer-totp claim to the provided user instance and provides a random 6-digit code.

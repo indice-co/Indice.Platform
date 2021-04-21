@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
-using Indice.AspNetCore.Identity.Models;
+using Indice.AspNetCore.Identity.Entities;
 using Indice.Extensions;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;

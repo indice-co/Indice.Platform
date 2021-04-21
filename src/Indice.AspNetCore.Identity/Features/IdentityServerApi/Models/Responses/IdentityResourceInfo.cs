@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Indice.AspNetCore.Identity.Features
+namespace Indice.AspNetCore.Identity.Api.Models
 {
     /// <summary>
     /// Models an identity resource for the application.

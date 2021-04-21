@@ -1,4 +1,4 @@
-﻿namespace Indice.AspNetCore.Identity.Features
+﻿namespace Indice.AspNetCore.Identity.Api.Models
 {
     /// <summary>
     /// Models a request to create a claim for an entity (e.x user or client).

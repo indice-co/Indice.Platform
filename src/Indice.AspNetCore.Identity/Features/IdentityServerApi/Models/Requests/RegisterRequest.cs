@@ -1,12 +1,12 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
-namespace Indice.AspNetCore.Identity.Features
+namespace Indice.AspNetCore.Identity.Api.Models
 {
     /// <summary>
     /// Models a new user that is registering on the system.
     /// </summary>
-    public class RegisterRequest
+    public class ApiRegisterRequest
     {
         /// <summary>
         /// The first name of the user.

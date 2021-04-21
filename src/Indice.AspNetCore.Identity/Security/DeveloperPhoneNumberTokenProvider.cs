@@ -1,6 +1,6 @@
 ﻿using System.Security;
 using System.Threading.Tasks;
-using Indice.AspNetCore.Identity.Models;
+using Indice.AspNetCore.Identity.Entities;
 using Indice.Security;
 using Microsoft.AspNetCore.Identity;
 

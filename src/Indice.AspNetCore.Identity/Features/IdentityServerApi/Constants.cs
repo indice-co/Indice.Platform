@@ -1,6 +1,6 @@
 ﻿using System.Reflection;
 
-namespace Indice.AspNetCore.Identity.Features
+namespace Indice.AspNetCore.Identity.Api.Security
 {
     /// <summary>
     /// Constants for IdentityServer API feature.

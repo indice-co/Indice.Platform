@@ -5,6 +5,13 @@ using System.Net.Mime;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using IdentityModel;
+using Indice.AspNetCore.Identity.Api.Configuration;
+using Indice.AspNetCore.Identity.Api.Events;
+using Indice.AspNetCore.Identity.Api.Filters;
+using Indice.AspNetCore.Identity.Api.Models;
+using Indice.AspNetCore.Identity.Api.Security;
+using Indice.AspNetCore.Identity.Entities;
+using Indice.AspNetCore.Identity.EntityFrameworkCore;
 using Indice.AspNetCore.Identity.Models;
 using Indice.Configuration;
 using Indice.Security;
@@ -20,7 +27,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Microsoft.FeatureManagement.Mvc;
 
-namespace Indice.AspNetCore.Identity.Features
+namespace Indice.AspNetCore.Identity.Api.Controllers
 {
     /// <summary>
     /// Contains operations for managing a user's account.
@@ -529,7 +536,7 @@ namespace Indice.AspNetCore.Identity.Features
         [HttpPost("account/register")]
         [ProducesResponseType(statusCode: StatusCodes.Status204NoContent, type: typeof(void))]
         [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest, type: typeof(ValidationProblemDetails))]
-        public async Task<IActionResult> Register([FromBody] RegisterRequest request) {
+        public async Task<IActionResult> Register([FromBody] ApiRegisterRequest request) {
             var user = CreateUserFromRequest(request);
             var requestClaimTypes = request.Claims.Select(x => x.Type);
             var claimTypes = await _configurationDbContext.ClaimTypes.Where(x => requestClaimTypes.Contains(x.Name)).ToListAsync();
@@ -563,7 +570,7 @@ namespace Indice.AspNetCore.Identity.Features
             return NoContent();
         }
 
-        private static User CreateUserFromRequest(RegisterRequest request) {
+        private static User CreateUserFromRequest(ApiRegisterRequest request) {
             var user = new User {
                 UserName = request.UserName,
                 Email = request.Email,

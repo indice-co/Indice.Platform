@@ -1,4 +1,4 @@
-﻿namespace Indice.AspNetCore.Identity.Features
+﻿namespace Indice.AspNetCore.Identity.Api.Models
 {
     /// <summary>
     /// Models a user claim that will be updated on the server.

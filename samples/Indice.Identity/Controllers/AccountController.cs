@@ -9,6 +9,7 @@ using IdentityServer4.Services;
 using IdentityServer4.Stores;
 using Indice.AspNetCore.Filters;
 using Indice.AspNetCore.Identity;
+using Indice.AspNetCore.Identity.Entities;
 using Indice.AspNetCore.Identity.Extensions;
 using Indice.AspNetCore.Identity.Models;
 using Microsoft.AspNetCore.Authentication;

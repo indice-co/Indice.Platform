@@ -1,4 +1,4 @@
-﻿namespace Indice.AspNetCore.Identity.Features
+﻿namespace Indice.AspNetCore.Identity.Entities
 {
     /// <summary>
     /// Models an application claim type.

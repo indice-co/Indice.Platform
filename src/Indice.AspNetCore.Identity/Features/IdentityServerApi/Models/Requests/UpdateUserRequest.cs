@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
-using Indice.AspNetCore.Identity.Models;
+using Indice.AspNetCore.Identity.Entities;
 
-namespace Indice.AspNetCore.Identity.Features
+namespace Indice.AspNetCore.Identity.Api.Models
 {
     /// <summary>
     /// Models a user that will be updated on the server.

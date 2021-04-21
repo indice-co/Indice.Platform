@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Indice.AspNetCore.Identity.Models
+namespace Indice.AspNetCore.Identity.Entities
 {
     /// <summary>
     /// <see cref="PasswordExpirationPolicy"/> enum defines all available passord expiration presets. The value is measured in days. 

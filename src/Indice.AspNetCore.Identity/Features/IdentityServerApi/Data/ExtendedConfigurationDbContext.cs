@@ -1,11 +1,13 @@
 ﻿using System.Linq;
 using IdentityServer4.EntityFramework.DbContexts;
 using IdentityServer4.EntityFramework.Options;
+using Indice.AspNetCore.Identity.Api.Configuration;
+using Indice.AspNetCore.Identity.Entities;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
 
-namespace Indice.AspNetCore.Identity.Features
+namespace Indice.AspNetCore.Identity.EntityFrameworkCore
 {
     /// <summary>
     /// Extended DbContext for the IdentityServer configuration data.

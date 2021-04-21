@@ -1,4 +1,6 @@
-﻿namespace Indice.AspNetCore.Identity.Features
+﻿using Indice.AspNetCore.Identity.Api.Models;
+
+namespace Indice.AspNetCore.Identity.Api.Events
 {
     /// <summary>
     /// An event that is raised when a user's phone number is confirmed.

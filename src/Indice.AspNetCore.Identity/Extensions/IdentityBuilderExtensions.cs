@@ -1,7 +1,7 @@
 ﻿using System;
 using Indice.AspNetCore.Identity.Authorization;
-using Indice.AspNetCore.Identity.Features;
-using Indice.AspNetCore.Identity.Models;
+using Indice.AspNetCore.Identity.Entities;
+using Indice.AspNetCore.Identity.EntityFrameworkCore;
 using Indice.Configuration;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;

@@ -5,11 +5,11 @@ using System.Text.Json.Serialization;
 namespace Indice.Serialization
 {
     /// <summary>
-    /// This converter is a NO Op conveter for the type <typeparamref name="TIgnore"/>
+    /// This converter is a NO Op conveter for the type <typeparamref name="TIgnore"/>.
     /// </summary>
-    /// <typeparam name="TIgnore">The type to ignore when serializing</typeparam>
+    /// <typeparam name="TIgnore">The type to ignore when serializing.</typeparam>
     /// <remarks>
-    /// A Json converter that skips serialization for a given type instead of throwing the unsupported exception. Very handy when exposing wcf proxy entities to the web directly 
+    /// A <see cref="JsonConverter"/> that skips serialization for a given type instead of throwing the unsupported exception. Very handy when exposing WCF proxy entities to the web directly 
     /// - which you shouldnt be doing anyways ¯\_(ツ)_/¯
     /// </remarks>
     public class JsonUnsupportedTypeConverter<TIgnore> : JsonConverter<TIgnore>

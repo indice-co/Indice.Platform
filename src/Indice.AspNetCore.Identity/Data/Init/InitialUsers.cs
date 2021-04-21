@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using Bogus;
 using IdentityModel;
-using Indice.AspNetCore.Identity.Models;
+using Indice.AspNetCore.Identity.Entities;
 using Microsoft.AspNetCore.Identity;
 
-namespace Indice.AspNetCore.Identity.Features
+namespace Indice.AspNetCore.Identity
 {
     /// <summary>
     /// Provides functionality to generate test users for development purposes.

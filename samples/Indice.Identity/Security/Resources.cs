@@ -2,7 +2,7 @@
 using System.Linq;
 using IdentityModel;
 using IdentityServer4.Models;
-using Indice.AspNetCore.Identity.Features;
+using Indice.AspNetCore.Identity.Api.Security;
 using Indice.Security;
 
 namespace Indice.Identity.Security

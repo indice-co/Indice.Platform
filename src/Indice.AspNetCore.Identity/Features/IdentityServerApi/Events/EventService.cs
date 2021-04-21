@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Threading.Tasks;
+using Indice.AspNetCore.Identity.Api.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Indice.AspNetCore.Identity.Features
+namespace Indice.AspNetCore.Identity.Api.Events
 {
     /// <summary>
     /// Implementation of <see cref="IEventService"/> where 

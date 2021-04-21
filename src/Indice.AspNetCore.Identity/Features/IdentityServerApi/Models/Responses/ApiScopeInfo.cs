@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Indice.AspNetCore.Identity.Features
+namespace Indice.AspNetCore.Identity.Api.Models
 {
     /// <summary>
     /// Models access to an API resource.

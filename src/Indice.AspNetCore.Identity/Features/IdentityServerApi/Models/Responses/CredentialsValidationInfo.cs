@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Indice.AspNetCore.Identity.Features
+namespace Indice.AspNetCore.Identity.Api.Models
 {
     /// <summary>
     /// Models the result of validating a user's credentials.

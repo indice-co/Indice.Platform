@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
 
-namespace Indice.AspNetCore.Identity.Features
+namespace Indice.AspNetCore.Identity.Api.Events
 {
     /// <summary>
     /// Models the handlers that 

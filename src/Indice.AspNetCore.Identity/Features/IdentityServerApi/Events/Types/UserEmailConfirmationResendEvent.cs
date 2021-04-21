@@ -4,24 +4,24 @@ using Indice.AspNetCore.Identity.Api.Models;
 namespace Indice.AspNetCore.Identity.Api.Events
 {
     /// <summary>
-    /// An event that is raised when a new user is registered using IdentityServer API.
+    /// An event that is raised when a user's email confirmation is resend.
     /// </summary>
-    public class UserRegisteredEvent : IIdentityServerApiEvent
+    public class UserEmailConfirmationResendEvent : IIdentityServerApiEvent
     {
         /// <summary>
-        /// Creates a new instance of <see cref="UserRegisteredEvent"/>.
+        /// Creates a new instance of <see cref="UserEmailConfirmationResendEvent"/>.
         /// </summary>
-        /// <param name="user">The instance of the user that was registered.</param>
+        /// <param name="user">The instance of the user that email verification will be resend.</param>
         /// <param name="confirmationToken">The generated email confirmation token.</param>
-        public UserRegisteredEvent(SingleUserInfo user, string confirmationToken) {
+        public UserEmailConfirmationResendEvent(BasicUserInfo user, string confirmationToken) {
             User = user ?? throw new ArgumentNullException(nameof(user));
             ConfirmationToken = confirmationToken ?? throw new ArgumentNullException(nameof(confirmationToken));
         }
 
         /// <summary>
-        /// The instance of the user that was registered.
+        /// The instance of the user that email verification will be resend.
         /// </summary>
-        public SingleUserInfo User { get; private set; }
+        public BasicUserInfo User { get; private set; }
         /// <summary>
         /// The generated email confirmation token.
         /// </summary>

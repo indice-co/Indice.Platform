@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Indice.AspNetCore.Identity.Entities;
 using Indice.AspNetCore.Identity.EntityFrameworkCore;
 using Indice.AspNetCore.Identity.Extensions;
-using Indice.AspNetCore.Identity.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;

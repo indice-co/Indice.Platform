@@ -1,5 +1,4 @@
-﻿using Indice.AspNetCore.Identity.Data.Mappings;
-using Indice.AspNetCore.Identity.Models;
+﻿using Indice.AspNetCore.Identity.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -24,7 +23,7 @@ namespace Indice.AspNetCore.Identity.EntityFrameworkCore
     /// <typeparam name="TUser">The type of the user to use.</typeparam>
     /// <typeparam name="TRole">The type of the role to use.</typeparam>
     public class IdentityDbContext<TUser, TRole> : IdentityDbContext<TUser, TRole, string>
-        where TUser : User 
+        where TUser : User
         where TRole : IdentityRole
     {
         /// <summary>

@@ -1,4 +1,4 @@
-﻿namespace Indice.AspNetCore.Identity.Features
+﻿namespace Indice.AspNetCore.Identity.Api.Configuration
 {
     /// <summary>
     /// 

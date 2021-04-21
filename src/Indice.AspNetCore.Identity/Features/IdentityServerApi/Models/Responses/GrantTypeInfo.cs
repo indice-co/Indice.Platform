@@ -1,4 +1,4 @@
-﻿namespace Indice.AspNetCore.Identity.Features
+﻿namespace Indice.AspNetCore.Identity.Api.Models
 {
     /// <summary>
     /// Describes the grant type of a client in the database.

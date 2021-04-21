@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using FluentValidation.AspNetCore;
-using Indice.AspNetCore.Identity.Features;
-using Indice.AspNetCore.Identity.Models;
+using Indice.AspNetCore.Identity.Api.Events;
+using Indice.AspNetCore.Identity.Entities;
 using Indice.Identity;
 using Indice.Identity.Services;
 using Indice.Security;
@@ -12,7 +12,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
-using ValueType = Indice.AspNetCore.Identity.Features.ValueType;
+using ValueType = Indice.AspNetCore.Identity.Entities.ValueType;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
@@ -53,7 +53,7 @@ namespace Microsoft.Extensions.DependencyInjection
                                // Update phone number options.
                                options.PhoneNumber.SendOtpOnUpdate = true;
                                // Add custom initial user and enable test data.
-                               options.SeedDummyUsers = true;
+                               options.SeedDummyUsers = false;
                                options.InitialUsers = GetInitialUsers();
                                options.CustomClaims = GetCustomClaimTypes();
                            })
@@ -99,9 +99,13 @@ namespace Microsoft.Extensions.DependencyInjection
 
         private static List<User> GetInitialUsers() => new() {
             new User {
+                Admin = true,
                 CreateDate = DateTime.UtcNow,
                 Email = "g.manoltzas@indice.gr",
                 EmailConfirmed = true,
+                PhoneNumber = "69XXXXXXXX",
+                PhoneNumberConfirmed = true,
+                LockoutEnabled = true,
                 NormalizedEmail = "g.manoltzas@indice.gr".ToUpper(),
                 Id = Guid.NewGuid().ToString(),
                 UserName = "g.manoltzas@indice.gr",
@@ -113,17 +117,15 @@ namespace Microsoft.Extensions.DependencyInjection
             }
         };
 
-        private static List<ClaimType> GetCustomClaimTypes() {
-            return new List<ClaimType> { 
-                new ClaimType {
-                    Id = $"{Guid.NewGuid()}", 
-                    Name = BasicClaimTypes.DeveloperTotp, 
-                    Reserved = false, 
-                    Required = false, 
-                    UserEditable = false, 
-                    ValueType = ValueType.String
-                }
-            };
-        }
+        private static List<ClaimType> GetCustomClaimTypes() => new() {
+            new ClaimType {
+                Id = $"{Guid.NewGuid()}",
+                Name = BasicClaimTypes.DeveloperTotp,
+                Reserved = false,
+                Required = false,
+                UserEditable = false,
+                ValueType = ValueType.String
+            }
+        };
     }
 }

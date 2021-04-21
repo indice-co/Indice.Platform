@@ -7,13 +7,17 @@ using IdentityModel;
 using IdentityServer4;
 using IdentityServer4.EntityFramework.Entities;
 using Indice.AspNetCore.Filters;
+using Indice.AspNetCore.Identity.Api.Filters;
+using Indice.AspNetCore.Identity.Api.Models;
+using Indice.AspNetCore.Identity.Api.Security;
+using Indice.AspNetCore.Identity.EntityFrameworkCore;
 using Indice.Types;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
-namespace Indice.AspNetCore.Identity.Features
+namespace Indice.AspNetCore.Identity.Api.Controllers
 {
     /// <summary>
     /// Contains operations for managing application's identity and API resources.
