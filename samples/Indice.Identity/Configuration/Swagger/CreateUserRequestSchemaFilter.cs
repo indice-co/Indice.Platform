@@ -1,4 +1,4 @@
-﻿using Indice.AspNetCore.Identity.Features;
+﻿using Indice.AspNetCore.Identity.Api.Models;
 using Indice.AspNetCore.Swagger;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;

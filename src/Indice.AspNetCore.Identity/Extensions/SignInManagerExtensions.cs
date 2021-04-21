@@ -2,7 +2,7 @@
 using System.Linq;
 using System.Security.Claims;
 using Indice.AspNetCore.Identity.Authorization;
-using Indice.AspNetCore.Identity.Models;
+using Indice.AspNetCore.Identity.Data.Models;
 using Microsoft.AspNetCore.Identity;
 
 namespace Indice.AspNetCore.Identity.Extensions

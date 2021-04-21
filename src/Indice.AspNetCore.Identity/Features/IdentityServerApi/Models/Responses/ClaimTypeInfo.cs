@@ -1,6 +1,7 @@
-﻿using Newtonsoft.Json;
+﻿using Indice.AspNetCore.Identity.Data.Models;
+using Newtonsoft.Json;
 
-namespace Indice.AspNetCore.Identity.Features
+namespace Indice.AspNetCore.Identity.Api.Models
 {
     /// <summary>
     /// Models an application claim type.

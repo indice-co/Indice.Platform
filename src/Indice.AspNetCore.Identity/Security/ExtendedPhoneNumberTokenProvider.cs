@@ -2,7 +2,7 @@
 using System.Globalization;
 using System.Security;
 using System.Threading.Tasks;
-using Indice.AspNetCore.Identity.Models;
+using Indice.AspNetCore.Identity.Data.Models;
 using Microsoft.AspNetCore.Identity;
 
 namespace Indice.AspNetCore.Identity

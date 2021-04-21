@@ -1,6 +1,6 @@
 ﻿using Indice.Types;
 
-namespace Indice.AspNetCore.Identity.Features
+namespace Indice.AspNetCore.Identity.Api.Models
 {
     /// <summary>
     /// Models a user device

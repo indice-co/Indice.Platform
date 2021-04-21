@@ -12,6 +12,13 @@ using IdentityServer4;
 using IdentityServer4.EntityFramework.Entities;
 using IdentityServer4.Models;
 using Indice.AspNetCore.Filters;
+using Indice.AspNetCore.Identity.Api.Configuration;
+using Indice.AspNetCore.Identity.Api.Events;
+using Indice.AspNetCore.Identity.Api.Filters;
+using Indice.AspNetCore.Identity.Api.Models;
+using Indice.AspNetCore.Identity.Api.Security;
+using Indice.AspNetCore.Identity.Data;
+using Indice.AspNetCore.Identity.Data.Models;
 using Indice.Configuration;
 using Indice.Security;
 using Indice.Types;
@@ -20,9 +27,10 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
-using Entities = IdentityServer4.EntityFramework.Entities;
+using Client = IdentityServer4.EntityFramework.Entities.Client;
+using ClientClaim = IdentityServer4.EntityFramework.Entities.ClientClaim;
 
-namespace Indice.AspNetCore.Identity.Features
+namespace Indice.AspNetCore.Identity.Api.Controllers
 {
     /// <summary>
     /// Contains operations for managing application clients.
@@ -81,7 +89,7 @@ namespace Indice.AspNetCore.Identity.Features
         [Produces(MediaTypeNames.Application.Json)]
         [ProducesResponseType(statusCode: StatusCodes.Status200OK, type: typeof(ResultSet<ClientInfo>))]
         public async Task<IActionResult> GetClients([FromQuery] ListOptions options) {
-            IQueryable<Entities.Client> query = null;
+            IQueryable<Client> query = null;
             if (User.IsAdmin()) {
                 query = _configurationDbContext.Clients.AsQueryable();
             }
@@ -229,9 +237,7 @@ namespace Indice.AspNetCore.Identity.Features
                 LogoUri = client.LogoUri,
                 RequireConsent = client.RequireConsent
             };
-            if (_apiEndpointsOptions.CanRaiseEvents) {
-                await _eventService.Raise(new ClientCreatedEvent(response));
-            }
+            await _eventService.Raise(new ClientCreatedEvent(response));
             return CreatedAtAction(nameof(GetClient), new { clientId = client.ClientId }, response);
         }
 
@@ -308,13 +314,13 @@ namespace Indice.AspNetCore.Identity.Features
             if (client == null) {
                 return NotFound();
             }
-            var claimToAdd = new Entities.ClientClaim {
+            var claimToAdd = new ClientClaim {
                 Client = client,
                 ClientId = client.Id,
                 Type = request.Type,
                 Value = request.Value
             };
-            client.Claims = new List<Entities.ClientClaim> {
+            client.Claims = new List<ClientClaim> {
                 claimToAdd
             };
             await _configurationDbContext.SaveChangesAsync();
@@ -344,7 +350,7 @@ namespace Indice.AspNetCore.Identity.Features
                 return NotFound();
             }
             if (client.Claims == null) {
-                client.Claims = new List<Entities.ClientClaim>();
+                client.Claims = new List<ClientClaim>();
             }
             var claimToRemove = client.Claims.SingleOrDefault(x => x.Id == claimId);
             if (claimToRemove == null) {
@@ -773,8 +779,8 @@ namespace Indice.AspNetCore.Identity.Features
         /// <param name="clientType">The type of the client.</param>
         /// <param name="authorityUri">The IdentityServer instance URI.</param>
         /// <param name="clientRequest">Client information provided by the user.</param>
-        private Entities.Client CreateForType(ClientType clientType, string authorityUri, CreateClientRequest clientRequest) {
-            var client = new Entities.Client {
+        private Client CreateForType(ClientType clientType, string authorityUri, CreateClientRequest clientRequest) {
+            var client = new Client {
                 ClientId = clientRequest.ClientId,
                 ClientName = clientRequest.ClientName,
                 Description = clientRequest.Description,

@@ -8,7 +8,13 @@ using IdentityModel;
 using IdentityServer4.Services;
 using IdentityServer4.Stores;
 using Indice.AspNetCore.Filters;
-using Indice.AspNetCore.Identity.Models;
+using Indice.AspNetCore.Identity.Api.Configuration;
+using Indice.AspNetCore.Identity.Api.Events;
+using Indice.AspNetCore.Identity.Api.Filters;
+using Indice.AspNetCore.Identity.Api.Models;
+using Indice.AspNetCore.Identity.Api.Security;
+using Indice.AspNetCore.Identity.Data;
+using Indice.AspNetCore.Identity.Data.Models;
 using Indice.Configuration;
 using Indice.Types;
 using Microsoft.AspNetCore.Authorization;
@@ -18,8 +24,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Options;
+using IEventService = Indice.AspNetCore.Identity.Api.Events.IEventService;
 
-namespace Indice.AspNetCore.Identity.Features
+namespace Indice.AspNetCore.Identity.Api.Controllers
 {
     /// <summary>
     /// Contains operations for managing applications users.
@@ -69,14 +76,14 @@ namespace Indice.AspNetCore.Identity.Features
         /// <param name="localizer">Represents an <see cref="IStringLocalizer"/> that provides strings for <see cref="UsersController"/>.</param>
         /// <param name="configurationDbContext">Extended DbContext for the IdentityServer configuration data.</param>
         public UsersController(
-            ExtendedUserManager<User> userManager, 
-            RoleManager<Role> roleManager, 
-            ExtendedIdentityDbContext<User, Role> dbContext, 
+            ExtendedUserManager<User> userManager,
+            RoleManager<Role> roleManager,
+            ExtendedIdentityDbContext<User, Role> dbContext,
             IPersistedGrantService persistedGrantService,
-            IClientStore clientStore, 
-            IdentityServerApiEndpointsOptions apiEndpointsOptions, 
-            IEventService eventService, 
-            IOptions<GeneralSettings> generalSettings, 
+            IClientStore clientStore,
+            IdentityServerApiEndpointsOptions apiEndpointsOptions,
+            IEventService eventService,
+            IOptions<GeneralSettings> generalSettings,
             IStringLocalizer<UsersController> localizer,
             ExtendedConfigurationDbContext configurationDbContext
         ) {
@@ -105,7 +112,7 @@ namespace Indice.AspNetCore.Identity.Features
                 var filter = options.Filter;
                 query = query.Where(x => filter.Claim == null || x.Claims.Any(x => x.ClaimType == filter.Claim.Type && x.ClaimValue == filter.Claim.Value));
             }
-            var usersQuery = 
+            var usersQuery =
                 from user in query
                 join fnl in _dbContext.UserClaims on user.Id equals fnl.UserId into fnLeft
                 from fn in fnLeft.DefaultIfEmpty()
@@ -328,6 +335,29 @@ namespace Indice.AspNetCore.Identity.Features
                 .ToList(),
                 Roles = roles
             });
+        }
+
+        /// <summary>
+        /// Resends the confirmation email for a given user.
+        /// </summary>
+        /// <returns></returns>
+        [HttpPost("{userId}/email/confirmation")]
+        [ProducesResponseType(statusCode: StatusCodes.Status204NoContent, type: typeof(void))]
+        [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest, type: typeof(ValidationProblemDetails))]
+        [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
+        public async Task<IActionResult> ResendConfirmationEmail([FromRoute] string userId) {
+            var user = await _dbContext.Users.SingleOrDefaultAsync(x => x.Id == userId);
+            if (user == null) {
+                return NotFound();
+            }
+            if (await _userManager.IsEmailConfirmedAsync(user)) {
+                ModelState.AddModelError(string.Empty, "User's email is already confirmed.");
+                return BadRequest(new ValidationProblemDetails(ModelState));
+            }
+            var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+            var eventInfo = user.ToBasicUserInfo();
+            await _eventService.Raise(new UserEmailConfirmationResendEvent(eventInfo, token));
+            return NoContent();
         }
 
         /// <summary>

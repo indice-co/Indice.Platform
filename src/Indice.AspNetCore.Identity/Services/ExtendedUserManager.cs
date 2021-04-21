@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using Indice.AspNetCore.Identity.EntityFrameworkCore;
+using Indice.AspNetCore.Identity.Data;
+using Indice.AspNetCore.Identity.Data.Models;
 using Indice.AspNetCore.Identity.Extensions;
-using Indice.AspNetCore.Identity.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -91,12 +91,13 @@ namespace Indice.AspNetCore.Identity
         }
 
         /// <summary>
-        /// Updates a user's password hash.
+        /// Reset's a user's password.
         /// </summary>
         /// <param name="user">The user.</param>
         /// <param name="newPassword">The new password.</param>
         /// <param name="validatePassword">Whether to validate the password.</param>
         /// <returns>Whether the password has was successfully updated.</returns>
+        /// <remarks>This overload is used for admin reset password. Bypasses token requirement of default <see cref="UserManager{TUser}.ResetPasswordAsync(TUser, string, string)"/></remarks>.
         public async Task<IdentityResult> ResetPasswordAsync(TUser user, string newPassword, bool validatePassword = true) {
             ThrowIfDisposed();
             if (user == null) {
@@ -106,7 +107,21 @@ namespace Indice.AspNetCore.Identity
             if (!result.Succeeded) {
                 return result;
             }
+            await SetLockoutEndDateAsync(user, null);
             return await UpdateUserAsync(user);
+        }
+
+        /// <inheritdoc />
+        public override async Task<IdentityResult> ResetPasswordAsync(TUser user, string token, string newPassword) {
+            var result = await base.ResetPasswordAsync(user, token, newPassword);
+            if (!result.Succeeded) {
+                return result;
+            }
+            if (await IsLockedOutAsync(user)) {
+                await SetLockoutEndDateAsync(user, null);
+                return await UpdateUserAsync(user);
+            }
+            return result;
         }
 
         private IExtendedUserStore<TUser> GetUserStore(bool throwOnFail = true) {

@@ -4,7 +4,7 @@ using Humanizer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Indice.AspNetCore.Identity.Features
+namespace Indice.AspNetCore.Identity
 {
     /// <summary>
     /// Extension methods for <see cref="IdentityError"/> type.

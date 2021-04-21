@@ -1,10 +1,10 @@
 ﻿using IdentityServer4.EntityFramework.Entities;
 using IdentityServer4.EntityFramework.Options;
 using IdentityServer4.Services;
-using Indice.AspNetCore.Identity.Models;
-using Microsoft.Extensions.DependencyInjection;
+using Indice.AspNetCore.Identity;
+using Indice.AspNetCore.Identity.Data.Models;
 
-namespace Indice.AspNetCore.Identity.Extensions
+namespace Microsoft.Extensions.DependencyInjection
 {
     /// <summary>
     /// Extension methods to configure the IdentityServer.

@@ -1,8 +1,7 @@
 ﻿using System;
-using Indice.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
-namespace Indice.AspNetCore.Identity.Features
+namespace Indice.AspNetCore.Identity.Data
 {
     /// <summary>
     /// Options for configuring <see cref="IdentityDbContext"/>.

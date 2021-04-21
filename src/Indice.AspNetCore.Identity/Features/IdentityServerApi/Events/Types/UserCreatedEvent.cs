@@ -1,9 +1,9 @@
-﻿using System.Text;
+﻿using Indice.AspNetCore.Identity.Api.Models;
 
-namespace Indice.AspNetCore.Identity.Features
+namespace Indice.AspNetCore.Identity.Api.Events
 {
     /// <summary>
-    /// An event that is raised when a new user is created on IdentityServer.
+    /// An event that is raised when a new user is created (by an admin) using IdentityServer API.
     /// </summary>
     public class UserCreatedEvent : IIdentityServerApiEvent
     {

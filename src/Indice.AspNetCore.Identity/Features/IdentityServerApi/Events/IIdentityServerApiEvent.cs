@@ -1,4 +1,4 @@
-﻿namespace Indice.AspNetCore.Identity.Features
+﻿namespace Indice.AspNetCore.Identity.Api.Events
 {
     /// <summary>
     /// Represents an event that is raised inside the IdentiyServer APi.

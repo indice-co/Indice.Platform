@@ -4,7 +4,7 @@ using System.Linq;
 using Indice.Security;
 using Microsoft.AspNetCore.Identity;
 
-namespace Indice.AspNetCore.Identity.Models
+namespace Indice.AspNetCore.Identity.Data.Models
 {
     /// <summary>
     /// Represents a user in the Identity system.
@@ -107,21 +107,13 @@ namespace Indice.AspNetCore.Identity.Models
         /// Check to see if the current password has expired according to current password expiration policy.
         /// </summary>
         /// <param name="now">The date to use as now.</param>
-        public bool HasExpiredPassword(DateTime? now = null) {
-            var expired = false;
-            now ??= DateTime.UtcNow;
-            if (PasswordExpirationPolicy.HasValue) {
-                var expirationDate = CalculatePasswordExpirationDate();
-                expired = expirationDate.HasValue && expirationDate <= now;
-            }
-            return expired;
-        }
+        public bool HasExpiredPassword(DateTime? now = null) => PasswordExpired || (PasswordExpirationDate.HasValue && PasswordExpirationDate <= (now ?? DateTime.UtcNow));
     }
 
     /// <summary>
     /// Helper methods for <see cref="User"/> type.
     /// </summary>
-    public static class UserExtensions
+    public static class DbUserExtensions
     {
         /// <summary>
         /// Adds the developer-totp claim to the provided user instance and provides a random 6-digit code.

@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Indice.AspNetCore.Identity.Data.Models;
 
-namespace Indice.AspNetCore.Identity.Features
+namespace Indice.AspNetCore.Identity.Data
 {
     internal static class ExtendedConfigurationDbContextExtensions
     {

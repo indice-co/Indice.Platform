@@ -1,6 +1,6 @@
 ﻿using Indice.Services;
 
-namespace Indice.AspNetCore.Identity.Features
+namespace Indice.AspNetCore.Identity.Api.Configuration
 {
     /// <summary>
     /// Options for the email sent when a user updates his email address.

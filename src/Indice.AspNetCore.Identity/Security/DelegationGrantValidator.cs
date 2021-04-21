@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using IdentityModel;
 using IdentityServer4.Models;
 using IdentityServer4.Validation;
+using Indice.Configuration;
 
 namespace Indice.AspNetCore.Identity
 {
@@ -23,7 +24,7 @@ namespace Indice.AspNetCore.Identity
         }
 
         /// <inheritdoc />
-        public string GrantType => "delegation";
+        public string GrantType => CustomGrantTypes.Delegation;
 
         /// <inheritdoc />
         public async Task ValidateAsync(ExtensionGrantValidationContext context) {

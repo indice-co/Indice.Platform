@@ -4,7 +4,7 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using IdentityModel;
 using Indice.AspNetCore.Identity.Authorization;
-using Indice.AspNetCore.Identity.Models;
+using Indice.AspNetCore.Identity.Data.Models;
 using Indice.Security;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
@@ -142,10 +142,7 @@ namespace Indice.AspNetCore.Identity
             var userClaims = await UserManager.GetClaimsAsync(user);
             var firstName = userClaims.SingleOrDefault(x => x.Type == JwtClaimTypes.GivenName)?.Value;
             var lastName = userClaims.SingleOrDefault(x => x.Type == JwtClaimTypes.FamilyName)?.Value;
-            var isPasswordExpired = false;
-            if (user is User) {
-                isPasswordExpired = user.HasExpiredPassword() || user.PasswordExpired;
-            }
+            var isPasswordExpired = user.HasExpiredPassword();
             var doPartialSignIn = (!isEmailConfirmed && RequirePostSignInConfirmedEmail)
                                || (!isPhoneConfirmed && RequirePostSignInConfirmedPhoneNumber)
                                || isPasswordExpired;

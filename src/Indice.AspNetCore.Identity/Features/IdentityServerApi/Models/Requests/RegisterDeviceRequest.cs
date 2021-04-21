@@ -2,7 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 using Indice.Types;
 
-namespace Indice.AspNetCore.Identity.Features
+namespace Indice.AspNetCore.Identity.Api.Models
 {
     /// <summary>
     /// Register a device for push notifications

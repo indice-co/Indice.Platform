@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 
-namespace Indice.Extensions.Configuration.EntityFrameworkCore
+namespace Indice.Extensions.Configuration
 {
     /// <summary>
     /// Extension methods for registering <see cref="EFConfigurationProvider"/> with <see cref="IConfigurationBuilder"/>.
@@ -47,7 +47,7 @@ namespace Indice.Extensions.Configuration.EntityFrameworkCore
         /// <summary>
         /// Registers and configures the <see cref="EFConfigurationProvider"/> using some default values.
         /// </summary>
-        /// <param name="webHostBuilder">A builder for <see cref="IWebHost"/>./param>
+        /// <param name="webHostBuilder">A builder for <see cref="IWebHost"/>.</param>
         /// <param name="reloadInterval">The <see cref="TimeSpan"/> to wait in between each attempt at polling the database for changes. Default is null which indicates no reloading.</param>
         /// <param name="connectionStringName">The name of the connection string to user. Default is 'IdentityDb'</param>
         /// <returns>The <see cref="IHostBuilder"/>.</returns>

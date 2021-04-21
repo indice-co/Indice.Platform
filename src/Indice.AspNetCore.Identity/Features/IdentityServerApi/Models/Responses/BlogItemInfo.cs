@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Indice.AspNetCore.Identity.Features
+namespace Indice.AspNetCore.Identity.Api.Models
 {
     /// <summary>
     /// Describes a blog post item.

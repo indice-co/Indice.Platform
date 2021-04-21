@@ -3,7 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Mime;
 using System.Threading.Tasks;
-using Indice.AspNetCore.Identity.Models;
+using Indice.AspNetCore.Identity.Api.Filters;
+using Indice.AspNetCore.Identity.Api.Models;
+using Indice.AspNetCore.Identity.Api.Security;
+using Indice.AspNetCore.Identity.Data;
+using Indice.AspNetCore.Identity.Data.Models;
 using Indice.Types;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
@@ -12,7 +16,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration.Json;
 
-namespace Indice.AspNetCore.Identity.Features
+namespace Indice.AspNetCore.Identity.Api.Controllers
 {
     /// <summary>
     /// Contains operations for managing application settings in the database.
@@ -76,6 +80,7 @@ namespace Indice.AspNetCore.Identity.Features
         /// </summary>
         /// <param name="hardRefresh"></param>
         /// <response code="200">OK</response>
+        [ApiExplorerSettings(IgnoreApi = true)]
         [HttpPost("load")]
         [ProducesResponseType(statusCode: 200, type: typeof(void))]
         public async Task<IActionResult> LoadFromAppSettings([FromQuery] bool hardRefresh = false) {
@@ -171,10 +176,10 @@ namespace Indice.AspNetCore.Identity.Features
         /// Permanently deletes an application setting.
         /// </summary>
         /// <param name="key">The key of the setting.</param>
-        /// <response code="200">OK</response>
+        /// <response code="200">No Content</response>
         /// <response code="404">Not Found</response>
         [HttpDelete("{key}")]
-        [ProducesResponseType(statusCode: StatusCodes.Status200OK)]
+        [ProducesResponseType(statusCode: StatusCodes.Status204NoContent)]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
         public async Task<IActionResult> DeleteSetting([FromRoute] string key) {
             var setting = await _dbContext.AppSettings.AsNoTracking().SingleOrDefaultAsync(x => x.Key == key);
@@ -183,7 +188,7 @@ namespace Indice.AspNetCore.Identity.Features
             }
             _dbContext.AppSettings.Remove(setting);
             await _dbContext.SaveChangesAsync();
-            return Ok();
+            return NoContent();
         }
     }
 }

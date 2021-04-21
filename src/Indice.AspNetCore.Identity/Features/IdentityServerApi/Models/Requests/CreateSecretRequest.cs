@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Indice.AspNetCore.Identity.Features
+namespace Indice.AspNetCore.Identity.Api.Models
 {
     /// <summary>
     /// Models a client or API secret that will be created on the server.

@@ -2,9 +2,8 @@
 using System.IO;
 using System.Reflection;
 using System.Security.Cryptography.X509Certificates;
-using Indice.AspNetCore.Identity.Extensions;
-using Indice.AspNetCore.Identity.Features;
-using Indice.AspNetCore.Identity.Models;
+using Indice.AspNetCore.Identity.Data;
+using Indice.AspNetCore.Identity.Data.Models;
 using Indice.Configuration;
 using Indice.Identity;
 using Microsoft.AspNetCore.Hosting;

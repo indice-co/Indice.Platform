@@ -1,6 +1,6 @@
 ﻿using Indice.Types;
 
-namespace Indice.AspNetCore.Identity.Features
+namespace Indice.AspNetCore.Identity.Api.Models
 {
     /// <summary>
     /// Class that models the request for validating a user's password.

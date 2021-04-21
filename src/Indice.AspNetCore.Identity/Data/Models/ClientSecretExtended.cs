@@ -1,7 +1,7 @@
 ﻿using IdentityServer4.EntityFramework.Entities;
 using Newtonsoft.Json;
 
-namespace Indice.AspNetCore.Identity.Features
+namespace Indice.AspNetCore.Identity.Data.Models
 {
     /// <summary>
     /// Extends the IdentityServer4 <see cref="IdentityServer4.EntityFramework.Entities.ClientSecret"/> table.

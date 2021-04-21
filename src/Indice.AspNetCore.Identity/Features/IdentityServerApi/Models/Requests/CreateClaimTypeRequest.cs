@@ -1,7 +1,9 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using Indice.AspNetCore.Identity.Api.Attributes;
+using Indice.AspNetCore.Identity.Data.Models;
 using Indice.Configuration;
 
-namespace Indice.AspNetCore.Identity.Features
+namespace Indice.AspNetCore.Identity.Api.Models
 {
     /// <summary>
     /// Models a claim type that will be created on the server.

@@ -5,7 +5,6 @@ using Microsoft.Extensions.Options;
 
 namespace Indice.AspNetCore.Identity
 {
-
     //https://stackoverflow.com/questions/868482/simulating-mysqls-password-encryption-using-net-or-ms-sql
     /// <summary>
     /// According to MySQL documentation, the algorithm is a double SHA1 hash. When examining the MySQL source code, you find a function called make_scrambled_password() 

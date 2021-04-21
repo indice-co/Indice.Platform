@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 
-namespace Indice.AspNetCore.Identity.Features
+namespace Indice.AspNetCore.Identity.Data.Models
 {
     /// <summary>
     /// Extended version of the <see cref="IdentityRole"/> class.

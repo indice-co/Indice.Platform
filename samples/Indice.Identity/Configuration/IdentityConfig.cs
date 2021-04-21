@@ -1,8 +1,7 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
 using Indice.AspNetCore.Identity;
-using Indice.AspNetCore.Identity.EntityFrameworkCore;
-using Indice.AspNetCore.Identity.Features;
-using Indice.AspNetCore.Identity.Models;
+using Indice.AspNetCore.Identity.Data;
+using Indice.AspNetCore.Identity.Data.Models;
 using Indice.Identity.Security;
 using Indice.Identity.Services;
 using Microsoft.AspNetCore.Authentication;
@@ -30,6 +29,7 @@ namespace Microsoft.Extensions.DependencyInjection
                            .AddIdentityMessageDescriber<LocalizedIdentityMessageDescriber>()
                            .AddClaimsTransform<ExtendedUserClaimsPrincipalFactory<User, Role>>()
                            .AddEntityFrameworkStores<ExtendedIdentityDbContext<User, Role>>()
+                           .AddUserManager<ExtendedUserManager<User>>()
                            .AddUserStore<ExtendedUserStore<ExtendedIdentityDbContext<User, Role>, User, Role>>()
                            .AddExtendedSignInManager()
                            .AddDefaultPasswordValidators()

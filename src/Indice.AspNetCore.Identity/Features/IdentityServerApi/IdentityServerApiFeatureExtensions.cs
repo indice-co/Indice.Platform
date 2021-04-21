@@ -1,15 +1,22 @@
 ﻿using System;
 using IdentityModel;
-using Indice.AspNetCore.Identity.Models;
+using Indice.AspNetCore.Identity;
+using Indice.AspNetCore.Identity.Api;
+using Indice.AspNetCore.Identity.Api.Configuration;
+using Indice.AspNetCore.Identity.Api.Events;
+using Indice.AspNetCore.Identity.Api.Filters;
+using Indice.AspNetCore.Identity.Api.Security;
+using Indice.AspNetCore.Identity.Data;
+using Indice.AspNetCore.Identity.Data.Models;
 using Indice.Configuration;
 using Indice.Security;
 using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.FeatureManagement;
 
-namespace Indice.AspNetCore.Identity.Features
+namespace Microsoft.Extensions.DependencyInjection
 {
     /// <summary>
     /// Contains extension methods on <see cref="IMvcBuilder"/> for configuring IdentityServer API feature.
@@ -33,6 +40,7 @@ namespace Indice.AspNetCore.Identity.Features
             configureAction?.Invoke(apiEndpointsOptions);
             apiEndpointsOptions.Services = null;
             services.AddDistributedMemoryCache();
+            services.AddFeatureManagement(configuration.GetSection("IdentityServerApiFeatureManagement"));
             // Configure options for CacheResourceFilter.
             services.Configure<CacheResourceFilterOptions>(options => options.DisableCache = apiEndpointsOptions.DisableCache);
             // Invoke action provided by developer to override default options.
@@ -68,7 +76,7 @@ namespace Indice.AspNetCore.Identity.Features
             services.Configure<AntiforgeryOptions>(options => {
                 options.HeaderName = CustomHeaderNames.AntiforgeryHeaderName;
             });
-            // Try register the extended version of UserManager<User>.
+            // Try register the extended version of UserManager<DbUser>.
             services.TryAddScoped<ExtendedUserManager<User>>();
             services.TryAddScoped<IdentityMessageDescriber>();
             // Register the authentication handler, using a custom scheme name, for local APIs.

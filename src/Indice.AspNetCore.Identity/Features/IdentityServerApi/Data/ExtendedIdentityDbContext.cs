@@ -1,10 +1,11 @@
-﻿using Indice.AspNetCore.Identity.EntityFrameworkCore;
-using Indice.AspNetCore.Identity.Models;
+﻿using Indice.AspNetCore.Identity.Api.Configuration;
+using Indice.AspNetCore.Identity.Data;
+using Indice.AspNetCore.Identity.Data.Models;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
 
-namespace Indice.AspNetCore.Identity.Features
+namespace Indice.AspNetCore.Identity.Data
 {
     /// <summary>
     /// An extended <see cref="DbContext"/> for the Identity framework.

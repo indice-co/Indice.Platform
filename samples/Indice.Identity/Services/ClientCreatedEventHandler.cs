@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
-using Indice.AspNetCore.Identity.Features;
+using Indice.AspNetCore.Identity.Api.Events;
 using Microsoft.Extensions.Logging;
 
 namespace Indice.Identity.Services

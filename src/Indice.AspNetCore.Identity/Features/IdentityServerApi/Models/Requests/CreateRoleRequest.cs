@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using Indice.Configuration;
 
-namespace Indice.AspNetCore.Identity.Features
+namespace Indice.AspNetCore.Identity.Api.Models
 {
     /// <summary>
     /// Models a role that will be created on the server.

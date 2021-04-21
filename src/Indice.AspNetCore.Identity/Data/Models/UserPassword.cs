@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Indice.AspNetCore.Identity.Models
+namespace Indice.AspNetCore.Identity.Data.Models
 {
     /// <summary>
     /// A user password hashed stored for password history validation purposes.

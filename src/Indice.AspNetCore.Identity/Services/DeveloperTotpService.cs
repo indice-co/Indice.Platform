@@ -4,8 +4,8 @@ using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using IdentityServer4.Extensions;
-using Indice.AspNetCore.Identity.Features;
-using Indice.AspNetCore.Identity.Models;
+using Indice.AspNetCore.Identity.Data;
+using Indice.AspNetCore.Identity.Data.Models;
 using Indice.Security;
 using Indice.Services;
 using Microsoft.AspNetCore.Identity;
@@ -26,7 +26,7 @@ namespace Indice.AspNetCore.Identity
         /// Constructs a new <see cref="DeveloperTotpService"/>.
         /// </summary>
         /// <param name="totpService">Used to generate, send and verify time based one time passwords.</param>
-        /// <param name="identityDbContext"><see cref="Microsoft.EntityFrameworkCore.DbContext"/> for the Identity Framework.</param>
+        /// <param name="identityDbContext"><see cref="DbContext"/> for the Identity Framework.</param>
         /// <param name="userManager">Provides the APIs for managing user in a persistence store.</param>
         public DeveloperTotpService(
             TotpService totpService,

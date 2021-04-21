@@ -72,11 +72,23 @@ namespace Indice.Security
         /// </summary>
         public const string DeveloperTotp = "developer_totp";
         /// <summary>
-        /// A client claim that indicates if the client is allowed to perform public/private key authentication.
+        /// Commercial consent.
         /// </summary>
-        public const string TrustedDevice = "trusted_device";
+        public const string ConsentCommencial = "consent_commencial";
         /// <summary>
-        /// All possible user related claims
+        /// Terms of service consent.
+        /// </summary>
+        public const string ConsentTerms = "consent_terms";
+        /// <summary>
+        /// Commercial consent date.
+        /// </summary>
+        public const string ConsentCommencialDate = "consent_commencial_date";
+        /// <summary>
+        /// Terms of service consent date.
+        /// </summary>
+        public const string ConsentTermsDate = "consent_terms_date";
+        /// <summary>
+        /// All possible user related claims.
         /// </summary>
         public static readonly string[] UserClaims = {
             "sub",
