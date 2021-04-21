@@ -1,6 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Text.Json;
-using System.Text.Json.Serialization;
 using Indice.Types;
 
 namespace Indice.AspNetCore.Identity.Api.Models
