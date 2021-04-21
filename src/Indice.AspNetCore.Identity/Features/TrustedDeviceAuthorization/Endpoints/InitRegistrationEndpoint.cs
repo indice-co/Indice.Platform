@@ -12,11 +12,16 @@ using IdentityServer4.Services;
 using IdentityServer4.Stores;
 using IdentityServer4.Validation;
 using Indice.AspNetCore.Extensions;
+using Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Configuration;
+using Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Endpoints.Results;
+using Indice.AspNetCore.Identity.TrustedDeviceAuthorization.ResponseHandling;
+using Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Stores;
+using Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Validation;
 using Indice.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 
-namespace Indice.AspNetCore.Identity.Features
+namespace Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Endpoints
 {
     internal class InitRegistrationEndpoint : IEndpointHandler
     {

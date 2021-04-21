@@ -1,7 +1,9 @@
 ﻿using System;
-using IdentityServer4.Validation;
-using Indice.AspNetCore.Identity.Features;
-using Indice.AspNetCore.Identity.Models;
+using Indice.AspNetCore.Identity.Data.Models;
+using Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Endpoints;
+using Indice.AspNetCore.Identity.TrustedDeviceAuthorization.ResponseHandling;
+using Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Stores;
+using Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Validation;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Microsoft.Extensions.DependencyInjection

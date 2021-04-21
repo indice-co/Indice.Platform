@@ -7,9 +7,10 @@ using IdentityServer4;
 using IdentityServer4.Models;
 using IdentityServer4.Stores;
 using IdentityServer4.Validation;
+using Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Configuration;
 using Microsoft.Extensions.Logging;
 
-namespace Indice.AspNetCore.Identity.Features
+namespace Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Validation
 {
     internal class InitRegistrationRequestValidator : RegistrationRequestValidatorBase<InitRegistrationRequestValidationResult>
     {

@@ -1,9 +1,12 @@
 ﻿using System;
 using System.Threading.Tasks;
 using IdentityServer4.Models;
+using Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Models;
+using Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Stores;
+using Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Validation;
 using Microsoft.AspNetCore.Authentication;
 
-namespace Indice.AspNetCore.Identity.Features
+namespace Indice.AspNetCore.Identity.TrustedDeviceAuthorization.ResponseHandling
 {
     internal class InitRegistrationResponseGenerator : IResponseGenerator<InitRegistrationRequestValidationResult, InitRegistrationResponse>
     {
@@ -26,7 +29,7 @@ namespace Indice.AspNetCore.Identity.Features
         }
 
         private async Task<InitRegistrationResponse> GenerateFingerprintResponse(InitRegistrationRequestValidationResult validationResult) {
-            var authorizationCode = new AuthorizationCode {
+            var authorizationCode = new TrustedDeviceAuthorizationCode {
                 ClientId = validationResult.Client.ClientId,
                 CodeChallenge = validationResult.CodeChallenge.Sha256(),
                 CodeChallengeMethod = validationResult.CodeChallengeMethod,

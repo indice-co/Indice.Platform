@@ -1,6 +1,7 @@
 ﻿using System.Threading.Tasks;
+using Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Models;
 
-namespace Indice.AspNetCore.Identity.Features
+namespace Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Stores
 {
     /// <summary>
     /// Abstracts the operations used to store an authorization code for a trusted device.
@@ -11,12 +12,12 @@ namespace Indice.AspNetCore.Identity.Features
         /// Stores the authorization code.
         /// </summary>
         /// <param name="code">The code to store.</param>
-        Task<string> GenerateChallenge(AuthorizationCode code);
+        Task<string> GenerateChallenge(TrustedDeviceAuthorizationCode code);
         /// <summary>
         /// Retrieves an authorization code by it's key.
         /// </summary>
         /// <param name="key">The key to search for.</param>
-        Task<AuthorizationCode> GetAuthorizationCode(string key);
+        Task<TrustedDeviceAuthorizationCode> GetAuthorizationCode(string key);
         /// <summary>
         /// Removes an authorization code by it's key.
         /// </summary>

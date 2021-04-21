@@ -1,6 +1,4 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-
-namespace Indice.AspNetCore.Identity.Features
+﻿namespace Microsoft.Extensions.DependencyInjection
 {
     /// <summary>
     /// Options for configuring 'Trusted Device Authorization' feature.

@@ -3,7 +3,7 @@ using System.Security.Claims;
 using IdentityServer4.Models;
 using IdentityServer4.Validation;
 
-namespace Indice.AspNetCore.Identity.Features
+namespace Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Validation
 {
     internal class InitRegistrationRequestValidationResult : ValidationResult
     {

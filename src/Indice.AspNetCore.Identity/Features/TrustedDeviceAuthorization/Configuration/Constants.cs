@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using IdentityModel;
+using Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Validation;
 
-namespace Indice.AspNetCore.Identity.Features
+namespace Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Configuration
 {
     internal class Constants
     {

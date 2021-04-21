@@ -5,12 +5,13 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using IdentityModel;
+using IdentityServer4.Validation;
 using Indice.AspNetCore.Extensions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Net.Http.Headers;
 
-namespace IdentityServer4.Validation
+namespace Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Validation
 {
     /// <summary>
     /// Validates a request that uses a bearer token for authentication.

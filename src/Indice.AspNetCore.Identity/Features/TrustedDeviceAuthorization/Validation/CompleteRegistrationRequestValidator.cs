@@ -9,13 +9,16 @@ using IdentityServer4;
 using IdentityServer4.Models;
 using IdentityServer4.Stores;
 using IdentityServer4.Validation;
+using Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Configuration;
+using Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Models;
+using Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Stores;
 using Indice.Extensions;
 using Indice.Services;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 
-namespace Indice.AspNetCore.Identity.Features
+namespace Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Validation
 {
     internal class CompleteRegistrationRequestValidator : RegistrationRequestValidatorBase<CompleteRegistrationRequestValidationResult>
     {
@@ -143,7 +146,7 @@ namespace Indice.AspNetCore.Identity.Features
             return canVerifyCodeChallenge;
         }
 
-        private async Task<ValidationResult> ValidateAuthorizationCode(string code, AuthorizationCode authorizationCode, string codeVerifier) {
+        private async Task<ValidationResult> ValidateAuthorizationCode(string code, TrustedDeviceAuthorizationCode authorizationCode, string codeVerifier) {
             if (authorizationCode == null) {
                 return Error(OidcConstants.TokenErrors.InvalidGrant, "Authorization code is invalid.");
             }
@@ -170,7 +173,7 @@ namespace Indice.AspNetCore.Identity.Features
             return Success();
         }
 
-        private ValidationResult ValidateAuthorizationCodeWithProofKeyParameters(string codeVerifier, AuthorizationCode authorizationCode) {
+        private ValidationResult ValidateAuthorizationCodeWithProofKeyParameters(string codeVerifier, TrustedDeviceAuthorizationCode authorizationCode) {
             if (string.IsNullOrWhiteSpace(authorizationCode.CodeChallenge) || string.IsNullOrWhiteSpace(authorizationCode.CodeChallengeMethod)) {
                 return Error(OidcConstants.TokenErrors.InvalidGrant, $"Client '{_client.ClientId}' is missing code challenge or code challenge method.");
             }

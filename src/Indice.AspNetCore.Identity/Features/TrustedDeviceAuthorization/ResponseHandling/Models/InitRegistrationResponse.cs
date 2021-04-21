@@ -1,4 +1,4 @@
-﻿namespace Indice.AspNetCore.Identity.Features
+﻿namespace Indice.AspNetCore.Identity.TrustedDeviceAuthorization.ResponseHandling
 {
     internal class InitRegistrationResponse
     {

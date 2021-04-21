@@ -3,7 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Indice.AspNetCore.Identity.Data.Models;
 
-namespace Indice.AspNetCore.Identity.Features
+namespace Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Stores
 {
     /// <summary>
     /// An implementation of <see cref="IUserDeviceStore"/> that stores user devices in-memory.

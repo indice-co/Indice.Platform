@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 using Indice.AspNetCore.Identity.Data.Models;
 
-namespace Indice.AspNetCore.Identity.Features
+namespace Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Stores
 {
     /// <summary>
     /// A store that manages the user registered devices.

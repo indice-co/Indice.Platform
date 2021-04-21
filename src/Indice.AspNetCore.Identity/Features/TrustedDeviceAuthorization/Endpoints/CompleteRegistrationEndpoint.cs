@@ -5,12 +5,14 @@ using IdentityModel;
 using IdentityServer4.Extensions;
 using IdentityServer4.Hosting;
 using IdentityServer4.ResponseHandling;
-using IdentityServer4.Validation;
 using Indice.AspNetCore.Extensions;
+using Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Endpoints.Results;
+using Indice.AspNetCore.Identity.TrustedDeviceAuthorization.ResponseHandling;
+using Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Validation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 
-namespace Indice.AspNetCore.Identity.Features
+namespace Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Endpoints
 {
     internal class CompleteRegistrationEndpoint : IEndpointHandler
     {

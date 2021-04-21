@@ -3,14 +3,15 @@ using IdentityServer4.Extensions;
 using IdentityServer4.Services;
 using IdentityServer4.Stores;
 using IdentityServer4.Stores.Serialization;
+using Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Models;
 using Microsoft.Extensions.Logging;
 
-namespace Indice.AspNetCore.Identity.Features
+namespace Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Stores
 {
     /// <summary>
     /// The default implementation of the <see cref="IAuthorizationCodeChallengeStore"/>, taking advantage of the underlying <see cref="IPersistedGrantStore"/> store.
     /// </summary>
-    internal class DefaultAuthorizationCodeChallengeStore : DefaultGrantStore<AuthorizationCode>, IAuthorizationCodeChallengeStore
+    internal class DefaultAuthorizationCodeChallengeStore : DefaultGrantStore<TrustedDeviceAuthorizationCode>, IAuthorizationCodeChallengeStore
     {
         /// <summary>
         /// Creates a new instance of <see cref="DefaultAuthorizationCodeChallengeStore"/>.
@@ -27,10 +28,10 @@ namespace Indice.AspNetCore.Identity.Features
         ) : base("trusted_device_authorization_code", store, serializer, handleGenerationService, logger) { }
 
         /// <inheritdoc />
-        public Task<string> GenerateChallenge(AuthorizationCode code) => CreateItemAsync(code, code.ClientId, code.Subject.GetSubjectId(), null, code.Description, code.CreationTime, code.Lifetime);
+        public Task<string> GenerateChallenge(TrustedDeviceAuthorizationCode code) => CreateItemAsync(code, code.ClientId, code.Subject.GetSubjectId(), null, code.Description, code.CreationTime, code.Lifetime);
 
         /// <inheritdoc />
-        public Task<AuthorizationCode> GetAuthorizationCode(string key) => GetItemAsync(key);
+        public Task<TrustedDeviceAuthorizationCode> GetAuthorizationCode(string key) => GetItemAsync(key);
 
         /// <inheritdoc />
         public Task RemoveAuthorizationCode(string key) => RemoveItemAsync(key);

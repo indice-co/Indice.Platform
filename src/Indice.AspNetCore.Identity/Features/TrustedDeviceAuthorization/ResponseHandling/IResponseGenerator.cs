@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
 
-namespace Indice.AspNetCore.Identity.Features
+namespace Indice.AspNetCore.Identity.TrustedDeviceAuthorization.ResponseHandling
 {
     internal interface IResponseGenerator<TResult, TResponse> 
         where TResult : class

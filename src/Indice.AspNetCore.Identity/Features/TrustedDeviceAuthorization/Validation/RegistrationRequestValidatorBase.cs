@@ -7,7 +7,7 @@ using IdentityServer4.Models;
 using IdentityServer4.Stores;
 using IdentityServer4.Validation;
 
-namespace Indice.AspNetCore.Identity.Features
+namespace Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Validation
 {
     internal abstract class RegistrationRequestValidatorBase<TRegistrationRequestValidationResult> where TRegistrationRequestValidationResult : ValidationResult, new()
     {

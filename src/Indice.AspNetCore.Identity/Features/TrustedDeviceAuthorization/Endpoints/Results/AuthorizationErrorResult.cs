@@ -7,7 +7,7 @@ using IdentityServer4.Hosting;
 using IdentityServer4.ResponseHandling;
 using Microsoft.AspNetCore.Http;
 
-namespace Indice.AspNetCore.Identity.Features
+namespace Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Endpoints.Results
 {
     internal class AuthorizationErrorResult : IEndpointResult
     {

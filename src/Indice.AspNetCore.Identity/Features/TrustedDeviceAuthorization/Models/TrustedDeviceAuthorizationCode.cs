@@ -2,12 +2,12 @@
 using System.Collections.Generic;
 using System.Security.Claims;
 
-namespace Indice.AspNetCore.Identity.Features
+namespace Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Models
 {
     /// <summary>
     /// Models an authorization code for a trusted device.
     /// </summary>
-    internal class AuthorizationCode
+    internal class TrustedDeviceAuthorizationCode
     {
         /// <summary>
         /// The <see cref="DateTime"/> that the code was created.
