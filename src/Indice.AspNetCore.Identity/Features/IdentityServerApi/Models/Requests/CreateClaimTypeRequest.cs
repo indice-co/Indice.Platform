@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using Indice.AspNetCore.Identity.Api.Attributes;
-using Indice.AspNetCore.Identity.Entities;
+using Indice.AspNetCore.Identity.Data.Models;
 using Indice.Configuration;
 
 namespace Indice.AspNetCore.Identity.Api.Models

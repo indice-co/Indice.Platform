@@ -4,7 +4,7 @@ using System.Linq;
 using Indice.Security;
 using Microsoft.AspNetCore.Identity;
 
-namespace Indice.AspNetCore.Identity.Entities
+namespace Indice.AspNetCore.Identity.Data.Models
 {
     /// <summary>
     /// Represents a user in the Identity system.
@@ -93,12 +93,12 @@ namespace Indice.AspNetCore.Identity.Entities
             }
             var lastChange = LastPasswordChangeDate ?? DateTime.UtcNow;
             return PasswordExpirationPolicy.Value switch {
-                Entities.PasswordExpirationPolicy.Never => null,
-                Entities.PasswordExpirationPolicy.Monthly => lastChange.AddMonths(1),
-                Entities.PasswordExpirationPolicy.Quarterly => lastChange.AddMonths(3),
-                Entities.PasswordExpirationPolicy.Semesterly => lastChange.AddMonths(6),
-                Entities.PasswordExpirationPolicy.Annually => lastChange.AddMonths(12),
-                Entities.PasswordExpirationPolicy.Biannually => lastChange.AddMonths(24),
+                Models.PasswordExpirationPolicy.Never => null,
+                Models.PasswordExpirationPolicy.Monthly => lastChange.AddMonths(1),
+                Models.PasswordExpirationPolicy.Quarterly => lastChange.AddMonths(3),
+                Models.PasswordExpirationPolicy.Semesterly => lastChange.AddMonths(6),
+                Models.PasswordExpirationPolicy.Annually => lastChange.AddMonths(12),
+                Models.PasswordExpirationPolicy.Biannually => lastChange.AddMonths(24),
                 _ => lastChange.AddDays((int)PasswordExpirationPolicy.Value)
             };
         }

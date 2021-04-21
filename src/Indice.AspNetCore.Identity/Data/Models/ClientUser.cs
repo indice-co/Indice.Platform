@@ -1,6 +1,6 @@
 ﻿using IdentityServer4.EntityFramework.Entities;
 
-namespace Indice.AspNetCore.Identity.Entities
+namespace Indice.AspNetCore.Identity.Data.Models
 {
     /// <summary>
     /// Describes the relationship between a client and a user.

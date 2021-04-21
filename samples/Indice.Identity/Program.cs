@@ -1,5 +1,5 @@
 ﻿using System;
-using Indice.Extensions.Configuration.EntityFrameworkCore;
+using Indice.Extensions.Configuration;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;

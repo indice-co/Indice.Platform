@@ -1,9 +1,9 @@
-﻿using Indice.AspNetCore.Identity.Entities;
+﻿using Indice.AspNetCore.Identity.Data.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
-namespace Indice.AspNetCore.Identity.EntityFrameworkCore
+namespace Indice.AspNetCore.Identity.Data
 {
     /// <summary>
     /// <see cref="DbContext"/> for the Identity Framework.

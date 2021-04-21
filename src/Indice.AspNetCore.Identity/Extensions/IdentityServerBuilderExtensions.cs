@@ -2,7 +2,7 @@
 using IdentityServer4.EntityFramework.Options;
 using IdentityServer4.Services;
 using Indice.AspNetCore.Identity;
-using Indice.AspNetCore.Identity.Entities;
+using Indice.AspNetCore.Identity.Data.Models;
 
 namespace Microsoft.Extensions.DependencyInjection
 {

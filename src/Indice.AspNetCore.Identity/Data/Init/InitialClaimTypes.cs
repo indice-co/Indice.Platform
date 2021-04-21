@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using Humanizer;
 using IdentityModel;
-using Indice.AspNetCore.Identity.Entities;
-using ValueType = Indice.AspNetCore.Identity.Entities.ValueType;
+using Indice.AspNetCore.Identity.Data.Models;
+using ValueType = Indice.AspNetCore.Identity.Data.Models.ValueType;
 
-namespace Indice.AspNetCore.Identity
+namespace Indice.AspNetCore.Identity.Data
 {
     /// <summary>
     /// Provides functionality to generate test claim types for development purposes.

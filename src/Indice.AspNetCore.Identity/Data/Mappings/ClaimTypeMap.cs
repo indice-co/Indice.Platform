@@ -1,10 +1,10 @@
-﻿using Indice.AspNetCore.Identity.Entities;
+﻿using Indice.AspNetCore.Identity.Data.Models;
 using Indice.Configuration;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
-namespace Indice.AspNetCore.Identity.EntityFrameworkCore
+namespace Indice.AspNetCore.Identity.Data
 {
     /// <summary>
     /// Entity Framework mapping for type <see cref="ClaimType"/>.

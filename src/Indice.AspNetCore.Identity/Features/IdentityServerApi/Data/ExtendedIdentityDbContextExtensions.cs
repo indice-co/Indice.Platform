@@ -2,11 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using IdentityModel;
-using Indice.AspNetCore.Identity.Entities;
+using Indice.AspNetCore.Identity.Data.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
-namespace Indice.AspNetCore.Identity.EntityFrameworkCore
+namespace Indice.AspNetCore.Identity.Data
 {
     /// <summary>
     /// Extensions on type <see cref="ExtendedIdentityDbContext{TUser, TRole}"/>.

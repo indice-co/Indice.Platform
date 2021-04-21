@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
-using Indice.AspNetCore.Identity.Entities;
-using Indice.AspNetCore.Identity.EntityFrameworkCore;
-using Indice.AspNetCore.Identity.Models;
+using Indice.AspNetCore.Identity.Data;
+using Indice.AspNetCore.Identity.Data.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;

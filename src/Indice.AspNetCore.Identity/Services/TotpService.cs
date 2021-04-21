@@ -6,7 +6,7 @@ using System.Security;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
-using Indice.AspNetCore.Identity.Entities;
+using Indice.AspNetCore.Identity.Data.Models;
 using Indice.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Caching.Distributed;

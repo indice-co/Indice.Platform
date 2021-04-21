@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using Hellang.Middleware.ProblemDetails;
 using Indice.AspNetCore.Filters;
 using Indice.AspNetCore.Identity.Api.Security;
-using Indice.AspNetCore.Identity.EntityFrameworkCore;
+using Indice.AspNetCore.Identity.Data;
 using Indice.AspNetCore.Swagger;
 using Indice.Configuration;
 using Indice.Identity.Configuration;

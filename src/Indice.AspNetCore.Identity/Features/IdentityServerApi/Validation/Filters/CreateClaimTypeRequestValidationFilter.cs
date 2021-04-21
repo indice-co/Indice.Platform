@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Humanizer;
 using Indice.AspNetCore.Identity.Api.Models;
-using Indice.AspNetCore.Identity.EntityFrameworkCore;
+using Indice.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.EntityFrameworkCore;

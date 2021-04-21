@@ -10,7 +10,7 @@ using Indice.AspNetCore.Filters;
 using Indice.AspNetCore.Identity.Api.Filters;
 using Indice.AspNetCore.Identity.Api.Models;
 using Indice.AspNetCore.Identity.Api.Security;
-using Indice.AspNetCore.Identity.EntityFrameworkCore;
+using Indice.AspNetCore.Identity.Data;
 using Indice.Types;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;

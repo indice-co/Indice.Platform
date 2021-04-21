@@ -1,8 +1,8 @@
-﻿using Indice.AspNetCore.Identity.Entities;
+﻿using Indice.AspNetCore.Identity.Data.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace Indice.AspNetCore.Identity.EntityFrameworkCore
+namespace Indice.AspNetCore.Identity.Data
 {
     /// <summary>
     /// Entity Framework mapping for type <see cref="User"/>.

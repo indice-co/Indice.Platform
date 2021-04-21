@@ -1,7 +1,7 @@
 ﻿using System;
 using Microsoft.EntityFrameworkCore;
 
-namespace Indice.Extensions.Configuration.EntityFrameworkCore
+namespace Indice.Extensions.Configuration
 {
     /// <summary>
     /// Configuration options for <see cref="EFConfigurationProvider"/>.

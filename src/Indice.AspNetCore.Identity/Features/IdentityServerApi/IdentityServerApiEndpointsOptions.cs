@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using Indice.AspNetCore.Identity.Entities;
+using Indice.AspNetCore.Identity.Data.Models;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Indice.AspNetCore.Identity.Api.Configuration

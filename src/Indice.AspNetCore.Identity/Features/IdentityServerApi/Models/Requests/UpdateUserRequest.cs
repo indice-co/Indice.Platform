@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using Indice.AspNetCore.Identity.Entities;
+using Indice.AspNetCore.Identity.Data.Models;
 
 namespace Indice.AspNetCore.Identity.Api.Models
 {

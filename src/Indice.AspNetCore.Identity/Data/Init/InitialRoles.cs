@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using Indice.AspNetCore.Identity.Entities;
+using Indice.AspNetCore.Identity.Data.Models;
 using Indice.Security;
 
-namespace Indice.AspNetCore.Identity
+namespace Indice.AspNetCore.Identity.Data
 {
     /// <summary>
     /// Provides functionality to generate test claim types for development purposes.
