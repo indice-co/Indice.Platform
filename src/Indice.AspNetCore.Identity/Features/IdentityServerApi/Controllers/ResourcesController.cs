@@ -281,7 +281,7 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
         [HttpGet("protected/scopes")]
         [ProducesResponseType(statusCode: StatusCodes.Status200OK, type: typeof(ResultSet<ApiScopeInfo>))]
         public async Task<IActionResult> GetApiScopes([FromQuery] ListOptions options) {
-            var query = _configurationDbContext.ApiScopes.AsNoTracking();
+            var query = _configurationDbContext.ApiScopes.Include(x => x.Properties).AsNoTracking();
             if (!string.IsNullOrEmpty(options.Search)) {
                 var searchTerm = options.Search.ToLower();
                 query = query.Where(x => x.Name.ToLower().Contains(searchTerm) || x.Description.ToLower().Contains(searchTerm));
@@ -293,7 +293,10 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
                 DisplayName = apiScope.DisplayName,
                 Emphasize = apiScope.Emphasize,
                 UserClaims = apiScope.UserClaims.Select(apiScopeClaim => apiScopeClaim.Type),
-                ShowInDiscoveryDocument = apiScope.ShowInDiscoveryDocument
+                ShowInDiscoveryDocument = apiScope.ShowInDiscoveryDocument,
+                Translations = TranslationDictionary<ApiScopeTranslation>.FromJson(apiScope.Properties.Any(x => x.Key == IdentityServerApi.ObjectTranslationKey)
+                    ? apiScope.Properties.Single(x => x.Key == IdentityServerApi.ObjectTranslationKey).Value
+                    : string.Empty)
             })
             .ToResultSetAsync(options);
             return Ok(scopes);
@@ -577,8 +580,16 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
                 Emphasize = request.Emphasize,
                 ShowInDiscoveryDocument = request.ShowInDiscoveryDocument,
                 Required = request.Required,
-                UserClaims = request.UserClaims.Select(claim => new ApiScopeClaim { Type = claim }).ToList()
+                UserClaims = request.UserClaims.Select(claim => new ApiScopeClaim { Type = claim }).ToList(),
+                Properties = new List<ApiScopeProperty>()
             };
+            if (request.Translations.Any()) {
+                apiScopeToAdd.Properties.Add(new ApiScopeProperty {
+                    Key = IdentityServerApi.ObjectTranslationKey,
+                    Scope = apiScopeToAdd,
+                    Value = request.Translations.ToJson()
+                });
+            }
             _configurationDbContext.ApiScopes.Add(apiScopeToAdd);
             await _configurationDbContext.SaveChangesAsync();
             return Ok(new ApiScopeInfo {
@@ -588,7 +599,10 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
                 Description = apiScopeToAdd.Description,
                 UserClaims = apiScopeToAdd.UserClaims.Select(x => x.Type),
                 Emphasize = apiScopeToAdd.Emphasize,
-                ShowInDiscoveryDocument = apiScopeToAdd.ShowInDiscoveryDocument
+                ShowInDiscoveryDocument = apiScopeToAdd.ShowInDiscoveryDocument,
+                Translations = TranslationDictionary<ApiScopeTranslation>.FromJson(apiScopeToAdd.Properties.Any(x => x.Key == IdentityServerApi.ObjectTranslationKey)
+                    ? apiScopeToAdd.Properties.Single(x => x.Key == IdentityServerApi.ObjectTranslationKey).Value
+                    : string.Empty)
             });
         }
 
