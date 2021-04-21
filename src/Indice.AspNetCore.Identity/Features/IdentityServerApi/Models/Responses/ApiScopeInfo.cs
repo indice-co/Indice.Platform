@@ -37,7 +37,7 @@ namespace Indice.AspNetCore.Identity.Api.Models
         /// </summary>
         public TranslationDictionary<ApiScopeTranslation> Translations { get; set; }
         /// <summary>
-        /// List of accociated user claims that should be included when a resource is requested.
+        /// List of associated user claims that should be included when a resource is requested.
         /// </summary>
         public IEnumerable<string> UserClaims { get; set; }
     }

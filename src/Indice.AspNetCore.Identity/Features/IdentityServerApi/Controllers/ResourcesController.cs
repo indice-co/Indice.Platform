@@ -294,9 +294,7 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
                 Emphasize = apiScope.Emphasize,
                 UserClaims = apiScope.UserClaims.Select(apiScopeClaim => apiScopeClaim.Type),
                 ShowInDiscoveryDocument = apiScope.ShowInDiscoveryDocument,
-                Translations = TranslationDictionary<ApiScopeTranslation>.FromJson(apiScope.Properties.Any(x => x.Key == IdentityServerApi.ObjectTranslationKey)
-                    ? apiScope.Properties.Single(x => x.Key == IdentityServerApi.ObjectTranslationKey).Value
-                    : string.Empty)
+                Translations = GetTranslationsFromApiScope(apiScope)
             })
             .ToResultSetAsync(options);
             return Ok(scopes);
@@ -314,6 +312,7 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
         [CacheResourceFilter]
         public async Task<IActionResult> GetApiResource([FromRoute] int resourceId) {
             var apiResource = await _configurationDbContext.ApiResources
+                .Include(x => x.Properties)
                 .AsNoTracking()
                 .Select(x => new ApiResourceInfo {
                     Id = x.Id,
@@ -339,7 +338,8 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
                         DisplayName = result.ApiScope.DisplayName,
                         Emphasize = result.ApiScope.Emphasize,
                         UserClaims = result.ApiScope.UserClaims.Select(apiScopeClaim => apiScopeClaim.Type),
-                        ShowInDiscoveryDocument = result.ApiScope.ShowInDiscoveryDocument
+                        ShowInDiscoveryDocument = result.ApiScope.ShowInDiscoveryDocument,
+                        Translations = GetTranslationsFromApiScope(result.ApiScope)
                     }) : default,
                     Secrets = x.Secrets.Any() ? x.Secrets.Select(x => new ApiSecretInfo {
                         Id = x.Id,
@@ -584,11 +584,7 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
                 Properties = new List<ApiScopeProperty>()
             };
             if (request.Translations.Any()) {
-                apiScopeToAdd.Properties.Add(new ApiScopeProperty {
-                    Key = IdentityServerApi.ObjectTranslationKey,
-                    Scope = apiScopeToAdd,
-                    Value = request.Translations.ToJson()
-                });
+                AddTranslationsToApiScope(apiScopeToAdd, request.Translations.ToJson());
             }
             _configurationDbContext.ApiScopes.Add(apiScopeToAdd);
             await _configurationDbContext.SaveChangesAsync();
@@ -600,9 +596,7 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
                 UserClaims = apiScopeToAdd.UserClaims.Select(x => x.Type),
                 Emphasize = apiScopeToAdd.Emphasize,
                 ShowInDiscoveryDocument = apiScopeToAdd.ShowInDiscoveryDocument,
-                Translations = TranslationDictionary<ApiScopeTranslation>.FromJson(apiScopeToAdd.Properties.Any(x => x.Key == IdentityServerApi.ObjectTranslationKey)
-                    ? apiScopeToAdd.Properties.Single(x => x.Key == IdentityServerApi.ObjectTranslationKey).Value
-                    : string.Empty)
+                Translations = GetTranslationsFromApiScope(apiScopeToAdd)
             });
         }
 
@@ -623,12 +617,18 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
             if (apiResourceScope == null) {
                 return NotFound();
             }
-            var apiScope = await _configurationDbContext.ApiScopes.SingleOrDefaultAsync(x => x.Name == apiResourceScope.Scope);
+            var apiScope = await _configurationDbContext.ApiScopes.Include(x => x.Properties).SingleOrDefaultAsync(x => x.Name == apiResourceScope.Scope);
             apiScope.DisplayName = request.DisplayName;
             apiScope.Description = request.Description;
             apiScope.Required = request.Required;
             apiScope.ShowInDiscoveryDocument = request.ShowInDiscoveryDocument;
             apiScope.Emphasize = request.Emphasize;
+            var apiScoreTranslations = apiScope.Properties?.SingleOrDefault(x => x.Key == IdentityServerApi.ObjectTranslationKey);
+            if (apiScoreTranslations == null) {
+                AddTranslationsToApiScope(apiScope, request.Translations.ToJson());
+            } else {
+                apiScoreTranslations.Value = request.Translations.ToJson() ?? string.Empty;
+            }
             await _configurationDbContext.SaveChangesAsync();
             return NoContent();
         }
@@ -750,6 +750,32 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
             }
             await _configurationDbContext.SaveChangesAsync();
             return NoContent();
+        }
+
+        /// <summary>
+        /// Adds translations to an <see cref="ApiScope"/>.
+        /// </summary>
+        /// <remarks>If the parameter translations is null, string.Empty will be persisted.</remarks>
+        /// <param name="apiScope">The <see cref="ApiScope"/></param>
+        /// <param name="translations">The json string with the translations</param>
+        private void AddTranslationsToApiScope(ApiScope apiScope, string translations) {
+            apiScope.Properties ??= new List<ApiScopeProperty>();
+            apiScope.Properties.Add(new ApiScopeProperty {
+                Key = IdentityServerApi.ObjectTranslationKey,
+                Value = translations ?? string.Empty,
+                Scope = apiScope
+            });
+        }
+        /// <summary>
+        /// Deserialize the json translation of an <see cref="ApiScope"/>.
+        /// </summary>
+        /// <param name="apiScope">The ApiScope</param>
+        /// <returns></returns>
+        private TranslationDictionary<ApiScopeTranslation> GetTranslationsFromApiScope(ApiScope apiScope) {
+            return TranslationDictionary<ApiScopeTranslation>.FromJson(
+                apiScope.Properties.Any(x => x.Key == IdentityServerApi.ObjectTranslationKey)
+                    ? apiScope.Properties.Single(x => x.Key == IdentityServerApi.ObjectTranslationKey).Value
+                    : string.Empty);
         }
     }
 }
