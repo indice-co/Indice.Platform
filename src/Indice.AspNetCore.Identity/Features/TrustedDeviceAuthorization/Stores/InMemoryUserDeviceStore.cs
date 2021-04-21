@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Indice.AspNetCore.Identity.Models;
+using Indice.AspNetCore.Identity.Data.Models;
 
 namespace Indice.AspNetCore.Identity.Features
 {

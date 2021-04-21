@@ -3,6 +3,7 @@ using IdentityModel;
 using IdentityServer4;
 using IdentityServer4.Models;
 using Indice.AspNetCore.Identity.Api.Security;
+using Indice.Security;
 
 namespace Indice.Identity.Security
 {

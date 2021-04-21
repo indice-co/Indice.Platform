@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
-using Indice.AspNetCore.Identity.Models;
+using Indice.AspNetCore.Identity.Data.Models;
 using Microsoft.AspNetCore.Authentication;
 
 namespace Indice.AspNetCore.Identity.Features
