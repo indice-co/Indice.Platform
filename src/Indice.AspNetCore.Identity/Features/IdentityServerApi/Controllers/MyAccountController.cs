@@ -282,6 +282,7 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
         /// <param name="request">Contains info about the user password to change.</param>
         /// <response code="204">No Content</response>
         /// <response code="400">Bad Request</response>
+        [AllowAnonymous]
         [HttpPost("my/account/forgot-password")]
         [ProducesResponseType(statusCode: StatusCodes.Status204NoContent, type: typeof(void))]
         [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest, type: typeof(ValidationProblemDetails))]
@@ -305,6 +306,7 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
         /// <param name="request">Contains info about the user password to change.</param>
         /// <response code="204">No Content</response>
         /// <response code="400">Bad Request</response>
+        [AllowAnonymous]
         [HttpPut("my/account/forgot-password/confirmation")]
         [ProducesResponseType(statusCode: StatusCodes.Status204NoContent, type: typeof(void))]
         [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest, type: typeof(ValidationProblemDetails))]
@@ -364,7 +366,7 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
         }
 
         /// <summary>
-        /// Assigns various properties on the current user's account.
+        /// Adds the requested claims on the current user's account.
         /// </summary>
         /// <param name="claims">Contains info about the claims to create.</param>
         /// <response code="200">OK</response>
@@ -379,15 +381,73 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
             if (user == null) {
                 return NotFound();
             }
-            var allowedClaims = await _configurationDbContext
+            var systemClaims = await _configurationDbContext
                 .ClaimTypes
-                .Where(x => claims.Select(x => x.Type).Contains(x.Name) && x.UserEditable)
-                .Select(x => x.Name)
+                .Where(x => claims.Select(x => x.Type).Contains(x.Name))
                 .ToListAsync();
-            if (allowedClaims.Count != claims.Count()) {
-                var notAllowedClaims = claims.Select(x => x.Type).Except(allowedClaims);
+            var userAllowedClaims = systemClaims.Where(x => x.UserEditable).Select(x => x.Name).ToList();
+            var isSystemClient = User.IsSystemClient();
+            if (isSystemClient && systemClaims.Count != claims.Count()) {
+                var notAllowedClaims = claims.Select(x => x.Type).Except(systemClaims.Select(x => x.Name));
+                ModelState.AddModelError(nameof(claims), $"The following claims are not allowed to add by the client: '{string.Join(", ", notAllowedClaims)}'.");
+                return BadRequest(new ValidationProblemDetails(ModelState));
+            }
+            if (!isSystemClient && userAllowedClaims.Count != claims.Count()) {
+                var notAllowedClaims = claims.Select(x => x.Type).Except(userAllowedClaims);
                 ModelState.AddModelError(nameof(claims), $"The following claims are not allowed to add: '{string.Join(", ", notAllowedClaims)}'.");
                 return BadRequest(new ValidationProblemDetails(ModelState));
+            }
+            var claimsToAdd = claims.Select(x => new IdentityUserClaim<string> {
+                UserId = user.Id,
+                ClaimType = x.Type,
+                ClaimValue = x.Value
+            })
+            .ToArray();
+            _dbContext.UserClaims.AddRange(claimsToAdd);
+            await _dbContext.SaveChangesAsync();
+            return Ok(claimsToAdd.Select(x => new ClaimInfo {
+                Id = x.Id,
+                Type = x.ClaimType,
+                Value = x.ClaimValue
+            }));
+        }
+
+        /// <summary>
+        /// Upserts the requested claims on the current user's account.
+        /// </summary>
+        /// <param name="claims">Contains info about the claims to create.</param>
+        /// <response code="200">OK</response>
+        /// <response code="400">Bad Request</response>
+        /// <response code="404">Not Found</response>
+        [HttpPatch("my/account/claims")]
+        [ProducesResponseType(statusCode: StatusCodes.Status200OK, type: typeof(IEnumerable<ClaimInfo>))]
+        [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest, type: typeof(ValidationProblemDetails))]
+        [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
+        public async Task<IActionResult> PatchClaims([FromBody] IEnumerable<CreateClaimRequest> claims) {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null) {
+                return NotFound();
+            }
+            var systemClaims = await _configurationDbContext
+                .ClaimTypes
+                .Where(x => claims.Select(x => x.Type).Contains(x.Name))
+                .ToListAsync();
+            var userAllowedClaims = systemClaims.Where(x => x.UserEditable).Select(x => x.Name).ToList();
+            var isSystemClient = User.IsSystemClient();
+            if (isSystemClient && systemClaims.Count != claims.Count()) {
+                var notAllowedClaims = claims.Select(x => x.Type).Except(systemClaims.Select(x => x.Name));
+                ModelState.AddModelError(nameof(claims), $"The following claims are not allowed to add by the client: '{string.Join(", ", notAllowedClaims)}'.");
+                return BadRequest(new ValidationProblemDetails(ModelState));
+            }
+            if (!isSystemClient && userAllowedClaims.Count != claims.Count()) {
+                var notAllowedClaims = claims.Select(x => x.Type).Except(userAllowedClaims);
+                ModelState.AddModelError(nameof(claims), $"The following claims are not allowed to add: '{string.Join(", ", notAllowedClaims)}'.");
+                return BadRequest(new ValidationProblemDetails(ModelState));
+            }
+            var existingUserClaims = await _userManager.GetClaimsAsync(user);
+            var claimsToRemove = existingUserClaims.Where(x => systemClaims.Select(x => x.Name).Contains(x.Type));
+            if (claimsToRemove.Any()) {
+                await _userManager.RemoveClaimsAsync(user, claimsToRemove);
             }
             var claimsToAdd = claims.Select(x => new IdentityUserClaim<string> {
                 UserId = user.Id,
