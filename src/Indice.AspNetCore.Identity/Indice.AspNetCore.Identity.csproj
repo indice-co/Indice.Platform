@@ -57,16 +57,16 @@
     <ProjectReference Include="..\Indice.AspNetCore\Indice.AspNetCore.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Update="Resources.Designer.cs">
+    <Compile Update="IdentityResources.Designer.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
-      <DependentUpon>Resources.resx</DependentUpon>
+      <DependentUpon>IdentityResources.resx</DependentUpon>
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Update="Resources.resx">
+    <EmbeddedResource Update="IdentityResources.resx">
       <CustomToolNamespace>Indice.AspNetCore.Identity</CustomToolNamespace>
-      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      <LastGenOutput>IdentityResources.Designer.cs</LastGenOutput>
       <Generator>ResXFileCodeGenerator</Generator>
     </EmbeddedResource>
   </ItemGroup>

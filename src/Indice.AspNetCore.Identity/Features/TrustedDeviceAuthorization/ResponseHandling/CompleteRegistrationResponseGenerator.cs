@@ -21,11 +21,13 @@ namespace Indice.AspNetCore.Identity.TrustedDeviceAuthorization.ResponseHandling
         public ISystemClock SystemClock { get; }
 
         public async Task<CompleteRegistrationResponse> Generate(CompleteRegistrationRequestValidationResult validationResult) {
-            await UserDeviceStore.CreateDevice(new UserDevice { 
+            await UserDeviceStore.CreateDevice(new UserDevice(Guid.NewGuid()) { 
                 IsPushNotificationsEnabled = false,
                 DateCreated = SystemClock.UtcNow,
                 DeviceId = validationResult.DeviceId,
-                UserId = validationResult.UserId
+                UserId = validationResult.UserId,
+                InteractionMode = validationResult.InteractionMode,
+                DeviceName = validationResult.DeviceName
             });
             return new CompleteRegistrationResponse();
         }

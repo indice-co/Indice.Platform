@@ -82,7 +82,7 @@ namespace Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Endpoints
             // We will get these 2 claims by retrieving the identity resources from the store (using the requested scopes existing in the access token) and then calling the profile service.
             // This will help us make sure that the 'phone' scope was requested and finally allowed in the token endpoint.
             var identityResources = await ResourceStore.FindEnabledIdentityResourcesByScopeAsync(requestValidationResult.RequestedScopes);
-            var resources = new IdentityServer4.Models.Resources(identityResources, Enumerable.Empty<ApiResource>(), Enumerable.Empty<ApiScope>());
+            var resources = new Resources(identityResources, Enumerable.Empty<ApiResource>(), Enumerable.Empty<ApiScope>());
             var validatedResources = new ResourceValidationResult(resources);
             if (!validatedResources.Succeeded) {
                 return Error(OidcConstants.ProtectedResourceErrors.InvalidToken, "Identity resources could be validated.");

@@ -19,9 +19,7 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <param name="builder">IdentityServer builder interface.</param>
         /// <param name="configureAction"></param>
         public static IIdentityServerBuilder AddTrustedDeviceAuthorization(this IIdentityServerBuilder builder, Action<TrustedDeviceAuthorizationOptions> configureAction = null) {
-            var options = new TrustedDeviceAuthorizationOptions {
-                Services = builder.Services
-            };
+            var options = new TrustedDeviceAuthorizationOptions { Services = builder.Services };
             configureAction?.Invoke(options);
             // Register endpoints.
             builder.AddEndpoint<InitRegistrationEndpoint>("TrustedDeviceInitRegistration", "/my/devices/register/init");
@@ -49,8 +47,6 @@ namespace Microsoft.Extensions.DependencyInjection
         /// </summary>
         /// <typeparam name="TUserDeviceStore">The type of <see cref="UserDevice"/> store.</typeparam>
         /// <param name="options">Options for configuring 'Trusted Device Authorization' feature.</param>
-        public static void AddUserDeviceStore<TUserDeviceStore>(this TrustedDeviceAuthorizationOptions options) where TUserDeviceStore : class, IUserDeviceStore {
-            options.Services.AddTransient<IUserDeviceStore, TUserDeviceStore>();
-        }
+        public static void AddUserDeviceStore<TUserDeviceStore>(this TrustedDeviceAuthorizationOptions options) where TUserDeviceStore : class, IUserDeviceStore => options.Services.AddTransient<IUserDeviceStore, TUserDeviceStore>();
     }
 }

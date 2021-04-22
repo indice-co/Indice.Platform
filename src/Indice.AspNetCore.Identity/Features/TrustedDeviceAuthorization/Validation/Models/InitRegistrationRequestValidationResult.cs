@@ -2,6 +2,7 @@
 using System.Security.Claims;
 using IdentityServer4.Models;
 using IdentityServer4.Validation;
+using Indice.AspNetCore.Identity.Data.Models;
 
 namespace Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Validation
 {

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using IdentityServer4.Models;
+using Indice.AspNetCore.Identity.Data.Models;
 using Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Models;
 using Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Stores;
 using Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Validation;
@@ -31,6 +32,8 @@ namespace Indice.AspNetCore.Identity.TrustedDeviceAuthorization.ResponseHandling
         private async Task<InitRegistrationResponse> GenerateFingerprintResponse(InitRegistrationRequestValidationResult validationResult) {
             var authorizationCode = new TrustedDeviceAuthorizationCode {
                 ClientId = validationResult.Client.ClientId,
+                DeviceId = validationResult.DeviceId,
+                InteractionMode = validationResult.InteractionMode,
                 CodeChallenge = validationResult.CodeChallenge.Sha256(),
                 CodeChallengeMethod = validationResult.CodeChallengeMethod,
                 CreationTime = SystemClock.UtcNow.UtcDateTime,

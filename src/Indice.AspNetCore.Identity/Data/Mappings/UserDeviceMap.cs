@@ -27,7 +27,7 @@ namespace Indice.AspNetCore.Identity.Data
             builder.Property(x => x.UserId).IsRequired();
             builder.Property(x => x.DeviceId).IsRequired();
             // Configure relationships.
-            builder.HasOne<TUser>().WithMany().HasForeignKey(x => x.UserId).OnDelete(DeleteBehavior.Cascade);
+            builder.HasOne(x => x.User).WithMany(x => x.Devices).HasForeignKey(x => x.UserId).OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

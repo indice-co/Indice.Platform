@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Security.Claims;
+using Indice.AspNetCore.Identity.Data.Models;
 
 namespace Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Models
 {
@@ -21,6 +22,14 @@ namespace Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Models
         /// The client id.
         /// </summary>
         public string ClientId { get; set; }
+        /// <summary>
+        /// The device id.
+        /// </summary>
+        public string DeviceId { get; set; }
+        /// <summary>
+        /// The way a device interacts with the identity system for trusted authorization.
+        /// </summary>
+        public InteractionMode InteractionMode { get; set; }
         /// <summary>
         /// The principal associated with this code.
         /// </summary>

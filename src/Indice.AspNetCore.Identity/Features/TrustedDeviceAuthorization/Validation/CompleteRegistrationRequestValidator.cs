@@ -9,6 +9,7 @@ using IdentityServer4;
 using IdentityServer4.Models;
 using IdentityServer4.Stores;
 using IdentityServer4.Validation;
+using Indice.AspNetCore.Identity.Data.Models;
 using Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Configuration;
 using Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Models;
 using Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Stores;
@@ -60,8 +61,6 @@ namespace Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Validation
             }
             // Validate that the consumer specified the 'mode', 'device_id', 'code_signature', 'code_verifier', 'public_key', 'code' and 'otp' parameters.
             var parametersToValidate = new[] {
-                RegistrationRequestParameters.Mode,
-                RegistrationRequestParameters.DeviceId,
                 RegistrationRequestParameters.CodeSignature,
                 RegistrationRequestParameters.CodeVerifier,
                 RegistrationRequestParameters.PublicKey,
@@ -73,10 +72,6 @@ namespace Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Validation
                 if (string.IsNullOrWhiteSpace(parameterValue)) {
                     return Error(OidcConstants.TokenErrors.InvalidRequest, $"Parameter '{parameter}' is not specified.");
                 }
-            }
-            var mode = RegistrationRequestParameters.GetInteractionMode(parameters.Get(RegistrationRequestParameters.Mode));
-            if (!mode.HasValue) {
-                return Error(OidcConstants.TokenErrors.InvalidRequest, $"Parameter '{nameof(RegistrationRequestParameters.Mode)}' used for registration (fingerprint or 4pin) is not valid.");
             }
             // Load client and validate that it allows the 'password' flow.
             _client = await LoadClient(tokenValidationResult);
@@ -108,11 +103,10 @@ namespace Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Validation
             var principal = Principal.Create("TrustedDevice", claims.ToArray());
             var userId = tokenValidationResult.Claims.Single(x => x.Type == JwtClaimTypes.Subject).Value;
             // Validate OTP code.
-            var deviceId = parameters.Get(RegistrationRequestParameters.DeviceId);
             var totpResult = await TotpService.Verify(
                 principal: principal,
                 code: parameters.Get(RegistrationRequestParameters.OtpCode),
-                purpose: Constants.TrustedDeviceOtpPurpose(userId, deviceId)
+                purpose: Constants.TrustedDeviceOtpPurpose(userId, authorizationCode.DeviceId)
             );
             if (!totpResult.Success) {
                 return Error(totpResult.Error);
@@ -121,8 +115,9 @@ namespace Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Validation
             return new CompleteRegistrationRequestValidationResult {
                 IsError = false,
                 Client = _client,
-                DeviceId = deviceId,
-                InteractionMode = mode.Value,
+                DeviceId = authorizationCode.DeviceId,
+                DeviceName = parameters.Get(RegistrationRequestParameters.DeviceName),
+                InteractionMode = authorizationCode.InteractionMode,
                 Principal = principal,
                 RequestedScopes = requestedScopes,
                 UserId = userId
@@ -194,6 +189,6 @@ namespace Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Validation
             return TimeConstantComparer.IsEqual(transformedCodeVerifier.Sha256(), codeChallenge);
         }
 
-        private static ValidationResult Success() => new ValidationResult { IsError = false };
+        private static ValidationResult Success() => new() { IsError = false };
     }
 }

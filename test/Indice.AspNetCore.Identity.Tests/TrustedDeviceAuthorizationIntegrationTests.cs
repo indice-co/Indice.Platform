@@ -204,8 +204,7 @@ namespace Indice.AspNetCore.Identity.Tests
             var x509SigningCredentials = GetSigningCredentials();
             var signature = SignMessage(challenge, x509SigningCredentials);
             var data = new Dictionary<string, string> {
-                { "mode", "fingerprint" },
-                { "device_id", deviceId },
+                { "device_name", "George OnePlus 7 Pro" },
                 { "public_key", PublicKey },
                 { "code", challenge },
                 { "code_signature", signature },

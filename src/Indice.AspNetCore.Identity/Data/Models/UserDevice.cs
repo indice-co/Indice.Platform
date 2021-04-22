@@ -9,10 +9,16 @@ namespace Indice.AspNetCore.Identity.Data.Models
     public class UserDevice
     {
         /// <summary>
-        /// Constructs a new instance of <see cref="UserDevice"/> with a new Guid Id.
+        /// Constructs a new instance of <see cref="UserDevice"/> with a new <see cref="Guid"/> as Id.
         /// </summary>
-        public UserDevice() {
-            Id = Guid.NewGuid();
+        public UserDevice() : this(Guid.NewGuid()) { }
+
+        /// <summary>
+        /// Constructs a new instance of <see cref="UserDevice"/> using the given <see cref="Guid"/> as Id.
+        /// </summary>
+        /// <param name="id"></param>
+        public UserDevice(Guid id) {
+            Id = id;
         }
 
         /// <summary>
@@ -20,13 +26,13 @@ namespace Indice.AspNetCore.Identity.Data.Models
         /// </summary>
         public Guid Id { get; }
         /// <summary>
-        /// The user id related.
-        /// </summary>
-        public string UserId { get; set; }
-        /// <summary>
         /// Device id.
         /// </summary>
         public string DeviceId { get; set; }
+        /// <summary>
+        /// The user id related to this device.
+        /// </summary>
+        public string UserId { get; set; }
         /// <summary>
         /// Device operating system.
         /// </summary>
@@ -36,6 +42,10 @@ namespace Indice.AspNetCore.Identity.Data.Models
         /// </summary>
         public string DeviceName { get; set; }
         /// <summary>
+        /// The way a device interacts with the identity system for trusted authorization.
+        /// </summary>
+        public InteractionMode InteractionMode { get; set; }
+        /// <summary>
         /// The date this password was created.
         /// </summary>
         public DateTimeOffset DateCreated { get; set; }
@@ -43,5 +53,28 @@ namespace Indice.AspNetCore.Identity.Data.Models
         /// Flag that determines if push notifications are enabled for this device.
         /// </summary>
         public bool IsPushNotificationsEnabled { get; set; }
+        /// <summary>
+        /// Associated password for devices 
+        /// </summary>
+        public string Password { get; set; }
+        /// <summary>
+        /// The user associated with this device.
+        /// </summary>
+        public virtual User User { get; set; }
+    }
+
+    /// <summary>
+    /// Models the way a device interacts with the identity system for trusted authorization.
+    /// </summary>
+    public enum InteractionMode
+    {
+        /// <summary>
+        /// Fingerprint
+        /// </summary>
+        Fingerprint,
+        /// <summary>
+        /// 4-pin
+        /// </summary>
+        FourPin
     }
 }

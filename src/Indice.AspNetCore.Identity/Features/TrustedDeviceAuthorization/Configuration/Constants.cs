@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using IdentityModel;
-using Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Validation;
+using Indice.AspNetCore.Identity.Data.Models;
 
 namespace Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Configuration
 {
@@ -18,6 +18,7 @@ namespace Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Configuration
     {
         public const string Mode = "mode";
         public const string DeviceId = "device_id";
+        public const string DeviceName = "device_name";
         public const string CodeChallenge = "code_challenge";
         public const string CodeChallengeMethod = "code_challenge_method";
         public const string PublicKey = "public_key";

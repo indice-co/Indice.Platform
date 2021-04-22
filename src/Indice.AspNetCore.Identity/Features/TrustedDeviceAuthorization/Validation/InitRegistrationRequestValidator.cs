@@ -41,10 +41,10 @@ namespace Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Validation
             }
             // Validate that the consumer specified the 'mode', 'device_id', 'code_challenge' and 'code_challenge_method' parameters.
             var parametersToValidate = new[] {
-                RegistrationRequestParameters.Mode,
-                RegistrationRequestParameters.DeviceId,
                 RegistrationRequestParameters.CodeChallenge,
-                RegistrationRequestParameters.CodeChallengeMethod
+                RegistrationRequestParameters.CodeChallengeMethod,
+                RegistrationRequestParameters.DeviceId,
+                RegistrationRequestParameters.Mode
             };
             foreach (var parameter in parametersToValidate) {
                 var parameterValue = parameters.Get(parameter);
