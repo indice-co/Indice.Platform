@@ -54,7 +54,8 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddAuthorization(authOptions => {
                 authOptions.AddPolicy(IdentityServerApi.Scope, policy => {
                     policy.AddAuthenticationSchemes(IdentityServerApi.AuthenticationScheme)
-                          .RequireAuthenticatedUser();
+                          .RequireAuthenticatedUser()
+                          .RequireAssertion(x => x.User.HasClaim(JwtClaimTypes.Scope, IdentityServerApi.Scope) || x.User.IsAdmin() || x.User.IsSystemClient());
                 });
                 authOptions.AddPolicy(IdentityServerApi.SubScopes.Users, policy => {
                     policy.AddAuthenticationSchemes(IdentityServerApi.AuthenticationScheme)

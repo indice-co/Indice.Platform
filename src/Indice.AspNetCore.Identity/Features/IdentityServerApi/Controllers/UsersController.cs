@@ -161,7 +161,7 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
         [HttpGet("{userId}")]
         [ProducesResponseType(statusCode: StatusCodes.Status200OK, type: typeof(SingleUserInfo))]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
-        [CacheResourceFilter(Expiration = 60)]
+        [CacheResourceFilter(Expiration = 1)]
         public async Task<IActionResult> GetUser([FromRoute] string userId) {
             var foundUser = await (
                 from user in _dbContext.Users.AsNoTracking()
