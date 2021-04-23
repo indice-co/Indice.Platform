@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using Indice.AspNetCore.Identity.Data.Models;
 using Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Endpoints;
 using Indice.AspNetCore.Identity.TrustedDeviceAuthorization.ResponseHandling;
@@ -26,7 +27,7 @@ namespace Microsoft.Extensions.DependencyInjection
             builder.AddEndpoint<CompleteRegistrationEndpoint>("TrustedDeviceCompleteRegistration", "/my/devices/register/complete");
             // Register stores.
             builder.Services.AddTransient<IAuthorizationCodeChallengeStore, DefaultAuthorizationCodeChallengeStore>();
-            options.AddInMemoryUserDeviceStore();
+            options.AddUserDeviceStoreInMemory();
             // Register other services.
             builder.Services.AddTransient<BearerTokenUsageValidator>();
             builder.Services.AddTransient<InitRegistrationRequestValidator>();
@@ -40,7 +41,13 @@ namespace Microsoft.Extensions.DependencyInjection
         /// Adds an in-memory implementation for the <see cref="IUserDeviceStore"/> store.
         /// </summary>
         /// <param name="options">Options for configuring 'Trusted Device Authorization' feature.</param>
-        public static void AddInMemoryUserDeviceStore(this TrustedDeviceAuthorizationOptions options) => options.Services.TryAddSingleton<IUserDeviceStore, InMemoryUserDeviceStore>();
+        public static void AddUserDeviceStoreInMemory(this TrustedDeviceAuthorizationOptions options) => options.Services.TryAddSingleton<IUserDeviceStore, UserDeviceStoreInMemory>();
+
+        /// <summary>
+        /// Add an implementation of <see cref="IUserDeviceStore"/> for persisting user devices in a relational database using Entity Framework Core.
+        /// </summary>
+        /// <param name="options">Options for configuring 'Trusted Device Authorization' feature.</param>
+        public static void AddUserDeviceStoreEntityFrameworkCore(this TrustedDeviceAuthorizationOptions options) => options.AddUserDeviceStore<UserDeviceStoreEntityFrameworkCore>();
 
         /// <summary>
         /// Adds a custom implementation for <see cref="IUserDeviceStore"/> store.

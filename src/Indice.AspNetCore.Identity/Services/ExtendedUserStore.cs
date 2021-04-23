@@ -12,7 +12,7 @@ using Microsoft.Extensions.Configuration;
 namespace Indice.AspNetCore.Identity.Data
 {
     /// <inheritdoc/>
-    public class ExtendedUserStore : ExtendedUserStore<IdentityDbContext, User, IdentityRole>
+    public class ExtendedUserStore : ExtendedUserStore<IdentityDbContext, User, Role>
     {
         /// <summary>
         /// Creates a new instance of <see cref="ExtendedUserStore"/>.

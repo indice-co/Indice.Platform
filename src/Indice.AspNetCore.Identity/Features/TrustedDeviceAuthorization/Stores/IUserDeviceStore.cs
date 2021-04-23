@@ -13,7 +13,7 @@ namespace Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Stores
         /// Gets all the registered devices for a given user.
         /// </summary>
         /// <param name="userId">The user id.</param>
-        Task<IEnumerable<UserDevice>> GetUserDevices(string userId);
+        Task<List<UserDevice>> GetUserDevices(string userId);
         /// <summary>
         /// Gets a device by it's unique device id.
         /// </summary>

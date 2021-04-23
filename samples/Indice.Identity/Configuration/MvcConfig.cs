@@ -37,11 +37,7 @@ namespace Microsoft.Extensions.DependencyInjection
                             )*/
                            .AddIdentityServerApiEndpoints(options => {
                                // Configure the DbContext.
-                               options.AddDbContext(identityOptions => {
-                                   identityOptions.ConfigureDbContext = builder => {
-                                       builder.UseSqlServer(configuration.GetConnectionString("IdentityDb"));
-                                   };
-                               });
+                               options.AddDbContext(identityOptions => identityOptions.ConfigureDbContext = builder => builder.UseSqlServer(configuration.GetConnectionString("IdentityDb")));
                                // Enable events and register handlers.
                                options.CanRaiseEvents = true;
                                options.DisableCache = false;

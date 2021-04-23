@@ -49,8 +49,16 @@ namespace Indice.Identity.Controllers
         /// <param name="schemeProvider">Responsible for managing what authenticationSchemes are supported.</param>
         /// <param name="httpContextAccessor">Provides access to the current HTTP context.</param>
         /// <param name="logger">Represents a type used to perform logging.</param>
-        public AccountController(IIdentityServerInteractionService interaction, IEventService events, IClientStore clientStore, ExtendedUserManager<User> userManager, ExtendedSignInManager<User> signInManager, IAuthenticationSchemeProvider schemeProvider,
-            IHttpContextAccessor httpContextAccessor, ILogger<AccountController> logger) {
+        public AccountController(
+            IIdentityServerInteractionService interaction, 
+            IEventService events, 
+            IClientStore clientStore, 
+            ExtendedUserManager<User> userManager, 
+            ExtendedSignInManager<User> signInManager, 
+            IAuthenticationSchemeProvider schemeProvider,
+            IHttpContextAccessor httpContextAccessor, 
+            ILogger<AccountController> logger
+        ) {
             _interaction = interaction ?? throw new ArgumentNullException(nameof(interaction));
             _events = events ?? throw new ArgumentNullException(nameof(events));
             _clientStore = clientStore ?? throw new ArgumentNullException(nameof(clientStore));

@@ -8,7 +8,7 @@ namespace Indice.AspNetCore.Identity.Data
     /// <summary>
     /// <see cref="DbContext"/> for the Identity Framework.
     /// </summary>
-    public class IdentityDbContext : IdentityDbContext<User, IdentityRole>
+    public class IdentityDbContext : IdentityDbContext<User, Role>
     {
         /// <summary>
         /// Constructs the <see cref="DbContext"/> passing the options.

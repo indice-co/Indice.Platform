@@ -44,7 +44,9 @@ namespace Microsoft.Extensions.DependencyInjection
                 options.EmitScopesAsSpaceDelimitedStringInJwt = true;
             })
             .AddAspNetIdentity<User>()
-            .AddTrustedDeviceAuthorization()
+            .AddTrustedDeviceAuthorization(options => {
+                options.AddUserDeviceStoreEntityFrameworkCore();
+            })
             .AddOperationalStore(options => {
                 options.SetupTables();
                 options.ConfigureDbContext = builder => builder.UseSqlServer(configuration.GetConnectionString("OperationalDb"), sqlServerOptions => sqlServerOptions.MigrationsAssembly(migrationsAssembly));

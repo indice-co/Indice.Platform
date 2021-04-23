@@ -8,12 +8,12 @@ namespace Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Stores
     /// <summary>
     /// An implementation of <see cref="IUserDeviceStore"/> that stores user devices in-memory.
     /// </summary>
-    public class InMemoryUserDeviceStore : IUserDeviceStore
+    public class UserDeviceStoreInMemory : IUserDeviceStore
     {
         private readonly IList<UserDevice> _userDevices = new List<UserDevice>();
 
         /// <inheritdoc />
-        public Task<IEnumerable<UserDevice>> GetUserDevices(string userId) => Task.FromResult(_userDevices.Where(x => x.UserId == userId));
+        public Task<List<UserDevice>> GetUserDevices(string userId) => Task.FromResult(_userDevices.Where(x => x.UserId == userId).ToList());
 
         /// <inheritdoc />
         public Task<UserDevice> GetByDeviceId(string deviceId) {
