@@ -54,9 +54,13 @@ namespace Indice.AspNetCore.Identity.Data.Models
         /// </summary>
         public bool IsPushNotificationsEnabled { get; set; }
         /// <summary>
-        /// Associated password for devices 
+        /// Associated password for device (when <see cref="InteractionMode"/> is equal to <see cref="InteractionMode.FourPin"/>).
         /// </summary>
         public string Password { get; set; }
+        /// <summary>
+        /// Device public key (when <see cref="InteractionMode"/> is equal to <see cref="InteractionMode.Fingerprint"/>).
+        /// </summary>
+        public string PublicKey { get; set; }
         /// <summary>
         /// The user associated with this device.
         /// </summary>

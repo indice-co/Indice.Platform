@@ -26,6 +26,7 @@ namespace Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Configuration
         public const string CodeSignature = "code_signature";
         public const string Code = "code";
         public const string OtpCode = "otp";
+        public const string pin = "pin";
 
         public static InteractionMode? GetInteractionMode(string mode) {
             if (string.IsNullOrWhiteSpace(mode)) {

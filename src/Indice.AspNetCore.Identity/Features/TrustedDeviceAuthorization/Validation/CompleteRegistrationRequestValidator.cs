@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
@@ -59,18 +60,31 @@ namespace Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Validation
                     return Error(OidcConstants.ProtectedResourceErrors.InvalidToken, $"Access token must contain the '{claim}' claim.");
                 }
             }
+            // Get 'code' parameter and retrieve it from the store.
+            var code = parameters.Get(RegistrationRequestParameters.Code);
+            if (string.IsNullOrWhiteSpace(code)) {
+                return Error(OidcConstants.TokenErrors.InvalidGrant, $"Parameter '{nameof(RegistrationRequestParameters.Code)}' is not specified.");
+            }
+            var authorizationCode = await AuthorizationCodeChallengeStore.GetAuthorizationCode(code);
+            if (authorizationCode == null) {
+                return Error(OidcConstants.TokenErrors.InvalidGrant, "Authorization code is invalid.");
+            }
             // Validate that the consumer specified the 'mode', 'device_id', 'code_signature', 'code_verifier', 'public_key', 'code' and 'otp' parameters.
-            var parametersToValidate = new[] {
+            var parametersToValidate = new List<string> {
                 RegistrationRequestParameters.CodeSignature,
                 RegistrationRequestParameters.CodeVerifier,
-                RegistrationRequestParameters.PublicKey,
-                RegistrationRequestParameters.OtpCode,
-                RegistrationRequestParameters.Code
+                RegistrationRequestParameters.OtpCode
             };
+            if (authorizationCode.InteractionMode == InteractionMode.Fingerprint) {
+                parametersToValidate.Add(RegistrationRequestParameters.PublicKey);
+            }
+            if (authorizationCode.InteractionMode == InteractionMode.FourPin) {
+                parametersToValidate.Add(RegistrationRequestParameters.pin);
+            }
             foreach (var parameter in parametersToValidate) {
                 var parameterValue = parameters.Get(parameter);
                 if (string.IsNullOrWhiteSpace(parameterValue)) {
-                    return Error(OidcConstants.TokenErrors.InvalidRequest, $"Parameter '{parameter}' is not specified.");
+                    return Error(OidcConstants.TokenErrors.InvalidGrant, $"Parameter '{parameter}' is not specified.");
                 }
             }
             // Load client and validate that it allows the 'password' flow.
@@ -82,19 +96,19 @@ namespace Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Validation
                 return Error(OidcConstants.AuthorizeErrors.UnauthorizedClient, $"Client not authorized for 'password' grant type.");
             }
             // Validate authorization code against code verifier given by the client.
-            var code = parameters.Get(RegistrationRequestParameters.Code);
             var codeVerifier = parameters.Get(RegistrationRequestParameters.CodeVerifier);
-            var authorizationCode = await AuthorizationCodeChallengeStore.GetAuthorizationCode(code);
             var authorizationCodeValidationResult = await ValidateAuthorizationCode(code, authorizationCode, codeVerifier);
             if (authorizationCodeValidationResult.IsError) {
                 return Error(authorizationCodeValidationResult.Error, authorizationCodeValidationResult.ErrorDescription);
             }
-            // Validate given public key against signature.
-            var publicKey = parameters.Get(RegistrationRequestParameters.PublicKey);
-            var codeSignature = parameters.Get(RegistrationRequestParameters.CodeSignature);
-            var publicKeyValidationResult = ValidateSignature(publicKey, code, codeSignature);
-            if (publicKeyValidationResult.IsError) {
-                return Error(publicKeyValidationResult.Error, publicKeyValidationResult.ErrorDescription);
+            // Validate given public key against signature for fingerprint.
+            if (authorizationCode.InteractionMode == InteractionMode.Fingerprint) {
+                var publicKey = parameters.Get(RegistrationRequestParameters.PublicKey);
+                var codeSignature = parameters.Get(RegistrationRequestParameters.CodeSignature);
+                var publicKeyValidationResult = ValidateSignature(publicKey, code, codeSignature);
+                if (publicKeyValidationResult.IsError) {
+                    return Error(publicKeyValidationResult.Error, publicKeyValidationResult.ErrorDescription);
+                }
             }
             // Find requested scopes.
             var requestedScopes = tokenValidationResult.Claims.Where(claim => claim.Type == JwtClaimTypes.Scope).Select(claim => claim.Value).ToList();
@@ -142,9 +156,6 @@ namespace Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Validation
         }
 
         private async Task<ValidationResult> ValidateAuthorizationCode(string code, TrustedDeviceAuthorizationCode authorizationCode, string codeVerifier) {
-            if (authorizationCode == null) {
-                return Error(OidcConstants.TokenErrors.InvalidGrant, "Authorization code is invalid.");
-            }
             // Validate that the current client is not trying to use an authorization code of a different client.
             if (authorizationCode.ClientId != _client.ClientId) {
                 return Error(OidcConstants.TokenErrors.InvalidGrant, "Authorization code is invalid.");
