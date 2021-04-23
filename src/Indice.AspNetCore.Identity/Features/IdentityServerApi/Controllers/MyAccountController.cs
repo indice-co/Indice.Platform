@@ -591,7 +591,6 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
         /// </summary>
         /// <response code="200">No Content</response>
         /// <response code="400">Bad Request</response>
-        [AllowAnonymous]
         [FeatureGate(IdentityServerApiFeatures.PublicRegistration)]
         [HttpPost("account/register")]
         [ProducesResponseType(statusCode: StatusCodes.Status204NoContent, type: typeof(void))]
