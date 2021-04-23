@@ -591,7 +591,6 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
         /// </summary>
         /// <response code="200">No Content</response>
         /// <response code="400">Bad Request</response>
-        [AllowAnonymous]
         [FeatureGate(IdentityServerApiFeatures.PublicRegistration)]
         [HttpPost("account/register")]
         [ProducesResponseType(statusCode: StatusCodes.Status204NoContent, type: typeof(void))]
@@ -607,7 +606,7 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
             }
             var canAddClaims = claimTypes.All(x => x.UserEditable) || User.IsSystemClient();
             if (!canAddClaims) {
-                ModelState.AddModelError(string.Empty, $"The following claims are not editable: '{string.Join(", ", claimTypes.Where(x => !x.UserEditable))}'.");
+                ModelState.AddModelError(nameof(claimTypes), $"The following claims are not editable: '{string.Join(", ", claimTypes.Where(x => !x.UserEditable).Select(x => x.Name))}'.");
                 return BadRequest(new ValidationProblemDetails(ModelState));
             }
             foreach (var claim in request.Claims) {
