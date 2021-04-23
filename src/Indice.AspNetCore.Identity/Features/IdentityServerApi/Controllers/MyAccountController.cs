@@ -35,6 +35,7 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
     /// <response code="401">Unauthorized</response>
     /// <response code="403">Forbidden</response>
     /// <response code="500">Internal Server Error</response>
+    [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme, Policy = IdentityServerApi.Scope)]
     [Route("api")]
     [ApiController]
     [ApiExplorerSettings(GroupName = "identity")]
@@ -92,7 +93,6 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
         /// <response code="204">No Content</response>
         /// <response code="400">Bad Request</response>
         /// <response code="404">Not Found</response>
-        [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme, Policy = IdentityServerApi.Scope)]
         [HttpPut("my/account/email")]
         [ProducesResponseType(statusCode: StatusCodes.Status204NoContent, type: typeof(void))]
         [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest, type: typeof(ValidationProblemDetails))]
@@ -140,7 +140,6 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
         /// <response code="204">No Content</response>
         /// <response code="400">Bad Request</response>
         /// <response code="404">Not Found</response>
-        [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme, Policy = IdentityServerApi.Scope)]
         [HttpPut("my/account/email/confirmation")]
         [ProducesResponseType(statusCode: StatusCodes.Status204NoContent, type: typeof(void))]
         [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest, type: typeof(ValidationProblemDetails))]
@@ -171,7 +170,6 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
         /// <response code="204">No Content</response>
         /// <response code="400">Bad Request</response>
         /// <response code="404">Not Found</response>
-        [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme, Policy = IdentityServerApi.Scope)]
         [HttpPut("my/account/phone-number")]
         [ProducesResponseType(statusCode: StatusCodes.Status204NoContent, type: typeof(void))]
         [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest, type: typeof(ValidationProblemDetails))]
@@ -209,7 +207,6 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
         /// <response code="204">No Content</response>
         /// <response code="400">Bad Request</response>
         /// <response code="404">Not Found</response>
-        [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme, Policy = IdentityServerApi.Scope)]
         [HttpPut("my/account/phone-number/confirmation")]
         [ProducesResponseType(statusCode: StatusCodes.Status204NoContent, type: typeof(void))]
         [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest, type: typeof(ValidationProblemDetails))]
@@ -240,7 +237,6 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
         /// <response code="200">OK</response>
         /// <response code="400">Bad Request</response>
         /// <response code="404">Not Found</response>
-        [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme, Policy = IdentityServerApi.Scope)]
         [HttpPut("my/account/username")]
         [ProducesResponseType(statusCode: StatusCodes.Status200OK, type: typeof(void))]
         [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest, type: typeof(ValidationProblemDetails))]
@@ -264,7 +260,6 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
         /// <response code="204">No Content</response>
         /// <response code="400">Bad Request</response>
         /// <response code="404">Not Found</response>
-        [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme, Policy = IdentityServerApi.Scope)]
         [HttpPut("my/account/password")]
         [ProducesResponseType(statusCode: StatusCodes.Status204NoContent, type: typeof(void))]
         [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest, type: typeof(ValidationProblemDetails))]
@@ -336,7 +331,6 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
         /// <param name="request">Contains info about the chosen expiration policy.</param>
         /// <response code="204">No Content</response>
         /// <response code="404">Not Found</response>
-        [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme, Policy = IdentityServerApi.Scope)]
         [HttpPut("my/account/password-expiration-policy")]
         [ProducesResponseType(statusCode: StatusCodes.Status204NoContent, type: typeof(void))]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
@@ -354,7 +348,6 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
         /// </summary>
         /// <response code="200">OK</response>
         /// <response code="404">Not Found</response>
-        [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme, Policy = IdentityServerApi.Scope)]
         [HttpGet("my/account/claims")]
         [ProducesResponseType(statusCode: StatusCodes.Status200OK, type: typeof(ResultSet<ClaimInfo>))]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
@@ -379,7 +372,6 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
         /// <response code="200">OK</response>
         /// <response code="400">Bad Request</response>
         /// <response code="404">Not Found</response>
-        [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme, Policy = IdentityServerApi.Scope)]
         [HttpPost("my/account/claims")]
         [ProducesResponseType(statusCode: StatusCodes.Status200OK, type: typeof(IEnumerable<ClaimInfo>))]
         [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest, type: typeof(ValidationProblemDetails))]
@@ -427,7 +419,6 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
         /// <response code="200">OK</response>
         /// <response code="400">Bad Request</response>
         /// <response code="404">Not Found</response>
-        [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme, Policy = IdentityServerApi.Scope)]
         [HttpPatch("my/account/claims")]
         [ProducesResponseType(statusCode: StatusCodes.Status200OK, type: typeof(IEnumerable<ClaimInfo>))]
         [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest, type: typeof(ValidationProblemDetails))]
@@ -481,7 +472,6 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
         /// <response code="200">OK</response>
         /// <response code="404">Bad Request</response>
         /// <response code="404">Not Found</response>
-        [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme, Policy = IdentityServerApi.Scope)]
         [HttpPut("my/account/claims/{claimId:int}")]
         [ProducesResponseType(statusCode: StatusCodes.Status200OK, type: typeof(ClaimInfo))]
         [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest, type: typeof(ValidationProblemDetails))]
@@ -515,7 +505,6 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
         /// Permanently deletes current user's account.
         /// </summary>
         /// <response code="204">No Content</response>
-        [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme, Policy = IdentityServerApi.Scope)]
         [HttpDelete("my/account")]
         [ProducesResponseType(statusCode: StatusCodes.Status204NoContent, type: typeof(void))]
         public async Task<IActionResult> DeleteAccount() {
