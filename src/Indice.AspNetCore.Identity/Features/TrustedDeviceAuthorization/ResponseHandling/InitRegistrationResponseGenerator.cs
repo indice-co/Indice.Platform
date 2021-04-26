@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
 using IdentityServer4.Models;
-using Indice.AspNetCore.Identity.Data.Models;
 using Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Models;
 using Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Stores;
 using Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Validation;
@@ -12,7 +11,7 @@ namespace Indice.AspNetCore.Identity.TrustedDeviceAuthorization.ResponseHandling
     internal class InitRegistrationResponseGenerator : IResponseGenerator<InitRegistrationRequestValidationResult, InitRegistrationResponse>
     {
         public InitRegistrationResponseGenerator(
-            IAuthorizationCodeChallengeStore authorizationCodeChallengeStore, 
+            IAuthorizationCodeChallengeStore authorizationCodeChallengeStore,
             ISystemClock systemClock
         ) {
             CodeChallengeStore = authorizationCodeChallengeStore ?? throw new ArgumentNullException(nameof(authorizationCodeChallengeStore));
@@ -23,13 +22,6 @@ namespace Indice.AspNetCore.Identity.TrustedDeviceAuthorization.ResponseHandling
         public ISystemClock SystemClock { get; }
 
         public async Task<InitRegistrationResponse> Generate(InitRegistrationRequestValidationResult validationResult) {
-            if (validationResult.InteractionMode == InteractionMode.Fingerprint) {
-                return await GenerateFingerprintResponse(validationResult);
-            }
-            return await Task.FromResult<InitRegistrationResponse>(null);
-        }
-
-        private async Task<InitRegistrationResponse> GenerateFingerprintResponse(InitRegistrationRequestValidationResult validationResult) {
             var authorizationCode = new TrustedDeviceAuthorizationCode {
                 ClientId = validationResult.Client.ClientId,
                 DeviceId = validationResult.DeviceId,

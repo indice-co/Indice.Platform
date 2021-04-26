@@ -16,29 +16,17 @@ namespace Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Configuration
 
     internal static class RegistrationRequestParameters
     {
-        public const string Mode = "mode";
-        public const string DeviceId = "device_id";
-        public const string DeviceName = "device_name";
+        public const string Code = "code";
         public const string CodeChallenge = "code_challenge";
         public const string CodeChallengeMethod = "code_challenge_method";
-        public const string PublicKey = "public_key";
-        public const string CodeVerifier = "code_verifier";
         public const string CodeSignature = "code_signature";
-        public const string Code = "code";
+        public const string CodeVerifier = "code_verifier";
+        public const string DeviceId = "device_id";
+        public const string DeviceName = "device_name";
+        public const string DevicePlatform = "device_platform";
+        public const string Mode = "mode";
         public const string OtpCode = "otp";
-        public const string pin = "pin";
-
-        public static InteractionMode? GetInteractionMode(string mode) {
-            if (string.IsNullOrWhiteSpace(mode)) {
-                return default;
-            }
-            if (mode.Equals("fingerprint", StringComparison.OrdinalIgnoreCase)) {
-                return InteractionMode.Fingerprint;
-            }
-            if (mode.Equals("4pin", StringComparison.OrdinalIgnoreCase)) {
-                return InteractionMode.FourPin;
-            }
-            return default;
-        }
+        public const string Pin = "pin";
+        public const string PublicKey = "public_key";
     }
 }

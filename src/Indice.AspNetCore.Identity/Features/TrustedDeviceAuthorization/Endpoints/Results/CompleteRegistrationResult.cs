@@ -16,7 +16,7 @@ namespace Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Endpoints.Result
         public CompleteRegistrationResponse Response { get; }
 
         public Task ExecuteAsync(HttpContext context) {
-            context.Response.StatusCode = StatusCodes.Status204NoContent;
+            context.Response.StatusCode = StatusCodes.Status201Created;
             context.Response.SetNoCache();
             return Task.CompletedTask;
         }

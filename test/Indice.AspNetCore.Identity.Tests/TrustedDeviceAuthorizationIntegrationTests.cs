@@ -15,6 +15,7 @@ using IdentityServer4.Test;
 using Indice.AspNetCore.Identity.Tests.Models;
 using Indice.Security;
 using Indice.Services;
+using Indice.Types;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.TestHost;
@@ -166,6 +167,20 @@ namespace Indice.AspNetCore.Identity.Tests
             Assert.True(response.IsSuccessStatusCode);
         }
 
+        [Fact]
+        public async Task CanRegisterNewDeviceUsingPin() {
+            var accessToken = await LoginWithPasswordGrant(userName: "alice", password: "alice");
+            var codeVerifier = GenerateCodeVerifier();
+            var deviceId = Guid.NewGuid().ToString();
+            var challenge = await InitiateDeviceRegistrationUsingPin(accessToken, codeVerifier, deviceId);
+            var response = await CompleteDeviceRegistrationUsingPin(accessToken, codeVerifier, deviceId, challenge);
+            if (!response.IsSuccessStatusCode) {
+                var responseJson = await response.Content.ReadAsStringAsync();
+                _output.WriteLine(responseJson);
+            }
+            Assert.True(response.IsSuccessStatusCode);
+        }
+
         #region Helper Methods
         private async Task<string> LoginWithPasswordGrant(string userName, string password) {
             var discoveryDocument = await _httpClient.GetDiscoveryDocumentAsync();
@@ -180,13 +195,19 @@ namespace Indice.AspNetCore.Identity.Tests
             return tokenResponse.AccessToken;
         }
 
-        private async Task<string> InitiateDeviceRegistrationUsingFingerprint(string accessToken, string codeVerifier, string deviceId) {
+        private Task<string> InitiateDeviceRegistrationUsingFingerprint(string accessToken, string codeVerifier, string deviceId) =>
+            InitiateDeviceRegistration(accessToken, codeVerifier, deviceId, "fingerprint");
+
+        private Task<string> InitiateDeviceRegistrationUsingPin(string accessToken, string codeVerifier, string deviceId) =>
+            InitiateDeviceRegistration(accessToken, codeVerifier, deviceId, "pin");
+
+        private async Task<string> InitiateDeviceRegistration(string accessToken, string codeVerifier, string deviceId, string mode) {
             var codeChallenge = GenerateCodeChallenge(codeVerifier);
             var data = new Dictionary<string, string> {
-                { "mode", "fingerprint" },
-                { "device_id", deviceId },
                 { "code_challenge", codeChallenge },
-                { "code_challenge_method", OidcConstants.CodeChallengeMethods.Sha256 }
+                { "code_challenge_method", OidcConstants.CodeChallengeMethods.Sha256 },
+                { "device_id", deviceId },
+                { "mode", mode }
             };
             var form = new FormUrlEncodedContent(data);
             _httpClient.SetBearerToken(accessToken);
@@ -200,17 +221,30 @@ namespace Indice.AspNetCore.Identity.Tests
             return result.Challenge;
         }
 
-        private async Task<HttpResponseMessage> CompleteDeviceRegistrationUsingFingerprint(string accessToken, string codeVerifier, string deviceId, string challenge) {
+        private Task<HttpResponseMessage> CompleteDeviceRegistrationUsingFingerprint(string accessToken, string codeVerifier, string deviceId, string challenge) =>
+            CompleteDeviceRegistration(accessToken, codeVerifier, deviceId, challenge, "fingerprint");
+
+        private Task<HttpResponseMessage> CompleteDeviceRegistrationUsingPin(string accessToken, string codeVerifier, string deviceId, string challenge) =>
+            CompleteDeviceRegistration(accessToken, codeVerifier, deviceId, challenge, "pin");
+
+        private async Task<HttpResponseMessage> CompleteDeviceRegistration(string accessToken, string codeVerifier, string deviceId, string challenge, string mode) {
             var x509SigningCredentials = GetSigningCredentials();
             var signature = SignMessage(challenge, x509SigningCredentials);
             var data = new Dictionary<string, string> {
-                { "device_name", "George OnePlus 7 Pro" },
-                { "public_key", PublicKey },
                 { "code", challenge },
                 { "code_signature", signature },
                 { "code_verifier", codeVerifier },
+                { "device_id", deviceId },
+                { "device_name", "George OnePlus 7 Pro" },
+                { "device_platform", $"{DevicePlatform.Android}" },
                 { "otp", "123456" }
             };
+            if (mode == "fingerprint") {
+                data.Add("public_key", PublicKey);
+            }
+            if (mode == "pin") {
+                data.Add("pin", "4412");
+            }
             var form = new FormUrlEncodedContent(data);
             _httpClient.SetBearerToken(accessToken);
             return await _httpClient.PostAsync(_deviceRegistrationCompletionUrl, form);

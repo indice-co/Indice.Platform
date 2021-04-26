@@ -54,7 +54,7 @@ namespace Indice.AspNetCore.Identity.Data.Models
         /// </summary>
         public bool IsPushNotificationsEnabled { get; set; }
         /// <summary>
-        /// Associated password for device (when <see cref="InteractionMode"/> is equal to <see cref="InteractionMode.FourPin"/>).
+        /// Associated password for device (when <see cref="InteractionMode"/> is equal to <see cref="InteractionMode.Pin"/>).
         /// </summary>
         public string Password { get; set; }
         /// <summary>
@@ -79,6 +79,6 @@ namespace Indice.AspNetCore.Identity.Data.Models
         /// <summary>
         /// 4-pin
         /// </summary>
-        FourPin
+        Pin
     }
 }

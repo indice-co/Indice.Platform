@@ -7,6 +7,7 @@ using IdentityServer4;
 using IdentityServer4.Models;
 using IdentityServer4.Stores;
 using IdentityServer4.Validation;
+using Indice.AspNetCore.Identity.Data.Models;
 using Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Configuration;
 using Microsoft.Extensions.Logging;
 
@@ -39,7 +40,7 @@ namespace Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Validation
                     return Error(OidcConstants.ProtectedResourceErrors.InvalidToken, $"Access token must contain the '{claim}' claim.");
                 }
             }
-            // Validate that the consumer specified the 'mode', 'device_id', 'code_challenge' and 'code_challenge_method' parameters.
+            // Validate that the consumer specified all required parameters.
             var parametersToValidate = new[] {
                 RegistrationRequestParameters.CodeChallenge,
                 RegistrationRequestParameters.CodeChallengeMethod,
@@ -52,8 +53,8 @@ namespace Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Validation
                     return Error(OidcConstants.TokenErrors.InvalidRequest, $"Parameter '{parameter}' is not specified.");
                 }
             }
-            var mode = RegistrationRequestParameters.GetInteractionMode(parameters.Get(RegistrationRequestParameters.Mode));
-            if (!mode.HasValue) {
+            var isValidInteraction = Enum.TryParse<InteractionMode>(parameters.Get(RegistrationRequestParameters.Mode), ignoreCase: true, out var mode);
+            if (!isValidInteraction) {
                 return Error(OidcConstants.TokenErrors.InvalidRequest, $"Parameter '{nameof(RegistrationRequestParameters.Mode)}' used for registration (fingerprint or 4pin) is not valid.");
             }
             // Load client and validate that it allows the 'password' flow.
@@ -76,7 +77,7 @@ namespace Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Validation
                 CodeChallenge = parameters.Get(RegistrationRequestParameters.CodeChallenge),
                 CodeChallengeMethod = parameters.Get(RegistrationRequestParameters.CodeChallengeMethod),
                 DeviceId = parameters.Get(RegistrationRequestParameters.DeviceId),
-                InteractionMode = mode.Value,
+                InteractionMode = (InteractionMode)mode,
                 IsError = false,
                 Principal = principal,
                 RequestedScopes = requestedScopes,
