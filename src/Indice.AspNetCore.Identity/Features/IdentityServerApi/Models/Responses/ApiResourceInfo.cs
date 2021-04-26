@@ -32,7 +32,7 @@ namespace Indice.AspNetCore.Identity.Api.Models
         /// </summary>
         public bool NonEditable { get; set; }
         /// <summary>
-        /// List of accociated claims that should be included when this resource is requested.
+        /// List of associated claims that should be included when this resource is requested.
         /// </summary>
         public IEnumerable<string> AllowedClaims { get; set; }
         /// <summary>

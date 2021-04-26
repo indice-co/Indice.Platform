@@ -18,7 +18,7 @@ namespace Indice.Services
         /// </summary>
         public const string CONNECTION_STRING_NAME = "StorageConnection";
         private readonly bool _enabled;
-        private readonly Func<ClaimsPrincipal> _getUserFunc;
+        private readonly Func<ClaimsPrincipal> _claimsPrincipalSelector;
         private readonly JsonSerializerOptions _jsonSerializerOptions;
         private readonly string _environmentName;
         private readonly string _connectionString;
@@ -29,8 +29,8 @@ namespace Indice.Services
         /// <param name="connectionString">The connection string to the Azure Storage account. By default it searches for <see cref="CONNECTION_STRING_NAME"/> application setting inside ConnectionStrings section.</param>
         /// <param name="environmentName">The environment name to use. Defaults to 'Production'.</param>
         /// <param name="enabled">Provides a way to enable/disable event dispatching at will. Defaults to true.</param>
-        /// <param name="getUserFunc">Provides a way to access the current <see cref="ClaimsPrincipal"/> inside a service.</param>
-        public EventDispatcherAzure(string connectionString, string environmentName, bool enabled, Func<ClaimsPrincipal> getUserFunc) {
+        /// <param name="claimsPrincipalSelector">Provides a way to access the current <see cref="ClaimsPrincipal"/> inside a service.</param>
+        public EventDispatcherAzure(string connectionString, string environmentName, bool enabled, Func<ClaimsPrincipal> claimsPrincipalSelector) {
             if (string.IsNullOrEmpty(connectionString)) {
                 throw new ArgumentNullException(nameof(connectionString));
             }
@@ -40,7 +40,7 @@ namespace Indice.Services
             _enabled = enabled;
             _environmentName = Regex.Replace(environmentName ?? "Development", @"\s+", "-").ToLowerInvariant();
             _connectionString = connectionString;
-            _getUserFunc = getUserFunc ?? throw new ArgumentNullException(nameof(getUserFunc));
+            _claimsPrincipalSelector = claimsPrincipalSelector ?? throw new ArgumentNullException(nameof(claimsPrincipalSelector));
             _jsonSerializerOptions = JsonSerializerOptionDefaults.GetDefaultSettings();
         }
 
@@ -51,7 +51,7 @@ namespace Indice.Services
             }
             var queueName = $"{_environmentName}-{typeof(TEvent).Name.ToKebabCase()}";
             var queue = await EnsureExistsAsync(queueName);
-            var user = actingPrincipal ?? _getUserFunc?.Invoke();
+            var user = actingPrincipal ?? _claimsPrincipalSelector?.Invoke();
             // Create a message and add it to the queue.
             var serializedMessage = JsonSerializer.Serialize(Envelope.Create(user, payload), _jsonSerializerOptions);
             await queue.SendMessageAsync(serializedMessage, visibilityTimeout: visibilityDelay);
@@ -81,6 +81,10 @@ namespace Indice.Services
         /// Provides a way to enable/disable event dispatching at will. Defaults to true.
         /// </summary>
         public bool Enabled { get; set; }
+        /// <summary>
+        /// A function that retrieves the current thread user from the current operation context.
+        /// </summary>
+        public Func<ClaimsPrincipal> ClaimsPrincipalSelector { get; set; }
     }
 
 
