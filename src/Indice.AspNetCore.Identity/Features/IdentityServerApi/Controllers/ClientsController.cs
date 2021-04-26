@@ -134,6 +134,7 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
         public async Task<IActionResult> GetClient([FromRoute] string clientId) {
             var client = await _configurationDbContext
                 .Clients
+                .Include(x => x.Properties)
                 .AsNoTracking()
                 .Select(x => new SingleClientInfo {
                     ClientId = x.ClientId,
@@ -200,7 +201,10 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
                         Value = GetClientSecretValue(x),
                         Description = x.Description,
                         Expiration = x.Expiration
-                    })
+                    }),
+                    Translations = TranslationDictionary<ClientTranslation>.FromJson(x.Properties.Any(clientProperty => clientProperty.Key == IdentityServerApi.ObjectTranslationKey)
+                        ? x.Properties.Single(clientProperty => clientProperty.Key == IdentityServerApi.ObjectTranslationKey).Value
+                        : string.Empty)
                 })
                 .SingleOrDefaultAsync(x => x.ClientId == clientId);
             if (client == null) {
@@ -255,7 +259,7 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
         [ProducesResponseType(statusCode: StatusCodes.Status204NoContent)]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
         public async Task<IActionResult> UpdateClient([FromRoute] string clientId, [FromBody] UpdateClientRequest request) {
-            var client = await _configurationDbContext.Clients.SingleOrDefaultAsync(x => x.ClientId == clientId);
+            var client = await _configurationDbContext.Clients.Include(x => x.Properties).SingleOrDefaultAsync(x => x.ClientId == clientId);
             if (client == null) {
                 return NotFound();
             }
@@ -292,6 +296,12 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
             client.UserCodeType = request.UserCodeType;
             client.UserSsoLifetime = request.UserSsoLifetime;
             client.SlidingRefreshTokenLifetime = request.SlidingRefreshTokenLifetime;
+            var clientTranslations = client.Properties?.SingleOrDefault(x => x.Key == IdentityServerApi.ObjectTranslationKey);
+            if (clientTranslations == null) {
+                AddClientTranslations(client, request.Translations.ToJson());
+            } else {
+                clientTranslations.Value = request.Translations.ToJson() ?? string.Empty;
+            }
             await _configurationDbContext.SaveChangesAsync();
             return NoContent();
         }
@@ -809,6 +819,9 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
                 })
                 .ToList();
             }
+            if (clientRequest.Translations.Any()) {
+                AddClientTranslations(client, clientRequest.Translations.ToJson());
+            }
             switch (clientType) {
                 case ClientType.SPA:
                     client.AllowedGrantTypes = new List<ClientGrantType> {
@@ -875,6 +888,21 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
                     throw new ArgumentNullException(nameof(clientType), "Cannot determine the type of the client.");
             }
             return client;
+        }
+
+        /// <summary>
+        /// Adds translations to a <see cref="Client"/>.
+        /// </summary>
+        /// <remarks>If the parameter translations is null, string.Empty will be persisted.</remarks>
+        /// <param name="client">The <see cref="Client"/></param>
+        /// <param name="translations">The json string with the translations</param>
+        private void AddClientTranslations(Client client, string translations) {
+            client.Properties ??= new List<ClientProperty>();
+            client.Properties.Add(new ClientProperty {
+                Key = IdentityServerApi.ObjectTranslationKey,
+                Value = translations ?? string.Empty,
+                Client = client
+            });
         }
     }
 }
