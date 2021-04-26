@@ -119,6 +119,17 @@ namespace Indice.Services
     }
 
     /// <summary>
+    /// Options for configuring <see cref="SmsServiceApifon"/>.
+    /// </summary>
+    public class SmsServiceApifonOptions
+    {
+        /// <summary>
+        /// Optional options for <see cref="HttpMessageHandler"/>
+        /// </summary>
+        public Func<IServiceProvider, HttpMessageHandler> ConfigurePrimaryHttpMessageHandler { get; set; }
+    }
+
+    /// <summary>
     /// Extra settings class for configuring Apifon SMS service client. 
     /// </summary>
     public class SmsServiceApifonSettings : SmsServiceSettings

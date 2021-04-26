@@ -45,7 +45,7 @@ namespace Microsoft.Extensions.DependencyInjection
             services.Configure<CacheResourceFilterOptions>(options => options.DisableCache = apiEndpointsOptions.DisableCache);
             // Invoke action provided by developer to override default options.
             services.AddSingleton(apiEndpointsOptions);
-            services.AddIndiceServices(configuration);
+            services.AddGeneralSettings(configuration);
             services.AddTransient<IEventService, EventService>();
             // Register validation filters.
             services.AddScoped<CreateClaimTypeRequestValidationFilter>();
