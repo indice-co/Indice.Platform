@@ -160,20 +160,24 @@ namespace Indice.Identity
             app.UseRequestResponseLogging((options) => {
                 //options.LogHandler = async (logger, model) => {
                 //    var filename = $"{model.RequestTime:yyyyMMdd.HHmmss}_{model.RequestTarget.Replace('/', '-')}_{model.StatusCode}";
-                //    var folder = System.IO.Path.Combine(HostingEnvironment.ContentRootPath, @"App_Data\snapshots");
-                //    if (System.IO.Directory.Exists(folder)) {
-                //        System.IO.Directory.CreateDirectory(folder);
+                //    var folder = Path.Combine(HostingEnvironment.ContentRootPath, @"App_Data\snapshots");
+                //    if (Directory.Exists(folder)) {
+                //        Directory.CreateDirectory(folder);
                 //    }
                 //    if (!string.IsNullOrEmpty(model.RequestBody)) {
-                //        await System.IO.File.WriteAllTextAsync(System.IO.Path.Combine(folder, $"{filename}_request.txt"), model.RequestBody);
+                //        await File.WriteAllTextAsync(Path.Combine(folder, $"{filename}_request.txt"), model.RequestBody);
                 //    }
-                //    await System.IO.File.WriteAllTextAsync(System.IO.Path.Combine(folder, $"{filename}_response.txt"), model.ResponseBody);
+                //    if (!string.IsNullOrEmpty(model.ResponseBody)) {
+                //        await File.WriteAllTextAsync(Path.Combine(folder, $"{filename}_request.txt"), model.ResponseBody);
+                //    }
                 //};
                 options.LogHandler = (logger, model) => {
                     // Write response body to App Insights
                     var requestTelemetry = model.HttpContext.Features.Get<RequestTelemetry>();
                     requestTelemetry?.Properties.Add(nameof(model.ResponseBody), model.ResponseBody);
                     requestTelemetry?.Properties.Add(nameof(model.RequestBody), model.RequestBody);
+                    requestTelemetry?.Properties.Add("RequestHeaders", string.Join("\n", model.HttpContext.Request.Headers.Select(x => $"{x.Key}: {x.Value}")));
+                    requestTelemetry?.Properties.Add("ResponseHeaders", string.Join("\n", model.HttpContext.Response.Headers.Select(x => $"{x.Key}: {x.Value}")));
                     return Task.CompletedTask;
                 };
             });

@@ -1,17 +1,16 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
-using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
-using System.Text;
 
 namespace Indice.AspNetCore.Middleware
 {
     //https://www.azureblue.io/how-to-log-http-request-body-with-asp-net-core-application-insights/ 
-
     // https://exceptionnotfound.net/using-middleware-to-log-requests-and-responses-in-asp-net-core/
     // https://gist.github.com/elanderson/c50b2107de8ee2ed856353dfed9168a2
     // https://stackoverflow.com/a/52328142/3563013
@@ -22,8 +21,16 @@ namespace Indice.AspNetCore.Middleware
     /// </summary>
     public class RequestResponseLoggingMiddleware
     {
+        private const string LOG_MESSAGE_FORMAT = @"HTTP request 
+            Duration: {Duration}
+            Host: {Host}
+            RequestTarget: {RequestTarget}
+            StatusCode: {StatusCode}
+            RequestBody: {RequestBody}
+            ResponseBody: {ResponseBody}
+        ";
         private readonly RequestDelegate _next;
-        private RequestResponseLoggingOptions _options;
+        private readonly RequestResponseLoggingOptions _options;
 
         /// <summary>
         /// Constructs the <see cref="RequestResponseLoggingMiddleware"/>.
@@ -41,7 +48,7 @@ namespace Indice.AspNetCore.Middleware
         /// <param name="context">The <see cref="HttpContext"/>.</param>
         /// <param name="logger">Represents a type used to perform logging.</param>
         public async Task Invoke(HttpContext context, ILogger<RequestProfilerModel> logger) {
-            // Write request body to App Insights
+            // Write request body to Application Insights.
             var loggingHandler = _options.LogHandler ?? DefaultLoggingHandler;
             var model = new RequestProfilerModel(context);
             await model.SnapRequestBody();
@@ -56,38 +63,16 @@ namespace Indice.AspNetCore.Middleware
         /// <param name="logger">Represents a type used to perform logging.</param>
         /// <param name="model">Represents a request and response in order to be logged.</param>
         public static Task DefaultLoggingHandler(ILogger logger, RequestProfilerModel model) {
-            if (model.HttpContext.Response.StatusCode >= 500) {
-                logger.LogError(LOG_MESSAGE_FROMAT, model.Duration,
-                                                    model.HostUri,
-                                                    model.RequestTarget,
-                                                    model.StatusCode,
-                                                    model.RequestBody,
-                                                    model.ResponseBody);
-            } else if (model.HttpContext.Response.StatusCode >= 400) {
-                logger.LogWarning(LOG_MESSAGE_FROMAT, model.Duration,
-                                                    model.HostUri,
-                                                    model.RequestTarget,
-                                                    model.StatusCode,
-                                                    model.RequestBody,
-                                                    model.ResponseBody);
+            var statusCode = model.HttpContext.Response.StatusCode;
+            if (statusCode >= 500) {
+                logger.LogError(LOG_MESSAGE_FORMAT, model.Duration, model.HostUri, model.RequestTarget, model.StatusCode, model.RequestBody, model.ResponseBody);
+            } else if (statusCode >= 400) {
+                logger.LogWarning(LOG_MESSAGE_FORMAT, model.Duration, model.HostUri, model.RequestTarget, model.StatusCode, model.RequestBody, model.ResponseBody);
             } else {
-                logger.LogInformation(LOG_MESSAGE_FROMAT, model.Duration,
-                                                    model.HostUri,
-                                                    model.RequestTarget,
-                                                    model.StatusCode,
-                                                    model.RequestBody,
-                                                    model.ResponseBody);
+                logger.LogInformation(LOG_MESSAGE_FORMAT, model.Duration, model.HostUri, model.RequestTarget, model.StatusCode, model.RequestBody, model.ResponseBody);
             }
             return Task.CompletedTask;
         }
-
-        private const string LOG_MESSAGE_FROMAT = @"Http request 
-Duration: {Duration}
-Host: {Host}
-RequestTarget: {RequestTarget}
-StatusCode: {StatusCode}
-RequestBody: {RequestBody}
-ResponseBody: {ResponseBody}";
     }
 
     /// <summary>
@@ -110,16 +95,15 @@ ResponseBody: {ResponseBody}";
         }
 
         /// <summary>
-        /// Request target is the http request method followed by the request path
+        /// Request target is the http request method followed by the request path.
         /// </summary>
         public string HostUri => $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host}".Trim();
-
         /// <summary>
-        /// Request target is the http request method followed by the request path
+        /// Request target is the http request method followed by the request path.
         /// </summary>
         public string RequestTarget => $"{HttpContext.Request.Method.ToLowerInvariant()} {HttpContext.Request.Path}".Trim();
         /// <summary>
-        /// HTTP status code
+        /// HTTP status code.
         /// </summary>
         public int StatusCode => HttpContext.Response.StatusCode;
         /// <summary>
@@ -154,16 +138,12 @@ ResponseBody: {ResponseBody}";
         internal async Task SnapRequestBody() {
             var method = HttpContext.Request.Method;
             HttpContext.Request.EnableBuffering();
-            // Only if we are dealing with POST or PUT, GET and others shouldn't have a body
+            // Only if we are dealing with POST or PUT, GET and others shouldn't have a body.
             if (HttpContext.Request.Body.CanRead && (HttpMethods.IsPost(method) || HttpMethods.IsPut(method) || HttpMethods.IsPatch(method))) {
-                // Leave stream open so next middleware can read it
-                using var reader = new StreamReader(
-                    HttpContext.Request.Body,
-                    Encoding.UTF8,
-                    detectEncodingFromByteOrderMarks: false,
-                    bufferSize: 512, leaveOpen: true);
+                // Leave stream open so next middleware can read it.
+                using var reader = new StreamReader( HttpContext.Request.Body, Encoding.UTF8, detectEncodingFromByteOrderMarks: false, bufferSize: 512, leaveOpen: true);
                 RequestBody = await reader.ReadToEndAsync();
-                // Reset stream position, so next middleware can read it
+                // Reset stream position, so next middleware can read it.
                 HttpContext.Request.Body.Seek(0, SeekOrigin.Begin);
             }
         }
@@ -186,7 +166,6 @@ ResponseBody: {ResponseBody}";
         /// </summary>
         /// <param name="next"></param>
         /// <param name="allowedContentTypes"></param>
-        /// <returns></returns>
         internal async Task<bool> NextAndSnapResponceBody(RequestDelegate next, List<string> allowedContentTypes = null) {
             var originalBody = HttpContext.Response.Body;
             using var newResponseBody = new MemoryStream();
