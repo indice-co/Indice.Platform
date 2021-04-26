@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Indice.Types;
 
 namespace Indice.AspNetCore.Identity.Api.Models
 {
@@ -16,9 +17,13 @@ namespace Indice.AspNetCore.Identity.Api.Models
         /// </summary>
         public string AllowedAccessTokenSigningAlgorithms { get; set; }
         /// <summary>
-        /// List of accociated user claims that should be included when this resource is requested.
+        /// List of associated user claims that should be included when this resource is requested.
         /// </summary>
         public List<string> UserClaims { get; set; }
+        /// <summary>
+        /// Translations.
+        /// </summary>
+        public TranslationDictionary<ApiScopeTranslation> Translations { get; set; } = new TranslationDictionary<ApiScopeTranslation>();
     }
 
     /// <summary>
@@ -91,6 +96,10 @@ namespace Indice.AspNetCore.Identity.Api.Models
         /// Determines whether this scope should be displayed in the discovery document or not.
         /// </summary>
         public bool ShowInDiscoveryDocument { get; set; }
+        /// <summary>
+        /// Translations.
+        /// </summary>
+        public TranslationDictionary<ApiScopeTranslation> Translations { get; set; } = new TranslationDictionary<ApiScopeTranslation>();
     }
 
     /// <summary>

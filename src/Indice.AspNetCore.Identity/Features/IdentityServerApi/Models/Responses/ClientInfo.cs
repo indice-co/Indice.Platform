@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using IdentityServer4.Models;
+using Indice.Types;
 
 namespace Indice.AspNetCore.Identity.Api.Models
 {
@@ -190,5 +191,24 @@ namespace Indice.AspNetCore.Identity.Api.Models
         /// The identity resources that the client has access to.
         /// </summary>
         public IEnumerable<string> IdentityResources { get; set; }
+        /// <summary>
+        /// Translations.
+        /// </summary>
+        public TranslationDictionary<ClientTranslation> Translations { get; set; }
+    }
+
+    /// <summary>
+    /// Translation object for type <see cref="SingleClientInfo"/>.
+    /// </summary>
+    public class ClientTranslation
+    {
+        /// <summary>
+        /// The display name of the client.
+        /// </summary>
+        public string DisplayName { get; set; }
+        /// <summary>
+        /// The description of the client.
+        /// </summary>
+        public string Description { get; set; }
     }
 }
