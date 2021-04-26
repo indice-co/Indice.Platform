@@ -28,7 +28,7 @@ namespace Indice.AspNetCore.Filters
         public void OnActionExecuting(ActionExecutingContext context) {
             IEnumerable<IFormFile> files = context.HttpContext.Request.Form.Files;
             foreach (var file in files) {
-                if (!AllowedExtensions.Any(x => file.FileName.ToLowerInvariant().EndsWith(x))) {
+                if (!AllowedExtensions.Any(x => Path.GetExtension(file.FileName.ToLowerInvariant()).EndsWith(x))) {
                     context.ModelState.AddModelError($"{file.FileName}", $"File with extension {Path.GetExtension(file.FileName)} is not permitted. Allowed file extensions are {string.Join(", ", AllowedExtensions)}");
                     context.Result = new BadRequestObjectResult(new ValidationProblemDetails(context.ModelState));
                 }
