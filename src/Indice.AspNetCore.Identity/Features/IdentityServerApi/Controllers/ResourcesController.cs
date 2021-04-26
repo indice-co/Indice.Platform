@@ -756,8 +756,8 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
         /// Adds translations to an <see cref="ApiScope"/>.
         /// </summary>
         /// <remarks>If the parameter translations is null, string.Empty will be persisted.</remarks>
-        /// <param name="apiScope">The <see cref="ApiScope"/></param>
-        /// <param name="translations">The json string with the translations</param>
+        /// <param name="apiScope">The <see cref="ApiScope"/>.</param>
+        /// <param name="translations">The JSON string with the translations</param>
         private void AddTranslationsToApiScope(ApiScope apiScope, string translations) {
             apiScope.Properties ??= new List<ApiScopeProperty>();
             apiScope.Properties.Add(new ApiScopeProperty {
@@ -766,16 +766,15 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
                 Scope = apiScope
             });
         }
+
         /// <summary>
-        /// Deserialize the json translation of an <see cref="ApiScope"/>.
+        /// Deserialize the JSON translation of an <see cref="ApiScope"/>.
         /// </summary>
-        /// <param name="apiScope">The ApiScope</param>
-        /// <returns></returns>
-        private TranslationDictionary<ApiScopeTranslation> GetTranslationsFromApiScope(ApiScope apiScope) {
-            return TranslationDictionary<ApiScopeTranslation>.FromJson(
-                apiScope.Properties.Any(x => x.Key == IdentityServerApi.ObjectTranslationKey)
-                    ? apiScope.Properties.Single(x => x.Key == IdentityServerApi.ObjectTranslationKey).Value
-                    : string.Empty);
-        }
+        /// <param name="apiScope">The API scope.</param>
+        private TranslationDictionary<ApiScopeTranslation> GetTranslationsFromApiScope(ApiScope apiScope) => 
+            TranslationDictionary<ApiScopeTranslation>.FromJson(apiScope.Properties.Any(x => x.Key == IdentityServerApi.ObjectTranslationKey)
+                ? apiScope.Properties.Single(x => x.Key == IdentityServerApi.ObjectTranslationKey).Value
+                : string.Empty
+            );
     }
 }

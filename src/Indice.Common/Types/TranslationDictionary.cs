@@ -7,7 +7,7 @@ namespace Indice.Types
     /// <summary>
     /// A type that models the translation of an object.
     /// </summary>
-    /// <typeparam name="T"></typeparam>
+    /// <typeparam name="T">The type of object to translate.</typeparam>
     public class TranslationDictionary<T> : Dictionary<string, T> where T : class
     {
         /// <summary>
@@ -23,7 +23,7 @@ namespace Indice.Types
         /// <summary>
         /// Creates a <see cref="TranslationDictionary{T}"/> from it's JSON representation.
         /// </summary>
-        /// <param name="json"></param>
+        /// <param name="json">The JSON to create the <see cref="TranslationDictionary{T}"/>.</param>
         public static TranslationDictionary<T> FromJson(string json) {
             if (string.IsNullOrWhiteSpace(json)) {
                 return default;
