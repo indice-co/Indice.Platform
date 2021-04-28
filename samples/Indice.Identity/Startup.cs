@@ -90,6 +90,7 @@ namespace Indice.Identity
             services.AddSwaggerGen(options => {
                 options.IndiceDefaults(Settings);
                 options.AddOAuth2AuthorizationCodeFlow(Settings);
+                options.AddClientCredentials(Settings);
                 options.AddFormFileSupport();
                 options.SchemaFilter<CreateUserRequestSchemaFilter>();
                 options.IncludeXmlComments(Assembly.Load(IdentityServerApi.AssemblyName));
