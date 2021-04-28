@@ -147,6 +147,28 @@ namespace Indice.Common.Tests
             var output = JsonSerializer.Deserialize<MusicLibrary>(json, options);
         }
 
+        [Fact]
+        public void Boolean_MustDeserialize_ToString() {
+            var options = new JsonSerializerOptions {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            };
+            options.Converters.Add(new JsonStringEnumConverter());
+            options.Converters.Add(new JsonAnyStringConverter());
+            options.IgnoreNullValues = true;
+            var sourceModel = new PocoValue<bool> { Value = true };
+            var json = JsonSerializer.Serialize(sourceModel, options);
+            var targetModel = JsonSerializer.Deserialize<PocoValue<string>>(json, options);
+
+            var sourceModel1 = new PocoValue<TheMystery> { Value = new TheMystery { FirstName = "Gus", LastName = "Coin" } };
+            json = JsonSerializer.Serialize(sourceModel1, options);
+            var targetModel1 = JsonSerializer.Deserialize<PocoValue<string>>(json, options);
+
+            var sourceModel2 = new PocoValue<double> { Value = 1010.45 };
+            json = JsonSerializer.Serialize(sourceModel2, options);
+            var targetModel2 = JsonSerializer.Deserialize<PocoValue<string>>(json, options);
+
+        }
+
         public class TestTypeConverters
         {
             public GeoPoint Point { get; set; }
@@ -178,6 +200,11 @@ namespace Indice.Common.Tests
         {
             public int Alpha { get; set; }
             public (List<int>, string) Beta { get; set; }
+        }
+
+        public class PocoValue<T>
+        {
+            public T Value { get; set; }
         }
 
         public enum MusicGenre : int

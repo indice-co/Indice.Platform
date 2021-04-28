@@ -312,7 +312,6 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
         [CacheResourceFilter]
         public async Task<IActionResult> GetApiResource([FromRoute] int resourceId) {
             var apiResource = await _configurationDbContext.ApiResources
-                .Include(x => x.Properties)
                 .AsNoTracking()
                 .Select(x => new ApiResourceInfo {
                     Id = x.Id,
@@ -323,7 +322,7 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
                     NonEditable = x.NonEditable,
                     AllowedClaims = x.UserClaims.Select(x => x.Type),
                     Scopes = x.Scopes.Any() ? x.Scopes.Join(
-                        _configurationDbContext.ApiScopes,
+                        _configurationDbContext.ApiScopes.Include(y => y.Properties),
                         apiResourceScope => apiResourceScope.Scope,
                         apiScope => apiScope.Name,
                         (apiResourceScope, apiScope) => new {
@@ -771,7 +770,7 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
         /// Deserialize the JSON translation of an <see cref="ApiScope"/>.
         /// </summary>
         /// <param name="apiScope">The API scope.</param>
-        private TranslationDictionary<ApiScopeTranslation> GetTranslationsFromApiScope(ApiScope apiScope) => 
+        private static TranslationDictionary<ApiScopeTranslation> GetTranslationsFromApiScope(ApiScope apiScope) => 
             TranslationDictionary<ApiScopeTranslation>.FromJson(apiScope.Properties.Any(x => x.Key == IdentityServerApi.ObjectTranslationKey)
                 ? apiScope.Properties.Single(x => x.Key == IdentityServerApi.ObjectTranslationKey).Value
                 : string.Empty
