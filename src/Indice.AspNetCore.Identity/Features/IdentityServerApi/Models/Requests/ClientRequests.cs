@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using IdentityServer4.Models;
+using Indice.Types;
 
 namespace Indice.AspNetCore.Identity.Api.Models
 {
@@ -185,12 +186,16 @@ namespace Indice.AspNetCore.Identity.Api.Models
         /// Specifies whether a consent screen is required.
         /// </summary>
         public bool RequireConsent { get; set; }
+        /// <summary>
+        /// Translations.
+        /// </summary>
+        public TranslationDictionary<ClientTranslation> Translations { get; set; } = new();
     }
 
     /// <summary>
     /// Defines the model required to update client URLs.
     /// </summary>
-    public class UpdateClientUrls 
+    public class UpdateClientUrls
     {
         /// <summary>
         /// Cors origins allowed.

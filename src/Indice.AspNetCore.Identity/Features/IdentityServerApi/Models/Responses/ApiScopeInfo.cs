@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Indice.Types;
 
 namespace Indice.AspNetCore.Identity.Api.Models
 {
@@ -32,8 +33,27 @@ namespace Indice.AspNetCore.Identity.Api.Models
         /// </summary>
         public bool? ShowInDiscoveryDocument { get; set; }
         /// <summary>
-        /// List of accociated user claims that should be included when a resource is requested.
+        /// Translations.
+        /// </summary>
+        public TranslationDictionary<ApiScopeTranslation> Translations { get; set; }
+        /// <summary>
+        /// List of associated user claims that should be included when a resource is requested.
         /// </summary>
         public IEnumerable<string> UserClaims { get; set; }
+    }
+
+    /// <summary>
+    /// Translation object for type <see cref="ApiScopeInfo"/>.
+    /// </summary>
+    public class ApiScopeTranslation
+    {
+        /// <summary>
+        /// The display name of the scope.
+        /// </summary>
+        public string DisplayName { get; set; }
+        /// <summary>
+        /// The description of the resource.
+        /// </summary>
+        public string Description { get; set; }
     }
 }

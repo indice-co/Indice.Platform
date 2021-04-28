@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Mime;
 using System.Threading.Tasks;
 using Indice.AspNetCore.Middleware;
 using Microsoft.Extensions.Logging;
@@ -22,11 +23,7 @@ namespace Microsoft.AspNetCore.Builder
         /// <returns>The builder.</returns>
         public static IApplicationBuilder UseRequestResponseLogging(this IApplicationBuilder builder, IEnumerable<string> contentTypes = null, Func<ILogger, RequestProfilerModel, Task> logHandler = null) =>
             builder.UseRequestResponseLogging((options) => {
-                options.ContentTypes = contentTypes?.Count() > 0 ? contentTypes.ToList() 
-                                                                 : new List<string> { 
-                                                                     System.Net.Mime.MediaTypeNames.Application.Json, 
-                                                                     System.Net.Mime.MediaTypeNames.Text.Html 
-                                                                 };
+                options.ContentTypes = contentTypes?.Count() > 0 ? contentTypes.ToList() : new List<string> { MediaTypeNames.Application.Json, MediaTypeNames.Text.Html };
                 options.LogHandler = logHandler ?? DefaultLoggingHandler;
             });
 
@@ -38,14 +35,14 @@ namespace Microsoft.AspNetCore.Builder
         /// <returns>The builder.</returns>
         public static IApplicationBuilder UseRequestResponseLogging(this IApplicationBuilder builder, Action<RequestResponseLoggingOptions> configureAction) {
             var options = new RequestResponseLoggingOptions {
-                ContentTypes = { 
-                    System.Net.Mime.MediaTypeNames.Application.Json, 
-                    System.Net.Mime.MediaTypeNames.Text.Html 
+                ContentTypes = {
+                    MediaTypeNames.Application.Json,
+                    MediaTypeNames.Text.Html
                 }
             };
             configureAction?.Invoke(options);
             return builder.UseMiddleware<RequestResponseLoggingMiddleware>(options);
         }
-            
+
     }
 }

@@ -281,7 +281,7 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
         [HttpGet("protected/scopes")]
         [ProducesResponseType(statusCode: StatusCodes.Status200OK, type: typeof(ResultSet<ApiScopeInfo>))]
         public async Task<IActionResult> GetApiScopes([FromQuery] ListOptions options) {
-            var query = _configurationDbContext.ApiScopes.AsNoTracking();
+            var query = _configurationDbContext.ApiScopes.Include(x => x.Properties).AsNoTracking();
             if (!string.IsNullOrEmpty(options.Search)) {
                 var searchTerm = options.Search.ToLower();
                 query = query.Where(x => x.Name.ToLower().Contains(searchTerm) || x.Description.ToLower().Contains(searchTerm));
@@ -293,7 +293,8 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
                 DisplayName = apiScope.DisplayName,
                 Emphasize = apiScope.Emphasize,
                 UserClaims = apiScope.UserClaims.Select(apiScopeClaim => apiScopeClaim.Type),
-                ShowInDiscoveryDocument = apiScope.ShowInDiscoveryDocument
+                ShowInDiscoveryDocument = apiScope.ShowInDiscoveryDocument,
+                Translations = GetTranslationsFromApiScope(apiScope)
             })
             .ToResultSetAsync(options);
             return Ok(scopes);
@@ -321,7 +322,7 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
                     NonEditable = x.NonEditable,
                     AllowedClaims = x.UserClaims.Select(x => x.Type),
                     Scopes = x.Scopes.Any() ? x.Scopes.Join(
-                        _configurationDbContext.ApiScopes,
+                        _configurationDbContext.ApiScopes.Include(y => y.Properties),
                         apiResourceScope => apiResourceScope.Scope,
                         apiScope => apiScope.Name,
                         (apiResourceScope, apiScope) => new {
@@ -336,7 +337,8 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
                         DisplayName = result.ApiScope.DisplayName,
                         Emphasize = result.ApiScope.Emphasize,
                         UserClaims = result.ApiScope.UserClaims.Select(apiScopeClaim => apiScopeClaim.Type),
-                        ShowInDiscoveryDocument = result.ApiScope.ShowInDiscoveryDocument
+                        ShowInDiscoveryDocument = result.ApiScope.ShowInDiscoveryDocument,
+                        Translations = GetTranslationsFromApiScope(result.ApiScope)
                     }) : default,
                     Secrets = x.Secrets.Any() ? x.Secrets.Select(x => new ApiSecretInfo {
                         Id = x.Id,
@@ -577,8 +579,12 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
                 Emphasize = request.Emphasize,
                 ShowInDiscoveryDocument = request.ShowInDiscoveryDocument,
                 Required = request.Required,
-                UserClaims = request.UserClaims.Select(claim => new ApiScopeClaim { Type = claim }).ToList()
+                UserClaims = request.UserClaims.Select(claim => new ApiScopeClaim { Type = claim }).ToList(),
+                Properties = new List<ApiScopeProperty>()
             };
+            if (request.Translations.Any()) {
+                AddTranslationsToApiScope(apiScopeToAdd, request.Translations.ToJson());
+            }
             _configurationDbContext.ApiScopes.Add(apiScopeToAdd);
             await _configurationDbContext.SaveChangesAsync();
             return Ok(new ApiScopeInfo {
@@ -588,7 +594,8 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
                 Description = apiScopeToAdd.Description,
                 UserClaims = apiScopeToAdd.UserClaims.Select(x => x.Type),
                 Emphasize = apiScopeToAdd.Emphasize,
-                ShowInDiscoveryDocument = apiScopeToAdd.ShowInDiscoveryDocument
+                ShowInDiscoveryDocument = apiScopeToAdd.ShowInDiscoveryDocument,
+                Translations = GetTranslationsFromApiScope(apiScopeToAdd)
             });
         }
 
@@ -609,12 +616,18 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
             if (apiResourceScope == null) {
                 return NotFound();
             }
-            var apiScope = await _configurationDbContext.ApiScopes.SingleOrDefaultAsync(x => x.Name == apiResourceScope.Scope);
+            var apiScope = await _configurationDbContext.ApiScopes.Include(x => x.Properties).SingleOrDefaultAsync(x => x.Name == apiResourceScope.Scope);
             apiScope.DisplayName = request.DisplayName;
             apiScope.Description = request.Description;
             apiScope.Required = request.Required;
             apiScope.ShowInDiscoveryDocument = request.ShowInDiscoveryDocument;
             apiScope.Emphasize = request.Emphasize;
+            var apiScoreTranslations = apiScope.Properties?.SingleOrDefault(x => x.Key == IdentityServerApi.ObjectTranslationKey);
+            if (apiScoreTranslations == null) {
+                AddTranslationsToApiScope(apiScope, request.Translations.ToJson());
+            } else {
+                apiScoreTranslations.Value = request.Translations.ToJson() ?? string.Empty;
+            }
             await _configurationDbContext.SaveChangesAsync();
             return NoContent();
         }
@@ -737,5 +750,30 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
             await _configurationDbContext.SaveChangesAsync();
             return NoContent();
         }
+
+        /// <summary>
+        /// Adds translations to an <see cref="ApiScope"/>.
+        /// </summary>
+        /// <remarks>If the parameter translations is null, string.Empty will be persisted.</remarks>
+        /// <param name="apiScope">The <see cref="ApiScope"/>.</param>
+        /// <param name="translations">The JSON string with the translations</param>
+        private void AddTranslationsToApiScope(ApiScope apiScope, string translations) {
+            apiScope.Properties ??= new List<ApiScopeProperty>();
+            apiScope.Properties.Add(new ApiScopeProperty {
+                Key = IdentityServerApi.ObjectTranslationKey,
+                Value = translations ?? string.Empty,
+                Scope = apiScope
+            });
+        }
+
+        /// <summary>
+        /// Deserialize the JSON translation of an <see cref="ApiScope"/>.
+        /// </summary>
+        /// <param name="apiScope">The API scope.</param>
+        private static TranslationDictionary<ApiScopeTranslation> GetTranslationsFromApiScope(ApiScope apiScope) => 
+            TranslationDictionary<ApiScopeTranslation>.FromJson(apiScope.Properties.Any(x => x.Key == IdentityServerApi.ObjectTranslationKey)
+                ? apiScope.Properties.Single(x => x.Key == IdentityServerApi.ObjectTranslationKey).Value
+                : string.Empty
+            );
     }
 }
