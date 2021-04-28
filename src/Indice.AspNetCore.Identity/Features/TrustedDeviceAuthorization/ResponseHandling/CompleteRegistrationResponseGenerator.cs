@@ -30,7 +30,7 @@ namespace Indice.AspNetCore.Identity.TrustedDeviceAuthorization.ResponseHandling
                 DeviceId = validationResult.DeviceId,
                 DeviceName = validationResult.DeviceName,
                 DevicePlatform = validationResult.DevicePlatform,
-                InteractionMode = validationResult.InteractionMode,
+                Enabled = true,
                 IsPushNotificationsEnabled = false,
                 PublicKey = validationResult.PublicKey,
                 UserId = validationResult.UserId

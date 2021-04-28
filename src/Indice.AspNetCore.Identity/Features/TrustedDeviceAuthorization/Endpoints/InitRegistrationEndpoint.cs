@@ -55,7 +55,7 @@ namespace Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Endpoints
         public IUserDeviceStore UserDeviceStore { get; }
 
         public async Task<IEndpointResult> ProcessAsync(HttpContext httpContext) {
-            Logger.LogInformation($"[{nameof(InitRegistrationEndpoint)}] Started processing trusted device registration endpoint.");
+            Logger.LogInformation($"[{nameof(InitRegistrationEndpoint)}] Started processing trusted device registration initiation endpoint.");
             var isPostRequest = HttpMethods.IsPost(httpContext.Request.Method);
             var isApplicationFormContentType = httpContext.Request.HasApplicationFormContentType();
             // Validate HTTP request type and method.
@@ -69,7 +69,7 @@ namespace Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Endpoints
             }
             // Validate request data and access token.
             var parameters = (await httpContext.Request.ReadFormAsync()).AsNameValueCollection();
-            var requestValidationResult = await Request.Validate(tokenUsageResult.Token, parameters);
+            var requestValidationResult = await Request.Validate(parameters, tokenUsageResult.Token);
             if (requestValidationResult.IsError) {
                 return Error(requestValidationResult.Error, requestValidationResult.ErrorDescription);
             }
@@ -110,7 +110,7 @@ namespace Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Endpoints
             }
             // Create endpoint response.
             var response = await Response.Generate(requestValidationResult);
-            Logger.LogInformation($"[{nameof(InitRegistrationEndpoint)}] Trusted device authorization endpoint success.");
+            Logger.LogInformation($"[{nameof(InitRegistrationEndpoint)}] Trusted device registration initiation endpoint success.");
             return new InitRegistrationResult(response);
         }
 
@@ -120,7 +120,7 @@ namespace Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Endpoints
                 ErrorDescription = errorDescription,
                 Custom = custom
             };
-            Logger.LogError("[{EndpointName}] Trusted device authorization endpoint error: {Error}:{ErrorDescription}", nameof(InitRegistrationEndpoint), error, errorDescription ?? " -no message-");
+            Logger.LogError("[{EndpointName}] Trusted device registration initiation endpoint error: {Error}:{ErrorDescription}", nameof(InitRegistrationEndpoint), error, errorDescription ?? " -no message-");
             return new AuthorizationErrorResult(response);
         }
     }

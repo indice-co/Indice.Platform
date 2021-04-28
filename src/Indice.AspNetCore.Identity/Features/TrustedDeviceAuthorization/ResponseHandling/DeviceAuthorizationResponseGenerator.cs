@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Security.Claims;
 using System.Threading.Tasks;
+using IdentityModel;
 using IdentityServer4.Models;
 using Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Models;
 using Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Stores;
@@ -8,9 +10,9 @@ using Microsoft.AspNetCore.Authentication;
 
 namespace Indice.AspNetCore.Identity.TrustedDeviceAuthorization.ResponseHandling
 {
-    internal class InitRegistrationResponseGenerator : IResponseGenerator<InitRegistrationRequestValidationResult, InitRegistrationResponse>
+    internal class DeviceAuthorizationResponseGenerator : IResponseGenerator<DeviceAuthorizationRequestValidationResult, DeviceAuthorizationResponse>
     {
-        public InitRegistrationResponseGenerator(
+        public DeviceAuthorizationResponseGenerator(
             IAuthorizationCodeChallengeStore codeChallengeStore,
             ISystemClock systemClock
         ) {
@@ -21,19 +23,19 @@ namespace Indice.AspNetCore.Identity.TrustedDeviceAuthorization.ResponseHandling
         public IAuthorizationCodeChallengeStore CodeChallengeStore { get; }
         public ISystemClock SystemClock { get; }
 
-        public async Task<InitRegistrationResponse> Generate(InitRegistrationRequestValidationResult validationResult) {
+        public async Task<DeviceAuthorizationResponse> Generate(DeviceAuthorizationRequestValidationResult validationResult) {
             var authorizationCode = new TrustedDeviceAuthorizationCode {
                 ClientId = validationResult.Client.ClientId,
-                DeviceId = validationResult.DeviceId,
-                InteractionMode = validationResult.InteractionMode,
                 CodeChallenge = validationResult.CodeChallenge.Sha256(),
                 CreationTime = SystemClock.UtcNow.UtcDateTime,
+                DeviceId = validationResult.Device.DeviceId,
+                InteractionMode = validationResult.InteractionMode,
                 Lifetime = validationResult.Client.AuthorizationCodeLifetime,
                 RequestedScopes = validationResult.RequestedScopes,
-                Subject = validationResult.Principal
+                Subject = Principal.Create("TrustedDevice", new Claim(JwtClaimTypes.Subject, validationResult.UserId))
             };
             var challenge = await CodeChallengeStore.GenerateChallenge(authorizationCode);
-            return new InitRegistrationResponse { 
+            return new DeviceAuthorizationResponse {
                 Challenge = challenge
             };
         }

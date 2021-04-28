@@ -13,6 +13,7 @@ using IdentityServer4;
 using IdentityServer4.Models;
 using IdentityServer4.Test;
 using Indice.AspNetCore.Identity.Tests.Models;
+using Indice.Configuration;
 using Indice.Security;
 using Indice.Services;
 using Indice.Types;
@@ -124,9 +125,11 @@ namespace Indice.AspNetCore.Identity.Tests
         private const string BaseUrl = "https://server";
         private const string ClientId = "ppk-client";
         private const string ClientSecret = "JUEKX2XugFv5XrX3";
+        private const string DevicePin = "4412";
         // Private fields
         private readonly string _deviceRegistrationInitiationUrl = $"{BaseUrl}/my/devices/register/init";
         private readonly string _deviceRegistrationCompletionUrl = $"{BaseUrl}/my/devices/register/complete";
+        private readonly string _deviceAuthorizationUrl = $"{BaseUrl}/my/devices/connect/authorize";
         private readonly HttpClient _httpClient;
         private readonly ITestOutputHelper _output;
 
@@ -139,6 +142,8 @@ namespace Indice.AspNetCore.Identity.Tests
                     options.EmitStaticAudienceClaim = true;
                 })
                 .AddInMemoryIdentityResources(GetIdentityResources())
+                .AddInMemoryApiScopes(GetApiScopes())
+                .AddInMemoryApiResources(GetApiResources())
                 .AddInMemoryClients(GetClients())
                 .AddTestUsers(GetTestUsers())
                 .AddInMemoryPersistedGrants()
@@ -150,11 +155,13 @@ namespace Indice.AspNetCore.Identity.Tests
             });
             var server = new TestServer(builder);
             var handler = server.CreateHandler();
-            _httpClient = new HttpClient(handler) { BaseAddress = new Uri(BaseUrl) };
+            _httpClient = new HttpClient(handler) {
+                BaseAddress = new Uri(BaseUrl)
+            };
         }
 
         [Fact]
-        public async Task CanRegisterNewDeviceUsingFingerprint() {
+        public async Task<string> RegisterNewDeviceUsingFingerprint() {
             var accessToken = await LoginWithPasswordGrant(userName: "alice", password: "alice");
             var codeVerifier = GenerateCodeVerifier();
             var deviceId = Guid.NewGuid().ToString();
@@ -165,10 +172,11 @@ namespace Indice.AspNetCore.Identity.Tests
                 _output.WriteLine(responseJson);
             }
             Assert.True(response.IsSuccessStatusCode);
+            return deviceId;
         }
 
         [Fact]
-        public async Task CanRegisterNewDeviceUsingPin() {
+        public async Task<string> RegisterNewDeviceUsingPin() {
             var accessToken = await LoginWithPasswordGrant(userName: "alice", password: "alice");
             var codeVerifier = GenerateCodeVerifier();
             var deviceId = Guid.NewGuid().ToString();
@@ -179,33 +187,93 @@ namespace Indice.AspNetCore.Identity.Tests
                 _output.WriteLine(responseJson);
             }
             Assert.True(response.IsSuccessStatusCode);
+            return deviceId;
+        }
+
+        [Fact]
+        public async Task AuthorizeExistingDeviceUsingFingerprint() {
+            var deviceId = await RegisterNewDeviceUsingFingerprint();
+            var codeVerifier = GenerateCodeVerifier();
+            var challenge = await InitiateDeviceAuthorizationUsingFingerprint(codeVerifier, deviceId);
+            var discoveryDocument = await _httpClient.GetDiscoveryDocumentAsync();
+            var x509SigningCredentials = GetSigningCredentials();
+            var signature = SignMessage(challenge, x509SigningCredentials);
+            var tokenResponse = await _httpClient.RequestTokenAsync(new TokenRequest {
+                Address = discoveryDocument.TokenEndpoint,
+                ClientId = ClientId,
+                ClientSecret = ClientSecret,
+                GrantType = CustomGrantTypes.TrustedDevice,
+                Parameters = {
+                    { "code", challenge },
+                    { "code_signature", signature },
+                    { "code_verifier", codeVerifier },
+                    { "device_id", deviceId },
+                    { "public_key", PublicKey },
+                    { "scope", $"{IdentityServerConstants.StandardScopes.OpenId} {IdentityServerConstants.StandardScopes.Phone} scope1" }
+                }
+            });
+            Assert.False(tokenResponse.IsError);
+        }
+
+        [Fact]
+        public async Task AuthorizeExistingDeviceUsingPin() {
+            var deviceId = await RegisterNewDeviceUsingPin();
+            var discoveryDocument = await _httpClient.GetDiscoveryDocumentAsync();
+            var tokenResponse = await _httpClient.RequestTokenAsync(new TokenRequest {
+                Address = discoveryDocument.TokenEndpoint,
+                ClientId = ClientId,
+                ClientSecret = ClientSecret,
+                GrantType = CustomGrantTypes.TrustedDevice,
+                Parameters = {
+                    { "device_id", deviceId },
+                    { "pin", DevicePin },
+                    { "scope", $"{IdentityServerConstants.StandardScopes.OpenId} {IdentityServerConstants.StandardScopes.Phone} scope1" }
+                }
+            });
+            Assert.False(tokenResponse.IsError);
         }
 
         #region Helper Methods
+        private async Task<string> InitiateDeviceAuthorizationUsingFingerprint(string codeVerifier, string deviceId) {
+            var codeChallenge = GenerateCodeChallenge(codeVerifier);
+            var data = new Dictionary<string, string> {
+                { "client_id", ClientId },
+                { "code_challenge", codeChallenge },
+                { "device_id", deviceId },
+                { "scope", $"{IdentityServerConstants.StandardScopes.OpenId} {IdentityServerConstants.StandardScopes.Phone} scope1" }
+            };
+            var form = new FormUrlEncodedContent(data);
+            var response = await _httpClient.PostAsync(_deviceAuthorizationUrl, form);
+            var responseJson = await response.Content.ReadAsStringAsync();
+            if (!response.IsSuccessStatusCode) {
+                _output.WriteLine(responseJson);
+                throw new HttpRequestException();
+            }
+            var result = JsonSerializer.Deserialize<TrustedDeviceAuthorizationResultDto>(responseJson);
+            return result.Challenge;
+        }
+
         private async Task<string> LoginWithPasswordGrant(string userName, string password) {
             var discoveryDocument = await _httpClient.GetDiscoveryDocumentAsync();
             var tokenResponse = await _httpClient.RequestPasswordTokenAsync(new PasswordTokenRequest {
                 Address = discoveryDocument.TokenEndpoint,
                 ClientId = ClientId,
                 ClientSecret = ClientSecret,
-                Scope = $"{IdentityServerConstants.StandardScopes.OpenId} {IdentityServerConstants.StandardScopes.Phone}",
+                Scope = $"{IdentityServerConstants.StandardScopes.OpenId} {IdentityServerConstants.StandardScopes.Phone} scope1",
                 UserName = userName,
                 Password = password
             });
             return tokenResponse.AccessToken;
         }
 
-        private Task<string> InitiateDeviceRegistrationUsingFingerprint(string accessToken, string codeVerifier, string deviceId) =>
-            InitiateDeviceRegistration(accessToken, codeVerifier, deviceId, "fingerprint");
+        private Task<string> InitiateDeviceRegistrationUsingFingerprint(string accessToken, string codeVerifier, string deviceId) => InitiateDeviceRegistration(accessToken, codeVerifier, deviceId, "fingerprint");
 
-        private Task<string> InitiateDeviceRegistrationUsingPin(string accessToken, string codeVerifier, string deviceId) =>
-            InitiateDeviceRegistration(accessToken, codeVerifier, deviceId, "pin");
+        private Task<string> InitiateDeviceRegistrationUsingPin(string accessToken, string codeVerifier, string deviceId) => InitiateDeviceRegistration(accessToken, codeVerifier, deviceId, "pin");
 
         private async Task<string> InitiateDeviceRegistration(string accessToken, string codeVerifier, string deviceId, string mode) {
             var codeChallenge = GenerateCodeChallenge(codeVerifier);
             var data = new Dictionary<string, string> {
                 { "code_challenge", codeChallenge },
-                { "code_challenge_method", OidcConstants.CodeChallengeMethods.Sha256 },
                 { "device_id", deviceId },
                 { "mode", mode }
             };
@@ -221,11 +289,9 @@ namespace Indice.AspNetCore.Identity.Tests
             return result.Challenge;
         }
 
-        private Task<HttpResponseMessage> CompleteDeviceRegistrationUsingFingerprint(string accessToken, string codeVerifier, string deviceId, string challenge) =>
-            CompleteDeviceRegistration(accessToken, codeVerifier, deviceId, challenge, "fingerprint");
+        private Task<HttpResponseMessage> CompleteDeviceRegistrationUsingFingerprint(string accessToken, string codeVerifier, string deviceId, string challenge) => CompleteDeviceRegistration(accessToken, codeVerifier, deviceId, challenge, "fingerprint");
 
-        private Task<HttpResponseMessage> CompleteDeviceRegistrationUsingPin(string accessToken, string codeVerifier, string deviceId, string challenge) =>
-            CompleteDeviceRegistration(accessToken, codeVerifier, deviceId, challenge, "pin");
+        private Task<HttpResponseMessage> CompleteDeviceRegistrationUsingPin(string accessToken, string codeVerifier, string deviceId, string challenge) => CompleteDeviceRegistration(accessToken, codeVerifier, deviceId, challenge, "pin");
 
         private async Task<HttpResponseMessage> CompleteDeviceRegistration(string accessToken, string codeVerifier, string deviceId, string challenge, string mode) {
             var x509SigningCredentials = GetSigningCredentials();
@@ -243,7 +309,7 @@ namespace Indice.AspNetCore.Identity.Tests
                 data.Add("public_key", PublicKey);
             }
             if (mode == "pin") {
-                data.Add("pin", "4412");
+                data.Add("pin", DevicePin);
             }
             var form = new FormUrlEncodedContent(data);
             _httpClient.SetBearerToken(accessToken);
@@ -285,13 +351,18 @@ namespace Indice.AspNetCore.Identity.Tests
                 ClientName = "Public/Private key client",
                 AccessTokenType = AccessTokenType.Jwt,
                 AllowAccessTokensViaBrowser = false,
-                AllowedGrantTypes = GrantTypes.ResourceOwnerPasswordAndClientCredentials,
+                AllowedGrantTypes = {
+                    CustomGrantTypes.TrustedDevice,
+                    GrantType.ClientCredentials,
+                    GrantType.ResourceOwnerPassword
+                },
                 ClientSecrets = {
                     new Secret(ClientSecret.ToSha256())
                 },
                 AllowedScopes = {
                     IdentityServerConstants.StandardScopes.OpenId,
-                    IdentityServerConstants.StandardScopes.Phone
+                    IdentityServerConstants.StandardScopes.Phone,
+                    "scope1"
                 },
                 RequireConsent = false,
                 RequirePkce = false,
@@ -306,7 +377,33 @@ namespace Indice.AspNetCore.Identity.Tests
 
         private static IEnumerable<IdentityResource> GetIdentityResources() => new List<IdentityResource> {
             new IdentityResources.OpenId(),
-            new IdentityResources.Phone()
+            new IdentityResources.Phone(),
+            new IdentityResources.Email(),
+            new IdentityResources.Profile(),
+            new IdentityResources.Address()
+        };
+
+        private static IEnumerable<ApiScope> GetApiScopes() => new List<ApiScope> {
+            new ApiScope(name: "scope1", displayName: "Scope No. 1", userClaims: new string[] {
+                JwtClaimTypes.Email,
+                JwtClaimTypes.EmailVerified,
+                JwtClaimTypes.FamilyName,
+                JwtClaimTypes.GivenName,
+                JwtClaimTypes.PhoneNumber,
+                JwtClaimTypes.PhoneNumberVerified,
+                JwtClaimTypes.Subject
+            }),
+            new ApiScope(name: "scope2", displayName: "Scope No. 2", userClaims: new string[] {
+                JwtClaimTypes.Email,
+                JwtClaimTypes.PhoneNumber,
+                JwtClaimTypes.Subject
+            })
+        };
+
+        private static IEnumerable<ApiResource> GetApiResources() => new List<ApiResource> {
+            new ApiResource(name: "api1", displayName: "API No. 1") {
+                Scopes = { "scope1", "scope2" }
+            }
         };
 
         private static List<TestUser> GetTestUsers() => new() {

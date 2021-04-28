@@ -1,24 +1,42 @@
-﻿using System;
-using System.Collections.Generic;
-using IdentityModel;
-using Indice.AspNetCore.Identity.Data.Models;
+﻿using IdentityModel;
+using IdentityServer4.Models;
+using Indice.Configuration;
 
 namespace Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Configuration
 {
     internal class Constants
     {
-        public static readonly List<string> SupportedCodeChallengeMethods = new() {
-            OidcConstants.CodeChallengeMethods.Sha256
+        public static string TrustedDeviceOtpPurpose(string userId, string deviceId) => $"trusted-device-registration:{userId}:{deviceId}";
+
+        public static readonly string[] ProtocolClaimsFilter = {
+            JwtClaimTypes.AccessTokenHash,
+            JwtClaimTypes.Audience,
+            JwtClaimTypes.AuthorizedParty,
+            JwtClaimTypes.AuthorizationCodeHash,
+            JwtClaimTypes.ClientId,
+            JwtClaimTypes.Expiration,
+            JwtClaimTypes.IssuedAt,
+            JwtClaimTypes.Issuer,
+            JwtClaimTypes.JwtId,
+            JwtClaimTypes.Nonce,
+            JwtClaimTypes.NotBefore,
+            JwtClaimTypes.ReferenceTokenId,
+            JwtClaimTypes.SessionId,
+            JwtClaimTypes.Scope
         };
 
-        public static string TrustedDeviceOtpPurpose(string userId, string deviceId) => $"trusted-device-registration:{userId}:{deviceId}";
+        public static readonly string[] RequiredGrantTypes = {
+            CustomGrantTypes.TrustedDevice,
+            GrantType.ClientCredentials,
+            GrantType.ResourceOwnerPassword
+        };
     }
 
     internal static class RegistrationRequestParameters
     {
+        public const string ClientId = "client_id";
         public const string Code = "code";
         public const string CodeChallenge = "code_challenge";
-        public const string CodeChallengeMethod = "code_challenge_method";
         public const string CodeSignature = "code_signature";
         public const string CodeVerifier = "code_verifier";
         public const string DeviceId = "device_id";
@@ -28,5 +46,6 @@ namespace Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Configuration
         public const string OtpCode = "otp";
         public const string Pin = "pin";
         public const string PublicKey = "public_key";
+        public const string Scope = "scope";
     }
 }

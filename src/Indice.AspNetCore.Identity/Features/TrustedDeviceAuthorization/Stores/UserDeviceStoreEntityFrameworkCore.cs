@@ -26,7 +26,7 @@ namespace Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Stores
         /// <inheritdoc />
         public async Task CreateDevice(UserDevice device) {
             if (device == null) {
-                throw new ArgumentNullException(nameof(device), "Device model cannot be null.");
+                throw new ArgumentNullException(nameof(device), $"Parameter {nameof(device)} cannot be null.");
             }
             _dbContext.UserDevices.Add(device);
             await _dbContext.SaveChangesAsync();
@@ -46,6 +46,22 @@ namespace Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Stores
                 return default;
             }
             return _dbContext.UserDevices.Where(x => x.UserId == userId).ToListAsync();
+        }
+
+        /// <inheritdoc />
+        public async Task SetDevicePublicKey(string deviceId, string publicKey) {
+            if (string.IsNullOrWhiteSpace(deviceId)) {
+                throw new ArgumentNullException(nameof(deviceId), $"Parameters {nameof(deviceId)} cannot be null.");
+            }
+            if (string.IsNullOrWhiteSpace(publicKey)) {
+                throw new ArgumentNullException(nameof(publicKey), $"Parameters {nameof(publicKey)} cannot be null.");
+            }
+            var device = await _dbContext.UserDevices.SingleOrDefaultAsync(x => x.DeviceId == deviceId);
+            if (device == null) {
+                return;
+            }
+            device.PublicKey = publicKey;
+            await _dbContext.SaveChangesAsync();
         }
     }
 }

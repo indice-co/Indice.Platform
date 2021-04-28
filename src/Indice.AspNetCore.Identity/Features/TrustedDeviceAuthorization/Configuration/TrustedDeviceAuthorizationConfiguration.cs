@@ -21,23 +21,20 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <param name="builder">IdentityServer builder interface.</param>
         /// <param name="configureAction"></param>
         public static IIdentityServerBuilder AddTrustedDeviceAuthorization(this IIdentityServerBuilder builder, Action<TrustedDeviceAuthorizationOptions> configureAction = null) {
-            var options = new TrustedDeviceAuthorizationOptions { Services = builder.Services };
+            var options = new TrustedDeviceAuthorizationOptions {
+                Services = builder.Services
+            };
             configureAction?.Invoke(options);
             // Register endpoints.
-            builder.AddEndpoint<InitRegistrationEndpoint>("TrustedDeviceInitRegistration", "/my/devices/register/init");
-            builder.AddEndpoint<CompleteRegistrationEndpoint>("TrustedDeviceCompleteRegistration", "/my/devices/register/complete");
+            builder.RegisterEndpoints();
             // Register stores.
             builder.Services.AddTransient<IAuthorizationCodeChallengeStore, DefaultAuthorizationCodeChallengeStore>();
             options.AddUserDeviceStoreInMemory();
             // Register custom grant validator.
             builder.AddExtensionGrantValidator<TrustedDeviceExtensionGrantValidator>();
-            // Register other services.
+            // Register core services.
             options.AddDefaultPasswordHasher();
-            builder.Services.AddTransient<BearerTokenUsageValidator>();
-            builder.Services.AddTransient<CompleteRegistrationRequestValidator>();
-            builder.Services.AddTransient<CompleteRegistrationResponseGenerator>();
-            builder.Services.AddTransient<InitRegistrationRequestValidator>();
-            builder.Services.AddTransient<InitRegistrationResponseGenerator>();
+            options.RegisterCoreServices();
             return builder;
         }
 
@@ -79,5 +76,21 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <param name="options">Options for configuring 'Trusted Device Authorization' feature.</param>
         public static void AddDevicePasswordHasher<TDevicePasswordHasher>(this TrustedDeviceAuthorizationOptions options) where TDevicePasswordHasher : IDevicePasswordHasher =>
             options.Services.AddTransient(typeof(IDevicePasswordHasher), typeof(TDevicePasswordHasher));
+
+        private static void RegisterCoreServices(this TrustedDeviceAuthorizationOptions options) {
+            options.Services.AddTransient<BearerTokenUsageValidator>();
+            options.Services.AddTransient<CompleteRegistrationRequestValidator>();
+            options.Services.AddTransient<CompleteRegistrationResponseGenerator>();
+            options.Services.AddTransient<DeviceAuthorizationRequestValidator>();
+            options.Services.AddTransient<DeviceAuthorizationResponseGenerator>();
+            options.Services.AddTransient<InitRegistrationRequestValidator>();
+            options.Services.AddTransient<InitRegistrationResponseGenerator>();
+        }
+
+        private static void RegisterEndpoints(this IIdentityServerBuilder builder) {
+            builder.AddEndpoint<InitRegistrationEndpoint>("TrustedDeviceInitRegistration", "/my/devices/register/init");
+            builder.AddEndpoint<CompleteRegistrationEndpoint>("TrustedDeviceCompleteRegistration", "/my/devices/register/complete");
+            builder.AddEndpoint<DeviceAuthorizationEndpoint>("TrustedDeviceAuthorization", "/my/devices/connect/authorize");
+        }
     }
 }

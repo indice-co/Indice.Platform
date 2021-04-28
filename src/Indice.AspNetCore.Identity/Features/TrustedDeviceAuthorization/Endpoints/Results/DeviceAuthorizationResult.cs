@@ -7,13 +7,13 @@ using Microsoft.AspNetCore.Http;
 
 namespace Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Endpoints.Results
 {
-    internal class InitRegistrationResult : IEndpointResult
+    internal class DeviceAuthorizationResult : IEndpointResult
     {
-        public InitRegistrationResult(InitRegistrationResponse response) {
+        public DeviceAuthorizationResult(DeviceAuthorizationResponse response) {
             Response = response ?? throw new ArgumentNullException(nameof(response));
         }
 
-        public InitRegistrationResponse Response { get; }
+        public DeviceAuthorizationResponse Response { get; set; }
 
         public async Task ExecuteAsync(HttpContext context) {
             context.Response.StatusCode = StatusCodes.Status200OK;

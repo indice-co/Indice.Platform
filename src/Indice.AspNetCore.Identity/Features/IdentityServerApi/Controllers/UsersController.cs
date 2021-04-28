@@ -141,7 +141,12 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
                 };
             if (options?.Search?.Length > 2) {
                 var searchTerm = options.Search.ToLower();
-                var idsFromClaims = await _dbContext.UserClaims.Where(x => (x.ClaimType == JwtClaimTypes.GivenName || x.ClaimType == JwtClaimTypes.FamilyName) && EF.Functions.Like(x.ClaimValue, $"%{searchTerm}%")).Select(x => x.UserId).ToArrayAsync();
+                var idsFromClaims = await _dbContext.UserClaims.Where(x => 
+                    (x.ClaimType == JwtClaimTypes.GivenName || x.ClaimType == JwtClaimTypes.FamilyName) 
+                 && EF.Functions.Like(x.ClaimValue, $"%{searchTerm}%")
+                )
+                .Select(x => x.UserId)
+                .ToArrayAsync();
                 usersQuery = usersQuery.Where(x => EF.Functions.Like(x.Email, $"%{searchTerm}%")
                  || EF.Functions.Like(x.PhoneNumber, $"%{searchTerm}%")
                  || EF.Functions.Like(x.UserName, $"%{searchTerm}%")

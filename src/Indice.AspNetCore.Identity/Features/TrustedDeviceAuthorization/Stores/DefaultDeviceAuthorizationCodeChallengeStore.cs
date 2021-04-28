@@ -28,7 +28,7 @@ namespace Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Stores
         ) : base("trusted_device_authorization_code", store, serializer, handleGenerationService, logger) { }
 
         /// <inheritdoc />
-        public Task<string> GenerateChallenge(TrustedDeviceAuthorizationCode code) => CreateItemAsync(code, code.ClientId, code.Subject.GetSubjectId(), null, code.Description, code.CreationTime, code.Lifetime);
+        public Task<string> GenerateChallenge(TrustedDeviceAuthorizationCode code) => CreateItemAsync(code, code.ClientId, code.Subject?.GetSubjectId(), null, null, code.CreationTime, code.Lifetime);
 
         /// <inheritdoc />
         public Task<TrustedDeviceAuthorizationCode> GetAuthorizationCode(string key) => GetItemAsync(key);

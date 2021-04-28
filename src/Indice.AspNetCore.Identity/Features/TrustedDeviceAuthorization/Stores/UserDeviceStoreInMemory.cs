@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Indice.AspNetCore.Identity.Data.Models;
@@ -25,6 +26,15 @@ namespace Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Stores
         public Task CreateDevice(UserDevice device) {
             _userDevices.Add(device);
             return Task.CompletedTask;
+        }
+
+        /// <inheritdoc />
+        public async Task SetDevicePublicKey(string deviceId, string publicKey) {
+            var device = await GetByDeviceId(deviceId);
+            if (device == null) {
+                return;
+            }
+            device.PublicKey = publicKey;
         }
     }
 }

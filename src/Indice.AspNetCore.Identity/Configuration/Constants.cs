@@ -9,5 +9,9 @@
         /// Delegation.
         /// </summary>
         public const string Delegation = "delegation";
+        /// <summary>
+        /// Trusted device authorization.
+        /// </summary>
+        public const string TrustedDevice = "trusted_device";
     }
 }

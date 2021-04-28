@@ -13,7 +13,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Validation
 {
-    internal class InitRegistrationRequestValidator : RegistrationRequestValidatorBase<InitRegistrationRequestValidationResult>
+    internal class InitRegistrationRequestValidator : RequestValidatorBase<InitRegistrationRequestValidationResult>
     {
         public InitRegistrationRequestValidator(
             IClientStore clientStore,
@@ -23,9 +23,9 @@ namespace Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Validation
             Logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-        public ILogger<InitRegistrationRequestValidator> Logger { get; set; }
+        public ILogger<InitRegistrationRequestValidator> Logger { get; }
 
-        public override async Task<InitRegistrationRequestValidationResult> Validate(string accessToken, NameValueCollection parameters) {
+        public override async Task<InitRegistrationRequestValidationResult> Validate(NameValueCollection parameters, string accessToken = null) {
             Logger.LogDebug($"{nameof(InitRegistrationRequestValidator)}: Started trusted device registration request validation.");
             // The access token needs to be valid and have at least the openid scope.
             var tokenValidationResult = await TokenValidator.ValidateAccessTokenAsync(accessToken, IdentityServerConstants.StandardScopes.OpenId);
@@ -33,7 +33,10 @@ namespace Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Validation
                 return Error(tokenValidationResult.Error, "Provided access token is not valid.");
             }
             // The access token must have a 'sub' and 'client_id' claim.
-            var claimsToValidate = new[] { JwtClaimTypes.Subject, JwtClaimTypes.ClientId };
+            var claimsToValidate = new[] {
+                JwtClaimTypes.Subject,
+                JwtClaimTypes.ClientId
+            };
             foreach (var claim in claimsToValidate) {
                 var claimValue = tokenValidationResult.Claims.SingleOrDefault(x => x.Type == claim)?.Value;
                 if (string.IsNullOrWhiteSpace(claimValue)) {
@@ -43,7 +46,6 @@ namespace Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Validation
             // Validate that the consumer specified all required parameters.
             var parametersToValidate = new[] {
                 RegistrationRequestParameters.CodeChallenge,
-                RegistrationRequestParameters.CodeChallengeMethod,
                 RegistrationRequestParameters.DeviceId,
                 RegistrationRequestParameters.Mode
             };
@@ -55,30 +57,29 @@ namespace Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Validation
             }
             var isValidInteraction = Enum.TryParse<InteractionMode>(parameters.Get(RegistrationRequestParameters.Mode), ignoreCase: true, out var mode);
             if (!isValidInteraction) {
-                return Error(OidcConstants.TokenErrors.InvalidRequest, $"Parameter '{nameof(RegistrationRequestParameters.Mode)}' used for registration (fingerprint or 4pin) is not valid.");
+                return Error(OidcConstants.TokenErrors.InvalidRequest, $"Parameter '{nameof(RegistrationRequestParameters.Mode)}' used for registration is not valid.");
             }
             // Load client and validate that it allows the 'password' flow.
             var client = await LoadClient(tokenValidationResult);
             if (client == null) {
-                return Error(OidcConstants.AuthorizeErrors.UnauthorizedClient, $"Client is unknown or not enabled.");
+                return Error(OidcConstants.AuthorizeErrors.UnauthorizedClient, "Client is unknown or not enabled.");
             }
-            if (!client.AllowedGrantTypes.Contains(GrantType.ResourceOwnerPassword)) {
-                return Error(OidcConstants.AuthorizeErrors.UnauthorizedClient, $"Client not authorized for 'password' grant type.");
+            if (client.AllowedGrantTypes.Except(Constants.RequiredGrantTypes).Count() != 0) {
+                return Error(OidcConstants.AuthorizeErrors.UnauthorizedClient, $"Client not authorized any of the following grant types: {string.Join(", ", Constants.RequiredGrantTypes)}");
             }
             // Find requested scopes.
             var requestedScopes = tokenValidationResult.Claims.Where(claim => claim.Type == JwtClaimTypes.Scope).Select(claim => claim.Value).ToList();
             // Create principal from incoming access token excluding protocol claims.
-            var claims = tokenValidationResult.Claims.Where(x => !ProtocolClaimsFilter.Contains(x.Type));
+            var claims = tokenValidationResult.Claims.Where(x => !Constants.ProtocolClaimsFilter.Contains(x.Type));
             var principal = Principal.Create("TrustedDevice", claims.ToArray());
             var userId = tokenValidationResult.Claims.Single(x => x.Type == JwtClaimTypes.Subject).Value;
             // Finally return result.
             return new InitRegistrationRequestValidationResult {
+                IsError = false,
                 Client = client,
                 CodeChallenge = parameters.Get(RegistrationRequestParameters.CodeChallenge),
-                CodeChallengeMethod = parameters.Get(RegistrationRequestParameters.CodeChallengeMethod),
                 DeviceId = parameters.Get(RegistrationRequestParameters.DeviceId),
-                InteractionMode = (InteractionMode)mode,
-                IsError = false,
+                InteractionMode = mode,
                 Principal = principal,
                 RequestedScopes = requestedScopes,
                 UserId = userId
