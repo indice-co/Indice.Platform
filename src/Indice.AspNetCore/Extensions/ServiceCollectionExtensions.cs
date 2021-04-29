@@ -3,7 +3,6 @@ using System.Collections;
 using System.IO;
 using System.Text.RegularExpressions;
 using Azure.Storage.Blobs;
-using Indice.AspNetCore.Configuration;
 using Indice.AspNetCore.Filters;
 using Indice.AspNetCore.TagHelpers;
 using Indice.Configuration;
@@ -25,17 +24,6 @@ namespace Microsoft.Extensions.DependencyInjection
     /// </summary>
     public static class ServiceCollectionExtensions
     {
-
-        /// <summary>
-        /// Adds Indice's common services.
-        /// </summary>
-        /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
-        /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
-        public static IServiceCollection AddGeneralSettings(this IServiceCollection services, IConfiguration configuration) {
-            services.Configure<GeneralSettings>(configuration.GetSection(GeneralSettings.Name));
-            services.TryAddTransient(serviceProvider => serviceProvider.GetRequiredService<IOptions<GeneralSettings>>().Value);
-            return services;
-        }
 
         /// <summary>
         /// Adds content security policy. See also <see cref="SecurityHeadersAttribute"/> that enables the policy on a specific action.

@@ -116,7 +116,7 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
             }
             if (_emailService == null) {
                 var message = $"No concrete implementation of {nameof(IEmailService)} is registered. " +
-                              $"Check {nameof(IndiceServicesConfigurationExtensions.AddEmailService)}, {nameof(ServiceCollectionExtensions.AddEmailServiceSmtpRazor)} or " +
+                              $"Check {nameof(IndiceServicesServiceCollectionExtensions.AddEmailService)}, {nameof(ServiceCollectionExtensions.AddEmailServiceSmtpRazor)} or " +
                               $"{nameof(ServiceCollectionExtensions.AddEmailServiceSparkpost)} extensions on {nameof(IServiceCollection)} or provide your own implementation.";
                 throw new Exception(message);
             }

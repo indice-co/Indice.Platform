@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using Indice.Configuration;
-using Microsoft.AspNetCore.Builder;
 
 namespace Microsoft.Extensions.Configuration
 {
@@ -22,7 +21,7 @@ namespace Microsoft.Extensions.Configuration
         /// </summary>
         /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
         /// <returns>True if specified flag is set to true, otherwise false.</returns>
-        /// <remarks>Checks for the General:UseHttpsRedirection option in appsettings.json file. When true you can register <see cref="HttpsPolicyBuilderExtensions.UseHttpsRedirection(IApplicationBuilder)"/> middleware.</remarks>
+        /// <remarks>Checks for the General:UseHttpsRedirection option in appsettings.json file. When true you can register HttpsPolicyBuilderExtensions.UseHttpsRedirection(IApplicationBuilder) middleware.</remarks>
         public static bool UseHttpsRedirection(this IConfiguration configuration) => configuration.GetSection(GeneralSettings.Name).GetValue<bool>(nameof(GeneralSettings.UseHttpsRedirection));
 
         /// <summary>
@@ -47,7 +46,7 @@ namespace Microsoft.Extensions.Configuration
         /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
         /// <returns>Endpoints defined in appssettings.json as a <see cref="Dictionary{String, String}"/>.</returns>
         /// <remarks>Checks for the General:Endpoints option in appsettings.json file.</remarks>
-        public static Dictionary<string, string> GetEndpoints(this IConfiguration configuration) => configuration.GetSection(GeneralSettings.Name).GetValue<Dictionary<string, string>>(nameof(GeneralSettings.Endpoints));
+        public static Dictionary<string, string> GetEndpoints(this IConfiguration configuration) => configuration.GetSection($"{GeneralSettings.Name}:{nameof(GeneralSettings.Endpoints)}").Get<Dictionary<string, string>>();
 
         /// <summary>
         /// Gets the endpoint value using the specified key.
@@ -72,7 +71,7 @@ namespace Microsoft.Extensions.Configuration
         /// </summary>
         /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
         /// <returns>True if specified flag is set to true, otherwise false.</returns>
-        /// <remarks>Checks for the General:HstsEnabled option in appsettings.json file. When true you can register <see cref="HstsBuilderExtensions.UseHsts(IApplicationBuilder)"/> middleware.</remarks>
+        /// <remarks>Checks for the General:HstsEnabled option in appsettings.json file. When true you can register HstsBuilderExtensions.UseHsts(IApplicationBuilder) middleware.</remarks>
         public static bool HstsEnabled(this IConfiguration configuration) => configuration.GetSection(GeneralSettings.Name).GetValue<bool>(nameof(GeneralSettings.HstsEnabled));
 
         /// <summary>
