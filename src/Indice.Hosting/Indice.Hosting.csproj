@@ -2,7 +2,7 @@
   <PropertyGroup>
     <Description>Indice.Hosting Class Library</Description>
     <Copyright>Copyright (c) 2019 Indice</Copyright>
-    <VersionPrefix>5.0.1</VersionPrefix>
+    <VersionPrefix>5.0.2</VersionPrefix>
     <!--<VersionSuffix>beta-02</VersionSuffix>-->
     <Authors>Constantinos Leftheris, Georgios Manoltzas</Authors>
     <TargetFrameworks>netstandard2.0;net5.0</TargetFrameworks>
@@ -31,7 +31,7 @@
     <None Include="..\..\icon\icon-310.png" Pack="true" Visible="false" PackagePath="" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Indice.Services" Version="5.0.8" />
+    <PackageReference Include="Indice.Services" Version="5.0.11" />
     <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
     <PackageReference Include="Quartz" Version="3.2.4" />
