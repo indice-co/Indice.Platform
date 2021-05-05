@@ -294,7 +294,10 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
                 Emphasize = apiScope.Emphasize,
                 UserClaims = apiScope.UserClaims.Select(apiScopeClaim => apiScopeClaim.Type),
                 ShowInDiscoveryDocument = apiScope.ShowInDiscoveryDocument,
-                Translations = GetTranslationsFromApiScope(apiScope)
+                Translations = TranslationDictionary<ApiScopeTranslation>.FromJson(apiScope.Properties.Any(x => x.Key == IdentityServerApi.ObjectTranslationKey)
+                    ? apiScope.Properties.Single(x => x.Key == IdentityServerApi.ObjectTranslationKey).Value
+                    : string.Empty
+                )
             })
             .ToResultSetAsync(options);
             return Ok(scopes);
@@ -313,6 +316,8 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
         public async Task<IActionResult> GetApiResource([FromRoute] int resourceId) {
             var apiResource = await _configurationDbContext.ApiResources
                 .AsNoTracking()
+                .Include(x => x.Properties)
+                .Include(x => x.Scopes)
                 .Select(x => new ApiResourceInfo {
                     Id = x.Id,
                     Name = x.Name,
@@ -338,7 +343,10 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
                         Emphasize = result.ApiScope.Emphasize,
                         UserClaims = result.ApiScope.UserClaims.Select(apiScopeClaim => apiScopeClaim.Type),
                         ShowInDiscoveryDocument = result.ApiScope.ShowInDiscoveryDocument,
-                        Translations = GetTranslationsFromApiScope(result.ApiScope)
+                        Translations = TranslationDictionary<ApiScopeTranslation>.FromJson(result.ApiScope.Properties.Any(x => x.Key == IdentityServerApi.ObjectTranslationKey)
+                            ? result.ApiScope.Properties.Single(x => x.Key == IdentityServerApi.ObjectTranslationKey).Value
+                            : string.Empty
+                        )
                     }) : default,
                     Secrets = x.Secrets.Any() ? x.Secrets.Select(x => new ApiSecretInfo {
                         Id = x.Id,
@@ -595,7 +603,10 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
                 UserClaims = apiScopeToAdd.UserClaims.Select(x => x.Type),
                 Emphasize = apiScopeToAdd.Emphasize,
                 ShowInDiscoveryDocument = apiScopeToAdd.ShowInDiscoveryDocument,
-                Translations = GetTranslationsFromApiScope(apiScopeToAdd)
+                Translations = TranslationDictionary<ApiScopeTranslation>.FromJson(apiScope.Properties.Any(x => x.Key == IdentityServerApi.ObjectTranslationKey)
+                    ? apiScope.Properties.Single(x => x.Key == IdentityServerApi.ObjectTranslationKey).Value
+                    : string.Empty
+                )
             });
         }
 
@@ -765,15 +776,5 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
                 Scope = apiScope
             });
         }
-
-        /// <summary>
-        /// Deserialize the JSON translation of an <see cref="ApiScope"/>.
-        /// </summary>
-        /// <param name="apiScope">The API scope.</param>
-        private static TranslationDictionary<ApiScopeTranslation> GetTranslationsFromApiScope(ApiScope apiScope) => 
-            TranslationDictionary<ApiScopeTranslation>.FromJson(apiScope.Properties.Any(x => x.Key == IdentityServerApi.ObjectTranslationKey)
-                ? apiScope.Properties.Single(x => x.Key == IdentityServerApi.ObjectTranslationKey).Value
-                : string.Empty
-            );
     }
 }
