@@ -37,34 +37,6 @@ namespace Indice.Security
         /// <param name="principal">The current principal.</param>
         public static string FindSubjectId(this ClaimsPrincipal principal) => principal.FindFirst(BasicClaimTypes.Subject)?.Value;
 
-        private static bool TryFindFirstValue<T>(this ClaimsPrincipal principal, string claimType, out T result) where T : struct {
-            result = default;
-            var valueString = principal.FindFirst(c => c.Type == claimType)?.Value;
-            object value = default(T);
-            if (valueString == null) {
-                result = (T)value;
-                return false;
-            }
-            var type = typeof(T);
-            if (type.GetTypeInfo().IsEnum) {
-                value = Enum.Parse(type, valueString, true);
-            } else if (type == typeof(bool)) {
-                value = bool.Parse(valueString);
-            } else if (type == typeof(int)) {
-                value = int.Parse(valueString);
-            } else if (type == typeof(Guid)) {
-                value = Guid.Parse(valueString);
-            } else if (type == typeof(double)) {
-                value = double.Parse(valueString, CultureInfo.InvariantCulture);
-            } else if (type == typeof(DateTime)) {
-                value = DateTime.Parse(valueString, CultureInfo.InvariantCulture);
-            } else if (type == typeof(TimeSpan)) {
-                value = TimeSpan.Parse(valueString, CultureInfo.InvariantCulture);
-            }
-            result = (T)value;
-            return true;
-        }
-
         /// <summary>
         /// Finds the value of the specified claim.
         /// </summary>
@@ -102,6 +74,20 @@ namespace Indice.Security
         public static bool IsExternal(this ClaimsPrincipal principal) => principal.FindFirst("idp")?.Value != "local";
 
         /// <summary>
+        /// Checks if the current principal has a scope claim with the specified value.
+        /// </summary>
+        /// <param name="principal">The current principal.</param>
+        /// <param name="value">The value of scope claim.</param>
+        public static bool HasScopeClaim(this ClaimsPrincipal principal, string value) => principal.HasClaim("scope", value);
+
+        /// <summary>
+        /// Checks if the current principal has a role claim with the specified value.
+        /// </summary>
+        /// <param name="principal">The current principal.</param>
+        /// <param name="value">The value of scope claim.</param>
+        public static bool HasRoleClaim(this ClaimsPrincipal principal, string value) => principal.HasClaim("role", value);
+
+        /// <summary>
         /// Logic for normalizing scope claims to separate claim types.
         /// </summary>
         /// <param name="principal">The current principal.</param>
@@ -127,6 +113,34 @@ namespace Indice.Security
                 identities.Add(identity);
             }
             return new ClaimsPrincipal(identities);
+        }
+
+        private static bool TryFindFirstValue<T>(this ClaimsPrincipal principal, string claimType, out T result) where T : struct {
+            result = default;
+            var valueString = principal.FindFirst(c => c.Type == claimType)?.Value;
+            object value = default(T);
+            if (valueString == null) {
+                result = (T)value;
+                return false;
+            }
+            var type = typeof(T);
+            if (type.GetTypeInfo().IsEnum) {
+                value = Enum.Parse(type, valueString, true);
+            } else if (type == typeof(bool)) {
+                value = bool.Parse(valueString);
+            } else if (type == typeof(int)) {
+                value = int.Parse(valueString);
+            } else if (type == typeof(Guid)) {
+                value = Guid.Parse(valueString);
+            } else if (type == typeof(double)) {
+                value = double.Parse(valueString, CultureInfo.InvariantCulture);
+            } else if (type == typeof(DateTime)) {
+                value = DateTime.Parse(valueString, CultureInfo.InvariantCulture);
+            } else if (type == typeof(TimeSpan)) {
+                value = TimeSpan.Parse(valueString, CultureInfo.InvariantCulture);
+            }
+            result = (T)value;
+            return true;
         }
     }
 }

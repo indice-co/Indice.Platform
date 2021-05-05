@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Net.Mime;
 using System.Threading.Tasks;
 using IdentityModel;
@@ -769,8 +770,7 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
         /// <summary>
         /// Deserialize the JSON translation of an <see cref="ApiScope"/>.
         /// </summary>
-        /// <param name="apiScope">The API scope.</param>
-        private static TranslationDictionary<ApiScopeTranslation> GetTranslationsFromApiScope(ApiScope apiScope) => 
+        private static Expression<Func<ApiScope, TranslationDictionary<ApiScopeTranslation>>> GetTranslationsFromApiScope() => (ApiScope apiScope) => 
             TranslationDictionary<ApiScopeTranslation>.FromJson(apiScope.Properties.Any(x => x.Key == IdentityServerApi.ObjectTranslationKey)
                 ? apiScope.Properties.Single(x => x.Key == IdentityServerApi.ObjectTranslationKey).Value
                 : string.Empty

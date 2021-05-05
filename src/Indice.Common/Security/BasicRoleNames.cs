@@ -6,12 +6,32 @@
     public static class BasicRoleNames
     {
         /// <summary>
-        /// Role of a administrator.
+        /// System administrator.
         /// </summary>
         public const string Administrator = nameof(Administrator);
         /// <summary>
-        /// Role of a developer.
+        /// Developer.
         /// </summary>
         public const string Developer = nameof(Developer);
+        /// <summary>
+        /// Administrator of the Admin UI.
+        /// </summary>
+        public const string AdminUIAdministrator = nameof(AdminUIAdministrator);
+        /// <summary>
+        /// A user that can apply read operations on users and roles of the Admin UI.
+        /// </summary>
+        public const string AdminUIUsersReader = nameof(AdminUIUsersReader);
+        /// <summary>
+        /// A user that can apply read and write operations on users and roles of the Admin UI.
+        /// </summary>
+        public const string AdminUIUsersWriter = nameof(AdminUIUsersWriter);
+        /// <summary>
+        /// A user that can apply read operations on clients of the Admin UI.
+        /// </summary>
+        public const string AdminUIClientsReader = nameof(AdminUIClientsReader);
+        /// <summary>
+        /// A user that can apply read and write operations on clients of the Admin UI.
+        /// </summary>
+        public const string AdminUIClientsWriter = nameof(AdminUIClientsWriter);
     }
 }

@@ -16,6 +16,42 @@ namespace Indice.AspNetCore.Identity.Data
                 Name = BasicRoleNames.Developer,
                 NormalizedName = BasicRoleNames.Developer.ToUpper(),
                 Description = "A user that has the role of a software developer."
+            },
+            new TRole {
+                Id = $"{Guid.NewGuid()}",
+                Name = BasicRoleNames.Administrator,
+                NormalizedName = BasicRoleNames.Administrator.ToUpper(),
+                Description = "A user that is a system administrator."
+            },
+            new TRole {
+                Id = $"{Guid.NewGuid()}",
+                Name = BasicRoleNames.AdminUIAdministrator,
+                NormalizedName = BasicRoleNames.AdminUIAdministrator.ToUpper(),
+                Description = "A user that can manage users, roles, clients and resources in the Admin UI tool."
+            },
+            new TRole {
+                Id = $"{Guid.NewGuid()}",
+                Name = BasicRoleNames.AdminUIUsersReader,
+                NormalizedName = BasicRoleNames.AdminUIUsersReader.ToUpper(),
+                Description = "A user that can apply read operations on users and roles in the Admin UI tool."
+            },
+            new TRole {
+                Id = $"{Guid.NewGuid()}",
+                Name = BasicRoleNames.AdminUIUsersWriter,
+                NormalizedName = BasicRoleNames.AdminUIUsersWriter.ToUpper(),
+                Description = "A user that can apply read & write operations on users and roles in the Admin UI tool."
+            },
+            new TRole {
+                Id = $"{Guid.NewGuid()}",
+                Name = BasicRoleNames.AdminUIClientsReader,
+                NormalizedName = BasicRoleNames.AdminUIClientsReader.ToUpper(),
+                Description = "A user that can apply read operations on clients and resources in the Admin UI tool."
+            },
+            new TRole {
+                Id = $"{Guid.NewGuid()}",
+                Name = BasicRoleNames.AdminUIClientsWriter,
+                NormalizedName = BasicRoleNames.AdminUIClientsWriter.ToUpper(),
+                Description = "A user that can apply read & write operations on clients in the Admin UI tool."
             }
         };
 
