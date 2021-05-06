@@ -45,7 +45,7 @@ namespace Indice.Services
         }
 
         /// <inheritdoc/>
-        public async Task RaiseEventAsync<TEvent>(TEvent payload, ClaimsPrincipal actingPrincipal = null, TimeSpan? visibilityDelay = null) where TEvent : class, new() {
+        public async Task RaiseEventAsync<TEvent>(TEvent payload, ClaimsPrincipal actingPrincipal = null, TimeSpan? visibilityDelay = null, bool wrap = true) where TEvent : class, new() {
             if (!_enabled) {
                 return;
             }
@@ -53,7 +53,8 @@ namespace Indice.Services
             var queue = await EnsureExistsAsync(queueName);
             var user = actingPrincipal ?? _claimsPrincipalSelector?.Invoke();
             // Create a message and add it to the queue.
-            var serializedMessage = JsonSerializer.Serialize(Envelope.Create(user, payload), _jsonSerializerOptions);
+            var serializedMessage = wrap ? JsonSerializer.Serialize(Envelope.Create(user, payload), _jsonSerializerOptions) :
+                                           JsonSerializer.Serialize(payload, _jsonSerializerOptions);
             await queue.SendMessageAsync(serializedMessage, visibilityTimeout: visibilityDelay);
         }
 

@@ -16,6 +16,7 @@ namespace Indice.Services
         /// <param name="payload">The actual payload data to send.</param>
         /// <param name="actingPrincipal">A <see cref="ClaimsPrincipal"/> instance that contains information about the entity that triggered the event.</param>
         /// <param name="visibilityDelay">Delays the sending of payload to the queue for the specified amount of time. The maximum delay can reach up to 7 days.</param>
-        Task RaiseEventAsync<TEvent>(TEvent payload, ClaimsPrincipal actingPrincipal = null, TimeSpan? visibilityDelay = null) where TEvent : class, new();
+        /// <param name="wrap">Wrap around an envelope object.</param>
+        Task RaiseEventAsync<TEvent>(TEvent payload, ClaimsPrincipal actingPrincipal = null, TimeSpan? visibilityDelay = null, bool wrap = true) where TEvent : class, new();
     }
 }
