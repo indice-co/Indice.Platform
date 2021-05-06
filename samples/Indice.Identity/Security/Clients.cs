@@ -99,7 +99,7 @@ namespace Indice.Identity.Security
                 },
                 RequireClientSecret  = false,
                 RequirePkce = true,
-                RequireConsent = true
+                RequireConsent = false
             },
             new Client {
                 ClientId = "code-flow-iframe",

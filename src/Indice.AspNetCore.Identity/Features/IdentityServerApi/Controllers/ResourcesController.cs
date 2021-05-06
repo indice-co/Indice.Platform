@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Net.Mime;
 using System.Threading.Tasks;
 using IdentityModel;
@@ -27,16 +26,15 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
     /// <response code="401">Unauthorized</response>
     /// <response code="403">Forbidden</response>
     /// <response code="500">Internal Server Error</response>
-    [Route("api/resources")]
     [ApiController]
     [ApiExplorerSettings(GroupName = "identity")]
-    [Produces(MediaTypeNames.Application.Json)]
     [Consumes(MediaTypeNames.Application.Json)]
+    [ProblemDetailsExceptionFilter]
+    [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest, type: typeof(ValidationProblemDetails))]
     [ProducesResponseType(statusCode: StatusCodes.Status401Unauthorized, type: typeof(ProblemDetails))]
     [ProducesResponseType(statusCode: StatusCodes.Status403Forbidden, type: typeof(ProblemDetails))]
-    [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme, Policy = IdentityServerApi.Admin)]
-    [ProblemDetailsExceptionFilter]
+    [Route("api/resources")]
     internal class ResourcesController : ControllerBase
     {
         private readonly ExtendedConfigurationDbContext _configurationDbContext;
@@ -58,6 +56,7 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
         /// </summary>
         /// <param name="options">List params used to navigate through collections. Contains parameters such as sort, search, page number and page size.</param>
         /// <response code="200">OK</response>
+        [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme, Policy = IdentityServerApi.Policies.BeClientsReader)]
         [HttpGet("identity")]
         [ProducesResponseType(statusCode: StatusCodes.Status200OK, type: typeof(ResultSet<IdentityResourceInfo>))]
         public async Task<IActionResult> GetIdentityResources([FromQuery] ListOptions options) {
@@ -88,15 +87,13 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
         /// <param name="resourceId">The identifier of the identity resource.</param>
         /// <response code="200">OK</response>
         /// <response code="404">Not Found</response>
+        [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme, Policy = IdentityServerApi.Policies.BeClientsReader)]
+        [CacheResourceFilter]
+        [HttpGet("identity/{resourceId:int}")]
         [ProducesResponseType(statusCode: StatusCodes.Status200OK, type: typeof(IdentityResourceInfo))]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
-        [HttpGet("identity/{resourceId:int}")]
-        [CacheResourceFilter]
         public async Task<IActionResult> GetIdentityResource([FromRoute] int resourceId) {
-            var resource = await _configurationDbContext.IdentityResources
-                                                        .Include(x => x.UserClaims)
-                                                        .AsNoTracking()
-                                                        .SingleOrDefaultAsync(x => x.Id == resourceId);
+            var resource = await _configurationDbContext.IdentityResources.Include(x => x.UserClaims).AsNoTracking().SingleOrDefaultAsync(x => x.Id == resourceId);
             if (resource == null) {
                 return NotFound();
             }
@@ -119,6 +116,7 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
         /// </summary>
         /// <param name="request">Contains info about the identity resource to be created.</param>
         /// <response code="201">Created</response>
+        [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme, Policy = IdentityServerApi.Policies.BeClientsWriter)]
         [HttpPost("identity")]
         [ProducesResponseType(statusCode: StatusCodes.Status201Created, type: typeof(IdentityResourceInfo))]
         public async Task<IActionResult> CreateIdentityResource([FromBody] CreateResourceRequest request) {
@@ -154,12 +152,13 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
         /// </summary>
         /// <param name="resourceId">The identifier of the identity resource.</param>
         /// <param name="request">Contains info about the identity resource to be updated.</param>
-        /// <response code="200">OK</response>
+        /// <response code="204">No Content</response>
         /// <response code="404">Not Found</response>
-        [HttpPut("identity/{resourceId:int}")]
-        [ProducesResponseType(statusCode: StatusCodes.Status200OK)]
-        [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
+        [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme, Policy = IdentityServerApi.Policies.BeClientsWriter)]
         [CacheResourceFilter]
+        [HttpPut("identity/{resourceId:int}")]
+        [ProducesResponseType(statusCode: StatusCodes.Status204NoContent, type: typeof(void))]
+        [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
         public async Task<IActionResult> UpdateIdentityResource([FromRoute] int resourceId, [FromBody] UpdateIdentityResourceRequest request) {
             var resource = await _configurationDbContext.IdentityResources.SingleOrDefaultAsync(x => x.Id == resourceId);
             if (resource == null) {
@@ -172,7 +171,7 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
             resource.Required = request.Required;
             resource.ShowInDiscoveryDocument = request.ShowInDiscoveryDocument;
             await _configurationDbContext.SaveChangesAsync();
-            return Ok();
+            return NoContent();
         }
 
         /// <summary>
@@ -180,10 +179,11 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
         /// </summary>
         /// <param name="resourceId">The identifier of the identity resource.</param>
         /// <param name="claims">The claims to add.</param>
-        /// <response code="200">OK</response>
+        /// <response code="204">No Content</response>
         /// <response code="404">Not Found</response>
+        [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme, Policy = IdentityServerApi.Policies.BeClientsWriter)]
         [HttpPost("identity/{resourceId:int}/claims")]
-        [ProducesResponseType(statusCode: StatusCodes.Status200OK)]
+        [ProducesResponseType(statusCode: StatusCodes.Status204NoContent, type: typeof(void))]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
         [CacheResourceFilter(DependentPaths = new string[] { "identity/{resourceId}" })]
         public async Task<IActionResult> AddIdentityResourceClaims([FromRoute] int resourceId, [FromBody] string[] claims) {
@@ -197,7 +197,7 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
                 Type = x
             }));
             await _configurationDbContext.SaveChangesAsync();
-            return Ok();
+            return NoContent();
         }
 
         /// <summary>
@@ -205,12 +205,13 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
         /// </summary>
         /// <param name="resourceId">The identifier of the identity resource.</param>
         /// <param name="claim">The of the claim to remove.</param>
-        /// <response code="200">OK</response>
+        /// <response code="204">No Content</response>
         /// <response code="404">Not Found</response>
-        [HttpDelete("identity/{resourceId:int}/claims/{claim}")]
-        [ProducesResponseType(statusCode: StatusCodes.Status200OK)]
-        [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
+        [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme, Policy = IdentityServerApi.Policies.BeClientsWriter)]
         [CacheResourceFilter(DependentPaths = new string[] { "identity/{resourceId}" })]
+        [HttpDelete("identity/{resourceId:int}/claims/{claim}")]
+        [ProducesResponseType(statusCode: StatusCodes.Status204NoContent, type: typeof(void))]
+        [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
         public async Task<IActionResult> DeleteIdentityResourceClaim([FromRoute] int resourceId, [FromRoute] string claim) {
             var resource = await _configurationDbContext.IdentityResources.Include(x => x.UserClaims).SingleOrDefaultAsync(x => x.Id == resourceId);
             if (resource == null) {
@@ -225,19 +226,20 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
             }
             resource.UserClaims.RemoveAll(x => x.Type == claim);
             await _configurationDbContext.SaveChangesAsync();
-            return Ok();
+            return NoContent();
         }
 
         /// <summary>
         /// Permanently deletes an identity resource.
         /// </summary>
         /// <param name="resourceId">The id of the identity resource to delete.</param>
-        /// <response code="200">OK</response>
+        /// <response code="204">No Content</response>
         /// <response code="404">Not Found</response>
-        [HttpDelete("identity/{resourceId:int}")]
-        [ProducesResponseType(statusCode: StatusCodes.Status200OK)]
-        [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
+        [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme, Policy = IdentityServerApi.Policies.BeClientsWriter)]
         [CacheResourceFilter]
+        [HttpDelete("identity/{resourceId:int}")]
+        [ProducesResponseType(statusCode: StatusCodes.Status204NoContent, type: typeof(void))]
+        [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
         public async Task<IActionResult> DeleteIdentityResource([FromRoute] int resourceId) {
             var resource = await _configurationDbContext.IdentityResources.SingleOrDefaultAsync(x => x.Id == resourceId);
             if (resource == null) {
@@ -245,7 +247,7 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
             }
             _configurationDbContext.IdentityResources.Remove(resource);
             await _configurationDbContext.SaveChangesAsync();
-            return Ok();
+            return NoContent();
         }
 
         /// <summary>
@@ -253,6 +255,7 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
         /// </summary>
         /// <param name="options">List params used to navigate through collections. Contains parameters such as sort, search, page number and page size.</param>
         /// <response code="200">OK</response>
+        [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme, Policy = IdentityServerApi.Policies.BeClientsReader)]
         [HttpGet("protected")]
         [ProducesResponseType(statusCode: StatusCodes.Status200OK, type: typeof(ResultSet<ApiResourceInfo>))]
         public async Task<IActionResult> GetApiResources([FromQuery] ListOptions options) {
@@ -279,6 +282,7 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
         /// </summary>
         /// <param name="options">List params used to navigate through collections. Contains parameters such as sort, search, page number and page size.</param>
         /// <response code="200">OK</response>
+        [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme, Policy = IdentityServerApi.Policies.BeClientsReader)]
         [HttpGet("protected/scopes")]
         [ProducesResponseType(statusCode: StatusCodes.Status200OK, type: typeof(ResultSet<ApiScopeInfo>))]
         public async Task<IActionResult> GetApiScopes([FromQuery] ListOptions options) {
@@ -295,7 +299,10 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
                 Emphasize = apiScope.Emphasize,
                 UserClaims = apiScope.UserClaims.Select(apiScopeClaim => apiScopeClaim.Type),
                 ShowInDiscoveryDocument = apiScope.ShowInDiscoveryDocument,
-                Translations = GetTranslationsFromApiScope(apiScope)
+                Translations = TranslationDictionary<ApiScopeTranslation>.FromJson(apiScope.Properties.Any(x => x.Key == IdentityServerApi.ObjectTranslationKey)
+                    ? apiScope.Properties.Single(x => x.Key == IdentityServerApi.ObjectTranslationKey).Value
+                    : string.Empty
+                )
             })
             .ToResultSetAsync(options);
             return Ok(scopes);
@@ -307,13 +314,16 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
         /// <param name="resourceId">The identifier of the API resource.</param>
         /// <response code="200">OK</response>
         /// <response code="404">Not Found</response>
+        [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme, Policy = IdentityServerApi.Policies.BeClientsReader)]
+        [CacheResourceFilter]
+        [HttpGet("protected/{resourceId:int}")]
         [ProducesResponseType(statusCode: StatusCodes.Status200OK, type: typeof(ApiResourceInfo))]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
-        [HttpGet("protected/{resourceId:int}")]
-        [CacheResourceFilter]
         public async Task<IActionResult> GetApiResource([FromRoute] int resourceId) {
             var apiResource = await _configurationDbContext.ApiResources
                 .AsNoTracking()
+                .Include(x => x.Properties)
+                .Include(x => x.Scopes)
                 .Select(x => new ApiResourceInfo {
                     Id = x.Id,
                     Name = x.Name,
@@ -339,7 +349,10 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
                         Emphasize = result.ApiScope.Emphasize,
                         UserClaims = result.ApiScope.UserClaims.Select(apiScopeClaim => apiScopeClaim.Type),
                         ShowInDiscoveryDocument = result.ApiScope.ShowInDiscoveryDocument,
-                        Translations = GetTranslationsFromApiScope(result.ApiScope)
+                        Translations = TranslationDictionary<ApiScopeTranslation>.FromJson(result.ApiScope.Properties.Any(x => x.Key == IdentityServerApi.ObjectTranslationKey)
+                            ? result.ApiScope.Properties.Single(x => x.Key == IdentityServerApi.ObjectTranslationKey).Value
+                            : string.Empty
+                        )
                     }) : default,
                     Secrets = x.Secrets.Any() ? x.Secrets.Select(x => new ApiSecretInfo {
                         Id = x.Id,
@@ -361,6 +374,7 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
         /// </summary>
         /// <param name="request">Contains info about the API resource to be created.</param>
         /// <response code="201">Created</response>
+        [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme, Policy = IdentityServerApi.Policies.BeClientsWriter)]
         [HttpPost("protected")]
         [ProducesResponseType(statusCode: StatusCodes.Status201Created, type: typeof(ApiResourceInfo))]
         public async Task<IActionResult> CreateApiResource([FromBody] CreateResourceRequest request) {
@@ -410,12 +424,13 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
         /// </summary>
         /// <param name="resourceId">The identifier of the API resource.</param>
         /// <param name="request">Contains info about the API resource to be updated.</param>
-        /// <response code="200">OK</response>
+        /// <response code="204">No Content</response>
         /// <response code="404">Not Found</response>
-        [HttpPut("protected/{resourceId:int}")]
-        [ProducesResponseType(statusCode: StatusCodes.Status200OK)]
-        [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
+        [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme, Policy = IdentityServerApi.Policies.BeClientsWriter)]
         [CacheResourceFilter]
+        [HttpPut("protected/{resourceId:int}")]
+        [ProducesResponseType(statusCode: StatusCodes.Status204NoContent, type: typeof(void))]
+        [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
         public async Task<IActionResult> UpdateApiResource([FromRoute] int resourceId, [FromBody] UpdateApiResourceRequest request) {
             var resource = await _configurationDbContext.ApiResources.SingleOrDefaultAsync(x => x.Id == resourceId);
             if (resource == null) {
@@ -425,7 +440,7 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
             resource.Description = request.Description;
             resource.Enabled = request.Enabled;
             await _configurationDbContext.SaveChangesAsync();
-            return Ok();
+            return NoContent();
         }
 
         /// <summary>
@@ -435,10 +450,11 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
         /// <param name="request">Contains info about the API scope to be created.</param>
         /// <response code="200">OK</response>
         /// <response code="404">Not Found</response>
+        [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme, Policy = IdentityServerApi.Policies.BeClientsWriter)]
+        [CacheResourceFilter(DependentPaths = new string[] { "protected/{resourceId}" })]
         [HttpPost("protected/{resourceId:int}/secrets")]
         [ProducesResponseType(statusCode: StatusCodes.Status200OK, type: typeof(SecretInfo))]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
-        [CacheResourceFilter(DependentPaths = new string[] { "protected/{resourceId}" })]
         public async Task<IActionResult> AddApiResourceSecret([FromRoute] int resourceId, [FromBody] CreateSecretRequest request) {
             var resource = await _configurationDbContext.ApiResources.SingleOrDefaultAsync(x => x.Id == resourceId);
             if (resource == null) {
@@ -468,12 +484,13 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
         /// </summary>
         /// <param name="resourceId">The identifier of the API resource.</param>
         /// <param name="secretId">The identifier of the API resource secret to remove.</param>
-        /// <response code="200">OK</response>
+        /// <response code="204">No Content</response>
         /// <response code="404">Not Found</response>
-        [HttpDelete("protected/{resourceId:int}/secrets/{secretId}")]
-        [ProducesResponseType(statusCode: StatusCodes.Status200OK)]
-        [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
+        [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme, Policy = IdentityServerApi.Policies.BeClientsWriter)]
         [CacheResourceFilter(DependentPaths = new string[] { "protected/{resourceId}" })]
+        [HttpDelete("protected/{resourceId:int}/secrets/{secretId}")]
+        [ProducesResponseType(statusCode: StatusCodes.Status204NoContent, type: typeof(void))]
+        [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
         public async Task<IActionResult> DeleteApiResourceSecret([FromRoute] int resourceId, [FromRoute] int secretId) {
             var resource = await _configurationDbContext.ApiResources.Include(x => x.Secrets).SingleOrDefaultAsync(x => x.Id == resourceId);
             if (resource == null) {
@@ -488,7 +505,7 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
             }
             resource.Secrets.Remove(secretToRemove);
             await _configurationDbContext.SaveChangesAsync();
-            return Ok();
+            return NoContent();
         }
 
         /// <summary>
@@ -498,10 +515,11 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
         /// <param name="claims">The API or identity resources to add.</param>
         /// <response code="204">No Content</response>
         /// <response code="404">Not Found</response>
+        [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme, Policy = IdentityServerApi.Policies.BeClientsWriter)]
+        [CacheResourceFilter(DependentPaths = new string[] { "protected/{resourceId}" })]
         [HttpPost("protected/{resourceId:int}/claims")]
         [ProducesResponseType(statusCode: StatusCodes.Status204NoContent, type: typeof(void))]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
-        [CacheResourceFilter(DependentPaths = new string[] { "protected/{resourceId}" })]
         public async Task<IActionResult> AddApiResourceClaims([FromRoute] int resourceId, [FromBody] string[] claims) {
             var resource = await _configurationDbContext.ApiResources.SingleOrDefaultAsync(x => x.Id == resourceId);
             if (resource == null) {
@@ -523,10 +541,11 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
         /// <param name="claim">The identifier of the API resource claim to remove.</param>
         /// <response code="204">No Content</response>
         /// <response code="404">Not Found</response>
+        [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme, Policy = IdentityServerApi.Policies.BeClientsWriter)]
+        [CacheResourceFilter(DependentPaths = new string[] { "protected/{resourceId}" })]
         [HttpDelete("protected/{resourceId:int}/claims/{claim}")]
         [ProducesResponseType(statusCode: StatusCodes.Status204NoContent, type: typeof(void))]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
-        [CacheResourceFilter(DependentPaths = new string[] { "protected/{resourceId}" })]
         public async Task<IActionResult> DeleteApiResourceClaim([FromRoute] int resourceId, [FromRoute] string claim) {
             var resource = await _configurationDbContext.ApiResources.Include(x => x.UserClaims).SingleOrDefaultAsync(x => x.Id == resourceId);
             if (resource == null) {
@@ -552,11 +571,12 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
         /// <response code="200">OK</response>
         /// <response code="400">Bad Request</response>
         /// <response code="404">Not Found</response>
+        [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme, Policy = IdentityServerApi.Policies.BeClientsWriter)]
+        [CacheResourceFilter(DependentPaths = new string[] { "protected/{resourceId}" })]
         [HttpPost("protected/{resourceId:int}/scopes")]
         [ProducesResponseType(statusCode: StatusCodes.Status200OK, type: typeof(ApiScopeInfo))]
         [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest, type: typeof(ValidationProblemDetails))]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
-        [CacheResourceFilter(DependentPaths = new string[] { "protected/{resourceId}" })]
         public async Task<IActionResult> AddApiResourceScope([FromRoute] int resourceId, [FromBody] CreateApiScopeRequest request) {
             var resource = await _configurationDbContext.ApiResources.Include(x => x.Scopes).SingleOrDefaultAsync(x => x.Id == resourceId);
             if (resource == null) {
@@ -596,7 +616,10 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
                 UserClaims = apiScopeToAdd.UserClaims.Select(x => x.Type),
                 Emphasize = apiScopeToAdd.Emphasize,
                 ShowInDiscoveryDocument = apiScopeToAdd.ShowInDiscoveryDocument,
-                Translations = GetTranslationsFromApiScope(apiScopeToAdd)
+                Translations = TranslationDictionary<ApiScopeTranslation>.FromJson(apiScope.Properties.Any(x => x.Key == IdentityServerApi.ObjectTranslationKey)
+                    ? apiScope.Properties.Single(x => x.Key == IdentityServerApi.ObjectTranslationKey).Value
+                    : string.Empty
+                )
             });
         }
 
@@ -608,10 +631,11 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
         /// <param name="request">Contains info about the API scope to be updated.</param>
         /// <response code="204">No Content</response>
         /// <response code="404">Not Found</response>
+        [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme, Policy = IdentityServerApi.Policies.BeClientsWriter)]
+        [CacheResourceFilter(DependentPaths = new string[] { "protected/{resourceId}" })]
         [HttpPut("protected/{resourceId:int}/scopes/{scopeId:int}")]
         [ProducesResponseType(statusCode: StatusCodes.Status200OK, type: typeof(void))]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
-        [CacheResourceFilter(DependentPaths = new string[] { "protected/{resourceId}" })]
         public async Task<IActionResult> UpdateApiResourceScope([FromRoute] int resourceId, [FromRoute] int scopeId, [FromBody] UpdateApiScopeRequest request) {
             var apiResourceScope = await _configurationDbContext.ApiResources.AsNoTracking().Where(x => x.Id == resourceId).SelectMany(x => x.Scopes).SingleOrDefaultAsync(x => x.Id == scopeId);
             if (apiResourceScope == null) {
@@ -640,8 +664,9 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
         /// <param name="scopeId">The identifier of the API resource scope.</param>
         /// <response code="204">No Content</response>
         /// <response code="404">Not Found</response>
-        [HttpDelete("protected/{resourceId:int}/scopes/{scopeId:int}")]
+        [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme, Policy = IdentityServerApi.Policies.BeClientsWriter)]
         [CacheResourceFilter(DependentPaths = new string[] { "protected/{resourceId}" })]
+        [HttpDelete("protected/{resourceId:int}/scopes/{scopeId:int}")]
         [ProducesResponseType(statusCode: StatusCodes.Status204NoContent, type: typeof(void))]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
         public async Task<IActionResult> DeleteApiResourceScope([FromRoute] int resourceId, [FromRoute] int scopeId) {
@@ -671,10 +696,11 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
         /// <param name="claims">The claims to add to the scope.</param>
         /// <response code="204">No Content</response>
         /// <response code="404">Not Found</response>
+        [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme, Policy = IdentityServerApi.Policies.BeClientsWriter)]
+        [CacheResourceFilter(DependentPaths = new string[] { "protected/{resourceId}" })]
         [HttpPost("protected/{resourceId:int}/scopes/{scopeId:int}/claims")]
         [ProducesResponseType(statusCode: StatusCodes.Status204NoContent, type: typeof(void))]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
-        [CacheResourceFilter(DependentPaths = new string[] { "protected/{resourceId}" })]
         public async Task<IActionResult> AddApiResourceScopeClaims([FromRoute] int resourceId, [FromRoute] int scopeId, [FromBody] string[] claims) {
             var apiResourceScope = await _configurationDbContext
                 .ApiResources
@@ -702,8 +728,9 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
         /// <param name="claim">The claim to remove from the scope.</param>
         /// <response code="204">No Content</response>
         /// <response code="404">Not Found</response>
-        [HttpDelete("protected/{resourceId:int}/scopes/{scopeId:int}/claims/{claim}")]
+        [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme, Policy = IdentityServerApi.Policies.BeClientsWriter)]
         [CacheResourceFilter(DependentPaths = new string[] { "protected/{resourceId}" })]
+        [HttpDelete("protected/{resourceId:int}/scopes/{scopeId:int}/claims/{claim}")]
         [ProducesResponseType(statusCode: StatusCodes.Status204NoContent, type: typeof(void))]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
         public async Task<IActionResult> DeleteApiResourceScopeClaim([FromRoute] int resourceId, [FromRoute] int scopeId, [FromRoute] string claim) {
@@ -734,10 +761,11 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
         /// <param name="resourceId">The id of the API resource to delete.</param>
         /// <response code="204">No Content</response>
         /// <response code="404">Not Found</response>
-        [HttpDelete("protected/{resourceId:int}")]
-        [ProducesResponseType(statusCode: StatusCodes.Status200OK)]
-        [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
+        [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme, Policy = IdentityServerApi.Policies.BeClientsWriter)]
         [CacheResourceFilter]
+        [HttpDelete("protected/{resourceId:int}")]
+        [ProducesResponseType(statusCode: StatusCodes.Status204NoContent, type: typeof(void))]
+        [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
         public async Task<IActionResult> DeleteApiResource([FromRoute] int resourceId) {
             var apiResource = await _configurationDbContext.ApiResources.Include(x => x.Scopes).SingleOrDefaultAsync(x => x.Id == resourceId);
             if (apiResource == null) {
@@ -766,14 +794,5 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
                 Scope = apiScope
             });
         }
-
-        /// <summary>
-        /// Deserialize the JSON translation of an <see cref="ApiScope"/>.
-        /// </summary>
-        private static Expression<Func<ApiScope, TranslationDictionary<ApiScopeTranslation>>> GetTranslationsFromApiScope() => (ApiScope apiScope) => 
-            TranslationDictionary<ApiScopeTranslation>.FromJson(apiScope.Properties.Any(x => x.Key == IdentityServerApi.ObjectTranslationKey)
-                ? apiScope.Properties.Single(x => x.Key == IdentityServerApi.ObjectTranslationKey).Value
-                : string.Empty
-            );
     }
 }

@@ -29,7 +29,7 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
     [Consumes(MediaTypeNames.Application.Json)]
     [ProducesResponseType(statusCode: StatusCodes.Status401Unauthorized, type: typeof(ProblemDetails))]
     [ProducesResponseType(statusCode: StatusCodes.Status403Forbidden, type: typeof(ProblemDetails))]
-    [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme, Policy = IdentityServerApi.Admin)]
+    [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme, Policy = IdentityServerApi.Policies.BeAdmin)]
     [CacheResourceFilter]
     [ProblemDetailsExceptionFilter]
     internal class ClaimTypesController : ControllerBase

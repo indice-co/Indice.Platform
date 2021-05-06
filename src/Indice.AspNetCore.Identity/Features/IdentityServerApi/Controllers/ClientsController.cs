@@ -39,14 +39,13 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
     /// <response code="401">Unauthorized</response>
     /// <response code="403">Forbidden</response>
     /// <response code="500">Internal Server Error</response>
-    [Route("api/clients")]
     [ApiController]
     [ApiExplorerSettings(GroupName = "identity")]
+    [ProblemDetailsExceptionFilter]
     [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest, type: typeof(ValidationProblemDetails))]
     [ProducesResponseType(statusCode: StatusCodes.Status401Unauthorized, type: typeof(ProblemDetails))]
     [ProducesResponseType(statusCode: StatusCodes.Status403Forbidden, type: typeof(ProblemDetails))]
-    [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme, Policy = IdentityServerApi.SubScopes.Clients)]
-    [ProblemDetailsExceptionFilter]
+    [Route("api/clients")]
     internal class ClientsController : ControllerBase
     {
         private readonly ExtendedConfigurationDbContext _configurationDbContext;
@@ -84,6 +83,7 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
         /// </summary>
         /// <param name="options">List params used to navigate through collections. Contains parameters such as sort, search, page number and page size.</param>
         /// <response code="200">OK</response>
+        [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme, Policy = IdentityServerApi.Policies.BeClientsReader)]
         [Consumes(MediaTypeNames.Application.Json)]
         [HttpGet]
         [Produces(MediaTypeNames.Application.Json)]
@@ -125,6 +125,7 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
         /// <param name="clientId">The identifier of the client.</param>
         /// <response code="200">OK</response>
         /// <response code="404">Not Found</response>
+        [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme, Policy = IdentityServerApi.Policies.BeClientsReader)]
         [CacheResourceFilter]
         [Consumes(MediaTypeNames.Application.Json)]
         [HttpGet("{clientId}")]
@@ -218,6 +219,7 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
         /// </summary>
         /// <param name="request">Contains info about the client to be created.</param>
         /// <response code="201">Created</response>
+        [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme, Policy = IdentityServerApi.Policies.BeClientsWriter)]
         [CacheResourceFilter(DependentStaticPaths = new string[] { "api/dashboard/summary" })]
         [Consumes(MediaTypeNames.Application.Json)]
         [HttpPost]
@@ -252,11 +254,12 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
         /// <param name="request">Contains info about the client to be updated.</param>
         /// <response code="204">No Content</response>
         /// <response code="404">Not Found</response>
+        [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme, Policy = IdentityServerApi.Policies.BeClientsWriter)]
         [CacheResourceFilter]
         [Consumes(MediaTypeNames.Application.Json)]
         [HttpPut("{clientId}")]
         [Produces(MediaTypeNames.Application.Json)]
-        [ProducesResponseType(statusCode: StatusCodes.Status204NoContent)]
+        [ProducesResponseType(statusCode: StatusCodes.Status204NoContent, type: typeof(void))]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
         public async Task<IActionResult> UpdateClient([FromRoute] string clientId, [FromBody] UpdateClientRequest request) {
             var client = await _configurationDbContext.Clients.Include(x => x.Properties).SingleOrDefaultAsync(x => x.ClientId == clientId);
@@ -313,6 +316,7 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
         /// <param name="request">The claim to add.</param>
         /// <response code="201">Created</response>
         /// <response code="404">Not Found</response>
+        [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme, Policy = IdentityServerApi.Policies.BeClientsWriter)]
         [CacheResourceFilter(DependentPaths = new string[] { "{clientId}" })]
         [Consumes(MediaTypeNames.Application.Json)]
         [HttpPost("{clientId}/claims")]
@@ -348,6 +352,7 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
         /// <param name="claimId">The id of the claim to delete.</param>
         /// <response code="204">No Content</response>
         /// <response code="404">Not Found</response>
+        [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme, Policy = IdentityServerApi.Policies.BeClientsWriter)]
         [CacheResourceFilter(DependentPaths = new string[] { "{clientId}" })]
         [Consumes(MediaTypeNames.Application.Json)]
         [HttpDelete("{clientId}/claims/{claimId:int}")]
@@ -378,11 +383,12 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
         /// <param name="request"></param>
         /// <response code="204">No Content</response>
         /// <response code="404">Not Found</response>
+        [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme, Policy = IdentityServerApi.Policies.BeClientsWriter)]
         [CacheResourceFilter(DependentPaths = new string[] { "{clientId}" })]
         [Consumes(MediaTypeNames.Application.Json)]
         [HttpPost("{clientId}/urls")]
         [Produces(MediaTypeNames.Application.Json)]
-        [ProducesResponseType(statusCode: StatusCodes.Status204NoContent)]
+        [ProducesResponseType(statusCode: StatusCodes.Status204NoContent, type: typeof(void))]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
         public async Task<IActionResult> UpdateClientUrls([FromRoute] string clientId, [FromBody] UpdateClientUrls request) {
             var client = await _configurationDbContext.Clients
@@ -425,11 +431,12 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
         /// <param name="resources">The API or identity resources to add.</param>
         /// <response code="204">No Content</response>
         /// <response code="404">Not Found</response>
+        [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme, Policy = IdentityServerApi.Policies.BeClientsWriter)]
         [CacheResourceFilter(DependentPaths = new string[] { "{clientId}" })]
         [Consumes(MediaTypeNames.Application.Json)]
         [HttpPost("{clientId}/resources")]
         [Produces(MediaTypeNames.Application.Json)]
-        [ProducesResponseType(statusCode: StatusCodes.Status204NoContent)]
+        [ProducesResponseType(statusCode: StatusCodes.Status204NoContent, type: typeof(void))]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
         public async Task<IActionResult> AddClientResources([FromRoute] string clientId, [FromBody] string[] resources) {
             var client = await _configurationDbContext.Clients.SingleOrDefaultAsync(x => x.ClientId == clientId);
@@ -452,11 +459,12 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
         /// <param name="resources">The names of the identity resources to delete.</param>
         /// <response code="204">No Content</response>
         /// <response code="404">Not Found</response>
+        [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme, Policy = IdentityServerApi.Policies.BeClientsWriter)]
         [CacheResourceFilter(DependentPaths = new string[] { "{clientId}" })]
         [Consumes(MediaTypeNames.Application.Json)]
         [HttpDelete("{clientId}/resources")]
         [Produces(MediaTypeNames.Application.Json)]
-        [ProducesResponseType(statusCode: StatusCodes.Status204NoContent)]
+        [ProducesResponseType(statusCode: StatusCodes.Status204NoContent, type: typeof(void))]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
         public async Task<IActionResult> DeleteClientResource([FromRoute] string clientId, [FromBody] string[] resources) {
             var client = await _configurationDbContext.Clients.Include(x => x.AllowedScopes).SingleOrDefaultAsync(x => x.ClientId == clientId);
@@ -484,6 +492,7 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
         /// <param name="grantType">The name of the grant type to add.</param>
         /// <response code="200">OK</response>
         /// <response code="404">Not Found</response>
+        [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme, Policy = IdentityServerApi.Policies.BeClientsWriter)]
         [CacheResourceFilter(DependentPaths = new string[] { "{clientId}" })]
         [Consumes(MediaTypeNames.Application.Json)]
         [HttpPost("{clientId}/grant-types/{grantType}")]
@@ -516,6 +525,7 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
         /// <param name="grantType">The id of the resource to delete.</param>
         /// <response code="204">No Content</response>
         /// <response code="404">Not Found</response>
+        [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme, Policy = IdentityServerApi.Policies.BeClientsWriter)]
         [CacheResourceFilter(DependentPaths = new string[] { "{clientId}" })]
         [Consumes(MediaTypeNames.Application.Json)]
         [HttpDelete("{clientId}/grant-types/{grantType}")]
@@ -546,6 +556,7 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
         /// <param name="request">Contains info about the API scope to be created.</param>
         /// <response code="201">Created</response>
         /// <response code="404">Not Found</response>
+        [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme, Policy = IdentityServerApi.Policies.BeClientsWriter)]
         [CacheResourceFilter(DependentPaths = new string[] { "{clientId}" })]
         [Consumes(MediaTypeNames.Application.Json)]
         [HttpPost("{clientId}/secrets")]
@@ -585,6 +596,7 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
         /// <response code="404">Not Found</response>
         [AllowedFileExtensions(".cer")]
         [AllowedFileSize(2097152)] // 2 MegaBytes
+        [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme, Policy = IdentityServerApi.Policies.BeClientsWriter)]
         [CacheResourceFilter(DependentPaths = new string[] { "{clientId}" })]
         [Consumes("multipart/form-data")]
         [HttpPost("{clientId}/certificates")]
@@ -640,7 +652,7 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
         /// <response code="404">Not Found</response>
         [AllowedFileExtensions(".cer")]
         [AllowedFileSize(2097152)] // 2 MegaBytes
-        [ApiExplorerSettings(IgnoreApi = true)]
+        [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme, Policy = IdentityServerApi.Policies.BeClientsReader)]
         [Consumes("multipart/form-data")]
         [HttpPost("certificates")]
         [Produces(MediaTypeNames.Application.Json)]
@@ -681,6 +693,7 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
         /// <response code="200">OK</response>
         /// <response code="400">Bad Request</response>
         /// <response code="404">Not Found</response>
+        [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme, Policy = IdentityServerApi.Policies.BeClientsReader)]
         [Consumes(MediaTypeNames.Application.Json)]
         [HttpGet("{clientId}/certificates/{clientSecretId:int}")]
         [Produces(MediaTypeNames.Application.Json, "application/x-x509-user-cert")]
@@ -720,11 +733,12 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
         /// <param name="secretId">The identifier of the client secret to remove.</param>
         /// <response code="204">No Content</response>
         /// <response code="404">Not Found</response>
+        [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme, Policy = IdentityServerApi.Policies.BeClientsWriter)]
         [CacheResourceFilter(DependentPaths = new string[] { "{clientId}" })]
         [Consumes(MediaTypeNames.Application.Json)]
         [HttpDelete("{clientId}/secrets/{secretId}")]
         [Produces(MediaTypeNames.Application.Json)]
-        [ProducesResponseType(statusCode: StatusCodes.Status204NoContent)]
+        [ProducesResponseType(statusCode: StatusCodes.Status204NoContent, type: typeof(void))]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
         public async Task<IActionResult> DeleteClientSecret([FromRoute] string clientId, [FromRoute] int secretId) {
             var client = await _configurationDbContext.Clients.Include(x => x.ClientSecrets).SingleOrDefaultAsync(x => x.ClientId == clientId);
@@ -749,11 +763,12 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
         /// <param name="clientId">The id of the client to delete.</param>
         /// <response code="204">No Content</response>
         /// <response code="404">Not Found</response>
+        [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme, Policy = IdentityServerApi.Policies.BeClientsWriter)]
         [CacheResourceFilter(DependentStaticPaths = new string[] { "api/dashboard/summary" })]
         [Consumes(MediaTypeNames.Application.Json)]
         [HttpDelete("{clientId}")]
         [Produces(MediaTypeNames.Application.Json)]
-        [ProducesResponseType(statusCode: StatusCodes.Status204NoContent)]
+        [ProducesResponseType(statusCode: StatusCodes.Status204NoContent, type: typeof(void))]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
         public async Task<IActionResult> DeleteClient([FromRoute] string clientId) {
             var client = await _configurationDbContext.Clients.AsNoTracking().SingleOrDefaultAsync(x => x.ClientId == clientId);

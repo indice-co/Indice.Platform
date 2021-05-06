@@ -51,7 +51,7 @@ namespace Indice.AspNetCore.Identity.Data
                 Id = $"{Guid.NewGuid()}",
                 Name = BasicRoleNames.AdminUIClientsWriter,
                 NormalizedName = BasicRoleNames.AdminUIClientsWriter.ToUpper(),
-                Description = "A user that can apply read & write operations on clients in the Admin UI tool."
+                Description = "A user that can apply read & write operations on clients and resources in the Admin UI tool."
             }
         };
 

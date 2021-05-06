@@ -21,10 +21,6 @@ namespace Indice.AspNetCore.Identity.Api.Security
         /// </summary>
         public const string Scope = "identity";
         /// <summary>
-        /// Admin of Identity system.
-        /// </summary>
-        public const string Admin = "identity-admin";
-        /// <summary>
         /// Key used in properties table for keeping translations for an object.
         /// </summary>
         public const string ObjectTranslationKey = "translations";

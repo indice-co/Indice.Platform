@@ -65,7 +65,7 @@ namespace Indice.Security
         /// Checks if the current principal is a system admin.
         /// </summary>
         /// <param name="principal">The current principal.</param>
-        public static bool IsAdmin(this ClaimsPrincipal principal) => FindFirstValue<bool>(principal, BasicClaimTypes.Admin) ?? principal.HasClaim("role", "Administrator");
+        public static bool IsAdmin(this ClaimsPrincipal principal) => FindFirstValue<bool>(principal, BasicClaimTypes.Admin) ?? principal.HasRoleClaim(BasicRoleNames.Administrator);
 
         /// <summary>
         /// Checks if the current principal has logged in using an external provider.

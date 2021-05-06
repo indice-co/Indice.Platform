@@ -26,11 +26,11 @@
         /// </summary>
         public const string AdminUIUsersWriter = nameof(AdminUIUsersWriter);
         /// <summary>
-        /// A user that can apply read operations on clients of the Admin UI.
+        /// A user that can apply read operations on clients and resources of the Admin UI.
         /// </summary>
         public const string AdminUIClientsReader = nameof(AdminUIClientsReader);
         /// <summary>
-        /// A user that can apply read and write operations on clients of the Admin UI.
+        /// A user that can apply read and write operations on clients and resources of the Admin UI.
         /// </summary>
         public const string AdminUIClientsWriter = nameof(AdminUIClientsWriter);
     }

@@ -587,7 +587,7 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
         /// <summary>
         /// Self-service user registration endpoint.
         /// </summary>
-        /// <response code="200">No Content</response>
+        /// <response code="204">No Content</response>
         /// <response code="400">Bad Request</response>
         [FeatureGate(IdentityServerApiFeatures.PublicRegistration)]
         [HttpPost("account/register")]
