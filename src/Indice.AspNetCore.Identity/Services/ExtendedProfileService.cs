@@ -47,6 +47,7 @@ namespace Indice.AspNetCore.Identity.Services
             var isActive = user != null &&
                 !user.IsLockedOut() &&
                 !user.HasExpiredPassword() &&
+                !user.Blocked &&
                 (!_signInManager.RequirePostSignInConfirmedEmail || user.EmailConfirmed) &&
                 (!_signInManager.RequirePostSignInConfirmedPhoneNumber || user.PhoneNumberConfirmed);
             context.IsActive = isActive;
