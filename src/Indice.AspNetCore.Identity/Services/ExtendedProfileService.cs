@@ -10,12 +10,12 @@ namespace Indice.AspNetCore.Identity.Services
     /// <summary>
     /// Extends the implementation of <see cref="IProfileService"/> and validates the user based on ASP.NET Identity and custom rules.
     /// </summary>
-    /// <typeparam name="TUser">The type of user.</typeparam>
-    public class ExtendedProfileService<TUser> : IProfileService where TUser : User
+    /// <typeparam name="TInner">The type is decorated.</typeparam>
+    public class ExtendedProfileService<TInner> : IProfileService where TInner : IProfileService
     {
         private readonly IProfileService _inner;
-        private readonly ExtendedUserManager<TUser> _userManager;
-        private readonly ExtendedSignInManager<TUser> _signInManager;
+        private readonly ExtendedUserManager<User> _userManager;
+        private readonly ExtendedSignInManager<User> _signInManager;
 
         /// <summary>
         /// Creates a new instance of <see cref="ExtendedProfileService{TUser}"/>.
@@ -23,7 +23,7 @@ namespace Indice.AspNetCore.Identity.Services
         /// <param name="profileService"> This interface allows IdentityServer to connect to your user and profile store.</param>
         /// <param name="userManager"></param>
         /// <param name="signInManager"></param>
-        public ExtendedProfileService(IProfileService profileService, ExtendedUserManager<TUser> userManager, ExtendedSignInManager<TUser> signInManager) {
+        public ExtendedProfileService(TInner profileService, ExtendedUserManager<User> userManager, ExtendedSignInManager<User> signInManager) {
             _inner = profileService ?? throw new ArgumentNullException(nameof(profileService));
             _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
             _signInManager = signInManager ?? throw new ArgumentNullException(nameof(signInManager));
