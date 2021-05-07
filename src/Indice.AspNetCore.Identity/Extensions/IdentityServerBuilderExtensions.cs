@@ -3,6 +3,7 @@ using IdentityServer4.EntityFramework.Options;
 using IdentityServer4.Services;
 using Indice.AspNetCore.Identity;
 using Indice.AspNetCore.Identity.Data.Models;
+using Indice.AspNetCore.Identity.Services;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
@@ -37,6 +38,7 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <param name="builder">IdentityServer builder interface.</param>
         public static IIdentityServerBuilder AddExtendedResourceOwnerPasswordValidator<TUser>(this IIdentityServerBuilder builder) where TUser : User {
             builder.AddResourceOwnerValidator<ExtendedResourceOwnerPasswordValidator<TUser>>();
+            builder.Services.AddDecorator<IProfileService, ExtendedProfileService<TUser>>();
             return builder;
         }
 

@@ -87,6 +87,4 @@ namespace Indice.Services
         /// </summary>
         public Func<ClaimsPrincipal> ClaimsPrincipalSelector { get; set; }
     }
-
-
 }

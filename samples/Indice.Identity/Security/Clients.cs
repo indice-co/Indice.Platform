@@ -29,7 +29,7 @@ namespace Indice.Identity.Security
                     IdentityServerConstants.StandardScopes.Profile,
                     JwtClaimTypes.Role
                 },
-                AllowOfflineAccess = false,
+                AllowOfflineAccess = true,
                 ClientSecrets = {
                     new Secret("qmHK5Rqc4rZTBE3BqCw6ScxR5N57rnfzcULdmKA33cc8RjhsZsqUygMVX43y6yJB".ToSha256())
                 },
