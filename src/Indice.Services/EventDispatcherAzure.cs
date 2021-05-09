@@ -14,7 +14,7 @@ namespace Indice.Services
     public class EventDispatcherAzure : IEventDispatcher
     {
         /// <summary>
-        /// The name of the storage connection string
+        /// The name of the storage connection string.
         /// </summary>
         public const string CONNECTION_STRING_NAME = "StorageConnection";
         private readonly bool _enabled;
@@ -45,21 +45,26 @@ namespace Indice.Services
         }
 
         /// <inheritdoc/>
-        public async Task RaiseEventAsync<TEvent>(TEvent payload, ClaimsPrincipal actingPrincipal = null, TimeSpan? visibilityDelay = null, bool wrap = true) where TEvent : class, new() {
+        public async Task RaiseEventAsync<TEvent>(TEvent payload, ClaimsPrincipal actingPrincipal = null, TimeSpan? visibilityDelay = null, bool wrap = true, bool base64 = false) where TEvent : class, new() {
             if (!_enabled) {
                 return;
             }
             var queueName = $"{_environmentName}-{typeof(TEvent).Name.ToKebabCase()}";
-            var queue = await EnsureExistsAsync(queueName);
+            var queue = await EnsureExistsAsync(queueName, base64);
             var user = actingPrincipal ?? _claimsPrincipalSelector?.Invoke();
             // Create a message and add it to the queue.
-            var serializedMessage = wrap ? JsonSerializer.Serialize(Envelope.Create(user, payload), _jsonSerializerOptions) :
-                                           JsonSerializer.Serialize(payload, _jsonSerializerOptions);
+            var serializedMessage = wrap 
+                ? JsonSerializer.Serialize(Envelope.Create(user, payload), _jsonSerializerOptions) 
+                : JsonSerializer.Serialize(payload, _jsonSerializerOptions);
             await queue.SendMessageAsync(serializedMessage, visibilityTimeout: visibilityDelay);
         }
 
-        private async Task<QueueClient> EnsureExistsAsync(string queueName) {
-            var queueClient = new QueueClient(_connectionString, queueName);
+        private async Task<QueueClient> EnsureExistsAsync(string queueName, bool base64) {
+            var queueClientOptions = new QueueClientOptions();
+            if (base64) {
+                queueClientOptions.MessageEncoding = QueueMessageEncoding.Base64; // Message will be converted as Base64 automatically.
+            }
+            var queueClient = new QueueClient(_connectionString, queueName, queueClientOptions);
             await queueClient.CreateIfNotExistsAsync();
             return queueClient;
         }
