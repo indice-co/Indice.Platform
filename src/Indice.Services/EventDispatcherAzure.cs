@@ -50,11 +50,11 @@ namespace Indice.Services
         }
 
         /// <inheritdoc/>
-        public async Task RaiseEventAsync<TEvent>(TEvent payload, ClaimsPrincipal actingPrincipal = null, TimeSpan? visibilityTimeout = null, bool wrap = true) where TEvent : class, new() {
+        public async Task RaiseEventAsync<TEvent>(TEvent payload, ClaimsPrincipal actingPrincipal = null, TimeSpan? visibilityTimeout = null, bool wrap = true, string queueName = null) where TEvent : class {
             if (!_enabled) {
                 return;
             }
-            var queueName = $"{_environmentName}-{typeof(TEvent).Name.ToKebabCase()}";
+            queueName = $"{_environmentName}-{queueName?.ToLowerInvariant() ?? typeof(TEvent).Name.ToKebabCase()}";
             var queue = await EnsureExistsAsync(queueName);
             var user = actingPrincipal ?? _claimsPrincipalSelector?.Invoke();
 

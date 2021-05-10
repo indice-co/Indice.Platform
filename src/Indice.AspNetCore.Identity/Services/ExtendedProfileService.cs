@@ -21,8 +21,8 @@ namespace Indice.AspNetCore.Identity.Services
         /// Creates a new instance of <see cref="ExtendedProfileService{TUser}"/>.
         /// </summary>
         /// <param name="profileService"> This interface allows IdentityServer to connect to your user and profile store.</param>
-        /// <param name="userManager"></param>
-        /// <param name="signInManager"></param>
+        /// <param name="userManager">Provides the APIs for managing user in a persistence store.</param>
+        /// <param name="signInManager">Provides the APIs for user sign in.</param>
         public ExtendedProfileService(TInner profileService, ExtendedUserManager<User> userManager, ExtendedSignInManager<User> signInManager) {
             _inner = profileService ?? throw new ArgumentNullException(nameof(profileService));
             _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));

@@ -640,7 +640,6 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
         /// <response code="404">Not Found</response>
         [AllowedFileExtensions(".cer")]
         [AllowedFileSize(2097152)] // 2 MegaBytes
-        [ApiExplorerSettings(IgnoreApi = true)]
         [Consumes("multipart/form-data")]
         [HttpPost("certificates")]
         [Produces(MediaTypeNames.Application.Json)]
