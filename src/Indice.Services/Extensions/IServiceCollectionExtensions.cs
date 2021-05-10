@@ -165,7 +165,7 @@ namespace Microsoft.Extensions.DependencyInjection
                     ClaimsPrincipalSelector = ClaimsPrincipal.ClaimsPrincipalSelector
                 };
                 configure?.Invoke(serviceProvider, options);
-                return new EventDispatcherAzure(options.ConnectionString, options.EnvironmentName, options.Enabled, options.ClaimsPrincipalSelector);
+                return new EventDispatcherAzure(options.ConnectionString, options.EnvironmentName, options.Enabled, options.MessageEncoding, options.ClaimsPrincipalSelector);
             });
             return services;
         }

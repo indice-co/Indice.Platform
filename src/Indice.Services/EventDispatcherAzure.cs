@@ -1,13 +1,14 @@
 ﻿using System;
+using System.IO;
 using System.Security.Claims;
+using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using Indice.Extensions;
-using Indice.Types;
 using Azure.Storage.Queues;
-using System.Text.Json;
+using Azure.Storage.Queues.Models;
+using Indice.Extensions;
 using Indice.Serialization;
-using System.IO;
+using Indice.Types;
 
 namespace Indice.Services
 {
@@ -31,7 +32,7 @@ namespace Indice.Services
         /// <param name="connectionString">The connection string to the Azure Storage account. By default it searches for <see cref="CONNECTION_STRING_NAME"/> application setting inside ConnectionStrings section.</param>
         /// <param name="environmentName">The environment name to use. Defaults to 'Production'.</param>
         /// <param name="enabled">Provides a way to enable/disable event dispatching at will. Defaults to true.</param>
-        /// <param name="messageEncoding">Queue Message encoding</param>
+        /// <param name="messageEncoding">Queue message encoding.</param>
         /// <param name="claimsPrincipalSelector">Provides a way to access the current <see cref="ClaimsPrincipal"/> inside a service.</param>
         public EventDispatcherAzure(string connectionString, string environmentName, bool enabled, QueueMessageEncoding messageEncoding, Func<ClaimsPrincipal> claimsPrincipalSelector) {
             if (string.IsNullOrEmpty(connectionString)) {
@@ -49,7 +50,7 @@ namespace Indice.Services
         }
 
         /// <inheritdoc/>
-        public async Task RaiseEventAsync<TEvent>(TEvent payload, ClaimsPrincipal actingPrincipal = null, TimeSpan? visibilityDelay = null, bool wrap = true) where TEvent : class, new() {
+        public async Task RaiseEventAsync<TEvent>(TEvent payload, ClaimsPrincipal actingPrincipal = null, TimeSpan? visibilityTimeout = null, bool wrap = true) where TEvent : class, new() {
             if (!_enabled) {
                 return;
             }
@@ -59,32 +60,30 @@ namespace Indice.Services
 
             // special cases string, byte[] or stream
             switch (payload) {
-                case string text: await queue.SendMessageAsync(text, visibilityTimeout: visibilityDelay); return;
-                case byte[] bytes: await queue.SendMessageAsync(new BinaryData(bytes), visibilityTimeout: visibilityDelay); return;
-                case ReadOnlyMemory<byte> memory: await queue.SendMessageAsync(new BinaryData(memory), visibilityTimeout: visibilityDelay); return;
+                case string text: await queue.SendMessageAsync(text, visibilityTimeout); return;
+                case byte[] bytes: await queue.SendMessageAsync(new BinaryData(bytes), visibilityTimeout); return;
+                case ReadOnlyMemory<byte> memory: await queue.SendMessageAsync(new BinaryData(memory), visibilityTimeout); return;
                 case Stream stream:
-                    using (var ms = new MemoryStream()) {
-                        stream.CopyTo(ms);
-                        await queue.SendMessageAsync(new BinaryData(ms.ToArray()), visibilityTimeout: visibilityDelay);
+                    using (var memoryStream = new MemoryStream()) {
+                        stream.CopyTo(memoryStream);
+                        await queue.SendMessageAsync(new BinaryData(memoryStream.ToArray()), visibilityTimeout);
                     }
                     return;
             }
             // Create a message and add it to the queue.
-            var data = wrap 
-                ? new BinaryData(Envelope.Create(user, payload), options: _jsonSerializerOptions, type: typeof(Envelope<TEvent>)) 
+            var data = wrap
+                ? new BinaryData(Envelope.Create(user, payload), options: _jsonSerializerOptions, type: typeof(Envelope<TEvent>))
                 : new BinaryData(payload, options: _jsonSerializerOptions, type: typeof(TEvent));
-            await queue.SendMessageAsync(data, visibilityTimeout: visibilityDelay);
+            await queue.SendMessageAsync(data, visibilityTimeout);
         }
 
         private async Task<QueueClient> EnsureExistsAsync(string queueName) {
-            var queueClientOptions = new QueueClientOptions();
-            queueClientOptions.MessageEncoding = _messageEncoding; // Message will be converted as Base64 automatically.
-            var queueClient = new QueueClient(_connectionString, queueName, queueClientOptions);
+            var queueClient = new QueueClient(_connectionString, queueName, new QueueClientOptions {
+                MessageEncoding = _messageEncoding
+            });
             await queueClient.CreateIfNotExistsAsync();
             return queueClient;
         }
-
-
     }
 
     /// <summary>
@@ -105,8 +104,7 @@ namespace Indice.Services
         /// </summary>
         public bool Enabled { get; set; }
         /// <summary>
-        /// Determines how Azure.Storage.Queues.Models.QueueMessage.Body is represented in
-        /// HTTP requests and responses.
+        /// Determines how <see cref="QueueMessage.Body"/> is represented in HTTP requests and responses.
         /// </summary>
         public QueueMessageEncoding MessageEncoding { get; set; }
         /// <summary>
