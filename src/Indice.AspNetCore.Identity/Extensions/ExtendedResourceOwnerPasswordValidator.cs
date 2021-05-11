@@ -52,6 +52,7 @@ namespace Indice.AspNetCore.Identity
             var user = await _userManager.FindByNameAsync(context.UserName);
             if (user == null) {
                 Error(context, ResourceOwnerPasswordErrorCodes.NotFound);
+                return;
             }
             var result = await _signInManager.CheckPasswordSignInAsync(user, context.Password, lockoutOnFailure: true);
             if (result.IsNotAllowed) {
@@ -62,7 +63,7 @@ namespace Indice.AspNetCore.Identity
                 Error(context, ResourceOwnerPasswordErrorCodes.LockedOut);
                 return;
             }
-            if (user.PasswordExpired) {
+            if (user.HasExpiredPassword()) {
                 Error(context, ResourceOwnerPasswordErrorCodes.PasswordExpired);
                 return;
             }

@@ -43,6 +43,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 options.EmitScopesAsSpaceDelimitedStringInJwt = true;
             })
             .AddAspNetIdentity<User>()
+            .AddExtendedResourceOwnerPasswordValidator()
             .AddOperationalStore(options => {
                 options.SetupTables();
                 options.ConfigureDbContext = builder => builder.UseSqlServer(configuration.GetConnectionString("OperationalDb"), sqlServerOptions => sqlServerOptions.MigrationsAssembly(migrationsAssembly));

@@ -40,10 +40,8 @@ namespace Microsoft.Extensions.DependencyInjection
                 var parameters = typeof(TDecorator).GetConstructors(BindingFlags.Public | BindingFlags.Instance).First().GetParameters();
                 var arguments = parameters.Select(x => x.ParameterType.Equals(typeof(TService)) ? serviceProvider.GetRequiredService(serviceDescriptor.ImplementationType) : serviceProvider.GetService(x.ParameterType)).ToArray();
                 return (TDecorator)Activator.CreateInstance(typeof(TDecorator), arguments);
-                //return ActivatorUtilities.CreateInstance<TDecorator>(serviceProvider, arguments);
             });
         }
-
 
         /// <summary>
         /// Adds Indice's common services.
@@ -168,7 +166,7 @@ namespace Microsoft.Extensions.DependencyInjection
                     ClaimsPrincipalSelector = ClaimsPrincipal.ClaimsPrincipalSelector ?? (() => ClaimsPrincipal.Current)
                 };
                 configure?.Invoke(serviceProvider, options);
-                return new EventDispatcherAzure(options.ConnectionString, options.EnvironmentName, options.Enabled, options.ClaimsPrincipalSelector);
+                return new EventDispatcherAzure(options.ConnectionString, options.EnvironmentName, options.Enabled, options.MessageEncoding, options.ClaimsPrincipalSelector);
             });
             return services;
         }

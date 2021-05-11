@@ -20,8 +20,8 @@ namespace Indice.Serialization
             };
             options.Converters.Add(new JsonStringEnumConverter());
             options.Converters.Add(new TypeConverterJsonAdapterFactory());
-            options.Converters.Add(new JsonObjectToInferredTypeConverter());
             options.Converters.Add(new ValueTupleJsonConverterFactory());
+            options.Converters.Add(new JsonObjectToInferredTypeConverter());
             return options;
         }
     }

@@ -11,7 +11,7 @@ namespace Indice.Services
         private readonly Queue<object> _queue = new Queue<object>();
 
         /// <inheritdoc/>
-        public Task RaiseEventAsync<TEvent>(TEvent payload, ClaimsPrincipal actingPrincipal = null, TimeSpan? initialVisibilityDelay = null) where TEvent : class, new() {
+        public Task RaiseEventAsync<TEvent>(TEvent payload, ClaimsPrincipal actingPrincipal = null, TimeSpan? initialVisibilityDelay = null, bool wrap = true, string queueName = null) where TEvent : class {
             _queue.Enqueue(payload);
 #if NET452
             return Task.FromResult(0);

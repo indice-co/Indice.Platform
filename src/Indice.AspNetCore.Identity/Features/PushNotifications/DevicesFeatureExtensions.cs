@@ -3,7 +3,6 @@ using System.Security;
 using IdentityServer4.Configuration;
 using Indice.AspNetCore.Identity.Features;
 using Indice.Services;
-using static Indice.Services.PushNotificationServiceAzure;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
