@@ -112,13 +112,17 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
                 var filter = options.Filter;
                 query = query.Where(x => filter.Claim == null || x.Claims.Any(x => x.ClaimType == filter.Claim.Type && x.ClaimValue == filter.Claim.Value));
             }
+            // https://docs.microsoft.com/en-us/ef/core/querying/complex-query-operators
             var usersQuery =
                 from user in query
-                join fnl in _dbContext.UserClaims on user.Id equals fnl.UserId into fnLeft
+                join fnl in _dbContext.UserClaims 
+                    on new { Id = user.Id, ClaimType = JwtClaimTypes.GivenName } 
+                    equals new { Id = fnl.UserId, ClaimType = fnl.ClaimType } into fnLeft
                 from fn in fnLeft.DefaultIfEmpty()
-                join lnl in _dbContext.UserClaims on user.Id equals lnl.UserId into lnLeft
+                join lnl in _dbContext.UserClaims
+                    on new { Id = user.Id, ClaimType = JwtClaimTypes.FamilyName }
+                    equals new { Id = lnl.UserId, ClaimType = lnl.ClaimType } into lnLeft
                 from ln in lnLeft.DefaultIfEmpty()
-                where (fn == null || fn.ClaimType == JwtClaimTypes.GivenName) && (ln == null || ln.ClaimType == JwtClaimTypes.FamilyName)
                 select new UserInfo {
                     Id = user.Id,
                     FirstName = fn.ClaimValue,
@@ -142,13 +146,13 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
             ;
             if (options?.Search?.Length > 2) {
                 var searchTerm = options.Search.ToLower();
-                var idsFromClaims = await _dbContext.UserClaims.Where(x => (x.ClaimType == JwtClaimTypes.GivenName || x.ClaimType == JwtClaimTypes.FamilyName) && EF.Functions.Like(x.ClaimValue, $"%{searchTerm}%")).Select(x => x.UserId).ToArrayAsync();
                 usersQuery = usersQuery.Where(x => EF.Functions.Like(x.Email, $"%{searchTerm}%")
                  || EF.Functions.Like(x.PhoneNumber, $"%{searchTerm}%")
                  || EF.Functions.Like(x.UserName, $"%{searchTerm}%")
                  || EF.Functions.Like(x.Email, $"%{searchTerm}%")
-                 || searchTerm == x.Id.ToLower()
-                 || idsFromClaims.Contains(x.Id));
+                 || EF.Functions.Like(x.FirstName, $"%{searchTerm}%")
+                 || EF.Functions.Like(x.LastName, $"%{searchTerm}%")
+                 || searchTerm == x.Id.ToLower());
             }
             return Ok(await usersQuery.ToResultSetAsync(options));
         }
