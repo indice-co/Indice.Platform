@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using System.Reflection;
 using System.Security.Claims;
 
@@ -122,6 +123,39 @@ namespace Indice.Security
                         }
                     } else {
                         identity.AddClaim(claim);
+                    }
+                }
+                identities.Add(identity);
+            }
+            return new ClaimsPrincipal(identities);
+        }
+
+        /// <summary>
+        /// Logic for normalizing claims types comming from external identity providers to the Jwt standard ones.
+        /// </summary>
+        /// <param name="principal">The current principal.</param>
+        /// <param name="typesToIgnore">These claims will be excluded</param>
+        public static ClaimsPrincipal NormalizeExternalProviderClaims(this ClaimsPrincipal principal, params string[] typesToIgnore) {
+            var identities = new List<ClaimsIdentity>();
+            foreach (var id in principal.Identities) {
+                var identity = new ClaimsIdentity(id.AuthenticationType, id.NameClaimType, id.RoleClaimType);
+                foreach (var claim in id.Claims) {
+                    switch (claim.Type) {
+                        case ClaimTypes.NameIdentifier:
+                        case "oid": identity.AddClaim(new Claim(BasicClaimTypes.Subject, claim.Value, claim.ValueType, claim.Issuer)); break;
+                        case ClaimTypes.Email: identity.AddClaim(new Claim(BasicClaimTypes.Email, claim.Value, claim.ValueType, claim.Issuer)); break;
+                        case ClaimTypes.GivenName: identity.AddClaim(new Claim(BasicClaimTypes.GivenName, claim.Value, claim.ValueType, claim.Issuer)); break;
+                        case ClaimTypes.Surname: identity.AddClaim(new Claim(BasicClaimTypes.FamilyName, claim.Value, claim.ValueType, claim.Issuer)); break;
+                        case ClaimTypes.Name: identity.AddClaim(new Claim(BasicClaimTypes.Name, claim.Value, claim.ValueType, claim.Issuer)); break;
+                        case ClaimTypes.Locality: identity.AddClaim(new Claim(BasicClaimTypes.Locale, claim.Value, claim.ValueType, claim.Issuer)); break;
+                        case ClaimTypes.MobilePhone: identity.AddClaim(new Claim(BasicClaimTypes.PhoneNumber, claim.Value, claim.ValueType, claim.Issuer)); break;
+                        case ClaimTypes.Role: identity.AddClaim(new Claim(BasicClaimTypes.Role, claim.Value, claim.ValueType, claim.Issuer)); break;
+                        case ClaimTypes.DateOfBirth: identity.AddClaim(new Claim(BasicClaimTypes.BirthDate, claim.Value, claim.ValueType, claim.Issuer)); break;
+                        default:
+                            if (typesToIgnore?.Contains(claim.Type) == true)
+                                continue;
+                            identity.AddClaim(claim.Clone());
+                            break;
                     }
                 }
                 identities.Add(identity);

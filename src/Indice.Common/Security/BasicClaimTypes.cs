@@ -35,6 +35,12 @@ namespace Indice.Security
         /// User email.
         /// </summary>
         public const string Email = "email";
+        /// End-User's preferred telephone number. E.164 (https://www.itu.int/rec/T-REC-E.164/e)
+        /// is RECOMMENDED as the format of this Claim, for example, +1 (425) 555-1212 or
+        /// +56 (2) 687 2400. If the phone number contains an extension, it is RECOMMENDED
+        /// that the extension be represented using the RFC 3966 [RFC3966] extension syntax,
+        /// for example, +1 (604) 555-1234;ext=5678.
+        public const string PhoneNumber = "phone_number";
         /// <summary>
         /// User last name.
         /// </summary>
@@ -44,7 +50,8 @@ namespace Indice.Security
         /// </summary>
         public const string GivenName = "given_name";
         /// <summary>
-        /// Username.
+        /// End-User's full name in displayable form including all name parts, possibly including
+        /// titles and suffixes, ordered according to the End-User's locale and preferences.
         /// </summary>
         public const string Name = "name";
         /// <summary>
@@ -55,6 +62,36 @@ namespace Indice.Security
         /// String from the time zone database (http://www.twinsun.com/tz/tz-link.htm) representing the End-User's time zone. For example, Europe/Paris or America/Los_Angeles.
         /// </summary>
         public const string ZoneInfo = "zoneinfo";
+        /// <summary>
+        /// End-User's locale, represented as a BCP47 [RFC5646] language tag. This is typically
+        /// an ISO 639-1 Alpha-2 [ISO639‑1] language code in lowercase and an ISO 3166-1
+        /// Alpha-2 [ISO3166‑1] country code in uppercase, separated by a dash. For example,
+        /// en-US or fr-CA. As a compatibility note, some implementations have used an underscore
+        /// as the separator rather than a dash, for example, en_US; Relying Parties MAY
+        /// choose to accept this locale syntax as well.
+        /// </summary>
+        public const string Locale = "locale";
+
+        /// <summary>
+        /// The role
+        /// </summary>
+        public const string Role = "role";
+
+        /// <summary>
+        /// End-User's gender. Values defined by this specification are "female" and "male".
+        /// Other values MAY be used when neither of the defined values are applicable.
+        /// </summary>
+        public const string Gender = "gender";
+
+        /// <summary>
+        /// End-User's birthday, represented as an ISO 8601:2004 [ISO8601‑2004] YYYY-MM-DD
+        /// format. The year MAY be 0000, indicating that it is omitted. To represent only
+        /// the year, YYYY format is allowed. Note that depending on the underlying platform's
+        /// date related function, providing just year can result in varying month and day,
+        /// so the implementers need to take this factor into account to correctly process
+        /// the dates.
+        /// </summary>
+        public const string BirthDate = "birthdate";
         /// <summary>
         /// Client Id (calling application)
         /// </summary>
