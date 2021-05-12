@@ -2,6 +2,7 @@ export class MenuItem {
     constructor(
         public title: string,
         public path: string,
+        public visible: boolean,
         public iconName?: string | undefined,
         public isOpen?: boolean | undefined,
         public children?: MenuItem[] | undefined

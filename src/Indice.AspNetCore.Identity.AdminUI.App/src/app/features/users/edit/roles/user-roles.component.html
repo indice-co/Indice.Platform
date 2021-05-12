@@ -6,6 +6,7 @@
                     [subtitlePropertyName]="'description'"
                     (itemAdded)="addRole($event)"
                     (itemRemoved)="removeRole($event)"
+                    [viewOnly]="!canEditUser"
                     [options]="{ 
                         sourceListTitle: 'Available Roles', 
                         emptySourceListMessage: 'There are no available roles to assign.',

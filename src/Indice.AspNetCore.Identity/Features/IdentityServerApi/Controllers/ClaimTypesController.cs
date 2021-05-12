@@ -29,7 +29,6 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
     [Consumes(MediaTypeNames.Application.Json)]
     [ProducesResponseType(statusCode: StatusCodes.Status401Unauthorized, type: typeof(ProblemDetails))]
     [ProducesResponseType(statusCode: StatusCodes.Status403Forbidden, type: typeof(ProblemDetails))]
-    [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme, Policy = IdentityServerApi.Policies.BeAdmin)]
     [CacheResourceFilter]
     [ProblemDetailsExceptionFilter]
     internal class ClaimTypesController : ControllerBase
@@ -53,6 +52,7 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
         /// </summary>
         /// <param name="options">List params used to navigate through collections. Contains parameters such as sort, search, page number and page size.</param>
         /// <response code="200">OK</response>
+        [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme, Policy = IdentityServerApi.Policies.BeUsersReader)]
         [HttpGet]
         [ProducesResponseType(statusCode: StatusCodes.Status200OK, type: typeof(ResultSet<ClaimTypeInfo>))]
         [NoCache]
@@ -86,6 +86,7 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
         /// <param name="id">The identifier of the claim type.</param>
         /// <response code="200">OK</response>
         /// <response code="404">Not Found</response>
+        [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme, Policy = IdentityServerApi.Policies.BeUsersReader)]
         [ProducesResponseType(statusCode: StatusCodes.Status200OK, type: typeof(ClaimTypeInfo))]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
         [HttpGet("{id}")]
@@ -114,6 +115,7 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
         /// <param name="request">Contains info about the claim to be created.</param>
         /// <response code= "400">Bad Request</response>
         /// <response code="201">Created</response>
+        [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme, Policy = IdentityServerApi.Policies.BeUsersWriter)]
         [HttpPost]
         [ServiceFilter(type: typeof(CreateClaimTypeRequestValidationFilter))]
         [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest, type: typeof(ValidationProblemDetails))]
@@ -152,6 +154,7 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
         /// <param name="request">Contains info about the claim to update.</param>
         /// <response code="200">OK</response>
         /// <response code="404">Not Found</response>
+        [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme, Policy = IdentityServerApi.Policies.BeUsersWriter)]
         [HttpPut("{id}")]
         [ProducesResponseType(statusCode: StatusCodes.Status200OK, type: typeof(ClaimTypeInfo))]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
@@ -190,6 +193,7 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
         /// <response code="204">No Content</response>
         /// <response code="400">Bad Request</response>
         /// <response code="404">Not Found</response>
+        [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme, Policy = IdentityServerApi.Policies.BeUsersWriter)]
         [HttpDelete("{id}")]
         [ProducesResponseType(statusCode: StatusCodes.Status204NoContent)]
         [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest, type: typeof(ValidationProblemDetails))]
