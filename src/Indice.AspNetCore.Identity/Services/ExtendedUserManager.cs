@@ -141,6 +141,9 @@ namespace Indice.AspNetCore.Identity
             var allClaims = await base.GetClaimsAsync(user);
             var toReplace = allClaims.Where(x => x.Type == claimType).ToList();
             var newClaim = new Claim(claimType, claimValue);
+            if (string.IsNullOrWhiteSpace(claimValue)) {
+                return await base.RemoveClaimsAsync(user, toReplace);
+            }
             if (toReplace.Any()) {
                 if (toReplace.Count == 1) {
                     result = await base.ReplaceClaimAsync(user, toReplace.First(), newClaim);
