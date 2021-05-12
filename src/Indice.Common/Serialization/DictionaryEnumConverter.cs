@@ -13,8 +13,8 @@ namespace Indice.Serialization
     /// <summary>
     /// Demonstrates a <see cref="Dictionary{TKey, TValue}"/> converter where TKey is an <see cref="Enum"/> with the string
     /// version of the Enum is used.
-    /// Sample JSON for <see cref="Dictionary{MyEnum, object}"/>: {"MyEnumValue":{"MyProperty":"myValue"}}
-    /// Sample JSON for <see cref="Dictionary{MyEnum, int}"/>: {"MyEnumValue":42}
+    /// Sample JSON for enum, object: {"MyEnumValue":{"MyProperty":"myValue"}}
+    /// Sample JSON for enum, int:  {"MyEnumValue":42}
     /// </summary>
     /// <remarks>
     /// USE ONLY FOR System.Text.Json 4.x.x 
