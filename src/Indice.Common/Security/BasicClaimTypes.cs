@@ -71,18 +71,15 @@ namespace Indice.Security
         /// choose to accept this locale syntax as well.
         /// </summary>
         public const string Locale = "locale";
-
         /// <summary>
-        /// The role
+        /// The role.
         /// </summary>
         public const string Role = "role";
-
         /// <summary>
         /// End-User's gender. Values defined by this specification are "female" and "male".
         /// Other values MAY be used when neither of the defined values are applicable.
         /// </summary>
         public const string Gender = "gender";
-
         /// <summary>
         /// End-User's birthday, represented as an ISO 8601:2004 [ISO8601‑2004] YYYY-MM-DD
         /// format. The year MAY be 0000, indicating that it is omitted. To represent only

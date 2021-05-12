@@ -8,7 +8,7 @@ namespace Indice.Services
     /// <inheritdoc/>
     public class EventDispatcherInMemory : IEventDispatcher
     {
-        private readonly Queue<object> _queue = new Queue<object>();
+        private readonly Queue<object> _queue = new();
 
         /// <inheritdoc/>
         public Task RaiseEventAsync<TEvent>(TEvent payload, ClaimsPrincipal actingPrincipal = null, TimeSpan? initialVisibilityDelay = null, bool wrap = true, string queueName = null) where TEvent : class {

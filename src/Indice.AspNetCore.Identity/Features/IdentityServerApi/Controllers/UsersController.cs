@@ -142,8 +142,7 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
                     AccessFailedCount = user.AccessFailedCount,
                     LastSignInDate = user.LastSignInDate,
                     PasswordExpirationDate = user.PasswordExpirationDate
-                }
-            ;
+                };
             if (options?.Search?.Length > 2) {
                 var searchTerm = options.Search.ToLower();
                 usersQuery = usersQuery.Where(x => EF.Functions.Like(x.Email, $"%{searchTerm}%")

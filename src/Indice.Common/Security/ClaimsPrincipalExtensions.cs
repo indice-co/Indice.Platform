@@ -134,7 +134,7 @@ namespace Indice.Security
         /// Logic for normalizing claims types comming from external identity providers to the Jwt standard ones.
         /// </summary>
         /// <param name="principal">The current principal.</param>
-        /// <param name="typesToIgnore">These claims will be excluded</param>
+        /// <param name="typesToIgnore">These claims will be excluded.</param>
         public static ClaimsPrincipal NormalizeExternalProviderClaims(this ClaimsPrincipal principal, params string[] typesToIgnore) {
             var identities = new List<ClaimsIdentity>();
             foreach (var id in principal.Identities) {
@@ -152,8 +152,9 @@ namespace Indice.Security
                         case ClaimTypes.Role: identity.AddClaim(new Claim(BasicClaimTypes.Role, claim.Value, claim.ValueType, claim.Issuer)); break;
                         case ClaimTypes.DateOfBirth: identity.AddClaim(new Claim(BasicClaimTypes.BirthDate, claim.Value, claim.ValueType, claim.Issuer)); break;
                         default:
-                            if (typesToIgnore?.Contains(claim.Type) == true)
+                            if (typesToIgnore?.Contains(claim.Type) == true) {
                                 continue;
+                            }
                             identity.AddClaim(claim.Clone());
                             break;
                     }
