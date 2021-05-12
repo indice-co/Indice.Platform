@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
 using Indice.AspNetCore.Identity.Data;
@@ -123,6 +125,37 @@ namespace Indice.AspNetCore.Identity
             }
             return result;
         }
+
+        /// <summary>
+        /// Replaces any claims with the same claim type on the specified user with the newClaim. 
+        /// </summary>
+        /// <param name="user">The user to replace the claim on.</param>
+        /// <param name="claimType">The claim type to replace.</param>
+        /// <param name="claimValue"></param>
+        /// <returns>The <see cref="Task"/> that represents the asynchronous operation, containing
+        /// the <see cref="IdentityResult"/> of the operation.</returns>
+        /// <remarks>This overload will purge any other instances of the claim type so that the 
+        /// added claim is has a single instance in the claims list. For example the 'given_name' claim that is commonly used as the FirstName</remarks>
+        public async Task<IdentityResult> ReplaceClaimAsync(TUser user, string claimType, string claimValue) {
+            IdentityResult result;
+            var allClaims = await base.GetClaimsAsync(user);
+            var toReplace = allClaims.Where(x => x.Type == claimType).ToList();
+            var newClaim = new Claim(claimType, claimValue);
+            if (toReplace.Any()) {
+                if (toReplace.Count == 1) {
+                    result = await base.ReplaceClaimAsync(user, toReplace.First(), newClaim);
+                }
+                else {
+                    result = await base.RemoveClaimsAsync(user, toReplace);
+                    if (!result.Succeeded) return result;
+                    result = await base.AddClaimAsync(user, newClaim);
+                }
+            } else {
+                result = await base.AddClaimAsync(user, newClaim);
+            }
+            return result;
+        }
+
 
         private IExtendedUserStore<TUser> GetUserStore(bool throwOnFail = true) {
             var cast = Store as IExtendedUserStore<TUser>;

@@ -6,6 +6,11 @@
     public class AssociateViewModel
     {
         /// <summary>
+        /// If the user is an existing one then this is the user id to associate him with. 
+        /// </summary>
+        /// <remarks>It is better to trust this than the username especially in scenarios where <see cref="UserName"/> is the same as the <see cref="Email"/></remarks>
+        public string UserId { get; set; }
+        /// <summary>
         /// The username
         /// </summary>
         public string UserName { get; set; }
