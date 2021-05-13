@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Builder;
+using IdentityModel;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.WebUtilities;
-using Microsoft.Extensions.Options;
 
 namespace Indice.AspNetCore.Identity.Localization
 {
@@ -14,19 +13,10 @@ namespace Indice.AspNetCore.Identity.Localization
     /// </summary>
     public class QueryStringToCookieRequestCultureProvider : RequestCultureProvider
     {
-        private readonly RequestLocalizationOptions _requestLocalizationOptions;
         /// <summary>
         /// The default name of the query string parameter to look for culture.
         /// </summary>
         public static readonly string DefaultParameterName = "culture";
-
-        /// <summary>
-        /// Creates a new instance of <see cref="QueryStringToCookieRequestCultureProvider"/>.
-        /// </summary>
-        /// <param name="requestLocalizationOptions">Specifies options for the <see cref="RequestLocalizationMiddleware"/>.</param>
-        public QueryStringToCookieRequestCultureProvider(IOptions<RequestLocalizationOptions> requestLocalizationOptions) {
-            _requestLocalizationOptions = requestLocalizationOptions?.Value ?? throw new ArgumentNullException(nameof(requestLocalizationOptions));
-        }
 
         /// <summary>
         /// The name of the query string parameter to look for culture. Default is <see cref="DefaultParameterName"/>.
@@ -55,20 +45,26 @@ namespace Indice.AspNetCore.Identity.Localization
                 }
             }
             var providerResultCulture = ParseDefaultParameterValue(culture);
-            var cultureCookieName = CookieRequestCultureProvider.DefaultCookieName;
-            var cookieRequestCultureProvider = _requestLocalizationOptions.RequestCultureProviders.SingleOrDefault(provider => typeof(CookieRequestCultureProvider).IsAssignableFrom(provider.GetType()));
-            if (cookieRequestCultureProvider != null) {
-                cultureCookieName = ((CookieRequestCultureProvider)cookieRequestCultureProvider).CookieName;
-            }
             if (!string.IsNullOrEmpty(culture.ToString())) {
-                var cookie = httpContext.Request.Cookies[cultureCookieName];
+                var cookie = httpContext.Request.Cookies[CookieRequestCultureProvider.DefaultCookieName];
                 var newCookieValue = CookieRequestCultureProvider.MakeCookieValue(new RequestCulture(culture));
                 if (string.IsNullOrEmpty(cookie) || cookie != newCookieValue) {
-                    httpContext.Response.Cookies.Append(cultureCookieName, newCookieValue);
+                    httpContext.Response.Cookies.Append(CookieRequestCultureProvider.DefaultCookieName, newCookieValue);
                 }
             }
             return Task.FromResult(providerResultCulture);
         }
+
+        /// <summary>
+        /// A factory method used for creating a new instance of <see cref="QueryStringToCookieRequestCultureProvider"/> with a specified culture parameter to look for.
+        /// </summary>
+        /// <param name="queryParameterName">The name of the query string parameter to look for culture.</param>
+        public static QueryStringToCookieRequestCultureProvider Create(string queryParameterName) => new() { QueryParameterName = queryParameterName };
+
+        /// <summary>
+        /// Creates a new instance of <see cref="QueryStringToCookieRequestCultureProvider"/> used to look for standard 'ui_locales' parameter in the authorize endpoint.
+        /// </summary>
+        public static QueryStringToCookieRequestCultureProvider CreateForUiLocales() => new() { QueryParameterName = OidcConstants.AuthorizeRequest.UiLocales };
 
         private static ProviderCultureResult ParseDefaultParameterValue(string value) {
             if (string.IsNullOrWhiteSpace(value)) {
