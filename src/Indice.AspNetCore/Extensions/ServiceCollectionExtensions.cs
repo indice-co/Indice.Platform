@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.IO;
 using System.Text.RegularExpressions;
 using Azure.Storage.Blobs;
@@ -7,7 +6,6 @@ using Indice.AspNetCore.Filters;
 using Indice.AspNetCore.TagHelpers;
 using Indice.Configuration;
 using Indice.Services;
-using Indice.Services.Yuboto;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.DataProtection.AuthenticatedEncryption;
 using Microsoft.AspNetCore.DataProtection.AuthenticatedEncryption.ConfigurationModel;

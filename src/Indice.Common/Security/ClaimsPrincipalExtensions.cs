@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using System.Reflection;
 using System.Security.Claims;
 
@@ -37,6 +38,34 @@ namespace Indice.Security
         /// <param name="principal">The current principal.</param>
         public static string FindSubjectId(this ClaimsPrincipal principal) => principal.FindFirst(BasicClaimTypes.Subject)?.Value;
 
+        private static bool TryFindFirstValue<T>(this ClaimsPrincipal principal, string claimType, out T result) where T : struct {
+            result = default;
+            var valueString = principal.FindFirst(c => c.Type == claimType)?.Value;
+            object value = default(T);
+            if (valueString == null) {
+                result = (T)value;
+                return false;
+            }
+            var type = typeof(T);
+            if (type.GetTypeInfo().IsEnum) {
+                value = Enum.Parse(type, valueString, true);
+            } else if (type == typeof(bool)) {
+                value = bool.Parse(valueString);
+            } else if (type == typeof(int)) {
+                value = int.Parse(valueString);
+            } else if (type == typeof(Guid)) {
+                value = Guid.Parse(valueString);
+            } else if (type == typeof(double)) {
+                value = double.Parse(valueString, CultureInfo.InvariantCulture);
+            } else if (type == typeof(DateTime)) {
+                value = DateTime.Parse(valueString, CultureInfo.InvariantCulture);
+            } else if (type == typeof(TimeSpan)) {
+                value = TimeSpan.Parse(valueString, CultureInfo.InvariantCulture);
+            }
+            result = (T)value;
+            return true;
+        }
+
         /// <summary>
         /// Finds the value of the specified claim.
         /// </summary>
@@ -65,27 +94,13 @@ namespace Indice.Security
         /// Checks if the current principal is a system admin.
         /// </summary>
         /// <param name="principal">The current principal.</param>
-        public static bool IsAdmin(this ClaimsPrincipal principal) => FindFirstValue<bool>(principal, BasicClaimTypes.Admin) ?? principal.HasRoleClaim(BasicRoleNames.Administrator);
+        public static bool IsAdmin(this ClaimsPrincipal principal) => FindFirstValue<bool>(principal, BasicClaimTypes.Admin) ?? principal.HasClaim("role", "Administrator");
 
         /// <summary>
         /// Checks if the current principal has logged in using an external provider.
         /// </summary>
         /// <param name="principal">The current principal.</param>
         public static bool IsExternal(this ClaimsPrincipal principal) => principal.FindFirst("idp")?.Value != "local";
-
-        /// <summary>
-        /// Checks if the current principal has a scope claim with the specified value.
-        /// </summary>
-        /// <param name="principal">The current principal.</param>
-        /// <param name="value">The value of scope claim.</param>
-        public static bool HasScopeClaim(this ClaimsPrincipal principal, string value) => principal.HasClaim("scope", value);
-
-        /// <summary>
-        /// Checks if the current principal has a role claim with the specified value.
-        /// </summary>
-        /// <param name="principal">The current principal.</param>
-        /// <param name="value">The value of scope claim.</param>
-        public static bool HasRoleClaim(this ClaimsPrincipal principal, string value) => principal.HasClaim("role", value);
 
         /// <summary>
         /// Logic for normalizing scope claims to separate claim types.
@@ -115,32 +130,38 @@ namespace Indice.Security
             return new ClaimsPrincipal(identities);
         }
 
-        private static bool TryFindFirstValue<T>(this ClaimsPrincipal principal, string claimType, out T result) where T : struct {
-            result = default;
-            var valueString = principal.FindFirst(c => c.Type == claimType)?.Value;
-            object value = default(T);
-            if (valueString == null) {
-                result = (T)value;
-                return false;
+        /// <summary>
+        /// Logic for normalizing claims types comming from external identity providers to the Jwt standard ones.
+        /// </summary>
+        /// <param name="principal">The current principal.</param>
+        /// <param name="typesToIgnore">These claims will be excluded.</param>
+        public static ClaimsPrincipal NormalizeExternalProviderClaims(this ClaimsPrincipal principal, params string[] typesToIgnore) {
+            var identities = new List<ClaimsIdentity>();
+            foreach (var id in principal.Identities) {
+                var identity = new ClaimsIdentity(id.AuthenticationType, id.NameClaimType, id.RoleClaimType);
+                foreach (var claim in id.Claims) {
+                    switch (claim.Type) {
+                        case ClaimTypes.NameIdentifier:
+                        case "oid": identity.AddClaim(new Claim(BasicClaimTypes.Subject, claim.Value, claim.ValueType, claim.Issuer)); break;
+                        case ClaimTypes.Email: identity.AddClaim(new Claim(BasicClaimTypes.Email, claim.Value, claim.ValueType, claim.Issuer)); break;
+                        case ClaimTypes.GivenName: identity.AddClaim(new Claim(BasicClaimTypes.GivenName, claim.Value, claim.ValueType, claim.Issuer)); break;
+                        case ClaimTypes.Surname: identity.AddClaim(new Claim(BasicClaimTypes.FamilyName, claim.Value, claim.ValueType, claim.Issuer)); break;
+                        case ClaimTypes.Name: identity.AddClaim(new Claim(BasicClaimTypes.Name, claim.Value, claim.ValueType, claim.Issuer)); break;
+                        case ClaimTypes.Locality: identity.AddClaim(new Claim(BasicClaimTypes.Locale, claim.Value, claim.ValueType, claim.Issuer)); break;
+                        case ClaimTypes.MobilePhone: identity.AddClaim(new Claim(BasicClaimTypes.PhoneNumber, claim.Value, claim.ValueType, claim.Issuer)); break;
+                        case ClaimTypes.Role: identity.AddClaim(new Claim(BasicClaimTypes.Role, claim.Value, claim.ValueType, claim.Issuer)); break;
+                        case ClaimTypes.DateOfBirth: identity.AddClaim(new Claim(BasicClaimTypes.BirthDate, claim.Value, claim.ValueType, claim.Issuer)); break;
+                        default:
+                            if (typesToIgnore?.Contains(claim.Type) == true) {
+                                continue;
+                            }
+                            identity.AddClaim(claim.Clone());
+                            break;
+                    }
+                }
+                identities.Add(identity);
             }
-            var type = typeof(T);
-            if (type.GetTypeInfo().IsEnum) {
-                value = Enum.Parse(type, valueString, true);
-            } else if (type == typeof(bool)) {
-                value = bool.Parse(valueString);
-            } else if (type == typeof(int)) {
-                value = int.Parse(valueString);
-            } else if (type == typeof(Guid)) {
-                value = Guid.Parse(valueString);
-            } else if (type == typeof(double)) {
-                value = double.Parse(valueString, CultureInfo.InvariantCulture);
-            } else if (type == typeof(DateTime)) {
-                value = DateTime.Parse(valueString, CultureInfo.InvariantCulture);
-            } else if (type == typeof(TimeSpan)) {
-                value = TimeSpan.Parse(valueString, CultureInfo.InvariantCulture);
-            }
-            result = (T)value;
-            return true;
+            return new ClaimsPrincipal(identities);
         }
     }
 }

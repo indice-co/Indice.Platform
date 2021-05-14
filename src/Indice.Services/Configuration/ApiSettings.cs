@@ -87,11 +87,11 @@ namespace Indice.Configuration
         public class Scope
         {
             /// <summary>
-            /// The scope value (ie identity.users)
+            /// The scope value (ie identity.users).
             /// </summary>
             public string Name { get; set; }
             /// <summary>
-            /// The scope descriptions
+            /// The scope descriptions.
             /// </summary>
             public string Description { get; set; }
         }

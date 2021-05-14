@@ -140,8 +140,8 @@ namespace Indice.AspNetCore.Identity
             var isEmailConfirmed = await UserManager.IsEmailConfirmedAsync(user);
             var isPhoneConfirmed = await UserManager.IsPhoneNumberConfirmedAsync(user);
             var userClaims = await UserManager.GetClaimsAsync(user);
-            var firstName = userClaims.SingleOrDefault(x => x.Type == JwtClaimTypes.GivenName)?.Value;
-            var lastName = userClaims.SingleOrDefault(x => x.Type == JwtClaimTypes.FamilyName)?.Value;
+            var firstName = userClaims.FirstOrDefault(x => x.Type == JwtClaimTypes.GivenName)?.Value; 
+            var lastName = userClaims.FirstOrDefault(x => x.Type == JwtClaimTypes.FamilyName)?.Value;
             var isPasswordExpired = user.HasExpiredPassword();
             var doPartialSignIn = (!isEmailConfirmed && RequirePostSignInConfirmedEmail)
                                || (!isPhoneConfirmed && RequirePostSignInConfirmedPhoneNumber)

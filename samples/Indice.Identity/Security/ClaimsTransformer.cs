@@ -67,14 +67,15 @@ namespace Indice.Identity.Security
                 identity.TryRemoveClaim(surname);
                 identity.AddClaim(new Claim(JwtClaimTypes.FamilyName, surname.Value));
             }
+            var username = claims.FirstOrDefault(x => x.Type == ClaimTypes.Name);
+            if (username != null) {
+                identity.TryRemoveClaim(username);
+                identity.AddClaim(new Claim(_identityOptions.ClaimsIdentity.UserNameClaimType ?? JwtClaimTypes.Name, username.Value));
+            }
             // We do not want to keep these claims, so discard them.
             var preferredUserNameClaim = claims.FirstOrDefault(x => x.Type == JwtClaimTypes.PreferredUserName);
             if (preferredUserNameClaim != null) {
                 identity.TryRemoveClaim(preferredUserNameClaim);
-            }
-            var nameClaim = claims.FirstOrDefault(x => x.Type == ClaimTypes.Name);
-            if (nameClaim != null) {
-                identity.TryRemoveClaim(nameClaim);
             }
             // Finally return the modified principal.
             return Task.FromResult(principal);
