@@ -13,6 +13,7 @@ import { ToastService } from 'src/app/layout/services/app-toast.service';
 import { CreateSecretRequest, SingleClientInfo, ClientSecretInfo, IdentityApiService, FileResponse, ValidationProblemDetails, ProblemDetails } from 'src/app/core/services/identity-api.service';
 import { ClientStore } from '../client-store.service';
 import { ValidationSummaryComponent } from 'src/app/shared/components/validation-summary/validation-summary.component';
+import { AuthService } from 'src/app/core/services/auth.service';
 
 @Component({
     selector: 'app-client-secrets',
@@ -30,7 +31,14 @@ export class ClientSecretsComponent implements OnInit, OnDestroy {
     private _getDataSubscription: Subscription;
     private _clientId: string;
 
-    constructor(private _utilities: UtilitiesService, private _route: ActivatedRoute, private _clientStore: ClientStore, public _toast: ToastService, private _api: IdentityApiService) { }
+    constructor(
+        private _utilities: UtilitiesService,
+        private _route: ActivatedRoute,
+        private _clientStore: ClientStore,
+        public _toast: ToastService,
+        private _api: IdentityApiService,
+        private _authService: AuthService
+    ) { }
 
     public columns: TableColumn[] = [];
     public rows: ClientSecretInfo[] = [];
@@ -40,8 +48,10 @@ export class ClientSecretsComponent implements OnInit, OnDestroy {
     public selectedSecretType = 'SharedSecret';
     public fileToUpload: File;
     public problemDetails: ProblemDetails;
+    public canEditClient: boolean;
 
     public ngOnInit(): void {
+        this.canEditClient = this._authService.isAdminUIClientsWriter();
         this.columns = [
             { prop: 'type', name: 'Type', draggable: false, canAutoResize: true, sortable: false, resizeable: false, cellClass: 'd-flex align-items-center' },
             { prop: 'value', name: 'Value', draggable: false, canAutoResize: true, sortable: false, resizeable: false, cellTemplate: this._wrapContentTemplate, cellClass: 'd-flex align-items-center' },

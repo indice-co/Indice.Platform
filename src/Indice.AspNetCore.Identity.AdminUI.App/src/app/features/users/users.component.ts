@@ -15,7 +15,10 @@ export class UsersComponent implements OnInit {
   @ViewChild('actionsTemplate', { static: true }) private _actionsTemplate: TemplateRef<HTMLElement>;
   @ViewChild('optionalTemplate', { static: true }) private _optionalTemplate: TemplateRef<HTMLElement>;
 
-  constructor(private api: IdentityApiService, private _authService: AuthService) { }
+  constructor(
+    private api: IdentityApiService,
+    private _authService: AuthService
+  ) { }
 
   public count = 0;
   public rows: UserInfo[] = [];

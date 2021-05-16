@@ -115,8 +115,8 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
             // https://docs.microsoft.com/en-us/ef/core/querying/complex-query-operators
             var usersQuery =
                 from user in query
-                join fnl in _dbContext.UserClaims 
-                    on new { user.Id, ClaimType = JwtClaimTypes.GivenName } 
+                join fnl in _dbContext.UserClaims
+                    on new { user.Id, ClaimType = JwtClaimTypes.GivenName }
                     equals new { Id = fnl.UserId, fnl.ClaimType } into fnLeft
                 from fn in fnLeft.DefaultIfEmpty()
                 join lnl in _dbContext.UserClaims
@@ -241,7 +241,7 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
                 result = await _userManager.CreateAsync(user, request.Password);
             }
             if (!result.Succeeded) {
-                return BadRequest(result.Errors.AsValidationProblemDetails());
+                return BadRequest(result.Errors.ToValidationProblemDetails());
             }
             if (request.ChangePasswordAfterFirstSignIn.HasValue && request.ChangePasswordAfterFirstSignIn.Value == true) {
                 await _userManager.SetPasswordExpiredAsync(user, true);
@@ -395,11 +395,13 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
         /// <param name="userId">The id of the user.</param>
         /// <param name="roleId">The id of the role.</param>
         /// <response code="204">No Content</response>
+        /// <response code="400">Bad Request</response>
         /// <response code="404">Not Found</response>
         [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme, Policy = IdentityServerApi.Policies.BeUsersWriter)]
         [CacheResourceFilter(DependentPaths = new string[] { "{userId}" })]
         [HttpPost("{userId}/roles/{roleId}")]
         [ProducesResponseType(statusCode: StatusCodes.Status204NoContent, type: typeof(void))]
+        [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest, type: typeof(ValidationProblemDetails))]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
         public async Task<IActionResult> AddUserRole([FromRoute] string userId, [FromRoute] string roleId) {
             var user = await _userManager.FindByIdAsync(userId);
@@ -415,7 +417,13 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
                     { $"{nameof(roleId)}", new[] { $"User {user.Email} is already a member of role {role.Name}." } }
                 }));
             }
-            await _userManager.AddToRoleAsync(user, role.Name);
+            var result = await _userManager.AddToRoleAsync(user, role.Name);
+            if (!result.Succeeded) {
+                return BadRequest(result.Errors.ToValidationProblemDetails());
+            }
+            if (role.IsManagementRole()) {
+                await _persistedGrantService.RemoveAllGrantsAsync(userId);
+            }
             return NoContent();
         }
 
@@ -425,11 +433,13 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
         /// <param name="userId">The id of the user.</param>
         /// <param name="roleId">The id of the role.</param>
         /// <response code="204">No Content</response>
+        /// <response code="400">Bad Request</response>
         /// <response code="404">Not Found</response>
         [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme, Policy = IdentityServerApi.Policies.BeUsersWriter)]
         [CacheResourceFilter(DependentPaths = new string[] { "{userId}" })]
         [HttpDelete("{userId}/roles/{roleId}")]
         [ProducesResponseType(statusCode: StatusCodes.Status204NoContent, type: typeof(void))]
+        [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest, type: typeof(ValidationProblemDetails))]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
         public async Task<IActionResult> DeleteUserRole([FromRoute] string userId, [FromRoute] string roleId) {
             var user = await _userManager.FindByIdAsync(userId);
@@ -445,7 +455,13 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
                     { $"{nameof(roleId)}", new[] { $"User {user.Email} is not a member of role {role.Name}." } }
                 }));
             }
-            await _userManager.RemoveFromRoleAsync(user, role.Name);
+            var result = await _userManager.RemoveFromRoleAsync(user, role.Name);
+            if (!result.Succeeded) {
+                return BadRequest(result.Errors.ToValidationProblemDetails());
+            }
+            if (role.IsManagementRole()) {
+                await _persistedGrantService.RemoveAllGrantsAsync(userId);
+            }
             return NoContent();
         }
 
@@ -587,6 +603,59 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
         }
 
         /// <summary>
+        /// Gets a list of the external login providers for the specified user.
+        /// </summary>
+        /// <param name="userId">The id of the user.</param>
+        /// <response code="200">OK</response>
+        /// <response code="404">Not Found</response>
+        [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme, Policy = IdentityServerApi.Policies.BeUsersReader)]
+        [HttpGet("{userId}/external-logins")]
+        [ProducesResponseType(statusCode: StatusCodes.Status200OK, type: typeof(IEnumerable<UserLoginProviderInfo>))]
+        [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
+        public async Task<IActionResult> GetUserExternalLogins([FromRoute] string userId) {
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null) {
+                return NotFound();
+            }
+            var externalLogins = await _userManager.GetLoginsAsync(user);
+            return Ok(externalLogins.Select(x => new UserLoginProviderInfo {
+                Key = x.ProviderKey,
+                Name = x.LoginProvider,
+                DisplayName = x.ProviderDisplayName
+            }));
+        }
+
+        /// <summary>
+        /// Gets a list of the external login providers for the specified user.
+        /// </summary>
+        /// <param name="userId">The id of the user.</param>
+        /// <param name="provider">The provider to remove.</param>
+        /// <response code="204">No Content</response>
+        /// <response code="400">Bad Request</response>
+        /// <response code="404">Not Found</response>
+        [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme, Policy = IdentityServerApi.Policies.BeUsersReader)]
+        [HttpDelete("{userId}/external-logins/{provider}")]
+        [ProducesResponseType(statusCode: StatusCodes.Status204NoContent, type: typeof(void))]
+        [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest, type: typeof(ValidationProblemDetails))]
+        [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
+        public async Task<IActionResult> DeleteUserExternalLogin([FromRoute] string userId, [FromRoute] string provider) {
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null) {
+                return NotFound();
+            }
+            var externalLogins = await _userManager.GetLoginsAsync(user);
+            var externalLogin = externalLogins.SingleOrDefault(x => x.LoginProvider == provider);
+            if (externalLogin == null) {
+                return NotFound();
+            }
+            var result = await _userManager.RemoveLoginAsync(user, externalLogin.LoginProvider, externalLogin.ProviderKey);
+            if (!result.Succeeded) {
+                return BadRequest(result.Errors.ToValidationProblemDetails());
+            }
+            return NoContent();
+        }
+
+        /// <summary>
         /// Toggles user block state.
         /// </summary>
         /// <param name="userId">The id of the user to block.</param>
@@ -606,10 +675,12 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
             user.Blocked = request.Blocked;
             var result = await _userManager.UpdateAsync(user);
             if (!result.Succeeded) {
-                return BadRequest(result.Errors.AsValidationProblemDetails());
+                return BadRequest(result.Errors.ToValidationProblemDetails());
             }
-            // When blocking a user we need to make sure we also revoke all of his tokens.
-            await _persistedGrantService.RemoveAllGrantsAsync(userId);
+            if (request.Blocked) {
+                // When blocking a user we need to make sure we also revoke all of his tokens.
+                await _persistedGrantService.RemoveAllGrantsAsync(userId);
+            }
             return NoContent();
         }
 
@@ -631,11 +702,11 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
             }
             var result = await _userManager.SetLockoutEndDateAsync(user, null);
             if (!result.Succeeded) {
-                return BadRequest(result.Errors.AsValidationProblemDetails());
+                return BadRequest(result.Errors.ToValidationProblemDetails());
             }
             result = await _userManager.ResetAccessFailedCountAsync(user);
             if (!result.Succeeded) {
-                return BadRequest(result.Errors.AsValidationProblemDetails());
+                return BadRequest(result.Errors.ToValidationProblemDetails());
             }
             return Ok();
         }
@@ -662,19 +733,19 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
             if (hasPassword) {
                 result = await _userManager.RemovePasswordAsync(user);
                 if (!result.Succeeded) {
-                    return BadRequest(result.Errors.AsValidationProblemDetails());
+                    return BadRequest(result.Errors.ToValidationProblemDetails());
                 }
             }
             result = await _userManager.AddPasswordAsync(user, request.Password);
             if (!result.Succeeded) {
-                return BadRequest(result.Errors.AsValidationProblemDetails());
+                return BadRequest(result.Errors.ToValidationProblemDetails());
             }
             if (request.ChangePasswordAfterFirstSignIn.HasValue && request.ChangePasswordAfterFirstSignIn.Value == true) {
                 await _userManager.SetPasswordExpiredAsync(user, true);
             }
             result = await _userManager.SetLockoutEndDateAsync(user, null);
             if (!result.Succeeded) {
-                return BadRequest(result.Errors.AsValidationProblemDetails());
+                return BadRequest(result.Errors.ToValidationProblemDetails());
             }
             return NoContent();
         }

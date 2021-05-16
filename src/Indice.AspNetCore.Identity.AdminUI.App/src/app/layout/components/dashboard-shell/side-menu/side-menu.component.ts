@@ -9,8 +9,8 @@ import * as app from 'src/app/core/models/settings';
     templateUrl: './side-menu.component.html'
 })
 export class SideMenuComponent {
-    constructor(private menuService: MenuService) {
-        this.menuItems = this.menuService.getMenuItems();
+    constructor(private _menuService: MenuService) {
+        this.menuItems = this._menuService.getMenuItems();
     }
 
     public menuItems: MenuItem[];
@@ -19,10 +19,10 @@ export class SideMenuComponent {
     public version = app.settings.version;
 
     public toggleMenuItem(menuItem: MenuItem): void {
-        this.menuService.toggleMenuItem(menuItem);
+        this._menuService.toggleMenuItem(menuItem);
     }
 
     public toggleMenu(): void {
-        this.menuService.toggleSideMenu();
+        this._menuService.toggleSideMenu();
     }
 }

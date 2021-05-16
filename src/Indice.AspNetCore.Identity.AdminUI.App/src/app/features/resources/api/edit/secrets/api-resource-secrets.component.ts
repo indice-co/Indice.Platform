@@ -12,6 +12,7 @@ import { UtilitiesService } from 'src/app/core/services/utilities.services';
 import { ListViewComponent } from 'src/app/shared/components/list-view/list-view.component';
 import { ApiResourceStore } from '../../api-resource-store.service';
 import { ToastService } from 'src/app/layout/services/app-toast.service';
+import { AuthService } from 'src/app/core/services/auth.service';
 
 @Component({
     selector: 'app-api-resource-secrets',
@@ -27,7 +28,13 @@ export class ApiResourceSecretsComponent implements OnInit, OnDestroy {
     private _getDataSubscription: Subscription;
     private _apiResourceId: number;
 
-    constructor(private _utilities: UtilitiesService, private _route: ActivatedRoute, private _apiResourceStore: ApiResourceStore, public _toast: ToastService) { }
+    constructor(
+        private _utilities: UtilitiesService,
+        private _route: ActivatedRoute,
+        private _apiResourceStore: ApiResourceStore,
+        private _toast: ToastService,
+        private _authService: AuthService
+    ) { }
 
     public columns: TableColumn[] = [];
     public rows: ApiSecretInfo[] = [];
@@ -35,15 +42,19 @@ export class ApiResourceSecretsComponent implements OnInit, OnDestroy {
     public secretToDelete: ApiSecretInfo;
     public apiSecret: CreateSecretRequest = new CreateSecretRequest();
     public selectedSecretType = 'SharedSecret';
+    public canEditResource: boolean;
 
     public ngOnInit(): void {
+        this.canEditResource = this._authService.isAdminUIClientsWriter();
         this.columns = [
             { prop: 'type', name: 'Type', draggable: false, canAutoResize: true, sortable: false, resizeable: false },
             { prop: 'valueText', name: 'Value', draggable: false, canAutoResize: true, sortable: false, resizeable: false },
             { prop: 'expiration', name: 'Expiration', draggable: false, canAutoResize: true, sortable: false, resizeable: false, cellTemplate: this._apiSecretsList.dateTimeTemplate, cellClass: 'd-flex align-items-center' },
-            { prop: 'description', name: 'Description', draggable: false, canAutoResize: true, sortable: false, resizeable: false, cellTemplate: this._optionalTemplate, cellClass: 'd-flex align-items-center' },
-            { prop: 'id', name: 'Actions', draggable: false, canAutoResize: true, sortable: false, resizeable: false, cellTemplate: this._actionsTemplate, cellClass: 'd-flex align-items-center' }
+            { prop: 'description', name: 'Description', draggable: false, canAutoResize: true, sortable: false, resizeable: false, cellTemplate: this._optionalTemplate, cellClass: 'd-flex align-items-center' }
         ];
+        if (this.canEditResource) {
+            this.columns.push({ prop: 'id', name: 'Actions', draggable: false, canAutoResize: true, sortable: false, resizeable: false, cellTemplate: this._actionsTemplate, cellClass: 'd-flex align-items-center' });
+        }
         this._apiResourceId = +this._route.parent.snapshot.params.id;
         this._getDataSubscription = this._apiResourceStore.getApiResource(this._apiResourceId).subscribe((apiResource: ApiResourceInfo) => {
             this.apiResource = apiResource;

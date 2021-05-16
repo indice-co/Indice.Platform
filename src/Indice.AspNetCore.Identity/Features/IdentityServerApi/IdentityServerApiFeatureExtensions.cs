@@ -104,27 +104,32 @@ namespace Microsoft.Extensions.DependencyInjection
             authOptions.AddPolicy(IdentityServerApi.Policies.BeUsersReader, policy => {
                 policy.AddAuthenticationSchemes(IdentityServerApi.AuthenticationScheme)
                       .RequireAuthenticatedUser()
-                      .RequireAssertion(x => x.User.HasScopeClaim(IdentityServerApi.SubScopes.Users) && (x.User.HasRoleClaim(BasicRoleNames.AdminUIUsersReader) || x.User.HasRoleClaim(BasicRoleNames.AdminUIUsersWriter) || x.User.IsAdmin() || x.User.IsSystemClient()));
+                      .RequireAssertion(x => x.User.HasScopeClaim(IdentityServerApi.SubScopes.Users) && x.User.CanReadUsers());
             });
             authOptions.AddPolicy(IdentityServerApi.Policies.BeUsersWriter, policy => {
                 policy.AddAuthenticationSchemes(IdentityServerApi.AuthenticationScheme)
                       .RequireAuthenticatedUser()
-                      .RequireAssertion(x => x.User.HasScopeClaim(IdentityServerApi.SubScopes.Users) && (x.User.HasRoleClaim(BasicRoleNames.AdminUIUsersWriter) || x.User.IsAdmin() || x.User.IsSystemClient()));
+                      .RequireAssertion(x => x.User.HasScopeClaim(IdentityServerApi.SubScopes.Users) && x.User.CanWriteUsers());
             });
             authOptions.AddPolicy(IdentityServerApi.Policies.BeClientsReader, policy => {
                 policy.AddAuthenticationSchemes(IdentityServerApi.AuthenticationScheme)
                       .RequireAuthenticatedUser()
-                      .RequireAssertion(x => x.User.HasScopeClaim(IdentityServerApi.SubScopes.Clients) && (x.User.HasRoleClaim(BasicRoleNames.AdminUIClientsReader) || x.User.HasRoleClaim(BasicRoleNames.AdminUIClientsWriter) || x.User.IsAdmin() || x.User.IsSystemClient()));
+                      .RequireAssertion(x => x.User.HasScopeClaim(IdentityServerApi.SubScopes.Clients) && x.User.CanReadClients());
             });
             authOptions.AddPolicy(IdentityServerApi.Policies.BeClientsWriter, policy => {
                 policy.AddAuthenticationSchemes(IdentityServerApi.AuthenticationScheme)
                       .RequireAuthenticatedUser()
-                      .RequireAssertion(x => x.User.HasScopeClaim(IdentityServerApi.SubScopes.Clients) && (x.User.HasRoleClaim(BasicRoleNames.AdminUIClientsWriter) || x.User.IsAdmin() || x.User.IsSystemClient()));
+                      .RequireAssertion(x => x.User.HasScopeClaim(IdentityServerApi.SubScopes.Clients) && x.User.CanWriteClients());
+            });
+            authOptions.AddPolicy(IdentityServerApi.Policies.BeUsersOrClientsReader, policy => {
+                policy.AddAuthenticationSchemes(IdentityServerApi.AuthenticationScheme)
+                      .RequireAuthenticatedUser()
+                      .RequireAssertion(x => x.User.HasScopeClaim(IdentityServerApi.SubScopes.Users) && (x.User.CanReadUsers() || x.User.CanReadClients()));
             });
             authOptions.AddPolicy(IdentityServerApi.Policies.BeAdmin, policy => {
                 policy.AddAuthenticationSchemes(IdentityServerApi.AuthenticationScheme)
                       .RequireAuthenticatedUser()
-                      .RequireAssertion(x => x.User.HasScopeClaim(IdentityServerApi.Scope) && (x.User.HasRoleClaim(BasicRoleNames.AdminUIAdministrator) || x.User.IsAdmin() || x.User.IsSystemClient()));
+                      .RequireAssertion(x => x.User.HasScopeClaim(IdentityServerApi.Scope) && (x.User.HasRoleClaim(BasicRoleNames.Administrator) || x.User.HasRoleClaim(BasicRoleNames.AdminUIAdministrator) || x.User.IsAdmin() || x.User.IsSystemClient()));
             });
         });
     }

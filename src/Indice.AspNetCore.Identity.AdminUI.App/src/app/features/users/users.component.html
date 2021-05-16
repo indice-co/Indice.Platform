@@ -34,7 +34,9 @@
        href="#"
        role="button"
        *ngIf="value"
-       [routerLink]="value + '/details'">{{ canEditUser ? 'Edit' : 'View' }}</a>
+       [routerLink]="value + '/details'">
+        {{ canEditUser ? 'Edit' : 'View' }}
+    </a>
 </ng-template>
 <ng-template let-row="row"
              let-value="value"

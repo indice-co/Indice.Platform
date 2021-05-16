@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
 import { Subscription, forkJoin } from 'rxjs';
@@ -31,7 +31,7 @@ export class UserRolesComponent implements OnInit, OnDestroy {
     public canEditUser: boolean;
 
     public ngOnInit(): void {
-        this.canEditUser = this._authService.isAdminUIClientsWriter();
+        this.canEditUser = this._authService.isAdminUIUsersWriter();
         const userId = this._route.parent.snapshot.params.id;
         this.currentUserId = this._authService.getSubjectId();
         const getUser = this._userStore.getUser(userId);

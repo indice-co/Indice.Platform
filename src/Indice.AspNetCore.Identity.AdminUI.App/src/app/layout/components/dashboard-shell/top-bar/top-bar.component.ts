@@ -8,16 +8,19 @@ import { MenuService } from 'src/app/layout/services/menu.service';
     templateUrl: './top-bar.component.html'
 })
 export class TopBarComponent implements OnInit {
-    constructor(private _authService: AuthService, private _menuService: MenuService) { }
+    constructor(
+        public authService: AuthService,
+        private _menuService: MenuService
+    ) { }
 
     public displayName: string;
 
     public ngOnInit(): void {
-        this.displayName = this._authService.getDisplayName();
+        this.displayName = this.authService.getDisplayName();
     }
 
     public signOut(): void {
-        this._authService.signoutRedirect();
+        this.authService.signoutRedirect();
     }
 
     public toggleMenu(): void {

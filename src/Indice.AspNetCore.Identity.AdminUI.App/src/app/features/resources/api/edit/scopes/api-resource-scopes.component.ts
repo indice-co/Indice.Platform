@@ -2,8 +2,8 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 
 import { Subscription } from 'rxjs';
+import { AuthService } from 'src/app/core/services/auth.service';
 import { ApiResourceInfo, ApiScopeInfo } from 'src/app/core/services/identity-api.service';
-import { ToastService } from 'src/app/layout/services/app-toast.service';
 import { ApiResourceStore } from '../../api-resource-store.service';
 
 @Component({
@@ -13,12 +13,18 @@ import { ApiResourceStore } from '../../api-resource-store.service';
 export class ApiResourceScopesComponent implements OnInit, OnDestroy {
     private _getDataSubscription: Subscription;
 
-    constructor(private _route: ActivatedRoute, private _apiResourceStore: ApiResourceStore, public _toast: ToastService, private _router: Router) { }
+    constructor(
+        private _route: ActivatedRoute, 
+        private _apiResourceStore: ApiResourceStore,
+        private _authService: AuthService
+    ) { }
 
     public apiResource: ApiResourceInfo;
     public detailsActive = true;
+    public canEditResource: boolean;
 
     public ngOnInit(): void {
+        this.canEditResource = this._authService.isAdminUIClientsWriter();
         const apiResourceId = +this._route.parent.snapshot.params.id;
         this._getDataSubscription = this._apiResourceStore.getApiResource(apiResourceId).subscribe((apiResource: ApiResourceInfo) => {
             this.apiResource = apiResource;

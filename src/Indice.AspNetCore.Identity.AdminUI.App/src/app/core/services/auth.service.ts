@@ -89,11 +89,11 @@ export class AuthService {
     }
 
     public isAdminUIClientsReader(): boolean {
-        return this.isAdmin() || this.hasRole(RoleNames.AdminUIClientsReader) || this.hasRole(RoleNames.AdminUIUsersWriter);
+        return this.isAdmin() || this.hasRole(RoleNames.AdminUIClientsReader) || this.hasRole(RoleNames.AdminUIClientsWriter);
     }
 
     public isAdminUIClientsWriter(): boolean {
-        return this.isAdmin() || this.hasRole(RoleNames.AdminUIUsersWriter);
+        return this.isAdmin() || this.hasRole(RoleNames.AdminUIClientsWriter);
     }
 
     public getAuthorizationHeaderValue(): string {

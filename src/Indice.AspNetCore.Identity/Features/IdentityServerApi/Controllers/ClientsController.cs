@@ -89,17 +89,7 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
         [Produces(MediaTypeNames.Application.Json)]
         [ProducesResponseType(statusCode: StatusCodes.Status200OK, type: typeof(ResultSet<ClientInfo>))]
         public async Task<IActionResult> GetClients([FromQuery] ListOptions options) {
-            IQueryable<Client> query = null;
-            if (User.IsAdmin()) {
-                query = _configurationDbContext.Clients.AsQueryable();
-            }
-            if (!User.IsAdmin() && !string.IsNullOrEmpty(UserId)) {
-                query = _configurationDbContext.ClientUsers.Include(x => x.Client).Where(x => x.UserId == UserId).Select(x => x.Client);
-            }
-            // If user is not an admin and user subject is not present in claims, then there is nothing to send.
-            if (query == null) {
-                return Ok(new ResultSet<ClientInfo>());
-            }
+            var query = _configurationDbContext.Clients.AsQueryable();
             if (!string.IsNullOrEmpty(options.Search)) {
                 var searchTerm = options.Search.ToLower();
                 query = query.Where(x => x.ClientId.ToLower().Contains(searchTerm) || x.ClientName.Contains(searchTerm));

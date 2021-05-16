@@ -52,6 +52,7 @@
     </div>
 </div>
 <a [routerLink]="['add']"
+   *ngIf="canEditResource"
    class="btn btn-primary waves-effect waves-light m-r-5">
     Add Scope
 </a>

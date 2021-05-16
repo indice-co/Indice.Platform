@@ -1,7 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
 
-import { LoggerService } from 'src/app/core/services/logger.service';
 import { IdentityResourceStore } from './identity-resource-store.service';
 
 @Component({
@@ -10,11 +8,7 @@ import { IdentityResourceStore } from './identity-resource-store.service';
     providers: [IdentityResourceStore]
 })
 export class IdentityResourceEditComponent implements OnInit {
-    constructor(private route: ActivatedRoute, private logger: LoggerService) { }
+    constructor() { }
 
-    public userId = '';
-
-    public ngOnInit(): void {
-        // this.userId = this.route.snapshot.params.id;
-    }
+    public ngOnInit(): void { }
 }

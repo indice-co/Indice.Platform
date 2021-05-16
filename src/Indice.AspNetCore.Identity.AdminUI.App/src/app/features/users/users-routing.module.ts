@@ -9,6 +9,7 @@ import { UserRolesComponent } from './edit/roles/user-roles.component';
 import { UserAdditionalDetailsComponent } from './edit/additional-details/user-additional-details.component';
 import { AdditionalDetailEditComponent } from './edit/additional-details/edit/additional-detail-edit.component';
 import { UserApplicationsComponent } from './edit/applications/user-applications.component';
+import { UserLoginsComponent } from './edit/logins/user-logins.component';
 
 const routes: Routes = [
   { path: '', component: UsersComponent },
@@ -20,7 +21,8 @@ const routes: Routes = [
       { path: 'roles', component: UserRolesComponent },
       { path: 'additional-details', component: UserAdditionalDetailsComponent },
       { path: 'additional-details/:id/edit', component: AdditionalDetailEditComponent },
-      { path: 'applications', component: UserApplicationsComponent }
+      { path: 'applications', component: UserApplicationsComponent },
+      { path: 'external-logins', component: UserLoginsComponent }
     ]
   }
 ];

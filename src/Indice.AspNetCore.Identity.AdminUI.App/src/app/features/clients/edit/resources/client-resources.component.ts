@@ -12,7 +12,10 @@ import { SingleClientInfo } from 'src/app/core/services/identity-api.service';
 export class ClientResourcesComponent implements OnInit, OnDestroy {
     private _getDataSubscription: Subscription;
 
-    constructor(private _route: ActivatedRoute, private _clientStore: ClientStore) { }
+    constructor(
+        private _route: ActivatedRoute,
+        private _clientStore: ClientStore
+    ) { }
 
     public client = new SingleClientInfo();
 

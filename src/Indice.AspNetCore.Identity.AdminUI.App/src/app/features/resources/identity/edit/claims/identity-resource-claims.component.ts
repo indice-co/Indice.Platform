@@ -3,6 +3,7 @@ import { ActivatedRoute } from '@angular/router';
 
 import { Subscription, forkJoin } from 'rxjs';
 import { map } from 'rxjs/operators';
+import { AuthService } from 'src/app/core/services/auth.service';
 import { ClaimTypeInfo, IdentityResourceInfo } from 'src/app/core/services/identity-api.service';
 import { IdentityResourceStore } from '../identity-resource-store.service';
 
@@ -16,12 +17,18 @@ export class IdentityResourceClaimsComponent implements OnInit, OnDestroy {
     private _deleteIdentityResourceClaim: Subscription;
     private _identityResourceId: number;
 
-    constructor(private _route: ActivatedRoute, private _identityResourceStore: IdentityResourceStore) { }
+    constructor(
+        private _route: ActivatedRoute,
+        private _identityResourceStore: IdentityResourceStore,
+        private _authService: AuthService
+    ) { }
 
     public availableClaims: ClaimTypeInfo[];
     public identityResourceClaims: ClaimTypeInfo[];
+    public canEditResource: boolean;
 
     public ngOnInit(): void {
+        this.canEditResource = this._authService.isAdminUIClientsWriter();
         this._identityResourceId = this._route.parent.snapshot.params.id;
         const getIdentityResource = this._identityResourceStore.getIdentityResource(this._identityResourceId);
         const getAllClaims = this._identityResourceStore.getAllClaims();

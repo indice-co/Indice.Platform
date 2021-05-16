@@ -4,7 +4,7 @@ import { Observable, AsyncSubject } from 'rxjs';
 import { map } from 'rxjs/operators';
 import {
     IdentityApiService, SingleUserInfo, RoleInfoResultSet, RoleInfo, ClaimTypeInfo, ClaimTypeInfoResultSet, UpdateUserRequest, ClaimInfo, CreateClaimRequest, BasicClaimInfo,
-    UserClientInfo, UserClientInfoResultSet, UpdateUserClaimRequest, PasswordExpirationPolicy, SetPasswordRequest, SetUserBlockRequest
+    UserClientInfo, UserClientInfoResultSet, UpdateUserClaimRequest, SetPasswordRequest, SetUserBlockRequest, UserLoginProviderInfo
 } from 'src/app/core/services/identity-api.service';
 import { ClaimType } from './details/models/claim-type.model';
 
@@ -14,6 +14,7 @@ export class UserStore {
     private _allRoles: AsyncSubject<RoleInfo[]>;
     private _allClaims: AsyncSubject<ClaimTypeInfo[]>;
     private _userApplications: AsyncSubject<UserClientInfo[]>;
+    private _userExternalLogins: AsyncSubject<UserLoginProviderInfo[]>;
 
     constructor(private _api: IdentityApiService) { }
 
@@ -169,6 +170,21 @@ export class UserStore {
             });
         }
         return this._userApplications;
+    }
+
+    public getUserExternalLogins(userId: string): Observable<UserLoginProviderInfo[]> {
+        if (!this._userExternalLogins) {
+            this._userExternalLogins = new AsyncSubject<UserLoginProviderInfo[]>();
+            this._api.getUserExternalLogins(userId).subscribe((response: UserLoginProviderInfo[]) => {
+                this._userExternalLogins.next(response);
+                this._userExternalLogins.complete();
+            });
+        }
+        return this._userExternalLogins;
+    }
+
+    public deleteUserExternalLogin(userId: string, provider: string): Observable<void> {
+        return this._api.deleteUserExternalLogin(userId, provider);
     }
 
     public getAllRoles(): Observable<RoleInfo[]> {

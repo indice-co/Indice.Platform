@@ -9,6 +9,7 @@ import { ClientStore } from '../../client-store.service';
 import { SingleClientInfo, ClaimInfo } from 'src/app/core/services/identity-api.service';
 import { UtilitiesService } from 'src/app/core/services/utilities.services';
 import { ToastService } from 'src/app/layout/services/app-toast.service';
+import { AuthService } from 'src/app/core/services/auth.service';
 
 @Component({
     selector: 'app-client-claims',
@@ -23,7 +24,13 @@ export class ClientClaimsComponent implements OnInit, OnDestroy {
     private _addClaimSubscription: Subscription;
     private _deleteClaimSubscription: Subscription;
 
-    constructor(private _route: ActivatedRoute, private _clientStore: ClientStore, public utilities: UtilitiesService, public _toast: ToastService) { }
+    constructor(
+        private _route: ActivatedRoute,
+        private _clientStore: ClientStore,
+        public utilities: UtilitiesService,
+        public _toast: ToastService,
+        private _authService: AuthService
+    ) { }
 
     public client: SingleClientInfo;
     public columns: TableColumn[] = [];
@@ -31,13 +38,17 @@ export class ClientClaimsComponent implements OnInit, OnDestroy {
     public selectedClaimValue: string;
     public rows: ClaimInfo[];
     public claimToDelete: ClaimInfo;
+    public canEditClient: boolean;
 
     public ngOnInit(): void {
+        this.canEditClient = this._authService.isAdminUIClientsWriter();
         this.columns = [
             { prop: 'type', name: 'Type', draggable: false, canAutoResize: true, sortable: true, resizeable: false },
-            { prop: 'value', name: 'Value', draggable: false, canAutoResize: true, sortable: true, resizeable: false },
-            { prop: 'id', name: 'Actions', draggable: false, canAutoResize: true, sortable: false, resizeable: false, cellTemplate: this._actionsTemplate, cellClass: 'd-flex align-items-center' }
+            { prop: 'value', name: 'Value', draggable: false, canAutoResize: true, sortable: true, resizeable: false }
         ];
+        if (this.canEditClient) {
+            this.columns.push({ prop: 'id', name: 'Actions', draggable: false, canAutoResize: true, sortable: false, resizeable: false, cellTemplate: this._actionsTemplate, cellClass: 'd-flex align-items-center' });
+        }
         const clientId = this._route.parent.parent.snapshot.params.id;
         this._getDataSubscription = this._clientStore.getClient(clientId).subscribe((client: SingleClientInfo) => {
             this.client = client;

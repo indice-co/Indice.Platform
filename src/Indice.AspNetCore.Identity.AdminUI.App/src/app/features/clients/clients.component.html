@@ -33,7 +33,7 @@
        href="#"
        role="button"
        [routerLink]="value + '/details'">
-        Edit
+        {{ canEditClient ? 'Edit' : 'View' }}
     </a>
 </ng-template>
 <ng-template let-row="row"

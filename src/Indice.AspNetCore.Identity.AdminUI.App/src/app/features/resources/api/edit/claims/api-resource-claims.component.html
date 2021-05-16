@@ -12,5 +12,6 @@
                         destinationListTitle: 'Assigned Claims',
                         emptyDestinationListMessage: 'There are no claims assigned to this resource.'
                     }"
+                    [viewOnly]="!canEditResource"
                     #transferList>
 </app-transfer-lists>

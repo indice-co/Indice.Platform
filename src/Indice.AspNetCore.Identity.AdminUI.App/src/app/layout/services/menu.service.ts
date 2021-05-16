@@ -14,12 +14,12 @@ export class MenuService {
     constructor(private _router: Router, private _authService: AuthService) {
         this._currentUrl = this._router.url;
         const isAdmin = this._authService.isAdmin();
-        const canReadUsers = isAdmin || this._authService.isAdminUIUsersReader();
-        const canWriteUsers = isAdmin || this._authService.isAdminUIUsersWriter();
-        const canReadClients = isAdmin || this._authService.isAdminUIClientsReader();
-        const canWriteClients = isAdmin || this._authService.isAdminUIClientsWriter();
+        const canReadUsers = this._authService.isAdminUIUsersReader();
+        const canWriteUsers = this._authService.isAdminUIUsersWriter();
+        const canReadClients = this._authService.isAdminUIClientsReader();
+        const canWriteClients = this._authService.isAdminUIClientsWriter();
         this._menuItems.push(...[
-            new MenuItem('Dashboard', '/app/dashboard', isAdmin, 'home'),
+            new MenuItem('Dashboard', '/app/dashboard', canReadUsers || canReadClients, 'home'),
             new MenuItem('Users', undefined, canReadUsers, 'group', this.isActiveMenuItem('/app/users'), [
                 new MenuItem('Users List', '/app/users', canReadUsers),
                 new MenuItem('Add User', '/app/users/add', canWriteUsers)
@@ -37,9 +37,9 @@ export class MenuService {
                 new MenuItem('API Resources List', '/app/resources/api', canReadClients),
                 new MenuItem('Add Resource', '/app/resources/add', canWriteClients)
             ]),
-            new MenuItem('Claim Types', undefined, canReadUsers, 'perm_identity', this.isActiveMenuItem('/app/claim-types'), [
-                new MenuItem('Claims List', '/app/claim-types', canReadUsers),
-                new MenuItem('Add Claim', '/app/claim-types/add', canWriteUsers)
+            new MenuItem('Claim Types', undefined, canReadUsers || canReadClients, 'perm_identity', this.isActiveMenuItem('/app/claim-types'), [
+                new MenuItem('Claims List', '/app/claim-types', canReadUsers || canReadClients),
+                new MenuItem('Add Claim', '/app/claim-types/add', canWriteUsers || canWriteClients)
             ]),
             new MenuItem('App Settings', undefined, isAdmin, 'settings_system_daydream', this.isActiveMenuItem('/app/settings'), [
                 new MenuItem('App Settings List', '/app/settings', isAdmin),

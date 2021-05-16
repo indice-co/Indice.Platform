@@ -49,6 +49,7 @@ namespace Indice.AspNetCore.Identity.Localization
                 var cookie = httpContext.Request.Cookies[CookieRequestCultureProvider.DefaultCookieName];
                 var newCookieValue = CookieRequestCultureProvider.MakeCookieValue(new RequestCulture(culture));
                 if (string.IsNullOrEmpty(cookie) || cookie != newCookieValue) {
+                    // TODO: 
                     httpContext.Response.Cookies.Append(CookieRequestCultureProvider.DefaultCookieName, newCookieValue);
                 }
             }

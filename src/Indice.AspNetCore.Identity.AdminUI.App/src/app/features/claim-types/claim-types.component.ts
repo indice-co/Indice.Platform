@@ -4,6 +4,7 @@ import { TableColumn } from '@swimlane/ngx-datatable';
 import { IdentityApiService, ClaimTypeInfoResultSet, ClaimTypeInfo } from 'src/app/core/services/identity-api.service';
 import { SearchEvent } from 'src/app/shared/components/list-view/models/search-event';
 import { ListViewComponent } from 'src/app/shared/components/list-view/list-view.component';
+import { AuthService } from 'src/app/core/services/auth.service';
 
 @Component({
     selector: 'app-claim-types',
@@ -15,13 +16,18 @@ export class ClaimTypesComponent implements OnInit {
     @ViewChild('valueTypeTemplate', { static: true }) public _valueTypeTemplate: TemplateRef<HTMLElement>;
     @ViewChild('nameTemplate', { static: true }) public _nameTemplate: TemplateRef<HTMLElement>;
 
-    constructor(private _api: IdentityApiService) { }
+    constructor(
+        private _api: IdentityApiService,
+        private _authService: AuthService
+    ) { }
 
     public count = 0;
     public rows: ClaimTypeInfo[] = [];
     public columns: TableColumn[] = [];
+    public canEditClaimType: boolean;
 
     public ngOnInit(): void {
+        this.canEditClaimType = this._authService.isAdminUIUsersWriter() || this._authService.isAdminUIClientsWriter();
         this.columns = [
             { prop: 'name', name: 'Name', draggable: false, canAutoResize: true, sortable: true, resizeable: false, cellTemplate: this._nameTemplate },
             { prop: 'valueType', name: 'Value Type', draggable: false, canAutoResize: true, sortable: true, resizeable: false, cellTemplate: this._valueTypeTemplate },
