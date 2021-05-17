@@ -147,7 +147,7 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
                 var searchTerm = options.Search.ToLower();
                 var idsFromClaims = await _dbContext
                     .UserClaims
-                    .Where(x => (x.ClaimType == JwtClaimTypes.GivenName || x.ClaimType == JwtClaimTypes.FamilyName) && EF.Functions.Like(x.ClaimValue, $"%{searchTerm}%"))
+                    .Where(x => (x.ClaimType == JwtClaimTypes.GivenName || x.ClaimType == JwtClaimTypes.FamilyName) && EF.Functions.Like(x.ClaimValue.ToLower(), $"%{searchTerm}%"))
                     .Select(x => x.UserId)
                     .ToArrayAsync();
                 usersQuery = usersQuery.Where(x => EF.Functions.Like(x.Email.ToLower(), $"%{searchTerm}%")
@@ -625,7 +625,7 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
             return Ok(externalLogins.Select(x => new UserLoginProviderInfo {
                 Key = x.ProviderKey,
                 Name = x.LoginProvider,
-                DisplayName = x.ProviderDisplayName
+                DisplayName = !string.IsNullOrWhiteSpace(x.ProviderDisplayName) ? x.ProviderDisplayName : x.LoginProvider
             }));
         }
 
