@@ -24,10 +24,10 @@
                 </a>
                 <div class="dropdown-menu dropdown-menu-right profile-dropdown"
                      ngbDropdownMenu>
-                    <a class="dropdown-item"
+                    <!-- <a class="dropdown-item"
                        href="#">
                         <i class="material-icons text-muted">account_circle</i> Profile
-                    </a>
+                    </a> -->
                     <a class="dropdown-item"
                        (click)="signOut()"
                        href="javascript:void(0);">
@@ -50,35 +50,41 @@
                    href="javascript:void(0);"
                    role="button"
                    ngbDropdownToggle>
-                    Create New 
+                    Create New
                     <i class="material-icons align-middle">add</i>
                 </a>
                 <div class="dropdown-menu"
                      ngbDropdownMenu>
                     <a [routerLink]="['/app/users/add']"
-                       class="dropdown-item">
+                       class="dropdown-item"
+                       *ngIf="authService.isAdminUIUsersWriter()">
                         User
                     </a>
                     <a [routerLink]="['/app/roles/add']"
-                       class="dropdown-item">
+                       class="dropdown-item"
+                       *ngIf="authService.isAdminUIUsersWriter()">
                         Role
                     </a>
                     <a [routerLink]="['/app/clients/add']"
-                       class="dropdown-item">
+                       class="dropdown-item"
+                       *ngIf="authService.isAdminUIClientsWriter()">
                         Client
                     </a>
                     <a [routerLink]="['/app/resources/add']"
                        [state]="{ origin: 'identity' }"
-                       class="dropdown-item">
+                       class="dropdown-item"
+                       *ngIf="authService.isAdminUIClientsWriter()">
                         Identity Resource
                     </a>
                     <a [routerLink]="['/app/resources/add']"
                        [state]="{ origin: 'api' }"
-                       class="dropdown-item">
+                       class="dropdown-item"
+                       *ngIf="authService.isAdminUIClientsWriter()">
                         API Resource
                     </a>
                     <a [routerLink]="['/app/claim-types/add']"
-                       class="dropdown-item">
+                       class="dropdown-item"
+                       *ngIf="authService.isAdminUIUsersWriter() || authService.isAdminUIClientsWriter()">
                         Claim Type
                     </a>
                 </div>

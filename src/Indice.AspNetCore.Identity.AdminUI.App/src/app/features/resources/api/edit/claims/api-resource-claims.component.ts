@@ -5,6 +5,7 @@ import { Subscription, forkJoin } from 'rxjs';
 import { ClaimTypeInfo, ApiResourceInfo } from 'src/app/core/services/identity-api.service';
 import { ApiResourceStore } from '../../api-resource-store.service';
 import { map } from 'rxjs/operators';
+import { AuthService } from 'src/app/core/services/auth.service';
 
 @Component({
     selector: 'app-api-resource-claims',
@@ -16,12 +17,18 @@ export class ApiResourceClaimsComponent implements OnInit, OnDestroy {
     private _deleteApiResourceClaim: Subscription;
     private _apiResourceId: number;
 
-    constructor(private _route: ActivatedRoute, private _apiResourceStore: ApiResourceStore) { }
+    constructor(
+        private _route: ActivatedRoute,
+        private _apiResourceStore: ApiResourceStore,
+        private _authService: AuthService
+    ) { }
 
     public availableClaims: ClaimTypeInfo[];
     public selectedClaims: ClaimTypeInfo[];
+    public canEditResource: boolean;
 
     public ngOnInit(): void {
+        this.canEditResource = this._authService.isAdminUIClientsWriter();
         this._apiResourceId = +this._route.parent.snapshot.params.id;
         const getApiResource = this._apiResourceStore.getApiResource(this._apiResourceId);
         const getAllClaims = this._apiResourceStore.getAllClaims();

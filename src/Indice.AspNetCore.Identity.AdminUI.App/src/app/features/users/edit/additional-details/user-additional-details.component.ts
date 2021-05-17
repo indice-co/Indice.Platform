@@ -11,6 +11,7 @@ import { ClaimTypeInfo, SingleUserInfo, ValueType, ClaimInfo } from 'src/app/cor
 import { ClaimType } from '../details/models/claim-type.model';
 import { NgbDateCustomParserFormatter } from 'src/app/shared/services/custom-parser-formatter.service';
 import { ToastService } from 'src/app/layout/services/app-toast.service';
+import { AuthService } from 'src/app/core/services/auth.service';
 
 @Component({
     selector: 'app-user-additional-details',
@@ -25,9 +26,10 @@ export class UserAdditionalDetailsComponent implements OnInit, OnDestroy {
     private _user: SingleUserInfo;
 
     constructor(
-        private _userStore: UserStore, 
-        private _route: ActivatedRoute, 
-        private _dateParser: NgbDateCustomParserFormatter, 
+        private _userStore: UserStore,
+        private _route: ActivatedRoute,
+        private _dateParser: NgbDateCustomParserFormatter,
+        private _authService: AuthService,
         public _toast: ToastService
     ) { }
 
@@ -38,13 +40,17 @@ export class UserAdditionalDetailsComponent implements OnInit, OnDestroy {
     public selectedClaimValueType = ValueType.String;
     public columns: TableColumn[] = [];
     public rows: ClaimInfo[] = [];
+    public canEditUser: boolean;
 
     public ngOnInit(): void {
+        this.canEditUser = this._authService.isAdminUIUsersWriter();
         this.columns = [
             { prop: 'type', name: 'Type', draggable: false, canAutoResize: true, sortable: true, resizeable: false, cellTemplate: this._nameTemplate },
-            { prop: 'value', name: 'Value', draggable: false, canAutoResize: true, sortable: true, resizeable: false },
-            { prop: 'id', name: 'Actions', draggable: false, canAutoResize: true, sortable: false, resizeable: false, cellTemplate: this._actionsTemplate, cellClass: 'd-flex align-items-center' }
+            { prop: 'value', name: 'Value', draggable: false, canAutoResize: true, sortable: true, resizeable: false }
         ];
+        if (this.canEditUser) {
+            this.columns.push({ prop: 'id', name: 'Actions', draggable: false, canAutoResize: true, sortable: false, resizeable: false, cellTemplate: this._actionsTemplate, cellClass: 'd-flex align-items-center' })
+        }
         const userId = this._route.parent.snapshot.params.id;
         const getUser = this._userStore.getUser(userId);
         const getAllClaims = this._userStore.getAllClaims();

@@ -199,7 +199,7 @@ namespace Indice.Identity
                 DefaultRequestCulture = new RequestCulture(SupportedCultures.Default),
                 RequestCultureProviders = new List<IRequestCultureProvider> {
                     new QueryStringRequestCultureProvider(),
-                    QueryStringToCookieRequestCultureProvider.CreateForUiLocales(),
+                    new QueryStringToCookieRequestCultureProvider { QueryParameterName = "ui_locales" },
                     new CookieRequestCultureProvider()
                 },
                 SupportedCultures = SupportedCultures.Get().ToList(),

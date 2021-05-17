@@ -2,6 +2,7 @@
       [ngClass]="{ 'was-validated': form.submitted }"
       (ngSubmit)="form.form.valid && addClaim()"
       novalidate
+      *ngIf="canEditUser"
       #form="ngForm">
     <div class="form-row">
         <div class="col">

@@ -6,6 +6,7 @@ import { AuthCallbackComponent } from './components/auth-callback/auth-callback.
 import { AuthRenewComponent } from './components/auth-renew/auth-renew.component';
 import { PublicShellComponent } from '../layout/components/public-shell/public-shell.component';
 import { DashboardShellComponent } from '../layout/components/dashboard-shell/dashboard-shell.component';
+import { ErrorComponent } from './components/error/error.component';
 
 const appRoutes: Routes = [
     { path: 'auth-callback', component: AuthCallbackComponent },
@@ -25,6 +26,11 @@ const appRoutes: Routes = [
             { path: 'clients', loadChildren: () => import('../features/clients/clients.module').then(x => x.ClientsModule) },
             { path: 'resources', loadChildren: () => import('../features/resources/resources.module').then(x => x.ResourcesModule) },
             { path: 'settings', loadChildren: () => import('../features/settings/settings.module').then(x => x.SettingsModule) }
+        ]
+    },
+    {
+        path: 'forbidden', component: PublicShellComponent, children: [
+            { path: '', component: ErrorComponent, data: { statusCode: 403 } }
         ]
     }
 ];

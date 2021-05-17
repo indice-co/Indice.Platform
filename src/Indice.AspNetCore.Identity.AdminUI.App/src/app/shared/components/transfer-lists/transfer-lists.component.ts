@@ -13,6 +13,7 @@ export class TransferListsComponent {
     @Input() public titlePropertyName: string;
     @Input() public subtitlePropertyName: string;
     @Input() public options: TransferListsOptions;
+    @Input() public viewOnly: boolean = false;
     @Output() public itemAdded = new EventEmitter<any>();
     @Output() public itemRemoved = new EventEmitter<any>();
 

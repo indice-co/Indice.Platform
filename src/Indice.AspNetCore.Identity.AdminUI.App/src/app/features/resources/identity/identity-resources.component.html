@@ -14,11 +14,26 @@
 </div>
 <div class="row">
     <div class="col-12">
-        <app-list-view [clientSide]="false" [columns]="columns" [rows]="rows" [count]="count" [rowsPerPage]="15" [defaultSortField]="'name'" [defaultSortDirection]="'Asc'" 
-            (search)="getIdentityResources($event)" #identityResourcesList>
+        <app-list-view [clientSide]="false"
+                       [columns]="columns"
+                       [rows]="rows"
+                       [count]="count"
+                       [rowsPerPage]="15"
+                       [defaultSortField]="'name'"
+                       [defaultSortDirection]="'Asc'"
+                       (search)="getIdentityResources($event)"
+                       #identityResourcesList>
         </app-list-view>
     </div>
 </div>
-<ng-template let-row="row" let-value="value" #actionsTemplate>
-    <a class="btn btn-success" href="#" role="button" *ngIf="value" [routerLink]="value + '/details'">Edit</a>
+<ng-template let-row="row"
+             let-value="value"
+             #actionsTemplate>
+    <a class="btn btn-success"
+       href="#"
+       role="button"
+       *ngIf="value"
+       [routerLink]="value + '/details'">
+        {{ canEditResource ? 'Edit' : 'View' }}
+    </a>
 </ng-template>

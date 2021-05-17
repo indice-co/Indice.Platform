@@ -4,13 +4,19 @@
         <div class="card m-b-30 shadow text-center">
             <div class="card-body">
                 <p *ngIf="source?.length === 0">{{ options?.emptySourceListMessage }}</p>
-                <ul class="list-group list-group-flush" *ngIf="source?.length > 0">
-                    <li *ngFor="let item of source" class="list-group-item d-flex justify-content-between align-items-center">
+                <ul class="list-group list-group-flush"
+                    *ngIf="source?.length > 0">
+                    <li *ngFor="let item of source"
+                        class="list-group-item d-flex justify-content-between align-items-center">
                         <div>
                             <span class="d-block">{{ item[titlePropertyName] }}</span>
                             <small class="text-muted">{{ item[subtitlePropertyName] }}</small>
                         </div>
-                        <span class="action-text text-success cursor-pointer" (click)="addItem(item)">Add</span>
+                        <span class="action-text text-success cursor-pointer"
+                              (click)="addItem(item)"
+                              *ngIf="!viewOnly">
+                            Add
+                        </span>
                     </li>
                 </ul>
             </div>
@@ -21,13 +27,19 @@
         <div class="card m-b-30 shadow text-center">
             <div class="card-body">
                 <p *ngIf="destination?.length === 0">{{ options?.emptyDestinationListMessage }}</p>
-                <ul class="list-group list-group-flush" *ngIf="destination?.length > 0">
-                    <li *ngFor="let item of destination" class="list-group-item d-flex justify-content-between align-items-center">
+                <ul class="list-group list-group-flush"
+                    *ngIf="destination?.length > 0">
+                    <li *ngFor="let item of destination"
+                        class="list-group-item d-flex justify-content-between align-items-center">
                         <div>
                             <span class="d-block">{{ item[titlePropertyName] }}</span>
                             <small class="text-muted">{{ item[subtitlePropertyName] }}</small>
                         </div>
-                        <span class="action-text text-muted cursor-pointer" (click)="removeItem(item)">Remove</span>
+                        <span class="action-text text-muted cursor-pointer"
+                              (click)="removeItem(item)"
+                              *ngIf="!viewOnly">
+                            Remove
+                        </span>
                     </li>
                 </ul>
             </div>

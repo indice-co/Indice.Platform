@@ -4,6 +4,7 @@ import { TableColumn } from '@swimlane/ngx-datatable';
 import { IdentityApiService, ClientInfoResultSet, ClientInfo } from 'src/app/core/services/identity-api.service';
 import { SearchEvent } from 'src/app/shared/components/list-view/models/search-event';
 import { ListViewComponent } from 'src/app/shared/components/list-view/list-view.component';
+import { AuthService } from 'src/app/core/services/auth.service';
 
 @Component({
     selector: 'app-clients',
@@ -14,13 +15,18 @@ export class ClientsComponent implements OnInit {
     @ViewChild('actionsTemplate', { static: true }) public _actionsTemplate: TemplateRef<HTMLElement>;
     @ViewChild('clientIdTemplate', { static: true }) public _clientIdTemplate: TemplateRef<HTMLElement>;
 
-    constructor(private _api: IdentityApiService) { }
+    constructor(
+        private _api: IdentityApiService,
+        private _authService: AuthService
+    ) { }
 
     public count = 0;
     public rows: ClientInfo[] = [];
     public columns: TableColumn[] = [];
+    public canEditClient: boolean;
 
     public ngOnInit(): void {
+        this.canEditClient = this._authService.isAdminUIClientsWriter();
         this.columns = [
             { prop: 'clientId', name: 'Client Id', draggable: false, canAutoResize: true, sortable: true, resizeable: false, cellTemplate: this._clientIdTemplate },
             { prop: 'clientName', name: 'Client Name', draggable: false, canAutoResize: true, sortable: true, resizeable: false },

@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Indice.Security;
+using Microsoft.AspNetCore.Identity;
 
 namespace Indice.AspNetCore.Identity.Data.Models
 {
@@ -22,5 +23,12 @@ namespace Indice.AspNetCore.Identity.Data.Models
         /// A description for the role.
         /// </summary>
         public string Description { get; set; }
+
+        /// <summary>
+        /// Checks if the specified role is one of management roles.
+        /// </summary>
+        /// <param name="role">The role to check.</param>
+        public virtual bool IsManagementRole() => 
+            Name is BasicRoleNames.Administrator or BasicRoleNames.AdminUIAdministrator or BasicRoleNames.AdminUIUsersReader or BasicRoleNames.AdminUIUsersWriter or BasicRoleNames.AdminUIClientsReader or BasicRoleNames.AdminUIClientsWriter;
     }
 }

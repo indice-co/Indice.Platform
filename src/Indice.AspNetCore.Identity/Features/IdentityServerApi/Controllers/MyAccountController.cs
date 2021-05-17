@@ -109,7 +109,7 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
             }
             var result = await _userManager.SetEmailAsync(user, request.Email);
             if (!result.Succeeded) {
-                return BadRequest(result.Errors.AsValidationProblemDetails());
+                return BadRequest(result.Errors.ToValidationProblemDetails());
             }
             if (!_identityServerApiEndpointsOptions.Email.SendEmailOnUpdate) {
                 return NoContent();
@@ -156,7 +156,7 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
             }
             var result = await _userManager.ConfirmEmailAsync(user, request.Token);
             if (!result.Succeeded) {
-                return BadRequest(result.Errors.AsValidationProblemDetails());
+                return BadRequest(result.Errors.ToValidationProblemDetails());
             }
             var eventInfo = user.ToBasicUserInfo();
             await _eventService.Raise(new UserEmailConfirmedEvent(eventInfo));
@@ -186,7 +186,7 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
             }
             var result = await _userManager.SetPhoneNumberAsync(user, request.PhoneNumber);
             if (!result.Succeeded) {
-                return BadRequest(result.Errors.AsValidationProblemDetails());
+                return BadRequest(result.Errors.ToValidationProblemDetails());
             }
             if (!_identityServerApiEndpointsOptions.PhoneNumber.SendOtpOnUpdate) {
                 return NoContent();
@@ -223,7 +223,7 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
             }
             var result = await _userManager.ChangePhoneNumberAsync(user, user.PhoneNumber, request.Token);
             if (!result.Succeeded) {
-                return BadRequest(result.Errors.AsValidationProblemDetails());
+                return BadRequest(result.Errors.ToValidationProblemDetails());
             }
             var eventInfo = user.ToBasicUserInfo();
             await _eventService.Raise(new UserPhoneNumberConfirmedEvent(eventInfo));
@@ -248,7 +248,7 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
             }
             var result = await _userManager.SetUserNameAsync(user, request.UserName);
             if (!result.Succeeded) {
-                return BadRequest(result.Errors.AsValidationProblemDetails());
+                return BadRequest(result.Errors.ToValidationProblemDetails());
             }
             return Ok();
         }
@@ -271,7 +271,7 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
             }
             var result = await _userManager.ChangePasswordAsync(user, request.OldPassword, request.NewPassword);
             if (!result.Succeeded) {
-                return BadRequest(result.Errors.AsValidationProblemDetails());
+                return BadRequest(result.Errors.ToValidationProblemDetails());
             }
             return NoContent();
         }
@@ -318,7 +318,7 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
             }
             var result = await _userManager.ResetPasswordAsync(user, request.Token, request.NewPassword);
             if (!result.Succeeded) {
-                return BadRequest(result.Errors.AsValidationProblemDetails());
+                return BadRequest(result.Errors.ToValidationProblemDetails());
             }
             return NoContent();
         }
@@ -468,7 +468,7 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
         /// <param name="claimId">The id of the user claim.</param>
         /// <param name="request">Contains info about the claims to update.</param>
         /// <response code="200">OK</response>
-        /// <response code="404">Bad Request</response>
+        /// <response code="400">Bad Request</response>
         /// <response code="404">Not Found</response>
         [HttpPut("my/account/claims/{claimId:int}")]
         [ProducesResponseType(statusCode: StatusCodes.Status200OK, type: typeof(ClaimInfo))]
@@ -587,7 +587,7 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
         /// <summary>
         /// Self-service user registration endpoint.
         /// </summary>
-        /// <response code="200">No Content</response>
+        /// <response code="204">No Content</response>
         /// <response code="400">Bad Request</response>
         [FeatureGate(IdentityServerApiFeatures.PublicRegistration)]
         [HttpPost("account/register")]

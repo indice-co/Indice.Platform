@@ -2,6 +2,7 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 
 import { Subscription, forkJoin } from 'rxjs';
 import { map } from 'rxjs/operators';
+import { AuthService } from 'src/app/core/services/auth.service';
 import { IdentityApiService, BlogItemInfo, BlogItemInfoResultSet, SummaryInfo } from 'src/app/core/services/identity-api.service';
 
 @Component({
@@ -14,7 +15,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
   private _postsToLoad = 9;
   private _currentPostsPage = 1;
 
-  constructor(private _api: IdentityApiService) { }
+  constructor(
+    private _api: IdentityApiService,
+    public authService: AuthService
+  ) { }
 
   public blogItems: BlogItemInfo[] = [];
   public totalNumberOfPosts = 0;

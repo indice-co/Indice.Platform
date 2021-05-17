@@ -15,6 +15,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration.Json;
+using Microsoft.Extensions.Hosting;
 
 namespace Indice.AspNetCore.Identity.Api.Controllers
 {
@@ -25,16 +26,16 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
     /// <response code="401">Unauthorized</response>
     /// <response code="403">Forbidden</response>
     /// <response code="500">Internal Server Error</response>
-    [Route("api/app-settings")]
     [ApiController]
     [ApiExplorerSettings(GroupName = "identity")]
-    [Produces(MediaTypeNames.Application.Json)]
+    [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme, Policy = IdentityServerApi.Policies.BeAdmin)]
     [Consumes(MediaTypeNames.Application.Json)]
+    [ProblemDetailsExceptionFilter]
+    [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(statusCode: 400, type: typeof(ValidationProblemDetails))]
     [ProducesResponseType(statusCode: 401, type: typeof(ProblemDetails))]
     [ProducesResponseType(statusCode: 403, type: typeof(ProblemDetails))]
-    [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme, Policy = IdentityServerApi.Admin)]
-    [ProblemDetailsExceptionFilter]
+    [Route("api/app-settings")]
     internal class SettingsController : ControllerBase
     {
         private readonly ExtendedIdentityDbContext<User, Role> _dbContext;
@@ -60,7 +61,7 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
         /// <param name="options">List params used to navigate through collections. Contains parameters such as sort, search, page number and page size.</param>
         /// <response code="200">OK</response>
         [HttpGet]
-        [ProducesResponseType(statusCode: 200, type: typeof(ResultSet<AppSettingInfo>))]
+        [ProducesResponseType(statusCode: StatusCodes.Status200OK, type: typeof(ResultSet<AppSettingInfo>))]
         public async Task<IActionResult> GetSettings([FromQuery] ListOptions options) {
             var query = _dbContext.AppSettings.AsNoTracking().AsQueryable();
             if (!string.IsNullOrEmpty(options.Search)) {
@@ -78,12 +79,15 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
         /// <summary>
         /// Loads the appsettings.json file and saves the configuration in the database.
         /// </summary>
-        /// <param name="hardRefresh"></param>
-        /// <response code="200">OK</response>
+        /// <param name="hardRefresh">If set, deletes the existing settings and imports from appsettings.json files.</param>
+        /// <response code="204">No Content</response>
         [ApiExplorerSettings(IgnoreApi = true)]
         [HttpPost("load")]
-        [ProducesResponseType(statusCode: 200, type: typeof(void))]
+        [ProducesResponseType(statusCode: StatusCodes.Status204NoContent, type: typeof(void))]
         public async Task<IActionResult> LoadFromAppSettings([FromQuery] bool hardRefresh = false) {
+            if (!_webHostEnvironment.IsDevelopment()) {
+                return NotFound();
+            }
             var fileInfo = _webHostEnvironment.ContentRootFileProvider.GetFileInfo("appsettings.json");
             var settingsExist = await _dbContext.AppSettings.AnyAsync();
             if (settingsExist && !hardRefresh) {
@@ -103,7 +107,7 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
                 Value = x.Value
             }));
             await _dbContext.SaveChangesAsync();
-            return Ok();
+            return NoContent();
         }
 
         /// <summary>
@@ -176,10 +180,10 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
         /// Permanently deletes an application setting.
         /// </summary>
         /// <param name="key">The key of the setting.</param>
-        /// <response code="200">No Content</response>
+        /// <response code="204">No Content</response>
         /// <response code="404">Not Found</response>
         [HttpDelete("{key}")]
-        [ProducesResponseType(statusCode: StatusCodes.Status204NoContent)]
+        [ProducesResponseType(statusCode: StatusCodes.Status204NoContent, type: typeof(void))]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
         public async Task<IActionResult> DeleteSetting([FromRoute] string key) {
             var setting = await _dbContext.AppSettings.AsNoTracking().SingleOrDefaultAsync(x => x.Key == key);

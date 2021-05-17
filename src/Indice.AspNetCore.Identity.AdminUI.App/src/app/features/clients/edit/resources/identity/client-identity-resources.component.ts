@@ -3,6 +3,7 @@ import { ActivatedRoute } from '@angular/router';
 
 import { forkJoin, Subscription } from 'rxjs';
 import { map } from 'rxjs/operators';
+import { AuthService } from 'src/app/core/services/auth.service';
 import { SingleClientInfo, IdentityResourceInfo } from 'src/app/core/services/identity-api.service';
 import { ClientStore } from '../../client-store.service';
 
@@ -15,13 +16,19 @@ export class ClientIdentityResourcesComponent implements OnInit, OnDestroy {
     private _addClientIdentityResourceSubscription: Subscription;
     private _removeClientIdentityResourceSubscription: Subscription;
 
-    constructor(private _route: ActivatedRoute, private _clientStore: ClientStore) { }
+    constructor(
+        private _route: ActivatedRoute,
+        private _clientStore: ClientStore,
+        private _authService: AuthService
+    ) { }
 
     public clientId = '';
     public availableResources: IdentityResourceInfo[];
     public clientResources: IdentityResourceInfo[];
+    public canEditClient: boolean;
 
     public ngOnInit(): void {
+        this.canEditClient = this._authService.isAdminUIClientsWriter();
         this.clientId = this._route.parent.parent.snapshot.params.id;
         const getClient = this._clientStore.getClient(this.clientId);
         const getIdentityResources = this._clientStore.getIdentityResources();
@@ -30,8 +37,7 @@ export class ClientIdentityResourcesComponent implements OnInit, OnDestroy {
                 client: responses[0],
                 identityResources: responses[1]
             };
-        }))
-        .subscribe((result: { client: SingleClientInfo, identityResources: IdentityResourceInfo[] }) => {
+        })).subscribe((result: { client: SingleClientInfo, identityResources: IdentityResourceInfo[] }) => {
             const clientIdentityResources = result.client.identityResources;
             const allIdentityResources = result.identityResources;
             this.availableResources = allIdentityResources.filter(x => !clientIdentityResources.includes(x.name));

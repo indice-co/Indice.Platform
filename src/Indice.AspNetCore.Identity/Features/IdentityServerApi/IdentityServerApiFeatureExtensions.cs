@@ -1,5 +1,4 @@
 ﻿using System;
-using IdentityModel;
 using Indice.AspNetCore.Identity;
 using Indice.AspNetCore.Identity.Api;
 using Indice.AspNetCore.Identity.Api.Configuration;
@@ -51,28 +50,7 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddScoped<CreateClaimTypeRequestValidationFilter>();
             services.AddScoped<CreateRoleRequestValidationFilter>();
             // Add authorization policies that are used by the IdentityServer API.
-            services.AddAuthorization(authOptions => {
-                authOptions.AddPolicy(IdentityServerApi.Scope, policy => {
-                    policy.AddAuthenticationSchemes(IdentityServerApi.AuthenticationScheme)
-                          .RequireAuthenticatedUser()
-                          .RequireAssertion(x => x.User.HasClaim(JwtClaimTypes.Scope, IdentityServerApi.Scope) || x.User.IsAdmin() || x.User.IsSystemClient());
-                });
-                authOptions.AddPolicy(IdentityServerApi.SubScopes.Users, policy => {
-                    policy.AddAuthenticationSchemes(IdentityServerApi.AuthenticationScheme)
-                          .RequireAuthenticatedUser()
-                          .RequireAssertion(x => x.User.HasClaim(JwtClaimTypes.Scope, IdentityServerApi.SubScopes.Users) && (x.User.IsAdmin() || x.User.IsSystemClient()));
-                });
-                authOptions.AddPolicy(IdentityServerApi.SubScopes.Clients, policy => {
-                    policy.AddAuthenticationSchemes(IdentityServerApi.AuthenticationScheme)
-                          .RequireAuthenticatedUser()
-                          .RequireAssertion(x => x.User.HasClaim(JwtClaimTypes.Scope, IdentityServerApi.SubScopes.Clients) && (x.User.IsAdmin() || x.User.IsSystemClient()));
-                });
-                authOptions.AddPolicy(IdentityServerApi.Admin, policy => {
-                    policy.AddAuthenticationSchemes(IdentityServerApi.AuthenticationScheme)
-                          .RequireAuthenticatedUser()
-                          .RequireAssertion(x => x.User.HasClaim(JwtClaimTypes.Scope, IdentityServerApi.Scope) && (x.User.IsAdmin() || x.User.IsSystemClient()));
-                });
-            });
+            services.AddIdentityApiAuthorization();
             // Configure antiforgery token options.
             services.Configure<AntiforgeryOptions>(options => {
                 options.HeaderName = CustomHeaderNames.AntiforgeryHeaderName;
@@ -116,5 +94,43 @@ namespace Microsoft.Extensions.DependencyInjection
             options.Services.AddTransient(typeof(IIdentityServerApiEventHandler<TEvent>), typeof(TEventHandler));
             return options;
         }
+
+        private static IServiceCollection AddIdentityApiAuthorization(this IServiceCollection services) => services.AddAuthorization(authOptions => {
+            authOptions.AddPolicy(IdentityServerApi.Scope, policy => {
+                policy.AddAuthenticationSchemes(IdentityServerApi.AuthenticationScheme)
+                      .RequireAuthenticatedUser()
+                      .RequireAssertion(x => x.User.HasScopeClaim(IdentityServerApi.Scope) || x.User.IsAdmin() || x.User.IsSystemClient());
+            });
+            authOptions.AddPolicy(IdentityServerApi.Policies.BeUsersReader, policy => {
+                policy.AddAuthenticationSchemes(IdentityServerApi.AuthenticationScheme)
+                      .RequireAuthenticatedUser()
+                      .RequireAssertion(x => x.User.HasScopeClaim(IdentityServerApi.SubScopes.Users) && x.User.CanReadUsers());
+            });
+            authOptions.AddPolicy(IdentityServerApi.Policies.BeUsersWriter, policy => {
+                policy.AddAuthenticationSchemes(IdentityServerApi.AuthenticationScheme)
+                      .RequireAuthenticatedUser()
+                      .RequireAssertion(x => x.User.HasScopeClaim(IdentityServerApi.SubScopes.Users) && x.User.CanWriteUsers());
+            });
+            authOptions.AddPolicy(IdentityServerApi.Policies.BeClientsReader, policy => {
+                policy.AddAuthenticationSchemes(IdentityServerApi.AuthenticationScheme)
+                      .RequireAuthenticatedUser()
+                      .RequireAssertion(x => x.User.HasScopeClaim(IdentityServerApi.SubScopes.Clients) && x.User.CanReadClients());
+            });
+            authOptions.AddPolicy(IdentityServerApi.Policies.BeClientsWriter, policy => {
+                policy.AddAuthenticationSchemes(IdentityServerApi.AuthenticationScheme)
+                      .RequireAuthenticatedUser()
+                      .RequireAssertion(x => x.User.HasScopeClaim(IdentityServerApi.SubScopes.Clients) && x.User.CanWriteClients());
+            });
+            authOptions.AddPolicy(IdentityServerApi.Policies.BeUsersOrClientsReader, policy => {
+                policy.AddAuthenticationSchemes(IdentityServerApi.AuthenticationScheme)
+                      .RequireAuthenticatedUser()
+                      .RequireAssertion(x => x.User.HasScopeClaim(IdentityServerApi.SubScopes.Users) && (x.User.CanReadUsers() || x.User.CanReadClients()));
+            });
+            authOptions.AddPolicy(IdentityServerApi.Policies.BeAdmin, policy => {
+                policy.AddAuthenticationSchemes(IdentityServerApi.AuthenticationScheme)
+                      .RequireAuthenticatedUser()
+                      .RequireAssertion(x => x.User.HasScopeClaim(IdentityServerApi.Scope) && (x.User.HasRoleClaim(BasicRoleNames.Administrator) || x.User.HasRoleClaim(BasicRoleNames.AdminUIAdministrator) || x.User.IsAdmin() || x.User.IsSystemClient()));
+            });
+        });
     }
 }
