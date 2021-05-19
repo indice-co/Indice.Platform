@@ -14,11 +14,23 @@
 </div>
 <div class="row">
     <div class="col-12">
-        <app-list-view [clientSide]="false" [columns]="columns" [rows]="rows" [count]="count" [rowsPerPage]="15" [defaultSortField]="'name'" [defaultSortDirection]="'Asc'" 
-            (search)="getRoles($event)" #rolesList>
+        <app-list-view [clientSide]="false"
+                       [columns]="columns"
+                       [rows]="rows"
+                       [count]="count"
+                       [rowsPerPage]="15"
+                       [defaultSortField]="'name'"
+                       [defaultSortDirection]="'Asc'"
+                       (search)="getRoles($event)"
+                       #rolesList>
         </app-list-view>
     </div>
 </div>
-<ng-template let-row="row" let-value="value" #actionsTemplate>
-    <a class="btn btn-success" href="#" role="button" [routerLink]="value + '/edit'">Edit</a>
+<ng-template let-row="row"
+             let-value="value"
+             #actionsTemplate>
+    <a class="btn btn-success"
+       href="#"
+       role="button"
+       [routerLink]="value + '/edit'">{{ canEditRole ? 'Edit' : 'View' }}</a>
 </ng-template>

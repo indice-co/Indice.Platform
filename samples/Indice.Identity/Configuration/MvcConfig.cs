@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using ValueType = Indice.AspNetCore.Identity.Data.Models.ValueType;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
@@ -29,12 +30,6 @@ namespace Microsoft.Extensions.DependencyInjection
             return services.AddControllersWithViews()
                            .AddRazorRuntimeCompilation()
                            .AddTotp()
-                           /*.AddPushNotifications(
-                                options => {
-                                    options.ConnectionString = configuration.GetConnectionString("PushNotificationsConnection");
-                                    options.NotificationHubPath = configuration["PushNotifications:PushNotificationsHubPath"];
-                                }
-                            )*/
                            .AddIdentityServerApiEndpoints(options => {
                                // Configure the DbContext.
                                options.AddDbContext(identityOptions => {
@@ -52,7 +47,7 @@ namespace Microsoft.Extensions.DependencyInjection
                                // Update phone number options.
                                options.PhoneNumber.SendOtpOnUpdate = true;
                                // Add custom initial user and enable test data.
-                               options.SeedDummyUsers = false;
+                               options.SeedDummyUsers = true;
                                options.InitialUsers = GetInitialUsers();
                                options.CustomClaims = GetCustomClaimTypes();
                            })
@@ -98,7 +93,7 @@ namespace Microsoft.Extensions.DependencyInjection
 
         private static List<User> GetInitialUsers() => new() {
             new User {
-                Admin = true,
+                Admin = false,
                 CreateDate = DateTime.UtcNow,
                 Email = "g.manoltzas@indice.gr",
                 EmailConfirmed = true,
@@ -109,9 +104,9 @@ namespace Microsoft.Extensions.DependencyInjection
                 Id = Guid.NewGuid().ToString(),
                 UserName = "g.manoltzas@indice.gr",
                 NormalizedUserName = "g.manoltzas@indice.gr".ToUpper(),
-                PasswordExpirationDate = DateTime.UtcNow.AddYears(-1),
+                PasswordExpirationDate = DateTime.UtcNow.AddYears(1),
                 PasswordExpirationPolicy = PasswordExpirationPolicy.Annually,
-                PasswordExpired = true,
+                PasswordExpired = false,
                 PasswordHash = "AH6SA/wuxp9YEfLGROaj2CgjhxZhXDkMB1nD8V7lfQAI+WTM4lGMItjLhhV5ASsq+Q=="
             }
         };
@@ -123,7 +118,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 Reserved = false,
                 Required = false,
                 UserEditable = false,
-                ValueType = Indice.AspNetCore.Identity.Data.Models.ValueType.String
+                ValueType = ValueType.String
             }
         };
     }

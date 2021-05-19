@@ -147,10 +147,11 @@ namespace Indice.AspNetCore.Identity
             if (toReplace.Any()) {
                 if (toReplace.Count == 1) {
                     result = await base.ReplaceClaimAsync(user, toReplace.First(), newClaim);
-                }
-                else {
+                } else {
                     result = await base.RemoveClaimsAsync(user, toReplace);
-                    if (!result.Succeeded) return result;
+                    if (!result.Succeeded) {
+                        return result;
+                    }
                     result = await base.AddClaimAsync(user, newClaim);
                 }
             } else {
@@ -158,7 +159,6 @@ namespace Indice.AspNetCore.Identity
             }
             return result;
         }
-
 
         private IExtendedUserStore<TUser> GetUserStore(bool throwOnFail = true) {
             var cast = Store as IExtendedUserStore<TUser>;

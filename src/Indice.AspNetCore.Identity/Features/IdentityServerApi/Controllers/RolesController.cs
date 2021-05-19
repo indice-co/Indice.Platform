@@ -23,17 +23,16 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
     /// <response code="401">Unauthorized</response>
     /// <response code="403">Forbidden</response>
     /// <response code="500">Internal Server Error</response>
-    [Route("api/roles")]
     [ApiController]
     [ApiExplorerSettings(GroupName = "identity")]
-    [Produces(MediaTypeNames.Application.Json)]
+    [CacheResourceFilter]
     [Consumes(MediaTypeNames.Application.Json)]
+    [ProblemDetailsExceptionFilter]
+    [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest, type: typeof(ValidationProblemDetails))]
     [ProducesResponseType(statusCode: StatusCodes.Status401Unauthorized, type: typeof(ProblemDetails))]
     [ProducesResponseType(statusCode: StatusCodes.Status403Forbidden, type: typeof(ProblemDetails))]
-    [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme, Policy = IdentityServerApi.Admin)]
-    [CacheResourceFilter]
-    [ProblemDetailsExceptionFilter]
+    [Route("api/roles")]
     internal class RolesController : ControllerBase
     {
         private readonly RoleManager<Role> _roleManager;
@@ -55,9 +54,10 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
         /// </summary>
         /// <param name="options">List params used to navigate through collections. Contains parameters such as sort, search, page number and page size.</param>
         /// <response code="200">OK</response>
+        [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme, Policy = IdentityServerApi.Policies.BeUsersReader)]
         [HttpGet]
-        [ProducesResponseType(statusCode: StatusCodes.Status200OK, type: typeof(ResultSet<RoleInfo>))]
         [NoCache]
+        [ProducesResponseType(statusCode: StatusCodes.Status200OK, type: typeof(ResultSet<RoleInfo>))]
         public async Task<IActionResult> GetRoles([FromQuery] ListOptions options) {
             var query = _roleManager.Roles.AsNoTracking();
             if (!string.IsNullOrEmpty(options.Search)) {
@@ -79,9 +79,10 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
         /// <param name="id">The identifier of the role.</param>
         /// <response code="200">OK</response>
         /// <response code="404">Not Found</response>
+        [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme, Policy = IdentityServerApi.Policies.BeUsersReader)]
+        [HttpGet("{id}")]
         [ProducesResponseType(statusCode: StatusCodes.Status200OK, type: typeof(RoleInfo))]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
-        [HttpGet("{id}")]
         public async Task<IActionResult> GetRole([FromRoute] string id) {
             var role = await _roleManager.FindByIdAsync(id);
             if (role == null) {
@@ -99,6 +100,7 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
         /// </summary>
         /// <param name="request">Contains info about the role to be created.</param>
         /// <response code="201">Created</response>
+        [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme, Policy = IdentityServerApi.Policies.BeUsersWriter)]
         [HttpPost]
         [ProducesResponseType(statusCode: StatusCodes.Status201Created, type: typeof(RoleInfo))]
         [ServiceFilter(type: typeof(CreateRoleRequestValidationFilter))]
@@ -123,6 +125,7 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
         /// <param name="request">Contains info about the role to update.</param>
         /// <response code="200">OK</response>
         /// <response code="404">Not Found</response>
+        [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme, Policy = IdentityServerApi.Policies.BeUsersWriter)]
         [HttpPut("{id}")]
         [ProducesResponseType(statusCode: StatusCodes.Status200OK, type: typeof(RoleInfo))]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
@@ -144,10 +147,11 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
         /// Permanently deletes a role.
         /// </summary>
         /// <param name="id">The id of the role to delete.</param>
-        /// <response code="200">OK</response>
+        /// <response code="204">No Content</response>
         /// <response code="404">Not Found</response>
+        [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme, Policy = IdentityServerApi.Policies.BeUsersWriter)]
         [HttpDelete("{id}")]
-        [ProducesResponseType(statusCode: StatusCodes.Status200OK)]
+        [ProducesResponseType(statusCode: StatusCodes.Status204NoContent, type: typeof(void))]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
         public async Task<IActionResult> DeleteRole([FromRoute] string id) {
             var role = await _roleManager.FindByIdAsync(id);
@@ -155,7 +159,7 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
                 return NotFound();
             }
             await _roleManager.DeleteAsync(role);
-            return Ok();
+            return NoContent();
         }
     }
 }

@@ -40,8 +40,10 @@ export class UserDetailsComponent implements OnInit, OnDestroy {
     public newPassword = '';
     public changePasswordAfterFirstSignIn = false;
     public problemDetails: ProblemDetails;
+    public canEditUser: boolean;
 
     public ngOnInit(): void {
+        this.canEditUser = this._authService.isAdminUIUsersWriter();
         this.currentUserId = this._authService.getSubjectId();
         const userId = this._route.parent.snapshot.params.id;
         const getUser = this._userStore.getUser(userId);

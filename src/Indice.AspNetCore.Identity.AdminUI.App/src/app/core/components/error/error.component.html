@@ -1,0 +1,13 @@
+<div class="ex-page-content text-center">
+    <div class="ex-page-content text-center">
+        <img class="img-fluid mt-5 w-50 shape-shadow"
+             src="assets/img/logo.svg" />
+        <h4 *ngIf="statusCode === 403">Forbidden</h4>
+        <p>It seems that your account is not authorized to access this application.</p>
+        <a class="btn btn-primary mb-5 waves-effect waves-light"
+           href="javascript:void(0)"
+           (click)="signOut()">
+            Logout
+        </a>
+    </div>
+</div>

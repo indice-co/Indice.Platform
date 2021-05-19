@@ -7,6 +7,7 @@ import { ApiScopeInfo } from 'src/app/core/services/identity-api.service';
 import { ToastService } from 'src/app/layout/services/app-toast.service';
 import { ApiResourceStore } from '../../../api-resource-store.service';
 import { UtilitiesService } from 'src/app/core/services/utilities.services';
+import { AuthService } from 'src/app/core/services/auth.service';
 
 @Component({
     selector: 'app-api-resource-scope-details',
@@ -19,13 +20,21 @@ export class ApiResourceScopeDetailsComponent implements OnInit, OnDestroy {
     private _updateApiResourceSubscription: Subscription;
     private _apiResourceId: number;
 
-    constructor(private _route: ActivatedRoute, private _apiResourceStore: ApiResourceStore, public _toast: ToastService, public utilities: UtilitiesService) { }
+    constructor(
+        private _route: ActivatedRoute,
+        private _apiResourceStore: ApiResourceStore,
+        public _toast: ToastService,
+        public utilities: UtilitiesService,
+        private _authService: AuthService
+    ) { }
 
     @Input() public scope = new ApiScopeInfo();
     @Input() public editable = false;
     public discriminator = this.utilities.newGuid();
+    public canEditResource: boolean;
 
     public ngOnInit(): void {
+        this.canEditResource = this._authService.isAdminUIClientsWriter();
         this._apiResourceId = +this._route.parent.snapshot.params.id;
     }
 

@@ -10,7 +10,7 @@
     Loading client grant types...
 </p>
 <form class="needs-validation mt-3"
-      *ngIf="client"
+      *ngIf="canEditClient && client"
       [ngClass]="{ 'was-validated': grantTypesform.submitted }"
       (ngSubmit)="grantTypesform.form.valid && addGrantType()"
       novalidate
@@ -43,7 +43,8 @@
                 Please select a value.
             </div>
         </div>
-        <div class="col" *ngIf="selectedGrantType === 'custom'">
+        <div class="col"
+             *ngIf="selectedGrantType === 'custom'">
             <label class="sr-only"
                    for="claim-value">
                 Value

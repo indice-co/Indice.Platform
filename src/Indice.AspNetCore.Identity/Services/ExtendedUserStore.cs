@@ -128,11 +128,15 @@ namespace Indice.AspNetCore.Identity.Data
         /// <inheritdoc/>
         public override Task<IdentityResult> CreateAsync(TUser user, CancellationToken cancellationToken = default) {
             user.CreateDate = DateTimeOffset.UtcNow;
+            var hasPassword = !string.IsNullOrWhiteSpace(user.PasswordHash);
             // If user does not already have a policy assigned use the default policy.
-            if (!user.PasswordExpirationPolicy.HasValue) {
-                user.PasswordExpirationPolicy = PasswordExpirationPolicy;
+            // If the user does not have a password he is probably coming from an external provider, so no need to assign a password expiration policy.
+            if (hasPassword) {
+                if (!user.PasswordExpirationPolicy.HasValue) {
+                    user.PasswordExpirationPolicy = PasswordExpirationPolicy;
+                }
+                user.PasswordExpirationDate = user.CalculatePasswordExpirationDate();
             }
-            user.PasswordExpirationDate = user.CalculatePasswordExpirationDate();
             // If EmailAsUserName option is enabled and a username is not set, then assign email to username.
             if (EmailAsUserName.HasValue && EmailAsUserName.Value && string.IsNullOrWhiteSpace(user.UserName)) {
                 user.UserName = user.Email;

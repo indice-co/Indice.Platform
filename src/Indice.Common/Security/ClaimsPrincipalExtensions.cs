@@ -103,6 +103,48 @@ namespace Indice.Security
         public static bool IsExternal(this ClaimsPrincipal principal) => principal.FindFirst("idp")?.Value != "local";
 
         /// <summary>
+        /// Checks if the current principal owns the specified scope claim. 
+        /// </summary>
+        /// <param name="principal">The current principal.</param>
+        /// <param name="scope">The scope name.</param>
+        public static bool HasScopeClaim(this ClaimsPrincipal principal, string scope) => principal.HasClaim("scope", scope);
+
+        /// <summary>
+        /// Checks if the current principal owns the specified role claim. 
+        /// </summary>
+        /// <param name="principal">The current principal.</param>
+        /// <param name="role">The role name.</param>
+        public static bool HasRoleClaim(this ClaimsPrincipal principal, string role) => principal.HasClaim("role", role);
+
+        /// <summary>
+        /// Checks if the current principal can read users data.
+        /// </summary>
+        /// <param name="principal">The current principal.</param>
+        public static bool CanReadUsers(this ClaimsPrincipal principal) =>
+            principal.HasRoleClaim(BasicRoleNames.AdminUIUsersReader) || principal.HasRoleClaim(BasicRoleNames.AdminUIUsersWriter) || principal.IsAdmin() || principal.IsSystemClient();
+
+        /// <summary>
+        /// Checks if the current principal can read and write users data.
+        /// </summary>
+        /// <param name="principal">The current principal.</param>
+        public static bool CanWriteUsers(this ClaimsPrincipal principal) =>
+            principal.HasRoleClaim(BasicRoleNames.AdminUIUsersWriter) || principal.IsAdmin() || principal.IsSystemClient();
+
+        /// <summary>
+        /// Checks if the current principal can read clients data.
+        /// </summary>
+        /// <param name="principal">The current principal.</param>
+        public static bool CanReadClients(this ClaimsPrincipal principal) =>
+            principal.HasRoleClaim(BasicRoleNames.AdminUIClientsReader) || principal.HasRoleClaim(BasicRoleNames.AdminUIClientsWriter) || principal.IsAdmin() || principal.IsSystemClient();
+
+        /// <summary>
+        /// Checks if the current principal can read and write clients data.
+        /// </summary>
+        /// <param name="principal">The current principal.</param>
+        public static bool CanWriteClients(this ClaimsPrincipal principal) =>
+            principal.HasRoleClaim(BasicRoleNames.AdminUIClientsWriter) || principal.IsAdmin() || principal.IsSystemClient();
+
+        /// <summary>
         /// Logic for normalizing scope claims to separate claim types.
         /// </summary>
         /// <param name="principal">The current principal.</param>
@@ -134,7 +176,7 @@ namespace Indice.Security
         /// Logic for normalizing claims types comming from external identity providers to the Jwt standard ones.
         /// </summary>
         /// <param name="principal">The current principal.</param>
-        /// <param name="typesToIgnore">These claims will be excluded</param>
+        /// <param name="typesToIgnore">These claims will be excluded.</param>
         public static ClaimsPrincipal NormalizeExternalProviderClaims(this ClaimsPrincipal principal, params string[] typesToIgnore) {
             var identities = new List<ClaimsIdentity>();
             foreach (var id in principal.Identities) {
@@ -152,8 +194,9 @@ namespace Indice.Security
                         case ClaimTypes.Role: identity.AddClaim(new Claim(BasicClaimTypes.Role, claim.Value, claim.ValueType, claim.Issuer)); break;
                         case ClaimTypes.DateOfBirth: identity.AddClaim(new Claim(BasicClaimTypes.BirthDate, claim.Value, claim.ValueType, claim.Issuer)); break;
                         default:
-                            if (typesToIgnore?.Contains(claim.Type) == true)
+                            if (typesToIgnore?.Contains(claim.Type) == true) {
                                 continue;
+                            }
                             identity.AddClaim(claim.Clone());
                             break;
                     }

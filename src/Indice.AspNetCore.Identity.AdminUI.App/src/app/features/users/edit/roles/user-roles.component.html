@@ -6,6 +6,7 @@
                     [subtitlePropertyName]="'description'"
                     (itemAdded)="addRole($event)"
                     (itemRemoved)="removeRole($event)"
+                    [viewOnly]="!canEditUser"
                     [options]="{ 
                         sourceListTitle: 'Available Roles', 
                         emptySourceListMessage: 'There are no available roles to assign.',
@@ -14,8 +15,8 @@
                     }"
                     #transferList>
 </app-transfer-lists>
-<hr />
-<div>
+<div *ngIf="canEditUser">
+    <hr />
     <button type="button"
             class="btn btn-secondary m-r-5 float-right"
             (click)="toggleAdmin()"

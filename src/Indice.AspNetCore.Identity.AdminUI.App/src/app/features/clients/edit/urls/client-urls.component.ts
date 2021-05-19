@@ -10,6 +10,7 @@ import { ClientUrl } from './models/client-url';
 import { UrlType } from './models/urlType';
 import { ToastService } from 'src/app/layout/services/app-toast.service';
 import { UtilitiesService } from 'src/app/core/services/utilities.services';
+import { AuthService } from 'src/app/core/services/auth.service';
 
 @Component({
     selector: 'app-client-urls',
@@ -25,14 +26,22 @@ export class ClientUrlsComponent implements OnInit, OnDestroy {
     private _updateClientUrlsSubscription: Subscription;
     private _clientId: string;
 
-    constructor(private _route: ActivatedRoute, private _clientStore: ClientStore, private _toast: ToastService, private _utilities: UtilitiesService) { }
+    constructor(
+        private _route: ActivatedRoute,
+        private _clientStore: ClientStore,
+        private _toast: ToastService,
+        private _utilities: UtilitiesService,
+        private _authService: AuthService
+    ) { }
 
     public columns: TableColumn[] = [];
     public rows: ClientUrl[] = [];
     public client: SingleClientInfo;
     public url: string;
+    public canEditClient: boolean;
 
     public ngOnInit(): void {
+        this.canEditClient = this._authService.isAdminUIClientsWriter();
         this.columns = [
             { prop: 'url', name: 'URL', draggable: false, canAutoResize: true, sortable: true, resizeable: false },
             { prop: 'isRedirect', draggable: false, canAutoResize: true, sortable: false, resizeable: false, cellTemplate: this._checkboxTemplate, headerTemplate: this._redirectTemplate },

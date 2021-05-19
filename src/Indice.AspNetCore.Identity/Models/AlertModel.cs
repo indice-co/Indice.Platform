@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Indice.AspNetCore.Identity.Models
+﻿namespace Indice.AspNetCore.Identity.Models
 {
     /// <summary>
     /// Tiny model for passing state to view regarding error bubbles and all sorts of alerts.
@@ -11,43 +7,38 @@ namespace Indice.AspNetCore.Identity.Models
     public class AlertModel
     {
         /// <summary>
-        /// The message
+        /// The message.
         /// </summary>
         public string Message { get; set; }
-
         /// <summary>
-        /// The alert type
+        /// The alert type.
         /// </summary>
         public AlertType AlertType { get; set; }
 
         /// <summary>
-        /// creates an alert with <see cref="AlertType.Info"/>
+        /// Creates an alert with <see cref="AlertType.Info"/>.
         /// </summary>
-        /// <param name="message"></param>
-        /// <returns></returns>
-        public static AlertModel Info(string message) => new AlertModel { AlertType = AlertType.Info, Message = message };
+        /// <param name="message">The message.</param>
+        public static AlertModel Info(string message) => new() { AlertType = AlertType.Info, Message = message };
         /// <summary>
-        /// creates an alert with <see cref="AlertType.Warning"/>
+        /// Creates an alert with <see cref="AlertType.Warning"/>.
         /// </summary>
-        /// <param name="message"></param>
-        /// <returns></returns>
-        public static AlertModel Warn(string message) => new AlertModel { AlertType = AlertType.Warning, Message = message };
+        /// <param name="message">The message.</param>
+        public static AlertModel Warn(string message) => new() { AlertType = AlertType.Warning, Message = message };
         /// <summary>
-        /// creates an alert with <see cref="AlertType.Danger"/>
+        /// Creates an alert with <see cref="AlertType.Danger"/>.
         /// </summary>
-        /// <param name="message"></param>
-        /// <returns></returns>
-        public static AlertModel Error(string message) => new AlertModel { AlertType = AlertType.Danger, Message = message };
+        /// <param name="message">The message.</param>
+        public static AlertModel Error(string message) => new() { AlertType = AlertType.Danger, Message = message };
         /// <summary>
-        /// creates an alert with <see cref="AlertType.Success"/>
+        /// Creates an alert with <see cref="AlertType.Success"/>
         /// </summary>
-        /// <param name="message"></param>
-        /// <returns></returns>
-        public static AlertModel Success(string message) => new AlertModel { AlertType = AlertType.Success, Message = message };
+        /// <param name="message">The message.</param>
+        public static AlertModel Success(string message) => new() { AlertType = AlertType.Success, Message = message };
     }
 
     /// <summary>
-    /// The type of alert <see cref="AlertModel" />
+    /// The type of alert <see cref="AlertModel" />.
     /// </summary>
     public enum AlertType
     {

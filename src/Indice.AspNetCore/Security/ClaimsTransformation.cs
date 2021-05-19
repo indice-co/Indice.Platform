@@ -20,12 +20,14 @@ namespace Microsoft.Extensions.DependencyInjection
     /// <summary>
     /// Contains the Logic for normalizing claims types comming from external identity providers to the Jwt standard ones.    
     /// </summary>
-    internal class ExternalIdentityProviderClaimsTransformation : IClaimsTransformation {
+    internal class ExternalIdentityProviderClaimsTransformation : IClaimsTransformation
+    {
         private readonly string[] _claimTypesToIgnore;
 
         public ExternalIdentityProviderClaimsTransformation(params string[] claimTypesToIgnore) {
             _claimTypesToIgnore = claimTypesToIgnore;
         }
+
         /// <inheritdoc/>
         public Task<ClaimsPrincipal> TransformAsync(ClaimsPrincipal principal) => Task.FromResult(principal.NormalizeExternalProviderClaims(_claimTypesToIgnore));
     }
@@ -40,17 +42,15 @@ namespace Microsoft.Extensions.DependencyInjection
         /// This does not play nicely with .NET claims, hence we included a little claim transformer, that turns that string into individual claims.
         /// </summary>
         /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
-        public static IServiceCollection AddScopeTransformation(this IServiceCollection services) {
-            return services.AddSingleton<IClaimsTransformation, ClaimsTransformation>();
-        }
+        public static IServiceCollection AddScopeTransformation(this IServiceCollection services) =>
+            services.AddSingleton<IClaimsTransformation, ClaimsTransformation>();
 
         /// <summary>
         /// Adds a claim transformation that contains the Logic for normalizing claims types comming from external identity providers to the Jwt standard ones.
         /// </summary>
         /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
         /// <param name="claimTypesToIgnore">Types to ignore</param>
-        public static IServiceCollection AddExternalProviderClaimsTransformation(this IServiceCollection services, params string[] claimTypesToIgnore) {
-            return services.AddSingleton<IClaimsTransformation>((sp) => new ExternalIdentityProviderClaimsTransformation(claimTypesToIgnore));
-        }
+        public static IServiceCollection AddExternalProviderClaimsTransformation(this IServiceCollection services, params string[] claimTypesToIgnore) =>
+            services.AddSingleton<IClaimsTransformation>((sp) => new ExternalIdentityProviderClaimsTransformation(claimTypesToIgnore));
     }
 }

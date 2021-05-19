@@ -1,6 +1,7 @@
 import { Component, ViewChild, TemplateRef, OnInit } from '@angular/core';
 
 import { TableColumn } from '@swimlane/ngx-datatable';
+import { AuthService } from 'src/app/core/services/auth.service';
 import { IdentityResourceInfo, IdentityApiService, IdentityResourceInfoResultSet } from 'src/app/core/services/identity-api.service';
 import { SearchEvent } from 'src/app/shared/components/list-view/models/search-event';
 
@@ -11,13 +12,18 @@ import { SearchEvent } from 'src/app/shared/components/list-view/models/search-e
 export class IdentityResourcesComponent implements OnInit {
     @ViewChild('actionsTemplate', { static: true }) private _actionsTemplate: TemplateRef<HTMLElement>;
 
-    constructor(private _api: IdentityApiService) { }
+    constructor(
+        private _api: IdentityApiService,
+        private _authService: AuthService
+    ) { }
 
     public count = 0;
     public rows: IdentityResourceInfo[] = [];
     public columns: TableColumn[] = [];
+    public canEditResource: boolean;
 
     public ngOnInit(): void {
+        this.canEditResource = this._authService.isAdminUIClientsWriter();
         this.columns = [
             { prop: 'name', name: 'Id', draggable: false, canAutoResize: true, sortable: true, resizeable: false },
             { prop: 'displayName', name: 'Name', draggable: false, canAutoResize: true, sortable: true, resizeable: false },

@@ -3,6 +3,7 @@ import { ActivatedRoute } from '@angular/router';
 
 import { forkJoin, Subscription } from 'rxjs';
 import { map } from 'rxjs/operators';
+import { AuthService } from 'src/app/core/services/auth.service';
 import { ApiResourceInfo, SingleClientInfo } from 'src/app/core/services/identity-api.service';
 import { ClientStore } from '../../client-store.service';
 
@@ -15,13 +16,19 @@ export class ClientApiResourcesComponent implements OnInit, OnDestroy {
     private _addClientApiResourceSubscription: Subscription;
     private _deleteClientApiResourceSubscription: Subscription;
 
-    constructor(private _route: ActivatedRoute, private _clientStore: ClientStore) { }
+    constructor(
+        private _route: ActivatedRoute,
+        private _clientStore: ClientStore,
+        private _authService: AuthService
+    ) { }
 
     public clientId = '';
     public availableResources: ApiResourceInfo[];
     public clientResources: ApiResourceInfo[];
+    public canEditClient: boolean;
 
     public ngOnInit(): void {
+        this.canEditClient = this._authService.isAdminUIClientsWriter();
         this.clientId = this._route.parent.parent.snapshot.params.id;
         const getClient = this._clientStore.getClient(this.clientId);
         const getApiScopes = this._clientStore.getApiScopes();

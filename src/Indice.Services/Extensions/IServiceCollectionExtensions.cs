@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reflection;
 using System.Security.Claims;
 using System.Text.RegularExpressions;
+using System.Threading;
 using Indice.Configuration;
 using Indice.Services;
 using Indice.Services.Yuboto;
@@ -162,7 +163,7 @@ namespace Microsoft.Extensions.DependencyInjection
                     ConnectionString = serviceProvider.GetRequiredService<IConfiguration>().GetConnectionString(EventDispatcherAzure.CONNECTION_STRING_NAME),
                     Enabled = true,
                     EnvironmentName = serviceProvider.GetRequiredService<IHostEnvironment>().EnvironmentName,
-                    ClaimsPrincipalSelector = ClaimsPrincipal.ClaimsPrincipalSelector
+                    ClaimsPrincipalSelector = ClaimsPrincipal.ClaimsPrincipalSelector ?? (() => ClaimsPrincipal.Current)
                 };
                 configure?.Invoke(serviceProvider, options);
                 return new EventDispatcherAzure(options.ConnectionString, options.EnvironmentName, options.Enabled, options.MessageEncoding, options.ClaimsPrincipalSelector);

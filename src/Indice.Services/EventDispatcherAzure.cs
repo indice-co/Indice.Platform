@@ -57,8 +57,7 @@ namespace Indice.Services
             queueName = $"{_environmentName}-{queueName?.ToLowerInvariant() ?? typeof(TEvent).Name.ToKebabCase()}";
             var queue = await EnsureExistsAsync(queueName);
             var user = actingPrincipal ?? _claimsPrincipalSelector?.Invoke();
-
-            // special cases string, byte[] or stream
+            // Special cases string, byte[] or stream.
             switch (payload) {
                 case string text: await queue.SendMessageAsync(text, visibilityTimeout); return;
                 case byte[] bytes: await queue.SendMessageAsync(new BinaryData(bytes), visibilityTimeout); return;

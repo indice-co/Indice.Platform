@@ -33,7 +33,7 @@
                 <li [routerLinkMatch]="{ 'active': menuItem.path }"
                     [routerLinkMatchOptions]="{ ignoreQueryParams: true }"
                     *ngFor="let menuItem of menuItems"
-                    [ngClass]="{ 'has_sub': menuItem.hasChildren(), 'nav-active': menuItem.isOpen }">
+                    [ngClass]="{ 'has_sub': menuItem.hasChildren(), 'nav-active': menuItem.isOpen, 'd-none': !menuItem.visible }">
                     <a *ngIf="!menuItem.hasChildren() && menuItem.path"
                        [routerLink]="[menuItem.path]">
                         <ng-container [ngTemplateOutlet]="menuItemContent"
@@ -51,7 +51,8 @@
                         class="list-unstyled">
                         <li [routerLinkMatch]="{ 'active': childItem.path }"
                             [routerLinkMatchOptions]="{ ignoreQueryParams: true }"
-                            *ngFor="let childItem of menuItem.children">
+                            *ngFor="let childItem of menuItem.children"
+                            [ngClass]="{ 'd-none': !childItem.visible }">
                             <a [routerLinkMatch]="{ 'active': childItem.path }"
                                [routerLinkMatchOptions]="{ ignoreQueryParams: true }"
                                [routerLink]="childItem.path">

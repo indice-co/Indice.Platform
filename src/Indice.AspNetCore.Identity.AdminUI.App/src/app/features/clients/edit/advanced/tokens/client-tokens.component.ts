@@ -6,6 +6,7 @@ import { ClientStore } from '../../client-store.service';
 import { SingleClientInfo } from 'src/app/core/services/identity-api.service';
 import { UtilitiesService } from 'src/app/core/services/utilities.services';
 import { ToastService } from 'src/app/layout/services/app-toast.service';
+import { AuthService } from 'src/app/core/services/auth.service';
 
 @Component({
     selector: 'app-client-tokens',
@@ -14,11 +15,19 @@ import { ToastService } from 'src/app/layout/services/app-toast.service';
 export class ClientTokensComponent implements OnInit, OnDestroy {
     private _getDataSubscription: Subscription;
 
-    constructor(private _route: ActivatedRoute, private _clientStore: ClientStore, public utilities: UtilitiesService, public _toast: ToastService) { }
+    constructor(
+        private _route: ActivatedRoute,
+        private _clientStore: ClientStore,
+        public utilities: UtilitiesService,
+        public _toast: ToastService,
+        private _authService: AuthService
+    ) { }
 
     public client: SingleClientInfo;
+    public canEditClient: boolean;
 
     public ngOnInit(): void {
+        this.canEditClient = this._authService.isAdminUIClientsWriter();
         const clientId = this._route.parent.parent.snapshot.params.id;
         this._getDataSubscription = this._clientStore.getClient(clientId).subscribe((client: SingleClientInfo) => {
             this.client = client;

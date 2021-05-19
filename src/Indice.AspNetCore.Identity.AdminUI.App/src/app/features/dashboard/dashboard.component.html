@@ -9,7 +9,8 @@
         </div>
         <h5 class="m-t-20 m-b-30">Overview</h5>
         <div class="row">
-            <div class="col-xl-3 col-md-6">
+            <div class="col-xl-3 col-md-6"
+                 *ngIf="authService.isAdminUIUsersReader()">
                 <div class="card bg-primary mini-stat text-white">
                     <div class="p-3 mini-stat-desc">
                         <div class="clearfix">
@@ -27,7 +28,8 @@
                     </div>
                 </div>
             </div>
-            <div class="col-xl-3 col-md-6">
+            <div class="col-xl-3 col-md-6"
+                 *ngIf="authService.isAdminUIClientsReader()">
                 <div class="card bg-info mini-stat text-white">
                     <div class="p-3 mini-stat-desc">
                         <div class="clearfix">
@@ -39,7 +41,7 @@
                         <div class="float-right">
                             <a class="text-white-50"
                                [routerLink]="'/app/clients'">
-                               <i class="material-icons">apps</i>
+                                <i class="material-icons">apps</i>
                             </a>
                         </div>
                     </div>
