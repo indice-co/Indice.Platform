@@ -17,6 +17,7 @@
                       [ngClass]="{ 'was-validated': form.submitted }"
                       (ngSubmit)="form.form.valid && update()"
                       novalidate
+                      [formReadonly]="!canEditClaimType"
                       #form="ngForm">
                     <div class="form-group row">
                         <label for="claim-type-name"

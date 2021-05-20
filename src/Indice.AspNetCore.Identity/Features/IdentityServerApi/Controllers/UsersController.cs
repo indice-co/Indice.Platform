@@ -426,7 +426,8 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
                 return BadRequest(result.Errors.ToValidationProblemDetails());
             }
             if (role.IsManagementRole()) {
-                await _persistedGrantService.RemoveAllGrantsAsync(userId);
+                var clientId = User.FindFirst(JwtClaimTypes.ClientId);
+                await _persistedGrantService.RemoveAllGrantsAsync(userId, clientId?.Value);
             }
             return NoContent();
         }

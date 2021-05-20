@@ -14,9 +14,9 @@ export class RoleEditComponent implements OnInit {
     @ViewChild('deleteAlert', { static: false }) private _deleteAlert: SwalComponent;
 
     constructor(
-        private _api: IdentityApiService, 
-        private _router: Router, 
-        private _route: ActivatedRoute, 
+        private _api: IdentityApiService,
+        private _router: Router,
+        private _route: ActivatedRoute,
         public _toast: ToastService,
         private _authService: AuthService
     ) { }
