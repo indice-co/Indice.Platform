@@ -11,19 +11,20 @@ export interface MatchExp {
     selector: '[routerLinkMatch]'
 })
 export class RouterLinkMatchDirective implements OnDestroy, OnChanges, AfterContentInit {
+    private _currentRoute: string;
+    private _matchExp: MatchExp;
+
     constructor(private router: Router, private renderer: Renderer2, private element: ElementRef) {
         router.events.pipe(untilDestroy(this)).subscribe((event: Event) => {
             if (event instanceof NavigationEnd) {
-                this.currentRoute = (event as NavigationEnd).urlAfterRedirects;
+                this._currentRoute = (event as NavigationEnd).urlAfterRedirects;
             } else {
-                this.currentRoute = this.router.url;
+                this._currentRoute = this.router.url;
             }
             this.update();
         });
     }
 
-    private currentRoute: string;
-    private matchExp: MatchExp;
     @ContentChildren(RouterLink, { descendants: true }) public links: QueryList<RouterLink>;
     @ContentChildren(RouterLinkWithHref, { descendants: true }) public linksWithHrefs: QueryList<RouterLinkWithHref>;
     @Input() public routerLinkMatchOptions: { ignoreQueryParams?: boolean };
@@ -31,7 +32,7 @@ export class RouterLinkMatchDirective implements OnDestroy, OnChanges, AfterCont
     @Input('routerLinkMatch')
     public set routerLinkMatch(matchExp: MatchExp) {
         if (matchExp && typeof matchExp === 'object') {
-            this.matchExp = matchExp;
+            this._matchExp = matchExp;
         } else {
             throw new TypeError(`Unexpected type '${typeof matchExp}' of value for input of routerLinkMatchDirective directive, expected 'object'.`);
         }
@@ -52,11 +53,11 @@ export class RouterLinkMatchDirective implements OnDestroy, OnChanges, AfterCont
             return;
         }
         Promise.resolve().then(() => {
-            const matchExp = this.matchExp;
+            const matchExp = this._matchExp;
             Object.keys(matchExp).forEach((classes: string) => {
                 if (matchExp[classes] && typeof matchExp[classes] === 'string') {
                     const regex = new RegExp(`^${matchExp[classes]}${(this.routerLinkMatchOptions && this.routerLinkMatchOptions.ignoreQueryParams === true ? '(?!\/)' : '$')}`, 'g');
-                    if (this.currentRoute && this.currentRoute.match(regex)) {
+                    if (this._currentRoute && this._currentRoute.match(regex)) {
                         this.toggleClass(classes, true);
                     } else {
                         this.toggleClass(classes, false);

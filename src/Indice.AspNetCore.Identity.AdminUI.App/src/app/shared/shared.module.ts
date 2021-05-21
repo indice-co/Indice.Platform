@@ -12,6 +12,7 @@ import { NgbDateCustomParserFormatter } from './services/custom-parser-formatter
 import { TransferListsComponent } from './components/transfer-lists/transfer-lists.component';
 import { ValidationSummaryComponent } from './components/validation-summary/validation-summary.component';
 import { WizardStepDirective } from './components/step-base/wizard-step.directive';
+import { FormReadonlyDirective } from './directives/form-readonly.directive';
 
 @NgModule({
     declarations: [
@@ -20,7 +21,8 @@ import { WizardStepDirective } from './components/step-base/wizard-step.directiv
         TransferListsComponent,
         ValidationSummaryComponent,
         RouterLinkMatchDirective,
-        WizardStepDirective
+        WizardStepDirective,
+        FormReadonlyDirective
     ],
     imports: [
         CommonModule,
@@ -35,7 +37,8 @@ import { WizardStepDirective } from './components/step-base/wizard-step.directiv
         TransferListsComponent,
         ValidationSummaryComponent,
         RouterLinkMatchDirective,
-        WizardStepDirective
+        WizardStepDirective,
+        FormReadonlyDirective
     ],
     providers: [
         NgbDatepickerConfig,

@@ -23,13 +23,13 @@ export class UserDetailsComponent implements OnInit, OnDestroy {
     private _getDataSubscription: Subscription;
 
     constructor(
-        private _route: ActivatedRoute, 
-        private _userStore: UserStore, 
-        private _dateParser: NgbDateCustomParserFormatter, 
+        private _route: ActivatedRoute,
+        private _userStore: UserStore,
+        private _dateParser: NgbDateCustomParserFormatter,
         public _toast: ToastService,
-        private _router: Router, 
-        private _authService: AuthService, 
-        private _modalService: NgbModal, 
+        private _router: Router,
+        private _authService: AuthService,
+        private _modalService: NgbModal,
         public readonly swalTargets: SwalPortalTargets
     ) { }
 

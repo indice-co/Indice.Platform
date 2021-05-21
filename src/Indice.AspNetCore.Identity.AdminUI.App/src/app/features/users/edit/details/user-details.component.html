@@ -84,6 +84,7 @@
       [ngClass]="{ 'was-validated': form.submitted }"
       (ngSubmit)="form.form.valid && update()"
       novalidate
+      [formReadonly]="!canEditUser"
       #form="ngForm">
     <div class="alert alert-warning d-flex align-items-center justify-content-between"
          role="alert"
