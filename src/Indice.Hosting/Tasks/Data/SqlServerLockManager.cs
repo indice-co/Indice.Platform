@@ -25,15 +25,17 @@ namespace Indice.Hosting.SqlClient
 
         /// <inheritdoc/>
         public async Task<ILockLease> AcquireLock(string name, TimeSpan? timeout = null) {
+            var duration= timeout ?? TimeSpan.FromSeconds(30);
             var @lock = new DbLock {
                 Id = Guid.NewGuid(),
                 Name = name,
-                ExpirationDate = DateTime.UtcNow.Add(timeout ?? TimeSpan.FromSeconds(30))
+                ExpirationDate = DateTime.UtcNow.Add(duration),
+                Duration = (int)duration.TotalSeconds
             };
             bool success;
             try {
-                var query = @"INSERT INTO [work].[Lock] ([Id], [Name], [ExpirationDate]) VALUES ({0}, {1}, {2});";
-                await _dbContext.Database.ExecuteSqlRawAsync(query, @lock.Id, @lock.Name, @lock.ExpirationDate);
+                var query = @"INSERT INTO [work].[Lock] ([Id], [Name], [ExpirationDate], [Duration]) VALUES ({0}, {1}, {2}, {3});";
+                await _dbContext.Database.ExecuteSqlRawAsync(query, @lock.Id, @lock.Name, @lock.ExpirationDate, @lock.Duration);
                 success = true;
             } catch (SqlException) {
                 await Cleanup();
@@ -49,6 +51,24 @@ namespace Indice.Hosting.SqlClient
         public async Task ReleaseLock(ILockLease @lock) {
             var query = @"DELETE FROM [work].[Lock] WHERE ([Name] = {0} AND [Id] < {1}) OR [ExpirationDate] < GetDate();";
             await _dbContext.Database.ExecuteSqlRawAsync(query, @lock.Name, Base64Id.Parse(@lock.LeaseId).Id);
+        }
+
+        /// <inheritdoc/>
+        public async Task<ILockLease> Renew(string name, string leaseId) {
+            var base64Id = Base64Id.Parse(leaseId);
+            bool success;
+            try {
+                var query = @"UPDATE [work].[Lock] SET [ExpirationDate] = DATEADD(second, [Duration], GETDATE()) WHERE [Id] = {0};";
+                var affecterRows = await _dbContext.Database.ExecuteSqlRawAsync(query, base64Id.Id);
+                success = affecterRows > 0;
+            } catch (SqlException) {
+                await Cleanup();
+                success = false;
+            }
+            if (!success) {
+                throw new LockManagerLockException($"Unable to renew lease {name} for leaseid {leaseId}.");
+            }
+            return new LockLease(base64Id, name, this);
         }
 
         /// <inheritdoc/>

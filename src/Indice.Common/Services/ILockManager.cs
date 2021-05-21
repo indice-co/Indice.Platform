@@ -14,11 +14,21 @@ namespace Indice.Services
         /// <summary>
         /// Aquire a lock or throws
         /// </summary>
-        /// <param name="name"></param>
+        /// <param name="name">Topic or name</param>
         /// <param name="duration">The duration the lease will be active. Defaults 30 seconds</param>
         /// <exception cref="LockManagerLockException">Occures when the lock cannot be aquired</exception>
         /// <returns></returns>
         Task<ILockLease> AcquireLock(string name, TimeSpan? duration = null);
+
+        /// <summary>
+        /// Renew an existing lease by lease id. This extends the duration of a non expired existing lease
+        /// </summary>
+        /// <param name="name">Topic or name</param>
+        /// <param name="leaseId">The lease Id (different on every lock)</param>
+        /// <returns></returns>
+        /// <remarks>In case a lease has expired the client can renew the lease with their lease ID immediately if the blob has not been modified</remarks>
+        Task<ILockLease> Renew(string name, string leaseId);
+
         /// <summary>
         /// Releases a lock
         /// </summary>
@@ -37,16 +47,23 @@ namespace Indice.Services
     /// <summary>
     /// Lcok lease abstraction.
     /// </summary>
-    public interface ILockLease : IDisposable
+    public interface ILockLease : IDisposable, IAsyncDisposable
     {
         /// <summary>
         /// The lease Id (different on every lock)
         /// </summary>
         string LeaseId { get; }
+
         /// <summary>
         /// The subject of the lock (name).
         /// </summary>
         string Name { get; }
+
+        /// <summary>
+        /// Try Renew the existing lease period
+        /// </summary>
+        /// <returns></returns>
+        public Task RenewAsync();
     }
 
     /// <summary>
@@ -80,9 +97,24 @@ namespace Indice.Services
         /// <inheritdoc />
         public void Dispose() {
             if (!_disposed) {
-                Manager.ReleaseLock(this);
+                Manager.ReleaseLock(this)
+                       .GetAwaiter()
+                       .GetResult();
                 _disposed = true;
             }
+        }
+
+        /// <inheritdoc />
+        public async ValueTask DisposeAsync() {
+            if (!_disposed) {
+                await Manager.ReleaseLock(this);
+                _disposed = true;
+            }
+        }
+
+        /// <inheritdoc />
+        public async Task RenewAsync() {
+            await Manager.Renew(Name, LeaseId);
         }
     }
 
@@ -129,11 +161,12 @@ namespace Indice.Services
         /// If the lockmanger throws a <seealso cref="LockManagerLockException"/> it will catch that and return a failed <see cref="LockLeaseResult"/>
         /// </summary>
         /// <param name="manager"></param>
-        /// <param name="name"></param>
+        /// <param name="name">Topic or name</param>
+        /// <param name="duration">The duration the lease will be active. Defaults 30 seconds</param>
         /// <returns></returns>
-        public static async Task<LockLeaseResult> TryAquireLock(this ILockManager manager, string name) {
+        public static async Task<LockLeaseResult> TryAquireLock(this ILockManager manager, string name, TimeSpan? duration = null) {
             try {
-                var @lock = await manager.AcquireLock(name);
+                var @lock = await manager.AcquireLock(name, duration);
                 return LockLeaseResult.Success(@lock);
             } catch (LockManagerLockException) {
                 return LockLeaseResult.Fail();

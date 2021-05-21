@@ -19,5 +19,9 @@ namespace Indice.Hosting.EntityFrameworkCore
         /// Lock lease expiration date.
         /// </summary>
         public DateTime ExpirationDate { get; set; }
+        /// <summary>
+        /// Lock lease duration. Used in order to renew an existing lease.
+        /// </summary>
+        public int Duration { get; set; } = 30;
     }
 }
