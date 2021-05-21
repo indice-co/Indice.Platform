@@ -8,6 +8,7 @@ using Indice.AspNetCore.Identity.Data.Models;
 using Indice.Identity;
 using Indice.Identity.Services;
 using Indice.Security;
+using Indice.Serialization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.EntityFrameworkCore;
@@ -47,7 +48,7 @@ namespace Microsoft.Extensions.DependencyInjection
                                // Update phone number options.
                                options.PhoneNumber.SendOtpOnUpdate = true;
                                // Add custom initial user and enable test data.
-                               options.SeedDummyUsers = true;
+                               options.SeedDummyUsers = false;
                                options.InitialUsers = GetInitialUsers();
                                options.CustomClaims = GetCustomClaimTypes();
                            })
@@ -80,6 +81,7 @@ namespace Microsoft.Extensions.DependencyInjection
                            .AddJsonOptions(options => {
                                options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
                                options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+                               options.JsonSerializerOptions.Converters.Add(new JsonAnyStringConverter());
                                options.JsonSerializerOptions.IgnoreNullValues = true;
                            })
                            .AddFluentValidation(options => {

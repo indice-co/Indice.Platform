@@ -144,17 +144,8 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
                     PasswordExpirationDate = user.PasswordExpirationDate
                 };
             if (options?.Search?.Length > 2) {
-                var searchTerm = options.Search.ToLower();
-                var idsFromClaims = await _dbContext
-                    .UserClaims
-                    .Where(x => (x.ClaimType == JwtClaimTypes.GivenName || x.ClaimType == JwtClaimTypes.FamilyName) && EF.Functions.Like(x.ClaimValue.ToLower(), $"%{searchTerm}%"))
-                    .Select(x => x.UserId)
-                    .ToArrayAsync();
-                usersQuery = usersQuery.Where(x => EF.Functions.Like(x.Email.ToLower(), $"%{searchTerm}%")
-                 || EF.Functions.Like(x.PhoneNumber.ToLower(), $"%{searchTerm}%")
-                 || EF.Functions.Like(x.UserName.ToLower(), $"%{searchTerm}%")
-                 || searchTerm == x.Id.ToLower()
-                 || idsFromClaims.Contains(x.Id));
+                var userSearchFilterExpression = await IdentityDbContextOptions.UserSearchFilter(_dbContext, options.Search);
+                usersQuery = usersQuery.Where(userSearchFilterExpression);   
             }
             return Ok(await usersQuery.ToResultSetAsync(options));
         }
