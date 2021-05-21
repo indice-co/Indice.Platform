@@ -29,16 +29,18 @@
         </label>
         <div class="col-sm-9">
             <div class="input-group">
-                <span class="input-group-prepend cursor-pointer"
-                      (click)="client.identityTokenLifetime = utilities.minutesToSeconds(5)">
+                <span class="input-group-prepend"
+                      [ngStyle]="{ 'pointer-events': !canEditClient ? 'none' : 'auto' }"
+                      (click)="canEditClient ? client.identityTokenLifetime = utilities.minutesToSeconds(5) : null;">
                     <span [ngClass]="{ 'active': client.identityTokenLifetime === utilities.minutesToSeconds(5) }"
                           class="input-group-text btn btn-secondary"
                           style="font-size: 12px;">
                         5 mins
                     </span>
                 </span>
-                <span class="input-group-prepend cursor-pointer"
-                      (click)="client.identityTokenLifetime = utilities.minutesToSeconds(10)">
+                <span class="input-group-prepend"
+                      [ngStyle]="{ 'pointer-events': !canEditClient ? 'none' : 'auto' }"
+                      (click)="canEditClient ? client.identityTokenLifetime = utilities.minutesToSeconds(10) : null">
                     <span [ngClass]="{ 'active': client.identityTokenLifetime === utilities.minutesToSeconds(10) }"
                           class="input-group-text btn btn-secondary"
                           style="font-size: 12px;">
@@ -75,32 +77,36 @@
         </label>
         <div class="col-sm-9">
             <div class="input-group">
-                <span class="input-group-prepend cursor-pointer"
-                      (click)="client.accessTokenLifetime = utilities.minutesToSeconds(15)">
+                <span class="input-group-prepend"
+                      [ngStyle]="{ 'pointer-events': !canEditClient ? 'none' : 'auto' }"
+                      (click)="canEditClient ? client.accessTokenLifetime = utilities.minutesToSeconds(15) : null;">
                     <span [ngClass]="{ 'active': client.accessTokenLifetime === utilities.minutesToSeconds(15) }"
                           class="input-group-text btn btn-secondary"
                           style="font-size: 12px;">
                         15 mins
                     </span>
                 </span>
-                <span class="input-group-prepend cursor-pointer"
-                      (click)="client.accessTokenLifetime = utilities.minutesToSeconds(30)">
+                <span class="input-group-prepend"
+                      [ngStyle]="{ 'pointer-events': !canEditClient ? 'none' : 'auto' }"
+                      (click)="canEditClient ? client.accessTokenLifetime = utilities.minutesToSeconds(30) : null;">
                     <span [ngClass]="{ 'active': client.accessTokenLifetime === utilities.minutesToSeconds(30) }"
                           class="input-group-text btn btn-secondary"
                           style="font-size: 12px;">
                         30 mins
                     </span>
                 </span>
-                <span class="input-group-prepend cursor-pointer"
-                      (click)="client.accessTokenLifetime = utilities.hoursToSeconds(1)">
+                <span class="input-group-prepend"
+                      [ngStyle]="{ 'pointer-events': !canEditClient ? 'none' : 'auto' }"
+                      (click)="canEditClient ? client.accessTokenLifetime = utilities.hoursToSeconds(1) : null;">
                     <span [ngClass]="{ 'active': client.accessTokenLifetime === utilities.hoursToSeconds(1) }"
                           class="input-group-text btn btn-secondary"
                           style="font-size: 12px;">
                         1 hr
                     </span>
                 </span>
-                <span class="input-group-prepend cursor-pointer"
-                      (click)="client.accessTokenLifetime = utilities.hoursToSeconds(5)">
+                <span class="input-group-prepend"
+                      [ngStyle]="{ 'pointer-events': !canEditClient ? 'none' : 'auto' }"
+                      (click)="canEditClient ? client.accessTokenLifetime = utilities.hoursToSeconds(5) : null;">
                     <span [ngClass]="{ 'active': client.accessTokenLifetime === utilities.hoursToSeconds(5) }"
                           class="input-group-text btn btn-secondary"
                           style="font-size: 12px;">
@@ -137,24 +143,27 @@
         </label>
         <div class="col-sm-9">
             <div class="input-group">
-                <span class="input-group-prepend cursor-pointer"
-                      (click)="client.absoluteRefreshTokenLifetime = utilities.daysToSeconds(1)">
+                <span class="input-group-prepend"
+                      [ngStyle]="{ 'pointer-events': !canEditClient ? 'none' : 'auto' }"
+                      (click)="canEditClient ? client.absoluteRefreshTokenLifetime = utilities.daysToSeconds(1) : null;">
                     <span [ngClass]="{ 'active': client.absoluteRefreshTokenLifetime === utilities.daysToSeconds(1) }"
                           class="input-group-text btn btn-secondary"
                           style="font-size: 12px;">
                         1 day
                     </span>
                 </span>
-                <span class="input-group-prepend cursor-pointer"
-                      (click)="client.absoluteRefreshTokenLifetime = utilities.daysToSeconds(15)">
+                <span class="input-group-prepend"
+                      [ngStyle]="{ 'pointer-events': !canEditClient ? 'none' : 'auto' }"
+                      (click)="canEditClient ? client.absoluteRefreshTokenLifetime = utilities.daysToSeconds(15) : null;">
                     <span [ngClass]="{ 'active': client.absoluteRefreshTokenLifetime === utilities.daysToSeconds(15) }"
                           class="input-group-text btn btn-secondary"
                           style="font-size: 12px;">
                         15 days
                     </span>
                 </span>
-                <span class="input-group-prepend cursor-pointer"
-                      (click)="client.absoluteRefreshTokenLifetime = utilities.daysToSeconds(30)">
+                <span class="input-group-prepend"
+                      [ngStyle]="{ 'pointer-events': !canEditClient ? 'none' : 'auto' }"
+                      (click)="canEditClient ? client.absoluteRefreshTokenLifetime = utilities.daysToSeconds(30) : null;">
                     <span [ngClass]="{ 'active': client.absoluteRefreshTokenLifetime === utilities.daysToSeconds(30) }"
                           class="input-group-text btn btn-secondary"
                           style="font-size: 12px;">
@@ -191,24 +200,27 @@
         </label>
         <div class="col-sm-9">
             <div class="input-group">
-                <span class="input-group-prepend cursor-pointer"
-                      (click)="client.slidingRefreshTokenLifetime = utilities.daysToSeconds(1)">
+                <span class="input-group-prepend"
+                      [ngStyle]="{ 'pointer-events': !canEditClient ? 'none' : 'auto' }"
+                      (click)="canEditClient ? client.slidingRefreshTokenLifetime = utilities.daysToSeconds(1) : null;">
                     <span [ngClass]="{ 'active': client.slidingRefreshTokenLifetime === utilities.daysToSeconds(1) }"
                           class="input-group-text btn btn-secondary"
                           style="font-size: 12px;">
                         1 day
                     </span>
                 </span>
-                <span class="input-group-prepend cursor-pointer"
-                      (click)="client.slidingRefreshTokenLifetime = utilities.daysToSeconds(15)">
+                <span class="input-group-prepend"
+                      [ngStyle]="{ 'pointer-events': !canEditClient ? 'none' : 'auto' }"
+                      (click)="canEditClient ? client.slidingRefreshTokenLifetime = utilities.daysToSeconds(15) : null;">
                     <span [ngClass]="{ 'active': client.slidingRefreshTokenLifetime === utilities.daysToSeconds(15) }"
                           class="input-group-text btn btn-secondary"
                           style="font-size: 12px;">
                         15 days
                     </span>
                 </span>
-                <span class="input-group-prepend cursor-pointer"
-                      (click)="client.slidingRefreshTokenLifetime = utilities.daysToSeconds(30)">
+                <span class="input-group-prepend"
+                      [ngStyle]="{ 'pointer-events': !canEditClient ? 'none' : 'auto' }"
+                      (click)="canEditClient ? client.slidingRefreshTokenLifetime = utilities.daysToSeconds(30) : null;">
                     <span [ngClass]="{ 'active': client.slidingRefreshTokenLifetime === utilities.daysToSeconds(30) }"
                           class="input-group-text btn btn-secondary"
                           style="font-size: 12px;">
@@ -245,16 +257,18 @@
         </label>
         <div class="col-sm-9">
             <div class="input-group">
-                <span class="input-group-prepend cursor-pointer"
-                      (click)="client.authorizationCodeLifetime = utilities.minutesToSeconds(5)">
+                <span class="input-group-prepend"
+                      [ngStyle]="{ 'pointer-events': !canEditClient ? 'none' : 'auto' }"
+                      (click)="canEditClient ? client.authorizationCodeLifetime = utilities.minutesToSeconds(5) : null;">
                     <span [ngClass]="{ 'active': client.authorizationCodeLifetime === utilities.minutesToSeconds(5) }"
                           class="input-group-text btn btn-secondary"
                           style="font-size: 12px;">
                         5 mins
                     </span>
                 </span>
-                <span class="input-group-prepend cursor-pointer"
-                      (click)="client.authorizationCodeLifetime = utilities.minutesToSeconds(10)">
+                <span class="input-group-prepend"
+                      [ngStyle]="{ 'pointer-events': !canEditClient ? 'none' : 'auto' }"
+                      (click)="canEditClient ? client.authorizationCodeLifetime = utilities.minutesToSeconds(10) : null;">
                     <span [ngClass]="{ 'active': client.authorizationCodeLifetime === utilities.minutesToSeconds(10) }"
                           class="input-group-text btn btn-secondary"
                           style="font-size: 12px;">
@@ -291,32 +305,36 @@
         </label>
         <div class="col-sm-9">
             <div class="input-group">
-                <span class="input-group-prepend cursor-pointer"
-                      (click)="client.consentLifetime = utilities.daysToSeconds(7)">
+                <span class="input-group-prepend"
+                      [ngStyle]="{ 'pointer-events': !canEditClient ? 'none' : 'auto' }"
+                      (click)="canEditClient ? client.consentLifetime = utilities.daysToSeconds(7) : null;">
                     <span [ngClass]="{ 'active': client.consentLifetime === utilities.daysToSeconds(7) }"
                           class="input-group-text btn btn-secondary"
                           style="font-size: 12px;">
                         1 wk
                     </span>
                 </span>
-                <span class="input-group-prepend cursor-pointer"
-                      (click)="client.consentLifetime = utilities.monthsToSeconds(1)">
+                <span class="input-group-prepend"
+                      [ngStyle]="{ 'pointer-events': !canEditClient ? 'none' : 'auto' }"
+                      (click)="canEditClient ? client.consentLifetime = utilities.monthsToSeconds(1) : null;">
                     <span [ngClass]="{ 'active': client.consentLifetime === utilities.monthsToSeconds(1) }"
                           class="input-group-text btn btn-secondary"
                           style="font-size: 12px;">
                         1 mo
                     </span>
                 </span>
-                <span class="input-group-prepend cursor-pointer"
-                      (click)="client.consentLifetime = utilities.yearsToSeconds(1)">
+                <span class="input-group-prepend"
+                      [ngStyle]="{ 'pointer-events': !canEditClient ? 'none' : 'auto' }"
+                      (click)="canEditClient ? client.consentLifetime = utilities.yearsToSeconds(1) : null;">
                     <span [ngClass]="{ 'active': client.consentLifetime === utilities.yearsToSeconds(1) }"
                           class="input-group-text btn btn-secondary"
                           style="font-size: 12px;">
                         1 yr
                     </span>
                 </span>
-                <span class="input-group-prepend cursor-pointer"
-                      (click)="client.consentLifetime = undefined">
+                <span class="input-group-prepend"
+                      [ngStyle]="{ 'pointer-events': !canEditClient ? 'none' : 'auto' }"
+                      (click)="canEditClient ? client.consentLifetime = undefined : null;">
                     <span [ngClass]="{ 'active': client.consentLifetime === undefined }"
                           class="input-group-text font-12 btn btn-secondary"
                           style="font-size: 12px;">
@@ -348,24 +366,27 @@
         </label>
         <div class="col-sm-9">
             <div class="input-group">
-                <span class="input-group-prepend cursor-pointer"
-                      (click)="client.userSsoLifetime = utilities.hoursToSeconds(1)">
+                <span class="input-group-prepend"
+                      [ngStyle]="{ 'pointer-events': !canEditClient ? 'none' : 'auto' }"
+                      (click)="canEditClient ? client.userSsoLifetime = utilities.hoursToSeconds(1) : null;">
                     <span [ngClass]="{ 'active': client.userSsoLifetime === utilities.hoursToSeconds(1) }"
                           class="input-group-text btn btn-secondary"
                           style="font-size: 12px;">
                         1 hr
                     </span>
                 </span>
-                <span class="input-group-prepend cursor-pointer"
-                      (click)="client.userSsoLifetime = utilities.hoursToSeconds(12)">
+                <span class="input-group-prepend"
+                      [ngStyle]="{ 'pointer-events': !canEditClient ? 'none' : 'auto' }"
+                      (click)="canEditClient ? client.userSsoLifetime = utilities.hoursToSeconds(12) : null;">
                     <span [ngClass]="{ 'active': client.userSsoLifetime === utilities.hoursToSeconds(12) }"
                           class="input-group-text btn btn-secondary"
                           style="font-size: 12px;">
                         12 hr
                     </span>
                 </span>
-                <span class="input-group-prepend cursor-pointer"
-                      (click)="client.userSsoLifetime = utilities.daysToSeconds(1)">
+                <span class="input-group-prepend"
+                      [ngStyle]="{ 'pointer-events': !canEditClient ? 'none' : 'auto' }"
+                      (click)="canEditClient ? client.userSsoLifetime = utilities.daysToSeconds(1) : null;">
                     <span [ngClass]="{ 'active': client.userSsoLifetime === utilities.daysToSeconds(1) }"
                           class="input-group-text btn btn-secondary"
                           style="font-size: 12px;">

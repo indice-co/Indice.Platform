@@ -153,7 +153,6 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
                 usersQuery = usersQuery.Where(x => EF.Functions.Like(x.Email.ToLower(), $"%{searchTerm}%")
                  || EF.Functions.Like(x.PhoneNumber.ToLower(), $"%{searchTerm}%")
                  || EF.Functions.Like(x.UserName.ToLower(), $"%{searchTerm}%")
-                 || EF.Functions.Like(x.Email.ToLower(), $"%{searchTerm}%")
                  || searchTerm == x.Id.ToLower()
                  || idsFromClaims.Contains(x.Id));
             }

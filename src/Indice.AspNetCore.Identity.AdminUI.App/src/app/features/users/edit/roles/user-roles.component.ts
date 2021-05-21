@@ -1,8 +1,9 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
-import { Subscription, forkJoin } from 'rxjs';
 import { map } from 'rxjs/operators';
+import { TableColumn } from '@swimlane/ngx-datatable';
+import { Subscription, forkJoin } from 'rxjs';
 import { RoleInfo, SingleUserInfo } from 'src/app/core/services/identity-api.service';
 import { UserStore } from '../user-store.service';
 import { ToastService } from 'src/app/layout/services/app-toast.service';
@@ -18,9 +19,9 @@ export class UserRolesComponent implements OnInit, OnDestroy {
     private _removeUserRoleSubscription: Subscription;
 
     constructor(
-        private _route: ActivatedRoute, 
-        private _userStore: UserStore, 
-        private _toast: ToastService, 
+        private _route: ActivatedRoute,
+        private _userStore: UserStore,
+        private _toast: ToastService,
         private _authService: AuthService
     ) { }
 
@@ -29,9 +30,16 @@ export class UserRolesComponent implements OnInit, OnDestroy {
     public user: SingleUserInfo = new SingleUserInfo();
     public currentUserId: string;
     public canEditUser: boolean;
+    public rows: RoleInfo[] = [];
+    public columns: TableColumn[] = [];
+    public count = 0;
 
     public ngOnInit(): void {
         this.canEditUser = this._authService.isAdminUIUsersWriter();
+        this.columns = [
+            { prop: 'name', name: 'Name', draggable: false, canAutoResize: true, sortable: true, resizeable: true },
+            { prop: 'description', name: 'Description', draggable: false, canAutoResize: true, sortable: true, resizeable: true }
+        ];
         const userId = this._route.parent.snapshot.params.id;
         this.currentUserId = this._authService.getSubjectId();
         const getUser = this._userStore.getUser(userId);
@@ -47,6 +55,8 @@ export class UserRolesComponent implements OnInit, OnDestroy {
             const allRoles = result.roles;
             this.availableRoles = allRoles.filter(x => !userRoles.includes(x.name));
             this.userRoles = allRoles.filter(x => userRoles.includes(x.name));
+            this.count = this.userRoles.length;
+            this.rows = this.userRoles;
         });
     }
 

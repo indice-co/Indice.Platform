@@ -9,6 +9,7 @@
       [ngClass]="{ 'was-validated': form.submitted }"
       (ngSubmit)="form.form.valid && update()"
       novalidate
+      [formReadonly]="!canEditResource"
       #form="ngForm">
     <div class="form-group row">
         <label for="scope-id"

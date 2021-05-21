@@ -1,5 +1,5 @@
 <form class="needs-validation mt-3"
-      *ngIf="client"
+      *ngIf="canEditClient && client"
       [ngClass]="{ 'was-validated': urlForm.submitted }"
       (ngSubmit)="urlForm.form.valid && addClientUrl()"
       novalidate

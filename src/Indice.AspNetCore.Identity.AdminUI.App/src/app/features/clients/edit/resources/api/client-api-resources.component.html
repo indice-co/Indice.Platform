@@ -2,7 +2,7 @@
    *ngIf="!availableResources">
     Loading client resources...
 </p>
-<app-transfer-lists *ngIf="availableResources"
+<app-transfer-lists *ngIf="availableResources && canEditClient"
                     [source]="availableResources"
                     [destination]="clientResources"
                     [titlePropertyName]="'name'"
@@ -18,3 +18,18 @@
                     [viewOnly]="!canEditClient"
                     #transferList>
 </app-transfer-lists>
+<div class="row mt-3"
+     *ngIf="availableResources && !canEditClient">
+    <div class="col-12">
+        <app-list-view [clientSide]="true"
+                       [columns]="columns"
+                       [rows]="rows"
+                       [count]="count"
+                       [rowsPerPage]="15"
+                       [defaultSortField]="'name'"
+                       [defaultSortDirection]="'Asc'"
+                       [canFilter]="false"
+                       #resourcesList>
+        </app-list-view>
+    </div>
+</div>

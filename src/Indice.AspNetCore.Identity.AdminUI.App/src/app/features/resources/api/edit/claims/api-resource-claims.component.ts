@@ -1,6 +1,7 @@
 import { Component, OnInit, OnDestroy, Input } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
+import { TableColumn } from '@swimlane/ngx-datatable';
 import { Subscription, forkJoin } from 'rxjs';
 import { ClaimTypeInfo, ApiResourceInfo } from 'src/app/core/services/identity-api.service';
 import { ApiResourceStore } from '../../api-resource-store.service';
@@ -26,9 +27,16 @@ export class ApiResourceClaimsComponent implements OnInit, OnDestroy {
     public availableClaims: ClaimTypeInfo[];
     public selectedClaims: ClaimTypeInfo[];
     public canEditResource: boolean;
+    public rows: ClaimTypeInfo[] = [];
+    public columns: TableColumn[] = [];
+    public count = 0;
 
     public ngOnInit(): void {
         this.canEditResource = this._authService.isAdminUIClientsWriter();
+        this.columns = [
+            { prop: 'name', name: 'Name', draggable: false, canAutoResize: true, sortable: true, resizeable: true },
+            { prop: 'description', name: 'Description', draggable: false, canAutoResize: true, sortable: true, resizeable: true }
+        ];
         this._apiResourceId = +this._route.parent.snapshot.params.id;
         const getApiResource = this._apiResourceStore.getApiResource(this._apiResourceId);
         const getAllClaims = this._apiResourceStore.getAllClaims();
@@ -42,6 +50,8 @@ export class ApiResourceClaimsComponent implements OnInit, OnDestroy {
             const allClaims = result.allClaims;
             this.availableClaims = allClaims.filter(x => !resourceClaims.includes(x.name));
             this.selectedClaims = allClaims.filter(x => resourceClaims.includes(x.name));
+            this.count = this.selectedClaims.length;
+            this.rows = this.selectedClaims;
         });
     }
 
