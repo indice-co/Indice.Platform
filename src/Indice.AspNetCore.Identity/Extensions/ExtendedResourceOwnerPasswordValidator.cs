@@ -63,7 +63,7 @@ namespace Indice.AspNetCore.Identity
                 Error(context, ResourceOwnerPasswordErrorCodes.LockedOut);
                 return;
             }
-            if (user.PasswordExpired) {
+            if (user.HasExpiredPassword()) {
                 Error(context, ResourceOwnerPasswordErrorCodes.PasswordExpired);
                 return;
             }

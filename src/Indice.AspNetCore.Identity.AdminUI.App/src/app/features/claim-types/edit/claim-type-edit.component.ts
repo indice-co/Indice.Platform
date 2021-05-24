@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
+import { AuthService } from 'src/app/core/services/auth.service';
 
 import { UpdateClaimTypeRequest, ValueType, IdentityApiService, ClaimTypeInfo } from 'src/app/core/services/identity-api.service';
 import { ToastService } from 'src/app/layout/services/app-toast.service';
@@ -9,13 +10,21 @@ import { ToastService } from 'src/app/layout/services/app-toast.service';
     templateUrl: './claim-type-edit.component.html'
 })
 export class ClaimTypeEditComponent implements OnInit {
-    constructor(private _api: IdentityApiService, private _router: Router, private _route: ActivatedRoute, public _toast: ToastService) { }
+    constructor(
+        private _api: IdentityApiService,
+        private _router: Router,
+        private _route: ActivatedRoute,
+        public _toast: ToastService,
+        private _authService: AuthService
+    ) { }
 
     public claimType: ClaimTypeInfo = new ClaimTypeInfo();
     public valueTypes: string[] = [];
     public claimValueType = '';
+    public canEditClaimType: boolean;
 
     public ngOnInit(): void {
+        this.canEditClaimType = this._authService.isAdminUIUsersWriter() || this._authService.isAdminUIClientsWriter();
         this.claimType = this._route.snapshot.data.claimType;
         this.claimValueType = this.claimType.valueType;
         for (const type in ValueType) {

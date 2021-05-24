@@ -6,6 +6,7 @@ import { IdentityResourceInfo } from 'src/app/core/services/identity-api.service
 import { IdentityResourceStore } from '../identity-resource-store.service';
 import { ClaimType } from 'src/app/features/users/edit/details/models/claim-type.model';
 import { ToastService } from 'src/app/layout/services/app-toast.service';
+import { AuthService } from 'src/app/core/services/auth.service';
 
 @Component({
     selector: 'app-identity-resource-details',
@@ -16,12 +17,20 @@ export class IdentityResourceDetailsComponent implements OnInit, OnDestroy {
     private _deleteIdentityResourceSubscription: Subscription;
     private _getResourceSubscription: Subscription;
 
-    constructor(private _router: Router, private _route: ActivatedRoute, private _identityResourceStore: IdentityResourceStore, public _toast: ToastService) { }
+    constructor(
+        private _router: Router,
+        private _route: ActivatedRoute,
+        private _identityResourceStore: IdentityResourceStore,
+        private _toast: ToastService,
+        private _authService: AuthService
+    ) { }
 
     public identityResource: IdentityResourceInfo;
     public requiredClaims: ClaimType[];
+    public canEditResource: boolean;
 
     public ngOnInit(): void {
+        this.canEditResource = this._authService.isAdminUIClientsWriter();
         const resourceId = +this._route.parent.snapshot.params.id;
         this._getResourceSubscription = this._identityResourceStore.getIdentityResource(resourceId).subscribe((resource: IdentityResourceInfo) => {
             this.identityResource = resource;

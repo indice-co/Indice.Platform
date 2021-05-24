@@ -11,7 +11,6 @@ using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
-using Newtonsoft.Json;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace Indice.AspNetCore.Swagger
@@ -226,7 +225,7 @@ namespace Indice.AspNetCore.Swagger
         /// <param name="options">The options used to generate the swagger.json file.</param>
         /// <param name="settings">General settings for an ASP.NET Core application.</param>
         /// <param name="name">A unique name for the scheme.</param>
-        public static SwaggerGenOptions AddOpenIdConnect(this SwaggerGenOptions options, GeneralSettings settings, string name = "open_id") {
+        public static SwaggerGenOptions AddOpenIdConnect(this SwaggerGenOptions options, GeneralSettings settings, string name = "openid") {
             // https://swagger.io/docs/specification/authentication/
             options.AddSecurityDefinition(name, new OpenApiSecurityScheme {
                 Type = SecuritySchemeType.OpenIdConnect,
@@ -243,18 +242,24 @@ namespace Indice.AspNetCore.Swagger
         /// <param name="options">The options used to generate the swagger.json file.</param>
         /// <param name="settings">General settings for an ASP.NET Core application.</param>
         /// <param name="name">A unique name for the scheme.</param>
-        public static SwaggerGenOptions AddClientCredentials(this SwaggerGenOptions options, GeneralSettings settings, string name = "client_credentials") {
+        public static SwaggerGenOptions AddClientCredentials(this SwaggerGenOptions options, GeneralSettings settings, string name = "oauth2") {
             // https://swagger.io/docs/specification/authentication/
+            var clientCredentialsFlow = new OpenApiOAuthFlow {
+                TokenUrl = new Uri(settings?.Authority + "/connect/token"),
+                RefreshUrl = new Uri(settings?.Authority + "/connect/token"),
+                AuthorizationUrl = new Uri(settings?.Authority + "/connect/authorize"),
+                Scopes = GetScopes(settings)
+            };
+            var oauth2 = options.SwaggerGeneratorOptions.SecuritySchemes.SingleOrDefault(x => x.Value.Type == SecuritySchemeType.OAuth2);
+            if (oauth2.Value != null) {
+                oauth2.Value.Flows.ClientCredentials = clientCredentialsFlow;
+                return options;
+            }
             options.AddSecurityDefinition(name, new OpenApiSecurityScheme {
                 Type = SecuritySchemeType.OAuth2,
-                Description = "Identity Server OAuth2 - Authorization Code",
+                Description = "Identity Server OAuth2",
                 Flows = new OpenApiOAuthFlows {
-                    ClientCredentials = new OpenApiOAuthFlow {
-                        TokenUrl = new Uri(settings?.Authority + "/connect/token"),
-                        RefreshUrl = new Uri(settings?.Authority + "/connect/token"),
-                        AuthorizationUrl = new Uri(settings?.Authority + "/connect/authorize"),
-                        Scopes = GetScopes(settings)
-                    }
+                    ClientCredentials = clientCredentialsFlow
                 }
             });
             options.AddSecurityRequirements(name, settings);
@@ -267,18 +272,24 @@ namespace Indice.AspNetCore.Swagger
         /// <param name="options">The options used to generate the swagger.json file.</param>
         /// <param name="settings">General settings for an ASP.NET Core application.</param>
         /// <param name="name">A unique name for the scheme.</param>
-        public static SwaggerGenOptions AddOAuth2AuthorizationCodeFlow(this SwaggerGenOptions options, GeneralSettings settings, string name = "authorization_code") {
+        public static SwaggerGenOptions AddOAuth2AuthorizationCodeFlow(this SwaggerGenOptions options, GeneralSettings settings, string name = "oauth2") {
             // https://swagger.io/docs/specification/authentication/
+            var authorizationCodeFlow = new OpenApiOAuthFlow {
+                TokenUrl = new Uri(settings?.Authority + "/connect/token"),
+                RefreshUrl = new Uri(settings?.Authority + "/connect/token"),
+                AuthorizationUrl = new Uri(settings?.Authority + "/connect/authorize"),
+                Scopes = GetScopes(settings)
+            };
+            var oauth2 = options.SwaggerGeneratorOptions.SecuritySchemes.SingleOrDefault(x => x.Value.Type == SecuritySchemeType.OAuth2);
+            if (oauth2.Value != null) {
+                oauth2.Value.Flows.AuthorizationCode = authorizationCodeFlow;
+                return options;
+            }
             options.AddSecurityDefinition(name, new OpenApiSecurityScheme {
                 Type = SecuritySchemeType.OAuth2,
-                Description = "Identity Server OAuth2 - Authorization Code",
+                Description = "Identity Server OAuth2",
                 Flows = new OpenApiOAuthFlows {
-                    AuthorizationCode = new OpenApiOAuthFlow {
-                        TokenUrl = new Uri(settings?.Authority + "/connect/token"),
-                        RefreshUrl = new Uri(settings?.Authority + "/connect/token"),
-                        AuthorizationUrl = new Uri(settings?.Authority + "/connect/authorize"),
-                        Scopes = GetScopes(settings)
-                    }
+                    AuthorizationCode = authorizationCodeFlow
                 }
             });
             options.AddSecurityRequirements(name, settings);
@@ -291,18 +302,24 @@ namespace Indice.AspNetCore.Swagger
         /// <param name="options">The options used to generate the swagger.json file.</param>
         /// <param name="settings">General settings for an ASP.NET Core application.</param>
         /// <param name="name">A unique name for the scheme.</param>
-        public static SwaggerGenOptions AddOAuth2ImplicitFlow(this SwaggerGenOptions options, GeneralSettings settings, string name = "implicit") {
+        public static SwaggerGenOptions AddOAuth2ImplicitFlow(this SwaggerGenOptions options, GeneralSettings settings, string name = "oauth2") {
             // https://swagger.io/docs/specification/authentication/
+            var implicitFlow = new OpenApiOAuthFlow {
+                TokenUrl = new Uri(settings?.Authority + "/connect/token"),
+                RefreshUrl = new Uri(settings?.Authority + "/connect/token"),
+                AuthorizationUrl = new Uri(settings?.Authority + "/connect/authorize"),
+                Scopes = GetScopes(settings)
+            };
+            var oauth2 = options.SwaggerGeneratorOptions.SecuritySchemes.SingleOrDefault(x => x.Value.Type == SecuritySchemeType.OAuth2);
+            if (oauth2.Value != null) {
+                oauth2.Value.Flows.Implicit = implicitFlow;
+                return options;
+            }
             options.AddSecurityDefinition(name, new OpenApiSecurityScheme {
                 Type = SecuritySchemeType.OAuth2,
-                Description = "Identity Server OAuth2 - Implicit Flow",
+                Description = "Identity Server OAuth2",
                 Flows = new OpenApiOAuthFlows {
-                    Implicit = new OpenApiOAuthFlow {
-                        TokenUrl = new Uri(settings?.Authority + "/connect/token"),
-                        RefreshUrl = new Uri(settings?.Authority + "/connect/token"),
-                        AuthorizationUrl = new Uri(settings?.Authority + "/connect/authorize"),
-                        Scopes = GetScopes(settings)
-                    }
+                    Implicit = implicitFlow
                 }
             });
             options.AddSecurityRequirements(name, settings);

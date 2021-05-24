@@ -11,6 +11,7 @@
       [ngClass]="{ 'was-validated': form.submitted }"
       (ngSubmit)="form.form.valid && update()"
       novalidate
+      [formReadonly]="!canEditClient"
       #form="ngForm">
     <div class="form-group row">
         <label for="client-id"
@@ -172,7 +173,8 @@
             </div>
         </div>
     </div>
-    <div class="form-group">
+    <div class="form-group"
+         *ngIf="canEditClient">
         <div>
             <button type="submit"
                     class="btn btn-primary m-r-5">

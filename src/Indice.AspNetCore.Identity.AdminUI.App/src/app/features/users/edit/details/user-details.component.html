@@ -84,6 +84,7 @@
       [ngClass]="{ 'was-validated': form.submitted }"
       (ngSubmit)="form.form.valid && update()"
       novalidate
+      [formReadonly]="!canEditUser"
       #form="ngForm">
     <div class="alert alert-warning d-flex align-items-center justify-content-between"
          role="alert"
@@ -233,7 +234,6 @@
                     #passwordExpirationPolicy="ngModel">
                 <option value="">Please select a password expiration policy</option>
                 <option value="Never">Never</option>
-                <option value="NextLogin">In next login</option>
                 <option value="Monthly">Monthly</option>
                 <option value="Quarterly">Quarterly</option>
                 <option value="Semesterly">Semesterly</option>
@@ -278,7 +278,8 @@
             </div>
         </div>
     </div>
-    <div class="form-group">
+    <div class="form-group"
+         *ngIf="canEditUser">
         <div>
             <button type="submit"
                     class="btn btn-primary m-r-5">

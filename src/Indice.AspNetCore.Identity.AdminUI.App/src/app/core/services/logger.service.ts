@@ -6,15 +6,23 @@ import * as app from '../models/settings';
     providedIn: 'root'
 })
 export class LoggerService {
-    public log(message: any): void {
+    public log(message: any, ...parameters: any[]): void {
         if (!app.settings.production) {
-            console.log(message);
+            if (parameters?.length > 0) {
+                console.log(message, parameters);
+            } else {
+                console.log(message);
+            }
         }
     }
 
-    public warn(message: any): void {
+    public warn(message: any, ...parameters: any[]): void {
         if (!app.settings.production) {
-            console.warn(message);
+            if (parameters?.length > 0) {
+                console.warn(message, parameters);
+            } else {
+                console.warn(message);
+            }
         }
     }
 }

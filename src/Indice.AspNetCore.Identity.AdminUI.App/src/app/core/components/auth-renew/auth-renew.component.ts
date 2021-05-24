@@ -8,11 +8,11 @@ import { AuthService } from '../../services/auth.service';
     template: ``
 })
 export class AuthRenewComponent implements OnInit {
-    constructor(private authService: AuthService, private router: Router) { }
+    constructor(private _authService: AuthService, private _router: Router) { }
 
     public ngOnInit(): void {
-        this.authService.signinSilentCallback().catch(_ => {
-            this.router.navigate(['/unauthorized']);
+        this._authService.signinSilentCallback().subscribe(_ => {
+            this._authService.checkUserAccess();
         });
     }
 }

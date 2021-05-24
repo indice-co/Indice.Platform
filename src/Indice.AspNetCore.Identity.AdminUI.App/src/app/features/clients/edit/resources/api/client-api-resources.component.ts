@@ -1,8 +1,10 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
+import { TableColumn } from '@swimlane/ngx-datatable';
 import { forkJoin, Subscription } from 'rxjs';
 import { map } from 'rxjs/operators';
+import { AuthService } from 'src/app/core/services/auth.service';
 import { ApiResourceInfo, SingleClientInfo } from 'src/app/core/services/identity-api.service';
 import { ClientStore } from '../../client-store.service';
 
@@ -15,13 +17,26 @@ export class ClientApiResourcesComponent implements OnInit, OnDestroy {
     private _addClientApiResourceSubscription: Subscription;
     private _deleteClientApiResourceSubscription: Subscription;
 
-    constructor(private _route: ActivatedRoute, private _clientStore: ClientStore) { }
+    constructor(
+        private _route: ActivatedRoute,
+        private _clientStore: ClientStore,
+        private _authService: AuthService
+    ) { }
 
     public clientId = '';
     public availableResources: ApiResourceInfo[];
     public clientResources: ApiResourceInfo[];
+    public canEditClient: boolean;
+    public rows: ApiResourceInfo[] = [];
+    public columns: TableColumn[] = [];
+    public count = 0;
 
     public ngOnInit(): void {
+        this.canEditClient = this._authService.isAdminUIClientsWriter();
+        this.columns = [
+            { prop: 'name', name: 'Name', draggable: false, canAutoResize: true, sortable: true, resizeable: true },
+            { prop: 'description', name: 'Description', draggable: false, canAutoResize: true, sortable: true, resizeable: true }
+        ];
         this.clientId = this._route.parent.parent.snapshot.params.id;
         const getClient = this._clientStore.getClient(this.clientId);
         const getApiScopes = this._clientStore.getApiScopes();
@@ -35,6 +50,8 @@ export class ClientApiResourcesComponent implements OnInit, OnDestroy {
             const allApiResources = result.apiScopes;
             this.availableResources = allApiResources.filter(x => !clientApiResources.includes(x.name));
             this.clientResources = allApiResources.filter(x => clientApiResources.includes(x.name));
+            this.count = this.clientResources.length;
+            this.rows = this.clientResources;
         });
     }
 

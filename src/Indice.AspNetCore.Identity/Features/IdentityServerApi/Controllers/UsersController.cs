@@ -35,16 +35,15 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
     /// <response code="401">Unauthorized</response>
     /// <response code="403">Forbidden</response>
     /// <response code="500">Internal Server Error</response>
-    [Route("api/users")]
     [ApiController]
     [ApiExplorerSettings(GroupName = "identity")]
-    [Produces(MediaTypeNames.Application.Json)]
     [Consumes(MediaTypeNames.Application.Json)]
+    [ProblemDetailsExceptionFilter]
+    [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest, type: typeof(ValidationProblemDetails))]
     [ProducesResponseType(statusCode: StatusCodes.Status401Unauthorized, type: typeof(ProblemDetails))]
     [ProducesResponseType(statusCode: StatusCodes.Status403Forbidden, type: typeof(ProblemDetails))]
-    [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme, Policy = IdentityServerApi.SubScopes.Users)]
-    [ProblemDetailsExceptionFilter]
+    [Route("api/users")]
     internal class UsersController : ControllerBase
     {
         private readonly ExtendedUserManager<User> _userManager;
@@ -104,6 +103,7 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
         /// </summary>
         /// <param name="options">List params used to navigate through collections. Contains parameters such as sort, search, page number and page size.</param>
         /// <response code="200">OK</response>
+        [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme, Policy = IdentityServerApi.Policies.BeUsersReader)]
         [HttpGet]
         [ProducesResponseType(statusCode: StatusCodes.Status200OK, type: typeof(ResultSet<UserInfo>))]
         public async Task<IActionResult> GetUsers([FromQuery] ListOptions<UserListFilter> options) {
@@ -112,13 +112,17 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
                 var filter = options.Filter;
                 query = query.Where(x => filter.Claim == null || x.Claims.Any(x => x.ClaimType == filter.Claim.Type && x.ClaimValue == filter.Claim.Value));
             }
+            // https://docs.microsoft.com/en-us/ef/core/querying/complex-query-operators
             var usersQuery =
                 from user in query
-                join fnl in _dbContext.UserClaims on user.Id equals fnl.UserId into fnLeft
+                join fnl in _dbContext.UserClaims
+                    on new { user.Id, ClaimType = JwtClaimTypes.GivenName }
+                    equals new { Id = fnl.UserId, fnl.ClaimType } into fnLeft
                 from fn in fnLeft.DefaultIfEmpty()
-                join lnl in _dbContext.UserClaims on user.Id equals lnl.UserId into lnLeft
+                join lnl in _dbContext.UserClaims
+                    on new { user.Id, ClaimType = JwtClaimTypes.FamilyName }
+                    equals new { Id = lnl.UserId, lnl.ClaimType } into lnLeft
                 from ln in lnLeft.DefaultIfEmpty()
-                where (fn == null || fn.ClaimType == JwtClaimTypes.GivenName) && (ln == null || ln.ClaimType == JwtClaimTypes.FamilyName)
                 select new UserInfo {
                     Id = user.Id,
                     FirstName = fn.ClaimValue,
@@ -140,19 +144,8 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
                     PasswordExpirationDate = user.PasswordExpirationDate
                 };
             if (options?.Search?.Length > 2) {
-                var searchTerm = options.Search.ToLower();
-                var idsFromClaims = await _dbContext.UserClaims.Where(x => 
-                    (x.ClaimType == JwtClaimTypes.GivenName || x.ClaimType == JwtClaimTypes.FamilyName) 
-                 && EF.Functions.Like(x.ClaimValue, $"%{searchTerm}%")
-                )
-                .Select(x => x.UserId)
-                .ToArrayAsync();
-                usersQuery = usersQuery.Where(x => EF.Functions.Like(x.Email, $"%{searchTerm}%")
-                 || EF.Functions.Like(x.PhoneNumber, $"%{searchTerm}%")
-                 || EF.Functions.Like(x.UserName, $"%{searchTerm}%")
-                 || EF.Functions.Like(x.Email, $"%{searchTerm}%")
-                 || searchTerm == x.Id.ToLower()
-                 || idsFromClaims.Contains(x.Id));
+                var userSearchFilterExpression = await IdentityDbContextOptions.UserSearchFilter(_dbContext, options.Search);
+                usersQuery = usersQuery.Where(userSearchFilterExpression);   
             }
             return Ok(await usersQuery.ToResultSetAsync(options));
         }
@@ -163,10 +156,11 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
         /// <param name="userId">The identifier of the user.</param>
         /// <response code="200">OK</response>
         /// <response code="404">Not Found</response>
+        [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme, Policy = IdentityServerApi.Policies.BeUsersReader)]
+        [CacheResourceFilter(Expiration = 1)]
         [HttpGet("{userId}")]
         [ProducesResponseType(statusCode: StatusCodes.Status200OK, type: typeof(SingleUserInfo))]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
-        [CacheResourceFilter(Expiration = 1)]
         public async Task<IActionResult> GetUser([FromRoute] string userId) {
             var foundUser = await (
                 from user in _dbContext.Users.AsNoTracking()
@@ -222,6 +216,7 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
         /// </summary>
         /// <param name="request">Contains info about the user to be created.</param>
         /// <response code="201">Created</response>
+        [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme, Policy = IdentityServerApi.Policies.BeUsersWriter)]
         [HttpPost]
         [ProducesResponseType(statusCode: StatusCodes.Status201Created, type: typeof(SingleUserInfo))]
         public async Task<IActionResult> CreateUser([FromBody] CreateUserRequest request) {
@@ -240,7 +235,7 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
                 result = await _userManager.CreateAsync(user, request.Password);
             }
             if (!result.Succeeded) {
-                return BadRequest(result.Errors.AsValidationProblemDetails());
+                return BadRequest(result.Errors.ToValidationProblemDetails());
             }
             if (request.ChangePasswordAfterFirstSignIn.HasValue && request.ChangePasswordAfterFirstSignIn.Value == true) {
                 await _userManager.SetPasswordExpiredAsync(user, true);
@@ -283,10 +278,11 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
         /// <param name="request">Contains info about the user to update.</param>
         /// <response code="200">OK</response>
         /// <response code="404">Not Found</response>
+        [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme, Policy = IdentityServerApi.Policies.BeUsersWriter)]
+        [CacheResourceFilter]
         [HttpPut("{userId}")]
         [ProducesResponseType(statusCode: StatusCodes.Status200OK, type: typeof(SingleUserInfo))]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
-        [CacheResourceFilter]
         public async Task<IActionResult> UpdateUser([FromRoute] string userId, [FromBody] UpdateUserRequest request) {
             var user = await _dbContext.Users.Include(x => x.Claims).SingleOrDefaultAsync(x => x.Id == userId);
             if (user == null) {
@@ -345,7 +341,9 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
         /// <summary>
         /// Resends the confirmation email for a given user.
         /// </summary>
-        /// <returns></returns>
+        /// <response code="200">No Content</response>
+        /// <response code="404">Not Found</response>
+        [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme, Policy = IdentityServerApi.Policies.BeUsersWriter)]
         [HttpPost("{userId}/email/confirmation")]
         [ProducesResponseType(statusCode: StatusCodes.Status204NoContent, type: typeof(void))]
         [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest, type: typeof(ValidationProblemDetails))]
@@ -371,10 +369,11 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
         /// <param name="userId">The id of the user to delete.</param>
         /// <response code="204">No Content</response>
         /// <response code="404">Not Found</response>
-        [HttpDelete("{userId}")]
-        [ProducesResponseType(statusCode: StatusCodes.Status204NoContent)]
-        [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
+        [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme, Policy = IdentityServerApi.Policies.BeUsersWriter)]
         [CacheResourceFilter]
+        [HttpDelete("{userId}")]
+        [ProducesResponseType(statusCode: StatusCodes.Status204NoContent, type: typeof(void))]
+        [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
         public async Task<IActionResult> DeleteUser([FromRoute] string userId) {
             var user = await _dbContext.Users.SingleOrDefaultAsync(x => x.Id == userId);
             if (user == null) {
@@ -390,11 +389,14 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
         /// <param name="userId">The id of the user.</param>
         /// <param name="roleId">The id of the role.</param>
         /// <response code="204">No Content</response>
+        /// <response code="400">Bad Request</response>
         /// <response code="404">Not Found</response>
-        [HttpPost("{userId}/roles/{roleId}")]
-        [ProducesResponseType(statusCode: StatusCodes.Status204NoContent)]
-        [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
+        [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme, Policy = IdentityServerApi.Policies.BeUsersWriter)]
         [CacheResourceFilter(DependentPaths = new string[] { "{userId}" })]
+        [HttpPost("{userId}/roles/{roleId}")]
+        [ProducesResponseType(statusCode: StatusCodes.Status204NoContent, type: typeof(void))]
+        [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest, type: typeof(ValidationProblemDetails))]
+        [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
         public async Task<IActionResult> AddUserRole([FromRoute] string userId, [FromRoute] string roleId) {
             var user = await _userManager.FindByIdAsync(userId);
             if (user == null) {
@@ -409,7 +411,14 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
                     { $"{nameof(roleId)}", new[] { $"User {user.Email} is already a member of role {role.Name}." } }
                 }));
             }
-            await _userManager.AddToRoleAsync(user, role.Name);
+            var result = await _userManager.AddToRoleAsync(user, role.Name);
+            if (!result.Succeeded) {
+                return BadRequest(result.Errors.ToValidationProblemDetails());
+            }
+            if (role.IsManagementRole()) {
+                var clientId = User.FindFirst(JwtClaimTypes.ClientId);
+                await _persistedGrantService.RemoveAllGrantsAsync(userId, clientId?.Value);
+            }
             return NoContent();
         }
 
@@ -419,11 +428,14 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
         /// <param name="userId">The id of the user.</param>
         /// <param name="roleId">The id of the role.</param>
         /// <response code="204">No Content</response>
+        /// <response code="400">Bad Request</response>
         /// <response code="404">Not Found</response>
-        [HttpDelete("{userId}/roles/{roleId}")]
-        [ProducesResponseType(statusCode: StatusCodes.Status204NoContent)]
-        [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
+        [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme, Policy = IdentityServerApi.Policies.BeUsersWriter)]
         [CacheResourceFilter(DependentPaths = new string[] { "{userId}" })]
+        [HttpDelete("{userId}/roles/{roleId}")]
+        [ProducesResponseType(statusCode: StatusCodes.Status204NoContent, type: typeof(void))]
+        [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest, type: typeof(ValidationProblemDetails))]
+        [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
         public async Task<IActionResult> DeleteUserRole([FromRoute] string userId, [FromRoute] string roleId) {
             var user = await _userManager.FindByIdAsync(userId);
             if (user == null) {
@@ -438,7 +450,13 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
                     { $"{nameof(roleId)}", new[] { $"User {user.Email} is not a member of role {role.Name}." } }
                 }));
             }
-            await _userManager.RemoveFromRoleAsync(user, role.Name);
+            var result = await _userManager.RemoveFromRoleAsync(user, role.Name);
+            if (!result.Succeeded) {
+                return BadRequest(result.Errors.ToValidationProblemDetails());
+            }
+            if (role.IsManagementRole()) {
+                await _persistedGrantService.RemoveAllGrantsAsync(userId);
+            }
             return NoContent();
         }
 
@@ -449,10 +467,11 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
         /// <param name="claimId">The id of the claim.</param>
         /// <response code="200">OK</response>
         /// <response code="404">Not Found</response>
+        [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme, Policy = IdentityServerApi.Policies.BeUsersReader)]
+        [CacheResourceFilter]
         [HttpGet("{userId}/claims/{claimId}")]
         [ProducesResponseType(statusCode: StatusCodes.Status200OK, type: typeof(BasicClaimInfo))]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
-        [CacheResourceFilter]
         public async Task<IActionResult> GetUserClaim([FromRoute] string userId, [FromRoute] int claimId) {
             var claim = await _dbContext.UserClaims.AsNoTracking().SingleOrDefaultAsync(x => x.UserId == userId && x.Id == claimId);
             if (claim == null) {
@@ -471,10 +490,11 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
         /// <param name="request">The claim to add.</param>
         /// <response code="201">Created</response>
         /// <response code="404">Not Found</response>
+        [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme, Policy = IdentityServerApi.Policies.BeUsersWriter)]
+        [CacheResourceFilter(DependentPaths = new string[] { "{userId}" })]
         [HttpPost("{userId}/claims")]
         [ProducesResponseType(statusCode: StatusCodes.Status201Created, type: typeof(ClaimInfo))]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
-        [CacheResourceFilter(DependentPaths = new string[] { "{userId}" })]
         public async Task<IActionResult> AddUserClaim([FromRoute] string userId, [FromBody] CreateClaimRequest request) {
             var user = await _dbContext.Users.AsNoTracking().SingleOrDefaultAsync(x => x.Id == userId);
             if (user == null) {
@@ -502,10 +522,11 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
         /// <param name="request">Contains info about the user claim to update.</param>
         /// <response code="200">OK</response>
         /// <response code="404">Not Found</response>
+        [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme, Policy = IdentityServerApi.Policies.BeUsersWriter)]
+        [CacheResourceFilter(DependentPaths = new string[] { "{userId}" })]
         [HttpPut("{userId}/claims/{claimId}")]
         [ProducesResponseType(statusCode: StatusCodes.Status200OK, type: typeof(ClaimInfo))]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
-        [CacheResourceFilter(DependentPaths = new string[] { "{userId}" })]
         public async Task<IActionResult> UpdateUserClaim([FromRoute] string userId, [FromRoute] int claimId, [FromBody] UpdateUserClaimRequest request) {
             var userClaim = await _dbContext.UserClaims.SingleOrDefaultAsync(x => x.UserId == userId && x.Id == claimId);
             if (userClaim == null) {
@@ -525,12 +546,13 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
         /// </summary>
         /// <param name="userId">The id of the user.</param>
         /// <param name="claimId">The id of the claim to delete.</param>
-        /// <response code="200">OK</response>
+        /// <response code="204">No Content</response>
         /// <response code="404">Not Found</response>
-        [HttpDelete("{userId}/claims/{claimId}")]
-        [ProducesResponseType(statusCode: StatusCodes.Status200OK)]
-        [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
+        [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme, Policy = IdentityServerApi.Policies.BeUsersWriter)]
         [CacheResourceFilter(DependentPaths = new string[] { "{userId}" })]
+        [HttpDelete("{userId}/claims/{claimId}")]
+        [ProducesResponseType(statusCode: StatusCodes.Status204NoContent)]
+        [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
         public async Task<IActionResult> DeleteUserClaim([FromRoute] string userId, [FromRoute] int claimId) {
             var userClaim = await _dbContext.UserClaims.SingleOrDefaultAsync(x => x.UserId == userId && x.Id == claimId);
             if (userClaim == null) {
@@ -538,7 +560,7 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
             }
             _dbContext.Remove(userClaim);
             await _dbContext.SaveChangesAsync();
-            return Ok();
+            return NoContent();
         }
 
         /// <summary>
@@ -547,6 +569,7 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
         /// <param name="userId">The id of the user.</param>
         /// <response code="200">OK</response>
         /// <response code="404">Not Found</response>
+        [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme, Policy = IdentityServerApi.Policies.BeUsersReader)]
         [HttpGet("{userId}/applications")]
         [ProducesResponseType(statusCode: StatusCodes.Status200OK, type: typeof(ResultSet<UserClientInfo>))]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
@@ -575,16 +598,70 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
         }
 
         /// <summary>
+        /// Gets a list of the external login providers for the specified user.
+        /// </summary>
+        /// <param name="userId">The id of the user.</param>
+        /// <response code="200">OK</response>
+        /// <response code="404">Not Found</response>
+        [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme, Policy = IdentityServerApi.Policies.BeUsersReader)]
+        [HttpGet("{userId}/external-logins")]
+        [ProducesResponseType(statusCode: StatusCodes.Status200OK, type: typeof(IEnumerable<UserLoginProviderInfo>))]
+        [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
+        public async Task<IActionResult> GetUserExternalLogins([FromRoute] string userId) {
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null) {
+                return NotFound();
+            }
+            var externalLogins = await _userManager.GetLoginsAsync(user);
+            return Ok(externalLogins.Select(x => new UserLoginProviderInfo {
+                Key = x.ProviderKey,
+                Name = x.LoginProvider,
+                DisplayName = !string.IsNullOrWhiteSpace(x.ProviderDisplayName) ? x.ProviderDisplayName : x.LoginProvider
+            }));
+        }
+
+        /// <summary>
+        /// Gets a list of the external login providers for the specified user.
+        /// </summary>
+        /// <param name="userId">The id of the user.</param>
+        /// <param name="provider">The provider to remove.</param>
+        /// <response code="204">No Content</response>
+        /// <response code="400">Bad Request</response>
+        /// <response code="404">Not Found</response>
+        [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme, Policy = IdentityServerApi.Policies.BeUsersReader)]
+        [HttpDelete("{userId}/external-logins/{provider}")]
+        [ProducesResponseType(statusCode: StatusCodes.Status204NoContent, type: typeof(void))]
+        [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest, type: typeof(ValidationProblemDetails))]
+        [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
+        public async Task<IActionResult> DeleteUserExternalLogin([FromRoute] string userId, [FromRoute] string provider) {
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null) {
+                return NotFound();
+            }
+            var externalLogins = await _userManager.GetLoginsAsync(user);
+            var externalLogin = externalLogins.SingleOrDefault(x => x.LoginProvider == provider);
+            if (externalLogin == null) {
+                return NotFound();
+            }
+            var result = await _userManager.RemoveLoginAsync(user, externalLogin.LoginProvider, externalLogin.ProviderKey);
+            if (!result.Succeeded) {
+                return BadRequest(result.Errors.ToValidationProblemDetails());
+            }
+            return NoContent();
+        }
+
+        /// <summary>
         /// Toggles user block state.
         /// </summary>
         /// <param name="userId">The id of the user to block.</param>
         /// <param name="request">Contains info about whether to block the user or not.</param>
         /// <response code="204">No Content</response>
         /// <response code="404">Not Found</response>
+        [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme, Policy = IdentityServerApi.Policies.BeUsersWriter)]
+        [CacheResourceFilter(DependentPaths = new string[] { "{userId}" })]
         [HttpPut("{userId}/set-block")]
         [ProducesResponseType(statusCode: StatusCodes.Status204NoContent, type: typeof(void))]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
-        [CacheResourceFilter(DependentPaths = new string[] { "{userId}" })]
         public async Task<IActionResult> SetUserBlock([FromRoute] string userId, [FromBody] SetUserBlockRequest request) {
             var user = await _dbContext.Users.SingleOrDefaultAsync(x => x.Id == userId);
             if (user == null) {
@@ -593,10 +670,12 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
             user.Blocked = request.Blocked;
             var result = await _userManager.UpdateAsync(user);
             if (!result.Succeeded) {
-                return BadRequest(result.Errors.AsValidationProblemDetails());
+                return BadRequest(result.Errors.ToValidationProblemDetails());
             }
-            // When blocking a user we need to make sure we also revoke all of his tokens.
-            await _persistedGrantService.RemoveAllGrantsAsync(userId);
+            if (request.Blocked) {
+                // When blocking a user we need to make sure we also revoke all of his tokens.
+                await _persistedGrantService.RemoveAllGrantsAsync(userId);
+            }
             return NoContent();
         }
 
@@ -606,10 +685,11 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
         /// <param name="userId">The id of the user to unlock.</param>
         /// <response code="204">No Content</response>
         /// <response code="404">Not Found</response>
+        [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme, Policy = IdentityServerApi.Policies.BeUsersWriter)]
+        [CacheResourceFilter(DependentPaths = new string[] { "{userId}" })]
         [HttpPut("{userId}/unlock")]
         [ProducesResponseType(statusCode: StatusCodes.Status204NoContent, type: typeof(void))]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
-        [CacheResourceFilter(DependentPaths = new string[] { "{userId}" })]
         public async Task<IActionResult> UnlockUser([FromRoute] string userId) {
             var user = await _userManager.FindByIdAsync(userId);
             if (user == null) {
@@ -617,11 +697,11 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
             }
             var result = await _userManager.SetLockoutEndDateAsync(user, null);
             if (!result.Succeeded) {
-                return BadRequest(result.Errors.AsValidationProblemDetails());
+                return BadRequest(result.Errors.ToValidationProblemDetails());
             }
             result = await _userManager.ResetAccessFailedCountAsync(user);
             if (!result.Succeeded) {
-                return BadRequest(result.Errors.AsValidationProblemDetails());
+                return BadRequest(result.Errors.ToValidationProblemDetails());
             }
             return Ok();
         }
@@ -633,10 +713,11 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
         /// <param name="request">Contains info about the user password to change.</param>
         /// <response code="204">No Content</response>
         /// <response code="404">Not Found</response>
+        [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme, Policy = IdentityServerApi.Policies.BeUsersWriter)]
+        [CacheResourceFilter(DependentPaths = new string[] { "{userId}" })]
         [HttpPut("{userId}/set-password")]
         [ProducesResponseType(statusCode: StatusCodes.Status204NoContent, type: typeof(void))]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
-        [CacheResourceFilter(DependentPaths = new string[] { "{userId}" })]
         public async Task<IActionResult> SetPassword([FromRoute] string userId, [FromBody] SetPasswordRequest request) {
             var user = await _dbContext.Users.SingleOrDefaultAsync(x => x.Id == userId);
             if (user == null) {
@@ -647,19 +728,19 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
             if (hasPassword) {
                 result = await _userManager.RemovePasswordAsync(user);
                 if (!result.Succeeded) {
-                    return BadRequest(result.Errors.AsValidationProblemDetails());
+                    return BadRequest(result.Errors.ToValidationProblemDetails());
                 }
             }
             result = await _userManager.AddPasswordAsync(user, request.Password);
             if (!result.Succeeded) {
-                return BadRequest(result.Errors.AsValidationProblemDetails());
+                return BadRequest(result.Errors.ToValidationProblemDetails());
             }
             if (request.ChangePasswordAfterFirstSignIn.HasValue && request.ChangePasswordAfterFirstSignIn.Value == true) {
                 await _userManager.SetPasswordExpiredAsync(user, true);
             }
             result = await _userManager.SetLockoutEndDateAsync(user, null);
             if (!result.Succeeded) {
-                return BadRequest(result.Errors.AsValidationProblemDetails());
+                return BadRequest(result.Errors.ToValidationProblemDetails());
             }
             return NoContent();
         }

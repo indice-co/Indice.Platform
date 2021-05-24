@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Net.Http;
+using System.Text.Json;
 using System.Threading.Tasks;
 using CodeFlowInlineFrame.Models;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 
 namespace CodeFlowInlineFrame.Services
 {
@@ -25,7 +25,7 @@ namespace CodeFlowInlineFrame.Services
                 return result;
             }
             var content = await httpResponseMessage.Content.ReadAsStringAsync();
-            result = JsonConvert.DeserializeObject<SummaryViewModel>(content);
+            result = JsonSerializer.Deserialize<SummaryViewModel>(content);
             return result;
         }
     }

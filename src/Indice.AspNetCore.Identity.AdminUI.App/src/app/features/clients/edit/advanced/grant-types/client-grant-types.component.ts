@@ -12,6 +12,7 @@ import { GrantTypeStateMatrixService } from './grant-type-state-matrix.service';
 import { SingleClientInfo } from 'src/app/core/services/identity-api.service';
 import { ToastService } from 'src/app/layout/services/app-toast.service';
 import * as app from 'src/app/core/models/settings';
+import { AuthService } from 'src/app/core/services/auth.service';
 
 @Component({
     selector: 'app-client-grant-types',
@@ -24,7 +25,8 @@ export class ClientGrantTypesComponent implements OnInit, OnDestroy {
         private grantTypeStateMatrixService: GrantTypeStateMatrixService,
         private httpClient: HttpClient,
         private route: ActivatedRoute,
-        private toast: ToastService
+        private toast: ToastService,
+        private _authService: AuthService
     ) { }
 
     @ViewChild('actionsTemplate', { static: true })
@@ -41,12 +43,16 @@ export class ClientGrantTypesComponent implements OnInit, OnDestroy {
     public availableGrantTypes: string[];
     public grantTypeToDelete: { type: string };
     public customGrantName: string;
+    public canEditClient: boolean;
 
     public ngOnInit(): void {
+        this.canEditClient = this._authService.isAdminUIClientsWriter();
         this.columns = [
-            { prop: 'type', name: 'Type', draggable: false, canAutoResize: true, sortable: true, resizeable: false },
-            { prop: 'type', name: 'Actions', draggable: false, canAutoResize: true, sortable: false, resizeable: false, cellTemplate: this.actionsTemplate, cellClass: 'd-flex align-items-center' }
+            { prop: 'type', name: 'Type', draggable: false, canAutoResize: true, sortable: true, resizeable: false }
         ];
+        if (this.canEditClient) {
+            this.columns.push({ prop: 'type', name: 'Actions', draggable: false, canAutoResize: true, sortable: false, resizeable: false, cellTemplate: this.actionsTemplate, cellClass: 'd-flex align-items-center' });
+        }
         const clientId = this.route.parent.parent.snapshot.params.id;
         const getClient = this.clientStore.getClient(clientId);
         const getDiscoveryDocument = this.httpClient.get(`${app.settings.auth_settings.authority}/.well-known/openid-configuration`);

@@ -10,7 +10,7 @@
     Loading client claims...
 </p>
 <form class="needs-validation mt-3"
-      *ngIf="client"
+      *ngIf="canEditClient && client"
       [ngClass]="{ 'was-validated': form.submitted }"
       (ngSubmit)="form.form.valid && update()"
       novalidate
@@ -56,10 +56,11 @@
             </button>
         </div>
     </div>
+    <hr />
 </form>
-<hr />
 <form class="needs-validation"
       [ngClass]="{ 'was-validated': claimsform.submitted }"
+      *ngIf="canEditClient && client"
       (ngSubmit)="claimsform.form.valid && addClaim()"
       novalidate
       #claimsform="ngForm">

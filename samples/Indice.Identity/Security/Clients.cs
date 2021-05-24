@@ -30,7 +30,7 @@ namespace Indice.Identity.Security
                     IdentityServerConstants.StandardScopes.Profile,
                     JwtClaimTypes.Role
                 },
-                AllowOfflineAccess = false,
+                AllowOfflineAccess = true,
                 ClientSecrets = {
                     new Secret("qmHK5Rqc4rZTBE3BqCw6ScxR5N57rnfzcULdmKA33cc8RjhsZsqUygMVX43y6yJB".ToSha256())
                 },
@@ -100,7 +100,7 @@ namespace Indice.Identity.Security
                 },
                 RequireClientSecret  = false,
                 RequirePkce = true,
-                RequireConsent = true
+                RequireConsent = false
             },
             new Client {
                 ClientId = "code-flow-iframe",

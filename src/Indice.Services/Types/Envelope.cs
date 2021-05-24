@@ -2,8 +2,10 @@
 using System.Collections.Generic;
 using System.Security.Claims;
 using System.Security.Principal;
+using System.Text.Json;
+using Indice.Extensions;
 using Indice.Security;
-using Newtonsoft.Json.Linq;
+using Indice.Serialization;
 
 namespace Indice.Types
 {
@@ -27,7 +29,7 @@ namespace Indice.Types
         /// <summary>
         /// The tenant id.
         /// </summary>
-        public Guid TenantId { get; set; }
+        public string TenantId { get; set; }
         /// <summary>
         /// The fully qualified name of the type sent.
         /// </summary>
@@ -44,8 +46,8 @@ namespace Indice.Types
             if (!string.IsNullOrEmpty(ClientId)) {
                 claims.Add(new Claim("client_id", ClientId.ToString()));
             }
-            if (TenantId != default(Guid)) {
-                claims.Add(new Claim(BasicClaimTypes.TenantId, TenantId.ToString()));
+            if (!string.IsNullOrEmpty(TenantId)) {
+                claims.Add(new Claim(BasicClaimTypes.TenantId, TenantId));
             }
             if (!string.IsNullOrEmpty(User)) {
                 claims.Add(new Claim("name", User));
@@ -79,11 +81,13 @@ namespace Indice.Types
         public T Payload { get; set; }
 
         internal Envelope<T> Populate(IPrincipal user, T payload) {
-            var claimsPrincipal = new ClaimsPrincipal(user);
-            User = user.Identity.Name;
-            UserId = claimsPrincipal.FindFirst("sub").Value;
-            ClientId = claimsPrincipal.FindFirst("client_id").Value;
-            TenantId = claimsPrincipal.FindFirstValue<Guid>(BasicClaimTypes.TenantId).GetValueOrDefault();
+            User = user?.Identity.Name;
+            if (user != null) { 
+                var claimsPrincipal = new ClaimsPrincipal(user);
+                UserId = claimsPrincipal.FindFirst("sub")?.Value;
+                ClientId = claimsPrincipal.FindFirst("client_id")?.Value;
+                TenantId = claimsPrincipal.FindFirst(BasicClaimTypes.TenantId)?.Value;
+            }
             Type = typeof(T).FullName;
             Payload = payload;
             return this;
@@ -93,14 +97,14 @@ namespace Indice.Types
     /// <summary>
     /// Models the data that are sent in an Azure queue, persisting the principal's context.
     /// </summary>
-    public class Envelope : Envelope<JObject>
+    public class Envelope : Envelope<JsonElement>
     {
         /// <summary>
         /// Converts the payload to the specified type.
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        public T ReadAs<T>() => Payload.ToObject<T>();
+        public T ReadAs<T>() => Payload.ToObject<T>(JsonSerializerOptionDefaults.GetDefaultSettings());
 
         /// <summary>
         /// 

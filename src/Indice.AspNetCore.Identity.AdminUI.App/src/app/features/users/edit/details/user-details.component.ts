@@ -23,13 +23,13 @@ export class UserDetailsComponent implements OnInit, OnDestroy {
     private _getDataSubscription: Subscription;
 
     constructor(
-        private _route: ActivatedRoute, 
-        private _userStore: UserStore, 
-        private _dateParser: NgbDateCustomParserFormatter, 
+        private _route: ActivatedRoute,
+        private _userStore: UserStore,
+        private _dateParser: NgbDateCustomParserFormatter,
         public _toast: ToastService,
-        private _router: Router, 
-        private _authService: AuthService, 
-        private _modalService: NgbModal, 
+        private _router: Router,
+        private _authService: AuthService,
+        private _modalService: NgbModal,
         public readonly swalTargets: SwalPortalTargets
     ) { }
 
@@ -40,8 +40,10 @@ export class UserDetailsComponent implements OnInit, OnDestroy {
     public newPassword = '';
     public changePasswordAfterFirstSignIn = false;
     public problemDetails: ProblemDetails;
+    public canEditUser: boolean;
 
     public ngOnInit(): void {
+        this.canEditUser = this._authService.isAdminUIUsersWriter();
         this.currentUserId = this._authService.getSubjectId();
         const userId = this._route.parent.snapshot.params.id;
         const getUser = this._userStore.getUser(userId);

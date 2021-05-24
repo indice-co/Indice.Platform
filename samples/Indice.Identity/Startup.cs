@@ -8,6 +8,7 @@ using Hellang.Middleware.ProblemDetails;
 using Indice.AspNetCore.Filters;
 using Indice.AspNetCore.Identity.Api.Security;
 using Indice.AspNetCore.Identity.Data;
+using Indice.AspNetCore.Identity.Localization;
 using Indice.AspNetCore.Swagger;
 using Indice.Configuration;
 using Indice.Identity.Configuration;
@@ -87,6 +88,7 @@ namespace Indice.Identity
             services.AddSwaggerGen(options => {
                 options.IndiceDefaults(Settings);
                 options.AddOAuth2AuthorizationCodeFlow(Settings);
+                options.AddClientCredentials(Settings);
                 options.AddFormFileSupport();
                 options.SchemaFilter<CreateUserRequestSchemaFilter>();
                 options.IncludeXmlComments(Assembly.Load(IdentityServerApi.AssemblyName));
@@ -192,6 +194,7 @@ namespace Indice.Identity
                 DefaultRequestCulture = new RequestCulture(SupportedCultures.Default),
                 RequestCultureProviders = new List<IRequestCultureProvider> {
                     new QueryStringRequestCultureProvider(),
+                    new QueryStringToCookieRequestCultureProvider { QueryParameterName = "ui_locales" },
                     new CookieRequestCultureProvider()
                 },
                 SupportedCultures = SupportedCultures.Get().ToList(),

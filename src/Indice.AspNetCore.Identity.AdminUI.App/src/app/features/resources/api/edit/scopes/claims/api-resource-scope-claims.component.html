@@ -1,5 +1,8 @@
-<p *ngIf="!availableClaims">Loading scope claims...</p>
-<app-transfer-lists *ngIf="availableClaims"
+<p class="mt-3"
+   *ngIf="!availableClaims">
+    Loading scope claims...
+</p>
+<app-transfer-lists *ngIf="availableClaims && canEditResource"
                     [source]="availableClaims"
                     [destination]="selectedClaims"
                     [titlePropertyName]="'name'"
@@ -12,5 +15,21 @@
                         destinationListTitle: 'Assigned Claims',
                         emptyDestinationListMessage: 'There are no claims assigned to this scope.'
                     }"
+                    [viewOnly]="!canEditResource"
                     #transferList>
 </app-transfer-lists>
+<div class="mt-3 row"
+     *ngIf="availableClaims && !canEditResource">
+    <div class="col-12">
+        <app-list-view [clientSide]="true"
+                       [columns]="columns"
+                       [rows]="rows"
+                       [count]="count"
+                       [rowsPerPage]="15"
+                       [defaultSortField]="'name'"
+                       [defaultSortDirection]="'Asc'"
+                       [canFilter]="false"
+                       #resourcesList>
+        </app-list-view>
+    </div>
+</div>

@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Security.Claims;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
+using System.Threading;
+using Indice.Configuration;
 using Indice.Services;
 using Indice.Services.Yuboto;
 using Microsoft.Extensions.Configuration;
@@ -17,10 +17,42 @@ using Microsoft.Extensions.Options;
 namespace Microsoft.Extensions.DependencyInjection
 {
     /// <summary>
-    /// DI Configuration handy extensions for Indice related services.
+    /// Extensions on the <see cref="IServiceCollection"/>.
     /// </summary>
-    public static class IndiceServicesConfigurationExtensions
+    public static class IndiceServicesServiceCollectionExtensions
     {
+        /// <summary>
+        /// Add a decorator pattern implementation.
+        /// </summary>
+        /// <typeparam name="TService">The service type to decorate.</typeparam>
+        /// <typeparam name="TDecorator">The decorator.</typeparam>
+        /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
+        public static IServiceCollection AddDecorator<TService, TDecorator>(this IServiceCollection services)
+            where TService : class
+            where TDecorator : class, TService {
+            var serviceDescriptor = services.Where(x => x.ServiceType == typeof(TService)).LastOrDefault();
+            if (serviceDescriptor is null) {
+                services.AddTransient<TService, TDecorator>();
+                return services;
+            }
+            services.TryAddTransient(serviceDescriptor.ImplementationType);
+            return services.AddTransient<TService, TDecorator>(serviceProvider => {
+                var parameters = typeof(TDecorator).GetConstructors(BindingFlags.Public | BindingFlags.Instance).First().GetParameters();
+                var arguments = parameters.Select(x => x.ParameterType.Equals(typeof(TService)) ? serviceProvider.GetRequiredService(serviceDescriptor.ImplementationType) : serviceProvider.GetService(x.ParameterType)).ToArray();
+                return (TDecorator)Activator.CreateInstance(typeof(TDecorator), arguments);
+            });
+        }
+
+        /// <summary>
+        /// Adds Indice's common services.
+        /// </summary>
+        /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
+        /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
+        public static IServiceCollection AddGeneralSettings(this IServiceCollection services, IConfiguration configuration) {
+            services.Configure<GeneralSettings>(configuration.GetSection(GeneralSettings.Name));
+            services.TryAddTransient(serviceProvider => serviceProvider.GetRequiredService<IOptions<GeneralSettings>>().Value);
+            return services;
+        }
 
         /// <summary>
         /// Adds an implementation of <see cref="IPushNotificationService"/> using Azure cloud infrastructure for sending push nitifications.
@@ -131,10 +163,10 @@ namespace Microsoft.Extensions.DependencyInjection
                     ConnectionString = serviceProvider.GetRequiredService<IConfiguration>().GetConnectionString(EventDispatcherAzure.CONNECTION_STRING_NAME),
                     Enabled = true,
                     EnvironmentName = serviceProvider.GetRequiredService<IHostEnvironment>().EnvironmentName,
-                    ClaimsPrincipalSelector = ClaimsPrincipal.ClaimsPrincipalSelector
+                    ClaimsPrincipalSelector = ClaimsPrincipal.ClaimsPrincipalSelector ?? (() => ClaimsPrincipal.Current)
                 };
                 configure?.Invoke(serviceProvider, options);
-                return new EventDispatcherAzure(options.ConnectionString, options.EnvironmentName, options.Enabled, options.ClaimsPrincipalSelector);
+                return new EventDispatcherAzure(options.ConnectionString, options.EnvironmentName, options.Enabled, options.MessageEncoding, options.ClaimsPrincipalSelector);
             });
             return services;
         }

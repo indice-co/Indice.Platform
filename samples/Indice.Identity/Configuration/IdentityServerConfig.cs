@@ -47,6 +47,7 @@ namespace Microsoft.Extensions.DependencyInjection
             .AddTrustedDeviceAuthorization(options => {
                 options.AddUserDeviceStoreEntityFrameworkCore();
             })
+            .AddExtendedResourceOwnerPasswordValidator()
             .AddOperationalStore(options => {
                 options.SetupTables();
                 options.ConfigureDbContext = builder => builder.UseSqlServer(configuration.GetConnectionString("OperationalDb"), sqlServerOptions => sqlServerOptions.MigrationsAssembly(migrationsAssembly));
@@ -59,12 +60,6 @@ namespace Microsoft.Extensions.DependencyInjection
                 options.ConfigureDbContext = builder => builder.UseSqlServer(configuration.GetConnectionString("ConfigurationDb"), sqlServerOptions => sqlServerOptions.MigrationsAssembly(migrationsAssembly));
             })
             .AddTotp()
-            //.AddPushNotifications(
-            //     options => {
-            //         options.ConnectionString = configuration.GetConnectionString("PushNotificationsConnection");
-            //         options.NotificationHubPath = configuration["PushNotifications:PushNotificationsHubPath"];
-            //     }
-            // )
             .AddAppAuthRedirectUriValidator();
             if (hostingEnvironment.IsDevelopment()) {
                 IdentityModelEventSource.ShowPII = true;

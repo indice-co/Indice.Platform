@@ -33,12 +33,8 @@
        href="#"
        role="button"
        [routerLink]="value + '/edit'">
-        Edit
+        {{ canEditClaimType ? 'Edit' : 'View' }}
     </a>
-    <!-- <span *ngIf="row.reserved"
-          class="badge badge-warning">
-        system reserved
-    </span> -->
 </ng-template>
 <ng-template let-row="row"
              let-value="value"

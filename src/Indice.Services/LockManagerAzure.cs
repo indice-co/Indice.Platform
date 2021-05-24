@@ -2,6 +2,7 @@
 using System.IO;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using Azure;
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
 using Azure.Storage.Blobs.Specialized;
@@ -54,9 +55,18 @@ namespace Indice.Services
         }
 
         /// <inheritdoc />
+        public async Task<ILockLease> Renew(string name, string LeaseId) {
+            var lockFileBlob = BlobContainer.GetBlobClient($"locks/{name}.lock");
+            var lockFileLease = lockFileBlob.GetBlobLeaseClient(LeaseId);
+            var leaseResponse = await lockFileLease.RenewAsync();
+            return new LockLease(leaseResponse.Value.LeaseId, name, this);
+        }
+
+        /// <inheritdoc />
         public Task Cleanup() {
             return Task.CompletedTask;
         }
+
     }
 
     /// <summary>

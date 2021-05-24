@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Net.Http;
+using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 using ResourceOwnerPasswordFlow.Models;
 
 namespace ResourceOwnerPasswordFlow.Services
@@ -25,7 +25,7 @@ namespace ResourceOwnerPasswordFlow.Services
                 return result;
             }
             var content = await httpResponseMessage.Content.ReadAsStringAsync();
-            result = JsonConvert.DeserializeObject<SummaryInfo>(content);
+            result = JsonSerializer.Deserialize<SummaryInfo>(content);
             return result;
         }
     }

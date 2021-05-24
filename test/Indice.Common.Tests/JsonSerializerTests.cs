@@ -168,6 +168,33 @@ namespace Indice.Common.Tests
             var targetModel2 = JsonSerializer.Deserialize<PocoValue<string>>(json, options);
 
         }
+        [Fact]
+        public void TimeSpan_JsonSupport() {
+            var options = new JsonSerializerOptions {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            };
+            options.Converters.Add(new JsonStringEnumConverter());
+            options.IgnoreNullValues = true;
+            Assert.ThrowsAny<Exception>(() => RoundtripSerialize(new PocoValue<TimeSpan?> { Value = new TimeSpan(2, 30, 12) }, options));
+            Assert.ThrowsAny<Exception>(() => RoundtripSerialize(new PocoValue<TimeSpan> { Value = new TimeSpan(2, 30, 12) }, options));
+            RoundtripSerialize(new PocoValue<TimeSpan?>(), options);
+            options = new JsonSerializerOptions {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            };
+            options.Converters.Add(new JsonStringEnumConverter());
+            options.Converters.Add(new JsonTimeSpanConverter());
+            options.Converters.Add(new JsonNullableTimeSpanConverter());
+            options.IgnoreNullValues = true;
+            RoundtripSerialize(new PocoValue<TimeSpan?> { Value = new TimeSpan(2, 30, 12) }, options);
+            RoundtripSerialize(new PocoValue<TimeSpan> { Value = new TimeSpan(2, 30, 12) }, options);
+            RoundtripSerialize(new PocoValue<TimeSpan?>(), options);
+        }
+
+        private void RoundtripSerialize<T>(PocoValue<T> source, JsonSerializerOptions options) {
+            var json = JsonSerializer.Serialize(source, options);
+            var result = JsonSerializer.Deserialize<PocoValue<T>>(json, options);
+            Assert.Equal(source.Value, result.Value);
+        }
 
         public class TestTypeConverters
         {

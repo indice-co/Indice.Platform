@@ -6,6 +6,8 @@ using Microsoft.Extensions.Logging;
 
 namespace Indice.Services
 {
+    /// TODO: This seams to be broken implementation wize. The internal semaphore seems to be related to the manager instance instead of the LockLease instance 
+    /// hence it will not work with two instances competing for the same name/topic
     /// <summary>
     /// Implementation of <see cref="ILockManager"/>.
     /// </summary>
@@ -42,6 +44,11 @@ namespace Indice.Services
             _signal.Release();
             _logger.LogInformation("Item with lease id {0} released the lock.", @lock.LeaseId);
             return Task.CompletedTask;
+        }
+
+        /// <inheritdoc />
+        public Task<ILockLease> Renew(string name, string leaseId) {
+            return Task.FromResult((ILockLease)new LockLease(leaseId, name, this));
         }
     }
 }

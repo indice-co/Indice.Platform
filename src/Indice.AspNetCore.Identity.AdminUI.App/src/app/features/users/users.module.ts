@@ -14,6 +14,7 @@ import { UserRolesComponent } from './edit/roles/user-roles.component';
 import { UserAdditionalDetailsComponent } from './edit/additional-details/user-additional-details.component';
 import { AdditionalDetailEditComponent } from './edit/additional-details/edit/additional-detail-edit.component';
 import { UserApplicationsComponent } from './edit/applications/user-applications.component';
+import { UserLoginsComponent } from './edit/logins/user-logins.component';
 
 @NgModule({
     declarations: [
@@ -22,6 +23,7 @@ import { UserApplicationsComponent } from './edit/applications/user-applications
         UserEditComponent,
         UserDetailsComponent,
         UserRolesComponent,
+        UserLoginsComponent,
         UserAdditionalDetailsComponent,
         AdditionalDetailEditComponent,
         UserApplicationsComponent

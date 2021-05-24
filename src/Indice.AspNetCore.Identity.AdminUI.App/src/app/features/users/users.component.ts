@@ -4,6 +4,7 @@ import { TableColumn } from '@swimlane/ngx-datatable';
 import { IdentityApiService, UserInfoResultSet, UserInfo } from 'src/app/core/services/identity-api.service';
 import { SearchEvent } from 'src/app/shared/components/list-view/models/search-event';
 import { ListViewComponent } from 'src/app/shared/components/list-view/list-view.component';
+import { AuthService } from 'src/app/core/services/auth.service';
 
 @Component({
   selector: 'app-users',
@@ -14,13 +15,18 @@ export class UsersComponent implements OnInit {
   @ViewChild('actionsTemplate', { static: true }) private _actionsTemplate: TemplateRef<HTMLElement>;
   @ViewChild('optionalTemplate', { static: true }) private _optionalTemplate: TemplateRef<HTMLElement>;
 
-  constructor(private api: IdentityApiService) { }
+  constructor(
+    private api: IdentityApiService,
+    private _authService: AuthService
+  ) { }
 
   public count = 0;
   public rows: UserInfo[] = [];
   public columns: TableColumn[] = [];
+  public canEditUser: boolean;
 
   public ngOnInit(): void {
+    this.canEditUser = this._authService.isAdminUIUsersWriter();
     this.columns = [
       { prop: 'userName', name: 'Username', draggable: false, canAutoResize: true, sortable: true, resizeable: true, cellTemplate: this._usersList.usernameTemplate },
       { prop: 'email', name: 'Email', draggable: false, canAutoResize: true, sortable: true, resizeable: true, cellTemplate: this._usersList.emailTemplate },

@@ -1,11 +1,12 @@
 <p *ngIf="!availableRoles">Loading user roles...</p>
-<app-transfer-lists *ngIf="availableRoles"
+<app-transfer-lists *ngIf="availableRoles && canEditUser"
                     [source]="availableRoles"
                     [destination]="userRoles"
                     [titlePropertyName]="'name'"
                     [subtitlePropertyName]="'description'"
                     (itemAdded)="addRole($event)"
                     (itemRemoved)="removeRole($event)"
+                    [viewOnly]="!canEditUser"
                     [options]="{ 
                         sourceListTitle: 'Available Roles', 
                         emptySourceListMessage: 'There are no available roles to assign.',
@@ -14,8 +15,23 @@
                     }"
                     #transferList>
 </app-transfer-lists>
-<hr />
-<div>
+<div class="row"
+     *ngIf="availableRoles && !canEditUser">
+    <div class="col-12">
+        <app-list-view [clientSide]="true"
+                       [columns]="columns"
+                       [rows]="rows"
+                       [count]="count"
+                       [rowsPerPage]="15"
+                       [defaultSortField]="'name'"
+                       [defaultSortDirection]="'Asc'"
+                       [canFilter]="false"
+                       #rolesList>
+        </app-list-view>
+    </div>
+</div>
+<div *ngIf="canEditUser">
+    <hr />
     <button type="button"
             class="btn btn-secondary m-r-5 float-right"
             (click)="toggleAdmin()"

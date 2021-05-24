@@ -108,10 +108,16 @@ namespace Indice.AspNetCore.Identity.Data.Models
         }
 
         /// <summary>
-        /// Check to see if the current password has expired according to current password expiration policy.
+        /// Check whether the current password has expired according to current password expiration policy.
         /// </summary>
         /// <param name="now">The date to use as now.</param>
         public bool HasExpiredPassword(DateTime? now = null) => PasswordExpired || (PasswordExpirationDate.HasValue && PasswordExpirationDate <= (now ?? DateTime.UtcNow));
+
+        /// <summary>
+        /// Checks whether the current user has been locked out.
+        /// </summary>
+        /// <param name="now">The date to use as now.</param>
+        public bool IsLockedOut(DateTime? now = null) => LockoutEnabled && LockoutEnd.HasValue && LockoutEnd >= (now ?? DateTime.UtcNow);
     }
 
     /// <summary>

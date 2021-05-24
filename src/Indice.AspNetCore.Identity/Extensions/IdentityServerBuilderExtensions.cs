@@ -1,8 +1,11 @@
-﻿using IdentityServer4.EntityFramework.Entities;
+﻿using System.Linq;
+using IdentityServer4.EntityFramework.Entities;
 using IdentityServer4.EntityFramework.Options;
 using IdentityServer4.Services;
 using Indice.AspNetCore.Identity;
 using Indice.AspNetCore.Identity.Data.Models;
+using Indice.AspNetCore.Identity.Services;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
@@ -37,6 +40,12 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <param name="builder">IdentityServer builder interface.</param>
         public static IIdentityServerBuilder AddExtendedResourceOwnerPasswordValidator<TUser>(this IIdentityServerBuilder builder) where TUser : User {
             builder.AddResourceOwnerValidator<ExtendedResourceOwnerPasswordValidator<TUser>>();
+            var profileServiceImplementation = builder.Services.Where(x => x.ServiceType == typeof(IProfileService)).LastOrDefault()?.ImplementationType;
+            if (profileServiceImplementation != null) {
+                var decoratorType = typeof(ExtendedProfileService<>).MakeGenericType(profileServiceImplementation);
+                builder.Services.TryAddTransient(profileServiceImplementation);
+                builder.Services.AddTransient(typeof(IProfileService), decoratorType);
+            }
             return builder;
         }
 
