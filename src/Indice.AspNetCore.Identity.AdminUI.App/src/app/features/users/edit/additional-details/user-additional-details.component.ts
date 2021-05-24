@@ -24,6 +24,7 @@ export class UserAdditionalDetailsComponent implements OnInit, OnDestroy {
     @ViewChild('nameTemplate', { static: true }) public _nameTemplate: TemplateRef<HTMLElement>;
     private _getDataSubscription: Subscription;
     private _user: SingleUserInfo;
+    private _discouragedClaims: Array<string> = ['sub', 'email', 'email_verified', 'phone_number', 'phone_number_verified', 'name'];
 
     constructor(
         private _userStore: UserStore,
@@ -62,7 +63,7 @@ export class UserAdditionalDetailsComponent implements OnInit, OnDestroy {
         })).subscribe((result: { user: SingleUserInfo, claims: ClaimType[] }) => {
             this._user = result.user;
             this.rows = this._user.claims;
-            this.claims = result.claims.filter(x => x.required === false);
+            this.claims = result.claims.filter(x => x.required === false && this._discouragedClaims.indexOf(x.name) === -1);
         });
     }
 
