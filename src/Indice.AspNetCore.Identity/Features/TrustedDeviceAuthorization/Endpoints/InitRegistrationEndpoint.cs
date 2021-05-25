@@ -75,8 +75,9 @@ namespace Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Endpoints
             }
             // Ensure device is not already registered or belongs to any other user.
             var existingDevice = await UserDeviceStore.GetByDeviceId(requestValidationResult.DeviceId);
-            if (existingDevice != null) {
-                return Error(OidcConstants.ProtectedResourceErrors.InvalidToken, "Device is already registered.");
+            var isNewDeviceOrOwnedByUser = existingDevice == null || existingDevice.UserId.Equals(requestValidationResult.UserId, StringComparison.OrdinalIgnoreCase);
+            if (!isNewDeviceOrOwnedByUser) {
+                return Error(OidcConstants.ProtectedResourceErrors.InvalidToken, "Device does not belong to the this user.");
             }
             // Ensure that the principal has declared a phone number which is also confirmed.
             // We will get these 2 claims by retrieving the identity resources from the store (using the requested scopes existing in the access token) and then calling the profile service.

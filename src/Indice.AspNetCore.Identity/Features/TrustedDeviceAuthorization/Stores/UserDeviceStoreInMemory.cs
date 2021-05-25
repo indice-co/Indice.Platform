@@ -18,23 +18,50 @@ namespace Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Stores
 
         /// <inheritdoc />
         public Task<UserDevice> GetByDeviceId(string deviceId) {
+            if (string.IsNullOrWhiteSpace(deviceId)) {
+                throw new ArgumentNullException(nameof(deviceId), $"Parameter {nameof(deviceId)} cannot be null or empty.");
+            }
             var userDevice = _userDevices.SingleOrDefault(x => x.DeviceId == deviceId);
             return Task.FromResult(userDevice);
         }
 
         /// <inheritdoc />
         public Task CreateDevice(UserDevice device) {
+            if (device == null) {
+                throw new ArgumentNullException(nameof(device), $"Parameter {nameof(device)} cannot be null.");
+            }
+            var existingDevice = _userDevices.SingleOrDefault(x => x.DeviceId == device.DeviceId || x.Id == device.Id);
+            if (existingDevice != null) {
+                throw new ArgumentException("Device already exists.");
+            }
             _userDevices.Add(device);
             return Task.CompletedTask;
         }
 
         /// <inheritdoc />
-        public async Task SetDevicePublicKey(string deviceId, string publicKey) {
-            var device = await GetByDeviceId(deviceId);
+        public Task UpdateDevicePassword(UserDevice device, string passwordHash) {
             if (device == null) {
-                return;
+                throw new ArgumentNullException(nameof(device), $"Parameter {nameof(device)} cannot be null.");
             }
-            device.PublicKey = publicKey;
+            if (string.IsNullOrWhiteSpace(passwordHash)) {
+                throw new ArgumentNullException(nameof(device), $"Parameter {nameof(passwordHash)} cannot be null or empty.");
+            }
+            var foundDevice = _userDevices.Single(x => x.Id == device.Id);
+            foundDevice.Password = passwordHash;
+            return Task.CompletedTask;
+        }
+
+        /// <inheritdoc />
+        public Task UpdateDevicePublicKey(UserDevice device, string publicKey) {
+            if (device == null) {
+                throw new ArgumentNullException(nameof(device), $"Parameter {nameof(device)} cannot be null.");
+            }
+            if (string.IsNullOrWhiteSpace(publicKey)) {
+                throw new ArgumentNullException(nameof(device), $"Parameter {nameof(publicKey)} cannot be null or empty.");
+            }
+            var foundDevice = _userDevices.Single(x => x.Id == device.Id);
+            foundDevice.PublicKey = publicKey;
+            return Task.CompletedTask;
         }
     }
 }

@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using IdentityServer4.Extensions;
 using IdentityServer4.Models;
 using IdentityServer4.Validation;
-using Indice.AspNetCore.Identity.Data.Models;
 using Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Configuration;
 using Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Models;
 using Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Services;
@@ -50,7 +49,7 @@ namespace Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Validation
                 context.Result = new GrantValidationResult(TokenRequestErrors.InvalidGrant, "Device is unknown or not enabled.");
                 return;
             }
-            // If a code is present we are heading for fingerprint login.
+            // If a code is present we are heading towards fingerprint login.
             var code = parameters.Get(RegistrationRequestParameters.Code);
             if (!string.IsNullOrWhiteSpace(code)) {
                 // Retrieve authorization code from the store.
@@ -86,7 +85,7 @@ namespace Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Validation
                     context.Result = new GrantValidationResult(TokenRequestErrors.InvalidGrant, publicKeyValidationResult.ErrorDescription);
                     return;
                 }
-                await UserDeviceStore.SetDevicePublicKey(deviceId, publicKey);
+                await UserDeviceStore.UpdateDevicePublicKey(device, publicKey);
                 // Grant access token.
                 context.Result = new GrantValidationResult(authorizationCode.Subject.GetSubjectId(), GrantType);
             }

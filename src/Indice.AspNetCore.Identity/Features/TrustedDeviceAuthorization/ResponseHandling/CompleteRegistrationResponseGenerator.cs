@@ -25,7 +25,7 @@ namespace Indice.AspNetCore.Identity.TrustedDeviceAuthorization.ResponseHandling
         public ISystemClock SystemClock { get; }
 
         public async Task<CompleteRegistrationResponse> Generate(CompleteRegistrationRequestValidationResult validationResult) {
-            var device = new UserDevice(Guid.NewGuid()) {
+            var device = validationResult.Device ?? new UserDevice(Guid.NewGuid()) {
                 DateCreated = SystemClock.UtcNow,
                 DeviceId = validationResult.DeviceId,
                 DeviceName = validationResult.DeviceName,
@@ -35,10 +35,24 @@ namespace Indice.AspNetCore.Identity.TrustedDeviceAuthorization.ResponseHandling
                 PublicKey = validationResult.PublicKey,
                 UserId = validationResult.UserId
             };
-            if (validationResult.InteractionMode == InteractionMode.Pin) {
-                device.Password = DevicePasswordHasher.HashPassword(device, validationResult.Pin);
+            switch (validationResult.InteractionMode) {
+                case InteractionMode.Pin when validationResult.Device == null:
+                    var password = DevicePasswordHasher.HashPassword(device, validationResult.Pin);
+                    device.Password = password;
+                    await UserDeviceStore.CreateDevice(device);
+                    break;
+                case InteractionMode.Pin when validationResult.Device != null:
+                    password = DevicePasswordHasher.HashPassword(device, validationResult.Pin);
+                    await UserDeviceStore.UpdateDevicePassword(device, password);
+                    break;
+                case InteractionMode.Fingerprint when validationResult.Device == null:
+                    device.PublicKey = validationResult.PublicKey;
+                    await UserDeviceStore.CreateDevice(device);
+                    break;
+                case InteractionMode.Fingerprint when validationResult.Device != null:
+                    await UserDeviceStore.UpdateDevicePublicKey(device, validationResult.PublicKey);
+                    break;
             }
-            await UserDeviceStore.CreateDevice(device);
             return new CompleteRegistrationResponse();
         }
     }

@@ -24,12 +24,11 @@ namespace Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Stores
         }
 
         /// <inheritdoc />
-        public async Task CreateDevice(UserDevice device) {
-            if (device == null) {
-                throw new ArgumentNullException(nameof(device), $"Parameter {nameof(device)} cannot be null.");
+        public Task<List<UserDevice>> GetUserDevices(string userId) {
+            if (string.IsNullOrWhiteSpace(userId)) {
+                return default;
             }
-            _dbContext.UserDevices.Add(device);
-            await _dbContext.SaveChangesAsync();
+            return _dbContext.UserDevices.Where(x => x.UserId == userId).ToListAsync();
         }
 
         /// <inheritdoc />
@@ -41,24 +40,33 @@ namespace Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Stores
         }
 
         /// <inheritdoc />
-        public Task<List<UserDevice>> GetUserDevices(string userId) {
-            if (string.IsNullOrWhiteSpace(userId)) {
-                return default;
+        public async Task CreateDevice(UserDevice device) {
+            if (device == null) {
+                throw new ArgumentNullException(nameof(device), $"Parameter {nameof(device)} cannot be null.");
             }
-            return _dbContext.UserDevices.Where(x => x.UserId == userId).ToListAsync();
+            _dbContext.UserDevices.Add(device);
+            await _dbContext.SaveChangesAsync();
         }
 
         /// <inheritdoc />
-        public async Task SetDevicePublicKey(string deviceId, string publicKey) {
-            if (string.IsNullOrWhiteSpace(deviceId)) {
-                throw new ArgumentNullException(nameof(deviceId), $"Parameters {nameof(deviceId)} cannot be null.");
+        public async Task UpdateDevicePassword(UserDevice device, string passwordHash) {
+            if (device == null) {
+                throw new ArgumentNullException(nameof(device), $"Parameter {nameof(device)} cannot be null.");
+            }
+            if (string.IsNullOrWhiteSpace(passwordHash)) {
+                throw new ArgumentNullException(nameof(device), $"Parameter {nameof(passwordHash)} cannot be null or empty.");
+            }
+            device.Password = passwordHash;
+            await _dbContext.SaveChangesAsync();
+        }
+
+        /// <inheritdoc />
+        public async Task UpdateDevicePublicKey(UserDevice device, string publicKey) {
+            if (device == null) {
+                throw new ArgumentNullException(nameof(device), $"Parameter {nameof(device)} cannot be null.");
             }
             if (string.IsNullOrWhiteSpace(publicKey)) {
-                throw new ArgumentNullException(nameof(publicKey), $"Parameters {nameof(publicKey)} cannot be null.");
-            }
-            var device = await _dbContext.UserDevices.SingleOrDefaultAsync(x => x.DeviceId == deviceId);
-            if (device == null) {
-                return;
+                throw new ArgumentNullException(nameof(device), $"Parameter {nameof(publicKey)} cannot be null or empty.");
             }
             device.PublicKey = publicKey;
             await _dbContext.SaveChangesAsync();

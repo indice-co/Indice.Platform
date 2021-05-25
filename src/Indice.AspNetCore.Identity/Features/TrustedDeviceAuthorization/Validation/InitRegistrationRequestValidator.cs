@@ -64,7 +64,7 @@ namespace Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Validation
             if (client == null) {
                 return Error(OidcConstants.AuthorizeErrors.UnauthorizedClient, "Client is unknown or not enabled.");
             }
-            if (client.AllowedGrantTypes.Except(Constants.RequiredGrantTypes).Count() != 0) {
+            if (client.AllowedGrantTypes.Except(Constants.RequiredGrantTypes).Any()) {
                 return Error(OidcConstants.AuthorizeErrors.UnauthorizedClient, $"Client not authorized any of the following grant types: {string.Join(", ", Constants.RequiredGrantTypes)}");
             }
             // Find requested scopes.

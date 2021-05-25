@@ -25,10 +25,16 @@ namespace Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Stores
         /// <param name="device">The user device data.</param>
         Task CreateDevice(UserDevice device);
         /// <summary>
+        /// Updates the password of an existing device.
+        /// </summary>
+        /// <param name="device">The device to update.</param>
+        /// <param name="passwordHash">The password hash.</param>
+        Task UpdateDevicePassword(UserDevice device, string passwordHash);
+        /// <summary>
         /// Updates the public key for a device.
         /// </summary>
-        /// <param name="deviceId">The device id.</param>
+        /// <param name="device">The device to update.</param>
         /// <param name="publicKey">The new public key.</param>
-        Task SetDevicePublicKey(string deviceId, string publicKey);
+        Task UpdateDevicePublicKey(UserDevice device, string publicKey);
     }
 }

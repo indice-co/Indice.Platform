@@ -161,7 +161,7 @@ namespace Indice.AspNetCore.Identity.Tests
         }
 
         [Fact]
-        public async Task<string> RegisterNewDeviceUsingFingerprint() {
+        public async Task<string> Can_Register_New_Device_Using_Fingerprint() {
             var accessToken = await LoginWithPasswordGrant(userName: "alice", password: "alice");
             var codeVerifier = GenerateCodeVerifier();
             var deviceId = Guid.NewGuid().ToString();
@@ -176,7 +176,29 @@ namespace Indice.AspNetCore.Identity.Tests
         }
 
         [Fact]
-        public async Task<string> RegisterNewDeviceUsingPin() {
+        public async Task Can_Register_Device_Using_Pin_When_Already_Supports_Fingerprint() {
+            var accessToken = await LoginWithPasswordGrant(userName: "alice", password: "alice");
+            var codeVerifier = GenerateCodeVerifier();
+            var deviceId = Guid.NewGuid().ToString();
+            var challenge = await InitiateDeviceRegistrationUsingFingerprint(accessToken, codeVerifier, deviceId);
+            var response = await CompleteDeviceRegistrationUsingFingerprint(accessToken, codeVerifier, deviceId, challenge);
+            if (!response.IsSuccessStatusCode) {
+                var responseJson = await response.Content.ReadAsStringAsync();
+                _output.WriteLine(responseJson);
+            }
+            Assert.True(response.IsSuccessStatusCode);
+            codeVerifier = GenerateCodeVerifier();
+            challenge = await InitiateDeviceRegistrationUsingPin(accessToken, codeVerifier, deviceId);
+            response = await CompleteDeviceRegistrationUsingPin(accessToken, codeVerifier, deviceId, challenge);
+            if (!response.IsSuccessStatusCode) {
+                var responseJson = await response.Content.ReadAsStringAsync();
+                _output.WriteLine(responseJson);
+            }
+            Assert.True(response.IsSuccessStatusCode);
+        }
+
+        [Fact]
+        public async Task<string> Can_Register_New_Device_Using_Pin() {
             var accessToken = await LoginWithPasswordGrant(userName: "alice", password: "alice");
             var codeVerifier = GenerateCodeVerifier();
             var deviceId = Guid.NewGuid().ToString();
@@ -191,8 +213,30 @@ namespace Indice.AspNetCore.Identity.Tests
         }
 
         [Fact]
-        public async Task AuthorizeExistingDeviceUsingFingerprint() {
-            var deviceId = await RegisterNewDeviceUsingFingerprint();
+        public async Task Can_Register_Device_Using_Fingerprint_When_Already_Supports_Pin() {
+            var accessToken = await LoginWithPasswordGrant(userName: "alice", password: "alice");
+            var codeVerifier = GenerateCodeVerifier();
+            var deviceId = Guid.NewGuid().ToString();
+            var challenge = await InitiateDeviceRegistrationUsingPin(accessToken, codeVerifier, deviceId);
+            var response = await CompleteDeviceRegistrationUsingPin(accessToken, codeVerifier, deviceId, challenge);
+            if (!response.IsSuccessStatusCode) {
+                var responseJson = await response.Content.ReadAsStringAsync();
+                _output.WriteLine(responseJson);
+            }
+            Assert.True(response.IsSuccessStatusCode);
+            codeVerifier = GenerateCodeVerifier();
+            challenge = await InitiateDeviceRegistrationUsingFingerprint(accessToken, codeVerifier, deviceId);
+            response = await CompleteDeviceRegistrationUsingFingerprint(accessToken, codeVerifier, deviceId, challenge);
+            if (!response.IsSuccessStatusCode) {
+                var responseJson = await response.Content.ReadAsStringAsync();
+                _output.WriteLine(responseJson);
+            }
+            Assert.True(response.IsSuccessStatusCode);
+        }
+
+        [Fact]
+        public async Task Can_Authorize_Existing_Device_Using_Fingerprint() {
+            var deviceId = await Can_Register_New_Device_Using_Fingerprint();
             var codeVerifier = GenerateCodeVerifier();
             var challenge = await InitiateDeviceAuthorizationUsingFingerprint(codeVerifier, deviceId);
             var discoveryDocument = await _httpClient.GetDiscoveryDocumentAsync();
@@ -216,8 +260,8 @@ namespace Indice.AspNetCore.Identity.Tests
         }
 
         [Fact]
-        public async Task AuthorizeExistingDeviceUsingPin() {
-            var deviceId = await RegisterNewDeviceUsingPin();
+        public async Task Can_Authorize_Existing_Device_Using_Pin() {
+            var deviceId = await Can_Register_New_Device_Using_Pin();
             var discoveryDocument = await _httpClient.GetDiscoveryDocumentAsync();
             var tokenResponse = await _httpClient.RequestTokenAsync(new TokenRequest {
                 Address = discoveryDocument.TokenEndpoint,
@@ -266,9 +310,11 @@ namespace Indice.AspNetCore.Identity.Tests
             return tokenResponse.AccessToken;
         }
 
-        private Task<string> InitiateDeviceRegistrationUsingFingerprint(string accessToken, string codeVerifier, string deviceId) => InitiateDeviceRegistration(accessToken, codeVerifier, deviceId, "fingerprint");
+        private Task<string> InitiateDeviceRegistrationUsingFingerprint(string accessToken, string codeVerifier, string deviceId) =>
+            InitiateDeviceRegistration(accessToken, codeVerifier, deviceId, "fingerprint");
 
-        private Task<string> InitiateDeviceRegistrationUsingPin(string accessToken, string codeVerifier, string deviceId) => InitiateDeviceRegistration(accessToken, codeVerifier, deviceId, "pin");
+        private Task<string> InitiateDeviceRegistrationUsingPin(string accessToken, string codeVerifier, string deviceId) =>
+            InitiateDeviceRegistration(accessToken, codeVerifier, deviceId, "pin");
 
         private async Task<string> InitiateDeviceRegistration(string accessToken, string codeVerifier, string deviceId, string mode) {
             var codeChallenge = GenerateCodeChallenge(codeVerifier);
@@ -289,9 +335,11 @@ namespace Indice.AspNetCore.Identity.Tests
             return result.Challenge;
         }
 
-        private Task<HttpResponseMessage> CompleteDeviceRegistrationUsingFingerprint(string accessToken, string codeVerifier, string deviceId, string challenge) => CompleteDeviceRegistration(accessToken, codeVerifier, deviceId, challenge, "fingerprint");
+        private Task<HttpResponseMessage> CompleteDeviceRegistrationUsingFingerprint(string accessToken, string codeVerifier, string deviceId, string challenge) =>
+            CompleteDeviceRegistration(accessToken, codeVerifier, deviceId, challenge, "fingerprint");
 
-        private Task<HttpResponseMessage> CompleteDeviceRegistrationUsingPin(string accessToken, string codeVerifier, string deviceId, string challenge) => CompleteDeviceRegistration(accessToken, codeVerifier, deviceId, challenge, "pin");
+        private Task<HttpResponseMessage> CompleteDeviceRegistrationUsingPin(string accessToken, string codeVerifier, string deviceId, string challenge) =>
+            CompleteDeviceRegistration(accessToken, codeVerifier, deviceId, challenge, "pin");
 
         private async Task<HttpResponseMessage> CompleteDeviceRegistration(string accessToken, string codeVerifier, string deviceId, string challenge, string mode) {
             var x509SigningCredentials = GetSigningCredentials();
@@ -335,7 +383,8 @@ namespace Indice.AspNetCore.Identity.Tests
 
         private static string SignMessage(byte[] message, X509SigningCredentials x509SigningCredentials) {
             using var key = x509SigningCredentials.Certificate.GetRSAPrivateKey();
-            return Convert.ToBase64String(key?.SignData(message, HashAlgorithmName.SHA256, RSASignaturePadding.Pkcs1) ?? Array.Empty<byte>());
+            var signedMessage = Convert.ToBase64String(key?.SignData(message, HashAlgorithmName.SHA256, RSASignaturePadding.Pkcs1) ?? Array.Empty<byte>());
+            return signedMessage;
         }
 
         private static string SignMessage(string message, X509SigningCredentials x509SigningCredentials) {
