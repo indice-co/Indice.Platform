@@ -176,7 +176,7 @@ namespace Indice.AspNetCore.Identity.Tests
         }
 
         [Fact]
-        public async Task Can_Register_Device_Using_Pin_When_Already_Supports_Fingerprint() {
+        public async Task<string> Can_Register_Device_Using_Pin_When_Already_Supports_Fingerprint() {
             var accessToken = await LoginWithPasswordGrant(userName: "alice", password: "alice");
             var codeVerifier = GenerateCodeVerifier();
             var deviceId = Guid.NewGuid().ToString();
@@ -195,6 +195,7 @@ namespace Indice.AspNetCore.Identity.Tests
                 _output.WriteLine(responseJson);
             }
             Assert.True(response.IsSuccessStatusCode);
+            return deviceId;
         }
 
         [Fact]
@@ -213,7 +214,7 @@ namespace Indice.AspNetCore.Identity.Tests
         }
 
         [Fact]
-        public async Task Can_Register_Device_Using_Fingerprint_When_Already_Supports_Pin() {
+        public async Task<string> Can_Register_Device_Using_Fingerprint_When_Already_Supports_Pin() {
             var accessToken = await LoginWithPasswordGrant(userName: "alice", password: "alice");
             var codeVerifier = GenerateCodeVerifier();
             var deviceId = Guid.NewGuid().ToString();
@@ -232,11 +233,12 @@ namespace Indice.AspNetCore.Identity.Tests
                 _output.WriteLine(responseJson);
             }
             Assert.True(response.IsSuccessStatusCode);
+            return deviceId;
         }
 
         [Fact]
         public async Task Can_Authorize_Existing_Device_Using_Fingerprint() {
-            var deviceId = await Can_Register_New_Device_Using_Fingerprint();
+            var deviceId = await Can_Register_Device_Using_Fingerprint_When_Already_Supports_Pin();
             var codeVerifier = GenerateCodeVerifier();
             var challenge = await InitiateDeviceAuthorizationUsingFingerprint(codeVerifier, deviceId);
             var discoveryDocument = await _httpClient.GetDiscoveryDocumentAsync();
@@ -261,7 +263,7 @@ namespace Indice.AspNetCore.Identity.Tests
 
         [Fact]
         public async Task Can_Authorize_Existing_Device_Using_Pin() {
-            var deviceId = await Can_Register_New_Device_Using_Pin();
+            var deviceId = await Can_Register_Device_Using_Pin_When_Already_Supports_Fingerprint();
             var discoveryDocument = await _httpClient.GetDiscoveryDocumentAsync();
             var tokenResponse = await _httpClient.RequestTokenAsync(new TokenRequest {
                 Address = discoveryDocument.TokenEndpoint,

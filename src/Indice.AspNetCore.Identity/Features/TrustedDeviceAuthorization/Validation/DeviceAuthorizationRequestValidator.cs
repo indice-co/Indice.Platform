@@ -49,7 +49,7 @@ namespace Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Validation
             }
             // Load device.
             var device = await UserDeviceStore.GetByDeviceId(parameters.Get(RegistrationRequestParameters.DeviceId));
-            if (device == null || !device.Enabled || !device.SupportsFingerprint) {
+            if (device == null || !device.SupportsFingerprintLogin) {
                 return Error(OidcConstants.TokenErrors.InvalidRequest, "Device cannot initiate fingerprint login.");
             }
             // Load and validate client.

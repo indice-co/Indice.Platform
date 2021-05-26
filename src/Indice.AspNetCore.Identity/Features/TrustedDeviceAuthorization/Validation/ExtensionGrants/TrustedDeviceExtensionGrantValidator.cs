@@ -45,8 +45,8 @@ namespace Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Validation
             }
             // Load device.
             var device = await UserDeviceStore.GetByDeviceId(deviceId);
-            if (device == null || !device.Enabled) {
-                context.Result = new GrantValidationResult(TokenRequestErrors.InvalidGrant, "Device is unknown or not enabled.");
+            if (device == null) {
+                context.Result = new GrantValidationResult(TokenRequestErrors.InvalidGrant, "Device is unknown.");
                 return;
             }
             // If a code is present we are heading towards fingerprint login.

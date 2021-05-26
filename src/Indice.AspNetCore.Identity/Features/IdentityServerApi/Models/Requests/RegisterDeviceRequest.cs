@@ -5,7 +5,7 @@ using Indice.Types;
 namespace Indice.AspNetCore.Identity.Api.Models
 {
     /// <summary>
-    /// Register a device for push notifications
+    /// Register a device for push notifications.
     /// </summary>
     public class RegisterDeviceRequest
     {
@@ -15,7 +15,7 @@ namespace Indice.AspNetCore.Identity.Api.Models
         [Required]
         public string DeviceId { get; set; }
         /// <summary>
-        /// Platform Notification Service (pns) obtained from client platform.
+        /// Platform Notification Service (PNS) obtained from client platform.
         /// </summary>
         [Required(AllowEmptyStrings = false)]
         public string PnsHandle { get; set; }

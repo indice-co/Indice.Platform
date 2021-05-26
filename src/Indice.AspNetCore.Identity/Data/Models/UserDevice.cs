@@ -50,17 +50,13 @@ namespace Indice.AspNetCore.Identity.Data.Models
         /// </summary>
         public bool IsPushNotificationsEnabled { get; set; }
         /// <summary>
-        /// Enabled flag.
-        /// </summary>
-        public bool Enabled { get; set; }
-        /// <summary>
         /// Associated password for device (when <see cref="InteractionMode"/> is equal to <see cref="InteractionMode.Pin"/>).
         /// </summary>
         public string Password { get; set; }
         /// <summary>
         /// Flag for pin support.
         /// </summary>
-        public bool SupportsPin => !string.IsNullOrWhiteSpace(Password);
+        public bool SupportsPinLogin => !string.IsNullOrWhiteSpace(Password);
         /// <summary>
         /// Device public key (when <see cref="InteractionMode"/> is equal to <see cref="InteractionMode.Fingerprint"/>).
         /// </summary>
@@ -68,7 +64,7 @@ namespace Indice.AspNetCore.Identity.Data.Models
         /// <summary>
         /// Flag for fingerprint support.
         /// </summary>
-        public bool SupportsFingerprint => !string.IsNullOrWhiteSpace(PublicKey);
+        public bool SupportsFingerprintLogin => !string.IsNullOrWhiteSpace(PublicKey);
         /// <summary>
         /// The user associated with this device.
         /// </summary>

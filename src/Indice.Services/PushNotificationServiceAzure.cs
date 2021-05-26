@@ -37,11 +37,8 @@ namespace Indice.Services
         /// </summary>
         /// <param name="options">Connection string for Azure and Notifications hub name.</param>
         public PushNotificationServiceAzure(PushNotificationOptions options) {
-            if (string.IsNullOrEmpty(options.ConnectionString)) {
-                throw new ArgumentNullException(nameof(options.ConnectionString));
-            }
-            if (string.IsNullOrEmpty(options.NotificationHubPath)) {
-                throw new ArgumentNullException(nameof(options.NotificationHubPath));
+            if (string.IsNullOrWhiteSpace(options?.ConnectionString) || string.IsNullOrWhiteSpace(options?.NotificationHubPath)) {
+                throw new InvalidOperationException($"{nameof(PushNotificationOptions)} are not properly configured.");
             }
             NotificationHub = NotificationHubClient.CreateClientFromConnectionString(options.ConnectionString, options.NotificationHubPath);
         }
