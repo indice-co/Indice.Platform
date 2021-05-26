@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using FluentValidation;
+using FluentValidation.Internal;
 using FluentValidation.Validators;
 using Humanizer;
 using Microsoft.OpenApi.Models;
@@ -39,7 +40,7 @@ namespace Indice.AspNetCore.Swagger
             }
         }
 
-        private bool IsRequired(IEnumerable<IPropertyValidator> validators) =>
+        private bool IsRequired(IEnumerable<(IPropertyValidator, IRuleComponent)> validators) =>
             validators.OfType<INotNullValidator>()
                       .Cast<IPropertyValidator>()
                       .Concat(validators.OfType<INotEmptyValidator>()

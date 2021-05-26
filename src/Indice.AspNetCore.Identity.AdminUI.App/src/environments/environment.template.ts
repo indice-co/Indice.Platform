@@ -10,7 +10,11 @@ export const environment = {
         redirect_uri: 'auth-callback',
         response_type: 'code',
         scope: 'openid profile email role offline_access identity identity:clients identity:users',
-        silent_redirect_uri: 'auth-renew'
+        silent_redirect_uri: 'auth-renew',
+        revokeAccessTokenOnSignout: true,
+        accessTokenExpiringNotificationTime: 60,
+        monitorSession: true,
+        automaticSilentRenew: true
     },
     culture: '',
     isTemplate: true,

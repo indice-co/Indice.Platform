@@ -19,9 +19,7 @@ export class AuthInterceptor implements HttpInterceptor {
         });
         return next.handle(copiedRequest).pipe(
             tap((httpEvent: HttpEvent<any>) => {
-                if (httpEvent instanceof HttpResponse) {
-                    this._logger.log(httpEvent);
-                }
+                if (httpEvent instanceof HttpResponse) { }
             }),
             catchError((error: any) => {
                 if (error.status === 401) {

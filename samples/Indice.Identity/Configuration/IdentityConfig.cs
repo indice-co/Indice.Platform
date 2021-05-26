@@ -22,8 +22,9 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
         public static IdentityBuilder AddIdentityConfig(this IServiceCollection services, IConfiguration configuration) {
             JwtSecurityTokenHandler.DefaultMapInboundClaims = false;
-            services.AddTransient<IClaimsTransformation, ClaimsTransformer>();
             services.Configure<IdentityOptions>(configuration.GetSection(nameof(IdentityOptions)));
+            services.AddScopeTransformation();
+            services.AddExternalProviderClaimsTransformation();
             return services.AddIdentity<User, Role>()
                            .AddErrorDescriber<LocalizedIdentityErrorDescriber>()
                            .AddIdentityMessageDescriber<LocalizedIdentityMessageDescriber>()
