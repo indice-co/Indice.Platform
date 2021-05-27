@@ -86,10 +86,10 @@ namespace Indice.AspNetCore.Identity.Features
         /// Enables push notifications for a device.
         /// </summary>
         /// <param name="request">Contains information about the device to register.</param>
-        /// <response code="201">Created</response>
+        /// <response code="204">No Content</response>
         /// <response code="404">Not Found</response>
         [HttpPost]
-        [ProducesResponseType(statusCode: StatusCodes.Status201Created, type: typeof(DeviceInfo))]
+        [ProducesResponseType(statusCode: StatusCodes.Status204NoContent, type: typeof(void))]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
         public async Task<IActionResult> RegisterDevice([FromBody] RegisterDeviceRequest request) {
             var user = await _userManager.GetUserAsync(User);
@@ -98,11 +98,9 @@ namespace Indice.AspNetCore.Identity.Features
             }
             var device = await _dbContext.UserDevices.SingleOrDefaultAsync(x => x.UserId == user.Id && x.DeviceId == request.DeviceId);
             await _pushNotificationService.Register(request.DeviceId.ToString(), request.PnsHandle, request.DevicePlatform, user.Id, request.Tags?.ToArray());
-            Guid deviceId;
             if (device != null) {
                 device.IsPushNotificationsEnabled = true;
                 device.DeviceName = request.DeviceName;
-                deviceId = device.Id;
             } else {
                 var deviceToAdd = new UserDevice {
                     DeviceId = request.DeviceId,
@@ -113,10 +111,9 @@ namespace Indice.AspNetCore.Identity.Features
                     DateCreated = DateTimeOffset.Now
                 };
                 _dbContext.UserDevices.Add(deviceToAdd);
-                deviceId = deviceToAdd.Id;
             }
             await _dbContext.SaveChangesAsync();
-            return CreatedAtAction(nameof(GetDevices), Name, new { deviceId });
+            return NoContent();
         }
 
         /// <summary>

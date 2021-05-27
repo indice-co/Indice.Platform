@@ -61,9 +61,10 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <param name="configure">Configure the available options. Null to use defaults.</param>
         internal static IServiceCollection AddPushNotificationServiceAzure(this IServiceCollection services, Action<PushNotificationOptions> configure = null) {
             services.AddTransient<IPushNotificationService, PushNotificationServiceAzure>(serviceProvider => {
+                var configuration = serviceProvider.GetRequiredService<IConfiguration>();
                 var options = new PushNotificationOptions {
-                    ConnectionString = serviceProvider.GetRequiredService<IConfiguration>().GetConnectionString(PushNotificationServiceAzure.ConnectionStringName),
-                    NotificationHubPath = serviceProvider.GetRequiredService<IConfiguration>().GetValue<string>(PushNotificationServiceAzure.NotificationsHubPath)
+                    ConnectionString = configuration.GetConnectionString(PushNotificationServiceAzure.ConnectionStringName),
+                    NotificationHubPath = configuration.GetValue<string>(PushNotificationServiceAzure.NotificationsHubPath)
                 };
                 configure?.Invoke(options);
                 return new PushNotificationServiceAzure(options);
