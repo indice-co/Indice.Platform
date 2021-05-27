@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using Humanizer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
@@ -16,6 +15,6 @@ namespace Indice.AspNetCore.Identity
         /// </summary>
         /// <param name="errors">The list of <see cref="IdentityError"/> occured.</param>
         public static ValidationProblemDetails ToValidationProblemDetails(this IEnumerable<IdentityError> errors) => 
-            new(errors.ToDictionary(x => x.Code.Camelize(), x => new[] { x.Description }));
+            new(errors.ToDictionary(x => x.Code, x => new[] { x.Description }));
     }
 }

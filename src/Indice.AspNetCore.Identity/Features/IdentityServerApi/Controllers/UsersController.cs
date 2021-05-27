@@ -40,7 +40,6 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
     [Consumes(MediaTypeNames.Application.Json)]
     [ProblemDetailsExceptionFilter]
     [Produces(MediaTypeNames.Application.Json)]
-    [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest, type: typeof(ValidationProblemDetails))]
     [ProducesResponseType(statusCode: StatusCodes.Status401Unauthorized, type: typeof(ProblemDetails))]
     [ProducesResponseType(statusCode: StatusCodes.Status403Forbidden, type: typeof(ProblemDetails))]
     [Route("api/users")]
@@ -712,11 +711,13 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
         /// <param name="userId">The identifier of the user.</param>
         /// <param name="request">Contains info about the user password to change.</param>
         /// <response code="204">No Content</response>
+        /// <response code="400">Bad Request</response>
         /// <response code="404">Not Found</response>
         [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme, Policy = IdentityServerApi.Policies.BeUsersWriter)]
         [CacheResourceFilter(DependentPaths = new string[] { "{userId}" })]
         [HttpPut("{userId}/set-password")]
         [ProducesResponseType(statusCode: StatusCodes.Status204NoContent, type: typeof(void))]
+        [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest, type: typeof(ValidationProblemDetails))]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
         public async Task<IActionResult> SetPassword([FromRoute] string userId, [FromBody] SetPasswordRequest request) {
             var user = await _dbContext.Users.SingleOrDefaultAsync(x => x.Id == userId);
