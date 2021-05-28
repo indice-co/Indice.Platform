@@ -2,16 +2,17 @@ import { Component, OnInit, ChangeDetectorRef, ViewChild, ComponentFactoryResolv
 import { FormBuilder, FormGroup, Validators, FormControl } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 
-import { forkJoin, Subscription } from 'rxjs';
+import { forkJoin, of, Subscription } from 'rxjs';
 import { concatMap } from 'rxjs/operators';
 import { ClientsWizardService } from './wizard/clients-wizard.service';
 import { ClientType } from './wizard/models/client-type';
 import { WizardStepDescriptor } from 'src/app/shared/components/step-base/models/wizard-step-descriptor';
 import { WizardStepDirective } from '../../../shared/components/step-base/wizard-step.directive';
-import { CreateClientRequest, IdentityApiService, ClientInfo, ClientSecretInfo, SecretInfo, FileParameter, CreateSecretRequest } from 'src/app/core/services/identity-api.service';
+import { CreateClientRequest, IdentityApiService, ClientInfo, ClientSecretInfo, SecretInfo, FileParameter, CreateSecretRequest, ValidationProblemDetails } from 'src/app/core/services/identity-api.service';
 import { ClientWizardModel } from './wizard/models/client-wizard-model';
 import { StepBaseComponent } from 'src/app/shared/components/step-base/step-base.component';
 import { ToastService } from 'src/app/layout/services/app-toast.service';
+import { ValidationSummaryComponent } from 'src/app/shared/components/validation-summary/validation-summary.component';
 
 @Component({
   selector: 'app-client-add',
@@ -23,6 +24,7 @@ export class ClientAddComponent implements OnInit {
   @ViewChild(WizardStepDirective, { static: false }) private _wizardStepHost: WizardStepDirective;
   private _loadedStepInstance: StepBaseComponent<ClientWizardModel>;
   private _formValidatedSubscription: Subscription;
+  @ViewChild('validationSummary', { static: false }) private _validationSummary: ValidationSummaryComponent;
 
   constructor(
     private _wizardService: ClientsWizardService,
@@ -43,6 +45,7 @@ export class ClientAddComponent implements OnInit {
   public client: CreateClientRequest = new CreateClientRequest();
   public form: FormGroup;
   public hostFormValidated = false;
+  public problemDetails: ValidationProblemDetails;
 
   public get canGoFront(): boolean {
     return this.wizardStepIndex >= 0 && this.wizardStepIndex < this.clientTypeSteps.length - 1;
@@ -116,6 +119,7 @@ export class ClientAddComponent implements OnInit {
   }
 
   public saveClient(): void {
+    this._validationSummary.clear();
     const createClientRequest = {
       clientType: this.form.get('clientType').value,
       clientId: this.form.get('clientId').value,
@@ -133,7 +137,11 @@ export class ClientAddComponent implements OnInit {
     this._api
       .createClient(createClientRequest)
       .pipe(concatMap((createdClient: ClientInfo) => {
-        const uploads = (this.form.get('certificates').value as File[]).map((file: File) => {
+        const filesToUpload = this.form.get('certificates').value as File[];
+        if (filesToUpload.length === 0) {
+          return of(new Array<SecretInfo>());
+        }
+        const uploads = filesToUpload.map((file: File) => {
           const fileParameter: FileParameter = { data: file, fileName: file.name };
           return this._api.uploadCertificate(createClientRequest.clientId, fileParameter);
         });
@@ -142,6 +150,8 @@ export class ClientAddComponent implements OnInit {
       .subscribe(_ => {
         this._toast.showSuccess(`Client '${createClientRequest.clientId}' was created successfully.`);
         this._router.navigate(['../'], { relativeTo: this._route });
+      }, (problemDetails: ValidationProblemDetails) => {
+        this.problemDetails = problemDetails;
       });
   }
 

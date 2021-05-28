@@ -52,6 +52,9 @@
                           [formGroup]="form"
                           novalidate
                           #ngForm="ngForm">
+                        <app-validation-summary [problemDetails]="problemDetails"
+                                                #validationSummary>
+                        </app-validation-summary>
                         <ng-template wizardStepHost></ng-template>
                         <div class="form-group">
                             <div>
