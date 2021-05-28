@@ -16,7 +16,7 @@ namespace Indice.Services
         /// </summary>
         /// <param name="name">Topic or name</param>
         /// <param name="duration">The duration the lease will be active. Defaults 30 seconds</param>
-        /// <exception cref="LockManagerLockException">Occures when the lock cannot be aquired</exception>
+        /// <exception cref="LockManagerException">Occures when the lock cannot be aquired</exception>
         /// <returns></returns>
         Task<ILockLease> AcquireLock(string name, TimeSpan? duration = null);
 
@@ -158,24 +158,24 @@ namespace Indice.Services
     {
         /// <summary>
         /// Try Aquire the lock. If success it will return a successful <see cref="LockLeaseResult"/>.
-        /// If the lockmanger throws a <seealso cref="LockManagerLockException"/> it will catch that and return a failed <see cref="LockLeaseResult"/>
+        /// If the lockmanger throws a <seealso cref="LockManagerException"/> it will catch that and return a failed <see cref="LockLeaseResult"/>
         /// </summary>
         /// <param name="manager"></param>
         /// <param name="name">Topic or name</param>
         /// <param name="duration">The duration the lease will be active. Defaults 30 seconds</param>
         /// <returns></returns>
-        public static async Task<LockLeaseResult> TryAquireLock(this ILockManager manager, string name, TimeSpan? duration = null) {
+        public static async Task<LockLeaseResult> TryAcquireLock(this ILockManager manager, string name, TimeSpan? duration = null) {
             try {
                 var @lock = await manager.AcquireLock(name, duration);
                 return LockLeaseResult.Success(@lock);
-            } catch (LockManagerLockException) {
+            } catch (LockManagerException) {
                 return LockLeaseResult.Fail();
             }
         }
 
         /// <summary>
         /// Try Aquire the lock. If success it will return a successful <see cref="LockLeaseResult"/>.
-        /// If the lockmanger throws a <seealso cref="LockManagerLockException"/> it will catch that and return a failed <see cref="LockLeaseResult"/>.
+        /// If the lockmanger throws a <seealso cref="LockManagerException"/> it will catch that and return a failed <see cref="LockLeaseResult"/>.
         /// In case of failure it will retry sometimes before calling it a day.
         /// </summary>
         /// <param name="manager"></param>
@@ -183,24 +183,22 @@ namespace Indice.Services
         /// <param name="retryCount"></param>
         /// <param name="retryAfter"></param>
         /// <returns></returns>
-        public static async Task<LockLeaseResult> TryAquireLockWithRetryPolicy(this ILockManager manager, string name, int retryCount = 3, int retryAfter = 3) {
+        public static async Task<LockLeaseResult> TryAcquireLockWithRetryPolicy(this ILockManager manager, string name, int retryCount = 3, int retryAfter = 3) {
             var policy = Policy.HandleResult<LockLeaseResult>(lockLeaseResult => !lockLeaseResult.Ok)
                                .WaitAndRetryAsync(retryCount, retryAttempt => TimeSpan.FromSeconds(retryAfter));
-            return await policy.ExecuteAsync(async () => await manager.TryAquireLock(name));
+            return await policy.ExecuteAsync(async () => await manager.TryAcquireLock(name));
         }
     }
 
     /// <summary>
     /// Exception thrown when the lockmanager could not aquire a lock.
     /// </summary>
-    public class LockManagerLockException : Exception 
+    public class LockManagerException : Exception 
     {
         /// <summary>
-        /// Contructs a new <see cref="LockManagerLockException"/>
+        /// Contructs a new <see cref="LockManagerException"/>
         /// </summary>
         /// <param name="lockName">the name of the lock</param>
-        public LockManagerLockException(string lockName) : base($"Could not aquire lock {lockName}") {
-
-        }
+        public LockManagerException(string lockName) : base($"Could not aquire lock '{lockName}'.") { }
     }
 }

@@ -3,7 +3,7 @@
     <Description>Indice.Common Class Library</Description>
     <Copyright>Copyright (c) 2018 Indice</Copyright>
     <AssemblyTitle>Indice.Common</AssemblyTitle>
-    <VersionPrefix>5.0.20</VersionPrefix>
+    <VersionPrefix>5.0.21</VersionPrefix>
     <!--<VersionSuffix>beta-02</VersionSuffix>-->
     <Authors>Constantinos Leftheris</Authors>
     <TargetFrameworks>net5.0;netstandard2.0</TargetFrameworks>

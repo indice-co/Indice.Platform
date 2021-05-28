@@ -42,7 +42,7 @@ namespace Indice.Hosting.SqlClient
                 success = false;
             }
             if (!success) {
-                throw new LockManagerLockException($"Unable to aquire lease {name}.");
+                throw new LockManagerException($"Unable to aquire lease {name}.");
             }
             return new LockLease(new Base64Id(@lock.Id), name, this);
         }
@@ -66,7 +66,7 @@ namespace Indice.Hosting.SqlClient
                 success = false;
             }
             if (!success) {
-                throw new LockManagerLockException($"Unable to renew lease {name} for leaseid {leaseId}.");
+                throw new LockManagerException($"Unable to renew lease {name} for leaseid {leaseId}.");
             }
             return new LockLease(base64Id, name, this);
         }

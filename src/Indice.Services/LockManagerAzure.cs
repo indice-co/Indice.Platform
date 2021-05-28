@@ -1,10 +1,10 @@
 ﻿using System;
 using System.IO;
+using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Azure;
 using Azure.Storage.Blobs;
-using Azure.Storage.Blobs.Models;
 using Azure.Storage.Blobs.Specialized;
 
 namespace Indice.Services
@@ -35,10 +35,14 @@ namespace Indice.Services
         public async Task<ILockLease> AcquireLock(string name, TimeSpan? duration = null) {
             await BlobContainer.CreateIfNotExistsAsync();
             var lockFileBlob = BlobContainer.GetBlobClient($"locks/{name}.lock");
-            await lockFileBlob.UploadAsync(new MemoryStream(System.Text.Encoding.ASCII.GetBytes("0")), overwrite: true);
+            await lockFileBlob.UploadAsync(new MemoryStream(Encoding.ASCII.GetBytes("0")), overwrite: true);
             var lockFileLease = lockFileBlob.GetBlobLeaseClient();
-            var leaseResponse = await lockFileLease.AcquireAsync(duration ?? TimeSpan.FromSeconds(30));
-            return new LockLease(leaseResponse.Value.LeaseId, name, this);
+            try {
+                var leaseResponse = await lockFileLease.AcquireAsync(duration ?? TimeSpan.FromSeconds(30));
+                return new LockLease(leaseResponse.Value.LeaseId, name, this);
+            } catch (RequestFailedException) {
+                throw new LockManagerException(name);
+            }
         }
 
         /// <inheritdoc />
@@ -66,7 +70,6 @@ namespace Indice.Services
         public Task Cleanup() {
             return Task.CompletedTask;
         }
-
     }
 
     /// <summary>

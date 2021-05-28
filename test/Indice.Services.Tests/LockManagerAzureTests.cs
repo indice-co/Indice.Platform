@@ -40,7 +40,7 @@ namespace Indice.Services.Tests
             await using (@lock2) {
                 await Task.Delay(TimeSpan.FromSeconds(0.5));
             }
-            var result = await _LockManager.TryAquireLock(name);
+            var result = await _LockManager.TryAcquireLock(name);
             if (result.Ok) { 
                 await using (result.Lock) {
                     await Task.Delay(TimeSpan.FromSeconds(0.5));
