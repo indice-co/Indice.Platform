@@ -59,8 +59,6 @@ namespace Indice.AspNetCore.Identity.Data
         /// <inheritdoc/>
         public int? PasswordHistoryLimit { get; protected set; }
         /// <inheritdoc/>
-        public double? PasswordHistoryRetentionDays { get; protected set; }
-        /// <inheritdoc/>
         public PasswordExpirationPolicy? PasswordExpirationPolicy { get; protected set; }
         /// <inheritdoc/>
         public bool? EmailAsUserName { get; protected set; }

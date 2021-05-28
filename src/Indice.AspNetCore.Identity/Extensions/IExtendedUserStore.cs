@@ -18,11 +18,6 @@ namespace Indice.AspNetCore.Identity.Extensions
         /// </summary>
         int? PasswordHistoryLimit { get; }
         /// <summary>
-        /// The password history retention is a double indicating the number of days the each password stored into history will be retained.
-        /// The expiration day is calculated according to the date changed and not the created date.
-        /// </summary>
-        double? PasswordHistoryRetentionDays { get; }
-        /// <summary>
         /// The password expiration policy is the default setting that every new user created by the <see cref="UserManager{TUser}"/> will inherit in regards
         /// to when their password will need to be changed. This settings is only for new users created any only if no explicit password policy is set.
         /// </summary>

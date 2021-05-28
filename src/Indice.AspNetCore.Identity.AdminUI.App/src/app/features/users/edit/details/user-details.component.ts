@@ -39,6 +39,7 @@ export class UserDetailsComponent implements OnInit, OnDestroy {
     public userPasswordExpirationPolicy = '';
     public newPassword = '';
     public changePasswordAfterFirstSignIn = false;
+    public bypassPasswordValidation = false;
     public problemDetails: ProblemDetails;
     public canEditUser: boolean;
 
@@ -109,9 +110,10 @@ export class UserDetailsComponent implements OnInit, OnDestroy {
     }
 
     public resetPassword() {
-        this._userStore.resetPassword(this.user.id, this.newPassword, this.changePasswordAfterFirstSignIn).subscribe(_ => {
+        this._userStore.resetPassword(this.user.id, this.newPassword, this.changePasswordAfterFirstSignIn, this.bypassPasswordValidation).subscribe(_ => {
             this.userPasswordExpirationPolicy = this.user.passwordExpirationPolicy ? this.user.passwordExpirationPolicy : '';
             this._toast.showSuccess(`Password for user '${this.user.userName}' was reset successfully.`);
+            this._modalService.dismissAll();
         }, (problemDetails: ValidationProblemDetails) => {
             this.problemDetails = problemDetails;
         });

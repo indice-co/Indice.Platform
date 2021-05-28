@@ -93,13 +93,40 @@ namespace Indice.AspNetCore.Identity
         }
 
         /// <summary>
+        /// Creates the specified <paramref name="user"/> in the backing store with given password,
+        /// as an asynchronous operation.
+        /// </summary>
+        /// <param name="user">The user to create.</param>
+        /// <param name="password">The password for the user to hash and store.</param>
+        /// <param name="validatePassword">Whether to validate the password.</param>
+        /// <returns>
+        /// The <see cref="Task"/> that represents the asynchronous operation, containing the <see cref="IdentityResult"/>
+        /// of the operation.
+        /// </returns>
+        /// <remarks>This overload is used for admin reset password. Bypasses token requirement of default <see cref="UserManager{TUser}.ResetPasswordAsync(TUser, string, string)"/></remarks>
+        public async Task<IdentityResult> CreateAsync(TUser user, string password, bool validatePassword) {
+            ThrowIfDisposed();
+            if (user == null) {
+                throw new ArgumentNullException(nameof(user));
+            }
+            if (password == null) {
+                throw new ArgumentNullException(nameof(password));
+            }
+            var result = await UpdatePasswordHash(user, password, validatePassword);
+            if (!result.Succeeded) {
+                return result;
+            }
+            return await CreateAsync(user);
+        }
+
+        /// <summary>
         /// Reset's a user's password.
         /// </summary>
         /// <param name="user">The user.</param>
         /// <param name="newPassword">The new password.</param>
         /// <param name="validatePassword">Whether to validate the password.</param>
         /// <returns>Whether the password has was successfully updated.</returns>
-        /// <remarks>This overload is used for admin reset password. Bypasses token requirement of default <see cref="UserManager{TUser}.ResetPasswordAsync(TUser, string, string)"/></remarks>.
+        /// <remarks>This overload is used for admin reset password. Bypasses token requirement of default <see cref="UserManager{TUser}.ResetPasswordAsync(TUser, string, string)"/></remarks>
         public async Task<IdentityResult> ResetPasswordAsync(TUser user, string newPassword, bool validatePassword = true) {
             ThrowIfDisposed();
             if (user == null) {
@@ -163,7 +190,7 @@ namespace Indice.AspNetCore.Identity
         private IExtendedUserStore<TUser> GetUserStore(bool throwOnFail = true) {
             var cast = Store as IExtendedUserStore<TUser>;
             if (throwOnFail && cast == null) {
-                throw new NotSupportedException($"Store is not of type {nameof(ExtendedUserStore)}.");
+                throw new NotSupportedException($"Store does not implement {nameof(IExtendedUserStore<TUser>)}.");
             }
             return cast;
         }

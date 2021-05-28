@@ -89,14 +89,15 @@ export class UserStore {
         return this._api.unlockUser(userId);
     }
 
-    public resetPassword(userId: string, password: string, changePasswordAfterFirstSignIn: boolean): Observable<void> {
+    public resetPassword(userId: string, password: string, changePasswordAfterFirstSignIn: boolean, bypassPasswordValidation: boolean): Observable<void> {
         this.getUser(userId).subscribe((user: SingleUserInfo) => {
             this._user.next(user);
             this._user.complete();
         });
         return this._api.setPassword(userId, {
             password,
-            changePasswordAfterFirstSignIn
+            changePasswordAfterFirstSignIn,
+            bypassPasswordValidation
         } as SetPasswordRequest);
     }
 

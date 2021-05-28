@@ -120,8 +120,8 @@ namespace Indice.AspNetCore.Identity
                 var query = DbContext.UserPasswordHistory
                                      .Where(x => x.UserId == user.Id);
                 if (MaximumPasswordAge.HasValue && MaximumPasswordAge.Value > TimeSpan.Zero) {
-                    var ageMax = DateTime.UtcNow.Add(-MaximumPasswordAge.Value);
-                    query = query.Where(x => x.DateCreated >= ageMax);
+                    var threshold = DateTime.UtcNow.Add(-MaximumPasswordAge.Value);
+                    query = query.Where(x => x.DateCreated >= threshold);
                 }
                 var usedPasswords = await query.OrderByDescending(x => x.DateCreated)
                                                .Take(PasswordHistoryLimit.Value)

@@ -38,5 +38,9 @@ namespace Indice.AspNetCore.Identity.Api.Models
         /// Forces the user to change his password after changed by the system admin.
         /// </summary>
         public bool? ChangePasswordAfterFirstSignIn { get; set; }
+        /// <summary>
+        /// Bypasses all password validation rules.
+        /// </summary>
+        public bool? BypassPasswordValidation { get; set; }
     }
 }

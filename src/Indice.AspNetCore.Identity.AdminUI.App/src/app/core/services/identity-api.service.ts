@@ -11284,6 +11284,8 @@ export class CreateUserRequest implements ICreateUserRequest {
     passwordExpirationPolicy?: PasswordExpirationPolicy;
     /** Forces the user to change his password after created by the system admin. */
     changePasswordAfterFirstSignIn?: boolean | undefined;
+    /** Bypasses all password validation rules. */
+    bypassPasswordValidation?: boolean | undefined;
     /** Dynamic claims that have been marked as required. */
     claims?: BasicClaimInfo[] | undefined;
 
@@ -11306,6 +11308,7 @@ export class CreateUserRequest implements ICreateUserRequest {
             this.phoneNumber = _data["phoneNumber"];
             this.passwordExpirationPolicy = _data["passwordExpirationPolicy"];
             this.changePasswordAfterFirstSignIn = _data["changePasswordAfterFirstSignIn"];
+            this.bypassPasswordValidation = _data["bypassPasswordValidation"];
             if (Array.isArray(_data["claims"])) {
                 this.claims = [] as any;
                 for (let item of _data["claims"])
@@ -11331,6 +11334,7 @@ export class CreateUserRequest implements ICreateUserRequest {
         data["phoneNumber"] = this.phoneNumber;
         data["passwordExpirationPolicy"] = this.passwordExpirationPolicy;
         data["changePasswordAfterFirstSignIn"] = this.changePasswordAfterFirstSignIn;
+        data["bypassPasswordValidation"] = this.bypassPasswordValidation;
         if (Array.isArray(this.claims)) {
             data["claims"] = [];
             for (let item of this.claims)
@@ -11357,6 +11361,8 @@ export interface ICreateUserRequest {
     passwordExpirationPolicy?: PasswordExpirationPolicy;
     /** Forces the user to change his password after created by the system admin. */
     changePasswordAfterFirstSignIn?: boolean | undefined;
+    /** Bypasses all password validation rules. */
+    bypassPasswordValidation?: boolean | undefined;
     /** Dynamic claims that have been marked as required. */
     claims?: BasicClaimInfo[] | undefined;
 }
@@ -12259,6 +12265,8 @@ export class SetPasswordRequest implements ISetPasswordRequest {
     password!: string;
     /** Forces the user to change his password after changed by the system admin. */
     changePasswordAfterFirstSignIn?: boolean | undefined;
+    /** Bypasses all password validation rules. */
+    bypassPasswordValidation?: boolean | undefined;
 
     constructor(data?: ISetPasswordRequest) {
         if (data) {
@@ -12273,6 +12281,7 @@ export class SetPasswordRequest implements ISetPasswordRequest {
         if (_data) {
             this.password = _data["password"];
             this.changePasswordAfterFirstSignIn = _data["changePasswordAfterFirstSignIn"];
+            this.bypassPasswordValidation = _data["bypassPasswordValidation"];
         }
     }
 
@@ -12287,6 +12296,7 @@ export class SetPasswordRequest implements ISetPasswordRequest {
         data = typeof data === 'object' ? data : {};
         data["password"] = this.password;
         data["changePasswordAfterFirstSignIn"] = this.changePasswordAfterFirstSignIn;
+        data["bypassPasswordValidation"] = this.bypassPasswordValidation;
         return data; 
     }
 }
@@ -12297,6 +12307,8 @@ export interface ISetPasswordRequest {
     password: string;
     /** Forces the user to change his password after changed by the system admin. */
     changePasswordAfterFirstSignIn?: boolean | undefined;
+    /** Bypasses all password validation rules. */
+    bypassPasswordValidation?: boolean | undefined;
 }
 
 /** Models toggling a user's 'Blocked' property. */

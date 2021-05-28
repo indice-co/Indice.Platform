@@ -143,7 +143,7 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
                 };
             if (options?.Search?.Length > 2) {
                 var userSearchFilterExpression = await IdentityDbContextOptions.UserSearchFilter(_dbContext, options.Search);
-                usersQuery = usersQuery.Where(userSearchFilterExpression);   
+                usersQuery = usersQuery.Where(userSearchFilterExpression);
             }
             return Ok(await usersQuery.ToResultSetAsync(options));
         }
@@ -232,7 +232,7 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
             if (string.IsNullOrEmpty(request.Password)) {
                 result = await _userManager.CreateAsync(user);
             } else {
-                result = await _userManager.CreateAsync(user, request.Password);
+                result = await _userManager.CreateAsync(user, request.Password, validatePassword: !request.BypassPasswordValidation.GetValueOrDefault());
             }
             if (!result.Succeeded) {
                 return BadRequest(result.Errors.ToValidationProblemDetails());
@@ -730,24 +730,12 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
             if (user == null) {
                 return NotFound();
             }
-            var hasPassword = await _userManager.HasPasswordAsync(user);
-            IdentityResult result;
-            if (hasPassword) {
-                result = await _userManager.RemovePasswordAsync(user);
-                if (!result.Succeeded) {
-                    return BadRequest(result.Errors.ToValidationProblemDetails());
-                }
-            }
-            result = await _userManager.AddPasswordAsync(user, request.Password);
+            var result = await _userManager.ResetPasswordAsync(user, request.Password, validatePassword: !request.BypassPasswordValidation.GetValueOrDefault());
             if (!result.Succeeded) {
                 return BadRequest(result.Errors.ToValidationProblemDetails());
             }
-            if (request.ChangePasswordAfterFirstSignIn.HasValue && request.ChangePasswordAfterFirstSignIn.Value == true) {
+            if (request.ChangePasswordAfterFirstSignIn == true) {
                 await _userManager.SetPasswordExpiredAsync(user, true);
-            }
-            result = await _userManager.SetLockoutEndDateAsync(user, null);
-            if (!result.Succeeded) {
-                return BadRequest(result.Errors.ToValidationProblemDetails());
             }
             return NoContent();
         }
