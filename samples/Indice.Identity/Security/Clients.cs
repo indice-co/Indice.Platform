@@ -3,6 +3,7 @@ using IdentityModel;
 using IdentityServer4;
 using IdentityServer4.Models;
 using Indice.AspNetCore.Identity.Api.Security;
+using Indice.Security;
 
 namespace Indice.Identity.Security
 {
@@ -162,6 +163,28 @@ namespace Indice.Identity.Security
                 RequireConsent = true,
                 RequirePkce = true,
                 RequireClientSecret = false
+            },
+            new Client {
+                ClientId = "ppk-client",
+                ClientName = "Public/Private key client",
+                AccessTokenType = AccessTokenType.Jwt,
+                AllowAccessTokensViaBrowser = false,
+                AllowedGrantTypes = GrantTypes.ResourceOwnerPasswordAndClientCredentials,
+                ClientSecrets = { 
+                    new Secret("JUEKX2XugFv5XrX3".ToSha256())
+                },
+                AllowedScopes = {
+                    IdentityServerConstants.StandardScopes.OpenId,
+                    IdentityServerConstants.StandardScopes.Phone
+                },
+                RequireConsent = false,
+                RequirePkce = false,
+                RequireClientSecret = true,
+                AllowOfflineAccess = true,
+                AlwaysSendClientClaims = true,
+                Claims = {
+                    new ClientClaim(BasicClaimTypes.TrustedDevice, bool.TrueString.ToLower())
+                }
             }
         };
     }

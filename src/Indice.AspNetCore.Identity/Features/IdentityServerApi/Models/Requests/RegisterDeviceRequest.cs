@@ -1,22 +1,21 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using Indice.Types;
 
 namespace Indice.AspNetCore.Identity.Api.Models
 {
     /// <summary>
-    /// Register a device for push notifications
+    /// Register a device for push notifications.
     /// </summary>
     public class RegisterDeviceRequest
     {
         /// <summary>
-        /// The deviceId to register for push notifications.
+        /// The device id to register for push notifications.
         /// </summary>
         [Required]
-        public Guid DeviceId { get; set; }
+        public string DeviceId { get; set; }
         /// <summary>
-        /// Platform Notification Service (pns) obtained from client platform.
+        /// Platform Notification Service (PNS) obtained from client platform.
         /// </summary>
         [Required(AllowEmptyStrings = false)]
         public string PnsHandle { get; set; }

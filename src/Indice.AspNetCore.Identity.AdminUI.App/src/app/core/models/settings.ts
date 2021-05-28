@@ -3,7 +3,7 @@ import { IAppSettings, IAuthSettings } from './settings.model';
 
 function createAppSettings(): IAppSettings {
     const isTemplate = environment.isTemplate;
-    let authority, clientId, host, baseHref, culture, version;
+    let authority: string, clientId: string, host: string, baseHref: string, culture: string, version: string;
     if (isTemplate) {
         const appRoot = document.getElementsByTagName('app-root')[0];
         authority = appRoot.getAttribute('authority');
@@ -34,7 +34,11 @@ function createAppSettings(): IAppSettings {
             redirect_uri: !isTemplate ? environment.auth_settings.redirect_uri : `${host}/${baseHref}/${environment.auth_settings.redirect_uri}`,
             response_type: environment.auth_settings.response_type,
             scope: environment.auth_settings.scope,
-            silent_redirect_uri: !isTemplate ? environment.auth_settings.silent_redirect_uri : `${host}/${baseHref}/${environment.auth_settings.silent_redirect_uri}`
+            silent_redirect_uri: !isTemplate ? environment.auth_settings.silent_redirect_uri : `${host}/${baseHref}/${environment.auth_settings.silent_redirect_uri}`,
+            revokeAccessTokenOnSignout: environment.auth_settings.revokeAccessTokenOnSignout,
+            accessTokenExpiringNotificationTime: environment.auth_settings.accessTokenExpiringNotificationTime,
+            monitorSession: environment.auth_settings.monitorSession,
+            automaticSilentRenew: environment.auth_settings.automaticSilentRenew
         } as IAuthSettings,
         culture: !isTemplate ? environment.culture : culture,
         isTemplate: environment.isTemplate,

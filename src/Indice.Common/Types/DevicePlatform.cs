@@ -1,7 +1,7 @@
 ﻿namespace Indice.Types
 {
     /// <summary>
-    /// Defines all supported mobile device platforms
+    /// Defines all supported mobile device platforms.
     /// </summary>
     public enum DevicePlatform
     {

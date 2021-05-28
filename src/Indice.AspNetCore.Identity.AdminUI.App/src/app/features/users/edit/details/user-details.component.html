@@ -39,6 +39,7 @@
               [ngClass]="{ 'was-validated': userPasswordform.submitted }"
               (ngSubmit)="userPasswordform.form.valid && resetPassword()"
               novalidate
+              autocomplete="off"
               #userPasswordform="ngForm">
             <app-validation-summary [problemDetails]="problemDetails"
                                     #validationSummary>
@@ -51,6 +52,7 @@
                        name="user-new-password"
                        [(ngModel)]="newPassword"
                        #userNewPassword="ngModel"
+                       autocomplete="new-password"
                        required>
                 <div *ngIf="userPasswordform.submitted && userNewPassword.invalid"
                      class="form-control-feedback text-danger">
@@ -84,6 +86,7 @@
       [ngClass]="{ 'was-validated': form.submitted }"
       (ngSubmit)="form.form.valid && update()"
       novalidate
+      autocomplete="off"
       [formReadonly]="!canEditUser"
       #form="ngForm">
     <div class="alert alert-warning d-flex align-items-center justify-content-between"

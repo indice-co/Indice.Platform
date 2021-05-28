@@ -10,6 +10,7 @@
                       [ngClass]="{ 'was-validated': form.submitted }"
                       (ngSubmit)="form.form.valid && save()"
                       novalidate
+                      autocomplete="off"
                       #form="ngForm">
                     <app-validation-summary [problemDetails]="problemDetails"
                                             #validationSummary>
@@ -102,6 +103,7 @@
                             <input id="password"
                                    name="password"
                                    type="password"
+                                   autocomplete="new-password"
                                    class="form-control"
                                    [ngClass]="{ 'invalid': form.submitted && password.invalid }"
                                    [(ngModel)]="user.password"

@@ -39,12 +39,10 @@ namespace Indice.Identity
         /// </summary>
         /// <param name="hostingEnvironment">Provides information about the web hosting environment an application is running in.</param>
         /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
-        /// <param name="logger">Represents a type used to perform logging.</param>
-        public Startup(IWebHostEnvironment hostingEnvironment, IConfiguration configuration, ILogger<Startup> logger) {
+        public Startup(IWebHostEnvironment hostingEnvironment, IConfiguration configuration) {
             HostingEnvironment = hostingEnvironment ?? throw new ArgumentNullException(nameof(hostingEnvironment));
             Configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
             Settings = Configuration.GetSection(GeneralSettings.Name).Get<GeneralSettings>();
-            Logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
         /// <summary>
@@ -73,7 +71,6 @@ namespace Indice.Identity
             var aiOptions = new ApplicationInsightsServiceOptions();
             // https://docs.microsoft.com/en-us/azure/azure-monitor/app/asp-net-core
             services.AddApplicationInsightsTelemetry(aiOptions);
-            Logger.LogInformation("Application started configuring services.");
             services.AddMvcConfig(Configuration);
             services.AddLocalization(options => options.ResourcesPath = "Resources");
             services.AddCors(options => options.AddDefaultPolicy(builder => {
@@ -140,11 +137,9 @@ namespace Indice.Identity
         /// <param name="app">Defines a class that provides the mechanisms to configure an application's request pipeline.</param>
         public void Configure(IApplicationBuilder app) {
             if (HostingEnvironment.IsDevelopment()) {
-                Logger.LogInformation("Configuring for Development environment.");
                 app.UseDeveloperExceptionPage();
                 app.IdentityServerStoreSetup<ExtendedConfigurationDbContext>(Clients.Get(), Resources.GetIdentityResources(), Resources.GetApis(), Resources.GetApiScopes());
             } else {
-                Logger.LogInformation("Configuring for Production environment.");
                 app.UseHsts();
                 app.UseHttpsRedirection();
             }
@@ -174,7 +169,7 @@ namespace Indice.Identity
                 //    }
                 //};
                 options.LogHandler = (logger, model) => {
-                    // Write response body to App Insights
+                    // Write response body to App Insights.
                     var requestTelemetry = model.HttpContext.Features.Get<RequestTelemetry>();
                     requestTelemetry?.Properties.Add(nameof(model.ResponseBody), model.ResponseBody);
                     requestTelemetry?.Properties.Add(nameof(model.RequestBody), model.RequestBody);
@@ -218,6 +213,7 @@ namespace Indice.Identity
                     options.DocExpansion(DocExpansion.None);
                     options.OAuthUsePkce();
                     options.OAuthScopeSeparator(" ");
+                    options.EnableDeepLinking();
                 });
             }
             app.UseAdminUI(options => {

@@ -8,7 +8,7 @@ namespace Indice.AspNetCore.Identity.Data
     /// <summary>
     /// <see cref="DbContext"/> for the Identity Framework.
     /// </summary>
-    public class IdentityDbContext : IdentityDbContext<User, IdentityRole>
+    public class IdentityDbContext : IdentityDbContext<User, Role>
     {
         /// <summary>
         /// Constructs the <see cref="DbContext"/> passing the options.
@@ -36,11 +36,11 @@ namespace Indice.AspNetCore.Identity.Data
         /// </summary>
         public DbSet<UserPassword> UserPasswordHistory { get; set; }
         /// <summary>
-        /// Stores user devices in database
+        /// Stores user devices in database.
         /// </summary>
         public DbSet<UserDevice> UserDevices { get; set; }
         /// <summary>
-        /// Stores system settings in the database.
+        /// Stores application settings in the database.
         /// </summary>
         internal DbSet<AppSetting> AppSettings { get; set; }
 

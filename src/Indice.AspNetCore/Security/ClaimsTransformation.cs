@@ -51,6 +51,6 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
         /// <param name="claimTypesToIgnore">Types to ignore</param>
         public static IServiceCollection AddExternalProviderClaimsTransformation(this IServiceCollection services, params string[] claimTypesToIgnore) =>
-            services.AddSingleton<IClaimsTransformation>((sp) => new ExternalIdentityProviderClaimsTransformation(claimTypesToIgnore));
+            services.AddSingleton<IClaimsTransformation>(serviceProvider => new ExternalIdentityProviderClaimsTransformation(claimTypesToIgnore));
     }
 }

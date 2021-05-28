@@ -209,13 +209,20 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
         /// </summary>
         /// <param name="request">Contains info about the client to be created.</param>
         /// <response code="201">Created</response>
+        /// <response code="400">Bad Request</response>
         [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme, Policy = IdentityServerApi.Policies.BeClientsWriter)]
         [CacheResourceFilter(DependentStaticPaths = new string[] { "api/dashboard/summary" })]
         [Consumes(MediaTypeNames.Application.Json)]
         [HttpPost]
         [Produces(MediaTypeNames.Application.Json)]
         [ProducesResponseType(statusCode: StatusCodes.Status201Created, type: typeof(ClientInfo))]
+        [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest, type: typeof(ValidationProblemDetails))]
         public async Task<IActionResult> CreateClient([FromBody] CreateClientRequest request) {
+            var clientIdExists = (await _configurationDbContext.Clients.CountAsync(x => x.ClientId == request.ClientId)) > 0;
+            if (clientIdExists) {
+                ModelState.AddModelError(nameof(request.ClientId), $"Client with id '{request.ClientId}' already exists.");
+                return BadRequest(new ValidationProblemDetails(ModelState));
+            }
             var client = CreateForType(request.ClientType, _generalSettings.Authority, request);
             _configurationDbContext.Clients.Add(client);
             _configurationDbContext.ClientUsers.Add(new ClientUser {

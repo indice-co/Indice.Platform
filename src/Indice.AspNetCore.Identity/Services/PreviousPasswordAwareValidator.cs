@@ -27,7 +27,7 @@ namespace Indice.AspNetCore.Identity
     /// <summary>
     /// An <see cref="IPasswordValidator{TUser}" /> that checks a number of previous passwords for equality.
     /// </summary>
-    public class PreviousPasswordAwareValidator : PreviousPasswordAwareValidator<User, IdentityRole>
+    public class PreviousPasswordAwareValidator : PreviousPasswordAwareValidator<User, Role>
     {
         /// <summary>
         /// Class constructor.
@@ -35,7 +35,7 @@ namespace Indice.AspNetCore.Identity
         /// <param name="dbContext">The DbContext to use for the Identity framework.</param>
         /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
         /// <param name="messageDescriber">Provides the various messages used throughout Indice packages.</param>
-        public PreviousPasswordAwareValidator(IdentityDbContext<User, IdentityRole> dbContext, IConfiguration configuration, IdentityMessageDescriber messageDescriber) : base(dbContext, configuration, messageDescriber) { }
+        public PreviousPasswordAwareValidator(IdentityDbContext<User, Role> dbContext, IConfiguration configuration, IdentityMessageDescriber messageDescriber) : base(dbContext, configuration, messageDescriber) { }
     }
 
     /// <summary>

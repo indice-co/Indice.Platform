@@ -85,10 +85,10 @@ namespace Indice.AspNetCore.Identity
             var userName = user?.UserName ?? "Anonymous";
             var cacheKey = $"totp{(hasPrincipal ? $":{user.Id}" : string.Empty)}:{channel}:{token}:{purpose}";
             if (await CacheKeyExists(cacheKey)) {
-                _logger.LogInformation($"User: '{userName}' - Last token has not expired yet. Throttling.");
+                _logger.LogInformation("User: '{UserName}' - Last token has not expired yet. Throttling", userName);
                 return TotpResult.ErrorResult(_localizer["Last token has not expired yet. Please wait a few seconds and try again."]);
             }
-            _logger.LogInformation($"User: '{userName}' - Token generated successfully.");
+            _logger.LogInformation("User: '{UserName}' - Token generated successfully", userName);
             switch (channel) {
                 case TotpDeliveryChannel.Sms:
                 case TotpDeliveryChannel.Viber:
@@ -190,7 +190,7 @@ namespace Indice.AspNetCore.Identity
             return exists;
         }
 
-        private string GetModifier(string purpose, string phoneNumberOrEmail) => $"{purpose}:{phoneNumberOrEmail}";
+        private static string GetModifier(string purpose, string phoneNumberOrEmail) => $"{purpose}:{phoneNumberOrEmail}";
 
         private TotpResult ValidateParameters(ClaimsPrincipal principal, string securityToken, string phoneNumberOrEmail) {
             var hasSecurityToken = !string.IsNullOrEmpty(securityToken);

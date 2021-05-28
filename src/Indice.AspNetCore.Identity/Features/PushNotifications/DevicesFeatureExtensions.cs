@@ -21,10 +21,10 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <summary>
         /// Adds all required stuff in order for Push notifications to work.
         /// </summary>
-        /// <typeparam name="PushNotificationServiceAzure">The type of <see cref="IPushNotificationService"/> service implementation to use.</typeparam>
+        /// <typeparam name="TPushNotificationServiceAzure">The type of <see cref="IPushNotificationService"/> service implementation to use.</typeparam>
         /// <param name="builder">IdentityServer builder Interface.</param>
         /// <param name="configure">Configuration used in <see cref="Rfc6238AuthenticationService"/> service.</param>
-        public static IMvcBuilder AddPushNotifications<PushNotificationServiceAzure>(this IMvcBuilder builder, Action<PushNotificationOptions> configure = null) where PushNotificationServiceAzure : class, IPushNotificationService {
+        public static IMvcBuilder AddPushNotifications<TPushNotificationServiceAzure>(this IMvcBuilder builder, Action<PushNotificationOptions> configure = null) where TPushNotificationServiceAzure : class, IPushNotificationService {
             builder.Services.AddPushNotificationServiceAzure(configure);
             builder.ConfigureApplicationPartManager(x => x.FeatureProviders.Add(new DevicesFeatureProvider()));
             return builder;
@@ -40,10 +40,10 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <summary>
         /// Adds all required stuff in order for Push notifications to work.
         /// </summary>
-        /// <typeparam name="PushNotificationServiceAzure">The type of <see cref="IPushNotificationService"/> service implementation to use.</typeparam>
+        /// <typeparam name="TPushNotificationServiceAzure">The type of <see cref="IPushNotificationService"/> service implementation to use.</typeparam>
         /// <param name="builder">IdentityServer builder Interface.</param>
         /// <param name="configure">Configuration used in <see cref="Rfc6238AuthenticationService"/> service.</param>
-        public static IIdentityServerBuilder AddPushNotifications<PushNotificationServiceAzure>(this IIdentityServerBuilder builder, Action<PushNotificationOptions> configure = null) where PushNotificationServiceAzure : class, IPushNotificationService {
+        public static IIdentityServerBuilder AddPushNotifications<TPushNotificationServiceAzure>(this IIdentityServerBuilder builder, Action<PushNotificationOptions> configure = null) where TPushNotificationServiceAzure : class, IPushNotificationService {
             builder.Services.AddPushNotificationServiceAzure(configure);
             builder.Services.Configure<IdentityServerOptions>((options) => {
                 options.Discovery.CustomEntries.Add("devices", new {

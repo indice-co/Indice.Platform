@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpInterceptor, HttpRequest, HttpHandler, HttpEvent, HttpResponse } from '@angular/common/http';
 
-import { Observable, of } from 'rxjs';
+import { Observable } from 'rxjs';
 import { AuthService } from './auth.service';
 import { catchError, tap } from 'rxjs/operators';
 import { LoggerService } from './logger.service';
@@ -19,16 +19,14 @@ export class AuthInterceptor implements HttpInterceptor {
         });
         return next.handle(copiedRequest).pipe(
             tap((httpEvent: HttpEvent<any>) => {
-                if (httpEvent instanceof HttpResponse) {
-                    this._logger.log(httpEvent);
-                }
+                if (httpEvent instanceof HttpResponse) { }
             }),
             catchError((error: any) => {
                 if (error.status === 401) {
                     this._authService.signoutRedirect();
                 }
                 this._logger.log(error);
-                return of(error);
+                throw error;
             })
         );
     }

@@ -31,13 +31,10 @@ namespace Microsoft.Extensions.DependencyInjection
             return services.AddControllersWithViews()
                            .AddRazorRuntimeCompilation()
                            .AddTotp()
+                           .AddPushNotifications()
                            .AddIdentityServerApiEndpoints(options => {
                                // Configure the DbContext.
-                               options.AddDbContext(identityOptions => {
-                                   identityOptions.ConfigureDbContext = builder => {
-                                       builder.UseSqlServer(configuration.GetConnectionString("IdentityDb"));
-                                   };
-                               });
+                               options.AddDbContext(identityOptions => identityOptions.ConfigureDbContext = builder => builder.UseSqlServer(configuration.GetConnectionString("IdentityDb")));
                                // Enable events and register handlers.
                                options.CanRaiseEvents = true;
                                options.DisableCache = false;
@@ -48,7 +45,7 @@ namespace Microsoft.Extensions.DependencyInjection
                                // Update phone number options.
                                options.PhoneNumber.SendOtpOnUpdate = true;
                                // Add custom initial user and enable test data.
-                               options.SeedDummyUsers = false;
+                               options.SeedDummyUsers = true;
                                options.InitialUsers = GetInitialUsers();
                                options.CustomClaims = GetCustomClaimTypes();
                            })

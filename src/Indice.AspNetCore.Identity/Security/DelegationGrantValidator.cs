@@ -40,7 +40,6 @@ namespace Indice.AspNetCore.Identity
             }
             var subject = result.Claims.FirstOrDefault(x => x.Type == JwtClaimTypes.Subject).Value;
             context.Result = new GrantValidationResult(subject, GrantType);
-            return;
         }
     }
 }

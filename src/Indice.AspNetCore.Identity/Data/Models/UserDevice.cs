@@ -9,24 +9,30 @@ namespace Indice.AspNetCore.Identity.Data.Models
     public class UserDevice
     {
         /// <summary>
-        /// Constructs a new instance of <see cref="UserDevice"/> with a new Guid Id.
+        /// Constructs a new instance of <see cref="UserDevice"/> with a new <see cref="Guid"/> as Id.
         /// </summary>
-        public UserDevice() {
-            Id = Guid.NewGuid();
+        public UserDevice() : this(Guid.NewGuid()) { }
+
+        /// <summary>
+        /// Constructs a new instance of <see cref="UserDevice"/> using the given <see cref="Guid"/> as Id.
+        /// </summary>
+        /// <param name="id"></param>
+        public UserDevice(Guid id) {
+            Id = id;
         }
 
         /// <summary>
         /// The primary key.
         /// </summary>
-        public Guid Id { get; set; }
-        /// <summary>
-        /// The user id related.
-        /// </summary>
-        public string UserId { get; set; }
+        public Guid Id { get; }
         /// <summary>
         /// Device id.
         /// </summary>
-        public Guid DeviceId { get; set; }
+        public string DeviceId { get; set; }
+        /// <summary>
+        /// The user id related to this device.
+        /// </summary>
+        public string UserId { get; set; }
         /// <summary>
         /// Device operating system.
         /// </summary>
@@ -43,5 +49,40 @@ namespace Indice.AspNetCore.Identity.Data.Models
         /// Flag that determines if push notifications are enabled for this device.
         /// </summary>
         public bool IsPushNotificationsEnabled { get; set; }
+        /// <summary>
+        /// Associated password for device (when <see cref="InteractionMode"/> is equal to <see cref="InteractionMode.Pin"/>).
+        /// </summary>
+        public string Password { get; set; }
+        /// <summary>
+        /// Flag for pin support.
+        /// </summary>
+        public bool SupportsPinLogin => !string.IsNullOrWhiteSpace(Password);
+        /// <summary>
+        /// Device public key (when <see cref="InteractionMode"/> is equal to <see cref="InteractionMode.Fingerprint"/>).
+        /// </summary>
+        public string PublicKey { get; set; }
+        /// <summary>
+        /// Flag for fingerprint support.
+        /// </summary>
+        public bool SupportsFingerprintLogin => !string.IsNullOrWhiteSpace(PublicKey);
+        /// <summary>
+        /// The user associated with this device.
+        /// </summary>
+        public virtual User User { get; set; }
+    }
+
+    /// <summary>
+    /// Models the way a device interacts with the identity system for trusted authorization.
+    /// </summary>
+    public enum InteractionMode
+    {
+        /// <summary>
+        /// Fingerprint
+        /// </summary>
+        Fingerprint,
+        /// <summary>
+        /// 4-pin
+        /// </summary>
+        Pin
     }
 }

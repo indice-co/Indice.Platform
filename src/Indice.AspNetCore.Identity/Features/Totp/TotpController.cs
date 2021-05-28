@@ -64,21 +64,21 @@ namespace Indice.AspNetCore.Identity.Features
                 case TotpDeliveryChannel.Sms:
                     result = await TotpService.Send(options => options.UsePrincipal(User).WithMessage(request.Message).UsingSms().WithPurpose(request.Purpose));
                     if (!result.Success) {
-                        ModelState.AddModelError(nameof(request.Channel), result.Errors.FirstOrDefault() ?? "An error occured.");
+                        ModelState.AddModelError(nameof(request.Channel), result.Error ?? "An error occured.");
                         return BadRequest(new ValidationProblemDetails(ModelState));
                     }
                     break;
                 case TotpDeliveryChannel.Viber:
                     result = await TotpService.Send(options => options.UsePrincipal(User).WithMessage(request.Message).UsingViber().WithPurpose(request.Purpose));
                     if (!result.Success) {
-                        ModelState.AddModelError(nameof(request.Channel), result.Errors.FirstOrDefault() ?? "An error occured.");
+                        ModelState.AddModelError(nameof(request.Channel), result.Error ?? "An error occured.");
                         return BadRequest(new ValidationProblemDetails(ModelState));
                     }
                     break;
                 case TotpDeliveryChannel.PushNotification:
                     result = await TotpService.Send(options => options.UsePrincipal(User).WithMessage(request.Message).UsingPushNotification().WithPurpose(request.Purpose));
                     if (!result.Success) {
-                        ModelState.AddModelError(nameof(request.Channel), result.Errors.FirstOrDefault() ?? "An error occured.");
+                        ModelState.AddModelError(nameof(request.Channel), result.Error ?? "An error occured.");
                         return BadRequest(new ValidationProblemDetails(ModelState));
                     }
                     break;

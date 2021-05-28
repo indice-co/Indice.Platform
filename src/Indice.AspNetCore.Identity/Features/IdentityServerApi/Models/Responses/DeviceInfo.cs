@@ -1,5 +1,4 @@
-﻿using System;
-using Indice.Types;
+﻿using Indice.Types;
 
 namespace Indice.AspNetCore.Identity.Api.Models
 {
@@ -11,7 +10,7 @@ namespace Indice.AspNetCore.Identity.Api.Models
         /// <summary>
         /// Device id
         /// </summary>
-        public Guid DeviceId { get; set; }
+        public string DeviceId { get; set; }
 
         /// <summary>
         /// Device name

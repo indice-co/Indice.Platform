@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Indice.Types;
@@ -57,7 +58,7 @@ namespace Indice.Services
         /// <param name="userId">UserId to be passed as tag.</param>
         /// <param name="tags">Optional tag parameters.</param>
         public static async Task SendAsync(this IPushNotificationService service, string message, string userId, params string[] tags) =>
-            await service.SendAsync(message, new string[] { userId }.Concat(tags ?? new string[0]).ToList());
+            await service.SendAsync(message, new string[] { userId }.Concat(tags ?? Array.Empty<string>()).ToList());
 
         /// <summary>
         /// Send notifications to devices registered to userId.
@@ -78,17 +79,17 @@ namespace Indice.Services
     {
         ///<inheritdoc/>
         public Task Register(string deviceId, string pnsHandle, DevicePlatform devicePlatform, IList<string> tags) {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
 
         ///<inheritdoc/>
         public Task SendAsync(string message, IList<string> tags, string data = null) {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
 
         ///<inheritdoc/>
         public Task UnRegister(string deviceId) {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
     }
 }

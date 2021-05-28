@@ -18,4 +18,8 @@ export interface IAuthSettings {
     response_type: string;
     scope: string;
     silent_redirect_uri: string;
+    revokeAccessTokenOnSignout: boolean;
+    accessTokenExpiringNotificationTime: number;
+    monitorSession: boolean;
+    automaticSilentRenew: boolean;
 }

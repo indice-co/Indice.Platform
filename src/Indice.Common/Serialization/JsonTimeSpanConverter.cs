@@ -65,10 +65,11 @@ namespace Indice.Serialization
 
         /// <inheritdoc/>
         public override void Write(Utf8JsonWriter writer, TimeSpan? value, JsonSerializerOptions options) {
-            if (value.HasValue)
+            if (value.HasValue) {
                 writer.WriteStringValue(value.Value.ToString());
-            else
+            } else {
                 writer.WriteNullValue();
+            }
         }
     }
 }

@@ -55,8 +55,6 @@ namespace Microsoft.Extensions.DependencyInjection
             services.Configure<AntiforgeryOptions>(options => {
                 options.HeaderName = CustomHeaderNames.AntiforgeryHeaderName;
             });
-            // Try register the extended version of UserManager<DbUser>.
-            services.TryAddScoped<ExtendedUserManager<User>>();
             services.TryAddScoped<IdentityMessageDescriber>();
             // Register the authentication handler, using a custom scheme name, for local APIs.
             services.AddAuthentication()

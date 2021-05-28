@@ -24,6 +24,7 @@ namespace Indice.AspNetCore.Identity.Data
             .RuleFor(x => x.PhoneNumber, faker => faker.Phone.PhoneNumber())
             .RuleFor(x => x.PhoneNumberConfirmed, faker => faker.PickRandom(true, false))
             .RuleFor(x => x.EmailConfirmed, faker => faker.PickRandom(true, false))
+            .RuleFor(x => x.LastSignInDate, faker => faker.Date.PastOffset(2))
             .RuleFor(x => x.Claims, (faker, user) => {
                 user.Claims.Add(new IdentityUserClaim<string> {
                     ClaimType = JwtClaimTypes.GivenName,

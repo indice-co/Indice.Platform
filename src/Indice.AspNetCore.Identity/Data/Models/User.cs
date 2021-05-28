@@ -80,9 +80,13 @@ namespace Indice.AspNetCore.Identity.Data.Models
         /// </summary>
         public virtual ICollection<IdentityUserClaim<string>> Claims { get; } = new List<IdentityUserClaim<string>>();
         /// <summary>
-        /// Navigation property for this users login accounts.
+        /// Navigation property for the user's login accounts.
         /// </summary>
         public virtual ICollection<IdentityUserLogin<string>> Logins { get; } = new List<IdentityUserLogin<string>>();
+        /// <summary>
+        /// Navigation property for the user's registered devices.
+        /// </summary>
+        public virtual ICollection<UserDevice> Devices { get; } = new List<UserDevice>();
 
         /// <summary>
         /// Calculates the next date that the user must change his password. Th

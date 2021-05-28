@@ -10,7 +10,7 @@ namespace Indice.AspNetCore.Identity.Data
     /// <summary>
     /// An extended <see cref="DbContext"/> for the Identity framework.
     /// </summary>
-    public class ExtendedIdentityDbContext<TUser, TRole> : IdentityDbContext<TUser, TRole>
+    public sealed class ExtendedIdentityDbContext<TUser, TRole> : IdentityDbContext<TUser, TRole>
         where TUser : User, new()
         where TRole : Role, new()
     {
