@@ -13,6 +13,7 @@
   "private": true,
   "dependencies": {
     "@angular/animations": "9.1.11",
+    "@angular/cdk": "9.2.4",
     "@angular/common": "9.1.11",
     "@angular/compiler": "9.1.11",
     "@angular/core": "9.1.11",
@@ -25,6 +26,7 @@
     "@ngx-progressbar/core": "5.3.2",
     "@ngx-progressbar/http": "5.3.2",
     "@sweetalert2/ngx-sweetalert2": "8.1.1",
+    "@swimlane/ngx-charts": "18.0.1",
     "@swimlane/ngx-datatable": "17.0.0",
     "bootstrap": "4.5.0",
     "file-saver": "2.0.5",

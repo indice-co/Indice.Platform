@@ -4,7 +4,6 @@ using System.Linq;
 using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
-using Indice.AspNetCore.Identity.Data;
 using Indice.AspNetCore.Identity.Data.Models;
 using Indice.AspNetCore.Identity.Extensions;
 using Microsoft.AspNetCore.Identity;
