@@ -9253,6 +9253,52 @@ export enum AccessTokenType {
     Reference = "Reference",
 }
 
+/** Models percentage of user activity. */
+export class ActiveUsersInfo implements IActiveUsersInfo {
+    day?: SummaryStatistic;
+    week?: SummaryStatistic;
+    month?: SummaryStatistic;
+
+    constructor(data?: IActiveUsersInfo) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.day = _data["day"] ? SummaryStatistic.fromJS(_data["day"]) : <any>undefined;
+            this.week = _data["week"] ? SummaryStatistic.fromJS(_data["week"]) : <any>undefined;
+            this.month = _data["month"] ? SummaryStatistic.fromJS(_data["month"]) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): ActiveUsersInfo {
+        data = typeof data === 'object' ? data : {};
+        let result = new ActiveUsersInfo();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["day"] = this.day ? this.day.toJSON() : <any>undefined;
+        data["week"] = this.week ? this.week.toJSON() : <any>undefined;
+        data["month"] = this.month ? this.month.toJSON() : <any>undefined;
+        return data; 
+    }
+}
+
+/** Models percentage of user activity. */
+export interface IActiveUsersInfo {
+    day?: SummaryStatistic;
+    week?: SummaryStatistic;
+    month?: SummaryStatistic;
+}
+
 /** Models a new user that is registering on the system. */
 export class ApiRegisterRequest implements IApiRegisterRequest {
     /** The first name of the user. */
@@ -12877,10 +12923,15 @@ export interface ISingleUserInfo {
 
 /** Contains summary information about the system. */
 export class SummaryInfo implements ISummaryInfo {
+    /** Indicates the point in time where the statistics where last updated. */
+    lastUpdated?: Date;
     /** The total number of users. */
-    numberOfUsers?: number;
-    /** The total number of users. */
-    numberOfClients?: number;
+    users?: number;
+    /** The total number of clients. */
+    clients?: number;
+    /** The total number of roles. */
+    roles?: number;
+    activerUsers?: ActiveUsersInfo;
 
     constructor(data?: ISummaryInfo) {
         if (data) {
@@ -12893,8 +12944,11 @@ export class SummaryInfo implements ISummaryInfo {
 
     init(_data?: any) {
         if (_data) {
-            this.numberOfUsers = _data["numberOfUsers"];
-            this.numberOfClients = _data["numberOfClients"];
+            this.lastUpdated = _data["lastUpdated"] ? new Date(_data["lastUpdated"].toString()) : <any>undefined;
+            this.users = _data["users"];
+            this.clients = _data["clients"];
+            this.roles = _data["roles"];
+            this.activerUsers = _data["activerUsers"] ? ActiveUsersInfo.fromJS(_data["activerUsers"]) : <any>undefined;
         }
     }
 
@@ -12907,18 +12961,72 @@ export class SummaryInfo implements ISummaryInfo {
 
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
-        data["numberOfUsers"] = this.numberOfUsers;
-        data["numberOfClients"] = this.numberOfClients;
+        data["lastUpdated"] = this.lastUpdated ? this.lastUpdated.toISOString() : <any>undefined;
+        data["users"] = this.users;
+        data["clients"] = this.clients;
+        data["roles"] = this.roles;
+        data["activerUsers"] = this.activerUsers ? this.activerUsers.toJSON() : <any>undefined;
         return data; 
     }
 }
 
 /** Contains summary information about the system. */
 export interface ISummaryInfo {
+    /** Indicates the point in time where the statistics where last updated. */
+    lastUpdated?: Date;
     /** The total number of users. */
-    numberOfUsers?: number;
-    /** The total number of users. */
-    numberOfClients?: number;
+    users?: number;
+    /** The total number of clients. */
+    clients?: number;
+    /** The total number of roles. */
+    roles?: number;
+    activerUsers?: ActiveUsersInfo;
+}
+
+/** Models a statistic value, */
+export class SummaryStatistic implements ISummaryStatistic {
+    /** The count. */
+    count?: number;
+    /** The percent. */
+    percent?: number;
+
+    constructor(data?: ISummaryStatistic) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.count = _data["count"];
+            this.percent = _data["percent"];
+        }
+    }
+
+    static fromJS(data: any): SummaryStatistic {
+        data = typeof data === 'object' ? data : {};
+        let result = new SummaryStatistic();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["count"] = this.count;
+        data["percent"] = this.percent;
+        return data; 
+    }
+}
+
+/** Models a statistic value, */
+export interface ISummaryStatistic {
+    /** The count. */
+    count?: number;
+    /** The percent. */
+    percent?: number;
 }
 
 export enum TokenExpiration {

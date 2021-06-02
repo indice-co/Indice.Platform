@@ -51,7 +51,7 @@ namespace Indice.Extensions.Configuration
             using (var dbContext = new IdentityDbContext(builder.Options)) {
                 var canConnect = await dbContext.Database.CanConnectAsync();
                 if (canConnect) {
-                    var data = await dbContext.AppSettings.ToDictionaryAsync(x => x.Key, y => y.Value);
+                    var data = await dbContext.AppSettings.ToDictionaryAsync(x => x.Key, y => y.Value, StringComparer.OrdinalIgnoreCase);
                     if (data != null) {
                         Data = data;
                     }

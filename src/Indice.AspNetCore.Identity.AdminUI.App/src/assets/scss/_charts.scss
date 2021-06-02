@@ -1,224 +1,160 @@
-/* ==============
-  Charts
-===================*/
-
-.jqstooltip {
-  -webkit-box-sizing: content-box;
-  -moz-box-sizing: content-box;
-  box-sizing: content-box;
-}
-.chart {
+// ===================Semi Donut Chart model-1========================
+.semi-donut {
+  --percentage: 0;
+  --fill: #ff0;
+  width: 300px;
+  height: 150px;
   position: relative;
-  display: inline-block;
-  width: 110px;
-  height: 110px;
-  margin-top: 20px;
-  margin-bottom: 20px;
-  text-align: center;
-  canvas {
-    position: absolute;
-    top: 0;
-    left: 0;
-  }
-}
-
-.chart.chart-widget-pie {
-  margin-top: 5px;
-  margin-bottom: 5px;
-}
-
-.percent {
-  display: inline-block;
-  line-height: 110px;
-  z-index: 2;
-
-  &:after {
-    content: '%';
-    margin-left: 0.1em;
-    font-size: .8em;
-  }
-}
-
-
-/* Morris chart */
-
-.morris-chart {
-  text {
-    font-family: $font-primary !important;
-  }
-}
-.morris-hover.morris-default-style {
-  border-radius: 5px;
-  padding: 10px 12px;
-  background: $white;
-  border: none;
-  font-family: $font-primary;
-  box-shadow: 0 5px 25px 5px rgba(0, 0, 0, 0.14);
-
-  .morris-hover-point {
-    font-weight: 500;
-    font-size: 14px;
-    color: $dark !important;
-  }
-  .morris-hover-row-label {
-    background-color: $dark;
-    color: $white;
-    padding: 4px;
-    border-radius: 5px 5px 0 0;
-    margin: -10px -12px 10px;
-  }
-}
-
-/* Flot chart */
-#flotTip {
-  padding: 8px 12px;
-  background-color: $white;
-  z-index: 100;
-  color: $dark;
-  box-shadow: 0 5px 25px 5px rgba(0, 0, 0, 0.14);
-  border-radius: 1px;
-}
-
-/* Chartist chart */
-.ct-golden-section:before {
-  float: none;
-}
-.ct-chart {
-  height: 300px;
-}
-.ct-grid {
-  stroke: rgba(0, 0, 0, 0.09);
-  stroke-width: 2px;
-  stroke-dasharray: 3px;
-}
-.ct-chart .ct-label {
-  fill: $muted;
-  color: $muted;
-  font-size: 14px;
-  line-height: 1;
-}
-.ct-chart.simple-pie-chart-chartist .ct-label {
-  color: $white;
-  fill: $white;
-  font-size: 16px;
-}
-.ct-chart .ct-series.ct-series-a .ct-bar,
-.ct-chart .ct-series.ct-series-a .ct-line,
-.ct-chart .ct-series.ct-series-a .ct-point,
-.ct-chart .ct-series.ct-series-a .ct-slice-donut {
-  stroke: $primary;
-}
-.ct-chart .ct-series.ct-series-b .ct-bar,
-.ct-chart .ct-series.ct-series-b .ct-line,
-.ct-chart .ct-series.ct-series-b .ct-point,
-.ct-chart .ct-series.ct-series-b .ct-slice-donut {
-  stroke: $success;
-}
-.ct-chart .ct-series.ct-series-c .ct-bar,
-.ct-chart .ct-series.ct-series-c .ct-line,
-.ct-chart .ct-series.ct-series-c .ct-point,
-.ct-chart .ct-series.ct-series-c .ct-slice-donut {
-  stroke: $warning;
-}
-.ct-chart .ct-series.ct-series-d .ct-bar,
-.ct-chart .ct-series.ct-series-d .ct-line,
-.ct-chart .ct-series.ct-series-d .ct-point,
-.ct-chart .ct-series.ct-series-d .ct-slice-donut {
-  stroke: $dark;
-}
-.ct-chart .ct-series.ct-series-e .ct-bar,
-.ct-chart .ct-series.ct-series-e .ct-line,
-.ct-chart .ct-series.ct-series-e .ct-point,
-.ct-chart .ct-series.ct-series-e .ct-slice-donut {
-  stroke: $info;
-}
-.ct-chart .ct-series.ct-series-f .ct-bar,
-.ct-chart .ct-series.ct-series-f .ct-line,
-.ct-chart .ct-series.ct-series-f .ct-point,
-.ct-chart .ct-series.ct-series-f .ct-slice-donut {
-  stroke: $danger;
-}
-.ct-chart .ct-series.ct-series-g .ct-bar,
-.ct-chart .ct-series.ct-series-g .ct-line,
-.ct-chart .ct-series.ct-series-g .ct-point,
-.ct-chart .ct-series.ct-series-g .ct-slice-donut {
-  stroke: $light;
-}
-.ct-series-a .ct-area,
-.ct-series-a .ct-slice-pie {
-  fill: $primary;
-}
-.ct-series-b .ct-area,
-.ct-series-b .ct-slice-pie {
-  fill: $warning;
-}
-.ct-series-c .ct-area,
-.ct-series-c .ct-slice-pie {
-  fill: $dark;
-}
-
-.chartist-tooltip {
-  position: absolute;
-  display: inline-block;
-  opacity: 0;
-  min-width: 10px;
-  padding: 2px 10px;
-  -webkit-border-radius: 3px;
-  border-radius: 3px;
-  -moz-border-radius: 3px;
-  background-clip: padding-box;
-  background: $dark;
-  color: $white;
-  text-align: center;
-  pointer-events: none;
-  z-index: 1;
-  -webkit-transition: opacity .2s linear;
-  -moz-transition: opacity .2s linear;
-  -o-transition: opacity .2s linear;
-  transition: opacity .2s linear;
-}
-.chartist-tooltip.tooltip-show {
-  opacity: 1;
-}
-
-/* C3 chart */
-.c3 svg {
-  max-width: 100%;
-}
-.c3-tooltip td>span {
-  background: $dark;
-}
-.c3-tooltip td {
-  border-left: none;
-}
-.c3-tooltip {
-  box-shadow: 0 8px 40px 0 rgba(0, 0, 0, 0.12);
-  opacity: 1;
-}
-.c3-chart-arcs-title {
-  font-size: 18px;
+  color: #fff;
+  font-size: 22px;
   font-weight: 600;
-  font-family: $font-primary;
-}
-.c3-tooltip tr {
-  border: none !important;
-}
-.c3-tooltip th {
-  background-color: $dark;
-}
-
-.c3-tooltip {
-  .value {
-    font-weight: 600;
-    font-family: $font-primary;
+  overflow: hidden;
+  color: var(--fill);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  box-sizing : border-box;
+  &:after {
+    content: '';
+    width: 300px;
+    height: 300px;
+    border:50px solid;
+    border-color : rgba(0,0,0,0.15) rgba(0,0,0,0.15) var(--fill) var(--fill);
+    position: absolute;
+    border-radius: 50%;
+    left: 0;
+    top: 0;
+    box-sizing : border-box;
+    transform: rotate( calc( 1deg * ( -45 + var(--percentage) * 1.8 ) ) );
+    animation : fillAnimation 1s ease-in;
   }
 }
 
-.c3-line {
-  stroke-width: 2px;
+
+// ===================Semi Donut Chart model-2========================
+.semi-donut-model-2 {
+  width: 300px;
+  height: 150px;
+  position: relative;
+  text-align: center;
+  color: #fff;
+  font-size: 22px;
+  font-weight: 600;
+  border-radius: 150px 150px 0 0;
+  overflow: hidden;
+  color: var(--fill);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  box-sizing : border-box;
+  &:before, &:after {
+    content: '';
+    width: 300px;
+    height: 150px;
+    border:50px solid var(--fill);
+    border-top: none;
+    position: absolute;
+    transform-origin :50%  0% 0;
+    border-radius: 0 0 300px 300px ;
+    box-sizing : border-box;
+    left: 0;
+    top: 100%;
+  }
+  &:before {
+    border-color:rgba(0,0,0,.15);
+    transform: rotate(180deg);
+  }
+  &:after {
+      z-index: 3;
+     animation : 1s fillGraphAnimation ease-in;
+    transform: rotate( calc( 1deg * ( var(--percentage) * 1.8 ) ) );
+  }
+  &:hover {
+     &:after {
+        opacity: .8;
+        cursor: pointer;
+      }
+  }
 }
 
-.c3-legend-item {
-  font-size: 13px;
-  font-family: $font-primary;
+// ===================Multi Semi Donut Chart ========================
+.multi-graph {
+  margin: 0 auto !important;
+  width: 300px;
+  height: 150px;
+  position: relative;
+  color: #fff;
+  font-size: 22px;
+  font-weight: 600;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  overflow: hidden;
+  box-sizing : border-box;
+   &:before{
+    content: '';
+    width: 300px;
+    height: 150px;
+    border:50px solid rgba(0,0,0,.15);
+    border-bottom: none;
+    position: absolute;
+    box-sizing : border-box;
+    transform-origin: 50%  0%;
+    border-radius: 300px 300px 0 0 ;
+    left: 0;
+    top: 0;
+  }
+  .graph {
+    width: 300px;
+    height: 150px;
+    border:50px solid var(--fill);
+    border-top: none;
+    position: absolute;
+    transform-origin :50%  0% 0;
+    border-radius: 0 0 300px 300px ;
+    left: 0;
+    top: 100%;
+    z-index: 5;
+    animation : 1s fillGraphAnimation ease-in;
+    transform: rotate( calc( 1deg * ( var(--percentage) * 1.8 ) ) );
+    box-sizing : border-box;
+    cursor: pointer;
+    &:after {
+      content: attr(data-name);
+      counter-reset: varible var(--percentage);
+      background: var(--fill) ;
+      box-sizing : border-box;
+      border-radius : 2px;
+      color: #fff;
+      font-weight: 200;
+      font-size: 12px;
+      height: 20px;
+      padding: 3px 5px;
+      top: 0px;
+      position: absolute;
+      left: 0;
+      transform: rotate(calc( -1deg * var(--percentage) * 1.8 )) translate(-30px , 0px);
+      transition:0.2s ease-in;
+      transform-origin: 0 50% 0;
+      opacity: 0;
+    }
+    &:hover {
+        opacity: 0.8;
+      &:after {
+        opacity: 1;
+        left: 25px;
+        top: -25px;
+      }
+    }
+  }
+}
+
+@keyframes fillAnimation{
+  0%{transform : rotate(-45deg);}
+  50%{transform: rotate(135deg);}
+}
+
+@keyframes fillGraphAnimation{
+  0%{transform: rotate(0deg);}
+  50%{transform: rotate(180deg);}
 }

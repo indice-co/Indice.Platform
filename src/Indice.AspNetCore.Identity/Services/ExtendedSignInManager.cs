@@ -48,7 +48,7 @@ namespace Indice.AspNetCore.Identity
             IConfiguration configuration,
             IAuthenticationSchemeProvider authenticationSchemeProvider
         ) : base(userManager, contextAccessor, claimsFactory, optionsAccessor, logger, schemes, confirmation) {
-            RequirePostSignInConfirmedEmail = configuration.GetSection($"{nameof(IdentityOptions)}:{nameof(IdentityOptions.SignIn)}").GetValue<bool?>(nameof(RequirePostSignInConfirmedEmail)) == true ||
+            RequirePostSignInConfirmedEmail = configuration.GetValue<bool?>($"{nameof(IdentityOptions)}:{nameof(IdentityOptions.SignIn)}:{nameof(RequirePostSignInConfirmedEmail)}") == true ||
                                               configuration.GetSection(nameof(SignInOptions)).GetValue<bool?>(nameof(RequirePostSignInConfirmedEmail)) == true;
             RequirePostSignInConfirmedPhoneNumber = configuration.GetSection($"{nameof(IdentityOptions)}:{nameof(IdentityOptions.SignIn)}").GetValue<bool?>(nameof(RequirePostSignInConfirmedPhoneNumber)) == true ||
                                                     configuration.GetSection(nameof(SignInOptions)).GetValue<bool?>(nameof(RequirePostSignInConfirmedPhoneNumber)) == true;

@@ -7,15 +7,19 @@
                 </div>
             </div>
         </div>
-        <h5 class="m-t-20 m-b-30">Overview</h5>
-        <div class="row">
+        <h5 class="m-t-20 m-b-30"
+            *ngIf="summary.users > 0">
+            Overview
+        </h5>
+        <div class="row"
+             *ngIf="summary.users > 0">
             <div class="col-xl-3 col-md-6"
                  *ngIf="authService.isAdminUIUsersReader()">
                 <div class="card bg-primary mini-stat text-white">
                     <div class="p-3 mini-stat-desc">
                         <div class="clearfix">
                             <h6 class="text-uppercase mt-0 float-left text-white-50">Users</h6>
-                            <h4 class="mb-3 mt-0 float-right">{{ summary.numberOfUsers }}</h4>
+                            <h4 class="mb-3 mt-0 float-right">{{ summary.users }}</h4>
                         </div>
                     </div>
                     <div class="p-3">
@@ -34,7 +38,7 @@
                     <div class="p-3 mini-stat-desc">
                         <div class="clearfix">
                             <h6 class="text-uppercase mt-0 float-left text-white-50">Clients</h6>
-                            <h4 class="mb-3 mt-0 float-right">{{ summary.numberOfClients }}</h4>
+                            <h4 class="mb-3 mt-0 float-right">{{ summary.clients }}</h4>
                         </div>
                     </div>
                     <div class="p-3">
@@ -47,9 +51,70 @@
                     </div>
                 </div>
             </div>
+            <div class="col-xl-3 col-md-6"
+                 *ngIf="authService.isAdminUIUsersReader()">
+                <div class="card bg-warning mini-stat text-white">
+                    <div class="p-3 mini-stat-desc">
+                        <div class="clearfix">
+                            <h6 class="text-uppercase mt-0 float-left text-white-50">Roles</h6>
+                            <h4 class="mb-3 mt-0 float-right">{{ summary.roles }}</h4>
+                        </div>
+                    </div>
+                    <div class="p-3">
+                        <div class="float-right">
+                            <a class="text-white-50"
+                               [routerLink]="'/app/roles'">
+                                <i class="material-icons">security</i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
-        <h5 class="m-t-20 m-b-30">Latest News</h5>
-        <div class="card-columns">
+        <h5 class="mb-0"
+            *ngIf="authService.isAdminUIUsersReader() && summary.users > 0">
+            Activity
+        </h5>
+        <p class="text-muted font-14 m-b-30"
+           *ngIf="authService.isAdminUIUsersReader() && summary.users > 0">
+            last updated {{ summary.lastUpdated | date : 'dd/MM/yyyy HH:mm'}}
+        </p>
+        <div class="row"
+             *ngIf="authService.isAdminUIUsersReader() && summary.users > 0">
+            <div class="col-xl-4 col-md-6">
+                <div class="multi-graph margin">
+                    <span style="color: black;">{{ summary.activerUsers.day.count }} today</span>
+                    <div class="graph"
+                         [attr.data-name]="summary.activerUsers.day.percent + '%'"
+                         style="--percentage: {{ summary.activerUsers.day.percent }}; --fill: #5985ee;">
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-4 col-md-6">
+                <div class="multi-graph margin">
+                    <span style="color: black;">{{ summary.activerUsers.week.count }} this week</span>
+                    <div class="graph"
+                         [attr.data-name]="summary.activerUsers.week.percent + '%'"
+                         style="--percentage: {{ summary.activerUsers.week.percent }}; --fill: #5985ee;">
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-4 col-md-6">
+                <div class="multi-graph margin">
+                    <span style="color: black;">{{ summary.activerUsers.month.count }} this month</span>
+                    <div class="graph"
+                         [attr.data-name]="summary.activerUsers.month.percent + '%'"
+                         style="--percentage: {{ summary.activerUsers.month.percent }}; --fill: #5985ee;">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <h5 class="m-t-40 m-b-30"
+            *ngIf="blogItems.length > 0">
+            Latest News
+        </h5>
+        <div class="card-columns"
+             *ngIf="blogItems">
             <div class="card m-b-30 card-body"
                  *ngFor="let item of blogItems; let i = index">
                 <h4 class="card-title font-16 mt-0">
