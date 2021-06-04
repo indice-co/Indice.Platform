@@ -23,12 +23,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
   public blogItems: BlogItemInfo[] = [];
   public totalNumberOfPosts = 0;
   public summary = new SummaryInfo();
-  public dailyActiveUsersResult = [];
-  public weeklyActiveUsersResult = [];
-  public monthlyActiveUsersResult = [];
-  public colorScheme = {
-    domain: ['#5985ee', '#ececec']
-  };
 
   public ngOnInit(): void {
     const getSummary = this._api.getSystemSummary();
@@ -42,7 +36,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
       this.totalNumberOfPosts = result.posts.count;
       this.blogItems = result.posts.items;
       this.summary = result.summary;
-      this.calculateDiagrams();
     });
   }
 
@@ -61,29 +54,5 @@ export class DashboardComponent implements OnInit, OnDestroy {
       this.totalNumberOfPosts = response.count;
       this.blogItems.push(...response.items);
     });
-  }
-
-  private calculateDiagrams(): void {
-    this.dailyActiveUsersResult = [{
-      name: 'Daily active users',
-      value: this.summary.activity.day.count
-    }, {
-      name: 'Other users',
-      value: this.summary.totalUsers - this.summary.activity.day.count
-    }];
-    this.weeklyActiveUsersResult = [{
-      name: 'Weekly active users',
-      value: this.summary.activity.week.count
-    }, {
-      name: 'Other users',
-      value: this.summary.totalUsers - this.summary.activity.week.count
-    }];
-    this.monthlyActiveUsersResult = [{
-      name: 'Monthly active users',
-      value: this.summary.activity.month.count
-    }, {
-      name: 'Other users',
-      value: this.summary.totalUsers - this.summary.activity.month.percent
-    }];
   }
 }
