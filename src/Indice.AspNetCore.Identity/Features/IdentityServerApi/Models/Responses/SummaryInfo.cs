@@ -10,29 +10,33 @@ namespace Indice.AspNetCore.Identity.Api.Models
         /// <summary>
         /// Indicates the point in time where the statistics where last updated.
         /// </summary>
-        public DateTime LastUpdated { get; set; }
+        public DateTime LastUpdatedAt { get; set; }
         /// <summary>
         /// The total number of users.
         /// </summary>
-        public int Users { get; set; }
+        public int TotalUsers { get; set; }
         /// <summary>
         /// The total number of clients.
         /// </summary>
-        public int Clients { get; set; }
+        public int TotalClients { get; set; }
         /// <summary>
         /// The total number of roles.
         /// </summary>
-        public int Roles { get; set; }
+        public int TotalRoles { get; set; }
         /// <summary>
         /// Contains percentage of user activity.
         /// </summary>
-        public ActiveUsersInfo ActiverUsers { get; set; }
+        public UsersActivityInfo Activity { get; set; }
+        /// <summary>
+        /// User statistics.
+        /// </summary>
+        public UsersStatisticsInfo Stats { get; set; }
     }
 
     /// <summary>
     /// Models percentage of user activity.
     /// </summary>
-    public class ActiveUsersInfo
+    public class UsersActivityInfo
     {
         /// <summary>
         /// Daily basis.
@@ -46,6 +50,21 @@ namespace Indice.AspNetCore.Identity.Api.Models
         /// Monthly basis.
         /// </summary>
         public SummaryStatistic Month { get; set; }
+    }
+
+    /// <summary>
+    /// Models various user statistics.
+    /// </summary>
+    public class UsersStatisticsInfo
+    {
+        /// <summary>
+        /// Users with verified emails.
+        /// </summary>
+        public SummaryStatistic EmailsVerified { get; set; }
+        /// <summary>
+        /// Users with verified phone numbers.
+        /// </summary>
+        public SummaryStatistic PhoneNumbersVerified { get; set; }
     }
 
     /// <summary>

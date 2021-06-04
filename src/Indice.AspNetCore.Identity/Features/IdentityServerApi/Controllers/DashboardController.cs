@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using System.Xml;
 using IdentityModel;
 using Indice.AspNetCore.Filters;
+using Indice.AspNetCore.Identity.Api.Configuration;
 using Indice.AspNetCore.Identity.Api.Filters;
 using Indice.AspNetCore.Identity.Api.Models;
 using Indice.AspNetCore.Identity.Api.Security;
@@ -19,6 +20,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.FeatureManagement;
 
 namespace Indice.AspNetCore.Identity.Api.Controllers
 {
@@ -37,6 +39,7 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
         private readonly ExtendedUserManager<User> _userManager;
         private readonly ExtendedConfigurationDbContext _configurationDbContext;
         private readonly RoleManager<Role> _roleManager;
+        private readonly IFeatureManager _featureManager;
         /// <summary>
         /// The name of the controller.
         /// </summary>
@@ -48,14 +51,17 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
         /// <param name="userManager">Provides the APIs for managing user in a persistence store.</param>
         /// <param name="configurationDbContext">Abstraction for the configuration context.</param>
         /// <param name="roleManager">Provides the APIs for managing roles in a persistence store.</param>
+        /// <param name="featureManager">Used to evaluate whether a feature is enabled or disabled.</param>
         public DashboardController(
             ExtendedUserManager<User> userManager,
             ExtendedConfigurationDbContext configurationDbContext,
-            RoleManager<Role> roleManager
+            RoleManager<Role> roleManager,
+            IFeatureManager featureManager
         ) {
             _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
             _configurationDbContext = configurationDbContext ?? throw new ArgumentNullException(nameof(configurationDbContext));
             _roleManager = roleManager ?? throw new ArgumentNullException(nameof(roleManager));
+            _featureManager = featureManager ?? throw new ArgumentNullException(nameof(featureManager));
         }
 
         /// <summary>
@@ -104,20 +110,30 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
             var numberOfRoles = User.CanReadUsers() ? await _roleManager.Roles.CountAsync() : 0;
             // Get total number of clients in the system.
             var numberOfClients = User.CanReadClients() ? await _configurationDbContext.Clients.CountAsync() : 0;
+            var metrics = new SummaryInfo {
+                LastUpdatedAt = DateTime.UtcNow,
+                TotalUsers = numberOfUsers,
+                TotalRoles = numberOfRoles,
+                TotalClients = numberOfClients
+            };
+            var metricsFeatureEnabled = await _featureManager.IsEnabledAsync(IdentityServerApiFeatures.DashboardMetrics);
+            if (!metricsFeatureEnabled || !User.CanReadUsers()) {
+                return Ok(metrics);
+            }
             // Get percentage of active users (users that have logged into the system) on a daily/weekly/monthly basis.
             var dailyActiveUsers = await _userManager.Users.CountAsync(x => x.LastSignInDate >= DateTime.UtcNow.Date);
             var weeklyActiveUsers = await _userManager.Users.CountAsync(x => x.LastSignInDate >= DateTime.UtcNow.Date.AddDays(-7));
             var monthlyActiveUsers = await _userManager.Users.CountAsync(x => x.LastSignInDate >= DateTime.UtcNow.Date.AddDays(-30));
-            var metrics = new SummaryInfo {
-                LastUpdated = DateTime.UtcNow,
-                Users = numberOfUsers,
-                Roles = numberOfRoles,
-                Clients = numberOfClients,
-                ActiverUsers = new ActiveUsersInfo {
-                    Day = new SummaryStatistic(count: dailyActiveUsers, percent: Math.Round(dailyActiveUsers / (double)numberOfUsers * 100, 2)),
-                    Week = new SummaryStatistic(count: weeklyActiveUsers, percent: Math.Round(weeklyActiveUsers / (double)numberOfUsers * 100, 2)),
-                    Month = new SummaryStatistic(count: monthlyActiveUsers, percent: Math.Round(monthlyActiveUsers / (double)numberOfUsers * 100, 2))
-                }
+            metrics.Activity = new UsersActivityInfo {
+                Day = new SummaryStatistic(count: dailyActiveUsers, percent: Math.Round(dailyActiveUsers / (double)numberOfUsers * 100, 2)),
+                Week = new SummaryStatistic(count: weeklyActiveUsers, percent: Math.Round(weeklyActiveUsers / (double)numberOfUsers * 100, 2)),
+                Month = new SummaryStatistic(count: monthlyActiveUsers, percent: Math.Round(monthlyActiveUsers / (double)numberOfUsers * 100, 2))
+            };
+            var userWithVerifiedEmail = await _userManager.Users.CountAsync(x => x.EmailConfirmed);
+            var userWithVerifiedPhoneNumber = await _userManager.Users.CountAsync(x => x.PhoneNumberConfirmed);
+            metrics.Stats = new UsersStatisticsInfo {
+                EmailsVerified = new SummaryStatistic(count: userWithVerifiedEmail, percent: Math.Round(userWithVerifiedEmail / (double)numberOfUsers * 100, 2)),
+                PhoneNumbersVerified = new SummaryStatistic(count: userWithVerifiedPhoneNumber, percent: Math.Round(userWithVerifiedPhoneNumber / (double)numberOfUsers * 100, 2))
             };
             return Ok(metrics);
         }

@@ -93,7 +93,7 @@ namespace Indice.Services
             await NotificationHub.CreateOrUpdateInstallationAsync(installationRequest);
         }
 
-        ///<inheritdoc/>
+        /// <inheritdoc/>
         public async Task UnRegister(string deviceId) {
             if (string.IsNullOrEmpty(deviceId)) {
                 throw new ArgumentNullException(nameof(deviceId));
@@ -101,7 +101,7 @@ namespace Indice.Services
             await NotificationHub.DeleteInstallationAsync(deviceId);
         }
 
-        ///<inheritdoc/>
+        /// <inheritdoc/>
         public async Task SendAsync(string message, IList<string> tags, string data = null) {
             if (string.IsNullOrEmpty(message)) {
                 throw new ArgumentNullException(nameof(message));

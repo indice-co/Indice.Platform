@@ -9,7 +9,7 @@
     <GenerateEmbeddedFilesManifest>true</GenerateEmbeddedFilesManifest>
     <SpaDistFolder>..\Indice.AspNetCore.Identity.AdminUI.App\dist\indice_admin_ui</SpaDistFolder>
     <TargetFrameworks>netcoreapp3.1;net5.0</TargetFrameworks>
-    <VersionPrefix>5.0.8</VersionPrefix>
+    <VersionPrefix>5.0.9</VersionPrefix>
     <LangVersion>Latest</LangVersion>
   </PropertyGroup>
   <PropertyGroup Label="Package">
@@ -21,7 +21,7 @@
     <PackageId>Indice.AspNetCore.Identity.AdminUI</PackageId>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/indice-co/Indice.AspNet</PackageProjectUrl>
-    <PackageReleaseNotes>Allowing bypassing password rules when creating user or setting password.</PackageReleaseNotes>
+    <PackageReleaseNotes>Add metrics.</PackageReleaseNotes>
     <PackageTags>AspNetCore;IdentityServer;AdminUI</PackageTags>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <RepositoryType>git</RepositoryType>

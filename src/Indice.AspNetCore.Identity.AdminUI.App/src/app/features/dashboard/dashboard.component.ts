@@ -66,24 +66,24 @@ export class DashboardComponent implements OnInit, OnDestroy {
   private calculateDiagrams(): void {
     this.dailyActiveUsersResult = [{
       name: 'Daily active users',
-      value: this.summary.activerUsers.day.count
+      value: this.summary.activity.day.count
     }, {
       name: 'Other users',
-      value: this.summary.users - this.summary.activerUsers.day.count
+      value: this.summary.totalUsers - this.summary.activity.day.count
     }];
     this.weeklyActiveUsersResult = [{
       name: 'Weekly active users',
-      value: this.summary.activerUsers.week.count
+      value: this.summary.activity.week.count
     }, {
       name: 'Other users',
-      value: this.summary.users - this.summary.activerUsers.week.count
+      value: this.summary.totalUsers - this.summary.activity.week.count
     }];
     this.monthlyActiveUsersResult = [{
       name: 'Monthly active users',
-      value: this.summary.activerUsers.month.count
+      value: this.summary.activity.month.count
     }, {
       name: 'Other users',
-      value: this.summary.users - this.summary.activerUsers.month.percent
+      value: this.summary.totalUsers - this.summary.activity.month.percent
     }];
   }
 }

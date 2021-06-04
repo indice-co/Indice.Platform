@@ -13,23 +13,22 @@
   display: flex;
   align-items: flex-end;
   justify-content: center;
-  box-sizing : border-box;
+  box-sizing: border-box;
   &:after {
-    content: '';
+    content: "";
     width: 300px;
     height: 300px;
-    border:50px solid;
-    border-color : rgba(0,0,0,0.15) rgba(0,0,0,0.15) var(--fill) var(--fill);
+    border: 50px solid;
+    border-color: rgba(0, 0, 0, 0.15) rgba(0, 0, 0, 0.15) var(--fill) var(--fill);
     position: absolute;
     border-radius: 50%;
     left: 0;
     top: 0;
-    box-sizing : border-box;
-    transform: rotate( calc( 1deg * ( -45 + var(--percentage) * 1.8 ) ) );
-    animation : fillAnimation 1s ease-in;
+    box-sizing: border-box;
+    transform: rotate(calc(1deg * (-45 + var(--percentage) * 1.8)));
+    animation: fillAnimation 1s ease-in;
   }
 }
-
 
 // ===================Semi Donut Chart model-2========================
 .semi-donut-model-2 {
@@ -46,34 +45,35 @@
   display: flex;
   align-items: flex-end;
   justify-content: center;
-  box-sizing : border-box;
-  &:before, &:after {
-    content: '';
+  box-sizing: border-box;
+  &:before,
+  &:after {
+    content: "";
     width: 300px;
     height: 150px;
-    border:50px solid var(--fill);
+    border: 50px solid var(--fill);
     border-top: none;
     position: absolute;
-    transform-origin :50%  0% 0;
-    border-radius: 0 0 300px 300px ;
-    box-sizing : border-box;
+    transform-origin: 50% 0% 0;
+    border-radius: 0 0 300px 300px;
+    box-sizing: border-box;
     left: 0;
     top: 100%;
   }
   &:before {
-    border-color:rgba(0,0,0,.15);
+    border-color: rgba(0, 0, 0, 0.15);
     transform: rotate(180deg);
   }
   &:after {
-      z-index: 3;
-     animation : 1s fillGraphAnimation ease-in;
-    transform: rotate( calc( 1deg * ( var(--percentage) * 1.8 ) ) );
+    z-index: 3;
+    animation: 1s fillGraphAnimation ease-in;
+    transform: rotate(calc(1deg * (var(--percentage) * 1.8)));
   }
   &:hover {
-     &:after {
-        opacity: .8;
-        cursor: pointer;
-      }
+    &:after {
+      opacity: 0.8;
+      cursor: pointer;
+    }
   }
 }
 
@@ -90,56 +90,56 @@
   align-items: flex-end;
   justify-content: center;
   overflow: hidden;
-  box-sizing : border-box;
-   &:before{
-    content: '';
+  box-sizing: border-box;
+  &:before {
+    content: "";
     width: 300px;
     height: 150px;
-    border:50px solid rgba(0,0,0,.15);
+    border: 50px solid rgba(0, 0, 0, 0.15);
     border-bottom: none;
     position: absolute;
-    box-sizing : border-box;
-    transform-origin: 50%  0%;
-    border-radius: 300px 300px 0 0 ;
+    box-sizing: border-box;
+    transform-origin: 50% 0%;
+    border-radius: 300px 300px 0 0;
     left: 0;
     top: 0;
   }
   .graph {
     width: 300px;
     height: 150px;
-    border:50px solid var(--fill);
+    border: 50px solid var(--fill);
     border-top: none;
     position: absolute;
-    transform-origin :50%  0% 0;
-    border-radius: 0 0 300px 300px ;
+    transform-origin: 50% 0% 0;
+    border-radius: 0 0 300px 300px;
     left: 0;
     top: 100%;
     z-index: 5;
-    animation : 1s fillGraphAnimation ease-in;
-    transform: rotate( calc( 1deg * ( var(--percentage) * 1.8 ) ) );
-    box-sizing : border-box;
+    animation: 1s fillGraphAnimation ease-in;
+    transform: rotate(calc(1deg * (var(--percentage) * 1.8)));
+    box-sizing: border-box;
     cursor: pointer;
     &:after {
       content: attr(data-name);
       counter-reset: varible var(--percentage);
-      background: var(--fill) ;
-      box-sizing : border-box;
-      border-radius : 2px;
+      background: var(--fill);
+      box-sizing: border-box;
+      border-radius: 2px;
       color: #fff;
       font-weight: 200;
-      font-size: 12px;
-      height: 20px;
+      font-size: 11px;
+      height: 21px;
       padding: 3px 5px;
       top: 0px;
       position: absolute;
       left: 0;
-      transform: rotate(calc( -1deg * var(--percentage) * 1.8 )) translate(-30px , 0px);
-      transition:0.2s ease-in;
+      transform: rotate(calc(-1deg * var(--percentage) * 1.8)) translate(-30px, 0px);
+      transition: 0.2s ease-in;
       transform-origin: 0 50% 0;
       opacity: 0;
     }
     &:hover {
-        opacity: 0.8;
+      opacity: 0.8;
       &:after {
         opacity: 1;
         left: 25px;
@@ -149,12 +149,20 @@
   }
 }
 
-@keyframes fillAnimation{
-  0%{transform : rotate(-45deg);}
-  50%{transform: rotate(135deg);}
+@keyframes fillAnimation {
+  0% {
+    transform: rotate(-45deg);
+  }
+  50% {
+    transform: rotate(135deg);
+  }
 }
 
-@keyframes fillGraphAnimation{
-  0%{transform: rotate(0deg);}
-  50%{transform: rotate(180deg);}
+@keyframes fillGraphAnimation {
+  0% {
+    transform: rotate(0deg);
+  }
+  50% {
+    transform: rotate(180deg);
+  }
 }
