@@ -12,9 +12,9 @@ namespace Indice.AspNetCore.Authentication.Apple
     public static class AppleDefaults
     {
         /// <summary>
-        /// The default scheme for Apple authentication. Defaults to <c>apple</c>.
+        /// The default scheme for Apple authentication. Defaults to <c>Apple</c>.
         /// </summary>
-        public const string AuthenticationScheme = "apple";
+        public const string AuthenticationScheme = "Apple";
 
         /// <summary>
         /// The default display name for Apple authentication. Defaults to <c>Apple ID</c>.

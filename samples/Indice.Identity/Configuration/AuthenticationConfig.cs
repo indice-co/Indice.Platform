@@ -39,7 +39,7 @@ namespace Microsoft.Extensions.DependencyInjection
             var appleSettings = configuration.GetSection($"Auth:{AppleDefaults.AuthenticationScheme}").Get<AppleOptions>();
             if (!string.IsNullOrEmpty(appleSettings.ServiceId) && !string.IsNullOrEmpty(appleSettings.PrivateKey)) {
                 var serviceProvider = services.BuildServiceProvider();
-                authBuilder.AddAppleID(AppleDefaults.AuthenticationScheme, "Connect with Apple ID", options => {
+                authBuilder.AddAppleID(AppleDefaults.AuthenticationScheme, options => {
                     options.ServiceId = appleSettings.ServiceId;
                     options.TeamId = appleSettings.TeamId;
                     options.PrivateKey = appleSettings.PrivateKey;
