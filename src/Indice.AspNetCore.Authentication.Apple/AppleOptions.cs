@@ -16,15 +16,32 @@ namespace Indice.AspNetCore.Authentication.Apple
     public class AppleOptions
     {
         /// <summary>
-        /// Essentially this is the client id
+        /// The full app id
         /// </summary>
+        public string AppId {
+            get => !string.IsNullOrEmpty(ServiceId) ? $"{TeamId}.{ServiceId}" : null;
+            set {
+                ServiceId = !string.IsNullOrEmpty(value) ? value[(value.IndexOf('.') + 1)..] : null;
+                TeamId = !string.IsNullOrEmpty(value) ? value.Substring(0, value.Length - ServiceId.Length - 1) : null;
+            }
+        }
+        /// <summary>
+        /// The private key. The contents of the P8 key.
+        /// </summary>
+        public string PrivateKey { get; set; }
+        /// <summary>
+        /// Private key id
+        /// </summary>
+        public string PrivateKeyId { get; set; }
+        /// <summary>
+        /// The client id.This should be a ServiceId created spesificly for web authentication
+        /// </summary>
+        /// <remarks>
+        /// Developers go in the identifiers section https://developer.apple.com/account/resources/identifiers
+        /// </remarks>
         public string ServiceId { get; set; }
         /// <summary>
-        /// The contents of the P8 key as base64 string.
-        /// </summary>
-        public string ServicePrivateKey { get; set; }
-        /// <summary>
-        /// your accounts team ID found in the dev portal
+        /// your accounts team ID or AppId prefix
         /// </summary>
         public string TeamId { get; set; }
         /// <summary>

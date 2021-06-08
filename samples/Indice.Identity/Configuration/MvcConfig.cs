@@ -31,7 +31,7 @@ namespace Microsoft.Extensions.DependencyInjection
             return services.AddControllersWithViews()
                            .AddRazorRuntimeCompilation()
                            .AddTotp()
-                           .AddPushNotifications()
+                           //.AddPushNotifications()
                            .AddIdentityServerApiEndpoints(options => {
                                // Configure the DbContext.
                                options.AddDbContext(identityOptions => identityOptions.ConfigureDbContext = builder => builder.UseSqlServer(configuration.GetConnectionString("IdentityDb")));

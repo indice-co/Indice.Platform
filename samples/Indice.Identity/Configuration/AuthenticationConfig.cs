@@ -1,6 +1,7 @@
 ﻿using System;
 using IdentityServer4;
 using IdentityServer4.Infrastructure;
+using Indice.AspNetCore.Authentication.Apple;
 using Indice.Configuration;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.MicrosoftAccount;
@@ -33,6 +34,17 @@ namespace Microsoft.Extensions.DependencyInjection
                     options.ClientSecret = microsoftAuthSettings.ClientSecret;
                     options.SignInScheme = IdentityServerConstants.ExternalCookieAuthenticationScheme;
                     options.StateDataFormat = new DistributedCacheStateDataFormatter(serviceProvider.GetService<IHttpContextAccessor>(), MicrosoftAccountDefaults.AuthenticationScheme);
+                });
+            }
+            var appleSettings = configuration.GetSection($"Auth:{AppleDefaults.AuthenticationScheme}").Get<AppleOptions>();
+            if (!string.IsNullOrEmpty(appleSettings.ServiceId) && !string.IsNullOrEmpty(appleSettings.PrivateKey)) {
+                var serviceProvider = services.BuildServiceProvider();
+                authBuilder.AddAppleID(AppleDefaults.AuthenticationScheme, "Connect with Apple ID", options => {
+                    options.ServiceId = appleSettings.ServiceId;
+                    options.TeamId = appleSettings.TeamId;
+                    options.PrivateKey = appleSettings.PrivateKey;
+                    options.PrivateKeyId = appleSettings.PrivateKeyId;
+                    options.SignInScheme = IdentityServerConstants.ExternalCookieAuthenticationScheme;
                 });
             }
             return services;

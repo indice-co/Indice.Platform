@@ -47,7 +47,7 @@ namespace Microsoft.Extensions.DependencyInjection
             .AddTrustedDeviceAuthorization(options => {
                 options.AddUserDeviceStoreEntityFrameworkCore();
             })
-            .AddPushNotifications()
+            //.AddPushNotifications()
             .AddExtendedResourceOwnerPasswordValidator()
             .AddOperationalStore(options => {
                 options.SetupTables();
