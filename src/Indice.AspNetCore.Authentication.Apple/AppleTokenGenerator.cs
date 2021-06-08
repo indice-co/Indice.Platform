@@ -29,8 +29,8 @@ namespace Indice.AspNetCore.Authentication.Apple
             var ecdsa = ECDsa.Create();
             if (privateKey.StartsWith('-')) {
 #if NETCOREAPP3_1
-                var lines = privateKey.Split('\n');
-                privateKey = string.Join("", privateKey.Skip(1).Take(lines.Length - 2));
+                var lines = privateKey.Split(new [] { '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries);
+                privateKey = string.Join("", lines.Skip(1).Take(lines.Length - 2));
                 ecdsa?.ImportPkcs8PrivateKey(Convert.FromBase64String(privateKey), out _);
 #else
                 ecdsa?.ImportFromPem(privateKey);
