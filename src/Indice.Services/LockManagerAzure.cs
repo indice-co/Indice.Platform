@@ -35,13 +35,13 @@ namespace Indice.Services
         public async Task<ILockLease> AcquireLock(string name, TimeSpan? duration = null) {
             await BlobContainer.CreateIfNotExistsAsync();
             var lockFileBlob = BlobContainer.GetBlobClient($"locks/{name}.lock");
-            await lockFileBlob.UploadAsync(new MemoryStream(Encoding.ASCII.GetBytes("0")), overwrite: true);
-            var lockFileLease = lockFileBlob.GetBlobLeaseClient();
             try {
+                await lockFileBlob.UploadAsync(new MemoryStream(Encoding.ASCII.GetBytes("0")), overwrite: true);
+                var lockFileLease = lockFileBlob.GetBlobLeaseClient();
                 var leaseResponse = await lockFileLease.AcquireAsync(duration ?? TimeSpan.FromSeconds(30));
                 return new LockLease(leaseResponse.Value.LeaseId, name, this);
-            } catch (RequestFailedException) {
-                throw new LockManagerException(name);
+            } catch (Exception ex) {
+                throw new LockManagerException(name, ex);
             }
         }
 

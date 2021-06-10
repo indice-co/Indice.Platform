@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -38,7 +39,8 @@ namespace Microsoft.Extensions.DependencyInjection
             services.TryAddTransient(serviceDescriptor.ImplementationType);
             return services.AddTransient<TService, TDecorator>(serviceProvider => {
                 var parameters = typeof(TDecorator).GetConstructors(BindingFlags.Public | BindingFlags.Instance).First().GetParameters();
-                var arguments = parameters.Select(x => x.ParameterType.Equals(typeof(TService)) ? serviceProvider.GetRequiredService(serviceDescriptor.ImplementationType) : serviceProvider.GetService(x.ParameterType)).ToArray();
+                var arguments = parameters.Select(x => x.ParameterType.Equals(typeof(TService)) ? serviceProvider.GetRequiredService(serviceDescriptor.ImplementationType) 
+                                                                                                : serviceProvider.GetService(x.ParameterType)).ToArray();
                 return (TDecorator)Activator.CreateInstance(typeof(TDecorator), arguments);
             });
         }
@@ -180,50 +182,6 @@ namespace Microsoft.Extensions.DependencyInjection
             return services;
         }
 
-        /// <summary>
-        /// Adds <see cref="IFileService"/> using Azure Blob Storage as the backing store.
-        /// </summary>
-        /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
-        /// <param name="configure">Configure the available options. Null to use defaults.</param>
-        public static IServiceCollection AddFilesAzure(this IServiceCollection services, Action<FileServiceAzureStorage.FileServiceOptions> configure = null) {
-            services.AddTransient<IFileService, FileServiceAzureStorage>(serviceProvider => {
-                var options = new FileServiceAzureStorage.FileServiceOptions {
-                    ConnectionString = serviceProvider.GetRequiredService<IConfiguration>().GetConnectionString(FileServiceAzureStorage.CONNECTION_STRING_NAME),
-                    EnvironmentName = serviceProvider.GetRequiredService<IHostEnvironment>().EnvironmentName
-                };
-                configure?.Invoke(options);
-                return new FileServiceAzureStorage(options.ConnectionString, options.EnvironmentName);
-            });
-            return services;
-        }
-
-        /// <summary>
-        /// Adds <see cref="IFileService"/> using local filesystem as the backing store.
-        /// </summary>
-        /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
-        /// <param name="path">The path to use save.</param>
-        public static IServiceCollection AddFilesLocal(this IServiceCollection services, string path = null) {
-            services.AddTransient<IFileService, FileServiceLocal>(serviceProvider => {
-                if (path == null) {
-                    var hostingEnvironment = serviceProvider.GetRequiredService<IHostEnvironment>();
-                    var environmentName = Regex.Replace(hostingEnvironment.EnvironmentName ?? "Development", @"\s+", "-").ToLowerInvariant();
-                    path = Path.Combine(hostingEnvironment.ContentRootPath, "App_Data");
-                }
-                if (!Directory.Exists(path)) {
-                    Directory.CreateDirectory(path);
-                }
-                return new FileServiceLocal(path);
-            });
-            return services;
-        }
-
-        /// <summary>
-        /// Adds <see cref="IFileService"/> using in-memory storage as the backing store. Only for testing purposes.
-        /// </summary>
-        /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
-        public static IServiceCollection AddFilesInMemory(this IServiceCollection services) {
-            services.AddTransient<IFileService, FileServiceInMemory>();
-            return services;
-        }
     }
+
 }

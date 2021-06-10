@@ -200,5 +200,11 @@ namespace Indice.Services
         /// </summary>
         /// <param name="lockName">the name of the lock</param>
         public LockManagerException(string lockName) : base($"Could not aquire lock '{lockName}'.") { }
+        /// <summary>
+        /// Contructs a new <see cref="LockManagerException"/>
+        /// </summary>
+        /// <param name="lockName">the name of the lock</param>
+        /// <param name="innerException">The inner exception</param>
+        public LockManagerException(string lockName, Exception innerException) : base($"Could not aquire lock '{lockName}'.", innerException) { }
     }
 }

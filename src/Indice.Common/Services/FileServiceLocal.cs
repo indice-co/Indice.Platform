@@ -129,5 +129,16 @@ namespace Indice.Services
             }
             return exists;
         }
+
+        /// <summary>
+        /// File service options specific to File System local.
+        /// </summary>
+        public class FileServiceOptions
+        {
+            /// <summary>
+            /// The path to use for storing the images. Can be a relative path or absolute. 
+            /// </summary>
+            public string Path { get; set; }
+        }
     }
 }
