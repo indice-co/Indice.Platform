@@ -17,18 +17,14 @@ namespace Indice.Extensions.Configuration
         /// <param name="builder">The <see cref="IConfigurationBuilder"/> to add to.</param>
         /// <param name="configureAction">The <see cref="EFConfigurationOptions"/> to use.</param>
         /// <returns>The <see cref="IConfigurationBuilder"/>.</returns>
-        public static IConfigurationBuilder AddEFConfiguration(this IConfigurationBuilder builder, Action<EFConfigurationOptions> configureAction) {
-            return builder.Add(new EFConfigurationSource(configureAction));
-        }
+        public static IConfigurationBuilder AddEFConfiguration(this IConfigurationBuilder builder, Action<EFConfigurationOptions> configureAction) => builder.Add(new EFConfigurationSource(configureAction));
 
         /// <summary>
         /// Configures the <see cref="DbContextOptions"/> used by the <see cref="DbContext"/>.
         /// </summary>
         /// <param name="options">Configuration options for <see cref="EFConfigurationProvider"/>.</param>
         /// <param name="configureAction">The <see cref="DbContextOptions"/> to use.</param>
-        public static void ConfigureDbContext(this EFConfigurationOptions options, Action<DbContextOptionsBuilder> configureAction) {
-            options.DbContextOptionsBuilder = configureAction;
-        }
+        public static void ConfigureDbContext(this EFConfigurationOptions options, Action<DbContextOptionsBuilder> configureAction) => options.DbContextOptionsBuilder = configureAction;
 
         /// <summary>
         /// Registers and configures the <see cref="EFConfigurationProvider"/> using some default values.

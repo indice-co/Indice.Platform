@@ -48,7 +48,7 @@ namespace Indice.Services
         /// <param name="userId">UserId to be passed as tag.</param>
         /// <param name="tags">Optional tag parameters.</param>
         public static async Task Register(this IPushNotificationService service, string deviceId, string pnsHandle, DevicePlatform devicePlatform, string userId, params string[] tags) =>
-            await service.Register(deviceId, pnsHandle, devicePlatform, new string[] { userId }.Concat(tags ?? new string[0]).ToList());
+            await service.Register(deviceId, pnsHandle, devicePlatform, new string[] { userId }.Concat(tags ?? Array.Empty<string>()).ToList());
 
         /// <summary>
         /// Send notifications to devices registered to userId.
@@ -69,7 +69,7 @@ namespace Indice.Services
         /// <param name="userId">UserId to be passed as tag.</param>
         /// <param name="tags">Optional tag parameters.</param>
         public static async Task SendAsync(this IPushNotificationService service, string message, string data, string userId, params string[] tags) =>
-            await service.SendAsync(message, new string[] { userId }.Concat(tags ?? new string[0]).ToList(), data);
+            await service.SendAsync(message, new string[] { userId }.Concat(tags ?? Array.Empty<string>()).ToList(), data);
     }
 
     /// <summary>

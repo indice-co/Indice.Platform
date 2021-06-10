@@ -33,14 +33,10 @@ namespace Indice.Extensions.Configuration
         }
 
         /// <inheritdoc/>
-        public override void Load() {
-            LoadData().ConfigureAwait(false).GetAwaiter().GetResult();
-        }
+        public override void Load() => LoadData().ConfigureAwait(false).GetAwaiter().GetResult();
 
         /// <inheritdoc/>
-        public void Dispose() {
-            _cancellationToken.Cancel();
-        }
+        public void Dispose() => _cancellationToken.Cancel();
 
         /// <summary>
         /// Loads the configuration settings from the database.
@@ -64,17 +60,14 @@ namespace Indice.Extensions.Configuration
             }
         }
 
-        private async Task WaitForReload() {
-            await Task.Delay(_reloadInterval.Value, _cancellationToken.Token);
-        }
+        private async Task WaitForReload() => await Task.Delay(_reloadInterval.Value, _cancellationToken.Token);
 
         private async Task PollForSettingsChanges() {
             while (!_cancellationToken.IsCancellationRequested) {
                 await WaitForReload();
                 try {
                     await LoadData();
-                } 
-                catch { }
+                } catch { }
             }
         }
     }
