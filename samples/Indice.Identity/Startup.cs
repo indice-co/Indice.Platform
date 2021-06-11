@@ -87,6 +87,7 @@ namespace Indice.Identity
             services.AddSmsServiceYouboto(Configuration);
             services.AddSwaggerGen(options => {
                 options.IndiceDefaults(Settings);
+                options.AddFluentValidationSupport();
                 options.AddOAuth2AuthorizationCodeFlow(Settings);
                 options.AddClientCredentials(Settings);
                 options.AddFormFileSupport();
@@ -154,30 +155,33 @@ namespace Indice.Identity
             app.UseCookiePolicy();
             app.UseRouting();
             // Use the middleware with parameters to log request responses to the ILogger or use custom parameters to lets say take request response snapshots for testing purposes.
-            app.UseRequestResponseLogging((options) => {
-                //options.LogHandler = async (logger, model) => {
-                //    var filename = $"{model.RequestTime:yyyyMMdd.HHmmss}_{model.RequestTarget.Replace('/', '-')}_{model.StatusCode}";
-                //    var folder = Path.Combine(HostingEnvironment.ContentRootPath, @"App_Data\snapshots");
-                //    if (Directory.Exists(folder)) {
-                //        Directory.CreateDirectory(folder);
-                //    }
-                //    if (!string.IsNullOrEmpty(model.RequestBody)) {
-                //        await File.WriteAllTextAsync(Path.Combine(folder, $"{filename}_request.txt"), model.RequestBody);
-                //    }
-                //    if (!string.IsNullOrEmpty(model.ResponseBody)) {
-                //        await File.WriteAllTextAsync(Path.Combine(folder, $"{filename}_request.txt"), model.ResponseBody);
-                //    }
-                //};
-                options.LogHandler = (logger, model) => {
-                    // Write response body to App Insights.
-                    var requestTelemetry = model.HttpContext.Features.Get<RequestTelemetry>();
-                    requestTelemetry?.Properties.Add(nameof(model.ResponseBody), model.ResponseBody);
-                    requestTelemetry?.Properties.Add(nameof(model.RequestBody), model.RequestBody);
-                    requestTelemetry?.Properties.Add("RequestHeaders", string.Join("\n", model.HttpContext.Request.Headers.Select(x => $"{x.Key}: {x.Value}")));
-                    requestTelemetry?.Properties.Add("ResponseHeaders", string.Join("\n", model.HttpContext.Response.Headers.Select(x => $"{x.Key}: {x.Value}")));
-                    return Task.CompletedTask;
-                };
-            });
+            var useRequestResponseLogging = Configuration.GetValue<bool>($"{nameof(GeneralSettings.Name)}:UseRequestResponseLogging");
+            if (useRequestResponseLogging) {
+                app.UseRequestResponseLogging((options) => {
+                    //options.LogHandler = async (logger, model) => {
+                    //    var filename = $"{model.RequestTime:yyyyMMdd.HHmmss}_{model.RequestTarget.Replace('/', '-')}_{model.StatusCode}";
+                    //    var folder = Path.Combine(HostingEnvironment.ContentRootPath, @"App_Data\snapshots");
+                    //    if (Directory.Exists(folder)) {
+                    //        Directory.CreateDirectory(folder);
+                    //    }
+                    //    if (!string.IsNullOrEmpty(model.RequestBody)) {
+                    //        await File.WriteAllTextAsync(Path.Combine(folder, $"{filename}_request.txt"), model.RequestBody);
+                    //    }
+                    //    if (!string.IsNullOrEmpty(model.ResponseBody)) {
+                    //        await File.WriteAllTextAsync(Path.Combine(folder, $"{filename}_request.txt"), model.ResponseBody);
+                    //    }
+                    //};
+                    options.LogHandler = (logger, model) => {
+                        // Write response body to App Insights.
+                        var requestTelemetry = model.HttpContext.Features.Get<RequestTelemetry>();
+                        requestTelemetry?.Properties.Add(nameof(model.ResponseBody), model.ResponseBody);
+                        requestTelemetry?.Properties.Add(nameof(model.RequestBody), model.RequestBody);
+                        requestTelemetry?.Properties.Add("RequestHeaders", string.Join("\n", model.HttpContext.Request.Headers.Select(x => $"{x.Key}: {x.Value}")));
+                        requestTelemetry?.Properties.Add("ResponseHeaders", string.Join("\n", model.HttpContext.Response.Headers.Select(x => $"{x.Key}: {x.Value}")));
+                        return Task.CompletedTask;
+                    };
+                });
+            }
             app.UseIdentityServer();
             app.UseCors();
             app.UseAuthentication();
@@ -201,7 +205,6 @@ namespace Indice.Identity
                 SupportedUICultures = SupportedCultures.Get().ToList()
             });
             app.UseResponseCaching();
-            app.UseSwagger();
             var enableSwagger = HostingEnvironment.IsDevelopment() || Configuration.GetValue<bool>($"{GeneralSettings.Name}:SwaggerUI");
             if (enableSwagger) {
                 app.UseSwaggerUI(options => {
@@ -227,6 +230,7 @@ namespace Indice.Identity
                 options.InjectStylesheet("/css/admin-ui-overrides.css");
             });
             app.UseEndpoints(endpoints => {
+                endpoints.MapSwagger();
                 endpoints.MapControllers();
                 endpoints.MapDefaultControllerRoute();
             });

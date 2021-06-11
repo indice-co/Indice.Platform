@@ -84,7 +84,6 @@ namespace Microsoft.Extensions.DependencyInjection
                            .AddFluentValidation(options => {
                                options.RegisterValidatorsFromAssemblyContaining<Startup>();
                                options.ConfigureClientsideValidation();
-                               options.RunDefaultMvcValidationAfterFluentValidationExecutes = true;
                            })
                            .AddAvatars()
                            .AddViewLocalization(LanguageViewLocationExpanderFormat.Suffix);

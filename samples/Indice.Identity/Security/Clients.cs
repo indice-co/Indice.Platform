@@ -185,6 +185,38 @@ namespace Indice.Identity.Security
                 Claims = {
                     new ClientClaim(BasicClaimTypes.TrustedDevice, bool.TrueString.ToLower())
                 }
+            },
+            new Client {
+                ClientId = "code-flow-mvc",
+                ClientName = "Code Flow MVC",
+                AccessTokenType = AccessTokenType.Reference,
+                AllowAccessTokensViaBrowser = false,
+                AllowedCorsOrigins = {
+                    "https://localhost:46632"
+                },
+                AllowedGrantTypes = GrantTypes.Code,
+                AllowedScopes = {
+                    IdentityServerApi.Scope,
+                    IdentityServerConstants.StandardScopes.Email,
+                    IdentityServerConstants.StandardScopes.OfflineAccess,
+                    IdentityServerConstants.StandardScopes.OpenId,
+                    IdentityServerConstants.StandardScopes.Profile,
+                    JwtClaimTypes.Role
+                },
+                ClientSecrets = { 
+                    new Secret("pHnd~)JAd5]YRb[".ToSha256())
+                },
+                AllowOfflineAccess = true,
+                ClientUri = "https://localhost:46632",
+                PostLogoutRedirectUris = {
+                    "https://localhost:46632"
+                },
+                RedirectUris = {
+                    "https://localhost:46632/signin-indice"
+                },
+                RequireClientSecret  = true,
+                RequirePkce = true,
+                RequireConsent = false
             }
         };
     }
