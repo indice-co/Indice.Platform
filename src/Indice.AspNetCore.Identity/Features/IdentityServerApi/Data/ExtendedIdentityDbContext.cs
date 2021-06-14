@@ -1,8 +1,8 @@
 ﻿using Indice.AspNetCore.Identity.Api.Configuration;
-using Indice.AspNetCore.Identity.Data;
 using Indice.AspNetCore.Identity.Data.Models;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.Extensions.Hosting;
 
 namespace Indice.AspNetCore.Identity.Data
@@ -25,6 +25,8 @@ namespace Indice.AspNetCore.Identity.Data
             IdentityServerApiEndpointsOptions options,
             IWebHostEnvironment webHostEnvironment
         ) : base(dbContextOptions) {
+            /* https://docs.microsoft.com/en-us/ef/core/logging-events-diagnostics/events */
+            ChangeTracker.StateChanged += ChangeTrackerStateChanged;
             if (webHostEnvironment.IsDevelopment() && Database.EnsureCreated()) {
                 this.SeedAdminUser();
                 if (options.SeedDummyUsers) {
@@ -40,6 +42,12 @@ namespace Indice.AspNetCore.Identity.Data
         /// <param name="modelBuilder">Provides a simple API surface for configuring a <see cref="DbContext"/>.</param>
         protected override void OnModelCreating(ModelBuilder modelBuilder) {
             base.OnModelCreating(modelBuilder);
+        }
+
+        private void ChangeTrackerStateChanged(object sender, EntityStateChangedEventArgs e) {
+            var appSettingChanged = e.Entry.Entity is AppSetting;
+            if (appSettingChanged) {
+            }
         }
     }
 }
