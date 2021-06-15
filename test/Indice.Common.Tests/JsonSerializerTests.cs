@@ -211,6 +211,8 @@ namespace Indice.Common.Tests
             Assert.Equal(source.ToUniversalTime(), result.ToUniversalTime());
             result = JsonSerializer.Deserialize<DateTime>("\"1981-01-27T22:00:00\"", options);
             Assert.Equal(source.ToUniversalTime(), result.ToUniversalTime());
+            result = JsonSerializer.Deserialize<DateTime>("\"1981-01-28T00:00:00+02:00\"", options);
+            Assert.Equal(new DateTime(1981, 01, 27, 22, 0, 0, DateTimeKind.Utc) , result);
         }
 
         [Fact(Skip = "Not ready")]
