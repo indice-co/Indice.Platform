@@ -189,6 +189,43 @@ namespace Indice.Common.Tests
             RoundtripSerialize(new PocoValue<TimeSpan> { Value = new TimeSpan(2, 30, 12) }, options);
             RoundtripSerialize(new PocoValue<TimeSpan?>(), options);
         }
+        [Fact(Skip = "Not ready")]
+        public void DateTime_UTC_JsonSupport() {
+            var options = new JsonSerializerOptions {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            };
+            options.Converters.Add(new JsonStringEnumConverter());
+            options.Converters.Add(new JsonUtcDateTimeConverter());
+            options.Converters.Add(new JsonNullableUtcDateTimeConverter());
+            options.IgnoreNullValues = true;
+            var source = new DateTime(1981, 01, 28, 0, 0, 0, DateTimeKind.Unspecified);
+            var json = JsonSerializer.Serialize(source, options);
+            Assert.Equal("\"1981-01-28T00:00:00Z\"", json);
+            var source2 = new DateTime(1981, 01, 28, 0, 0, 0, DateTimeKind.Local);
+            json = JsonSerializer.Serialize(source2, options);
+            Assert.Equal("\"1981-01-27T22:00:00Z\"", json);
+            var source3 = new DateTime(1981, 01, 28, 0, 0, 0, DateTimeKind.Utc);
+            json = JsonSerializer.Serialize(source3, options);
+            Assert.Equal("\"1981-01-28T00:00:00Z\"", json);
+            var result = JsonSerializer.Deserialize<DateTime>("\"1981-01-27T22:00:00Z\"", options);
+            Assert.Equal(source.ToUniversalTime(), result.ToUniversalTime());
+            result = JsonSerializer.Deserialize<DateTime>("\"1981-01-27T22:00:00\"", options);
+            Assert.Equal(source.ToUniversalTime(), result.ToUniversalTime());
+        }
+
+        [Fact(Skip = "Not ready")]
+        public void DateTime_UTC_JsonSupport_Newtonsoft() {
+            var options = new Newtonsoft.Json.JsonSerializerSettings() {
+                DateTimeZoneHandling = Newtonsoft.Json.DateTimeZoneHandling.Utc,
+            };
+            var source = new DateTime(1981, 01, 28, 0, 0, 0, DateTimeKind.Unspecified);
+            var json = Newtonsoft.Json.JsonConvert.SerializeObject(source, options);
+            Assert.Equal("\"1981-01-28T00:00:00Z\"", json);
+            var result = Newtonsoft.Json.JsonConvert.DeserializeObject<DateTime>("\"1981-01-27T22:00:00Z\"", options);
+            Assert.Equal(source.ToUniversalTime(), result.ToUniversalTime());
+            result = Newtonsoft.Json.JsonConvert.DeserializeObject<DateTime>("\"1981-01-27T22:00:00\"", options);
+            Assert.Equal(source.ToUniversalTime(), result.ToUniversalTime());
+        }
 
         private void RoundtripSerialize<T>(PocoValue<T> source, JsonSerializerOptions options) {
             var json = JsonSerializer.Serialize(source, options);
