@@ -45,5 +45,33 @@ namespace Indice.Extensions
             }
             return false;
         }
+
+        /// <summary>
+        /// Converts the <paramref name="dateTime"/> to a local kind of <see cref="DateTime"/> in the given <paramref name="timeZoneId"/>
+        /// </summary>
+        /// <param name="dateTime">The source <see cref="DateTime"/></param>
+        /// <param name="timeZoneId">The windows time zone id</param>
+        /// <param name="kind">Specify the kind of date you get</param>
+        /// <returns></returns>
+        public static DateTime Shift(this DateTime dateTime, string timeZoneId, DateTimeKind kind = DateTimeKind.Unspecified) {
+            var zone = TimeZoneInfo.FindSystemTimeZoneById(timeZoneId);
+            var utc = dateTime.ToUniversalTime();
+            var local = DateTime.SpecifyKind(utc.Add(zone.GetUtcOffset(utc)), kind);
+            return local;
+        }
+
+        /// <summary>
+        /// Converts the <paramref name="dateTime"/> to <see cref="DateTimeOffset"/> in the given <paramref name="timeZoneId"/>
+        /// </summary>
+        /// <param name="dateTime">The source <see cref="DateTime"/></param>
+        /// <param name="timeZoneId">The windows time zone id</param>
+        /// <returns></returns>
+        public static DateTimeOffset ToDateTimeOffset(this DateTime dateTime, string timeZoneId) {
+            var zone = TimeZoneInfo.FindSystemTimeZoneById(timeZoneId);
+            var utc = dateTime.ToUniversalTime();
+            var offset = zone.GetUtcOffset(utc);
+            var local = DateTime.SpecifyKind(utc.Add(offset), DateTimeKind.Unspecified);
+            return new DateTimeOffset(local, offset);
+        }
     }
 }
