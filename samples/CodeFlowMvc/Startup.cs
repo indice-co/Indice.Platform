@@ -1,8 +1,6 @@
-using System.IdentityModel.Tokens.Jwt;
 using System.Threading.Tasks;
 using CodeFlowMvc.Configuration;
 using CodeFlowMvc.Data;
-using IdentityModel;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -12,7 +10,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
-using Microsoft.IdentityModel.Tokens;
 
 namespace CodeFlowMvc
 {
@@ -31,7 +28,7 @@ namespace CodeFlowMvc
                     .AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
                     .AddEntityFrameworkStores<ApplicationDbContext>();
             services.AddAuthentication(options => {
-                //options.DefaultScheme = IndiceDefaults.AuthenticationScheme; /* Add this to make external login the default way to sign in. */;
+                options.DefaultScheme = IndiceDefaults.AuthenticationScheme; /* Add this to make external login the default way to sign in. */;
             })
             .AddOpenIdConnect(authenticationScheme: IndiceDefaults.AuthenticationScheme, displayName: "Connect with Indice", options => {
                 var indiceAuthSection = Configuration.GetSection("Auth:Indice");
