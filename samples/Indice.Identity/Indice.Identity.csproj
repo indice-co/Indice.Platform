@@ -39,7 +39,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
-    <Folder Include="logs\" />
     <Folder Include="wwwroot\admin\assets\img\" />
   </ItemGroup>
 </Project>

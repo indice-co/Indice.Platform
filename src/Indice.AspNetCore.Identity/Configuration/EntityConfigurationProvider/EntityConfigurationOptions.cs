@@ -12,9 +12,9 @@ namespace Indice.Extensions.Configuration
         /// <summary>
         /// The <see cref="TimeSpan"/> to wait in between each attempt at polling the database for changes. Default is null which indicates no reloading.
         /// </summary>
-        public TimeSpan? ReloadInterval { get; set; }
+        public TimeSpan? ReloadOnInterval { get; set; }
         /// <summary>
-        /// Determines whether the application settings are reloaded when the corresponding database table changes. Default is true. This setting takes precedence over <see cref="ReloadInterval"/>.
+        /// Determines whether the application settings are reloaded when the corresponding database table changes. Default is true. This setting takes precedence over <see cref="ReloadOnInterval"/>.
         /// </summary>
         public bool ReloadOnDatabaseChange { get; set; } = true;
         /// <summary>
@@ -27,8 +27,8 @@ namespace Indice.Extensions.Configuration
         public Action<DbContextOptionsBuilder> ConfigureDbContext { get; set; }
 
         internal EFConfigurationOptionsValidationResult Validate() {
-            if (ReloadInterval.HasValue && ReloadInterval.Value <= TimeSpan.Zero) {
-                return EFConfigurationOptionsValidationResult.Fail($"Property '{nameof(ReloadInterval)}' must have a positive value.");
+            if (ReloadOnInterval.HasValue && ReloadOnInterval.Value <= TimeSpan.Zero) {
+                return EFConfigurationOptionsValidationResult.Fail($"Property '{nameof(ReloadOnInterval)}' must have a positive value.");
             }
             return EFConfigurationOptionsValidationResult.Success();
         }

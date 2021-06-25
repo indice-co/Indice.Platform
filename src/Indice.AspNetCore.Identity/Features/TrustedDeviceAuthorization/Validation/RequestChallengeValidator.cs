@@ -5,6 +5,7 @@ using System.Text;
 using IdentityModel;
 using IdentityServer4.Models;
 using IdentityServer4.Validation;
+using Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Extensions;
 using Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Models;
 using Microsoft.IdentityModel.Tokens;
 
@@ -13,9 +14,31 @@ namespace Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Validation
     internal class RequestChallengeValidator
     {
         protected static ValidationResult ValidateSignature(string publicKey, string codeChallenge, string signature) {
-            var key = RSA.Create();
-            var certificate = new X509Certificate2(Convert.FromBase64String(publicKey.Replace("-----BEGIN CERTIFICATE-----", string.Empty).Replace("-----END CERTIFICATE-----", string.Empty)));
-            var securityKey = new X509SecurityKey(certificate);
+            var isSupportedKey = publicKey.IsCertificate() || publicKey.IsPublicKey() || publicKey.IsRSAPublicKey();
+            if (!isSupportedKey) {
+                return new ValidationResult {
+                    IsError = true,
+                    Error = OidcConstants.TokenErrors.InvalidGrant,
+                    ErrorDescription = "Public key algorithm is not supported."
+                };
+            }
+            SecurityKey securityKey;
+            if (publicKey.IsCertificate()) {
+                var certificate = new X509Certificate2(Convert.FromBase64String(publicKey.TrimPublicKeyHeaders()));
+                securityKey = new X509SecurityKey(certificate);
+            } else {
+                var rsa = RSA.Create();
+                if (publicKey.IsRSAPublicKey()) {
+                    rsa.ImportRSAPublicKey(Convert.FromBase64String(publicKey.TrimPublicKeyHeaders()), out _);
+                } else {
+                    rsa.ImportSubjectPublicKeyInfo(Convert.FromBase64String(publicKey.TrimPublicKeyHeaders()), out _);
+                }
+                securityKey = new RsaSecurityKey(rsa) {
+                    CryptoProviderFactory = new CryptoProviderFactory {
+                        CacheSignatureProviders = false
+                    }
+                };
+            }
             if (!ValidateChallengeAgainstSignature(codeChallenge, signature, securityKey)) {
                 return new ValidationResult {
                     IsError = true,

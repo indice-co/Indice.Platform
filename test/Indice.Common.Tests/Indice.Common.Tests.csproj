@@ -16,7 +16,6 @@
     <DotNetCliToolReference Include="dotnet-xunit" Version="2.3.1" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\src\Indice.AspNetCore.Identity\Indice.AspNetCore.Identity.csproj" />
     <ProjectReference Include="..\..\src\Indice.AspNetCore\Indice.AspNetCore.csproj" />
     <ProjectReference Include="..\..\src\Indice.Common\Indice.Common.csproj" />
   </ItemGroup>

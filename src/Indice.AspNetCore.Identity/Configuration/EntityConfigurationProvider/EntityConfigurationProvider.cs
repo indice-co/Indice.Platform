@@ -62,12 +62,12 @@ namespace Indice.Extensions.Configuration
             }
             OnReload();
             // Schedule a polling task only if none exists and a valid delay is specified.
-            if (_pollingTask == null && _options.ReloadInterval.HasValue) {
+            if (_pollingTask == null && _options.ReloadOnInterval.HasValue) {
                 _pollingTask = PollForSettingsChanges();
             }
         }
 
-        private async Task WaitForReload() => await Task.Delay(_options.ReloadInterval.Value, _cancellationToken.Token);
+        private async Task WaitForReload() => await Task.Delay(_options.ReloadOnInterval.Value, _cancellationToken.Token);
 
         private async Task PollForSettingsChanges() {
             while (!_cancellationToken.IsCancellationRequested) {
