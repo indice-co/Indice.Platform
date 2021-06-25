@@ -29,7 +29,7 @@ namespace Indice.Identity
                 })
                 .UseEntityConfiguration(options => {
                     var configuration = options.Configuration;
-                    options.ReloadOnInterval = TimeSpan.FromMinutes(1);
+                    //options.ReloadOnInterval = TimeSpan.FromMinutes(1);
                     options.ReloadOnDatabaseChange = true;
                     options.ConfigureDbContext = builder => builder.UseSqlServer(configuration.GetConnectionString("IdentityDb"));
                 });
