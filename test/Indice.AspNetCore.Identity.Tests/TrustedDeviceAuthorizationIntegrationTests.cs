@@ -30,96 +30,113 @@ namespace Indice.AspNetCore.Identity.Tests
     public class TrustedDeviceAuthorizationIntegrationTests
     {
         #region Keys
+        // https://www.scottbrady91.com/OpenSSL/Creating-RSA-Keys-using-OpenSSL
         private const string PrivateKey =
-            @"-----BEGIN PRIVATE KEY-----
-              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
-              vA6PRDilnESC/XzvUJA+jT4BR04VfA==
-              -----END PRIVATE KEY-----";
-        private const string PublicKey =
+            @"-----BEGIN RSA PRIVATE KEY-----
+            MIIJKQIBAAKCAgEA49JI4i5PBbl02coZnWaojBa5ToQTZEXthKBMmuSXCpDhaNZE
+            BnkbmF0J0xOTZ9BOQlen2TVAdC8inK8DqZC5GH+TuIjVnZf92XqIXxjCP4LmNaAQ
+            tolmW5VnYUYuJ4XDunand2cney0YiQ3uDpEWOWDzg3NiMgMDcdvdy7lFFQ9ajD1H
+            tX+11EVvyafK5yZD0evwJ83T91seSHgpEWM/5riD5KxsrVW4Jwjz4XDge5GKuS7B
+            12I7OpLl/pW2cRUtsQa9T7j3vrr3S2GJU52wypKymT1r2VafxNpXFzSC3n2MRVh6
+            ubmyZGpbCux6h/4GmvYcU6nE9jL1g23kU/Vigcn1jyf7m+5oNnmaWw0MgT57/QbS
+            f+RnLn/TN+y+Isdm+gGydedLKvZ01IgZe02f/X0cFMjSb+whhoXGPz2bOZtrai2I
+            JmHnLzbVHrz4CnCzbMws6fJhJJC88DNvLd548v6foGI2ZjizLEdBYlJEi03eaiVC
+            f0I6J8hUyhXCiLHTBL/kYg0PbUaMlRJE2fnyKYDBiQa6Iin7HbpccSi3834hjvpe
+            4XyZYp6HEH6uBccydQov54LquhjA9XJJKAr/419p1S/ycxFJtTIMCdZHs/6/Tc3A
+            Ew9qho4bqeNrzon7Ooq2LY05AkfI8J95u/eoRtVSF5JEQj+t+21jPrv0W9cCAwEA
+            AQKCAgEAnnQNuTLYR3T77taABlf2dqj/bbqy+hUg5BPR9BF1dCXcgVw1qALnzIs5
+            YBPHfHcHV2E8HvjIwYZfHncjpvY/puhkx/50BM5IAtEUtH+16xKSJ04TEcJy7NP3
+            OVLkmxyQS8pnI8cdULDG1dxYbM1Aldv2wsCn1Xz/ElwH4cAUaldpdQzSKUyQHPnG
+            jI0ltKuKlCDzwduIyAwZ/fGFLtDHCyPeqFe8prpuAMhbR7uIhqltwOria3mpFE5D
+            pVRftjsysmOrnB1cQs4rXcSTDRMqeVqa2bY8osd7DCGIXV1qgHD19O1bPn4Hs4u9
+            ktVzS87ErVbr0MzNbyd2V1lBa5vKTIdF4BlydB1L2oBiqJSvAHY5iDl2mVgJ8SdI
+            wtbNXXQlf9i8RbZa4FYgm1L0OU2rY3fLYC9cLyFVE4WVg7ZULI/AbMshwnbY05Wo
+            quwDur05BYRgKUvMbVE0OisHA7PSjhxztHizxbiYJfljDVTQxqUGE+jtORCTku2T
+            f1CXQmmTqCbUzIXtFf9gn9dSC9eSNM8vyr2cKzdJsrCCp/lwZMnuaY7O7QopiQLL
+            QjVwyjjP0Zhvaj6yu3j8Ww9giwEbIJPceqdO0MazGrQYcV1cl+Cy+hBuST/Wf27z
+            Qx1SNbcJfw73dLTl/SFHItaiZNNgGr/SM3ulo6FZhdgyfTcaiVECggEBAPOBewZS
+            kucTjhPOV1A/Z4pypYVmAB7XqpODp8XxsA9AfoOKzLXs7Dbi9uHkIv4tfoUeHAa0
+            BNiH2w6n5A6DUz/FJmaFrMcrdQbyet4V73DOEEYsBn41oEfawxXX9mnZmZt0vbcy
+            YmEjbQ1wbSnXvmvRgt7aPqgs28TVhMxM/lT7BfQRNZ2MAG8keE5tV1Gydua+HKwE
+            Jc+0/4DmHjKKrmEOwjvV0qZQDntzcC8dJuAwD54oJ2VEfJprRZCtFLf2jl1dnO7n
+            FT4CGBbgnQ6B1auwv8FcisDdN4bve/+6c/9qUb3VTUR7kYwOFo27PbPhZW1AkmdO
+            w7Gk9UOJW1t7Hq0CggEBAO+CyRdHQj+YMFIiL1iFDHbow9lEw+StvDxpBsfN34rm
+            g2kPQurY4LFjmiq1pCQ+P0j2Y8+m4/PHBZdZnJG6A3kbVoykePMUuFHZ2mDOUh+V
+            jOH8/h6282YRb1Xb4HdiW2dQN5J+ZukhP+h0FVE7af5ATFEmf1Bf1g3/RXGW85hl
+            6IT3BSbGHOtohWhGbMGIbQ2o7GLCbT4Knp8+XGs6i6bg1ylDkDT5JPsqgy5VpMPi
+            lVxjkoW/Kgd2S3P1z1BC46H+Hrwqt0igWpSb6QYxMwWAup9O2A6StFNqN0yKcD8n
+            y4l7AqdTNAO3rwFTldTzpw3X9/+g/wyS/Hit0K1RCRMCggEBAJSzLEKHKGhuO6QC
+            rLU3ku4r5sJYsJglEWh1zH2HgwE9XETN/QbXwMQfw63cWDYp6Ao4gdriEdd81xvT
+            EOR/89WMek+/L+yMsDFm3/tBH/AeFjgT6H8oFlHq2Jk9QaAQHsqc9sGpxgQV0yGS
+            10bnFcTXs3iNhBfFFQvVa/wqxGF2zYLnA3vLI/S7K7CQ+vLL7eoojG/LNJ/rot+/
+            Jw+sOqLQlXJet/2SA9YFf6t1vOjI0LC/Spd/xCu0eE3KNE3HBdckNJJ7kTBFrRpD
+            XgWe6bGoBOF6tsziCmefVXSsEuwVrAcl+8JnR1FkxQcWIa74ZKzb8sudgMm5t4Df
+            n2d0/x0CggEAd0+4at81kkZ288NRwI/uyKFlRqtpxlYBqjpLhWb6D9CK7+AJXsIR
+            FGzglJwNm3xivC75Q60IaxzenSmnxDRcnIzQzZj1I2pT83pJveWppVAzcTQ9RwGu
+            OE9BHg09QVt+2vVr6Y8MJuBIXLzPDbtCLsTK/7XkwB4tnKVoa5Bd4rIJZYtERq90
+            IpTbuDk03ife42od74iZMMnLgNpo4YW1objplgWxJaJjGLdxx7gkLuyFqRN1Hyk+
+            f58fMTHnRz069iyIFQZWbVhsJxGPwGTr3LbmwItfN8s/BzqnN3rTNbLWQrNDfCUH
+            iT6McGW6Au4pbs0CHpaN1y61lExJ4ry2fwKCAQB+hfrZdVl8vJOuipfzTHaUkTdf
+            LhuA/DkmcC0+wXGzFFiKYv5i5QTlECXBS+hEWcWOMBPSSafpA241KOP9VqM8He+e
+            VDjLSEA7GckFk4LfJF2M5nFQZwvSQO/XQbhIxNEbrB8SasXLFug+MVMZPwEZUbum
+            7jxmncoVvtJme7A1JEiX978K/FMX6ah+d2pVgWO0eUh/wpAWlXVVITx1oZJgh7Ka
+            0ry2oD/FFq/RJSJpY7QXXR9dpt6G7VJK5iDS5c8lHSjHd0eCdUTU4PIWQWwc/KNk
+            yd8J2E1ghTxD2w2wC6ZtFpkMwxbtwHCKmxFP9qB8EXjLzifMioBemXZ3E6SN
+            -----END RSA PRIVATE KEY-----
+            ";
+        private const string CertificatePublicKey =
             @"-----BEGIN CERTIFICATE-----
-              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
-              2rm8
-              -----END CERTIFICATE-----";
+            MIIGKTCCBBGgAwIBAgIUZyswHWk9UYHXjUDuFIlTD0+BGpwwDQYJKoZIhvcNAQEL
+            BQAwgaMxCzAJBgNVBAYTAkdSMQ8wDQYDVQQIDAZBdHRpY2ExDzANBgNVBAcMBkF0
+            aGVuczEUMBIGA1UECgwLSW5kaWNlIEx0ZC4xJjAkBgNVBAsMHVNvZnR3YXJlIERl
+            dmVsb3BtZW50IFNlcnZpY2VzMRIwEAYDVQQDDAlpbmRpY2UuZ3IxIDAeBgkqhkiG
+            9w0BCQEWEWNvbXBhbnlAaW5kaWNlLmdyMB4XDTIxMDYyNTA5NDM0OVoXDTIyMDYy
+            MDA5NDM0OVowgaMxCzAJBgNVBAYTAkdSMQ8wDQYDVQQIDAZBdHRpY2ExDzANBgNV
+            BAcMBkF0aGVuczEUMBIGA1UECgwLSW5kaWNlIEx0ZC4xJjAkBgNVBAsMHVNvZnR3
+            YXJlIERldmVsb3BtZW50IFNlcnZpY2VzMRIwEAYDVQQDDAlpbmRpY2UuZ3IxIDAe
+            BgkqhkiG9w0BCQEWEWNvbXBhbnlAaW5kaWNlLmdyMIICIjANBgkqhkiG9w0BAQEF
+            AAOCAg8AMIICCgKCAgEA49JI4i5PBbl02coZnWaojBa5ToQTZEXthKBMmuSXCpDh
+            aNZEBnkbmF0J0xOTZ9BOQlen2TVAdC8inK8DqZC5GH+TuIjVnZf92XqIXxjCP4Lm
+            NaAQtolmW5VnYUYuJ4XDunand2cney0YiQ3uDpEWOWDzg3NiMgMDcdvdy7lFFQ9a
+            jD1HtX+11EVvyafK5yZD0evwJ83T91seSHgpEWM/5riD5KxsrVW4Jwjz4XDge5GK
+            uS7B12I7OpLl/pW2cRUtsQa9T7j3vrr3S2GJU52wypKymT1r2VafxNpXFzSC3n2M
+            RVh6ubmyZGpbCux6h/4GmvYcU6nE9jL1g23kU/Vigcn1jyf7m+5oNnmaWw0MgT57
+            /QbSf+RnLn/TN+y+Isdm+gGydedLKvZ01IgZe02f/X0cFMjSb+whhoXGPz2bOZtr
+            ai2IJmHnLzbVHrz4CnCzbMws6fJhJJC88DNvLd548v6foGI2ZjizLEdBYlJEi03e
+            aiVCf0I6J8hUyhXCiLHTBL/kYg0PbUaMlRJE2fnyKYDBiQa6Iin7HbpccSi3834h
+            jvpe4XyZYp6HEH6uBccydQov54LquhjA9XJJKAr/419p1S/ycxFJtTIMCdZHs/6/
+            Tc3AEw9qho4bqeNrzon7Ooq2LY05AkfI8J95u/eoRtVSF5JEQj+t+21jPrv0W9cC
+            AwEAAaNTMFEwHQYDVR0OBBYEFMRInYEFqNlxmNv1iKHJCwD2Er+IMB8GA1UdIwQY
+            MBaAFMRInYEFqNlxmNv1iKHJCwD2Er+IMA8GA1UdEwEB/wQFMAMBAf8wDQYJKoZI
+            hvcNAQELBQADggIBAHK/PhggI3N0I/AJaM8dJAyDgYXTw8GC2u1p/mr7bJWfYVhT
+            sLkUnal2AKxtbqtczqtGx/syLZaiGOKotUxfPqSz36xFpj/NYk1oRdGahkMKNDtl
+            CtlIxBELdhMKwhahKLQGGybwbxy33YH9oYHQODCQIbWiJuojZaGknAfOq4JGb/bb
+            YGtHfgBMho4cMFwCCtnRZiUf98LTOk7SQLCjbDrS5uAGIegkVv4Wms0xLEmfwMz3
+            6AUOYio+/uSI/ncdxslMK2OdWxNr+7iHVm0RXsCvVTmQlZDpWCWPQuwKkYEsODLf
+            k3XVpVtynyaQwZWbkpr63kZFKqxl8PcGemRjOI7trBRir7h8AN1GWNthnxs7fbRt
+            RXt89F/sw51/BPR5VAbE0ONp6p+QvlTvMK99D8W94rblZBbOeab/q6rbo7YOxyTw
+            GecMkTnl+aGnk1ggFW/HA/gnavbisLNlzWDW6gzhfKL2IhzV7CUNih16ypgbFq8Y
+            rVfWdOS3+Eot4U18MIsQzoq2bTKgSim5xKqLGMq9oSHh5soeTc6RKnAzHIbqmbZN
+            OqSZHKXUVXn1025Y+t5izNd/gt23ZzNc3nTf0A7FgVhsVbROEMfSecK4rLVO5IK2
+            7Aj8HTznsehUEIWv/giczL5nbz/iN4R6NJ+S4bJTcFMMfoapYM00pj/fjRc+
+            -----END CERTIFICATE-----
+            ";
+        private const string RSAPublicKey =
+            @"-----BEGIN PUBLIC KEY-----
+            MIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEA49JI4i5PBbl02coZnWao
+            jBa5ToQTZEXthKBMmuSXCpDhaNZEBnkbmF0J0xOTZ9BOQlen2TVAdC8inK8DqZC5
+            GH+TuIjVnZf92XqIXxjCP4LmNaAQtolmW5VnYUYuJ4XDunand2cney0YiQ3uDpEW
+            OWDzg3NiMgMDcdvdy7lFFQ9ajD1HtX+11EVvyafK5yZD0evwJ83T91seSHgpEWM/
+            5riD5KxsrVW4Jwjz4XDge5GKuS7B12I7OpLl/pW2cRUtsQa9T7j3vrr3S2GJU52w
+            ypKymT1r2VafxNpXFzSC3n2MRVh6ubmyZGpbCux6h/4GmvYcU6nE9jL1g23kU/Vi
+            gcn1jyf7m+5oNnmaWw0MgT57/QbSf+RnLn/TN+y+Isdm+gGydedLKvZ01IgZe02f
+            /X0cFMjSb+whhoXGPz2bOZtrai2IJmHnLzbVHrz4CnCzbMws6fJhJJC88DNvLd54
+            8v6foGI2ZjizLEdBYlJEi03eaiVCf0I6J8hUyhXCiLHTBL/kYg0PbUaMlRJE2fny
+            KYDBiQa6Iin7HbpccSi3834hjvpe4XyZYp6HEH6uBccydQov54LquhjA9XJJKAr/
+            419p1S/ycxFJtTIMCdZHs/6/Tc3AEw9qho4bqeNrzon7Ooq2LY05AkfI8J95u/eo
+            RtVSF5JEQj+t+21jPrv0W9cCAwEAAQ==
+            -----END PUBLIC KEY-----
+            ";
         #endregion
         // Constants
         private const string BaseUrl = "https://server";
@@ -161,12 +178,12 @@ namespace Indice.AspNetCore.Identity.Tests
         }
 
         [Fact]
-        public async Task<string> Can_Register_New_Device_Using_Fingerprint() {
+        public async Task<string> Can_Register_New_Device_Using_Biometric() {
             var accessToken = await LoginWithPasswordGrant(userName: "alice", password: "alice");
             var codeVerifier = GenerateCodeVerifier();
             var deviceId = Guid.NewGuid().ToString();
-            var challenge = await InitiateDeviceRegistrationUsingFingerprint(accessToken, codeVerifier, deviceId);
-            var response = await CompleteDeviceRegistrationUsingFingerprint(accessToken, codeVerifier, deviceId, challenge);
+            var challenge = await InitiateDeviceRegistrationUsingBiometric(accessToken, codeVerifier, deviceId);
+            var response = await CompleteDeviceRegistrationUsingBiometric(accessToken, codeVerifier, deviceId, challenge);
             if (!response.IsSuccessStatusCode) {
                 var responseJson = await response.Content.ReadAsStringAsync();
                 _output.WriteLine(responseJson);
@@ -180,8 +197,8 @@ namespace Indice.AspNetCore.Identity.Tests
             var accessToken = await LoginWithPasswordGrant(userName: "alice", password: "alice");
             var codeVerifier = GenerateCodeVerifier();
             var deviceId = Guid.NewGuid().ToString();
-            var challenge = await InitiateDeviceRegistrationUsingFingerprint(accessToken, codeVerifier, deviceId);
-            var response = await CompleteDeviceRegistrationUsingFingerprint(accessToken, codeVerifier, deviceId, challenge);
+            var challenge = await InitiateDeviceRegistrationUsingBiometric(accessToken, codeVerifier, deviceId);
+            var response = await CompleteDeviceRegistrationUsingBiometric(accessToken, codeVerifier, deviceId, challenge);
             if (!response.IsSuccessStatusCode) {
                 var responseJson = await response.Content.ReadAsStringAsync();
                 _output.WriteLine(responseJson);
@@ -226,8 +243,8 @@ namespace Indice.AspNetCore.Identity.Tests
             }
             Assert.True(response.IsSuccessStatusCode);
             codeVerifier = GenerateCodeVerifier();
-            challenge = await InitiateDeviceRegistrationUsingFingerprint(accessToken, codeVerifier, deviceId);
-            response = await CompleteDeviceRegistrationUsingFingerprint(accessToken, codeVerifier, deviceId, challenge);
+            challenge = await InitiateDeviceRegistrationUsingBiometric(accessToken, codeVerifier, deviceId);
+            response = await CompleteDeviceRegistrationUsingBiometric(accessToken, codeVerifier, deviceId, challenge);
             if (!response.IsSuccessStatusCode) {
                 var responseJson = await response.Content.ReadAsStringAsync();
                 _output.WriteLine(responseJson);
@@ -242,7 +259,7 @@ namespace Indice.AspNetCore.Identity.Tests
             var codeVerifier = GenerateCodeVerifier();
             var challenge = await InitiateDeviceAuthorizationUsingFingerprint(codeVerifier, deviceId);
             var discoveryDocument = await _httpClient.GetDiscoveryDocumentAsync();
-            var x509SigningCredentials = GetSigningCredentials();
+            var x509SigningCredentials = GetX509SigningCredentials();
             var signature = SignMessage(challenge, x509SigningCredentials);
             var tokenResponse = await _httpClient.RequestTokenAsync(new TokenRequest {
                 Address = discoveryDocument.TokenEndpoint,
@@ -254,7 +271,7 @@ namespace Indice.AspNetCore.Identity.Tests
                     { "code_signature", signature },
                     { "code_verifier", codeVerifier },
                     { "device_id", deviceId },
-                    { "public_key", PublicKey },
+                    { "public_key", CertificatePublicKey },
                     { "scope", $"{IdentityServerConstants.StandardScopes.OpenId} {IdentityServerConstants.StandardScopes.Phone} scope1" }
                 }
             });
@@ -312,11 +329,9 @@ namespace Indice.AspNetCore.Identity.Tests
             return tokenResponse.AccessToken;
         }
 
-        private Task<string> InitiateDeviceRegistrationUsingFingerprint(string accessToken, string codeVerifier, string deviceId) =>
-            InitiateDeviceRegistration(accessToken, codeVerifier, deviceId, "fingerprint");
+        private Task<string> InitiateDeviceRegistrationUsingBiometric(string accessToken, string codeVerifier, string deviceId) => InitiateDeviceRegistration(accessToken, codeVerifier, deviceId, "fingerprint");
 
-        private Task<string> InitiateDeviceRegistrationUsingPin(string accessToken, string codeVerifier, string deviceId) =>
-            InitiateDeviceRegistration(accessToken, codeVerifier, deviceId, "pin");
+        private Task<string> InitiateDeviceRegistrationUsingPin(string accessToken, string codeVerifier, string deviceId) => InitiateDeviceRegistration(accessToken, codeVerifier, deviceId, "pin");
 
         private async Task<string> InitiateDeviceRegistration(string accessToken, string codeVerifier, string deviceId, string mode) {
             var codeChallenge = GenerateCodeChallenge(codeVerifier);
@@ -337,14 +352,12 @@ namespace Indice.AspNetCore.Identity.Tests
             return result.Challenge;
         }
 
-        private Task<HttpResponseMessage> CompleteDeviceRegistrationUsingFingerprint(string accessToken, string codeVerifier, string deviceId, string challenge) =>
-            CompleteDeviceRegistration(accessToken, codeVerifier, deviceId, challenge, "fingerprint");
+        private Task<HttpResponseMessage> CompleteDeviceRegistrationUsingBiometric(string accessToken, string codeVerifier, string deviceId, string challenge) => CompleteDeviceRegistration(accessToken, codeVerifier, deviceId, challenge, "fingerprint");
 
-        private Task<HttpResponseMessage> CompleteDeviceRegistrationUsingPin(string accessToken, string codeVerifier, string deviceId, string challenge) =>
-            CompleteDeviceRegistration(accessToken, codeVerifier, deviceId, challenge, "pin");
+        private Task<HttpResponseMessage> CompleteDeviceRegistrationUsingPin(string accessToken, string codeVerifier, string deviceId, string challenge) => CompleteDeviceRegistration(accessToken, codeVerifier, deviceId, challenge, "pin");
 
         private async Task<HttpResponseMessage> CompleteDeviceRegistration(string accessToken, string codeVerifier, string deviceId, string challenge, string mode) {
-            var x509SigningCredentials = GetSigningCredentials();
+            var x509SigningCredentials = GetX509SigningCredentials();
             var signature = SignMessage(challenge, x509SigningCredentials);
             var data = new Dictionary<string, string> {
                 { "code", challenge },
@@ -356,7 +369,7 @@ namespace Indice.AspNetCore.Identity.Tests
                 { "otp", "123456" }
             };
             if (mode == "fingerprint") {
-                data.Add("public_key", PublicKey);
+                data.Add("public_key", RSAPublicKey);
             }
             if (mode == "pin") {
                 data.Add("pin", DevicePin);
@@ -377,10 +390,23 @@ namespace Indice.AspNetCore.Identity.Tests
             return codeChallenge;
         }
 
-        private static X509SigningCredentials GetSigningCredentials() {
-            var certificate = X509Certificate2.CreateFromPem(PublicKey, PrivateKey);
+        private static X509SigningCredentials GetX509SigningCredentials() {
+            var certificate = X509Certificate2.CreateFromPem(CertificatePublicKey, PrivateKey);
             var signingCredentials = new X509SigningCredentials(certificate, SecurityAlgorithms.RsaSha256Signature);
             return signingCredentials;
+        }
+
+        private static SigningCredentials GetSigningCredentials() {
+            var privateKey = Convert.FromBase64String(PrivateKey);
+            using (var rsa = RSA.Create()) {
+                rsa.ImportRSAPrivateKey(privateKey, out _);
+                var signingCredentials = new SigningCredentials(new RsaSecurityKey(rsa), SecurityAlgorithms.RsaSha256) {
+                    CryptoProviderFactory = new CryptoProviderFactory {
+                        CacheSignatureProviders = false
+                    }
+                };
+                return signingCredentials;
+            }
         }
 
         private static string SignMessage(byte[] message, X509SigningCredentials x509SigningCredentials) {
@@ -392,6 +418,39 @@ namespace Indice.AspNetCore.Identity.Tests
         private static string SignMessage(string message, X509SigningCredentials x509SigningCredentials) {
             var messageBytes = Encoding.UTF8.GetBytes(message);
             return SignMessage(messageBytes, x509SigningCredentials);
+        }
+
+        private static string SignMessage(string message) {
+            // Create a UnicodeEncoder to convert between byte array and string.
+            var byteConverter = new ASCIIEncoding();
+            // Create byte arrays to hold original, encrypted, and decrypted data.
+            var originalData = byteConverter.GetBytes(message);
+            byte[] signedData;
+            // Create a new instance of the RSACryptoServiceProvider class and automatically create a new key-pair.
+            using (var rsaCryptoServiceProvider = new RSACryptoServiceProvider()) {
+                rsaCryptoServiceProvider.ImportRSAPrivateKey(Convert.FromBase64String(PrivateKey.Replace("-----BEGIN RSA PRIVATE KEY-----", string.Empty).Replace("-----END RSA PRIVATE KEY-----", string.Empty)), out _);
+                // Export the key information to an RSAParameters object. You must pass true to export the private key for signing. However, you do not need to export the private key for verification.
+                var rsaParameters = rsaCryptoServiceProvider.ExportParameters(true);
+                // Hash and sign the data.
+                signedData = HashAndSignBytes(originalData, rsaParameters, HashAlgorithmName.SHA256);
+                return Convert.ToBase64String(signedData);
+            }
+        }
+
+        private static byte[] HashAndSignBytes(byte[] dataToSign, RSAParameters rsaParameters, HashAlgorithmName hashAlgorithm) {
+            // Create a new instance of RSACryptoServiceProvider using the key from RSAParameters.  
+            using (var rsaCryptoServiceProvider = new RSACryptoServiceProvider()) {
+                try {
+                    rsaCryptoServiceProvider.ImportParameters(rsaParameters);
+                    // Hash and sign the data. Pass a new instance of SHA1CryptoServiceProvider to specify the use of SHA1 for hashing.
+                    return rsaCryptoServiceProvider.SignData(dataToSign, hashAlgorithm, RSASignaturePadding.Pkcs1);
+                } catch (CryptographicException) {
+                    return null;
+                } finally {
+                    // Set the key container to be cleared when RSA is garbage collected.
+                    rsaCryptoServiceProvider.PersistKeyInCsp = false;
+                }
+            }
         }
         #endregion
 

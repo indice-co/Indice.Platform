@@ -97,8 +97,7 @@ namespace Indice.Serialization
             var containsDiscriminator = false;
             foreach (var property in valueType.GetProperties(BindingFlags.Instance | BindingFlags.Public)) {
                 var propertyName = property.Name;
-                writer.WritePropertyName
-                    (options.PropertyNamingPolicy?.ConvertName(propertyName) ?? propertyName);
+                writer.WritePropertyName(options.PropertyNamingPolicy?.ConvertName(propertyName) ?? propertyName);
                 JsonSerializer.Serialize(writer, property.GetValue(value, null), jsonSerializerOptions);
                 if (TypePropertyName.Equals(propertyName, StringComparison.OrdinalIgnoreCase)) {
                     containsDiscriminator = true;

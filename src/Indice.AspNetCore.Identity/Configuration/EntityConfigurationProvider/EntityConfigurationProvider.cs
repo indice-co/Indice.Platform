@@ -10,40 +10,47 @@ namespace Indice.Extensions.Configuration
     /// <summary>
     /// An Entity Framework Core based <see cref="ConfigurationProvider"/>.
     /// </summary>
-    internal class EFConfigurationProvider : ConfigurationProvider, IDisposable
+    internal class EntityConfigurationProvider : ConfigurationProvider, IDisposable
     {
-        private readonly Action<DbContextOptionsBuilder> _configureAction;
-        private readonly TimeSpan? _reloadInterval;
+        private event EventHandler AppSettingsChanged;
+        private readonly EntityConfigurationOptions _options;
         private Task _pollingTask;
         private readonly CancellationTokenSource _cancellationToken;
 
         /// <summary>
-        /// Creates a new instance of <see cref="EFConfigurationProvider"/>.
+        /// Creates a new instance of <see cref="EntityConfigurationProvider"/>.
         /// </summary>
-        /// <param name="configureAction">The <see cref="DbContextOptions"/> to use.</param>
-        /// <param name="reloadInterval">The <see cref="TimeSpan"/> to wait in between each attempt at polling the database for changes. Default is null which indicates no reloading.</param>
-        public EFConfigurationProvider(Action<DbContextOptionsBuilder> configureAction, TimeSpan? reloadInterval = null) {
-            if (reloadInterval.HasValue && reloadInterval.Value <= TimeSpan.Zero) {
-                throw new ArgumentOutOfRangeException(nameof(reloadInterval), reloadInterval, $"Parameter {nameof(reloadInterval)} must have a positive value.");
-            }
-            _configureAction = configureAction ?? throw new ArgumentNullException(nameof(configureAction));
-            _reloadInterval = reloadInterval;
+        /// <param name="options">Configuration options for <see cref="EntityConfigurationProvider"/>.</param>
+        public EntityConfigurationProvider(EntityConfigurationOptions options) {
+            _options = options ?? throw new ArgumentNullException(nameof(options));
             _cancellationToken = new CancellationTokenSource();
             _pollingTask = null;
+            AppSettingsChanged += EntityConfigurationProviderAppSettingsChanged;
         }
 
         /// <inheritdoc/>
         public override void Load() => LoadData().ConfigureAwait(false).GetAwaiter().GetResult();
 
+        internal virtual void OnAppSettingsChanged() {
+            var handler = AppSettingsChanged;
+            handler?.Invoke(this, null);
+        }
+
         /// <inheritdoc/>
         public void Dispose() => _cancellationToken.Cancel();
+
+        private void EntityConfigurationProviderAppSettingsChanged(object sender, EventArgs eventArgs) {
+            if (_options.ReloadOnDatabaseChange) {
+                Load();
+            }
+        }
 
         /// <summary>
         /// Loads the configuration settings from the database.
         /// </summary>
         private async Task LoadData() {
             var builder = new DbContextOptionsBuilder<IdentityDbContext>();
-            _configureAction(builder);
+            _options.ConfigureDbContext?.Invoke(builder);
             using (var dbContext = new IdentityDbContext(builder.Options)) {
                 var canConnect = await dbContext.Database.CanConnectAsync();
                 if (canConnect) {
@@ -55,12 +62,12 @@ namespace Indice.Extensions.Configuration
             }
             OnReload();
             // Schedule a polling task only if none exists and a valid delay is specified.
-            if (_pollingTask == null && _reloadInterval != null) {
+            if (_pollingTask == null && _options.ReloadOnInterval.HasValue) {
                 _pollingTask = PollForSettingsChanges();
             }
         }
 
-        private async Task WaitForReload() => await Task.Delay(_reloadInterval.Value, _cancellationToken.Token);
+        private async Task WaitForReload() => await Task.Delay(_options.ReloadOnInterval.Value, _cancellationToken.Token);
 
         private async Task PollForSettingsChanges() {
             while (!_cancellationToken.IsCancellationRequested) {
