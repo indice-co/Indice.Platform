@@ -1,5 +1,4 @@
-﻿using System;
-using Indice.Extensions.Configuration;
+﻿using Indice.Extensions.Configuration;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -26,6 +25,9 @@ namespace Indice.Identity
             Host.CreateDefaultBuilder(args)
                 .ConfigureWebHostDefaults(webHostBuilder => {
                     webHostBuilder.UseStartup<Startup>();
+                    webHostBuilder.UseKestrel(options => {
+                        options.Limits.MaxRequestBodySize = null;
+                    });
                 })
                 .UseEntityConfiguration(options => {
                     var configuration = options.Configuration;
