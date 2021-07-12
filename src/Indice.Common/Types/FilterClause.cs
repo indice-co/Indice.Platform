@@ -12,8 +12,25 @@ namespace Indice.Types
     [TypeConverter(typeof(FilterClauseTypeConverter))]
     public struct FilterClause
     {
-        const string REGEX_PATTERN = @"^\s*([A-Za-z_][A-Za-z0-9_\.]+)::({0})::(\(({1})\))?(.+)\s*$";
-        static readonly Regex parseRegex = new Regex(string.Format(REGEX_PATTERN, string.Join("|", Enum.GetNames(typeof(FilterOperator))).ToLowerInvariant(), string.Join("|", Enum.GetNames(typeof(JsonDataType))).ToLowerInvariant()), RegexOptions.IgnoreCase);
+        /// <summary>
+        /// Used to separate <see cref="Member"/> value and <see cref="Operator"/>.
+        /// </summary>
+        public static string WHITE_SPACE_DELIMETER = "::";
+        /// <summary>
+        /// Used to separate <see cref="Member"/> path segments.
+        /// </summary>
+        public static char MEMBER_PATH_DELIMETER = '.';
+        private const string REGEX_PATTERN = @"^\s*([A-Za-z_][A-Za-z0-9_{3}]+){2}+({0}){2}+(\(({1})\))?(.+)\s*$";
+        private static readonly Regex parseRegex = new(
+            pattern: string.Format(
+                REGEX_PATTERN, 
+                string.Join("|", Enum.GetNames(typeof(FilterOperator))).ToLowerInvariant(), 
+                string.Join("|", Enum.GetNames(typeof(JsonDataType))).ToLowerInvariant(),
+                Regex.Escape(WHITE_SPACE_DELIMETER.ToString()),
+                Regex.Escape(MEMBER_PATH_DELIMETER.ToString())
+            ),
+            options: RegexOptions.IgnoreCase
+        );
 
         /// <summary>
         /// Creates the Json filter by supplying all the required members.
@@ -69,7 +86,7 @@ namespace Indice.Types
         /// The string representation of the <see cref="FilterClause"/>.
         /// </summary>
         /// <returns></returns>
-        public override string ToString() => $"{Member}::{Operator}::({DataType}){Value}";
+        public override string ToString() => $"{Member}{WHITE_SPACE_DELIMETER}{Operator}{WHITE_SPACE_DELIMETER}({DataType}){Value}";
 
         /// <summary>
         /// Parse the string representation to an instance of <see cref="FilterClause"/>

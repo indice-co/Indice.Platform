@@ -39,8 +39,9 @@ namespace Microsoft.Extensions.DependencyInjection
             services.TryAddTransient(serviceDescriptor.ImplementationType);
             return services.AddTransient<TService, TDecorator>(serviceProvider => {
                 var parameters = typeof(TDecorator).GetConstructors(BindingFlags.Public | BindingFlags.Instance).First().GetParameters();
-                var arguments = parameters.Select(x => x.ParameterType.Equals(typeof(TService)) ? serviceProvider.GetRequiredService(serviceDescriptor.ImplementationType) 
-                                                                                                : serviceProvider.GetService(x.ParameterType)).ToArray();
+                var arguments = parameters.Select(x => x.ParameterType.Equals(typeof(TService)) 
+                    ? serviceProvider.GetRequiredService(serviceDescriptor.ImplementationType) 
+                    : serviceProvider.GetService(x.ParameterType)).ToArray();
                 return (TDecorator)Activator.CreateInstance(typeof(TDecorator), arguments);
             });
         }

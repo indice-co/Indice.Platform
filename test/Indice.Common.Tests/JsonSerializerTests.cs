@@ -58,10 +58,10 @@ namespace Indice.Common.Tests
                     LastName = "Leftheris"
                 },
                 Filters = new[] {
-                    FilterClause.Parse("name::In::(String)Constantinos, George")
+                    FilterClause.Parse("person.name::In::(String)Constantinos, George")
                 }
             };
-            var jsonExpected = "{\"point\":\"37.9888529,23.7037796\",\"id\":\"UJbzBBXwMUiFktLYLnBYnw\",\"filters\":[\"name::In::(String)Constantinos, George\"],\"mystery\":{\"firstName\":\"Constantinos\",\"lastName\":\"Leftheris\"}}";
+            var jsonExpected = "{\"point\":\"37.9888529,23.7037796\",\"id\":\"UJbzBBXwMUiFktLYLnBYnw\",\"filters\":[\"person.name::In::(String)Constantinos, George\"],\"mystery\":{\"firstName\":\"Constantinos\",\"lastName\":\"Leftheris\"}}";
             //var jsonExpected = "{\"point\":\"37.9888529,23.7037796\",\"id\":\"UJbzBBXwMUiFktLYLnBYnw\",\"mystery\":{\"firstName\":\"Constantinos\",\"lastName\":\"Leftheris\"}}";
             var json = JsonSerializer.Serialize(model, options);
             Assert.Equal(jsonExpected, json);
