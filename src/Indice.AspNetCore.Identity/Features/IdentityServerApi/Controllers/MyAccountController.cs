@@ -572,7 +572,8 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
                 Requirement = rule.Value.Hint
             });
             foreach (var validator in _userManager.PasswordValidators) {
-                var result = await validator.ValidateAsync(_userManager, user ?? new User(), request.Password ?? string.Empty);
+                var userInstance = user ?? (userNameAvailable ? new User { UserName = request.UserName } : new User());
+                var result = await validator.ValidateAsync(_userManager, userInstance, request.Password ?? string.Empty);
                 if (!result.Succeeded) {
                     foreach (var error in result.Errors) {
                         if (availableRules.ContainsKey(error.Code)) {
