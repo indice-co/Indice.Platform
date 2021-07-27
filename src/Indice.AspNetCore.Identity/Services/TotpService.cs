@@ -58,7 +58,7 @@ namespace Indice.AspNetCore.Identity
         }
 
         /// <inheritdoc />
-        public async Task<TotpResult> Send(ClaimsPrincipal principal, string message, TotpDeliveryChannel channel = TotpDeliveryChannel.Sms, string purpose = null, string securityToken = null, string phoneNumberOrEmail = null) {
+        public async Task<TotpResult> Send(ClaimsPrincipal principal, string message, TotpDeliveryChannel channel = TotpDeliveryChannel.Sms, string purpose = null, string securityToken = null, string phoneNumberOrEmail = null, string data = null) {
             var totpResult = ValidateParameters(principal, securityToken, phoneNumberOrEmail);
             if (!totpResult.Success) {
                 return totpResult;
@@ -103,7 +103,7 @@ namespace Indice.AspNetCore.Identity
                     if (_pushNotificationService == null) {
                         throw new ArgumentNullException(nameof(_pushNotificationService), $"Cannot send push notification since there is no implementation of {nameof(IPushNotificationService)}.");
                     }
-                    await _pushNotificationService.SendAsync(string.Format(message, token), token, user.Id);
+                    await _pushNotificationService.SendAsync(string.Format(message, token), string.Format(data ?? "{0}", token), user.Id);
                     break;
                 default:
                     break;
