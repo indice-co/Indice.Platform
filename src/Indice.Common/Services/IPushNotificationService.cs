@@ -70,6 +70,21 @@ namespace Indice.Services
         /// <param name="tags">Optional tag parameters.</param>
         public static async Task SendAsync(this IPushNotificationService service, string message, string data, string userId, params string[] tags) =>
             await service.SendAsync(message, new string[] { userId }.Concat(tags ?? Array.Empty<string>()).ToList(), data);
+
+        /// <summary>
+        /// Send notification to devices registered to userId with optional data as payload
+        /// </summary>
+        /// <param name="service">Instance of <see cref="IPushNotificationService"/>.</param>
+        /// <param name="configurePushNotificationMessage">The delegate that will be used to build the <see cref="PushNotificationMessage"/>.</param>
+        /// <returns></returns>
+        public static async Task SendAsync(this IPushNotificationService service, Func<PushNotificationMessageBuilder, PushNotificationMessageBuilder> configurePushNotificationMessage) {
+            if (configurePushNotificationMessage == null) {
+                throw new ArgumentNullException(nameof(configurePushNotificationMessage));
+            }
+            var pushNotificationMessageBuilder = configurePushNotificationMessage(new PushNotificationMessageBuilder());
+            var pushNotificationMessage = pushNotificationMessageBuilder.Build();
+            await service.SendAsync(pushNotificationMessage.Message, pushNotificationMessage.Data, pushNotificationMessage.UserId, pushNotificationMessage.Tags.ToArray());
+        }
     }
 
     /// <summary>
@@ -90,6 +105,32 @@ namespace Indice.Services
         ///<inheritdoc/>
         public Task UnRegister(string deviceId) {
             throw new NotImplementedException();
+        }
+    }
+
+    /// <summary>
+    /// Mock implementation of <see cref="IPushNotificationService"/>.
+    /// </summary>
+    public class MockPushNotificationService : IPushNotificationService
+    {
+        /// <inheritdoc />
+        public Task Register(string deviceId, string pnsHandle, DevicePlatform devicePlatform, IList<string> tags) {
+            throw new NotImplementedException();
+        }
+        /// <inheritdoc />
+        public Task UnRegister(string deviceId) {
+            throw new NotImplementedException();
+        }
+        /// <inheritdoc />
+        public Task SendAsync(string message, IList<string> tags, string data = null) {
+            Console.WriteLine($"PushNotification Message: {message}");
+            Console.WriteLine($"PushNotification Tags: {string.Join(",", tags)}");
+            Console.WriteLine($"PushNotification Data: {data}");
+#if NET452
+            return Task.FromResult(0);
+#else
+            return Task.CompletedTask;
+#endif
         }
     }
 }
