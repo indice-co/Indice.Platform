@@ -21,8 +21,9 @@ namespace Indice.Services
         /// <param name="purpose">Optionally pass the reason to generate the TOTP.</param>
         /// <param name="securityToken">The generated security token to use, if no <paramref name="principal"/> is provided.</param>
         /// <param name="phoneNumberOrEmail">The phone number to use, if no <paramref name="principal"/> is provided.</param>
+        /// <param name="data">The json string that will be passed as data to the <see cref="IPushNotificationService"/>. It's important for the data to contain the {0} placeholder in the position where the OTP should be placed.</param>
         /// <exception cref="TotpServiceException">Used to pass errors between service and the caller.</exception>
-        Task<TotpResult> Send(ClaimsPrincipal principal, string message, TotpDeliveryChannel channel = TotpDeliveryChannel.Sms, string purpose = null, string securityToken = null, string phoneNumberOrEmail = null);
+        Task<TotpResult> Send(ClaimsPrincipal principal, string message, TotpDeliveryChannel channel = TotpDeliveryChannel.Sms, string purpose = null, string securityToken = null, string phoneNumberOrEmail = null, string data = null);
         /// <summary>
         /// Verify the code received for the given claims principal.
         /// </summary>
