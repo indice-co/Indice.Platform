@@ -564,11 +564,11 @@ namespace Indice.Services
         /// The message to be sent in the SMS. It's important for the message to contain the {0} placeholder in the position where the OTP should be placed.
         /// If the <see cref="DeliveryChannel"/> is PushNotification, the {0} placeholder can be ignored and use a human friendly message.
         /// </summary>
-        public string Message { get; internal set; }
+        public string Message { get; set; }
         /// <summary>
         /// The payload data as json string to be sent in PushNotification. It's important for the data to contain the {0} placeholder in the position where the OTP should be placed.
         /// </summary>
-        public string Data { get; internal set; }
+        public string Data { get; set; }
         /// <summary>
         /// Chosen delivery channel.
         /// </summary>
