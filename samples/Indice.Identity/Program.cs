@@ -25,9 +25,6 @@ namespace Indice.Identity
             Host.CreateDefaultBuilder(args)
                 .ConfigureWebHostDefaults(webHostBuilder => {
                     webHostBuilder.UseStartup<Startup>();
-                    webHostBuilder.UseKestrel(options => {
-                        options.Limits.MaxRequestBodySize = null;
-                    });
                 })
                 .UseEntityConfiguration(options => {
                     var configuration = options.Configuration;
