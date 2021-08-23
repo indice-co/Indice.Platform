@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Xunit;
 
-namespace Indice.Common.Tests
+namespace Indice.AspNetCore.Identity.Tests
 {
     public class UserNameAsPasswordValidatorTests
     {

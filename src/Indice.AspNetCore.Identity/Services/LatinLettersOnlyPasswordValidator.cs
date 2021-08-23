@@ -9,30 +9,30 @@ using Microsoft.Extensions.Configuration;
 namespace Indice.AspNetCore.Identity
 {
     /// <inheritdoc/>
-    public class LatinLettersOnlyPasswordValidator : LatinLettersOnlyPasswordValidator<User>
+    public class UnicodeCharactersPasswordValidator : UnicodeCharactersPasswordValidator<User>
     {
         /// <inheritdoc/>
-        public LatinLettersOnlyPasswordValidator(IdentityMessageDescriber messageDescriber, IConfiguration configuration) : base(messageDescriber, configuration) { }
+        public UnicodeCharactersPasswordValidator(IdentityMessageDescriber messageDescriber, IConfiguration configuration) : base(messageDescriber, configuration) { }
     }
 
     /// <summary>
     /// A validator that checks that the letters contained in the password are only latin English characters.
     /// </summary>
     /// <typeparam name="TUser">The type of user instance.</typeparam>
-    public class LatinLettersOnlyPasswordValidator<TUser> : IPasswordValidator<TUser> where TUser : User
+    public class UnicodeCharactersPasswordValidator<TUser> : IPasswordValidator<TUser> where TUser : User
     {
         private readonly IdentityMessageDescriber _messageDescriber;
         /// <summary>
         /// The code used when describing the <see cref="IdentityError"/>.
         /// </summary>
-        public const string ErrorDescriber = "PasswordContainsNonLatinLetters";
+        public const string ErrorDescriber = "PasswordContainsNonUnicodeCharacters";
 
         /// <summary>
-        /// Creates a new instance of <see cref="LatinLettersOnlyPasswordValidator"/>.
+        /// Creates a new instance of <see cref="UnicodeCharactersPasswordValidator"/>.
         /// </summary>
         /// <param name="messageDescriber">Provides the various messages used throughout Indice packages.</param>
         /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
-        public LatinLettersOnlyPasswordValidator(IdentityMessageDescriber messageDescriber, IConfiguration configuration) {
+        public UnicodeCharactersPasswordValidator(IdentityMessageDescriber messageDescriber, IConfiguration configuration) {
             _messageDescriber = messageDescriber ?? throw new ArgumentNullException(nameof(messageDescriber));
             AllowUnicodeCharacters = configuration.GetSection($"{nameof(IdentityOptions)}:{nameof(IdentityOptions.Password)}").GetValue<bool?>(nameof(AllowUnicodeCharacters)) ??
                                      configuration.GetSection(nameof(PasswordOptions)).GetValue<bool?>(nameof(AllowUnicodeCharacters));

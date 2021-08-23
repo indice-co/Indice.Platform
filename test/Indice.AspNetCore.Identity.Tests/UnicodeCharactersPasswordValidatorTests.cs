@@ -5,15 +5,15 @@ using Indice.AspNetCore.Identity.Data.Models;
 using Microsoft.Extensions.Configuration;
 using Xunit;
 
-namespace Indice.Common.Tests
+namespace Indice.AspNetCore.Identity.Tests
 {
-    public class LatinCharactersPasswordValidatorTests
+    public class UnicodeCharactersPasswordValidatorTests
     {
         private readonly IConfiguration _configuration;
 
-        public LatinCharactersPasswordValidatorTests() {
+        public UnicodeCharactersPasswordValidatorTests() {
             var inMemorySettings = new Dictionary<string, string> {
-                {$"IdentityOptions:Password:{nameof(LatinLettersOnlyPasswordValidator.AllowUnicodeCharacters)}", bool.FalseString}
+                {$"IdentityOptions:Password:{nameof(UnicodeCharactersPasswordValidator.AllowUnicodeCharacters)}", bool.FalseString}
             };
             _configuration = new ConfigurationBuilder().AddInMemoryCollection(inMemorySettings).Build();
         }
@@ -23,7 +23,7 @@ namespace Indice.Common.Tests
         [InlineData("K1$Λ")]
         [InlineData("K1$ e")]
         public async Task CheckInvalidPasswords(string password) {
-            var validator = new LatinLettersOnlyPasswordValidator<User>(new IdentityMessageDescriber(), _configuration);
+            var validator = new UnicodeCharactersPasswordValidator<User>(new IdentityMessageDescriber(), _configuration);
             var identityResult = await validator.ValidateAsync(null, new User(), password);
             Assert.False(identityResult.Succeeded);
         }
@@ -31,7 +31,7 @@ namespace Indice.Common.Tests
         [Theory]
         [InlineData(@"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789~!@#$%^&*()_+-={}[]:"";',./<>?")]
         public async Task CheckValidPasswords(string password) {
-            var validator = new LatinLettersOnlyPasswordValidator<User>(new IdentityMessageDescriber(), _configuration);
+            var validator = new UnicodeCharactersPasswordValidator<User>(new IdentityMessageDescriber(), _configuration);
             var identityResult = await validator.ValidateAsync(null, new User(), password);
             Assert.True(identityResult.Succeeded);
         }

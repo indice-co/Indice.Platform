@@ -90,13 +90,13 @@ namespace Indice.AspNetCore.Identity
         public static IdentityBuilder AddNonCommonPasswordValidator(this IdentityBuilder builder) => builder.AddNonCommonPasswordValidator<User>();
 
         /// <summary>
-        /// Registers the recommended password validators: <see cref="NonCommonPasswordValidator"/>, <see cref="LatinLettersOnlyPasswordValidator"/>, <see cref="PreviousPasswordAwareValidator"/> and <see cref="UserNameAsPasswordValidator"/>.
+        /// Registers the recommended password validators: <see cref="NonCommonPasswordValidator"/>, <see cref="UnicodeCharactersPasswordValidator"/>, <see cref="PreviousPasswordAwareValidator"/> and <see cref="UserNameAsPasswordValidator"/>.
         /// </summary>
         /// <param name="builder">Helper functions for configuring identity services.</param>
         /// <returns>The <see cref="IdentityBuilder"/>.</returns>
         public static IdentityBuilder AddDefaultPasswordValidators(this IdentityBuilder builder) {
             builder.AddNonCommonPasswordValidator();
-            builder.AddPasswordValidator<LatinLettersOnlyPasswordValidator>();
+            builder.AddPasswordValidator<UnicodeCharactersPasswordValidator>();
             builder.AddPasswordValidator<PreviousPasswordAwareValidator<ExtendedIdentityDbContext<User, Role>, User, Role>>();
             builder.AddPasswordValidator<UserNameAsPasswordValidator>();
             return builder;
