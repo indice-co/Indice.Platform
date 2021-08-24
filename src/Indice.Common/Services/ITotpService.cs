@@ -73,7 +73,7 @@ namespace Indice.Services
             var messageBuilder = new TotpMessageBuilder();
             configureMessage(messageBuilder);
             var totpMessage = messageBuilder.Build();
-            return service.Send(totpMessage.ClaimsPrincipal, totpMessage.Message, totpMessage.DeliveryChannel, totpMessage.Purpose, totpMessage.SecurityToken, totpMessage.PhoneNumberOrEmail);
+            return service.Send(totpMessage.ClaimsPrincipal, totpMessage.Message, totpMessage.DeliveryChannel, totpMessage.Purpose, totpMessage.SecurityToken, totpMessage.PhoneNumberOrEmail, totpMessage.Data);
         }
 
         /// <summary>
@@ -108,8 +108,13 @@ namespace Indice.Services
         public ClaimsPrincipal ClaimsPrincipal { get; internal set; }
         /// <summary>
         /// The message to be sent in the SMS. It's important for the message to contain the {0} placeholder in the position where the OTP should be placed.
+        /// If the <see cref="DeliveryChannel"/> is PushNotification, the {0} placeholder can be ignored and use a human friendly message.
         /// </summary>
         public string Message { get; internal set; }
+        /// <summary>
+        /// The payload data as json string to be sent in PushNotification. It's important for the data to contain the {0} placeholder in the position where the OTP should be placed.
+        /// </summary>
+        public string Data { get; internal set; }
         /// <summary>
         /// Security token.
         /// </summary>
@@ -158,11 +163,44 @@ namespace Indice.Services
         public TotpMessage Build() => new() {
             ClaimsPrincipal = ClaimsPrincipal,
             Message = Message,
+            Data = Data,
             SecurityToken = SecurityToken,
             PhoneNumberOrEmail = PhoneNumberOrEmail,
             DeliveryChannel = DeliveryChannel,
             Purpose = Purpose
         };
+    }
+
+    /// <summary>
+    /// Builder for the <see cref="TotpDataBuilder"/>.
+    /// </summary>
+    public interface ITotpDataBuilder
+    {
+        /// <summary>
+        /// Sets the <see cref="TotpMessageBuilder.Data"/> property.
+        /// </summary>
+        /// <param name="data">The payload data as json string to be sent in PushNotification. It's important for the data to contain the {0} placeholder in the position where the OTP should be placed.</param>
+        /// <returns></returns>
+        void WithData(string data);
+    }
+
+    /// <inheritdoc />
+    public class TotpDataBuilder : ITotpDataBuilder
+    {
+        private readonly TotpMessageBuilder _totpMessageBuilder;
+
+        /// <summary>
+        /// Creates a new instance of <see cref="TotpDataBuilder"/>.
+        /// </summary>
+        /// <param name="totpMessageBuilder">The instance of <see cref="TotpMessageBuilder"/>.</param>
+        public TotpDataBuilder(TotpMessageBuilder totpMessageBuilder) {
+            _totpMessageBuilder = totpMessageBuilder ?? throw new ArgumentNullException(nameof(totpMessageBuilder));
+        }
+
+        /// <inheritdoc/>
+        public void WithData(string data) {
+            _totpMessageBuilder.Data = data;
+        }
     }
 
     /// <summary>
@@ -277,7 +315,8 @@ namespace Indice.Services
         /// Sets the <see cref="TotpMessageBuilder.Purpose"/> property.
         /// </summary>
         /// <param name="purpose">The purpose.</param>
-        void WithPurpose(string purpose);
+        ITotpDataBuilder WithPurpose(string purpose);
+        
     }
 
     /// <inheritdoc/>
@@ -294,11 +333,13 @@ namespace Indice.Services
         }
 
         /// <inheritdoc/>
-        public void WithPurpose(string purpose) {
+        public ITotpDataBuilder WithPurpose(string purpose) {
             if (string.IsNullOrEmpty(purpose)) {
                 throw new ArgumentNullException(nameof(purpose), $"Parameter {nameof(purpose)} cannot be null or empty.");
             }
             _totpMessageBuilder.Purpose = purpose;
+            var dataBuilder = new TotpDataBuilder(_totpMessageBuilder);
+            return dataBuilder;
         }
     }
 
@@ -383,8 +424,8 @@ namespace Indice.Services
         /// </summary>
         /// <param name="error">The error.</param>
         public static TotpResult ErrorResult(string error) {
-            return new TotpResult { 
-                Error = error 
+            return new TotpResult {
+                Error = error
             };
         }
 
@@ -521,8 +562,13 @@ namespace Indice.Services
         public ClaimsPrincipal ClaimsPrincipal { get; set; }
         /// <summary>
         /// The message to be sent in the SMS. It's important for the message to contain the {0} placeholder in the position where the OTP should be placed.
+        /// If the <see cref="DeliveryChannel"/> is PushNotification, the {0} placeholder can be ignored and use a human friendly message.
         /// </summary>
         public string Message { get; set; }
+        /// <summary>
+        /// The payload data as json string to be sent in PushNotification. It's important for the data to contain the {0} placeholder in the position where the OTP should be placed.
+        /// </summary>
+        public string Data { get; set; }
         /// <summary>
         /// Chosen delivery channel.
         /// </summary>
