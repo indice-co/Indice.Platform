@@ -169,6 +169,12 @@ namespace Indice.AspNetCore.Identity
                     CanGenerate = true
                 },
                 new TotpProviderMetadata {
+                    Type = TotpProviderType.Phone,
+                    Channel = TotpDeliveryChannel.PushNotification,
+                    DisplayName = "PushNotification",
+                    CanGenerate = true
+                },
+                new TotpProviderMetadata {
                     Type = TotpProviderType.EToken,
                     Channel = TotpDeliveryChannel.EToken,
                     DisplayName = "e-Token",
