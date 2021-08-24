@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Net.Mime;
 using System.Threading.Tasks;
 using Indice.AspNetCore.Identity.Api.Filters;
@@ -9,6 +10,7 @@ using Indice.AspNetCore.Identity.Api.Security;
 using Indice.AspNetCore.Identity.Data;
 using Indice.AspNetCore.Identity.Data.Models;
 using Indice.Services;
+using Indice.Types;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -65,20 +67,20 @@ namespace Indice.AspNetCore.Identity.Features
         /// <response code="200">OK</response>
         /// <response code="404">Not Found</response>
         [HttpGet]
-        [ProducesResponseType(statusCode: StatusCodes.Status200OK, type: typeof(IEnumerable<DeviceInfo>))]
+        [ProducesResponseType(statusCode: StatusCodes.Status200OK, type: typeof(ResultSet<DeviceInfo>))]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
-        public async Task<IActionResult> GetDevices() {
+        public async Task<IActionResult> GetDevices([FromQuery] ListOptions<UserDeviceFilter> options = null) {
             var user = await _userManager.GetUserAsync(User);
             if (user == null) {
                 return NotFound();
             }
-            var devices = await _dbContext.UserDevices.Where(x => x.UserId == user.Id).Select(x => new DeviceInfo {
+            var devices = await _dbContext.UserDevices.Where(UserDevicePredicate(user.Id, options)).Select(x => new DeviceInfo {
                 DeviceId = x.DeviceId,
                 DeviceName = x.DeviceName,
                 DevicePlatform = x.DevicePlatform,
                 IsPushNotificationsEnabled = x.IsPushNotificationsEnabled
             })
-            .ToArrayAsync();
+            .ToResultSetAsync(options);
             return Ok(devices);
         }
 
@@ -138,6 +140,12 @@ namespace Indice.AspNetCore.Identity.Features
             device.IsPushNotificationsEnabled = false;
             await _dbContext.SaveChangesAsync();
             return NoContent();
+        }
+
+        private Expression<Func<UserDevice, bool>> UserDevicePredicate(string userId, ListOptions<UserDeviceFilter> options) {
+            return options?.Filter.IsPushNotificationEnabled == null
+                ? x => x.UserId == userId
+                : x => x.UserId == userId && x.IsPushNotificationsEnabled == options.Filter.IsPushNotificationEnabled.Value;
         }
     }
 }
