@@ -67,7 +67,7 @@ namespace Indice.AspNetCore.Identity.Features
         /// <response code="200">OK</response>
         /// <response code="404">Not Found</response>
         [HttpGet]
-        [ProducesResponseType(statusCode: StatusCodes.Status200OK, type: typeof(IEnumerable<DeviceInfo>))]
+        [ProducesResponseType(statusCode: StatusCodes.Status200OK, type: typeof(ResultSet<DeviceInfo>))]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
         public async Task<IActionResult> GetDevices([FromQuery] ListOptions<UserDeviceFilter> options = null) {
             var user = await _userManager.GetUserAsync(User);
@@ -80,7 +80,7 @@ namespace Indice.AspNetCore.Identity.Features
                 DevicePlatform = x.DevicePlatform,
                 IsPushNotificationsEnabled = x.IsPushNotificationsEnabled
             })
-            .ToArrayAsync();
+            .ToResultSetAsync(options);
             return Ok(devices);
         }
 
