@@ -743,8 +743,8 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
                 if (isPreviousPasswordAwareValidator && userAvailable) {
                     result.Add(PreviousPasswordAwareValidator.ErrorDescriber, (Description: messageDescriber.PasswordRecentlyUsed, Hint: messageDescriber.PasswordRecentlyUsedRequirement));
                 }
-                var isLatinCharactersPasswordValidator = validatorType == typeof(UnicodeCharactersPasswordValidator) || validatorType == typeof(UnicodeCharactersPasswordValidator<>);
-                if (isLatinCharactersPasswordValidator) {
+                var isUnicodeCharactersPasswordValidator = validatorType == typeof(UnicodeCharactersPasswordValidator) || validatorType == typeof(UnicodeCharactersPasswordValidator<>);
+                if (isUnicodeCharactersPasswordValidator) {
                     result.Add(UnicodeCharactersPasswordValidator.ErrorDescriber, (Description: messageDescriber.PasswordHasNonLatinChars, Hint: messageDescriber.PasswordHasNonLatinCharsRequirement));
                 }
             }
