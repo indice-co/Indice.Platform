@@ -132,6 +132,12 @@
   <data name="ForgotPasswordMessageSubject" xml:space="preserve">
     <value>Forgot password</value>
   </data>
+  <data name="PasswordContainsNotAllowedChars" xml:space="preserve">
+    <value>Your password contains not allowed characters.</value>
+  </data>
+  <data name="PasswordContainsNotAllowedCharsRequirement" xml:space="preserve">
+    <value>Not allowed characters.</value>
+  </data>
   <data name="PasswordHasNonLatinChars" xml:space="preserve">
     <value>Password cannot contain non-Latin characters.</value>
   </data>
@@ -151,7 +157,7 @@
     <value>Not easy to guess.</value>
   </data>
   <data name="PasswordRecentlyUsed" xml:space="preserve">
-    <value>This password has been used recently. It is a good practise not to re-use your previous password.</value>
+    <value>This password has been used recently. It is a good practice not to re-use your previous password.</value>
   </data>
   <data name="PasswordRecentlyUsedRequirement" xml:space="preserve">
     <value>Not recently used.</value>

@@ -88,7 +88,7 @@ namespace Indice.AspNetCore.Identity {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Email verification code is {0}..
+        ///   Looks up a localized string similar to Follow this link to verify your email is &gt;a href=&quot;{0}&quot; &lt;{1}&gt;a&lt;.
         /// </summary>
         internal static string ForgotPasswordMessageBody {
             get {
@@ -102,6 +102,24 @@ namespace Indice.AspNetCore.Identity {
         internal static string ForgotPasswordMessageSubject {
             get {
                 return ResourceManager.GetString("ForgotPasswordMessageSubject", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Your password contains not allowed characters..
+        /// </summary>
+        internal static string PasswordContainsNotAllowedChars {
+            get {
+                return ResourceManager.GetString("PasswordContainsNotAllowedChars", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Not allowed characters..
+        /// </summary>
+        internal static string PasswordContainsNotAllowedCharsRequirement {
+            get {
+                return ResourceManager.GetString("PasswordContainsNotAllowedCharsRequirement", resourceCulture);
             }
         }
         
@@ -160,7 +178,7 @@ namespace Indice.AspNetCore.Identity {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to This password has been used recently. It is a good practise not to re-use your previous password..
+        ///   Looks up a localized string similar to This password has been used recently. It is a good practice not to re-use your previous password..
         /// </summary>
         internal static string PasswordRecentlyUsed {
             get {

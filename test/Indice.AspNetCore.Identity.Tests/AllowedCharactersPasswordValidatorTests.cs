@@ -6,31 +6,35 @@ using Xunit;
 
 namespace Indice.AspNetCore.Identity.Tests
 {
-    public class UnicodeCharactersPasswordValidatorTests
+    public class AllowedCharactersPasswordValidatorTests
     {
         private readonly IConfiguration _configuration;
+        private const string ALLOWED_CHARACTERS = "123abcAbc!#$";
 
-        public UnicodeCharactersPasswordValidatorTests() {
+        public AllowedCharactersPasswordValidatorTests() {
             var inMemorySettings = new Dictionary<string, string> {
-                {$"IdentityOptions:Password:{nameof(UnicodeCharactersPasswordValidator.AllowUnicodeCharacters)}", bool.FalseString}
+                {$"IdentityOptions:Password:{nameof(AllowedCharactersPasswordValidator.AllowedCharacters)}", ALLOWED_CHARACTERS}
             };
             _configuration = new ConfigurationBuilder().AddInMemoryCollection(inMemorySettings).Build();
         }
 
         [Theory]
-        [InlineData("k1#λ")]
-        [InlineData("K1$Λ")]
-        [InlineData("K1$ e")]
+        [InlineData("1234Abc!")]
+        [InlineData("123AbcD!")]
+        [InlineData("123 Abc")]
+        [InlineData("1234Abc(")]
         public async Task CheckInvalidPasswords(string password) {
-            var validator = new UnicodeCharactersPasswordValidator<User>(new IdentityMessageDescriber(), _configuration);
+            var validator = new AllowedCharactersPasswordValidator(_configuration, new IdentityMessageDescriber());
             var identityResult = await validator.ValidateAsync(null, new User(), password);
             Assert.False(identityResult.Succeeded);
         }
 
         [Theory]
-        [InlineData(@"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789~!@#$%^&*()_+-={}[]:"";',./<>?")]
+        [InlineData("123Abc!")]
+        [InlineData("123Abc!$")]
+        [InlineData("123")]
         public async Task CheckValidPasswords(string password) {
-            var validator = new UnicodeCharactersPasswordValidator<User>(new IdentityMessageDescriber(), _configuration);
+            var validator = new AllowedCharactersPasswordValidator(_configuration, new IdentityMessageDescriber());
             var identityResult = await validator.ValidateAsync(null, new User(), password);
             Assert.True(identityResult.Succeeded);
         }

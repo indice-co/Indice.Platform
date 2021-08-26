@@ -747,6 +747,10 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
                 if (isUnicodeCharactersPasswordValidator) {
                     result.Add(UnicodeCharactersPasswordValidator.ErrorDescriber, (Description: messageDescriber.PasswordHasNonLatinChars, Hint: messageDescriber.PasswordHasNonLatinCharsRequirement));
                 }
+                var isNotAllowedCharactersPasswordValidator = validatorType == typeof(AllowedCharactersPasswordValidator) || validatorType == typeof(AllowedCharactersPasswordValidator<>);
+                if (isNotAllowedCharactersPasswordValidator) {
+                    result.Add(AllowedCharactersPasswordValidator.ErrorDescriber, (Description: messageDescriber.PasswordContainsNotAllowedChars, Hint: messageDescriber.PasswordContainsNotAllowedCharsRequirement));
+                }
             }
             return result;
         }

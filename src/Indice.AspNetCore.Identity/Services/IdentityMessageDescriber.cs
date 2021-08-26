@@ -76,5 +76,13 @@
         /// Your password cannot contain non-Latin characters, which is required by the password policy.
         /// </summary>
         public virtual string PasswordHasNonLatinCharsRequirement => string.Format(IdentityResources.Culture, IdentityResources.PasswordHasNonLatinCharsRequirement);
+        /// <summary>
+        /// Your password contains not allowed characters.
+        /// </summary>
+        public virtual string PasswordContainsNotAllowedChars => string.Format(IdentityResources.Culture, IdentityResources.PasswordContainsNotAllowedChars);
+        /// <summary>
+        /// Not allowed characters.
+        /// </summary>
+        public virtual string PasswordContainsNotAllowedCharsRequirement => string.Format(IdentityResources.Culture, IdentityResources.PasswordContainsNotAllowedCharsRequirement);
     }
 }
