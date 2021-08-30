@@ -47,7 +47,7 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <param name="configure">Configuration used in <see cref="Rfc6238AuthenticationService"/> service.</param>
         public static IIdentityServerBuilder AddTotp<TotpService>(this IIdentityServerBuilder builder, Action<TotpOptions> configure = null) where TotpService : class, ITotpService {
             builder.Services.AddDefaultTotpService(configure);
-            builder.Services.Configure<IdentityServerOptions>((options) => {
+            builder.Services.Configure<IdentityServerOptions>(options => {
                 options.Discovery.CustomEntries.Add("totp", new {
                     endpoint = options.IssuerUri.TrimEnd('/') + "/totp",
                     providers = new[] { 

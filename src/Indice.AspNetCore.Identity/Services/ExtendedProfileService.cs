@@ -4,6 +4,7 @@ using IdentityModel;
 using IdentityServer4.Models;
 using IdentityServer4.Services;
 using Indice.AspNetCore.Identity.Data.Models;
+using Indice.Security;
 
 namespace Indice.AspNetCore.Identity.Services
 {
@@ -30,7 +31,13 @@ namespace Indice.AspNetCore.Identity.Services
         }
 
         /// <inheritdoc />
-        public Task GetProfileDataAsync(ProfileDataRequestContext context) => _inner.GetProfileDataAsync(context);
+        public async Task GetProfileDataAsync(ProfileDataRequestContext context) {
+            await _inner.GetProfileDataAsync(context);
+            var otpVerifiedClaim = context.Subject.FindFirst(BasicClaimTypes.OtpVerified);
+            if (otpVerifiedClaim is not null) {
+                context.IssuedClaims.Add(otpVerifiedClaim);
+            }
+        }
 
         /// <inheritdoc />
         public async Task IsActiveAsync(IsActiveContext context) {

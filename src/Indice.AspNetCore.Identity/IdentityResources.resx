@@ -132,6 +132,12 @@
   <data name="ForgotPasswordMessageSubject" xml:space="preserve">
     <value>Forgot password</value>
   </data>
+  <data name="OtpSecuredValidatorOtpBody" xml:space="preserve">
+    <value>Your verification code is '{0}'.</value>
+  </data>
+  <data name="OtpSecuredValidatorOtpSubject" xml:space="preserve">
+    <value>OTP Verification</value>
+  </data>
   <data name="PasswordContainsNotAllowedChars" xml:space="preserve">
     <value>Your password contains not allowed characters.</value>
   </data>

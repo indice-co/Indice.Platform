@@ -106,6 +106,24 @@ namespace Indice.AspNetCore.Identity {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Your verification code is &apos;{0}&apos;..
+        /// </summary>
+        internal static string OtpSecuredValidatorOtpBody {
+            get {
+                return ResourceManager.GetString("OtpSecuredValidatorOtpBody", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to OTP Verification.
+        /// </summary>
+        internal static string OtpSecuredValidatorOtpSubject {
+            get {
+                return ResourceManager.GetString("OtpSecuredValidatorOtpSubject", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Your password contains not allowed characters..
         /// </summary>
         internal static string PasswordContainsNotAllowedChars {

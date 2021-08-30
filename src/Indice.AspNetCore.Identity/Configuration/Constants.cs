@@ -13,5 +13,9 @@
         /// Trusted device authorization.
         /// </summary>
         public const string TrustedDevice = "trusted_device";
+        /// <summary>
+        /// Otp secured.
+        /// </summary>
+        public const string OtpSecured = "otp_secured";
     }
 }

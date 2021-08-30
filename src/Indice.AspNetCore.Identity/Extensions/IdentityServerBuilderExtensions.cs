@@ -1,10 +1,12 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using IdentityServer4.EntityFramework.Entities;
 using IdentityServer4.EntityFramework.Options;
 using IdentityServer4.Services;
 using Indice.AspNetCore.Identity;
 using Indice.AspNetCore.Identity.Data.Models;
 using Indice.AspNetCore.Identity.Services;
+using Indice.Configuration;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Microsoft.Extensions.DependencyInjection
@@ -18,7 +20,7 @@ namespace Microsoft.Extensions.DependencyInjection
         /// Setup an Event sink to filter login events and potentially log them into a persistent store like a db or a file.
         /// </summary>
         /// <typeparam name="TEventSink">The type of <see cref="IEventSink"/> implementation.</typeparam>
-        /// <param name="builder">IdentityServer builder interface.</param>
+        /// <param name="builder"><see cref="IIdentityServerBuilder"/> builder interface.</param>
         public static IIdentityServerBuilder AddEventSink<TEventSink>(this IIdentityServerBuilder builder) where TEventSink : class, IEventSink {
             builder.Services.AddTransient<IEventSink, TEventSink>();
             return builder;
@@ -27,9 +29,19 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <summary>
         /// Adds support for token delegation.
         /// </summary>
-        /// <param name="builder">IdentityServer builder interface.</param>
+        /// <param name="builder"><see cref="IIdentityServerBuilder"/> builder interface.</param>
         public static IIdentityServerBuilder AddDelegationGrantValidator(this IIdentityServerBuilder builder) {
             builder.AddExtensionGrantValidator<DelegationGrantValidator>();
+            return builder;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="builder"><see cref="IIdentityServerBuilder"/> builder interface.</param>
+        /// <param name="configure"></param>
+        public static IIdentityServerBuilder AddOtpSecuredGrantValidator(this IIdentityServerBuilder builder, Action<TotpOptions> configure = null) {
+            builder.AddExtensionGrantValidator<OtpSecuredExtensionGrantValidator>();
             return builder;
         }
 
@@ -37,7 +49,7 @@ namespace Microsoft.Extensions.DependencyInjection
         /// Adds an extended version of the built-in ResourceOwnerPasswordValidator, considering all the custom policies existing in the platform.
         /// </summary>
         /// <typeparam name="TUser">The type of user.</typeparam>
-        /// <param name="builder">IdentityServer builder interface.</param>
+        /// <param name="builder"><see cref="IIdentityServerBuilder"/> builder interface.</param>
         public static IIdentityServerBuilder AddExtendedResourceOwnerPasswordValidator<TUser>(this IIdentityServerBuilder builder) where TUser : User {
             builder.AddResourceOwnerValidator<ExtendedResourceOwnerPasswordValidator<TUser>>();
             var profileServiceImplementation = builder.Services.Where(x => x.ServiceType == typeof(IProfileService)).LastOrDefault()?.ImplementationType;
@@ -52,7 +64,7 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <summary>
         /// Adds an extended version of the built-in ResourceOwnerPasswordValidator, considering all the custom policies existing in the platform.
         /// </summary>
-        /// <param name="builder">IdentityServer builder interface.</param>
+        /// <param name="builder"><see cref="IIdentityServerBuilder"/> builder interface.</param>
         public static IIdentityServerBuilder AddExtendedResourceOwnerPasswordValidator(this IIdentityServerBuilder builder) => builder.AddExtendedResourceOwnerPasswordValidator<User>();
 
         /// <summary>

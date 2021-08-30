@@ -3,6 +3,7 @@ using IdentityModel;
 using IdentityServer4;
 using IdentityServer4.Models;
 using Indice.AspNetCore.Identity.Api.Security;
+using Indice.Configuration;
 using Indice.Security;
 
 namespace Indice.Identity.Security
@@ -19,12 +20,17 @@ namespace Indice.Identity.Security
             new Client {
                 ClientId = "postman",
                 ClientName = "PostMan",
-                AllowedGrantTypes = GrantTypes.ResourceOwnerPasswordAndClientCredentials,
+                AllowedGrantTypes = { 
+                    GrantType.ResourceOwnerPassword, 
+                    GrantType.ClientCredentials, 
+                    CustomGrantTypes.OtpSecured 
+                },
                 AllowedScopes = {
                     IdentityServerApi.Scope,
                     IdentityServerApi.SubScopes.Clients,
                     IdentityServerApi.SubScopes.Users,
                     IdentityServerConstants.StandardScopes.Email,
+                    IdentityServerConstants.StandardScopes.Phone,
                     IdentityServerConstants.StandardScopes.OfflineAccess,
                     IdentityServerConstants.StandardScopes.OpenId,
                     IdentityServerConstants.StandardScopes.Profile,

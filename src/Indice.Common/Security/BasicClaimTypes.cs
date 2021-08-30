@@ -126,6 +126,10 @@ namespace Indice.Security
         /// </summary>
         public const string TrustedDevice = "trusted_device";
         /// <summary>
+        /// OTP is already verified.
+        /// </summary>
+        public const string OtpVerified = "otp_verified";
+        /// <summary>
         /// All possible user related claims.
         /// </summary>
         public static readonly string[] UserClaims = {

@@ -598,13 +598,17 @@ namespace Indice.Services
         public static class TokenGenerationPurpose
         {
             /// <summary>
-            /// SCA
+            /// Strong Customer Authentication.
             /// </summary>
             public const string StrongCustomerAuthentication = "Strong Customer Authentication";
             /// <summary>
-            /// TFA
+            /// Two Factor Authentication.
             /// </summary>
             public const string TwoFactorAuthentication = "Two Factor Authentication";
+            /// <summary>
+            /// Session OTP.
+            /// </summary>
+            public const string SessionOtp = "Session OTP";
         }
 
         /// <summary>
