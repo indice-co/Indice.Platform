@@ -85,11 +85,11 @@
         /// </summary>
         public virtual string PasswordContainsNotAllowedCharsRequirement => string.Format(IdentityResources.Culture, IdentityResources.PasswordContainsNotAllowedCharsRequirement);
         /// <summary>
-        /// Subject sent on message when <see cref="OtpSecuredExtensionGrantValidator"/> is used.
+        /// Subject sent on message when <see cref="OtpAuthenticateExtensionGrantValidator"/> is used.
         /// </summary>
         public virtual string OtpSecuredValidatorOtpSubject => string.Format(IdentityResources.Culture, IdentityResources.OtpSecuredValidatorOtpSubject);
         /// <summary>
-        /// Message sent on message when <see cref="OtpSecuredExtensionGrantValidator"/> is used.
+        /// Message sent on message when <see cref="OtpAuthenticateExtensionGrantValidator"/> is used.
         /// </summary>
         public virtual string OtpSecuredValidatorOtpBody(string code) => string.Format(IdentityResources.Culture, IdentityResources.OtpSecuredValidatorOtpSubject, code);
     }

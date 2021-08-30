@@ -20,7 +20,7 @@ namespace Indice.AspNetCore.Identity
     /// <summary>
     /// An extension grant that receives a valid token, sends an OTP to the user that when verified issues a new token that is marked approproately.
     /// </summary>
-    public class OtpSecuredExtensionGrantValidator : IExtensionGrantValidator
+    public class OtpAuthenticateExtensionGrantValidator : IExtensionGrantValidator
     {
         private readonly ITokenValidator _tokenValidator;
         private readonly UserManager<User> _userManager;
@@ -29,14 +29,14 @@ namespace Indice.AspNetCore.Identity
         private readonly IdentityMessageDescriber _identityMessageDescriber;
 
         /// <summary>
-        /// Creates a new instance of <see cref="OtpSecuredExtensionGrantValidator"/>.
+        /// Creates a new instance of <see cref="OtpAuthenticateExtensionGrantValidator"/>.
         /// </summary>
         /// <param name="validator">Validates an access token.</param>
         /// <param name="userManager">Provides the APIs for managing user in a persistence store.</param>
         /// <param name="smsServiceFactory"></param>
         /// <param name="totpOptions">Configuration used in <see cref="System.Security.Rfc6238AuthenticationService"/> service.</param>
         /// <param name="identityMessageDescriber">Provides an extensibility point for altering localizing used inside the package.</param>
-        public OtpSecuredExtensionGrantValidator(
+        public OtpAuthenticateExtensionGrantValidator(
             ITokenValidator validator,
             UserManager<User> userManager,
             ISmsServiceFactory smsServiceFactory,
@@ -51,7 +51,7 @@ namespace Indice.AspNetCore.Identity
         }
 
         /// <inheritdoc />
-        public string GrantType => CustomGrantTypes.OtpSecured;
+        public string GrantType => CustomGrantTypes.OtpAuthenticate;
 
         /// <inheritdoc />
         public async Task ValidateAsync(ExtensionGrantValidationContext context) {
@@ -133,7 +133,7 @@ namespace Indice.AspNetCore.Identity
             }
             /* If OTP verification code is valid add the same claims that were present in the token and a new one to mark that OTP verification has been successfully completed. */
             var claims = tokenValidationResult.Claims.ToList();
-            claims.Add(new Claim(BasicClaimTypes.OtpVerified, "true"));
+            claims.Add(new Claim(BasicClaimTypes.OtpAuthenticated, "true"));
             context.Result = new GrantValidationResult(subject, GrantType, claims);
         }
     }

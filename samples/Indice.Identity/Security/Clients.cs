@@ -23,7 +23,7 @@ namespace Indice.Identity.Security
                 AllowedGrantTypes = { 
                     GrantType.ResourceOwnerPassword, 
                     GrantType.ClientCredentials, 
-                    CustomGrantTypes.OtpSecured 
+                    CustomGrantTypes.OtpAuthenticate 
                 },
                 AllowedScopes = {
                     IdentityServerApi.Scope,

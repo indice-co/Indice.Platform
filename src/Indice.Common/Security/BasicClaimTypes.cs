@@ -128,7 +128,7 @@ namespace Indice.Security
         /// <summary>
         /// OTP is already verified.
         /// </summary>
-        public const string OtpVerified = "otp_verified";
+        public const string OtpAuthenticated = "otp_authenticated";
         /// <summary>
         /// All possible user related claims.
         /// </summary>

@@ -36,12 +36,11 @@ namespace Microsoft.Extensions.DependencyInjection
         }
 
         /// <summary>
-        /// 
+        /// Registers <see cref="OtpAuthenticateExtensionGrantValidator"/> custom grant.
         /// </summary>
         /// <param name="builder"><see cref="IIdentityServerBuilder"/> builder interface.</param>
-        /// <param name="configure"></param>
-        public static IIdentityServerBuilder AddOtpSecuredGrantValidator(this IIdentityServerBuilder builder, Action<TotpOptions> configure = null) {
-            builder.AddExtensionGrantValidator<OtpSecuredExtensionGrantValidator>();
+        public static IIdentityServerBuilder AddOtpAuthenticateGrantValidator(this IIdentityServerBuilder builder) {
+            builder.AddExtensionGrantValidator<OtpAuthenticateExtensionGrantValidator>();
             return builder;
         }
 

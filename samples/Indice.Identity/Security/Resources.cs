@@ -17,7 +17,7 @@ namespace Indice.Identity.Security
             BasicClaimTypes.PasswordExpirationDate,
             BasicClaimTypes.PasswordExpirationPolicy,
             BasicClaimTypes.System,
-            BasicClaimTypes.OtpVerified,
+            BasicClaimTypes.OtpAuthenticated,
             JwtClaimTypes.Email,
             JwtClaimTypes.EmailVerified,
             JwtClaimTypes.FamilyName,
@@ -73,7 +73,7 @@ namespace Indice.Identity.Security
                 Name = nameof(IdentityResources.Phone).ToLower(),
                 Required = true,
                 UserClaims = new IdentityResources.Phone().UserClaims.Concat(new [] {
-                    BasicClaimTypes.OtpVerified
+                    BasicClaimTypes.OtpAuthenticated
                 })
                 .ToList()
             }

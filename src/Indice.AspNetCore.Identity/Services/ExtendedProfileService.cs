@@ -33,7 +33,7 @@ namespace Indice.AspNetCore.Identity.Services
         /// <inheritdoc />
         public async Task GetProfileDataAsync(ProfileDataRequestContext context) {
             await _inner.GetProfileDataAsync(context);
-            var otpVerifiedClaim = context.Subject.FindFirst(BasicClaimTypes.OtpVerified);
+            var otpVerifiedClaim = context.Subject.FindFirst(BasicClaimTypes.OtpAuthenticated);
             if (otpVerifiedClaim is not null) {
                 context.IssuedClaims.Add(otpVerifiedClaim);
             }

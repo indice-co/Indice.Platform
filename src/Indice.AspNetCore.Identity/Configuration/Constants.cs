@@ -16,6 +16,6 @@
         /// <summary>
         /// Otp secured.
         /// </summary>
-        public const string OtpSecured = "otp_secured";
+        public const string OtpAuthenticate = "otp_authenticate";
     }
 }
