@@ -18,7 +18,7 @@ using Microsoft.AspNetCore.Identity;
 namespace Indice.AspNetCore.Identity
 {
     /// <summary>
-    /// 
+    /// An extension grant that receives a valid token, sends an OTP to the user that when verified issues a new token that is marked approproately.
     /// </summary>
     public class OtpSecuredExtensionGrantValidator : IExtensionGrantValidator
     {
