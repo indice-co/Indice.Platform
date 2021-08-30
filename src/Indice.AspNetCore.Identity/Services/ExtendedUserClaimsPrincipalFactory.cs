@@ -72,6 +72,9 @@ namespace Indice.AspNetCore.Identity
                 }
                 additionalClaims.Add(new Claim(BasicClaimTypes.Admin, isAdmin.ToString().ToLower(), ClaimValueTypes.Boolean));
             }
+            if (!identity.HasClaim(x => x.Type == BasicClaimTypes.PasswordExpired) && user.HasExpiredPassword()) {
+                additionalClaims.Add(new Claim(BasicClaimTypes.PasswordExpired, "true", ClaimValueTypes.Boolean));
+            }
             if (!identity.HasClaim(x => x.Type == BasicClaimTypes.PasswordExpirationDate) && user.PasswordExpirationDate.HasValue) {
                 additionalClaims.Add(new Claim(BasicClaimTypes.PasswordExpirationDate, ToISOString(user.PasswordExpirationDate.Value.UtcDateTime), ClaimValueTypes.DateTime));
             }

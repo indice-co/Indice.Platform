@@ -98,6 +98,10 @@ namespace Indice.Security
         /// </summary>
         public const string PasswordExpirationDate = "password_expiration_date";
         /// <summary>
+        /// A boolean claim indicating that user password has expired.
+        /// </summary>
+        public const string PasswordExpired = "password_expired";
+        /// <summary>
         /// Defines the period in which a password expires.
         /// </summary>
         public const string PasswordExpirationPolicy = "password_expiration_policy";

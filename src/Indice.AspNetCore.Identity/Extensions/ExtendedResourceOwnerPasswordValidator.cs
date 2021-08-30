@@ -19,13 +19,11 @@ namespace Indice.AspNetCore.Identity
         private readonly ExtendedUserManager<TUser> _userManager;
         private readonly ILogger<ExtendedResourceOwnerPasswordValidator<TUser>> _logger;
         private readonly IDictionary<int, string> _errors = new Dictionary<int, string> {
-            { ResourceOwnerPasswordErrorCodes.PasswordExpired, "User's password is expired." },
-            { ResourceOwnerPasswordErrorCodes.PasswordConfirmation, "User's email requires confirmation." },
-            { ResourceOwnerPasswordErrorCodes.PhoneNumberConfirmation, "User's phone number requires confirmation." },
             { ResourceOwnerPasswordErrorCodes.LockedOut, "User is locked out." },
             { ResourceOwnerPasswordErrorCodes.NotAllowed, "User is not allowed." },
             { ResourceOwnerPasswordErrorCodes.InvalidCredentials, "User provided invalid credentials." },
-            { ResourceOwnerPasswordErrorCodes.NotFound, "User was not found." }
+            { ResourceOwnerPasswordErrorCodes.NotFound, "User was not found." },
+            { ResourceOwnerPasswordErrorCodes.Blocked, "User is blocked." }
         };
 
         /// <summary>
@@ -55,24 +53,16 @@ namespace Indice.AspNetCore.Identity
                 return;
             }
             var result = await _signInManager.CheckPasswordSignInAsync(user, context.Password, lockoutOnFailure: true);
+            if (user.Blocked) {
+                Error(context, ResourceOwnerPasswordErrorCodes.Blocked);
+                return;
+            }
             if (result.IsNotAllowed) {
                 Error(context, ResourceOwnerPasswordErrorCodes.NotAllowed);
                 return;
             }
             if (result.IsLockedOut) {
                 Error(context, ResourceOwnerPasswordErrorCodes.LockedOut);
-                return;
-            }
-            if (user.HasExpiredPassword()) {
-                Error(context, ResourceOwnerPasswordErrorCodes.PasswordExpired);
-                return;
-            }
-            if (_signInManager.RequirePostSignInConfirmedEmail && !user.EmailConfirmed) {
-                Error(context, ResourceOwnerPasswordErrorCodes.PasswordConfirmation);
-                return;
-            }
-            if (_signInManager.RequirePostSignInConfirmedPhoneNumber && !user.PhoneNumberConfirmed) {
-                Error(context, ResourceOwnerPasswordErrorCodes.PhoneNumberConfirmation);
                 return;
             }
             if (!result.Succeeded) {
@@ -92,12 +82,10 @@ namespace Indice.AspNetCore.Identity
 
     internal class ResourceOwnerPasswordErrorCodes
     {
-        public const int PasswordExpired = 101;
-        public const int PasswordConfirmation = 102;
-        public const int PhoneNumberConfirmation = 103;
         public const int LockedOut = 104;
         public const int NotAllowed = 105;
         public const int InvalidCredentials = 106;
         public const int NotFound = 107;
+        public const int Blocked = 108;
     }
 }

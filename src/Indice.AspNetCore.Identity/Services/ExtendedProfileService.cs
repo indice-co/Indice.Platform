@@ -16,18 +16,15 @@ namespace Indice.AspNetCore.Identity.Services
     {
         private readonly IProfileService _inner;
         private readonly ExtendedUserManager<User> _userManager;
-        private readonly ExtendedSignInManager<User> _signInManager;
 
         /// <summary>
         /// Creates a new instance of <see cref="ExtendedProfileService{TUser}"/>.
         /// </summary>
         /// <param name="profileService"> This interface allows IdentityServer to connect to your user and profile store.</param>
         /// <param name="userManager">Provides the APIs for managing user in a persistence store.</param>
-        /// <param name="signInManager">Provides the APIs for user sign in.</param>
-        public ExtendedProfileService(TInner profileService, ExtendedUserManager<User> userManager, ExtendedSignInManager<User> signInManager) {
+        public ExtendedProfileService(TInner profileService, ExtendedUserManager<User> userManager) {
             _inner = profileService ?? throw new ArgumentNullException(nameof(profileService));
             _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
-            _signInManager = signInManager ?? throw new ArgumentNullException(nameof(signInManager));
         }
 
         /// <inheritdoc />
@@ -45,18 +42,16 @@ namespace Indice.AspNetCore.Identity.Services
             if (!context.IsActive) {
                 return;
             }
+            // If missing subject is missing do not check user specifics.
             var subject = context.Subject.FindFirst(JwtClaimTypes.Subject)?.Value;
             if (string.IsNullOrWhiteSpace(subject)) {
                 context.IsActive = true;
                 return;
             }
             var user = await _userManager.FindByIdAsync(subject);
-            var isActive = user != null &&
-                !user.IsLockedOut() &&
-                !user.HasExpiredPassword() &&
-                !user.Blocked &&
-                (!_signInManager.RequirePostSignInConfirmedEmail || user.EmailConfirmed) &&
-                (!_signInManager.RequirePostSignInConfirmedPhoneNumber || user.PhoneNumberConfirmed);
+            var isActive = user != null
+                        && !user.IsLockedOut() // This forces existing tokens to fail upon refresh or introspection. Not sure if we should.
+                        && !user.Blocked;
             context.IsActive = isActive;
         }
     }

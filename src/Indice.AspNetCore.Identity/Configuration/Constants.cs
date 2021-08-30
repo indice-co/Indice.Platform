@@ -14,7 +14,7 @@
         /// </summary>
         public const string TrustedDevice = "trusted_device";
         /// <summary>
-        /// Otp secured.
+        /// Otp authenticate.
         /// </summary>
         public const string OtpAuthenticate = "otp_authenticate";
     }
