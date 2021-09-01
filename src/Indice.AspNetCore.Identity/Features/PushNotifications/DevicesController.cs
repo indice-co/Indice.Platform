@@ -74,7 +74,7 @@ namespace Indice.AspNetCore.Identity.Features
             if (user == null) {
                 return NotFound();
             }
-            var devices = await _dbContext.UserDevices.Where(UserDevicePredicate(user.Id, options)).Select(x => new DeviceInfo {
+            var devices = await _dbContext.UserDevices.Where(UserDevicePredicate(user.Id, options)).Where(x => x.IsDeleted != true).Select(x => new DeviceInfo {
                 DeviceId = x.DeviceId,
                 DeviceName = x.DeviceName,
                 DevicePlatform = x.DevicePlatform,
@@ -98,7 +98,7 @@ namespace Indice.AspNetCore.Identity.Features
             if (user == null) {
                 return NotFound();
             }
-            var device = await _dbContext.UserDevices.SingleOrDefaultAsync(x => x.UserId == user.Id && x.DeviceId == request.DeviceId);
+            var device = await _dbContext.UserDevices.SingleOrDefaultAsync(x => x.UserId == user.Id && x.DeviceId == request.DeviceId && x.IsDeleted != true);
             await _pushNotificationService.Register(request.DeviceId.ToString(), request.PnsHandle, request.DevicePlatform, user.Id, request.Tags?.ToArray());
             if (device != null) {
                 device.IsPushNotificationsEnabled = true;
@@ -110,7 +110,8 @@ namespace Indice.AspNetCore.Identity.Features
                     DevicePlatform = request.DevicePlatform,
                     IsPushNotificationsEnabled = true,
                     UserId = user.Id,
-                    DateCreated = DateTimeOffset.Now
+                    DateCreated = DateTimeOffset.Now,
+                    IsDeleted = false
                 };
                 _dbContext.UserDevices.Add(deviceToAdd);
             }
@@ -119,7 +120,7 @@ namespace Indice.AspNetCore.Identity.Features
         }
 
         /// <summary>
-        /// Disable push notifications for this device.
+        /// Deletes the device.
         /// </summary>
         /// <param name="deviceId">The id of the device.</param>
         /// <response code="204">No Content</response>
@@ -132,12 +133,14 @@ namespace Indice.AspNetCore.Identity.Features
             if (user == null) {
                 return NotFound();
             }
-            var device = _dbContext.UserDevices.SingleOrDefault(x => x.UserId == user.Id && x.DeviceId == deviceId);
+            var device = _dbContext.UserDevices.SingleOrDefault(x => x.UserId == user.Id && x.DeviceId == deviceId && x.IsDeleted != true);
             if (device == null) {
                 return NotFound();
             }
             await _pushNotificationService.UnRegister(deviceId.ToString());
-            device.IsPushNotificationsEnabled = false;
+            // logical deletion of device
+            device.IsDeleted = true;
+            device.DateCreated = DateTimeOffset.Now;
             await _dbContext.SaveChangesAsync();
             return NoContent();
         }

@@ -69,6 +69,14 @@ namespace Indice.AspNetCore.Identity.Data.Models
         /// The user associated with this device.
         /// </summary>
         public virtual User User { get; set; }
+        /// <summary>
+        /// Flag that determines if device is deleted.
+        /// </summary>
+        public bool IsDeleted { get; set; }
+        /// <summary>
+        /// The date this device was deleted.
+        /// </summary>
+        public DateTimeOffset? DateDeleted { get; set; }
     }
 
     /// <summary>
