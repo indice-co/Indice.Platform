@@ -84,7 +84,7 @@ namespace Indice.Identity
             services.AddIdentityServerConfig(HostingEnvironment, Configuration, Settings);
             services.AddProblemDetailsConfig(HostingEnvironment);
             services.ConfigureNonBreakingSameSiteCookies();
-            services.AddSmsServiceYouboto(Configuration);
+            services.AddSmsServiceYuboto(Configuration);
             services.AddSwaggerGen(options => {
                 options.IndiceDefaults(Settings);
                 options.AddFluentValidationSupport();

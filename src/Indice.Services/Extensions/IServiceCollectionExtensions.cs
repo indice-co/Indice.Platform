@@ -86,7 +86,7 @@ namespace Microsoft.Extensions.DependencyInjection
         /// </summary>
         /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
         /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
-        public static IServiceCollection AddSmsServiceYouboto(this IServiceCollection services, IConfiguration configuration) {
+        public static IServiceCollection AddSmsServiceYuboto(this IServiceCollection services, IConfiguration configuration) {
             services.Configure<SmsServiceSettings>(configuration.GetSection(SmsServiceSettings.Name));
             services.AddTransient(serviceProvider => serviceProvider.GetRequiredService<IOptions<SmsServiceSettings>>().Value);
             services.TryAddTransient<ISmsServiceFactory, DefaultSmsServiceFactory>();

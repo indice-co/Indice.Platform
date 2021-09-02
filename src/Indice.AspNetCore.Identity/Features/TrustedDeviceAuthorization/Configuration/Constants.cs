@@ -27,6 +27,7 @@ namespace Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Configuration
 
         public static readonly string[] RequiredGrantTypes = {
             CustomGrantTypes.TrustedDevice,
+            CustomGrantTypes.OtpAuthenticate,
             GrantType.ClientCredentials,
             GrantType.ResourceOwnerPassword
         };
