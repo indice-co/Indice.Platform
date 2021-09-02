@@ -74,7 +74,7 @@ namespace Indice.AspNetCore.Identity.Features
             if (user == null) {
                 return NotFound();
             }
-            var devices = await _dbContext.UserDevices.Where(UserDevicePredicate(user.Id, options)).Where(x => x.IsDeleted != true).Select(x => new DeviceInfo {
+            var devices = await _dbContext.UserDevices.Where(UserDevicePredicate(user.Id, options)).Select(x => new DeviceInfo {
                 DeviceId = x.DeviceId,
                 DeviceName = x.DeviceName,
                 DevicePlatform = x.DevicePlatform,
@@ -98,7 +98,7 @@ namespace Indice.AspNetCore.Identity.Features
             if (user == null) {
                 return NotFound();
             }
-            var device = await _dbContext.UserDevices.SingleOrDefaultAsync(x => x.UserId == user.Id && x.DeviceId == request.DeviceId && x.IsDeleted != true);
+            var device = await _dbContext.UserDevices.SingleOrDefaultAsync(x => x.UserId == user.Id && x.DeviceId == request.DeviceId);
             await _pushNotificationService.Register(request.DeviceId.ToString(), request.PnsHandle, request.DevicePlatform, user.Id, request.Tags?.ToArray());
             if (device != null) {
                 device.IsPushNotificationsEnabled = true;
@@ -110,8 +110,7 @@ namespace Indice.AspNetCore.Identity.Features
                     DevicePlatform = request.DevicePlatform,
                     IsPushNotificationsEnabled = true,
                     UserId = user.Id,
-                    DateCreated = DateTimeOffset.Now,
-                    IsDeleted = false
+                    DateCreated = DateTimeOffset.Now
                 };
                 _dbContext.UserDevices.Add(deviceToAdd);
             }
@@ -133,14 +132,12 @@ namespace Indice.AspNetCore.Identity.Features
             if (user == null) {
                 return NotFound();
             }
-            var device = _dbContext.UserDevices.SingleOrDefault(x => x.UserId == user.Id && x.DeviceId == deviceId && x.IsDeleted != true);
+            var device = _dbContext.UserDevices.SingleOrDefault(x => x.UserId == user.Id && x.DeviceId == deviceId);
             if (device == null) {
                 return NotFound();
             }
             await _pushNotificationService.UnRegister(deviceId.ToString());
-            // logical deletion of device
-            device.IsDeleted = true;
-            device.DateCreated = DateTimeOffset.Now;
+            _dbContext.UserDevices.Remove(device);
             await _dbContext.SaveChangesAsync();
             return NoContent();
         }
