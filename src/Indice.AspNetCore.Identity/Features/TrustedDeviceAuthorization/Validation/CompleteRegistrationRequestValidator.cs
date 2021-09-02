@@ -13,6 +13,7 @@ using Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Configuration;
 using Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Models;
 using Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Stores;
 using Indice.Extensions;
+using Indice.Security;
 using Indice.Services;
 using Indice.Types;
 using Microsoft.AspNetCore.Authentication;
@@ -73,14 +74,18 @@ namespace Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Validation
                 RegistrationRequestParameters.CodeSignature,
                 RegistrationRequestParameters.CodeVerifier,
                 RegistrationRequestParameters.DeviceId,
-                RegistrationRequestParameters.DevicePlatform,
-                RegistrationRequestParameters.OtpCode
+                RegistrationRequestParameters.DevicePlatform
             };
             if (authorizationCode.InteractionMode == InteractionMode.Fingerprint) {
                 parametersToValidate.Add(RegistrationRequestParameters.PublicKey);
             }
             if (authorizationCode.InteractionMode == InteractionMode.Pin) {
                 parametersToValidate.Add(RegistrationRequestParameters.Pin);
+            }
+            var otpAuthenticatedValue = tokenValidationResult.Claims.FirstOrDefault(x => x.Type == BasicClaimTypes.OtpAuthenticated)?.Value;
+            var otpAuthenticated = !string.IsNullOrWhiteSpace(otpAuthenticatedValue) && bool.Parse(otpAuthenticatedValue);
+            if (!otpAuthenticated) {
+                parametersToValidate.Add(RegistrationRequestParameters.OtpCode);
             }
             foreach (var parameter in parametersToValidate) {
                 var parameterValue = parameters.Get(parameter);
@@ -122,14 +127,16 @@ namespace Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Validation
             var claims = tokenValidationResult.Claims.Where(x => !Constants.ProtocolClaimsFilter.Contains(x.Type));
             var principal = Principal.Create("TrustedDevice", claims.ToArray());
             var userId = tokenValidationResult.Claims.Single(x => x.Type == JwtClaimTypes.Subject).Value;
-            // Validate OTP code.
-            var totpResult = await TotpService.Verify(
-                principal: principal,
-                code: parameters.Get(RegistrationRequestParameters.OtpCode),
-                purpose: Constants.TrustedDeviceOtpPurpose(userId, authorizationCode.DeviceId)
-            );
-            if (!totpResult.Success) {
-                return Error(totpResult.Error);
+            // Validate OTP code, if needed.
+            if (!otpAuthenticated) {
+                var totpResult = await TotpService.Verify(
+                    principal: principal,
+                    code: parameters.Get(RegistrationRequestParameters.OtpCode),
+                    purpose: Constants.TrustedDeviceOtpPurpose(userId, authorizationCode.DeviceId)
+                );
+                if (!totpResult.Success) {
+                    return Error(totpResult.Error);
+                }
             }
             // Finally return result.
             return new CompleteRegistrationRequestValidationResult {

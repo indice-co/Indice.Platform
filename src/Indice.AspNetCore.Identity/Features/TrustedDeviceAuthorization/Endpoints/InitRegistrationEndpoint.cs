@@ -17,6 +17,7 @@ using Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Endpoints.Results;
 using Indice.AspNetCore.Identity.TrustedDeviceAuthorization.ResponseHandling;
 using Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Stores;
 using Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Validation;
+using Indice.Security;
 using Indice.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
@@ -99,15 +100,19 @@ namespace Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Endpoints
             if (string.IsNullOrWhiteSpace(phoneNumberClaim?.Value) || phoneNumberVerifiedClaim == null || (bool.TryParse(phoneNumberVerifiedClaim.Value, out var phoneNumberVerified) && !phoneNumberVerified)) {
                 return Error(OidcConstants.ProtectedResourceErrors.InvalidToken, "User does not have a phone number or the phone number is not verified.");
             }
-            // Send OTP code.
-            var totpResult = await TotpService.Send(message =>
-                message.UsePrincipal(requestValidationResult.Principal)
-                       .WithMessage("Device registration OTP code is {0}.")
-                       .UsingSms()
-                       .WithPurpose(Constants.TrustedDeviceOtpPurpose(requestValidationResult.UserId, requestValidationResult.DeviceId))
-            );
-            if (!totpResult.Success) {
-                return Error(totpResult.Error);
+            var otpAuthenticatedValue = profileClaims.FirstOrDefault(x => x.Type == BasicClaimTypes.OtpAuthenticated)?.Value;
+            var otpAuthenticated = !string.IsNullOrWhiteSpace(otpAuthenticatedValue) && bool.Parse(otpAuthenticatedValue);
+            if (!otpAuthenticated) {
+                // Send OTP code.
+                var totpResult = await TotpService.Send(message =>
+                    message.UsePrincipal(requestValidationResult.Principal)
+                           .WithMessage("Device registration OTP code is {0}.")
+                           .UsingSms()
+                           .WithPurpose(Constants.TrustedDeviceOtpPurpose(requestValidationResult.UserId, requestValidationResult.DeviceId))
+                );
+                if (!totpResult.Success) {
+                    return Error(totpResult.Error);
+                }
             }
             // Create endpoint response.
             var response = await Response.Generate(requestValidationResult);
