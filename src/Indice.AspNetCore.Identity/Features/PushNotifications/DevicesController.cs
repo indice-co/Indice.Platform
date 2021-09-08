@@ -124,7 +124,8 @@ namespace Indice.AspNetCore.Identity.PushNotifications
                 var @event = new DeviceCreatedEvent(new DeviceInfo {
                     DeviceId = deviceToAdd.DeviceId,
                     DeviceName = deviceToAdd.DeviceName,
-                    DevicePlatform = deviceToAdd.DevicePlatform
+                    DevicePlatform = deviceToAdd.DevicePlatform,
+                    IsPushNotificationsEnabled = deviceToAdd.IsPushNotificationsEnabled
                 },
                 SingleUserInfo.FromUser(user));
                 await _eventService.Raise(@event);
@@ -141,7 +142,7 @@ namespace Indice.AspNetCore.Identity.PushNotifications
         [HttpDelete("{deviceId}")]
         [ProducesResponseType(statusCode: StatusCodes.Status204NoContent, type: typeof(void))]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
-        public async Task<IActionResult> UnRegisterDevice([FromRoute] string deviceId) {
+        public async Task<IActionResult> DeleteDevice([FromRoute] string deviceId) {
             var user = await _userManager.GetUserAsync(User);
             if (user == null) {
                 return NotFound();
@@ -153,6 +154,14 @@ namespace Indice.AspNetCore.Identity.PushNotifications
             await _pushNotificationService.UnRegister(deviceId.ToString());
             _dbContext.UserDevices.Remove(device);
             await _dbContext.SaveChangesAsync();
+            var @event = new DeviceDeletedEvent(new DeviceInfo {
+                DeviceId = device.DeviceId,
+                DeviceName = device.DeviceName,
+                DevicePlatform = device.DevicePlatform,
+                IsPushNotificationsEnabled = device.IsPushNotificationsEnabled
+            },
+            SingleUserInfo.FromUser(user));
+            await _eventService.Raise(@event);
             return NoContent();
         }
 
