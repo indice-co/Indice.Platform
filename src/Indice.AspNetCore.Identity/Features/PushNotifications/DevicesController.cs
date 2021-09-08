@@ -9,6 +9,7 @@ using Indice.AspNetCore.Identity.Api.Models;
 using Indice.AspNetCore.Identity.Api.Security;
 using Indice.AspNetCore.Identity.Data;
 using Indice.AspNetCore.Identity.Data.Models;
+using Indice.AspNetCore.Identity.PushNotifications.Events;
 using Indice.Services;
 using Indice.Types;
 using Microsoft.AspNetCore.Authorization;
@@ -16,7 +17,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
-namespace Indice.AspNetCore.Identity.Features
+namespace Indice.AspNetCore.Identity.PushNotifications
 {
     /// <summary>
     /// Contains operations for device push notifications.
@@ -46,6 +47,7 @@ namespace Indice.AspNetCore.Identity.Features
         private readonly ExtendedUserManager<User> _userManager;
         private readonly IPushNotificationService _pushNotificationService;
         private readonly ExtendedIdentityDbContext<User, Role> _dbContext;
+        private readonly IEventService _eventService;
         /// <summary>
         /// The name of the controller.
         /// </summary>
@@ -54,11 +56,13 @@ namespace Indice.AspNetCore.Identity.Features
         public DevicesController(
             ExtendedUserManager<User> userManager,
             IPushNotificationService pushNotificationService,
-            ExtendedIdentityDbContext<User, Role> dbContext
+            ExtendedIdentityDbContext<User, Role> dbContext,
+            IEventService eventService
         ) {
             _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
             _pushNotificationService = pushNotificationService ?? throw new ArgumentNullException(nameof(pushNotificationService));
             _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
+            _eventService = eventService ?? throw new ArgumentNullException(nameof(eventService));
         }
 
         /// <summary>
@@ -100,11 +104,12 @@ namespace Indice.AspNetCore.Identity.Features
             }
             var device = await _dbContext.UserDevices.SingleOrDefaultAsync(x => x.UserId == user.Id && x.DeviceId == request.DeviceId);
             await _pushNotificationService.Register(request.DeviceId.ToString(), request.PnsHandle, request.DevicePlatform, user.Id, request.Tags?.ToArray());
+            UserDevice deviceToAdd = null;
             if (device != null) {
                 device.IsPushNotificationsEnabled = true;
                 device.DeviceName = request.DeviceName;
             } else {
-                var deviceToAdd = new UserDevice {
+                deviceToAdd = new UserDevice {
                     DeviceId = request.DeviceId,
                     DeviceName = request.DeviceName,
                     DevicePlatform = request.DevicePlatform,
@@ -115,6 +120,15 @@ namespace Indice.AspNetCore.Identity.Features
                 _dbContext.UserDevices.Add(deviceToAdd);
             }
             await _dbContext.SaveChangesAsync();
+            if (deviceToAdd is not null) {
+                var @event = new DeviceCreatedEvent(new DeviceInfo {
+                    DeviceId = deviceToAdd.DeviceId,
+                    DeviceName = deviceToAdd.DeviceName,
+                    DevicePlatform = deviceToAdd.DevicePlatform
+                },
+                SingleUserInfo.FromUser(user));
+                await _eventService.Raise(@event);
+            }
             return NoContent();
         }
 

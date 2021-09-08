@@ -2,13 +2,14 @@
 using System.Threading.Tasks;
 using Indice.AspNetCore.Identity.Api.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Indice.Services;
 
-namespace Indice.AspNetCore.Identity.Api.Events
+namespace Indice.AspNetCore.Identity
 {
     /// <summary>
-    /// Implementation of <see cref="IEventService"/> where 
+    /// Implementation of <see cref="IEventService"/>.
     /// </summary>
-    internal class EventService : IEventService
+    public class EventService : IEventService
     {
         private readonly IServiceProvider _serviceProvider;
         private readonly IdentityServerApiEndpointsOptions _options;
@@ -26,6 +27,7 @@ namespace Indice.AspNetCore.Identity.Api.Events
             _options = options ?? throw new ArgumentNullException(nameof(options));
         }
 
+        /// <inheritdoc />
         public Task Raise<TEvent>(TEvent @event) where TEvent : IIdentityServerApiEvent {
             if (!_options.CanRaiseEvents) {
                 return Task.CompletedTask;
@@ -36,5 +38,19 @@ namespace Indice.AspNetCore.Identity.Api.Events
             }
             return Task.CompletedTask;
         }
+    }
+
+    /// <summary>
+    /// Models the event handler.
+    /// </summary>
+    /// <typeparam name="TEvent">The type of the event raised.</typeparam>
+    public interface IIdentityServerApiEventHandler<TEvent> where TEvent : IIdentityServerApiEvent
+    {
+        /// <summary>
+        /// The method used to handle the event creation.
+        /// </summary>
+        /// <param name="event">The type of the event raised.</param>
+        /// <returns>The <see cref="Task"/> that was successfully completed.</returns>
+        Task Handle(TEvent @event);
     }
 }

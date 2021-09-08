@@ -23,9 +23,21 @@ namespace Microsoft.Extensions.DependencyInjection
         /// </summary>
         /// <param name="services">The services available in the application.</param>
         /// <param name="configure">An action to configure the <see cref="CookieAuthenticationOptions"/>.</param>
-        /// <returns>The services.</returns>
         public static IServiceCollection ConfigureExtendedValidationCookie(this IServiceCollection services, Action<CookieAuthenticationOptions> configure)
             => services.Configure(ExtendedIdentityConstants.ExtendedValidationUserIdScheme, configure);
+
+        /// <summary>
+        /// Registers an implementation of <see cref="IIdentityServerApiEventHandler{TEvent}"/> for the specified event type.
+        /// </summary>
+        /// <typeparam name="TEvent">The type of the event to handler.</typeparam>
+        /// <typeparam name="TEventHandler">The handler to user for the specified event.</typeparam>
+        /// <param name="services">The services available in the application.</param>
+        public static IServiceCollection AddEventHandler<TEvent, TEventHandler>(this IServiceCollection services)
+            where TEvent : IIdentityServerApiEvent
+            where TEventHandler : class, IIdentityServerApiEventHandler<TEvent> {
+            services.TryAddTransient(typeof(IIdentityServerApiEventHandler<TEvent>), typeof(TEventHandler));
+            return services;
+        }
 
         internal static IServiceCollection AddDefaultTotpService(this IServiceCollection services, Action<TotpOptions> configure = null) {
             var serviceProvider = services.BuildServiceProvider();

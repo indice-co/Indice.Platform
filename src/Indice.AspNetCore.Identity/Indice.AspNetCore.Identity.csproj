@@ -29,6 +29,11 @@
     <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Remove="Features\IdentityServerApi\Events\Types\**" />
+    <EmbeddedResource Remove="Features\IdentityServerApi\Events\Types\**" />
+    <None Remove="Features\IdentityServerApi\Events\Types\**" />
+  </ItemGroup>
+  <ItemGroup>
     <None Include="..\..\icon\icon-310.png" Pack="true" Visible="false" PackagePath="" />
   </ItemGroup>
   <ItemGroup>

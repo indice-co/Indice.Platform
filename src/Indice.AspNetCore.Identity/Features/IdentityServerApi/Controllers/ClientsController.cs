@@ -21,6 +21,7 @@ using Indice.AspNetCore.Identity.Data;
 using Indice.AspNetCore.Identity.Data.Models;
 using Indice.Configuration;
 using Indice.Security;
+using Indice.Services;
 using Indice.Types;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -230,16 +231,7 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
                 UserId = UserId
             });
             await _configurationDbContext.SaveChangesAsync();
-            var response = new ClientInfo {
-                ClientId = client.ClientId,
-                ClientName = client.ClientName,
-                ClientUri = client.ClientUri,
-                Description = client.Description,
-                AllowRememberConsent = client.AllowRememberConsent,
-                Enabled = client.Enabled,
-                LogoUri = client.LogoUri,
-                RequireConsent = client.RequireConsent
-            };
+            var response = ClientInfo.FromClient(client);
             await _eventService.Raise(new ClientCreatedEvent(response));
             return CreatedAtAction(nameof(GetClient), new { clientId = client.ClientId }, response);
         }
@@ -801,7 +793,7 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
         /// <param name="clientType">The type of the client.</param>
         /// <param name="authorityUri">The IdentityServer instance URI.</param>
         /// <param name="clientRequest">Client information provided by the user.</param>
-        private Client CreateForType(ClientType clientType, string authorityUri, CreateClientRequest clientRequest) {
+        private static Client CreateForType(ClientType clientType, string authorityUri, CreateClientRequest clientRequest) {
             var client = new Client {
                 ClientId = clientRequest.ClientId,
                 ClientName = clientRequest.ClientName,
@@ -908,7 +900,7 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
         /// <remarks>If the parameter translations is null, string.Empty will be persisted.</remarks>
         /// <param name="client">The <see cref="Client"/></param>
         /// <param name="translations">The json string with the translations</param>
-        private void AddClientTranslations(Client client, string translations) {
+        private static void AddClientTranslations(Client client, string translations) {
             client.Properties ??= new List<ClientProperty>();
             client.Properties.Add(new ClientProperty {
                 Key = IdentityServerApi.ObjectTranslationKey,

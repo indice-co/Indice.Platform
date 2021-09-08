@@ -24,7 +24,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Options;
-using IEventService = Indice.AspNetCore.Identity.Api.Events.IEventService;
 
 namespace Indice.AspNetCore.Identity.Api.Controllers
 {
@@ -50,7 +49,7 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
         private readonly IPersistedGrantService _persistedGrantService;
         private readonly IClientStore _clientStore;
         private readonly IdentityServerApiEndpointsOptions _apiEndpointsOptions;
-        private readonly IEventService _eventService;
+        private readonly Indice.Services.IEventService _eventService;
         private readonly GeneralSettings _generalSettings;
         private readonly IStringLocalizer<UsersController> _localizer;
         private readonly ExtendedConfigurationDbContext _configurationDbContext;
@@ -79,7 +78,7 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
             IPersistedGrantService persistedGrantService,
             IClientStore clientStore,
             IdentityServerApiEndpointsOptions apiEndpointsOptions,
-            IEventService eventService,
+            Indice.Services.IEventService eventService,
             IOptions<GeneralSettings> generalSettings,
             IStringLocalizer<UsersController> localizer,
             ExtendedConfigurationDbContext configurationDbContext
@@ -250,23 +249,7 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
             if (claims.Any()) {
                 await _userManager.AddClaimsAsync(user, claims);
             }
-            var response = new SingleUserInfo {
-                Id = user.Id,
-                UserName = user.UserName,
-                Email = user.Email,
-                PhoneNumber = user.PhoneNumber,
-                PasswordExpirationPolicy = user.PasswordExpirationPolicy,
-                IsAdmin = user.Admin,
-                TwoFactorEnabled = user.TwoFactorEnabled,
-                EmailConfirmed = user.EmailConfirmed,
-                PhoneNumberConfirmed = user.PhoneNumberConfirmed,
-                Claims = user.Claims?.Select(x => new ClaimInfo {
-                    Id = x.Id,
-                    Type = x.ClaimType,
-                    Value = x.ClaimValue
-                })
-                .ToList()
-            };
+            var response = SingleUserInfo.FromUser(user);
             await _eventService.Raise(new UserCreatedEvent(response));
             return CreatedAtAction(nameof(GetUser), Name, new { userId = user.Id }, response);
         }

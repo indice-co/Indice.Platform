@@ -6,7 +6,6 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using IdentityModel;
 using IdentityServer4.Models;
-using IdentityServer4.Services;
 using IdentityServer4.Stores;
 using IdentityServer4.Stores.Serialization;
 using Indice.AspNetCore.Identity.Api.Configuration;
@@ -31,7 +30,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Microsoft.FeatureManagement.Mvc;
 using static IdentityServer4.IdentityServerConstants;
-using IEventService = Indice.AspNetCore.Identity.Api.Events.IEventService;
 
 namespace Indice.AspNetCore.Identity.Api.Controllers
 {
@@ -651,7 +649,7 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
                 }
                 return BadRequest(new ValidationProblemDetails(ModelState));
             }
-            var createdUser = new SingleUserInfo(user);
+            var createdUser = SingleUserInfo.FromUser(user);
             var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
             await _eventService.Raise(new UserRegisteredEvent(createdUser, token));
             return NoContent();
@@ -792,7 +790,7 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
                     .Select(x => new UserConsentInfo {
                         ClientId = x.ClientId,
                         Scopes = x.Scopes,
-                        Claims = x.AccessToken?.Claims?.Select(x => new BasicClaimInfo { 
+                        Claims = x.AccessToken?.Claims?.Select(x => new BasicClaimInfo {
                             Type = x.Type,
                             Value = x.Value
                         }),

@@ -1,4 +1,5 @@
 ﻿using Indice.AspNetCore.Identity.Api.Models;
+using Indice.Services;
 
 namespace Indice.AspNetCore.Identity.Api.Events
 {

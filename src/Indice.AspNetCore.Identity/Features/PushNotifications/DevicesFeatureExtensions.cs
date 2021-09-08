@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Security;
 using IdentityServer4.Configuration;
-using Indice.AspNetCore.Identity.Features;
+using Indice.AspNetCore.Identity.PushNotifications;
 using Indice.Services;
 
 namespace Microsoft.Extensions.DependencyInjection

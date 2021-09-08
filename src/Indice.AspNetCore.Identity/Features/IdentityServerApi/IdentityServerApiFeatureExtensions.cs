@@ -2,13 +2,13 @@
 using Indice.AspNetCore.Identity;
 using Indice.AspNetCore.Identity.Api;
 using Indice.AspNetCore.Identity.Api.Configuration;
-using Indice.AspNetCore.Identity.Api.Events;
 using Indice.AspNetCore.Identity.Api.Filters;
 using Indice.AspNetCore.Identity.Api.Security;
 using Indice.AspNetCore.Identity.Data;
 using Indice.AspNetCore.Identity.Data.Models;
 using Indice.Configuration;
 using Indice.Security;
+using Indice.Services;
 using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -45,7 +45,7 @@ namespace Microsoft.Extensions.DependencyInjection
             // Invoke action provided by developer to override default options.
             services.AddSingleton(apiEndpointsOptions);
             services.AddGeneralSettings(configuration);
-            services.AddTransient<IEventService, EventService>();
+            services.TryAddTransient<IEventService, EventService>();
             // Register validation filters.
             services.AddScoped<CreateClaimTypeRequestValidationFilter>();
             services.AddScoped<CreateRoleRequestValidationFilter>();
@@ -91,7 +91,7 @@ namespace Microsoft.Extensions.DependencyInjection
         public static IdentityServerApiEndpointsOptions AddEventHandler<TEvent, TEventHandler>(this IdentityServerApiEndpointsOptions options)
             where TEvent : IIdentityServerApiEvent
             where TEventHandler : class, IIdentityServerApiEventHandler<TEvent> {
-            options.Services.AddTransient(typeof(IIdentityServerApiEventHandler<TEvent>), typeof(TEventHandler));
+            options.Services.AddEventHandler<TEvent, TEventHandler>();
             return options;
         }
 

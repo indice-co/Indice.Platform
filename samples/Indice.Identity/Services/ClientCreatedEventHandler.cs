@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using Indice.AspNetCore.Identity;
 using Indice.AspNetCore.Identity.Api.Events;
 using Microsoft.Extensions.Logging;
 

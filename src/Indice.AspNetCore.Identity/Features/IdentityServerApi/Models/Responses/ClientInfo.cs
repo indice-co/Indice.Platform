@@ -45,6 +45,21 @@ namespace Indice.AspNetCore.Identity.Api.Models
         /// Specifies whether the client can be edited or not.
         /// </summary>
         public bool NonEditable { get; set; }
+
+        /// <summary>
+        /// Creates a new instace of <see cref="ClientInfo"/> from a <see cref="IdentityServer4.EntityFramework.Entities.Client"/> object.
+        /// </summary>
+        /// <param name="client">The client instance.</param>
+        public static ClientInfo FromClient(IdentityServer4.EntityFramework.Entities.Client client) => new ClientInfo {
+            ClientId = client.ClientId,
+            ClientName = client.ClientName,
+            ClientUri = client.ClientUri,
+            Description = client.Description,
+            AllowRememberConsent = client.AllowRememberConsent,
+            Enabled = client.Enabled,
+            LogoUri = client.LogoUri,
+            RequireConsent = client.RequireConsent
+        };
     }
 
     /// <summary>
