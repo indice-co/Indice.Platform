@@ -133,7 +133,7 @@ namespace Indice.AspNetCore.Identity.PushNotifications
         }
 
         /// <summary>
-        /// Disable push notifications for this device.
+        /// Deletes the device.
         /// </summary>
         /// <param name="deviceId">The id of the device.</param>
         /// <response code="204">No Content</response>
@@ -151,7 +151,7 @@ namespace Indice.AspNetCore.Identity.PushNotifications
                 return NotFound();
             }
             await _pushNotificationService.UnRegister(deviceId.ToString());
-            device.IsPushNotificationsEnabled = false;
+            _dbContext.UserDevices.Remove(device);
             await _dbContext.SaveChangesAsync();
             return NoContent();
         }
