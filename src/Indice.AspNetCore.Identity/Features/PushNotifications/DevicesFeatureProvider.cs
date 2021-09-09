@@ -4,7 +4,7 @@ using System.Reflection;
 using Microsoft.AspNetCore.Mvc.ApplicationParts;
 using Microsoft.AspNetCore.Mvc.Controllers;
 
-namespace Indice.AspNetCore.Identity.PushNotifications
+namespace Indice.AspNetCore.Identity.Api
 {
     /// <summary>
     /// Push notifications feature implementation for <see cref="IApplicationFeatureProvider{ControllerFeature}"/>.

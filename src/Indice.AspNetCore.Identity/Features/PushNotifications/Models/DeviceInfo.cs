@@ -1,4 +1,5 @@
-﻿using Indice.Types;
+﻿using Indice.AspNetCore.Identity.Data.Models;
+using Indice.Types;
 
 namespace Indice.AspNetCore.Identity.Api.Models
 {
@@ -23,5 +24,16 @@ namespace Indice.AspNetCore.Identity.Api.Models
         /// Flag that determines if push notifications are enabled for this device.
         /// </summary>
         public bool IsPushNotificationsEnabled { get; set; }
+
+        /// <summary>
+        /// Creates a new instace of <see cref="DeviceInfo"/> from a <see cref="UserDevice"/> object.
+        /// </summary>
+        /// <param name="device">The device instance.</param>
+        public static DeviceInfo FromUserDevice(UserDevice device) => new() {
+            DeviceId = device.DeviceId,
+            DeviceName = device.DeviceName,
+            DevicePlatform = device.DevicePlatform,
+            IsPushNotificationsEnabled = device.IsPushNotificationsEnabled
+        };
     }
 }

@@ -6,6 +6,7 @@ using System.Reflection;
 using System.Threading.Tasks;
 using Hellang.Middleware.ProblemDetails;
 using Indice.AspNetCore.Filters;
+using Indice.AspNetCore.Identity.Api.Events;
 using Indice.AspNetCore.Identity.Api.Security;
 using Indice.AspNetCore.Identity.Data;
 using Indice.AspNetCore.Identity.Localization;
@@ -14,6 +15,7 @@ using Indice.Configuration;
 using Indice.Identity.Configuration;
 using Indice.Identity.Hosting;
 using Indice.Identity.Security;
+using Indice.Identity.Services;
 using Microsoft.ApplicationInsights.AspNetCore.Extensions;
 using Microsoft.ApplicationInsights.DataContracts;
 using Microsoft.AspNetCore.Builder;
@@ -125,6 +127,7 @@ namespace Indice.Identity
                 options.Description = "Load alerts for the queue.";
                 options.Group = "indice";
             });
+            services.AddEventHandler<DeviceDeletedEvent, DeviceDeletedEventHandler>();
         }
 
         /// <summary>

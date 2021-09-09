@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Security;
 using IdentityServer4.Configuration;
-using Indice.AspNetCore.Identity.PushNotifications;
+using Indice.AspNetCore.Identity;
+using Indice.AspNetCore.Identity.Api;
 using Indice.Services;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
@@ -26,6 +28,7 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <param name="configure">Configuration used in <see cref="Rfc6238AuthenticationService"/> service.</param>
         public static IMvcBuilder AddPushNotifications<TPushNotificationServiceAzure>(this IMvcBuilder builder, Action<PushNotificationOptions> configure = null) where TPushNotificationServiceAzure : class, IPushNotificationService {
             builder.Services.AddPushNotificationServiceAzure(configure);
+            builder.Services.TryAddTransient<IEventService, EventService>();
             builder.ConfigureApplicationPartManager(x => x.FeatureProviders.Add(new DevicesFeatureProvider()));
             return builder;
         }
@@ -45,6 +48,7 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <param name="configure">Configuration used in <see cref="Rfc6238AuthenticationService"/> service.</param>
         public static IIdentityServerBuilder AddPushNotifications<TPushNotificationServiceAzure>(this IIdentityServerBuilder builder, Action<PushNotificationOptions> configure = null) where TPushNotificationServiceAzure : class, IPushNotificationService {
             builder.Services.AddPushNotificationServiceAzure(configure);
+            builder.Services.TryAddTransient<IEventService, EventService>();
             builder.Services.Configure<IdentityServerOptions>((options) => {
                 options.Discovery.CustomEntries.Add("devices", new {
                     endpoint = options.IssuerUri.TrimEnd('/') + "/devices"
