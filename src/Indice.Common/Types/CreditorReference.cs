@@ -2,12 +2,13 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
+using System.Text.RegularExpressions;
 using Indice.Extensions;
 
 namespace Indice.Types
 {
     /// <summary>
-    /// 
+    /// Creates and validates creditor reference (RF) payment codes based on ISO 11649, RF Creditor Reference.
     /// </summary>
     public class CreditorReference
     {
@@ -78,17 +79,35 @@ namespace Indice.Types
         /// 
         /// </summary>
         /// <param name="creditorReference"></param>
+        /// <param name="result"></param>
         /// <returns></returns>
-        public static bool IsValid(string creditorReference) {
-            return true;
+        public static bool TryParse(string creditorReference, out CreditorReference result) {
+            result = null;
+            return false;
         }
 
         /// <summary>
-        /// 
+        /// Validates a creditor reference.
         /// </summary>
-        public override string ToString() {
-            return base.ToString();
+        /// <param name="creditorReference">The creditor reference to validate.</param>
+        public static bool IsValid(string creditorReference) {
+            creditorReference = Regex.Replace(creditorReference, @"\s+", string.Empty).ToUpper();
+            var firstFourChars = creditorReference.Substring(0, 4);
+            creditorReference = $"{creditorReference.Replace(firstFourChars, string.Empty)}{firstFourChars}";
+            creditorReference = creditorReference.Select(x => x.IsLatinUpper() ? _charToNumberMapping[x] : x.ToString())
+                                                 .Aggregate((current, next) => current + next);
+            return BigInteger.TryParse(creditorReference, out var referenceNumber) && referenceNumber % 97 == 1;
         }
+
+        /// <summary>
+        /// Displays the creditor reference in it's print format, i.e RF78 MMKI DHR7 3738 3MLA KSI
+        /// </summary>
+        public override string ToString() => ElectronicFormat
+            .Select((character, index) => (Character: character, Index: index))
+            .GroupBy(x => x.Index / 4)
+            .Select(group => group.Select(x => x.Character))
+            .Select(characters => new string(characters.ToArray()))
+            .Aggregate((current, next) => $"{current} {next}");
 
         /// <summary>
         /// Tries to validate and extract the creditor reference from user input.

@@ -22,5 +22,24 @@ namespace Indice.Common.Tests
             Assert.True(CreditorReference.IsValid(creditorReference.ElectronicFormat));
             Assert.Equal(expectedValue, creditorReference.ElectronicFormat);
         }
+
+        [Theory]
+        [InlineData("RF90 101")]
+        [InlineData("RF332348236")]
+        [InlineData("RF19KD89LOHDM7837744KI")]
+        [InlineData("RF78 MMKI DHR7 3738 3MLA KSI")]
+        public void CanIdentifyValidCreditorReferences(string creditorReference) {
+            Assert.True(CreditorReference.IsValid(creditorReference));
+        }
+
+        [Theory]
+        [InlineData("RF91 101")]
+        [InlineData("RF342348236")]
+        [InlineData("RF20KD89LOHDM7837744KI")]
+        [InlineData("RF79 MMKI DHR7 3738 3MLA KSI")]
+        [InlineData("RF342%^&348236")]
+        public void CanIdentifyInvalidCreditorReferences(string creditorReference) {
+            Assert.False(CreditorReference.IsValid(creditorReference));
+        }
     }
 }
