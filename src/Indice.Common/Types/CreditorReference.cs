@@ -43,6 +43,11 @@ namespace Indice.Types
         };
         #endregion
 
+        internal CreditorReference(string creditorReference) {
+            CheckDigits = int.Parse(creditorReference.Substring(2, 2));
+            Reference = Regex.Replace(creditorReference.Substring(4, creditorReference.Length - 4), @"\s+", string.Empty).ToUpper();
+        }
+
         internal CreditorReference(params string[] references) {
             if (TryGetInputReference(out var reference, references)) {
                 Reference = reference.ToUpper();
@@ -76,14 +81,32 @@ namespace Indice.Types
         public string ElectronicFormat => $"RF{CheckDigits}{Reference}";
 
         /// <summary>
-        /// 
+        /// Tries to parse a given string as a creditor reference.
         /// </summary>
-        /// <param name="creditorReference"></param>
-        /// <param name="result"></param>
-        /// <returns></returns>
+        /// <param name="creditorReference">The creditor reference to parse.</param>
+        /// <param name="result">The creditor reference as a <see cref="CreditorReference"/> object.</param>
+        /// <returns>Returns true if given string is valid, otherwise false.</returns>
         public static bool TryParse(string creditorReference, out CreditorReference result) {
+            if (IsValid(creditorReference)) {
+                result = new CreditorReference(creditorReference);
+                return true;
+            }
             result = null;
             return false;
+        }
+
+        /// <summary>
+        /// Tries to parse a given string as a creditor reference.
+        /// </summary>
+        /// <param name="creditorReference">The creditor reference to parse.</param>
+        /// <returns>The creditor reference as a <see cref="CreditorReference"/> object.</returns>
+        /// <exception cref="FormatException">Parameter <paramref name="creditorReference"/> is not in the correct format.</exception>
+        public static CreditorReference Parse(string creditorReference) {
+            var isValid = TryParse(creditorReference, out var result);
+            if (isValid) {
+                return result;
+            }
+            throw new FormatException("Creditor reference is not in a valid format.");
         }
 
         /// <summary>

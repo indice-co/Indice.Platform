@@ -30,6 +30,8 @@ namespace Indice.Common.Tests
         [InlineData("RF78 MMKI DHR7 3738 3MLA KSI")]
         public void CanIdentifyValidCreditorReferences(string creditorReference) {
             Assert.True(CreditorReference.IsValid(creditorReference));
+            var rf = CreditorReference.Parse(creditorReference);
+            Assert.True(rf != null);
         }
 
         [Theory]
@@ -40,6 +42,7 @@ namespace Indice.Common.Tests
         [InlineData("RF342%^&348236")]
         public void CanIdentifyInvalidCreditorReferences(string creditorReference) {
             Assert.False(CreditorReference.IsValid(creditorReference));
+            Assert.Throws<FormatException>(() => CreditorReference.Parse(creditorReference));
         }
     }
 }
