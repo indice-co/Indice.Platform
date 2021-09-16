@@ -22,8 +22,9 @@ namespace Indice.Services
         /// <param name="securityToken">The generated security token to use, if no <paramref name="principal"/> is provided.</param>
         /// <param name="phoneNumberOrEmail">The phone number to use, if no <paramref name="principal"/> is provided.</param>
         /// <param name="data">The json string that will be passed as data to the <see cref="IPushNotificationService"/>. It's important for the data to contain the {0} placeholder in the position where the OTP should be placed.</param>
+        /// <param name="classification">The notification's type.</param>
         /// <exception cref="TotpServiceException">Used to pass errors between service and the caller.</exception>
-        Task<TotpResult> Send(ClaimsPrincipal principal, string message, TotpDeliveryChannel channel = TotpDeliveryChannel.Sms, string purpose = null, string securityToken = null, string phoneNumberOrEmail = null, string data = null);
+        Task<TotpResult> Send(ClaimsPrincipal principal, string message, TotpDeliveryChannel channel = TotpDeliveryChannel.Sms, string purpose = null, string securityToken = null, string phoneNumberOrEmail = null, string data = null, string classification = null);
         /// <summary>
         /// Verify the code received for the given claims principal.
         /// </summary>
@@ -73,7 +74,7 @@ namespace Indice.Services
             var messageBuilder = new TotpMessageBuilder();
             configureMessage(messageBuilder);
             var totpMessage = messageBuilder.Build();
-            return service.Send(totpMessage.ClaimsPrincipal, totpMessage.Message, totpMessage.DeliveryChannel, totpMessage.Purpose, totpMessage.SecurityToken, totpMessage.PhoneNumberOrEmail, totpMessage.Data);
+            return service.Send(totpMessage.ClaimsPrincipal, totpMessage.Message, totpMessage.DeliveryChannel, totpMessage.Purpose, totpMessage.SecurityToken, totpMessage.PhoneNumberOrEmail, totpMessage.Data, totpMessage.Classification);
         }
 
         /// <summary>
@@ -113,6 +114,7 @@ namespace Indice.Services
         public string Message { get; internal set; }
         /// <summary>
         /// The payload data as json string to be sent in PushNotification. It's important for the data to contain the {0} placeholder in the position where the OTP should be placed.
+        /// <remarks>This applies only for <see cref="TotpDeliveryChannel.PushNotification"/>.</remarks>
         /// </summary>
         public string Data { get; internal set; }
         /// <summary>
@@ -131,6 +133,11 @@ namespace Indice.Services
         /// The purpose.
         /// </summary>
         public string Purpose { get; internal set; } = TotpConstants.TokenGenerationPurpose.StrongCustomerAuthentication;
+        /// <summary>
+        /// The type of the Push Notification.
+        /// <remarks>This applies only for <see cref="TotpDeliveryChannel.PushNotification"/>.</remarks>
+        /// </summary>
+        public string Classification { get; internal set; }
 
         /// <summary>
         /// Sets the <see cref="ClaimsPrincipal"/> property.
@@ -167,8 +174,30 @@ namespace Indice.Services
             SecurityToken = SecurityToken,
             PhoneNumberOrEmail = PhoneNumberOrEmail,
             DeliveryChannel = DeliveryChannel,
-            Purpose = Purpose
+            Purpose = Purpose,
+            Classification = Classification
         };
+    }
+
+    /// <summary>
+    /// Builder for the <see cref="TotpDataBuilder"/>.
+    /// </summary>
+    public interface ITotpClassificationBuilder
+    {
+        void WithClassification(string classification);
+    }
+
+    public class TotpClassificationBuilder : ITotpClassificationBuilder
+    {
+        private readonly TotpMessageBuilder _totpMessageBuilder;
+
+        public TotpClassificationBuilder(TotpMessageBuilder totpMessageBuilder) {
+            _totpMessageBuilder = totpMessageBuilder ?? throw new ArgumentNullException(nameof(totpMessageBuilder));
+        }
+
+        public void WithClassification(string classification) {
+            _totpMessageBuilder.Classification = classification;
+        }
     }
 
     /// <summary>
@@ -181,7 +210,7 @@ namespace Indice.Services
         /// </summary>
         /// <param name="data">The payload data as json string to be sent in PushNotification. It's important for the data to contain the {0} placeholder in the position where the OTP should be placed.</param>
         /// <returns></returns>
-        void WithData(string data);
+        ITotpClassificationBuilder WithData(string data);
     }
 
     /// <inheritdoc />
@@ -198,8 +227,10 @@ namespace Indice.Services
         }
 
         /// <inheritdoc/>
-        public void WithData(string data) {
+        public ITotpClassificationBuilder WithData(string data) {
             _totpMessageBuilder.Data = data;
+            var dataBuilder = new TotpClassificationBuilder(_totpMessageBuilder);
+            return dataBuilder;
         }
     }
 
@@ -316,7 +347,6 @@ namespace Indice.Services
         /// </summary>
         /// <param name="purpose">The purpose.</param>
         ITotpDataBuilder WithPurpose(string purpose);
-        
     }
 
     /// <inheritdoc/>
@@ -585,6 +615,10 @@ namespace Indice.Services
         /// Email address or phone number.
         /// </summary>
         public string PhoneNumberOrEmail { get; set; }
+        /// <summary>
+        /// The type of the Push Notification.
+        /// </summary>
+        public string Classification { get; set; }
     }
 
     /// <summary>

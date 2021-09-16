@@ -57,7 +57,7 @@ namespace Indice.AspNetCore.Identity
         }
 
         /// <inheritdoc />
-        public async Task<TotpResult> Send(ClaimsPrincipal principal, string message, TotpDeliveryChannel channel = TotpDeliveryChannel.Sms, string purpose = null, string securityToken = null, string phoneNumberOrEmail = null, string data = null) {
+        public async Task<TotpResult> Send(ClaimsPrincipal principal, string message, TotpDeliveryChannel channel = TotpDeliveryChannel.Sms, string purpose = null, string securityToken = null, string phoneNumberOrEmail = null, string data = null, string classification = null) {
             var userId = principal.GetSubjectId();
             if (!string.IsNullOrEmpty(userId)) {
                 var hasDeveloperTotp = await _dbContext.UserClaims.Where(x => x.UserId == userId && x.ClaimType == BasicClaimTypes.DeveloperTotp).AnyAsync();
@@ -65,7 +65,7 @@ namespace Indice.AspNetCore.Identity
                     return TotpResult.SuccessResult;
                 }
             }
-            return await _totpService.Send(principal, message, channel, purpose, securityToken, phoneNumberOrEmail, data);
+            return await _totpService.Send(principal, message, channel, purpose, securityToken, phoneNumberOrEmail, data, classification);
         }
 
         /// <inheritdoc />
