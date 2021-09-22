@@ -34,7 +34,8 @@ namespace Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Endpoints
             IProfileService profileService,
             IResourceStore resourceStore,
             ITotpService totpService,
-            IUserDeviceStore userDeviceStore
+            IUserDeviceStore userDeviceStore,
+            IdentityMessageDescriber identityMessageDescriber
         ) {
             Logger = logger ?? throw new ArgumentNullException(nameof(logger));
             ProfileService = profileService ?? throw new ArgumentNullException(nameof(profileService));
@@ -44,6 +45,7 @@ namespace Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Endpoints
             Token = tokenUsageValidator ?? throw new ArgumentNullException(nameof(tokenUsageValidator));
             TotpService = totpService ?? throw new ArgumentNullException(nameof(totpService));
             UserDeviceStore = userDeviceStore ?? throw new ArgumentNullException(nameof(userDeviceStore));
+            IdentityMessageDescriber = identityMessageDescriber ?? throw new ArgumentNullException(nameof(identityMessageDescriber));
         }
 
         public BearerTokenUsageValidator Token { get; }
@@ -54,6 +56,7 @@ namespace Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Endpoints
         public IResourceStore ResourceStore { get; }
         public ITotpService TotpService { get; }
         public IUserDeviceStore UserDeviceStore { get; }
+        public IdentityMessageDescriber IdentityMessageDescriber { get; }
 
         public async Task<IEndpointResult> ProcessAsync(HttpContext httpContext) {
             Logger.LogInformation($"[{nameof(InitRegistrationEndpoint)}] Started processing trusted device registration initiation endpoint.");
@@ -106,7 +109,7 @@ namespace Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Endpoints
                 // Send OTP code.
                 var totpResult = await TotpService.Send(message =>
                     message.UsePrincipal(requestValidationResult.Principal)
-                           .WithMessage("Device registration OTP code is {0}.")
+                           .WithMessage(IdentityMessageDescriber.DeviceRegistrationCodeMessage(existingDevice?.DeviceName))
                            .UsingSms()
                            .WithPurpose(Constants.TrustedDeviceOtpPurpose(requestValidationResult.UserId, requestValidationResult.DeviceId))
                 );
