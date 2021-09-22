@@ -92,5 +92,9 @@
         /// Message sent on message when <see cref="OtpAuthenticateExtensionGrantValidator"/> is used.
         /// </summary>
         public virtual string OtpSecuredValidatorOtpBody(string code) => string.Format(IdentityResources.Culture, IdentityResources.OtpSecuredValidatorOtpBody, code);
+        /// <summary>
+        /// Registration OTP code for device {0} is {1}.
+        /// </summary>
+        public virtual string DeviceRegistrationCodeMessage(string deviceName) => string.Format(IdentityResources.Culture, IdentityResources.DeviceRegistrationOtpCode, deviceName, "{0}");
     }
 }

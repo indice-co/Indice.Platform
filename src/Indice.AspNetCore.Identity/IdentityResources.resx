@@ -117,6 +117,9 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="DeviceRegistrationOtpCode" xml:space="preserve">
+    <value>Registration OTP code for device {0} is {1}.</value>
+  </data>
   <data name="EmailAlreadyConfirmed" xml:space="preserve">
     <value>User's email is already confirmed.</value>
   </data>

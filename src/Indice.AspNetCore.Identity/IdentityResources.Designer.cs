@@ -61,6 +61,15 @@ namespace Indice.AspNetCore.Identity {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Registration OTP code for device {0} is {1}..
+        /// </summary>
+        internal static string DeviceRegistrationOtpCode {
+            get {
+                return ResourceManager.GetString("DeviceRegistrationOtpCode", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to User&apos;s email is already confirmed..
         /// </summary>
         internal static string EmailAlreadyConfirmed {
