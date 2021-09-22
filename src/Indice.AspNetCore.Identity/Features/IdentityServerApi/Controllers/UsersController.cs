@@ -49,7 +49,7 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
         private readonly IPersistedGrantService _persistedGrantService;
         private readonly IClientStore _clientStore;
         private readonly IdentityServerApiEndpointsOptions _apiEndpointsOptions;
-        private readonly Indice.Services.IEventService _eventService;
+        private readonly Indice.Services.IPlatformEventService _eventService;
         private readonly GeneralSettings _generalSettings;
         private readonly IStringLocalizer<UsersController> _localizer;
         private readonly ExtendedConfigurationDbContext _configurationDbContext;
@@ -78,7 +78,7 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
             IPersistedGrantService persistedGrantService,
             IClientStore clientStore,
             IdentityServerApiEndpointsOptions apiEndpointsOptions,
-            Indice.Services.IEventService eventService,
+            Indice.Services.IPlatformEventService eventService,
             IOptions<GeneralSettings> generalSettings,
             IStringLocalizer<UsersController> localizer,
             ExtendedConfigurationDbContext configurationDbContext

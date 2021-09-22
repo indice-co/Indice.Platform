@@ -45,7 +45,7 @@ namespace Microsoft.Extensions.DependencyInjection
             // Invoke action provided by developer to override default options.
             services.AddSingleton(apiEndpointsOptions);
             services.AddGeneralSettings(configuration);
-            services.TryAddTransient<IEventService, EventService>();
+            services.TryAddTransient<IPlatformEventService, EventService>();
             // Register validation filters.
             services.AddScoped<CreateClaimTypeRequestValidationFilter>();
             services.AddScoped<CreateRoleRequestValidationFilter>();

@@ -13,7 +13,7 @@ namespace Indice.Types
     public class CreditorReference
     {
         #region Characters to number mapping
-        private static readonly Dictionary<char, string> _charToNumberMapping = new() {
+        private static readonly Dictionary<char, string> CharToNumberMapping = new() {
             { 'A', "10" },
             { 'B', "11" },
             { 'C', "12" },
@@ -117,7 +117,7 @@ namespace Indice.Types
             creditorReference = Regex.Replace(creditorReference, @"\s+", string.Empty).ToUpper();
             var firstFourChars = creditorReference.Substring(0, 4);
             creditorReference = $"{creditorReference.Replace(firstFourChars, string.Empty)}{firstFourChars}";
-            creditorReference = creditorReference.Select(x => x.IsLatinUpper() ? _charToNumberMapping[x] : x.ToString())
+            creditorReference = creditorReference.Select(x => x.IsLatinUpper() ? CharToNumberMapping[x] : x.ToString())
                                                  .Aggregate((current, next) => current + next);
             return BigInteger.TryParse(creditorReference, out var referenceNumber) && referenceNumber % 97 == 1;
         }
@@ -150,7 +150,7 @@ namespace Indice.Types
 
         /// <remarks>https://docs.microsoft.com/en-us/dotnet/api/system.numerics.biginteger</remarks>
         private static int CalculateCheckDigits(string reference) {
-            reference = reference.Select(x => x.IsLatinUpper() ? _charToNumberMapping[x] : x.ToString())
+            reference = reference.Select(x => x.IsLatinUpper() ? CharToNumberMapping[x] : x.ToString())
                                  .Aggregate((current, next) => current + next);
             reference = $"{reference}271500";
             var referenceNumber = BigInteger.Parse(reference);

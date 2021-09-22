@@ -28,7 +28,7 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <param name="configure">Configuration used in <see cref="Rfc6238AuthenticationService"/> service.</param>
         public static IMvcBuilder AddPushNotifications<TPushNotificationServiceAzure>(this IMvcBuilder builder, Action<PushNotificationOptions> configure = null) where TPushNotificationServiceAzure : class, IPushNotificationService {
             builder.Services.AddPushNotificationServiceAzure(configure);
-            builder.Services.TryAddTransient<IEventService, EventService>();
+            builder.Services.TryAddTransient<IPlatformEventService, EventService>();
             builder.ConfigureApplicationPartManager(x => x.FeatureProviders.Add(new DevicesFeatureProvider()));
             return builder;
         }
@@ -48,7 +48,7 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <param name="configure">Configuration used in <see cref="Rfc6238AuthenticationService"/> service.</param>
         public static IIdentityServerBuilder AddPushNotifications<TPushNotificationServiceAzure>(this IIdentityServerBuilder builder, Action<PushNotificationOptions> configure = null) where TPushNotificationServiceAzure : class, IPushNotificationService {
             builder.Services.AddPushNotificationServiceAzure(configure);
-            builder.Services.TryAddTransient<IEventService, EventService>();
+            builder.Services.TryAddTransient<IPlatformEventService, EventService>();
             builder.Services.Configure<IdentityServerOptions>((options) => {
                 options.Discovery.CustomEntries.Add("devices", new {
                     endpoint = options.IssuerUri.TrimEnd('/') + "/devices"

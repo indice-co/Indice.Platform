@@ -26,15 +26,8 @@ namespace Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Endpoints
 {
     internal class InitRegistrationEndpoint : IEndpointHandler
     {
-        public InitRegistrationEndpoint(
-            BearerTokenUsageValidator tokenUsageValidator,
-            ILogger<InitRegistrationEndpoint> logger,
-            InitRegistrationRequestValidator requestValidator,
-            InitRegistrationResponseGenerator responseGenerator,
-            IProfileService profileService,
-            IResourceStore resourceStore,
-            ITotpService totpService,
-            IUserDeviceStore userDeviceStore,
+        public InitRegistrationEndpoint(BearerTokenUsageValidator tokenUsageValidator, ILogger<InitRegistrationEndpoint> logger, InitRegistrationRequestValidator requestValidator,
+            InitRegistrationResponseGenerator responseGenerator, IProfileService profileService, IResourceStore resourceStore, ITotpService totpService, IUserDeviceStore userDeviceStore,
             IdentityMessageDescriber identityMessageDescriber
         ) {
             Logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -107,12 +100,16 @@ namespace Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Endpoints
             var otpAuthenticated = !string.IsNullOrWhiteSpace(otpAuthenticatedValue) && bool.Parse(otpAuthenticatedValue);
             if (!otpAuthenticated) {
                 // Send OTP code.
-                var totpResult = await TotpService.Send(message =>
-                    message.UsePrincipal(requestValidationResult.Principal)
-                           .WithMessage(IdentityMessageDescriber.DeviceRegistrationCodeMessage(existingDevice?.DeviceName))
-                           .UsingSms()
-                           .WithPurpose(Constants.TrustedDeviceOtpPurpose(requestValidationResult.UserId, requestValidationResult.DeviceId))
-                );
+                void messageBuilder(TotpMessageBuilder message) {
+                    var builder = message.UsePrincipal(requestValidationResult.Principal).WithMessage(IdentityMessageDescriber.DeviceRegistrationCodeMessage(existingDevice?.DeviceName));
+                    if (requestValidationResult.DeliveryChannel == TotpDeliveryChannel.Sms) {
+                        builder.UsingSms();
+                    } else {
+                        builder.UsingViber();
+                    }
+                    builder.WithPurpose(Constants.TrustedDeviceOtpPurpose(requestValidationResult.UserId, requestValidationResult.DeviceId));
+                }
+                var totpResult = await TotpService.Send(messageBuilder);
                 if (!totpResult.Success) {
                     return Error(totpResult.Error);
                 }

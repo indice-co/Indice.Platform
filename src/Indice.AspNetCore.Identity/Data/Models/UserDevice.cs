@@ -42,7 +42,7 @@ namespace Indice.AspNetCore.Identity.Data.Models
         /// </summary>
         public string DeviceName { get; set; }
         /// <summary>
-        /// The date this password was created.
+        /// The date this device was created.
         /// </summary>
         public DateTimeOffset DateCreated { get; set; }
         /// <summary>

@@ -57,7 +57,7 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
         private readonly IdentityOptions _identityOptions;
         private readonly IdentityServerApiEndpointsOptions _identityServerApiEndpointsOptions;
         private readonly IEmailService _emailService;
-        private readonly IEventService _eventService;
+        private readonly IPlatformEventService _eventService;
         private readonly ISmsServiceFactory _smsServiceFactory;
         private readonly ExtendedConfigurationDbContext _configurationDbContext;
         private readonly IPersistedGrantStore _persistedGrantStore;
@@ -74,7 +74,7 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
             IConfiguration configuration,
             IdentityServerApiEndpointsOptions identityServerApiEndpointsOptions,
             IEmailService emailService,
-            IEventService eventService,
+            IPlatformEventService eventService,
             IOptions<GeneralSettings> generalSettings,
             IOptionsSnapshot<IdentityOptions> identityOptions,
             ISmsServiceFactory smsServiceFactory,

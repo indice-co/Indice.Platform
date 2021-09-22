@@ -1,10 +1,12 @@
 ﻿using System;
+using Indice.AspNetCore.Identity;
 using Indice.AspNetCore.Identity.Data.Models;
 using Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Endpoints;
 using Indice.AspNetCore.Identity.TrustedDeviceAuthorization.ResponseHandling;
 using Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Services;
 using Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Stores;
 using Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Validation;
+using Indice.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
@@ -27,8 +29,10 @@ namespace Microsoft.Extensions.DependencyInjection
             configureAction?.Invoke(options);
             // Register endpoints.
             builder.RegisterEndpoints();
-            // Register stores.
+            // Register stores and services.
             builder.Services.AddTransient<IAuthorizationCodeChallengeStore, DefaultAuthorizationCodeChallengeStore>();
+            builder.Services.TryAddTransient<IPlatformEventService, EventService>();
+            builder.Services.TryAddScoped<IdentityMessageDescriber>();
             options.AddUserDeviceStoreInMemory();
             // Register custom grant validator.
             builder.AddExtensionGrantValidator<TrustedDeviceExtensionGrantValidator>();

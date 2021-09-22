@@ -338,7 +338,8 @@ namespace Indice.AspNetCore.Identity.Tests
             var data = new Dictionary<string, string> {
                 { "code_challenge", codeChallenge },
                 { "device_id", deviceId },
-                { "mode", mode }
+                { "mode", mode },
+                { "channel", TotpDeliveryChannel.Viber.ToString() }
             };
             var form = new FormUrlEncodedContent(data);
             _httpClient.SetBearerToken(accessToken);

@@ -48,5 +48,6 @@ namespace Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Configuration
         public const string Pin = "pin";
         public const string PublicKey = "public_key";
         public const string Scope = "scope";
+        public const string DeliveryChannel = "channel";
     }
 }

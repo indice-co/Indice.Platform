@@ -51,7 +51,7 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
     {
         private readonly ExtendedConfigurationDbContext _configurationDbContext;
         private readonly GeneralSettings _generalSettings;
-        private readonly IEventService _eventService;
+        private readonly IPlatformEventService _eventService;
         private readonly IdentityServerApiEndpointsOptions _apiEndpointsOptions;
         /// <summary>
         /// The name of the controller.
@@ -68,7 +68,7 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
         public ClientsController(
             ExtendedConfigurationDbContext configurationDbContext,
             IOptionsSnapshot<GeneralSettings> generalSettings,
-            IEventService eventService,
+            IPlatformEventService eventService,
             IdentityServerApiEndpointsOptions apiEndpointsOptions
         ) {
             _configurationDbContext = configurationDbContext ?? throw new ArgumentNullException(nameof(configurationDbContext));

@@ -7,9 +7,9 @@ using Indice.Services;
 namespace Indice.AspNetCore.Identity
 {
     /// <summary>
-    /// Implementation of <see cref="IEventService"/>.
+    /// Implementation of <see cref="IPlatformEventService"/>.
     /// </summary>
-    public class EventService : IEventService
+    public class EventService : IPlatformEventService
     {
         private readonly IServiceProvider _serviceProvider;
         private readonly IdentityServerApiEndpointsOptions _options;
@@ -19,10 +19,7 @@ namespace Indice.AspNetCore.Identity
         /// </summary>
         /// <param name="serviceProvider">Defines a mechanism for retrieving a service object; that is, an object that provides custom support to other objects.</param>
         /// <param name="options">Options for configuring the IdentityServer API feature.</param>
-        public EventService(
-            IServiceProvider serviceProvider,
-            IdentityServerApiEndpointsOptions options
-        ) {
+        public EventService(IServiceProvider serviceProvider, IdentityServerApiEndpointsOptions options) {
             _serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
             _options = options ?? throw new ArgumentNullException(nameof(options));
         }

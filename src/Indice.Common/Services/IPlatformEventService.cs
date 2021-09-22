@@ -5,7 +5,8 @@ namespace Indice.Services
     /// <summary>
     /// Models the event mechanism used to raise events inside the platform.
     /// </summary>
-    public interface IEventService
+    public interface IPlatformEventService
+
     {
         /// <summary>
         /// Raises the specified event.

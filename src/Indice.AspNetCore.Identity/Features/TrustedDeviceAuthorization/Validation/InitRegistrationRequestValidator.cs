@@ -8,6 +8,7 @@ using IdentityServer4.Stores;
 using IdentityServer4.Validation;
 using Indice.AspNetCore.Identity.Data.Models;
 using Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Configuration;
+using Indice.Services;
 using Microsoft.Extensions.Logging;
 
 namespace Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Validation
@@ -56,7 +57,15 @@ namespace Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Validation
             }
             var isValidInteraction = Enum.TryParse<InteractionMode>(parameters.Get(RegistrationRequestParameters.Mode), ignoreCase: true, out var mode);
             if (!isValidInteraction) {
-                return Error(OidcConstants.TokenErrors.InvalidRequest, $"Parameter '{nameof(RegistrationRequestParameters.Mode)}' used for registration is not valid.");
+                return Error(OidcConstants.TokenErrors.InvalidRequest, $"Parameter '{RegistrationRequestParameters.Mode}' used for registration is not valid.");
+            }
+            var deliveryChannelParameter = parameters.Get(RegistrationRequestParameters.DeliveryChannel) ?? nameof(TotpDeliveryChannel.Sms);
+            var isValidDeliveryChannel = Enum.TryParse<TotpDeliveryChannel>(deliveryChannelParameter, ignoreCase: true, out var deliveryChannel);
+            if (!isValidDeliveryChannel) {
+                return Error(OidcConstants.TokenErrors.InvalidRequest, $"Parameter '{RegistrationRequestParameters.DeliveryChannel}' is not valid.");
+            }
+            if (deliveryChannel is not TotpDeliveryChannel.Sms and not TotpDeliveryChannel.Viber) {
+                return Error(OidcConstants.TokenErrors.InvalidRequest, $"Allowed values for parameter '{RegistrationRequestParameters.DeliveryChannel}' are {nameof(TotpDeliveryChannel.Sms)} and {nameof(TotpDeliveryChannel.Viber)}.");
             }
             // Load client and validate that it allows the 'password' flow.
             var client = await LoadClient(tokenValidationResult);
@@ -81,7 +90,8 @@ namespace Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Validation
                 InteractionMode = mode,
                 Principal = principal,
                 RequestedScopes = requestedScopes,
-                UserId = userId
+                UserId = userId,
+                DeliveryChannel = deliveryChannel
             };
         }
     }
