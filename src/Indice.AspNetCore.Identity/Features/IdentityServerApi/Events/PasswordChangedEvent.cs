@@ -19,6 +19,6 @@ namespace Indice.AspNetCore.Identity.Api.Events
         /// <summary>
         /// Related user.
         /// </summary>
-        public SingleUserInfo User { get; set; }
+        public SingleUserInfo User { get; }
     }
 }
