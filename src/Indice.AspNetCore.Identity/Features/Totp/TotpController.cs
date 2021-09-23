@@ -1,6 +1,5 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
 using System.Net.Mime;
 using System.Threading.Tasks;
 using Indice.AspNetCore.Identity.Api.Security;
@@ -76,7 +75,13 @@ namespace Indice.AspNetCore.Identity.Features
                     }
                     break;
                 case TotpDeliveryChannel.PushNotification:
-                    result = await TotpService.Send(options => options.UsePrincipal(User).WithMessage(request.Message).UsingPushNotification().WithPurpose(request.Purpose).WithData(request.Data));
+                    result = await TotpService.Send(options => options
+                        .UsePrincipal(User)
+                        .WithMessage(request.Message)
+                        .UsingPushNotification()
+                        .WithPurpose(request.Purpose)
+                        .WithData(request.Data)
+                        .WithClassification(request.Classification));
                     if (!result.Success) {
                         ModelState.AddModelError(nameof(request.Channel), result.Error ?? "An error occurred.");
                         return BadRequest(new ValidationProblemDetails(ModelState));
@@ -138,6 +143,11 @@ namespace Indice.AspNetCore.Identity.Features
         /// The payload data in json string to be sent in the Push Notification.It's important for the data to contain the {0} placeholder in the position where the OTP should be placed.
         /// </summary>
         public string Data { get; set; }
+        /// <summary>
+        /// The type of the Push Notification.
+        /// <remarks>This applies only for <see cref="TotpDeliveryChannel.PushNotification"/>.</remarks>
+        /// </summary>
+        public string Classification { get; set; }
     }
 
     /// <summary>

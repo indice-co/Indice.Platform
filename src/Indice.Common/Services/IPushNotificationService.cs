@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using Indice.Types;
@@ -30,7 +31,8 @@ namespace Indice.Services
         /// <param name="message">Message of notification.</param>
         /// <param name="tags">Tags are used to route notifications to the correct set of device handles.</param>
         /// <param name="data">Data passed to mobile client, not visible to notification toast.</param>
-        Task SendAsync(string message, IList<string> tags, string data = null);
+        /// <param name="classification">The notification's type.</param>
+        Task SendAsync(string message, IList<string> tags, string data = null, string classification = null);
     }
 
     /// <summary>
@@ -51,25 +53,16 @@ namespace Indice.Services
             await service.Register(deviceId, pnsHandle, devicePlatform, new string[] { userId }.Concat(tags ?? Array.Empty<string>()).ToList());
 
         /// <summary>
-        /// Send notifications to devices registered to userId.
-        /// </summary>
-        /// <param name="service">Instance of <see cref="IPushNotificationService"/>.</param>
-        /// <param name="message">Message of notification.</param>
-        /// <param name="userId">UserId to be passed as tag.</param>
-        /// <param name="tags">Optional tag parameters.</param>
-        public static async Task SendAsync(this IPushNotificationService service, string message, string userId, params string[] tags) =>
-            await service.SendAsync(message, new string[] { userId }.Concat(tags ?? Array.Empty<string>()).ToList());
-
-        /// <summary>
-        /// Send notifications to devices registered to userId.
+        /// Send notifications to devices registered to userId with payload data and classification.
         /// </summary>
         /// <param name="service">Instance of <see cref="IPushNotificationService"/>.</param>
         /// <param name="message">Message of notification.</param>
         /// <param name="data">Data passed to mobile client, not visible to notification toast.</param>
         /// <param name="userId">UserId to be passed as tag.</param>
+        /// <param name="classification">The type of the Push Notification.</param>
         /// <param name="tags">Optional tag parameters.</param>
-        public static async Task SendAsync(this IPushNotificationService service, string message, string data, string userId, params string[] tags) =>
-            await service.SendAsync(message, new string[] { userId }.Concat(tags ?? Array.Empty<string>()).ToList(), data);
+        public static async Task SendAsync(this IPushNotificationService service, string message, string data, string userId , string classification, params string[] tags) =>
+            await service.SendAsync(message, new string[] { userId }.Concat(tags ?? Array.Empty<string>()).ToList(), data, classification);
 
         /// <summary>
         /// Send notification to devices registered to userId with optional data as payload
@@ -83,7 +76,7 @@ namespace Indice.Services
             }
             var pushNotificationMessageBuilder = configurePushNotificationMessage(new PushNotificationMessageBuilder());
             var pushNotificationMessage = pushNotificationMessageBuilder.Build();
-            await service.SendAsync(pushNotificationMessage.Message, pushNotificationMessage.Data, pushNotificationMessage.UserId, pushNotificationMessage.Tags.ToArray());
+            await service.SendAsync(pushNotificationMessage.Message, pushNotificationMessage.Data, pushNotificationMessage.UserId, pushNotificationMessage.Classification, pushNotificationMessage.Tags.ToArray());
         }
     }
 
@@ -98,7 +91,7 @@ namespace Indice.Services
         }
 
         ///<inheritdoc/>
-        public Task SendAsync(string message, IList<string> tags, string data = null) {
+        public Task SendAsync(string message, IList<string> tags, string data = null, string classification = null) {
             throw new NotImplementedException();
         }
 
@@ -122,10 +115,12 @@ namespace Indice.Services
             throw new NotImplementedException();
         }
         /// <inheritdoc />
-        public Task SendAsync(string message, IList<string> tags, string data = null) {
-            Console.WriteLine($"PushNotification Message: {message}");
-            Console.WriteLine($"PushNotification Tags: {string.Join(",", tags)}");
-            Console.WriteLine($"PushNotification Data: {data}");
+        public Task SendAsync(string message, IList<string> tags, string data = null, string classification = null) {
+            Trace.WriteLine($"PushNotification Message: {message}");
+            Trace.WriteLine($"PushNotification Tags: {string.Join(",", tags)}");
+            Trace.WriteLine($"PushNotification Data: {data}");
+            Trace.WriteLine($"PushNotification Classification: {classification}");
+            
 #if NET452
             return Task.FromResult(0);
 #else

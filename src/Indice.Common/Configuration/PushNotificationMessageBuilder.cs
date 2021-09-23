@@ -32,6 +32,11 @@ namespace Indice.Services
         /// The tags of the Push Notification.
         /// </summary>
         public string[] Tags { get; set; } = Array.Empty<string>();
+
+        /// <summary>
+        /// The type of the Push Notification.
+        /// </summary>
+        public string Classification { get; set; }
     }
 
     /// <summary>
@@ -107,11 +112,22 @@ namespace Indice.Services
         }
 
         /// <summary>
+        /// Defines the type of the Push Notification.
+        /// </summary>
+        /// <param name="builder">the builder</param>
+        /// <param name="classification">The type of the push notification.</param>
+        /// <returns></returns>
+        public static PushNotificationMessageBuilder WithClassification(this PushNotificationMessageBuilder builder, string classification) {
+            builder.Classification = classification;
+            return builder;
+        }
+
+        /// <summary>
         /// Returns the <see cref="PushNotificationMessage"/> instance made by the builder.
         /// </summary>
         /// <param name="builder">The builder</param>
         /// <returns></returns>
         public static PushNotificationMessage Build(this PushNotificationMessageBuilder builder) =>
-            new(builder.Data, builder.Message, builder.Token, builder.UserId, builder.Tags);
+            new(builder.Data, builder.Message, builder.Token, builder.UserId, builder.Tags, builder.Classification);
     }
 }

@@ -18,11 +18,11 @@ namespace Indice.Services
         /// <summary>
         /// iOS template.
         /// </summary>
-        private const string IosTemplate = @"{""aps"":{""alert"":""$(message)""}, ""payload"":{""data"":""$(data)""}}";
+        private const string IosTemplate = @"{""aps"":{""alert"":""$(message)"", ""category"":""$(classification)""}, ""payload"":{""data"":""$(data)""}}";
         /// <summary>
         /// Android template.
         /// </summary>
-        private const string AndroidTemplate = @"{""data"":{""message"":""$(message)"", ""data"":""$(data)""}}";
+        private const string AndroidTemplate = @"{""data"":{""message"":""$(message)"", ""data"":""$(data)"", ""category"":""$(classification)""}}"; 
         /// <summary>
         /// The connection string parameter name. The setting key that will be searched inside the configuration.
         /// </summary>
@@ -102,7 +102,7 @@ namespace Indice.Services
         }
 
         /// <inheritdoc/>
-        public async Task SendAsync(string message, IList<string> tags, string data = null) {
+        public async Task SendAsync(string message, IList<string> tags, string data = null, string classification = null) {
             if (string.IsNullOrEmpty(message)) {
                 throw new ArgumentNullException(nameof(message));
             }
@@ -114,6 +114,9 @@ namespace Indice.Services
             };
             if (!string.IsNullOrEmpty(data)) {
                 notification.Add("data", data);
+            }
+            if (!string.IsNullOrEmpty(classification)) {
+                notification.Add("classification", classification);
             }
             await NotificationHub.SendTemplateNotificationAsync(notification, tags);
         }
