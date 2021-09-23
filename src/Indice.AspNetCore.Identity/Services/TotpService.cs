@@ -58,7 +58,7 @@ namespace Indice.AspNetCore.Identity
         }
 
         /// <inheritdoc />
-        public async Task<TotpResult> Send(ClaimsPrincipal principal, string message, TotpDeliveryChannel channel = TotpDeliveryChannel.Sms, string purpose = null, string securityToken = null, string phoneNumberOrEmail = null, string data = null) {
+        public async Task<TotpResult> Send(ClaimsPrincipal principal, string message, TotpDeliveryChannel channel = TotpDeliveryChannel.Sms, string purpose = null, string securityToken = null, string phoneNumberOrEmail = null, string data = null, string classification = null) {
             var totpResult = ValidateParameters(principal, securityToken, phoneNumberOrEmail);
             if (!totpResult.Success) {
                 return totpResult;
@@ -108,6 +108,7 @@ namespace Indice.AspNetCore.Identity
                             .WithToken(token)
                             .WithMessage(string.Format(message, token))
                             .WithData(data)
+                            .WithClassification(classification)
                     );
                     break;
                 default:
