@@ -717,6 +717,8 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
             if (!result.Succeeded) {
                 return BadRequest(result.Errors.ToValidationProblemDetails());
             }
+            var @event = new PasswordChangedEvent(SingleUserInfo.FromUser(user));
+            await _eventService.Raise(@event);
             if (request.ChangePasswordAfterFirstSignIn == true) {
                 await _userManager.SetPasswordExpiredAsync(user, true);
             }
