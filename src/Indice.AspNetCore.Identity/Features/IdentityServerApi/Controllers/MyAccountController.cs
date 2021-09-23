@@ -260,6 +260,8 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
             if (!result.Succeeded) {
                 return BadRequest(result.Errors.ToValidationProblemDetails());
             }
+            var @event = new UserNameChangedEvent(SingleUserInfo.FromUser(user));
+            await _eventService.Raise(@event);
             return Ok();
         }
 
@@ -283,6 +285,8 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
             if (!result.Succeeded) {
                 return BadRequest(result.Errors.ToValidationProblemDetails());
             }
+            var @event = new PasswordChangedEvent(SingleUserInfo.FromUser(user));
+            await _eventService.Raise(@event);
             return NoContent();
         }
 
