@@ -22,10 +22,10 @@ namespace Indice.AspNetCore.Identity.Api.Events
         /// <summary>
         /// The instance of the user that email verification will be resend.
         /// </summary>
-        public BasicUserInfo User { get; private set; }
+        public BasicUserInfo User { get; }
         /// <summary>
         /// The generated email confirmation token.
         /// </summary>
-        public string ConfirmationToken { get; set; }
+        public string ConfirmationToken { get; }
     }
 }

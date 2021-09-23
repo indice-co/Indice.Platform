@@ -17,6 +17,6 @@ namespace Indice.AspNetCore.Identity.Api.Events
         /// <summary>
         /// The instance of the client that was created.
         /// </summary>
-        public ClientInfo Client { get; private set; }
+        public ClientInfo Client { get; }
     }
 }

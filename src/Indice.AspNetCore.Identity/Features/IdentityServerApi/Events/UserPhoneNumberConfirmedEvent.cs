@@ -17,6 +17,6 @@ namespace Indice.AspNetCore.Identity.Api.Events
         /// <summary>
         /// The instance of the user that confirmed the phone number.
         /// </summary>
-        public BasicUserInfo User { get; private set; }
+        public BasicUserInfo User { get; }
     }
 }

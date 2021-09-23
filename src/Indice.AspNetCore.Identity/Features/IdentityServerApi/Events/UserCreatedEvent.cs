@@ -17,6 +17,6 @@ namespace Indice.AspNetCore.Identity.Api.Events
         /// <summary>
         /// The instance of the user that was created.
         /// </summary>
-        public SingleUserInfo User { get; private set; }
+        public SingleUserInfo User { get; }
     }
 }

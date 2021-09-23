@@ -21,10 +21,10 @@ namespace Indice.AspNetCore.Identity.Api.Events
         /// <summary>
         /// The device created.
         /// </summary>
-        public DeviceInfo Device { get; set; }
+        public DeviceInfo Device { get; }
         /// <summary>
         /// Related user.
         /// </summary>
-        public SingleUserInfo User { get; set; }
+        public SingleUserInfo User { get; }
     }
 }
