@@ -53,27 +53,6 @@ namespace Indice.Services
             await service.Register(deviceId, pnsHandle, devicePlatform, new string[] { userId }.Concat(tags ?? Array.Empty<string>()).ToList());
 
         /// <summary>
-        /// Send notifications to devices registered to userId.
-        /// </summary>
-        /// <param name="service">Instance of <see cref="IPushNotificationService"/>.</param>
-        /// <param name="message">Message of notification.</param>
-        /// <param name="userId">UserId to be passed as tag.</param>
-        /// <param name="tags">Optional tag parameters.</param>
-        public static async Task SendAsync(this IPushNotificationService service, string message, string userId, params string[] tags) =>
-            await service.SendAsync(message, new string[] { userId }.Concat(tags ?? Array.Empty<string>()).ToList());
-
-        /// <summary>
-        /// Send notifications to devices registered to userId with payload data.
-        /// </summary>
-        /// <param name="service">Instance of <see cref="IPushNotificationService"/>.</param>
-        /// <param name="message">Message of notification.</param>
-        /// <param name="data">Data passed to mobile client, not visible to notification toast.</param>
-        /// <param name="userId">UserId to be passed as tag.</param>
-        /// <param name="tags">Optional tag parameters.</param>
-        public static async Task SendAsync(this IPushNotificationService service, string message, string data, string userId, params string[] tags) =>
-            await service.SendAsync(message, new string[] { userId }.Concat(tags ?? Array.Empty<string>()).ToList(), data);
-
-        /// <summary>
         /// Send notifications to devices registered to userId with payload data and classification.
         /// </summary>
         /// <param name="service">Instance of <see cref="IPushNotificationService"/>.</param>

@@ -1,5 +1,7 @@
-﻿using System;
+﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
+using Moq;
 using Xunit;
 
 namespace Indice.Services.Tests
@@ -7,56 +9,90 @@ namespace Indice.Services.Tests
     public class PushNotificationMessageTests
     {
         [Fact]
-        public async Task PushNotificationBuilderTestMinimum() {
-            IPushNotificationService service = new MockPushNotificationService();
+        public async Task PushNotificationBuilderTestMessage() {
+            // Arrange
+            var service = new Mock<IPushNotificationService>();
+            var pushNotificationBuilder = new PushNotificationMessageBuilder()
+                .To("5372ef3e-9bf8-464d-8fc9-3234a2b979f6")
+                .WithToken("123456")
+                .WithMessage("This is the message!");
 
-            await service.SendAsync(builder => builder
-                .To(Guid.NewGuid().ToString())
-                .WithMessage("Push Notification Message")
-                .WithToken("123456"));
+            // Act
+            await service.Object.SendAsync(_ => pushNotificationBuilder);
 
-            Assert.True(true);
+            // Assert
+            service.Verify(p => p.SendAsync(
+                It.Is<string>(value => value == "This is the message!"),
+                It.Is<IList<string>>(value => value.SingleOrDefault() == "5372ef3e-9bf8-464d-8fc9-3234a2b979f6"),
+                It.Is<string>(value => value == "123456"),
+                It.IsAny<string>()
+                ), Times.Once);
         }
 
         [Fact]
-        public async Task PushNotificationBuilderTestWithData() {
-            IPushNotificationService service = new MockPushNotificationService();
-
-            await service.SendAsync(builder => builder
-                .To(Guid.NewGuid().ToString())
-                .WithMessage("Push Notification Message")
+        public async Task PushNotificationBuilderTestData() {
+            // Arrange
+            var service = new Mock<IPushNotificationService>();
+            var pushNotificationBuilder = new PushNotificationMessageBuilder()
+                .To("5372ef3e-9bf8-464d-8fc9-3234a2b979f6")
                 .WithToken("123456")
-                .WithData("{{\"connectionId\":\"1234-abcd\", \"otp\":{0}}}"));
+                .WithMessage("This is the message!")
+                .WithData("{{\"connectionId\":\"1234-ab-cd\", \"otp\":{0}}}");
 
-            Assert.True(true);
-        }   
-        
-        [Fact]
-        public async Task PushNotificationBuilderTestWithClassification() {
-            IPushNotificationService service = new MockPushNotificationService();
+            // Act
+            await service.Object.SendAsync(_ => pushNotificationBuilder);
 
-            await service.SendAsync(builder => builder
-                .To(Guid.NewGuid().ToString())
-                .WithMessage("Push Notification Message")
-                .WithToken("123456")
-                .WithClassification("PushApprovals"));
-
-            Assert.True(true);
+            // Assert
+            service.Verify(p => p.SendAsync(
+                It.Is<string>(value => value == "This is the message!"),
+                It.Is<IList<string>>(value => value.SingleOrDefault() == "5372ef3e-9bf8-464d-8fc9-3234a2b979f6"),
+                It.Is<string>(value => value == "{\"connectionId\":\"1234-ab-cd\", \"otp\":123456}"),
+                It.IsAny<string>()
+            ), Times.Once);
         }
 
         [Fact]
-        public async Task PushNotificationBuilderTestAllOptions() {
-            IPushNotificationService service = new MockPushNotificationService();
-
-            await service.SendAsync(builder => builder
-                .To(Guid.NewGuid().ToString())
-                .WithMessage("Push Notification Message")
+        public async Task PushNotificationBuilderTestClassification() {
+            // Arrange
+            var service = new Mock<IPushNotificationService>();
+            var pushNotificationBuilder = new PushNotificationMessageBuilder()
+                .To("5372ef3e-9bf8-464d-8fc9-3234a2b979f6")
                 .WithToken("123456")
-                .WithData("{{\"connectionId\":\"1234-abcd\", \"otp\":{0}}}")
-                .WithClassification("PushApprovals")
-                .WithTags("tag1", "tag2"));
+                .WithMessage("This is the message!")
+                .WithClassification("Approvals");
 
-            Assert.True(true);
+            // Act
+            await service.Object.SendAsync(_ => pushNotificationBuilder);
+
+            // Assert
+            service.Verify(p => p.SendAsync(
+                It.Is<string>(value => value == "This is the message!"),
+                It.Is<IList<string>>(value => value.SingleOrDefault() == "5372ef3e-9bf8-464d-8fc9-3234a2b979f6"),
+                It.Is<string>(value => value == "123456"),
+                It.Is<string>(value => value == "Approvals")
+                ), Times.Once);
+        }
+
+        [Fact]
+        public async Task PushNotificationBuilderTestTags() {
+            // Arrange
+            var service = new Mock<IPushNotificationService>();
+            var pushNotificationBuilder = new PushNotificationMessageBuilder()
+                .To("5372ef3e-9bf8-464d-8fc9-3234a2b979f6")
+                .WithToken("123456")
+                .WithMessage("This is the message!")
+                .WithTags("tag-1", "tag-2");
+
+            // Act
+            await service.Object.SendAsync(_ => pushNotificationBuilder);
+
+            // Assert
+            service.Verify(p => p.SendAsync(
+                It.Is<string>(value => value == "This is the message!"),
+                It.Is<IList<string>>(value => value.ElementAt(0) == "5372ef3e-9bf8-464d-8fc9-3234a2b979f6" && value.ElementAt(1) == "tag-1" && value.ElementAt(2) == "tag-2"),
+                It.Is<string>(value => value == "123456"),
+                It.IsAny<string>()
+                ), Times.Once);
         }
     }
 }
