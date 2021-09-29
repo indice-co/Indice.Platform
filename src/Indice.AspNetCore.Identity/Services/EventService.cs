@@ -31,7 +31,7 @@ namespace Indice.AspNetCore.Identity
             }
             var handler = _serviceProvider.GetService<IIdentityServerApiEventHandler<TEvent>>();
             if (handler != null) {
-                handler.Handle(@event);
+                return handler.Handle(@event);
             }
             return Task.CompletedTask;
         }

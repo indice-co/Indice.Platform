@@ -152,6 +152,15 @@ namespace Indice.AspNetCore.Identity
             return result;
         }
 
+        /// <inheritdoc />
+        public override async Task<IdentityResult> AccessFailedAsync(TUser user) {
+            var result = await base.AccessFailedAsync(user);
+            if (await IsLockedOutAsync(user)) {
+                // TODO: Raise event.
+            }
+            return result;
+        }
+
         /// <summary>
         /// Replaces any claims with the same claim type on the specified user with the newClaim. 
         /// </summary>
