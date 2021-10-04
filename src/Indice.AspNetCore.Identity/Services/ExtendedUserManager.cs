@@ -4,8 +4,11 @@ using System.Linq;
 using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
+using Indice.AspNetCore.Identity.Api.Events;
+using Indice.AspNetCore.Identity.Api.Models;
 using Indice.AspNetCore.Identity.Data.Models;
 using Indice.AspNetCore.Identity.Extensions;
+using Indice.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -18,6 +21,8 @@ namespace Indice.AspNetCore.Identity
     /// <typeparam name="TUser">The type encapsulating a user.</typeparam>
     public class ExtendedUserManager<TUser> : UserManager<TUser> where TUser : User
     {
+        private readonly IPlatformEventService _eventService;
+
         /// <summary>
         /// Creates a new instance of <see cref="ExtendedUserManager{TUser}"/>.
         /// </summary>
@@ -31,6 +36,7 @@ namespace Indice.AspNetCore.Identity
         /// <param name="errors">The <see cref="IdentityErrorDescriber"/> used to provider error messages.</param>
         /// <param name="services">The <see cref="IServiceProvider"/> used to resolve services.</param>
         /// <param name="logger">The logger used to log messages, warnings and errors.</param>
+        /// <param name="eventService">Models the event mechanism used to raise events inside the IdentityServer API.</param>
         public ExtendedUserManager(
             IdentityErrorDescriber errors,
             IdentityMessageDescriber identityMessageDescriber,
@@ -41,9 +47,11 @@ namespace Indice.AspNetCore.Identity
             IOptionsSnapshot<IdentityOptions> optionsAccessor,
             IPasswordHasher<TUser> passwordHasher,
             IServiceProvider services,
-            IUserStore<TUser> userStore
+            IUserStore<TUser> userStore,
+            IPlatformEventService eventService
         ) : base(userStore, optionsAccessor, passwordHasher, userValidators, passwordValidators, keyNormalizer, errors, services, logger) {
             MessageDescriber = identityMessageDescriber ?? throw new ArgumentNullException(nameof(identityMessageDescriber));
+            _eventService = eventService ?? throw new ArgumentNullException(nameof(eventService));
         }
 
         /// <summary>
@@ -156,7 +164,8 @@ namespace Indice.AspNetCore.Identity
         public override async Task<IdentityResult> AccessFailedAsync(TUser user) {
             var result = await base.AccessFailedAsync(user);
             if (await IsLockedOutAsync(user)) {
-                // TODO: Raise event.
+                var @event = new AccountLockedEvent(SingleUserInfo.FromUser(user));
+                await _eventService.Raise(@event);
             }
             return result;
         }
