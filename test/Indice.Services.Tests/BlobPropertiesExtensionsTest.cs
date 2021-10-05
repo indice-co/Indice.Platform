@@ -11,7 +11,7 @@ namespace Indice.Services.Tests
         [InlineData("\"0x8D979DAB44F6E71\"")]
         public void EtagTest(string input) {
             ETag sourceEtag = new ETag(input);
-            var etag = sourceEtag.TryWrapEtagWithQuotes();
+            var etag = sourceEtag.GetHttpSafeETag();
             Assert.NotNull(etag);
             Assert.StartsWith("\"", etag);
             Assert.EndsWith("\"", etag);

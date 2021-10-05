@@ -14,7 +14,7 @@ namespace Indice.Extensions
         /// </summary>
         /// <param name="value"></param>
         /// <returns></returns>
-        public static string TryWrapEtagWithQuotes(this ETag value) {
+        public static string GetHttpSafeETag(this ETag value) {
             var eTag = value.ToString();
             if (!string.IsNullOrEmpty(eTag)) {
                 if (!(eTag.StartsWith("\"") || eTag.StartsWith("W"))) {
