@@ -143,13 +143,6 @@ namespace Indice.Services
             var blob = container.GetBlobClient(filename);
             try {
                 var response = await blob.GetPropertiesAsync();
-                //TODO Remove when https://github.com/Azure/azure-sdk-for-net/issues/22877 is fixed
-                var eTag = response.Value.ETag.ToString();
-                if (!string.IsNullOrEmpty(eTag)) {
-                    if (!(eTag.StartsWith("\"") || eTag.StartsWith("W"))) {
-                        eTag = string.Format("\"{0}\"", eTag);
-                    }
-                }
                 return new FileProperties {
                     CacheControl = response.Value.CacheControl,
                     ContentDisposition = response.Value.ContentDisposition,
@@ -157,7 +150,7 @@ namespace Indice.Services
                     ContentHash = System.Text.Encoding.UTF8.GetString(response.Value.ContentHash),
                     ContentType = response.Value.ContentType,
                     Length = response.Value.ContentLength,
-                    ETag = eTag,
+                    ETag = response.Value.ETag.TryWrapEtagWithQuotes(),
                     LastModified = response.Value.LastModified
                 };
             } catch (RequestFailedException ex)
