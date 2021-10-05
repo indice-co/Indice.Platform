@@ -150,7 +150,7 @@ namespace Indice.Services
                     ContentHash = System.Text.Encoding.UTF8.GetString(response.Value.ContentHash),
                     ContentType = response.Value.ContentType,
                     Length = response.Value.ContentLength,
-                    ETag = response.Value.ETag.ToString(),
+                    ETag = response.Value.ETag.GetHttpSafeETag(),
                     LastModified = response.Value.LastModified
                 };
             } catch (RequestFailedException ex)
