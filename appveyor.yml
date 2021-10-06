@@ -1,5 +1,7 @@
 version: 5.1.{build}
 image: Visual Studio 2019
+install:
+  - ps: Install-Product node 12.17.0
 before_build:
 - cmd: dotnet restore
 build:
