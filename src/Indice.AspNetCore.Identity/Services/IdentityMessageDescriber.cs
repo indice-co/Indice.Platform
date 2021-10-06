@@ -1,4 +1,6 @@
-﻿namespace Indice.AspNetCore.Identity
+﻿using Indice.AspNetCore.Identity.Data.Models;
+
+namespace Indice.AspNetCore.Identity
 {
     /// <summary>
     /// Provides an extensibility point for altering localizing used inside the package.
@@ -69,7 +71,7 @@
         /// </summary>
         public virtual string PasswordIdenticalToUserNameRequirement => string.Format(IdentityResources.Culture, IdentityResources.PasswordIdenticalToUserNameRequirement);
         /// <summary>
-        /// It is a good practise not to re-use your past password.
+        /// It is a good practice not to re-use your past password.
         /// </summary>
         public virtual string PasswordRecentlyUsedRequirement => string.Format(IdentityResources.Culture, IdentityResources.PasswordRecentlyUsedRequirement);
         /// <summary>
@@ -95,6 +97,7 @@
         /// <summary>
         /// Registration OTP code for device {0} is {1}.
         /// </summary>
-        public virtual string DeviceRegistrationCodeMessage(string deviceName) => string.Format(IdentityResources.Culture, IdentityResources.DeviceRegistrationOtpCode, deviceName, "{0}");
+        public virtual string DeviceRegistrationCodeMessage(string deviceName, InteractionMode interactionMode) 
+            => string.Format(IdentityResources.Culture, IdentityResources.DeviceRegistrationOtpCode, deviceName, "{0}");
     }
 }
