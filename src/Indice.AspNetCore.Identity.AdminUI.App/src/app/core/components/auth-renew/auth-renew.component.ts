@@ -1,5 +1,4 @@
 import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
 
 import { AuthService } from '../../services/auth.service';
 
@@ -8,11 +7,11 @@ import { AuthService } from '../../services/auth.service';
     template: ``
 })
 export class AuthRenewComponent implements OnInit {
-    constructor(private _authService: AuthService, private _router: Router) { }
+    constructor(private _authService: AuthService) { }
 
     public ngOnInit(): void {
         this._authService.signinSilentCallback().subscribe(_ => {
-            this._authService.checkUserAccess();
+            this._authService.userHasAccess();
         });
     }
 }

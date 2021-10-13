@@ -8,10 +8,7 @@ import { LoggerService } from './logger.service';
 
 @Injectable()
 export class AuthInterceptor implements HttpInterceptor {
-    constructor(
-        private _authService: AuthService,
-        private _logger: LoggerService
-    ) { }
+    constructor(private _authService: AuthService, private _logger: LoggerService) { }
 
     public intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
         const copiedRequest = request.clone({

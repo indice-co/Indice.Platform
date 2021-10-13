@@ -3,11 +3,14 @@ import { Router } from '@angular/router';
 
 import { map } from 'rxjs/operators';
 import { Observable, from, throwError } from 'rxjs';
-import { UserManager, User, SignoutResponse, Profile, SessionStatus } from 'oidc-client';
+import { UserManager, User, SignoutResponse, Profile, Log } from 'oidc-client';
 import { LoggerService } from './logger.service';
 import * as app from '../models/settings';
 import { RoleNames } from '../models/roles';
 
+/**
+ * https://github.com/IdentityModel/oidc-client-js/wiki
+ */
 @Injectable({
     providedIn: 'root'
 })
@@ -15,8 +18,11 @@ export class AuthService {
     private _userManager: UserManager;
 
     constructor(private _logger: LoggerService, private _router: Router) {
+        if (!app.settings.production) {
+            Log.logger = console;
+            Log.level = Log.INFO;
+        }
         this._userManager = new UserManager(app.settings.auth_settings);
-        this._userManager.clearStaleState();
         this.loadUser().subscribe();
         this._userManager.events.addUserLoaded((user: User) => {
             this.user = user;
@@ -39,7 +45,7 @@ export class AuthService {
         return from(this._userManager.getUser()).pipe(map((user: User) => {
             if (user) {
                 this.user = user;
-                this.checkUserAccess();
+                this.userHasAccess();
             } else {
                 this._logger.log('User is not present.');
             }
@@ -160,7 +166,7 @@ export class AuthService {
         }));
     }
 
-    public checkUserAccess(): boolean {
+    public userHasAccess(): boolean {
         const user = this.getCurrentUser();
         if (!user) {
             return true;
