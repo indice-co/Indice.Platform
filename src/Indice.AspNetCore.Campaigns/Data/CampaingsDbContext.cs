@@ -3,9 +3,20 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Indice.AspNetCore.Features.Campaigns.Data
 {
-    public class CampaingsDbContext : DbContext
+    /// <summary>
+    /// A <see cref="DbContext"/> that contains tables for campaign management system.
+    /// </summary>
+    internal class CampaingsDbContext : DbContext
     {
-        public CampaingsDbContext(DbContextOptions<CampaingsDbContext> options) : base(options) { }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="options"></param>
+        public CampaingsDbContext(DbContextOptions<CampaingsDbContext> options) : base(options) {
+#if DEBUG
+            Database.EnsureCreated();
+#endif
+        }
 
         public DbSet<DbCampaign> Campaigns { get; set; }
         public DbSet<DbCampaignAttachment> CampaignAttachments { get; set; }

@@ -2,6 +2,7 @@
 using IdentityModel;
 using IdentityServer4;
 using IdentityServer4.Models;
+using Indice.AspNetCore.Features.Campaigns;
 using Indice.AspNetCore.Identity.Api.Security;
 using Indice.Configuration;
 using Indice.Security;
@@ -150,6 +151,7 @@ namespace Indice.Identity.Security
                 },
                 AllowedGrantTypes = GrantTypes.Code,
                 AllowedScopes = {
+                    CampaignsApi.Scope,
                     IdentityServerApi.Scope,
                     IdentityServerApi.SubScopes.Clients,
                     IdentityServerApi.SubScopes.Users,

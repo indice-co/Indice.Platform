@@ -4,11 +4,11 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Indice.AspNetCore.Features.Campaigns.Data
 {
-    public class DbCampaignVisitMap : IEntityTypeConfiguration<DbCampaignVisit>
+    internal class DbCampaignVisitMap : IEntityTypeConfiguration<DbCampaignVisit>
     {
         public void Configure(EntityTypeBuilder<DbCampaignVisit> builder) {
             // Configure table name.
-            builder.ToTable("CampaignVisit", "dbo");
+            builder.ToTable("CampaignVisit", CampaignsApi.DatabaseSchema);
             // Configure key.
             builder.HasKey(x => x.Id);
             // Configure indexes.

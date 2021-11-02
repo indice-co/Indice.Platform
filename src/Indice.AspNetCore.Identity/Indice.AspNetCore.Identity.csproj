@@ -2,7 +2,6 @@
   <PropertyGroup>
     <Description>Indice.AspNetCore.Identity Class Library</Description>
     <Copyright>Copyright (c) 2018 Indice</Copyright>
-    <AssemblyTitle>Indice.AspNetCore.Identity</AssemblyTitle>
     <VersionPrefix>5.1.22</VersionPrefix>
     <!--<VersionSuffix>beta-01</VersionSuffix>-->
     <Authors>Constantinos Leftheris, Georgios Manoltzas</Authors>

@@ -2,6 +2,7 @@
 using System.Linq;
 using IdentityModel;
 using IdentityServer4.Models;
+using Indice.AspNetCore.Features.Campaigns;
 using Indice.AspNetCore.Identity.Api.Security;
 using Indice.Security;
 
@@ -88,6 +89,9 @@ namespace Indice.Identity.Security
             },
             new ApiScope(IdentityServerApi.SubScopes.Users, "IdentityServer Users API", _userClaims) {
                 Description = "Provides access to the users management API."
+            },
+            new ApiScope(CampaignsApi.Scope, "Campaigns API", _userClaims) {
+                Description = "Provides access to the campaigns management API."
             }
         };
 
@@ -102,7 +106,11 @@ namespace Indice.Identity.Security
                 Description = "API backing the IdentityServer Management Tool.",
                 Scopes = { IdentityServerApi.Scope, IdentityServerApi.SubScopes.Clients, IdentityServerApi.SubScopes.Users }
             };
-            return new[] { identityApi };
+            var campaignsApi = new ApiResource(CampaignsApi.Scope, "Campaigns API", _userClaims) {
+                Description = "API backing the Campaigns Management Tool.",
+                Scopes = { CampaignsApi.Scope }
+            };
+            return new[] { identityApi, campaignsApi };
         }
     }
 }

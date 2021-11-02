@@ -49,6 +49,9 @@ namespace Microsoft.Extensions.DependencyInjection
                                options.InitialUsers = GetInitialUsers();
                                options.CustomClaims = GetCustomClaimTypes();
                            })
+                           .AddCampaignsApiEndpoints(options => {
+                               options.ConfigureDbContext = builder => builder.UseSqlServer(configuration.GetConnectionString("CampaignsDb"));
+                           })
                            .SetCompatibilityVersion(CompatibilityVersion.Latest)
                            .ConfigureApiBehaviorOptions(options => {
                                options.ClientErrorMapping[400].Link = "https://httpstatuses.com/400";

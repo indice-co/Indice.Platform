@@ -33,5 +33,9 @@
         /// A user that can apply read and write operations on clients and resources of the Admin UI.
         /// </summary>
         public const string AdminUIClientsWriter = nameof(AdminUIClientsWriter);
+        /// <summary>
+        /// A user that can manage campaigns.
+        /// </summary>
+        public const string CampaignsManager = nameof(CampaignsManager);
     }
 }

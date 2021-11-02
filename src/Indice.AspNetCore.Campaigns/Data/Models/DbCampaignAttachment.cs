@@ -4,7 +4,7 @@ using Indice.Extensions;
 
 namespace Indice.AspNetCore.Features.Campaigns.Data.Models
 {
-    public class DbCampaignAttachment
+    internal class DbCampaignAttachment
     {
         public DbCampaignAttachment() {
             Id = Guid.NewGuid();

@@ -1,20 +1,54 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
+    <AssemblyName>Indice.AspNetCore.Features.Campaigns</AssemblyName>
+    <AssemblyTitle>Indice.AspNetCore.Features.Campaigns</AssemblyTitle>
+    <Authors>Constantinos Leftheris, Georgios Manoltzas</Authors>
+    <Copyright>Copyright (c) 2021 Indice</Copyright>
+    <Description>Indice.AspNetCore.Features.Campaigns Class Library</Description>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <LangVersion>Latest</LangVersion>
     <TargetFrameworks>netcoreapp3.1;net5.0</TargetFrameworks>
+    <VersionPrefix>5.0.0</VersionPrefix>
+    <!--<VersionSuffix>beta-01</VersionSuffix>-->
+  </PropertyGroup>
+  <PropertyGroup Label="Package">
+    <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
+    <Company>Indice</Company>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageIcon>icon-310.png</PackageIcon>
+    <PackageId>Indice.AspNetCore.Features.Campaigns</PackageId>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/indice-co/Indice.AspNet</PackageProjectUrl>
+    <PackageReleaseNotes>Initial release.</PackageReleaseNotes>
+    <PackageTags>AspNetCore;Campaign Management;</PackageTags>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <RepositoryUrl>https://github.com/indice-co/Indice.AspNet</RepositoryUrl>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Indice.Common" Version="5.1.8" />
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="2.2.5" />
-  </ItemGroup>
-  <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
-    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.1.20" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="3.1.20" />
-  </ItemGroup>
-  <ItemGroup Condition=" '$(TargetFramework)' == 'net5.0' ">
-    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="5.0.11" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="5.0.11" />
+    <None Include="..\..\icon\icon-310.png" Pack="true" Visible="false" PackagePath="" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Indice.Common\Indice.Common.csproj" />
+    <PackageReference Include="Indice.EntityFrameworkCore" Version="5.1.0" />
+    <PackageReference Include="Indice.Services" Version="5.1.8" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="2.2.5" />
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
+    <PackageReference Include="Microsoft.AspNetCore.Authorization" Version="3.1.20" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.1.20" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="3.1.20" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="3.1.20" />
+  </ItemGroup>
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net5.0' ">
+    <PackageReference Include="Microsoft.AspNetCore.Authorization" Version="5.0.11" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="5.0.11" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="5.0.11" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="5.0.11" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Indice.EntityFrameworkCore\Indice.EntityFrameworkCore.csproj" />
+    <ProjectReference Include="..\Indice.Services\Indice.Services.csproj" />
   </ItemGroup>
 </Project>

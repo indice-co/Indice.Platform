@@ -3,7 +3,7 @@ using Indice.Types;
 
 namespace Indice.AspNetCore.Features.Campaigns.Data.Models
 {
-    public class DbCampaign
+    internal class DbCampaign
     {
         public Guid Id { get; set; }
         public string Title { get; set; }

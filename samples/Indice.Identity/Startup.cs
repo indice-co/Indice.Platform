@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using Hellang.Middleware.ProblemDetails;
+using Indice.AspNetCore.Features.Campaigns;
 using Indice.AspNetCore.Filters;
 using Indice.AspNetCore.Identity.Api.Events;
 using Indice.AspNetCore.Identity.Api.Security;
@@ -94,7 +95,9 @@ namespace Indice.Identity
                 options.AddClientCredentials(Settings);
                 options.AddFormFileSupport();
                 options.SchemaFilter<CreateUserRequestSchemaFilter>();
+                options.AddDoc(CampaignsApi.Scope, "Campaigns API", "API backing the Campaigns Management Tool.");
                 options.IncludeXmlComments(Assembly.Load(IdentityServerApi.AssemblyName));
+                options.IncludeXmlComments(Assembly.Load(CampaignsApi.AssemblyName));
             });
             services.AddResponseCaching();
             services.AddDataProtectionLocal(options => options.FromConfiguration());
@@ -208,6 +211,7 @@ namespace Indice.Identity
                 app.UseSwaggerUI(options => {
                     options.RoutePrefix = "docs";
                     options.SwaggerEndpoint($"/swagger/{IdentityServerApi.Scope}/swagger.json", IdentityServerApi.Scope);
+                    options.SwaggerEndpoint($"/swagger/{CampaignsApi.Scope}/swagger.json", CampaignsApi.Scope);
                     options.OAuth2RedirectUrl($"{Settings.Host}/docs/oauth2-redirect.html");
                     options.OAuthClientId("swagger-ui");
                     options.OAuthAppName("Swagger UI");

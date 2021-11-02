@@ -6,11 +6,11 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Indice.AspNetCore.Features.Campaigns.Data
 {
-    public class DbCampaignMap : IEntityTypeConfiguration<DbCampaign>
+    internal class DbCampaignMap : IEntityTypeConfiguration<DbCampaign>
     {
         public void Configure(EntityTypeBuilder<DbCampaign> builder) {
             // Configure table name.
-            builder.ToTable("Campaign", "dbo");
+            builder.ToTable("Campaign", CampaignsApi.DatabaseSchema);
             // Configure primary key.
             builder.HasKey(x => x.Id);
             // Configure properties.
