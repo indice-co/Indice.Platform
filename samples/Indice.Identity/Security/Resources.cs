@@ -2,7 +2,6 @@
 using System.Linq;
 using IdentityModel;
 using IdentityServer4.Models;
-using Indice.AspNetCore.Features.Campaigns;
 using Indice.AspNetCore.Identity.Api.Security;
 using Indice.Security;
 
@@ -90,8 +89,11 @@ namespace Indice.Identity.Security
             new ApiScope(IdentityServerApi.SubScopes.Users, "IdentityServer Users API", _userClaims) {
                 Description = "Provides access to the users management API."
             },
-            new ApiScope(CampaignsApi.Scope, "Campaigns API", _userClaims) {
-                Description = "Provides access to the campaigns management API."
+            new ApiScope("backoffice", "Backoffice API", _userClaims) {
+                Description = "Provides access to the backoffice operations."
+            },
+            new ApiScope("backoffice:campaigns", "Campaigns API", _userClaims) {
+                Description = "Provides access to campaign management operations."
             }
         };
 
@@ -103,14 +105,17 @@ namespace Indice.Identity.Security
                 ApiSecrets = {
                     new Secret("VGLwBUKNQbfZABgZgD45PshqPZHkYJVrFPKR4QKsZRLdzAnzU2UHzQUHc2Zhd759".ToSha256())
                 },
-                Description = "API backing the IdentityServer Management Tool.",
+                Description = "APIs backing the IdentityServer management tool.",
                 Scopes = { IdentityServerApi.Scope, IdentityServerApi.SubScopes.Clients, IdentityServerApi.SubScopes.Users }
             };
-            var campaignsApi = new ApiResource(CampaignsApi.Scope, "Campaigns API", _userClaims) {
-                Description = "API backing the Campaigns Management Tool.",
-                Scopes = { CampaignsApi.Scope }
+            var backofficeApi = new ApiResource("backoffice", "Backoffice API", _userClaims) {
+                ApiSecrets = {
+                    new Secret("exTyrC9cVADKp5T8g24hEKVjpUsf9S8KQ7Zz4q7grPbd6JvNKzaZxPwzNbpcfHVP".ToSha256())
+                },
+                Description = "APIs backing the backoffice tool.",
+                Scopes = { "backoffice", "backoffice:campaigns" }
             };
-            return new[] { identityApi, campaignsApi };
+            return new[] { identityApi, backofficeApi };
         }
     }
 }

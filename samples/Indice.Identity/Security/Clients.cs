@@ -2,7 +2,6 @@
 using IdentityModel;
 using IdentityServer4;
 using IdentityServer4.Models;
-using Indice.AspNetCore.Features.Campaigns;
 using Indice.AspNetCore.Identity.Api.Security;
 using Indice.Configuration;
 using Indice.Security;
@@ -147,11 +146,13 @@ namespace Indice.Identity.Security
                 AllowAccessTokensViaBrowser = false,
                 AllowedCorsOrigins = {
                     "https://localhost:2000",
+                    "https://localhost:2001",
                     "https://idsrv-admin-ui.azurewebsites.net"
                 },
                 AllowedGrantTypes = GrantTypes.Code,
                 AllowedScopes = {
-                    CampaignsApi.Scope,
+                    "backoffice",
+                    "backoffice:campaigns",
                     IdentityServerApi.Scope,
                     IdentityServerApi.SubScopes.Clients,
                     IdentityServerApi.SubScopes.Users,
@@ -161,11 +162,13 @@ namespace Indice.Identity.Security
                     JwtClaimTypes.Role
                 },
                 PostLogoutRedirectUris = {
-                    "https://localhost:2000/docs",
-                    "https://idsrv-admin-ui.azurewebsites.net/docs"
+                    "https://localhost:2000/docs/oauth2-redirect.html",
+                    "https://localhost:2001/docs/oauth2-redirect.html",
+                    "https://idsrv-admin-ui.azurewebsites.net/docs/oauth2-redirect.html"
                 },
                 RedirectUris = {
                     "https://localhost:2000/docs/oauth2-redirect.html",
+                    "https://localhost:2001/docs/oauth2-redirect.html",
                     "https://idsrv-admin-ui.azurewebsites.net/docs/oauth2-redirect.html"
                 },
                 RequireConsent = true,

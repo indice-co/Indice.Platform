@@ -13,5 +13,9 @@ namespace Indice.AspNetCore.Features.Campaigns.Configuration
         /// If not provided the underlying store defaults to SQL Server expecting the setting <i>ConnectionStrings:DefaultConnection</i> to be present.
         /// </summary>
         public Action<DbContextOptionsBuilder> ConfigureDbContext { get; set; }
+        /// <summary>
+        /// The default scope name to be used for Campaigns API. Defaults to <see cref="CampaignsApi.Scope"/>.
+        /// </summary>
+        public string ExpectedScope { get; set; } = CampaignsApi.Scope;
     }
 }
