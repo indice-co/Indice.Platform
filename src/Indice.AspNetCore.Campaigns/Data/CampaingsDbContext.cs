@@ -18,8 +18,8 @@ namespace Indice.AspNetCore.Features.Campaigns.Data
 #endif
         }
 
+        public DbSet<DbAttachment> Attachments { get; set; }
         public DbSet<DbCampaign> Campaigns { get; set; }
-        public DbSet<DbCampaignAttachment> CampaignAttachments { get; set; }
         public DbSet<DbCampaignUser> CampaignUsers { get; set; }
         public DbSet<DbCampaignVisit> CampaignVisits { get; set; }
 

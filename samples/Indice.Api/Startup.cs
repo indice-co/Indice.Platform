@@ -70,7 +70,7 @@ namespace Indice.Api
             // Configure framework & custom services
             services.AddDistributedMemoryCache();
             services.AddFilesLocal(options => {
-                options.Path = "";
+                options.Path = "uploads";
             });
         }
 
@@ -81,6 +81,7 @@ namespace Indice.Api
             }
             app.UseHttpsRedirection();
             app.UseRouting();
+            app.UseResponseCaching();
             app.UseAuthentication();
             app.UseAuthorization();
             if (Configuration.EnableSwaggerUi()) {
@@ -90,7 +91,7 @@ namespace Indice.Api
                     options.OAuth2RedirectUrl($"{Settings.Host}/docs/oauth2-redirect.html");
                     options.OAuthClientId("swagger-ui");
                     options.OAuthAppName("Swagger UI");
-                    options.DocExpansion(DocExpansion.None);
+                    options.DocExpansion(DocExpansion.List);
                     options.OAuthUsePkce();
                     options.OAuthScopeSeparator(" ");
                     options.EnableDeepLinking();

@@ -1,9 +1,13 @@
 ﻿using System;
+using System.Net.Mime;
 using Indice.AspNetCore.Features.Campaigns;
 using Indice.AspNetCore.Features.Campaigns.Configuration;
 using Indice.AspNetCore.Features.Campaigns.Data;
+using Indice.AspNetCore.Features.Campaigns.Formatters;
 using Indice.AspNetCore.Features.Campaigns.Services;
+using Indice.Extensions;
 using Indice.Security;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 
@@ -31,7 +35,16 @@ namespace Microsoft.Extensions.DependencyInjection
             var featureOptions = new CampaignsApiOptions();
             configureAction?.Invoke(featureOptions);
             services.Configure<CampaignsApiOptions>(options => options = featureOptions);
-            // Register other services.
+            // Configure MVC options.
+            services.PostConfigure<MvcOptions>(options => {
+                options.FormatterMappings.SetMediaTypeMappingForFormat("json", MediaTypeNames.Application.Json);
+                options.FormatterMappings.SetMediaTypeMappingForFormat("xlsx", FileExtensions.GetMimeType("xlsx"));
+                options.OutputFormatters.Add(new XlsxCampaignStatisticsOutputFormatter());
+            });
+            // Register framework services.
+            services.AddHttpContextAccessor();
+            services.AddResponseCaching();
+            // Register custom services.
             services.AddTransient<ICampaignService, CampaignService>();
             // Register application DbContext.
             if (featureOptions.ConfigureDbContext != null) {

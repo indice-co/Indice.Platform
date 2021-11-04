@@ -12,7 +12,4 @@
     <ProjectReference Include="..\..\src\Indice.AspNetCore.Campaigns\Indice.AspNetCore.Features.Campaigns.csproj" />
     <ProjectReference Include="..\..\src\Indice.AspNetCore\Indice.AspNetCore.csproj" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Controllers\" />
-  </ItemGroup>
 </Project>

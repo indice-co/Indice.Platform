@@ -5,11 +5,11 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Indice.AspNetCore.Features.Campaigns.Data
 {
-    internal class DbCampaignAttachmentMap : IEntityTypeConfiguration<DbCampaignAttachment>
+    internal class DbAttachmentMap : IEntityTypeConfiguration<DbAttachment>
     {
-        public void Configure(EntityTypeBuilder<DbCampaignAttachment> builder) {
+        public void Configure(EntityTypeBuilder<DbAttachment> builder) {
             // Configure table name.
-            builder.ToTable("CampaignAttachment", CampaignsApi.DatabaseSchema);
+            builder.ToTable("Attachment", CampaignsApi.DatabaseSchema);
             // Configure primary key.
             builder.HasKey(x => x.Id);
             // Configure properties.

@@ -32,11 +32,17 @@ namespace Indice.AspNetCore.Features.Campaigns.Models
         /// Specifies when a campaign was created.
         /// </summary>
         public DateTimeOffset CreatedAt { get; set; }
+        /// <summary>
+        /// Determines if a campaign is active.
+        /// </summary>
         public bool IsActive { get; set; }
         /// <summary>
         /// Specifies the time period that a campaign is active.
         /// </summary>
         public Period ActivePeriod { get; set; }
+        /// <summary>
+        /// Determines if campaign targets all user base.
+        /// </summary>
         public bool IsGlobal { get; set; }
         public bool IsNotification { get; set; }
     }
