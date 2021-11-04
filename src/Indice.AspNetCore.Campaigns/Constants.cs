@@ -31,7 +31,7 @@ namespace Indice.AspNetCore.Features.Campaigns
         public static class Policies 
         {
             /// <summary>
-            /// A user must have the <i>Admin</i> flag or own the <see cref="BasicRoleNames.CampaignsManager"/> role.
+            /// A user must have the <i>Admin</i> flag or own the <see cref="BasicRoleNames.AdminUICampaignsManager"/> role.
             /// </summary>
             public const string BeCampaignsManager = nameof(BeCampaignsManager);
         }

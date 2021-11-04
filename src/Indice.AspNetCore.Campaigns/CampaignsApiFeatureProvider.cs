@@ -7,10 +7,11 @@ using Microsoft.AspNetCore.Mvc.Controllers;
 
 namespace Indice.AspNetCore.Features.Campaigns
 {
-    public class CampaignsApiFeatureProvider : IApplicationFeatureProvider<ControllerFeature>
+    internal class CampaignsApiFeatureProvider : IApplicationFeatureProvider<ControllerFeature>
     {
         private static IReadOnlyList<TypeInfo> ControllerTypes => new List<TypeInfo>() {
-            typeof(CampaignsController).GetTypeInfo()
+            typeof(CampaignsController).GetTypeInfo(),
+            typeof(MyMessagesController).GetTypeInfo()
         };
 
         public void PopulateFeature(IEnumerable<ApplicationPart> parts, ControllerFeature feature) {

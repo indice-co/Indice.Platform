@@ -32,6 +32,7 @@ namespace Indice.Api
             // Configure MVC
             services.AddControllers()
                     .AddCampaignsApiEndpoints(options => {
+                        options.ApiPrefix = ".api";
                         options.ConfigureDbContext = builder => builder.UseSqlServer(Configuration.GetConnectionString("CampaignsDb"));
                         options.ExpectedScope = $"backoffice:{CampaignsApi.Scope}";
                     })

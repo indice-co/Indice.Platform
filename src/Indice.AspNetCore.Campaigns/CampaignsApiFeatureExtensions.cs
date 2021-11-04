@@ -4,6 +4,7 @@ using Indice.AspNetCore.Features.Campaigns;
 using Indice.AspNetCore.Features.Campaigns.Configuration;
 using Indice.AspNetCore.Features.Campaigns.Data;
 using Indice.AspNetCore.Features.Campaigns.Formatters;
+using Indice.AspNetCore.Features.Campaigns.Mvc.ApplicationModels;
 using Indice.AspNetCore.Features.Campaigns.Services;
 using Indice.Extensions;
 using Indice.Security;
@@ -32,14 +33,15 @@ namespace Microsoft.Extensions.DependencyInjection
             // Try add general settings.
             services.AddGeneralSettings(configuration);
             // Configure options given by the consumer.
-            var featureOptions = new CampaignsApiOptions();
-            configureAction?.Invoke(featureOptions);
-            services.Configure<CampaignsApiOptions>(options => options = featureOptions);
+            var campaignsApiOptions = new CampaignsApiOptions();
+            configureAction?.Invoke(campaignsApiOptions);
+            services.Configure<CampaignsApiOptions>(options => options = campaignsApiOptions);
             // Configure MVC options.
             services.PostConfigure<MvcOptions>(options => {
                 options.FormatterMappings.SetMediaTypeMappingForFormat("json", MediaTypeNames.Application.Json);
                 options.FormatterMappings.SetMediaTypeMappingForFormat("xlsx", FileExtensions.GetMimeType("xlsx"));
                 options.OutputFormatters.Add(new XlsxCampaignStatisticsOutputFormatter());
+                options.Conventions.Add(new ApiPrefixControllerModelConvention(campaignsApiOptions));
             });
             // Register framework services.
             services.AddHttpContextAccessor();
@@ -47,8 +49,8 @@ namespace Microsoft.Extensions.DependencyInjection
             // Register custom services.
             services.AddTransient<ICampaignService, CampaignService>();
             // Register application DbContext.
-            if (featureOptions.ConfigureDbContext != null) {
-                services.AddDbContext<CampaingsDbContext>(featureOptions.ConfigureDbContext);
+            if (campaignsApiOptions.ConfigureDbContext != null) {
+                services.AddDbContext<CampaingsDbContext>(campaignsApiOptions.ConfigureDbContext);
             } else {
                 services.AddDbContext<CampaingsDbContext>((builder) => builder.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
             }
@@ -57,7 +59,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 authOptions.AddPolicy(CampaignsApi.Policies.BeCampaignsManager, policy => {
                     policy.AddAuthenticationSchemes(CampaignsApi.AuthenticationScheme)
                           .RequireAuthenticatedUser()
-                          .RequireAssertion(x => x.User.HasScopeClaim(featureOptions.ExpectedScope ?? CampaignsApi.Scope) && x.User.CanManageCampaigns());
+                          .RequireAssertion(x => /*x.User.HasScopeClaim(campaignsApiOptions.ExpectedScope ?? CampaignsApi.Scope) && */x.User.CanManageCampaigns());
                 });
             });
             return mvcBuilder;
