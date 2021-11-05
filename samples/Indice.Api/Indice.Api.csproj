@@ -9,5 +9,6 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\Indice.AspNetCore.Campaigns\Indice.AspNetCore.Features.Campaigns.csproj" />
+    <ProjectReference Include="..\..\src\Indice.AspNetCore.Features.Campaigns\Indice.AspNetCore.Features.Campaigns.csproj" />
   </ItemGroup>
 </Project>
