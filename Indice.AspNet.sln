@@ -50,7 +50,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Indice.AspNetCore.Authentic
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CodeFlowMvc", "samples\CodeFlowMvc\CodeFlowMvc.csproj", "{39B34AAE-5E29-400C-A1D4-8BF12505CD08}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Indice.AspNetCore.Features.Campaigns", "src\Indice.AspNetCore.Campaigns\Indice.AspNetCore.Features.Campaigns.csproj", "{B487786D-F1FC-4EED-8D4B-5215C92D0C07}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Indice.AspNetCore.Features.Campaigns", "src\Indice.AspNetCore.Features.Campaigns\Indice.AspNetCore.Features.Campaigns.csproj", "{B487786D-F1FC-4EED-8D4B-5215C92D0C07}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Indice.Api", "samples\Indice.Api\Indice.Api.csproj", "{6AD8DCCE-9CF5-4274-957F-D023DF6B5FBD}"
 EndProject
