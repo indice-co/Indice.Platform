@@ -34,7 +34,9 @@ namespace Indice.Api
                     .AddCampaignsApiEndpoints(options => {
                         options.ApiPrefix = "api";
                         options.ConfigureDbContext = builder => builder.UseSqlServer(Configuration.GetConnectionString("CampaignsDb"));
+                        options.DatabaseSchema = "cmp";
                         options.ExpectedScope = $"backoffice:{CampaignsApi.Scope}";
+                        options.UserClaimType = JwtClaimTypes.Subject;
                     })
                     .SetCompatibilityVersion(CompatibilityVersion.Latest);
             // Configure Swagger
@@ -95,7 +97,6 @@ namespace Indice.Api
                     options.DocExpansion(DocExpansion.List);
                     options.OAuthUsePkce();
                     options.OAuthScopeSeparator(" ");
-                    options.EnableDeepLinking();
                 });
             }
             app.UseEndpoints(endpoints => {

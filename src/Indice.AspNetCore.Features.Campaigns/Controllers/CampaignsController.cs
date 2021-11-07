@@ -23,7 +23,7 @@ namespace Indice.AspNetCore.Features.Campaigns.Controllers
     [Authorize(AuthenticationSchemes = CampaignsApi.AuthenticationScheme, Policy = CampaignsApi.Policies.BeCampaignsManager)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized, Type = typeof(ProblemDetails))]
     [ProducesResponseType(StatusCodes.Status403Forbidden, Type = typeof(ProblemDetails))]
-    [Route("[apiPrefix]/campaigns")]
+    [Route("[apiPrefix]")]
     internal class CampaignsController : ControllerBase
     {
         public const string Name = "Campaigns";
@@ -45,8 +45,9 @@ namespace Indice.AspNetCore.Features.Campaigns.Controllers
         /// <summary>
         /// Gets the list of all campaigns using the provided <see cref="ListOptions"/>.
         /// </summary>
+        /// <param name="options">List params used to navigate through collections. Contains parameters such as sort, search, page number and page size.</param>
         /// <response code="200">OK</response>
-        [HttpGet]
+        [HttpGet("campaigns")]
         [Produces(MediaTypeNames.Application.Json)]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ResultSet<Campaign>))]
         public async Task<IActionResult> GetCampaigns([FromQuery] ListOptions options) {
@@ -60,7 +61,7 @@ namespace Indice.AspNetCore.Features.Campaigns.Controllers
         /// <param name="campaignId">The id of the campaign.</param>
         /// <response code="200">OK</response>
         /// <response code="404">Not Found</response>
-        [HttpGet("{campaignId:guid}")]
+        [HttpGet("campaigns/{campaignId:guid}")]
         [Produces(MediaTypeNames.Application.Json)]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CampaignDetails))]
         [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ProblemDetails))]
@@ -73,19 +74,19 @@ namespace Indice.AspNetCore.Features.Campaigns.Controllers
         }
 
         /// <summary>
-        /// Gets the image associated with a campaign.
+        /// Gets the attachment associated with a campaign.
         /// </summary>
         /// <param name="fileGuid">Contains the photo's Id.</param>
-        /// <param name="format">Contains the format of the uploaded image extension.</param>
+        /// <param name="format">Contains the format of the uploaded attachment extension.</param>
         /// <response code="200">OK</response>
         /// <response code="404">Not Found</response>
         [AllowAnonymous]
-        [HttpGet("images/{fileGuid}.{format}")]
+        [HttpGet("campaigns/attachments/{fileGuid}.{format}")]
         [Produces(MediaTypeNames.Application.Octet)]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IFormFile))]
         [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ProblemDetails))]
         [ResponseCache(Duration = 345600, Location = ResponseCacheLocation.Any, VaryByQueryKeys = new[] { "v" })]
-        public async Task<IActionResult> GetCampaignImage([FromRoute] Base64Id fileGuid, [FromRoute] string format) => await GetFile("campaigns", fileGuid, format);
+        public async Task<IActionResult> GetCampaignAttachment([FromRoute] Base64Id fileGuid, [FromRoute] string format) => await GetFile("campaigns", fileGuid, format);
 
         /// <summary>
         /// Gets the statistics for a specified campaign.
@@ -94,7 +95,7 @@ namespace Indice.AspNetCore.Features.Campaigns.Controllers
         /// <response code="200">OK</response>
         /// <response code="404">Not Found</response>
         [CacheResourceFilter(Expiration = 5)]
-        [HttpGet("{campaignId:guid}/statistics")]
+        [HttpGet("campaigns/{campaignId:guid}/statistics")]
         [Produces(MediaTypeNames.Application.Json)]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CampaignStatistics))]
         [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ProblemDetails))]
@@ -112,7 +113,7 @@ namespace Indice.AspNetCore.Features.Campaigns.Controllers
         /// <param name="campaignId">The id of the campaign.</param>
         /// <response code="200">OK</response>
         /// <response code="404">Not Found</response>
-        [HttpGet("{campaignId:guid}/statistics/export")]
+        [HttpGet("campaigns/{campaignId:guid}/statistics/export")]
         [Produces("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IFormFile))]
         [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ProblemDetails))]
@@ -130,7 +131,7 @@ namespace Indice.AspNetCore.Features.Campaigns.Controllers
         /// <param name="request">Contains info about the campaign to be created.</param>
         /// <response code="201">Created</response>
         /// <response code="400">Bad Request</response>
-        [HttpPost]
+        [HttpPost("campaigns")]
         [Produces(MediaTypeNames.Application.Json)]
         [Consumes(MediaTypeNames.Application.Json)]
         [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(Campaign))]
@@ -141,13 +142,45 @@ namespace Indice.AspNetCore.Features.Campaigns.Controllers
         }
 
         /// <summary>
+        /// Gets the list of available campaign types.
+        /// </summary>
+        /// <param name="options">List params used to navigate through collections. Contains parameters such as sort, search, page number and page size.</param>
+        /// <response code="200">OK</response>
+        /// <response code="400">Bad Request</response>
+        [HttpGet("campaign-types")]
+        [Produces(MediaTypeNames.Application.Json)]
+        [Consumes(MediaTypeNames.Application.Json)]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ResultSet<CampaignType>))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ValidationProblemDetails))]
+        public async Task<IActionResult> GetCampaignTypes([FromQuery] ListOptions options) {
+            var campaignTypes = await CampaignService.GetCampaignTypes(options);
+            return Ok(campaignTypes);
+        }
+
+        /// <summary>
+        /// Creates a new campaign type.
+        /// </summary>
+        /// <param name="request">Contains info about the campaign type to be created.</param>
+        /// <response code="200">OK</response>
+        /// <response code="400">Bad Request</response>
+        [HttpPost("campaign-types")]
+        [Produces(MediaTypeNames.Application.Json)]
+        [Consumes(MediaTypeNames.Application.Json)]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CampaignType))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ValidationProblemDetails))]
+        public async Task<IActionResult> CreateCampaignType([FromBody] CreateCampaignTypeRequest request) {
+            var campaign = await CampaignService.CreateCampaignType(request);
+            return Ok(campaign);
+        }
+
+        /// <summary>
         /// Updates an existing campaign.
         /// </summary>
         /// <param name="campaignId">The id of the campaign to update.</param>
         /// <param name="request">Contains info about the campaign to update.</param>
         /// <response code="204">No Content</response>
         /// <response code="404">Not Found</response>
-        [HttpPut("{campaignId}")]
+        [HttpPut("campaigns/{campaignId}")]
         [Produces(MediaTypeNames.Application.Json)]
         [Consumes(MediaTypeNames.Application.Json)]
         [ProducesResponseType(StatusCodes.Status204NoContent, Type = typeof(void))]
@@ -167,7 +200,7 @@ namespace Indice.AspNetCore.Features.Campaigns.Controllers
         /// <param name="campaignId">The id of the campaign.</param>
         /// <response code="204">No Content</response>
         /// <response code="404">Not Found</response>
-        [HttpDelete("{campaignId}")]
+        [HttpDelete("campaigns/{campaignId}")]
         [Produces(MediaTypeNames.Application.Json)]
         [ProducesResponseType(StatusCodes.Status204NoContent, Type = typeof(void))]
         [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ProblemDetails))]
@@ -181,23 +214,22 @@ namespace Indice.AspNetCore.Features.Campaigns.Controllers
         }
 
         /// <summary>
-        /// Uploads an image for the specified campaign.
+        /// Uploads an attachment for the specified campaign.
         /// </summary>
         /// <param name="campaignId">The id of the campaign.</param>
-        /// <param name="file">Contains the stream of the image to be uploaded.</param>
+        /// <param name="file">Contains the stream of the attachment to be uploaded.</param>
         /// <response code="200">OK</response>
         /// <response code="400">Bad Request</response>
         /// <response code="404">Not Found</response>
-        [AllowedFileExtensions("jpg", "jpeg", "png")]
         [AllowedFileSize(6291456)] // 6 MegaBytes
         [Consumes("multipart/form-data")]
         [DisableRequestSizeLimit]
-        [HttpPost("{campaignId}/image")]
+        [HttpPost("campaigns/{campaignId}/attachment")]
         [Produces(MediaTypeNames.Application.Json)]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(AttachmentLink))]
         [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ValidationProblemDetails))]
         [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(void))]
-        public async Task<IActionResult> UploadCampaignImage([FromRoute] Guid campaignId, [FromForm] IFormFile file) {
+        public async Task<IActionResult> UploadCampaignAttachment([FromRoute] Guid campaignId, [FromForm] IFormFile file) {
             if (file == null) {
                 ModelState.AddModelError(nameof(file), "File is empty.");
                 return BadRequest(new ValidationProblemDetails(ModelState));
@@ -207,7 +239,7 @@ namespace Indice.AspNetCore.Features.Campaigns.Controllers
                 return NotFound();
             }
             var attachment = await CampaignService.CreateAttachment(file);
-            await CampaignService.AssociateCampaignImage(campaignId, attachment.Id);
+            await CampaignService.AssociateCampaignAttachment(campaignId, attachment.Id);
             return Ok(attachment);
         }
 

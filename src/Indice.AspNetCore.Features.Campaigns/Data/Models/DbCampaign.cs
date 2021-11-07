@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Text.Json;
+using Indice.Serialization;
 using Indice.Types;
 
 namespace Indice.AspNetCore.Features.Campaigns.Data.Models
@@ -14,8 +16,14 @@ namespace Indice.AspNetCore.Features.Campaigns.Data.Models
         public bool IsActive { get; set; }
         public Period ActivePeriod { get; set; }
         public bool IsGlobal { get; set; }
-        public bool IsNotification { get; set; }
+        public dynamic Data { get; set; }
+        public string DataJson {
+            get { return Data != null ? JsonSerializer.Serialize(Data, JsonSerializerOptionDefaults.GetDefaultSettings()) : null; }
+            set { Data = value != null ? JsonSerializer.Deserialize<dynamic>(value, JsonSerializerOptionDefaults.GetDefaultSettings()) : null; }
+        }
+        public Guid? TypeId { get; set; }
         public Guid? AttachmentId { get; set; }
         public virtual DbAttachment Attachment { get; set; }
+        public virtual DbCampaignType Type { get; set; }
     }
 }

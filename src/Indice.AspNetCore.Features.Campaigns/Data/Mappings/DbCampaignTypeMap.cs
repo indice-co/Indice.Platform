@@ -1,28 +1,28 @@
 ﻿using System;
 using Indice.AspNetCore.Features.Campaigns.Configuration;
 using Indice.AspNetCore.Features.Campaigns.Data.Models;
+using Indice.Configuration;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.Extensions.Options;
 
 namespace Indice.AspNetCore.Features.Campaigns.Data
 {
-    internal class DbCampaignUserMap : IEntityTypeConfiguration<DbCampaignUser>
+    internal class DbCampaignTypeMap : IEntityTypeConfiguration<DbCampaignType>
     {
-        public DbCampaignUserMap(IOptions<CampaignsApiOptions> campaignsApiOptions) {
+        public DbCampaignTypeMap(IOptions<CampaignsApiOptions> campaignsApiOptions) {
             CampaignsApiOptions = campaignsApiOptions?.Value ?? throw new ArgumentNullException(nameof(campaignsApiOptions));
         }
 
         public CampaignsApiOptions CampaignsApiOptions { get; }
 
-        public void Configure(EntityTypeBuilder<DbCampaignUser> builder) {
+        public void Configure(EntityTypeBuilder<DbCampaignType> builder) {
             // Configure table name.
-            builder.ToTable("CampaignUser", CampaignsApiOptions.DatabaseSchema);
-            // Configure primary keys.
+            builder.ToTable("CampaignType", CampaignsApiOptions.DatabaseSchema);
+            // Configure primary key.
             builder.HasKey(x => x.Id);
-            builder.HasAlternateKey(x => new { x.CampaignId, x.UserCode });
             // Configure properties.
-            builder.Property(x => x.Id).ValueGeneratedNever();
+            builder.Property(x => x.Name).HasMaxLength(TextSizePresets.L1024).IsRequired();
         }
     }
 }

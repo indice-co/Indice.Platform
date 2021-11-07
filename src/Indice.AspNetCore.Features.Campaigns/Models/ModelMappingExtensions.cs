@@ -9,14 +9,13 @@ namespace Indice.AspNetCore.Features.Campaigns.Models
             ActionText = request.ActionText,
             ActionUrl = request.ActionUrl,
             ActivePeriod = request.ActivePeriod,
-            AttachmentId = request.AttachmentId,
             Content = request.Content,
             CreatedAt = DateTime.UtcNow,
             Id = Guid.NewGuid(),
             IsActive = request.IsActive,
             IsGlobal = request.IsGlobal,
-            IsNotification = request.IsNotification,
-            Title = request.Title
+            Title = request.Title,
+            TypeId = request.TypeId
         };
 
         public static Campaign ToCampaign(this DbCampaign campaign) => new() {
@@ -28,7 +27,6 @@ namespace Indice.AspNetCore.Features.Campaigns.Models
             Id = campaign.Id,
             IsActive = campaign.IsActive,
             IsGlobal = campaign.IsGlobal,
-            IsNotification = campaign.IsNotification,
             Title = campaign.Title
         };
     }

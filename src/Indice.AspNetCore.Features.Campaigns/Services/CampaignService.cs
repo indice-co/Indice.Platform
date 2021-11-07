@@ -38,7 +38,7 @@ namespace Indice.AspNetCore.Features.Campaigns.Services
         public IHttpContextAccessor HttpContextAccessor { get; }
         public LinkGenerator LinkGenerator { get; }
 
-        public async Task AssociateCampaignImage(Guid campaignId, Guid attachmentId) {
+        public async Task AssociateCampaignAttachment(Guid campaignId, Guid attachmentId) {
             var campaign = await DbContext.Campaigns.FindAsync(campaignId);
             campaign.AttachmentId = attachmentId;
             await DbContext.SaveChangesAsync();
@@ -58,7 +58,7 @@ namespace Indice.AspNetCore.Features.Campaigns.Services
                 ContentType = file.ContentType,
                 Label = file.FileName,
                 Size = file.Length,
-                PermaLink = LinkGenerator.GetUriByAction(HttpContextAccessor.HttpContext, nameof(CampaignsController.GetCampaignImage), CampaignsController.Name, new {
+                PermaLink = LinkGenerator.GetUriByAction(HttpContextAccessor.HttpContext, nameof(CampaignsController.GetCampaignAttachment), CampaignsController.Name, new {
                     fileGuid = (Base64Id)attachment.Guid,
                     format = Path.GetExtension(attachment.Name).TrimStart('.')
                 })
@@ -81,59 +81,69 @@ namespace Indice.AspNetCore.Features.Campaigns.Services
             return campaign;
         }
 
+        public async Task<CampaignType> CreateCampaignType(CreateCampaignTypeRequest request) {
+            var campaignType = new DbCampaignType {
+                Id = Guid.NewGuid(),
+                Name = request.Name
+            };
+            DbContext.CampaignTypes.Add(campaignType);
+            await DbContext.SaveChangesAsync();
+            return new CampaignType {
+                Id = campaignType.Id,
+                Name = campaignType.Name
+            };
+        }
+
         public async Task DeleteCampaign(Guid campaignId) {
             var campaign = await DbContext.Campaigns.FindAsync(campaignId);
             DbContext.Remove(campaign);
             await DbContext.SaveChangesAsync();
         }
 
-        public async Task<CampaignDetails> GetCampaignById(Guid campaignId) {
-            var campaign = await DbContext
-                .Campaigns
-                .AsNoTracking()
-                .Include(x => x.Attachment)
-                .Select(campaign => new CampaignDetails {
-                    ActionText = campaign.ActionText,
-                    ActionUrl = campaign.ActionUrl,
-                    ActivePeriod = campaign.ActivePeriod,
-                    Content = campaign.Content,
-                    CreatedAt = campaign.CreatedAt,
-                    Id = campaign.Id,
-                    Image = campaign.Attachment != null ? new AttachmentLink {
-                        Id = campaign.Attachment.Id,
-                        FileGuid = campaign.Attachment.Guid,
-                        ContentType = campaign.Attachment.ContentType,
-                        Label = campaign.Attachment.Name,
-                        Size = campaign.Attachment.ContentLength,
-                        PermaLink = $"{GeneralSettings.Host.TrimEnd('/')}/api/campaigns/images/{(Base64Id)campaign.Attachment.Guid}.{Path.GetExtension(campaign.Attachment.Name).TrimStart('.')}"
-                    } : null,
-                    IsActive = campaign.IsActive,
-                    IsGlobal = campaign.IsGlobal,
-                    IsNotification = campaign.IsNotification,
-                    Title = campaign.Title
-                })
-                .SingleOrDefaultAsync(x => x.Id == campaignId);
-            if (campaign == null) {
-                return null;
-            }
-            var messagesCount = await DbContext.CampaignUsers.CountAsync(x => x.CampaignId == campaign.Id);
-            campaign.MessagesCount = messagesCount;
-            return campaign;
-        }
+        public Task<CampaignDetails> GetCampaignById(Guid campaignId) =>
+            DbContext.Campaigns
+                     .AsNoTracking()
+                     .Include(x => x.Attachment)
+                     .Select(campaign => new CampaignDetails {
+                         ActionText = campaign.ActionText,
+                         ActionUrl = campaign.ActionUrl,
+                         ActivePeriod = campaign.ActivePeriod,
+                         Attachment = campaign.Attachment != null ? new AttachmentLink {
+                             Id = campaign.Attachment.Id,
+                             FileGuid = campaign.Attachment.Guid,
+                             ContentType = campaign.Attachment.ContentType,
+                             Label = campaign.Attachment.Name,
+                             Size = campaign.Attachment.ContentLength,
+                             PermaLink = $"{GeneralSettings.Host.TrimEnd('/')}/api/campaigns/attachments/{(Base64Id)campaign.Attachment.Guid}.{Path.GetExtension(campaign.Attachment.Name).TrimStart('.')}"
+                         } : null,
+                         Content = campaign.Content,
+                         CreatedAt = campaign.CreatedAt,
+                         Id = campaign.Id,
+                         IsActive = campaign.IsActive,
+                         IsGlobal = campaign.IsGlobal,
+                         Title = campaign.Title,
+                         Type = campaign.Type != null ? new CampaignType {
+                             Id = campaign.Type.Id,
+                             Name = campaign.Type.Name
+                         } : null
+                     })
+                     .SingleOrDefaultAsync(x => x.Id == campaignId);
 
-        public Task<ResultSet<Campaign>> GetCampaigns(ListOptions options) => DbContext.Campaigns.AsNoTracking().Select(campaign => new Campaign {
-            ActionText = campaign.ActionText,
-            ActionUrl = campaign.ActionUrl,
-            ActivePeriod = campaign.ActivePeriod,
-            Content = campaign.Content,
-            CreatedAt = campaign.CreatedAt,
-            Id = campaign.Id,
-            IsActive = campaign.IsActive,
-            IsGlobal = campaign.IsGlobal,
-            IsNotification = campaign.IsNotification,
-            Title = campaign.Title
-        })
-        .ToResultSetAsync(options);
+        public Task<ResultSet<Campaign>> GetCampaigns(ListOptions options) =>
+            DbContext.Campaigns
+                     .AsNoTracking()
+                     .Select(campaign => new Campaign {
+                         ActionText = campaign.ActionText,
+                         ActionUrl = campaign.ActionUrl,
+                         ActivePeriod = campaign.ActivePeriod,
+                         Content = campaign.Content,
+                         CreatedAt = campaign.CreatedAt,
+                         Id = campaign.Id,
+                         IsActive = campaign.IsActive,
+                         IsGlobal = campaign.IsGlobal,
+                         Title = campaign.Title
+                     })
+                     .ToResultSetAsync(options);
 
         public async Task<CampaignStatistics> GetCampaignStatistics(Guid campaignId) {
             var campaign = await DbContext.Campaigns.FindAsync(campaignId);
@@ -156,6 +166,15 @@ namespace Indice.AspNetCore.Features.Campaigns.Services
                 Title = campaign.Title
             };
         }
+
+        public Task<ResultSet<CampaignType>> GetCampaignTypes(ListOptions options) =>
+            DbContext.CampaignTypes
+                     .AsNoTracking()
+                     .Select(campaignType => new CampaignType {
+                         Id = campaignType.Id,
+                         Name = campaignType.Name
+                     })
+                     .ToResultSetAsync(options);
 
         public async Task UpdateCampaign(Guid campaignId, UpdateCampaignRequest request) {
             var campaign = await DbContext.Campaigns.FindAsync(campaignId);

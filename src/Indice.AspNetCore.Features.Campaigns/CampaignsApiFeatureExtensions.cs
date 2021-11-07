@@ -35,7 +35,13 @@ namespace Microsoft.Extensions.DependencyInjection
             // Configure options given by the consumer.
             var campaignsApiOptions = new CampaignsApiOptions();
             configureAction?.Invoke(campaignsApiOptions);
-            services.Configure<CampaignsApiOptions>(options => options = campaignsApiOptions);
+            services.Configure<CampaignsApiOptions>(options => {
+                options.ApiPrefix = campaignsApiOptions.ApiPrefix;
+                options.ConfigureDbContext = campaignsApiOptions.ConfigureDbContext;
+                options.DatabaseSchema = campaignsApiOptions.DatabaseSchema;
+                options.ExpectedScope = campaignsApiOptions.ExpectedScope;
+                options.UserClaimType = campaignsApiOptions.UserClaimType;
+            });
             // Configure MVC options.
             services.PostConfigure<MvcOptions>(options => {
                 options.FormatterMappings.SetMediaTypeMappingForFormat("json", MediaTypeNames.Application.Json);
@@ -48,6 +54,7 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddResponseCaching();
             // Register custom services.
             services.AddTransient<ICampaignService, CampaignService>();
+            services.AddTransient<IUserMessagesService, UserMessagesService>();
             // Register application DbContext.
             if (campaignsApiOptions.ConfigureDbContext != null) {
                 services.AddDbContext<CampaingsDbContext>(campaignsApiOptions.ConfigureDbContext);

@@ -1,4 +1,5 @@
 ﻿using System;
+using Indice.Security;
 using Microsoft.EntityFrameworkCore;
 
 namespace Indice.AspNetCore.Features.Campaigns.Configuration
@@ -18,8 +19,16 @@ namespace Indice.AspNetCore.Features.Campaigns.Configuration
         /// </summary>
         public string ExpectedScope { get; set; } = CampaignsApi.Scope;
         /// <summary>
-        /// Specifies a prefix for the API endpoints. Defaults to <i>api</i>
+        /// Specifies a prefix for the API endpoints. Defaults to <i>api</i>.
         /// </summary>
         public string ApiPrefix { get; set; } = "api";
+        /// <summary>
+        /// The claim type used to identify the user. Defaults to <i>sub</i>.
+        /// </summary>
+        public string UserClaimType { get; set; } = BasicClaimTypes.Subject;
+        /// <summary>
+        /// Schema name used for tables. Defaults to <i>campaign</i>.
+        /// </summary>
+        public string DatabaseSchema { get; set; } = CampaignsApi.DatabaseSchema;
     }
 }

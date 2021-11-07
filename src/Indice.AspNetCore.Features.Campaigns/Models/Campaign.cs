@@ -44,6 +44,5 @@ namespace Indice.AspNetCore.Features.Campaigns.Models
         /// Determines if campaign targets all user base.
         /// </summary>
         public bool IsGlobal { get; set; }
-        public bool IsNotification { get; set; }
     }
 }
