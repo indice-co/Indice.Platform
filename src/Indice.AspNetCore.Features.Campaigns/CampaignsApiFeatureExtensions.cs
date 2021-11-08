@@ -66,7 +66,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 authOptions.AddPolicy(CampaignsApi.Policies.BeCampaignsManager, policy => {
                     policy.AddAuthenticationSchemes(CampaignsApi.AuthenticationScheme)
                           .RequireAuthenticatedUser()
-                          .RequireAssertion(x => /*x.User.HasScopeClaim(campaignsApiOptions.ExpectedScope ?? CampaignsApi.Scope) && */x.User.CanManageCampaigns());
+                          .RequireAssertion(x => x.User.HasScopeClaim(campaignsApiOptions.ExpectedScope ?? CampaignsApi.Scope) && x.User.CanManageCampaigns());
                 });
             });
             return mvcBuilder;
