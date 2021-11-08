@@ -235,12 +235,25 @@ namespace Indice.AspNetCore.Features.Campaigns.Controllers
                 return BadRequest(new ValidationProblemDetails(ModelState));
             }
             var campaign = await CampaignService.GetCampaignById(campaignId);
-            if (campaign == null) {
+            if (campaign is null) {
                 return NotFound();
             }
             var attachment = await CampaignService.CreateAttachment(file);
             await CampaignService.AssociateCampaignAttachment(campaignId, attachment.Id);
             return Ok(attachment);
+        }
+
+        [AllowAnonymous]
+        [ApiExplorerSettings(IgnoreApi = true)]
+        [HttpGet("track/{trackingCode}")]
+        public async Task<IActionResult> Track([FromRoute] Base64Id trackingCode) {
+            var campaignId = trackingCode.Id;
+            var campaign = await CampaignService.GetCampaignById(campaignId);
+            if (campaign is null) {
+                return NotFound();
+            }
+            await CampaignService.UpdateCampaignVisit(campaignId);
+            return Redirect(campaign.ActionUrl);
         }
 
         private async Task<IActionResult> GetFile(string rootFolder, Guid fileGuid, string format) {

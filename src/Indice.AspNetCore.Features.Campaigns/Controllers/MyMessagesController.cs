@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Net.Mime;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using Indice.AspNetCore.Features.Campaigns.Configuration;
 using Indice.AspNetCore.Features.Campaigns.Models;
@@ -34,6 +35,7 @@ namespace Indice.AspNetCore.Features.Campaigns.Controllers
 
         public IUserMessagesService UserMessagesService { get; }
         public CampaignsApiOptions CampaignsApiOptions { get; }
+        public string UserCode => User.FindFirstValue(CampaignsApiOptions.UserClaimType);
 
         /// <summary>
         /// Gets the list of all user messages using the provided <see cref="ListOptions"/>.
@@ -44,7 +46,7 @@ namespace Indice.AspNetCore.Features.Campaigns.Controllers
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ResultSet<UserMessage>))]
         [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ProblemDetails))]
         public async Task<IActionResult> GetMessages([FromQuery] ListOptions options) {
-            var messages = await UserMessagesService.GetUserMessages(CampaignsApiOptions.UserClaimType, options);
+            var messages = await UserMessagesService.GetUserMessages(UserCode, options);
             return Ok(messages);
         }
 
@@ -58,7 +60,7 @@ namespace Indice.AspNetCore.Features.Campaigns.Controllers
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(UserMessage))]
         [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ProblemDetails))]
         public async Task<IActionResult> GetMessageById([FromRoute] Guid messageId) {
-            var message = await UserMessagesService.GetMessageById(messageId, CampaignsApiOptions.UserClaimType);
+            var message = await UserMessagesService.GetMessageById(messageId, UserCode);
             if (message == null) {
                 return NotFound();
             }
@@ -72,7 +74,7 @@ namespace Indice.AspNetCore.Features.Campaigns.Controllers
         [HttpGet("unread-count")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(UserMessageCount))]
         public async Task<IActionResult> GetNumberOfUnreadMessages() {
-            var count = await UserMessagesService.GetNumberOfUnreadMessages(CampaignsApiOptions.UserClaimType);
+            var count = await UserMessagesService.GetNumberOfUnreadMessages(UserCode);
             return Ok(new UserMessageCount { Count = count });
         }
 
@@ -88,7 +90,7 @@ namespace Indice.AspNetCore.Features.Campaigns.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ValidationProblemDetails))]
         [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(void))]
         public async Task<IActionResult> MarkMessageAsRead([FromRoute] Guid messageId) {
-            var message = await UserMessagesService.GetMessageById(messageId, CampaignsApiOptions.UserClaimType);
+            var message = await UserMessagesService.GetMessageById(messageId, UserCode);
             if (message == null) {
                 return NotFound();
             }
@@ -96,7 +98,7 @@ namespace Indice.AspNetCore.Features.Campaigns.Controllers
                 ModelState.AddModelError(nameof(message), "This message is already read.");
                 return BadRequest(new ValidationProblemDetails(ModelState));
             }
-            await UserMessagesService.MarkMessageAsRead(messageId, CampaignsApiOptions.UserClaimType);
+            await UserMessagesService.MarkMessageAsRead(messageId, UserCode);
             return NoContent();
         }
 
@@ -109,11 +111,11 @@ namespace Indice.AspNetCore.Features.Campaigns.Controllers
         [ProducesResponseType(StatusCodes.Status204NoContent, Type = typeof(void))]
         [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(void))]
         public async Task<IActionResult> DeleteMessage([FromRoute] Guid messageId) {
-            var message = await UserMessagesService.GetMessageById(messageId, CampaignsApiOptions.UserClaimType);
+            var message = await UserMessagesService.GetMessageById(messageId, UserCode);
             if (message == null) {
                 return NotFound();
             }
-            await UserMessagesService.MarkMessageAsDeleted(messageId, CampaignsApiOptions.UserClaimType);
+            await UserMessagesService.MarkMessageAsDeleted(messageId, UserCode);
             return NoContent();
         }
     }

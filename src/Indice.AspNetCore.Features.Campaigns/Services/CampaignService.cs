@@ -188,5 +188,13 @@ namespace Indice.AspNetCore.Features.Campaigns.Services
             campaign.IsActive = request.IsActive;
             await DbContext.SaveChangesAsync();
         }
+
+        public async Task UpdateCampaignVisit(Guid campaignId) {
+            DbContext.CampaignVisits.Add(new DbCampaignVisit {
+                CampaignId = campaignId,
+                TimeStamp = DateTimeOffset.UtcNow
+            });
+            await DbContext.SaveChangesAsync();
+        }
     }
 }

@@ -134,6 +134,10 @@ namespace Indice.Security
         /// </summary>
         public const string OtpAuthenticated = "otp_authenticated";
         /// <summary>
+        /// Tax identification number.
+        /// </summary>
+        public const string Tin = "tin";
+        /// <summary>
         /// All possible user related claims.
         /// </summary>
         public static readonly string[] UserClaims = {

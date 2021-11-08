@@ -9,7 +9,7 @@
     <LangVersion>Latest</LangVersion>
     <TargetFrameworks>netcoreapp3.1;net5.0</TargetFrameworks>
     <VersionPrefix>5.0.0</VersionPrefix>
-    <!--<VersionSuffix>beta-01</VersionSuffix>-->
+    <VersionSuffix>beta-01</VersionSuffix>
   </PropertyGroup>
   <PropertyGroup Label="Package">
     <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>

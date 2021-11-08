@@ -18,5 +18,6 @@ namespace Indice.AspNetCore.Features.Campaigns.Services
         Task<CampaignStatistics> GetCampaignStatistics(Guid campaignId);
         Task<ResultSet<CampaignType>> GetCampaignTypes(ListOptions options);
         Task UpdateCampaign(Guid campaignId, UpdateCampaignRequest request);
+        Task UpdateCampaignVisit(Guid campaignId);
     }
 }

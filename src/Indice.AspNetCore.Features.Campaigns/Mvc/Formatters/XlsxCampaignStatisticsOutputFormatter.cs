@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Indice.AspNetCore.Features.Campaigns.Models;
 using Indice.Extensions;
 using Indice.Security;
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.Net.Http.Headers;
 using OfficeOpenXml;
@@ -33,7 +34,8 @@ namespace Indice.AspNetCore.Features.Campaigns.Formatters
 
         public async override Task WriteResponseBodyAsync(OutputFormatterWriteContext context) {
             var data = (CampaignStatistics)context.Object;
-            var user = context.HttpContext.User;
+            var httpContext = context.HttpContext;
+            var user = httpContext.User;
             using (var xlPackage = new ExcelPackage()) {
                 var worksheet = xlPackage.Workbook.Worksheets.Add(data.Title);
                 var headerText = data.Title;
@@ -75,7 +77,11 @@ namespace Indice.AspNetCore.Features.Campaigns.Formatters
                 worksheet.Cells[worksheet.Dimension.Address].AutoFitColumns();
                 // Protect worksheet.
                 worksheet.Protection.SetPassword($"{Guid.NewGuid()}");
-                await Task.Run(() => xlPackage.SaveAs(context.HttpContext.Response.Body));
+                // Write excel data to output stream.
+                var httpBodyControl = httpContext.Features.Get<IHttpBodyControlFeature>();
+                httpBodyControl.AllowSynchronousIO = true;
+                xlPackage.SaveAs(context.HttpContext.Response.Body);
+                await Task.CompletedTask;
             }
         }
     }
