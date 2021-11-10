@@ -1,0 +1,15 @@
+<lib-view-layout title="Campaigns" [busy]="!items" [actions]="actions" [meta-items]="metaItems">
+    <lib-list-view [items]="items" [page]="page" [page-size]="pageSize" [count]="count" [sort-options]="sortOptions" [sort]="sort" [sort-dir]="sortdir" (pageChanged)="pageChanged($event)" (pageSizeChanged)="pageSizeChanged($event)"
+        (sortChanged)="sortChanged($event)" (sortdirChanged)="sortdirChanged($event)">
+        <lib-list-column title="Title" [full-width]="true">
+            <ng-template let-item>
+                {{ item.title }}
+            </ng-template>
+        </lib-list-column>
+        <lib-list-column title="Description">
+            <ng-template let-item>
+                {{ item.description }}
+            </ng-template>
+        </lib-list-column>
+    </lib-list-view>
+</lib-view-layout>
