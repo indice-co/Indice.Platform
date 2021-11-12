@@ -55,7 +55,7 @@ namespace Microsoft.Extensions.DependencyInjection
             services.TryAddTransient<IPushNotificationService, DefaultPushNotificationService>();
             services.TryAddTransient<ITotpService, TotpService>();
             services.TryAddSingleton(new Rfc6238AuthenticationService(totpOptions.Timestep, totpOptions.CodeLength));
-            if (totpOptions.EnableDeveloperTotp && !hostingEnvironment.IsProduction()) {
+            if (totpOptions.EnableDeveloperTotp) {
                 var implementation = services.LastOrDefault(x => x.ServiceType == typeof(ITotpService))?.ImplementationType;
                 if (implementation != null) {
                     var decoratorType = typeof(DeveloperTotpService);
