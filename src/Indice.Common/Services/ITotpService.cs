@@ -23,8 +23,9 @@ namespace Indice.Services
         /// <param name="phoneNumberOrEmail">The phone number to use, if no <paramref name="principal"/> is provided.</param>
         /// <param name="data">The json string that will be passed as data to the <see cref="IPushNotificationService"/>. It's important for the data to contain the {0} placeholder in the position where the OTP should be placed.</param>
         /// <param name="classification">The notification's type.</param>
+        /// <param name="subject">The subject of message when applicable.</param>
         /// <exception cref="TotpServiceException">Used to pass errors between service and the caller.</exception>
-        Task<TotpResult> Send(ClaimsPrincipal principal, string message, TotpDeliveryChannel channel = TotpDeliveryChannel.Sms, string purpose = null, string securityToken = null, string phoneNumberOrEmail = null, string data = null, string classification = null);
+        Task<TotpResult> Send(ClaimsPrincipal principal, string message, TotpDeliveryChannel channel = TotpDeliveryChannel.Sms, string purpose = null, string securityToken = null, string phoneNumberOrEmail = null, string data = null, string classification = null, string subject = null);
         /// <summary>
         /// Verify the code received for the given claims principal.
         /// </summary>
@@ -84,9 +85,9 @@ namespace Indice.Services
         /// <param name="userId">The user id.</param>
         /// <param name="code">The TOTP code.</param>
         /// <param name="provider">Optionally pass the provider to use to verify. Defaults to DefaultPhoneProvider</param>
-        /// <param name="reason">Optionally pass the reason used to generate the TOTP.</param>
-        public static Task<TotpResult> Verify(this ITotpService service, string userId, string code, TotpProviderType? provider = null, string reason = null) =>
-            service.Verify(new ClaimsPrincipal(new ClaimsIdentity(new[] { new Claim(BasicClaimTypes.Subject, userId) })), code, provider, reason);
+        /// <param name="purpose">Optionally pass the reason used to generate the TOTP.</param>
+        public static Task<TotpResult> Verify(this ITotpService service, string userId, string code, TotpProviderType? provider = null, string purpose = null) =>
+            service.Verify(new ClaimsPrincipal(new ClaimsIdentity(new[] { new Claim(BasicClaimTypes.Subject, userId) })), code, provider, purpose);
 
         /// <summary>
         /// Gets list of available providers for the given claims principal.
@@ -135,9 +136,13 @@ namespace Indice.Services
         public string Purpose { get; internal set; } = TotpConstants.TokenGenerationPurpose.StrongCustomerAuthentication;
         /// <summary>
         /// The type of the Push Notification.
-        /// <remarks>This applies only for <see cref="TotpDeliveryChannel.PushNotification"/>.</remarks>
         /// </summary>
+        /// <remarks>This applies only for <see cref="TotpDeliveryChannel.PushNotification"/>.</remarks>
         public string Classification { get; internal set; }
+        /// <summary>
+        /// The subject of message when applicable.
+        /// </summary>
+        public string Subject { get; set; }
 
         /// <summary>
         /// Sets the <see cref="ClaimsPrincipal"/> property.
@@ -175,7 +180,8 @@ namespace Indice.Services
             PhoneNumberOrEmail = PhoneNumberOrEmail,
             DeliveryChannel = DeliveryChannel,
             Purpose = Purpose,
-            Classification = Classification
+            Classification = Classification,
+            Subject = Subject
         };
     }
 
@@ -184,17 +190,28 @@ namespace Indice.Services
     /// </summary>
     public interface ITotpClassificationBuilder
     {
+        /// <summary>
+        /// Specifies the type of the push notification.
+        /// </summary>
+        /// <param name="classification"></param>
         void WithClassification(string classification);
     }
 
+    /// <inheritdoc />
     public class TotpClassificationBuilder : ITotpClassificationBuilder
     {
         private readonly TotpMessageBuilder _totpMessageBuilder;
 
+        /// <summary>
+        /// Creates a new instance of <see cref="TotpClassificationBuilder"/>.
+        /// </summary>
+        /// <param name="totpMessageBuilder">The instance of <see cref="TotpMessageBuilder"/>.</param>
+        /// <exception cref="ArgumentNullException">Thrown when <paramref name="totpMessageBuilder"/> is null.</exception>
         public TotpClassificationBuilder(TotpMessageBuilder totpMessageBuilder) {
             _totpMessageBuilder = totpMessageBuilder ?? throw new ArgumentNullException(nameof(totpMessageBuilder));
         }
 
+        /// <inheritdoc />
         public void WithClassification(string classification) {
             _totpMessageBuilder.Classification = classification;
         }
@@ -209,7 +226,6 @@ namespace Indice.Services
         /// Sets the <see cref="TotpMessageBuilder.Data"/> property.
         /// </summary>
         /// <param name="data">The payload data as json string to be sent in PushNotification. It's important for the data to contain the {0} placeholder in the position where the OTP should be placed.</param>
-        /// <returns></returns>
         ITotpClassificationBuilder WithData(string data);
     }
 
@@ -379,25 +395,29 @@ namespace Indice.Services
     public interface ITotpPhoneProviderBuilder
     {
         /// <summary>
-        /// Sets the <see cref="TotpMessageBuilder.DeliveryChannel"/> property.
+        /// Sets the <see cref="TotpMessageBuilder.DeliveryChannel"/> property to <see cref="TotpDeliveryChannel.Sms"/>.
         /// </summary>
-        /// <returns></returns>
-        ITotpPurposeBuilder UsingSms();
+        /// <param name="subject">The subject of the SMS message.</param>
+        ITotpPurposeBuilder UsingSms(string subject = null);
         /// <summary>
-        /// Sets the <see cref="TotpMessageBuilder.DeliveryChannel"/> property.
+        /// Sets the <see cref="TotpMessageBuilder.DeliveryChannel"/> property to <see cref="TotpDeliveryChannel.Viber"/>.
         /// </summary>
-        /// <returns></returns>
-        ITotpPurposeBuilder UsingViber();
+        /// <param name="subject">The subject of the SMS message.</param>
+        ITotpPurposeBuilder UsingViber(string subject = null);
         /// <summary>
-        /// Sets the <see cref="TotpMessageBuilder.DeliveryChannel"/> property.
+        /// Sets the <see cref="TotpMessageBuilder.DeliveryChannel"/> property to <see cref="TotpDeliveryChannel.Telephone"/>.
         /// </summary>
-        /// <returns></returns>
         ITotpPurposeBuilder UsingTelephone();
         /// <summary>
-        /// Sets the <see cref="TotpMessageBuilder.DeliveryChannel"/> property.
+        /// Sets the <see cref="TotpMessageBuilder.DeliveryChannel"/> property to <see cref="TotpDeliveryChannel.PushNotification"/>.
         /// </summary>
-        /// <returns></returns>
         ITotpPurposeBuilder UsingPushNotification();
+        /// <summary>
+        /// Sets the <see cref="TotpMessageBuilder.DeliveryChannel"/> property to the specified value.
+        /// </summary>
+        /// <param name="deliveryChannel">The delivery channel.</param>
+        /// <param name="subject">The subject of message when applicable.</param>
+        ITotpPurposeBuilder UsingDeliveryChannel(TotpDeliveryChannel deliveryChannel, string subject = null);
     }
 
     /// <inheritdoc/>
@@ -414,29 +434,21 @@ namespace Indice.Services
         }
 
         /// <inheritdoc/>
-        public ITotpPurposeBuilder UsingSms() {
-            _totpMessageBuilder.DeliveryChannel = TotpDeliveryChannel.Sms;
-            var totpPurposeBuilder = new TotpPurposeBuilder(_totpMessageBuilder);
-            return totpPurposeBuilder;
-        }
+        public ITotpPurposeBuilder UsingSms(string subject) => UsingDeliveryChannel(TotpDeliveryChannel.Sms, subject);
 
         /// <inheritdoc/>
-        public ITotpPurposeBuilder UsingTelephone() {
-            _totpMessageBuilder.DeliveryChannel = TotpDeliveryChannel.Telephone;
-            var totpPurposeBuilder = new TotpPurposeBuilder(_totpMessageBuilder);
-            return totpPurposeBuilder;
-        }
+        public ITotpPurposeBuilder UsingTelephone() => UsingDeliveryChannel(TotpDeliveryChannel.Telephone);
 
         /// <inheritdoc/>
-        public ITotpPurposeBuilder UsingViber() {
-            _totpMessageBuilder.DeliveryChannel = TotpDeliveryChannel.Viber;
-            var totpPurposeBuilder = new TotpPurposeBuilder(_totpMessageBuilder);
-            return totpPurposeBuilder;
-        }
+        public ITotpPurposeBuilder UsingViber(string subject) => UsingDeliveryChannel(TotpDeliveryChannel.Viber, subject);
 
         /// <inheritdoc/>
-        public ITotpPurposeBuilder UsingPushNotification() {
-            _totpMessageBuilder.DeliveryChannel = TotpDeliveryChannel.PushNotification;
+        public ITotpPurposeBuilder UsingPushNotification() => UsingDeliveryChannel(TotpDeliveryChannel.PushNotification);
+
+        /// <inheritdoc/>
+        public ITotpPurposeBuilder UsingDeliveryChannel(TotpDeliveryChannel deliveryChannel, string subject = null) {
+            _totpMessageBuilder.DeliveryChannel = deliveryChannel;
+            _totpMessageBuilder.Subject = subject;
             var totpPurposeBuilder = new TotpPurposeBuilder(_totpMessageBuilder);
             return totpPurposeBuilder;
         }
@@ -453,11 +465,9 @@ namespace Indice.Services
         /// Constructs an error result.
         /// </summary>
         /// <param name="error">The error.</param>
-        public static TotpResult ErrorResult(string error) {
-            return new TotpResult {
-                Error = error
-            };
-        }
+        public static TotpResult ErrorResult(string error) => new TotpResult {
+            Error = error
+        };
 
         /// <summary>
         /// Constructs a success result.
@@ -616,9 +626,13 @@ namespace Indice.Services
         /// </summary>
         public string PhoneNumberOrEmail { get; set; }
         /// <summary>
-        /// The type of the Push Notification.
+        /// The type of the push notification.
         /// </summary>
         public string Classification { get; set; }
+        /// <summary>
+        /// The subject of message when applicable.
+        /// </summary>
+        public string Subject { get; set; }
     }
 
     /// <summary>

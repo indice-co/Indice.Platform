@@ -91,9 +91,9 @@ namespace Indice.AspNetCore.Identity
         /// </summary>
         public virtual string OtpSecuredValidatorOtpSubject => string.Format(IdentityResources.Culture, IdentityResources.OtpSecuredValidatorOtpSubject);
         /// <summary>
-        /// Message sent on message when <see cref="OtpAuthenticateExtensionGrantValidator"/> is used.
+        /// Message sent on message when <see cref="OtpAuthenticateExtensionGrantValidator"/> is used. Should contain the '{0}' placeholder for the generated token.
         /// </summary>
-        public virtual string OtpSecuredValidatorOtpBody(string code) => string.Format(IdentityResources.Culture, IdentityResources.OtpSecuredValidatorOtpBody, code);
+        public virtual string OtpSecuredValidatorOtpBody() => string.Format(IdentityResources.Culture, IdentityResources.OtpSecuredValidatorOtpBody, "{0}");
         /// <summary>
         /// Registration OTP code for device {0} is {1}.
         /// </summary>

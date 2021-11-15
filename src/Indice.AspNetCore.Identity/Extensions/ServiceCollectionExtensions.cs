@@ -48,7 +48,6 @@ namespace Microsoft.Extensions.DependencyInjection
                 CodeLength = totpSection.GetValue<int?>(nameof(TotpOptions.CodeLength)) ?? TotpOptions.DefaultCodeLength,
                 EnableDeveloperTotp = totpSection.GetValue<bool>(nameof(TotpOptions.EnableDeveloperTotp))
             };
-            var hostingEnvironment = serviceProvider.GetRequiredService<IWebHostEnvironment>();
             configure?.Invoke(totpOptions);
             totpOptions.Services = null;
             services.TryAddSingleton(totpOptions);

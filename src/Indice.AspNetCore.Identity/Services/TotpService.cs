@@ -58,7 +58,7 @@ namespace Indice.AspNetCore.Identity
         }
 
         /// <inheritdoc />
-        public async Task<TotpResult> Send(ClaimsPrincipal principal, string message, TotpDeliveryChannel channel = TotpDeliveryChannel.Sms, string purpose = null, string securityToken = null, string phoneNumberOrEmail = null, string data = null, string classification = null) {
+        public async Task<TotpResult> Send(ClaimsPrincipal principal, string message, TotpDeliveryChannel channel = TotpDeliveryChannel.Sms, string purpose = null, string securityToken = null, string phoneNumberOrEmail = null, string data = null, string classification = null, string subject = null) {
             var totpResult = ValidateParameters(principal, securityToken, phoneNumberOrEmail);
             if (!totpResult.Success) {
                 return totpResult;
@@ -93,23 +93,22 @@ namespace Indice.AspNetCore.Identity
                 case TotpDeliveryChannel.Sms:
                 case TotpDeliveryChannel.Viber:
                     var smsService = _smsServiceFactory.Create(channel.ToString());
-                    await smsService.SendAsync(user?.PhoneNumber ?? phoneNumberOrEmail, _localizer["OTP"], _localizer[message, token]);
+                    await smsService.SendAsync(user?.PhoneNumber ?? phoneNumberOrEmail, _localizer[subject ?? "OTP"], _localizer[message, token]);
                     break;
                 case TotpDeliveryChannel.Email:
                 case TotpDeliveryChannel.Telephone:
                 case TotpDeliveryChannel.EToken:
-                    throw new NotSupportedException($"EToken delivery channel {channel} is not implemented.");
+                    throw new NotSupportedException($"Delivery channel '{channel}' is not supported.");
                 case TotpDeliveryChannel.PushNotification:
                     if (_pushNotificationService == null) {
                         throw new ArgumentNullException(nameof(_pushNotificationService), $"Cannot send push notification since there is no implementation of {nameof(IPushNotificationService)}.");
                     }
-                    await _pushNotificationService.SendAsync(builder => builder
-                            .To(user?.Id)
-                            .WithToken(token)
-                            .WithMessage(string.Format(message, token))
-                            .WithData(data)
-                            .WithClassification(classification)
-                    );
+                    await _pushNotificationService.SendAsync(builder =>
+                        builder.To(user?.Id)
+                               .WithToken(token)
+                               .WithMessage(string.Format(message, token))
+                               .WithData(data)
+                               .WithClassification(classification));
                     break;
                 default:
                     break;

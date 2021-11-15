@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using System.Security;
 using System.Security.Claims;
@@ -20,33 +19,33 @@ namespace Indice.AspNetCore.Identity
     /// <summary>
     /// An extension grant that receives a valid token, sends an OTP to the user that when verified issues a new token that is marked approproately.
     /// </summary>
-    public class OtpAuthenticateExtensionGrantValidator : IExtensionGrantValidator
+    public sealed class OtpAuthenticateExtensionGrantValidator : IExtensionGrantValidator
     {
         private readonly ITokenValidator _tokenValidator;
         private readonly UserManager<User> _userManager;
-        private readonly ISmsServiceFactory _smsServiceFactory;
         private readonly Rfc6238AuthenticationService _rfc6238AuthenticationService;
         private readonly IdentityMessageDescriber _identityMessageDescriber;
+        private readonly ITotpService _totpService;
 
         /// <summary>
         /// Creates a new instance of <see cref="OtpAuthenticateExtensionGrantValidator"/>.
         /// </summary>
         /// <param name="validator">Validates an access token.</param>
         /// <param name="userManager">Provides the APIs for managing user in a persistence store.</param>
-        /// <param name="smsServiceFactory"></param>
         /// <param name="totpOptions">Configuration used in <see cref="System.Security.Rfc6238AuthenticationService"/> service.</param>
         /// <param name="identityMessageDescriber">Provides an extensibility point for altering localizing used inside the package.</param>
+        /// <param name="totpService">Used to generate, send and verify time based one time passwords.</param>
         public OtpAuthenticateExtensionGrantValidator(
             ITokenValidator validator,
             UserManager<User> userManager,
-            ISmsServiceFactory smsServiceFactory,
             TotpOptions totpOptions,
-            IdentityMessageDescriber identityMessageDescriber
+            IdentityMessageDescriber identityMessageDescriber,
+            ITotpService totpService
         ) {
             _tokenValidator = validator ?? throw new ArgumentNullException(nameof(validator));
             _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
-            _smsServiceFactory = smsServiceFactory ?? throw new ArgumentNullException(nameof(smsServiceFactory));
             _identityMessageDescriber = identityMessageDescriber ?? throw new ArgumentNullException(nameof(identityMessageDescriber));
+            _totpService = totpService ?? throw new ArgumentNullException(nameof(totpService));
             _rfc6238AuthenticationService = new Rfc6238AuthenticationService(totpOptions.Timestep, totpOptions.CodeLength);
         }
 
@@ -81,59 +80,46 @@ namespace Indice.AspNetCore.Identity
                 return;
             }
             /* 5. Check if an OTP is provided in the request. */
-            var modifier = $"{TotpConstants.TokenGenerationPurpose.SessionOtp}:{user.Id}:{user.PhoneNumber}";
-            var securityStamp = user.SecurityStamp;
-            var securityToken = Encoding.Unicode.GetBytes(securityStamp);
+            var purpose = $"{TotpConstants.TokenGenerationPurpose.SessionOtp}:{user.Id}";
             var otp = rawRequest.Get("otp");
+            var principal = Principal.Create("OtpAuthenticatedUser", new List<Claim> { 
+                new Claim(JwtClaimTypes.Subject, subject) 
+            }
+            .ToArray());
             /* 5.1 If an OTP is not provided, then we must send one to the user's confirmed phone number. */
             if (string.IsNullOrWhiteSpace(otp)) {
                 /* 5.1.1 In order to send the OTP we have to decide the delivery channel. Delivery channel can optionally be sent in the request. */
                 var providedChannel = rawRequest.Get("channel");
                 var channel = TotpDeliveryChannel.Sms;
                 if (!string.IsNullOrWhiteSpace(providedChannel)) {
-                    if (Enum.TryParse<TotpDeliveryChannel>(providedChannel, out var parsedChannel)) {
+                    if (Enum.TryParse<TotpDeliveryChannel>(providedChannel, ignoreCase: true, out var parsedChannel)) {
                         channel = parsedChannel;
                     } else {
                         context.Result = new GrantValidationResult(TokenRequestErrors.InvalidGrant, "Invalid delivery channel.");
                         return;
                     }
                 }
-                var token = _rfc6238AuthenticationService.GenerateCode(securityToken, modifier).ToString("D6", CultureInfo.InvariantCulture);
-                switch (channel) {
-                    case TotpDeliveryChannel.Sms:
-                        await _smsServiceFactory.Create(nameof(TotpDeliveryChannel.Sms)).SendAsync(user.PhoneNumber, _identityMessageDescriber.OtpSecuredValidatorOtpSubject, _identityMessageDescriber.OtpSecuredValidatorOtpBody(token));
-                        break;
-                    case TotpDeliveryChannel.Viber:
-                        await _smsServiceFactory.Create(nameof(TotpDeliveryChannel.Viber)).SendAsync(user.PhoneNumber, _identityMessageDescriber.OtpSecuredValidatorOtpSubject, _identityMessageDescriber.OtpSecuredValidatorOtpBody(token));
-                        break;
-                    case TotpDeliveryChannel.Email:
-                    case TotpDeliveryChannel.Telephone:
-                    case TotpDeliveryChannel.EToken:
-                    case TotpDeliveryChannel.PushNotification:
-                    default:
-                        context.Result = new GrantValidationResult(TokenRequestErrors.InvalidGrant, "Selected delivery channel is not supported.");
-                        return;
-                }
+                await _totpService.Send(builder => 
+                    builder.UsePrincipal(principal)
+                           .WithMessage(_identityMessageDescriber.OtpSecuredValidatorOtpBody())
+                           .ToPhoneNumber(user.PhoneNumber)
+                           .UsingDeliveryChannel(channel, _identityMessageDescriber.OtpSecuredValidatorOtpSubject)
+                           .WithPurpose(purpose));
                 context.Result = new GrantValidationResult(TokenRequestErrors.InvalidGrant, "An OTP code was sent to the user. Please replay the request and include the verification code.", new Dictionary<string, object> {
                     { "otp_sent", true }
                 });
                 return;
             }
             /* 5.2 If an OTP is provided, then we must verify it at first. */
-            var isInteger = int.TryParse(otp, out var otpInt);
-            if (!isInteger) {
-                context.Result = new GrantValidationResult(TokenRequestErrors.InvalidGrant, "OTP verification code must be an integer value.");
-                return;
-            }
-            var isValid = _rfc6238AuthenticationService.ValidateCode(securityToken, otpInt, modifier);
+            var totpVerificationResult = await _totpService.Verify(principal, otp, purpose: purpose);
             /* If OTP verification code is not valid respond accordingly. */
-            if (!isValid) {
+            if (!totpVerificationResult.Success) {
                 context.Result = new GrantValidationResult(TokenRequestErrors.InvalidGrant, "OTP verification code could not be validated.");
                 return;
             }
             /* If OTP verification code is valid add the same claims that were present in the token and a new one to mark that OTP verification has been successfully completed. */
             var claims = tokenValidationResult.Claims.ToList();
-            claims.Add(new Claim(BasicClaimTypes.OtpAuthenticated, "true"));
+            claims.Add(new Claim(BasicClaimTypes.OtpAuthenticated, "true", ClaimValueTypes.Boolean));
             context.Result = new GrantValidationResult(subject, GrantType, claims);
         }
     }

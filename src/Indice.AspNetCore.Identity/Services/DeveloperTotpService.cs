@@ -40,6 +40,9 @@ namespace Indice.AspNetCore.Identity
 
         /// <inheritdoc />
         public async Task<Dictionary<string, TotpProviderMetadata>> GetProviders(ClaimsPrincipal principal) {
+            if (principal is null) {
+                return default;
+            }
             var user = await _userManager.GetUserAsync(principal);
             var isDeveloper = await _userManager.IsInRoleAsync(user, BasicRoleNames.Developer);
             if (!isDeveloper) {
@@ -57,9 +60,9 @@ namespace Indice.AspNetCore.Identity
         }
 
         /// <inheritdoc />
-        public async Task<TotpResult> Send(ClaimsPrincipal principal, string message, TotpDeliveryChannel channel = TotpDeliveryChannel.Sms, string purpose = null, string securityToken = null, string phoneNumberOrEmail = null, string data = null, string classification = null) {
-            var userId = principal.GetSubjectId();
-            if (!string.IsNullOrEmpty(userId)) {
+        public async Task<TotpResult> Send(ClaimsPrincipal principal, string message, TotpDeliveryChannel channel = TotpDeliveryChannel.Sms, string purpose = null, string securityToken = null, string phoneNumberOrEmail = null, string data = null, string classification = null, string subject = null) {
+            var userId = principal?.GetSubjectId();
+            if (!string.IsNullOrWhiteSpace(userId)) {
                 var hasDeveloperTotp = await _dbContext.UserClaims.Where(x => x.UserId == userId && x.ClaimType == BasicClaimTypes.DeveloperTotp).AnyAsync();
                 if (hasDeveloperTotp) {
                     return TotpResult.SuccessResult;
@@ -70,8 +73,8 @@ namespace Indice.AspNetCore.Identity
 
         /// <inheritdoc />
         public async Task<TotpResult> Verify(ClaimsPrincipal principal, string code, TotpProviderType? provider = null, string purpose = null, string securityToken = null, string phoneNumberOrEmail = null) {
-            var userId = principal.GetSubjectId();
-            if (!string.IsNullOrEmpty(userId)) {
+            var userId = principal?.GetSubjectId();
+            if (!string.IsNullOrWhiteSpace(userId)) {
                 var developerTotpClaim = await _dbContext.UserClaims.SingleOrDefaultAsync(x => x.UserId == userId && x.ClaimType == BasicClaimTypes.DeveloperTotp);
                 if (developerTotpClaim?.ClaimValue == code) {
                     return TotpResult.SuccessResult;

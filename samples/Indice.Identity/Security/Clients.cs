@@ -51,8 +51,11 @@ namespace Indice.Identity.Security
             new Client {
                 ClientId = "resource-owner-password-mvc",
                 ClientName = "Resource Owner Password MVC client",
-                AllowedGrantTypes = GrantTypes.ResourceOwnerPassword,
-                AccessTokenType = AccessTokenType.Reference,
+                AllowedGrantTypes = { 
+                    GrantType.ResourceOwnerPassword,
+                    CustomGrantTypes.OtpAuthenticate
+                },
+                AccessTokenType = AccessTokenType.Jwt,
                 AccessTokenLifetime = 300,
                 ClientSecrets = {
                     new Secret("ZWU0NTdmNWEtM2Y0MC00NzhiLWE1ZmUtZDFhZjA4YjlmMmEy".ToSha256())
@@ -62,6 +65,7 @@ namespace Indice.Identity.Security
                     IdentityServerApi.SubScopes.Clients,
                     IdentityServerApi.SubScopes.Users,
                     IdentityServerConstants.StandardScopes.Email,
+                    IdentityServerConstants.StandardScopes.Phone,
                     IdentityServerConstants.StandardScopes.OfflineAccess,
                     IdentityServerConstants.StandardScopes.OpenId,
                     IdentityServerConstants.StandardScopes.Profile,
