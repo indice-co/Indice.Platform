@@ -10,7 +10,7 @@ namespace Indice.AspNetCore.Identity
         public Task<Dictionary<string, TotpProviderMetadata>> GetProviders(ClaimsPrincipal principal) => 
             Task.FromResult(new Dictionary<string, TotpProviderMetadata>());
 
-        public Task<TotpResult> Send(ClaimsPrincipal principal, string message, TotpDeliveryChannel channel = TotpDeliveryChannel.Sms, string purpose = null, string securityToken = null, string phoneNumberOrEmail = null, string data = null, string classification = null) =>
+        public Task<TotpResult> Send(ClaimsPrincipal principal, string message, TotpDeliveryChannel channel = TotpDeliveryChannel.Sms, string purpose = null, string securityToken = null, string phoneNumberOrEmail = null, string data = null, string classification = null, string subject = null) =>
             Task.FromResult(TotpResult.SuccessResult);
 
         public Task<TotpResult> Verify(ClaimsPrincipal principal, string code, TotpProviderType? provider = null, string purpose = null, string securityToken = null, string phoneNumberOrEmail = null) => 

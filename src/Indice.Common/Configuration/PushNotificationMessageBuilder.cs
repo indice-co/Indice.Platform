@@ -3,7 +3,7 @@
 namespace Indice.Services
 {
     /// <summary>
-    /// The builder to construct an instance of <see cref="PushNotificationMessage"/>
+    /// The builder to construct an instance of <see cref="PushNotificationMessage"/>.
     /// </summary>
     public class PushNotificationMessageBuilder
     {
@@ -12,42 +12,37 @@ namespace Indice.Services
         /// If the data is null then only the token will be sent as data.
         /// </summary>
         public string Data { get; set; }
-
         /// <summary>
-        /// The message of the Push Notification.
+        /// The message of the push notification.
         /// </summary>
         public string Message { get; set; }
-
         /// <summary>
-        /// The Otp token that must be passed to the client.
+        /// The OTP token that must be passed to the client.
         /// </summary>
         public string Token { get; set; }
-
         /// <summary>
-        /// The UserId to send the Push Notification.
+        /// The UserId to send the push notification.
         /// </summary>
         public string UserId { get; set; }
-
         /// <summary>
-        /// The tags of the Push Notification.
+        /// The tags of the push notification.
         /// </summary>
         public string[] Tags { get; set; } = Array.Empty<string>();
-
         /// <summary>
-        /// The type of the Push Notification.
+        /// The type of the push notification.
         /// </summary>
         public string Classification { get; set; }
     }
 
     /// <summary>
-    /// <see cref="PushNotificationMessageBuilder"/> extensions
+    /// <see cref="PushNotificationMessageBuilder"/> extensions.
     /// </summary>
     public static class PushNotificationMessageBuilderExtensions
     {
         /// <summary>
         /// Defines the message to the Push Notification. 
         /// </summary>
-        /// <param name="builder">The builder</param>
+        /// <param name="builder">The builder.</param>
         /// <param name="message">The message to add to the push notification</param>
         /// <returns></returns>
         public static PushNotificationMessageBuilder WithMessage(this PushNotificationMessageBuilder builder, string message) {
@@ -59,22 +54,20 @@ namespace Indice.Services
         }
 
         /// <summary>
-        /// Defines the data of the Push Notification. Data is optional.
+        /// Defines the data of the push notification. Data is optional.
         /// </summary>
-        /// <param name="builder">The builder</param>
+        /// <param name="builder">The builder.</param>
         /// <param name="data">The data that will be sent to the push notification.</param>
-        /// <returns></returns>
         public static PushNotificationMessageBuilder WithData(this PushNotificationMessageBuilder builder, string data) {
             builder.Data = data;
             return builder;
         }
 
         /// <summary>
-        /// Defines the otp token that will be sent to the Push Notification.
+        /// Defines the otp token that will be sent to the push notification.
         /// </summary>
-        /// <param name="builder">The builder</param>
+        /// <param name="builder">The builder.</param>
         /// <param name="token">The otp token.</param>
-        /// <returns></returns>
         public static PushNotificationMessageBuilder WithToken(this PushNotificationMessageBuilder builder, string token) {
             if (string.IsNullOrEmpty(token)) {
                 throw new ArgumentException("You must define the otp token of the Push Notification.", nameof(token));
@@ -84,11 +77,10 @@ namespace Indice.Services
         }
 
         /// <summary>
-        /// Defines the user that will receive the Push Notification.
+        /// Defines the user that will receive the push notification.
         /// </summary>
-        /// <param name="builder">The builder</param>
+        /// <param name="builder">The builder.</param>
         /// <param name="userId">The Id of the user.</param>
-        /// <returns></returns>
         public static PushNotificationMessageBuilder To(this PushNotificationMessageBuilder builder, string userId) {
             if (string.IsNullOrEmpty(userId)) {
                 throw new ArgumentException("You must define the userId of the Push Notification.", nameof(userId));
@@ -98,11 +90,10 @@ namespace Indice.Services
         }
 
         /// <summary>
-        /// Defines the tags that will be sent to the Push Notification.
+        /// Defines the tags that will be sent to the push notification.
         /// </summary>
-        /// <param name="builder">The builder</param>
+        /// <param name="builder">The builder.</param>
         /// <param name="tags">The tags to send.</param>
-        /// <returns></returns>
         public static PushNotificationMessageBuilder WithTags(this PushNotificationMessageBuilder builder, params string[] tags) {
             if (tags?.Length == 0) {
                 throw new ArgumentException("You must set the tags to the Push Notification.", nameof(tags));
@@ -112,11 +103,10 @@ namespace Indice.Services
         }
 
         /// <summary>
-        /// Defines the type of the Push Notification.
+        /// Defines the type of the push notification.
         /// </summary>
-        /// <param name="builder">the builder</param>
+        /// <param name="builder">the builder.</param>
         /// <param name="classification">The type of the push notification.</param>
-        /// <returns></returns>
         public static PushNotificationMessageBuilder WithClassification(this PushNotificationMessageBuilder builder, string classification) {
             builder.Classification = classification;
             return builder;
@@ -125,8 +115,7 @@ namespace Indice.Services
         /// <summary>
         /// Returns the <see cref="PushNotificationMessage"/> instance made by the builder.
         /// </summary>
-        /// <param name="builder">The builder</param>
-        /// <returns></returns>
+        /// <param name="builder">The builder.</param>
         public static PushNotificationMessage Build(this PushNotificationMessageBuilder builder) =>
             new(builder.Data, builder.Message, builder.Token, builder.UserId, builder.Tags, builder.Classification);
     }

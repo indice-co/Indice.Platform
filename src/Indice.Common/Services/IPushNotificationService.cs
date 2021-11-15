@@ -110,10 +110,12 @@ namespace Indice.Services
         public Task Register(string deviceId, string pnsHandle, DevicePlatform devicePlatform, IList<string> tags) {
             throw new NotImplementedException();
         }
+        
         /// <inheritdoc />
         public Task UnRegister(string deviceId) {
             throw new NotImplementedException();
         }
+
         /// <inheritdoc />
         public Task SendAsync(string message, IList<string> tags, string data = null, string classification = null) {
             Trace.WriteLine($"PushNotification Message: {message}");
