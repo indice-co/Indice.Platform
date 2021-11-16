@@ -12,6 +12,7 @@ const routes: Routes = [
   { path: '', redirectTo: 'app', pathMatch: 'full' },
   {
     path: 'app', canActivate: [AuthGuardService], children: [
+      // { path: '' },
       { path: 'campaigns', component: CampaignsComponent },
       { path: 'campaigns/create', component: CampaignUpsertComponent }
     ]
@@ -19,7 +20,7 @@ const routes: Routes = [
   {
     path: '**',
     component: PageNotFoundComponent,
-    data: { shell: { fluid: true, showHeader: false, showFooter: false } },
+    data: { shell: { fluid: true, showHeader: false, showFooter: false } }
   }
 ];
 
