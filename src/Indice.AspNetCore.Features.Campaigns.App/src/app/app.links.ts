@@ -24,6 +24,6 @@ export class AppLinks implements IAppLinks {
     ];
 
     public brand: NavLink[] = [
-        new ExternalNavLink('INDICE', 'https://www.indice.gr')
+        new ExternalNavLink('Indice', 'https://www.indice.gr')
     ];
 }

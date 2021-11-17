@@ -91,6 +91,7 @@ namespace Indice.Identity.Security
                     IdentityServerApi.SubScopes.Clients,
                     IdentityServerApi.SubScopes.Users,
                     IdentityServerConstants.StandardScopes.Email,
+                    IdentityServerConstants.StandardScopes.Phone,
                     IdentityServerConstants.StandardScopes.OfflineAccess,
                     IdentityServerConstants.StandardScopes.OpenId,
                     IdentityServerConstants.StandardScopes.Profile,
@@ -230,6 +231,41 @@ namespace Indice.Identity.Security
                     "https://localhost:46632/signin-indice"
                 },
                 RequireClientSecret  = true,
+                RequirePkce = true,
+                RequireConsent = false
+            },
+            new Client {
+                ClientId = "backoffice-ui",
+                ClientName = "IdentityServer Management Tool",
+                AccessTokenType = AccessTokenType.Reference,
+                AllowAccessTokensViaBrowser = false,
+                AllowedCorsOrigins = {
+                    "http://localhost:4200"
+                },
+                AllowedGrantTypes = GrantTypes.Code,
+                AllowedScopes = {
+                    IdentityServerApi.Scope,
+                    IdentityServerApi.SubScopes.Clients,
+                    IdentityServerApi.SubScopes.Users,
+                    "backoffice",
+                    "backoffice:campaigns",
+                    IdentityServerConstants.StandardScopes.Email,
+                    IdentityServerConstants.StandardScopes.Phone,
+                    IdentityServerConstants.StandardScopes.OfflineAccess,
+                    IdentityServerConstants.StandardScopes.OpenId,
+                    IdentityServerConstants.StandardScopes.Profile,
+                    JwtClaimTypes.Role
+                },
+                AllowOfflineAccess = true,
+                ClientUri = "http://localhost:4200",
+                PostLogoutRedirectUris = {
+                    "http://localhost:4200/logged-out"
+                },
+                RedirectUris = {
+                    "http://localhost:4200/auth-callback",
+                    "http://localhost:4200/auth-renew"
+                },
+                RequireClientSecret  = false,
                 RequirePkce = true,
                 RequireConsent = false
             }

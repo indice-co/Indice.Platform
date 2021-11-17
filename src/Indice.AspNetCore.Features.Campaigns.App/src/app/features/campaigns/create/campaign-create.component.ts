@@ -4,7 +4,7 @@ import { Component, OnInit } from '@angular/core';
     selector: 'app-campaigns',
     templateUrl: './campaign-create.component.html'
 })
-export class CampaignUpsertComponent implements OnInit {
+export class CampaignCreateComponent implements OnInit {
     constructor() { }
 
     public ngOnInit(): void { }

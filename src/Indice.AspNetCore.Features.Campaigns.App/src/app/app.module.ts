@@ -4,20 +4,23 @@ import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { BrowserModule } from '@angular/platform-browser';
 
 import { AuthHttpInterceptor, AUTH_SETTINGS, IndiceAuthModule } from '@indice/ng-auth';
-import { APP_LINKS, IndiceComponentsModule, SHELL_CONFIG } from '@indice/ng-components';
+import { APP_LINKS, IndiceComponentsModule, ModalService, SHELL_CONFIG } from '@indice/ng-components';
 import { AppComponent } from './app.component';
 import { AppLinks } from './app.links';
 import { ShellConfig } from './shell.config';
 import { environment } from 'src/environments/environment'
 import { AppRoutingModule } from './app-routing.module';
 import { CampaignsComponent } from './features/campaigns/campaigns.component';
-import { CampaignUpsertComponent } from './features/campaigns/create/campaign-create.component';
+import { CampaignCreateComponent } from './features/campaigns/create/campaign-create.component';
+import { DashboardComponent } from './features/dashboard/dashboard.component';
+import { CAMPAIGNS_API_BASE_URL } from './core/services/campaigns-api.services';
 
 @NgModule({
   declarations: [
     AppComponent,
     CampaignsComponent,
-    CampaignUpsertComponent
+    CampaignCreateComponent,
+    DashboardComponent
   ],
   imports: [
     AppRoutingModule,
@@ -28,10 +31,12 @@ import { CampaignUpsertComponent } from './features/campaigns/create/campaign-cr
     IndiceComponentsModule.forRoot()
   ],
   providers: [
+    ModalService,
     { provide: HTTP_INTERCEPTORS, useClass: AuthHttpInterceptor, multi: true },
     { provide: AUTH_SETTINGS, useFactory: () => environment.auth_settings },
     { provide: SHELL_CONFIG, useFactory: () => new ShellConfig() },
-    { provide: APP_LINKS, useFactory: () => new AppLinks() }
+    { provide: APP_LINKS, useFactory: () => new AppLinks() },
+    { provide: CAMPAIGNS_API_BASE_URL, useFactory: () => environment.campaigns_api_url }
   ],
   bootstrap: [AppComponent]
 })

@@ -39,6 +39,13 @@ namespace Indice.Api
                         options.UserClaimType = JwtClaimTypes.Subject;
                     })
                     .SetCompatibilityVersion(CompatibilityVersion.Latest);
+            // Configure default CORS policy
+            services.AddCors(options => options.AddDefaultPolicy(builder => {
+                builder.WithOrigins(Configuration.GetSection("AllowedOrigins").Get<string[]>())
+                       .WithMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+                       .WithHeaders("Authorization", "Content-Type")
+                       .WithExposedHeaders("Content-Disposition");
+            }));
             // Configure Swagger
             services.AddSwaggerGen(options => {
                 options.IndiceDefaults(Settings);
@@ -83,6 +90,7 @@ namespace Indice.Api
                 app.UseDeveloperExceptionPage();
             }
             app.UseHttpsRedirection();
+            app.UseCors();
             app.UseRouting();
             app.UseResponseCaching();
             app.UseAuthentication();

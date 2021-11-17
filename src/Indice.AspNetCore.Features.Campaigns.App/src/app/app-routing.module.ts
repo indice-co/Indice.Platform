@@ -4,17 +4,18 @@ import { RouterModule, Routes } from '@angular/router';
 import { AuthGuardService } from '@indice/ng-auth';
 import { AuthCallbackComponent, AuthRenewComponent, PageNotFoundComponent } from '@indice/ng-components';
 import { CampaignsComponent } from './features/campaigns/campaigns.component';
-import { CampaignUpsertComponent } from './features/campaigns/create/campaign-create.component';
+import { CampaignCreateComponent } from './features/campaigns/create/campaign-create.component';
+import { DashboardComponent } from './features/dashboard/dashboard.component';
 
 const routes: Routes = [
   { path: 'auth-callback', component: AuthCallbackComponent },
   { path: 'auth-renew', component: AuthRenewComponent },
-  { path: '', redirectTo: 'app', pathMatch: 'full' },
+  { path: '', redirectTo: 'app/dashboard', pathMatch: 'full' },
   {
     path: 'app', canActivate: [AuthGuardService], children: [
-      // { path: '' },
+      { path: 'dashboard', component: DashboardComponent },
       { path: 'campaigns', component: CampaignsComponent },
-      { path: 'campaigns/create', component: CampaignUpsertComponent }
+      { path: 'campaigns/create', component: CampaignCreateComponent, outlet: 'rightpane', pathMatch: 'full' }
     ]
   },
   {
