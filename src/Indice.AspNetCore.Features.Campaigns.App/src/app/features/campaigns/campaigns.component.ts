@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 
-import { BaseListComponent, Icons, IResultSet, ListViewType, RouterViewAction } from '@indice/ng-components';
+import { BaseListComponent, Icons, IResultSet, ListViewType, ViewAction } from '@indice/ng-components';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { Campaign, CampaignsApiService, CampaignResultSet } from 'src/app/core/services/campaigns-api.services';
@@ -17,18 +17,23 @@ export class CampaignsComponent extends BaseListComponent<Campaign> implements O
         this.view = ListViewType.Table;
     }
 
-    public newItemLink: string | null = null;
+    public newItemLink: string | null = 'create';
     public full = true;
 
     public ngOnInit(): void {
         super.ngOnInit();
-        this.actions = [];
-        this.actions.push(new RouterViewAction(Icons.Add, 'app/campaigns/create', 'rightpane', 'Δημιουργία νέας καμπάνιας'));
     }
 
     public loadItems(): Observable<IResultSet<Campaign> | null | undefined> {
         return this.api
             .getCampaigns(this.page, this.pageSize, this.sort || undefined, this.search || undefined)
             .pipe(map((result: CampaignResultSet) => (result as IResultSet<Campaign>)));
+    }
+
+    public actionHandler(action: ViewAction): void {
+        if (action.icon === Icons.Refresh) { 
+            this.search = '';
+            this.refresh();
+        }
     }
 }

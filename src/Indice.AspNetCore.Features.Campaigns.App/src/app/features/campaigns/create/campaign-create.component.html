@@ -1,3 +1,39 @@
-<lib-side-view-layout title="Δημιουργία νέας καμπάνιας">
-    <h1>Campaign Create</h1>
+<lib-side-view-layout title="Δημιουργία νέας καμπάνιας" (ok)="onSubmit()">
+    <div class="mt-4">
+        <form #campaignForm="ngForm">
+            <div class="px-4 space-y-2 pb-4">
+                <div class="grid grid-cols-4 gap-4">
+                    <div class="col-span-4">
+                        <label for="name" class="field-label">Τίτλος (*)</label>
+                        <div class="mt-1 flex rounded-sm">
+                            <input type="text" name="campaign-title" id="campaign-title" [(ngModel)]="model.title" placeholder="Ο τίτλος του campaign..." required>
+                        </div>
+                        <p class="field-info col-span-3">Η ονομασία η οποία θα εμφανίζεται για την καμπάνια.</p>
+                    </div>
+                    <div class="col-span-4">
+                        <label for="name" class="field-label">Περιεχόμενο (*)</label>
+                        <div class="mt-1 flex rounded-sm">
+                            <textarea id="campaign-content" name="campaign-content" [(ngModel)]="model.content" rows="6" placeholder="Το περιεχόμενο του campaign..." required></textarea>
+                        </div>
+                    </div>
+                    <div class="col-span-4 sm:col-span-2">
+                        <label for="campaign-start" class="field-label">Ημ. Έναρξης</label>
+                        <div class="mt-1 flex rounded-sm col-span-3">
+                            <input type="datetime-local" name="campaign-start" id="campaign-start" [value]="model.activePeriod!.from | date: 'yyyy-MM-ddThh:mm'" (input)="model.activePeriod!.from = toDate($event)"
+                                [min]="now | date: 'yyyy-MM-ddTHH:mm'">
+                        </div>
+                        <p class="field-info">Η ημέρα και ώρα έναρξης του campaign.</p>
+                    </div>
+                    <div class="col-span-4 sm:col-span-2">
+                        <label for="campaign-end" class="field-label">Ημ. Λήξης</label>
+                        <div class="mt-1 flex rounded-sm col-span-3">
+                            <input type="datetime-local" name="campaign-end" id="campaign-end" [value]="model.activePeriod!.to | date: 'yyyy-MM-ddTHH:mm'" (input)="model.activePeriod!.to = toDate($event)"
+                                [min]="model.activePeriod!.from | date: 'yyyy-MM-ddTHH:mm'">
+                        </div>
+                        <p class="field-info">Η ημέρα και ώρα λήξης του campaign.</p>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
 </lib-side-view-layout>

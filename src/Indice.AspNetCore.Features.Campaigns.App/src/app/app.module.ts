@@ -2,6 +2,7 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { BrowserModule } from '@angular/platform-browser';
+import { FormsModule } from '@angular/forms';
 
 import { AuthHttpInterceptor, AUTH_SETTINGS, IndiceAuthModule } from '@indice/ng-auth';
 import { APP_LINKS, IndiceComponentsModule, ModalService, SHELL_CONFIG } from '@indice/ng-components';
@@ -26,6 +27,7 @@ import { CAMPAIGNS_API_BASE_URL } from './core/services/campaigns-api.services';
     AppRoutingModule,
     BrowserModule,
     CommonModule,
+    FormsModule,
     HttpClientModule,
     IndiceAuthModule.forRoot(),
     IndiceComponentsModule.forRoot()

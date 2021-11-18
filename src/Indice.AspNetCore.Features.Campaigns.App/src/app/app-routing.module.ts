@@ -2,7 +2,7 @@ import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 
 import { AuthGuardService } from '@indice/ng-auth';
-import { AuthCallbackComponent, AuthRenewComponent, PageNotFoundComponent } from '@indice/ng-components';
+import { AuthCallbackComponent, AuthRenewComponent, PageNotFoundComponent, SidePaneSize } from '@indice/ng-components';
 import { CampaignsComponent } from './features/campaigns/campaigns.component';
 import { CampaignCreateComponent } from './features/campaigns/create/campaign-create.component';
 import { DashboardComponent } from './features/dashboard/dashboard.component';
@@ -13,11 +13,12 @@ const routes: Routes = [
   { path: '', redirectTo: 'app/dashboard', pathMatch: 'full' },
   {
     path: 'app', canActivate: [AuthGuardService], children: [
+      { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
       { path: 'dashboard', component: DashboardComponent },
-      { path: 'campaigns', component: CampaignsComponent },
-      { path: 'campaigns/create', component: CampaignCreateComponent, outlet: 'rightpane', pathMatch: 'full' }
+      { path: 'campaigns', component: CampaignsComponent }
     ]
   },
+  { path: 'create', canActivate: [AuthGuardService], component: CampaignCreateComponent, outlet: 'rightpane', pathMatch: 'prefix' },
   {
     path: '**',
     component: PageNotFoundComponent,
