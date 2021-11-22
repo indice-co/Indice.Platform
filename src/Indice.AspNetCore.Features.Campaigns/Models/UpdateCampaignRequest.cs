@@ -31,6 +31,6 @@ namespace Indice.AspNetCore.Features.Campaigns.Models
         /// <summary>
         /// The id of the type this campaign belongs.
         /// </summary>
-        public Guid TypeId { get; set; }
+        public Guid? TypeId { get; set; }
     }
 }

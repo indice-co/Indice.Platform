@@ -1863,7 +1863,7 @@ export class CreateCampaignRequest implements ICreateCampaignRequest {
     isActive?: boolean;
     activePeriod?: Period;
     /** The id of the type this campaign belongs. */
-    typeId?: string;
+    typeId?: string | undefined;
     /** Determines if campaign targets all user base. */
     isGlobal?: boolean;
     /** Defines a list of user identifiers that constitutes the audience of the campaign. */
@@ -1936,7 +1936,7 @@ export interface ICreateCampaignRequest {
     isActive?: boolean;
     activePeriod?: Period;
     /** The id of the type this campaign belongs. */
-    typeId?: string;
+    typeId?: string | undefined;
     /** Determines if campaign targets all user base. */
     isGlobal?: boolean;
     /** Defines a list of user identifiers that constitutes the audience of the campaign. */
@@ -2089,7 +2089,7 @@ export class UpdateCampaignRequest implements IUpdateCampaignRequest {
     isActive?: boolean;
     activePeriod?: Period;
     /** The id of the type this campaign belongs. */
-    typeId?: string;
+    typeId?: string | undefined;
 
     constructor(data?: IUpdateCampaignRequest) {
         if (data) {
@@ -2142,7 +2142,7 @@ export interface IUpdateCampaignRequest {
     isActive?: boolean;
     activePeriod?: Period;
     /** The id of the type this campaign belongs. */
-    typeId?: string;
+    typeId?: string | undefined;
 }
 
 /** Models a user message. */

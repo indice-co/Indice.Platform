@@ -31,7 +31,7 @@ export class CampaignsComponent extends BaseListComponent<Campaign> implements O
     }
 
     public actionHandler(action: ViewAction): void {
-        if (action.icon === Icons.Refresh) { 
+        if (action.icon === Icons.Refresh) {
             this.search = '';
             this.refresh();
         }
