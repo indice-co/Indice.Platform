@@ -61,7 +61,7 @@ namespace Indice.Hosting.EntityFrameworkCore
         /// Generates the DTO for this <see cref="DbScheduledTask"/>.
         /// </summary>
         /// <param name="options">Provides options to be used with <see cref="JsonSerializer"/>.</param>
-        public ScheduledTask<TState> ToModel<TState>(JsonSerializerOptions options = null) where TState : class => new ScheduledTask<TState> {
+        public ScheduledTask<TState> ToModel<TState>(JsonSerializerOptions options = null) where TState : class => new() {
             Id = Id,
             Description = Description,
             Group = Group,
