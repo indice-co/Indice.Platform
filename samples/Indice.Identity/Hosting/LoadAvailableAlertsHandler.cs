@@ -29,12 +29,12 @@ namespace Indice.Identity.Hosting
             timer.Start();
             var tasksList = new List<SmsDto>();
             var task = new SmsDto(userId: Guid.NewGuid().ToString(), phoneNumber: "6992731575", message: $"Transaction {Guid.NewGuid()} has been taken place.");
-            for (var i = 0; i < 10; i++) {
+            for (var i = 0; i < 2; i++) {
                 tasksList.Add(task);
             }
             await _messageQueue.EnqueueRange(tasksList);
             var waitTime = new Random().Next(15, 20) * 1000;
-            await Task.Delay(waitTime);
+            await Task.Delay(waitTime, cancellationToken);
             timer.Stop();
             _logger.LogDebug($"{nameof(LoadAvailableAlertsHandler)} took {timer.ElapsedMilliseconds}ms to execute.");
         }

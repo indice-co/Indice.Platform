@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Text.Json;
 
-namespace Indice.Hosting.EntityFrameworkCore
+namespace Indice.Hosting.Data
 {
     /// <summary>
     /// Tracks a queue message task

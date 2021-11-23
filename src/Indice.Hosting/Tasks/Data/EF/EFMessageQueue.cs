@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
+using Indice.Hosting.Data;
 using Microsoft.EntityFrameworkCore;
 
 namespace Indice.Hosting.EntityFrameworkCore
@@ -97,13 +98,13 @@ namespace Indice.Hosting.EntityFrameworkCore
 
         /// <inheritdoc/>
         public async Task Cleanup(int? batchSize = null) {
-            var query = @"
-                DELETE FROM [work].[QMessage] 
-                WHERE Id IN (SELECT TOP ({0}) Id FROM [work].[QMessage] 
-                WHERE [State] = {1} AND [QueueName] = {2}
-                ORDER BY Date);
-            ";
-            await _dbContext.Database.ExecuteSqlRawAsync(query, batchSize ?? 1000, QMessageState.Dequeued, _queueName);
+            var itemsToDelete = _dbContext.Queue
+                .Where(x => x.QueueName == _queueName && x.State == QMessageState.Dequeued)
+                .OrderBy(x => x.Date)
+                .Take(batchSize ?? 1000)
+                .ToListAsync();
+            _dbContext.RemoveRange(itemsToDelete);
+            await _dbContext.SaveChangesAsync();
         }
 
         private IQueryable<DbQMessage> GetAvailableItems() => _dbContext.Queue.Where(x => x.QueueName == _queueName && x.State == QMessageState.New).OrderBy(x => x.Date);

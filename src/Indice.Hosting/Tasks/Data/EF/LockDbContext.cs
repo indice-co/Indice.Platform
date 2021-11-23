@@ -1,4 +1,4 @@
-﻿using Indice.Hosting.SqlClient;
+﻿using Indice.Hosting.SqlServer;
 using Microsoft.EntityFrameworkCore;
 
 namespace Indice.Hosting.EntityFrameworkCore

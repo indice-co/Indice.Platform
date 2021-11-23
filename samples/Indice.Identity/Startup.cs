@@ -22,6 +22,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Localization;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -112,17 +113,20 @@ namespace Indice.Identity
             // Setup worker host for executing background tasks.
             services.AddWorkerHost(options => {
                 options.JsonOptions.JsonSerializerOptions.WriteIndented = true;
+                //options.UsePostgresStorage();
                 options.UseSqlServerStorage();
-                //options.UseEntityFrameworkStorage<ExtendedTaskDbContext>();
+                //options.UseEntityFrameworkStorage<ExtendedTaskDbContext>(builder => {
+                //    //builder.UseNpgsql(Configuration.GetConnectionString("WorkerDb"));
+                //});
             })
             .AddJob<SmsAlertHandler>()
             .WithQueueTrigger<SmsDto>(options => {
                 options.QueueName = "user-messages";
-                options.PollingInterval = 1000;
+                options.PollingInterval = 500;
                 options.InstanceCount = 1;
             })
             .AddJob<LoadAvailableAlertsHandler>()
-            .WithScheduleTrigger<DemoCounterModel>("0/5 * * * * ?", options => {
+            .WithScheduleTrigger<DemoCounterModel>("* 0/1 * * * ?", options => {
                 options.Name = "load-available-alerts";
                 options.Description = "Load alerts for the queue.";
                 options.Group = "indice";
