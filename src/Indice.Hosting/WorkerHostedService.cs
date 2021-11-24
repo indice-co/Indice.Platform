@@ -48,7 +48,7 @@ namespace Indice.Hosting
             Scheduler.JobFactory = _jobFactory;
             foreach (var dequeueJobSchedule in _dequeueJobSchedules) {
                 var dequeueJob = JobBuilder.Create(typeof(DequeueJob<>).MakeGenericType(dequeueJobSchedule.WorkItemType))
-                                           .StoreDurably() // this is needed in case of multiple consumers (triggers)
+                                           .StoreDurably() // Τhis is needed in case of multiple consumers (triggers).
                                            .WithIdentity(name: dequeueJobSchedule.Name, group: JobGroups.InternalJobsGroup)
                                            .SetJobData(new JobDataMap(new Dictionary<string, object> {
                                                { JobDataKeys.QueueName, dequeueJobSchedule.Name },

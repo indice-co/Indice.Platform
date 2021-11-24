@@ -15,8 +15,8 @@ namespace Indice.Services
         /// Aquire a lock or throws.
         /// </summary>
         /// <param name="name">Topic or name</param>
-        /// <param name="duration">The duration the lease will be active. Defaults 30 seconds</param>
-        /// <exception cref="LockManagerException">Occures when the lock cannot be aquired</exception>
+        /// <param name="duration">The duration the lease will be active. Defaults 30 seconds.</param>
+        /// <exception cref="LockManagerException">Occures when the lock cannot be aquired.</exception>
         Task<ILockLease> AcquireLock(string name, TimeSpan? duration = null);
         /// <summary>
         /// Renews an existing lease by lease id. This extends the duration of a non expired existing lease.

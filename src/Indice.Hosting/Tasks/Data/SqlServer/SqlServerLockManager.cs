@@ -17,7 +17,7 @@ namespace Indice.Hosting.SqlServer
         private readonly TaskDbContext _dbContext;
 
         /// <summary>
-        /// Constructs the <see cref="SqlServerLockManager"/>
+        /// Constructs the <see cref="SqlServerLockManager"/>.
         /// </summary>
         /// <param name="dbContext"></param>
         public SqlServerLockManager(LockDbContext dbContext) {
@@ -35,7 +35,10 @@ namespace Indice.Hosting.SqlServer
             };
             bool success;
             try {
-                var query = @"INSERT INTO [work].[Lock] ([Id], [Name], [ExpirationDate], [Duration]) VALUES ({0}, {1}, {2}, {3});";
+                var query = @"
+                    INSERT INTO [work].[Lock] ([Id], [Name], [ExpirationDate], [Duration]) 
+                    VALUES ({0}, {1}, {2}, {3});
+                ";
                 await _dbContext.Database.ExecuteSqlRawAsync(query, @lock.Id, @lock.Name, @lock.ExpirationDate, @lock.Duration);
                 success = true;
             } catch (SqlException) {
@@ -50,7 +53,10 @@ namespace Indice.Hosting.SqlServer
 
         /// <inheritdoc/>
         public async Task ReleaseLock(ILockLease @lock) {
-            var query = @"DELETE FROM [work].[Lock] WHERE ([Name] = {0} AND [Id] < {1}) OR [ExpirationDate] < GetDate();";
+            var query = @"
+                DELETE FROM [work].[Lock] 
+                WHERE ([Name] = {0} AND [Id] < {1}) OR [ExpirationDate] < GETDATE();
+            ";
             await _dbContext.Database.ExecuteSqlRawAsync(query, @lock.Name, Base64Id.Parse(@lock.LeaseId).Id);
         }
 
@@ -59,7 +65,11 @@ namespace Indice.Hosting.SqlServer
             var base64Id = Base64Id.Parse(leaseId);
             bool success;
             try {
-                var query = @"UPDATE [work].[Lock] SET [ExpirationDate] = DATEADD(second, [Duration], GETDATE()) WHERE [Id] = {0};";
+                var query = @"
+                    UPDATE [work].[Lock] 
+                    SET [ExpirationDate] = DATEADD(second, [Duration], GETDATE()) 
+                    WHERE [Id] = {0};
+                ";
                 var affecterRows = await _dbContext.Database.ExecuteSqlRawAsync(query, base64Id.Id);
                 success = affecterRows > 0;
             } catch (SqlException) {
@@ -74,7 +84,10 @@ namespace Indice.Hosting.SqlServer
 
         /// <inheritdoc/>
         public async Task Cleanup() {
-            var query = @"DELETE FROM [work].[Lock] Where [ExpirationDate] < GetDate();";
+            var query = @"
+                DELETE FROM [work].[Lock] 
+                WHERE [ExpirationDate] < GETDATE();
+            ";
             await _dbContext.Database.ExecuteSqlRawAsync(query);
         }
     }

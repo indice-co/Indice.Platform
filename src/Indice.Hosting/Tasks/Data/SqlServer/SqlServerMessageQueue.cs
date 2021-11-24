@@ -5,6 +5,8 @@ using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Indice.Hosting.Data;
+using Indice.Hosting.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 
 namespace Indice.Hosting.SqlServer
 {
@@ -14,18 +16,18 @@ namespace Indice.Hosting.SqlServer
     /// <typeparam name="T"></typeparam>
     public class SqlServerMessageQueue<T> : IMessageQueue<T> where T : class
     {
-        private readonly IDbConnectionFactory _dbConnectionFactory;
+        private readonly TaskDbContext _dbContext;
         private readonly IQueueNameResolver<T> _queueNameResolver;
         private readonly JsonSerializerOptions _jsonSerializerOptions;
 
         /// <summary>
         /// Constructs a new <see cref="SqlServerMessageQueue{T}"/>.
         /// </summary>
-        /// <param name="dbConnectionFactory">A factory class that generates instances of type <see cref="IDbConnection"/>.</param>
+        /// <param name="dbContext">A <see cref="DbContext"/> for hosting multiple <see cref="IMessageQueue{T}"/>.</param>
         /// <param name="queueNameResolver">Resolves the queue name.</param>
         /// <param name="workerJsonOptions">These are the options regarding json Serialization. They are used internally for persisting payloads.</param>
-        public SqlServerMessageQueue(IDbConnectionFactory dbConnectionFactory, IQueueNameResolver<T> queueNameResolver, WorkerJsonOptions workerJsonOptions) {
-            _dbConnectionFactory = dbConnectionFactory ?? throw new ArgumentNullException(nameof(dbConnectionFactory));
+        public SqlServerMessageQueue(TaskDbContext dbContext, IQueueNameResolver<T> queueNameResolver, WorkerJsonOptions workerJsonOptions) {
+            _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
             _queueNameResolver = queueNameResolver ?? throw new ArgumentNullException(nameof(queueNameResolver));
             _jsonSerializerOptions = workerJsonOptions?.JsonSerializerOptions ?? throw new ArgumentNullException(nameof(workerJsonOptions));
         }
@@ -41,7 +43,7 @@ namespace Indice.Hosting.SqlServer
                 FROM [work].[QMessage]
                 WHERE [QueueName] = @QueueName;
             ";
-            using var dbConnection = _dbConnectionFactory.Create();
+            var dbConnection = _dbContext.Database.GetDbConnection();
             dbConnection.Open();
             using var command = dbConnection.CreateCommand();
             command.AddParameterWithValue("@QueueName", _queueNameResolver.Resolve(), DbType.String);
@@ -64,7 +66,7 @@ namespace Indice.Hosting.SqlServer
                 DELETE FROM cte 
                 OUTPUT [deleted].*;
             ";
-            using var dbConnection = _dbConnectionFactory.Create();
+            var dbConnection = _dbContext.Database.GetDbConnection();
             dbConnection.Open();
             using var command = dbConnection.CreateCommand();
             command.AddParameterWithValue("@QueueName", _queueNameResolver.Resolve(), DbType.String);
@@ -92,7 +94,7 @@ namespace Indice.Hosting.SqlServer
                 INSERT INTO [work].[QMessage] ([Id], [QueueName], [Payload], [Date], [DequeueCount], [State]) 
                 VALUES (@Id, @QueueName, @Payload, @Date, @DequeueCount, 0);
             ";
-            using var dbConnection = _dbConnectionFactory.Create();
+            var dbConnection = _dbContext.Database.GetDbConnection();
             dbConnection.Open();
             using var command = dbConnection.CreateCommand();
             command.AddParameterWithValue("@Id", item.Id, DbType.Guid);
@@ -110,7 +112,7 @@ namespace Indice.Hosting.SqlServer
         public Task EnqueueRange(IEnumerable<T> items) {
             var initialQuery = "INSERT INTO [work].[QMessage] ([Id], [QueueName], [Payload], [Date], [DequeueCount], [State]) VALUES";
             var query = initialQuery;
-            using var dbConnection = _dbConnectionFactory.Create();
+            var dbConnection = _dbContext.Database.GetDbConnection();
             dbConnection.Open();
             const double maxBatchSize = 1000d;
             var batches = Math.Ceiling(items.Count() / maxBatchSize);
@@ -140,7 +142,7 @@ namespace Indice.Hosting.SqlServer
                 FROM [work].[QMessage] WITH (ROWLOCK, READPAST) 
                 ORDER BY [Date] ASC;
             ";
-            using var dbConnection = _dbConnectionFactory.Create();
+            var dbConnection = _dbContext.Database.GetDbConnection();
             dbConnection.Open();
             using var command = dbConnection.CreateCommand();
             command.CommandText = query;

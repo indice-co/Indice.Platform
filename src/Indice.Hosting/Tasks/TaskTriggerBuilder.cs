@@ -11,7 +11,7 @@ namespace Indice.Hosting
         /// <summary>
         /// Creates a new instance of <see cref="TaskTriggerBuilder"/>.
         /// </summary>
-        /// <param name="services"></param>
+        /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
         public TaskTriggerBuilder(IServiceCollection services) : this(services, null, null) { }
 
         internal TaskTriggerBuilder(IServiceCollection services, WorkerHostOptions options, Type jobHandlerType) {

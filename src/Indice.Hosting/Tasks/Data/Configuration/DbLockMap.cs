@@ -15,8 +15,8 @@ namespace Indice.Hosting.EntityFrameworkCore
             builder.ToTable("Lock", "work");
             // Configure primary key.
             builder.HasKey(x => x.Name);
-            // Configure primary key.
-            builder.HasIndex(x => x.Id)/*.IsUnique(true)*/;
+            // Configure index.
+            builder.HasIndex(x => x.Id);
             // Configure properties.
             builder.Property(x => x.Name).HasMaxLength(256);
             // Configure properties.
