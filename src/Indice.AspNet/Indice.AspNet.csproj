@@ -12,6 +12,7 @@
     <!--<GenerateDocumentationFile>true</GenerateDocumentationFile>-->
   </PropertyGroup>
   <PropertyGroup Label="Package">
+    <IsPackable>true</IsPackable>
     <PackageId>Indice.AspNet</PackageId>
     <PackageTags>AspNet;HtmlHelpers;Grid</PackageTags>
     <PackageReleaseNotes>

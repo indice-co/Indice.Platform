@@ -13,6 +13,7 @@
     <LangVersion>Latest</LangVersion>
   </PropertyGroup>
   <PropertyGroup Label="Package">
+    <IsPackable>true</IsPackable>
     <PackageId>Indice.AspNetCore</PackageId>
     <PackageTags>AspNetCore;TagHelpers;Grid;Sorting;Paging</PackageTags>
     <PackageReleaseNotes>Update Indice.Services.</PackageReleaseNotes>

@@ -12,6 +12,7 @@
     <LangVersion>Latest</LangVersion>
   </PropertyGroup>
   <PropertyGroup Label="Package">
+    <IsPackable>true</IsPackable>
     <PackageId>Indice.Hosting</PackageId>
     <PackageTags>dotnetcore;Hosting</PackageTags>
     <PackageReleaseNotes>Update Indice.Common.</PackageReleaseNotes>

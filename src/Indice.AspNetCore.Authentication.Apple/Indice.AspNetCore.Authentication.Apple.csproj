@@ -13,6 +13,7 @@
     <LangVersion>Latest</LangVersion>
   </PropertyGroup>
   <PropertyGroup Label="Package">
+    <IsPackable>true</IsPackable>
     <PackageId>Indice.AspNetCore.Authentication.Apple</PackageId>
     <PackageTags>AspNetCore;Authentication;OpenID;Apple</PackageTags>
     <PackageReleaseNotes>Based on the fantastic article by Scott Brady "Implementing Sign In with Apple in ASP.NET Core"</PackageReleaseNotes>

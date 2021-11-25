@@ -13,6 +13,7 @@
     <LangVersion>Latest</LangVersion>
   </PropertyGroup>
   <PropertyGroup Label="Package">
+    <IsPackable>true</IsPackable>
     <PackageId>Indice.AspNetCore.MultiTenancy</PackageId>
     <PackageTags>AspNetCore;Multitenancy</PackageTags>
     <PackageReleaseNotes>.ΝΕΤ 5.0 upgrade</PackageReleaseNotes>

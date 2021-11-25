@@ -13,6 +13,7 @@
     <LangVersion>Latest</LangVersion>
   </PropertyGroup>
   <PropertyGroup Label="Package">
+    <IsPackable>true</IsPackable>
     <PackageId>Indice.AspNetCore.Identity</PackageId>
     <PackageTags>AspNetCore;IdentityServer;</PackageTags>
     <PackageReleaseNotes>Change check for development environment when registering DeveloperTotpService.</PackageReleaseNotes>

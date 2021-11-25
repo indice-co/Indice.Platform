@@ -13,6 +13,7 @@
     <LangVersion>Latest</LangVersion>
   </PropertyGroup>
   <PropertyGroup Label="Package">
+    <IsPackable>true</IsPackable>
     <PackageId>Indice.Services</PackageId>
     <PackageTags>dotnetcore;Files;Emails;Sms</PackageTags>
     <PackageReleaseNotes>Update Indice.Common.</PackageReleaseNotes>

@@ -14,6 +14,7 @@
     <LangVersion>Latest</LangVersion>
   </PropertyGroup>
   <PropertyGroup Label="Package">
+    <IsPackable>true</IsPackable>
     <PackageId>Indice.EntityFrameworkCore</PackageId>
     <PackageTags>AspNet;Api;Utilities</PackageTags>
     <PackageReleaseNotes>.ΝΕΤ 5.0 upgrade</PackageReleaseNotes>
