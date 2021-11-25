@@ -4,7 +4,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Quartz;
 
-namespace Indice.Hosting
+namespace Indice.Hosting.Tasks
 {
     [PersistJobDataAfterExecution]
     internal class ScheduledJob<TTaskHandler, TState> : IJob where TTaskHandler : class where TState : class, new()

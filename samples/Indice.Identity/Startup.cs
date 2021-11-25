@@ -12,6 +12,7 @@ using Indice.AspNetCore.Identity.Data;
 using Indice.AspNetCore.Identity.Localization;
 using Indice.AspNetCore.Swagger;
 using Indice.Configuration;
+using Indice.Hosting;
 using Indice.Identity.Configuration;
 using Indice.Identity.Hosting;
 using Indice.Identity.Security;

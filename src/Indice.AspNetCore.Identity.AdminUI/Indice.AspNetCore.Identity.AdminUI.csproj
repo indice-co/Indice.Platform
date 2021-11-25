@@ -8,8 +8,9 @@
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <GenerateEmbeddedFilesManifest>true</GenerateEmbeddedFilesManifest>
     <SpaDistFolder>..\Indice.AspNetCore.Identity.AdminUI.App\dist\indice_admin_ui</SpaDistFolder>
-    <TargetFrameworks>netcoreapp3.1;net5.0</TargetFrameworks>
-    <VersionPrefix>5.0.9</VersionPrefix>
+    <TargetFrameworks>netcoreapp3.1;net5.0;net6.0;</TargetFrameworks>
+    <VersionPrefix>5.2.0</VersionPrefix>
+    <VersionSuffix>beta-01</VersionSuffix>
     <LangVersion>Latest</LangVersion>
   </PropertyGroup>
   <PropertyGroup Label="Package">
@@ -34,13 +35,16 @@
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
   </ItemGroup>
-  <ItemGroup Condition=" '$(TargetFramework)' != 'netcoreapp3.1' ">
-    <PackageReference Include="Microsoft.Extensions.FileProviders.Embedded" Version="5.0.6" />
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net6.0' ">
+    <PackageReference Include="Microsoft.Extensions.FileProviders.Embedded" Version="6.0.0" />
+  </ItemGroup>
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net5.0' ">
+    <PackageReference Include="Microsoft.Extensions.FileProviders.Embedded" Version="5.0.0" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
-    <PackageReference Include="Microsoft.Extensions.FileProviders.Embedded" Version="5.0.10" />
+    <PackageReference Include="Microsoft.Extensions.FileProviders.Embedded" Version="3.1.21" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="admin-ui-dist/**/*" />

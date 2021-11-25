@@ -3,10 +3,10 @@
     <Description>Indice.AspNetCore.Authentication.Apple Class Library</Description>
     <Copyright>Copyright (c) 2021 Indice</Copyright>
     <AssemblyTitle>Indice.AspNetCore.Authentication.Apple</AssemblyTitle>
-    <VersionPrefix>5.0.1</VersionPrefix>
-    <!--<VersionSuffix>beta-01</VersionSuffix>-->
+    <VersionPrefix>5.2.0</VersionPrefix>
+    <VersionSuffix>beta-01</VersionSuffix>
     <Authors>Constantinos Leftheris, Georgios Manoltzas</Authors>
-    <TargetFrameworks>netcoreapp3.1;net5.0</TargetFrameworks>
+    <TargetFrameworks>netcoreapp3.1;net5.0;net6.0</TargetFrameworks>
     <AssemblyName>Indice.AspNetCore.Authentication.Apple</AssemblyName>
     <AssemblyTitle>Indice.AspNetCore.Authentication.Apple</AssemblyTitle>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
@@ -34,11 +34,14 @@
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
-  <ItemGroup Condition=" '$(TargetFramework)' != 'netcoreapp3.1' ">
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="5.0.10" />
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net6.0' ">
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="6.0.0" />
+  </ItemGroup>
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net5.0' ">
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="5.0.12" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="3.1.19" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="3.1.21" />
   </ItemGroup>
   <ItemGroup>
   </ItemGroup>

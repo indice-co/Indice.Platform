@@ -1,12 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
-using System.Linq;
-using Indice.Hosting;
-using Indice.Hosting.Data;
-using Indice.Hosting.EntityFrameworkCore;
-using Indice.Hosting.Postgres;
-using Indice.Hosting.SqlServer;
 using Indice.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -15,8 +9,12 @@ using Microsoft.Extensions.Hosting;
 using Quartz;
 using Quartz.Impl;
 using Quartz.Spi;
+using Indice.Hosting.Tasks;
+using Indice.Hosting.Tasks.Data;
+using Microsoft.Extensions.DependencyInjection;
+using Indice.Hosting.Tasks.Implementations;
 
-namespace Microsoft.Extensions.DependencyInjection
+namespace Indice.Hosting
 {
     /// <summary>
     /// Extension methods on <see cref="IServiceCollection"/> that help register required services for background task processing.
@@ -94,7 +92,7 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <param name="options">The <see cref="WorkerHostOptions"/> used to configure locking and queue persistence.</param>
         /// <param name="configureAction">The delegate used to configure the database table that contains the background jobs.</param>
         /// <returns>The <see cref="WorkerHostOptions"/> used to configure locking and queue persistence.</returns>
-        public static WorkerHostOptions AddRelationalStore(this WorkerHostOptions options, Action<DbContextOptionsBuilder> configureAction = null) => AddRelationalStore<TaskDbContext>(options, configureAction);
+        public static WorkerHostOptions AddRelationalStore(this WorkerHostOptions options, Action<DbContextOptionsBuilder> configureAction = null) => options.AddRelationalStore<TaskDbContext>(configureAction);
 
         /// <summary>
         /// 
@@ -113,32 +111,14 @@ namespace Microsoft.Extensions.DependencyInjection
             if (!isDefaultContext) {
                 options.Services.AddScoped<TaskDbContext, TContext>();
             }
-            var databaseProviderName = options.Services.BuildServiceProvider().GetRequiredService<TContext>().Database.ProviderName;
-            options = databaseProviderName switch {
-                "Npgsql.EntityFrameworkCore.PostgreSQL" => options.AddPostgreSQLStore(),
-                "Microsoft.EntityFrameworkCore.SqlServer" => options.AddSqlServerStore(),
-                _ => options.AddEntityFrameworkStore<TContext>(),
-            };
+            options = options.AddRelationalStore();
+            //options.AddEntityFrameworkStore<TContext>();
             return options;
         }
 
-        private static WorkerHostOptions AddEntityFrameworkStore<TContext>(this WorkerHostOptions options, Action<DbContextOptionsBuilder> configureAction = null) where TContext : TaskDbContext {
-            options.ScheduledTaskStoreType = typeof(EFScheduledTaskStore<>);
-            options.QueueStoreType = typeof(EFMessageQueue<>);
-            options.LockStoreType = typeof(SqlServerLockManager);
-            options.Services.AddTransient<ILockManager, SqlServerLockManager>();
-            return options;
-        }
-
-        private static WorkerHostOptions AddSqlServerStore(this WorkerHostOptions options) {
-            options.ScheduledTaskStoreType = typeof(EFScheduledTaskStore<>);
-            options.QueueStoreType = typeof(SqlServerMessageQueue<>);
-            return options;
-        }
-
-        private static WorkerHostOptions AddPostgreSQLStore(this WorkerHostOptions options) {
-            options.ScheduledTaskStoreType = typeof(EFScheduledTaskStore<>);
-            options.QueueStoreType = typeof(PostgresMessageQueue<>);
+        private static WorkerHostOptions AddRelationalStore(this WorkerHostOptions options) {
+            options.ScheduledTaskStoreType = typeof(RelationalScheduledTaskStore<>);
+            options.QueueStoreType = typeof(RelationalMessageQueue<>);
             return options;
         }
 
@@ -171,7 +151,7 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <param name="configureAction">The delegate used to configure the queue options.</param>
         /// <returns>The <see cref="WorkerHostBuilder"/> used to configure the worker host.</returns>
         public static WorkerHostBuilderForQueue WithQueueTrigger<TWorkItem>(this TaskTriggerBuilder builder, Action<QueueOptions> configureAction = null) where TWorkItem : class =>
-            WithQueueTrigger<TWorkItem>(builder, builder.Options.QueueStoreType?.MakeGenericType(typeof(TWorkItem)), configureAction);
+            builder.WithQueueTrigger<TWorkItem>(builder.Options.QueueStoreType?.MakeGenericType(typeof(TWorkItem)), configureAction);
 
         /// <summary>
         /// Specifies that the configured job will be triggered by an item inserted to the a queue.
@@ -180,10 +160,10 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <param name="configureAction">The delegate used to configure the queue options.</param>
         /// <returns>The <see cref="WorkerHostBuilder"/> used to configure the worker host.</returns>
         public static WorkerHostBuilderForQueue WithQueueTrigger<TWorkItem, TQueueStore>(this TaskTriggerBuilder builder, Action<QueueOptions> configureAction = null) where TWorkItem : class =>
-            WithQueueTrigger<TWorkItem>(builder, typeof(TQueueStore), configureAction);
+            builder.WithQueueTrigger<TWorkItem>(typeof(TQueueStore), configureAction);
 
         private static WorkerHostBuilderForQueue WithQueueTrigger<TWorkItem>(this TaskTriggerBuilder builder, Type queueStoreTypeImplementation, Action<QueueOptions> configureAction = null) where TWorkItem : class {
-            if (queueStoreTypeImplementation is null) { 
+            if (queueStoreTypeImplementation is null) {
                 throw new ArgumentNullException(nameof(queueStoreTypeImplementation), $"You must provide an implementation for the backing store. Use one of the 'UseXXXStorage' methods to configure the builder.");
             }
             var options = new QueueOptions(builder.Services);
@@ -218,7 +198,7 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <param name="configureAction">The delegate used to configure the queue options.</param>
         /// <returns>The <see cref="WorkerHostBuilder"/> used to configure the worker host.</returns>
         public static WorkerHostBuilder WithScheduleTrigger(this TaskTriggerBuilder builder, string cronExpression, Action<ScheduleOptions> configureAction = null) =>
-            WithScheduleTrigger<Dictionary<string, object>>(builder, cronExpression, configureAction);
+            builder.WithScheduleTrigger<Dictionary<string, object>>(cronExpression, configureAction);
 
         /// <summary>
         /// Specifies that the configured job will be triggered by an item inserted to the a queue.

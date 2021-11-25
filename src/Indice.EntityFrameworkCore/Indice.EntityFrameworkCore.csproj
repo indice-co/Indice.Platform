@@ -3,10 +3,10 @@
     <Description>Indice.EntityFrameworkCore Class Library</Description>
     <Copyright>Copyright (c) 2020 Indice</Copyright>
     <AssemblyTitle>Indice.EntityFrameworkCore</AssemblyTitle>
-    <VersionPrefix>5.1.1</VersionPrefix>
-    <!--<VersionSuffix>beta-02</VersionSuffix>-->
+    <VersionPrefix>5.2.0</VersionPrefix>
+    <VersionSuffix>beta-01</VersionSuffix>
     <Authors>Constantinos Leftheris, Georgios Manoltzas</Authors>
-    <TargetFrameworks>net5.0;netstandard2.0</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0;net5.0;net6.0;</TargetFrameworks>
     <AssemblyName>Indice.EntityFrameworkCore</AssemblyName>
     <AssemblyTitle>Indice.EntityFrameworkCore</AssemblyTitle>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
@@ -29,23 +29,24 @@
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
     <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net452|AnyCPU'">
-    <NoWarn>1701;1702;1705;1591</NoWarn>
-  </PropertyGroup>
   <ItemGroup>
     <None Include="..\..\icon\icon-310.png" Pack="true" Visible="false" PackagePath="" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Indice.Common" Version="5.1.9" />
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
+    <PackageReference Include="Indice.Common" Version="5.2.0" />
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
   </ItemGroup>
-  <ItemGroup Condition=" '$(TargetFramework)' != 'netstandard2.0' ">
-    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="5.0.10" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="5.0.10" />
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net6.0' ">
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="6.0.0" />
+  </ItemGroup>
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net5.0' ">
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="5.0.12" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="5.0.12" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
-    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.1.19" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="3.1.19" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.1.21" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="3.1.21" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Indice.Common\Indice.Common.csproj" />

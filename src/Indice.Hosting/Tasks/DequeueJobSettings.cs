@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Indice.Hosting
+namespace Indice.Hosting.Tasks
 {
     /// <summary>
     /// Contains metadata about a job to execute.

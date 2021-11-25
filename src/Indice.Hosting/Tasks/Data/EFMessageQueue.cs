@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
-using Indice.Hosting.Data;
+using Indice.Hosting.Tasks.Data.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace Indice.Hosting.EntityFrameworkCore
+namespace Indice.Hosting.Tasks.Data
 {
     /// <summary>
     /// An implementation of <see cref="IMessageQueue{T}"/> using Entity Framework Core.
@@ -49,7 +49,7 @@ namespace Indice.Hosting.EntityFrameworkCore
                 } catch (DbUpdateException) {
                     // Could not aquire lock. Will try again.
                 }
-            } 
+            }
             while (!successfullLock);
             return message.ToModel<T>(_jsonSerializerOptions);
         }

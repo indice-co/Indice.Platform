@@ -13,7 +13,11 @@ namespace Indice.Serialization
         /// </summary>
         public static JsonSerializerOptions GetDefaultSettings() {
             var options = new JsonSerializerOptions {
+#if NET5_0_OR_GREATER
+                DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+#else          
                 IgnoreNullValues = true,
+#endif
                 PropertyNameCaseInsensitive = true,
                 WriteIndented = false,
                 PropertyNamingPolicy = JsonNamingPolicy.CamelCase

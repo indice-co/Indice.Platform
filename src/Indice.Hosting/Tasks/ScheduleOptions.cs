@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 
-namespace Indice.Hosting
+namespace Indice.Hosting.Tasks
 {
     /// <summary>
     /// Configuration options for the schedule.

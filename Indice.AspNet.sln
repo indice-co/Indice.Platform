@@ -1,13 +1,14 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.28803.452
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31912.275
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Indice.AspNet", "src\Indice.AspNet\Indice.AspNet.csproj", "{79DC5373-B0EC-4C08-AB21-C37B0E691C82}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{B8EB253B-A436-4F17-BFFC-C0E975FB0D48}"
 	ProjectSection(SolutionItems) = preProject
 		appveyor.yml = appveyor.yml
+		global.json = global.json
 		LICENSE = LICENSE
 		README.md = README.md
 	EndProjectSection
@@ -48,7 +49,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Indice.AspNetCore.Identity.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Indice.AspNetCore.Authentication.Apple", "src\Indice.AspNetCore.Authentication.Apple\Indice.AspNetCore.Authentication.Apple.csproj", "{BFDCA639-03C0-4E7A-AEEA-79C4C016E6C9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CodeFlowMvc", "samples\CodeFlowMvc\CodeFlowMvc.csproj", "{39B34AAE-5E29-400C-A1D4-8BF12505CD08}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CodeFlowMvc", "samples\CodeFlowMvc\CodeFlowMvc.csproj", "{39B34AAE-5E29-400C-A1D4-8BF12505CD08}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
 
-namespace Indice.Hosting
+namespace Indice.Hosting.Tasks
 {
     /// <summary>
     /// Scheduled task store abstraction.

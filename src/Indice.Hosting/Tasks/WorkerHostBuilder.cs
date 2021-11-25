@@ -1,7 +1,7 @@
 ﻿using System;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Indice.Hosting
+namespace Indice.Hosting.Tasks
 {
     /// <summary>
     /// A helper class to configure the worker host.

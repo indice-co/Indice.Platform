@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Indice.Hosting
+namespace Indice.Hosting.Tasks
 {
     /// <summary>
     /// The default implementation for the <see cref="ScheduledTask{TState}"/> with state as <see cref="Dictionary{String, Object}"/>

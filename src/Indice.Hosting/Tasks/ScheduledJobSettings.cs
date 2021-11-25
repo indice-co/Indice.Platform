@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Indice.Hosting
+namespace Indice.Hosting.Tasks
 {
     /// <summary>
     /// Job schedule settings. Describes what to execute and when.

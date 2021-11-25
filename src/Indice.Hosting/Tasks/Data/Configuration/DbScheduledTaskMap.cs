@@ -1,8 +1,8 @@
-﻿using Indice.Hosting.Data;
+﻿using Indice.Hosting.Tasks.Data.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace Indice.Hosting.EntityFrameworkCore
+namespace Indice.Hosting.Tasks.Data.Configuration
 {
     /// <summary>
     /// EF Core confirugation for <see cref="DbScheduledTask"/> entity.

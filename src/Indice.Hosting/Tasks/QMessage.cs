@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Indice.Hosting
+namespace Indice.Hosting.Tasks
 {
     /// <summary>A queue message.</summary>
     /// <typeparam name="T">The message value type.</typeparam>

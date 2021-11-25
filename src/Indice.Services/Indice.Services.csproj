@@ -3,10 +3,10 @@
     <Description>Indice.Services Class Library</Description>
     <Copyright>Copyright (c) 2018 Indice</Copyright>
     <AssemblyTitle>Indice.Services</AssemblyTitle>
-    <VersionPrefix>5.1.9</VersionPrefix>
-    <!--<VersionSuffix>beta-02</VersionSuffix>-->
+    <VersionPrefix>5.2.0</VersionPrefix>
+    <VersionSuffix>beta-01</VersionSuffix>
     <Authors>Constantinos Leftheris, Georgios Manoltzas</Authors>
-    <TargetFrameworks>net5.0;netstandard2.0</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0;net5.0;net6.0;</TargetFrameworks>
     <AssemblyName>Indice.Services</AssemblyName>
     <AssemblyTitle>Indice.Services</AssemblyTitle>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
@@ -33,13 +33,21 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Azure.Storage.Queues" Version="12.8.0" />
-    <PackageReference Include="Indice.Common" Version="5.1.9" />
+    <PackageReference Include="Indice.Common" Version="5.2.0" />
     <PackageReference Include="MailKit" Version="2.15.0" />
     <PackageReference Include="Microsoft.Azure.NotificationHubs" Version="4.1.0" />
     <PackageReference Include="Azure.Storage.Blobs" Version="12.10.0" />
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
   </ItemGroup>
-  <ItemGroup Condition="'$(TargetFramework)' != 'netstandard2.0'">
+  <ItemGroup Condition="'$(TargetFramework)' == 'net6.0'">
+    <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="6.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="6.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Caching.Abstractions" Version="6.0.0" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="6.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="6.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Http" Version="6.0.0" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)' == 'net5.0'">
     <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="5.0.0" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="5.0.0" />
     <PackageReference Include="Microsoft.Extensions.Caching.Abstractions" Version="5.0.0" />
@@ -48,12 +56,12 @@
     <PackageReference Include="Microsoft.Extensions.Http" Version="5.0.0" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
-    <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="3.1.13" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="3.1.13" />
-    <PackageReference Include="Microsoft.Extensions.Caching.Abstractions" Version="3.1.13" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="3.1.13" />
-    <PackageReference Include="Microsoft.Extensions.Hosting" Version="3.1.13" />
-    <PackageReference Include="Microsoft.Extensions.Http" Version="3.1.13" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="3.1.21" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="3.1.21" />
+    <PackageReference Include="Microsoft.Extensions.Caching.Abstractions" Version="3.1.21" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="3.1.21" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="3.1.21" />
+    <PackageReference Include="Microsoft.Extensions.Http" Version="3.1.21" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Indice.Common\Indice.Common.csproj" />

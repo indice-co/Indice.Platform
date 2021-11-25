@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
-using Indice.Hosting;
+using Indice.Hosting.Tasks;
 using Indice.Services;
 using Microsoft.Extensions.Logging;
 
