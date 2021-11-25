@@ -39,6 +39,7 @@ export class ClientUrlsComponent implements OnInit, OnDestroy {
     public client: SingleClientInfo;
     public url: string;
     public canEditClient: boolean;
+    public urlPattern = /(?:^|\s)((https?:\/\/)?(?:localhost|[\w-]+(?:\.[\w-]+)+)(:\d+)?(\/\S*)?)/;
 
     public ngOnInit(): void {
         this.canEditClient = this._authService.isAdminUIClientsWriter();
