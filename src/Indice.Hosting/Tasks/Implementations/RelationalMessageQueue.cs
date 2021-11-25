@@ -15,7 +15,7 @@ namespace Indice.Hosting.Tasks.Implementations
     /// <summary>
     /// An implementation of <see cref="IMessageQueue{T}"/> for relational backend. Supports PostgreSQL and SQL Server through EntityFramework.
     /// </summary>
-    /// <typeparam name="T"></typeparam>
+    /// <typeparam name="T">The type of message.</typeparam>
     public class RelationalMessageQueue<T> : IMessageQueue<T> where T : class
     {
         private readonly TaskDbContext _dbContext;
@@ -169,55 +169,56 @@ namespace Indice.Hosting.Tasks.Implementations
     internal static class SqlServerMessageQueueQueries
     {
         public const string Count = @"
-                SELECT COUNT(*)
-                FROM [work].[QMessage]
-                WHERE [QueueName] = @QueueName;";
+            SELECT COUNT(*)
+            FROM [work].[QMessage]
+            WHERE [QueueName] = @QueueName;";
         public const string Dequeue = @"
-                SET NOCOUNT ON; 
-                WITH cte AS (
-                    SELECT TOP(1) * 
-                    FROM [work].[QMessage] WITH (ROWLOCK, READPAST)
-                    WHERE [QueueName] = @QueueName
-                    ORDER BY [Date] ASC
-                )
-                DELETE FROM cte 
-                OUTPUT [deleted].*;";
+            SET NOCOUNT ON; 
+            WITH cte AS (
+                SELECT TOP(1) * 
+                FROM [work].[QMessage] WITH (ROWLOCK, READPAST)
+                WHERE [QueueName] = @QueueName
+                ORDER BY [Date] ASC
+            )
+            DELETE FROM cte 
+            OUTPUT [deleted].*;";
         public const string Enqueue = @"
-                INSERT INTO [work].[QMessage] ([Id], [QueueName], [Payload], [Date], [DequeueCount], [State]) 
-                VALUES (@Id, @QueueName, @Payload, @Date, @DequeueCount, 0);";
+            INSERT INTO [work].[QMessage] ([Id], [QueueName], [Payload], [Date], [DequeueCount], [State]) 
+            VALUES (@Id, @QueueName, @Payload, @Date, @DequeueCount, 0);";
         public const string EnqueueRangeInsertStatement = @"INSERT INTO [work].[QMessage] ([Id], [QueueName], [Payload], [Date], [DequeueCount], [State]) VALUES";
         public const string EnqueueRangeValuesStatement = @"(NEWID(), @QueueName{0}, @Payload{0}, GETUTCDATE(), 0, 0)";
         public const string Peek = @"
-                SELECT TOP(1) [Payload] 
-                FROM [work].[QMessage] WITH (ROWLOCK, READPAST) 
-                ORDER BY [Date] ASC;";
+            SELECT TOP(1) [Payload] 
+            FROM [work].[QMessage] WITH (ROWLOCK, READPAST) 
+            ORDER BY [Date] ASC;";
     }
+
     internal static class PostgreSqlMessageQueueQueries
     {
         public const string Count = @"
-                SELECT COUNT(*) 
-                FROM ""work"".""QMessage""
-                WHERE ""QueueName"" = '@QueueName';";
+            SELECT COUNT(*) 
+            FROM ""work"".""QMessage""
+            WHERE ""QueueName"" = '@QueueName';";
         public const string Dequeue = @"
-                DELETE FROM ""work"".""QMessage""
-                USING(
-                    SELECT *
-                    FROM ""work"".""QMessage""
-                    WHERE ""QueueName"" = @QueueName
-                    LIMIT 1
-                    FOR UPDATE SKIP LOCKED
-                ) q
-                WHERE q.""Id"" = ""work"".""QMessage"".""Id""
-                RETURNING ""work"".""QMessage"".*;";
+            DELETE FROM ""work"".""QMessage""
+            USING(
+                SELECT *
+                FROM ""work"".""QMessage""
+                WHERE ""QueueName"" = @QueueName
+                LIMIT 1
+                FOR UPDATE SKIP LOCKED
+            ) q
+            WHERE q.""Id"" = ""work"".""QMessage"".""Id""
+            RETURNING ""work"".""QMessage"".*;";
         public const string Enqueue = @"
-                INSERT INTO ""work"".""QMessage"" (""Id"", ""QueueName"", ""Payload"", ""Date"", ""DequeueCount"", ""State"")
-                VALUES (@Id, @QueueName, @Payload, @Date, @DequeueCount, 0);";
+            INSERT INTO ""work"".""QMessage"" (""Id"", ""QueueName"", ""Payload"", ""Date"", ""DequeueCount"", ""State"")
+            VALUES (@Id, @QueueName, @Payload, @Date, @DequeueCount, 0);";
         public const string EnqueueRangeInsertStatement = @"INSERT INTO ""work"".""QMessage"" (""Id"", ""QueueName"", ""Payload"", ""Date"", ""DequeueCount"", ""State"") VALUES";
         public const string EnqueueRangeValuesStatement = @"(MD5(RANDOM()::TEXT || CLOCK_TIMESTAMP()::TEXT)::UUID, @QueueName{0}, @Payload{0}, NOW(), 0, 0)";
         public const string Peek = @"
-                SELECT *
-                FROM ""work"".""QMessage""
-                LIMIT 1
-                FOR UPDATE SKIP LOCKED;";
+            SELECT *
+            FROM ""work"".""QMessage""
+            LIMIT 1
+            FOR UPDATE SKIP LOCKED;";
     }
 }

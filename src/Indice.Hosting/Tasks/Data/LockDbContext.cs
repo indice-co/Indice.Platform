@@ -1,24 +1,12 @@
-﻿
-/* Unmerged change from project 'Indice.Hosting (net5.0)'
-Before:
-using Microsoft.EntityFrameworkCore;
-After:
-using Indice;
-using Indice.Hosting;
-using Indice.Hosting.Tasks;
-using Indice.Hosting.Tasks.Data;
-using Indice.Hosting.Tasks.Data;
-using Indice.Hosting.Tasks.Data.EF;
-using Microsoft.EntityFrameworkCore;
-*/
-using Indice.Hosting.Tasks.Implementations;
+﻿using Indice.Hosting.Tasks.Implementations;
 using Microsoft.EntityFrameworkCore;
 
 namespace Indice.Hosting.Tasks.Data
 {
     /// <summary>
-    /// Only use with caution in <see cref="RelationalLockManager"/>.
+    /// Contains the required tables to implement a locking mechanism using a relational database.
     /// </summary>
+    /// <remarks>Only use with caution in <see cref="RelationalLockManager"/>.</remarks>
     public class LockDbContext : TaskDbContext
     {
         /// <summary>

@@ -4,6 +4,7 @@
     <UserSecretsId>11acbe29-88b0-441f-a6e8-5f1c915e712f</UserSecretsId>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <noWarn>1591</noWarn>
+    <IsPackable>false</IsPackable>
   </PropertyGroup>
   <ItemGroup>
     <Content Remove="bundleconfig.json" />

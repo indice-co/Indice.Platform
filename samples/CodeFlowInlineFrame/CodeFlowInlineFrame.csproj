@@ -2,6 +2,7 @@
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
     <UserSecretsId>5a2d77be-d08d-4f3b-a624-0fe7453926f0</UserSecretsId>
+    <IsPackable>false</IsPackable>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="IdentityModel" Version="5.2.0" />

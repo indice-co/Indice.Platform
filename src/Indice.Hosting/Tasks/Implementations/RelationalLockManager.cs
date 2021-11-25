@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore;
 namespace Indice.Hosting.Tasks.Implementations
 {
     /// <summary>
-    /// SQL Server <see cref="ILockManager"/> implementation.
+    /// <see cref="ILockManager"/> implementation for a relational database.
     /// </summary>
     public class RelationalLockManager : ILockManager
     {
@@ -20,7 +20,7 @@ namespace Indice.Hosting.Tasks.Implementations
         /// <summary>
         /// Constructs the <see cref="RelationalLockManager"/>.
         /// </summary>
-        /// <param name="dbContext"></param>
+        /// <param name="dbContext">Contains the required tables to implement a locking mechanism using a relational database.</param>
         public RelationalLockManager(LockDbContext dbContext) {
             _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
             _queryDescriptor = new LockManagerQueryDescriptor(dbContext);
@@ -106,33 +106,34 @@ namespace Indice.Hosting.Tasks.Implementations
     internal static class SqlServerLockManagerQueries
     {
         public const string AcquireLock = @"
-                INSERT INTO [work].[Lock] ([Id], [Name], [ExpirationDate], [Duration]) 
-                VALUES ({0}, {1}, {2}, {3});";
+            INSERT INTO [work].[Lock] ([Id], [Name], [ExpirationDate], [Duration]) 
+            VALUES ({0}, {1}, {2}, {3});";
         public const string ReleaseLock = @"
-                DELETE FROM [work].[Lock] 
-                WHERE ([Name] = {0} AND [Id] < {1}) OR [ExpirationDate] < GETDATE();";
+            DELETE FROM [work].[Lock] 
+            WHERE ([Name] = {0} AND [Id] < {1}) OR [ExpirationDate] < GETDATE();";
         public const string RenewLease = @"
-                UPDATE [work].[Lock] 
-                SET [ExpirationDate] = DATEADD(second, [Duration], GETDATE()) 
-                WHERE [Id] = {0}";
+            UPDATE [work].[Lock] 
+            SET [ExpirationDate] = DATEADD(second, [Duration], GETDATE()) 
+            WHERE [Id] = {0}";
         public const string Cleanup = @"
-                DELETE FROM [work].[Lock] 
-                WHERE [ExpirationDate] < GETDATE();";
+            DELETE FROM [work].[Lock] 
+            WHERE [ExpirationDate] < GETDATE();";
     }
+
     internal static class PostgreSqlLockManagerQueries
     {
         public const string AcquireLock = @"
-                INSERT INTO ""work"".""Lock"" (""Id"", ""Name"", ""ExpirationDate"", ""Duration"") 
-                VALUES ({0}, {1}, {2}, {3});";
+            INSERT INTO ""work"".""Lock"" (""Id"", ""Name"", ""ExpirationDate"", ""Duration"") 
+            VALUES ({0}, {1}, {2}, {3});";
         public const string ReleaseLock = @"
-                DELETE FROM ""work"".""Lock"" 
-                WHERE (""Name"" = {0} AND ""Id"" < {1}) OR ""ExpirationDate"" < NOW();";
+            DELETE FROM ""work"".""Lock"" 
+            WHERE (""Name"" = {0} AND ""Id"" < {1}) OR ""ExpirationDate"" < NOW();";
         public const string RenewLease = @"
-                UPDATE ""work"".""Lock"" 
-                SET ""ExpirationDate"" = NOW() + ""Duration"" * INTERVAL '1 second'; 
-                WHERE ""Id"" = {0}";
+            UPDATE ""work"".""Lock"" 
+            SET ""ExpirationDate"" = NOW() + ""Duration"" * INTERVAL '1 second'; 
+            WHERE ""Id"" = {0}";
         public const string Cleanup = @"
-                DELETE FROM ""work"".""Lock"" 
-                WHERE ""ExpirationDate"" < NOW();";
+            DELETE FROM ""work"".""Lock"" 
+            WHERE ""ExpirationDate"" < NOW();";
     }
 }
