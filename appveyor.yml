@@ -5,4 +5,4 @@ install:
 before_build:
  - ps: dotnet restore
 build:
-  verbosity: minimal
+  verbosity: normal
