@@ -1,6 +1,8 @@
 version: 5.2.0.{build}
 image: Visual Studio 2022
+install:
+ - ps: Install-Product node 16.13.0
 before_build:
- - cmd: dotnet restore
+ - ps: dotnet restore
 build:
   verbosity: minimal
