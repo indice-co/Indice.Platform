@@ -45,7 +45,7 @@ namespace Microsoft.Extensions.DependencyInjection
                                // Update phone number options.
                                options.PhoneNumber.SendOtpOnUpdate = true;
                                // Add custom initial user and enable test data.
-                               options.SeedDummyUsers = true;
+                               options.SeedDummyUsers = false;
                                options.InitialUsers = GetInitialUsers();
                                options.CustomClaims = GetCustomClaimTypes();
                            })
