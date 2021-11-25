@@ -1,6 +1,4 @@
 version: 5.2.0.{build}
 image: Visual Studio 2022
-install:
- - ps: Install-Product node 12.17.0
 build:
   verbosity: minimal
