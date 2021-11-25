@@ -175,8 +175,14 @@ namespace Indice.Common.Tests
             };
             options.Converters.Add(new JsonStringEnumConverter());
             options.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
+#if NET6_0_OR_GREATER
+            RoundtripSerialize(new PocoValue<TimeSpan?> { Value = new TimeSpan(2, 30, 12) }, options);
+            RoundtripSerialize(new PocoValue<TimeSpan> { Value = new TimeSpan(2, 30, 12) }, options);
+#else
             Assert.ThrowsAny<Exception>(() => RoundtripSerialize(new PocoValue<TimeSpan?> { Value = new TimeSpan(2, 30, 12) }, options));
             Assert.ThrowsAny<Exception>(() => RoundtripSerialize(new PocoValue<TimeSpan> { Value = new TimeSpan(2, 30, 12) }, options));
+#endif
+
             RoundtripSerialize(new PocoValue<TimeSpan?>(), options);
             options = new JsonSerializerOptions {
                 PropertyNamingPolicy = JsonNamingPolicy.CamelCase
