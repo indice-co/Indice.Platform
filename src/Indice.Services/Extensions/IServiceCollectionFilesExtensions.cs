@@ -1,9 +1,7 @@
 ﻿using System;
 using System.IO;
-using System.Text.RegularExpressions;
 using Indice.Services;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
 namespace Microsoft.Extensions.DependencyInjection
@@ -39,7 +37,9 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <param name="configure">Configure the available options. Null to use defaults.</param>
         public static IServiceCollection AddFilesLocal(this IServiceCollection services, Action<FileServiceLocal.FileServiceOptions> configure = null) {
             services.AddTransient<IFileService, FileServiceLocal>(serviceProvider => {
-                var options = new FileServiceLocal.FileServiceOptions() { Path = "App_Data" };
+                var options = new FileServiceLocal.FileServiceOptions {
+                    Path = "App_Data"
+                };
                 configure?.Invoke(options);
                 var hostingEnvironment = serviceProvider.GetRequiredService<IHostEnvironment>();
                 options.Path = Path.Combine(hostingEnvironment.ContentRootPath, options.Path);
@@ -64,7 +64,7 @@ namespace Microsoft.Extensions.DependencyInjection
         /// Adds <see cref="IFileService"/> using in-memory storage as the backing store. Only for testing purposes.
         /// </summary>
         /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
-        /// <param name="configure">configuration action</param>
+        /// <param name="configure">Configuration action.</param>
         public static IServiceCollection AddFiles(this IServiceCollection services, Action<FileServiceConfigurationBuilder> configure) {
             var builder = new FileServiceConfigurationBuilder(services);
             services.AddScoped<IFileServiceFactory, DefaultFileServiceFactory>();
@@ -72,37 +72,33 @@ namespace Microsoft.Extensions.DependencyInjection
             return services;
         }
 
-
         /// <summary>
-        /// Adds <see cref="FileServiceInMemory"/> implementation
+        /// Adds <see cref="FileServiceInMemory"/> implementation.
         /// </summary>
-        /// <returns></returns>
         public static FileServiceConfigurationBuilder AddMemory(this FileServiceConfigurationBuilder builder) {
             AddFilesInMemory(builder.Services);
             return builder;
         }
+
         /// <summary>
-        /// Adds <see cref="FileServiceInMemory"/> implementation
+        /// Adds <see cref="FileServiceInMemory"/> implementation.
         /// </summary>
-        /// <returns></returns>
         public static FileServiceConfigurationBuilder AddMemory(this FileServiceConfigurationBuilder builder, string name) {
             builder.Services.AddKeyedService<IFileService, FileServiceInMemory, string>(name, serviceLifetime: ServiceLifetime.Transient);
             return builder;
         }
 
         /// <summary>
-        /// Adds <see cref="FileServiceLocal"/> implementation
+        /// Adds <see cref="FileServiceLocal"/> implementation.
         /// </summary>
-        /// <returns></returns>
         public static FileServiceConfigurationBuilder AddFileSystem(this FileServiceConfigurationBuilder builder, Action<FileServiceLocal.FileServiceOptions> configure = null) {
             AddFilesLocal(builder.Services, configure);
             return builder;
         }
 
         /// <summary>
-        /// Adds <see cref="FileServiceLocal"/> implementation
+        /// Adds <see cref="FileServiceLocal"/> implementation.
         /// </summary>
-        /// <returns></returns>
         public static FileServiceConfigurationBuilder AddFileSystem(this FileServiceConfigurationBuilder builder, string name, Action<FileServiceLocal.FileServiceOptions> configure = null) {
             builder.Services.AddKeyedService<IFileService, FileServiceLocal, string>(
                 key: name,
@@ -111,28 +107,28 @@ namespace Microsoft.Extensions.DependencyInjection
                     configure?.Invoke(options);
                     var hostingEnvironment = serviceProvider.GetRequiredService<IHostEnvironment>();
                     options.Path = Path.Combine(hostingEnvironment.ContentRootPath, options.Path);
-                    
+
                     if (!Directory.Exists(options.Path)) {
                         Directory.CreateDirectory(options.Path);
                     }
                     return new FileServiceLocal(options.Path);
                 },
-                serviceLifetime: ServiceLifetime.Transient);
+                serviceLifetime: ServiceLifetime.Transient
+            );
             return builder;
         }
+
         /// <summary>
-        /// Adds <see cref="FileServiceAzureStorage"/> implementation
+        /// Adds <see cref="FileServiceAzureStorage"/> implementation.
         /// </summary>
-        /// <returns></returns>
         public static FileServiceConfigurationBuilder AddAzureStorage(this FileServiceConfigurationBuilder builder, Action<FileServiceAzureStorage.FileServiceOptions> configure = null) {
             AddFilesAzure(builder.Services, configure);
             return builder;
         }
 
         /// <summary>
-        /// Adds <see cref="FileServiceAzureStorage"/> implementation
+        /// Adds <see cref="FileServiceAzureStorage"/> implementation.
         /// </summary>
-        /// <returns></returns>
         public static FileServiceConfigurationBuilder AddAzureStorage(this FileServiceConfigurationBuilder builder, string name, Action<FileServiceAzureStorage.FileServiceOptions> configure = null) {
             builder.Services.AddKeyedService<IFileService, FileServiceAzureStorage, string>(
                 key: name,
@@ -145,17 +141,18 @@ namespace Microsoft.Extensions.DependencyInjection
                     var connectionString = serviceProvider.GetRequiredService<IConfiguration>().GetConnectionString(options.ConnectionStringName);
                     return new FileServiceAzureStorage(connectionString, options.ContainerName);
                 },
-                serviceLifetime: ServiceLifetime.Transient);
+                serviceLifetime: ServiceLifetime.Transient
+            );
             return builder;
         }
 
         /// <summary>
-        /// Confuguration builder for the app service
+        /// Configuration builder for the app service.
         /// </summary>
         public sealed class FileServiceConfigurationBuilder
         {
             /// <summary>
-            /// constructs the builder
+            /// Constructs the builder.
             /// </summary>
             /// <param name="services"></param>
             internal FileServiceConfigurationBuilder(IServiceCollection services) {
@@ -163,19 +160,20 @@ namespace Microsoft.Extensions.DependencyInjection
             }
 
             /// <summary>
-            /// Service collection
+            /// Service collection.
             /// </summary>
             public IServiceCollection Services { get; }
         }
 
         internal class DefaultFileServiceFactory : IFileServiceFactory
         {
+            private readonly IServiceProvider _serviceProvider;
+
             public DefaultFileServiceFactory(IServiceProvider serviceProvider) {
                 _serviceProvider = serviceProvider;
             }
-            private readonly IServiceProvider _serviceProvider;
-            public IFileService Create(string name) => name is null ? _serviceProvider.GetRequiredService<IFileService>()
-                                                                    : _serviceProvider.GetRequiredService<Func<string, IFileService>>()?.Invoke(name);
+
+            public IFileService Create(string name) => name is null ? _serviceProvider.GetRequiredService<IFileService>() : _serviceProvider.GetRequiredService<Func<string, IFileService>>()?.Invoke(name);
         }
     }
 }

@@ -1,0 +1,51 @@
+{
+  "name": "campaigns-app",
+  "version": "1.0.0",
+  "scripts": {
+    "ng": "ng",
+    "start": "ng serve",
+    "build": "ng build",
+    "watch": "ng build --watch --configuration development",
+    "test": "ng test"
+  },
+  "private": true,
+  "dependencies": {
+    "@angular/animations": "12.0.1",
+    "@angular/common": "12.0.1",
+    "@angular/compiler": "12.0.1",
+    "@angular/core": "12.0.1",
+    "@angular/forms": "12.0.1",
+    "@angular/platform-browser-dynamic": "12.0.1",
+    "@angular/platform-browser": "12.0.1",
+    "@angular/router": "12.0.1",
+    "@indice/ng-auth": "0.1.20",
+    "@indice/ng-components": "0.2.63",
+    "@tailwindcss/aspect-ratio": "^0.2.0",
+    "@tailwindcss/forms": "^0.3.2",
+    "@tailwindcss/line-clamp": "^0.2.0",
+    "@tailwindcss/typography": "^0.4.0",
+    "oidc-client": "1.11.5",
+    "rxjs": "6.6.7",
+    "tslib": "2.3.0",
+    "zone.js": "0.11.4"
+  },
+  "devDependencies": {
+    "@angular-devkit/build-angular": "12.0.1",
+    "@angular/cli": "12.0.1",
+    "@angular/compiler-cli": "12.0.1",
+    "@tailwindcss/aspect-ratio": "^0.2.0",
+    "@tailwindcss/forms": "^0.3.2",
+    "@tailwindcss/line-clamp": "^0.2.0",
+    "@tailwindcss/typography": "^0.4.0",
+    "@types/jasmine": "3.10.0",
+    "@types/node": "16.11.7",
+    "jasmine-core": "3.10.0",
+    "karma-chrome-launcher": "3.1.0",
+    "karma-coverage": "2.0.3",
+    "karma-jasmine-html-reporter": "1.7.0",
+    "karma-jasmine": "4.0.0",
+    "karma": "6.3.0",
+    "tailwindcss": "^2.2.4",
+    "typescript": "4.2.4"
+  }
+}

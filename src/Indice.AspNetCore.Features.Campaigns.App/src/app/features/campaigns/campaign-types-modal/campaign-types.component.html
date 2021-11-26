@@ -1,0 +1,23 @@
+<div class="p-1 modal-content">
+    <h2 class="modal-title pull-left">Τύποι Campaign</h2>
+    <hr class="mb-2">
+    <lib-list-view [items]="campaignTypes" [sort-options]="[]" [page-size-options]="[]" [show-pager]="false">
+        <lib-list-column title="ΟΝΟΜΑ" [full-width]="true">
+            <ng-template let-item>{{ item.text }}</ng-template>
+        </lib-list-column>
+        <lib-list-column title="">
+            <ng-template let-item>
+                <button type="button" href="#" class="btn-info mr-1" title="Επεξεργασία τύπου">
+                    <i class="ms-Icon ms-Icon--Edit"></i>
+                </button>
+                <button type="button" href="#" class="btn-error" title="Διαγραφή τύπου">
+                    <i class="ms-Icon ms-Icon--Remove"></i>
+                </button>
+            </ng-template>
+        </lib-list-column>
+    </lib-list-view>
+    <div class="modal-actions-container mt-2" role="group">
+        <button type="button" class="side-view-layout-action-button" (click)="modalRef?.hide(true)">Κλείσιμο</button>
+        <button type="button" class="side-view-layout-action-button-default">Προσθήκη</button>
+    </div>
+</div>
