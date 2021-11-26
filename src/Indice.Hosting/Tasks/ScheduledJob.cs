@@ -22,7 +22,7 @@ namespace Indice.Hosting.Tasks
         }
 
         public async Task Execute(IJobExecutionContext context) {
-            if (_configuration.StopWorkerHost()) {
+            if (_configuration.WorkerHostDisbled()) {
                 return;
             }
             _logger.LogInformation("Scheduled job run at: {Timestamp}", DateTime.UtcNow);
