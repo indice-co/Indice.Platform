@@ -1,9 +1,11 @@
 ﻿using System.Diagnostics;
+using Indice.Hosting.Tasks.Data.Configuration;
+using Indice.Hosting.Tasks.Data.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
 
-namespace Indice.Hosting.EntityFrameworkCore
+namespace Indice.Hosting.Tasks.Data
 {
     /// <summary>
     /// A <see cref="DbContext"/> for hosting multiple <see cref="IMessageQueue{T}"/>.

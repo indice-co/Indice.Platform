@@ -38,7 +38,11 @@ namespace Indice.EntityFrameworkCore
             }
             return modelBuilder.HasDbFunction(typeof(JsonFunctions).GetMethod(nameof(JsonFunctions.JsonValue)))
                         .HasTranslation(args => {
+#if NET5_0_OR_GREATER
+                            return new SqlFunctionExpression("JSON_VALUE", args, nullable: true, argumentsPropagateNullability: args.Select(x => true), typeof(string), null);
+#else
                             return SqlFunctionExpression.Create("JSON_VALUE", args, typeof(string), null);
+#endif
                         })
                         .HasSchema(string.Empty);
         }
@@ -56,7 +60,11 @@ namespace Indice.EntityFrameworkCore
                         .HasTranslation(args => {
                             var datetime2 = new SqlFragmentExpression("datetime2");
                             var convertArgs = new SqlExpression[] { datetime2 }.Concat(args);
+#if NET5_0_OR_GREATER
+                            return new SqlFunctionExpression("Convert", convertArgs, nullable: true, argumentsPropagateNullability: convertArgs.Select(x => true), typeof(DateTime?), null);
+#else
                             return SqlFunctionExpression.Create("Convert", convertArgs, typeof(DateTime?), null);
+#endif
                         })
                         .HasSchema(string.Empty);
         }
@@ -74,7 +82,11 @@ namespace Indice.EntityFrameworkCore
                         .HasTranslation(args => {
                             var float32 = new SqlFragmentExpression("float");
                             var convertArgs = new SqlExpression[] { float32 }.Concat(args);
+#if NET5_0_OR_GREATER
+                            return new SqlFunctionExpression("Convert", convertArgs, nullable: true, argumentsPropagateNullability: convertArgs.Select(x => true), typeof(double?), null);
+#else
                             return SqlFunctionExpression.Create("Convert", convertArgs, typeof(double?), null);
+#endif
                         })
                         .HasSchema(string.Empty);
         }

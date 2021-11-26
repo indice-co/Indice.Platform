@@ -30,18 +30,36 @@ namespace Indice.Types
         public double? Elevation { get; set; }
 
         /// <summary>
-        /// Default string representation
+        /// Creates a geographic location DTO.
+        /// </summary>
+        public GeoPoint() {
+
+        }
+
+        /// <summary>
+        /// Creates a geographic location DTO.
+        /// </summary>
+        public GeoPoint(double latitude, double longitude, double? elevation = null) {
+            Latitude = latitude;
+            Longitude = longitude;
+            Elevation = elevation;
+        }
+
+        /// <summary>
+        /// Default string representation. <strong>37.9908697,23.7208298</strong>.
         /// </summary>
         /// <returns></returns>
+        /// <remarks>Web standard latitude followed by longitude invariant separated by comma.</remarks>
         public override string ToString() {
             var mask = Elevation.HasValue ? "{0:G},{1:G},{2:G}" : "{0:G},{1:G}";
             return string.Format(CultureInfo.InvariantCulture, mask, Latitude, Longitude, Elevation);
         }
 
         /// <summary>
-        /// Generates a SqlServer compatible string representation of the coordinates.
+        /// Generates a SqlServer compatible string representation of the coordinates. <strong>POINT(23.7208298,37.9908697)</strong>
         /// </summary>
         /// <returns></returns>
+        /// <remarks>SQL geopoint ToString() representation. This is reversed <strong>longitude</strong> first then <strong>latitude</strong> then optionaly elevation.</remarks>
         public string ToDbGeographyString() {
             var mask = Elevation.HasValue ? "POINT ({1:G} {0:G} {2:G})" : "POINT ({1:G} {0:G})";
             return string.Format(CultureInfo.InvariantCulture, mask, Latitude, Longitude, Elevation);
@@ -55,6 +73,7 @@ namespace Indice.Types
         /// and optionally altitude (in meters above sea level), and a semicolon-separated list of position parameters. [RFC5870]
         /// </summary>
         /// <returns></returns>
+        /// <remarks>ie. <strong>geo:37.9908697,23.7208298;cgen=map</strong></remarks>
         public string ToHeaderGeographyString() {
             var mask = Elevation.HasValue ? "geo:{0:G},{1:G},{2:G};cgen=map" : "geo:{0:G},{1:G};cgen=map";
             return string.Format(CultureInfo.InvariantCulture, mask, Latitude, Longitude, Elevation);
@@ -82,6 +101,11 @@ namespace Indice.Types
         /// </summary>
         /// <param name="latlong"></param>
         /// <returns></returns>
+        /// <remarks>The method can parse 3 distinct formats. 
+        /// <br/><strong>37.9908697,23.7208298</strong> Web standard latitude followed by longitude invariant separated by comma.
+        /// <br/><strong>geo:37.9908697,23.7208298;cgen=map</strong> [RFC5870] Geolocation header Web standard latitude followed by longitude invariant separated by comma.
+        /// <br/><strong>POINT(23.7208298,37.9908697)</strong> SQL geopoint ToString() representation. This is reversed longitude then latitude then optionaly elevation.
+        /// </remarks>
         public static GeoPoint Parse(string latlong) {
             if (string.IsNullOrEmpty(latlong)) {
                 throw new ArgumentOutOfRangeException(nameof(latlong));

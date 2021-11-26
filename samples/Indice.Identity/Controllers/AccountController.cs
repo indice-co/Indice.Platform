@@ -126,7 +126,7 @@ namespace Indice.Identity.Controllers
                 if (result.Succeeded) {
                     user = await _userManager.FindByNameAsync(model.UserName);
                     await _events.RaiseAsync(new UserLoginSuccessEvent(user.UserName, user.Id, user.UserName));
-                    _logger.LogInformation("User '{UserName}' was successfully logged in.", user.UserName, user.Email);
+                    _logger.LogInformation("User '{UserName}' and email {Email} was successfully logged in.", user.UserName, user.Email);
                     if (context != null) {
                         if (context.IsNativeClient()) {
                             // The client is native, so this change in how to return the response is for better UX for the end user.

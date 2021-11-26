@@ -2,7 +2,7 @@
 using System.Text.Json;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Indice.Hosting
+namespace Indice.Hosting.Tasks
 {
     /// <summary>
     /// Options for configuring the worker host.

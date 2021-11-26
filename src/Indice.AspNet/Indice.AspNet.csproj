@@ -12,6 +12,7 @@
     <!--<GenerateDocumentationFile>true</GenerateDocumentationFile>-->
   </PropertyGroup>
   <PropertyGroup Label="Package">
+    <IsPackable>true</IsPackable>
     <PackageId>Indice.AspNet</PackageId>
     <PackageTags>AspNet;HtmlHelpers;Grid</PackageTags>
     <PackageReleaseNotes>
@@ -23,7 +24,7 @@
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>https://github.com/indice-co/Indice.AspNet</RepositoryUrl>
     <Company>Indice</Company>
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <!--<GeneratePackageOnBuild>true</GeneratePackageOnBuild>-->
   </PropertyGroup>
   <ItemGroup>
     <None Include="..\..\icon\icon-128.png" Pack="true" Visible="false" PackagePath="" />

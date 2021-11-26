@@ -12,35 +12,28 @@ namespace Indice.Services
     public interface ILockManager
     {
         /// <summary>
-        /// Aquire a lock or throws
+        /// Aquire a lock or throws.
         /// </summary>
         /// <param name="name">Topic or name</param>
-        /// <param name="duration">The duration the lease will be active. Defaults 30 seconds</param>
-        /// <exception cref="LockManagerException">Occures when the lock cannot be aquired</exception>
-        /// <returns></returns>
+        /// <param name="duration">The duration the lease will be active. Defaults 30 seconds.</param>
+        /// <exception cref="LockManagerException">Occures when the lock cannot be aquired.</exception>
         Task<ILockLease> AcquireLock(string name, TimeSpan? duration = null);
-
         /// <summary>
-        /// Renew an existing lease by lease id. This extends the duration of a non expired existing lease
+        /// Renews an existing lease by lease id. This extends the duration of a non expired existing lease.
         /// </summary>
-        /// <param name="name">Topic or name</param>
-        /// <param name="leaseId">The lease Id (different on every lock)</param>
+        /// <param name="name">Topic or name.</param>
+        /// <param name="leaseId">The lease Id (different on every lock).</param>
         /// <returns></returns>
-        /// <remarks>In case a lease has expired the client can renew the lease with their lease ID immediately if the blob has not been modified</remarks>
+        /// <remarks>In case a lease has expired the client can renew the lease with their lease ID immediately if the blob has not been modified.</remarks>
         Task<ILockLease> Renew(string name, string leaseId);
-
         /// <summary>
-        /// Releases a lock
+        /// Releases a lock.
         /// </summary>
-        /// <param name="lock"></param>
-        /// <returns></returns>
+        /// <param name="lock">The lock lease.</param>
         Task ReleaseLock(ILockLease @lock);
-
         /// <summary>
-        /// Clean up any expired lock leases. 
-        /// Depends on implementation may not be needed if the lock leases are self mainained like in azure blob storage.
+        /// Clean up any expired lock leases. Depends on implementation may not be needed if the lock leases are self mainained like in azure blob storage.
         /// </summary>
-        /// <returns></returns>
         Task Cleanup();
     }
 

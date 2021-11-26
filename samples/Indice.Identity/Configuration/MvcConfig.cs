@@ -45,11 +45,10 @@ namespace Microsoft.Extensions.DependencyInjection
                                // Update phone number options.
                                options.PhoneNumber.SendOtpOnUpdate = true;
                                // Add custom initial user and enable test data.
-                               options.SeedDummyUsers = true;
+                               options.SeedDummyUsers = false;
                                options.InitialUsers = GetInitialUsers();
                                options.CustomClaims = GetCustomClaimTypes();
                            })
-                           .SetCompatibilityVersion(CompatibilityVersion.Latest)
                            .ConfigureApiBehaviorOptions(options => {
                                options.ClientErrorMapping[400].Link = "https://httpstatuses.com/400";
                                options.ClientErrorMapping[401].Link = "https://httpstatuses.com/401";
@@ -79,7 +78,7 @@ namespace Microsoft.Extensions.DependencyInjection
                                options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
                                options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
                                options.JsonSerializerOptions.Converters.Add(new JsonAnyStringConverter());
-                               options.JsonSerializerOptions.IgnoreNullValues = true;
+                               options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
                            })
                            .AddFluentValidation(options => {
                                options.RegisterValidatorsFromAssemblyContaining<Startup>();

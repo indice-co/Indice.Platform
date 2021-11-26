@@ -1,0 +1,14 @@
+{
+  "Servers": {
+    "1": {
+      "Group": "Servers",
+      "Host": "postgres",
+      "MaintenanceDB": "indicedb",
+      "Name": "indice_user@pgadmin.org",
+      "PassFile": "/var/lib/pgadmin/storage/indice_user_pgadmin.org/pgpassfile",
+      "Port": 5432,
+      "SSLMode": "prefer",
+      "Username": "indicedb"
+    }
+  }
+}

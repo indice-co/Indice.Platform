@@ -28,7 +28,7 @@ namespace Indice.Services.Tests
             });
             _FileService = new FileServiceAzureStorage(_connectionString, "test");
         }
-        [Fact]
+        [Fact(Skip = "Should integrate azurite on build yaml")]
         public async Task AquireLockTest() {   
             var duration = TimeSpan.FromSeconds(15);
             var name = "constantinos"; // using a random name :)

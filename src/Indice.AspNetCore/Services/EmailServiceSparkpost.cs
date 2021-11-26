@@ -123,7 +123,11 @@ namespace Indice.Services
             }
             var requestJson = JsonSerializer.Serialize(request, new JsonSerializerOptions {
                 PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-                IgnoreNullValues = true
+#if NET5_0_OR_GREATER
+                DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+#else          
+                IgnoreNullValues = true,
+#endif
             });
             var response = await _httpClient.PostAsync("transmissions", new StringContent(requestJson, Encoding.UTF8, MediaTypeNames.Application.Json));
             if (!response.IsSuccessStatusCode) {

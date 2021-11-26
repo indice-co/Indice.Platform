@@ -20,7 +20,7 @@ namespace Indice.Common.Tests
             // ORDER is IMPORTANT in case of multiple type hierarchies with different discriminators. Specific goes first then the generic
             Options.Converters.Add(new JsonPolymorphicConverterFactory<Parent>("sex"));
             Options.Converters.Add(new JsonPolymorphicConverterFactory<Person>("type"));
-            Options.IgnoreNullValues = true;
+            Options.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
         }
 
         [Fact]
