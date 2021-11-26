@@ -16,25 +16,20 @@ import { AuthService } from 'src/app/core/services/auth.service';
 
 @Component({
     selector: 'app-client-grant-types',
-    templateUrl: './client-grant-types.component.html',
-    providers: [GrantTypeStateMatrixService]
+    templateUrl: './client-grant-types.component.html'
 })
 export class ClientGrantTypesComponent implements OnInit, OnDestroy {
     constructor(
         private clientStore: ClientStore,
-        private grantTypeStateMatrixService: GrantTypeStateMatrixService,
         private httpClient: HttpClient,
         private route: ActivatedRoute,
         private toast: ToastService,
-        private _authService: AuthService
+        private authService: AuthService
     ) { }
 
-    @ViewChild('actionsTemplate', { static: true })
-    private actionsTemplate: TemplateRef<HTMLElement>;
-    @ViewChild('grantTypesform', { static: false })
-    private form: NgForm;
-    @ViewChild('deleteAlert', { static: false })
-    private deleteAlert: SwalComponent;
+    @ViewChild('actionsTemplate', { static: true }) private actionsTemplate: TemplateRef<HTMLElement>;
+    @ViewChild('grantTypesform', { static: false }) private form: NgForm;
+    @ViewChild('deleteAlert', { static: false }) private deleteAlert: SwalComponent;
     private getDataSubscription: Subscription;
     public client: SingleClientInfo;
     public columns: TableColumn[] = [];
@@ -46,7 +41,7 @@ export class ClientGrantTypesComponent implements OnInit, OnDestroy {
     public canEditClient: boolean;
 
     public ngOnInit(): void {
-        this.canEditClient = this._authService.isAdminUIClientsWriter();
+        this.canEditClient = this.authService.isAdminUIClientsWriter();
         this.columns = [
             { prop: 'type', name: 'Type', draggable: false, canAutoResize: true, sortable: true, resizeable: false }
         ];
@@ -83,11 +78,7 @@ export class ClientGrantTypesComponent implements OnInit, OnDestroy {
             this.form.resetForm({
                 'grant-type': ''
             });
-            this.rows = [...this.client.grantTypes.map((value: string) => {
-                return {
-                    type: value
-                };
-            })];
+            this.rows = [...this.client.grantTypes.map((value: string) => ({ type: value }))];
         });
     }
 
@@ -106,20 +97,9 @@ export class ClientGrantTypesComponent implements OnInit, OnDestroy {
         });
     }
 
-    public canAddGrantType(grantType: string): boolean {
+    public ownsGrantType(grantType: string): boolean {
         // A grant type that is already owned by the client, cannot be added again.
-        if (this.client.grantTypes.indexOf(grantType) > -1) {
-            return false;
-        }
-        let result = true;
-        // Check if grant type in the list can be added to client according to the grant types that already owns.
-        for (const type of this.client.grantTypes) {
-            if (!this.grantTypeStateMatrixService.canGoTo(type, grantType)) {
-                result = false;
-                break;
-            }
-        }
-        return result;
+        return this.client.grantTypes.indexOf(grantType) > -1;
     }
 
     public showDeleteAlert(grantType: string): void {
