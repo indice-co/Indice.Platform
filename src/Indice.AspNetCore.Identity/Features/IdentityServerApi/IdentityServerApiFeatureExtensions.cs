@@ -23,7 +23,7 @@ namespace Microsoft.Extensions.DependencyInjection
     public static class IdentityServerApiFeatureExtensions
     {
         /// <summary>
-        /// Adds the IdentityServer API endpoints to MVC.
+        /// Adds the IdentityServer API endpoints in the MVC project.
         /// </summary>
         /// <param name="mvcBuilder">An interface for configuring MVC services.</param>
         /// <param name="configureAction">Configuration options for IdentityServer API feature.</param>

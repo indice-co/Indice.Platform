@@ -145,6 +145,13 @@ namespace Indice.Security
             principal.HasRoleClaim(BasicRoleNames.AdminUIClientsWriter) || principal.IsAdmin() || principal.IsSystemClient();
 
         /// <summary>
+        /// Checks if the current principal can manage campaigns data.
+        /// </summary>
+        /// <param name="principal">The current principal.</param>
+        public static bool CanManageCampaigns(this ClaimsPrincipal principal) =>
+            principal.HasRoleClaim(BasicRoleNames.AdminUICampaignsManager) || principal.IsAdmin() || principal.IsSystemClient();
+
+        /// <summary>
         /// Logic for normalizing scope claims to separate claim types.
         /// </summary>
         /// <param name="principal">The current principal.</param>
