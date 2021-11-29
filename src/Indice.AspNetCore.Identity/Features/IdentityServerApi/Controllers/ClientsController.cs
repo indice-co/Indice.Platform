@@ -380,11 +380,12 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
         [ProducesResponseType(statusCode: StatusCodes.Status204NoContent, type: typeof(void))]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
         public async Task<IActionResult> UpdateClientUrls([FromRoute] string clientId, [FromBody] UpdateClientUrls request) {
-            var client = await _configurationDbContext.Clients
-                                                      .Include(x => x.AllowedCorsOrigins)
-                                                      .Include(x => x.RedirectUris)
-                                                      .Include(x => x.PostLogoutRedirectUris)
-                                                      .SingleOrDefaultAsync(x => x.ClientId == clientId);
+            var client = await _configurationDbContext
+                .Clients
+                .Include(x => x.AllowedCorsOrigins)
+                .Include(x => x.RedirectUris)
+                .Include(x => x.PostLogoutRedirectUris)
+                .SingleOrDefaultAsync(x => x.ClientId == clientId);
             if (client == null) {
                 return NotFound();
             }
@@ -394,7 +395,7 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
             if (request.AllowedCorsOrigins?.Count() > 0) {
                 client.AllowedCorsOrigins.AddRange(request.AllowedCorsOrigins.Select(x => new ClientCorsOrigin {
                     ClientId = client.Id,
-                    Origin = x
+                    Origin = x.TrimEnd('/')
                 }));
             }
             if (request.RedirectUris?.Count() > 0) {

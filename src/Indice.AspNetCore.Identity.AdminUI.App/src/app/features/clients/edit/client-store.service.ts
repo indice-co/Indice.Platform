@@ -70,36 +70,18 @@ export class ClientStore {
 
     public updateClientUrl(clientId: string, url: string, added: boolean, urlType: UrlType): void {
         this.getClient(clientId).subscribe((client: SingleClientInfo) => {
+            if (!client['deletingUrls']) {
+                client['deletingUrls'] = [];
+            }
             switch (urlType) {
                 case UrlType.Redirect:
-                    if (added) {
-                        client.redirectUris.push(url);
-                    } else {
-                        const index = client.redirectUris.findIndex(x => x === url);
-                        if (index > -1) {
-                            client.redirectUris.splice(index, 1);
-                        }
-                    }
+                    this.updateClientUrlState(client, url, added, 'redirectUris');
                     break;
                 case UrlType.Cors:
-                    if (added) {
-                        client.allowedCorsOrigins.push(url);
-                    } else {
-                        const index = client.allowedCorsOrigins.findIndex(x => x === url);
-                        if (index > -1) {
-                            client.allowedCorsOrigins.splice(index, 1);
-                        }
-                    }
+                    this.updateClientUrlState(client, url, added, 'allowedCorsOrigins');
                     break;
                 case UrlType.PostLogoutRedirect:
-                    if (added) {
-                        client.postLogoutRedirectUris.push(url);
-                    } else {
-                        const index = client.postLogoutRedirectUris.findIndex(x => x === url);
-                        if (index > -1) {
-                            client.postLogoutRedirectUris.splice(index, 1);
-                        }
-                    }
+                    this.updateClientUrlState(client, url, added, 'postLogoutRedirectUris');
                     break;
                 default:
                     break;
@@ -107,6 +89,25 @@ export class ClientStore {
             this._client.next(client);
             this._client.complete();
         });
+    }
+
+    private updateClientUrlState(client: SingleClientInfo, url: string, added: boolean, propertyName: string): void {
+        if (added) {
+            client[propertyName].push(url);
+            const index = client['deletingUrls'].findIndex((x: string) => x === url);
+            if (index > -1) {
+                client['deletingUrls'].splice(index, 1);
+            }
+        } else {
+            let index = client[propertyName].findIndex((x: string) => x === url);
+            if (index > -1) {
+                client[propertyName].splice(index, 1);
+                index = client.postLogoutRedirectUris.concat(client.allowedCorsOrigins.concat(client.redirectUris)).findIndex((x: string) => x === url);
+                if (index === -1) {
+                    client['deletingUrls'].push(url);
+                }
+            }
+        }
     }
 
     public sendUpdateClientUrls(clientId: string, allowedCorsOrigins: string[], postLogoutRedirectUris: string[], redirectUris: string[]): Observable<void> {
