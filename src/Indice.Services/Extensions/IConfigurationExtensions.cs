@@ -95,8 +95,8 @@ namespace Microsoft.Extensions.Configuration
         /// </summary>
         /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
         /// <returns>True if specified flag is set to true, otherwise false.</returns>
-        /// <remarks>Checks for the <strong>General:WorkerHostDisbled</strong> option in appsettings.json file.</remarks>
-        public static bool WorkerHostDisbled(this IConfiguration configuration) => configuration.GetSection(GeneralSettings.Name).GetValue<bool>("WorkerHostDisabled") || configuration.GetValue<bool>("WorkerHostDisabled");
+        /// <remarks>Checks for the <strong>General:WorkerHostDisabled</strong> option in appsettings.json file.</remarks>
+        public static bool WorkerHostDisabled(this IConfiguration configuration) => configuration.GetSection(GeneralSettings.Name).GetValue<bool>("WorkerHostDisabled") || configuration.GetValue<bool>("WorkerHostDisabled");
 
         /// <summary>
         /// Gets the Application Insights instrumentation key.

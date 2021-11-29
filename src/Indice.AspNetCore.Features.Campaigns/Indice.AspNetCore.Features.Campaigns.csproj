@@ -9,7 +9,7 @@
     <LangVersion>Latest</LangVersion>
     <TargetFrameworks>netcoreapp3.1;net5.0;net6.0</TargetFrameworks>
     <VersionPrefix>5.0.0</VersionPrefix>
-    <VersionSuffix>beta-01</VersionSuffix>
+    <VersionSuffix>beta-02</VersionSuffix>
   </PropertyGroup>
   <PropertyGroup Label="Package">
     <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
@@ -28,8 +28,8 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="EPPlus" Version="4.5.3.3" />
-    <PackageReference Include="Indice.AspNetCore" Version="5.1.8" />
-    <PackageReference Include="Indice.EntityFrameworkCore" Version="5.1.0" />
+    <PackageReference Include="Indice.AspNetCore" Version="5.2.1" />
+    <PackageReference Include="Indice.EntityFrameworkCore" Version="5.2.0" />
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1'">

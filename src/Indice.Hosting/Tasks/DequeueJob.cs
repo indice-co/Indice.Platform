@@ -23,7 +23,7 @@ namespace Indice.Hosting.Tasks
         }
 
         public async Task Execute(IJobExecutionContext context) {
-            if (_configuration.WorkerHostDisbled()) {
+            if (_configuration.WorkerHostDisabled()) {
                 return;
             }
             _logger.LogInformation("Dequeue job run at: {Timestamp}", DateTime.UtcNow);
