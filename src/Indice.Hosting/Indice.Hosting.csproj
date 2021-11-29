@@ -2,7 +2,7 @@
   <PropertyGroup>
     <Description>Indice.Hosting Class Library</Description>
     <Copyright>Copyright (c) 2019 Indice</Copyright>
-    <VersionPrefix>5.2.1</VersionPrefix>
+    <VersionPrefix>5.2.3</VersionPrefix>
     <!--<VersionSuffix>beta-01</VersionSuffix>-->
     <Authors>Constantinos Leftheris, Georgios Manoltzas</Authors>
     <TargetFrameworks>netstandard2.0;net5.0;net6.0;</TargetFrameworks>
@@ -15,7 +15,7 @@
     <IsPackable>true</IsPackable>
     <PackageId>Indice.Hosting</PackageId>
     <PackageTags>dotnetcore;Hosting</PackageTags>
-    <PackageReleaseNotes>Update Indice.Common.</PackageReleaseNotes>
+    <PackageReleaseNotes>Fix bug - LockStoreType was not properly registered in the DI.</PackageReleaseNotes>
     <PackageIcon>icon-310.png</PackageIcon>
     <PackageProjectUrl>https://github.com/indice-co/Indice.AspNet</PackageProjectUrl>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>

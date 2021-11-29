@@ -74,7 +74,7 @@ namespace Indice.Hosting
         /// <param name="options">The <see cref="WorkerHostOptions"/> used to configure locking and queue persistence.</param>
         /// <returns>The <see cref="WorkerHostOptions"/> used to configure locking and queue persistence.</returns>
         public static WorkerHostOptions UseLock<TLockManager>(this WorkerHostOptions options) where TLockManager : ILockManager {
-            options.Services.TryAddSingleton(typeof(ILockManager), typeof(TLockManager));
+            options.Services.TryAddScoped(typeof(ILockManager), typeof(TLockManager));
             return options;
         }
 
@@ -87,7 +87,7 @@ namespace Indice.Hosting
             throw new NotImplementedException();
 
         /// <summary>
-        /// 
+        /// Uses the tables of a relational database in order to manage queue items.
         /// </summary>
         /// <param name="options">The <see cref="WorkerHostOptions"/> used to configure locking and queue persistence.</param>
         /// <param name="configureAction">The delegate used to configure the database table that contains the background jobs.</param>
@@ -95,7 +95,7 @@ namespace Indice.Hosting
         public static WorkerHostOptions AddRelationalStore(this WorkerHostOptions options, Action<DbContextOptionsBuilder> configureAction = null) => options.AddRelationalStore<TaskDbContext>(configureAction);
 
         /// <summary>
-        /// 
+        /// Uses the tables of a relational database in order to manage queue items.
         /// </summary>
         /// <typeparam name="TContext">The type of <see cref="DbContext"/>.</typeparam>
         /// <param name="options">The <see cref="WorkerHostOptions"/> used to configure locking and queue persistence.</param>
@@ -112,13 +112,14 @@ namespace Indice.Hosting
                 options.Services.AddScoped<TaskDbContext, TContext>();
             }
             options = options.AddRelationalStore();
-            //options.AddEntityFrameworkStore<TContext>();
+            options.UseLock<RelationalLockManager>();
             return options;
         }
 
         private static WorkerHostOptions AddRelationalStore(this WorkerHostOptions options) {
             options.ScheduledTaskStoreType = typeof(RelationalScheduledTaskStore<>);
             options.QueueStoreType = typeof(RelationalMessageQueue<>);
+            options.LockStoreType = typeof(RelationalLockManager);
             return options;
         }
 
