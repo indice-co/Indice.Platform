@@ -86,16 +86,14 @@ namespace Indice.Services
         /// <param name="code">The TOTP code.</param>
         /// <param name="provider">Optionally pass the provider to use to verify. Defaults to DefaultPhoneProvider</param>
         /// <param name="purpose">Optionally pass the reason used to generate the TOTP.</param>
-        public static Task<TotpResult> Verify(this ITotpService service, string userId, string code, TotpProviderType? provider = null, string purpose = null) =>
-            service.Verify(new ClaimsPrincipal(new ClaimsIdentity(new[] { new Claim(BasicClaimTypes.Subject, userId) })), code, provider, purpose);
+        public static Task<TotpResult> Verify(this ITotpService service, string userId, string code, TotpProviderType? provider = null, string purpose = null) => service.Verify(new ClaimsPrincipal(new ClaimsIdentity(new[] { new Claim(BasicClaimTypes.Subject, userId) })), code, provider, purpose);
 
         /// <summary>
         /// Gets list of available providers for the given claims principal.
         /// </summary>
         /// <param name="service">The service to use.</param>
         /// <param name="userId">The user id.</param>
-        public static Task<Dictionary<string, TotpProviderMetadata>> GetProviders(this ITotpService service, string userId) =>
-            service.GetProviders(new ClaimsPrincipal(new ClaimsIdentity(new[] { new Claim(BasicClaimTypes.Subject, userId) })));
+        public static Task<Dictionary<string, TotpProviderMetadata>> GetProviders(this ITotpService service, string userId) => service.GetProviders(new ClaimsPrincipal(new ClaimsIdentity(new[] { new Claim(BasicClaimTypes.Subject, userId) })));
     }
 
     #region Builder Classes

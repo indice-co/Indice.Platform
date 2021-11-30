@@ -25,6 +25,10 @@ namespace Indice.Identity.Hosting
         }
 
         public async Task Process(DemoCounterModel state, ILockManager lockManager, CancellationToken cancellationToken) {
+            var @lock = await lockManager.TryAcquireLock("alerts-lock");
+            using (var x = @lock.Lock) {
+
+            }
             var timer = new Stopwatch();
             timer.Start();
             var tasksList = new List<SmsDto>();

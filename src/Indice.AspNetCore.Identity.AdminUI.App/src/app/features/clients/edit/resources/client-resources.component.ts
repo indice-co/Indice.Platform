@@ -32,7 +32,8 @@ export class ClientResourcesComponent implements OnInit, OnDestroy {
         }
     }
 
-    public hasAnyOf(types: string[]): boolean {
-        return this.client.grantTypes && this.client.grantTypes.some(x => types.indexOf(x) > -1);
+    public hideIdentityResources(): boolean {
+        return (this.client?.grantTypes?.length === 1 && this.client.grantTypes[0] === 'client_credentials')
+            || (this.client?.grantTypes?.length === 1 && this.client.grantTypes.indexOf('client_credentials') !== -1 && this.client.grantTypes.indexOf('delegation') !== -1);
     }
 }

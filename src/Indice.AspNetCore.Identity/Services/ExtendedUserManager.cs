@@ -8,6 +8,7 @@ using Indice.AspNetCore.Identity.Api.Events;
 using Indice.AspNetCore.Identity.Api.Models;
 using Indice.AspNetCore.Identity.Data.Models;
 using Indice.AspNetCore.Identity.Extensions;
+using Indice.Security;
 using Indice.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
@@ -79,7 +80,7 @@ namespace Indice.AspNetCore.Identity
             }
             var userStore = GetUserStore();
             await userStore.SetPasswordExpirationPolicyAsync(user, policy, cancellationToken);
-            await base.UpdateAsync(user);
+            await UpdateAsync(user);
         }
 
         /// <summary>
@@ -96,7 +97,7 @@ namespace Indice.AspNetCore.Identity
             }
             var userStore = GetUserStore();
             await userStore.SetPasswordExpiredAsync(user, changePassword, cancellationToken);
-            await base.UpdateAsync(user);
+            await UpdateAsync(user);
         }
 
         /// <summary>
@@ -144,6 +145,20 @@ namespace Indice.AspNetCore.Identity
                 return result;
             }
             await SetLockoutEndDateAsync(user, null);
+            return await UpdateUserAsync(user);
+        }
+
+        /// <summary>
+        /// Adds the developer-totp claim to the provided user and provides a random 6-digit code.
+        /// If the user is not a member of the 'Developer' role, it is also added automatically.
+        /// </summary>
+        /// <param name="user">The user.</param>
+        public async Task<IdentityResult> AddDeveloperTotpAsync(TUser user) {
+            var isDeveloper = await IsInRoleAsync(user, BasicRoleNames.Developer);
+            if (!isDeveloper) {
+                await AddToRoleAsync(user, BasicRoleNames.Developer);
+            }
+            user.AddDeveloperTotp();
             return await UpdateUserAsync(user);
         }
 

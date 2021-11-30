@@ -129,7 +129,7 @@ namespace Indice.AspNetCore.Identity.Data.Models
         /// Adds the developer-totp claim to the provided user instance and provides a random 6-digit code.
         /// </summary>
         /// <param name="user">Represents a user in the Identity system.</param>
-        public static void GenerateDeveloperTotp(this User user) {
+        public static void AddDeveloperTotp(this User user) {
             var developerTotpClaims = user.Claims.Where(x => x.ClaimType == BasicClaimTypes.DeveloperTotp).ToList();
             if (developerTotpClaims?.Count() > 0) {
                 foreach (var claim in developerTotpClaims) {
@@ -142,6 +142,15 @@ namespace Indice.AspNetCore.Identity.Data.Models
                 ClaimValue = developerTotp.ToString(),
                 UserId = user.Id
             });
+        }
+
+        /// <summary>
+        /// Adds the developer-totp claim to the provided user instance and provides a random 6-digit code.
+        /// </summary>
+        /// <param name="user">Represents a user in the Identity system.</param>
+        [Obsolete("Method GenerateDeveloperTotp is deprecated and will be removed in future versions, please use AddDeveloperTotp instead.")]
+        public static void GenerateDeveloperTotp(this User user) {
+            user.AddDeveloperTotp();
         }
     }
 }

@@ -3,7 +3,7 @@
     <Description>Indice.AspNetCore.Identity Class Library</Description>
     <Copyright>Copyright (c) 2018 Indice</Copyright>
     <AssemblyTitle>Indice.AspNetCore.Identity</AssemblyTitle>
-    <VersionPrefix>5.2.1</VersionPrefix>
+    <VersionPrefix>5.2.2</VersionPrefix>
     <!--<VersionSuffix>beta-01</VersionSuffix>-->
     <Authors>Constantinos Leftheris, Georgios Manoltzas</Authors>
     <TargetFrameworks>netcoreapp3.1;net5.0;net6.0</TargetFrameworks>
@@ -15,7 +15,7 @@
     <IsPackable>true</IsPackable>
     <PackageId>Indice.AspNetCore.Identity</PackageId>
     <PackageTags>AspNetCore;IdentityServer;</PackageTags>
-    <PackageReleaseNotes>Change check for development environment when registering DeveloperTotpService.</PackageReleaseNotes>
+    <PackageReleaseNotes>Added AddDeveloperTotpAsync to ExtendedUserManager.</PackageReleaseNotes>
     <PackageIcon>icon-310.png</PackageIcon>
     <PackageProjectUrl>https://github.com/indice-co/Indice.AspNet</PackageProjectUrl>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
@@ -35,7 +35,7 @@
     <PackageReference Include="IdentityServer4" Version="4.1.2" />
     <PackageReference Include="IdentityServer4.EntityFramework" Version="4.1.2" />
     <PackageReference Include="Bogus" Version="34.0.1" />
-    <PackageReference Include="Indice.AspNetCore" Version="5.2.1" />
+    <PackageReference Include="Indice.AspNetCore" Version="5.2.2" />
     <PackageReference Include="Microsoft.FeatureManagement.AspNetCore" Version="2.4.0" />
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
   </ItemGroup>

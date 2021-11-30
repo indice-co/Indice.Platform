@@ -43,15 +43,13 @@ namespace Indice.Services
     public interface ILockLease : IDisposable, IAsyncDisposable
     {
         /// <summary>
-        /// The lease Id (different on every lock)
+        /// The lease Id (different on every lock).
         /// </summary>
         string LeaseId { get; }
-
         /// <summary>
         /// The subject of the lock (name).
         /// </summary>
         string Name { get; }
-
         /// <summary>
         /// Try Renew the existing lease period
         /// </summary>

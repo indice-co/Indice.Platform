@@ -99,6 +99,14 @@ namespace Microsoft.Extensions.Configuration
         public static bool WorkerHostDisabled(this IConfiguration configuration) => configuration.GetSection(GeneralSettings.Name).GetValue<bool>("WorkerHostDisabled") || configuration.GetValue<bool>("WorkerHostDisabled");
 
         /// <summary>
+        /// Indicates whether developer Totp featured is enabled. 
+        /// </summary>
+        /// <param name="configuration"></param>
+        /// <returns>True if specified flag is set to true, otherwise false.</returns>
+        /// <remarks>Checks for the <strong>Totp:EnableDeveloperTotp</strong> or <strong>EnableDeveloperTotp</strong> option in appsettings.json file.</remarks>
+        public static bool DeveloperTotpEnabled(this IConfiguration configuration) => configuration.GetSection("Totp").GetValue<bool>("EnableDeveloperTotp") || configuration.GetValue<bool>("EnableDeveloperTotp");
+
+        /// <summary>
         /// Gets the Application Insights instrumentation key.
         /// </summary>
         /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
