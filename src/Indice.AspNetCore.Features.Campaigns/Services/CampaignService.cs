@@ -96,7 +96,19 @@ namespace Indice.AspNetCore.Features.Campaigns.Services
 
         public async Task DeleteCampaign(Guid campaignId) {
             var campaign = await DbContext.Campaigns.FindAsync(campaignId);
+            if (campaign is null) {
+                return;
+            }
             DbContext.Remove(campaign);
+            await DbContext.SaveChangesAsync();
+        }
+
+        public async Task DeleteCampaignType(Guid campaignTypeId) {
+            var campaignType = await DbContext.CampaignTypes.FindAsync(campaignTypeId);
+            if (campaignType is null) {
+                return;
+            }
+            DbContext.Remove(campaignType);
             await DbContext.SaveChangesAsync();
         }
 
@@ -164,6 +176,17 @@ namespace Indice.AspNetCore.Features.Campaigns.Services
                 NotReadCount = notReadCount,
                 ReadCount = readCount,
                 Title = campaign.Title
+            };
+        }
+
+        public async Task<CampaignType> GetCampaignTypeById(Guid campaignTypeId) {
+            var campaign = await DbContext.CampaignTypes.FindAsync(campaignTypeId);
+            if (campaign is null) {
+                return default;
+            }
+            return new CampaignType {
+                Id = campaign.Id,
+                Name = campaign.Name
             };
         }
 

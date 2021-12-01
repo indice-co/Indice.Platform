@@ -8,23 +8,23 @@
                         <div class="mt-1 flex rounded-sm">
                             <lib-toggle-button id="campaignActive" [value]="true" (valueChange)="model.isActive = $event"></lib-toggle-button>
                         </div>
-                        <p class="field-info col-span-3">Ένα μη-ενεργο campaign δεν θα εμφανιστεί στους χρήστες του συστήματος.</p>
+                        <p class="field-info col-span-3">Μία μη-ενεργή καμπάνια δεν θα εμφανιστεί στους χρήστες του συστήματος.</p>
                     </div>
                     <div class="col-span-4">
                         <label for="campaignTitle" class="field-label">Τίτλος (*)</label>
                         <div class="mt-1 flex rounded-sm">
-                            <input type="text" name="campaignTitle" id="campaignTitle" [(ngModel)]="model.title" placeholder="Ο τίτλος του campaign..." maxlength="128" required #campaignTitle="ngModel">
+                            <input type="text" name="campaignTitle" id="campaignTitle" [(ngModel)]="model.title" placeholder="Ο τίτλος της καμπάνιας..." maxlength="128" required #campaignTitle="ngModel">
                         </div>
                         <p *ngIf="campaignTitle.invalid && (campaignTitle.dirty || campaignTitle.touched)" class="mt-2 text-sm text-red-600">
                             <span *ngIf="campaignTitle.errors!['required']">Παρακαλώ συμπλήρώστε ένα τίτλο.</span>
                             <span *ngIf="campaignTitle.errors!['maxlength']">Παρακαλώ συμπλήρώστε ένα μικρότερο τίτλο.</span>
                         </p>
-                        <p class="field-info col-span-3">Η ονομασία η οποία θα εμφανίζεται για το campaign.</p>
+                        <p class="field-info col-span-3">Η ονομασία η οποία θα εμφανίζεται για την καμπάνια.</p>
                     </div>
                     <div class="col-span-4">
                         <label for="campaignContent" class="field-label">Περιεχόμενο (*)</label>
                         <div class="mt-1 flex rounded-sm">
-                            <textarea id="campaignContent" name="campaignContent" [(ngModel)]="model.content" rows="6" placeholder="Το περιεχόμενο του campaign..." required #campaignContent="ngModel"></textarea>
+                            <textarea id="campaignContent" name="campaignContent" [(ngModel)]="model.content" rows="6" placeholder="Το περιεχόμενο της καμπάνιας..." required #campaignContent="ngModel"></textarea>
                         </div>
                         <p *ngIf="campaignContent.invalid && (campaignContent.dirty || campaignContent.touched)" class="mt-2 text-sm text-red-600">
                             <span *ngIf="campaignContent.errors!['required']">Παρακαλώ συμπλήρώστε το περιεχόμενο.</span>
@@ -36,7 +36,7 @@
                             <input type="datetime-local" name="campaignStart" id="campaignStart" [value]="model.activePeriod!.from | date: 'yyyy-MM-ddThh:mm'" (input)="model.activePeriod!.from = toDate($event)"
                                 [min]="now | date: 'yyyy-MM-ddTHH:mm'" [max]="model.activePeriod!.to | date: 'yyyy-MM-ddTHH:mm'">
                         </div>
-                        <p class="field-info">Η ημέρα και ώρα έναρξης του campaign.</p>
+                        <p class="field-info">Η ημέρα και ώρα έναρξης της καμπάνιας.</p>
                     </div>
                     <div class="col-span-4 sm:col-span-2">
                         <label for="campaignEnd" class="field-label">Ημ. Λήξης</label>
@@ -44,14 +44,14 @@
                             <input type="datetime-local" name="campaignEnd" id="campaignEnd" [value]="model.activePeriod!.to | date: 'yyyy-MM-ddTHH:mm'" (input)="model.activePeriod!.to = toDate($event)"
                                 [min]="model.activePeriod!.from | date: 'yyyy-MM-ddTHH:mm'" [disabled]="model.activePeriod!.from === undefined">
                         </div>
-                        <p class="field-info">Η ημέρα και ώρα λήξης του campaign.</p>
+                        <p class="field-info">Η ημέρα και ώρα λήξης της καμπάνιας.</p>
                     </div>
                     <div class="col-span-4">
                         <label for="campaignType" class="field-label">Τύπος</label>
                         <div class="mt-1 flex rounded-sm">
                             <lib-drop-down-menu id="campaignType" class="w-full" [selected]="model.typeId" [options]="campaignTypes" (selectedChanged)="model.typeId = $event"></lib-drop-down-menu>
                         </div>
-                        <p class="field-info col-span-3">Πατήστε <a [attr.style]="'color: blue'" (click)="openCampaignTypesModal()" href="javascript:void(0);">εδώ</a> για να προσθέσετε ένα νέο τύπο campaign.</p>
+                        <p class="field-info col-span-3">Πατήστε <a [attr.style]="'color: blue'" (click)="openCampaignTypesModal()" href="javascript:void(0);">εδώ</a> για να προσθέσετε ένα νέο τύπο καμπάνιας.</p>
                     </div>
                     <div class="col-span-4">
                         <div class="mt-1 flex rounded-sm">
@@ -62,7 +62,7 @@
                         <label for="campaignUserCodes" class="field-label">Κωδικοί χρηστών (*)</label>
                         <div class="mt-1 flex rounded-sm">
                             <textarea id="campaignUserCodes" name="campaignContent" [ngModel]="toUserCodesString(model.selectedUserCodes)" (ngModelChange)="model.selectedUserCodes = toUserCodesArray($event)" rows="6"
-                                placeholder="Η λίστα χρηστών του campaign...&#10;κωδικός_χρήστη_1&#10;κωδικός_χρήστη_2" required #campaignUserCodes="ngModel">
+                                placeholder="Η λίστα χρηστών της καμπάνιας...&#10;κωδικός_χρήστη_1&#10;κωδικός_χρήστη_2" required #campaignUserCodes="ngModel">
                             </textarea>
                         </div>
                         <p *ngIf="campaignUserCodes.invalid && (campaignUserCodes.dirty || campaignUserCodes.touched)" class="mt-2 text-sm text-red-600">
@@ -77,6 +77,6 @@
             </div>
             <button type="submit" [style.visibility]="'hidden'" #submitBtn>Submit</button>
         </form>
-        <pre *ngIf="isDevelopment">{{ model | json }}</pre>
+        <!-- <pre *ngIf="isDevelopment">{{ model | json }}</pre> -->
     </div>
 </lib-side-view-layout>

@@ -13,9 +13,11 @@ namespace Indice.AspNetCore.Features.Campaigns.Services
         Task<Campaign> CreateCampaign(CreateCampaignRequest request);
         Task<CampaignType> CreateCampaignType(CreateCampaignTypeRequest request);
         Task DeleteCampaign(Guid campaignId);
+        Task DeleteCampaignType(Guid campaignTypeId);
         Task<CampaignDetails> GetCampaignById(Guid campaignId);
         Task<ResultSet<Campaign>> GetCampaigns(ListOptions options);
         Task<CampaignStatistics> GetCampaignStatistics(Guid campaignId);
+        Task<CampaignType> GetCampaignTypeById(Guid campaignTypeId);
         Task<ResultSet<CampaignType>> GetCampaignTypes(ListOptions options);
         Task UpdateCampaign(Guid campaignId, UpdateCampaignRequest request);
         Task UpdateCampaignVisit(Guid campaignId);

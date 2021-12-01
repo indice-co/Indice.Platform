@@ -174,6 +174,25 @@ namespace Indice.AspNetCore.Features.Campaigns.Controllers
         }
 
         /// <summary>
+        /// Permanently deletes a campaign type.
+        /// </summary>
+        /// <param name="campaignTypeId">The id of the campaign type.</param>
+        /// <response code="204">No Content</response>
+        /// <response code="404">Not Found</response>
+        [HttpDelete("campaign-types/{campaignTypeId}")]
+        [Produces(MediaTypeNames.Application.Json)]
+        [ProducesResponseType(StatusCodes.Status204NoContent, Type = typeof(void))]
+        [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ProblemDetails))]
+        public async Task<IActionResult> DeleteCampaignType([FromRoute] Guid campaignTypeId) {
+            var campaignType = await CampaignService.GetCampaignTypeById(campaignTypeId);
+            if (campaignType == null) {
+                return NotFound();
+            }
+            await CampaignService.DeleteCampaignType(campaignTypeId);
+            return NoContent();
+        }
+
+        /// <summary>
         /// Updates an existing campaign.
         /// </summary>
         /// <param name="campaignId">The id of the campaign to update.</param>

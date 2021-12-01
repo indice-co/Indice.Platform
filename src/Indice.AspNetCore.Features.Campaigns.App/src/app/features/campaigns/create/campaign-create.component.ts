@@ -1,7 +1,7 @@
-import { Component, ElementRef, OnInit, TemplateRef, ViewChild } from '@angular/core';
+import { Component, ElementRef, Inject, OnInit, ViewChild } from '@angular/core';
 import { NgForm } from '@angular/forms';
 
-import { MenuOption, Modal, ModalService, SideViewLayoutComponent } from '@indice/ng-components';
+import { MenuOption, Modal, ModalService, SideViewLayoutComponent, ToasterService, ToastType } from '@indice/ng-components';
 import { map } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
 import { Campaign, CampaignsApiService, CampaignTypeResultSet, CreateCampaignRequest, Period } from 'src/app/core/services/campaigns-api.services';
@@ -16,10 +16,17 @@ export class CampaignCreateComponent implements OnInit {
     @ViewChild('sideViewLayout', { static: false }) private sideViewLayout!: SideViewLayoutComponent;
     @ViewChild('submitBtn', { static: false }) public submitButton!: ElementRef;
 
-    constructor(private api: CampaignsApiService, private modal: ModalService) { }
+    constructor(
+        private api: CampaignsApiService,
+        private modal: ModalService,
+        @Inject(ToasterService) private toaster: ToasterService
+    ) { }
 
     public now: Date = new Date();
-    public model: CreateCampaignRequest = new CreateCampaignRequest({ activePeriod: new Period({ from: this.now }), isActive: true, isGlobal: true });
+    public model: CreateCampaignRequest = new CreateCampaignRequest({
+        activePeriod: new Period({ from: this.now }),
+        isActive: true, isGlobal: true
+    });
     public campaignTypes: MenuOption[] = [];
     public campaignTypesModalRef: Modal | undefined;
     public isDevelopment = !environment.production;
@@ -29,12 +36,7 @@ export class CampaignCreateComponent implements OnInit {
     ];
 
     public ngOnInit(): void {
-        this.api.getCampaignTypes().pipe(map((campaignTypes: CampaignTypeResultSet) => {
-            if (campaignTypes.items) {
-                this.campaignTypes = campaignTypes.items.map(type => new MenuOption(type.name || '', type.id));
-                this.campaignTypes.unshift(new MenuOption('Παρακαλώ επιλέξτε...', null));
-            }
-        })).subscribe();
+        this.loadCampaignTypes();
     }
 
     public onSubmit(): void {
@@ -43,6 +45,7 @@ export class CampaignCreateComponent implements OnInit {
         }
         this.api.createCampaign(this.model).subscribe((campaign: Campaign) => {
             this.sideViewLayout.emitClose();
+            this.toaster.show(ToastType.Success, 'Επιτυχής αποθήκευση', `Η καμπάνια με τίτλο '${campaign.title}' δημιουργήθηκε με επιτυχία.`);
         });
     }
 
@@ -51,7 +54,14 @@ export class CampaignCreateComponent implements OnInit {
             backdrop: 'static',
             keyboard: false,
             animated: true,
-            initialState: { campaignTypes: this.campaignTypes.filter(x => x.value != null) }
+            initialState: {
+                campaignTypes: this.campaignTypes.filter(x => x.value != null)
+            }
+        });
+        this.campaignTypesModalRef.onHidden?.subscribe((response: any) => {
+            if (response.result.campaignTypesChanged) {
+                this.loadCampaignTypes();
+            }
         });
     }
 
@@ -76,5 +86,18 @@ export class CampaignCreateComponent implements OnInit {
 
     public toUserCodesString(userCodes: string[] | undefined): string {
         return userCodes ? userCodes.join('\n') : '';
+    }
+
+    private loadCampaignTypes(): void {
+        this.campaignTypes = [];
+        this.api
+            .getCampaignTypes()
+            .pipe(map((campaignTypes: CampaignTypeResultSet) => {
+                if (campaignTypes.items) {
+                    this.campaignTypes = campaignTypes.items.map(type => new MenuOption(type.name || '', type.id));
+                    this.campaignTypes.unshift(new MenuOption('Παρακαλώ επιλέξτε...', null));
+                }
+            }))
+            .subscribe();
     }
 }

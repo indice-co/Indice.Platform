@@ -1,4 +1,5 @@
-﻿using Indice.AspNetCore.Features.Campaigns.Configuration;
+﻿using System.Diagnostics;
+using Indice.AspNetCore.Features.Campaigns.Configuration;
 using Indice.AspNetCore.Features.Campaigns.Data.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -11,14 +12,10 @@ namespace Indice.AspNetCore.Features.Campaigns.Data
     /// </summary>
     internal class CampaingsDbContext : DbContext
     {
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="options"></param>
         public CampaingsDbContext(DbContextOptions<CampaingsDbContext> options) : base(options) {
-#if DEBUG
-            Database.EnsureCreated();
-#endif
+            if (Debugger.IsAttached) {
+                Database.EnsureCreated();
+            }
         }
 
         public DbSet<DbAttachment> Attachments { get; set; }
