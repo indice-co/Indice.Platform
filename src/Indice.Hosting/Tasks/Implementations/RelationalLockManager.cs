@@ -1,11 +1,12 @@
 ﻿using System;
-using System.Data.SqlClient;
 using System.Threading.Tasks;
 using Indice.Hosting.Tasks.Data;
 using Indice.Hosting.Tasks.Data.Models;
 using Indice.Services;
 using Indice.Types;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using Npgsql;
 
 namespace Indice.Hosting.Tasks.Implementations
 {
@@ -39,7 +40,7 @@ namespace Indice.Hosting.Tasks.Implementations
             try {
                 await _dbContext.Database.ExecuteSqlRawAsync(_queryDescriptor.AcquireLock, @lock.Id, @lock.Name, @lock.ExpirationDate, @lock.Duration);
                 success = true;
-            } catch (SqlException) {
+            } catch (Exception exception) when (exception is SqlException || exception is NpgsqlException) {
                 await Cleanup();
                 success = false;
             }

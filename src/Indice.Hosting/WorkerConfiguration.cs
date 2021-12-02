@@ -28,6 +28,10 @@ namespace Indice.Hosting
         /// <param name="configureAction">The delegate used to configure the worker host options.</param>
         /// <returns>The <see cref="WorkerHostBuilder"/> used to configure the worker host.</returns>
         public static WorkerHostBuilder AddWorkerHost(this IServiceCollection services, Action<WorkerHostOptions> configureAction) {
+            var builderInstance = services.BuildServiceProvider().GetService<WorkerHostBuilder>();
+            if (builderInstance is not null) {
+                return builderInstance;
+            }
             var workerHostOptions = new WorkerHostOptions(services);
             configureAction.Invoke(workerHostOptions);
             services.AddSingleton(workerHostOptions.JsonOptions);
@@ -39,7 +43,9 @@ namespace Indice.Hosting
             services.AddTransient<QuartzJobRunner>();
             services.AddTransient<TaskHandlerActivator>();
             services.AddHostedService<WorkerHostedService>();
-            return new WorkerHostBuilder(services, workerHostOptions);
+            var builder = new WorkerHostBuilder(services, workerHostOptions);
+            services.AddSingleton(builder);
+            return builder;
         }
 
         /// <summary>
@@ -79,14 +85,6 @@ namespace Indice.Hosting
         }
 
         /// <summary>
-        /// Uses an in-memory storage mechanism in order to manage queue items.
-        /// </summary>
-        /// <param name="options">The <see cref="WorkerHostOptions"/> used to configure locking and queue persistence.</param>
-        /// <returns>The <see cref="WorkerHostOptions"/> used to configure locking and queue persistence.</returns>
-        public static WorkerHostOptions UseInMemoryStorage(this WorkerHostOptions options) =>
-            throw new NotImplementedException();
-
-        /// <summary>
         /// Uses the tables of a relational database in order to manage queue items.
         /// </summary>
         /// <param name="options">The <see cref="WorkerHostOptions"/> used to configure locking and queue persistence.</param>
@@ -109,7 +107,7 @@ namespace Indice.Hosting
             options.Services.AddDbContext<TContext>(configureAction);
             options.Services.AddDbContext<LockDbContext>(configureAction);
             if (!isDefaultContext) {
-                options.Services.AddScoped<TaskDbContext, TContext>();
+                options.Services.TryAddScoped<TaskDbContext, TContext>();
             }
             options = options.AddRelationalStore();
             options.UseLock<RelationalLockManager>();
@@ -169,16 +167,16 @@ namespace Indice.Hosting
             }
             var options = new QueueOptions(builder.Services);
             configureAction?.Invoke(options);
-            options.Services.AddTransient(builder.JobHandlerType);
-            options.Services.AddTransient(typeof(IQueueNameResolver<TWorkItem>), sp => Activator.CreateInstance(typeof(DefaultQueueNameResolver<TWorkItem>), new object[] { options }));
-            options.Services.AddTransient(typeof(IMessageQueue<TWorkItem>), queueStoreTypeImplementation);
+            options.Services.TryAddTransient(builder.JobHandlerType);
+            options.Services.TryAddTransient(typeof(IQueueNameResolver<TWorkItem>), sp => Activator.CreateInstance(typeof(DefaultQueueNameResolver<TWorkItem>), new object[] { options }));
+            options.Services.TryAddTransient(typeof(IMessageQueue<TWorkItem>), queueStoreTypeImplementation);
             var queueStoreTypeDefault = builder.Options.QueueStoreType.MakeGenericType(typeof(TWorkItem));
             if (!queueStoreTypeDefault.Equals(queueStoreTypeImplementation)) {
-                options.Services.AddTransient(queueStoreTypeDefault);
+                options.Services.TryAddTransient(queueStoreTypeDefault);
             }
-            options.Services.AddTransient(typeof(DequeueJob<TWorkItem>));
-            options.Services.AddTransient(typeof(DequeuedCleanupJob<TWorkItem>));
-            options.Services.AddTransient(serviceProvider => new DequeueJobSettings(
+            options.Services.TryAddTransient(typeof(DequeueJob<TWorkItem>));
+            options.Services.TryAddTransient(typeof(DequeuedCleanupJob<TWorkItem>));
+            options.Services.TryAddTransient(serviceProvider => new DequeueJobSettings(
                 jobHandlerType: builder.JobHandlerType,
                 workItemType: typeof(TWorkItem),
                 jobName: serviceProvider.GetService<IQueueNameResolver<TWorkItem>>().Resolve(),
@@ -217,10 +215,10 @@ namespace Indice.Hosting
                 CronExpression = cronExpression
             };
             configureAction?.Invoke(options);
-            options.Services.AddTransient(builder.JobHandlerType);
-            options.Services.AddTransient(typeof(IScheduledTaskStore<TState>), builder.Options.ScheduledTaskStoreType.MakeGenericType(typeof(TState)));
-            options.Services.AddTransient(typeof(ScheduledJob<,>).MakeGenericType(builder.JobHandlerType, typeof(TState)));
-            options.Services.AddTransient(serviceProvider => new ScheduledJobSettings(builder.JobHandlerType, typeof(TState), cronExpression, options.Name, options.Group, options.Description));
+            options.Services.TryAddTransient(builder.JobHandlerType);
+            options.Services.TryAddTransient(typeof(IScheduledTaskStore<TState>), builder.Options.ScheduledTaskStoreType.MakeGenericType(typeof(TState)));
+            options.Services.TryAddTransient(typeof(ScheduledJob<,>).MakeGenericType(builder.JobHandlerType, typeof(TState)));
+            options.Services.TryAddTransient(serviceProvider => new ScheduledJobSettings(builder.JobHandlerType, typeof(TState), cronExpression, options.Name, options.Group, options.Description));
             return new WorkerHostBuilder(options.Services, builder.Options);
         }
     }
