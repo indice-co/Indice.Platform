@@ -12,9 +12,7 @@ using Indice.AspNetCore.Identity.Data;
 using Indice.AspNetCore.Identity.Localization;
 using Indice.AspNetCore.Swagger;
 using Indice.Configuration;
-using Indice.Hosting;
 using Indice.Identity.Configuration;
-using Indice.Identity.Hosting;
 using Indice.Identity.Security;
 using Indice.Identity.Services;
 using Microsoft.ApplicationInsights.AspNetCore.Extensions;
@@ -23,7 +21,6 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Localization;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -110,26 +107,6 @@ namespace Indice.Identity
                        .AddConnectSrc("https://dc.services.visualstudio.com")
                        .AddConnectSrc("https://switzerlandnorth-0.in.applicationinsights.azure.com//v2/track")
                        .AddFrameAncestors("https://localhost:2002");
-            });
-            // Setup worker host for executing background tasks.
-            services.AddWorkerHost(options => {
-                options.JsonOptions.JsonSerializerOptions.WriteIndented = true;
-                options.AddRelationalStore(builder => {
-                    builder.UseNpgsql(Configuration.GetConnectionString("WorkerDb"));
-                    //builder.UseSqlServer(Configuration.GetConnectionString("WorkerDb"));
-                });
-            })
-            .AddJob<SmsAlertHandler>()
-            .WithQueueTrigger<SmsDto>(options => {
-                options.QueueName = "user-messages";
-                options.PollingInterval = 500;
-                options.InstanceCount = 1;
-            })
-            .AddJob<LoadAvailableAlertsHandler>()
-            .WithScheduleTrigger<DemoCounterModel>("* 0/1 * * * ?", options => {
-                options.Name = "load-available-alerts";
-                options.Description = "Load alerts for the queue.";
-                options.Group = "indice";
             });
             services.AddEventHandler<DeviceDeletedEvent, DeviceDeletedEventHandler>();
         }

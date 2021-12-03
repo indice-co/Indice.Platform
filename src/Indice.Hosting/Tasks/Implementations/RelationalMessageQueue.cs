@@ -93,7 +93,7 @@ namespace Indice.Hosting.Tasks.Implementations
         }
 
         /// <inheritdoc/>
-        public Task EnqueueRange(IEnumerable<T> items) {
+        public Task EnqueueRange(IEnumerable<QMessage<T>> items) {
             var query = new StringBuilder(_queryDescriptor.EnqueueRangeInsertStatement);
             var dbConnection = _dbContext.Database.GetDbConnection();
             dbConnection.Open();
@@ -107,8 +107,12 @@ namespace Indice.Hosting.Tasks.Implementations
                     query.AppendFormat(_queryDescriptor.EnqueueRangeValuesStatement, j);
                     var isLastItem = j == iterationLength - 1;
                     query.Append(!isLastItem ? ", " : ";");
+                    var currentItem = items.ElementAt(j);
+                    command.AddParameterWithValue($"@Id{j}", currentItem.Id, DbType.Guid);
                     command.AddParameterWithValue($"@QueueName{j}", _queueNameResolver.Resolve(), DbType.String);
-                    command.AddParameterWithValue($"@Payload{j}", JsonSerializer.Serialize(items.ElementAt(j), _jsonSerializerOptions), DbType.String);
+                    command.AddParameterWithValue($"@Payload{j}", JsonSerializer.Serialize(currentItem.Value, _jsonSerializerOptions), DbType.String);
+                    command.AddParameterWithValue($"@Date{j}", currentItem.Date, DbType.DateTime);
+                    command.AddParameterWithValue($"@DequeueCount{j}", currentItem.DequeueCount, DbType.Int32);
                 }
                 command.CommandText = query.ToString();
                 command.CommandType = CommandType.Text;
@@ -177,7 +181,7 @@ namespace Indice.Hosting.Tasks.Implementations
             WITH cte AS (
                 SELECT TOP(1) * 
                 FROM [work].[QMessage] WITH (ROWLOCK, READPAST)
-                WHERE [QueueName] = @QueueName
+                WHERE [QueueName] = @QueueName AND [Date] <= GETUTCDATE()
                 ORDER BY [Date] ASC
             )
             DELETE FROM cte 
@@ -186,7 +190,7 @@ namespace Indice.Hosting.Tasks.Implementations
             INSERT INTO [work].[QMessage] ([Id], [QueueName], [Payload], [Date], [DequeueCount], [State]) 
             VALUES (@Id, @QueueName, @Payload, @Date, @DequeueCount, 0);";
         public const string EnqueueRangeInsertStatement = @"INSERT INTO [work].[QMessage] ([Id], [QueueName], [Payload], [Date], [DequeueCount], [State]) VALUES";
-        public const string EnqueueRangeValuesStatement = @"(NEWID(), @QueueName{0}, @Payload{0}, GETUTCDATE(), 0, 0)";
+        public const string EnqueueRangeValuesStatement = @"(@Id{0}, @QueueName{0}, @Payload{0}, @Date{0}, @DequeueCount{0}, 0)";
         public const string Peek = @"
             SELECT TOP(1) [Payload] 
             FROM [work].[QMessage] WITH (ROWLOCK, READPAST) 
@@ -208,13 +212,13 @@ namespace Indice.Hosting.Tasks.Implementations
                 LIMIT 1
                 FOR UPDATE SKIP LOCKED
             ) q
-            WHERE q.""Id"" = ""work"".""QMessage"".""Id""
+            WHERE q.""Id"" = ""work"".""QMessage"".""Id"" AND q.""Date"" <= CURRENT_TIMESTAMP
             RETURNING ""work"".""QMessage"".*;";
         public const string Enqueue = @"
             INSERT INTO ""work"".""QMessage"" (""Id"", ""QueueName"", ""Payload"", ""Date"", ""DequeueCount"", ""State"")
             VALUES (@Id, @QueueName, @Payload, @Date, @DequeueCount, 0);";
         public const string EnqueueRangeInsertStatement = @"INSERT INTO ""work"".""QMessage"" (""Id"", ""QueueName"", ""Payload"", ""Date"", ""DequeueCount"", ""State"") VALUES";
-        public const string EnqueueRangeValuesStatement = @"(MD5(RANDOM()::TEXT || CLOCK_TIMESTAMP()::TEXT)::UUID, @QueueName{0}, @Payload{0}, NOW(), 0, 0)";
+        public const string EnqueueRangeValuesStatement = @"(@Id{0}, @QueueName{0}, @Payload{0}, @Date{0}, @DequeueCount{0}, 0)";
         public const string Peek = @"
             SELECT *
             FROM ""work"".""QMessage""

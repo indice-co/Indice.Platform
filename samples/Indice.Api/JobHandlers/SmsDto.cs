@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Indice.Identity.Hosting
+namespace Indice.Api.JobHandlers
 {
     public class SmsDto
     {

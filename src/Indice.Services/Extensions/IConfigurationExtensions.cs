@@ -71,7 +71,7 @@ namespace Microsoft.Extensions.Configuration
         /// </summary>
         /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
         /// <returns>True if specified flag is set to true, otherwise false.</returns>
-        /// <remarks>Checks for the <strong>General:HstsEnabled option in appsettings.json file. When true you can register HstsBuilderExtensions.UseHsts(IApplicationBuilder) middleware.</remarks>
+        /// <remarks>Checks for the <strong>General:HstsEnabled</strong> option in appsettings.json file. When true you can register HstsBuilderExtensions.UseHsts(IApplicationBuilder) middleware.</remarks>
         public static bool HstsEnabled(this IConfiguration configuration) => configuration.GetSection(GeneralSettings.Name).GetValue<bool>(nameof(GeneralSettings.HstsEnabled));
 
         /// <summary>

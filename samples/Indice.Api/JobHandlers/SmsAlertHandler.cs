@@ -3,7 +3,7 @@ using System.Diagnostics;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 
-namespace Indice.Identity.Hosting
+namespace Indice.Api.JobHandlers
 {
     public class SmsAlertHandler
     {
@@ -21,7 +21,7 @@ namespace Indice.Identity.Hosting
             timer.Start();
             var waitTime = new Random().Next(5, 10) * 100;
             await Task.Delay(waitTime);
-            _logger.LogDebug($"{nameof(SmsAlertHandler)} took {timer.ElapsedMilliseconds}ms to execute.");
+            _logger.LogDebug("{HandlerName} took {ExecutionTime}ms to execute.", nameof(SmsAlertHandler), timer.ElapsedMilliseconds);
         }
     }
 }

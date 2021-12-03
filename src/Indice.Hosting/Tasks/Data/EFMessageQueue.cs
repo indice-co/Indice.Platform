@@ -76,12 +76,12 @@ namespace Indice.Hosting.Tasks.Data
         }
 
         /// <inheritdoc/>
-        public async Task EnqueueRange(IEnumerable<T> items) {
-            _dbContext.AddRange(items.Select(x => new DbQMessage() {
-                Id = Guid.NewGuid(),
-                Date = DateTime.UtcNow,
+        public async Task EnqueueRange(IEnumerable<QMessage<T>> items) {
+            _dbContext.AddRange(items.Select(item => new DbQMessage() {
+                Id = item.Id,
+                Date = item.Date,
                 State = QMessageState.New,
-                Payload = JsonSerializer.Serialize(x, _jsonSerializerOptions),
+                Payload = JsonSerializer.Serialize(item.Value, _jsonSerializerOptions),
                 QueueName = _queueName
             }));
             await _dbContext.SaveChangesAsync();

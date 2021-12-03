@@ -7,13 +7,8 @@ using Indice.Hosting.Tasks;
 using Indice.Services;
 using Microsoft.Extensions.Logging;
 
-namespace Indice.Identity.Hosting
+namespace Indice.Api.JobHandlers
 {
-    public class DemoCounterModel
-    {
-        public int DemoCounter { get; set; }
-    }
-
     public class LoadAvailableAlertsHandler
     {
         private readonly ILogger<LoadAvailableAlertsHandler> _logger;
@@ -30,16 +25,21 @@ namespace Indice.Identity.Hosting
                 var timer = new Stopwatch();
                 timer.Start();
                 var tasksList = new List<SmsDto>();
-                var task = new SmsDto(userId: Guid.NewGuid().ToString(), phoneNumber: "6992731575", message: $"Transaction {Guid.NewGuid()} has been taken place.");
-                for (var i = 0; i < 50; i++) {
+                var task = new SmsDto(userId: Guid.NewGuid().ToString(), phoneNumber: "6992731575", message: $"Transaction '{Guid.NewGuid()}' took place.");
+                for (var i = 0; i < 2; i++) {
                     tasksList.Add(task);
                 }
-                await _messageQueue.EnqueueRange(tasksList);
                 var waitTime = new Random().Next(15, 20) * 1000;
                 await Task.Delay(waitTime, cancellationToken);
+                await _messageQueue.EnqueueRange(tasksList, visibilityWindow: TimeSpan.FromMinutes(1));
                 timer.Stop();
-                _logger.LogDebug($"{nameof(LoadAvailableAlertsHandler)} took {timer.ElapsedMilliseconds}ms to execute.");
+                _logger.LogDebug("{HandlerName} took {ExecutionTime}ms to execute.", nameof(LoadAvailableAlertsHandler), timer.ElapsedMilliseconds);
             }
         }
+    }
+
+    public class DemoCounterModel
+    {
+        public int DemoCounter { get; set; }
     }
 }
