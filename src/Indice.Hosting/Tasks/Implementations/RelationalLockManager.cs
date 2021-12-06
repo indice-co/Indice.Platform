@@ -6,7 +6,6 @@ using Indice.Services;
 using Indice.Types;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
-using Npgsql;
 
 namespace Indice.Hosting.Tasks.Implementations
 {
@@ -40,7 +39,7 @@ namespace Indice.Hosting.Tasks.Implementations
             try {
                 await _dbContext.Database.ExecuteSqlRawAsync(_queryDescriptor.AcquireLock, @lock.Id, @lock.Name, @lock.ExpirationDate, @lock.Duration);
                 success = true;
-            } catch (Exception exception) when (exception is SqlException || exception is NpgsqlException) {
+            } catch (Exception) {
                 await Cleanup();
                 success = false;
             }

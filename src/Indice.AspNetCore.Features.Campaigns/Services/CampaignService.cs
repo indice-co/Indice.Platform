@@ -131,7 +131,7 @@ namespace Indice.AspNetCore.Features.Campaigns.Services
                          Content = campaign.Content,
                          CreatedAt = campaign.CreatedAt,
                          Id = campaign.Id,
-                         IsActive = campaign.IsActive,
+                         Published = campaign.Published,
                          IsGlobal = campaign.IsGlobal,
                          Title = campaign.Title,
                          Type = campaign.Type != null ? new CampaignType {
@@ -143,6 +143,7 @@ namespace Indice.AspNetCore.Features.Campaigns.Services
 
         public Task<ResultSet<Campaign>> GetCampaigns(ListOptions options) =>
             DbContext.Campaigns
+                     .Include(x => x.Type)
                      .AsNoTracking()
                      .Select(campaign => new Campaign {
                          ActionText = campaign.ActionText,
@@ -151,9 +152,13 @@ namespace Indice.AspNetCore.Features.Campaigns.Services
                          Content = campaign.Content,
                          CreatedAt = campaign.CreatedAt,
                          Id = campaign.Id,
-                         IsActive = campaign.IsActive,
+                         Published = campaign.Published,
                          IsGlobal = campaign.IsGlobal,
-                         Title = campaign.Title
+                         Title = campaign.Title,
+                         Type = campaign.Type != null ? new CampaignType {
+                             Id = campaign.Type.Id,
+                             Name = campaign.Type.Name
+                         } : null
                      })
                      .ToResultSetAsync(options);
 
@@ -208,7 +213,7 @@ namespace Indice.AspNetCore.Features.Campaigns.Services
             campaign.ActivePeriod = request.ActivePeriod;
             campaign.Content = request.Content;
             campaign.Title = request.Title;
-            campaign.IsActive = request.IsActive;
+            campaign.Published = request.IsActive;
             await DbContext.SaveChangesAsync();
         }
 

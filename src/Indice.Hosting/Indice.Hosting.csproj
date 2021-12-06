@@ -2,7 +2,7 @@
   <PropertyGroup>
     <Description>Indice.Hosting Class Library</Description>
     <Copyright>Copyright (c) 2019 Indice</Copyright>
-    <VersionPrefix>5.2.4</VersionPrefix>
+    <VersionPrefix>5.2.8</VersionPrefix>
     <!--<VersionSuffix>beta-01</VersionSuffix>-->
     <Authors>Constantinos Leftheris, Georgios Manoltzas</Authors>
     <TargetFrameworks>netstandard2.0;net5.0;net6.0;</TargetFrameworks>
@@ -15,7 +15,7 @@
     <IsPackable>true</IsPackable>
     <PackageId>Indice.Hosting</PackageId>
     <PackageTags>dotnetcore;Hosting</PackageTags>
-    <PackageReleaseNotes>Fix bug - LockStoreType was not properly registered in the DI.</PackageReleaseNotes>
+    <PackageReleaseNotes>Handle DbConnection management.</PackageReleaseNotes>
     <PackageIcon>icon-310.png</PackageIcon>
     <PackageProjectUrl>https://github.com/indice-co/Indice.AspNet</PackageProjectUrl>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
@@ -32,10 +32,9 @@
     <None Include="..\..\icon\icon-310.png" Pack="true" Visible="false" PackagePath="" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Indice.Services" Version="5.2.2" />
+    <PackageReference Include="Indice.Services" Version="5.2.3" />
     <PackageReference Include="Microsoft.Data.SqlClient" Version="4.0.0" />
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
-    <PackageReference Include="Npgsql" Version="6.0.0" />
     <PackageReference Include="Quartz" Version="3.3.3" />
   </ItemGroup>
   <ItemGroup Condition=" '$(TargetFramework)' == 'net6.0' ">

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Text.Json.Serialization;
 
 namespace Indice.AspNetCore.Features.Campaigns.Models
 {
@@ -21,16 +20,28 @@ namespace Indice.AspNetCore.Features.Campaigns.Models
         /// </summary>
         public string Content { get; set; }
         /// <summary>
-        /// 
+        /// Determines if a message is read by the user.
         /// </summary>
         public bool IsRead { get; set; }
+        /// <summary>
+        /// Defines a CTA (click-to-action) text.
+        /// </summary>
         public string ActionText { get; set; }
+        /// <summary>
+        /// Defines a CTA (click-to-action) URL.
+        /// </summary>
         public string ActionUrl { get; set; }
+        /// <summary>
+        /// The URL to the attachment.
+        /// </summary>
         public string AttachmentUrl { get; set; }
+        /// <summary>
+        /// Defines when the message was created.
+        /// </summary>
         public DateTimeOffset CreatedAt { get; set; }
-        [JsonIgnore]
-        public bool IsDeleted { get; set; }
-        [JsonIgnore]
-        public bool IsActive { get; set; }
+        /// <summary>
+        /// The type details of the campaign.
+        /// </summary>
+        public CampaignType Type { get; set; }
     }
 }

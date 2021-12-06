@@ -35,7 +35,7 @@ namespace Indice.AspNetCore.Features.Campaigns.Models
         /// <summary>
         /// Determines if a campaign is active.
         /// </summary>
-        public bool IsActive { get; set; }
+        public bool Published { get; set; }
         /// <summary>
         /// Specifies the time period that a campaign is active.
         /// </summary>
@@ -44,5 +44,9 @@ namespace Indice.AspNetCore.Features.Campaigns.Models
         /// Determines if campaign targets all user base.
         /// </summary>
         public bool IsGlobal { get; set; }
+        /// <summary>
+        /// The type details of the campaign.
+        /// </summary>
+        public CampaignType Type { get; set; }
     }
 }

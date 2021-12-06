@@ -13,7 +13,7 @@ namespace Indice.AspNetCore.Features.Campaigns.Data.Models
         public string ActionText { get; set; }
         public string ActionUrl { get; set; }
         public DateTimeOffset CreatedAt { get; set; }
-        public bool IsActive { get; set; }
+        public bool Published { get; set; }
         public Period ActivePeriod { get; set; }
         public bool IsGlobal { get; set; }
         public dynamic Data { get; set; }
@@ -21,6 +21,7 @@ namespace Indice.AspNetCore.Features.Campaigns.Data.Models
             get { return Data != null ? JsonSerializer.Serialize(Data, JsonSerializerOptionDefaults.GetDefaultSettings()) : null; }
             set { Data = value != null ? JsonSerializer.Deserialize<dynamic>(value, JsonSerializerOptionDefaults.GetDefaultSettings()) : null; }
         }
+        public CampaignDeliveryType DeliveryType { get; set; } = CampaignDeliveryType.Inbox;
         public Guid? TypeId { get; set; }
         public Guid? AttachmentId { get; set; }
         public virtual DbAttachment Attachment { get; set; }

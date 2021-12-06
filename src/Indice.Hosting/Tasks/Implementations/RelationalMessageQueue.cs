@@ -41,101 +41,101 @@ namespace Indice.Hosting.Tasks.Implementations
         public Task Cleanup(int? batchSize = null) => Task.CompletedTask;
 
         /// <inheritdoc/>
-        public Task<int> Count() {
-            var dbConnection = _dbContext.Database.GetDbConnection();
-            dbConnection.Open();
-            using var command = dbConnection.CreateCommand();
-            command.AddParameterWithValue("@QueueName", _queueNameResolver.Resolve(), DbType.String);
-            command.CommandText = _queryDescriptor.Count;
-            command.CommandType = CommandType.Text;
-            var count = command.ExecuteScalar();
-            return Task.FromResult((int)count);
-        }
-
-        /// <inheritdoc/>
-        public Task<QMessage<T>> Dequeue() {
-            var dbConnection = _dbContext.Database.GetDbConnection();
-            dbConnection.Open();
-            using var command = dbConnection.CreateCommand();
-            command.AddParameterWithValue("@QueueName", _queueNameResolver.Resolve(), DbType.String);
-            command.CommandText = _queryDescriptor.Dequeue;
-            command.CommandType = CommandType.Text;
-            using var dataReader = command.ExecuteReader();
-            DbQMessage message = null;
-            while (dataReader.Read()) {
-                message = new DbQMessage {
-                    Id = dataReader.GetGuid(0),
-                    QueueName = dataReader.IsDBNull(1) ? default : dataReader.GetString(1),
-                    Payload = dataReader.IsDBNull(2) ? default : dataReader.GetString(2),
-                    Date = dataReader.GetDateTime(3),
-                    RowVersion = dataReader.IsDBNull(4) ? default : (byte[])dataReader[nameof(DbQMessage.RowVersion)],
-                    DequeueCount = dataReader.GetInt32(5),
-                    State = (QMessageState)dataReader.GetInt32(6)
-                };
+        public async Task<int> Count() {
+            var dbConnection = await _dbContext.Database.EnsureOpenConnectionAsync();
+            using (var command = dbConnection.CreateCommand()) {
+                command.AddParameterWithValue("@QueueName", _queueNameResolver.Resolve(), DbType.String);
+                command.CommandText = _queryDescriptor.Count;
+                command.CommandType = CommandType.Text;
+                var count = await command.ExecuteScalarAsync();
+                return (int)count;
             }
-            return Task.FromResult(message != null ? message.ToModel<T>(_jsonSerializerOptions) : default);
         }
 
         /// <inheritdoc/>
-        public Task Enqueue(QMessage<T> item, bool isPoison) {
-            var dbConnection = _dbContext.Database.GetDbConnection();
-            dbConnection.Open();
-            using var command = dbConnection.CreateCommand();
-            command.AddParameterWithValue("@Id", item.Id, DbType.Guid);
-            command.AddParameterWithValue("@QueueName", _queueNameResolver.Resolve(isPoison), DbType.String);
-            command.AddParameterWithValue("@Payload", JsonSerializer.Serialize(item.Value, _jsonSerializerOptions), DbType.String);
-            command.AddParameterWithValue("@Date", item.Date, DbType.DateTime2);
-            command.AddParameterWithValue("@DequeueCount", item.DequeueCount, DbType.Int32);
-            command.CommandText = _queryDescriptor.Enqueue;
-            command.CommandType = CommandType.Text;
-            var rowsAffected = command.ExecuteNonQuery();
-            return Task.CompletedTask;
+        public async Task<QMessage<T>> Dequeue() {
+            var dbConnection = await _dbContext.Database.EnsureOpenConnectionAsync();
+            using (var command = dbConnection.CreateCommand()) {
+                command.AddParameterWithValue("@QueueName", _queueNameResolver.Resolve(), DbType.String);
+                command.CommandText = _queryDescriptor.Dequeue;
+                command.CommandType = CommandType.Text;
+                using (var dataReader = await command.ExecuteReaderAsync()) {
+                    DbQMessage message = null;
+                    while (dataReader.Read()) {
+                        message = new DbQMessage {
+                            Id = dataReader.GetGuid(0),
+                            QueueName = dataReader.IsDBNull(1) ? default : dataReader.GetString(1),
+                            Payload = dataReader.IsDBNull(2) ? default : dataReader.GetString(2),
+                            Date = dataReader.GetDateTime(3),
+                            RowVersion = dataReader.IsDBNull(4) ? default : (byte[])dataReader[nameof(DbQMessage.RowVersion)],
+                            DequeueCount = dataReader.GetInt32(5),
+                            State = (QMessageState)dataReader.GetInt32(6)
+                        };
+                    }
+                    return message != null ? message.ToModel<T>(_jsonSerializerOptions) : default;
+                }
+            }
         }
 
         /// <inheritdoc/>
-        public Task EnqueueRange(IEnumerable<QMessage<T>> items) {
+        public async Task Enqueue(QMessage<T> item, bool isPoison) {
+            var dbConnection = await _dbContext.Database.EnsureOpenConnectionAsync();
+            using (var command = dbConnection.CreateCommand()) {
+                command.AddParameterWithValue("@Id", item.Id, DbType.Guid);
+                command.AddParameterWithValue("@QueueName", _queueNameResolver.Resolve(isPoison), DbType.String);
+                command.AddParameterWithValue("@Payload", JsonSerializer.Serialize(item.Value, _jsonSerializerOptions), DbType.String);
+                command.AddParameterWithValue("@Date", item.Date, DbType.DateTime);
+                command.AddParameterWithValue("@DequeueCount", item.DequeueCount, DbType.Int32);
+                command.CommandText = _queryDescriptor.Enqueue;
+                command.CommandType = CommandType.Text;
+                await command.ExecuteNonQueryAsync();
+            }
+        }
+
+        /// <inheritdoc/>
+        public async Task EnqueueRange(IEnumerable<QMessage<T>> items) {
             var query = new StringBuilder(_queryDescriptor.EnqueueRangeInsertStatement);
-            var dbConnection = _dbContext.Database.GetDbConnection();
-            dbConnection.Open();
+            var dbConnection = await _dbContext.Database.EnsureOpenConnectionAsync();
             const double maxBatchSize = 1000d;
             var batches = Math.Ceiling(items.Count() / maxBatchSize);
             for (var i = 0; i < batches; i++) {
                 var remainingItemsCount = items.Count() - i * maxBatchSize;
                 var iterationLength = remainingItemsCount >= maxBatchSize ? maxBatchSize : remainingItemsCount;
-                using var command = dbConnection.CreateCommand();
-                for (var j = 0; j < iterationLength; j++) {
-                    query.AppendFormat(_queryDescriptor.EnqueueRangeValuesStatement, j);
-                    var isLastItem = j == iterationLength - 1;
-                    query.Append(!isLastItem ? ", " : ";");
-                    var currentItem = items.ElementAt(j);
-                    command.AddParameterWithValue($"@Id{j}", currentItem.Id, DbType.Guid);
-                    command.AddParameterWithValue($"@QueueName{j}", _queueNameResolver.Resolve(), DbType.String);
-                    command.AddParameterWithValue($"@Payload{j}", JsonSerializer.Serialize(currentItem.Value, _jsonSerializerOptions), DbType.String);
-                    command.AddParameterWithValue($"@Date{j}", currentItem.Date, DbType.DateTime);
-                    command.AddParameterWithValue($"@DequeueCount{j}", currentItem.DequeueCount, DbType.Int32);
+                using (var command = dbConnection.CreateCommand()) {
+                    for (var j = 0; j < iterationLength; j++) {
+                        query.AppendFormat(_queryDescriptor.EnqueueRangeValuesStatement, j);
+                        var isLastItem = j == iterationLength - 1;
+                        query.Append(!isLastItem ? ", " : ";");
+                        var currentItem = items.ElementAt(j);
+                        command.AddParameterWithValue($"@Id{j}", currentItem.Id, DbType.Guid);
+                        command.AddParameterWithValue($"@QueueName{j}", _queueNameResolver.Resolve(), DbType.String);
+                        command.AddParameterWithValue($"@Payload{j}", JsonSerializer.Serialize(currentItem.Value, _jsonSerializerOptions), DbType.String);
+                        command.AddParameterWithValue($"@Date{j}", currentItem.Date, DbType.DateTime);
+                        command.AddParameterWithValue($"@DequeueCount{j}", currentItem.DequeueCount, DbType.Int32);
+                    }
+                    command.CommandText = query.ToString();
+                    command.CommandType = CommandType.Text;
+                    await command.ExecuteNonQueryAsync();
+                    query.Clear();
+                    query.Append(_queryDescriptor.EnqueueRangeInsertStatement);
                 }
-                command.CommandText = query.ToString();
-                command.CommandType = CommandType.Text;
-                var rowsAffected = command.ExecuteNonQuery();
-                query.Clear();
-                query.Append(_queryDescriptor.EnqueueRangeInsertStatement);
             }
-            return Task.CompletedTask;
         }
 
         /// <inheritdoc/>
-        public Task<T> Peek() {
-            var dbConnection = _dbContext.Database.GetDbConnection();
-            dbConnection.Open();
-            using var command = dbConnection.CreateCommand();
-            command.CommandText = _queryDescriptor.Peek;
-            command.CommandType = CommandType.Text;
-            using var dataReader = command.ExecuteReader();
-            string payload = null;
-            while (dataReader.Read()) {
-                payload = dataReader.IsDBNull(0) ? default : dataReader.GetString(2);
+        public async Task<T> Peek() {
+            var dbConnection = await _dbContext.Database.EnsureOpenConnectionAsync();
+            using (var command = dbConnection.CreateCommand()) {
+                command.CommandText = _queryDescriptor.Peek;
+                command.CommandType = CommandType.Text;
+                using (var dataReader = await command.ExecuteReaderAsync()) {
+                    string payload = null;
+                    while (dataReader.Read()) {
+                        payload = dataReader.IsDBNull(0) ? default : dataReader.GetString(2);
+                    }
+                    return !string.IsNullOrEmpty(payload) ? JsonSerializer.Deserialize<T>(payload, _jsonSerializerOptions) : default;
+                }
             }
-            return Task.FromResult(!string.IsNullOrEmpty(payload) ? JsonSerializer.Deserialize<T>(payload, _jsonSerializerOptions) : default);
         }
     }
     internal class MessageQueueQueryDescriptor

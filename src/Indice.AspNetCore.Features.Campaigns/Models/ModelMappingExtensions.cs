@@ -12,7 +12,7 @@ namespace Indice.AspNetCore.Features.Campaigns.Models
             Content = request.Content,
             CreatedAt = DateTime.UtcNow,
             Id = Guid.NewGuid(),
-            IsActive = request.IsActive,
+            Published = request.IsActive,
             IsGlobal = request.IsGlobal,
             Title = request.Title,
             TypeId = request.TypeId
@@ -25,7 +25,7 @@ namespace Indice.AspNetCore.Features.Campaigns.Models
             Content = campaign.Content,
             CreatedAt = campaign.CreatedAt,
             Id = campaign.Id,
-            IsActive = campaign.IsActive,
+            Published = campaign.Published,
             IsGlobal = campaign.IsGlobal,
             Title = campaign.Title
         };

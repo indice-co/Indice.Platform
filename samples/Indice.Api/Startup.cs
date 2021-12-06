@@ -86,8 +86,8 @@ namespace Indice.Api
             services.AddWorkerHost(options => {
                 options.JsonOptions.JsonSerializerOptions.WriteIndented = true;
                 options.AddRelationalStore(builder => {
-                    builder.UseNpgsql(Configuration.GetConnectionString("WorkerDb"));
                     //builder.UseSqlServer(Configuration.GetConnectionString("WorkerDb"));
+                    builder.UseNpgsql(Configuration.GetConnectionString("WorkerDb"));
                 });
             })
             .AddJob<SmsAlertHandler>()
@@ -97,7 +97,7 @@ namespace Indice.Api
                 options.InstanceCount = 1;
             })
             .AddJob<LoadAvailableAlertsHandler>()
-            .WithScheduleTrigger<DemoCounterModel>("* 0/1 * * * ?", options => {
+            .WithScheduleTrigger<DemoCounterModel>("0 0/1 * * * ?", options => {
                 options.Name = "load-available-alerts";
                 options.Description = "Load alerts for the queue.";
                 options.Group = "indice";

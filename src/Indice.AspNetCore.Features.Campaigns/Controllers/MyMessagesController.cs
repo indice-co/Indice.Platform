@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Net.Mime;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -43,9 +44,9 @@ namespace Indice.AspNetCore.Features.Campaigns.Controllers
         /// <param name="options">List params used to navigate through collections. Contains parameters such as sort, search, page number and page size.</param>
         /// <response code="200">OK</response>
         [HttpGet]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ResultSet<UserMessage>))]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ResultSet<UserMessage, IEnumerable<CampaignType>>))]
         [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ProblemDetails))]
-        public async Task<IActionResult> GetMessages([FromQuery] ListOptions options) {
+        public async Task<IActionResult> GetMessages([FromQuery] ListOptions<GetMessagesListFilter> options) {
             var messages = await UserMessagesService.GetUserMessages(UserCode, options);
             return Ok(messages);
         }

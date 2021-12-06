@@ -29,7 +29,7 @@ namespace Indice.AspNetCore.Features.Campaigns.Data
             builder.Property(x => x.ActionText).HasMaxLength(TextSizePresets.M128);
             builder.Property(x => x.ActionUrl).HasMaxLength(TextSizePresets.L2048);
             builder.Property(x => x.CreatedAt).IsRequired();
-            builder.Property(x => x.IsActive).IsRequired();
+            builder.Property(x => x.Published).IsRequired();
             builder.OwnsOne(x => x.ActivePeriod).Property(x => x.From).HasColumnName(nameof(Period.From));
             builder.OwnsOne(x => x.ActivePeriod).Property(x => x.To).HasColumnName(nameof(Period.To));
             builder.Property(x => x.IsGlobal).IsRequired();
