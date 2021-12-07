@@ -12,10 +12,10 @@ namespace Indice.AspNetCore.Features.Campaigns.Models
             Content = request.Content,
             CreatedAt = DateTime.UtcNow,
             Data = request.Data,
-            DeliveryType = request.DeliveryType,
+            DeliveryChannel = request.DeliveryChannel,
             Id = Guid.NewGuid(),
             IsGlobal = request.IsGlobal,
-            Published = request.IsActive,
+            Published = request.Published,
             Title = request.Title,
             TypeId = request.TypeId
         };
@@ -26,13 +26,15 @@ namespace Indice.AspNetCore.Features.Campaigns.Models
             ActivePeriod = campaign.ActivePeriod,
             Content = campaign.Content,
             CreatedAt = campaign.CreatedAt,
+            Data = campaign.Data,
+            DeliveryChannel = campaign.DeliveryChannel,
             Id = campaign.Id,
-            Published = campaign.Published,
             IsGlobal = campaign.IsGlobal,
+            Published = campaign.Published,
             Title = campaign.Title,
-            Type = campaign.Type != null ? new CampaignType {
-                Id = campaign.Type.Id,
-                Name = campaign.Type.Name
+            Type = campaign.Type != null ? new CampaignType { 
+                Id = campaign.Type.Id, 
+                Name = campaign.Type.Name 
             } : null
         };
     }

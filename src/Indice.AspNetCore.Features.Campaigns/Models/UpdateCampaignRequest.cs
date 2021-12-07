@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Dynamic;
 using Indice.Types;
 
 namespace Indice.AspNetCore.Features.Campaigns.Models
@@ -21,9 +22,9 @@ namespace Indice.AspNetCore.Features.Campaigns.Models
         /// </summary>
         public string ActionText { get; set; }
         /// <summary>
-        /// Determines if a campaign is active.
+        /// Determines if a campaign is published.
         /// </summary>
-        public bool IsActive { get; set; }
+        public bool Published { get; set; }
         /// <summary>
         /// Specifies the time period that a campaign is active.
         /// </summary>
@@ -33,8 +34,8 @@ namespace Indice.AspNetCore.Features.Campaigns.Models
         /// </summary>
         public Guid? TypeId { get; set; }
         /// <summary>
-        /// Optional dynamic data for the campaign.
+        /// Optional data for the campaign.
         /// </summary>
-        public dynamic Data { get; set; }
+        public ExpandoObject Data { get; set; }
     }
 }

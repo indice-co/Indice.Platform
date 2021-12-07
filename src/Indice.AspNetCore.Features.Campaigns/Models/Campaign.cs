@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Dynamic;
+using Indice.AspNetCore.Features.Campaigns.Data.Models;
 using Indice.Types;
 
 namespace Indice.AspNetCore.Features.Campaigns.Models
@@ -33,7 +35,7 @@ namespace Indice.AspNetCore.Features.Campaigns.Models
         /// </summary>
         public DateTimeOffset CreatedAt { get; set; }
         /// <summary>
-        /// Determines if a campaign is active.
+        /// Determines if a campaign is published.
         /// </summary>
         public bool Published { get; set; }
         /// <summary>
@@ -48,5 +50,13 @@ namespace Indice.AspNetCore.Features.Campaigns.Models
         /// The type details of the campaign.
         /// </summary>
         public CampaignType Type { get; set; }
+        /// <summary>
+        /// The delivery channel of a campaign.
+        /// </summary>
+        public CampaignDeliveryChannel DeliveryChannel { get; set; }
+        /// <summary>
+        /// Optional data for the campaign.
+        /// </summary>
+        public ExpandoObject Data { get; set; }
     }
 }

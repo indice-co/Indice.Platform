@@ -21,8 +21,8 @@ namespace Indice.AspNetCore.Features.Campaigns.Models
         /// </summary>
         public string ActionUrl { get; set; }
         /// <summary>
-        /// The delivery type of a campaign. Default is <see cref="CampaignDeliveryType.Inbox"/>.
+        /// The delivery channel of a campaign. Default is <see cref="CampaignDeliveryChannel.Inbox"/>.
         /// </summary>
-        public CampaignDeliveryType DeliveryType { get; set; } = CampaignDeliveryType.Inbox;
+        public CampaignDeliveryChannel DeliveryChannel { get; set; } = CampaignDeliveryChannel.Inbox;
     }
 }

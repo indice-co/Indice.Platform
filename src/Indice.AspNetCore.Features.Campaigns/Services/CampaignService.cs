@@ -53,15 +53,15 @@ namespace Indice.AspNetCore.Features.Campaigns.Services
             DbContext.Attachments.Add(attachment);
             await DbContext.SaveChangesAsync();
             return new AttachmentLink {
-                Id = attachment.Id,
-                FileGuid = attachment.Guid,
                 ContentType = file.ContentType,
+                FileGuid = attachment.Guid,
+                Id = attachment.Id,
                 Label = file.FileName,
-                Size = file.Length,
                 PermaLink = LinkGenerator.GetUriByAction(HttpContextAccessor.HttpContext, nameof(CampaignsController.GetCampaignAttachment), CampaignsController.Name, new {
                     fileGuid = (Base64Id)attachment.Guid,
                     format = Path.GetExtension(attachment.Name).TrimStart('.')
-                })
+                }),
+                Size = file.Length
             };
         }
 
@@ -130,6 +130,8 @@ namespace Indice.AspNetCore.Features.Campaigns.Services
                          } : null,
                          Content = campaign.Content,
                          CreatedAt = campaign.CreatedAt,
+                         Data = campaign.Data,
+                         DeliveryChannel = campaign.DeliveryChannel,
                          Id = campaign.Id,
                          Published = campaign.Published,
                          IsGlobal = campaign.IsGlobal,
@@ -141,26 +143,32 @@ namespace Indice.AspNetCore.Features.Campaigns.Services
                      })
                      .SingleOrDefaultAsync(x => x.Id == campaignId);
 
-        public Task<ResultSet<Campaign>> GetCampaigns(ListOptions options) =>
-            DbContext.Campaigns
-                     .Include(x => x.Type)
-                     .AsNoTracking()
-                     .Select(campaign => new Campaign {
-                         ActionText = campaign.ActionText,
-                         ActionUrl = campaign.ActionUrl,
-                         ActivePeriod = campaign.ActivePeriod,
-                         Content = campaign.Content,
-                         CreatedAt = campaign.CreatedAt,
-                         Id = campaign.Id,
-                         Published = campaign.Published,
-                         IsGlobal = campaign.IsGlobal,
-                         Title = campaign.Title,
-                         Type = campaign.Type != null ? new CampaignType {
-                             Id = campaign.Type.Id,
-                             Name = campaign.Type.Name
-                         } : null
-                     })
-                     .ToResultSetAsync(options);
+        public Task<ResultSet<Campaign>> GetCampaigns(ListOptions<GetCampaignsListFilter> options) {
+            var query = DbContext.Campaigns.Include(x => x.Type).AsNoTracking().Select(campaign => new Campaign {
+                ActionText = campaign.ActionText,
+                ActionUrl = campaign.ActionUrl,
+                ActivePeriod = campaign.ActivePeriod,
+                Content = campaign.Content,
+                CreatedAt = campaign.CreatedAt,
+                DeliveryChannel = campaign.DeliveryChannel,
+                Data = campaign.Data,
+                Id = campaign.Id,
+                IsGlobal = campaign.IsGlobal,
+                Published = campaign.Published,
+                Title = campaign.Title,
+                Type = campaign.Type != null ? new CampaignType {
+                    Id = campaign.Type.Id,
+                    Name = campaign.Type.Name
+                } : null
+            });
+            if (options.Filter.DeliveryChannel.HasValue) {
+                query = query.Where(x => x.DeliveryChannel.HasFlag(options.Filter.DeliveryChannel.Value));
+            }
+            if (options.Filter.Published.HasValue) {
+                query = query.Where(x => x.Published == options.Filter.Published.Value);
+            }
+            return query.ToResultSetAsync(options);
+        }
 
         public async Task<CampaignStatistics> GetCampaignStatistics(Guid campaignId) {
             var campaign = await DbContext.Campaigns.FindAsync(campaignId);
@@ -213,7 +221,7 @@ namespace Indice.AspNetCore.Features.Campaigns.Services
             campaign.ActivePeriod = request.ActivePeriod;
             campaign.Content = request.Content;
             campaign.Title = request.Title;
-            campaign.Published = request.IsActive;
+            campaign.Published = request.Published;
             await DbContext.SaveChangesAsync();
         }
 

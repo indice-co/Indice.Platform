@@ -1,6 +1,8 @@
 using System;
 using System.IdentityModel.Tokens.Jwt;
 using System.Reflection;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using IdentityModel;
 using Indice.Api.JobHandlers;
 using Indice.AspNetCore.Features.Campaigns;
@@ -38,6 +40,12 @@ namespace Indice.Api
                         options.DatabaseSchema = "cmp";
                         options.ExpectedScope = $"backoffice:{CampaignsApi.Scope}";
                         options.UserClaimType = JwtClaimTypes.Subject;
+                    })
+                    .AddJsonOptions(options => {
+                        options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+                        options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
+                        options.JsonSerializerOptions.WriteIndented = true;
+                        options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
                     });
             // Configure default CORS policy
             services.AddCors(options => options.AddDefaultPolicy(builder => {

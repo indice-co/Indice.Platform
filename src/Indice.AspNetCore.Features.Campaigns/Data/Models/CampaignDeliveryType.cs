@@ -3,10 +3,10 @@
 namespace Indice.AspNetCore.Features.Campaigns.Data.Models
 {
     /// <summary>
-    /// The delivery type of a campaign.
+    /// The delivery channel of a campaign.
     /// </summary>
     [Flags]
-    public enum CampaignDeliveryType
+    public enum CampaignDeliveryChannel : byte
     {
         /// <summary>
         /// No delivery.

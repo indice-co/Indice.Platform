@@ -50,7 +50,7 @@ namespace Indice.AspNetCore.Features.Campaigns.Controllers
         [HttpGet("campaigns")]
         [Produces(MediaTypeNames.Application.Json)]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ResultSet<Campaign>))]
-        public async Task<IActionResult> GetCampaigns([FromQuery] ListOptions options) {
+        public async Task<IActionResult> GetCampaigns([FromQuery] ListOptions<GetCampaignsListFilter> options) {
             var campaigns = await CampaignService.GetCampaigns(options);
             return Ok(campaigns);
         }

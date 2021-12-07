@@ -15,7 +15,7 @@ namespace Indice.AspNetCore.Features.Campaigns.Services
         Task DeleteCampaign(Guid campaignId);
         Task DeleteCampaignType(Guid campaignTypeId);
         Task<CampaignDetails> GetCampaignById(Guid campaignId);
-        Task<ResultSet<Campaign>> GetCampaigns(ListOptions options);
+        Task<ResultSet<Campaign>> GetCampaigns(ListOptions<GetCampaignsListFilter> options);
         Task<CampaignStatistics> GetCampaignStatistics(Guid campaignId);
         Task<CampaignType> GetCampaignTypeById(Guid campaignTypeId);
         Task<ResultSet<CampaignType>> GetCampaignTypes(ListOptions options);
