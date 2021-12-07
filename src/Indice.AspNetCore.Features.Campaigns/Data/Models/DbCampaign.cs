@@ -21,7 +21,7 @@ namespace Indice.AspNetCore.Features.Campaigns.Data.Models
             get { return Data != null ? JsonSerializer.Serialize(Data, JsonSerializerOptionDefaults.GetDefaultSettings()) : null; }
             set { Data = value != null ? JsonSerializer.Deserialize<dynamic>(value, JsonSerializerOptionDefaults.GetDefaultSettings()) : null; }
         }
-        public CampaignDeliveryType DeliveryType { get; set; } = CampaignDeliveryType.Inbox;
+        public CampaignDeliveryType DeliveryType { get; set; }
         public Guid? TypeId { get; set; }
         public Guid? AttachmentId { get; set; }
         public virtual DbAttachment Attachment { get; set; }

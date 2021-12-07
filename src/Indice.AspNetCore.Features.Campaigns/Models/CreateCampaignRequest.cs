@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Indice.AspNetCore.Features.Campaigns.Data.Models;
 
 namespace Indice.AspNetCore.Features.Campaigns.Models
 {
@@ -19,5 +20,9 @@ namespace Indice.AspNetCore.Features.Campaigns.Models
         /// Defines a CTA (click-to-action) URL.
         /// </summary>
         public string ActionUrl { get; set; }
+        /// <summary>
+        /// The delivery type of a campaign. Default is <see cref="CampaignDeliveryType.Inbox"/>.
+        /// </summary>
+        public CampaignDeliveryType DeliveryType { get; set; } = CampaignDeliveryType.Inbox;
     }
 }

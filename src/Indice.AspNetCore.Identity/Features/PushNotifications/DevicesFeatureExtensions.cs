@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Security;
+using FluentValidation.AspNetCore;
 using IdentityServer4.Configuration;
 using Indice.AspNetCore.Identity;
 using Indice.AspNetCore.Identity.Api;
@@ -30,6 +31,7 @@ namespace Microsoft.Extensions.DependencyInjection
             builder.Services.AddPushNotificationServiceAzure(configure);
             builder.Services.TryAddTransient<IPlatformEventService, EventService>();
             builder.ConfigureApplicationPartManager(x => x.FeatureProviders.Add(new DevicesFeatureProvider()));
+            builder.AddFluentValidation(options => options.RegisterValidatorsFromAssemblyContaining<DevicesFeatureProvider>());
             return builder;
         }
 

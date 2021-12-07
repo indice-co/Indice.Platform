@@ -11,9 +11,11 @@ namespace Indice.AspNetCore.Features.Campaigns.Models
             ActivePeriod = request.ActivePeriod,
             Content = request.Content,
             CreatedAt = DateTime.UtcNow,
+            Data = request.Data,
+            DeliveryType = request.DeliveryType,
             Id = Guid.NewGuid(),
-            Published = request.IsActive,
             IsGlobal = request.IsGlobal,
+            Published = request.IsActive,
             Title = request.Title,
             TypeId = request.TypeId
         };
@@ -27,7 +29,11 @@ namespace Indice.AspNetCore.Features.Campaigns.Models
             Id = campaign.Id,
             Published = campaign.Published,
             IsGlobal = campaign.IsGlobal,
-            Title = campaign.Title
+            Title = campaign.Title,
+            Type = campaign.Type != null ? new CampaignType {
+                Id = campaign.Type.Id,
+                Name = campaign.Type.Name
+            } : null
         };
     }
 }

@@ -49,10 +49,9 @@ namespace Indice.Extensions
         /// <summary>
         /// Converts the <paramref name="dateTime"/> to a local kind of <see cref="DateTime"/> in the given <paramref name="timeZoneId"/>
         /// </summary>
-        /// <param name="dateTime">The source <see cref="DateTime"/></param>
-        /// <param name="timeZoneId">The windows time zone id</param>
-        /// <param name="kind">Specify the kind of date you get</param>
-        /// <returns></returns>
+        /// <param name="dateTime">The source <see cref="DateTime"/>.</param>
+        /// <param name="timeZoneId">The Windows time zone id.</param>
+        /// <param name="kind">Specify the kind of date you get.</param>
         public static DateTime Shift(this DateTime dateTime, string timeZoneId, DateTimeKind kind = DateTimeKind.Unspecified) {
             var zone = TimeZoneInfo.FindSystemTimeZoneById(timeZoneId);
             var utc = dateTime.ToUniversalTime();
@@ -64,8 +63,7 @@ namespace Indice.Extensions
         /// Converts the <paramref name="dateTime"/> to <see cref="DateTimeOffset"/> in the given <paramref name="timeZoneId"/>
         /// </summary>
         /// <param name="dateTime">The source <see cref="DateTime"/></param>
-        /// <param name="timeZoneId">The windows time zone id</param>
-        /// <returns></returns>
+        /// <param name="timeZoneId">The Windows time zone id.</param>
         public static DateTimeOffset ToDateTimeOffset(this DateTime dateTime, string timeZoneId) {
             var zone = TimeZoneInfo.FindSystemTimeZoneById(timeZoneId);
             var utc = dateTime.ToUniversalTime();

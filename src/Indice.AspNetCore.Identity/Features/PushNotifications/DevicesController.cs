@@ -23,20 +23,11 @@ namespace Indice.AspNetCore.Identity.Api
     /// </summary>
     /// <response code="401">Unauthorized</response>
     /// <response code="403">Forbidden</response>
-    /// <response code="405">Method Not Allowed</response>
-    /// <response code="406">Not Acceptable</response>
-    /// <response code="408">Request Timeout</response>
-    /// <response code="409">Conflict</response>
-    /// <response code="415">Unsupported Media Type</response>
-    /// <response code="429">Too Many Requests</response>
-    /// <response code="500">Internal Server Error</response>
-    /// <response code="503">Service Unavailable</response>
     [Route("api/my/devices")]
     [ApiController]
     [ApiExplorerSettings(GroupName = "identity")]
     [Produces(MediaTypeNames.Application.Json)]
     [Consumes(MediaTypeNames.Application.Json)]
-    [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest, type: typeof(ValidationProblemDetails))]
     [ProducesResponseType(statusCode: StatusCodes.Status401Unauthorized, type: typeof(ProblemDetails))]
     [ProducesResponseType(statusCode: StatusCodes.Status403Forbidden, type: typeof(ProblemDetails))]
     [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme)]

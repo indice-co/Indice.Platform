@@ -32,5 +32,9 @@ namespace Indice.AspNetCore.Features.Campaigns.Models
         /// The id of the type this campaign belongs.
         /// </summary>
         public Guid? TypeId { get; set; }
+        /// <summary>
+        /// Optional dynamic data for the campaign.
+        /// </summary>
+        public dynamic Data { get; set; }
     }
 }

@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Dynamic;
 using System.Linq;
+using System.Text.Json;
 using System.Threading.Tasks;
+using Indice.Serialization;
 using Indice.Types;
 
 namespace Indice.Services
@@ -61,11 +64,45 @@ namespace Indice.Services
         /// <param name="userId">UserId to be passed as tag.</param>
         /// <param name="classification">The type of the Push Notification.</param>
         /// <param name="tags">Optional tag parameters.</param>
-        public static async Task SendAsync(this IPushNotificationService service, string message, string data, string userId , string classification, params string[] tags) =>
+        public static async Task SendAsync(this IPushNotificationService service, string message, string data, string userId, string classification = null, params string[] tags) =>
             await service.SendAsync(message, new string[] { userId }.Concat(tags ?? Array.Empty<string>()).ToList(), data, classification);
 
         /// <summary>
-        /// Send notification to devices registered to userId with optional data as payload
+        /// Send notifications to devices registered to userId with payload data and classification.
+        /// </summary>
+        /// <typeparam name="TData">The type of data sent in the notification payload.</typeparam>
+        /// <param name="service">Instance of <see cref="IPushNotificationService"/>.</param>
+        /// <param name="message">Message of notification.</param>
+        /// <param name="data">Data passed to mobile client, not visible to notification toast.</param>
+        /// <param name="userId">UserId to be passed as tag.</param>
+        /// <param name="classification">The type of the Push Notification.</param>
+        /// <param name="tags">Optional tag parameters.</param>
+        public static async Task SendAsync<TData>(this IPushNotificationService service, string message, TData data, string userId, string classification = null, params string[] tags) where TData : class =>
+            await service.SendAsync(message, JsonSerializer.Serialize(data, JsonSerializerOptionDefaults.GetDefaultSettings()), userId, classification, tags);
+
+        /// <summary>
+        /// Sends a notification to all registered devices.
+        /// </summary>
+        /// <param name="service">Instance of <see cref="IPushNotificationService"/>.</param>
+        /// <param name="message">Message of notification.</param>
+        /// <param name="data">Data passed to mobile client, not visible to notification toast.</param>
+        /// <param name="classification">The type of the Push Notification.</param>
+        public static async Task BroadcastAsync(this IPushNotificationService service, string message, string data, string classification = null) =>
+            await service.SendAsync(message, new List<string>(), data, classification);
+
+        /// <summary>
+        /// Sends a notification to all registered devices.
+        /// </summary>
+        /// <typeparam name="TData">The type of data sent in the notification payload.</typeparam>
+        /// <param name="service">Instance of <see cref="IPushNotificationService"/>.</param>
+        /// <param name="message">Message of notification.</param>
+        /// <param name="data">Data passed to mobile client, not visible to notification toast.</param>
+        /// <param name="classification">The type of the Push Notification.</param>
+        public static async Task BroadcastAsync<TData>(this IPushNotificationService service, string message, TData data, string classification = null) where TData : class =>
+            await service.BroadcastAsync(message, JsonSerializer.Serialize(data, JsonSerializerOptionDefaults.GetDefaultSettings()), classification);
+
+        /// <summary>
+        /// Send notification to devices registered to userId with optional data as payload.
         /// </summary>
         /// <param name="service">Instance of <see cref="IPushNotificationService"/>.</param>
         /// <param name="configurePushNotificationMessage">The delegate that will be used to build the <see cref="PushNotificationMessage"/>.</param>
@@ -86,48 +123,12 @@ namespace Indice.Services
     public class DefaultPushNotificationService : IPushNotificationService
     {
         ///<inheritdoc/>
-        public Task Register(string deviceId, string pnsHandle, DevicePlatform devicePlatform, IList<string> tags) {
-            throw new NotImplementedException();
-        }
+        public Task Register(string deviceId, string pnsHandle, DevicePlatform devicePlatform, IList<string> tags) => Task.CompletedTask;
 
         ///<inheritdoc/>
-        public Task SendAsync(string message, IList<string> tags, string data = null, string classification = null) {
-            throw new NotImplementedException();
-        }
+        public Task SendAsync(string message, IList<string> tags, string data = null, string classification = null) => Task.CompletedTask;
 
         ///<inheritdoc/>
-        public Task UnRegister(string deviceId) {
-            throw new NotImplementedException();
-        }
-    }
-
-    /// <summary>
-    /// Mock implementation of <see cref="IPushNotificationService"/>.
-    /// </summary>
-    public class MockPushNotificationService : IPushNotificationService
-    {
-        /// <inheritdoc />
-        public Task Register(string deviceId, string pnsHandle, DevicePlatform devicePlatform, IList<string> tags) {
-            throw new NotImplementedException();
-        }
-        
-        /// <inheritdoc />
-        public Task UnRegister(string deviceId) {
-            throw new NotImplementedException();
-        }
-
-        /// <inheritdoc />
-        public Task SendAsync(string message, IList<string> tags, string data = null, string classification = null) {
-            Trace.WriteLine($"PushNotification Message: {message}");
-            Trace.WriteLine($"PushNotification Tags: {string.Join(",", tags)}");
-            Trace.WriteLine($"PushNotification Data: {data}");
-            Trace.WriteLine($"PushNotification Classification: {classification}");
-            
-#if NET452
-            return Task.FromResult(0);
-#else
-            return Task.CompletedTask;
-#endif
-        }
+        public Task UnRegister(string deviceId) => Task.CompletedTask;
     }
 }

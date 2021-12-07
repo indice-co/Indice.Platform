@@ -46,7 +46,10 @@ namespace Indice.Identity.Security
                 RedirectUris = {
                     "https://www.getpostman.com/oauth2/callback"
                 },
-                RequireConsent = false
+                RequireConsent = false,
+                Claims = {
+                    new ClientClaim(BasicClaimTypes.System, "true")
+                }
             },
             new Client {
                 ClientId = "resource-owner-password-mvc",

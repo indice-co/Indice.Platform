@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using FluentValidation.AspNetCore;
+using Indice.AspNetCore.Identity.Api;
 using Indice.AspNetCore.Identity.Api.Events;
 using Indice.AspNetCore.Identity.Data.Models;
 using Indice.Identity;

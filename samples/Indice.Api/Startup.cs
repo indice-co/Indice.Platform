@@ -86,8 +86,8 @@ namespace Indice.Api
             services.AddWorkerHost(options => {
                 options.JsonOptions.JsonSerializerOptions.WriteIndented = true;
                 options.AddRelationalStore(builder => {
-                    //builder.UseSqlServer(Configuration.GetConnectionString("WorkerDb"));
-                    builder.UseNpgsql(Configuration.GetConnectionString("WorkerDb"));
+                    builder.UseSqlServer(Configuration.GetConnectionString("WorkerDb"));
+                    //builder.UseNpgsql(Configuration.GetConnectionString("WorkerDb"));
                 });
             })
             .AddJob<SmsAlertHandler>()

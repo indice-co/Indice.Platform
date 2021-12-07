@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Indice.Types;
 using Microsoft.Azure.NotificationHubs;
@@ -22,7 +23,7 @@ namespace Indice.Services
         /// <summary>
         /// Android template.
         /// </summary>
-        private const string AndroidTemplate = @"{""data"":{""message"":""$(message)"", ""data"":""$(data)"", ""category"":""$(classification)""}}"; 
+        private const string AndroidTemplate = @"{""data"":{""message"":""$(message)"", ""data"":""$(data)"", ""category"":""$(classification)""}}";
         /// <summary>
         /// The connection string parameter name. The setting key that will be searched inside the configuration.
         /// </summary>
@@ -106,9 +107,6 @@ namespace Indice.Services
             if (string.IsNullOrEmpty(message)) {
                 throw new ArgumentNullException(nameof(message));
             }
-            if (!(tags?.Count > 0)) {
-                throw new ArgumentException("Tags list is empty");
-            }
             var notification = new Dictionary<string, string> {
                 { "message", message }
             };
@@ -118,7 +116,11 @@ namespace Indice.Services
             if (!string.IsNullOrEmpty(classification)) {
                 notification.Add("classification", classification);
             }
-            await NotificationHub.SendTemplateNotificationAsync(notification, tags);
+            if (tags?.Any() == true) {
+                await NotificationHub.SendTemplateNotificationAsync(notification, tags);
+            } else {
+                await NotificationHub.SendTemplateNotificationAsync(notification);
+            }
         }
     }
 

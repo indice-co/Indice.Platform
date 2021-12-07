@@ -11,15 +11,21 @@ namespace Indice.AspNetCore.Identity.Api
     /// </summary>
     public class DevicesFeatureProvider : IApplicationFeatureProvider<ControllerFeature>
     {
+        private static IReadOnlyList<TypeInfo> ControllerTypes => new List<TypeInfo>() {
+            typeof(DevicesController).GetTypeInfo(),
+            typeof(PushNotificationsController).GetTypeInfo()
+        };
+
         /// <summary>
         /// Populates the feature for the current ASP.NET Core app.
         /// </summary>
         /// <param name="parts">The list of <see cref="ApplicationPart"/> instances in the application.</param>
         /// <param name="feature">The feature instance to populate.</param>
         public void PopulateFeature(IEnumerable<ApplicationPart> parts, ControllerFeature feature) {
-            var type = typeof(DevicesController).GetTypeInfo();
-            if (!feature.Controllers.Any(x => x == type)) {
-                feature.Controllers.Add(type);
+            foreach (var type in ControllerTypes) {
+                if (!feature.Controllers.Any(x => x.FullName == type.FullName)) {
+                    feature.Controllers.Add(type);
+                }
             }
         }
     }
