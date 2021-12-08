@@ -58,7 +58,7 @@ namespace Indice.Hosting
                                                { JobDataKeys.JobHandlerType, dequeueJobSchedule.JobHandlerType }
                                            } as IDictionary<string, object>))
                                            .Build();
-                await Scheduler.AddJob(dequeueJob, replace: true);
+                await Scheduler.AddJob(dequeueJob, replace: true, cancellationToken);
                 for (var i = 1; i <= dequeueJobSchedule.InstanceCount; i++) {
                     var jobTrigger = TriggerBuilder.Create()
                                                    .ForJob(dequeueJob)
@@ -66,7 +66,7 @@ namespace Indice.Hosting
                                                    .StartNow()
                                                    .WithSimpleSchedule(x => x.WithInterval(TimeSpan.FromMilliseconds(dequeueJobSchedule.PollingInterval + (dequeueJobSchedule.PollingInterval / dequeueJobSchedule.InstanceCount * (i - 1)))).RepeatForever())
                                                    .Build();
-                    await Scheduler.ScheduleJob(jobTrigger);
+                    await Scheduler.ScheduleJob(jobTrigger, cancellationToken);
                 }
                 var cleanUpJob = JobBuilder.Create(typeof(DequeuedCleanupJob<>).MakeGenericType(dequeueJobSchedule.WorkItemType))
                                            .StoreDurably() // This is needed in case of multiple consumers (triggers).
@@ -83,7 +83,7 @@ namespace Indice.Hosting
                                                    .StartNow()
                                                    .WithSimpleSchedule(x => x.WithInterval(TimeSpan.FromSeconds(dequeueJobSchedule.CleanupInterval)).RepeatForever())
                                                    .Build();
-                await Scheduler.ScheduleJob(cleanUpTrigger);
+                await Scheduler.ScheduleJob(cleanUpTrigger, cancellationToken);
             }
             foreach (var schedule in _scheduledJobSettings) {
                 var jobDetails = JobBuilder.Create(typeof(ScheduledJob<,>).MakeGenericType(schedule.JobHandlerType, schedule.JobStateType))
@@ -94,7 +94,7 @@ namespace Indice.Hosting
                                                { JobDataKeys.JobHandlerType, schedule.JobHandlerType }
                                            } as IDictionary<string, object>))
                                            .Build();
-                await Scheduler.AddJob(jobDetails, replace: true);
+                await Scheduler.AddJob(jobDetails, replace: true, cancellationToken);
                 var jobTrigger = TriggerBuilder.Create()
                                                .ForJob(jobDetails)
                                                .WithIdentity(name: $"{schedule.Name}.trigger", group: schedule.Group ?? JobGroups.InternalJobsGroup)
@@ -102,7 +102,7 @@ namespace Indice.Hosting
                                                .WithCronSchedule(schedule.CronExpression)
                                                .WithDescription(schedule.CronExpression)
                                                .Build();
-                await Scheduler.ScheduleJob(jobTrigger);
+                await Scheduler.ScheduleJob(jobTrigger, cancellationToken);
             }
             await Scheduler.Start(cancellationToken);
         }

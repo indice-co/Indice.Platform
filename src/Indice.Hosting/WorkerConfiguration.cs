@@ -36,7 +36,8 @@ namespace Indice.Hosting
             configureAction.Invoke(workerHostOptions);
             services.AddSingleton(workerHostOptions.JsonOptions);
             var quartzConfiguration = new NameValueCollection {
-                { "quartz.threadPool.maxConcurrency", "100" }
+                { "quartz.threadPool.maxConcurrency", "100" },
+                { "quartz.threadPool.threadCount", "100" }
             };
             services.AddSingleton<ISchedulerFactory>(serviceProvider => new StdSchedulerFactory(quartzConfiguration));
             services.AddSingleton<IJobFactory, QuartzJobFactory>();
