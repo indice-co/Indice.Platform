@@ -6,7 +6,7 @@
                     <div class="col-span-4">
                         <label for="campaignActive" class="field-label">Ενεργή</label>
                         <div class="mt-1 flex rounded-sm">
-                            <lib-toggle-button id="campaignActive" [value]="true" (valueChange)="model.isActive = $event"></lib-toggle-button>
+                            <lib-toggle-button id="campaignActive" [value]="true" (valueChange)="model.published = $event"></lib-toggle-button>
                         </div>
                         <p class="field-info col-span-3">Μία μη-ενεργή καμπάνια δεν θα εμφανιστεί στους χρήστες του συστήματος.</p>
                     </div>

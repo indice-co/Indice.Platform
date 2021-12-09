@@ -3,21 +3,30 @@
     <hr class="mb-2">
     <lib-list-view [items]="campaignTypes" [sort-options]="[]" [page-size-options]="[]" [show-pager]="false">
         <lib-list-column title="ΟΝΟΜΑ" [full-width]="true">
-            <ng-template let-item>{{ item.text }}</ng-template>
+            <ng-template let-item>
+                <span *ngIf="!item['editMode'] || item['editMode'] === false">{{ item.text }}</span>
+                <input *ngIf="item['editMode'] === true" type="text" [(ngModel)]="item.text" />
+            </ng-template>
         </lib-list-column>
         <lib-list-column title="">
             <ng-template let-item>
-                <button type="button" href="#" class="btn-info mr-1" title="Επεξεργασία τύπου">
+                <button *ngIf="!item['editMode'] || item['editMode'] === false" type="button" href="#" class="btn-info mr-1" title="Επεξεργασία τύπου" (click)="onOpenEditMode(item)">
                     <i class="ms-Icon ms-Icon--Edit"></i>
                 </button>
-                <button type="button" href="#" class="btn-error" title="Διαγραφή τύπου" (click)="deleteCampaignType(item.value)">
+                <button *ngIf="!item['editMode'] || item['editMode'] === false" type="button" href="#" class="btn-error" title="Διαγραφή τύπου" (click)="onDeleteCampaignType(item)">
                     <i class="ms-Icon ms-Icon--Remove"></i>
+                </button>
+                <button *ngIf="item['editMode'] === true" type="button" href="#" class="btn-success mr-1" title="Ενημέρωση τύπου" (click)="onUpsertCampaignType(item)" [disabled]="item.text === ''">
+                    <i class="ms-Icon ms-Icon--Accept"></i>
+                </button>
+                <button *ngIf="item['editMode'] === true" type="button" href="#" class="btn-error" title="Κλείσιμο" (click)="onCloseEditMode(item)">
+                    <i class="ms-Icon ms-Icon--Cancel"></i>
                 </button>
             </ng-template>
         </lib-list-column>
     </lib-list-view>
     <div class="modal-actions-container mt-2" role="group">
-        <button type="button" class="side-view-layout-action-button" (click)="modalRef?.hide({ campaignTypesChanged: campaignTypesChanged })">Κλείσιμο</button>
-        <!-- <button type="button" class="side-view-layout-action-button-default">Προσθήκη</button> -->
+        <button type="button" class="side-view-layout-action-button-cancel" (click)="modalRef?.hide({ campaignTypesChanged: campaignTypesChanged })">Κλείσιμο</button>
+        <button type="button" class="side-view-layout-action-button-submit" (click)="onAddNewType()">Προσθήκη</button>
     </div>
 </div>

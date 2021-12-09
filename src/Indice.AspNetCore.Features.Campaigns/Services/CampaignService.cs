@@ -81,7 +81,7 @@ namespace Indice.AspNetCore.Features.Campaigns.Services
             return campaign;
         }
 
-        public async Task<CampaignType> CreateCampaignType(CreateCampaignTypeRequest request) {
+        public async Task<CampaignType> CreateCampaignType(UpsertCampaignTypeRequest request) {
             var campaignType = new DbCampaignType {
                 Id = Guid.NewGuid(),
                 Name = request.Name
@@ -222,6 +222,15 @@ namespace Indice.AspNetCore.Features.Campaigns.Services
             campaign.Content = request.Content;
             campaign.Title = request.Title;
             campaign.Published = request.Published;
+            await DbContext.SaveChangesAsync();
+        }
+
+        public async Task UpdateCampaignType(Guid campaignTypeId, UpsertCampaignTypeRequest request) {
+            var campaignType = await DbContext.CampaignTypes.FindAsync(campaignTypeId);
+            if (campaignType is null) {
+                return;
+            }
+            campaignType.Name = request.Name;
             await DbContext.SaveChangesAsync();
         }
 

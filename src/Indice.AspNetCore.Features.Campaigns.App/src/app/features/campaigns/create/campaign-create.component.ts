@@ -25,7 +25,8 @@ export class CampaignCreateComponent implements OnInit {
     public now: Date = new Date();
     public model: CreateCampaignRequest = new CreateCampaignRequest({
         activePeriod: new Period({ from: this.now }),
-        isActive: true, isGlobal: true
+        published: true, 
+        isGlobal: true
     });
     public campaignTypes: MenuOption[] = [];
     public campaignTypesModalRef: Modal | undefined;
