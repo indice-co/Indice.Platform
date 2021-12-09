@@ -52,10 +52,10 @@ namespace Indice.Hosting
                                            .StoreDurably() // Τhis is needed in case of multiple consumers (triggers).
                                            .WithIdentity(name: dequeueJobSchedule.Name, group: JobGroups.InternalJobsGroup)
                                            .SetJobData(new JobDataMap(new Dictionary<string, object> {
-                                               { JobDataKeys.QueueName, dequeueJobSchedule.Name },
-                                               { JobDataKeys.PollingInterval, dequeueJobSchedule.PollingInterval },
-                                               { JobDataKeys.MaxPollingInterval, dequeueJobSchedule.MaxPollingInterval },
-                                               { JobDataKeys.JobHandlerType, dequeueJobSchedule.JobHandlerType }
+                                               [JobDataKeys.QueueName] = dequeueJobSchedule.Name,
+                                               [JobDataKeys.PollingInterval] = dequeueJobSchedule.PollingInterval,
+                                               [JobDataKeys.MaxPollingInterval] = dequeueJobSchedule.MaxPollingInterval,
+                                               [JobDataKeys.JobHandlerType] = dequeueJobSchedule.JobHandlerType
                                            } as IDictionary<string, object>))
                                            .Build();
                 await Scheduler.AddJob(dequeueJob, replace: true, cancellationToken);
@@ -68,12 +68,14 @@ namespace Indice.Hosting
                                                    .Build();
                     await Scheduler.ScheduleJob(jobTrigger, cancellationToken);
                 }
+                if (dequeueJobSchedule.CleanupInterval <= 0)
+                    continue;
                 var cleanUpJob = JobBuilder.Create(typeof(DequeuedCleanupJob<>).MakeGenericType(dequeueJobSchedule.WorkItemType))
                                            .StoreDurably() // This is needed in case of multiple consumers (triggers).
                                            .WithIdentity(name: $"{dequeueJobSchedule.Name}CleanUp", group: JobGroups.InternalJobsGroup)
                                            .SetJobData(new JobDataMap(new Dictionary<string, object> {
-                                               { JobDataKeys.QueueName, dequeueJobSchedule.Name },
-                                               { JobDataKeys.CleanUpBatchSize, dequeueJobSchedule.CleanupBatchSize },
+                                               [JobDataKeys.QueueName] = dequeueJobSchedule.Name,
+                                               [JobDataKeys.CleanUpBatchSize] = dequeueJobSchedule.CleanupBatchSize,
                                            } as IDictionary<string, object>))
                                            .Build();
                 await Scheduler.AddJob(cleanUpJob, replace: true);

@@ -27,9 +27,9 @@ namespace Indice.Hosting.Tasks
         /// </summary>
         public int MaxPollingInterval { get; set; } = 5000;
         /// <summary>
-        /// Specifies the time interval between two attempts to cleanup items. Defaults to 3600 seconds (one hour).
+        /// Specifies the time interval between two attempts to cleanup items. Defaults to 0 seconds. Zero meaning off/not enabled.
         /// </summary>
-        public int CleanUpInterval { get; set; } = 3600;
+        public int CleanUpInterval { get; set; } = 0;
         /// <summary>
         /// Specifies the cleanup batch size.
         /// </summary>
