@@ -17,9 +17,11 @@ export class CampaignTypesModalComponent {
     ) { }
 
     public campaignTypes: MenuOption[] = [];
-    public campaignTypesChanged: boolean = false;
+    public campaignTypesChanged: boolean = false; // Inform opener that changes have been made to campaign types, in order to reload.
+    public isAddingNewType = false; // Boolean value that prevents from adding multiple new campaign types.
 
     public onAddNewType(): void {
+        this.isAddingNewType = true;
         const type = new MenuOption('', '');
         (type as any).editMode = true;
         this.campaignTypes.push(type);
@@ -31,6 +33,7 @@ export class CampaignTypesModalComponent {
     }
 
     public onCloseEditMode(type: MenuOption): void {
+        this.isAddingNewType = false;
         (type as any).editMode = false;
         const isNew = type.value === '';
         if (isNew) {
@@ -42,6 +45,7 @@ export class CampaignTypesModalComponent {
     }
 
     public onUpsertCampaignType(type: MenuOption): void {
+        this.isAddingNewType = false;
         this.campaignTypesChanged = true;
         const isNew = type.value === '';
         const body = { name: type.text } as UpsertCampaignTypeRequest;

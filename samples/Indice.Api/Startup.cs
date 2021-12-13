@@ -98,17 +98,23 @@ namespace Indice.Api
                     //builder.UseNpgsql(Configuration.GetConnectionString("WorkerDb"));
                 });
             })
-            .AddJob<SmsAlertHandler>()
-            .WithQueueTrigger<SmsDto>(options => {
-                options.QueueName = "user-messages";
-                options.PollingInterval = 500;
-                options.InstanceCount = 1;
-            })
-            .AddJob<LoadAvailableAlertsHandler>()
+            .AddJob<LoadAvailableAlertsJobHandler>()
             .WithScheduleTrigger<DemoCounterModel>("0 0/1 * * * ?", options => {
                 options.Name = "load-available-alerts";
                 options.Description = "Load alerts for the queue.";
                 options.Group = "indice";
+            })
+            .AddJob<SendSmsJobHandler>()
+            .WithQueueTrigger<SmsDto>(options => {
+                options.QueueName = "send-user-sms";
+                options.PollingInterval = 500;
+                options.InstanceCount = 3;
+            })
+            .AddJob<LogSendSmsJobHandler>()
+            .WithQueueTrigger<LogSmsDto>(options => {
+                options.QueueName = "log-send-user-sms";
+                options.PollingInterval = 500;
+                options.InstanceCount = 1;
             });
         }
 

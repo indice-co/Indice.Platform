@@ -18,7 +18,7 @@ namespace Indice.AspNetCore.Identity.Api
     /// <response code="500">Internal Server Error</response>
     [Route("api/push-notifications")]
     [ApiController]
-    [ApiExplorerSettings(GroupName = "identity", IgnoreApi = true)]
+    [ApiExplorerSettings(GroupName = "identity", IgnoreApi = false)]
     [Produces(MediaTypeNames.Application.Json)]
     [Consumes(MediaTypeNames.Application.Json)]
     [ProducesResponseType(statusCode: StatusCodes.Status401Unauthorized, type: typeof(ProblemDetails))]

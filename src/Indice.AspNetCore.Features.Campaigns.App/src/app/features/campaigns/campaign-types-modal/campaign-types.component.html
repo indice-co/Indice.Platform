@@ -27,6 +27,6 @@
     </lib-list-view>
     <div class="modal-actions-container mt-2" role="group">
         <button type="button" class="side-view-layout-action-button-cancel" (click)="modalRef?.hide({ campaignTypesChanged: campaignTypesChanged })">Κλείσιμο</button>
-        <button type="button" class="side-view-layout-action-button-submit" (click)="onAddNewType()">Προσθήκη</button>
+        <button type="button" class="side-view-layout-action-button-submit" (click)="onAddNewType()" [disabled]="isAddingNewType">Προσθήκη</button>
     </div>
 </div>

@@ -168,16 +168,16 @@ namespace Indice.Hosting
             }
             var options = new QueueOptions(builder.Services);
             configureAction?.Invoke(options);
-            options.Services.TryAddTransient(builder.JobHandlerType);
-            options.Services.TryAddTransient(typeof(IQueueNameResolver<TWorkItem>), sp => Activator.CreateInstance(typeof(DefaultQueueNameResolver<TWorkItem>), new object[] { options }));
-            options.Services.TryAddTransient(typeof(IMessageQueue<TWorkItem>), queueStoreTypeImplementation);
+            options.Services.AddTransient(builder.JobHandlerType);
+            options.Services.AddTransient(typeof(IQueueNameResolver<TWorkItem>), sp => Activator.CreateInstance(typeof(DefaultQueueNameResolver<TWorkItem>), new object[] { options }));
+            options.Services.AddTransient(typeof(IMessageQueue<TWorkItem>), queueStoreTypeImplementation);
             var queueStoreTypeDefault = builder.Options.QueueStoreType.MakeGenericType(typeof(TWorkItem));
             if (!queueStoreTypeDefault.Equals(queueStoreTypeImplementation)) {
                 options.Services.TryAddTransient(queueStoreTypeDefault);
             }
-            options.Services.TryAddTransient(typeof(DequeueJob<TWorkItem>));
-            options.Services.TryAddTransient(typeof(DequeuedCleanupJob<TWorkItem>));
-            options.Services.TryAddTransient(serviceProvider => new DequeueJobSettings(
+            options.Services.AddTransient(typeof(DequeueJob<TWorkItem>));
+            options.Services.AddTransient(typeof(DequeuedCleanupJob<TWorkItem>));
+            options.Services.AddTransient(serviceProvider => new DequeueJobSettings(
                 jobHandlerType: builder.JobHandlerType,
                 workItemType: typeof(TWorkItem),
                 jobName: serviceProvider.GetService<IQueueNameResolver<TWorkItem>>().Resolve(),
@@ -216,10 +216,10 @@ namespace Indice.Hosting
                 CronExpression = cronExpression
             };
             configureAction?.Invoke(options);
-            options.Services.TryAddTransient(builder.JobHandlerType);
-            options.Services.TryAddTransient(typeof(IScheduledTaskStore<TState>), builder.Options.ScheduledTaskStoreType.MakeGenericType(typeof(TState)));
-            options.Services.TryAddTransient(typeof(ScheduledJob<,>).MakeGenericType(builder.JobHandlerType, typeof(TState)));
-            options.Services.TryAddTransient(serviceProvider => new ScheduledJobSettings(builder.JobHandlerType, typeof(TState), cronExpression, options.Name, options.Group, options.Description));
+            options.Services.AddTransient(builder.JobHandlerType);
+            options.Services.AddTransient(typeof(IScheduledTaskStore<TState>), builder.Options.ScheduledTaskStoreType.MakeGenericType(typeof(TState)));
+            options.Services.AddTransient(typeof(ScheduledJob<,>).MakeGenericType(builder.JobHandlerType, typeof(TState)));
+            options.Services.AddTransient(serviceProvider => new ScheduledJobSettings(builder.JobHandlerType, typeof(TState), cronExpression, options.Name, options.Group, options.Description));
             return new WorkerHostBuilder(options.Services, builder.Options);
         }
     }
