@@ -15,6 +15,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace Indice.AspNetCore.Identity.Api
 {
@@ -34,21 +35,30 @@ namespace Indice.AspNetCore.Identity.Api
     [ProblemDetailsExceptionFilter]
     internal class DevicesController : ControllerBase
     {
-        private readonly ExtendedUserManager<User> _userManager;
-        private readonly IPushNotificationService _pushNotificationService;
-        private readonly ExtendedIdentityDbContext<User, Role> _dbContext;
-        private readonly IPlatformEventService _eventService;
         /// <summary>
         /// The name of the controller.
         /// </summary>
         public const string Name = "Devices";
 
-        public DevicesController(ExtendedUserManager<User> userManager, IPushNotificationService pushNotificationService, ExtendedIdentityDbContext<User, Role> dbContext, IPlatformEventService eventService) {
-            _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
-            _pushNotificationService = pushNotificationService ?? throw new ArgumentNullException(nameof(pushNotificationService));
-            _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
-            _eventService = eventService ?? throw new ArgumentNullException(nameof(eventService));
+        public DevicesController(
+            ExtendedUserManager<User> userManager,
+            IPushNotificationService pushNotificationService,
+            ExtendedIdentityDbContext<User, Role> dbContext,
+            IPlatformEventService eventService,
+            ILogger<DevicesController> logger
+        ) {
+            UserManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
+            PushNotificationService = pushNotificationService ?? throw new ArgumentNullException(nameof(pushNotificationService));
+            DbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
+            EventService = eventService ?? throw new ArgumentNullException(nameof(eventService));
+            Logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
+
+        public ExtendedUserManager<User> UserManager { get; }
+        public IPushNotificationService PushNotificationService { get; }
+        public ExtendedIdentityDbContext<User, Role> DbContext { get; }
+        public IPlatformEventService EventService { get; }
+        public ILogger<DevicesController> Logger { get; }
 
         /// <summary>
         /// Returns a list of registered user devices.
@@ -59,11 +69,11 @@ namespace Indice.AspNetCore.Identity.Api
         [ProducesResponseType(statusCode: StatusCodes.Status200OK, type: typeof(ResultSet<DeviceInfo>))]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
         public async Task<IActionResult> GetDevices([FromQuery] ListOptions<UserDeviceFilter> options = null) {
-            var user = await _userManager.GetUserAsync(User);
+            var user = await UserManager.GetUserAsync(User);
             if (user == null) {
                 return NotFound();
             }
-            var devices = await _dbContext.UserDevices.Where(UserDevicePredicate(user.Id, options)).Select(x => DeviceInfo.FromUserDevice(x)).ToResultSetAsync(options);
+            var devices = await DbContext.UserDevices.Where(UserDevicePredicate(user.Id, options)).Select(x => DeviceInfo.FromUserDevice(x)).ToResultSetAsync(options);
             return Ok(devices);
         }
 
@@ -77,11 +87,11 @@ namespace Indice.AspNetCore.Identity.Api
         [ProducesResponseType(statusCode: StatusCodes.Status200OK, type: typeof(DeviceInfo))]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
         public async Task<IActionResult> GetDeviceById([FromRoute] string deviceId) {
-            var user = await _userManager.GetUserAsync(User);
+            var user = await UserManager.GetUserAsync(User);
             if (user == null) {
                 return NotFound();
             }
-            var device = await _dbContext.UserDevices.SingleOrDefaultAsync(x => x.UserId == user.Id && x.DeviceId == deviceId);
+            var device = await DbContext.UserDevices.SingleOrDefaultAsync(x => x.UserId == user.Id && x.DeviceId == deviceId);
             if (device == null) {
                 return NotFound();
             }
@@ -100,11 +110,11 @@ namespace Indice.AspNetCore.Identity.Api
         [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest, type: typeof(ValidationProblemDetails))]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
         public async Task<IActionResult> CreateDevice([FromBody] RegisterDeviceRequest request) {
-            var user = await _userManager.GetUserAsync(User);
+            var user = await UserManager.GetUserAsync(User);
             if (user == null) {
                 return NotFound();
             }
-            var device = await _dbContext.UserDevices.SingleOrDefaultAsync(x => x.UserId == user.Id && x.DeviceId == request.DeviceId);
+            var device = await DbContext.UserDevices.SingleOrDefaultAsync(x => x.UserId == user.Id && x.DeviceId == request.DeviceId);
             if (device != null) {
                 ModelState.AddModelError(nameof(request.DeviceId), $"A device with id {request.DeviceId} already exists.");
                 return BadRequest(new ValidationProblemDetails(ModelState));
@@ -118,14 +128,19 @@ namespace Indice.AspNetCore.Identity.Api
                 UserId = user.Id,
                 DateCreated = DateTimeOffset.UtcNow
             };
-            _dbContext.UserDevices.Add(device);
-            await _dbContext.SaveChangesAsync();
+            DbContext.UserDevices.Add(device);
+            await DbContext.SaveChangesAsync();
             if (isPushNotificationsEnabled) {
-                await _pushNotificationService.Register(request.DeviceId, request.PnsHandle, request.DevicePlatform, user.Id, request.Tags?.ToArray());
+                try {
+                    await PushNotificationService.Register(request.DeviceId, request.PnsHandle, request.DevicePlatform, user.Id, request.Tags?.ToArray());
+                } catch (Exception exception) {
+                    Logger.LogError("An exception occured when connection to Azure Notification Hubs. Exception is '{0}'. Inner Exception is '{1}'.", exception.Message, exception.InnerException?.Message ?? "N/A");
+                    throw;
+                }
             }
             var response = DeviceInfo.FromUserDevice(device);
             var @event = new DeviceCreatedEvent(response, SingleUserInfo.FromUser(user));
-            await _eventService.Raise(@event);
+            await EventService.Raise(@event);
             return CreatedAtAction(nameof(GetDeviceById), new { deviceId = device.DeviceId }, response);
         }
 
@@ -142,11 +157,11 @@ namespace Indice.AspNetCore.Identity.Api
         [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest, type: typeof(ValidationProblemDetails))]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
         public async Task<IActionResult> UpdateDevice([FromRoute] string deviceId, [FromBody] UpdateDeviceRequest request) {
-            var user = await _userManager.GetUserAsync(User);
+            var user = await UserManager.GetUserAsync(User);
             if (user == null) {
                 return NotFound();
             }
-            var device = await _dbContext.UserDevices.SingleOrDefaultAsync(x => x.UserId == user.Id && x.DeviceId == deviceId);
+            var device = await DbContext.UserDevices.SingleOrDefaultAsync(x => x.UserId == user.Id && x.DeviceId == deviceId);
             if (device == null) {
                 return NotFound();
             }
@@ -158,15 +173,20 @@ namespace Indice.AspNetCore.Identity.Api
             var shouldUnRegisterDevice = device.IsPushNotificationsEnabled && !request.IsPushNotificationsEnabled;
             device.IsPushNotificationsEnabled = request.IsPushNotificationsEnabled;
             device.DeviceName = request.DeviceName;
-            await _dbContext.SaveChangesAsync();
-            if (shouldUnRegisterDevice) {
-                await _pushNotificationService.UnRegister(deviceId);
-            }
-            if (shouldRegisterDevice) {
-                await _pushNotificationService.Register(device.DeviceId, request.PnsHandle, device.DevicePlatform, user.Id, request.Tags?.ToArray());
+            await DbContext.SaveChangesAsync();
+            try {
+                if (shouldUnRegisterDevice) {
+                    await PushNotificationService.UnRegister(deviceId);
+                }
+                if (shouldRegisterDevice) {
+                    await PushNotificationService.Register(device.DeviceId, request.PnsHandle, device.DevicePlatform, user.Id, request.Tags?.ToArray());
+                }
+            } catch (Exception exception) {
+                Logger.LogError("An exception occured when connection to Azure Notification Hubs. Exception is '{0}'. Inner Exception is '{1}'.", exception.Message, exception.InnerException?.Message ?? "N/A");
+                throw;
             }
             var @event = new DeviceUpdatedEvent(DeviceInfo.FromUserDevice(device), SingleUserInfo.FromUser(user));
-            await _eventService.Raise(@event);
+            await EventService.Raise(@event);
             return NoContent();
         }
 
@@ -180,19 +200,24 @@ namespace Indice.AspNetCore.Identity.Api
         [ProducesResponseType(statusCode: StatusCodes.Status204NoContent, type: typeof(void))]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
         public async Task<IActionResult> DeleteDevice([FromRoute] string deviceId) {
-            var user = await _userManager.GetUserAsync(User);
+            var user = await UserManager.GetUserAsync(User);
             if (user == null) {
                 return NotFound();
             }
-            var device = _dbContext.UserDevices.SingleOrDefault(x => x.UserId == user.Id && x.DeviceId == deviceId);
+            var device = DbContext.UserDevices.SingleOrDefault(x => x.UserId == user.Id && x.DeviceId == deviceId);
             if (device == null) {
                 return NotFound();
             }
-            await _pushNotificationService.UnRegister(deviceId);
-            _dbContext.UserDevices.Remove(device);
-            await _dbContext.SaveChangesAsync();
+            try {
+                await PushNotificationService.UnRegister(deviceId);
+            } catch (Exception exception) {
+                Logger.LogError("An exception occured when connection to Azure Notification Hubs. Exception is '{0}'. Inner Exception is '{1}'.", exception.Message, exception.InnerException?.Message ?? "N/A");
+                throw;
+            }
+            DbContext.UserDevices.Remove(device);
+            await DbContext.SaveChangesAsync();
             var @event = new DeviceDeletedEvent(DeviceInfo.FromUserDevice(device), SingleUserInfo.FromUser(user));
-            await _eventService.Raise(@event);
+            await EventService.Raise(@event);
             return NoContent();
         }
 

@@ -1,17 +1,13 @@
 <fieldset>
-    <legend class="sr-only">{{ title }} </legend>
+    <legend class="sr-only">{{ title }}</legend>
     <label class="field-label">{{ title }}</label>
     <div class="w-full rounded-sm -space-y-px">
         <ng-container *ngFor="let option of options">
-            <!-- Checked: "bg-blue-50 border-blue-200 z-10", Not Checked: "border-gray-200" -->
-            <label
-                [class]="value === option.value ? 'relative w-full  border-b-1 p-3 rounded-md shadow-sm flex cursor-pointer focus:outline-none bg-blue-50 border-blue-200 z-10' : 'relative w-full  border-b-1 p-3 rounded-ms flex cursor-pointer focus:outline-none border-gray-200'">
+            <label class="relative w-full border-b-1 p-3 flex cursor-pointer focus:outline-none" [class]="value === option.value ? 'rounded-md shadow-sm bg-blue-50 border-blue-200 z-10' : 'rounded-ms border-gray-200'">
                 <input type="radio" [value]="option.value" [checked]="value === option.value" (click)="selectedChanged(option)" class="h-4 w-4 mt-0.5 cursor-pointer text-gray-600 border-gray-300 focus:ring-1 focus:ring-gray-500"
                     aria-labelledby="privacy-setting-1-label" aria-describedby="privacy-setting-1-description">
                 <div class="ml-3 flex-col">
-                    <!-- Checked: "text-gray-900", Not Checked: "text-gray-900" -->
                     <span id="privacy-setting-1-label" class="block text-sm font-medium">{{ option.text }}</span>
-                    <!-- Checked: "text-gray-700", Not Checked: "text-gray-500" -->
                     <span *ngIf="option.description" id="privacy-setting-1-description" class="block text-xs">{{ option.description }}</span>
                 </div>
             </label>

@@ -3,6 +3,7 @@
         <form #campaignForm="ngForm" (ngSubmit)="onSubmit()">
             <div class="px-4 space-y-2 pb-4">
                 <div class="grid grid-cols-4 gap-4">
+                    <!-- Ενεργή -->
                     <div class="col-span-4">
                         <label for="campaignActive" class="field-label">Ενεργή</label>
                         <div class="mt-1 flex rounded-sm">
@@ -10,6 +11,7 @@
                         </div>
                         <p class="field-info col-span-3">Μία μη-ενεργή καμπάνια δεν θα εμφανιστεί στους χρήστες του συστήματος.</p>
                     </div>
+                    <!-- Τίτλος -->
                     <div class="col-span-4">
                         <label for="campaignTitle" class="field-label">Τίτλος (*)</label>
                         <div class="mt-1 flex rounded-sm">
@@ -21,6 +23,7 @@
                         </p>
                         <p class="field-info col-span-3">Η ονομασία η οποία θα εμφανίζεται για την καμπάνια.</p>
                     </div>
+                    <!-- Περιεχόμενο -->
                     <div class="col-span-4">
                         <label for="campaignContent" class="field-label">Περιεχόμενο (*)</label>
                         <div class="mt-1 flex rounded-sm">
@@ -30,6 +33,7 @@
                             <span *ngIf="campaignContent.errors!['required']">Παρακαλώ συμπλήρώστε το περιεχόμενο.</span>
                         </p>
                     </div>
+                    <!-- Ημ. Έναρξης -->
                     <div class="col-span-4 sm:col-span-2">
                         <label for="campaignStart" class="field-label">Ημ. Έναρξης</label>
                         <div class="mt-1 flex rounded-sm col-span-3">
@@ -38,6 +42,7 @@
                         </div>
                         <p class="field-info">Η ημέρα και ώρα έναρξης της καμπάνιας.</p>
                     </div>
+                    <!-- Ημ. Λήξης -->
                     <div class="col-span-4 sm:col-span-2">
                         <label for="campaignEnd" class="field-label">Ημ. Λήξης</label>
                         <div class="mt-1 flex rounded-sm col-span-3">
@@ -46,6 +51,7 @@
                         </div>
                         <p class="field-info">Η ημέρα και ώρα λήξης της καμπάνιας.</p>
                     </div>
+                    <!-- Τύπος -->
                     <div class="col-span-4">
                         <label for="campaignType" class="field-label">Τύπος</label>
                         <div class="mt-1 flex rounded-sm">
@@ -53,6 +59,15 @@
                         </div>
                         <p class="field-info col-span-3">Πατήστε <a [attr.style]="'color: blue'" (click)="openCampaignTypesModal()" href="javascript:void(0);">εδώ</a> για να προσθέσετε ένα νέο τύπο καμπάνιας.</p>
                     </div>
+                    <!-- Τρόπος Αποστολής -->
+                    <div class="col-span-4">
+                        <label for="deliveryMethodInbox" class="field-label">Τρόπος Αποστολής</label>
+                        <div class="mt-1 flex rounded-sm">
+                            <lib-toggle-button id="deliveryMethodInbox" [value]="true" (valueChange)="model.published = $event"></lib-toggle-button>
+                        </div>
+                        <p class="field-info col-span-3">Μία μη-ενεργή καμπάνια δεν θα εμφανιστεί στους χρήστες του συστήματος.</p>
+                    </div>
+                    <!-- Κωδικοί χρηστών -->
                     <div class="col-span-4">
                         <div class="mt-1 flex rounded-sm">
                             <lib-radio-buttons-list [options]="targetOptions" [value]="model.isGlobal" (valueChange)="setIsGlobal($event)" title="Προς"></lib-radio-buttons-list>
