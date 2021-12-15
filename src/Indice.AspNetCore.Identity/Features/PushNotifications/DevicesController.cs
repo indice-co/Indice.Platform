@@ -24,6 +24,7 @@ namespace Indice.AspNetCore.Identity.Api
     /// </summary>
     /// <response code="401">Unauthorized</response>
     /// <response code="403">Forbidden</response>
+    /// <response code="500">Internal Server Error</response>
     [Route("api/my/devices")]
     [ApiController]
     [ApiExplorerSettings(GroupName = "identity")]
@@ -31,6 +32,7 @@ namespace Indice.AspNetCore.Identity.Api
     [Consumes(MediaTypeNames.Application.Json)]
     [ProducesResponseType(statusCode: StatusCodes.Status401Unauthorized, type: typeof(ProblemDetails))]
     [ProducesResponseType(statusCode: StatusCodes.Status403Forbidden, type: typeof(ProblemDetails))]
+    [ProducesResponseType(statusCode: StatusCodes.Status500InternalServerError, type: typeof(ProblemDetails))]
     [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme)]
     [ProblemDetailsExceptionFilter]
     internal class DevicesController : ControllerBase
@@ -115,11 +117,19 @@ namespace Indice.AspNetCore.Identity.Api
                 return NotFound();
             }
             var device = await DbContext.UserDevices.SingleOrDefaultAsync(x => x.UserId == user.Id && x.DeviceId == request.DeviceId);
-            if (device != null) {
+            if (device is not null) {
                 ModelState.AddModelError(nameof(request.DeviceId), $"A device with id {request.DeviceId} already exists.");
                 return BadRequest(new ValidationProblemDetails(ModelState));
             }
             var isPushNotificationsEnabled = !string.IsNullOrWhiteSpace(request.PnsHandle);
+            if (isPushNotificationsEnabled) {
+                try {
+                    await PushNotificationService.Register(request.DeviceId, request.PnsHandle, request.DevicePlatform, user.Id, request.Tags?.ToArray());
+                } catch (Exception exception) {
+                    Logger.LogError("An exception occured when connection to Azure Notification Hubs. Exception is '{0}'. Inner Exception is '{1}'.", exception.Message, exception.InnerException?.Message ?? "N/A");
+                    throw;
+                }
+            }
             device = new UserDevice {
                 DeviceId = request.DeviceId,
                 DeviceName = request.DeviceName,
@@ -130,14 +140,6 @@ namespace Indice.AspNetCore.Identity.Api
             };
             DbContext.UserDevices.Add(device);
             await DbContext.SaveChangesAsync();
-            if (isPushNotificationsEnabled) {
-                try {
-                    await PushNotificationService.Register(request.DeviceId, request.PnsHandle, request.DevicePlatform, user.Id, request.Tags?.ToArray());
-                } catch (Exception exception) {
-                    Logger.LogError("An exception occured when connection to Azure Notification Hubs. Exception is '{0}'. Inner Exception is '{1}'.", exception.Message, exception.InnerException?.Message ?? "N/A");
-                    throw;
-                }
-            }
             var response = DeviceInfo.FromUserDevice(device);
             var @event = new DeviceCreatedEvent(response, SingleUserInfo.FromUser(user));
             await EventService.Raise(@event);
@@ -162,7 +164,7 @@ namespace Indice.AspNetCore.Identity.Api
                 return NotFound();
             }
             var device = await DbContext.UserDevices.SingleOrDefaultAsync(x => x.UserId == user.Id && x.DeviceId == deviceId);
-            if (device == null) {
+            if (device is null) {
                 return NotFound();
             }
             var shouldRegisterDevice = !device.IsPushNotificationsEnabled && request.IsPushNotificationsEnabled;
@@ -171,9 +173,6 @@ namespace Indice.AspNetCore.Identity.Api
                 return BadRequest(new ValidationProblemDetails(ModelState));
             }
             var shouldUnRegisterDevice = device.IsPushNotificationsEnabled && !request.IsPushNotificationsEnabled;
-            device.IsPushNotificationsEnabled = request.IsPushNotificationsEnabled;
-            device.DeviceName = request.DeviceName;
-            await DbContext.SaveChangesAsync();
             try {
                 if (shouldUnRegisterDevice) {
                     await PushNotificationService.UnRegister(deviceId);
@@ -185,6 +184,9 @@ namespace Indice.AspNetCore.Identity.Api
                 Logger.LogError("An exception occured when connection to Azure Notification Hubs. Exception is '{0}'. Inner Exception is '{1}'.", exception.Message, exception.InnerException?.Message ?? "N/A");
                 throw;
             }
+            device.IsPushNotificationsEnabled = request.IsPushNotificationsEnabled;
+            device.DeviceName = request.DeviceName;
+            await DbContext.SaveChangesAsync();
             var @event = new DeviceUpdatedEvent(DeviceInfo.FromUserDevice(device), SingleUserInfo.FromUser(user));
             await EventService.Raise(@event);
             return NoContent();
@@ -205,7 +207,7 @@ namespace Indice.AspNetCore.Identity.Api
                 return NotFound();
             }
             var device = DbContext.UserDevices.SingleOrDefault(x => x.UserId == user.Id && x.DeviceId == deviceId);
-            if (device == null) {
+            if (device is null) {
                 return NotFound();
             }
             try {

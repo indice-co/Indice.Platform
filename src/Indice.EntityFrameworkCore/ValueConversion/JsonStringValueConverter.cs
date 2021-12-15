@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Text.Json;
-using System.Threading.Tasks;
+﻿using System.Text.Json;
 using Indice.Serialization;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
@@ -15,17 +10,17 @@ namespace Indice.EntityFrameworkCore.ValueConversion
     /// <typeparam name="T"></typeparam>
     public class JsonStringValueConverter<T> : ValueConverter<T, string> where T : class
     {
-        private static readonly JsonSerializerOptions serializerOptions;
+        private static readonly JsonSerializerOptions _serializerOptions;
 
         /// <inheritdoc/>
         static JsonStringValueConverter() {
-            serializerOptions = JsonSerializerOptionDefaults.GetDefaultSettings();
+            _serializerOptions = JsonSerializerOptionDefaults.GetDefaultSettings();
         }
 
         /// <inheritdoc/>
         public JsonStringValueConverter() : base(
-            x => x != null ? JsonSerializer.Serialize(x, serializerOptions) : null, 
-            x => x != null ? JsonSerializer.Deserialize<T>(x, serializerOptions) : null) 
-            { }
+            x => x != null ? JsonSerializer.Serialize(x, _serializerOptions) : null,
+            x => x != null ? JsonSerializer.Deserialize<T>(x, _serializerOptions) : null
+        ) { }
     }
 }

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Text.Json;
 using Indice.Serialization;
 
@@ -10,6 +11,30 @@ namespace Indice.Types
     /// <typeparam name="T">The type of object to translate.</typeparam>
     public class TranslationDictionary<T> : Dictionary<string, T> where T : class
     {
+        /// <summary>
+        /// Creates a new instance of <see cref="TranslationDictionary{T}"/>.
+        /// </summary>
+        /// <param name="source"></param>
+        public TranslationDictionary(IDictionary<string, T> source) : this() {
+            foreach (var item in source) {
+                Add(item.Key.ToLower(), item.Value);
+            }
+        }
+
+        /// <summary>
+        /// Creates a new instance of <see cref="TranslationDictionary{T}"/>.
+        /// </summary>
+        public TranslationDictionary() : base(StringComparer.InvariantCultureIgnoreCase) { }
+
+        /// <summary>
+        /// Transforms the current <see cref="TranslationDictionary{T}"/> into an <see cref="IEnumerable{Translation}"/>
+        /// </summary>
+        public IEnumerable<Translation<T>> ToTranslationEnumerable() {
+            foreach (var item in this) {
+                yield return new Translation<T>(item.Key, item.Value);
+            }
+        }
+
         /// <summary>
         /// Converts the current instance of <see cref="TranslationDictionary{T}"/> to it's JSON representation.
         /// </summary>
