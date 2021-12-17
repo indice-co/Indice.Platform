@@ -15,7 +15,13 @@ namespace Indice.Identity.Configuration
                     Email = "g.manoltzas@indice.gr",
                     PhoneNumber = "6992731575",
                     UserName = "gmanoltzas",
-                    ChangePasswordAfterFirstSignIn = true
+                    ChangePasswordAfterFirstSignIn = true,
+                    Claims = new System.Collections.Generic.List<BasicClaimInfo> {
+                        new BasicClaimInfo {
+                            Type = IdentityModel.JwtClaimTypes.Locale,
+                            Value = "el"
+                        }
+                    }
                 };
                 schema.Example = example.ToOpenApiAny();
             }

@@ -73,7 +73,7 @@ namespace Indice.AspNetCore.Swagger
         }
 
         private static bool IsPrimitive(Type type) =>
-            type.IsValueType || type.IsPrimitive || type.Namespace.StartsWith("System") || type.IsEnum || type == typeof(string);
+            type.IsValueType || type.IsPrimitive || type.IsEnum || type == typeof(string);
 
         private static IOpenApiPrimitive GetStructValue(Type type, object value) {
             var openValue = default(IOpenApiPrimitive);
