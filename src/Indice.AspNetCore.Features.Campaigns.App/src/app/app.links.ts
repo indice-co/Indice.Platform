@@ -1,29 +1,31 @@
-import { ExternalNavLink, IAppLinks, NavLink } from "@indice/ng-components";
+import { ExternalNavLink, IAppLinks, NavLink } from '@indice/ng-components';
+
+import { Observable, of } from 'rxjs';
 
 export class AppLinks implements IAppLinks {
     constructor() { }
 
-    public public: NavLink[] = [];
-    public profileActions: NavLink[] = [];
+    public public: Observable<NavLink[]> = of([]);
+    public profileActions: Observable<NavLink[]> = of([]);
 
-    public main: NavLink[] = [
+    public main: Observable<NavLink[]> = of([
         new NavLink('Αρχική', '/', true),
         new NavLink('Campaigns', '/app/campaigns', true)
-    ];
+    ]);
 
-    public profile: NavLink[] = [
+    public profile: Observable<NavLink[]> = of([
         new NavLink('Προφίλ', '/profile', true),
         new NavLink('Ρυθμίσεις', '/settings', false),
         new NavLink('Αποσύνδεση', '/logout', false)
-    ];
+    ]);
 
-    public legal: NavLink[] = [
+    public legal: Observable<NavLink[]> = of([
         new ExternalNavLink('Ιδιωτικό Απόρρητο', '/privacy'),
         new ExternalNavLink('Όροι χρήσης', '/terms'),
         new ExternalNavLink('Επικοινωνία', '/contact')
-    ];
+    ]);
 
-    public brand: NavLink[] = [
+    public brand: Observable<NavLink[]> = of([
         new ExternalNavLink('Indice', 'https://www.indice.gr')
-    ];
+    ]);
 }

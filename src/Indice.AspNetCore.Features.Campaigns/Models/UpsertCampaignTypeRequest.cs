@@ -3,7 +3,7 @@
     /// <summary>
     /// The request model used to create a new campaign type.
     /// </summary>
-    public class CreateCampaignTypeRequest
+    public class UpsertCampaignTypeRequest
     {
         /// <summary>
         /// The name of a campaign type.

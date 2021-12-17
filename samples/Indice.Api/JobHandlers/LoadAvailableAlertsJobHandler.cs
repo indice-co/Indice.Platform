@@ -9,12 +9,12 @@ using Microsoft.Extensions.Logging;
 
 namespace Indice.Api.JobHandlers
 {
-    public class LoadAvailableAlertsHandler
+    public class LoadAvailableAlertsJobHandler
     {
-        private readonly ILogger<LoadAvailableAlertsHandler> _logger;
+        private readonly ILogger<LoadAvailableAlertsJobHandler> _logger;
         private readonly IMessageQueue<SmsDto> _messageQueue;
 
-        public LoadAvailableAlertsHandler(ILogger<LoadAvailableAlertsHandler> logger, IMessageQueue<SmsDto> messageQueue) {
+        public LoadAvailableAlertsJobHandler(ILogger<LoadAvailableAlertsJobHandler> logger, IMessageQueue<SmsDto> messageQueue) {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _messageQueue = messageQueue ?? throw new ArgumentNullException(nameof(messageQueue));
         }
@@ -26,14 +26,14 @@ namespace Indice.Api.JobHandlers
                 timer.Start();
                 var tasksList = new List<SmsDto>();
                 var task = new SmsDto(userId: Guid.NewGuid().ToString(), phoneNumber: "6992731575", message: $"Transaction '{Guid.NewGuid()}' took place.");
-                for (var i = 0; i < 2; i++) {
+                for (var i = 0; i < 5; i++) {
                     tasksList.Add(task);
                 }
                 var waitTime = new Random().Next(15, 20) * 1000;
                 await Task.Delay(waitTime, cancellationToken);
                 await _messageQueue.EnqueueRange(tasksList, visibilityWindow: TimeSpan.FromMinutes(1));
                 timer.Stop();
-                _logger.LogDebug("{HandlerName} took {ExecutionTime}ms to execute.", nameof(LoadAvailableAlertsHandler), timer.ElapsedMilliseconds);
+                _logger.LogDebug("{HandlerName} took {ExecutionTime}ms to execute.", nameof(LoadAvailableAlertsJobHandler), timer.ElapsedMilliseconds);
             }
         }
     }

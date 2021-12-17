@@ -97,7 +97,7 @@ namespace Indice.Services
         /// <param name="data">Data passed to mobile client, not visible to notification toast.</param>
         /// <param name="classification">The type of the Push Notification.</param>
         public static async Task BroadcastAsync<TData>(this IPushNotificationService service, string message, TData data, string classification = null) where TData : class =>
-            await service.BroadcastAsync(message, JsonSerializer.Serialize(data, JsonSerializerOptionDefaults.GetDefaultSettings()), classification);
+            await service.BroadcastAsync(message, data != null ? JsonSerializer.Serialize(data, JsonSerializerOptionDefaults.GetDefaultSettings()) : null, classification);
 
         /// <summary>
         /// Send notification to devices registered to userId with optional data as payload.

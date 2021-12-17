@@ -168,9 +168,31 @@ namespace Indice.AspNetCore.Features.Campaigns.Controllers
         [Consumes(MediaTypeNames.Application.Json)]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CampaignType))]
         [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ValidationProblemDetails))]
-        public async Task<IActionResult> CreateCampaignType([FromBody] CreateCampaignTypeRequest request) {
+        public async Task<IActionResult> CreateCampaignType([FromBody] UpsertCampaignTypeRequest request) {
             var campaign = await CampaignService.CreateCampaignType(request);
             return Ok(campaign);
+        }
+
+        /// <summary>
+        /// Updates an existing campaign type.
+        /// </summary>
+        /// <param name="campaignTypeId">The id of the campaign type.</param>
+        /// <param name="request">Contains info about the campaign type to update.</param>
+        /// <response code="204">No Content</response>
+        /// <response code="400">Bad Request</response>
+        [HttpPut("campaign-types/{campaignTypeId}")]
+        [Produces(MediaTypeNames.Application.Json)]
+        [Consumes(MediaTypeNames.Application.Json)]
+        [ProducesResponseType(StatusCodes.Status204NoContent, Type = typeof(CampaignType))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ValidationProblemDetails))]
+        [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ProblemDetails))]
+        public async Task<IActionResult> UpdateCampaignType([FromRoute] Guid campaignTypeId, [FromBody] UpsertCampaignTypeRequest request) {
+            var campaignType = await CampaignService.GetCampaignTypeById(campaignTypeId);
+            if (campaignType is null) {
+                return NotFound();
+            }
+            await CampaignService.UpdateCampaignType(campaignTypeId, request);
+            return NoContent();
         }
 
         /// <summary>
@@ -203,6 +225,7 @@ namespace Indice.AspNetCore.Features.Campaigns.Controllers
         [Produces(MediaTypeNames.Application.Json)]
         [Consumes(MediaTypeNames.Application.Json)]
         [ProducesResponseType(StatusCodes.Status204NoContent, Type = typeof(void))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ValidationProblemDetails))]
         [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ProblemDetails))]
         public async Task<IActionResult> UpdateCampaign([FromRoute] Guid campaignId, [FromBody] UpdateCampaignRequest request) {
             var campaign = await CampaignService.GetCampaignById(campaignId);

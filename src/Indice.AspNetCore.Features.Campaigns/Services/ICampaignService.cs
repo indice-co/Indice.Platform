@@ -11,7 +11,7 @@ namespace Indice.AspNetCore.Features.Campaigns.Services
         Task AssociateCampaignAttachment(Guid campaignId, Guid attachmentId);
         Task<AttachmentLink> CreateAttachment(IFormFile file);
         Task<Campaign> CreateCampaign(CreateCampaignRequest request);
-        Task<CampaignType> CreateCampaignType(CreateCampaignTypeRequest request);
+        Task<CampaignType> CreateCampaignType(UpsertCampaignTypeRequest request);
         Task DeleteCampaign(Guid campaignId);
         Task DeleteCampaignType(Guid campaignTypeId);
         Task<CampaignDetails> GetCampaignById(Guid campaignId);
@@ -20,6 +20,7 @@ namespace Indice.AspNetCore.Features.Campaigns.Services
         Task<CampaignType> GetCampaignTypeById(Guid campaignTypeId);
         Task<ResultSet<CampaignType>> GetCampaignTypes(ListOptions options);
         Task UpdateCampaign(Guid campaignId, UpdateCampaignRequest request);
+        Task UpdateCampaignType(Guid campaignTypeId, UpsertCampaignTypeRequest request);
         Task UpdateCampaignVisit(Guid campaignId);
     }
 }

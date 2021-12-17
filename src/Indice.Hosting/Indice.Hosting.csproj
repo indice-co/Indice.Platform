@@ -2,7 +2,7 @@
   <PropertyGroup>
     <Description>Indice.Hosting Class Library</Description>
     <Copyright>Copyright (c) 2019 Indice</Copyright>
-    <VersionPrefix>5.2.9</VersionPrefix>
+    <VersionPrefix>5.2.10</VersionPrefix>
     <!--<VersionSuffix>beta-01</VersionSuffix>-->
     <Authors>Constantinos Leftheris, Georgios Manoltzas</Authors>
     <TargetFrameworks>netstandard2.0;net5.0;net6.0;</TargetFrameworks>

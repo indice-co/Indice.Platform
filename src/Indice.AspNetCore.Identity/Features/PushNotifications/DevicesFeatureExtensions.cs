@@ -24,10 +24,10 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <summary>
         /// Adds all required stuff in order for Push notifications to work.
         /// </summary>
-        /// <typeparam name="TPushNotificationServiceAzure">The type of <see cref="IPushNotificationService"/> service implementation to use.</typeparam>
+        /// <typeparam name="TPushNotificationService">The type of <see cref="IPushNotificationService"/> service implementation to use.</typeparam>
         /// <param name="builder">IdentityServer builder Interface.</param>
         /// <param name="configure">Configuration used in <see cref="Rfc6238AuthenticationService"/> service.</param>
-        public static IMvcBuilder AddPushNotifications<TPushNotificationServiceAzure>(this IMvcBuilder builder, Action<PushNotificationOptions> configure = null) where TPushNotificationServiceAzure : class, IPushNotificationService {
+        public static IMvcBuilder AddPushNotifications<TPushNotificationService>(this IMvcBuilder builder, Action<PushNotificationOptions> configure = null) where TPushNotificationService : class, IPushNotificationService {
             builder.Services.AddPushNotificationServiceAzure(configure);
             builder.Services.TryAddTransient<IPlatformEventService, EventService>();
             builder.ConfigureApplicationPartManager(x => x.FeatureProviders.Add(new DevicesFeatureProvider()));
@@ -45,10 +45,10 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <summary>
         /// Adds all required stuff in order for Push notifications to work.
         /// </summary>
-        /// <typeparam name="TPushNotificationServiceAzure">The type of <see cref="IPushNotificationService"/> service implementation to use.</typeparam>
+        /// <typeparam name="TPushNotificationService">The type of <see cref="IPushNotificationService"/> service implementation to use.</typeparam>
         /// <param name="builder">IdentityServer builder Interface.</param>
         /// <param name="configure">Configuration used in <see cref="Rfc6238AuthenticationService"/> service.</param>
-        public static IIdentityServerBuilder AddPushNotifications<TPushNotificationServiceAzure>(this IIdentityServerBuilder builder, Action<PushNotificationOptions> configure = null) where TPushNotificationServiceAzure : class, IPushNotificationService {
+        public static IIdentityServerBuilder AddPushNotifications<TPushNotificationService>(this IIdentityServerBuilder builder, Action<PushNotificationOptions> configure = null) where TPushNotificationService : class, IPushNotificationService {
             builder.Services.AddPushNotificationServiceAzure(configure);
             builder.Services.TryAddTransient<IPlatformEventService, EventService>();
             builder.Services.Configure<IdentityServerOptions>((options) => {

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
 using System.Threading.Tasks;
 using Indice.Types;
 using Microsoft.Azure.NotificationHubs;
@@ -41,7 +42,11 @@ namespace Indice.Services
             if (string.IsNullOrWhiteSpace(options?.ConnectionString) || string.IsNullOrWhiteSpace(options?.NotificationHubPath)) {
                 throw new InvalidOperationException($"{nameof(PushNotificationOptions)} are not properly configured.");
             }
-            NotificationHub = NotificationHubClient.CreateClientFromConnectionString(options.ConnectionString, options.NotificationHubPath);
+            NotificationHub = new NotificationHubClient(
+                options.ConnectionString,
+                options.NotificationHubPath,
+                options.MessageHandler != null ? new NotificationHubSettings { MessageHandler = options.MessageHandler } : null
+            );
         }
 
         /// <summary>
@@ -141,5 +146,9 @@ namespace Indice.Services
         /// Notifications hub name.
         /// </summary>
         public string NotificationHubPath { get; set; }
+        /// <summary>
+        /// Gets or sets HTTP message handler.
+        /// </summary>
+        public HttpClientHandler MessageHandler { get; set; }
     }
 }

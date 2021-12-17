@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using FluentValidation.AspNetCore;
-using Indice.AspNetCore.Identity.Api;
 using Indice.AspNetCore.Identity.Api.Events;
 using Indice.AspNetCore.Identity.Data.Models;
 using Indice.Identity;
@@ -14,7 +13,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
-using ValueType = Indice.AspNetCore.Identity.Data.Models.ValueType;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
@@ -116,7 +114,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 Reserved = false,
                 Required = false,
                 UserEditable = false,
-                ValueType = ValueType.String
+                ValueType = Indice.AspNetCore.Identity.Data.Models.ValueType.String
             }
         };
     }

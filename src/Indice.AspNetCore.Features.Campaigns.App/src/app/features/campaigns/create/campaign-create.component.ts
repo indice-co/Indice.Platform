@@ -4,7 +4,7 @@ import { NgForm } from '@angular/forms';
 import { MenuOption, Modal, ModalService, SideViewLayoutComponent, ToasterService, ToastType } from '@indice/ng-components';
 import { map } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
-import { Campaign, CampaignsApiService, CampaignTypeResultSet, CreateCampaignRequest, Period } from 'src/app/core/services/campaigns-api.services';
+import { Campaign, CampaignDeliveryChannel, CampaignsApiService, CampaignTypeResultSet, CreateCampaignRequest, Period } from 'src/app/core/services/campaigns-api.services';
 import { CampaignTypesModalComponent } from '../campaign-types-modal/campaign-types.component';
 
 @Component({
@@ -25,7 +25,9 @@ export class CampaignCreateComponent implements OnInit {
     public now: Date = new Date();
     public model: CreateCampaignRequest = new CreateCampaignRequest({
         activePeriod: new Period({ from: this.now }),
-        isActive: true, isGlobal: true
+        published: true, 
+        isGlobal: true,
+        deliveryChannel: CampaignDeliveryChannel.Inbox
     });
     public campaignTypes: MenuOption[] = [];
     public campaignTypesModalRef: Modal | undefined;
