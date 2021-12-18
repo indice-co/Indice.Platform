@@ -15,14 +15,14 @@ namespace Indice.AspNetCore.Features.Campaigns.Services
     internal class UserMessagesService : IUserMessagesService
     {
         public UserMessagesService(
-            CampaingsDbContext dbContext,
+            CampaignsDbContext dbContext,
             IOptions<GeneralSettings> generalSettings
         ) {
             DbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
             GeneralSettings = generalSettings?.Value ?? throw new ArgumentNullException(nameof(generalSettings));
         }
 
-        public CampaingsDbContext DbContext { get; }
+        public CampaignsDbContext DbContext { get; }
         public GeneralSettings GeneralSettings { get; }
 
         public Task<UserMessage> GetMessageById(Guid messageId, string userCode) => GetUserMessagesQuery(userCode).SingleOrDefaultAsync(x => x.Id == messageId);

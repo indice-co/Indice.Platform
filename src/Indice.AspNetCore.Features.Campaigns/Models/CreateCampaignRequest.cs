@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Text.Json.Serialization;
 using Indice.AspNetCore.Features.Campaigns.Data.Models;
 
 namespace Indice.AspNetCore.Features.Campaigns.Models
@@ -9,9 +11,14 @@ namespace Indice.AspNetCore.Features.Campaigns.Models
     public class CreateCampaignRequest : UpdateCampaignRequest
     {
         /// <summary>
+        /// The id of the campaign.
+        /// </summary>
+        [JsonIgnore]
+        public Guid Id { get; internal set; }
+        /// <summary>
         /// Determines if campaign targets all user base.
         /// </summary>
-        public bool IsGlobal { get; set; }
+        public bool IsGlobal { get; set; } = true;
         /// <summary>
         /// Defines a list of user identifiers that constitutes the audience of the campaign.
         /// </summary>

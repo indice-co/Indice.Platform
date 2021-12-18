@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Net.Mime;
+using FluentValidation.AspNetCore;
 using Indice.AspNetCore.Features.Campaigns;
 using Indice.AspNetCore.Features.Campaigns.Configuration;
+using Indice.AspNetCore.Features.Campaigns.Controllers;
 using Indice.AspNetCore.Features.Campaigns.Data;
 using Indice.AspNetCore.Features.Campaigns.Formatters;
 using Indice.AspNetCore.Features.Campaigns.Mvc.ApplicationModels;
@@ -55,11 +57,14 @@ namespace Microsoft.Extensions.DependencyInjection
             // Register custom services.
             services.AddTransient<ICampaignService, CampaignService>();
             services.AddTransient<IUserMessagesService, UserMessagesService>();
+            services.AddTransient<CampaignManager>();
+            // Register validators.
+            mvcBuilder.AddFluentValidation(options => options.RegisterValidatorsFromAssemblyContaining<CampaignsController>());
             // Register application DbContext.
             if (campaignsApiOptions.ConfigureDbContext != null) {
-                services.AddDbContext<CampaingsDbContext>(campaignsApiOptions.ConfigureDbContext);
+                services.AddDbContext<CampaignsDbContext>(campaignsApiOptions.ConfigureDbContext);
             } else {
-                services.AddDbContext<CampaingsDbContext>((builder) => builder.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
+                services.AddDbContext<CampaignsDbContext>((builder) => builder.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
             }
             // Configure authorization.
             services.AddAuthorizationCore(authOptions => {

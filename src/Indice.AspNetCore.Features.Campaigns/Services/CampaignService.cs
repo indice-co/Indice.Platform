@@ -19,7 +19,7 @@ namespace Indice.AspNetCore.Features.Campaigns.Services
     internal class CampaignService : ICampaignService
     {
         public CampaignService(
-            CampaingsDbContext dbContext,
+            CampaignsDbContext dbContext,
             IOptions<GeneralSettings> generalSettings,
             IFileService fileService,
             IHttpContextAccessor httpContextAccessor,
@@ -32,7 +32,7 @@ namespace Indice.AspNetCore.Features.Campaigns.Services
             LinkGenerator = linkGenerator ?? throw new ArgumentNullException(nameof(linkGenerator));
         }
 
-        public CampaingsDbContext DbContext { get; }
+        public CampaignsDbContext DbContext { get; }
         public IFileService FileService { get; }
         public GeneralSettings GeneralSettings { get; }
         public IHttpContextAccessor HttpContextAccessor { get; }
