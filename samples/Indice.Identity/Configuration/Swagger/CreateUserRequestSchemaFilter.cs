@@ -1,4 +1,5 @@
-﻿using Indice.AspNetCore.Identity.Api.Models;
+﻿using System.Collections.Generic;
+using Indice.AspNetCore.Identity.Api.Models;
 using Indice.AspNetCore.Swagger;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
@@ -24,6 +25,19 @@ namespace Indice.Identity.Configuration
                     }
                 };
                 schema.Example = example.ToOpenApiAny();
+                //schema.Example = new {
+                //    Test = "the string",
+                //    Age = 23,
+                //    Date = System.DateTimeOffset.Now,
+                //    Dictionary = new Dictionary<string, CreateUserRequest> {
+                //        ["One"] = example
+                //    },
+                //    Test2 = new Dictionary<string, int> {
+                //        ["The"] = 1,
+                //        ["First"] = 2,
+                //        ["Thing"] = 2,
+                //    }
+                //}.ToOpenApiAny();
             }
         }
     }

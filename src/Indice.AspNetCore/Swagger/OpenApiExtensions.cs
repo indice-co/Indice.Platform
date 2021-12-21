@@ -41,12 +41,12 @@ namespace Indice.AspNetCore.Swagger
                             continue;
                         }
                     } else {
-                        var array = default(OpenApiArray);
-                        if ((array = ToOpenApiArray(property.PropertyType, value)) != null) {
+                        var arrayOrDictionary = default(IOpenApiAny);
+                        if ((arrayOrDictionary = ToOpenApiArray(property.PropertyType, value)) != null) {
                             if (result.ContainsKey(key)) {
-                                result[key] = array;
+                                result[key] = arrayOrDictionary;
                             } else {
-                                result.Add(key, array);
+                                result.Add(key, arrayOrDictionary);
                             }
                             continue;
                         }
@@ -62,15 +62,28 @@ namespace Indice.AspNetCore.Swagger
             return result;
         }
 
-        private static OpenApiArray ToOpenApiArray(Type type, object instance) {
+        private static IOpenApiAny ToOpenApiArray(Type type, object instance) {
             var itemType = GetAnyElementType(type);
-            var array = default(OpenApiArray);
+            
             if (itemType != null) {
-                array = new OpenApiArray();
-                array.AddRange(((IEnumerable)instance).Cast<object>().Select(x => GetStructValue(itemType ?? x.GetType(), x) ?? ToOpenApiAny(itemType ?? x.GetType(), x)));
+                var items = ((IEnumerable)instance).Cast<object>().Select(x => GetStructValue(itemType ?? x.GetType(), x) ?? ToOpenApiAny(itemType ?? x.GetType(), x));
+                if (IsDictionary(type)) {
+                    var dictionary = new OpenApiObject();
+                    foreach (OpenApiObject item in items) {
+                        dictionary.Add(((OpenApiString)item["key"]).Value, item["value"]);
+                    }
+                    return dictionary;
+                }
+                var array = new OpenApiArray();
+                array.AddRange(items);
+                return array;
             }
-            return array;
+            return null;
         }
+
+        private static bool IsDictionary(Type type) =>
+            type.GetInterfaces().Where(x => x.IsGenericType && x.GetGenericTypeDefinition() == typeof(IDictionary<,>))
+                                .Any();
 
         private static bool IsPrimitive(Type type) =>
             type.IsValueType || type.IsPrimitive || type.IsEnum || type == typeof(string);
