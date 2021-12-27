@@ -59,13 +59,17 @@
                         </div>
                         <p class="field-info col-span-3">Πατήστε <a [attr.style]="'color: blue'" (click)="openCampaignTypesModal()" href="javascript:void(0);">εδώ</a> για να προσθέσετε ένα νέο τύπο καμπάνιας.</p>
                     </div>
+                    <!-- <app-divider class="col-span-4" label="ΕΛΑΧΙΣΤΗ - ΜΕΓΙΣΤΗ ΑΞΙΑ ΣΥΝΑΛΛΑΓΗΣ"></app-divider> -->
                     <!-- Τρόπος Αποστολής -->
                     <div class="col-span-4">
-                        <label for="deliveryMethodInbox" class="field-label">Τρόπος Αποστολής</label>
-                        <div class="mt-1 flex rounded-sm">
-                            <lib-toggle-button id="deliveryMethodInbox" [value]="true" (valueChange)="model.published = $event"></lib-toggle-button>
-                        </div>
-                        <p class="field-info col-span-3">Μία μη-ενεργή καμπάνια δεν θα εμφανιστεί στους χρήστες του συστήματος.</p>
+                        <lib-toggle-button [value]="model.deliveryChannel == CampaignDeliveryChannel.Inbox" (valueChange)="model.deliveryChannel = CampaignDeliveryChannel.Inbox" [true-label]="'Η καμπάνια θα εμφανιστεί στο Inbox'"
+                            [false-label]="'Ενεργοποίηση Inbox'">
+                        </lib-toggle-button>
+                    </div>
+                    <div class="col-span-4">
+                        <lib-toggle-button [value]="model.deliveryChannel == CampaignDeliveryChannel.PushNotification" (valueChange)="model.deliveryChannel = CampaignDeliveryChannel.PushNotification"
+                            [true-label]="'Η καμπάνια θα αποσταλλεί με Push Notification'" [false-label]="'Ενεργοποίηση Push Notification'">
+                        </lib-toggle-button>
                     </div>
                     <!-- Κωδικοί χρηστών -->
                     <div class="col-span-4">
@@ -92,6 +96,6 @@
             </div>
             <button type="submit" [style.visibility]="'hidden'" #submitBtn>Submit</button>
         </form>
-        <!-- <pre *ngIf="isDevelopment">{{ model | json }}</pre> -->
+        <pre *ngIf="isDevelopment">{{ model | json }}</pre>
     </div>
 </lib-side-view-layout>

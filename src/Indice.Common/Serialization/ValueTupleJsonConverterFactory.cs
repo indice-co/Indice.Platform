@@ -18,9 +18,8 @@ namespace Indice.Serialization
 
         /// <inheritdoc/>
         public override JsonConverter CreateConverter(Type typeToConvert, JsonSerializerOptions options) {
-            Type[] genericArguments = typeToConvert.GetGenericArguments();
-
-            Type converterType = genericArguments.Length switch {
+            var genericArguments = typeToConvert.GetGenericArguments();
+            var converterType = genericArguments.Length switch {
                 1 => typeof(ValueTupleJsonConverter<>).MakeGenericType(genericArguments),
                 2 => typeof(ValueTupleJsonConverter<,>).MakeGenericType(genericArguments),
                 3 => typeof(ValueTupleJsonConverter<,,>).MakeGenericType(genericArguments),

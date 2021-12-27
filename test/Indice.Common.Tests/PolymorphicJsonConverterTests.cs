@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Text.Json;
+﻿using System.Text.Json;
 using System.Text.Json.Serialization;
 using Indice.Serialization;
 using Xunit;
@@ -51,7 +48,6 @@ namespace Indice.Common.Tests
             Assert.IsType<Mother>(people[0]);
             Assert.IsType<Father>(people[1]);
         }
-
 
         [Fact]
         public void SerializePolymorphicObjectListTest() {

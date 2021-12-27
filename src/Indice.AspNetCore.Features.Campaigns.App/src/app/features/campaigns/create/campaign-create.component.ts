@@ -25,13 +25,16 @@ export class CampaignCreateComponent implements OnInit {
     public now: Date = new Date();
     public model: CreateCampaignRequest = new CreateCampaignRequest({
         activePeriod: new Period({ from: this.now }),
-        published: true, 
+        published: true,
         isGlobal: true,
-        deliveryChannel: CampaignDeliveryChannel.Inbox
+        deliveryChannel: CampaignDeliveryChannel.Inbox,
+        title: '',
+        content: ''
     });
     public campaignTypes: MenuOption[] = [];
     public campaignTypesModalRef: Modal | undefined;
     public isDevelopment = !environment.production;
+    public CampaignDeliveryChannel = CampaignDeliveryChannel;
     public targetOptions: MenuOption[] = [
         new MenuOption('Όλους τους χρήστες', true),
         new MenuOption('Ομάδα χρηστών', false)
@@ -88,6 +91,10 @@ export class CampaignCreateComponent implements OnInit {
 
     public toUserCodesString(userCodes: string[] | undefined): string {
         return userCodes ? userCodes.join('\n') : '';
+    }
+
+    public setDeliveryChannel(): void {
+
     }
 
     private loadCampaignTypes(): void {

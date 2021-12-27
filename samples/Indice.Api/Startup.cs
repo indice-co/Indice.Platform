@@ -9,6 +9,7 @@ using Indice.AspNetCore.Features.Campaigns;
 using Indice.AspNetCore.Swagger;
 using Indice.Configuration;
 using Indice.Hosting;
+using Indice.Serialization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -46,6 +47,7 @@ namespace Indice.Api
                         options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
                         options.JsonSerializerOptions.WriteIndented = true;
                         options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+                        options.JsonSerializerOptions.Converters.Add(new JsonStringArrayEnumFlagsConverterFactory());
                     });
             // Configure default CORS policy
             services.AddCors(options => options.AddDefaultPolicy(builder => {
