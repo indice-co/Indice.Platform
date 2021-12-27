@@ -21,6 +21,8 @@ namespace Indice.AspNetCore.Features.Campaigns.Data
             builder.ToTable("CampaignType", CampaignsApiOptions.DatabaseSchema);
             // Configure primary key.
             builder.HasKey(x => x.Id);
+            // Configure indexes.
+            builder.HasIndex(x => x.Name);
             // Configure properties.
             builder.Property(x => x.Name).HasMaxLength(TextSizePresets.L1024).IsRequired();
         }

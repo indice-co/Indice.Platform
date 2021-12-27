@@ -61,5 +61,11 @@ namespace Indice.AspNetCore.Features.Campaigns
             campaignType.Id = createdCampaignType.Id;
             return CampaignResult.Success();
         }
+
+        /// <summary>
+        /// Retrieves the campaign type with the specified name.
+        /// </summary>
+        /// <param name="name">The name of the campaign type to look for.</param>
+        public Task<CampaignType> GetCampaignTypeByName(string name) => CampaignService.GetCampaignTypeByName(name);
     }
 }

@@ -46,7 +46,7 @@ namespace Indice.AspNetCore.Features.Campaigns.Controllers
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ResultSet<UserMessage, IEnumerable<CampaignType>>))]
         [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ProblemDetails))]
-        public async Task<IActionResult> GetMessages([FromQuery] ListOptions<GetMessagesListFilter> options) {
+        public async Task<IActionResult> GetMessages([FromQuery] ListOptions<UserMessageFilter> options) {
             var messages = await UserMessagesService.GetUserMessages(UserCode, options);
             return Ok(messages);
         }

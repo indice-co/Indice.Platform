@@ -10,7 +10,7 @@ namespace Indice.AspNetCore.Features.Campaigns.Services
     {
         Task<UserMessage> GetMessageById(Guid messageId, string userCode);
         Task<int> GetNumberOfUnreadMessages(string userCode);
-        Task<ResultSet<UserMessage, IEnumerable<CampaignType>>> GetUserMessages(string userCode, ListOptions<GetMessagesListFilter> options);
+        Task<ResultSet<UserMessage, IEnumerable<CampaignType>>> GetUserMessages(string userCode, ListOptions<UserMessageFilter> options);
         Task MarkMessageAsRead(Guid messageId, string userCode);
         Task MarkMessageAsDeleted(Guid messageId, string userCode);
     }

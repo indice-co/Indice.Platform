@@ -287,7 +287,7 @@ namespace Indice.AspNetCore.Features.Campaigns.Controllers
 
         [AllowAnonymous]
         [ApiExplorerSettings(IgnoreApi = true)]
-        [HttpGet("track/{trackingCode}")]
+        [HttpGet("campaigns/track/{trackingCode}")]
         public async Task<IActionResult> Track([FromRoute] Base64Id trackingCode) {
             var campaignId = trackingCode.Id;
             var campaign = await CampaignService.GetCampaignById(campaignId);
