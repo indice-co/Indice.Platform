@@ -1,4 +1,5 @@
-<lib-side-view-layout title="Δημιουργία νέας καμπάνιας" [ok-close-dialog]="false" [ok-label]="'Δημιουργία'" [cancel-label]="'Κλείσιμο'" (ok)="submitButton.nativeElement.click()" [disabled]="!campaignForm.valid" #sideViewLayout>
+<lib-side-view-layout title="Δημιουργία νέας καμπάνιας" [ok-close-dialog]="false" [ok-label]="'Δημιουργία'" [cancel-label]="'Κλείσιμο'" (ok)="submitButton.nativeElement.click()" [disabled]="!campaignForm.valid || !hasDeliveryChannel()"
+    #sideViewLayout>
     <div class="mt-4">
         <form #campaignForm="ngForm" (ngSubmit)="onSubmit()">
             <div class="px-4 space-y-2 pb-4">
@@ -62,14 +63,28 @@
                     <!-- <app-divider class="col-span-4" label="ΕΛΑΧΙΣΤΗ - ΜΕΓΙΣΤΗ ΑΞΙΑ ΣΥΝΑΛΛΑΓΗΣ"></app-divider> -->
                     <!-- Τρόπος Αποστολής -->
                     <div class="col-span-4">
-                        <lib-toggle-button [value]="model.deliveryChannel == CampaignDeliveryChannel.Inbox" (valueChange)="model.deliveryChannel = CampaignDeliveryChannel.Inbox" [true-label]="'Η καμπάνια θα εμφανιστεί στο Inbox'"
-                            [false-label]="'Ενεργοποίηση Inbox'">
+                        <label class="field-label">Τροπος Αποστολής (*)</label>
+                        <lib-toggle-button [value]="containsDeliveryChannel(CampaignDeliveryChannel.Inbox)" (valueChange)="toggleDeliveryChannel(CampaignDeliveryChannel.Inbox)" [true-label]="'Η καμπάνια θα εμφανιστεί στο Inbox'"
+                            [false-label]="'Μέσω Inbox'">
                         </lib-toggle-button>
                     </div>
                     <div class="col-span-4">
-                        <lib-toggle-button [value]="model.deliveryChannel == CampaignDeliveryChannel.PushNotification" (valueChange)="model.deliveryChannel = CampaignDeliveryChannel.PushNotification"
-                            [true-label]="'Η καμπάνια θα αποσταλλεί με Push Notification'" [false-label]="'Ενεργοποίηση Push Notification'">
+                        <lib-toggle-button [value]="containsDeliveryChannel(CampaignDeliveryChannel.PushNotification)" (valueChange)="toggleDeliveryChannel(CampaignDeliveryChannel.PushNotification)"
+                            [true-label]="'Η καμπάνια θα αποσταλλεί με Push Notification'" [false-label]="'Μέσω Push Notification'">
                         </lib-toggle-button>
+                    </div>
+                    <div class="col-span-4">
+                        <lib-toggle-button [value]="containsDeliveryChannel(CampaignDeliveryChannel.Email)" (valueChange)="toggleDeliveryChannel(CampaignDeliveryChannel.Email)" [true-label]="'Η καμπάνια θα αποσταλλεί με Email'"
+                            [false-label]="'Μέσω Email'">
+                        </lib-toggle-button>
+                    </div>
+                    <div class="col-span-4">
+                        <lib-toggle-button [value]="containsDeliveryChannel(CampaignDeliveryChannel.SMS)" (valueChange)="toggleDeliveryChannel(CampaignDeliveryChannel.SMS)" [true-label]="'Η καμπάνια θα αποσταλλεί με SMS'"
+                            [false-label]="'Μέσω SMS'">
+                        </lib-toggle-button>
+                        <p *ngIf="!hasDeliveryChannel()" class="mt-2 text-sm text-red-600">
+                            <span>Παρακαλώ επιλέξτε τρόπο αποστολής.</span>
+                        </p>
                     </div>
                     <!-- Κωδικοί χρηστών -->
                     <div class="col-span-4">

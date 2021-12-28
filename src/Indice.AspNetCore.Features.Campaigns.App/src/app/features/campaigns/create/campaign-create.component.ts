@@ -4,7 +4,7 @@ import { NgForm } from '@angular/forms';
 import { MenuOption, Modal, ModalService, SideViewLayoutComponent, ToasterService, ToastType } from '@indice/ng-components';
 import { map } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
-import { Campaign, CampaignDeliveryChannel, CampaignsApiService, CampaignTypeResultSet, CreateCampaignRequest, Period } from 'src/app/core/services/campaigns-api.services';
+import { Campaign, DeliveryChannel, CampaignsApiService, CampaignTypeResultSet, CreateCampaignRequest, Period } from 'src/app/core/services/campaigns-api.services';
 import { CampaignTypesModalComponent } from '../campaign-types-modal/campaign-types.component';
 
 @Component({
@@ -27,14 +27,14 @@ export class CampaignCreateComponent implements OnInit {
         activePeriod: new Period({ from: this.now }),
         published: true,
         isGlobal: true,
-        deliveryChannel: CampaignDeliveryChannel.Inbox,
+        deliveryChannel: [DeliveryChannel.Inbox],
         title: '',
         content: ''
     });
     public campaignTypes: MenuOption[] = [];
     public campaignTypesModalRef: Modal | undefined;
     public isDevelopment = !environment.production;
-    public CampaignDeliveryChannel = CampaignDeliveryChannel;
+    public CampaignDeliveryChannel = DeliveryChannel;
     public targetOptions: MenuOption[] = [
         new MenuOption('Όλους τους χρήστες', true),
         new MenuOption('Ομάδα χρηστών', false)
@@ -93,8 +93,24 @@ export class CampaignCreateComponent implements OnInit {
         return userCodes ? userCodes.join('\n') : '';
     }
 
-    public setDeliveryChannel(): void {
+    public toggleDeliveryChannel(deliveryType: DeliveryChannel): void {
+        if (deliveryType !== DeliveryChannel.Inbox) {
+            this.model.deliveryChannel = this.model.deliveryChannel!.filter(x => x === DeliveryChannel.Inbox || x === deliveryType);
+        }
+        const index = this.model.deliveryChannel!.findIndex(channel => channel === deliveryType);
+        if (index > -1) {
+            this.model.deliveryChannel!.splice(index, 1);
+        } else {
+            this.model.deliveryChannel!.push(deliveryType);
+        }
+    }
 
+    public hasDeliveryChannel(): boolean {
+        return this.model.deliveryChannel!.length > 0;
+    }
+
+    public containsDeliveryChannel(deliveryType: DeliveryChannel): boolean {
+        return this.model.deliveryChannel!.indexOf(deliveryType) > -1;
     }
 
     private loadCampaignTypes(): void {

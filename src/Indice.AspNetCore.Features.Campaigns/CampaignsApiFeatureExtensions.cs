@@ -10,6 +10,7 @@ using Indice.AspNetCore.Features.Campaigns.Mvc.ApplicationModels;
 using Indice.AspNetCore.Features.Campaigns.Services;
 using Indice.Extensions;
 using Indice.Security;
+using Indice.Serialization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -43,6 +44,9 @@ namespace Microsoft.Extensions.DependencyInjection
                 options.DatabaseSchema = campaignsApiOptions.DatabaseSchema;
                 options.ExpectedScope = campaignsApiOptions.ExpectedScope;
                 options.UserClaimType = campaignsApiOptions.UserClaimType;
+            });
+            services.PostConfigure<JsonOptions>(options => {
+                options.JsonSerializerOptions.Converters.Add(new JsonStringArrayEnumFlagsConverterFactory());
             });
             // Configure MVC options.
             services.PostConfigure<MvcOptions>(options => {
