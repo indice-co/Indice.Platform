@@ -183,6 +183,21 @@ namespace Microsoft.Extensions.DependencyInjection
             return services;
         }
 
+        /// <summary>
+        /// Registers an implementation of <see cref="ILockManager"/> that uses Microsoft Azure Blob Storage as a backing store.
+        /// </summary>
+        /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
+        /// <param name="configure">Configure the available options. Null to use defaults.</param>
+        public static IServiceCollection AddLockManagerAzure(this IServiceCollection services, Action<IServiceProvider, LockManagerAzureOptions> configure) {
+            services.AddTransient<ILockManager, LockManagerAzure>(serviceProvider => {
+                var options = new LockManagerAzureOptions {
+                    ConnectionString = serviceProvider.GetRequiredService<IConfiguration>().GetConnectionString(LockManagerAzure.CONNECTION_STRING_NAME),
+                    EnvironmentName = serviceProvider.GetRequiredService<IHostEnvironment>().EnvironmentName
+                };
+                configure?.Invoke(serviceProvider, options);
+                return new LockManagerAzure(options);
+            });
+            return services;
+        }
     }
-
 }

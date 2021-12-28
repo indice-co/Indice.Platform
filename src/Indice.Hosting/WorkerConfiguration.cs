@@ -58,7 +58,7 @@ namespace Indice.Hosting
         public static WorkerHostOptions UseAzureStorageLock(this WorkerHostOptions options, Action<LockManagerAzureOptions> configureAction = null) {
             options.Services.TryAddSingleton(typeof(ILockManager), serviceProvider => {
                 var azureOptions = new LockManagerAzureOptions {
-                    StorageConnection = serviceProvider.GetService<IConfiguration>().GetConnectionString("StorageConnection"),
+                    ConnectionString = serviceProvider.GetService<IConfiguration>().GetConnectionString("StorageConnection"),
                     EnvironmentName = serviceProvider.GetService<IHostEnvironment>().EnvironmentName
                 };
                 configureAction?.Invoke(azureOptions);

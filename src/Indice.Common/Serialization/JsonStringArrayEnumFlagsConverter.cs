@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using Indice.Extensions;
 
 namespace Indice.Serialization
 {
@@ -12,7 +12,7 @@ namespace Indice.Serialization
     public class JsonStringArrayEnumFlagsConverterFactory : JsonConverterFactory
     {
         /// <inheritdoc />
-        public override bool CanConvert(Type typeToConvert) => typeToConvert.IsEnum && typeToConvert.GetCustomAttributes(typeof(FlagsAttribute), inherit: false).Any();
+        public override bool CanConvert(Type typeToConvert) => typeToConvert.IsFlagsEnum();
 
         /// <inheritdoc />
         public override JsonConverter CreateConverter(Type typeToConvert, JsonSerializerOptions options) {
@@ -26,7 +26,7 @@ namespace Indice.Serialization
     /// A custom JSON converter which transforms <see cref="Enum"/> flags to string array.
     /// </summary>
     /// <typeparam name="TEnum">The type of the enum.</typeparam>
-    public class JsonStringArrayEnumFlagsConverter<TEnum> : JsonConverter<TEnum> where TEnum : Enum
+    internal class JsonStringArrayEnumFlagsConverter<TEnum> : JsonConverter<TEnum>
     {
         /// <inheritdoc />
         /// <remarks>https://docs.microsoft.com/en-us/dotnet/standard/serialization/system-text-json-converters-how-to?pivots=dotnet-6-0#error-handling</remarks>
@@ -40,7 +40,8 @@ namespace Indice.Serialization
             var enumValues = new List<string>();
             while (reader.Read()) {
                 if (reader.TokenType == JsonTokenType.EndArray) {
-                    return (TEnum)Enum.Parse(typeToConvert, string.Join(", ", enumValues));
+                    var underlyingType = Nullable.GetUnderlyingType(typeToConvert);
+                    return (TEnum)Enum.Parse(underlyingType ?? typeToConvert, string.Join(", ", enumValues));
                 } else if (reader.TokenType == JsonTokenType.String) {
                     enumValues.Add(reader.GetString());
                 } else {
@@ -53,6 +54,10 @@ namespace Indice.Serialization
 
         /// <inheritdoc />
         public override void Write(Utf8JsonWriter writer, TEnum value, JsonSerializerOptions options) {
+            if (value == null) {
+                writer.WriteNullValue();
+                return;
+            }
             writer.WriteStartArray();
             foreach (var enumValue in value.ToString().Split(',')) {
                 writer.WriteStringValue(enumValue.Trim());

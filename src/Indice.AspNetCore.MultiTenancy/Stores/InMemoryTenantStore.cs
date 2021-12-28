@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Indice.AspNetCore.MultiTenancy.Stores
@@ -12,7 +11,7 @@ namespace Indice.AspNetCore.MultiTenancy.Stores
     public class InMemoryTenantStore<T> : ITenantStore<T> where T : Tenant
     {
         /// <summary>
-        /// Constructs the <see cref="InMemoryTenantStore{T}"/> given a list of available tenatnts.
+        /// Constructs the <see cref="InMemoryTenantStore{T}"/> given a list of available tenants.
         /// </summary>
         /// <param name="tenants"></param>
         public InMemoryTenantStore(IEnumerable<T> tenants) {
@@ -22,16 +21,16 @@ namespace Indice.AspNetCore.MultiTenancy.Stores
         internal IEnumerable<T> Tenants { get; }
 
         /// <inheritdoc />
-        public Task<bool> CheckAccessAsync(string tenantId, string userId, int? level) {
+        public Task<int?> GetAccessLevelAsync(string tenantId, string userId) {
             var tenant = Tenants.SingleOrDefault(t => t.Id == tenantId);
             if (tenant is null)
-                return Task.FromResult(false);
+                return Task.FromResult<int?>(null);
             
             if (tenant.Items.ContainsKey(userId)) {
                 var accessLevel = (int)tenant.Items[userId];
-                Task.FromResult(accessLevel >= level.GetValueOrDefault()); 
+                Task.FromResult(accessLevel); 
             }
-            return Task.FromResult(false);
+            return Task.FromResult<int?>(null);
         }
 
         /// <inheritdoc />

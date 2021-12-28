@@ -24,7 +24,7 @@ namespace Indice.Services.Tests
             }
             _LockManager = new LockManagerAzure(new LockManagerAzureOptions {
                 EnvironmentName = "test",
-                StorageConnection = _connectionString
+                ConnectionString = _connectionString
             });
             _FileService = new FileServiceAzureStorage(_connectionString, "test");
         }

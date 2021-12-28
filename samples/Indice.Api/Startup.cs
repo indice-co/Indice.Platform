@@ -46,8 +46,8 @@ namespace Indice.Api
                         options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
                         options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
                         options.JsonSerializerOptions.WriteIndented = true;
-                        options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
                         options.JsonSerializerOptions.Converters.Add(new JsonStringArrayEnumFlagsConverterFactory());
+                        options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
                     });
             // Configure default CORS policy
             services.AddCors(options => options.AddDefaultPolicy(builder => {
@@ -63,6 +63,7 @@ namespace Indice.Api
                 options.AddOAuth2AuthorizationCodeFlow(Settings);
                 options.AddFormFileSupport();
                 options.IncludeXmlComments(Assembly.Load(CampaignsApi.AssemblyName));
+                options.SchemaFilter<EnumFlagsSchemaFilter>();
                 options.AddDoc(CampaignsApi.Scope, "Campaigns API", "API for managing campaigns in the backoffice tool.");
             });
             // Configure authentication

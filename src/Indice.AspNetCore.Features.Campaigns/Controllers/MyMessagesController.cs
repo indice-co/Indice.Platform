@@ -23,7 +23,7 @@ namespace Indice.AspNetCore.Features.Campaigns.Controllers
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized, Type = typeof(ProblemDetails))]
     [ProducesResponseType(StatusCodes.Status403Forbidden, Type = typeof(ProblemDetails))]
-    [Route("[apiPrefix]/my/messages")]
+    [Route("[campaignsApiPrefix]/my/messages")]
     internal class MyMessagesController : ControllerBase
     {
         public MyMessagesController(

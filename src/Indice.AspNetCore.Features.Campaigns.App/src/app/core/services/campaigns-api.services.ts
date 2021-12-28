@@ -53,7 +53,7 @@ export interface ICampaignsApiService {
      * @param search (optional) 
      * @return OK
      */
-    getCampaigns(filter_DeliveryChannel?: CampaignDeliveryChannel | undefined, filter_Published?: boolean | undefined, page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined): Observable<CampaignResultSet>;
+    getCampaigns(filter_DeliveryChannel?: DeliveryChannel[] | undefined, filter_Published?: boolean | undefined, page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined): Observable<CampaignResultSet>;
     /**
      * Creates a new campaign.
      * @param body (optional) Contains info about the campaign to be created.
@@ -499,12 +499,12 @@ export class CampaignsApiService implements ICampaignsApiService {
      * @param search (optional) 
      * @return OK
      */
-    getCampaigns(filter_DeliveryChannel?: CampaignDeliveryChannel | undefined, filter_Published?: boolean | undefined, page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined): Observable<CampaignResultSet> {
+    getCampaigns(filter_DeliveryChannel?: DeliveryChannel[] | undefined, filter_Published?: boolean | undefined, page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined): Observable<CampaignResultSet> {
         let url_ = this.baseUrl + "/api/campaigns?";
         if (filter_DeliveryChannel === null)
             throw new Error("The parameter 'filter_DeliveryChannel' cannot be null.");
         else if (filter_DeliveryChannel !== undefined)
-            url_ += "Filter.DeliveryChannel=" + encodeURIComponent("" + filter_DeliveryChannel) + "&";
+            filter_DeliveryChannel && filter_DeliveryChannel.forEach(item => { url_ += "Filter.DeliveryChannel=" + encodeURIComponent("" + item) + "&"; });
         if (filter_Published === null)
             throw new Error("The parameter 'filter_Published' cannot be null.");
         else if (filter_Published !== undefined)
@@ -1727,7 +1727,7 @@ export class Campaign implements ICampaign {
     /** Determines if campaign targets all user base. */
     isGlobal?: boolean;
     type?: CampaignType;
-    deliveryChannel?: CampaignDeliveryChannel;
+    deliveryChannel?: DeliveryChannel[];
     /** Optional data for the campaign. */
     data?: { [key: string]: any; } | undefined;
 
@@ -1752,7 +1752,11 @@ export class Campaign implements ICampaign {
             this.activePeriod = _data["activePeriod"] ? Period.fromJS(_data["activePeriod"]) : <any>undefined;
             this.isGlobal = _data["isGlobal"];
             this.type = _data["type"] ? CampaignType.fromJS(_data["type"]) : <any>undefined;
-            this.deliveryChannel = _data["deliveryChannel"];
+            if (Array.isArray(_data["deliveryChannel"])) {
+                this.deliveryChannel = [] as any;
+                for (let item of _data["deliveryChannel"])
+                    this.deliveryChannel!.push(item);
+            }
             if (_data["data"]) {
                 this.data = {} as any;
                 for (let key in _data["data"]) {
@@ -1782,7 +1786,11 @@ export class Campaign implements ICampaign {
         data["activePeriod"] = this.activePeriod ? this.activePeriod.toJSON() : <any>undefined;
         data["isGlobal"] = this.isGlobal;
         data["type"] = this.type ? this.type.toJSON() : <any>undefined;
-        data["deliveryChannel"] = this.deliveryChannel;
+        if (Array.isArray(this.deliveryChannel)) {
+            data["deliveryChannel"] = [];
+            for (let item of this.deliveryChannel)
+                data["deliveryChannel"].push(item);
+        }
         if (this.data) {
             data["data"] = {};
             for (let key in this.data) {
@@ -1814,18 +1822,9 @@ export interface ICampaign {
     /** Determines if campaign targets all user base. */
     isGlobal?: boolean;
     type?: CampaignType;
-    deliveryChannel?: CampaignDeliveryChannel;
+    deliveryChannel?: DeliveryChannel[];
     /** Optional data for the campaign. */
     data?: { [key: string]: any; } | undefined;
-}
-
-/** The delivery channel of a campaign. */
-export enum CampaignDeliveryChannel {
-    None = "None",
-    Inbox = "Inbox",
-    PushNotification = "PushNotification",
-    Email = "Email",
-    SMS = "SMS",
 }
 
 /** Models a campaign. */
@@ -1848,7 +1847,7 @@ export class CampaignDetails implements ICampaignDetails {
     /** Determines if campaign targets all user base. */
     isGlobal?: boolean;
     type?: CampaignType;
-    deliveryChannel?: CampaignDeliveryChannel;
+    deliveryChannel?: DeliveryChannel[];
     /** Optional data for the campaign. */
     data?: { [key: string]: any; } | undefined;
     attachment?: AttachmentLink;
@@ -1874,7 +1873,11 @@ export class CampaignDetails implements ICampaignDetails {
             this.activePeriod = _data["activePeriod"] ? Period.fromJS(_data["activePeriod"]) : <any>undefined;
             this.isGlobal = _data["isGlobal"];
             this.type = _data["type"] ? CampaignType.fromJS(_data["type"]) : <any>undefined;
-            this.deliveryChannel = _data["deliveryChannel"];
+            if (Array.isArray(_data["deliveryChannel"])) {
+                this.deliveryChannel = [] as any;
+                for (let item of _data["deliveryChannel"])
+                    this.deliveryChannel!.push(item);
+            }
             if (_data["data"]) {
                 this.data = {} as any;
                 for (let key in _data["data"]) {
@@ -1905,7 +1908,11 @@ export class CampaignDetails implements ICampaignDetails {
         data["activePeriod"] = this.activePeriod ? this.activePeriod.toJSON() : <any>undefined;
         data["isGlobal"] = this.isGlobal;
         data["type"] = this.type ? this.type.toJSON() : <any>undefined;
-        data["deliveryChannel"] = this.deliveryChannel;
+        if (Array.isArray(this.deliveryChannel)) {
+            data["deliveryChannel"] = [];
+            for (let item of this.deliveryChannel)
+                data["deliveryChannel"].push(item);
+        }
         if (this.data) {
             data["data"] = {};
             for (let key in this.data) {
@@ -1938,7 +1945,7 @@ export interface ICampaignDetails {
     /** Determines if campaign targets all user base. */
     isGlobal?: boolean;
     type?: CampaignType;
-    deliveryChannel?: CampaignDeliveryChannel;
+    deliveryChannel?: DeliveryChannel[];
     /** Optional data for the campaign. */
     data?: { [key: string]: any; } | undefined;
     attachment?: AttachmentLink;
@@ -2163,7 +2170,7 @@ export class CreateCampaignRequest implements ICreateCampaignRequest {
     selectedUserCodes?: string[] | undefined;
     /** Defines a CTA (click-to-action) URL. */
     actionUrl?: string | undefined;
-    deliveryChannel?: CampaignDeliveryChannel;
+    deliveryChannel?: DeliveryChannel[];
 
     constructor(data?: ICreateCampaignRequest) {
         if (data) {
@@ -2196,7 +2203,11 @@ export class CreateCampaignRequest implements ICreateCampaignRequest {
                     this.selectedUserCodes!.push(item);
             }
             this.actionUrl = _data["actionUrl"];
-            this.deliveryChannel = _data["deliveryChannel"];
+            if (Array.isArray(_data["deliveryChannel"])) {
+                this.deliveryChannel = [] as any;
+                for (let item of _data["deliveryChannel"])
+                    this.deliveryChannel!.push(item);
+            }
         }
     }
 
@@ -2229,7 +2240,11 @@ export class CreateCampaignRequest implements ICreateCampaignRequest {
                 data["selectedUserCodes"].push(item);
         }
         data["actionUrl"] = this.actionUrl;
-        data["deliveryChannel"] = this.deliveryChannel;
+        if (Array.isArray(this.deliveryChannel)) {
+            data["deliveryChannel"] = [];
+            for (let item of this.deliveryChannel)
+                data["deliveryChannel"].push(item);
+        }
         return data;
     }
 }
@@ -2255,7 +2270,7 @@ export interface ICreateCampaignRequest {
     selectedUserCodes?: string[] | undefined;
     /** Defines a CTA (click-to-action) URL. */
     actionUrl?: string | undefined;
-    deliveryChannel?: CampaignDeliveryChannel;
+    deliveryChannel?: DeliveryChannel[];
 }
 
 export class Period implements IPeriod {
@@ -2732,6 +2747,14 @@ export interface IValidationProblemDetails {
     detail?: string | undefined;
     instance?: string | undefined;
     errors?: { [key: string]: string[]; } | undefined;
+}
+
+export enum DeliveryChannel {
+    None = "None",
+    Inbox = "Inbox",
+    PushNotification = "PushNotification",
+    Email = "Email",
+    SMS = "SMS",
 }
 
 export interface FileParameter {

@@ -18,14 +18,17 @@ namespace Indice.Common.Tests
 
         [Fact]
         public void CanSerializeEnumFlagsToStringArray() {
-            var campaign = new Campaign {
+            var expectedJson = @"{""id"":1,""name"":""Sales Christmas 2021"",""deliveryChannel"":[""Inbox"",""PushNotification""]}";
+            Assert.Equal(JsonSerializer.Serialize(new Campaign {
                 Id = 1,
                 Name = "Sales Christmas 2021",
                 DeliveryChannel = CampaignDeliveryChannel.Inbox | CampaignDeliveryChannel.PushNotification
-            };
-            var expectedJson = @"{""id"":1,""name"":""Sales Christmas 2021"",""deliveryChannel"":[""Inbox"",""PushNotification""]}";
-            var campaignJson = JsonSerializer.Serialize(campaign, Options);
-            Assert.Equal(campaignJson, expectedJson);
+            }, Options), expectedJson);
+            Assert.Equal(JsonSerializer.Serialize(new Campaign2 {
+                Id = 1,
+                Name = "Sales Christmas 2021",
+                DeliveryChannel = CampaignDeliveryChannel.Inbox | CampaignDeliveryChannel.PushNotification
+            }, Options), expectedJson);
         }
 
         [Fact]
@@ -35,6 +38,21 @@ namespace Indice.Common.Tests
             Assert.Equal(2, campaign.Id);
             Assert.Equal("Sales Christmas 2021", campaign.Name);
             Assert.Equal(CampaignDeliveryChannel.Inbox | CampaignDeliveryChannel.PushNotification | CampaignDeliveryChannel.Email, campaign.DeliveryChannel);
+            var campaign2 = JsonSerializer.Deserialize<Campaign2>(json, Options);
+            Assert.Equal(2, campaign2.Id);
+            Assert.Equal("Sales Christmas 2021", campaign2.Name);
+            Assert.Equal(CampaignDeliveryChannel.Inbox | CampaignDeliveryChannel.PushNotification | CampaignDeliveryChannel.Email, campaign2.DeliveryChannel);
+        }
+
+        [Fact]
+        public void CanSerializeEnumFlagsToStringArrayWhenNull() {
+            var campaign = new Campaign2 {
+                Id = 1,
+                Name = "Sales Christmas 2021"
+            };
+            var expectedJson = @"{""id"":1,""name"":""Sales Christmas 2021"",""deliveryChannel"":null}";
+            var campaignJson = JsonSerializer.Serialize(campaign, Options);
+            Assert.Equal(campaignJson, expectedJson);
         }
     }
 
@@ -43,6 +61,13 @@ namespace Indice.Common.Tests
         public int Id { get; set; }
         public string Name { get; set; }
         public CampaignDeliveryChannel DeliveryChannel { get; set; } = CampaignDeliveryChannel.Inbox;
+    }
+
+    public class Campaign2
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+        public CampaignDeliveryChannel? DeliveryChannel { get; set; }
     }
 
     [Flags]
