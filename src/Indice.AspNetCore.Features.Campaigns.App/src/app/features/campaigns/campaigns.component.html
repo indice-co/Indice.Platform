@@ -8,7 +8,7 @@
             <ng-template let-item>{{ item.createdAt | date: 'medium' }}</ng-template>
         </lib-list-column>
         <lib-list-column title="ΕΝΕΡΓΗ">
-            <ng-template let-item>{{ item.isActive ? 'Ναι' : 'Όχι' }}</ng-template>
+            <ng-template let-item>{{ item.published ? 'Ναι' : 'Όχι' }}</ng-template>
         </lib-list-column>
         <lib-list-column title="ΕΝΕΡΓΗ ΑΠΟ">
             <ng-template let-item>{{ item.activePeriod.from | date: 'medium' }}</ng-template>

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using Indice.Extensions;
+using Indice.Serialization;
 using Microsoft.OpenApi.Any;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
@@ -8,7 +9,7 @@ using Swashbuckle.AspNetCore.SwaggerGen;
 namespace Indice.AspNetCore.Swagger
 {
     /// <summary>
-    /// 
+    /// Changes the OAS for enum flags and treats them as an array. This works in accordance with serialization by using the <see cref="JsonStringArrayEnumFlagsConverterFactory"/>.
     /// </summary>
     public class EnumFlagsSchemaFilter : ISchemaFilter
     {
@@ -20,11 +21,9 @@ namespace Indice.AspNetCore.Swagger
             schema.Type = "array";
             schema.Format = null;
             schema.Nullable = context.Type.IsReferenceOrNullableType();
-            if (schema.Items is null) {
-                schema.Items = new OpenApiSchema();
-            }
-            schema.Items.Enum = Enum.GetNames(context.Type).Select(name => (IOpenApiAny)new OpenApiString(name)).ToList();
             schema.Enum = null;
+            schema.Items ??= new OpenApiSchema();
+            schema.Items.Enum = Enum.GetNames(context.Type).Select(name => (IOpenApiAny)new OpenApiString(name)).ToList();
         }
     }
 }

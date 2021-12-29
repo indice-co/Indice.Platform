@@ -9,7 +9,6 @@ using Indice.AspNetCore.Features.Campaigns;
 using Indice.AspNetCore.Swagger;
 using Indice.Configuration;
 using Indice.Hosting;
-using Indice.Serialization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -61,7 +60,6 @@ namespace Indice.Api
                 options.AddOAuth2AuthorizationCodeFlow(Settings);
                 options.AddFormFileSupport();
                 options.IncludeXmlComments(Assembly.Load(CampaignsApi.AssemblyName));
-                options.SchemaFilter<EnumFlagsSchemaFilter>();
                 options.AddDoc(CampaignsApi.Scope, "Campaigns API", "API for managing campaigns in the backoffice tool.");
             });
             // Configure authentication

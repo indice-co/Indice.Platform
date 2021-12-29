@@ -35,6 +35,8 @@ export class CampaignCreateComponent implements OnInit {
     public campaignTypesModalRef: Modal | undefined;
     public isDevelopment = !environment.production;
     public CampaignDeliveryChannel = DeliveryChannel;
+    public customDataValid = true;
+    public showCustomDataValidation = false;
     public targetOptions: MenuOption[] = [
         new MenuOption('Όλους τους χρήστες', true),
         new MenuOption('Ομάδα χρηστών', false)
@@ -111,6 +113,23 @@ export class CampaignCreateComponent implements OnInit {
 
     public containsDeliveryChannel(deliveryType: DeliveryChannel): boolean {
         return this.model.deliveryChannel!.indexOf(deliveryType) > -1;
+    }
+
+    public setCampaignCustomData(metadataJson: string): void {
+        if (!metadataJson || metadataJson === '') {
+            return;
+        }
+        try {
+            const data = JSON.parse(metadataJson);
+            this.customDataValid = true;
+            this.model.data = data;
+        } catch (error) {
+            this.customDataValid = false;
+        }
+    }
+
+    public onCustomDataFocusOut(): void {
+        this.showCustomDataValidation = true;
     }
 
     private loadCampaignTypes(): void {

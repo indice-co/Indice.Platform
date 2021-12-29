@@ -35,13 +35,21 @@ namespace Indice.AspNetCore.Features.Campaigns.Services
                 .NotEmpty()
                 .WithMessage("Please provide content for the campaign.");
             RuleFor(campaign => campaign.ActivePeriod.From)
-                .Must(from => from.Value >= DateTimeOffset.UtcNow)
+                .Must(from => from.Value.Date >= DateTimeOffset.UtcNow.Date)
                 .When(campaign => campaign.ActivePeriod?.From is not null)
                 .WithMessage("Campaign should start now or in a future date.");
             RuleFor(campaign => campaign.ActivePeriod)
                 .Must(campaign => campaign.To > campaign.From)
                 .When(campaign => campaign.ActivePeriod?.From is not null && campaign.ActivePeriod?.To is not null)
                 .WithMessage("Campaign should end after the start date.");
+            RuleFor(campaign => campaign.ActionText)
+                .MaximumLength(TextSizePresets.M128)
+                .WithMessage($"Campaign action text cannot exceed {TextSizePresets.M128} characters.");
+            RuleFor(campaign => campaign.ActionUrl)
+                .MaximumLength(TextSizePresets.L2048)
+                .WithMessage($"Campaign action URL cannot exceed {TextSizePresets.L2048} characters.")
+                .Matches(@"^(?:http(s)?:\/\/)?[\w.-]+(?:\.[\w\.-]+)+[\w\-\._~:/?#[\]@!\$&'\(\)\*\+,;=.]+$")
+                .WithMessage($"Campaign action URL is not valid.");
         }
 
         private CampaignsDbContext DbContext { get; }

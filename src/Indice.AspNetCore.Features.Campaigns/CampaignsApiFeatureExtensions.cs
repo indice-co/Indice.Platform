@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Net.Mime;
 using FluentValidation.AspNetCore;
 using Indice.AspNetCore.Features.Campaigns;
@@ -8,12 +9,14 @@ using Indice.AspNetCore.Features.Campaigns.Data;
 using Indice.AspNetCore.Features.Campaigns.Formatters;
 using Indice.AspNetCore.Features.Campaigns.Mvc.ApplicationModels;
 using Indice.AspNetCore.Features.Campaigns.Services;
+using Indice.AspNetCore.Swagger;
 using Indice.Extensions;
 using Indice.Security;
 using Indice.Serialization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
@@ -45,15 +48,26 @@ namespace Microsoft.Extensions.DependencyInjection
                 options.ExpectedScope = campaignsApiOptions.ExpectedScope;
                 options.UserClaimType = campaignsApiOptions.UserClaimType;
             });
-            services.PostConfigure<JsonOptions>(options => {
-                options.JsonSerializerOptions.Converters.Add(new JsonStringArrayEnumFlagsConverterFactory());
-            });
-            // Configure MVC options.
+            // Post configure MVC options.
             services.PostConfigure<MvcOptions>(options => {
                 options.FormatterMappings.SetMediaTypeMappingForFormat("json", MediaTypeNames.Application.Json);
                 options.FormatterMappings.SetMediaTypeMappingForFormat("xlsx", FileExtensions.GetMimeType("xlsx"));
                 options.OutputFormatters.Add(new XlsxCampaignStatisticsOutputFormatter());
                 options.Conventions.Add(new ApiPrefixControllerModelConvention(campaignsApiOptions));
+            });
+            // Post configure JSON options.
+            services.PostConfigure<JsonOptions>(options => {
+                var enumFlagsConverterExists = options.JsonSerializerOptions.Converters.Any(converter => converter.GetType() == typeof(JsonStringArrayEnumFlagsConverterFactory));
+                if (!enumFlagsConverterExists) {
+                    options.JsonSerializerOptions.Converters.Add(new JsonStringArrayEnumFlagsConverterFactory());
+                }
+            });
+            // Post configure Swagger options.
+            services.PostConfigure<SwaggerGenOptions>(options => {
+                var enumFlagsSchemaFilterExists = options.SchemaFilterDescriptors.Any(x => x.Type == typeof(EnumFlagsSchemaFilter));
+                if (!enumFlagsSchemaFilterExists) {
+                    options.SchemaFilter<EnumFlagsSchemaFilter>();
+                }
             });
             // Register framework services.
             services.AddHttpContextAccessor();

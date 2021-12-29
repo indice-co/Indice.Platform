@@ -60,7 +60,24 @@
                         </div>
                         <p class="field-info col-span-3">Πατήστε <a [attr.style]="'color: blue'" (click)="openCampaignTypesModal()" href="javascript:void(0);">εδώ</a> για να προσθέσετε ένα νέο τύπο καμπάνιας.</p>
                     </div>
-                    <!-- <app-divider class="col-span-4" label="ΕΛΑΧΙΣΤΗ - ΜΕΓΙΣΤΗ ΑΞΙΑ ΣΥΝΑΛΛΑΓΗΣ"></app-divider> -->
+                    <!-- Click to action text -->
+                    <div class="col-span-4">
+                        <label for="campaignClickToActionText" class="field-label">Click-to-action κέιμενο</label>
+                        <div class="mt-1 flex rounded-sm">
+                            <input type="text" name="campaignClickToActionText" id="campaignClickToActionText" [(ngModel)]="model.actionText" placeholder="Πατήστε εδώ για να..." maxlength="128" #campaignClickToActionText="ngModel">
+                        </div>
+                    </div>
+                    <!-- Click to action link -->
+                    <div class="col-span-4">
+                        <label for="campaignClickToActionLink" class="field-label">Click-to-action σύνδεσμος</label>
+                        <div class="mt-1 flex rounded-sm">
+                            <input type="text" name="campaignClickToActionLink" id="campaignClickToActionLink" pattern="^(?:http(s)?:\/\/)?[\w.-]+(?:\.[\w\.-]+)+[\w\-\._~:/?#[\]@!\$&'\(\)\*\+,;=.]+$" [(ngModel)]="model.actionUrl"
+                                placeholder="https://example.com" maxlength="2048" #campaignClickToActionLink="ngModel">
+                        </div>
+                        <p *ngIf="campaignClickToActionLink.invalid && (campaignClickToActionLink.dirty || campaignClickToActionLink.touched)" class="mt-2 text-sm text-red-600">
+                            <span *ngIf="campaignClickToActionLink.errors!['pattern']">Παρακαλώ συμπλήρώστε έναν έγκυρο σύνδεσμο.</span>
+                        </p>
+                    </div>
                     <!-- Τρόπος Αποστολής -->
                     <div class="col-span-4">
                         <label class="field-label">Τροπος Αποστολής (*)</label>
@@ -107,10 +124,21 @@
                             <span *ngIf="model.selectedUserCodes && model.selectedUserCodes.length > 0">{{ model.selectedUserCodes.length }} κωδικοί έχουν προστεθεί μέχρι στιγμής.</span>
                         </p>
                     </div>
+                    <div class="col-span-4">
+                        <label for="campaignMetadata" class="field-label">Μεταδεδομένα</label>
+                        <div class="mt-1 flex rounded-sm">
+                            <textarea id="campaignMetadata" name="campaignMetadata" [ngModel]="model.data | json" (ngModelChange)="setCampaignCustomData($event)" rows="6" placeholder="Επιπρόσθετα δεδομένα της καμπάνιας σε JSON μορφή"
+                                (focusout)="onCustomDataFocusOut()" class="code-editor" #campaignMetadata="ngModel">
+                            </textarea>
+                        </div>
+                        <p *ngIf="showCustomDataValidation && !customDataValid" class="mt-2 text-sm text-red-600">
+                            <span>Η μορφή του JSON δεν είναι έγκυρη.</span>
+                        </p>
+                    </div>
                 </div>
             </div>
             <button type="submit" [style.visibility]="'hidden'" #submitBtn>Submit</button>
         </form>
-        <pre *ngIf="isDevelopment">{{ model | json }}</pre>
+        <pre class="mb-3 code-editor" *ngIf="isDevelopment">{{ model | json }}</pre>
     </div>
 </lib-side-view-layout>

@@ -83,32 +83,36 @@ namespace Indice.AspNetCore.Features.Campaigns.Services
         }
 
         private IQueryable<UserMessage> GetUserMessagesQuery(string userCode, ListOptions<UserMessageFilter> options = null) {
-            var query = from campaign in DbContext.Campaigns.AsNoTracking().Include(x => x.Attachment)
-                        from message in DbContext.CampaignUsers.AsNoTracking().Where(x => x.CampaignId == campaign.Id && x.UserCode == userCode).DefaultIfEmpty()
-                        where campaign.Published
-                           && (message == null || !message.IsDeleted)
-                           && (campaign.IsGlobal || message == null || message.UserCode == userCode)
-                           && (!campaign.ActivePeriod.From.HasValue || campaign.ActivePeriod.From.Value <= DateTime.UtcNow)
-                           && options.Filter.ShowExpired.Value || (!campaign.ActivePeriod.To.HasValue || campaign.ActivePeriod.To.Value >= DateTime.UtcNow)
-                           && (options.Filter.TypeId == null || (campaign.Type != null && campaign.Type.Id == options.Filter.TypeId))
-                           && (!options.Filter.ActiveFrom.HasValue || (campaign.ActivePeriod.From.HasValue && campaign.ActivePeriod.From.Value >= options.Filter.ActiveFrom.Value) 
-                           ||  !options.Filter.ActiveTo.HasValue || (campaign.ActivePeriod.To.HasValue && campaign.ActivePeriod.To.Value <= options.Filter.ActiveTo.Value))
-                        select new UserMessage {
-                            ActionText = campaign.ActionText,
-                            ActionUrl = !string.IsNullOrEmpty(campaign.ActionUrl) ? $"{GeneralSettings.Host.TrimEnd('/')}/{ApiOptions.ApiPrefix}/campaigns/track/{(Base64Id)campaign.Id}" : null,
-                            AttachmentUrl = campaign.Attachment != null ? $"{GeneralSettings.Host.TrimEnd('/')}/{ApiOptions.ApiPrefix}/campaigns/attachments/{(Base64Id)campaign.Attachment.Guid}.{Path.GetExtension(campaign.Attachment.Name).TrimStart('.')}" : null,
-                            Content = campaign.Content,
-                            CreatedAt = campaign.CreatedAt,
-                            Id = campaign.Id,
-                            IsRead = message != null && message.IsRead,
-                            Title = campaign.Title,
-                            ActivePeriod = campaign.ActivePeriod,
-                            Type = campaign.Type != null ? new CampaignType {
-                                Id = campaign.Type.Id,
-                                Name = campaign.Type.Name
-                            } : null
-                        };
-            return query;
+            options ??= new ListOptions<UserMessageFilter>();
+            return from campaign in DbContext.Campaigns.AsNoTracking().Include(x => x.Attachment)
+                   from message in DbContext.CampaignUsers.AsNoTracking().Where(x => x.CampaignId == campaign.Id && x.UserCode == userCode).DefaultIfEmpty()
+                   where campaign.Published
+                      && (message == null || !message.IsDeleted)
+                      && (campaign.IsGlobal || message == null || message.UserCode == userCode)
+                      && (
+                         options.Filter == null || (
+                            (options.Filter.ShowExpired.Value || !campaign.ActivePeriod.To.HasValue || campaign.ActivePeriod.To.Value >= DateTime.UtcNow) &&
+                            (options.Filter.TypeId == null || campaign.Type == null || campaign.Type.Id == options.Filter.TypeId) && 
+                            (options.Filter.ActiveTo == null || (campaign.ActivePeriod.From ?? DateTimeOffset.MinValue) < options.Filter.ActiveTo.Value) && 
+                            (options.Filter.ActiveFrom == null || (campaign.ActivePeriod.To ?? DateTimeOffset.MaxValue) > options.Filter.ActiveFrom.Value)
+                            
+                         )
+                      )
+                   select new UserMessage {
+                       ActionText = campaign.ActionText,
+                       ActionUrl = !string.IsNullOrEmpty(campaign.ActionUrl) ? $"{GeneralSettings.Host.TrimEnd('/')}/{ApiOptions.ApiPrefix}/campaigns/track/{(Base64Id)campaign.Id}" : null,
+                       AttachmentUrl = campaign.Attachment != null ? $"{GeneralSettings.Host.TrimEnd('/')}/{ApiOptions.ApiPrefix}/campaigns/attachments/{(Base64Id)campaign.Attachment.Guid}.{Path.GetExtension(campaign.Attachment.Name).TrimStart('.')}" : null,
+                       Content = campaign.Content,
+                       CreatedAt = campaign.CreatedAt,
+                       Id = campaign.Id,
+                       IsRead = message != null && message.IsRead,
+                       Title = campaign.Title,
+                       ActivePeriod = campaign.ActivePeriod,
+                       Type = campaign.Type != null ? new CampaignType {
+                           Id = campaign.Type.Id,
+                           Name = campaign.Type.Name
+                       } : null
+                   };
         }
     }
 }
