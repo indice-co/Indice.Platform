@@ -59,7 +59,7 @@ namespace Microsoft.Extensions.DependencyInjection
             services.PostConfigure<JsonOptions>(options => {
                 var enumFlagsConverterExists = options.JsonSerializerOptions.Converters.Any(converter => converter.GetType() == typeof(JsonStringArrayEnumFlagsConverterFactory));
                 if (!enumFlagsConverterExists) {
-                    options.JsonSerializerOptions.Converters.Add(new JsonStringArrayEnumFlagsConverterFactory());
+                    options.JsonSerializerOptions.Converters.Insert(0, new JsonStringArrayEnumFlagsConverterFactory());
                 }
             });
             // Post configure Swagger options.
