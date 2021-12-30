@@ -117,6 +117,9 @@ export class CampaignCreateComponent implements OnInit {
 
     public setCampaignCustomData(metadataJson: string): void {
         if (!metadataJson || metadataJson === '') {
+            if ('data' in this.model) {
+                delete this.model.data;
+            }
             return;
         }
         try {

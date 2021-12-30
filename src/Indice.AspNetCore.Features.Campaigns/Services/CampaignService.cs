@@ -209,7 +209,7 @@ namespace Indice.AspNetCore.Features.Campaigns.Services
         }
 
         public async Task<CampaignType> GetCampaignTypeByName(string name) {
-            var campaign = await DbContext.CampaignTypes.SingleOrDefaultAsync(x => x.Name.ToLower() == name.ToLower());
+            var campaign = await DbContext.CampaignTypes.SingleOrDefaultAsync(x => x.Name == name);
             if (campaign is null) {
                 return default;
             }
