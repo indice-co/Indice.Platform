@@ -10,7 +10,7 @@ namespace Indice.AspNetCore.Features.Campaigns.Models
         /// <summary>
         /// The id of a campaign type.
         /// </summary>
-        public Guid? TypeId { get; set; }
+        public Guid[] TypeId { get; set; } = Array.Empty<Guid>();
         /// <summary>
         /// Active from.
         /// </summary>

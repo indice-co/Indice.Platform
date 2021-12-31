@@ -92,10 +92,9 @@ namespace Indice.AspNetCore.Features.Campaigns.Services
                       && (
                          options.Filter == null || (
                             (options.Filter.ShowExpired.Value || !campaign.ActivePeriod.To.HasValue || campaign.ActivePeriod.To.Value >= DateTime.UtcNow) &&
-                            (options.Filter.TypeId == null || campaign.Type == null || campaign.Type.Id == options.Filter.TypeId) && 
-                            (options.Filter.ActiveTo == null || (campaign.ActivePeriod.From ?? DateTimeOffset.MinValue) < options.Filter.ActiveTo.Value) && 
+                            (options.Filter.TypeId.Length == 0 || campaign.Type == null || options.Filter.TypeId.Contains(campaign.Type.Id)) &&
+                            (options.Filter.ActiveTo == null || (campaign.ActivePeriod.From ?? DateTimeOffset.MinValue) < options.Filter.ActiveTo.Value) &&
                             (options.Filter.ActiveFrom == null || (campaign.ActivePeriod.To ?? DateTimeOffset.MaxValue) > options.Filter.ActiveFrom.Value)
-                            
                          )
                       )
                    select new UserMessage {
