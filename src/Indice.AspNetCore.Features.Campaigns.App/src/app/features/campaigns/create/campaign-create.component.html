@@ -1,5 +1,4 @@
-<lib-side-view-layout title="Δημιουργία νέας καμπάνιας" [ok-close-dialog]="false" [ok-label]="'Δημιουργία'" [cancel-label]="'Κλείσιμο'" (ok)="submitButton.nativeElement.click()" [disabled]="!campaignForm.valid || !hasDeliveryChannel()"
-    #sideViewLayout>
+<lib-side-view-layout title="Δημιουργία νέας καμπάνιας" [ok-close-dialog]="false" [ok-label]="'Δημιουργία'" [cancel-label]="'Κλείσιμο'" (ok)="submitButton.nativeElement.click()" [disabled]="!canSubmit()" #sideViewLayout>
     <div class="mt-4">
         <form #campaignForm="ngForm" (ngSubmit)="onSubmit()">
             <div class="px-4 space-y-2 pb-4">

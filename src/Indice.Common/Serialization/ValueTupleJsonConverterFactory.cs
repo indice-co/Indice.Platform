@@ -12,7 +12,7 @@ namespace Indice.Serialization
     {
         /// <inheritdoc/>
         public override bool CanConvert(Type typeToConvert) {
-            Type iTuple = typeToConvert.GetInterface("System.Runtime.CompilerServices.ITuple");
+            var iTuple = typeToConvert.GetInterface("System.Runtime.CompilerServices.ITuple");
             return iTuple != null;
         }
 

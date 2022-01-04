@@ -1,4 +1,4 @@
-import { Component, ElementRef, Inject, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, Inject, OnInit, ViewChild } from '@angular/core';
 import { NgForm } from '@angular/forms';
 
 import { MenuOption, Modal, ModalService, SideViewLayoutComponent, ToasterService, ToastType } from '@indice/ng-components';
@@ -6,12 +6,13 @@ import { map } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
 import { Campaign, DeliveryChannel, CampaignsApiService, CampaignTypeResultSet, CreateCampaignRequest, Period } from 'src/app/core/services/campaigns-api.services';
 import { CampaignTypesModalComponent } from '../campaign-types-modal/campaign-types.component';
+import { Router } from '@angular/router';
 
 @Component({
     selector: 'app-campaigns',
     templateUrl: './campaign-create.component.html'
 })
-export class CampaignCreateComponent implements OnInit {
+export class CampaignCreateComponent implements OnInit, AfterViewInit {
     @ViewChild('campaignForm', { static: false }) private campaignForm!: NgForm;
     @ViewChild('sideViewLayout', { static: false }) private sideViewLayout!: SideViewLayoutComponent;
     @ViewChild('submitBtn', { static: false }) public submitButton!: ElementRef;
@@ -19,6 +20,8 @@ export class CampaignCreateComponent implements OnInit {
     constructor(
         private api: CampaignsApiService,
         private modal: ModalService,
+        private router: Router,
+        private changeDetector: ChangeDetectorRef,
         @Inject(ToasterService) private toaster: ToasterService
     ) { }
 
@@ -46,12 +49,21 @@ export class CampaignCreateComponent implements OnInit {
         this.loadCampaignTypes();
     }
 
+    public ngAfterViewInit(): void {
+        this.changeDetector.detectChanges();
+    }
+
+    public canSubmit(): boolean {
+        return this.campaignForm?.valid === true && this.hasDeliveryChannel();
+    }
+
     public onSubmit(): void {
-        if (!this.campaignForm.valid) {
+        if (!this.canSubmit()) {
             return;
         }
         this.api.createCampaign(this.model).subscribe((campaign: Campaign) => {
-            this.sideViewLayout.emitClose();
+            // This is to force reload campaigns page when a new campa;ign is successfully saved. 
+            this.router.navigateByUrl('/', { skipLocationChange: true }).then(() => this.router.navigate(['app/campaigns']));
             this.toaster.show(ToastType.Success, 'Επιτυχής αποθήκευση', `Η καμπάνια με τίτλο '${campaign.title}' δημιουργήθηκε με επιτυχία.`);
         });
     }
@@ -83,7 +95,7 @@ export class CampaignCreateComponent implements OnInit {
     public setIsGlobal(isGlobal: boolean): void {
         this.model.isGlobal = isGlobal;
         if (isGlobal) {
-            this.model.selectedUserCodes = [];
+            delete this.model.selectedUserCodes;
         }
     }
 
