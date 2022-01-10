@@ -10,7 +10,7 @@ export class AppLinks implements IAppLinks {
 
     public main: Observable<NavLink[]> = of([
         new NavLink('Αρχική', '/', true),
-        new NavLink('Campaigns', '/app/campaigns', true)
+        new NavLink('Καμπάνιες', '/app/campaigns', true)
     ]);
 
     public profile: Observable<NavLink[]> = of([

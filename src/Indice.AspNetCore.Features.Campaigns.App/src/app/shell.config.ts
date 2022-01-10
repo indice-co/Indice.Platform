@@ -1,4 +1,4 @@
-import { IShellConfig } from "@indice/ng-components";
+import { IShellConfig } from '@indice/ng-components';
 
 export class ShellConfig implements IShellConfig {
     public appLogo = '/assets/images/branding/indice.png';
