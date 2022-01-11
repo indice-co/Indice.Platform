@@ -25,8 +25,29 @@ namespace Indice.AspNetCore.MultiTenancy
         /// </summary>
         /// <param name="tenantId">tenant id</param>
         /// <param name="userId">User id</param>
+        /// <returns>The user access level</returns>
+        Task<int?> GetAccessLevelAsync(Guid tenantId, string userId);
+    }
+
+    /// <summary>
+    /// Extension methods on the <see cref="ITenantStore{T}"/>
+    /// </summary>
+    public static class TenantStoreExtensions
+    {
+        /// <summary>
+        /// Checks access on behalf of a user against the store and the tenant.
+        /// </summary>
+        /// <param name="tenantStore">The store implementation</param>
+        /// <param name="tenantId">tenant id</param>
+        /// <param name="userId">User id</param>
         /// <param name="level">The minimum access level requirement</param>
-        /// <returns></returns>
-        Task<bool> CheckAccessAsync(Guid tenantId, string userId, int? level);
+        /// <returns>True on success</returns>
+        public static async Task<bool> CheckAccessAsync<T>(this ITenantStore<T> tenantStore, Guid tenantId, string userId, int? level) where T : Tenant {
+            var accessLevel = await tenantStore.GetAccessLevelAsync(tenantId, userId);
+            if (accessLevel.HasValue) {
+                return accessLevel >= level.GetValueOrDefault();
+            }
+            return false;
+        }
     }
 }
