@@ -21,6 +21,9 @@ namespace Indice.AspNetCore.Swagger
         public static IOpenApiAny ToOpenApiAny<T>(this T instance) where T : class => ToOpenApiAny(typeof(T), instance);
 
         private static IOpenApiAny ToOpenApiAny(Type type, object instance) {
+            if (IsPrimitive(type)) {
+                return GetStructValue(type, instance);
+            }
             var arrayResult = ToOpenApiArray(type, instance);
             if (arrayResult != null) {
                 return arrayResult;
@@ -64,7 +67,7 @@ namespace Indice.AspNetCore.Swagger
 
         private static IOpenApiAny ToOpenApiArray(Type type, object instance) {
             var itemType = GetAnyElementType(type);
-            
+
             if (itemType != null) {
                 var items = ((IEnumerable)instance).Cast<object>().Select(x => GetStructValue(itemType ?? x.GetType(), x) ?? ToOpenApiAny(itemType ?? x.GetType(), x));
                 if (IsDictionary(type)) {
@@ -82,8 +85,7 @@ namespace Indice.AspNetCore.Swagger
         }
 
         private static bool IsDictionary(Type type) =>
-            type.GetInterfaces().Where(x => x.IsGenericType && x.GetGenericTypeDefinition() == typeof(IDictionary<,>))
-                                .Any();
+            type.GetInterfaces().Where(x => x.IsGenericType && x.GetGenericTypeDefinition() == typeof(IDictionary<,>)).Any();
 
         private static bool IsPrimitive(Type type) =>
             type.IsValueType || type.IsPrimitive || type.IsEnum || type == typeof(string);

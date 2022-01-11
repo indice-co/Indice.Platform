@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Indice.AspNetCore.Features.Campaigns.Configuration;
 using Indice.AspNetCore.Features.Campaigns.Controllers;
 using Indice.AspNetCore.Features.Campaigns.Data;
 using Indice.AspNetCore.Features.Campaigns.Data.Models;
@@ -21,11 +23,13 @@ namespace Indice.AspNetCore.Features.Campaigns.Services
         public CampaignService(
             CampaignsDbContext dbContext,
             IOptions<GeneralSettings> generalSettings,
+            IOptions<CampaignsApiOptions> apiOptions,
             IFileService fileService,
             IHttpContextAccessor httpContextAccessor,
             LinkGenerator linkGenerator
         ) {
             DbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
+            ApiOptions = apiOptions?.Value ?? throw new ArgumentNullException(nameof(apiOptions));
             FileService = fileService ?? throw new ArgumentNullException(nameof(fileService));
             GeneralSettings = generalSettings?.Value ?? throw new ArgumentNullException(nameof(generalSettings));
             HttpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
@@ -33,6 +37,7 @@ namespace Indice.AspNetCore.Features.Campaigns.Services
         }
 
         public CampaignsDbContext DbContext { get; }
+        public CampaignsApiOptions ApiOptions { get; }
         public IFileService FileService { get; }
         public GeneralSettings GeneralSettings { get; }
         public IHttpContextAccessor HttpContextAccessor { get; }
@@ -126,7 +131,7 @@ namespace Indice.AspNetCore.Features.Campaigns.Services
                              ContentType = campaign.Attachment.ContentType,
                              Label = campaign.Attachment.Name,
                              Size = campaign.Attachment.ContentLength,
-                             PermaLink = $"{GeneralSettings.Host.TrimEnd('/')}/api/campaigns/attachments/{(Base64Id)campaign.Attachment.Guid}.{Path.GetExtension(campaign.Attachment.Name).TrimStart('.')}"
+                             PermaLink = $"{GeneralSettings.Host.TrimEnd('/')}/{ApiOptions.ApiPrefix}/campaigns/attachments/{(Base64Id)campaign.Attachment.Guid}.{Path.GetExtension(campaign.Attachment.Name).TrimStart('.')}"
                          } : null,
                          Content = campaign.Content,
                          CreatedAt = campaign.CreatedAt,
@@ -194,6 +199,17 @@ namespace Indice.AspNetCore.Features.Campaigns.Services
 
         public async Task<CampaignType> GetCampaignTypeById(Guid campaignTypeId) {
             var campaign = await DbContext.CampaignTypes.FindAsync(campaignTypeId);
+            if (campaign is null) {
+                return default;
+            }
+            return new CampaignType {
+                Id = campaign.Id,
+                Name = campaign.Name
+            };
+        }
+
+        public async Task<CampaignType> GetCampaignTypeByName(string name) {
+            var campaign = await DbContext.CampaignTypes.SingleOrDefaultAsync(x => x.Name == name);
             if (campaign is null) {
                 return default;
             }

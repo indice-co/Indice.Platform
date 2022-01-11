@@ -1,14 +1,16 @@
 <lib-view-layout title="Καμπάνιες" [busy]="!items" [actions]="actions" [meta-items]="metaItems" (onAction)="actionHandler($event)" (onSearch)="searchChanged($event)">
     <lib-list-view [items]="items" [page]="page" [page-size]="pageSize" [count]="count" [sort-options]="sortOptions" [sort]="sort" [sort-dir]="sortdir" (pageChanged)="pageChanged($event)" (pageSizeChanged)="pageSizeChanged($event)"
         (sortChanged)="sortChanged($event)" (sortdirChanged)="sortdirChanged($event)">
-        <lib-list-column title="ΤΙΤΛΟΣ" [full-width]="true">
-            <ng-template let-item>{{ item.title }}</ng-template>
+        <lib-list-column title="ΤΙΤΛΟΣ">
+            <ng-template let-item>
+                <span [title]="item.title">{{ item.title }}</span>
+            </ng-template>
         </lib-list-column>
         <lib-list-column title="ΗΜ. ΔΗΜΙΟΥΡΓΙΑΣ">
             <ng-template let-item>{{ item.createdAt | date: 'medium' }}</ng-template>
         </lib-list-column>
-        <lib-list-column title="ΕΝΕΡΓΗ">
-            <ng-template let-item>{{ item.isActive ? 'Ναι' : 'Όχι' }}</ng-template>
+        <lib-list-column title="ΔΗΜΟΣΙΕΥΜΕΝΗ">
+            <ng-template let-item>{{ item.published ? 'Ναι' : 'Όχι' }}</ng-template>
         </lib-list-column>
         <lib-list-column title="ΕΝΕΡΓΗ ΑΠΟ">
             <ng-template let-item>{{ item.activePeriod.from | date: 'medium' }}</ng-template>

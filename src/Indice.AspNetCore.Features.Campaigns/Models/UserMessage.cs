@@ -1,4 +1,5 @@
 ﻿using System;
+using Indice.Types;
 
 namespace Indice.AspNetCore.Features.Campaigns.Models
 {
@@ -39,6 +40,10 @@ namespace Indice.AspNetCore.Features.Campaigns.Models
         /// Defines when the message was created.
         /// </summary>
         public DateTimeOffset CreatedAt { get; set; }
+        /// <summary>
+        /// Specifies the time period that a campaign is active.
+        /// </summary>
+        public Period ActivePeriod { get; set; }
         /// <summary>
         /// The type details of the campaign.
         /// </summary>

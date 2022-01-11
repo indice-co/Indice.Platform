@@ -45,7 +45,6 @@ namespace Indice.Api
                         options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
                         options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
                         options.JsonSerializerOptions.WriteIndented = true;
-                        options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
                     });
             // Configure default CORS policy
             services.AddCors(options => options.AddDefaultPolicy(builder => {

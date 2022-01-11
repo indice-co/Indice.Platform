@@ -23,7 +23,7 @@ namespace Indice.AspNetCore.Features.Campaigns.Controllers
     [Authorize(AuthenticationSchemes = CampaignsApi.AuthenticationScheme, Policy = CampaignsApi.Policies.BeCampaignsManager)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized, Type = typeof(ProblemDetails))]
     [ProducesResponseType(StatusCodes.Status403Forbidden, Type = typeof(ProblemDetails))]
-    [Route("[apiPrefix]")]
+    [Route("[campaignsApiPrefix]")]
     internal class CampaignsController : ControllerBase
     {
         public const string Name = "Campaigns";
@@ -287,7 +287,7 @@ namespace Indice.AspNetCore.Features.Campaigns.Controllers
 
         [AllowAnonymous]
         [ApiExplorerSettings(IgnoreApi = true)]
-        [HttpGet("track/{trackingCode}")]
+        [HttpGet("campaigns/track/{trackingCode}")]
         public async Task<IActionResult> Track([FromRoute] Base64Id trackingCode) {
             var campaignId = trackingCode.Id;
             var campaign = await CampaignService.GetCampaignById(campaignId);

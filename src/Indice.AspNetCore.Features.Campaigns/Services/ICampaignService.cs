@@ -18,6 +18,7 @@ namespace Indice.AspNetCore.Features.Campaigns.Services
         Task<ResultSet<Campaign>> GetCampaigns(ListOptions<GetCampaignsListFilter> options);
         Task<CampaignStatistics> GetCampaignStatistics(Guid campaignId);
         Task<CampaignType> GetCampaignTypeById(Guid campaignTypeId);
+        Task<CampaignType> GetCampaignTypeByName(string name);
         Task<ResultSet<CampaignType>> GetCampaignTypes(ListOptions options);
         Task UpdateCampaign(Guid campaignId, UpdateCampaignRequest request);
         Task UpdateCampaignType(Guid campaignTypeId, UpsertCampaignTypeRequest request);

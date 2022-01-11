@@ -16,7 +16,7 @@ namespace Indice.Services
     public class EventDispatcherAzure : IEventDispatcher
     {
         /// <summary>
-        /// The name of the storage connection string.
+        /// The default name of the storage connection string.
         /// </summary>
         public const string CONNECTION_STRING_NAME = "StorageConnection";
         private readonly bool _enabled;

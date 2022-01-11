@@ -144,6 +144,9 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
                 var userSearchFilterExpression = await IdentityDbContextOptions.UserSearchFilter(_dbContext, options.Search);
                 usersQuery = usersQuery.Where(userSearchFilterExpression);
             }
+            if (options?.Filter?.UserId?.Any() == true) {
+                usersQuery = usersQuery.Where(x => options.Filter.UserId.Contains(x.Id));
+            }
             return Ok(await usersQuery.ToResultSetAsync(options));
         }
 

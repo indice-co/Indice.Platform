@@ -1,4 +1,4 @@
-<lib-view-layout title="Dashboard" [meta-items]="metaItems">
+<lib-view-layout title="Αρχική" [meta-items]="metaItems">
     <div class="cards-deck-4">
         <ng-container *ngFor="let tile of tiles">
             <lib-kpi-tile [title]="tile.text" [kpi]="tile.count" (tile-action)="navigate(tile.path)"></lib-kpi-tile>

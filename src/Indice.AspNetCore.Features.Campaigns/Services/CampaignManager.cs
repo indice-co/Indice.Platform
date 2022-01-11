@@ -27,7 +27,7 @@ namespace Indice.AspNetCore.Features.Campaigns
         /// Creates a new campaign.
         /// </summary>
         /// <param name="campaign">The request model used to create a new campaign.</param>
-        public async Task<CampaignResult> CreateCampaign(CreateCampaignRequest campaign) {
+        public async Task<CampaignResult> Create(CreateCampaignRequest campaign) {
             var validator = ServiceProvider.GetRequiredService<CreateCampaignRequestValidator>();
             var validationResult = validator.Validate(campaign);
             if (!validationResult.IsValid) {
@@ -44,13 +44,13 @@ namespace Indice.AspNetCore.Features.Campaigns
         /// </summary>
         /// <param name="campaignId">The id of the campaign.</param>
         /// <returns>The campaign with the specified id, otherwise null.</returns>
-        public Task<CampaignDetails> GetCampaignById(Guid campaignId) => CampaignService.GetCampaignById(campaignId);
+        public Task<CampaignDetails> GetById(Guid campaignId) => CampaignService.GetCampaignById(campaignId);
 
         /// <summary>
         /// Creates a new campaign type.
         /// </summary>
         /// <param name="campaignType">The request model used to create a new campaign type.</param>
-        public async Task<CampaignResult> CreateCampaignType(UpsertCampaignTypeRequest campaignType) {
+        public async Task<CampaignResult> CreateType(UpsertCampaignTypeRequest campaignType) {
             var validator = ServiceProvider.GetRequiredService<UpsertCampaignTypeRequestValidator>();
             var validationResult = validator.Validate(campaignType);
             if (!validationResult.IsValid) {
@@ -61,5 +61,11 @@ namespace Indice.AspNetCore.Features.Campaigns
             campaignType.Id = createdCampaignType.Id;
             return CampaignResult.Success();
         }
+
+        /// <summary>
+        /// Retrieves the campaign type with the specified name.
+        /// </summary>
+        /// <param name="name">The name of the campaign type to look for.</param>
+        public Task<CampaignType> GetTypeByName(string name) => CampaignService.GetCampaignTypeByName(name);
     }
 }
