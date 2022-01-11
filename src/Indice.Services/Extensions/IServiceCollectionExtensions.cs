@@ -160,7 +160,7 @@ namespace Microsoft.Extensions.DependencyInjection
         /// </summary>
         /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
         /// <param name="configure">Configure the available options. Null to use defaults.</param>
-        public static IServiceCollection AddEventDispatcherAzure(this IServiceCollection services, Action<IServiceProvider, EventDispatcherOptions> configure) {
+        public static IServiceCollection AddEventDispatcherAzure(this IServiceCollection services, Action<IServiceProvider, EventDispatcherOptions> configure = null) {
             services.AddTransient<IEventDispatcher, EventDispatcherAzure>(serviceProvider => {
                 var options = new EventDispatcherOptions {
                     ConnectionString = serviceProvider.GetRequiredService<IConfiguration>().GetConnectionString(EventDispatcherAzure.CONNECTION_STRING_NAME),
@@ -169,7 +169,7 @@ namespace Microsoft.Extensions.DependencyInjection
                     ClaimsPrincipalSelector = ClaimsPrincipal.ClaimsPrincipalSelector ?? (() => ClaimsPrincipal.Current)
                 };
                 configure?.Invoke(serviceProvider, options);
-                return new EventDispatcherAzure(options.ConnectionString, options.EnvironmentName, options.Enabled, options.MessageEncoding, options.ClaimsPrincipalSelector);
+                return new EventDispatcherAzure(options.ConnectionString, options.EnvironmentName, options.Enabled, options.MessageEncoding, options.ClaimsPrincipalSelector, options.TenantIdSelector);
             });
             return services;
         }
@@ -188,7 +188,7 @@ namespace Microsoft.Extensions.DependencyInjection
         /// </summary>
         /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
         /// <param name="configure">Configure the available options. Null to use defaults.</param>
-        public static IServiceCollection AddLockManagerAzure(this IServiceCollection services, Action<IServiceProvider, LockManagerAzureOptions> configure) {
+        public static IServiceCollection AddLockManagerAzure(this IServiceCollection services, Action<IServiceProvider, LockManagerAzureOptions> configure = null) {
             services.AddTransient<ILockManager, LockManagerAzure>(serviceProvider => {
                 var options = new LockManagerAzureOptions {
                     ConnectionString = serviceProvider.GetRequiredService<IConfiguration>().GetConnectionString(LockManagerAzure.CONNECTION_STRING_NAME),

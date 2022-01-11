@@ -3,7 +3,7 @@
     <Description>Indice.Services Class Library</Description>
     <Copyright>Copyright (c) 2018 Indice</Copyright>
     <AssemblyTitle>Indice.Services</AssemblyTitle>
-    <VersionPrefix>5.2.8</VersionPrefix>
+    <VersionPrefix>5.2.9</VersionPrefix>
     <!--<VersionSuffix>beta-01</VersionSuffix>-->
     <Authors>Constantinos Leftheris, Georgios Manoltzas</Authors>
     <TargetFrameworks>netstandard2.0;net5.0;net6.0;</TargetFrameworks>

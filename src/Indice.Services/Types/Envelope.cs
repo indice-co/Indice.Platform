@@ -29,7 +29,7 @@ namespace Indice.Types
         /// <summary>
         /// The tenant id.
         /// </summary>
-        public string TenantId { get; set; }
+        public Guid? TenantId { get; set; }
         /// <summary>
         /// The fully qualified name of the type sent.
         /// </summary>
@@ -46,8 +46,8 @@ namespace Indice.Types
             if (!string.IsNullOrEmpty(ClientId)) {
                 claims.Add(new Claim("client_id", ClientId.ToString()));
             }
-            if (!string.IsNullOrEmpty(TenantId)) {
-                claims.Add(new Claim(BasicClaimTypes.TenantId, TenantId));
+            if (TenantId.HasValue) {
+                claims.Add(new Claim(BasicClaimTypes.TenantId, TenantId.Value.ToString()));
             }
             if (!string.IsNullOrEmpty(User)) {
                 claims.Add(new Claim("name", User));
@@ -73,21 +73,23 @@ namespace Indice.Types
         /// </summary>
         /// <param name="user">The current principal.</param>
         /// <param name="payload">The payload to transmit.</param>
-        public Envelope(IPrincipal user, T payload) => Populate(user, payload);
+        /// <param name="tenantId">The tenant id (optional)</param>
+        public Envelope(IPrincipal user, T payload, Guid? tenantId = null) => Populate(user, payload, tenantId);
 
         /// <summary>
         /// The payload to transmit.
         /// </summary>
         public T Payload { get; set; }
 
-        internal Envelope<T> Populate(IPrincipal user, T payload) {
+        internal Envelope<T> Populate(IPrincipal user, T payload, Guid? tenantId) {
             User = user?.Identity.Name;
             if (user != null) { 
                 var claimsPrincipal = new ClaimsPrincipal(user);
                 UserId = claimsPrincipal.FindFirst("sub")?.Value;
                 ClientId = claimsPrincipal.FindFirst("client_id")?.Value;
-                TenantId = claimsPrincipal.FindFirst(BasicClaimTypes.TenantId)?.Value;
+                TenantId = claimsPrincipal.FindFirstValue<Guid>(BasicClaimTypes.TenantId);
             }
+            TenantId = tenantId;
             Type = typeof(T).FullName;
             Payload = payload;
             return this;
@@ -120,8 +122,9 @@ namespace Indice.Types
         /// <typeparam name="TInstance"></typeparam>
         /// <param name="user"></param>
         /// <param name="payload"></param>
+        /// <param name="tenantId">The tenant id if any</param>
         /// <returns></returns>
-        public static Envelope<TInstance> Create<TInstance>(IPrincipal user, TInstance payload) => new Envelope<TInstance>(user, payload);
+        public static Envelope<TInstance> Create<TInstance>(IPrincipal user, TInstance payload, Guid? tenantId = null) => new Envelope<TInstance>(user, payload, tenantId);
 
         /// <summary>
         /// 
@@ -130,8 +133,9 @@ namespace Indice.Types
         /// <typeparam name="TInstance"></typeparam>
         /// <param name="user"></param>
         /// <param name="payload"></param>
+        /// <param name="tenantId">The tenant id if any</param>
         /// <returns></returns>
-        public static TMessage Create<TMessage, TInstance>(IPrincipal user, TInstance payload) where TMessage : Envelope<TInstance>, new() =>
-            new TMessage().Populate(user, payload) as TMessage;
+        public static TMessage Create<TMessage, TInstance>(IPrincipal user, TInstance payload, Guid? tenantId = null) where TMessage : Envelope<TInstance>, new() =>
+            new TMessage().Populate(user, payload, tenantId) as TMessage;
     }
 }

@@ -22,6 +22,7 @@ namespace Indice.Services
         private readonly bool _enabled;
         private readonly QueueMessageEncoding _messageEncoding;
         private readonly Func<ClaimsPrincipal> _claimsPrincipalSelector;
+        private readonly Func<Guid?> _tenantIdSelector;
         private readonly JsonSerializerOptions _jsonSerializerOptions;
         private readonly string _environmentName;
         private readonly string _connectionString;
@@ -34,7 +35,8 @@ namespace Indice.Services
         /// <param name="enabled">Provides a way to enable/disable event dispatching at will. Defaults to true.</param>
         /// <param name="messageEncoding">Queue message encoding.</param>
         /// <param name="claimsPrincipalSelector">Provides a way to access the current <see cref="ClaimsPrincipal"/> inside a service.</param>
-        public EventDispatcherAzure(string connectionString, string environmentName, bool enabled, QueueMessageEncoding messageEncoding, Func<ClaimsPrincipal> claimsPrincipalSelector) {
+        /// <param name="tenantIdSelector">Provides a way to access the current tenant id if any.</param>
+        public EventDispatcherAzure(string connectionString, string environmentName, bool enabled, QueueMessageEncoding messageEncoding, Func<ClaimsPrincipal> claimsPrincipalSelector, Func<Guid?> tenantIdSelector) {
             if (string.IsNullOrEmpty(connectionString)) {
                 throw new ArgumentNullException(nameof(connectionString));
             }
@@ -46,6 +48,7 @@ namespace Indice.Services
             _environmentName = Regex.Replace(environmentName ?? "Development", @"\s+", "-").ToLowerInvariant();
             _connectionString = connectionString;
             _claimsPrincipalSelector = claimsPrincipalSelector ?? throw new ArgumentNullException(nameof(claimsPrincipalSelector));
+            _tenantIdSelector = tenantIdSelector ?? new Func<Guid?> (() => new Guid?());
             _jsonSerializerOptions = JsonSerializerOptionDefaults.GetDefaultSettings();
         }
 
@@ -71,7 +74,7 @@ namespace Indice.Services
             }
             // Create a message and add it to the queue.
             var data = wrap
-                ? new BinaryData(Envelope.Create(user, payload), options: _jsonSerializerOptions, type: typeof(Envelope<TEvent>))
+                ? new BinaryData(Envelope.Create(user, payload, _tenantIdSelector()), options: _jsonSerializerOptions, type: typeof(Envelope<TEvent>))
                 : new BinaryData(payload, options: _jsonSerializerOptions, type: typeof(TEvent));
             await queue.SendMessageAsync(data, visibilityTimeout);
         }
@@ -110,5 +113,9 @@ namespace Indice.Services
         /// A function that retrieves the current thread user from the current operation context.
         /// </summary>
         public Func<ClaimsPrincipal> ClaimsPrincipalSelector { get; set; }
+        /// <summary>
+        /// A function that retrieves the current tenant id by any means possible. This is optional
+        /// </summary>
+        public Func<Guid?> TenantIdSelector { get; set; }
     }
 }
