@@ -89,7 +89,7 @@ namespace Indice.AspNetCore.MultiTenancy.Authorization
             }
         }
 
-        private async Task<bool> CheckMembershipAsync(string memberId, string tenantId, int? level) {
+        private async Task<bool> CheckMembershipAsync(string memberId, Guid tenantId, int? level) {
             var isMember = false;
             var cacheKey = $"member-{memberId}-tenant-{tenantId}";
             var value = await _cache.GetStringAsync(cacheKey);

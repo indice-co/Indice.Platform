@@ -27,6 +27,6 @@ namespace Indice.AspNetCore.MultiTenancy
         /// <param name="userId">User id</param>
         /// <param name="level">The minimum access level requirement</param>
         /// <returns></returns>
-        Task<bool> CheckAccessAsync(string tenantId, string userId, int? level);
+        Task<bool> CheckAccessAsync(Guid tenantId, string userId, int? level);
     }
 }
