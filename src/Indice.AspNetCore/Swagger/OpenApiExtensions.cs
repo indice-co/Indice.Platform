@@ -21,9 +21,6 @@ namespace Indice.AspNetCore.Swagger
         public static IOpenApiAny ToOpenApiAny<T>(this T instance) where T : class => ToOpenApiAny(typeof(T), instance);
 
         private static IOpenApiAny ToOpenApiAny(Type type, object instance) {
-            if (IsPrimitive(type)) {
-                return GetStructValue(type, instance);
-            }
             var arrayResult = ToOpenApiArray(type, instance);
             if (arrayResult != null) {
                 return arrayResult;
