@@ -73,7 +73,9 @@ namespace Indice.Identity
             // https://docs.microsoft.com/en-us/azure/azure-monitor/app/asp-net-core
             services.AddApplicationInsightsTelemetry(aiOptions);
             services.AddMvcConfig(Configuration);
-            services.AddLocalization(options => options.ResourcesPath = "Resources");
+            services.AddLocalization(options => {
+                options.ResourcesPath = "Resources";
+            });
             services.AddCors(options => options.AddDefaultPolicy(builder => {
                 builder.WithOrigins(Configuration.GetSection("AllowedOrigins").Get<string[]>())
                        .WithMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
