@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 
-namespace Indice.Extensions
+namespace System.Linq
 {
     /// <summary>
     /// Extension methods on <see cref="IEnumerable{T}"/>.
@@ -10,21 +8,17 @@ namespace Indice.Extensions
     public static class EnumerableExtensions
     {
         /// <summary>
-        /// Flattens a collection that contains descendants of the same type.
+        /// Projects each element of a sequence to an <see cref="IEnumerable{T}"/> and flattens the resulting sequences into one sequence <b>recursively</b>.
         /// </summary>
-        /// <typeparam name="TSource">The type of object in the <see cref="IEnumerable{T}"/> collection.</typeparam>
-        /// <param name="source">The collection that the mapping is applied.</param>
-        /// <param name="selectorFunction">A predicate to apply in the collection.</param>
-        /// <param name="getDescendantsFunction">A predicate to select the descendant objects from the collection.</param>
-        public static IEnumerable<TSource> Map<TSource>(this IEnumerable<TSource> source, Func<TSource, bool> selectorFunction, Func<TSource, IEnumerable<TSource>> getDescendantsFunction) {
+        /// <typeparam name="TSource">The type of the elements of source.</typeparam>
+        /// <param name="source">A sequence of values to project.</param>
+        /// <param name="selector">A transform function to apply to each element.</param>
+        /// <returns>An <see cref="IEnumerable{T}"/> whose elements are the result of invoking the one-to-many transform function on each element of the input sequence.</returns>
+        public static IEnumerable<TSource> SelectManyRecursive<TSource>(this IEnumerable<TSource> source, Func<TSource, IEnumerable<TSource>> selector) {
             if (source is null) {
                 return Enumerable.Empty<TSource>();
             }
-            var flattenedList = source.Where(selectorFunction);
-            foreach (var element in source) {
-                flattenedList = flattenedList.Concat(getDescendantsFunction(element).Map(selectorFunction, getDescendantsFunction));
-            }
-            return flattenedList;
+            return source.SelectMany(item => selector(item).SelectManyRecursive(selector).Prepend(item));
         }
     }
 }

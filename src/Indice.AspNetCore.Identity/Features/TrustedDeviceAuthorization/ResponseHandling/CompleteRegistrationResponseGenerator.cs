@@ -28,8 +28,8 @@ namespace Indice.AspNetCore.Identity.TrustedDeviceAuthorization.ResponseHandling
             var device = validationResult.Device ?? new UserDevice(Guid.NewGuid()) {
                 DateCreated = SystemClock.UtcNow,
                 DeviceId = validationResult.DeviceId,
-                DeviceName = validationResult.DeviceName,
-                DevicePlatform = validationResult.DevicePlatform,
+                Name = validationResult.DeviceName,
+                Platform = validationResult.DevicePlatform,
                 IsPushNotificationsEnabled = false,
                 PublicKey = validationResult.PublicKey,
                 UserId = validationResult.UserId

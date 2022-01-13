@@ -22,11 +22,12 @@ namespace Indice.AspNetCore.Identity.Data
             builder.HasKey(x => x.Id);
             builder.HasAlternateKey(x => x.DeviceId);
             // Configure indexes.
-            //builder.HasIndex(x => x.DeviceId).IsUnique();
-            // Device properties.
-            builder.Property(x => x.DeviceName).HasMaxLength(256);
+            // builder.HasIndex(x => x.DeviceId).IsUnique();
+            // Configure properties.
+            builder.Property(x => x.Name).HasMaxLength(256);
             builder.Property(x => x.UserId).IsRequired();
             builder.Property(x => x.DeviceId).IsRequired();
+            builder.Property(x => x.Data).HasJsonConversion();
             // Configure relationships.
             builder.HasOne(x => x.User).WithMany(x => x.Devices).HasForeignKey(x => x.UserId).OnDelete(DeleteBehavior.Cascade);
         }

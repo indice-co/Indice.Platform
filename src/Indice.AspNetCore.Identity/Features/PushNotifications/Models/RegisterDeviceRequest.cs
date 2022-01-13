@@ -22,15 +22,27 @@ namespace Indice.AspNetCore.Identity.Api.Models
         /// Device name.
         /// </summary>
         [Required(AllowEmptyStrings = false), MaxLength(250)]
-        public string DeviceName { get; set; }
+        public string Name { get; set; }
         /// <summary>
         /// Client device platform.
         /// </summary>
         [Required]
-        public DevicePlatform DevicePlatform { get; set; }
+        public DevicePlatform Platform { get; set; }
         /// <summary>
         /// Tags are used to route notifications to the correct set of device handles.
         /// </summary>
         public List<string> Tags { get; set; }
+        /// <summary>
+        /// Device model.
+        /// </summary>
+        public string Model { get; set; }
+        /// <summary>
+        /// Device OS version.
+        /// </summary>
+        public string OsVersion { get; set; }
+        /// <summary>
+        /// Extra metadata for the device.
+        /// </summary>
+        public dynamic Data { get; set; }
     }
 }

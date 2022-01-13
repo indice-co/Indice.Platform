@@ -28,11 +28,7 @@ namespace Indice.AspNetCore.Features.Campaigns.Controllers
     {
         public const string Name = "Campaigns";
 
-        public CampaignsController(
-            ICampaignService campaignService,
-            IFileService fileService,
-            IOptions<GeneralSettings> generalSettings
-        ) {
+        public CampaignsController(ICampaignService campaignService, IFileService fileService, IOptions<GeneralSettings> generalSettings) {
             CampaignService = campaignService ?? throw new ArgumentNullException(nameof(campaignService));
             FileService = fileService ?? throw new ArgumentNullException(nameof(fileService));
             GeneralSettings = generalSettings?.Value ?? throw new ArgumentNullException(nameof(generalSettings));

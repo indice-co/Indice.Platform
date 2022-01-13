@@ -92,7 +92,6 @@ namespace Indice.Identity
                 options.IndiceDefaults(Settings);
                 options.AddFluentValidationSupport();
                 options.AddOAuth2AuthorizationCodeFlow(Settings);
-                options.AddClientCredentials(Settings);
                 options.AddFormFileSupport();
                 options.SchemaFilter<CreateUserRequestSchemaFilter>();
                 options.IncludeXmlComments(Assembly.Load(IdentityServerApi.AssemblyName));

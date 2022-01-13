@@ -43,9 +43,6 @@ namespace Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Stores
             if (device == null) {
                 throw new ArgumentNullException(nameof(device), $"Parameter {nameof(device)} cannot be null.");
             }
-            if (string.IsNullOrWhiteSpace(passwordHash)) {
-                throw new ArgumentNullException(nameof(device), $"Parameter {nameof(passwordHash)} cannot be null or empty.");
-            }
             var foundDevice = _userDevices.Single(x => x.Id == device.Id);
             foundDevice.Password = passwordHash;
             return Task.CompletedTask;
@@ -56,11 +53,18 @@ namespace Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Stores
             if (device == null) {
                 throw new ArgumentNullException(nameof(device), $"Parameter {nameof(device)} cannot be null.");
             }
-            if (string.IsNullOrWhiteSpace(publicKey)) {
-                throw new ArgumentNullException(nameof(device), $"Parameter {nameof(publicKey)} cannot be null or empty.");
-            }
             var foundDevice = _userDevices.Single(x => x.Id == device.Id);
             foundDevice.PublicKey = publicKey;
+            return Task.CompletedTask;
+        }
+
+        /// <inheritdoc />
+        public Task UpdateLastSignInDate(UserDevice device) {
+            if (device == null) {
+                throw new ArgumentNullException(nameof(device), $"Parameter {nameof(device)} cannot be null.");
+            }
+            var foundDevice = _userDevices.Single(x => x.Id == device.Id);
+            foundDevice.LastSignInDate = DateTimeOffset.UtcNow;
             return Task.CompletedTask;
         }
     }
