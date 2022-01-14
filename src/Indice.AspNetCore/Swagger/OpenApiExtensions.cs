@@ -90,13 +90,13 @@ namespace Indice.AspNetCore.Swagger
         private static IOpenApiPrimitive GetStructValue(Type type, object value) {
             var openValue = default(IOpenApiPrimitive);
             if (type == typeof(DateTime?) && ((DateTime?)value).HasValue) {
-                openValue = new OpenApiDate(((DateTime?)value).Value.ToUniversalTime());
+                openValue = new OpenApiDate(((DateTime?)value).Value);
             } else if (type == typeof(DateTime) && ((DateTime)value) != default) {
-                openValue = new OpenApiDate(((DateTime)value).ToUniversalTime());
+                openValue = new OpenApiDate(((DateTime)value));
             } else if (type == typeof(DateTimeOffset) && ((DateTimeOffset)value) != default) {
-                openValue = new OpenApiDateTime(((DateTimeOffset)value).DateTime.ToUniversalTime());
+                openValue = new OpenApiDateTime((DateTimeOffset)value);
             } else if (type == typeof(DateTimeOffset?) && ((DateTimeOffset?)value).HasValue) {
-                openValue = new OpenApiDateTime(((DateTimeOffset?)value).Value.DateTime.ToUniversalTime());
+                openValue = new OpenApiDateTime(((DateTimeOffset?)value).Value);
             } else if (type == typeof(string)) {
                 openValue = new OpenApiString((string)value);
             } else if (type == typeof(int) || type == typeof(int?)) {

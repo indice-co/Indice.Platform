@@ -6,6 +6,7 @@ import {
     IdentityApiService, SingleClientInfo, IdentityResourceInfoResultSet, IdentityResourceInfo, ApiResourceInfo, CreateClaimRequest, ClaimInfo, UpdateClientRequest, IUpdateClientRequest,
     ApiScopeInfo, ApiScopeInfoResultSet, GrantTypeInfo, UpdateClientUrls, CreateSecretRequest, SecretInfo, ApiSecretInfo, ClientSecretInfo, FileParameter
 } from 'src/app/core/services/identity-api.service';
+import { SelectableExternalProvider } from './details/selectable-external-provider.model';
 import { UrlType } from './urls/models/urlType';
 
 @Injectable()
@@ -27,7 +28,7 @@ export class ClientStore {
         return this._client;
     }
 
-    public updateClient(client: SingleClientInfo): Observable<void> {
+    public updateClient(client: SingleClientInfo, providers?: SelectableExternalProvider[]): Observable<void> {
         return this._api.updateClient(client.clientId, new UpdateClientRequest({
             accessTokenLifetime: client.accessTokenLifetime,
             absoluteRefreshTokenLifetime: client.absoluteRefreshTokenLifetime,
@@ -61,7 +62,9 @@ export class ClientStore {
             deviceCodeLifetime: client.deviceCodeLifetime,
             userCodeType: client.userCodeType,
             enabled: client.enabled,
-            slidingRefreshTokenLifetime: client.slidingRefreshTokenLifetime
+            slidingRefreshTokenLifetime: client.slidingRefreshTokenLifetime,
+            enableLocalLogin: client.enableLocalLogin,
+            identityProviderRestrictions: providers?.filter(x => !x.selected).map(x => x.authenticationScheme) || null
         } as IUpdateClientRequest)).pipe(map(_ => {
             this._client.next(client);
             this._client.complete();

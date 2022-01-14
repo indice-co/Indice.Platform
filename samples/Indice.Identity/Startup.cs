@@ -96,6 +96,7 @@ namespace Indice.Identity
                 options.SchemaFilter<CreateUserRequestSchemaFilter>();
                 options.IncludeXmlComments(Assembly.Load(IdentityServerApi.AssemblyName));
             });
+            services.AddDataProtectionAzure();
             services.AddResponseCaching();
             services.AddDataProtectionLocal(options => options.FromConfiguration());
             services.AddEmailServiceSmtpRazor(Configuration);

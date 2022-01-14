@@ -74,7 +74,7 @@ namespace Indice.AspNetCore.Identity
                 if (client != null) {
                     allowLocal = client.EnableLocalLogin;
                     if (client.IdentityProviderRestrictions != null && client.IdentityProviderRestrictions.Any()) {
-                        providers = providers.Where(provider => client.IdentityProviderRestrictions.Contains(provider.AuthenticationScheme)).ToList();
+                        providers = providers.Where(provider => !client.IdentityProviderRestrictions.Contains(provider.AuthenticationScheme)).ToList();
                     }
                 }
             }
@@ -138,9 +138,8 @@ namespace Indice.AspNetCore.Identity
                 var client = await _clientStore.FindEnabledClientByIdAsync(context.Client.ClientId);
                 if (client != null) {
                     allowLocal = client.EnableLocalLogin;
-
                     if (client.IdentityProviderRestrictions != null && client.IdentityProviderRestrictions.Any()) {
-                        providers = providers.Where(provider => client.IdentityProviderRestrictions.Contains(provider.AuthenticationScheme)).ToList();
+                        providers = providers.Where(provider => !client.IdentityProviderRestrictions.Contains(provider.AuthenticationScheme)).ToList();
                     }
                 }
             }

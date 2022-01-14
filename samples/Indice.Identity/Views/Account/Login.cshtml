@@ -66,7 +66,7 @@
                         <ul class="list-inline">
                             @foreach (var provider in Model.VisibleExternalProviders)
                             {
-                                <li class="list-inline-item">
+                                <li class="list-inline-item mb-2">
                                     <a class="btn btn-secondary" asp-controller="@ExternalController.Name" asp-action="@nameof(ExternalController.Challenge)" asp-route-provider="@provider.AuthenticationScheme" asp-route-returnUrl="@(Model.ReturnUrl ?? Url.Action(nameof(GrantsController.Index), GrantsController.Name))">
                                         @Localizer[provider.DisplayName]
                                     </a>

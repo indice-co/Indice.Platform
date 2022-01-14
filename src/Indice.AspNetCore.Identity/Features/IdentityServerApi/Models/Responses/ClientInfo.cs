@@ -50,7 +50,7 @@ namespace Indice.AspNetCore.Identity.Api.Models
         /// Creates a new instace of <see cref="ClientInfo"/> from a <see cref="IdentityServer4.EntityFramework.Entities.Client"/> object.
         /// </summary>
         /// <param name="client">The client instance.</param>
-        public static ClientInfo FromClient(IdentityServer4.EntityFramework.Entities.Client client) => new ClientInfo {
+        public static ClientInfo FromClient(IdentityServer4.EntityFramework.Entities.Client client) => new() {
             ClientId = client.ClientId,
             ClientName = client.ClientName,
             ClientUri = client.ClientUri,
@@ -210,6 +210,14 @@ namespace Indice.AspNetCore.Identity.Api.Models
         /// Translations.
         /// </summary>
         public TranslationDictionary<ClientTranslation> Translations { get; set; }
+        /// <summary>
+        /// Determines whether login using a local account is allowed for this client. 
+        /// </summary>
+        public bool EnableLocalLogin { get; set; }
+        /// <summary>
+        /// List of identity providers that are not allowed for this client.
+        /// </summary>
+        public IEnumerable<string> IdentityProviderRestrictions { get; set; }
     }
 
     /// <summary>
