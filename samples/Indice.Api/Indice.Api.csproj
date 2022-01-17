@@ -15,4 +15,7 @@
     <ProjectReference Include="..\..\src\Indice.AspNetCore.Features.Campaigns\Indice.AspNetCore.Features.Campaigns.csproj" />
     <ProjectReference Include="..\..\src\Indice.Hosting\Indice.Hosting.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="uploads\" />
+  </ItemGroup>
 </Project>

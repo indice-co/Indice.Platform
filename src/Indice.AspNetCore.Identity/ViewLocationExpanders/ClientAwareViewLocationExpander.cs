@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using IdentityModel;
+using Indice.AspNetCore.Identity;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.AspNetCore.WebUtilities;
@@ -15,14 +16,10 @@ namespace Indice.AspNetCore.Mvc.Razor
     public class ClientAwareViewLocationExpander : IViewLocationExpander
     {
         private const string ValueKey = "client_id";
-        private const string ReturnUrlQueryParameterName = "returnUrl";
-        private HttpContext _httpContext;
 
         /// <inheritdoc />
         public void PopulateValues(ViewLocationExpanderContext context) {
-            var actionContext = context.ActionContext;
-            _httpContext = actionContext.HttpContext;
-            var clientId = ExtractClientId();
+            var clientId = context.ActionContext.HttpContext.GetClientIdFromReturnUrl();
             context.Values[ValueKey] = clientId ?? string.Empty;
         }
 
@@ -42,15 +39,31 @@ namespace Indice.AspNetCore.Mvc.Razor
                 yield return location;
             }
         }
+    }
+}
 
-        private string ExtractClientId() {
-            var queryStringValues = _httpContext.Request.Query;
+namespace Indice.AspNetCore.Identity
+{
+    /// <summary>
+    /// Extension methods for customizing views.
+    /// </summary>
+    public static class ViewCustomizationExtensions
+    {
+        private const string ReturnUrlQueryParameterName = "returnUrl";
+
+        /// <summary>
+        /// Extracts the client id from the URL.
+        /// </summary>
+        /// <param name="httpContext">Encapsulates all HTTP-specific information about an individual HTTP request.</param>
+        /// <param name="returnUrlQueryParameterName">Parameter name of return URL.</param>
+        public static string GetClientIdFromReturnUrl(this HttpContext httpContext, string returnUrlQueryParameterName = ReturnUrlQueryParameterName) {
+            var queryStringValues = httpContext.Request.Query;
             var clientId = default(string);
             if (queryStringValues.ContainsKey(JwtClaimTypes.ClientId)) {
                 clientId = queryStringValues[JwtClaimTypes.ClientId].ToString();
                 return clientId;
             }
-            var returnUrl = queryStringValues.ContainsKey(ReturnUrlQueryParameterName) ? queryStringValues[ReturnUrlQueryParameterName].ToString() : string.Empty;
+            var returnUrl = queryStringValues.ContainsKey(returnUrlQueryParameterName) ? queryStringValues[returnUrlQueryParameterName].ToString() : string.Empty;
             if (string.IsNullOrEmpty(returnUrl)) {
                 return default;
             }

@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Authentication;
 namespace Indice.AspNetCore.Authentication.Apple
 {
     /// <summary>
-    /// Configuration options for apple OpenID Connect.
+    /// Configuration options for Apple OpenID Connect.
     /// </summary>
     public class AppleOptions
     {

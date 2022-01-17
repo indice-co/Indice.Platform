@@ -2,6 +2,7 @@
 using IdentityServer4;
 using IdentityServer4.Infrastructure;
 using Indice.AspNetCore.Authentication.Apple;
+using Indice.AspNetCore.Authentication.GovGr;
 using Indice.Configuration;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.MicrosoftAccount;
@@ -24,8 +25,8 @@ namespace Microsoft.Extensions.DependencyInjection
             if (!string.IsNullOrEmpty(microsoftAuthSettings.ClientId) && !string.IsNullOrEmpty(microsoftAuthSettings.ClientSecret)) {
                 var serviceProvider = services.BuildServiceProvider();
                 authBuilder.AddMicrosoftAccount(MicrosoftAccountDefaults.AuthenticationScheme, "Connect with Microsoft", options => {
-                    options.AuthorizationEndpoint = string.IsNullOrWhiteSpace(microsoftAuthSettings.TenantId) 
-                        ? MicrosoftAccountDefaults.AuthorizationEndpoint 
+                    options.AuthorizationEndpoint = string.IsNullOrWhiteSpace(microsoftAuthSettings.TenantId)
+                        ? MicrosoftAccountDefaults.AuthorizationEndpoint
                         : $"https://login.microsoftonline.com/{microsoftAuthSettings.TenantId}/oauth2/v2.0/authorize";
                     options.TokenEndpoint = string.IsNullOrWhiteSpace(microsoftAuthSettings.TenantId)
                         ? MicrosoftAccountDefaults.TokenEndpoint
@@ -44,6 +45,16 @@ namespace Microsoft.Extensions.DependencyInjection
                     options.TeamId = appleSettings.TeamId;
                     options.PrivateKey = appleSettings.PrivateKey;
                     options.PrivateKeyId = appleSettings.PrivateKeyId;
+                    options.SignInScheme = IdentityServerConstants.ExternalCookieAuthenticationScheme;
+                });
+            }
+            var govGrSettings = configuration.GetSection($"Auth:{GovGrDefaults.AuthenticationScheme}").Get<GovGrOptions>();
+            if (!string.IsNullOrEmpty(govGrSettings.ClientId) && !string.IsNullOrEmpty(govGrSettings.ClientSecret)) {
+                var serviceProvider = services.BuildServiceProvider();
+                authBuilder.AddGovGr(GovGrDefaults.AuthenticationScheme, options => {
+                    options.ClientId = govGrSettings.ClientId;
+                    options.ClientSecret = govGrSettings.ClientSecret;
+                    options.CallbackPath = govGrSettings.CallbackPath;
                     options.SignInScheme = IdentityServerConstants.ExternalCookieAuthenticationScheme;
                 });
             }

@@ -1,12 +1,10 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
-
 namespace Indice.AspNetCore.Authentication.Apple
 {
     /// <summary>
-    /// Default values for Apple authentication
+    /// Default values for Apple authentication.
     /// </summary>
     /// <remarks>https://developer.apple.com/documentation/sign_in_with_apple/sign_in_with_apple_rest_api</remarks>
     public static class AppleDefaults
@@ -16,7 +14,7 @@ namespace Indice.AspNetCore.Authentication.Apple
         /// </summary>
         public const string AuthenticationScheme = "Apple";
         /// <summary>
-        /// The default display name for Apple authentication. Defaults to <c>Apple ID</c>.
+        /// The default display name for Apple authentication. Defaults to <c>Sign in with Apple</c>.
         /// </summary>
         public static readonly string DisplayName = "Sign in with Apple";
         /// <summary>
@@ -36,8 +34,6 @@ namespace Indice.AspNetCore.Authentication.Apple
         /// <summary>
         /// The OAuth endpoint used to discover OpenId connect supported features.
         /// </summary>
-        /// <remarks>
-        /// </remarks>
         public static readonly string DiscoveryEndpoint = "https://appleid.apple.com/.well-known/openid-configuration";
         /// <summary>
         /// The authority.
@@ -47,7 +43,7 @@ namespace Indice.AspNetCore.Authentication.Apple
         /// </remarks>
         public static readonly string Authority = "https://appleid.apple.com";
         /// <summary>
-        /// No UserInfo endpoint is provided, which means all of the claims about users have to be included in the (expiring and potentially large) id_token.
+        /// No user info endpoint is provided, which means all of the claims about users have to be included in the (expiring and potentially large) id_token.
         /// </summary>
         public static readonly string UserInformationEndpoint = string.Empty;
     }
