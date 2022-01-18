@@ -61,20 +61,21 @@ namespace Indice.Api
                 options.AddFormFileSupport();
                 options.IncludeXmlComments(Assembly.Load(CampaignsApi.AssemblyName));
                 options.AddDoc(CampaignsApi.Scope, "Campaigns API", "API for managing campaigns in the backoffice tool.");
+                options.AddDoc("lookups", "Lookups API", "API for various lookups.");
             });
             // Configure authentication
             JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
-            services.AddAuthentication(options => {
+            var authenticationBuilder = services.AddAuthentication(options => {
                 options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
                 options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
             })
             .AddJwtBearer(options => {
                 options.Audience = Settings?.Api?.ResourceName;
                 options.Authority = Settings?.Authority;
-                options.ForwardDefaultSelector = BearerSelector.ForwardReferenceToken("Introspection");
                 options.RequireHttpsMetadata = false;
                 options.TokenValidationParameters.NameClaimType = JwtClaimTypes.Name;
                 options.TokenValidationParameters.RoleClaimType = JwtClaimTypes.Role;
+                options.ForwardDefaultSelector = BearerSelector.ForwardReferenceToken("Introspection");
             })
             .AddOAuth2Introspection("Introspection", options => {
                 options.Authority = Settings?.Authority;
@@ -132,6 +133,7 @@ namespace Indice.Api
                 app.UseSwaggerUI(options => {
                     options.RoutePrefix = "docs";
                     options.SwaggerEndpoint($"/swagger/{CampaignsApi.Scope}/swagger.json", CampaignsApi.Scope);
+                    options.SwaggerEndpoint($"/swagger/lookups/swagger.json", "lookups");
                     options.OAuth2RedirectUrl($"{Settings.Host}/docs/oauth2-redirect.html");
                     options.OAuthClientId("swagger-ui");
                     options.OAuthAppName("Swagger UI");

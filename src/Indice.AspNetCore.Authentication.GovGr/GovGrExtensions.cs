@@ -1,6 +1,7 @@
 ﻿using System;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 
@@ -47,10 +48,7 @@ namespace Indice.AspNetCore.Authentication.GovGr
         /// <returns>A reference to <paramref name="builder"/> after the operation has completed.</returns>
         public static AuthenticationBuilder AddGovGr(this AuthenticationBuilder builder, string authenticationScheme, string displayName, Action<GovGrOptions> configureOptions)
             => builder.AddOpenIdConnect(authenticationScheme, displayName, (options) => {
-                var govGrOptions = new GovGrOptions {
-                    CallbackPath = "/signin-govgr",
-                    SignInScheme = "cookie"
-                };
+                var govGrOptions = new GovGrOptions();
                 configureOptions?.Invoke(govGrOptions);
                 if (string.IsNullOrWhiteSpace(govGrOptions.ClientId)) {
                     throw new ArgumentOutOfRangeException(nameof(govGrOptions.ClientId), "GovGr Id. The '{0}' option must be provided.");
@@ -63,8 +61,8 @@ namespace Indice.AspNetCore.Authentication.GovGr
                     AuthorizationEndpoint = GovGrDefaults.AuthorizationEndpoint
                 };
                 options.Authority = GovGrDefaults.Authority;
-                options.CallbackPath = govGrOptions.CallbackPath;
-                options.SignInScheme = govGrOptions.SignInScheme;
+                options.CallbackPath = govGrOptions.CallbackPath ?? new PathString("/signin-govgr");
+                options.SignInScheme = govGrOptions.SignInScheme ?? "cookie";
                 options.ResponseType = "code";
                 options.DisableTelemetry = true;
                 options.Scope.Clear();
