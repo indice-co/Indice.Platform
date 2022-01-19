@@ -1,5 +1,6 @@
 ﻿using System;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
@@ -56,15 +57,18 @@ namespace Indice.AspNetCore.Authentication.GovGr
                 if (string.IsNullOrWhiteSpace(govGrOptions.ClientSecret)) {
                     throw new ArgumentOutOfRangeException(nameof(govGrOptions.ClientSecret), "GovGr Id. The '{0}' option must be provided.");
                 }
+                // Manually set these two endpoint since there is not a well known configuration endpoint.
                 options.Configuration = new OpenIdConnectConfiguration {
                     TokenEndpoint = GovGrDefaults.TokenEndpoint,
                     AuthorizationEndpoint = GovGrDefaults.AuthorizationEndpoint
                 };
+                options.SaveTokens = true;
                 options.Authority = GovGrDefaults.Authority;
                 options.CallbackPath = govGrOptions.CallbackPath ?? new PathString("/signin-govgr");
-                options.SignInScheme = govGrOptions.SignInScheme ?? "cookie";
+                options.SignInScheme = govGrOptions.SignInScheme ?? CookieAuthenticationDefaults.AuthenticationScheme;
                 options.ResponseType = "code";
                 options.DisableTelemetry = true;
+                options.SaveTokens = true;
                 options.Scope.Clear();
                 options.Scope.Add("identity");
                 options.Scope.Add("income");

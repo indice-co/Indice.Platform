@@ -30,6 +30,7 @@ namespace Microsoft.Extensions.DependencyInjection
                     options.ClientId = microsoftAuthSettings.ClientId;
                     options.ClientSecret = microsoftAuthSettings.ClientSecret;
                     options.SignInScheme = IdentityServerConstants.ExternalCookieAuthenticationScheme;
+                    options.SaveTokens = true;
                     options.StateDataFormat = new DistributedCacheStateDataFormatter(serviceProvider.GetService<IHttpContextAccessor>(), MicrosoftAccountDefaults.AuthenticationScheme);
                 });
             }
@@ -50,10 +51,10 @@ namespace Microsoft.Extensions.DependencyInjection
                 authBuilder.AddGovGr(GovGrDefaults.AuthenticationScheme, options => {
                     options.ClientId = govGrSettings.ClientId;
                     options.ClientSecret = govGrSettings.ClientSecret;
+                    options.SignInScheme = IdentityServerConstants.ExternalCookieAuthenticationScheme;
                     if (!string.IsNullOrWhiteSpace(govGrSettings.CallbackPath)) {
                         options.CallbackPath = govGrSettings.CallbackPath;
                     }
-                    options.SignInScheme = IdentityServerConstants.ExternalCookieAuthenticationScheme;
                 });
             }
             return services;
