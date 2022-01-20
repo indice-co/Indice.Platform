@@ -98,7 +98,8 @@ namespace Indice.Identity.Security
                     IdentityServerConstants.StandardScopes.OfflineAccess,
                     IdentityServerConstants.StandardScopes.OpenId,
                     IdentityServerConstants.StandardScopes.Profile,
-                    JwtClaimTypes.Role
+                    JwtClaimTypes.Role,
+                    BasicClaimTypes.MsGraphToken
                 },
                 AllowOfflineAccess = true,
                 ClientUri = "https://indice-idsrv.azurewebsites.net/admin",
