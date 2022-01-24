@@ -139,7 +139,7 @@ namespace Indice.Services
     public class SmsServiceApifonSettings : SmsServiceSettings
     {
         /// <summary>
-        /// Apifone Api token key.
+        /// Apifon Api token key.
         /// </summary>
         public string Token { get; set; }
     }

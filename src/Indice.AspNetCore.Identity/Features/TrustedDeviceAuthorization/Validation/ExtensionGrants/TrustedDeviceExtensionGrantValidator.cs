@@ -88,6 +88,7 @@ namespace Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Validation
                 await UserDeviceStore.UpdateDevicePublicKey(device, publicKey);
                 // Grant access token.
                 context.Result = new GrantValidationResult(authorizationCode.Subject.GetSubjectId(), GrantType);
+                await UserDeviceStore.UpdateLastSignInDate(device);
             }
             var pin = parameters.Get(RegistrationRequestParameters.Pin);
             if (!string.IsNullOrWhiteSpace(pin)) {
@@ -97,6 +98,7 @@ namespace Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Validation
                     return;
                 }
                 context.Result = new GrantValidationResult(device.UserId, GrantType);
+                await UserDeviceStore.UpdateLastSignInDate(device);
             }
         }
 

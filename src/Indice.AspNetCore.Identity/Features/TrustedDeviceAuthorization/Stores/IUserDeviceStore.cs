@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Indice.AspNetCore.Identity.Data.Models;
 
@@ -25,16 +26,21 @@ namespace Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Stores
         /// <param name="device">The user device data.</param>
         Task CreateDevice(UserDevice device);
         /// <summary>
-        /// Updates the password of an existing device.
+        /// Updates the <see cref="UserDevice.Password"/> field of an existing device.
         /// </summary>
         /// <param name="device">The device to update.</param>
         /// <param name="passwordHash">The password hash.</param>
         Task UpdateDevicePassword(UserDevice device, string passwordHash);
         /// <summary>
-        /// Updates the public key for a device.
+        /// Updates the <see cref="UserDevice.PublicKey"/> field for a device.
         /// </summary>
         /// <param name="device">The device to update.</param>
         /// <param name="publicKey">The new public key.</param>
         Task UpdateDevicePublicKey(UserDevice device, string publicKey);
+        /// <summary>
+        /// Updates the <see cref="UserDevice.LastSignInDate"/> field for a device.
+        /// </summary>
+        /// <param name="device">The device to update.</param>
+        Task UpdateLastSignInDate(UserDevice device);
     }
 }

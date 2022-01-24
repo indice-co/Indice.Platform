@@ -27,12 +27,7 @@ namespace Indice.AspNetCore.Identity.Data
         /// <param name="options">Options for configuring the IdentityServer API feature.</param>
         /// <param name="webHostEnvironment">Provides information about the web hosting environment an application is running in.</param>
         /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
-        public ExtendedIdentityDbContext(
-            DbContextOptions<ExtendedIdentityDbContext<TUser, TRole>> dbContextOptions,
-            IdentityServerApiEndpointsOptions options,
-            IWebHostEnvironment webHostEnvironment,
-            IConfiguration configuration
-        ) : base(dbContextOptions) {
+        public ExtendedIdentityDbContext(DbContextOptions<ExtendedIdentityDbContext<TUser, TRole>> dbContextOptions, IdentityServerApiEndpointsOptions options, IWebHostEnvironment webHostEnvironment, IConfiguration configuration) : base(dbContextOptions) {
             /* https://docs.microsoft.com/en-us/ef/core/logging-events-diagnostics/events */
             ChangeTracker.StateChanged += ChangeTrackerStateChanged;
             _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));

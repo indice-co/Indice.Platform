@@ -1,12 +1,12 @@
 import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, Inject, OnInit, ViewChild } from '@angular/core';
 import { NgForm } from '@angular/forms';
+import { Router } from '@angular/router';
 
 import { MenuOption, Modal, ModalService, SideViewLayoutComponent, ToasterService, ToastType } from '@indice/ng-components';
-import { map } from 'rxjs/operators';
+import { delay, map } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
 import { Campaign, DeliveryChannel, CampaignsApiService, CampaignTypeResultSet, CreateCampaignRequest, Period } from 'src/app/core/services/campaigns-api.services';
 import { CampaignTypesModalComponent } from '../campaign-types-modal/campaign-types.component';
-import { Router } from '@angular/router';
 
 @Component({
     selector: 'app-campaigns',
@@ -26,7 +26,7 @@ export class CampaignCreateComponent implements OnInit, AfterViewInit {
     ) { }
 
     public now: Date = new Date();
-    public model: CreateCampaignRequest = new CreateCampaignRequest({
+    public model = new CreateCampaignRequest({
         activePeriod: new Period({ from: this.now }),
         published: true,
         isGlobal: true,
@@ -40,6 +40,7 @@ export class CampaignCreateComponent implements OnInit, AfterViewInit {
     public CampaignDeliveryChannel = DeliveryChannel;
     public customDataValid = true;
     public showCustomDataValidation = false;
+    public submitInProgress = false;
     public targetOptions: MenuOption[] = [
         new MenuOption('Όλους τους χρήστες', true),
         new MenuOption('Ομάδα χρηστών', false)
@@ -61,11 +62,15 @@ export class CampaignCreateComponent implements OnInit, AfterViewInit {
         if (!this.canSubmit()) {
             return;
         }
-        this.api.createCampaign(this.model).subscribe((campaign: Campaign) => {
-            // This is to force reload campaigns page when a new campa;ign is successfully saved. 
-            this.router.navigateByUrl('/', { skipLocationChange: true }).then(() => this.router.navigate(['app/campaigns']));
-            this.toaster.show(ToastType.Success, 'Επιτυχής αποθήκευση', `Η καμπάνια με τίτλο '${campaign.title}' δημιουργήθηκε με επιτυχία.`);
-        });
+        this.submitInProgress = true;
+        this.api
+            .createCampaign(this.model)
+            .subscribe((campaign: Campaign) => {
+                this.submitInProgress = false;
+                // This is to force reload campaigns page when a new campaign is successfully saved. 
+                this.router.navigateByUrl('/', { skipLocationChange: true }).then(() => this.router.navigate(['app/campaigns']));
+                this.toaster.show(ToastType.Success, 'Επιτυχής αποθήκευση', `Η καμπάνια με τίτλο '${campaign.title}' δημιουργήθηκε με επιτυχία.`);
+            });
     }
 
     public openCampaignTypesModal(): void {

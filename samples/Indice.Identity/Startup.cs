@@ -73,7 +73,9 @@ namespace Indice.Identity
             // https://docs.microsoft.com/en-us/azure/azure-monitor/app/asp-net-core
             services.AddApplicationInsightsTelemetry(aiOptions);
             services.AddMvcConfig(Configuration);
-            services.AddLocalization(options => options.ResourcesPath = "Resources");
+            services.AddLocalization(options => {
+                options.ResourcesPath = "Resources";
+            });
             services.AddCors(options => options.AddDefaultPolicy(builder => {
                 builder.WithOrigins(Configuration.GetSection("AllowedOrigins").Get<string[]>())
                        .WithMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
@@ -90,11 +92,11 @@ namespace Indice.Identity
                 options.IndiceDefaults(Settings);
                 options.AddFluentValidationSupport();
                 options.AddOAuth2AuthorizationCodeFlow(Settings);
-                options.AddClientCredentials(Settings);
                 options.AddFormFileSupport();
                 options.SchemaFilter<CreateUserRequestSchemaFilter>();
                 options.IncludeXmlComments(Assembly.Load(IdentityServerApi.AssemblyName));
             });
+            services.AddDataProtectionAzure();
             services.AddResponseCaching();
             services.AddDataProtectionLocal(options => options.FromConfiguration());
             services.AddEmailServiceSmtpRazor(Configuration);

@@ -115,12 +115,10 @@ export class ClientSecretsComponent implements OnInit, OnDestroy {
         this.clientSecret.expiration = expiration ? new Date(expiration.year, expiration.month - 1, expiration.day) : undefined;
         this._clientStore.addSharedSecret(this._clientId, this.clientSecret).subscribe(_ => {
             this.rows = [...this.client.secrets];
-            this._form.resetForm({
-                'client-secret-type': 'SharedSecret',
-                'client-secret-value': '',
-                'expiration-date': '',
-                description: ''
-            });
+            this.selectedSecretType = 'SharedSecret';
+            this.clientSecret.value = undefined;
+            this.clientSecret.expiration = undefined;
+            this.clientSecret.description = undefined;
             this._toast.showSuccess(`Secret was successfully added to client '${this.client.clientName}'.`);
         });
     }

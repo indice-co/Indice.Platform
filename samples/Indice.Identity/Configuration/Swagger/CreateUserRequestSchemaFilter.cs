@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using Indice.AspNetCore.Identity.Api.Models;
+﻿using Indice.AspNetCore.Identity.Api.Models;
 using Indice.AspNetCore.Swagger;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
@@ -10,7 +9,7 @@ namespace Indice.Identity.Configuration
     {
         public void Apply(OpenApiSchema schema, SchemaFilterContext context) {
             if (context.Type == typeof(CreateUserRequest)) {
-                var example = new CreateUserRequest {
+                schema.Example = new CreateUserRequest {
                     FirstName = "Georgios",
                     LastName = "Manoltzas",
                     Email = "g.manoltzas@indice.gr",
@@ -23,8 +22,8 @@ namespace Indice.Identity.Configuration
                             Value = "el"
                         }
                     }
-                };
-                schema.Example = example.ToOpenApiAny();
+                }
+                .ToOpenApiAny();
                 //schema.Example = new {
                 //    Test = "the string",
                 //    Age = 23,
@@ -32,12 +31,16 @@ namespace Indice.Identity.Configuration
                 //    Dictionary = new Dictionary<string, CreateUserRequest> {
                 //        ["One"] = example
                 //    },
+                //    YetAnotherDictionary = new TranslationDictionary<string> {
+                //        ["en"] = "Yes"
+                //    },
                 //    Test2 = new Dictionary<string, int> {
                 //        ["The"] = 1,
                 //        ["First"] = 2,
                 //        ["Thing"] = 2,
                 //    }
-                //}.ToOpenApiAny();
+                //}
+                //.ToOpenApiAny();
             }
         }
     }

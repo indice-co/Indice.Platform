@@ -26,7 +26,8 @@ namespace Indice.Identity.Security
             JwtClaimTypes.PhoneNumber,
             JwtClaimTypes.PhoneNumberVerified,
             JwtClaimTypes.Role,
-            JwtClaimTypes.Subject
+            JwtClaimTypes.Subject,
+            BasicClaimTypes.MsGraphToken
         };
 
         /// <summary>
@@ -76,6 +77,15 @@ namespace Indice.Identity.Security
                     BasicClaimTypes.OtpAuthenticated
                 })
                 .ToList()
+            },
+            new IdentityResource {
+                Name = BasicClaimTypes.MsGraphToken,
+                DisplayName = "MS Graph access token",
+                Description = "Your access token when logging in with your Microsoft account.",
+                Required = true,
+                UserClaims = {
+                    BasicClaimTypes.MsGraphToken
+                }
             }
         };
 

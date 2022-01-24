@@ -17,9 +17,7 @@ namespace Indice.AspNetCore.Identity.Data.Models
         /// Constructs a new instance of <see cref="UserDevice"/> using the given <see cref="Guid"/> as Id.
         /// </summary>
         /// <param name="id"></param>
-        public UserDevice(Guid id) {
-            Id = id;
-        }
+        public UserDevice(Guid id) => Id = id;
 
         /// <summary>
         /// The primary key.
@@ -36,15 +34,27 @@ namespace Indice.AspNetCore.Identity.Data.Models
         /// <summary>
         /// Device operating system.
         /// </summary>
-        public DevicePlatform DevicePlatform { get; set; }
+        public DevicePlatform Platform { get; set; }
         /// <summary>
         /// Device name.
         /// </summary>
-        public string DeviceName { get; set; }
+        public string Name { get; set; }
+        /// <summary>
+        /// Device model.
+        /// </summary>
+        public string Model { get; set; }
+        /// <summary>
+        /// Device OS version.
+        /// </summary>
+        public string OsVersion { get; set; }
         /// <summary>
         /// The date this device was created.
         /// </summary>
         public DateTimeOffset DateCreated { get; set; }
+        /// <summary>
+        /// Gets or sets the date and time, in UTC, when the device last signed in.
+        /// </summary>
+        public DateTimeOffset? LastSignInDate { get; set; }
         /// <summary>
         /// Flag that determines if push notifications are enabled for this device.
         /// </summary>
@@ -65,6 +75,10 @@ namespace Indice.AspNetCore.Identity.Data.Models
         /// Flag for fingerprint support.
         /// </summary>
         public bool SupportsFingerprintLogin => !string.IsNullOrWhiteSpace(PublicKey);
+        /// <summary>
+        /// Extra metadata for the device.
+        /// </summary>
+        public dynamic Data { get; set; }
         /// <summary>
         /// The user associated with this device.
         /// </summary>

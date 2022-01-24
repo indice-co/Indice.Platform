@@ -21,9 +21,9 @@ namespace Indice.Services
         /// </summary>
         public string Token { get; set; }
         /// <summary>
-        /// The UserId to send the push notification.
+        /// The user identifier that correlates devices with users. This can be any identifier like user id, username, user email, customer code etc.
         /// </summary>
-        public string UserId { get; set; }
+        public string UserTag { get; set; }
         /// <summary>
         /// The tags of the push notification.
         /// </summary>
@@ -80,12 +80,12 @@ namespace Indice.Services
         /// Defines the user that will receive the push notification.
         /// </summary>
         /// <param name="builder">The builder.</param>
-        /// <param name="userId">The Id of the user.</param>
-        public static PushNotificationMessageBuilder To(this PushNotificationMessageBuilder builder, string userId) {
-            if (string.IsNullOrEmpty(userId)) {
-                throw new ArgumentException("You must define the userId of the Push Notification.", nameof(userId));
+        /// <param name="userTag">The Id of the user.</param>
+        public static PushNotificationMessageBuilder To(this PushNotificationMessageBuilder builder, string userTag) {
+            if (string.IsNullOrEmpty(userTag)) {
+                throw new ArgumentException("You must define the userId of the Push Notification.", nameof(userTag));
             }
-            builder.UserId = userId;
+            builder.UserTag = userTag;
             return builder;
         }
 
@@ -117,6 +117,6 @@ namespace Indice.Services
         /// </summary>
         /// <param name="builder">The builder.</param>
         public static PushNotificationMessage Build(this PushNotificationMessageBuilder builder) =>
-            new(builder.Data, builder.Message, builder.Token, builder.UserId, builder.Tags, builder.Classification);
+            new(builder.Data, builder.Message, builder.Token, builder.UserTag, builder.Tags, builder.Classification);
     }
 }

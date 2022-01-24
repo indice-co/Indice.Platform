@@ -42,13 +42,7 @@ namespace Indice.AspNetCore.Identity.Api
         /// </summary>
         public const string Name = "Devices";
 
-        public DevicesController(
-            ExtendedUserManager<User> userManager,
-            IPushNotificationService pushNotificationService,
-            ExtendedIdentityDbContext<User, Role> dbContext,
-            IPlatformEventService eventService,
-            ILogger<DevicesController> logger
-        ) {
+        public DevicesController(ExtendedUserManager<User> userManager, IPushNotificationService pushNotificationService, ExtendedIdentityDbContext<User, Role> dbContext, IPlatformEventService eventService, ILogger<DevicesController> logger) {
             UserManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
             PushNotificationService = pushNotificationService ?? throw new ArgumentNullException(nameof(pushNotificationService));
             DbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
@@ -121,22 +115,25 @@ namespace Indice.AspNetCore.Identity.Api
                 ModelState.AddModelError(nameof(request.DeviceId), $"A device with id {request.DeviceId} already exists.");
                 return BadRequest(new ValidationProblemDetails(ModelState));
             }
-            var isPushNotificationsEnabled = !string.IsNullOrWhiteSpace(request.PnsHandle);
-            if (isPushNotificationsEnabled) {
+            var shouldEnablePushNotifications = !string.IsNullOrWhiteSpace(request.PnsHandle);
+            if (shouldEnablePushNotifications) {
                 try {
-                    await PushNotificationService.Register(request.DeviceId, request.PnsHandle, request.DevicePlatform, user.Id, request.Tags?.ToArray());
+                    await PushNotificationService.Register(request.DeviceId, request.PnsHandle, request.Platform, user.Id, request.Tags?.ToArray());
                 } catch (Exception exception) {
-                    Logger.LogError("An exception occured when connection to Azure Notification Hubs. Exception is '{0}'. Inner Exception is '{1}'.", exception.Message, exception.InnerException?.Message ?? "N/A");
+                    Logger.LogError("An exception occured when connection to Azure Notification Hubs. Exception is '{Exception}'. Inner Exception is '{InnerException}'.", exception.Message, exception.InnerException?.Message ?? "N/A");
                     throw;
                 }
             }
             device = new UserDevice {
                 DeviceId = request.DeviceId,
-                DeviceName = request.DeviceName,
-                DevicePlatform = request.DevicePlatform,
-                IsPushNotificationsEnabled = isPushNotificationsEnabled,
+                Name = request.Name,
+                Platform = request.Platform,
+                IsPushNotificationsEnabled = shouldEnablePushNotifications,
                 UserId = user.Id,
-                DateCreated = DateTimeOffset.UtcNow
+                DateCreated = DateTimeOffset.UtcNow,
+                Model = request.Model,
+                OsVersion = request.OsVersion,
+                Data = request.Data
             };
             DbContext.UserDevices.Add(device);
             await DbContext.SaveChangesAsync();
@@ -167,25 +164,25 @@ namespace Indice.AspNetCore.Identity.Api
             if (device is null) {
                 return NotFound();
             }
-            var shouldRegisterDevice = !device.IsPushNotificationsEnabled && request.IsPushNotificationsEnabled;
-            if (shouldRegisterDevice && string.IsNullOrWhiteSpace(request.PnsHandle)) {
-                ModelState.AddModelError(nameof(request.PnsHandle), $"Pns handle is required in order to enable push notifications.");
-                return BadRequest(new ValidationProblemDetails(ModelState));
-            }
-            var shouldUnRegisterDevice = device.IsPushNotificationsEnabled && !request.IsPushNotificationsEnabled;
+            var shouldEnablePushNotifications = !string.IsNullOrWhiteSpace(request.PnsHandle);
+            var shouldUnRegisterDevice = device.IsPushNotificationsEnabled && !shouldEnablePushNotifications;
+            var shouldRegisterDevice = !device.IsPushNotificationsEnabled && shouldEnablePushNotifications;
             try {
                 if (shouldUnRegisterDevice) {
                     await PushNotificationService.UnRegister(deviceId);
                 }
                 if (shouldRegisterDevice) {
-                    await PushNotificationService.Register(device.DeviceId, request.PnsHandle, device.DevicePlatform, user.Id, request.Tags?.ToArray());
+                    await PushNotificationService.Register(device.DeviceId, request.PnsHandle, device.Platform, user.Id, request.Tags?.ToArray());
                 }
             } catch (Exception exception) {
-                Logger.LogError("An exception occured when connection to Azure Notification Hubs. Exception is '{0}'. Inner Exception is '{1}'.", exception.Message, exception.InnerException?.Message ?? "N/A");
+                Logger.LogError("An exception occured when connection to Azure Notification Hubs. Exception is '{Exception}'. Inner Exception is '{InnerException}'.", exception.Message, exception.InnerException?.Message ?? "N/A");
                 throw;
             }
-            device.IsPushNotificationsEnabled = request.IsPushNotificationsEnabled;
-            device.DeviceName = request.DeviceName;
+            device.IsPushNotificationsEnabled = shouldEnablePushNotifications;
+            device.Name = request.Name;
+            device.Model = request.Model;
+            device.OsVersion = request.OsVersion;
+            device.Data = request.Data;
             await DbContext.SaveChangesAsync();
             var @event = new DeviceUpdatedEvent(DeviceInfo.FromUserDevice(device), SingleUserInfo.FromUser(user));
             await EventService.Raise(@event);
@@ -213,7 +210,7 @@ namespace Indice.AspNetCore.Identity.Api
             try {
                 await PushNotificationService.UnRegister(deviceId);
             } catch (Exception exception) {
-                Logger.LogError("An exception occured when connection to Azure Notification Hubs. Exception is '{0}'. Inner Exception is '{1}'.", exception.Message, exception.InnerException?.Message ?? "N/A");
+                Logger.LogError("An exception occured when connection to Azure Notification Hubs. Exception is '{Exception}'. Inner Exception is '{InnerException}'.", exception.Message, exception.InnerException?.Message ?? "N/A");
                 throw;
             }
             DbContext.UserDevices.Remove(device);

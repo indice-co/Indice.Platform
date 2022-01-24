@@ -3,13 +3,15 @@ using System.Linq;
 using System.Security;
 using Indice.AspNetCore.Identity;
 using Indice.AspNetCore.Identity.Authorization;
+using Indice.AspNetCore.Mvc.Localization;
+using Indice.AspNetCore.Mvc.Razor;
 using Indice.Configuration;
 using Indice.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Mvc.Localization;
+using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using Microsoft.Extensions.Hosting;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
@@ -36,6 +38,16 @@ namespace Microsoft.Extensions.DependencyInjection
             where TEvent : IIdentityServerApiEvent
             where TEventHandler : class, IIdentityServerApiEventHandler<TEvent> {
             services.TryAddTransient(typeof(IIdentityServerApiEventHandler<TEvent>), typeof(TEventHandler));
+            return services;
+        }
+
+        /// <summary>
+        /// Configures <see cref="RazorViewEngineOptions"/> by adding the <see cref="ClientAwareViewLocationExpander"/> in the list of available <see cref="IViewLocationExpander"/>.
+        /// </summary>
+        /// <param name="services">The services available in the application.</param>
+        public static IServiceCollection AddClientAwareViewLocationExpander(this IServiceCollection services) {
+            services.Configure<RazorViewEngineOptions>(options => options.ViewLocationExpanders.Add(new ClientAwareViewLocationExpander()));
+            services.AddSingleton<IHtmlLocalizerFactory, ClientAwareHtmlLocalizerFactory>();
             return services;
         }
 

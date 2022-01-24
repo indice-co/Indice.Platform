@@ -20,8 +20,9 @@ namespace Indice.AspNetCore.Identity
         /// </summary>
         /// <typeparam name="TUserClaimsPrincipalFactory">The type of factory to use in order to generate the claims principal.</typeparam>
         /// <param name="builder">The type of builder for configuring identity services.</param>
+        [Obsolete("Framework already provides AddClaimsPrincipalFactory extension. Will be removed in future versions.")]
         public static IdentityBuilder AddClaimsTransform<TUserClaimsPrincipalFactory>(this IdentityBuilder builder) where TUserClaimsPrincipalFactory : class, IUserClaimsPrincipalFactory<User> {
-            builder.Services.AddTransient<IUserClaimsPrincipalFactory<User>, TUserClaimsPrincipalFactory>();
+            builder.Services.AddScoped<IUserClaimsPrincipalFactory<User>, TUserClaimsPrincipalFactory>();
             return builder;
         }
 

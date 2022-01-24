@@ -47,9 +47,7 @@ namespace Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Stores
 
         /// <inheritdoc />
         public async Task CreateDevice(UserDevice device) {
-            if (device == null) {
-                throw new ArgumentNullException(nameof(device), $"Parameter {nameof(device)} cannot be null.");
-            }
+            GuardDevice(device);
             _dbContext.UserDevices.Add(device);
             await _dbContext.SaveChangesAsync();
             var user = device.User;
@@ -62,26 +60,29 @@ namespace Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Stores
 
         /// <inheritdoc />
         public async Task UpdateDevicePassword(UserDevice device, string passwordHash) {
-            if (device == null) {
-                throw new ArgumentNullException(nameof(device), $"Parameter {nameof(device)} cannot be null.");
-            }
-            if (string.IsNullOrWhiteSpace(passwordHash)) {
-                throw new ArgumentNullException(nameof(device), $"Parameter {nameof(passwordHash)} cannot be null or empty.");
-            }
+            GuardDevice(device);
             device.Password = passwordHash;
             await _dbContext.SaveChangesAsync();
         }
 
         /// <inheritdoc />
         public async Task UpdateDevicePublicKey(UserDevice device, string publicKey) {
+            GuardDevice(device);
+            device.PublicKey = publicKey;
+            await _dbContext.SaveChangesAsync();
+        }
+
+        /// <inheritdoc />
+        public async Task UpdateLastSignInDate(UserDevice device) {
+            GuardDevice(device);
+            device.LastSignInDate = DateTimeOffset.UtcNow;
+            await _dbContext.SaveChangesAsync();
+        }
+
+        private static void GuardDevice(UserDevice device) {
             if (device == null) {
                 throw new ArgumentNullException(nameof(device), $"Parameter {nameof(device)} cannot be null.");
             }
-            if (string.IsNullOrWhiteSpace(publicKey)) {
-                throw new ArgumentNullException(nameof(device), $"Parameter {nameof(publicKey)} cannot be null or empty.");
-            }
-            device.PublicKey = publicKey;
-            await _dbContext.SaveChangesAsync();
         }
     }
 }

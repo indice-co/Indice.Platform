@@ -16,11 +16,11 @@ namespace Indice.AspNetCore.Identity.Api.Models
         /// <summary>
         /// Device name.
         /// </summary>
-        public string DeviceName { get; set; }
+        public string Name { get; set; }
         /// <summary>
         /// Device operating system.
         /// </summary>
-        public DevicePlatform DevicePlatform { get; set; }
+        public DevicePlatform Platform { get; set; }
         /// <summary>
         /// Flag that determines if push notifications are enabled for this device.
         /// </summary>
@@ -29,6 +29,22 @@ namespace Indice.AspNetCore.Identity.Api.Models
         /// The date this device was created.
         /// </summary>
         public DateTimeOffset DateCreated { get; set; }
+        /// <summary>
+        /// Device model.
+        /// </summary>
+        public string Model { get; set; }
+        /// <summary>
+        /// Device OS version.
+        /// </summary>
+        public string OsVersion { get; set; }
+        /// <summary>
+        /// Gets or sets the date and time, in UTC, when the device last signed in.
+        /// </summary>
+        public DateTimeOffset? LastSignInDate { get; set; }
+        /// <summary>
+        /// Extra metadata for the device.
+        /// </summary>
+        public dynamic Data { get; set; }
 
         /// <summary>
         /// Creates a new instace of <see cref="DeviceInfo"/> from a <see cref="UserDevice"/> object.
@@ -36,10 +52,14 @@ namespace Indice.AspNetCore.Identity.Api.Models
         /// <param name="device">The device instance.</param>
         public static DeviceInfo FromUserDevice(UserDevice device) => new() {
             DeviceId = device.DeviceId,
-            DeviceName = device.DeviceName,
-            DevicePlatform = device.DevicePlatform,
+            Name = device.Name,
+            Platform = device.Platform,
             IsPushNotificationsEnabled = device.IsPushNotificationsEnabled,
-            DateCreated = device.DateCreated
+            DateCreated = device.DateCreated,
+            LastSignInDate = device.LastSignInDate,
+            Model = device.Model,
+            OsVersion = device.OsVersion,
+            Data = device.Data
         };
     }
 }

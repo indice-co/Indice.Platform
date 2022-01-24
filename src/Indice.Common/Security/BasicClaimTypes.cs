@@ -138,6 +138,10 @@ namespace Indice.Security
         /// </summary>
         public const string Tin = "tin";
         /// <summary>
+        /// Accesss token obtained by Microsoft Identity Platform.
+        /// </summary>
+        public const string MsGraphToken = "ms_graph_access_token";
+        /// <summary>
         /// All possible user related claims.
         /// </summary>
         public static readonly string[] UserClaims = {

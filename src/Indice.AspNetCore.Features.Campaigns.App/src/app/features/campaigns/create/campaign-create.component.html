@@ -1,15 +1,15 @@
-<lib-side-view-layout title="Δημιουργία νέας καμπάνιας" [ok-close-dialog]="false" [ok-label]="'Δημιουργία'" [cancel-label]="'Κλείσιμο'" (ok)="submitButton.nativeElement.click()" [disabled]="!canSubmit()" #sideViewLayout>
+<lib-side-view-layout title="Δημιουργία νέας καμπάνιας" [ok-close-dialog]="false" [ok-label]="'Δημιουργία'" [cancel-label]="'Κλείσιμο'" (ok)="submitButton.nativeElement.click()" [disabled]="!canSubmit() || submitInProgress" #sideViewLayout>
     <div class="mt-4">
         <form #campaignForm="ngForm" (ngSubmit)="onSubmit()">
             <div class="px-4 space-y-2 pb-4">
                 <div class="grid grid-cols-4 gap-4">
-                    <!-- Ενεργή -->
+                    <!-- Δημοσιευμένη -->
                     <div class="col-span-4">
-                        <label for="campaignActive" class="field-label">Ενεργή</label>
+                        <label for="campaignActive" class="field-label">Δημοσιευμένη</label>
                         <div class="mt-1 flex rounded-sm">
                             <lib-toggle-button id="campaignActive" [value]="true" (valueChange)="model.published = $event"></lib-toggle-button>
                         </div>
-                        <p class="field-info col-span-3">Μία μη-ενεργή καμπάνια δεν θα εμφανιστεί στους χρήστες του συστήματος.</p>
+                        <p class="field-info col-span-3">Μία μη-δημοσιευμένη καμπάνια δεν θα εμφανιστεί στους χρήστες του συστήματος.</p>
                     </div>
                     <!-- Τίτλος -->
                     <div class="col-span-4">

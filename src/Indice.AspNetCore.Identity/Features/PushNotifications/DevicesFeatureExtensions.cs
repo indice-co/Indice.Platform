@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Security;
 using FluentValidation.AspNetCore;
-using IdentityServer4.Configuration;
 using Indice.AspNetCore.Identity;
 using Indice.AspNetCore.Identity.Api;
 using Indice.Services;
@@ -32,30 +31,6 @@ namespace Microsoft.Extensions.DependencyInjection
             builder.Services.TryAddTransient<IPlatformEventService, EventService>();
             builder.ConfigureApplicationPartManager(x => x.FeatureProviders.Add(new DevicesFeatureProvider()));
             builder.AddFluentValidation(options => options.RegisterValidatorsFromAssemblyContaining<DevicesFeatureProvider>());
-            return builder;
-        }
-
-        /// <summary>
-        /// Adds all required stuff in order for Push notifications to work.
-        /// </summary>
-        /// <param name="builder">IdentityServer builder Interface.</param>
-        /// <param name="configure">Configuration used in <see cref="Rfc6238AuthenticationService"/>.</param>
-        public static IIdentityServerBuilder AddPushNotifications(this IIdentityServerBuilder builder, Action<PushNotificationOptions> configure = null) => AddPushNotifications<PushNotificationServiceAzure>(builder, configure);
-
-        /// <summary>
-        /// Adds all required stuff in order for Push notifications to work.
-        /// </summary>
-        /// <typeparam name="TPushNotificationService">The type of <see cref="IPushNotificationService"/> service implementation to use.</typeparam>
-        /// <param name="builder">IdentityServer builder Interface.</param>
-        /// <param name="configure">Configuration used in <see cref="Rfc6238AuthenticationService"/> service.</param>
-        public static IIdentityServerBuilder AddPushNotifications<TPushNotificationService>(this IIdentityServerBuilder builder, Action<PushNotificationOptions> configure = null) where TPushNotificationService : class, IPushNotificationService {
-            builder.Services.AddPushNotificationServiceAzure(configure);
-            builder.Services.TryAddTransient<IPlatformEventService, EventService>();
-            builder.Services.Configure<IdentityServerOptions>((options) => {
-                options.Discovery.CustomEntries.Add("devices", new {
-                    endpoint = options.IssuerUri.TrimEnd('/') + "/devices"
-                });
-            });
             return builder;
         }
     }

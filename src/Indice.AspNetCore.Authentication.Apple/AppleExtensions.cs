@@ -25,8 +25,7 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <param name="builder">The <see cref="AuthenticationBuilder"/>.</param>
         /// <param name="configureOptions">A delegate to configure <see cref="OpenIdConnectOptions"/>.</param>
         /// <returns>A reference to <paramref name="builder"/> after the operation has completed.</returns>
-        public static AuthenticationBuilder AddAppleID(this AuthenticationBuilder builder, Action<AppleOptions> configureOptions)
-            => builder.AddAppleID(AppleDefaults.AuthenticationScheme, configureOptions);
+        public static AuthenticationBuilder AddAppleID(this AuthenticationBuilder builder, Action<AppleOptions> configureOptions) => builder.AddAppleID(AppleDefaults.AuthenticationScheme, configureOptions);
 
         /// <summary>
         /// Adds Apple OAuth-based authentication to <see cref="AuthenticationBuilder"/> using the default scheme.
@@ -39,8 +38,7 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <param name="authenticationScheme">The authentication scheme.</param>
         /// <param name="configureOptions">A delegate to configure <see cref="OpenIdConnectOptions"/>.</param>
         /// <returns>A reference to <paramref name="builder"/> after the operation has completed.</returns>
-        public static AuthenticationBuilder AddAppleID(this AuthenticationBuilder builder, string authenticationScheme, Action<AppleOptions> configureOptions)
-            => builder.AddAppleID(authenticationScheme, AppleDefaults.DisplayName, configureOptions);
+        public static AuthenticationBuilder AddAppleID(this AuthenticationBuilder builder, string authenticationScheme, Action<AppleOptions> configureOptions) => builder.AddAppleID(authenticationScheme, AppleDefaults.DisplayName, configureOptions);
 
         /// <summary>
         /// Adds Apple OAuth-based authentication to <see cref="AuthenticationBuilder"/> using the default scheme.

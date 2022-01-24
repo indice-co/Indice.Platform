@@ -282,7 +282,7 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
             user.Admin = request.IsAdmin;
             user.EmailConfirmed = request.EmailConfirmed;
             user.PhoneNumberConfirmed = request.PhoneNumberConfirmed;
-            foreach (var requiredClaim in request.Claims) {
+            foreach (var requiredClaim in request.Claims ?? Enumerable.Empty<BasicClaimInfo>()) {
                 var claim = user.Claims.SingleOrDefault(x => x.ClaimType == requiredClaim.Type);
                 if (claim != null) {
                     claim.ClaimValue = requiredClaim.Value;

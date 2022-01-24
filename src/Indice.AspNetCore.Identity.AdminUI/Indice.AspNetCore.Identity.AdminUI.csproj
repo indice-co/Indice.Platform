@@ -9,7 +9,7 @@
     <GenerateEmbeddedFilesManifest>true</GenerateEmbeddedFilesManifest>
     <SpaDistFolder>..\Indice.AspNetCore.Identity.AdminUI.App\dist\indice_admin_ui</SpaDistFolder>
     <TargetFrameworks>netcoreapp3.1;net5.0;net6.0;</TargetFrameworks>
-    <VersionPrefix>5.2.2</VersionPrefix>
+    <VersionPrefix>5.2.3</VersionPrefix>
     <!--<VersionSuffix>beta-01</VersionSuffix>-->
     <LangVersion>Latest</LangVersion>
   </PropertyGroup>
@@ -54,6 +54,9 @@
   <PropertyGroup Condition="Exists('$(VsInstallRoot)\Web\External\npm.cmd')">
     <Path>$(Path)$(VsInstallRoot)\Web\External\;</Path>
   </PropertyGroup>
+  <ItemGroup>
+    <None Remove="admin-ui-dist\index.html" />
+  </ItemGroup>
   <ItemGroup>
     <SpaSourceFolder Include="..\Indice.AspNetCore.Identity.AdminUI.App" />
   </ItemGroup>

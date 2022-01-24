@@ -159,6 +159,14 @@ namespace Indice.AspNetCore.Identity.Api.Models
         /// Sliding lifetime of a refresh token in seconds. Defaults to 1296000 seconds / 15 days.
         /// </summary>
         public int SlidingRefreshTokenLifetime { get; set; }
+        /// <summary>
+        /// Determines whether login using a local account is allowed for this client. 
+        /// </summary>
+        public bool EnableLocalLogin { get; set; }
+        /// <summary>
+        /// List of identity providers that are not allowed for this client.
+        /// </summary>
+        public IEnumerable<string> IdentityProviderRestrictions { get; set; } = new List<string>();
     }
 
     /// <summary>

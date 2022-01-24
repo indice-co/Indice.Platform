@@ -39,7 +39,6 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
     /// <response code="400">Bad Request</response>
     /// <response code="401">Unauthorized</response>
     /// <response code="403">Forbidden</response>
-    /// <response code="500">Internal Server Error</response>
     [ApiController]
     [ApiExplorerSettings(GroupName = "identity")]
     [ProblemDetailsExceptionFilter]
@@ -168,6 +167,8 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
                     UserCodeType = x.UserCodeType,
                     DeviceCodeLifetime = x.DeviceCodeLifetime,
                     SlidingRefreshTokenLifetime = x.SlidingRefreshTokenLifetime,
+                    EnableLocalLogin = x.EnableLocalLogin,
+                    IdentityProviderRestrictions = x.IdentityProviderRestrictions.Select(x => x.Provider),
                     ApiResources = x.AllowedScopes.Join(
                         _configurationDbContext.ApiResources.SelectMany(x => x.Scopes),
                         clientScope => clientScope.Scope,
@@ -251,7 +252,7 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
         [ProducesResponseType(statusCode: StatusCodes.Status204NoContent, type: typeof(void))]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
         public async Task<IActionResult> UpdateClient([FromRoute] string clientId, [FromBody] UpdateClientRequest request) {
-            var client = await _configurationDbContext.Clients.Include(x => x.Properties).SingleOrDefaultAsync(x => x.ClientId == clientId);
+            var client = await _configurationDbContext.Clients.Include(x => x.Properties).Include(x => x.IdentityProviderRestrictions).SingleOrDefaultAsync(x => x.ClientId == clientId);
             if (client == null) {
                 return NotFound();
             }
@@ -288,8 +289,14 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
             client.UserCodeType = request.UserCodeType;
             client.UserSsoLifetime = request.UserSsoLifetime;
             client.SlidingRefreshTokenLifetime = request.SlidingRefreshTokenLifetime;
+            client.EnableLocalLogin = request.EnableLocalLogin;
+            client.IdentityProviderRestrictions.RemoveAll(x => true);
+            client.IdentityProviderRestrictions.AddRange(request.IdentityProviderRestrictions.Select(provider => new ClientIdPRestriction { 
+                Provider = provider,
+                Client = client
+            }));
             var clientTranslations = client.Properties?.SingleOrDefault(x => x.Key == IdentityServerApi.ObjectTranslationKey);
-            if (clientTranslations == null) {
+            if (clientTranslations is null) {
                 AddClientTranslations(client, request.Translations.ToJson());
             } else {
                 clientTranslations.Value = request.Translations.ToJson() ?? string.Empty;
@@ -803,7 +810,9 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
                 LogoUri = clientRequest.LogoUri,
                 RequireConsent = clientRequest.RequireConsent,
                 BackChannelLogoutSessionRequired = true,
-                AllowedScopes = clientRequest.IdentityResources.Union(clientRequest.ApiResources).Select(scope => new ClientScope { Scope = scope }).ToList()
+                AllowedScopes = clientRequest.IdentityResources.Union(clientRequest.ApiResources).Select(scope => new ClientScope { Scope = scope }).ToList(),
+                EnableLocalLogin = true,
+                Enabled = true
             };
             if (!string.IsNullOrEmpty(clientRequest.RedirectUri)) {
                 client.RedirectUris = new List<ClientRedirectUri> {

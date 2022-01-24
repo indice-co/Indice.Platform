@@ -101,7 +101,7 @@ namespace Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Endpoints
             if (!otpAuthenticated) {
                 // Send OTP code.
                 void messageBuilder(TotpMessageBuilder message) {
-                    var builder = message.UsePrincipal(requestValidationResult.Principal).WithMessage(IdentityMessageDescriber.DeviceRegistrationCodeMessage(existingDevice?.DeviceName, requestValidationResult.InteractionMode));
+                    var builder = message.UsePrincipal(requestValidationResult.Principal).WithMessage(IdentityMessageDescriber.DeviceRegistrationCodeMessage(existingDevice?.Name, requestValidationResult.InteractionMode));
                     if (requestValidationResult.DeliveryChannel == TotpDeliveryChannel.Sms) {
                         builder.UsingSms();
                     } else {
