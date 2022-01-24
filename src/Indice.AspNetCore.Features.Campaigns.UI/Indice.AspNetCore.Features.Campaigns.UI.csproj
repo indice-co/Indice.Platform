@@ -1,0 +1,19 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <Authors>Constantinos Leftheris, Georgios Manoltzas</Authors>
+    <Copyright>Copyright (c) 2022 Indice</Copyright>
+    <Description>Indice.AspNetCore.Features.Campaigns.UI Class Library</Description>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <GenerateEmbeddedFilesManifest>true</GenerateEmbeddedFilesManifest>
+    <SpaDistFolder>..\Indice.AspNetCore.Features.Campaigns.App\dist\campaigns_app</SpaDistFolder>
+    <TargetFrameworks>netcoreapp3.1;net5.0;net6.0;</TargetFrameworks>
+    <VersionPrefix>5.2.0</VersionPrefix>
+    <VersionSuffix>beta-01</VersionSuffix>
+    <LangVersion>Latest</LangVersion>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+</Project>

@@ -55,6 +55,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Indice.Api", "samples\Indic
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Indice.AspNetCore.Features.Campaigns", "src\Indice.AspNetCore.Features.Campaigns\Indice.AspNetCore.Features.Campaigns.csproj", "{6E025904-03D4-4010-A9AD-02B2A0F95200}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Indice.AspNetCore.Features.Campaigns.UI", "src\Indice.AspNetCore.Features.Campaigns.UI\Indice.AspNetCore.Features.Campaigns.UI.csproj", "{C2CD0301-195C-4780-9BAF-0DCA9357BB76}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -137,6 +139,10 @@ Global
 		{6E025904-03D4-4010-A9AD-02B2A0F95200}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6E025904-03D4-4010-A9AD-02B2A0F95200}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6E025904-03D4-4010-A9AD-02B2A0F95200}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C2CD0301-195C-4780-9BAF-0DCA9357BB76}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C2CD0301-195C-4780-9BAF-0DCA9357BB76}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C2CD0301-195C-4780-9BAF-0DCA9357BB76}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C2CD0301-195C-4780-9BAF-0DCA9357BB76}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -161,6 +167,7 @@ Global
 		{39B34AAE-5E29-400C-A1D4-8BF12505CD08} = {09C5F009-8096-498D-A578-511456E53E65}
 		{916421F9-5705-448F-AD75-108F00008B06} = {09C5F009-8096-498D-A578-511456E53E65}
 		{6E025904-03D4-4010-A9AD-02B2A0F95200} = {643960D9-48C5-4EA3-BED5-486CCC694947}
+		{C2CD0301-195C-4780-9BAF-0DCA9357BB76} = {643960D9-48C5-4EA3-BED5-486CCC694947}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {C2B9151E-8A85-444E-93A9-78264FD0FE4A}
