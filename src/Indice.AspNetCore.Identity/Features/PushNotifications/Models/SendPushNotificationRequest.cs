@@ -16,17 +16,18 @@ namespace Indice.AspNetCore.Identity.Api.Models
         /// </summary>
         public bool Broadcast { get; set; }
         /// <summary>
-        /// The user code. Required when <see cref="Broadcast"/> has the value <i>false</i>.
+        /// The user identifier that correlates devices with users. This can be any identifier like user id, username, user email, customer code etc. Required when <see cref="Broadcast"/> has the value <i>false</i>.
         /// </summary>
-        public string UserCode { get; set; }
-        /// <summary>
-        /// Notification data.
-        /// </summary>
-        public ExpandoObject Data { get; set; }
+        /// <remarks>Use this for unicast. Single user notification.</remarks>
+        public string UserTag { get; set; }
         /// <summary>
         /// List of extra tags.
         /// </summary>
         public string[] Tags { get; set; }
+        /// <summary>
+        /// Notification data.
+        /// </summary>
+        public ExpandoObject Data { get; set; }
         /// <summary>
         /// Notification classification.
         /// </summary>

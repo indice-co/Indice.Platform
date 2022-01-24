@@ -12,7 +12,7 @@ namespace Indice.AspNetCore.Identity.Api.Models.Validators
         /// </summary>
         public SendPushNotificationRequestValidator() {
             RuleFor(x => x.Message).NotEmpty().WithMessage("Please provide a message.");
-            RuleFor(x => x.UserCode).NotEmpty().When(x => !x.Broadcast).WithMessage("Please provide a user code.");
+            RuleFor(x => x.UserTag).NotEmpty().When(x => !x.Broadcast).WithMessage("Please provide a user code.");
         }
     }
 }

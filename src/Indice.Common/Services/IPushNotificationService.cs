@@ -48,10 +48,10 @@ namespace Indice.Services
         /// <param name="deviceId">DeviceId to register.</param>
         /// <param name="pnsHandle">Platform notification service (pns) obtained from client platform.</param>
         /// <param name="devicePlatform">Client device platform.</param>
-        /// <param name="userId">UserId to be passed as tag.</param>
+        /// <param name="userTag">UserId to be passed as tag.</param>
         /// <param name="tags">Optional tag parameters.</param>
-        public static async Task Register(this IPushNotificationService service, string deviceId, string pnsHandle, DevicePlatform devicePlatform, string userId, params string[] tags) =>
-            await service.Register(deviceId, pnsHandle, devicePlatform, new string[] { userId }.Concat(tags ?? Array.Empty<string>()).ToList());
+        public static async Task Register(this IPushNotificationService service, string deviceId, string pnsHandle, DevicePlatform devicePlatform, string userTag, params string[] tags) =>
+            await service.Register(deviceId, pnsHandle, devicePlatform, new string[] { userTag }.Concat(tags ?? Array.Empty<string>()).ToList());
 
         /// <summary>
         /// Send notifications to devices registered to userId with payload data and classification.
@@ -59,11 +59,11 @@ namespace Indice.Services
         /// <param name="service">Instance of <see cref="IPushNotificationService"/>.</param>
         /// <param name="message">Message of notification.</param>
         /// <param name="data">Data passed to mobile client, not visible to notification toast.</param>
-        /// <param name="userId">UserId to be passed as tag.</param>
+        /// <param name="userTag">UserId to be passed as tag.</param>
         /// <param name="classification">The type of the Push Notification.</param>
         /// <param name="tags">Optional tag parameters.</param>
-        public static async Task SendAsync(this IPushNotificationService service, string message, string data, string userId, string classification = null, params string[] tags) =>
-            await service.SendAsync(message, new string[] { userId }.Concat(tags ?? Array.Empty<string>()).ToList(), data, classification);
+        public static async Task SendAsync(this IPushNotificationService service, string message, string data, string userTag, string classification = null, params string[] tags) =>
+            await service.SendAsync(message, new string[] { userTag }.Concat(tags ?? Array.Empty<string>()).ToList(), data, classification);
 
         /// <summary>
         /// Send notifications to devices registered to userId with payload data and classification.
@@ -72,11 +72,11 @@ namespace Indice.Services
         /// <param name="service">Instance of <see cref="IPushNotificationService"/>.</param>
         /// <param name="message">Message of notification.</param>
         /// <param name="data">Data passed to mobile client, not visible to notification toast.</param>
-        /// <param name="userId">UserId to be passed as tag.</param>
+        /// <param name="userTag">UserId to be passed as tag.</param>
         /// <param name="classification">The type of the Push Notification.</param>
         /// <param name="tags">Optional tag parameters.</param>
-        public static async Task SendAsync<TData>(this IPushNotificationService service, string message, TData data, string userId, string classification = null, params string[] tags) where TData : class =>
-            await service.SendAsync(message, JsonSerializer.Serialize(data, JsonSerializerOptionDefaults.GetDefaultSettings()), userId, classification, tags);
+        public static async Task SendAsync<TData>(this IPushNotificationService service, string message, TData data, string userTag, string classification = null, params string[] tags) where TData : class =>
+            await service.SendAsync(message, JsonSerializer.Serialize(data, JsonSerializerOptionDefaults.GetDefaultSettings()), userTag, classification, tags);
 
         /// <summary>
         /// Sends a notification to all registered devices.
@@ -111,7 +111,7 @@ namespace Indice.Services
             }
             var pushNotificationMessageBuilder = configurePushNotificationMessage(new PushNotificationMessageBuilder());
             var pushNotificationMessage = pushNotificationMessageBuilder.Build();
-            await service.SendAsync(pushNotificationMessage.Message, pushNotificationMessage.Data, pushNotificationMessage.UserId, pushNotificationMessage.Classification, pushNotificationMessage.Tags.ToArray());
+            await service.SendAsync(pushNotificationMessage.Message, pushNotificationMessage.Data, pushNotificationMessage.UserTag, pushNotificationMessage.Classification, pushNotificationMessage.Tags.ToArray());
         }
     }
 

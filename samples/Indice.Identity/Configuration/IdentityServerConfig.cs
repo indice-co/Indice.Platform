@@ -47,7 +47,6 @@ namespace Microsoft.Extensions.DependencyInjection
                 options.AddUserDeviceStoreEntityFrameworkCore();
             })
             .AddOtpAuthenticateGrantValidator()
-            .AddPushNotifications()
             .AddExtendedResourceOwnerPasswordValidator()
             .AddOperationalStore(options => {
                 options.SetupTables();

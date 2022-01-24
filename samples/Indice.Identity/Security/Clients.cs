@@ -263,7 +263,7 @@ namespace Indice.Identity.Security
                 AllowOfflineAccess = true,
                 ClientUri = "http://localhost:4200",
                 PostLogoutRedirectUris = {
-                    "http://localhost:4200/logged-out"
+                    "http://localhost:4200"
                 },
                 RedirectUris = {
                     "http://localhost:4200/auth-callback",
