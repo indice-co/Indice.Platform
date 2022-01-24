@@ -25,20 +25,15 @@ namespace Indice.AspNetCore.EmbeddedUI
         /// Constructs a new instance of <see cref="SpaUIMiddleware"/>.
         /// </summary>
         /// <param name="options">Options for configuring <see cref="SpaUIMiddleware"/> middleware.</param>
-        /// <param name="assembly">The assembly containing the embedded resources</param>
+        /// <param name="embeddedUIRoot">Embedded UI root folder name.</param>
+        /// <param name="assembly">The assembly containing the embedded resources.</param>
         /// <param name="loggerFactory">Represents a type used to configure the logging system.</param>
         /// <param name="hostingEnvironment">Provides information about the web hosting environment an application is running in.</param>
         /// <param name="next">A function that can process an HTTP request.</param>
-        public SpaUIMiddleware(
-            SpaUIOptions options,
-            Assembly assembly,
-            ILoggerFactory loggerFactory,
-            IWebHostEnvironment hostingEnvironment,
-            RequestDelegate next
-        ) {
+        public SpaUIMiddleware(SpaUIOptions options, string embeddedUIRoot, Assembly assembly, ILoggerFactory loggerFactory, IWebHostEnvironment hostingEnvironment, RequestDelegate next) {
             _options = options ?? new SpaUIOptions();
             _next = next;
-            _staticFileMiddleware = CreateStaticFileMiddleware(hostingEnvironment, loggerFactory, assembly);
+            _staticFileMiddleware = CreateStaticFileMiddleware(hostingEnvironment, loggerFactory, embeddedUIRoot, assembly);
         }
 
         /// <summary>
@@ -63,9 +58,10 @@ namespace Indice.AspNetCore.EmbeddedUI
         /// </summary>
         /// <param name="hostingEnvironment">Provides information about the web hosting environment an application is running in.</param>
         /// <param name="loggerFactory">Represents a type used to configure the logging system.</param>
-        /// <param name="assembly">The assembly containing the assets to pass to the internal <see cref="EmbeddedFileProvider"/></param>
-        private StaticFileMiddleware CreateStaticFileMiddleware(IWebHostEnvironment hostingEnvironment, ILoggerFactory loggerFactory, Assembly assembly) {
-            var baseNamespace = $"{assembly.GetName().Name}.{_options.EmbeddedUIRoot.Replace("-", "_")}";
+        /// <param name="embeddedUIRoot">Embedded UI root folder name.</param>
+        /// <param name="assembly">The assembly containing the assets to pass to the internal <see cref="EmbeddedFileProvider"/>.</param>
+        private StaticFileMiddleware CreateStaticFileMiddleware(IWebHostEnvironment hostingEnvironment, ILoggerFactory loggerFactory, string embeddedUIRoot, Assembly assembly) {
+            var baseNamespace = $"{assembly.GetName().Name}.{embeddedUIRoot.Replace("-", "_")}";
             _staticFileOptions = new StaticFileOptions {
                 RequestPath = string.IsNullOrEmpty(_options.Path) ? string.Empty : _options.Path,
                 FileProvider = new SpaFileProvider(new EmbeddedFileProvider(assembly, baseNamespace), _options),

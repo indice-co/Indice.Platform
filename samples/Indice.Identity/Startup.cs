@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using Hellang.Middleware.ProblemDetails;
+using Indice.AspNetCore.EmbeddedUI;
 using Indice.AspNetCore.Filters;
 using Indice.AspNetCore.Identity.Api.Events;
 using Indice.AspNetCore.Identity.Api.Security;

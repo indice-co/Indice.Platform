@@ -2,7 +2,7 @@
   <PropertyGroup>
     <Authors>Constantinos Leftheris, Georgios Manoltzas</Authors>
     <Copyright>Copyright (c) 2022 Indice</Copyright>
-    <Description>Indice.AspNetCore.Identity.AdminUI Class Library</Description>
+    <Description>Indice.AspNetCore.EmbeddedUI Class Library</Description>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <GenerateEmbeddedFilesManifest>true</GenerateEmbeddedFilesManifest>
     <TargetFrameworks>netcoreapp3.1;net5.0;net6.0;</TargetFrameworks>
@@ -16,11 +16,11 @@
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
     <!--<GeneratePackageOnBuild>true</GeneratePackageOnBuild>-->
     <PackageIcon>icon-310.png</PackageIcon>
-    <PackageId>Indice.AspNetCore.Identity.AdminUI</PackageId>
+    <PackageId>Indice.AspNetCore.EmbeddedUI</PackageId>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/indice-co/Indice.AspNet</PackageProjectUrl>
-    <PackageReleaseNotes>Added validation for client urls.</PackageReleaseNotes>
-    <PackageTags>AspNetCore;IdentityServer;AdminUI</PackageTags>
+    <PackageReleaseNotes>Initial Release.</PackageReleaseNotes>
+    <PackageTags>AspNetCore;IdentityServer;FileProviders</PackageTags>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>https://github.com/indice-co/Indice.AspNet</RepositoryUrl>

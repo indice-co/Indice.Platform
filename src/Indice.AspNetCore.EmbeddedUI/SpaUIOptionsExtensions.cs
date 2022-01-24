@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using Indice.AspNetCore.EmbeddedUI;
 
 namespace Indice.AspNetCore.EmbeddedUI
 {

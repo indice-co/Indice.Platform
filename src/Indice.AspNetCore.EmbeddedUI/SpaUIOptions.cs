@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using Microsoft.AspNetCore.StaticFiles;
 
 namespace Indice.AspNetCore.EmbeddedUI
@@ -15,19 +13,19 @@ namespace Indice.AspNetCore.EmbeddedUI
         /// <summary>
         /// The name of the section used in appsettings.json file.
         /// </summary>
-        public const string SectionName = "AdminUI";
+        public const string SectionName = "SpaUI";
         /// <summary>
-        /// The base address of the Identity Server instance (i.e. https://identity.example.com).
+        /// The base address of the authority server (i.e. https://identity.example.com).
         /// </summary>
         public string Authority { get; set; }
         /// <summary>
-        /// The client id used to identify the application in Identity Server. Defaults to 'idsrv-admin-ui';
+        /// The client id used to identify the application in the authority server. Defaults to <b>spa-ui</b>.
         /// </summary>
-        public string ClientId { get; set; } = "admin-ui";
+        public string ClientId { get; set; } = "spa-ui";
         /// <summary>
-        /// Specifies the title (shown in browser tab) used in the back-office application. Defaults to 'Indice Admin UI'.
+        /// Specifies the title (shown in browser tab) used in the back-office application. Defaults to <b>Indice BackOffice UI</b>.
         /// </summary>
-        public string DocumentTitle { get; set; } = "Indice Admin UI";
+        public string DocumentTitle { get; set; } = "Indice BackOffice UI";
         /// <summary>
         /// Gets or sets additional content to place in the head of the SPA page.
         /// </summary>
@@ -41,7 +39,6 @@ namespace Indice.AspNetCore.EmbeddedUI
         /// The base address of the application host (i.e. https://example.com).
         /// </summary>
         public string Host { get; set; }
-
         /// <summary>
         /// The path that the back-office application is served. Defaults to '/backoffice'.
         /// </summary>
