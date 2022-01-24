@@ -1,4 +1,5 @@
 export const environment = {
+  api_url: 'https://localhost:2001',
   auth_settings: {
     accessTokenExpiringNotificationTime: 60,
     authority: 'https://indice-idsrv.azurewebsites.net',
@@ -15,6 +16,7 @@ export const environment = {
     silent_redirect_uri: 'http://localhost:4200/auth-renew',
     useRefreshToken: true
   },
-  campaigns_api_url: 'https://localhost:2001',
+  culture: 'el-GR',
+  isTemplate: false,
   production: true
 };

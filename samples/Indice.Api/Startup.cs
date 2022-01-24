@@ -1,10 +1,13 @@
 using System;
+using System.Globalization;
 using System.IdentityModel.Tokens.Jwt;
+using System.Linq;
 using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using IdentityModel;
 using Indice.Api.JobHandlers;
+using Indice.AspNetCore.EmbeddedUI;
 using Indice.AspNetCore.Features.Campaigns;
 using Indice.AspNetCore.Swagger;
 using Indice.Configuration;
@@ -12,23 +15,27 @@ using Indice.Hosting;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Net.Http.Headers;
 using Swashbuckle.AspNetCore.SwaggerUI;
 
 namespace Indice.Api
 {
     public class Startup
     {
-        public Startup(IConfiguration configuration) {
-            Configuration = configuration;
+        public Startup(IConfiguration configuration, IWebHostEnvironment hostingEnvironment) {
+            Configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
+            HostingEnvironment = hostingEnvironment ?? throw new ArgumentNullException(nameof(hostingEnvironment));
             Settings = Configuration.GetSection(GeneralSettings.Name).Get<GeneralSettings>();
         }
 
         public IConfiguration Configuration { get; }
         public GeneralSettings Settings { get; }
+        public IWebHostEnvironment HostingEnvironment { get; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services) {
@@ -120,9 +127,20 @@ namespace Indice.Api
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment environment) {
-            if (environment.IsDevelopment()) {
+            if (HostingEnvironment.IsDevelopment()) {
                 app.UseDeveloperExceptionPage();
+            } else {
+                app.UseHsts();
+                app.UseHttpsRedirection();
             }
+            var staticFileOptions = new StaticFileOptions {
+                OnPrepareResponse = context => {
+                    const int durationInSeconds = 60 * 60 * 24;
+                    context.Context.Response.Headers[HeaderNames.CacheControl] = $"public,max-age={durationInSeconds}";
+                    context.Context.Response.Headers.Append(HeaderNames.Expires, DateTime.UtcNow.AddSeconds(durationInSeconds).ToString("R", CultureInfo.InvariantCulture));
+                }
+            };
+            app.UseStaticFiles(staticFileOptions);
             app.UseHttpsRedirection();
             app.UseCors();
             app.UseRouting();
@@ -142,6 +160,16 @@ namespace Indice.Api
                     options.OAuthScopeSeparator(" ");
                 });
             }
+            app.UseCampaignsUI(options => {
+                options.Path = "campaigns";
+                options.ClientId = "backoffice-ui";
+                options.DocumentTitle = "Campaigns UI";
+                options.Authority = Settings.Authority;
+                options.Host = Settings.Host;
+                options.Enabled = true;
+                options.OnPrepareResponse = staticFileOptions.OnPrepareResponse;
+                options.InjectStylesheet("/css/campaigns-ui-overrides.css");
+            });
             app.UseEndpoints(endpoints => {
                 endpoints.MapSwagger();
                 endpoints.MapControllers();

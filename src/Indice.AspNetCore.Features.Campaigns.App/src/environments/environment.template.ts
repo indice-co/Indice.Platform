@@ -1,6 +1,5 @@
 export const environment = {
     api_url: '',
-    api_docs: 'docs/index.html',
     auth_settings: {
         accessTokenExpiringNotificationTime: 60,
         authority: '',
@@ -13,7 +12,7 @@ export const environment = {
         redirect_uri: 'auth-callback',
         response_type: 'code',
         revokeAccessTokenOnSignout: true,
-        scope: 'openid profile email role offline_access identity identity:clients identity:users',
+        scope: 'openid profile role email phone backoffice backoffice:campaigns',
         silent_redirect_uri: 'auth-renew'
     },
     culture: '',

@@ -3,8 +3,8 @@ import { NgForm } from '@angular/forms';
 import { Router } from '@angular/router';
 
 import { MenuOption, Modal, ModalService, SideViewLayoutComponent, ToasterService, ToastType } from '@indice/ng-components';
-import { delay, map } from 'rxjs/operators';
-import { environment } from 'src/environments/environment';
+import { map } from 'rxjs/operators';
+import * as app from 'src/app/core/models/settings';
 import { Campaign, DeliveryChannel, CampaignsApiService, CampaignTypeResultSet, CreateCampaignRequest, Period } from 'src/app/core/services/campaigns-api.services';
 import { CampaignTypesModalComponent } from '../campaign-types-modal/campaign-types.component';
 
@@ -36,7 +36,7 @@ export class CampaignCreateComponent implements OnInit, AfterViewInit {
     });
     public campaignTypes: MenuOption[] = [];
     public campaignTypesModalRef: Modal | undefined;
-    public isDevelopment = !environment.production;
+    public isDevelopment = !app.settings.production;
     public CampaignDeliveryChannel = DeliveryChannel;
     public customDataValid = true;
     public showCustomDataValidation = false;

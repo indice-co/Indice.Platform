@@ -3,6 +3,7 @@
 // The list of file replacements can be found in `angular.json`.
 
 export const environment = {
+  api_url: 'https://localhost:2001',
   auth_settings: {
     accessTokenExpiringNotificationTime: 60,
     authority: 'https://localhost:2000',
@@ -19,7 +20,8 @@ export const environment = {
     silent_redirect_uri: 'http://localhost:4200/auth-renew',
     useRefreshToken: true
   },
-  campaigns_api_url: 'https://localhost:2001',
+  culture: 'el-GR',
+  isTemplate: false,
   production: false
 };
 

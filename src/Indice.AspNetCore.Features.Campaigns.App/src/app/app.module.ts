@@ -14,7 +14,7 @@ import { CAMPAIGNS_API_BASE_URL } from './core/services/campaigns-api.services';
 import { CampaignsComponent } from './features/campaigns/campaigns.component';
 import { CampaignTypesModalComponent } from './features/campaigns/campaign-types-modal/campaign-types.component';
 import { DashboardComponent } from './features/dashboard/dashboard.component';
-import { environment } from 'src/environments/environment';
+import * as app from 'src/app/core/models/settings';
 import { HomeComponent } from './features/home/home.component';
 import { PageIllustrationComponent } from './shared/components/page-illustration/page-illustration.component';
 import { RadioButtonsListComponent } from './shared/components/radio-buttons-list/radio-buttons-list.component';
@@ -47,8 +47,8 @@ import { LogOutComponent } from './core/services/logout/logout.component';
   providers: [
     ModalService,
     { provide: APP_LINKS, useFactory: () => new AppLinks() },
-    { provide: AUTH_SETTINGS, useFactory: () => environment.auth_settings },
-    { provide: CAMPAIGNS_API_BASE_URL, useFactory: () => environment.campaigns_api_url },
+    { provide: AUTH_SETTINGS, useFactory: () => app.settings.auth_settings },
+    { provide: CAMPAIGNS_API_BASE_URL, useFactory: () => app.settings.api_url },
     { provide: HTTP_INTERCEPTORS, useClass: AuthHttpInterceptor, multi: true },
     { provide: SHELL_CONFIG, useFactory: () => new ShellConfig() }
   ],
