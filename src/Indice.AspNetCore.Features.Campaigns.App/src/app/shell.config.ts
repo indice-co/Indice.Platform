@@ -1,7 +1,7 @@
 import { IShellConfig } from '@indice/ng-components';
 
 export class ShellConfig implements IShellConfig {
-    public appLogo = '/assets/images/branding/indice.png';
+    public appLogo = 'assets/images/branding/logo.png';
     public appLogoAlt = 'Indice';
     public fluid = false;
     public showFooter = true;
