@@ -3,6 +3,7 @@
 
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 
 namespace Indice.AspNetCore.Authentication.Apple
 {
@@ -49,5 +50,9 @@ namespace Indice.AspNetCore.Authentication.Apple
         /// corresponds to a cookie middleware registered in the Startup class. When omitted, <see cref="AuthenticationOptions.DefaultSignInScheme"/> is used as a fallback value.
         /// </summary>
         public string SignInScheme { get; set; }
+        /// <summary>
+        /// Gets or sets the <see cref="OpenIdConnectEvents"/> to notify when processing OpenIdConnect messages.
+        /// </summary>
+        public OpenIdConnectEvents Events { get; } = new OpenIdConnectEvents();
     }
 }

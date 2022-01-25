@@ -1,9 +1,13 @@
 ﻿using System;
+using System.Threading.Tasks;
 using IdentityServer4;
 using IdentityServer4.Infrastructure;
+using IdentityServer4.Models;
+using IdentityServer4.Services;
 using Indice.AspNetCore.Authentication.Apple;
 using Indice.AspNetCore.Authentication.GovGr;
 using Indice.Configuration;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.MicrosoftAccount;
 using Microsoft.AspNetCore.Http;
@@ -42,6 +46,7 @@ namespace Microsoft.Extensions.DependencyInjection
                     options.TeamId = appleSettings.TeamId;
                     options.PrivateKey = appleSettings.PrivateKey;
                     options.PrivateKeyId = appleSettings.PrivateKeyId;
+                    options.Events.OnRemoteFailure = HandleOnRemoteFailure;
                     options.SignInScheme = IdentityServerConstants.ExternalCookieAuthenticationScheme;
                 });
             }
@@ -58,6 +63,22 @@ namespace Microsoft.Extensions.DependencyInjection
                 });
             }
             return services;
+        }
+
+        private static async Task HandleOnRemoteFailure(RemoteFailureContext context) {
+            var error = context.Failure.Data["error"];
+            var userCancelled = error == null || (string)error == "user_cancelled_authorize";
+            if (userCancelled) {
+                var interactionService = context.HttpContext.RequestServices.GetRequiredService<IIdentityServerInteractionService>();
+                if (context.Properties.Items.TryGetValue("returnUrl", out var returnUrl)) {
+                    var authorizationContext = await interactionService.GetAuthorizationContextAsync(returnUrl);
+                    if (authorizationContext != null) {
+                        await interactionService.DenyAuthorizationAsync(authorizationContext, AuthorizationError.AccessDenied);
+                        context.Response.Redirect(returnUrl);
+                    }
+                }
+            }
+            context.HandleResponse();
         }
     }
 }

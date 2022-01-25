@@ -2,10 +2,10 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using Microsoft.AspNetCore.Authentication;
-using Indice.AspNetCore.Authentication.Apple;
-using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using System.Threading.Tasks;
+using Indice.AspNetCore.Authentication.Apple;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
@@ -81,12 +81,10 @@ namespace Microsoft.Extensions.DependencyInjection
                 options.Scope.Add("email");
                 options.Scope.Add("name");
                 options.ClientId = appleOptions.ServiceId;
-                // custom client secret generation - secret can be re-used for up to 6 months
+                options.Events = appleOptions.Events;
+                // Custom client secret generation - secret can be re-used for up to 6 months.
                 options.Events.OnAuthorizationCodeReceived = context => {
                     context.TokenEndpointRequest.ClientSecret = AppleTokenGenerator.CreateNewToken(appleOptions.TeamId, context.Options.Authority, context.Options.ClientId, appleOptions.PrivateKey, appleOptions.PrivateKeyId);
-                    return Task.CompletedTask;
-                };
-                options.Events.OnAuthenticationFailed = context => {
                     return Task.CompletedTask;
                 };
                 options.Events.OnRedirectToIdentityProviderForSignOut = context => {
