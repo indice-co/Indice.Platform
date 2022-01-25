@@ -63,7 +63,7 @@ namespace Microsoft.Extensions.DependencyInjection
             configure?.Invoke(totpOptions);
             totpOptions.Services = null;
             services.TryAddSingleton(totpOptions);
-            services.TryAddTransient<IPushNotificationService, DefaultPushNotificationService>();
+            services.TryAddTransient<IPushNotificationService, NoOpPushNotificationService>();
             services.TryAddTransient<ITotpService, TotpService>();
             services.TryAddSingleton(new Rfc6238AuthenticationService(totpOptions.Timestep, totpOptions.CodeLength));
             if (totpOptions.EnableDeveloperTotp) {
@@ -83,13 +83,16 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
         /// <param name="configure">Configure the available options. Null to use defaults.</param>
         internal static IServiceCollection AddPushNotificationServiceAzure(this IServiceCollection services, Action<PushNotificationOptions> configure = null) {
-            services.AddTransient<IPushNotificationService, PushNotificationServiceAzure>(serviceProvider => {
+            services.AddTransient<IPushNotificationService>(serviceProvider => {
                 var configuration = serviceProvider.GetRequiredService<IConfiguration>();
                 var options = new PushNotificationOptions {
                     ConnectionString = configuration.GetConnectionString(PushNotificationServiceAzure.ConnectionStringName),
                     NotificationHubPath = configuration.GetValue<string>(PushNotificationServiceAzure.NotificationsHubPath)
                 };
                 configure?.Invoke(options);
+                if (string.IsNullOrWhiteSpace(options.ConnectionString) || string.IsNullOrWhiteSpace(options.NotificationHubPath)) {
+                    return new NoOpPushNotificationService();
+                }
                 return new PushNotificationServiceAzure(options);
             });
             return services;

@@ -118,7 +118,7 @@ namespace Indice.Services
     /// <summary>
     /// Default push notification service implementation for clients who don't support it.
     /// </summary>
-    public class DefaultPushNotificationService : IPushNotificationService
+    public class NoOpPushNotificationService : IPushNotificationService
     {
         ///<inheritdoc/>
         public Task Register(string deviceId, string pnsHandle, DevicePlatform devicePlatform, IList<string> tags) => Task.CompletedTask;
