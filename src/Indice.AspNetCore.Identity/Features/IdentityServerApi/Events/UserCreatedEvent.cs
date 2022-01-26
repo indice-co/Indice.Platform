@@ -6,7 +6,7 @@ namespace Indice.AspNetCore.Identity.Api.Events
     /// <summary>
     /// An event that is raised when a new user is created (by an admin) using IdentityServer API.
     /// </summary>
-    public class UserCreatedEvent : IIdentityServerApiEvent
+    public class UserCreatedEvent : IPlatformEvent
     {
         /// <summary>
         /// Creates a new instance of <see cref="UserCreatedEvent"/>.

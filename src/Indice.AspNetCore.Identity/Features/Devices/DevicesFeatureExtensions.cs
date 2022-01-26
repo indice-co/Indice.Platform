@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Security;
 using FluentValidation.AspNetCore;
 using Indice.AspNetCore.Identity;
 using Indice.AspNetCore.Identity.Api;
@@ -14,24 +13,36 @@ namespace Microsoft.Extensions.DependencyInjection
     public static class DevicesFeatureExtensions
     {
         /// <summary>
-        /// Adds all required stuff in order for Push notifications to work.
+        /// Adds all required services and controllers for <b>Devices</b> feature.
         /// </summary>
-        /// <param name="builder">IdentityServer builder Interface.</param>
-        /// <param name="configure">Configuration used in <see cref="Rfc6238AuthenticationService"/> service.</param>
-        public static IMvcBuilder AddPushNotifications(this IMvcBuilder builder, Action<PushNotificationOptions> configure = null) => AddPushNotifications<PushNotificationServiceAzure>(builder, configure);
-
-        /// <summary>
-        /// Adds all required stuff in order for Push notifications to work.
-        /// </summary>
-        /// <typeparam name="TPushNotificationService">The type of <see cref="IPushNotificationService"/> service implementation to use.</typeparam>
-        /// <param name="builder">IdentityServer builder Interface.</param>
-        /// <param name="configure">Configuration used in <see cref="Rfc6238AuthenticationService"/> service.</param>
-        public static IMvcBuilder AddPushNotifications<TPushNotificationService>(this IMvcBuilder builder, Action<PushNotificationOptions> configure = null) where TPushNotificationService : class, IPushNotificationService {
-            builder.Services.AddPushNotificationServiceAzure(configure);
-            builder.Services.TryAddTransient<IPlatformEventService, EventService>();
+        /// <param name="builder">An interface for configuring MVC services.</param>
+        /// <param name="configure">Configuration used for <b>Devices</b> feature.</param>
+        public static IMvcBuilder AddDevices(this IMvcBuilder builder, Action<DeviceOptions> configure = null) {
+            var services = builder.Services;
+            var options = new DeviceOptions { 
+                Services = services
+            };
+            configure?.Invoke(options);
+            options.Services = null;
+            services.AddPushNotificationServiceNoOp();
+            services.TryAddTransient<IPlatformEventService, PlatformEventService>();
             builder.ConfigureApplicationPartManager(x => x.FeatureProviders.Add(new DevicesFeatureProvider()));
             builder.AddFluentValidation(options => options.RegisterValidatorsFromAssemblyContaining<DevicesFeatureProvider>());
             return builder;
         }
+    }
+
+    /// <summary>
+    /// Extension methods on <see cref="DeviceOptions"/> type.
+    /// </summary>
+    public static class DeviceOptionsExtensions 
+    {
+        /// <summary>
+        /// Adds an implementation of <see cref="IPushNotificationService"/> Azure push notification hubs service for sending push notifications.
+        /// </summary>
+        /// <param name="deviceOptions">Options used to configure <b>Devices</b> feature.</param>
+        /// <param name="configure">Configure the available options for push notifications. Null to use defaults.</param>
+        public static void UsePushNotificationsServiceAzure(this DeviceOptions deviceOptions, Action<PushNotificationAzureOptions> configure = null) => 
+            deviceOptions.Services.AddPushNotificationServiceAzure(configure);
     }
 }

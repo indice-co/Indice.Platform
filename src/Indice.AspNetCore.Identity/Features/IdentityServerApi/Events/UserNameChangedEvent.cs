@@ -6,7 +6,7 @@ namespace Indice.AspNetCore.Identity.Api.Events
     /// <summary>
     /// An event that is raised when a user's username is changed on IdentityServer.
     /// </summary>
-    public class UserNameChangedEvent : IIdentityServerApiEvent
+    public class UserNameChangedEvent : IPlatformEvent
     {
         /// <summary>
         /// Creates a new instance of <see cref="UserNameChangedEvent"/>.

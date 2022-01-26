@@ -6,7 +6,7 @@ namespace Indice.AspNetCore.Identity.Api.Events
     /// <summary>
     /// An event that is raised when a device is deleted on IdentityServer.
     /// </summary>
-    public class DeviceDeletedEvent : IIdentityServerApiEvent
+    public class DeviceDeletedEvent : IPlatformEvent
     {
         /// <summary>
         /// Creates a new instance of <see cref="DeviceCreatedEvent"/>.

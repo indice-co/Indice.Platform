@@ -233,7 +233,7 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
             });
             await _configurationDbContext.SaveChangesAsync();
             var response = ClientInfo.FromClient(client);
-            await _eventService.Raise(new ClientCreatedEvent(response));
+            await _eventService.Publish(new ClientCreatedEvent(response));
             return CreatedAtAction(nameof(GetClient), new { clientId = client.ClientId }, response);
         }
 

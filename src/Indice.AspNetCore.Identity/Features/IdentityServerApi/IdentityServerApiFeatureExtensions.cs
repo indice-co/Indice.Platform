@@ -45,16 +45,14 @@ namespace Microsoft.Extensions.DependencyInjection
             // Invoke action provided by developer to override default options.
             services.AddSingleton(apiEndpointsOptions);
             services.AddGeneralSettings(configuration);
-            services.TryAddTransient<IPlatformEventService, EventService>();
+            services.TryAddTransient<IPlatformEventService, PlatformEventService>();
             // Register validation filters.
             services.AddScoped<CreateClaimTypeRequestValidationFilter>();
             services.AddScoped<CreateRoleRequestValidationFilter>();
             // Add authorization policies that are used by the IdentityServer API.
             services.AddIdentityApiAuthorization();
             // Configure antiforgery token options.
-            services.Configure<AntiforgeryOptions>(options => {
-                options.HeaderName = CustomHeaderNames.AntiforgeryHeaderName;
-            });
+            services.Configure<AntiforgeryOptions>(options => options.HeaderName = CustomHeaderNames.AntiforgeryHeaderName);
             services.TryAddScoped<IdentityMessageDescriber>();
             // Try register the extended version of UserManager<User>.
             services.TryAddScoped<ExtendedUserManager<User>>();
@@ -83,15 +81,15 @@ namespace Microsoft.Extensions.DependencyInjection
         }
 
         /// <summary>
-        /// Registers an implementation of <see cref="IIdentityServerApiEventHandler{TEvent}"/> for the specified event type.
+        /// Registers an implementation of <see cref="IPlatformEventHandler{TEvent}"/> for the specified event type.
         /// </summary>
         /// <typeparam name="TEvent">The type of the event to handler.</typeparam>
         /// <typeparam name="TEventHandler">The handler to user for the specified event.</typeparam>
         /// <param name="options">Options for configuring the IdentityServer API feature.</param>
-        public static IdentityServerApiEndpointsOptions AddEventHandler<TEvent, TEventHandler>(this IdentityServerApiEndpointsOptions options)
-            where TEvent : IIdentityServerApiEvent
-            where TEventHandler : class, IIdentityServerApiEventHandler<TEvent> {
-            options.Services.AddEventHandler<TEvent, TEventHandler>();
+        public static IdentityServerApiEndpointsOptions AddPlatformEventHandler<TEvent, TEventHandler>(this IdentityServerApiEndpointsOptions options)
+            where TEvent : IPlatformEvent
+            where TEventHandler : class, IPlatformEventHandler<TEvent> {
+            options.Services.AddPlatformEventHandler<TEvent, TEventHandler>();
             return options;
         }
 

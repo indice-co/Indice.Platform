@@ -1,6 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
+using Indice.Hosting;
+using Indice.Hosting.Tasks;
+using Indice.Hosting.Tasks.Data;
+using Indice.Hosting.Tasks.Implementations;
 using Indice.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -9,12 +13,8 @@ using Microsoft.Extensions.Hosting;
 using Quartz;
 using Quartz.Impl;
 using Quartz.Spi;
-using Indice.Hosting.Tasks;
-using Indice.Hosting.Tasks.Data;
-using Microsoft.Extensions.DependencyInjection;
-using Indice.Hosting.Tasks.Implementations;
 
-namespace Indice.Hosting
+namespace Microsoft.Extensions.DependencyInjection
 {
     /// <summary>
     /// Extension methods on <see cref="IServiceCollection"/> that help register required services for background task processing.

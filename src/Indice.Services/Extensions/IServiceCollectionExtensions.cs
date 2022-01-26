@@ -35,8 +35,8 @@ namespace Microsoft.Extensions.DependencyInjection
             services.TryAddTransient(serviceDescriptor.ImplementationType);
             return services.AddTransient<TService, TDecorator>(serviceProvider => {
                 var parameters = typeof(TDecorator).GetConstructors(BindingFlags.Public | BindingFlags.Instance).First().GetParameters();
-                var arguments = parameters.Select(x => x.ParameterType.Equals(typeof(TService)) 
-                    ? serviceProvider.GetRequiredService(serviceDescriptor.ImplementationType) 
+                var arguments = parameters.Select(x => x.ParameterType.Equals(typeof(TService))
+                    ? serviceProvider.GetRequiredService(serviceDescriptor.ImplementationType)
                     : serviceProvider.GetService(x.ParameterType)).ToArray();
                 return (TDecorator)Activator.CreateInstance(typeof(TDecorator), arguments);
             });
@@ -54,15 +54,50 @@ namespace Microsoft.Extensions.DependencyInjection
         }
 
         /// <summary>
-        /// Adds an implementation of <see cref="IPushNotificationService"/> using Azure cloud infrastructure for sending push nitifications.
+        /// Adds a fugazi implementation of <see cref="IPushNotificationService"/> that does nothing.
         /// </summary>
         /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
-        /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
-        public static IServiceCollection AddPushNotificationServiceAzure(this IServiceCollection services, IConfiguration configuration) {
-            services.Configure<PushNotificationOptions>(configuration.GetSection(PushNotificationOptions.Name));
-            services.AddTransient(serviceProvider => serviceProvider.GetRequiredService<IOptions<PushNotificationOptions>>().Value);
+        public static IServiceCollection AddPushNotificationServiceNoOp(this IServiceCollection services) {
+            services.TryAddTransient<IPushNotificationService, NoOpPushNotificationService>();
+            return services;
+        }
+
+        /// <summary>
+        /// Adds an implementation of <see cref="IPushNotificationService"/> for sending push notifications.
+        /// </summary>
+        /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
+        /// <param name="configure">Configure the available options for push notifications. Null to use defaults.</param>
+        public static IServiceCollection AddPushNotificationServiceAzure(this IServiceCollection services, Action<PushNotificationAzureOptions> configure = null) {
+            var configuration = services.BuildServiceProvider().GetRequiredService<IConfiguration>();
+            var options = new PushNotificationAzureOptions {
+                ConnectionString = configuration.GetConnectionString(PushNotificationServiceAzure.ConnectionStringName) ??
+                                       configuration.GetSection(PushNotificationAzureOptions.Name).GetValue<string>(nameof(PushNotificationAzureOptions.ConnectionString)),
+                NotificationHubPath = configuration.GetSection(PushNotificationAzureOptions.Name).GetValue<string>(nameof(PushNotificationAzureOptions.NotificationHubPath)) ??
+                                          configuration.GetValue<string>(PushNotificationServiceAzure.NotificationsHubPath)
+            };
+            options.Services = services;
+            configure?.Invoke(options);
+            options.Services = null;
+            services.Configure<PushNotificationAzureOptions>(config => {
+                config.ConnectionString = options.ConnectionString;
+                config.NotificationHubPath = options.NotificationHubPath;
+                config.MessageHandler = options.MessageHandler;
+            });
+            services.AddTransient(serviceProvider => serviceProvider.GetRequiredService<IOptions<PushNotificationAzureOptions>>().Value);
             services.AddTransient<IPushNotificationService, PushNotificationServiceAzure>();
             return services;
+        }
+
+        /// <summary>
+        /// Reads the <see cref="PushNotificationAzureOptions"/> directly from configuration.
+        /// </summary>
+        /// <param name="options">Push notification service options.</param>
+        /// <param name="section">The section to use in search for settings. Default section used is <see cref="PushNotificationAzureOptions.Name"/>.</param>
+        public static PushNotificationAzureOptions FromConfiguration(this PushNotificationAzureOptions options, string section = null) {
+            var serviceProvider = options.Services.BuildServiceProvider();
+            var configuration = serviceProvider.GetRequiredService<IConfiguration>();
+            configuration.Bind(section ?? PushNotificationAzureOptions.Name, options);
+            return options;
         }
 
         /// <summary>
@@ -193,6 +228,19 @@ namespace Microsoft.Extensions.DependencyInjection
                 configure?.Invoke(serviceProvider, options);
                 return new LockManagerAzure(options);
             });
+            return services;
+        }
+
+        /// <summary>
+        /// Registers an implementation of <see cref="IPlatformEventHandler{TEvent}"/> for the specified event type.
+        /// </summary>
+        /// <typeparam name="TEvent">The type of the event to handler.</typeparam>
+        /// <typeparam name="TEventHandler">The handler to user for the specified event.</typeparam>
+        /// <param name="services">The services available in the application.</param>
+        public static IServiceCollection AddPlatformEventHandler<TEvent, TEventHandler>(this IServiceCollection services)
+            where TEvent : IPlatformEvent
+            where TEventHandler : class, IPlatformEventHandler<TEvent> {
+            services.TryAddTransient(typeof(IPlatformEventHandler<TEvent>), typeof(TEventHandler));
             return services;
         }
     }

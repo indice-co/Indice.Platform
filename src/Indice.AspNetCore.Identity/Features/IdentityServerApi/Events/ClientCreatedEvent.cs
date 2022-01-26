@@ -6,7 +6,7 @@ namespace Indice.AspNetCore.Identity.Api.Events
     /// <summary>
     /// An event that is raised when a new client is created on IdentityServer.
     /// </summary>
-    public class ClientCreatedEvent : IIdentityServerApiEvent
+    public class ClientCreatedEvent : IPlatformEvent
     {
         /// <summary>
         /// Creates a new instance of <see cref="ClientCreatedEvent"/>.

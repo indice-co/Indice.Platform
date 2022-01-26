@@ -7,7 +7,7 @@ namespace Indice.AspNetCore.Identity.Api.Events
     /// <summary>
     /// An event that is raised when a user's email confirmation is resend.
     /// </summary>
-    public class UserEmailConfirmationResendEvent : IIdentityServerApiEvent
+    public class UserEmailConfirmationResendEvent : IPlatformEvent
     {
         /// <summary>
         /// Creates a new instance of <see cref="UserEmailConfirmationResendEvent"/>.

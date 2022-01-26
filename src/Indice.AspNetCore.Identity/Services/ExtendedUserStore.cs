@@ -157,5 +157,16 @@ namespace Indice.AspNetCore.Identity.Data
                 await base.SetEmailAsync(user, userName, cancellationToken);
             }
         }
+
+        /// <inheritdoc/>
+        public Task SetLastSignInDateAsync(TUser user, DateTimeOffset? timestamp, CancellationToken cancellationToken) {
+            cancellationToken.ThrowIfCancellationRequested();
+            ThrowIfDisposed();
+            if (user == null) {
+                throw new ArgumentNullException(nameof(user));
+            }
+            user.LastSignInDate = timestamp ?? DateTimeOffset.UtcNow;
+            return Task.CompletedTask;
+        }
     }
 }

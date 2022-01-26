@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
-using Indice.AspNetCore.Identity;
 using Indice.AspNetCore.Identity.Api.Events;
+using Indice.Services;
 using Microsoft.Extensions.Logging;
 
 namespace Indice.Identity.Services
@@ -9,7 +9,7 @@ namespace Indice.Identity.Services
     /// <summary>
     /// Handler for <see cref="UserEmailConfirmedEvent"/> raised by IdentityServer API.
     /// </summary>
-    public class UserEmailConfirmedEventHandler : IIdentityServerApiEventHandler<UserEmailConfirmedEvent>
+    public class UserEmailConfirmedEventHandler : IPlatformEventHandler<UserEmailConfirmedEvent>
     {
         private readonly ILogger<UserEmailConfirmedEventHandler> _logger;
 

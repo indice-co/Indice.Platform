@@ -101,6 +101,25 @@ namespace Indice.AspNetCore.Identity
         }
 
         /// <summary>
+        /// Sets the <see cref="User.LastSignInDate"/> property of the user.
+        /// </summary>
+        /// <param name="user">The user instance.</param>
+        /// <param name="timestamp">The <see cref="DateTimeOffset"/> value that the user signed in. Defaults to <see cref="DateTimeOffset.UtcNow"/>.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
+        /// <exception cref="ArgumentNullException">Thrown when user is null.</exception>
+        /// <returns>The <see cref="Task{IdentityResult}"/> that represents the asynchronous operation.</returns>
+        public async Task SetLastSignInDateAsync(TUser user, DateTimeOffset? timestamp = null, CancellationToken cancellationToken = default) {
+            cancellationToken.ThrowIfCancellationRequested();
+            ThrowIfDisposed();
+            if (user == null) {
+                throw new ArgumentNullException(nameof(user));
+            }
+            var userStore = GetUserStore();
+            await userStore.SetLastSignInDateAsync(user, timestamp, cancellationToken);
+            await UpdateAsync(user);
+        }
+
+        /// <summary>
         /// Creates the specified <paramref name="user"/> in the backing store with given password,
         /// as an asynchronous operation.
         /// </summary>
@@ -180,7 +199,7 @@ namespace Indice.AspNetCore.Identity
             var result = await base.AccessFailedAsync(user);
             if (await IsLockedOutAsync(user)) {
                 var @event = new AccountLockedEvent(SingleUserInfo.FromUser(user));
-                await _eventService.Raise(@event);
+                await _eventService.Publish(@event);
             }
             return result;
         }

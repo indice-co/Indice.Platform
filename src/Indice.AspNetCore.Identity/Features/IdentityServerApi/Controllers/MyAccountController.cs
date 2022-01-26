@@ -169,7 +169,7 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
                 return BadRequest(result.Errors.ToValidationProblemDetails());
             }
             var eventInfo = user.ToBasicUserInfo();
-            await _eventService.Raise(new UserEmailConfirmedEvent(eventInfo));
+            await _eventService.Publish(new UserEmailConfirmedEvent(eventInfo));
             return NoContent();
         }
 
@@ -236,7 +236,7 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
                 return BadRequest(result.Errors.ToValidationProblemDetails());
             }
             var eventInfo = user.ToBasicUserInfo();
-            await _eventService.Raise(new UserPhoneNumberConfirmedEvent(eventInfo));
+            await _eventService.Publish(new UserPhoneNumberConfirmedEvent(eventInfo));
             return NoContent();
         }
 
@@ -261,7 +261,7 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
                 return BadRequest(result.Errors.ToValidationProblemDetails());
             }
             var @event = new UserNameChangedEvent(SingleUserInfo.FromUser(user));
-            await _eventService.Raise(@event);
+            await _eventService.Publish(@event);
             return Ok();
         }
 
@@ -286,7 +286,7 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
                 return BadRequest(result.Errors.ToValidationProblemDetails());
             }
             var @event = new PasswordChangedEvent(SingleUserInfo.FromUser(user));
-            await _eventService.Raise(@event);
+            await _eventService.Publish(@event);
             return NoContent();
         }
 
@@ -335,7 +335,7 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
                 return BadRequest(result.Errors.ToValidationProblemDetails());
             }
             var @event = new PasswordChangedEvent(SingleUserInfo.FromUser(user));
-            await _eventService.Raise(@event);
+            await _eventService.Publish(@event);
             return NoContent();
         }
 
@@ -657,7 +657,7 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
             }
             var createdUser = SingleUserInfo.FromUser(user);
             var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-            await _eventService.Raise(new UserRegisteredEvent(createdUser, token));
+            await _eventService.Publish(new UserRegisteredEvent(createdUser, token));
             return NoContent();
         }
 

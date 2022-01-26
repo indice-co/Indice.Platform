@@ -31,7 +31,7 @@ namespace Microsoft.Extensions.DependencyInjection
             builder.RegisterEndpoints();
             // Register stores and services.
             builder.Services.AddTransient<IAuthorizationCodeChallengeStore, DefaultAuthorizationCodeChallengeStore>();
-            builder.Services.TryAddTransient<IPlatformEventService, EventService>();
+            builder.Services.TryAddTransient<IPlatformEventService, PlatformEventService>();
             builder.Services.TryAddScoped<IdentityMessageDescriber>();
             options.AddUserDeviceStoreInMemory();
             // Register custom grant validator.

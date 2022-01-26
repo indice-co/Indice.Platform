@@ -29,19 +29,6 @@ namespace Microsoft.Extensions.DependencyInjection
             => services.Configure(ExtendedIdentityConstants.ExtendedValidationUserIdScheme, configure);
 
         /// <summary>
-        /// Registers an implementation of <see cref="IIdentityServerApiEventHandler{TEvent}"/> for the specified event type.
-        /// </summary>
-        /// <typeparam name="TEvent">The type of the event to handler.</typeparam>
-        /// <typeparam name="TEventHandler">The handler to user for the specified event.</typeparam>
-        /// <param name="services">The services available in the application.</param>
-        public static IServiceCollection AddEventHandler<TEvent, TEventHandler>(this IServiceCollection services)
-            where TEvent : IIdentityServerApiEvent
-            where TEventHandler : class, IIdentityServerApiEventHandler<TEvent> {
-            services.TryAddTransient(typeof(IIdentityServerApiEventHandler<TEvent>), typeof(TEventHandler));
-            return services;
-        }
-
-        /// <summary>
         /// Configures <see cref="RazorViewEngineOptions"/> by adding the <see cref="ClientAwareViewLocationExpander"/> in the list of available <see cref="IViewLocationExpander"/>.
         /// </summary>
         /// <param name="services">The services available in the application.</param>
@@ -74,27 +61,6 @@ namespace Microsoft.Extensions.DependencyInjection
                     services.AddTransient(typeof(ITotpService), decoratorType);
                 }
             }
-            return services;
-        }
-
-        /// <summary>
-        /// Adds an instance of <see cref="IPushNotificationService"/> using Microsoft.Azure.NotificationHubs for sending push notifications
-        /// </summary>
-        /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
-        /// <param name="configure">Configure the available options. Null to use defaults.</param>
-        internal static IServiceCollection AddPushNotificationServiceAzure(this IServiceCollection services, Action<PushNotificationOptions> configure = null) {
-            services.AddTransient<IPushNotificationService>(serviceProvider => {
-                var configuration = serviceProvider.GetRequiredService<IConfiguration>();
-                var options = new PushNotificationOptions {
-                    ConnectionString = configuration.GetConnectionString(PushNotificationServiceAzure.ConnectionStringName),
-                    NotificationHubPath = configuration.GetValue<string>(PushNotificationServiceAzure.NotificationsHubPath)
-                };
-                configure?.Invoke(options);
-                if (string.IsNullOrWhiteSpace(options.ConnectionString) || string.IsNullOrWhiteSpace(options.NotificationHubPath)) {
-                    return new NoOpPushNotificationService();
-                }
-                return new PushNotificationServiceAzure(options);
-            });
             return services;
         }
     }

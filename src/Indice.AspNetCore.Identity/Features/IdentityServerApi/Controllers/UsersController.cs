@@ -253,7 +253,7 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
                 await _userManager.AddClaimsAsync(user, claims);
             }
             var response = SingleUserInfo.FromUser(user);
-            await _eventService.Raise(new UserCreatedEvent(response));
+            await _eventService.Publish(new UserCreatedEvent(response));
             return CreatedAtAction(nameof(GetUser), Name, new { userId = user.Id }, response);
         }
 
@@ -346,7 +346,7 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
             }
             var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
             var eventInfo = user.ToBasicUserInfo();
-            await _eventService.Raise(new UserEmailConfirmationResendEvent(eventInfo, token));
+            await _eventService.Publish(new UserEmailConfirmationResendEvent(eventInfo, token));
             return NoContent();
         }
 
@@ -721,7 +721,7 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
                 return BadRequest(result.Errors.ToValidationProblemDetails());
             }
             var @event = new PasswordChangedEvent(SingleUserInfo.FromUser(user));
-            await _eventService.Raise(@event);
+            await _eventService.Publish(@event);
             if (request.ChangePasswordAfterFirstSignIn == true) {
                 await _userManager.SetPasswordExpiredAsync(user, true);
             }

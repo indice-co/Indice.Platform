@@ -1,7 +1,7 @@
 ﻿using System.Text;
 using Indice.AspNetCore.EmbeddedUI;
 
-namespace Indice.AspNetCore.EmbeddedUI
+namespace Microsoft.AspNetCore.Builder
 {
     /// <summary>
     /// Helper extensions that manipulate the <see cref="SpaUIOptions"/>.

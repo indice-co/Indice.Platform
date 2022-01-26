@@ -6,7 +6,7 @@ namespace Indice.AspNetCore.Identity.Api.Events
     /// <summary>
     /// An event that is raised when a new device is created on IdentityServer.
     /// </summary>
-    public class DeviceCreatedEvent : IIdentityServerApiEvent
+    public class DeviceCreatedEvent : IPlatformEvent
     {
         /// <summary>
         /// Creates a new instance of <see cref="DeviceCreatedEvent"/>.

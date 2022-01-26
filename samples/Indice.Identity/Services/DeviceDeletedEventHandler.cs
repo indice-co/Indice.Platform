@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Threading.Tasks;
-using Indice.AspNetCore.Identity;
 using Indice.AspNetCore.Identity.Api.Events;
+using Indice.Services;
 using Microsoft.Extensions.Logging;
 
 namespace Indice.Identity.Services
 {
-    public class DeviceDeletedEventHandler : IIdentityServerApiEventHandler<DeviceDeletedEvent>
+    public class DeviceDeletedEventHandler : IPlatformEventHandler<DeviceDeletedEvent>
     {
         private readonly ILogger<DeviceDeletedEventHandler> _logger;
 

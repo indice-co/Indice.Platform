@@ -55,7 +55,7 @@ namespace Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Stores
                 user = await _dbContext.Users.SingleOrDefaultAsync(x => x.Id == device.UserId);
             }
             var @event = new DeviceCreatedEvent(DeviceInfo.FromUserDevice(device), SingleUserInfo.FromUser(user));
-            await _eventService.Raise(@event);
+            await _eventService.Publish(@event);
         }
 
         /// <inheritdoc />

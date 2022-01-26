@@ -6,7 +6,7 @@ namespace Indice.AspNetCore.Identity.Api.Events
     /// <summary>
     /// An event that is raised when an account is locked on IdentityServer.
     /// </summary>
-    public class AccountLockedEvent : IIdentityServerApiEvent
+    public class AccountLockedEvent : IPlatformEvent
     {
         /// <summary>
         /// Creates a new instance of <see cref="AccountLockedEvent"/>.

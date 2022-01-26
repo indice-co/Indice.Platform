@@ -30,20 +30,16 @@ namespace Microsoft.Extensions.DependencyInjection
             var mvcBuilder = services.AddControllersWithViews()
                                      .AddRazorRuntimeCompilation()
                                      .AddTotp()
-                                     .AddPushNotifications()
+                                     .AddDevices(options => options.UsePushNotificationsServiceAzure())
+                                     .AddPushNotifications(options => options.FromConfiguration())
                                      .AddIdentityServerApiEndpoints(options => {
-                                         // Configure the DbContext.
-                                         options.AddDbContext(identityOptions => identityOptions.ConfigureDbContext = builder => builder.UseSqlServer(configuration.GetConnectionString("IdentityDb")));
-                                         // Enable events and register handlers.
+                                         options.AddDbContext(context => context.ConfigureDbContext = builder => builder.UseSqlServer(configuration.GetConnectionString("IdentityDb")));
                                          options.CanRaiseEvents = true;
                                          options.DisableCache = false;
-                                         options.AddEventHandler<ClientCreatedEvent, ClientCreatedEventHandler>();
-                                         options.AddEventHandler<UserEmailConfirmedEvent, UserEmailConfirmedEventHandler>();
-                                         // Update email options.
+                                         options.AddPlatformEventHandler<ClientCreatedEvent, ClientCreatedEventHandler>();
+                                         options.AddPlatformEventHandler<UserEmailConfirmedEvent, UserEmailConfirmedEventHandler>();
                                          options.Email.SendEmailOnUpdate = true;
-                                         // Update phone number options.
                                          options.PhoneNumber.SendOtpOnUpdate = true;
-                                         // Add custom initial user and enable test data.
                                          options.SeedDummyUsers = false;
                                          options.InitialUsers = GetInitialUsers();
                                          options.CustomClaims = GetCustomClaimTypes();

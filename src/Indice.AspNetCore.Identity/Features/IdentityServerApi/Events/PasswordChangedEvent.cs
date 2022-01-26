@@ -6,7 +6,7 @@ namespace Indice.AspNetCore.Identity.Api.Events
     /// <summary>
     /// An event that is raised when a user's password is changed on IdentityServer.
     /// </summary>
-    public class PasswordChangedEvent : IIdentityServerApiEvent
+    public class PasswordChangedEvent : IPlatformEvent
     {
         /// <summary>
         /// Creates a new instance of <see cref="PasswordChangedEvent"/>.

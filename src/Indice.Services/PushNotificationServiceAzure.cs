@@ -5,6 +5,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using Indice.Types;
 using Microsoft.Azure.NotificationHubs;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Indice.Services
 {
@@ -38,9 +39,9 @@ namespace Indice.Services
         /// Constructs the <see cref="PushNotificationServiceAzure"/>.
         /// </summary>
         /// <param name="options">Connection string for Azure and Notifications hub name.</param>
-        public PushNotificationServiceAzure(PushNotificationOptions options) {
+        public PushNotificationServiceAzure(PushNotificationAzureOptions options) {
             if (string.IsNullOrWhiteSpace(options?.ConnectionString) || string.IsNullOrWhiteSpace(options?.NotificationHubPath)) {
-                throw new InvalidOperationException($"{nameof(PushNotificationOptions)} are not properly configured.");
+                throw new InvalidOperationException($"{nameof(PushNotificationAzureOptions)} are not properly configured.");
             }
             NotificationHub = new NotificationHubClient(
                 options.ConnectionString,
@@ -130,20 +131,21 @@ namespace Indice.Services
     }
 
     /// <summary>
-    /// Push notification service options specific to Azure.
+    /// Push notification service options.
     /// </summary>
-    public class PushNotificationOptions
+    public class PushNotificationAzureOptions
     {
+        internal IServiceCollection Services { get; set; }
         /// <summary>
         /// The section name in application settings.
         /// </summary>
         public const string Name = "PushNotifications";
         /// <summary>
-        /// The connection string to the Azure Push notification account.
+        /// The connection string to the push notification account.
         /// </summary>
         public string ConnectionString { get; set; }
         /// <summary>
-        /// Notifications hub name.
+        /// Notifications hub name, if any.
         /// </summary>
         public string NotificationHubPath { get; set; }
         /// <summary>

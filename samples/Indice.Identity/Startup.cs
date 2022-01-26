@@ -5,7 +5,6 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using Hellang.Middleware.ProblemDetails;
-using Indice.AspNetCore.EmbeddedUI;
 using Indice.AspNetCore.Filters;
 using Indice.AspNetCore.Identity.Api.Events;
 using Indice.AspNetCore.Identity.Api.Security;
@@ -111,7 +110,7 @@ namespace Indice.Identity
                        .AddConnectSrc("https://switzerlandnorth-0.in.applicationinsights.azure.com//v2/track")
                        .AddFrameAncestors("https://localhost:2002");
             });
-            services.AddEventHandler<DeviceDeletedEvent, DeviceDeletedEventHandler>();
+            services.AddPlatformEventHandler<DeviceDeletedEvent, DeviceDeletedEventHandler>();
         }
 
         /// <summary>

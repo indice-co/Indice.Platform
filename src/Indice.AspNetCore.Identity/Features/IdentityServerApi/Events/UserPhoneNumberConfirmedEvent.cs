@@ -6,7 +6,7 @@ namespace Indice.AspNetCore.Identity.Api.Events
     /// <summary>
     /// An event that is raised when a user's phone number is confirmed.
     /// </summary>
-    public class UserPhoneNumberConfirmedEvent : IIdentityServerApiEvent
+    public class UserPhoneNumberConfirmedEvent : IPlatformEvent
     {
         /// <summary>
         /// Creates a new instance of <see cref="UserPhoneNumberConfirmedEvent"/>.

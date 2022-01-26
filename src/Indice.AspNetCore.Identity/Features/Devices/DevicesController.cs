@@ -139,7 +139,7 @@ namespace Indice.AspNetCore.Identity.Api
             await DbContext.SaveChangesAsync();
             var response = DeviceInfo.FromUserDevice(device);
             var @event = new DeviceCreatedEvent(response, SingleUserInfo.FromUser(user));
-            await EventService.Raise(@event);
+            await EventService.Publish(@event);
             return CreatedAtAction(nameof(GetDeviceById), new { deviceId = device.DeviceId }, response);
         }
 
@@ -185,7 +185,7 @@ namespace Indice.AspNetCore.Identity.Api
             device.Data = request.Data;
             await DbContext.SaveChangesAsync();
             var @event = new DeviceUpdatedEvent(DeviceInfo.FromUserDevice(device), SingleUserInfo.FromUser(user));
-            await EventService.Raise(@event);
+            await EventService.Publish(@event);
             return NoContent();
         }
 
@@ -216,7 +216,7 @@ namespace Indice.AspNetCore.Identity.Api
             DbContext.UserDevices.Remove(device);
             await DbContext.SaveChangesAsync();
             var @event = new DeviceDeletedEvent(DeviceInfo.FromUserDevice(device), SingleUserInfo.FromUser(user));
-            await EventService.Raise(@event);
+            await EventService.Publish(@event);
             return NoContent();
         }
 

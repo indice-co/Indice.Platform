@@ -9,10 +9,10 @@ namespace Indice.AspNetCore.Identity.Api
     /// <summary>
     /// Push notifications feature implementation for <see cref="IApplicationFeatureProvider{ControllerFeature}"/>.
     /// </summary>
-    public class DevicesFeatureProvider : IApplicationFeatureProvider<ControllerFeature>
+    public class PushNotificationsFeatureProvider : IApplicationFeatureProvider<ControllerFeature>
     {
         private static IReadOnlyList<TypeInfo> ControllerTypes => new List<TypeInfo>() {
-            typeof(DevicesController).GetTypeInfo()
+            typeof(PushNotificationsController).GetTypeInfo()
         };
 
         /// <summary>

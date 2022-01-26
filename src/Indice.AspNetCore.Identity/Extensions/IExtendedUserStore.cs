@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using Indice.AspNetCore.Identity.Data.Models;
 using Microsoft.AspNetCore.Identity;
@@ -41,5 +42,12 @@ namespace Indice.AspNetCore.Identity.Extensions
         /// <param name="changePassword">The value to use.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
         Task SetPasswordExpiredAsync(TUser user, bool changePassword, CancellationToken cancellationToken);
+        /// <summary>
+        /// Sets the <see cref="User.LastSignInDate"/> property of the user.
+        /// </summary>
+        /// <param name="user">The user instance.</param>
+        /// <param name="timestamp">The <see cref="DateTimeOffset"/> value that the user signed in. Defaults to <see cref="DateTimeOffset.UtcNow"/>.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
+        Task SetLastSignInDateAsync(TUser user, DateTimeOffset? timestamp, CancellationToken cancellationToken);
     }
 }

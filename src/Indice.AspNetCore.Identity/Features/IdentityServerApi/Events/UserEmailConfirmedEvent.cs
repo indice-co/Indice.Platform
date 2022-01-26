@@ -6,7 +6,7 @@ namespace Indice.AspNetCore.Identity.Api.Events
     /// <summary>
     /// An event that is raised when a user's email is confirmed.
     /// </summary>
-    public class UserEmailConfirmedEvent : IIdentityServerApiEvent
+    public class UserEmailConfirmedEvent : IPlatformEvent
     {
         /// <summary>
         /// Creates a new instance of <see cref="UserEmailConfirmedEvent"/>.
