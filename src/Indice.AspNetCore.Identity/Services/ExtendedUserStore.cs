@@ -1,9 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Indice.AspNetCore.Identity.Data.Models;
-using Indice.AspNetCore.Identity.Extensions;
+using Indice.AspNetCore.Identity.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -36,7 +37,7 @@ namespace Indice.AspNetCore.Identity.Data
     }
 
     /// <inheritdoc/>
-    public class ExtendedUserStore<TContext, TUser, TRole> : UserStore<TUser, TRole, TContext>, IExtendedUserStore<TUser>
+    public class ExtendedUserStore<TContext, TUser, TRole> : UserStore<TUser, TRole, TContext>, IExtendedUserStore<TUser>, IUserDeviceStore<TUser>
         where TContext : IdentityDbContext<TUser, TRole>
         where TUser : User
         where TRole : IdentityRole
@@ -56,6 +57,7 @@ namespace Indice.AspNetCore.Identity.Data
                               configuration.GetSection(nameof(UserOptions)).GetValue<bool?>(nameof(EmailAsUserName));
         }
 
+        private DbSet<UserDevice> UserDevices => Context.Set<UserDevice>();
         /// <inheritdoc/>
         public int? PasswordHistoryLimit { get; protected set; }
         /// <inheritdoc/>
@@ -159,7 +161,7 @@ namespace Indice.AspNetCore.Identity.Data
         }
 
         /// <inheritdoc/>
-        public Task SetLastSignInDateAsync(TUser user, DateTimeOffset? timestamp, CancellationToken cancellationToken) {
+        public Task SetLastSignInDateAsync(TUser user, DateTimeOffset? timestamp, CancellationToken cancellationToken = default) {
             cancellationToken.ThrowIfCancellationRequested();
             ThrowIfDisposed();
             if (user == null) {
@@ -167,6 +169,74 @@ namespace Indice.AspNetCore.Identity.Data
             }
             user.LastSignInDate = timestamp ?? DateTimeOffset.UtcNow;
             return Task.CompletedTask;
+        }
+
+        /// <inheritdoc/>
+        public async Task<IdentityResult> AddDeviceAsync(TUser user, Device device, CancellationToken cancellationToken = default) {
+            cancellationToken.ThrowIfCancellationRequested();
+            ThrowIfDisposed();
+            if (device is null) {
+                throw new ArgumentNullException(nameof(device));
+            }
+            if (user is null) {
+                throw new ArgumentNullException(nameof(user));
+            }
+            UserDevices.Add(new UserDevice {
+                Data = device.Data,
+                DateCreated = device.DateCreated ?? DateTimeOffset.UtcNow,
+                DeviceId = device.DeviceId,
+                Model = device.Model,
+                Name = device.Name,
+                OsVersion = device.OsVersion,
+                Platform = device.Platform,
+                UserId = user.Id
+            });
+            await SaveChanges(cancellationToken);
+            return IdentityResult.Success;
+        }
+
+        /// <inheritdoc/>
+        public async Task<IList<Device>> GetDevicesAsync(TUser user, CancellationToken cancellationToken = default) {
+            cancellationToken.ThrowIfCancellationRequested();
+            ThrowIfDisposed();
+            if (user is null) {
+                throw new ArgumentNullException(nameof(user));
+            }
+            return await UserDevices.Where(device => device.UserId == user.Id).Select(device => new Device {
+                Data = device.Data,
+                DateCreated = device.DateCreated,
+                DeviceId = device.DeviceId,
+                Model = device.Model,
+                Name = device.Name,
+                OsVersion = device.OsVersion,
+                Platform = device.Platform
+            })
+            .ToListAsync(cancellationToken);
+        }
+
+        /// <inheritdoc/>
+        public async Task<Device> GetDeviceByIdAsync(TUser user, string deviceId, CancellationToken cancellationToken = default) {
+            cancellationToken.ThrowIfCancellationRequested();
+            ThrowIfDisposed();
+            if (user is null) {
+                throw new ArgumentNullException(nameof(user));
+            }
+            if (string.IsNullOrWhiteSpace(deviceId)) {
+                throw new ArgumentNullException(nameof(deviceId));
+            }
+            var device = await UserDevices.SingleOrDefaultAsync(x => x.UserId == user.Id && x.DeviceId == deviceId, cancellationToken);
+            if (device is not null) {
+                return new Device {
+                    Data = device.Data,
+                    DateCreated = device.DateCreated,
+                    DeviceId = device.DeviceId,
+                    Model = device.Model,
+                    Name = device.Name,
+                    OsVersion = device.OsVersion,
+                    Platform = device.Platform
+                };
+            }
+            return default;
         }
     }
 }

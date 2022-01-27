@@ -3,14 +3,13 @@ using System.Threading;
 using System.Threading.Tasks;
 using Indice.AspNetCore.Identity.Data.Models;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 
-namespace Indice.AspNetCore.Identity.Extensions
+namespace Indice.AspNetCore.Identity
 {
     /// <summary>
-    /// Custom <see cref="UserStore"/> that provides password history features.
+    /// Custom <see cref="IUserStore{T}"/> that provides password history features.
     /// </summary>
-    /// <typeparam name="TUser"></typeparam>
+    /// <typeparam name="TUser">The user type.</typeparam>
     public interface IExtendedUserStore<TUser> where TUser : User
     {
         /// <summary>

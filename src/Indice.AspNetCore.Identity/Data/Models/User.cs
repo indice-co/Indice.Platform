@@ -123,7 +123,7 @@ namespace Indice.AspNetCore.Identity.Data.Models
     /// <summary>
     /// Helper methods for <see cref="User"/> type.
     /// </summary>
-    public static class DbUserExtensions
+    public static class UserExtensions
     {
         /// <summary>
         /// Adds the developer-totp claim to the provided user instance and provides a random 6-digit code.
@@ -142,15 +142,6 @@ namespace Indice.AspNetCore.Identity.Data.Models
                 ClaimValue = developerTotp.ToString(),
                 UserId = user.Id
             });
-        }
-
-        /// <summary>
-        /// Adds the developer-totp claim to the provided user instance and provides a random 6-digit code.
-        /// </summary>
-        /// <param name="user">Represents a user in the Identity system.</param>
-        [Obsolete("Method GenerateDeveloperTotp is deprecated and will be removed in future versions, please use AddDeveloperTotp instead.")]
-        public static void GenerateDeveloperTotp(this User user) {
-            user.AddDeveloperTotp();
         }
     }
 }
