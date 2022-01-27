@@ -49,6 +49,10 @@ namespace Indice.Hosting.Tasks.Data.Models
         /// </summary>
         public string Errors { get; set; }
         /// <summary>
+        /// The last time an error occured.
+        /// </summary>
+        public DateTimeOffset? LastErrorDate { get; set; }
+        /// <summary>
         /// The payload.
         /// </summary>
         public string Payload { get; set; }
@@ -56,6 +60,10 @@ namespace Indice.Hosting.Tasks.Data.Models
         /// The status.
         /// </summary>
         public double Progress { get; set; }
+        /// <summary>
+        /// If this is set to false the schedule will be disabled
+        /// </summary>
+        public bool? Enabled { get; set; }
 
         /// <summary>
         /// Generates the DTO for this <see cref="DbScheduledTask"/>.
@@ -66,6 +74,7 @@ namespace Indice.Hosting.Tasks.Data.Models
             Description = Description,
             Group = Group,
             Errors = Errors,
+            LastErrorDate = LastErrorDate,
             ExecutionCount = ExecutionCount,
             LastExecution = LastExecution,
             NextExecution = NextExecution,
@@ -73,7 +82,8 @@ namespace Indice.Hosting.Tasks.Data.Models
             State = JsonSerializer.Deserialize<TState>(Payload, options ?? WorkerJsonOptions.GetDefaultSettings()),
             Status = Status,
             Type = Type,
-            WorkerId = WorkerId
+            WorkerId = WorkerId,
+            Enabled = Enabled ?? true,
         };
 
         internal DbScheduledTask From<TState>(ScheduledTask<TState> model, JsonSerializerOptions options = null) where TState : class {

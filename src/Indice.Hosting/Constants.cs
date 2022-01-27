@@ -18,5 +18,6 @@
         public const string MaxPollingInterval = nameof(MaxPollingInterval);
         public const string CleanUpBatchSize = nameof(CleanUpBatchSize);
         public const string BackoffIndex = nameof(BackoffIndex);
+        public const string Singleton = nameof(Singleton);
     }
 }

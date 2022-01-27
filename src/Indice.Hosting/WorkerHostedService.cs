@@ -45,7 +45,7 @@ namespace Indice.Hosting
         /// <inheritdoc />
         public async Task StartAsync(CancellationToken cancellationToken) {
             _logger.LogInformation("Queued Hosted Service is running.");
-            Scheduler = await _schedulerFactory.GetScheduler(cancellationToken);
+            Scheduler = await _schedulerFactory.GetScheduler(Environment.MachineName ?? "QuartzScheduler", cancellationToken);
             Scheduler.JobFactory = _jobFactory;
             foreach (var dequeueJobSchedule in _dequeueJobSchedules) {
                 var dequeueJob = JobBuilder.Create(typeof(DequeueJob<>).MakeGenericType(dequeueJobSchedule.WorkItemType))
@@ -93,7 +93,8 @@ namespace Indice.Hosting
                                            .WithIdentity(name: schedule.Name, group: schedule.Group ?? JobGroups.InternalJobsGroup)
                                            .WithDescription(schedule.Description)
                                            .SetJobData(new JobDataMap(new Dictionary<string, object> {
-                                               { JobDataKeys.JobHandlerType, schedule.JobHandlerType }
+                                               [JobDataKeys.JobHandlerType] = schedule.JobHandlerType,
+                                               [JobDataKeys.Singleton] = schedule.Singleton
                                            } as IDictionary<string, object>))
                                            .Build();
                 await Scheduler.AddJob(jobDetails, replace: true, cancellationToken);

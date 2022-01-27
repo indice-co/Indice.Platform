@@ -55,6 +55,10 @@ namespace Indice.Hosting.Tasks
         /// </summary>
         public string Errors { get; set; }
         /// <summary>
+        /// The last time an error occured.
+        /// </summary>
+        public DateTimeOffset? LastErrorDate { get; set; }
+        /// <summary>
         /// The payload.
         /// </summary>
         public TState State { get; set; }
@@ -62,5 +66,9 @@ namespace Indice.Hosting.Tasks
         /// The status.
         /// </summary>
         public double Progress { get; set; }
+        /// <summary>
+        /// If this is set to false the schedule will be disabled
+        /// </summary>
+        public bool Enabled { get; set; }
     }
 }
