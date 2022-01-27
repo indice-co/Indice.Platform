@@ -43,6 +43,7 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddSingleton<IJobFactory, QuartzJobFactory>();
             services.AddTransient<QuartzJobRunner>();
             services.AddTransient<TaskHandlerActivator>();
+            services.TryAddSingleton<ILockManager, NoOpLockManager>();
             services.AddHostedService<WorkerHostedService>();
             var builder = new WorkerHostBuilder(services, workerHostOptions);
             services.AddSingleton(builder);
@@ -56,7 +57,7 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <param name="configureAction">Configure the azure options.</param>
         /// <returns>The <see cref="WorkerHostOptions"/> used to configure locking and queue persistence.</returns>
         public static WorkerHostOptions UseAzureStorageLock(this WorkerHostOptions options, Action<LockManagerAzureOptions> configureAction = null) {
-            options.Services.TryAddSingleton(typeof(ILockManager), serviceProvider => {
+            options.Services.AddSingleton(typeof(ILockManager), serviceProvider => {
                 var azureOptions = new LockManagerAzureOptions {
                     ConnectionString = serviceProvider.GetService<IConfiguration>().GetConnectionString("StorageConnection"),
                     EnvironmentName = serviceProvider.GetService<IHostEnvironment>().EnvironmentName
@@ -81,7 +82,19 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <param name="options">The <see cref="WorkerHostOptions"/> used to configure locking and queue persistence.</param>
         /// <returns>The <see cref="WorkerHostOptions"/> used to configure locking and queue persistence.</returns>
         public static WorkerHostOptions UseLock<TLockManager>(this WorkerHostOptions options) where TLockManager : ILockManager {
-            options.Services.TryAddScoped(typeof(ILockManager), typeof(TLockManager));
+            options.Services.AddScoped(typeof(ILockManager), typeof(TLockManager));
+            return options;
+        }
+
+        /// <summary>
+        /// Registers an implementation of <see cref="ILockManager"/> which is used for distributed locking.
+        /// </summary>
+        /// <typeparam name="TLockManager">The concrete type of <see cref="ILockManager"/> to use.</typeparam>
+        /// <param name="options">The <see cref="WorkerHostOptions"/> used to configure locking and queue persistence.</param>
+        /// <param name="implementationFactory">The factory that creates the service.</param>
+        /// <returns>The <see cref="WorkerHostOptions"/> used to configure locking and queue persistence.</returns>
+        public static WorkerHostOptions UseLock<TLockManager>(this WorkerHostOptions options, Func<IServiceProvider, TLockManager> implementationFactory) where TLockManager : ILockManager {
+            options.Services.AddScoped(typeof(ILockManager), (sp) => implementationFactory(sp));
             return options;
         }
 
@@ -219,7 +232,7 @@ namespace Microsoft.Extensions.DependencyInjection
             options.Services.AddTransient(builder.JobHandlerType);
             options.Services.AddTransient(typeof(IScheduledTaskStore<TState>), builder.Options.ScheduledTaskStoreType.MakeGenericType(typeof(TState)));
             options.Services.AddTransient(typeof(ScheduledJob<,>).MakeGenericType(builder.JobHandlerType, typeof(TState)));
-            options.Services.AddTransient(serviceProvider => new ScheduledJobSettings(builder.JobHandlerType, typeof(TState), cronExpression, options.Name, options.Group, options.Description));
+            options.Services.AddTransient(serviceProvider => new ScheduledJobSettings(builder.JobHandlerType, typeof(TState), cronExpression, options.Name, options.Group, options.Description, options.Singleton));
             return new WorkerHostBuilder(options.Services, builder.Options);
         }
     }
