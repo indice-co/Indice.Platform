@@ -23,7 +23,7 @@ function createAppSettings(): IAppSettings {
         appRoot.attributes.removeNamedItem('version');
     }
     return {
-        api_url: !isTemplate ? environment.api_url : authority,
+        api_url: !isTemplate ? environment.api_url : host,
         auth_settings: {
             accessTokenExpiringNotificationTime: environment.auth_settings.accessTokenExpiringNotificationTime,
             authority: !isTemplate ? environment.auth_settings.authority : authority,

@@ -9,7 +9,7 @@
     <GenerateEmbeddedFilesManifest>true</GenerateEmbeddedFilesManifest>
     <SpaDistFolder>..\Indice.AspNetCore.Features.Campaigns.App\dist\campaigns-app</SpaDistFolder>
     <TargetFrameworks>netcoreapp3.1;net5.0;net6.0;</TargetFrameworks>
-    <VersionPrefix>5.2.1</VersionPrefix>
+    <VersionPrefix>5.2.2</VersionPrefix>
     <LangVersion>Latest</LangVersion>
   </PropertyGroup>
   <PropertyGroup Label="Package">
@@ -22,7 +22,7 @@
     <PackageId>Indice.AspNetCore.Features.Campaigns.UI</PackageId>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/indice-co/Indice.AspNet</PackageProjectUrl>
-    <PackageReleaseNotes>Update Indice.AspNetCore.EmbeddedUI.</PackageReleaseNotes>
+    <PackageReleaseNotes>Fix bug on application settings, regarding API URL.</PackageReleaseNotes>
     <PackageTags>AspNetCore;Campaigns;Notifications</PackageTags>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <RepositoryType>git</RepositoryType>
