@@ -4,11 +4,11 @@
     <UserSecretsId>bcf160ad-5384-417a-bb7c-e17caa9c35ae</UserSecretsId>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="IdentityModel.AspNetCore.OAuth2Introspection" Version="5.1.0" />
-    <!--<PackageReference Include="Indice.AspNetCore.Features.Campaigns" Version="5.0.1" />
-    <PackageReference Include="Indice.Hosting" Version="5.2.4" />-->
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.0" />
-    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="6.0.0" />   
+    <PackageReference Include="IdentityModel.AspNetCore.OAuth2Introspection" Version="6.0.0" />
+    <!--<PackageReference Include="Indice.AspNetCore.Features.Campaigns" Version="5.0.9" />-->
+    <!--<PackageReference Include="Indice.Hosting" Version="5.2.4" />-->
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.1" />
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="6.0.3" />   
     <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" Version="6.2.3" />
   </ItemGroup>
   <ItemGroup>

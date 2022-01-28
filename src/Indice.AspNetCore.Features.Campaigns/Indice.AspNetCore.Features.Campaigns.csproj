@@ -8,7 +8,7 @@
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <LangVersion>Latest</LangVersion>
     <TargetFrameworks>netcoreapp3.1;net5.0;net6.0</TargetFrameworks>
-    <VersionPrefix>5.0.7</VersionPrefix>
+    <VersionPrefix>5.0.9</VersionPrefix>
     <!--<VersionSuffix>beta-02</VersionSuffix>-->
   </PropertyGroup>
   <PropertyGroup Label="Package">
@@ -20,7 +20,7 @@
     <PackageId>Indice.AspNetCore.Features.Campaigns</PackageId>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/indice-co/Indice.AspNet</PackageProjectUrl>
-    <PackageReleaseNotes>Better registration for JsonStringArrayEnumFlagsConverter.</PackageReleaseNotes>
+    <PackageReleaseNotes>Update Indice.AspNetCore.</PackageReleaseNotes>
     <PackageTags>AspNetCore;Campaign Management;</PackageTags>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <RepositoryType>git</RepositoryType>
@@ -28,7 +28,7 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="EPPlus" Version="4.5.3.3" />
-    <PackageReference Include="Indice.AspNetCore" Version="5.2.9" />
+    <PackageReference Include="Indice.AspNetCore" Version="5.2.14" />
     <PackageReference Include="Indice.EntityFrameworkCore" Version="5.2.2" />
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
   </ItemGroup>
