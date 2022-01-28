@@ -6,7 +6,7 @@
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <GenerateEmbeddedFilesManifest>true</GenerateEmbeddedFilesManifest>
     <TargetFrameworks>netcoreapp3.1;net5.0;net6.0;</TargetFrameworks>
-    <VersionPrefix>5.2.1</VersionPrefix>
+    <VersionPrefix>5.2.2</VersionPrefix>
     <!--<VersionSuffix>beta-01</VersionSuffix>-->
   </PropertyGroup>
   <PropertyGroup Label="Package">
@@ -19,7 +19,7 @@
     <PackageId>Indice.AspNetCore.EmbeddedUI</PackageId>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/indice-co/Indice.AspNet</PackageProjectUrl>
-    <PackageReleaseNotes>Change namespace for SpaUIOptionsExtensions.</PackageReleaseNotes>
+    <PackageReleaseNotes>Fix product version. Allow scopes to be passed in app configuration.</PackageReleaseNotes>
     <PackageTags>AspNetCore;FileProviders</PackageTags>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <RepositoryType>git</RepositoryType>

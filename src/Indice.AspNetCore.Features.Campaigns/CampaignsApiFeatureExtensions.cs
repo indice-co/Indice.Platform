@@ -45,7 +45,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 options.ApiPrefix = campaignsApiOptions.ApiPrefix;
                 options.ConfigureDbContext = campaignsApiOptions.ConfigureDbContext;
                 options.DatabaseSchema = campaignsApiOptions.DatabaseSchema;
-                options.ExpectedScope = campaignsApiOptions.ExpectedScope;
+                options.RequiredScope = campaignsApiOptions.RequiredScope;
                 options.UserClaimType = campaignsApiOptions.UserClaimType;
             });
             // Post configure MVC options.
@@ -89,7 +89,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 authOptions.AddPolicy(CampaignsApi.Policies.BeCampaignsManager, policy => {
                     policy.AddAuthenticationSchemes(CampaignsApi.AuthenticationScheme)
                           .RequireAuthenticatedUser()
-                          .RequireAssertion(x => x.User.HasScopeClaim(campaignsApiOptions.ExpectedScope ?? CampaignsApi.Scope) && x.User.CanManageCampaigns());
+                          .RequireAssertion(x => x.User.HasScopeClaim(campaignsApiOptions.RequiredScope ?? CampaignsApi.Scope) && x.User.CanManageCampaigns());
                 });
             });
             return mvcBuilder;

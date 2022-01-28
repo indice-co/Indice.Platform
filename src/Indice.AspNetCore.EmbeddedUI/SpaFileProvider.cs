@@ -79,7 +79,8 @@ namespace Indice.AspNetCore.EmbeddedUI
             { "%(Path)", _options.Path.Trim('/') },
             { "%(HeadContent)", _options.HeadContent },
             { "%(Culture)", CultureInfo.CurrentCulture.TwoLetterISOLanguageName },
-            { "%(ProductVersion)", typeof(SpaUIMiddleware).Assembly.GetName().Version.ToString(fieldCount: 3) } // this is wrong.
+            { "%(ProductVersion)", _options.Version },
+            { "%(Scopes)", _options.Scope }
         };
     }
 }

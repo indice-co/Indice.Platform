@@ -43,7 +43,7 @@ namespace Indice.Api
                         options.ApiPrefix = "api";
                         options.ConfigureDbContext = builder => builder.UseSqlServer(Configuration.GetConnectionString("CampaignsDb"));
                         options.DatabaseSchema = "cmp";
-                        options.ExpectedScope = $"backoffice:{CampaignsApi.Scope}";
+                        options.RequiredScope = $"backoffice:{CampaignsApi.Scope}";
                         options.UserClaimType = JwtClaimTypes.Subject;
                     })
                     .AddJsonOptions(options => {
@@ -161,6 +161,7 @@ namespace Indice.Api
             app.UseCampaignsUI(options => {
                 options.Path = "campaigns";
                 options.ClientId = "backoffice-ui";
+                options.Scope = "backoffice backoffice:campaigns";
                 options.DocumentTitle = "Campaigns UI";
                 options.Authority = Settings.Authority;
                 options.Host = Settings.Host;

@@ -9,6 +9,7 @@ namespace Indice.AspNetCore.EmbeddedUI
     /// </summary>
     public class SpaUIOptions
     {
+        internal string Version { get; set; }
         private string _defaultPath = "/backoffice";
         /// <summary>
         /// The name of the section used in appsettings.json file.
@@ -22,6 +23,11 @@ namespace Indice.AspNetCore.EmbeddedUI
         /// The client id used to identify the application in the authority server. Defaults to <b>spa-ui</b>.
         /// </summary>
         public string ClientId { get; set; } = "spa-ui";
+        /// <summary>
+        /// The default scope names, as space separated values, to be used for Campaigns API. This can include the main scope (audience) and sub-scopes. Defaults to <b>campaigns</b>.
+        /// </summary>
+        /// <example>backoffice backoffice:campaigns</example>
+        public string Scope { get; set; } = "campaigns";
         /// <summary>
         /// Specifies the title (shown in browser tab) used in the back-office application. Defaults to <b>Indice BackOffice UI</b>.
         /// </summary>

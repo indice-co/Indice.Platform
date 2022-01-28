@@ -17,7 +17,7 @@ namespace Indice.AspNetCore.Features.Campaigns.Configuration
         /// <summary>
         /// The default scope name to be used for Campaigns API. Defaults to <see cref="CampaignsApi.Scope"/>.
         /// </summary>
-        public string ExpectedScope { get; set; } = CampaignsApi.Scope;
+        public string RequiredScope { get; set; } = CampaignsApi.Scope;
         /// <summary>
         /// Specifies a prefix for the API endpoints. Defaults to <i>api</i>.
         /// </summary>

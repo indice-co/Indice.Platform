@@ -19,6 +19,7 @@ namespace Microsoft.AspNetCore.Builder
         /// <param name="assembly">The assembly containing the embedded resources.</param>
         public static IApplicationBuilder UseSpaUI(this IApplicationBuilder builder, SpaUIOptions options, string embeddedUIRoot, Assembly assembly) {
             if (options.Enabled) {
+                options.Version = assembly.GetName().Version.ToString(fieldCount: 3);
                 builder.UseMiddleware<SpaUIMiddleware>(options, embeddedUIRoot, assembly);
             }
             return builder;
@@ -32,9 +33,11 @@ namespace Microsoft.AspNetCore.Builder
         /// <param name="assembly">The assembly containing the embedded resources.</param>
         /// <param name="optionsAction">Options for configuring <see cref="SpaUIMiddleware"/> middleware.</param>
         public static IApplicationBuilder UseSpaUI(this IApplicationBuilder builder, string embeddedUIRoot = "spa-ui-dist", Assembly assembly = null, Action<SpaUIOptions> optionsAction = null) {
-            var options = new SpaUIOptions();
+            var options = new SpaUIOptions {
+                Version = assembly.GetName().Version.ToString(fieldCount: 3)
+            };
             optionsAction?.Invoke(options);
-            return builder.UseSpaUI(options, embeddedUIRoot, assembly ?? Assembly.GetExecutingAssembly());
+            return builder.UseSpaUI(options, embeddedUIRoot, assembly ?? Assembly.GetCallingAssembly());
         }
     }
 }
