@@ -103,12 +103,19 @@ namespace Indice.Api
                     //builder.UseNpgsql(Configuration.GetConnectionString("WorkerDb"));
                 });
             })
-            .AddJob<LoadAvailableAlertsJobHandler>()
-            .WithScheduleTrigger<DemoCounterModel>("0 0/1 * * * ?", options => {
-                options.Name = "load-available-alerts";
-                options.Description = "Load alerts for the queue.";
+            .AddJob<LongRunningTaskJobHandler>()
+            .WithScheduleTrigger("0 0/2 * * * ?", options => {
+                options.Name = "useless-task";
+                options.Description = "Does nothing for some minutes.";
                 options.Group = "indice";
+                options.Singleton = true;
             })
+            //.AddJob<LoadAvailableAlertsJobHandler>()
+            //.WithScheduleTrigger<DemoCounterModel>("0 0/1 * * * ?", options => {
+            //    options.Name = "load-available-alerts";
+            //    options.Description = "Load alerts for the queue.";
+            //    options.Group = "indice";
+            //})
             .AddJob<SendSmsJobHandler>()
             .WithQueueTrigger<SmsDto>(options => {
                 options.QueueName = "send-user-sms";

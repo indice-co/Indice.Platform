@@ -1,18 +1,17 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Indice.Types;
 
 namespace Indice.Services
 {
     /// <summary>
-    /// A lockmanager that does nothing. Nada. Nil
+    /// A lockmanager that does nothing.
     /// </summary>
     public class NoOpLockManager : ILockManager
     {
         /// <inheritdoc/>
-        public Task<ILockLease> AcquireLock(string name, TimeSpan? duration = null) => 
+        public Task<ILockLease> AcquireLock(string name, TimeSpan? duration = null, CancellationToken cancellationToken = default) => 
             Task.FromResult((ILockLease)new LockLease(new Base64Id(Guid.NewGuid()).ToString(), name, this));
 
         /// <inheritdoc/>
@@ -22,7 +21,6 @@ namespace Indice.Services
         public Task ReleaseLock(ILockLease @lock) => Task.CompletedTask;
 
         /// <inheritdoc/>
-        public Task<ILockLease> Renew(string name, string leaseId) =>
-            Task.FromResult((ILockLease)new LockLease(leaseId, name, this));
+        public Task<ILockLease> Renew(string name, string leaseId, CancellationToken cancellationToken = default) => Task.FromResult((ILockLease)new LockLease(leaseId, name, this));
     }
 }

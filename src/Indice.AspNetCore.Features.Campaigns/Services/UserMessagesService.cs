@@ -32,8 +32,6 @@ namespace Indice.AspNetCore.Features.Campaigns.Services
 
         public Task<UserMessage> GetMessageById(Guid messageId, string userCode) => GetUserMessagesQuery(userCode).SingleOrDefaultAsync(x => x.Id == messageId);
 
-        public Task<int> GetNumberOfUnreadMessages(string userCode) => GetUserMessagesQuery(userCode).Where(x => !x.IsRead).CountAsync();
-
         public async Task<ResultSet<UserMessage, IEnumerable<CampaignType>>> GetUserMessages(string userCode, ListOptions<UserMessageFilter> options) {
             var userMessages = await GetUserMessagesQuery(userCode, options).ToResultSetAsync(options);
             var campaignTypes = await DbContext.CampaignTypes.Select(x => new CampaignType {
@@ -84,7 +82,7 @@ namespace Indice.AspNetCore.Features.Campaigns.Services
 
         private IQueryable<UserMessage> GetUserMessagesQuery(string userCode, ListOptions<UserMessageFilter> options = null) {
             options ??= new ListOptions<UserMessageFilter>();
-            return from campaign in DbContext.Campaigns.AsNoTracking().Include(x => x.Attachment)
+            return from campaign in DbContext.Campaigns.AsNoTracking().Include(x => x.Attachment).Include(x => x.Type)
                    from message in DbContext.CampaignUsers.AsNoTracking().Where(x => x.CampaignId == campaign.Id && x.UserCode == userCode).DefaultIfEmpty()
                    where campaign.Published
                       && (message == null || !message.IsDeleted)
@@ -94,7 +92,8 @@ namespace Indice.AspNetCore.Features.Campaigns.Services
                             (options.Filter.ShowExpired.Value || !campaign.ActivePeriod.To.HasValue || campaign.ActivePeriod.To.Value >= DateTime.UtcNow) &&
                             (options.Filter.TypeId.Length == 0 || campaign.Type == null || options.Filter.TypeId.Contains(campaign.Type.Id)) &&
                             (options.Filter.ActiveTo == null || (campaign.ActivePeriod.From ?? DateTimeOffset.MinValue) < options.Filter.ActiveTo.Value) &&
-                            (options.Filter.ActiveFrom == null || (campaign.ActivePeriod.To ?? DateTimeOffset.MaxValue) > options.Filter.ActiveFrom.Value)
+                            (options.Filter.ActiveFrom == null || (campaign.ActivePeriod.To ?? DateTimeOffset.MaxValue) > options.Filter.ActiveFrom.Value) &&
+                            (options.Filter.IsRead == null || ((bool?)message.IsRead ?? false) == options.Filter.IsRead)
                          )
                       )
                    select new UserMessage {

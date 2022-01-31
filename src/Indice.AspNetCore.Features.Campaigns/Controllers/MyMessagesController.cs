@@ -17,7 +17,6 @@ namespace Indice.AspNetCore.Features.Campaigns.Controllers
     /// <response code="401">Unauthorized</response>
     /// <response code="403">Forbidden</response>
     [ApiController]
-    [ApiExplorerSettings(GroupName = "campaigns")]
     [Authorize(AuthenticationSchemes = CampaignsApi.AuthenticationScheme)]
     [Consumes(MediaTypeNames.Application.Json)]
     [Produces(MediaTypeNames.Application.Json)]
@@ -66,17 +65,6 @@ namespace Indice.AspNetCore.Features.Campaigns.Controllers
                 return NotFound();
             }
             return Ok(message);
-        }
-
-        /// <summary>
-        /// Returns the number of messages that have not been read by the user.
-        /// </summary>
-        /// <response code="200">OK</response>
-        [HttpGet("unread-count")]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(UserMessageCount))]
-        public async Task<IActionResult> GetNumberOfUnreadMessages() {
-            var count = await UserMessagesService.GetNumberOfUnreadMessages(UserCode);
-            return Ok(new UserMessageCount { Count = count });
         }
 
         /// <summary>

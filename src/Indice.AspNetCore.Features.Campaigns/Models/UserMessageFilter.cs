@@ -23,5 +23,9 @@ namespace Indice.AspNetCore.Features.Campaigns.Models
         /// Controls whether to show expired messages (that is outside of active period). Defaults to false.
         /// </summary>
         public bool? ShowExpired { get; set; } = false;
+        /// <summary>
+        /// Controls whether to filter for read messages.
+        /// </summary>
+        public bool? IsRead { get; set; }
     }
 }

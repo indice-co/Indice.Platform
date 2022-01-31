@@ -45,7 +45,7 @@ namespace Indice.Hosting
         /// <inheritdoc />
         public async Task StartAsync(CancellationToken cancellationToken) {
             _logger.LogInformation("Queued Hosted Service is running.");
-            Scheduler = await _schedulerFactory.GetScheduler(/*Environment.MachineName ?? "QuartzScheduler", */cancellationToken);
+            Scheduler = await _schedulerFactory.GetScheduler(cancellationToken);
             Scheduler.JobFactory = _jobFactory;
             foreach (var dequeueJobSchedule in _dequeueJobSchedules) {
                 var dequeueJob = JobBuilder.Create(typeof(DequeueJob<>).MakeGenericType(dequeueJobSchedule.WorkItemType))

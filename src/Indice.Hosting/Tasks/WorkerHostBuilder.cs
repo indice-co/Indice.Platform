@@ -24,7 +24,7 @@ namespace Indice.Hosting.Tasks
     }
 
     /// <summary>
-    /// A helper class to configure the worker host. This variation enables the just added queue triggered job to change its qmessage store
+    /// A helper class to configure the worker host. This variation enables the just added queue triggered job to change it's qmessage store.
     /// </summary>
     public class WorkerHostBuilderForQueue : WorkerHostBuilder
     {

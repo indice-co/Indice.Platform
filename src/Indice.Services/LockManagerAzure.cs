@@ -2,6 +2,7 @@
 using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Specialized;
@@ -42,16 +43,16 @@ namespace Indice.Services
         public BlobContainerClient BlobContainer { get; }
 
         /// <inheritdoc />
-        public async Task<ILockLease> AcquireLock(string name, TimeSpan? duration = null) {
+        public async Task<ILockLease> AcquireLock(string name, TimeSpan? duration = null, CancellationToken cancellationToken = default) {
             await BlobContainer.CreateIfNotExistsAsync();
             var lockFileBlob = BlobContainer.GetBlobClient($"locks/{name}.lock");
             try {
                 await lockFileBlob.UploadAsync(new MemoryStream(Encoding.ASCII.GetBytes("0")), overwrite: true);
                 var lockFileLease = lockFileBlob.GetBlobLeaseClient();
-                var leaseResponse = await lockFileLease.AcquireAsync(duration ?? TimeSpan.FromSeconds(30));
+                var leaseResponse = await lockFileLease.AcquireAsync(duration ?? TimeSpan.FromSeconds(30), cancellationToken: cancellationToken);
                 return new LockLease(leaseResponse.Value.LeaseId, name, this);
-            } catch (Exception ex) {
-                throw new LockManagerException(name, ex);
+            } catch (Exception exception) {
+                throw new LockManagerException(name, exception);
             }
         }
 
@@ -63,10 +64,10 @@ namespace Indice.Services
         }
 
         /// <inheritdoc />
-        public async Task<ILockLease> Renew(string name, string LeaseId) {
+        public async Task<ILockLease> Renew(string name, string leaseId, CancellationToken cancellationToken = default) {
             var lockFileBlob = BlobContainer.GetBlobClient($"locks/{name}.lock");
-            var lockFileLease = lockFileBlob.GetBlobLeaseClient(LeaseId);
-            var leaseResponse = await lockFileLease.RenewAsync();
+            var lockFileLease = lockFileBlob.GetBlobLeaseClient(leaseId);
+            var leaseResponse = await lockFileLease.RenewAsync(cancellationToken: cancellationToken);
             return new LockLease(leaseResponse.Value.LeaseId, name, this);
         }
 

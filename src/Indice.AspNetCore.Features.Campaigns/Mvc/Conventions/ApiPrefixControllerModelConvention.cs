@@ -18,7 +18,7 @@ namespace Indice.AspNetCore.Features.Campaigns.Mvc.ApplicationModels
             if (selector.AttributeRouteModel == null) { 
                 selector.AttributeRouteModel = new AttributeRouteModel();
             }
-            selector.AttributeRouteModel.Template = selector.AttributeRouteModel.Template.Replace("[campaignsApiPrefix]", CampaignsApiOptions.ApiPrefix ?? "api");
+            selector.AttributeRouteModel.Template = selector.AttributeRouteModel.Template?.Replace("[campaignsApiPrefix]", CampaignsApiOptions.ApiPrefix ?? "api");
         }
     }
 }

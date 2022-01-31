@@ -18,16 +18,16 @@ namespace Indice.Services
         private readonly SemaphoreSlim _signal = new SemaphoreSlim(0);
 
         /// <summary>
-        /// 
+        /// Create a new instance of <see cref="LockManagerInMemory"/>.
         /// </summary>
-        /// <param name="logger"></param>
+        /// <param name="logger">Represents a type used to perform logging.</param>
         public LockManagerInMemory(ILogger<LockManagerInMemory> logger) {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _signal.Release();
         }
 
         /// <inheritdoc />
-        public async Task<ILockLease> AcquireLock(string name, TimeSpan? timeout = null) {
+        public async Task<ILockLease> AcquireLock(string name, TimeSpan? timeout = null, CancellationToken cancellationToken = default) {
             await _signal.WaitAsync();
             var leaseId = new Base64Id(Guid.NewGuid()).ToString();
             _logger.LogInformation("Item with lease id {0} acquired the lock.", leaseId);
@@ -47,7 +47,7 @@ namespace Indice.Services
         }
 
         /// <inheritdoc />
-        public Task<ILockLease> Renew(string name, string leaseId) {
+        public Task<ILockLease> Renew(string name, string leaseId, CancellationToken cancellationToken = default) {
             return Task.FromResult((ILockLease)new LockLease(leaseId, name, this));
         }
     }

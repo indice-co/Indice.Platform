@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using Indice.Hosting.Tasks.Data;
 using Indice.Hosting.Tasks.Data.Models;
@@ -27,7 +29,7 @@ namespace Indice.Hosting.Tasks.Implementations
         }
 
         /// <inheritdoc/>
-        public async Task<ILockLease> AcquireLock(string name, TimeSpan? timeout = null) {
+        public async Task<ILockLease> AcquireLock(string name, TimeSpan? timeout = null, CancellationToken cancellationToken = default) {
             var duration = timeout ?? TimeSpan.FromSeconds(30);
             var @lock = new DbLock {
                 Id = Guid.NewGuid(),
@@ -37,7 +39,12 @@ namespace Indice.Hosting.Tasks.Implementations
             };
             bool success;
             try {
-                await _dbContext.Database.ExecuteSqlRawAsync(_queryDescriptor.AcquireLock, @lock.Id, @lock.Name, @lock.ExpirationDate, @lock.Duration);
+                await _dbContext.Database.ExecuteSqlRawAsync(_queryDescriptor.AcquireLock, new List<object> {
+                    @lock.Id,
+                    @lock.Name,
+                    @lock.ExpirationDate,
+                    @lock.Duration
+                }, cancellationToken);
                 success = true;
             } catch (Exception) {
                 await Cleanup();
@@ -50,16 +57,14 @@ namespace Indice.Hosting.Tasks.Implementations
         }
 
         /// <inheritdoc/>
-        public async Task ReleaseLock(ILockLease @lock) {
-            await _dbContext.Database.ExecuteSqlRawAsync(_queryDescriptor.ReleaseLock, @lock.Name, Base64Id.Parse(@lock.LeaseId).Id);
-        }
+        public async Task ReleaseLock(ILockLease @lock) => await _dbContext.Database.ExecuteSqlRawAsync(_queryDescriptor.ReleaseLock, @lock.Name, Base64Id.Parse(@lock.LeaseId).Id);
 
         /// <inheritdoc/>
-        public async Task<ILockLease> Renew(string name, string leaseId) {
+        public async Task<ILockLease> Renew(string name, string leaseId, CancellationToken cancellationToken = default) {
             var base64Id = Base64Id.Parse(leaseId);
             bool success;
             try {
-                var affecterRows = await _dbContext.Database.ExecuteSqlRawAsync(_queryDescriptor.RenewLease, base64Id.Id);
+                var affecterRows = await _dbContext.Database.ExecuteSqlRawAsync(_queryDescriptor.RenewLease, new List<object> { base64Id.Id }, cancellationToken);
                 success = affecterRows > 0;
             } catch (SqlException) {
                 await Cleanup();
@@ -72,9 +77,7 @@ namespace Indice.Hosting.Tasks.Implementations
         }
 
         /// <inheritdoc/>
-        public async Task Cleanup() {
-            await _dbContext.Database.ExecuteSqlRawAsync(_queryDescriptor.Cleanup);
-        }
+        public async Task Cleanup() => await _dbContext.Database.ExecuteSqlRawAsync(_queryDescriptor.Cleanup);
     }
 
     internal class LockManagerQueryDescriptor
@@ -110,7 +113,7 @@ namespace Indice.Hosting.Tasks.Implementations
             VALUES ({0}, {1}, {2}, {3});";
         public const string ReleaseLock = @"
             DELETE FROM [work].[Lock] 
-            WHERE ([Name] = {0} AND [Id] < {1}) OR [ExpirationDate] < GETDATE();";
+            WHERE ([Name] = {0} AND [Id] = {1}) OR [ExpirationDate] < GETDATE();";
         public const string RenewLease = @"
             UPDATE [work].[Lock] 
             SET [ExpirationDate] = DATEADD(second, [Duration], GETDATE()) 
@@ -127,7 +130,7 @@ namespace Indice.Hosting.Tasks.Implementations
             VALUES ({0}, {1}, {2}, {3});";
         public const string ReleaseLock = @"
             DELETE FROM ""work"".""Lock"" 
-            WHERE (""Name"" = {0} AND ""Id"" < {1}) OR ""ExpirationDate"" < NOW();";
+            WHERE (""Name"" = {0} AND ""Id"" = {1}) OR ""ExpirationDate"" < NOW();";
         public const string RenewLease = @"
             UPDATE ""work"".""Lock"" 
             SET ""ExpirationDate"" = NOW() + ""Duration"" * INTERVAL '1 second'; 
