@@ -71,7 +71,7 @@ namespace Indice.Hosting.Tasks
         /// <param name="visibilityWindow">Postpones processing of the message as specified by the <paramref name="visibilityWindow"/>.</param>
         public static async Task Enqueue<T>(this IMessageQueue<T> queue, T item, TimeSpan visibilityWindow) where T : class {
             var message = new QMessage<T> {
-                Id = Guid.NewGuid(),
+                Id = Guid.NewGuid().ToString(),
                 Date = DateTime.UtcNow.Add(visibilityWindow),
                 Value = item,
                 IsNew = true
@@ -96,7 +96,7 @@ namespace Indice.Hosting.Tasks
         /// <param name="visibilityWindow">Postpones processing of the message as specified by the <paramref name="visibilityWindow"/>.</param>
         public static async Task EnqueueRange<T>(this IMessageQueue<T> queue, IEnumerable<T> items, TimeSpan visibilityWindow) where T : class {
             var message = items.Select(item => new QMessage<T> {
-                Id = Guid.NewGuid(),
+                Id = Guid.NewGuid().ToString(),
                 Date = DateTime.UtcNow.Add(visibilityWindow),
                 Value = item,
                 IsNew = true

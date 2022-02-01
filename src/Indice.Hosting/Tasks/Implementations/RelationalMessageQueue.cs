@@ -81,7 +81,7 @@ namespace Indice.Hosting.Tasks.Implementations
         public async Task Enqueue(QMessage<T> item, bool isPoison) {
             var dbConnection = await _dbContext.Database.EnsureOpenConnectionAsync();
             using (var command = dbConnection.CreateCommand()) {
-                command.AddParameterWithValue("@Id", item.Id, DbType.Guid);
+                command.AddParameterWithValue("@Id", Guid.Parse(item.Id), DbType.Guid);
                 command.AddParameterWithValue("@QueueName", _queueNameResolver.Resolve(isPoison), DbType.String);
                 command.AddParameterWithValue("@Payload", JsonSerializer.Serialize(item.Value, _jsonSerializerOptions), DbType.String);
                 command.AddParameterWithValue("@Date", item.Date, DbType.DateTime);
@@ -107,7 +107,7 @@ namespace Indice.Hosting.Tasks.Implementations
                         var isLastItem = j == iterationLength - 1;
                         query.Append(!isLastItem ? ", " : ";");
                         var currentItem = items.ElementAt(j);
-                        command.AddParameterWithValue($"@Id{j}", currentItem.Id, DbType.Guid);
+                        command.AddParameterWithValue($"@Id{j}", Guid.Parse(currentItem.Id), DbType.Guid);
                         command.AddParameterWithValue($"@QueueName{j}", _queueNameResolver.Resolve(), DbType.String);
                         command.AddParameterWithValue($"@Payload{j}", JsonSerializer.Serialize(currentItem.Value, _jsonSerializerOptions), DbType.String);
                         command.AddParameterWithValue($"@Date{j}", currentItem.Date, DbType.DateTime);

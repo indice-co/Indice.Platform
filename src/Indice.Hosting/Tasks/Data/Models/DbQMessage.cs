@@ -42,7 +42,7 @@ namespace Indice.Hosting.Tasks.Data.Models
         /// </summary>
         /// <typeparam name="T">The type of message to convert to.</typeparam>
         public QMessage<T> ToModel<T>(JsonSerializerOptions options = null) where T : class => new QMessage<T> {
-            Id = Id,
+            Id = Id.ToString(),
             Date = Date,
             DequeueCount = DequeueCount,
             QueueName = QueueName,

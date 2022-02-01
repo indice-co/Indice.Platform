@@ -11,7 +11,7 @@ namespace Indice.Hosting.Tasks
         /// <summary>
         /// The id
         /// </summary>
-        public Guid Id { get; internal set; }
+        public string Id { get; internal set; }
         /// <summary>
         /// The Queue name
         /// </summary>

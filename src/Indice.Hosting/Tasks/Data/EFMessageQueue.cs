@@ -57,9 +57,10 @@ namespace Indice.Hosting.Tasks.Data
         /// <inheritdoc/>
         public async Task Enqueue(QMessage<T> item, bool isPoison) {
             DbQMessage message;
+            var messageId = Guid.Parse(item.Id);
             if (item.IsNew) {
                 message = new DbQMessage {
-                    Id = item.Id,
+                    Id = messageId,
                     Date = item.Date,
                     State = QMessageState.New,
                     Payload = JsonSerializer.Serialize(item.Value, _jsonSerializerOptions),
@@ -67,7 +68,7 @@ namespace Indice.Hosting.Tasks.Data
                 };
                 _dbContext.Add(message);
             } else {
-                message = await _dbContext.Queue.Where(x => x.Id == item.Id).SingleAsync();
+                message = await _dbContext.Queue.Where(x => x.Id == messageId).SingleAsync();
                 message.State = isPoison ? QMessageState.Poison : QMessageState.New;
                 message.DequeueCount = item.DequeueCount;
                 _dbContext.Update(message);
@@ -78,7 +79,7 @@ namespace Indice.Hosting.Tasks.Data
         /// <inheritdoc/>
         public async Task EnqueueRange(IEnumerable<QMessage<T>> items) {
             _dbContext.AddRange(items.Select(item => new DbQMessage() {
-                Id = item.Id,
+                Id = Guid.Parse(item.Id),
                 Date = item.Date,
                 State = QMessageState.New,
                 Payload = JsonSerializer.Serialize(item.Value, _jsonSerializerOptions),
