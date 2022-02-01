@@ -18,7 +18,7 @@ namespace Indice.Hosting.Tasks
         /// <param name="cleanUpInterval">Cleanup up the queue every interval secconds</param>
         /// <param name="cleanUpBatchSize">Cleanup every items.</param>
         /// <param name="instanceCount">Number of concurrent instances</param>
-        public DequeueJobSettings(Type jobHandlerType, Type workItemType, string jobName, int pollingInterval, int backoffThreshold, int cleanUpInterval, int cleanUpBatchSize, int instanceCount) {
+        public DequeueJobSettings(Type jobHandlerType, Type workItemType, string jobName, double pollingInterval, double backoffThreshold, int cleanUpInterval, int cleanUpBatchSize, int instanceCount) {
             JobHandlerType = jobHandlerType;
             WorkItemType = workItemType;
             Name = jobName;
@@ -42,13 +42,13 @@ namespace Indice.Hosting.Tasks
         /// </summary>
         public string Name { get; set; }
         /// <summary>
-        /// The time interval between two attempts to dequeue new items. Mesured in millisecconds
+        /// The time interval between two attempts to dequeue new items. Measured in millisecconds
         /// </summary>
-        public int PollingInterval { get; set; } = 300;
+        public double PollingInterval { get; set; } = 300;
         /// <summary>
-        /// The maximum time interval between two attempts to dequeue new items. Mesured in millisecconds
+        /// The maximum time interval between two attempts to dequeue new items. Measured in millisecconds
         /// </summary>
-        public int MaxPollingInterval { get; set; } = 5000;
+        public double MaxPollingInterval { get; set; } = 5000;
         /// <summary>
         /// The concurrent instance count.
         /// </summary>

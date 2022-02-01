@@ -151,7 +151,7 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <param name="queueName">The name of the queue.</param>
         /// <param name="pollingIntervalInSeconds">Specifies the time interval between two attempts to dequeue new items.</param>
         /// <returns>The <see cref="WorkerHostBuilder"/> used to configure the worker host.</returns>
-        public static WorkerHostBuilder WithQueueTrigger<TWorkItem>(this TaskTriggerBuilder builder, string queueName, int pollingIntervalInSeconds) where TWorkItem : class =>
+        public static WorkerHostBuilder WithQueueTrigger<TWorkItem>(this TaskTriggerBuilder builder, string queueName, double pollingIntervalInSeconds) where TWorkItem : class =>
             builder.WithQueueTrigger<TWorkItem>(options => new QueueOptions(builder.Services) {
                 QueueName = queueName,
                 PollingInterval = pollingIntervalInSeconds

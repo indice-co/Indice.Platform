@@ -175,11 +175,11 @@ namespace Indice.AspNetCore.Identity.Data
         public async Task<IdentityResult> AddDeviceAsync(TUser user, Device device, CancellationToken cancellationToken = default) {
             cancellationToken.ThrowIfCancellationRequested();
             ThrowIfDisposed();
-            if (device is null) {
-                throw new ArgumentNullException(nameof(device));
-            }
             if (user is null) {
                 throw new ArgumentNullException(nameof(user));
+            }
+            if (device is null) {
+                throw new ArgumentNullException(nameof(device));
             }
             UserDevices.Add(new UserDevice {
                 Data = device.Data,
@@ -237,6 +237,34 @@ namespace Indice.AspNetCore.Identity.Data
                 };
             }
             return default;
+        }
+
+        /// <inheritdoc/>
+        public async Task<IdentityResult> UpdateDeviceAsync(TUser user, Device device, CancellationToken cancellationToken) {
+            cancellationToken.ThrowIfCancellationRequested();
+            ThrowIfDisposed();
+            if (user is null) {
+                throw new ArgumentNullException(nameof(user));
+            }
+            var deviceId = device.DeviceId;
+            if (string.IsNullOrWhiteSpace(deviceId)) {
+                return IdentityResult.Failed(new IdentityError {
+                    Code = "MissingDeviceId",
+                    Description = "Device id is missing."
+                });
+            }
+            var foundDevice = await UserDevices.SingleOrDefaultAsync(x => x.UserId == user.Id && x.DeviceId == deviceId, cancellationToken);
+            if (foundDevice is not null) {
+                foundDevice.Data = device.Data;
+                foundDevice.IsPushNotificationsEnabled = foundDevice.IsPushNotificationsEnabled;
+                foundDevice.Model = device.Model;
+                foundDevice.Name = device.Name;
+                foundDevice.OsVersion = device.OsVersion;
+                foundDevice.Platform = device.Platform;
+                await SaveChanges(cancellationToken);
+                return IdentityResult.Success;
+            }
+            return await AddDeviceAsync(user, device, cancellationToken);
         }
     }
 }

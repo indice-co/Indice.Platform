@@ -256,6 +256,26 @@ namespace Indice.AspNetCore.Identity
         }
 
         /// <summary>
+        /// Updates the given device. If the device does not exists, it is automatically created.
+        /// </summary>
+        /// <param name="user">The user instance.</param>
+        /// <param name="device">The device to update (or create).</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
+        /// <returns>The <see cref="Task"/> that represents the asynchronous operation, containing the <see cref="IdentityResult"/> of the creation operation.</returns>
+        /// <exception cref="ArgumentNullException">Thrown when <paramref name="user"/> or <paramref name="device"/> parameters are null.</exception>
+        public Task<IdentityResult> UpdateDeviceAsync(TUser user, Device device, CancellationToken cancellationToken = default) {
+            ThrowIfDisposed();
+            var deviceStore = GetDeviceStore();
+            if (device is null) {
+                throw new ArgumentNullException(nameof(device));
+            }
+            if (user is null) {
+                throw new ArgumentNullException(nameof(user));
+            }
+            return deviceStore.UpdateDeviceAsync(user, device, cancellationToken);
+        }
+
+        /// <summary>
         /// Get the devices registed by the specified user.
         /// </summary>
         /// <param name="user">The user instance.</param>

@@ -42,7 +42,13 @@ namespace Indice.AspNetCore.Identity.Api
         /// </summary>
         public const string Name = "Devices";
 
-        public DevicesController(ExtendedUserManager<User> userManager, IPushNotificationService pushNotificationService, ExtendedIdentityDbContext<User, Role> dbContext, IPlatformEventService eventService, ILogger<DevicesController> logger) {
+        public DevicesController(
+            ExtendedUserManager<User> userManager, 
+            IPushNotificationService pushNotificationService, 
+            ExtendedIdentityDbContext<User, Role> dbContext, 
+            IPlatformEventService eventService, 
+            ILogger<DevicesController> logger
+        ) {
             UserManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
             PushNotificationService = pushNotificationService ?? throw new ArgumentNullException(nameof(pushNotificationService));
             DbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));

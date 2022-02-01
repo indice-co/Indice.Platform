@@ -7,15 +7,19 @@ using Indice.AspNetCore.Features.Campaigns.Configuration;
 using Indice.AspNetCore.Features.Campaigns.Controllers;
 using Indice.AspNetCore.Features.Campaigns.Data;
 using Indice.AspNetCore.Features.Campaigns.Formatters;
+using Indice.AspNetCore.Features.Campaigns.Hosting;
+using Indice.AspNetCore.Features.Campaigns.Models;
 using Indice.AspNetCore.Features.Campaigns.Mvc.ApplicationModels;
 using Indice.AspNetCore.Features.Campaigns.Services;
 using Indice.AspNetCore.Swagger;
 using Indice.Extensions;
 using Indice.Security;
 using Indice.Serialization;
+using Indice.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace Microsoft.Extensions.DependencyInjection
@@ -76,6 +80,23 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddTransient<ICampaignService, CampaignService>();
             services.AddTransient<IUserMessagesService, UserMessagesService>();
             services.AddTransient<CampaignManager>();
+            // Register events.
+            services.TryAddTransient<IPlatformEventService, PlatformEventService>();
+            services.AddPlatformEventHandler<CampaignCreatedEvent, CampaignCreatedEventHandler>();
+            // Register background services.
+            // Setup worker host for executing background tasks.
+            services.AddWorkerHost(options => {
+                options.JsonOptions.JsonSerializerOptions.WriteIndented = true;
+                options.AddRelationalStore(builder => {
+                    builder.UseSqlServer(configuration.GetConnectionString("WorkerDb"));
+                });
+            })
+            .AddJob<CampaignCreatedJobHandler>()
+            .WithQueueTrigger<Campaign>(options => {
+                options.QueueName = "campaign-created";
+                options.PollingInterval = TimeSpan.FromMinutes(3).TotalMilliseconds;
+                options.InstanceCount = 3;
+            });
             // Register validators.
             mvcBuilder.AddFluentValidation(options => options.RegisterValidatorsFromAssemblyContaining<CampaignsController>());
             // Register application DbContext.

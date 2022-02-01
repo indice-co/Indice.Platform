@@ -1,6 +1,5 @@
 ﻿using System;
 using FluentValidation.AspNetCore;
-using Indice.AspNetCore.Identity;
 using Indice.AspNetCore.Identity.Api;
 using Indice.Services;
 using Microsoft.Extensions.DependencyInjection.Extensions;

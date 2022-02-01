@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Net.Mime;
 using System.Threading.Tasks;
+using Indice.AspNetCore.Features.Campaigns.Hosting;
 using Indice.AspNetCore.Features.Campaigns.Models;
 using Indice.AspNetCore.Features.Campaigns.Services;
 using Indice.AspNetCore.Filters;
@@ -28,14 +29,21 @@ namespace Indice.AspNetCore.Features.Campaigns.Controllers
     {
         public const string Name = "Campaigns";
 
-        public CampaignsController(ICampaignService campaignService, IFileService fileService, IOptions<GeneralSettings> generalSettings) {
+        public CampaignsController(
+            ICampaignService campaignService, 
+            IFileService fileService, 
+            IOptions<GeneralSettings> generalSettings, 
+            IPlatformEventService eventService
+        ) {
             CampaignService = campaignService ?? throw new ArgumentNullException(nameof(campaignService));
             FileService = fileService ?? throw new ArgumentNullException(nameof(fileService));
+            EventService = eventService ?? throw new ArgumentNullException(nameof(eventService));
             GeneralSettings = generalSettings?.Value ?? throw new ArgumentNullException(nameof(generalSettings));
         }
 
         public ICampaignService CampaignService { get; }
         public IFileService FileService { get; }
+        public IPlatformEventService EventService { get; }
         public GeneralSettings GeneralSettings { get; }
 
         /// <summary>
@@ -134,7 +142,8 @@ namespace Indice.AspNetCore.Features.Campaigns.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ValidationProblemDetails))]
         public async Task<IActionResult> CreateCampaign([FromBody] CreateCampaignRequest request) {
             var campaign = await CampaignService.CreateCampaign(request);
-
+            var @event = new CampaignCreatedEvent(campaign);
+            await EventService.Publish(@event);
             return CreatedAtAction(nameof(GetCampaignById), new { campaignId = campaign.Id }, campaign);
         }
 
