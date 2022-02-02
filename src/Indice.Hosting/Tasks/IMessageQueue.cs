@@ -69,10 +69,19 @@ namespace Indice.Hosting.Tasks
         /// <param name="queue">The message queue.</param>
         /// <param name="item">The message item.</param>
         /// <param name="visibilityWindow">Postpones processing of the message as specified by the <paramref name="visibilityWindow"/>.</param>
-        public static async Task Enqueue<T>(this IMessageQueue<T> queue, T item, TimeSpan visibilityWindow) where T : class {
+        public static async Task Enqueue<T>(this IMessageQueue<T> queue, T item, TimeSpan visibilityWindow) where T : class => await queue.Enqueue(item, DateTime.UtcNow.Add(visibilityWindow));
+
+        /// <summary>
+        /// Enqueue a new item.
+        /// </summary>
+        /// <typeparam name="T">The type of message.</typeparam>
+        /// <param name="queue">The message queue.</param>
+        /// <param name="item">The message item.</param>
+        /// <param name="enqueueAt">The <see cref="DateTime"/> that the item is added to the queue.</param>
+        public static async Task Enqueue<T>(this IMessageQueue<T> queue, T item, DateTime enqueueAt) where T : class {
             var message = new QMessage<T> {
                 Id = Guid.NewGuid().ToString(),
-                Date = DateTime.UtcNow.Add(visibilityWindow),
+                Date = enqueueAt,
                 Value = item,
                 IsNew = true
             };
@@ -94,10 +103,19 @@ namespace Indice.Hosting.Tasks
         /// <param name="queue">The message queue.</param>
         /// <param name="items">The collection of objects to add to the <see cref="IMessageQueue{T}"/>.</param>
         /// <param name="visibilityWindow">Postpones processing of the message as specified by the <paramref name="visibilityWindow"/>.</param>
-        public static async Task EnqueueRange<T>(this IMessageQueue<T> queue, IEnumerable<T> items, TimeSpan visibilityWindow) where T : class {
+        public static async Task EnqueueRange<T>(this IMessageQueue<T> queue, IEnumerable<T> items, TimeSpan visibilityWindow) where T : class => await queue.EnqueueRange(items, DateTime.UtcNow.Add(visibilityWindow));
+
+        /// <summary>
+        /// Adds a range of items to the end of the <see cref="IMessageQueue{T}"/>.
+        /// </summary>
+        /// <typeparam name="T">The type of message.</typeparam>
+        /// <param name="queue">The message queue.</param>
+        /// <param name="items">The collection of objects to add to the <see cref="IMessageQueue{T}"/>.</param>
+        /// <param name="enqueueAt">The <see cref="DateTime"/> that the item is added to the queue.</param>
+        public static async Task EnqueueRange<T>(this IMessageQueue<T> queue, IEnumerable<T> items, DateTime enqueueAt) where T : class {
             var message = items.Select(item => new QMessage<T> {
                 Id = Guid.NewGuid().ToString(),
-                Date = DateTime.UtcNow.Add(visibilityWindow),
+                Date = enqueueAt,
                 Value = item,
                 IsNew = true
             });

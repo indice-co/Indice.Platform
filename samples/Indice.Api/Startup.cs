@@ -7,6 +7,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using IdentityModel;
 using Indice.Api.JobHandlers;
+using Indice.Api.Swagger;
 using Indice.AspNetCore.Features.Campaigns;
 using Indice.AspNetCore.Swagger;
 using Indice.Configuration;
@@ -64,6 +65,7 @@ namespace Indice.Api
                 options.AddFluentValidationSupport();
                 options.AddOAuth2AuthorizationCodeFlow(Settings);
                 options.AddFormFileSupport();
+                options.SchemaFilter<SchemaExamplesFilter>();
                 options.IncludeXmlComments(Assembly.Load(CampaignsApi.AssemblyName));
                 options.AddDoc(CampaignsApi.Scope, "Campaigns API", "API for managing campaigns in the backoffice tool.");
                 options.AddDoc("lookups", "Lookups API", "API for various lookups.");
@@ -92,9 +94,8 @@ namespace Indice.Api
             services.AddScopeTransformation();
             // Configure framework & custom services
             services.AddDistributedMemoryCache();
-            services.AddFilesLocal(options => {
-                options.Path = "uploads";
-            });
+            services.AddFilesLocal(options => options.Path = "uploads");
+            services.AddPushNotificationServiceNoOp();
             // Setup worker host for executing background tasks.
             services.AddWorkerHost(options => {
                 options.JsonOptions.JsonSerializerOptions.WriteIndented = true;
@@ -103,6 +104,7 @@ namespace Indice.Api
                     //builder.UseNpgsql(Configuration.GetConnectionString("WorkerDb"));
                 });
             })
+            .AddCampaignsJobs()
             .AddJob<LongRunningTaskJobHandler>()
             .WithScheduleTrigger("0 0/2 * * * ?", options => {
                 options.Name = "useless-task";
@@ -110,12 +112,12 @@ namespace Indice.Api
                 options.Group = "indice";
                 options.Singleton = true;
             })
-            //.AddJob<LoadAvailableAlertsJobHandler>()
-            //.WithScheduleTrigger<DemoCounterModel>("0 0/1 * * * ?", options => {
-            //    options.Name = "load-available-alerts";
-            //    options.Description = "Load alerts for the queue.";
-            //    options.Group = "indice";
-            //})
+            .AddJob<LoadAvailableAlertsJobHandler>()
+            .WithScheduleTrigger<DemoCounterModel>("0 0/1 * * * ?", options => {
+                options.Name = "load-available-alerts";
+                options.Description = "Load alerts for the queue.";
+                options.Group = "indice";
+            })
             .AddJob<SendSmsJobHandler>()
             .WithQueueTrigger<SmsDto>(options => {
                 options.QueueName = "send-user-sms";

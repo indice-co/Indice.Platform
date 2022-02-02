@@ -13,6 +13,7 @@ using Indice.AspNetCore.Features.Campaigns.Mvc.ApplicationModels;
 using Indice.AspNetCore.Features.Campaigns.Services;
 using Indice.AspNetCore.Swagger;
 using Indice.Extensions;
+using Indice.Hosting.Tasks;
 using Indice.Security;
 using Indice.Serialization;
 using Indice.Services;
@@ -83,20 +84,6 @@ namespace Microsoft.Extensions.DependencyInjection
             // Register events.
             services.TryAddTransient<IPlatformEventService, PlatformEventService>();
             services.AddPlatformEventHandler<CampaignCreatedEvent, CampaignCreatedEventHandler>();
-            // Register background services.
-            // Setup worker host for executing background tasks.
-            services.AddWorkerHost(options => {
-                options.JsonOptions.JsonSerializerOptions.WriteIndented = true;
-                options.AddRelationalStore(builder => {
-                    builder.UseSqlServer(configuration.GetConnectionString("WorkerDb"));
-                });
-            })
-            .AddJob<CampaignCreatedJobHandler>()
-            .WithQueueTrigger<Campaign>(options => {
-                options.QueueName = "campaign-created";
-                options.PollingInterval = TimeSpan.FromMinutes(3).TotalMilliseconds;
-                options.InstanceCount = 3;
-            });
             // Register validators.
             mvcBuilder.AddFluentValidation(options => options.RegisterValidatorsFromAssemblyContaining<CampaignsController>());
             // Register application DbContext.
@@ -115,5 +102,24 @@ namespace Microsoft.Extensions.DependencyInjection
             });
             return mvcBuilder;
         }
+
+        /// <summary>
+        /// Adds the job handlers required the for Campaigns feature.
+        /// </summary>
+        /// <param name="workerHostBuilder">A helper class to configure the worker host.</param>
+        /// <returns>The <see cref="WorkerHostBuilder"/> used to configure the worker host.</returns>
+        public static WorkerHostBuilder AddCampaignsJobs(this WorkerHostBuilder workerHostBuilder) => workerHostBuilder
+            .AddJob<CampaignCreatedJobHandler>()
+            .WithQueueTrigger<CampaignQueueItem>(options => {
+                options.QueueName = "campaign-created";
+                options.PollingInterval = TimeSpan.FromSeconds(30).TotalMilliseconds;
+                options.InstanceCount = 1;
+            })
+            .AddJob<SendPushNotificationJobHandler>()
+            .WithQueueTrigger<PushNotificationQueueItem>(options => {
+                options.QueueName = "send-push-notification";
+                options.PollingInterval = TimeSpan.FromSeconds(5).TotalMilliseconds;
+                options.InstanceCount = 1;
+            });
     }
 }

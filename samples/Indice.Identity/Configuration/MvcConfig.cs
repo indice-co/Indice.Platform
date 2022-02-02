@@ -31,7 +31,7 @@ namespace Microsoft.Extensions.DependencyInjection
                                      .AddRazorRuntimeCompilation()
                                      .AddTotp()
                                      .AddDevices(options => options.UsePushNotificationsServiceAzure())
-                                     .AddPushNotifications(options => options.FromConfiguration())
+                                     .AddPushNotifications()
                                      .AddIdentityServerApiEndpoints(options => {
                                          options.AddDbContext(context => context.ConfigureDbContext = builder => builder.UseSqlServer(configuration.GetConnectionString("IdentityDb")));
                                          options.CanRaiseEvents = true;

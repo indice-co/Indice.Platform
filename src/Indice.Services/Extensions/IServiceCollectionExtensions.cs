@@ -71,9 +71,9 @@ namespace Microsoft.Extensions.DependencyInjection
             var configuration = services.BuildServiceProvider().GetRequiredService<IConfiguration>();
             var options = new PushNotificationAzureOptions {
                 ConnectionString = configuration.GetConnectionString(PushNotificationServiceAzure.ConnectionStringName) ??
-                                       configuration.GetSection(PushNotificationAzureOptions.Name).GetValue<string>(nameof(PushNotificationAzureOptions.ConnectionString)),
+                                   configuration.GetSection(PushNotificationAzureOptions.Name).GetValue<string>(nameof(PushNotificationAzureOptions.ConnectionString)),
                 NotificationHubPath = configuration.GetSection(PushNotificationAzureOptions.Name).GetValue<string>(nameof(PushNotificationAzureOptions.NotificationHubPath)) ??
-                                          configuration.GetValue<string>(PushNotificationServiceAzure.NotificationsHubPath)
+                                      configuration.GetValue<string>(PushNotificationServiceAzure.NotificationsHubPath)
             };
             options.Services = services;
             configure?.Invoke(options);
@@ -86,18 +86,6 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddTransient(serviceProvider => serviceProvider.GetRequiredService<IOptions<PushNotificationAzureOptions>>().Value);
             services.AddTransient<IPushNotificationService, PushNotificationServiceAzure>();
             return services;
-        }
-
-        /// <summary>
-        /// Reads the <see cref="PushNotificationAzureOptions"/> directly from configuration.
-        /// </summary>
-        /// <param name="options">Push notification service options.</param>
-        /// <param name="section">The section to use in search for settings. Default section used is <see cref="PushNotificationAzureOptions.Name"/>.</param>
-        public static PushNotificationAzureOptions FromConfiguration(this PushNotificationAzureOptions options, string section = null) {
-            var serviceProvider = options.Services.BuildServiceProvider();
-            var configuration = serviceProvider.GetRequiredService<IConfiguration>();
-            configuration.Bind(section ?? PushNotificationAzureOptions.Name, options);
-            return options;
         }
 
         /// <summary>

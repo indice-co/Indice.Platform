@@ -8,7 +8,7 @@
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <LangVersion>Latest</LangVersion>
     <TargetFrameworks>netcoreapp3.1;net5.0;net6.0</TargetFrameworks>
-    <VersionPrefix>5.0.9</VersionPrefix>
+    <VersionPrefix>5.0.10</VersionPrefix>
     <!--<VersionSuffix>beta-02</VersionSuffix>-->
   </PropertyGroup>
   <PropertyGroup Label="Package">
@@ -20,7 +20,7 @@
     <PackageId>Indice.AspNetCore.Features.Campaigns</PackageId>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/indice-co/Indice.AspNet</PackageProjectUrl>
-    <PackageReleaseNotes>Update Indice.AspNetCore.</PackageReleaseNotes>
+    <PackageReleaseNotes>Create internal tasks for push notifications.</PackageReleaseNotes>
     <PackageTags>AspNetCore;Campaign Management;</PackageTags>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <RepositoryType>git</RepositoryType>
@@ -28,9 +28,9 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="EPPlus" Version="4.5.3.3" />
-    <PackageReference Include="Indice.AspNetCore" Version="5.2.14" />
+    <PackageReference Include="Indice.AspNetCore" Version="5.2.15" />
     <PackageReference Include="Indice.EntityFrameworkCore" Version="5.2.2" />
-    <PackageReference Include="Indice.Hosting" Version="5.2.13" />
+    <PackageReference Include="Indice.Hosting" Version="5.2.14" />
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1'">

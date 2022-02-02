@@ -21,7 +21,13 @@ namespace Microsoft.Extensions.DependencyInjection
                 builder.Services.AddPushNotificationServiceNoOp();
                 return builder;
             }
-            builder.Services.AddPushNotificationServiceAzure(configure);
+            var options = new PushNotificationAzureOptions();
+            configure?.Invoke(options);
+            if (string.IsNullOrWhiteSpace(options.ConnectionString) || string.IsNullOrWhiteSpace(options.NotificationHubPath)) {
+                builder.Services.AddPushNotificationServiceNoOp();
+            } else {
+                builder.Services.AddPushNotificationServiceAzure(configure);
+            }
             builder.Services.TryAddTransient<IPlatformEventService, PlatformEventService>();
             builder.ConfigureApplicationPartManager(x => x.FeatureProviders.Add(new PushNotificationsFeatureProvider()));
             builder.AddFluentValidation(options => options.RegisterValidatorsFromAssemblyContaining<PushNotificationsFeatureProvider>());
