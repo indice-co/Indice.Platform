@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using Indice.Types;
 
 namespace Indice.AspNetCore.Identity.Models
@@ -14,25 +13,21 @@ namespace Indice.AspNetCore.Identity.Models
         /// </summary>
         public string DeviceId { get; set; }
         /// <summary>
-        /// Platform Notification Service (PNS) obtained from client platform.
-        /// </summary>
-        public string PnsHandle { get; set; }
-        /// <summary>
         /// Device name.
         /// </summary>
         public string Name { get; set; }
-        /// <summary>
-        /// The date this device was created.
-        /// </summary>
-        public DateTimeOffset? DateCreated { get; set; }
         /// <summary>
         /// Client device platform.
         /// </summary>
         public DevicePlatform Platform { get; set; }
         /// <summary>
-        /// Tags are used to route notifications to the correct set of device handles.
+        /// Flag that determines if push notifications are enabled for this device.
         /// </summary>
-        public List<string> Tags { get; set; } = new List<string>();
+        public bool IsPushNotificationsEnabled { get; set; }
+        /// <summary>
+        /// The date this device was created.
+        /// </summary>
+        public DateTimeOffset? DateCreated { get; set; }
         /// <summary>
         /// Device model.
         /// </summary>
@@ -41,6 +36,10 @@ namespace Indice.AspNetCore.Identity.Models
         /// Device OS version.
         /// </summary>
         public string OsVersion { get; set; }
+        /// <summary>
+        /// Gets or sets the date and time, in UTC, when the device last signed in.
+        /// </summary>
+        public DateTimeOffset? LastSignInDate { get; set; }
         /// <summary>
         /// Extra metadata for the device.
         /// </summary>

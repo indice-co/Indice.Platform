@@ -15,6 +15,7 @@ using Indice.AspNetCore.Identity.Api.Models;
 using Indice.AspNetCore.Identity.Api.Security;
 using Indice.AspNetCore.Identity.Data;
 using Indice.AspNetCore.Identity.Data.Models;
+using Indice.AspNetCore.Identity.Models;
 using Indice.Configuration;
 using Indice.Types;
 using Microsoft.AspNetCore.Authorization;
@@ -555,11 +556,9 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
         /// </summary>
         /// <param name="userId">The id of the user.</param>
         /// <response code="200">OK</response>
-        /// <response code="404">Not Found</response>
         [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme, Policy = IdentityServerApi.Policies.BeUsersReader)]
         [HttpGet("{userId}/applications")]
         [ProducesResponseType(statusCode: StatusCodes.Status200OK, type: typeof(ResultSet<UserClientInfo>))]
-        [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
         public async Task<IActionResult> GetUserApplications([FromRoute] string userId) {
             var userGrants = await _persistedGrantService.GetAllGrantsAsync(userId);
             var clients = new List<UserClientInfo>();
@@ -582,6 +581,35 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
                 }
             }
             return Ok(clients.ToResultSet());
+        }
+
+        /// <summary>
+        /// Gets a list of the devices of the specified user.
+        /// </summary>
+        /// <param name="userId">The id of the user.</param>
+        /// <response code="200">OK</response>
+        [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme, Policy = IdentityServerApi.Policies.BeUsersReader)]
+        [HttpGet("{userId}/devices")]
+        [ProducesResponseType(statusCode: StatusCodes.Status200OK, type: typeof(ResultSet<DeviceInfo>))]
+        public async Task<IActionResult> GetUserDevices([FromRoute] string userId) {
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null) {
+                return NotFound();
+            }
+            var devices = await _userManager.GetDevicesAsync(user);
+            var response = devices.Select(device => new DeviceInfo {
+                Data = device.Data,
+                DateCreated = device.DateCreated.Value,
+                DeviceId = device.DeviceId,
+                IsPushNotificationsEnabled = device.IsPushNotificationsEnabled,
+                LastSignInDate = device.LastSignInDate,
+                Model = device.Model,
+                Name = device.Name,
+                OsVersion = device.OsVersion,
+                Platform = device.Platform
+            })
+            .ToResultSet();
+            return Ok(response);
         }
 
         /// <summary>
