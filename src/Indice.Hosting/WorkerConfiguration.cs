@@ -28,7 +28,9 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <param name="configureAction">The delegate used to configure the worker host options.</param>
         /// <returns>The <see cref="WorkerHostBuilder"/> used to configure the worker host.</returns>
         public static WorkerHostBuilder AddWorkerHost(this IServiceCollection services, Action<WorkerHostOptions> configureAction) {
-            var builderInstance = services.BuildServiceProvider().GetService<WorkerHostBuilder>();
+            var serviceProvider = services.BuildServiceProvider();
+            var configuration = serviceProvider.GetRequiredService<IConfiguration>();
+            var builderInstance = serviceProvider.GetService<WorkerHostBuilder>();
             if (builderInstance is not null) {
                 return builderInstance;
             }
@@ -44,7 +46,9 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddTransient<QuartzJobRunner>();
             services.AddTransient<TaskHandlerActivator>();
             services.TryAddSingleton<ILockManager, NoOpLockManager>();
-            services.AddHostedService<WorkerHostedService>();
+            if (!configuration.WorkerHostDisabled()) {
+                services.AddHostedService<WorkerHostedService>();
+            }
             var builder = new WorkerHostBuilder(services, workerHostOptions);
             services.AddSingleton(builder);
             return builder;

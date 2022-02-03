@@ -26,9 +26,6 @@ namespace Indice.Hosting.Tasks
         }
 
         public async Task Execute(IJobExecutionContext context) {
-            if (_configuration.WorkerHostDisabled()) {
-                return;
-            }
             _logger.LogInformation("Scheduled job run at: {Timestamp}", DateTime.UtcNow);
             var jobDataMap = context.JobDetail.JobDataMap;
             var jobHandlerType = jobDataMap[JobDataKeys.JobHandlerType] as Type;

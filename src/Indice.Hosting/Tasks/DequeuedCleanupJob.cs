@@ -20,9 +20,6 @@ namespace Indice.Hosting.Tasks
         }
 
         public async Task Execute(IJobExecutionContext context) {
-            if (_configuration.WorkerHostDisabled()) {
-                return;
-            }
             _logger.LogInformation("Queue cleanup job run at: {Timestamp}", DateTime.UtcNow);
             var jobDataMap = context.JobDetail.JobDataMap;
             var queueName = jobDataMap.GetString(JobDataKeys.QueueName);
