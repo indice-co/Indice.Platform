@@ -220,6 +220,24 @@ namespace Microsoft.Extensions.DependencyInjection
         }
 
         /// <summary>
+        /// Adds a fugazi implementation of <see cref="ILockManager"/> that does nothing.
+        /// </summary>
+        /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
+        public static IServiceCollection AddLockManagerNoOp(this IServiceCollection services) {
+            services.TryAddSingleton<ILockManager, NoOpLockManager>();
+            return services;
+        }
+
+        /// <summary>
+        /// Adds a in-memory implementation of <see cref="ILockManager"/>.
+        /// </summary>
+        /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
+        public static IServiceCollection AddLockManagerInMemory(this IServiceCollection services) {
+            services.AddSingleton<ILockManager, LockManagerInMemory>();
+            return services;
+        }
+
+        /// <summary>
         /// Registers an implementation of <see cref="IPlatformEventHandler{TEvent}"/> for the specified event type.
         /// </summary>
         /// <typeparam name="TEvent">The type of the event to handler.</typeparam>

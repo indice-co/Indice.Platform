@@ -8,7 +8,6 @@ using Indice.AspNetCore.Features.Campaigns.Controllers;
 using Indice.AspNetCore.Features.Campaigns.Data;
 using Indice.AspNetCore.Features.Campaigns.Formatters;
 using Indice.AspNetCore.Features.Campaigns.Hosting;
-using Indice.AspNetCore.Features.Campaigns.Models;
 using Indice.AspNetCore.Features.Campaigns.Mvc.ApplicationModels;
 using Indice.AspNetCore.Features.Campaigns.Services;
 using Indice.AspNetCore.Swagger;

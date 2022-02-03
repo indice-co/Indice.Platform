@@ -9,14 +9,15 @@ using Microsoft.EntityFrameworkCore;
 namespace Indice.Hosting.Tasks.Implementations
 {
     /// <summary>
-    /// Entity framework backed store implementation for <see cref="IScheduledTaskStore{TState}"/>
+    /// Entity framework backed store implementation for <see cref="IScheduledTaskStore{TState}"/>.
     /// </summary>
+    /// <typeparam name="TState">The type of state object.</typeparam>
     public class RelationalScheduledTaskStore<TState> : IScheduledTaskStore<TState> where TState : class
     {
         private readonly TaskDbContext _dbContext;
         private readonly JsonSerializerOptions _jsonSerializerOptions;
         /// <summary>
-        /// creates the <see cref="RelationalScheduledTaskStore{TState}"/>
+        /// Creates a new instance of <see cref="RelationalScheduledTaskStore{TState}"/>.
         /// </summary>
         /// <param name="dbContext"></param>
         /// <param name="workerJsonOptions"></param>

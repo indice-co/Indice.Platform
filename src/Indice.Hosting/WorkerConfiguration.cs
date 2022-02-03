@@ -9,7 +9,6 @@ using Indice.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using Microsoft.Extensions.Hosting;
 using Quartz;
 using Quartz.Impl;
 using Quartz.Spi;
@@ -27,15 +26,18 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
         /// <param name="configureAction">The delegate used to configure the worker host options.</param>
         /// <returns>The <see cref="WorkerHostBuilder"/> used to configure the worker host.</returns>
-        public static WorkerHostBuilder AddWorkerHost(this IServiceCollection services, Action<WorkerHostOptions> configureAction) {
+        public static WorkerHostBuilder AddWorkerHost(this IServiceCollection services, Action<WorkerHostOptions> configureAction = null) {
             var serviceProvider = services.BuildServiceProvider();
-            var configuration = serviceProvider.GetRequiredService<IConfiguration>();
             var builderInstance = serviceProvider.GetService<WorkerHostBuilder>();
             if (builderInstance is not null) {
                 return builderInstance;
             }
-            var workerHostOptions = new WorkerHostOptions(services);
-            configureAction.Invoke(workerHostOptions);
+            var workerHostOptions = new WorkerHostOptions(services) {
+                ScheduledTaskStoreType = typeof(NoOpScheduledTaskStore<>),
+                QueueStoreType = typeof(NoOpMessageQueue<>),
+                LockStoreType = typeof(NoOpLockManager)
+            };
+            configureAction?.Invoke(workerHostOptions);
             services.AddSingleton(workerHostOptions.JsonOptions);
             var quartzConfiguration = new NameValueCollection {
                 { "quartz.threadPool.maxConcurrency", "100" },
@@ -45,7 +47,8 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddSingleton<IJobFactory, QuartzJobFactory>();
             services.AddTransient<QuartzJobRunner>();
             services.AddTransient<TaskHandlerActivator>();
-            services.TryAddSingleton<ILockManager, NoOpLockManager>();
+            services.AddLockManagerNoOp();
+            var configuration = serviceProvider.GetRequiredService<IConfiguration>();
             if (!configuration.WorkerHostDisabled()) {
                 services.AddHostedService<WorkerHostedService>();
             }
@@ -60,15 +63,8 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <param name="options">The <see cref="WorkerHostOptions"/> used to configure locking and queue persistence.</param>
         /// <param name="configureAction">Configure the azure options.</param>
         /// <returns>The <see cref="WorkerHostOptions"/> used to configure locking and queue persistence.</returns>
-        public static WorkerHostOptions UseAzureStorageLock(this WorkerHostOptions options, Action<LockManagerAzureOptions> configureAction = null) {
-            options.Services.AddSingleton(typeof(ILockManager), serviceProvider => {
-                var azureOptions = new LockManagerAzureOptions {
-                    ConnectionString = serviceProvider.GetService<IConfiguration>().GetConnectionString("StorageConnection"),
-                    EnvironmentName = serviceProvider.GetService<IHostEnvironment>().EnvironmentName
-                };
-                configureAction?.Invoke(azureOptions);
-                return new LockManagerAzure(azureOptions);
-            });
+        public static WorkerHostOptions UseLockManagerAzure(this WorkerHostOptions options, Action<IServiceProvider, LockManagerAzureOptions> configureAction = null) {
+            options.Services.AddLockManagerAzure(configureAction);
             return options;
         }
 
@@ -77,7 +73,10 @@ namespace Microsoft.Extensions.DependencyInjection
         /// </summary>
         /// <param name="options">The <see cref="WorkerHostOptions"/> used to configure locking and queue persistence.</param>
         /// <returns>The <see cref="WorkerHostOptions"/> used to configure locking and queue persistence.</returns>
-        public static WorkerHostOptions UseInMemoryLock(this WorkerHostOptions options) => options.UseLock<LockManagerInMemory>();
+        public static WorkerHostOptions UseLockManagerInMemory(this WorkerHostOptions options) {
+            options.Services.AddLockManagerInMemory();
+            return options;
+        }
 
         /// <summary>
         /// Registers an implementation of <see cref="ILockManager"/> which is used for distributed locking.
@@ -85,7 +84,7 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <typeparam name="TLockManager">The concrete type of <see cref="ILockManager"/> to use.</typeparam>
         /// <param name="options">The <see cref="WorkerHostOptions"/> used to configure locking and queue persistence.</param>
         /// <returns>The <see cref="WorkerHostOptions"/> used to configure locking and queue persistence.</returns>
-        public static WorkerHostOptions UseLock<TLockManager>(this WorkerHostOptions options) where TLockManager : ILockManager {
+        public static WorkerHostOptions UseLockManager<TLockManager>(this WorkerHostOptions options) where TLockManager : ILockManager {
             options.Services.AddScoped(typeof(ILockManager), typeof(TLockManager));
             return options;
         }
@@ -97,8 +96,8 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <param name="options">The <see cref="WorkerHostOptions"/> used to configure locking and queue persistence.</param>
         /// <param name="implementationFactory">The factory that creates the service.</param>
         /// <returns>The <see cref="WorkerHostOptions"/> used to configure locking and queue persistence.</returns>
-        public static WorkerHostOptions UseLock<TLockManager>(this WorkerHostOptions options, Func<IServiceProvider, TLockManager> implementationFactory) where TLockManager : ILockManager {
-            options.Services.AddScoped(typeof(ILockManager), (sp) => implementationFactory(sp));
+        public static WorkerHostOptions UseLockManager<TLockManager>(this WorkerHostOptions options, Func<IServiceProvider, TLockManager> implementationFactory) where TLockManager : ILockManager {
+            options.Services.AddScoped(typeof(ILockManager), serviceProvider => implementationFactory(serviceProvider));
             return options;
         }
 
@@ -108,7 +107,7 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <param name="options">The <see cref="WorkerHostOptions"/> used to configure locking and queue persistence.</param>
         /// <param name="configureAction">The delegate used to configure the database table that contains the background jobs.</param>
         /// <returns>The <see cref="WorkerHostOptions"/> used to configure locking and queue persistence.</returns>
-        public static WorkerHostOptions AddRelationalStore(this WorkerHostOptions options, Action<DbContextOptionsBuilder> configureAction = null) => options.AddRelationalStore<TaskDbContext>(configureAction);
+        public static WorkerHostOptions UseStoreRelational(this WorkerHostOptions options, Action<DbContextOptionsBuilder> configureAction = null) => options.UseStoreRelational<TaskDbContext>(configureAction);
 
         /// <summary>
         /// Uses the tables of a relational database in order to manage queue items.
@@ -117,7 +116,7 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <param name="options">The <see cref="WorkerHostOptions"/> used to configure locking and queue persistence.</param>
         /// <param name="configureAction">The delegate used to configure the database table that contains the background jobs.</param>
         /// <returns>The <see cref="WorkerHostOptions"/> used to configure locking and queue persistence.</returns>
-        public static WorkerHostOptions AddRelationalStore<TContext>(this WorkerHostOptions options, Action<DbContextOptionsBuilder> configureAction = null) where TContext : TaskDbContext {
+        public static WorkerHostOptions UseStoreRelational<TContext>(this WorkerHostOptions options, Action<DbContextOptionsBuilder> configureAction = null) where TContext : TaskDbContext {
             var isDefaultContext = typeof(TContext) == typeof(TaskDbContext);
             var connectionString = options.Services.BuildServiceProvider().GetService<IConfiguration>().GetConnectionString("WorkerDb");
             void sqlServerConfiguration(DbContextOptionsBuilder builder) => builder.UseSqlServer(connectionString);
@@ -127,15 +126,10 @@ namespace Microsoft.Extensions.DependencyInjection
             if (!isDefaultContext) {
                 options.Services.TryAddScoped<TaskDbContext, TContext>();
             }
-            options = options.AddRelationalStore();
-            options.UseLock<RelationalLockManager>();
-            return options;
-        }
-
-        private static WorkerHostOptions AddRelationalStore(this WorkerHostOptions options) {
             options.ScheduledTaskStoreType = typeof(RelationalScheduledTaskStore<>);
             options.QueueStoreType = typeof(RelationalMessageQueue<>);
             options.LockStoreType = typeof(RelationalLockManager);
+            options.UseLockManager<RelationalLockManager>();
             return options;
         }
 

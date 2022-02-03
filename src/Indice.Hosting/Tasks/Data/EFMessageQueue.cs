@@ -12,6 +12,7 @@ namespace Indice.Hosting.Tasks.Data
     /// An implementation of <see cref="IMessageQueue{T}"/> using Entity Framework Core.
     /// </summary>
     /// <typeparam name="T">The type of queue item.</typeparam>
+    [Obsolete("This implementation is fully functional but not very perfomant.")]
     public class EFMessageQueue<T> : IMessageQueue<T> where T : class
     {
         private readonly TaskDbContext _dbContext;
