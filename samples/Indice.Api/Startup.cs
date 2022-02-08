@@ -56,7 +56,8 @@ namespace Indice.Api
                 builder.WithOrigins(Configuration.GetSection("AllowedOrigins").Get<string[]>())
                        .WithMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                        .WithHeaders("Authorization", "Content-Type")
-                       .WithExposedHeaders("Content-Disposition");
+                       .WithExposedHeaders("Content-Disposition")
+                       .SetPreflightMaxAge(TimeSpan.FromMinutes(10));
             }));
             // Configure Swagger
             services.AddSwaggerGen(options => {

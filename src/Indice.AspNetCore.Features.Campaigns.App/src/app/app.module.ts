@@ -21,9 +21,16 @@ import { RadioButtonsListComponent } from './shared/components/radio-buttons-lis
 import { ShellConfig } from './shell.config';
 import { ToggleButtonComponent } from './shared/components/toggle-button/toggle-button.component';
 import { LogOutComponent } from './core/services/logout/logout.component';
+import { BeautifyBooleanPipe } from './shared/pipes.services';
+import { CampaignsManageComponent } from './features/campaigns/manage/campaigns-manage.component';
+import { CampaignsDetailsComponent } from './features/campaigns/manage/details/campaigns-details.component';
+import { CampaignsRemoveComponent } from './features/campaigns/manage/remove/campaigns-remove.component';
 
 @NgModule({
   declarations: [
+    // Utilities
+    BeautifyBooleanPipe,
+
     AppComponent,
     CampaignCreateComponent,
     CampaignsComponent,
@@ -33,7 +40,10 @@ import { LogOutComponent } from './core/services/logout/logout.component';
     LogOutComponent,
     PageIllustrationComponent,
     RadioButtonsListComponent,
-    ToggleButtonComponent
+    ToggleButtonComponent,
+    CampaignsManageComponent,
+    CampaignsDetailsComponent,
+    CampaignsRemoveComponent
   ],
   imports: [
     AppRoutingModule,

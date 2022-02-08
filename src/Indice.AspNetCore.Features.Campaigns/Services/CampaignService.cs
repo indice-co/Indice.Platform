@@ -166,6 +166,10 @@ namespace Indice.AspNetCore.Features.Campaigns.Services
                     Name = campaign.Type.Name
                 } : null
             });
+            if (!string.IsNullOrEmpty(options.Search)) {
+                var searchTerm = options.Search.Trim();
+                query = query.Where(x => (x.Title != null && x.Title.Contains(searchTerm)));
+            }
             if (options.Filter.DeliveryChannel.HasValue) {
                 query = query.Where(x => x.DeliveryChannel.HasFlag(options.Filter.DeliveryChannel.Value));
             }

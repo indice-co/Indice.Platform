@@ -1,0 +1,103 @@
+<div class="bg-white shadow overflow-hidden sm:rounded-lg"
+     *ngIf="model">
+    <div class="px-4 py-5 sm:px-6">
+        <h3 class="text-lg leading-6 font-medium text-gray-900">
+            Διαγραφή Καμπάνιας
+        </h3>
+        <p class="mt-1 max-w-2xl text-sm text-gray-500">
+            Είστε σίγουρος οτι θέλετε να διαγράψετε την παρακάτω καμπάνια;
+        </p>
+    </div>
+    <div class="border-t border-gray-200 px-4 py-5 sm:px-6">
+        <dl class="grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-6">
+            <div class="col-span-2 sm:col-span-6">
+                <dt class="text-sm font-medium text-gray-500">
+                    Τίτλος
+                </dt>
+                <dd class="mt-1 text-sm text-gray-900">
+                    {{ model.title }}
+                </dd>
+            </div>
+            <div class="col-span-2">
+                <dt class="text-sm font-medium text-gray-500">
+                    Ημερομηνία Δημιουργίας
+                </dt>
+                <dd class="mt-1 text-sm text-gray-900">
+                    {{ model.createdAt | date:'dd/MM/YYYY' }}
+                </dd>
+            </div>
+            <div class="col-span-2">
+                <dt class="text-sm font-medium text-gray-500">
+                    Προς
+                </dt>
+                <dd class="mt-1 text-sm text-gray-900"
+                    *ngIf="model.isGlobal">
+                    Όλους τους χρήστες
+                </dd>
+                <dd class="mt-1 text-sm text-gray-900"
+                    *ngIf="!model.isGlobal">
+                    Ομάδα χρηστών
+                </dd>
+            </div>
+            <div class="col-span-2">
+                <dt class="text-sm font-medium text-gray-500">
+                    Ενεργοποιημένη
+                </dt>
+                <dd class="mt-1 text-sm text-gray-900"
+                    [innerHtml]="model.published | beautifyBoolean">
+                </dd>
+            </div>
+            <div class="col-span-2"
+                 *ngIf="model.activePeriod">
+                <dt class="text-sm font-medium text-gray-500">
+                    Ημερομηνία Έναρξης
+                </dt>
+                <dd class="mt-1 text-sm text-gray-900">
+                    {{ model.activePeriod.from | date:'dd/MM/YYYY' }}
+                </dd>
+            </div>
+            <div class="col-span-2"
+                 *ngIf="model.activePeriod">
+                <dt class="text-sm font-medium text-gray-500">
+                    Ημερομηνία Λήξης
+                </dt>
+                <dd class="mt-1 text-sm text-gray-900">
+                    {{ model.activePeriod.to | date:'dd/MM/YYYY' }}
+                </dd>
+            </div>
+            <div class="col-span-2 sm:col-span-6">
+                <dt class="text-sm font-medium text-gray-500">
+                    Περιεχόμενο
+                </dt>
+                <dd class="mt-1 text-sm text-gray-900">
+                    {{ model.content }}
+                </dd>
+            </div>
+            <div class="col-span-2"
+                 *ngIf="model.actionText">
+                <dt class="text-sm font-medium text-gray-500">
+                    Click-to-action κείμενο
+                </dt>
+                <dd class="mt-1 text-sm text-gray-900">
+                    {{ model.actionText }}
+                </dd>
+            </div>
+            <div class="col-span-2"
+                 *ngIf="model.actionUrl">
+                <dt class="text-sm font-medium text-gray-500">
+                    Click-to-action σύνδεσμος
+                </dt>
+                <dd class="mt-1 text-sm text-gray-900">
+                    {{ model.actionUrl }}
+                </dd>
+            </div>
+        </dl>
+    </div>
+    <div class="form-actions">
+        <button type="submit"
+                class="inline-flex items-center justify-center px-4 py-2 border border-transparent font-medium rounded-sm text-red-700 bg-red-100 hover:bg-red-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:text-sm"
+                (click)="delete()">
+            Διαγραφή
+        </button>
+    </div>
+</div>

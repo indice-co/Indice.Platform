@@ -21,10 +21,10 @@ export class HomeComponent implements OnInit {
             .isLoggedIn()
             .pipe(map((isLoggedIn: Boolean) => {
                 if (isLoggedIn) {
-                    this.router.navigate(['/app/dashboard']);
+                    this.router.navigate(['/dashboard']);
                     return;
                 }
-                this.authService.signinRedirect('/app/dashboard');
+                this.authService.signinRedirect('/dashboard');
             }))
             .subscribe();
     }

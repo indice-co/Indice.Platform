@@ -1,0 +1,52 @@
+<lib-view-layout [title]="model.title!"
+                 *ngIf="model">
+    <main class="details-view-container">
+        <div class="lg:grid lg:grid-cols-12 lg:gap-x-5">
+            <aside class="py-6 px-2 sm:px-6 lg:py-0 lg:px-0 lg:col-span-4 md:col-span-3">
+                <section aria-labelledby="menu"
+                         class="min-w-full">
+                    <div class="bg-white shadow rounded-sm">
+                        <div class="flex flex-col justify-stretch bg-gray-50 border-b">
+                            <!-- model goes here-->
+                            <div class="flex items-center p-5">
+                                <div class="p-5 whitespace-normal break-word">
+                                    <p class="text-md leading-none mb-2">{{model?.title || '-'}}</p>
+                                    <p class="text-xs text-grey-dark mb-2">{{model?.createdAt | date:'dd/MM/YYYY' }}</p>
+                                    <p class="text-xs"
+                                       [ngClass]="model.published ? 'text-green-500' : 'text-red-500'">
+                                        {{model.published ? 'Δημοσιευμένη' : 'Αδημοσίευτη' }}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- menu items -->
+                        <div class="mt-2 px-4 py-4 flow-root">
+                            <nav class="h-full flex flex-col">
+                                <div class="space-y-1">
+                                    <a href="#"
+                                       [routerLinkActive]="['view-nav-link-active']"
+                                       [routerLink]="['details']"
+                                       class="view-nav-link">
+                                        Γενικά στοιχεία
+                                    </a>
+                                </div>
+                                <div class="mt-auto pt-10 space-y-1">
+                                    <a href="#"
+                                       [routerLinkActive]="['view-nav-link-active']"
+                                       [routerLinkActiveOptions]="{ exact: true }"
+                                       [routerLink]="['manage']"
+                                       class="view-nav-link">
+                                        Διαχείριση
+                                    </a>
+                                </div>
+                            </nav>
+                        </div>
+                    </div>
+                </section>
+            </aside>
+            <div class="space-y-6 sm:px-6 lg:px-0 lg:col-span-8 md:col-span-9">
+                <router-outlet></router-outlet>
+            </div>
+        </div>
+    </main>
+</lib-view-layout>

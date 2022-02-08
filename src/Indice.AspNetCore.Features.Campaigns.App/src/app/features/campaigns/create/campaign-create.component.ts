@@ -5,7 +5,8 @@ import { Router } from '@angular/router';
 import { MenuOption, Modal, ModalService, SideViewLayoutComponent, ToasterService, ToastType } from '@indice/ng-components';
 import { map } from 'rxjs/operators';
 import * as app from 'src/app/core/models/settings';
-import { Campaign, DeliveryChannel, CampaignsApiService, CampaignTypeResultSet, CreateCampaignRequest, Period } from 'src/app/core/services/campaigns-api.services';
+import { Campaign, DeliveryChannel, CampaignsApiService, CampaignTypeResultSet, CreateCampaignRequest, Period, ValidationProblemDetails } from 'src/app/core/services/campaigns-api.services';
+import { UtilitiesService } from 'src/app/shared/utilities.service';
 import { CampaignTypesModalComponent } from '../campaign-types-modal/campaign-types.component';
 
 @Component({
@@ -21,6 +22,7 @@ export class CampaignCreateComponent implements OnInit, AfterViewInit {
         private api: CampaignsApiService,
         private modal: ModalService,
         private router: Router,
+        public _utilities: UtilitiesService,
         private changeDetector: ChangeDetectorRef,
         @Inject(ToasterService) private toaster: ToasterService
     ) { }
@@ -68,8 +70,11 @@ export class CampaignCreateComponent implements OnInit, AfterViewInit {
             .subscribe((campaign: Campaign) => {
                 this.submitInProgress = false;
                 // This is to force reload campaigns page when a new campaign is successfully saved. 
-                this.router.navigateByUrl('/', { skipLocationChange: true }).then(() => this.router.navigate(['app/campaigns']));
+                this.router.navigateByUrl('/', { skipLocationChange: true }).then(() => this.router.navigate(['campaigns']));
                 this.toaster.show(ToastType.Success, 'Επιτυχής αποθήκευση', `Η καμπάνια με τίτλο '${campaign.title}' δημιουργήθηκε με επιτυχία.`);
+            }, (problemDetails: ValidationProblemDetails) => {
+                // This is to force reload campaigns page when a new campaign is successfully saved.
+                this.toaster.show(ToastType.Error, 'Αποτυχής αποθήκευση', `${this._utilities.getValidationProblemDetails(problemDetails)}`, 6000);
             });
     }
 

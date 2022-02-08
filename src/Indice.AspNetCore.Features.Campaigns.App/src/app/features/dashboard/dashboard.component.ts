@@ -1,32 +1,57 @@
+import { CampaignsApiService } from 'src/app/core/services/campaigns-api.services';
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 
 import { HeaderMetaItem, Icons } from '@indice/ng-components';
+import { forkJoin, of } from 'rxjs';
+import { take, catchError } from 'rxjs/operators';
 
 @Component({
     selector: 'app-dashboard',
     templateUrl: './dashboard.component.html'
 })
 export class DashboardComponent implements OnInit {
-    constructor(private router: Router) { }
+    constructor(private router: Router, private _api: CampaignsApiService) { }
 
     public metaItems: HeaderMetaItem[] | null = [];
-    public tiles: { text: string, count: number, path: string }[] = [];
+    public loaded = false;
+    public campaigns: any;
+    public activeCampaigns: any;
 
     ngOnInit(): void {
         this.metaItems = [
             { key: 'NG-LIB version :', icon: Icons.DateTime, text: new Date().toLocaleTimeString() }
         ];
-        this.tiles.push(
-            { text: 'Shell', count: 2, path: 'samples/shell-layout' },
-            { text: 'View Layouts', count: 4, path: 'samples/view-layouts' },
-            { text: 'Common pages', count: 4, path: '' },
-            { text: 'Controls', count: 8, path: 'samples/controls' },
-            { text: 'Modal playground', count: NaN, path: 'samples/modal-playground' },
-            { text: 'Directives', count: 2, path: '' },
-            { text: 'Pipes', count: 2, path: '' },
-            { text: 'Services', count: 3, path: '' }
-        );
+        const campaigns$ = this._api.getCampaigns(
+            undefined,
+            undefined,
+            1,
+            0,
+            undefined,
+            undefined
+        ).pipe(
+            take(1),
+            catchError((err) => {
+                return of({ error: err, isError: true });
+            }));
+        const activeCampaigns$ = this._api.getCampaigns(
+            undefined,
+            true,
+            1,
+            0,
+            undefined,
+            undefined
+        ).pipe(
+            take(1),
+            catchError((err) => {
+                return of({ error: err, isError: true });
+            }));
+            
+        forkJoin([campaigns$, activeCampaigns$]).subscribe(results => {
+            this.campaigns = results[0];
+            this.activeCampaigns = results[1];
+            this.loaded = true;
+        });
     }
 
     public navigate(path: string): void {

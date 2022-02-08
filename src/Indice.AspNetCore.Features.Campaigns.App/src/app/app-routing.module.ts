@@ -1,3 +1,4 @@
+import { CampaignsRemoveComponent } from './features/campaigns/manage/remove/campaigns-remove.component';
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 
@@ -8,17 +9,25 @@ import { CampaignsComponent } from './features/campaigns/campaigns.component';
 import { DashboardComponent } from './features/dashboard/dashboard.component';
 import { HomeComponent } from './features/home/home.component';
 import { LogOutComponent } from './core/services/logout/logout.component';
+import { CampaignsManageComponent } from './features/campaigns/manage/campaigns-manage.component';
+import { CampaignsDetailsComponent } from './features/campaigns/manage/details/campaigns-details.component';
 
 const routes: Routes = [
   { path: 'auth-callback', component: AuthCallbackComponent },
   { path: 'auth-renew', component: AuthRenewComponent },
   { path: '', redirectTo: 'home', pathMatch: 'full' },
   { path: 'home', component: HomeComponent, pathMatch: 'full', data: { shell: { fluid: true, showHeader: false, showFooter: false } } },
-  {
-    path: 'app', canActivate: [AuthGuardService], children: [
+  { path: '', canActivate: [AuthGuardService], children: [
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
       { path: 'dashboard', component: DashboardComponent },
-      { path: 'campaigns', component: CampaignsComponent }
+      { path: 'campaigns', component: CampaignsComponent },
+      {path: 'campaigns/:campaignId', component: CampaignsManageComponent, pathMatch: 'prefix',
+        children: [
+          { path: '', pathMatch: 'full', redirectTo: 'details' },
+          { path: 'details', component: CampaignsDetailsComponent, data: { animation: 'three' } },
+          { path: 'manage', component: CampaignsRemoveComponent, data: { animation: 'three' } }
+        ]
+      }
     ]
   },
   { path: 'create', canActivate: [AuthGuardService], component: CampaignCreateComponent, outlet: 'rightpane', pathMatch: 'prefix' },

@@ -1,16 +1,37 @@
-<lib-view-layout title="Καμπάνιες" [busy]="!items" [actions]="actions" [meta-items]="metaItems" (onAction)="actionHandler($event)" (onSearch)="searchChanged($event)">
-    <lib-list-view [items]="items" [page]="page" [page-size]="pageSize" [count]="count" [sort-options]="sortOptions" [sort]="sort" [sort-dir]="sortdir" (pageChanged)="pageChanged($event)" (pageSizeChanged)="pageSizeChanged($event)"
-        (sortChanged)="sortChanged($event)" (sortdirChanged)="sortdirChanged($event)">
-        <lib-list-column title="ΤΙΤΛΟΣ">
+<lib-view-layout title="Καμπάνιες"
+                 [busy]="!items"
+                 [actions]="actions"
+                 [meta-items]="metaItems"
+                 (onAction)="actionHandler($event)"
+                 (onSearch)="searchChanged($event)">
+    <lib-list-view [items]="items"
+                   [page]="page"
+                   [page-size]="pageSize"
+                   [count]="count"
+                   [sort-options]="sortOptions"
+                   [sort]="sort"
+                   [sort-dir]="sortdir"
+                   (pageChanged)="pageChanged($event)"
+                   (pageSizeChanged)="pageSizeChanged($event)"
+                   (sortChanged)="sortChanged($event)"
+                   (sortdirChanged)="sortdirChanged($event)">
+        <lib-list-column title="ΤΙΤΛΟΣ"
+                         [full-width]="true">
             <ng-template let-item>
-                <span [title]="item.title">{{ item.title }}</span>
+                <a href="#"
+                   [routerLinkActive]="['nav-link-profile-active']"
+                   [routerLinkActiveOptions]="{ exact: true }"
+                   [routerLink]="[item.id]"
+                   class="nav-link-profile"
+                   class="text-gray-600 hover:text-gray-900"
+                   style="word-break: break-word;"
+                   title="Λεπτομέρειες">
+                    <span [title]="item.title">{{ item.title }}</span>
+                </a>
             </ng-template>
         </lib-list-column>
         <lib-list-column title="ΗΜ. ΔΗΜΙΟΥΡΓΙΑΣ">
             <ng-template let-item>{{ item.createdAt | date: 'medium' }}</ng-template>
-        </lib-list-column>
-        <lib-list-column title="ΔΗΜΟΣΙΕΥΜΕΝΗ">
-            <ng-template let-item>{{ item.published ? 'Ναι' : 'Όχι' }}</ng-template>
         </lib-list-column>
         <lib-list-column title="ΕΝΕΡΓΗ ΑΠΟ">
             <ng-template let-item>{{ item.activePeriod.from | date: 'medium' }}</ng-template>
@@ -18,8 +39,8 @@
         <lib-list-column title="ΕΝΕΡΓΗ ΕΩΣ">
             <ng-template let-item>{{ item.activePeriod?.to ? (item.activePeriod?.to | date: 'medium') : '-' }}</ng-template>
         </lib-list-column>
-        <lib-list-column title="ΠΡΟΣ">
-            <ng-template let-item>{{ item.isGlobal ? 'Όλους τους χρήστες' : 'Ομάδα χρηστών' }}</ng-template>
+        <lib-list-column title="ΔΗΜΟΣΙΕΥΜΕΝΗ">
+            <ng-template let-item><span [innerHtml]="item.published | beautifyBoolean"></span></ng-template>
         </lib-list-column>
     </lib-list-view>
 </lib-view-layout>
