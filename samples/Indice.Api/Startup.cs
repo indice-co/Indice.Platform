@@ -6,6 +6,7 @@ using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using IdentityModel;
+using Indice.Api.Data;
 using Indice.Api.JobHandlers;
 using Indice.AspNetCore.Features.Campaigns;
 using Indice.AspNetCore.Swagger;
@@ -98,7 +99,8 @@ namespace Indice.Api
             // Setup worker host for executing background tasks.
             services.AddWorkerHost(options => {
                 options.JsonOptions.JsonSerializerOptions.WriteIndented = true;
-                options.UseStoreRelational(builder => builder.UseSqlServer(Configuration.GetConnectionString("WorkerDb"))); // UseSqlServer, UseNpgsql
+                options.UseStoreRelational(builder => builder.UseSqlServer(Configuration.GetConnectionString("WorkerDb")));
+                //options.UseStoreRelational<ExtendedTaskDbContext>(builder => builder.UseNpgsql(Configuration.GetConnectionString("WorkerDb")));
             })
             .AddCampaignsJobs()
             .AddJob<LongRunningTaskJobHandler>()

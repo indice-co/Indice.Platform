@@ -3,7 +3,7 @@
     <Description>Indice.AspNetCore Class Library</Description>
     <Copyright>Copyright (c) 2018 Indice</Copyright>
     <AssemblyTitle>Indice.AspNetCore</AssemblyTitle>
-    <VersionPrefix>5.2.15</VersionPrefix>
+    <VersionPrefix>5.2.16</VersionPrefix>
     <!--<VersionSuffix>beta-01</VersionSuffix>-->
     <Authors>Constantinos Leftheris, Georgios Manoltzas</Authors>
     <TargetFrameworks>netcoreapp3.1;net5.0;net6.0</TargetFrameworks>
@@ -37,29 +37,23 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Azure.Extensions.AspNetCore.DataProtection.Blobs" Version="1.2.1" />
-    <PackageReference Include="FluentValidation.AspNetCore" Version="10.3.4" />
-    <PackageReference Include="Humanizer.Core" Version="2.13.14" />
+    <PackageReference Include="FluentValidation.AspNetCore" Version="10.3.6" />
+    <PackageReference Include="Humanizer.Core" Version="2.14.1" />
     <PackageReference Include="Indice.EntityFrameworkCore" Version="5.2.2" />
-    <PackageReference Include="Indice.Services" Version="5.2.14" />
-    <PackageReference Include="Markdig" Version="0.26.0" />
+    <PackageReference Include="Indice.Services" Version="5.2.15" />
+    <PackageReference Include="Markdig" Version="0.27.0" />
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
     <PackageReference Include="SixLabors.ImageSharp.Drawing" Version="1.0.0-beta0007" />
     <PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" Version="6.2.3" />
   </ItemGroup>
   <ItemGroup Condition=" '$(TargetFramework)' != 'netcoreapp3.1' and '$(TargetFramework)' != 'net5.0'">
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="6.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Http" Version="6.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="6.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="6.0.2" />
   </ItemGroup>
   <ItemGroup Condition=" '$(TargetFramework)' == 'net5.0' ">
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="5.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Http" Version="5.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="5.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="5.0.14" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="3.1.21" />
-    <PackageReference Include="Microsoft.Extensions.Http" Version="3.1.21" />
-    <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="3.1.21" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="3.1.22" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Indice.EntityFrameworkCore\Indice.EntityFrameworkCore.csproj" />

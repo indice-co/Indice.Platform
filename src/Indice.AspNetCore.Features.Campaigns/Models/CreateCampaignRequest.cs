@@ -16,7 +16,7 @@ namespace Indice.AspNetCore.Features.Campaigns.Models
         [JsonIgnore]
         public Guid Id { get; internal set; }
         /// <summary>
-        /// Determines if campaign targets all user base.
+        /// Determines if campaign targets all user base. Defaults to true.
         /// </summary>
         public bool IsGlobal { get; set; } = true;
         /// <summary>

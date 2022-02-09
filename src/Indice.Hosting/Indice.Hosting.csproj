@@ -2,7 +2,7 @@
   <PropertyGroup>
     <Description>Indice.Hosting Class Library</Description>
     <Copyright>Copyright (c) 2019 Indice</Copyright>
-    <VersionPrefix>5.2.14</VersionPrefix>
+    <VersionPrefix>5.2.17</VersionPrefix>
     <!--<VersionSuffix>beta-01</VersionSuffix>-->
     <Authors>Constantinos Leftheris, Georgios Manoltzas</Authors>
     <TargetFrameworks>netstandard2.0;net5.0;net6.0;</TargetFrameworks>
@@ -15,7 +15,7 @@
     <IsPackable>true</IsPackable>
     <PackageId>Indice.Hosting</PackageId>
     <PackageTags>dotnetcore;Hosting</PackageTags>
-    <PackageReleaseNotes>Create extensions for message queue. Bug fixing.</PackageReleaseNotes>
+    <PackageReleaseNotes>Bug fixing for RelationalLockManager query for postgres.</PackageReleaseNotes>
     <PackageIcon>icon-310.png</PackageIcon>
     <PackageProjectUrl>https://github.com/indice-co/Indice.AspNet</PackageProjectUrl>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
@@ -32,46 +32,22 @@
     <None Include="..\..\icon\icon-310.png" Pack="true" Visible="false" PackagePath="" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Indice.Services" Version="5.2.14" />
-    <PackageReference Include="Microsoft.Data.SqlClient" Version="4.0.0" />
+    <PackageReference Include="Indice.Services" Version="5.2.15" />
+    <PackageReference Include="Microsoft.Data.SqlClient" Version="4.1.0" />
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
     <PackageReference Include="Quartz" Version="3.3.3" />
   </ItemGroup>
   <ItemGroup Condition=" '$(TargetFramework)' == 'net6.0' ">
-    <PackageReference Include="Microsoft.Extensions.Logging.EventLog" Version="6.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="6.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="6.0.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="6.0.2" />
     <PackageReference Include="Microsoft.Extensions.Logging.Configuration" Version="6.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Hosting" Version="6.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="6.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="6.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="6.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.CommandLine" Version="6.0.0" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="6.0.0" />
   </ItemGroup>
   <ItemGroup Condition=" '$(TargetFramework)' == 'net5.0' ">
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="5.0.12" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.CommandLine" Version="5.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="5.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="5.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="5.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Hosting" Version="5.0.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="5.0.14" />
     <PackageReference Include="Microsoft.Extensions.Logging.Configuration" Version="5.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="5.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="5.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Logging.EventLog" Version="5.0.0" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="3.1.21" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.CommandLine" Version="3.1.21" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="3.1.21" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="3.1.21" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="3.1.21" />
-    <PackageReference Include="Microsoft.Extensions.Hosting" Version="3.1.21" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="3.1.22" />
     <PackageReference Include="Microsoft.Extensions.Logging.Configuration" Version="5.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="3.1.21" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="3.1.21" />
-    <PackageReference Include="Microsoft.Extensions.Logging.EventLog" Version="3.1.21" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Indice.Services\Indice.Services.csproj" />
