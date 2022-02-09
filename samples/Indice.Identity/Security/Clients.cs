@@ -104,8 +104,8 @@ namespace Indice.Identity.Security
                 AllowOfflineAccess = true,
                 ClientUri = "https://indice-idsrv.azurewebsites.net/admin",
                 PostLogoutRedirectUris = {
-                    "http://localhost:4200/admin/logged-out",
-                    "https://localhost:2000/admin/logged-out"
+                    "http://localhost:4200/admin",
+                    "https://localhost:2000/admin"
                 },
                 RedirectUris = {
                     "http://localhost:4200/admin/auth-callback",
