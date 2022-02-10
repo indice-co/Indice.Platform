@@ -81,7 +81,7 @@ namespace Indice.AspNetCore.EmbeddedUI
             { "%(Culture)", CultureInfo.CurrentCulture.TwoLetterISOLanguageName },
             { "%(ProductVersion)", _options.Version },
             { "%(Scopes)", _options.Scope },
-            { "%(PostLogoutRedirectUri)", _options.PostLogoutRedirectUri }
+            { "%(PostLogoutRedirectUri)", _options.PostLogoutRedirectUri?.Trim('/') ?? string.Empty }
         };
     }
 }

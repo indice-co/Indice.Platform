@@ -32,7 +32,7 @@ function createAppSettings(): IAppSettings {
             client_id: !isTemplate ? environment.auth_settings.client_id : clientId,
             filterProtocolClaims: environment.auth_settings.filterProtocolClaims,
             loadUserInfo: environment.auth_settings.loadUserInfo,
-            post_logout_redirect_uri: !isTemplate ? environment.auth_settings.post_logout_redirect_uri : `${host}/${baseHref}` + (postLogoutRedirectUri ? `/{postLogoutRedirectUri}` : ''),
+            post_logout_redirect_uri: !isTemplate ? environment.auth_settings.post_logout_redirect_uri : `${host}/${baseHref}` + (postLogoutRedirectUri && postLogoutRedirectUri !== '' ? `/${postLogoutRedirectUri}` : ''),
             redirect_uri: !isTemplate ? environment.auth_settings.redirect_uri : `${host}/${baseHref}/${environment.auth_settings.redirect_uri}`,
             response_type: environment.auth_settings.response_type,
             scope: environment.auth_settings.scope,
