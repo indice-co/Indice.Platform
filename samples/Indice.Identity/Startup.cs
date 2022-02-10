@@ -206,7 +206,7 @@ namespace Indice.Identity
                 options.DocumentTitle = "Admin UI";
                 options.Authority = Settings.Authority;
                 options.Host = Settings.Host;
-                options.PostLogoutRedirectUri = "admin";
+                options.PostLogoutRedirectUri = string.Empty;
                 options.Enabled = true;
                 options.OnPrepareResponse = staticFileOptions.OnPrepareResponse;
                 options.InjectStylesheet("/css/admin-ui-overrides.css");
