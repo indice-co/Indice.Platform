@@ -338,7 +338,7 @@
             </div>
         </div>
     </div>
-    <div class="form-group row" *ngIf="hasAnyOf(['authorization_code', 'hybrid']) || hasAllOf(['authorization_code', 'client_credentials'])">
+    <div class="form-group row" *ngIf="hasAnyOf(['authorization_code', 'hybrid'])">
         <label for="client-allow-plain-text-pkce" class="col-sm-3 col-form-label">
             <i class="material-icons align-middle" title="Specifies whether a proof key can be sent using plain method.">info</i>
             Allow PlainText PKCE
@@ -350,7 +350,7 @@
             </div>
         </div>
     </div>
-    <div class="form-group row" *ngIf="hasAnyOf(['password', 'hybrid', 'urn:ietf:params:oauth:grant-type:device_code']) || hasAllOf(['authorization_code', 'client_credentials'])">
+    <div class="form-group row" *ngIf="hasAnyOf(['password', 'hybrid', 'urn:ietf:params:oauth:grant-type:device_code', 'authorization_code', 'hybrid', 'implicit']) || containsCustomGrantTypes()">
         <label for="client-allow-offline-access" class="col-sm-3 col-form-label">
             <i class="material-icons align-middle" title="Sets a value indicating whether to allow offline access.">info</i>
             Allow Offline Access
@@ -362,7 +362,7 @@
             </div>
         </div>
     </div>
-    <div class="form-group row" *ngIf="hasAnyOf(['password', 'hybrid', 'urn:ietf:params:oauth:grant-type:device_code']) || hasAllOf(['authorization_code', 'client_credentials'])">
+    <div class="form-group row" *ngIf="hasAnyOf(['password', 'hybrid', 'urn:ietf:params:oauth:grant-type:device_code', 'authorization_code', 'hybrid', 'implicit'])">
         <label for="client-update-access-token-claims-on-refresh" class="col-sm-3 col-form-label">
             <i class="material-icons align-middle" title="Sets a value indicating whether the access token (and its claims) should be updated on a refresh token request.">info</i>
             Update Access Token Claims On Refresh

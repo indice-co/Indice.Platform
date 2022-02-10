@@ -12,9 +12,9 @@
   <ItemGroup>
     <PackageReference Include="Hellang.Middleware.ProblemDetails" Version="6.4.0" />
     <PackageReference Include="IdentityServer4.AspNetIdentity" Version="4.1.2" />
-    <PackageReference Include="Indice.AspNetCore.Authentication.Apple" Version="5.2.1" />
+    <!--<PackageReference Include="Indice.AspNetCore.Authentication.Apple" Version="5.2.1" />
     <PackageReference Include="Indice.AspNetCore.Identity" Version="5.4.4" />
-    <PackageReference Include="Indice.AspNetCore.Identity.AdminUI" Version="5.2.8" />
+    <PackageReference Include="Indice.AspNetCore.Identity.AdminUI" Version="5.2.8" />-->
     <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.20.0" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.MicrosoftAccount" Version="6.0.2" />
     <PackageReference Include="Microsoft.AspNetCore.AzureAppServices.HostingStartup" Version="6.0.2" />
@@ -22,10 +22,10 @@
     <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" Version="6.2.3" />
   </ItemGroup>
   <ItemGroup>
-    <!--<ProjectReference Include="..\..\src\Indice.AspNetCore.Authentication.Apple\Indice.AspNetCore.Authentication.Apple.csproj" />-->
+    <ProjectReference Include="..\..\src\Indice.AspNetCore.Authentication.Apple\Indice.AspNetCore.Authentication.Apple.csproj" />
     <ProjectReference Include="..\..\src\Indice.AspNetCore.Authentication.GovGr\Indice.AspNetCore.Authentication.GovGr.csproj" />
-    <!--<ProjectReference Include="..\..\src\Indice.AspNetCore.Identity.AdminUI\Indice.AspNetCore.Identity.AdminUI.csproj" />
-    <ProjectReference Include="..\..\src\Indice.AspNetCore.Identity\Indice.AspNetCore.Identity.csproj" />-->
+    <ProjectReference Include="..\..\src\Indice.AspNetCore.Identity.AdminUI\Indice.AspNetCore.Identity.AdminUI.csproj" />
+    <ProjectReference Include="..\..\src\Indice.AspNetCore.Identity\Indice.AspNetCore.Identity.csproj" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Update="Resources\Services\LocalizedIdentityMessageDescriber.el.resx">
