@@ -126,6 +126,7 @@ namespace Indice.Hosting.Tasks.Implementations
         public async Task<T> Peek() {
             var dbConnection = await _dbContext.Database.EnsureOpenConnectionAsync();
             using (var command = dbConnection.CreateCommand()) {
+                command.AddParameterWithValue("@QueueName", _queueNameResolver.Resolve(), DbType.String);
                 command.CommandText = _queryDescriptor.Peek;
                 command.CommandType = CommandType.Text;
                 using (var dataReader = await command.ExecuteReaderAsync()) {
@@ -138,6 +139,7 @@ namespace Indice.Hosting.Tasks.Implementations
             }
         }
     }
+
     internal class MessageQueueQueryDescriptor
     {
         public MessageQueueQueryDescriptor(DbContext context) {
@@ -179,7 +181,7 @@ namespace Indice.Hosting.Tasks.Implementations
         public const string Dequeue = @"
             SET NOCOUNT ON; 
             WITH cte AS (
-                SELECT TOP(1) * 
+                SELECT TOP(1) [Id], [QueueName], [Payload], [Date], [DequeueCount], [State]
                 FROM [work].[QMessage] WITH (ROWLOCK, READPAST)
                 WHERE [QueueName] = @QueueName AND [Date] <= GETUTCDATE()
                 ORDER BY [Date] ASC
@@ -187,14 +189,16 @@ namespace Indice.Hosting.Tasks.Implementations
             DELETE FROM cte 
             OUTPUT [deleted].*;";
         public const string Enqueue = @"
-            INSERT INTO [work].[QMessage] ([Id], [QueueName], [Payload], [Date], [DequeueCount], [State]) 
+            INSERT INTO [work].[QMessage] ([Id], [QueueName], [Payload], [Date], [RowVersion], [DequeueCount], [State]) 
             VALUES (@Id, @QueueName, @Payload, @Date, @DequeueCount, 0);";
         public const string EnqueueRangeInsertStatement = @"INSERT INTO [work].[QMessage] ([Id], [QueueName], [Payload], [Date], [DequeueCount], [State]) VALUES";
         public const string EnqueueRangeValuesStatement = @"(@Id{0}, @QueueName{0}, @Payload{0}, @Date{0}, @DequeueCount{0}, 0)";
         public const string Peek = @"
-            SELECT TOP(1) [Payload] 
-            FROM [work].[QMessage] WITH (ROWLOCK, READPAST) 
-            ORDER BY [Date] ASC;";
+            SELECT TOP(1) [Payload]
+            FROM [work].[QMessage] WITH (ROWLOCK, READPAST)
+            WHERE [QueueName] = @QueueName AND [Date] <= GETUTCDATE()
+            ORDER BY [Date] ASC;
+        ";
     }
 
     internal static class PostgreSqlMessageQueueQueries
@@ -202,27 +206,32 @@ namespace Indice.Hosting.Tasks.Implementations
         public const string Count = @"
             SELECT COUNT(*) 
             FROM ""work"".""QMessage""
-            WHERE ""QueueName"" = '@QueueName';";
+            WHERE ""QueueName"" = '@QueueName';
+        ";
         public const string Dequeue = @"
             DELETE FROM ""work"".""QMessage""
             USING(
-                SELECT *
+                SELECT ""Id"", ""QueueName"", ""Payload"", ""Date"", ""RowVersion"", ""DequeueCount"", ""State""
                 FROM ""work"".""QMessage""
                 WHERE ""QueueName"" = @QueueName
                 LIMIT 1
                 FOR UPDATE SKIP LOCKED
             ) q
             WHERE q.""Id"" = ""work"".""QMessage"".""Id"" AND q.""Date"" <= CURRENT_TIMESTAMP
-            RETURNING ""work"".""QMessage"".*;";
+            RETURNING ""work"".""QMessage"".*;
+        ";
         public const string Enqueue = @"
             INSERT INTO ""work"".""QMessage"" (""Id"", ""QueueName"", ""Payload"", ""Date"", ""DequeueCount"", ""State"")
-            VALUES (@Id, @QueueName, @Payload, @Date, @DequeueCount, 0);";
+            VALUES (@Id, @QueueName, @Payload, @Date, @DequeueCount, 0);
+        ";
         public const string EnqueueRangeInsertStatement = @"INSERT INTO ""work"".""QMessage"" (""Id"", ""QueueName"", ""Payload"", ""Date"", ""DequeueCount"", ""State"") VALUES";
         public const string EnqueueRangeValuesStatement = @"(@Id{0}, @QueueName{0}, @Payload{0}, @Date{0}, @DequeueCount{0}, 0)";
         public const string Peek = @"
-            SELECT *
+            SELECT ""Payload""
             FROM ""work"".""QMessage""
+            WHERE ""QueueName"" = @QueueName AND ""Date"" <= CURRENT_TIMESTAMP
             LIMIT 1
-            FOR UPDATE SKIP LOCKED;";
+            FOR UPDATE SKIP LOCKED;
+        ";
     }
 }

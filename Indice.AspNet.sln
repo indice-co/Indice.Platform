@@ -59,7 +59,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Indice.AspNetCore.Features.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Indice.AspNetCore.Authentication.GovGr", "src\Indice.AspNetCore.Authentication.GovGr\Indice.AspNetCore.Authentication.GovGr.csproj", "{433CA241-B811-4079-9C3C-5DF9726CC7F8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Indice.AspNetCore.EmbeddedUI", "src\Indice.AspNetCore.EmbeddedUI\Indice.AspNetCore.EmbeddedUI.csproj", "{18A6983F-88C7-4CDC-91AD-B82BA0A22D6F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Indice.AspNetCore.EmbeddedUI", "src\Indice.AspNetCore.EmbeddedUI\Indice.AspNetCore.EmbeddedUI.csproj", "{18A6983F-88C7-4CDC-91AD-B82BA0A22D6F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Indice.Extensions.Configuration.Database", "src\Indice.Extensions.Configuration.Database\Indice.Extensions.Configuration.Database.csproj", "{EB571641-DC02-435E-82B4-D00485F49392}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -155,6 +157,10 @@ Global
 		{18A6983F-88C7-4CDC-91AD-B82BA0A22D6F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{18A6983F-88C7-4CDC-91AD-B82BA0A22D6F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{18A6983F-88C7-4CDC-91AD-B82BA0A22D6F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EB571641-DC02-435E-82B4-D00485F49392}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EB571641-DC02-435E-82B4-D00485F49392}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EB571641-DC02-435E-82B4-D00485F49392}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EB571641-DC02-435E-82B4-D00485F49392}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -182,6 +188,7 @@ Global
 		{C2CD0301-195C-4780-9BAF-0DCA9357BB76} = {643960D9-48C5-4EA3-BED5-486CCC694947}
 		{433CA241-B811-4079-9C3C-5DF9726CC7F8} = {643960D9-48C5-4EA3-BED5-486CCC694947}
 		{18A6983F-88C7-4CDC-91AD-B82BA0A22D6F} = {643960D9-48C5-4EA3-BED5-486CCC694947}
+		{EB571641-DC02-435E-82B4-D00485F49392} = {643960D9-48C5-4EA3-BED5-486CCC694947}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {C2B9151E-8A85-444E-93A9-78264FD0FE4A}

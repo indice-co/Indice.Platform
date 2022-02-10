@@ -133,8 +133,8 @@ namespace Indice.Hosting.Tasks.Implementations
             WHERE (""Name"" = {0} AND ""Id"" = {1}) OR ""ExpirationDate"" < NOW();";
         public const string RenewLease = @"
             UPDATE ""work"".""Lock"" 
-            SET ""ExpirationDate"" = NOW() + ""Duration"" * INTERVAL '1 second'; 
-            WHERE ""Id"" = {0}";
+            SET ""ExpirationDate"" = NOW() + ""Duration"" * INTERVAL '1 second'
+            WHERE ""Id"" = {0};";
         public const string Cleanup = @"
             DELETE FROM ""work"".""Lock"" 
             WHERE ""ExpirationDate"" < NOW();";

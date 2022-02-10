@@ -9,7 +9,7 @@ export const environment = {
         filterProtocolClaims: true,
         loadUserInfo: true,
         monitorSession: true,
-        post_logout_redirect_uri: 'logged-out',
+        post_logout_redirect_uri: '',
         redirect_uri: 'auth-callback',
         response_type: 'code',
         revokeAccessTokenOnSignout: true,

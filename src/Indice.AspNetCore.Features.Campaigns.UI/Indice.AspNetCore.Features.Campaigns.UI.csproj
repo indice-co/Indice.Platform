@@ -54,23 +54,23 @@
     <SpaSourceFolder Include="..\Indice.AspNetCore.Features.Campaigns.App" />
   </ItemGroup>
   <!-- Run 'npm install' command to download node modules for campaigns ui. -->
-  <!--<Target Name="NpmInstall" BeforeTargets="Build">
+  <Target Name="NpmInstall" BeforeTargets="Build">
     <Exec Command="npm install" WorkingDirectory="@(SpaSourceFolder)" EnvironmentVariables="PATH=$(Path.Replace(';', '%3B'))" ContinueOnError="true">
       <Output TaskParameter="ExitCode" PropertyName="ErrorCode" />
     </Exec>
     <Error Condition="'$(ErrorCode)' != '0'" Text="Node.js/npm is required to build this project. To continue, please install Node.js from https://nodejs.org/ or Visual Studio Installer, and then restart your command prompt or IDE." />
   </Target>
-  --><!-- Run 'npm run build:template' in order to build the campaigns ui app. --><!--
+  <!-- Run 'npm run build:template' in order to build the campaigns ui app. -->
   <Target Name="SpaBuild" BeforeTargets="Build" Condition="!Exists('$(SpaDistFolder)')">
     <Exec Command="npm run build:template" WorkingDirectory="@(SpaSourceFolder)" EnvironmentVariables="PATH=$(Path.Replace(';', '%3B'))" ContinueOnError="true">
       <Output TaskParameter="ExitCode" PropertyName="ErrorCode" />
     </Exec>
   </Target>
-  --><!-- Copy artifacts from dist folder inside the project, so they can be used as embedded resources. --><!--
+  <!-- Copy artifacts from dist folder inside the project, so they can be used as embedded resources. -->
   <Target Name="CopyFiles" BeforeTargets="Build">
     <ItemGroup>
       <SpaDistFolderGlob Include="$(SpaDistFolder)\**\*" Exclude="$(SpaDistFolder)\index.html" />
     </ItemGroup>
     <Copy SourceFiles="@(SpaDistFolderGlob)" DestinationFiles="@(SpaDistFolderGlob->'$(ProjectDir)\campaigns-ui-dist\%(RecursiveDir)%(Filename)%(Extension)')" />
-  </Target>-->
+  </Target>
 </Project>

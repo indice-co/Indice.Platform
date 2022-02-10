@@ -46,6 +46,10 @@ namespace Indice.AspNetCore.EmbeddedUI
         /// </summary>
         public string Host { get; set; }
         /// <summary>
+        /// URI to redirect to after logout.
+        /// </summary>
+        public string PostLogoutRedirectUri { get; set; }
+        /// <summary>
         /// The path that the back-office application is served. Defaults to '/backoffice'.
         /// </summary>
         /// <example>https://identity.example.com/backoffice</example>

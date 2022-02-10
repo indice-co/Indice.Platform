@@ -9,7 +9,7 @@
     <GenerateEmbeddedFilesManifest>true</GenerateEmbeddedFilesManifest>
     <SpaDistFolder>..\Indice.AspNetCore.Identity.AdminUI.App\dist\indice_admin_ui</SpaDistFolder>
     <TargetFrameworks>netcoreapp3.1;net5.0;net6.0;</TargetFrameworks>
-    <VersionPrefix>5.2.6</VersionPrefix>
+    <VersionPrefix>5.2.9</VersionPrefix>
     <!--<VersionSuffix>beta-01</VersionSuffix>-->
     <LangVersion>Latest</LangVersion>
   </PropertyGroup>
@@ -23,7 +23,7 @@
     <PackageId>Indice.AspNetCore.Identity.AdminUI</PackageId>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/indice-co/Indice.AspNet</PackageProjectUrl>
-    <PackageReleaseNotes>Display message when user is locked out.</PackageReleaseNotes>
+    <PackageReleaseNotes>Fix missing AllowOfflineAccess field on some cases.</PackageReleaseNotes>
     <PackageTags>AspNetCore;IdentityServer;AdminUI</PackageTags>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <RepositoryType>git</RepositoryType>
@@ -46,7 +46,7 @@
     <None Remove="admin-ui-dist\index.html" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Indice.AspNetCore.EmbeddedUI" Version="5.2.0" />
+    <PackageReference Include="Indice.AspNetCore.EmbeddedUI" Version="5.2.4" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Indice.AspNetCore.EmbeddedUI\Indice.AspNetCore.EmbeddedUI.csproj" />
@@ -55,23 +55,23 @@
     <SpaSourceFolder Include="..\Indice.AspNetCore.Identity.AdminUI.App" />
   </ItemGroup>
   <!-- Run 'npm install' command to download node modules for admin ui. -->
-  <!--<Target Name="NpmInstall" BeforeTargets="Build">
+  <Target Name="NpmInstall" BeforeTargets="Build">
     <Exec Command="npm install" WorkingDirectory="@(SpaSourceFolder)" EnvironmentVariables="PATH=$(Path.Replace(';', '%3B'))" ContinueOnError="true">
       <Output TaskParameter="ExitCode" PropertyName="ErrorCode" />
     </Exec>
     <Error Condition="'$(ErrorCode)' != '0'" Text="Node.js/npm is required to build this project. To continue, please install Node.js from https://nodejs.org/ or Visual Studio Installer, and then restart your command prompt or IDE." />
   </Target>
-  --><!-- Run 'npm run build:template' in order to build the admin ui app. --><!--
+   <!--Run 'npm run build:template' in order to build the admin ui app.--> 
   <Target Name="SpaBuild" BeforeTargets="Build" Condition="!Exists('$(SpaDistFolder)')">
     <Exec Command="npm run build:template" WorkingDirectory="@(SpaSourceFolder)" EnvironmentVariables="PATH=$(Path.Replace(';', '%3B'))" ContinueOnError="true">
       <Output TaskParameter="ExitCode" PropertyName="ErrorCode" />
     </Exec>
   </Target>
-  --><!-- Copy artifacts from dist folder inside the project, so they can be used as embedded resources. --><!--
+   <!--Copy artifacts from dist folder inside the project, so they can be used as embedded resources.--> 
   <Target Name="CopyFiles" BeforeTargets="Build">
     <ItemGroup>
       <SpaDistFolderGlob Include="$(SpaDistFolder)\**\*" Exclude="$(SpaDistFolder)\index.html" />
     </ItemGroup>
     <Copy SourceFiles="@(SpaDistFolderGlob)" DestinationFiles="@(SpaDistFolderGlob->'$(ProjectDir)\admin-ui-dist\%(RecursiveDir)%(Filename)%(Extension)')" />
-  </Target>-->
+  </Target>
 </Project>

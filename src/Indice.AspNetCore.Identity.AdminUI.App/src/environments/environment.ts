@@ -13,7 +13,7 @@ export const environment = {
     filterProtocolClaims: true,
     loadUserInfo: true,
     monitorSession: true,
-    post_logout_redirect_uri: 'http://localhost:4200',
+    post_logout_redirect_uri: 'http://localhost:4200/admin',
     redirect_uri: 'http://localhost:4200/admin/auth-callback',
     response_type: 'code',
     revokeAccessTokenOnSignout: true,

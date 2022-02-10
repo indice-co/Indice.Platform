@@ -83,13 +83,12 @@ namespace Indice.AspNetCore.Features.Campaigns.Services
                 .SelectMany(
                     collectionSelector: campaign => DbContext.CampaignUsers.AsNoTracking().Where(x => x.CampaignId == campaign.Id && x.UserCode == userCode).DefaultIfEmpty(),
                     resultSelector: (campaign, message) => new { Campaign = campaign, Message = message }
+                )
+                .Where(x => x.Campaign.Published
+                        && (x.Message == null || !x.Message.IsDeleted)
+                        && (x.Campaign.IsGlobal || (x.Message != null && x.Message.UserCode == userCode))
                 );
             if (options?.Filter is not null) {
-                query = query.Where(
-                    x => x.Campaign.Published 
-                     && (x.Message == null || !x.Message.IsDeleted) 
-                     && (x.Campaign.IsGlobal || x.Message == null || x.Message.UserCode == userCode)
-                );
                 if (options.Filter.ShowExpired.HasValue) {
                     query = query.Where(x => !x.Campaign.ActivePeriod.To.HasValue || x.Campaign.ActivePeriod.To.Value >= DateTime.UtcNow);
                 }
