@@ -189,7 +189,7 @@ namespace Indice.Hosting.Tasks.Implementations
             DELETE FROM cte 
             OUTPUT [deleted].*;";
         public const string Enqueue = @"
-            INSERT INTO [work].[QMessage] ([Id], [QueueName], [Payload], [Date], [RowVersion], [DequeueCount], [State]) 
+            INSERT INTO [work].[QMessage] ([Id], [QueueName], [Payload], [Date], [DequeueCount], [State]) 
             VALUES (@Id, @QueueName, @Payload, @Date, @DequeueCount, 0);";
         public const string EnqueueRangeInsertStatement = @"INSERT INTO [work].[QMessage] ([Id], [QueueName], [Payload], [Date], [DequeueCount], [State]) VALUES";
         public const string EnqueueRangeValuesStatement = @"(@Id{0}, @QueueName{0}, @Payload{0}, @Date{0}, @DequeueCount{0}, 0)";
