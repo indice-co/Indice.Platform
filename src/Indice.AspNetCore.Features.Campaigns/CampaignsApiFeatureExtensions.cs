@@ -45,6 +45,7 @@ namespace Microsoft.Extensions.DependencyInjection
             // Configure options given by the consumer.
             var campaignsApiOptions = new CampaignsApiOptions();
             configureAction?.Invoke(campaignsApiOptions);
+            services.AddPushNotificationServiceNoOp();
             services.Configure<CampaignsApiOptions>(options => {
                 options.ApiPrefix = campaignsApiOptions.ApiPrefix;
                 options.ConfigureDbContext = campaignsApiOptions.ConfigureDbContext;
