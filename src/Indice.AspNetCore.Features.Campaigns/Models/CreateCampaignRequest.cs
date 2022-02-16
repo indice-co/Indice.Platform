@@ -24,7 +24,7 @@ namespace Indice.AspNetCore.Features.Campaigns.Models
         /// </summary>
         public List<string> SelectedUserCodes { get; set; } = new List<string>();
         /// <summary>
-        /// Defines a CTA (click-to-action) URL.
+        /// Defines a CTA (call-to-action) URL.
         /// </summary>
         public string ActionUrl { get; set; }
         /// <summary>

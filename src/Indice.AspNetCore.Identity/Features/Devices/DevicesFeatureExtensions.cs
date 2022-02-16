@@ -23,7 +23,7 @@ namespace Microsoft.Extensions.DependencyInjection
             };
             configure?.Invoke(options);
             options.Services = null;
-            services.AddPushNotificationServiceNoOp();
+            services.AddPushNotificationServiceNoop();
             services.TryAddTransient<IPlatformEventService, PlatformEventService>();
             builder.ConfigureApplicationPartManager(x => x.FeatureProviders.Add(new DevicesFeatureProvider()));
             builder.AddFluentValidation(options => options.RegisterValidatorsFromAssemblyContaining<DevicesFeatureProvider>());
@@ -37,11 +37,11 @@ namespace Microsoft.Extensions.DependencyInjection
     public static class DeviceOptionsExtensions 
     {
         /// <summary>
-        /// Adds an implementation of <see cref="IPushNotificationService"/> Azure push notification hubs service for sending push notifications.
+        /// Adds an Azure specific implementation of <see cref="IPushNotificationService"/> for sending push notifications.
         /// </summary>
         /// <param name="deviceOptions">Options used to configure <b>Devices</b> feature.</param>
         /// <param name="configure">Configure the available options for push notifications. Null to use defaults.</param>
-        public static void UsePushNotificationsServiceAzure(this DeviceOptions deviceOptions, Action<PushNotificationAzureOptions> configure = null) => 
+        public static void UsePushNotificationsServiceAzure(this DeviceOptions deviceOptions, Action<IServiceProvider, PushNotificationAzureOptions> configure = null) => 
             deviceOptions.Services.AddPushNotificationServiceAzure(configure);
     }
 }

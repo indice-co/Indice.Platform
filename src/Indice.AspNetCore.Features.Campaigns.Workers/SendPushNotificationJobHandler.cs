@@ -1,15 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Dynamic;
-using System.Threading.Tasks;
+﻿using System.Dynamic;
+using Indice.Events;
 using Indice.Services;
 
-namespace Indice.AspNetCore.Features.Campaigns.Hosting
+namespace Indice.AspNetCore.Features.Campaigns.Workers
 {
     internal class SendPushNotificationJobHandler
     {
-        public SendPushNotificationJobHandler(IPushNotificationService pushNotificationService) {
-            PushNotificationService = pushNotificationService ?? throw new ArgumentNullException(nameof(pushNotificationService));
+        public SendPushNotificationJobHandler(Func<string, IPushNotificationService> getPushNotificationService) {
+            PushNotificationService = getPushNotificationService(KeyedServiceNames.PushNotificationServiceAzureKey) ?? throw new ArgumentNullException(nameof(getPushNotificationService));
         }
 
         public IPushNotificationService PushNotificationService { get; }

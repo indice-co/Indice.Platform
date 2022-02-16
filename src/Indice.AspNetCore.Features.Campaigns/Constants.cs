@@ -4,10 +4,12 @@ using Indice.Security;
 namespace Indice.AspNetCore.Features.Campaigns
 {
     /// <summary>
-    /// Contant values for Campaigns API.
+    /// Constant values for Campaigns API.
     /// </summary>
     public static class CampaignsApi
     {
+        internal const string FileServiceKey = "Campaigns:FileServiceKey";
+        internal const string EventDispatcherAzureServiceKey = "Campaigns:EventDispatcherAzureServiceKey";
         /// <summary>
         /// The assembly name.
         /// </summary>
@@ -35,5 +37,11 @@ namespace Indice.AspNetCore.Features.Campaigns
             /// </summary>
             public const string BeCampaignsManager = nameof(BeCampaignsManager);
         }
+    }
+
+    internal class QueueNames
+    {
+        public const string CampaignCreated = "campaign-created";
+        public const string SendPushNotification = "send-push-notification";
     }
 }

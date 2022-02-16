@@ -1,13 +1,12 @@
 ﻿using System;
 using System.Threading.Tasks;
-using Indice.Configuration;
 
 namespace Indice.Services
 {
     /// <summary>
-    /// Moq implementation of <see cref="IEmailService"/>.
+    /// Noop implementation of <see cref="IEmailService"/>.
     /// </summary>
-    public class EmailServiceMoq : IEmailService
+    public class EmailServiceNoop : IEmailService
     {
         /// <inheritdoc/>
         public async Task SendAsync(string[] recipients, string subject, string body, FileAttachment[] attachments = null) => await SendAsync<object>(recipients, subject, body, null, null);

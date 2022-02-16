@@ -3,16 +3,14 @@ using System.Linq;
 using System.Net.Mime;
 using FluentValidation.AspNetCore;
 using Indice.AspNetCore.Features.Campaigns;
-using Indice.AspNetCore.Features.Campaigns.Configuration;
 using Indice.AspNetCore.Features.Campaigns.Controllers;
 using Indice.AspNetCore.Features.Campaigns.Data;
 using Indice.AspNetCore.Features.Campaigns.Formatters;
-using Indice.AspNetCore.Features.Campaigns.Hosting;
 using Indice.AspNetCore.Features.Campaigns.Mvc.ApplicationModels;
 using Indice.AspNetCore.Features.Campaigns.Services;
 using Indice.AspNetCore.Swagger;
+using Indice.Events;
 using Indice.Extensions;
-using Indice.Hosting.Tasks;
 using Indice.Security;
 using Indice.Serialization;
 using Indice.Services;
@@ -27,8 +25,7 @@ namespace Microsoft.Extensions.DependencyInjection
     /// <summary>
     /// Contains extension methods on <see cref="IMvcBuilder"/> for configuring Campaigns API feature.
     /// </summary>
-    public static class CampaignsApiFeatureExtensions
-    {
+    public static class CampaignsApiFeatureExtensions {
         /// <summary>
         /// Add the Campaigns API endpoints in the MVC project.
         /// </summary>
@@ -43,9 +40,13 @@ namespace Microsoft.Extensions.DependencyInjection
             // Try add general settings.
             services.AddGeneralSettings(configuration);
             // Configure options given by the consumer.
-            var campaignsApiOptions = new CampaignsApiOptions();
+            var campaignsApiOptions = new CampaignsApiOptions {
+                Services = services
+            };
+            // Use local files by default. Consumer can override this behavior if he needs to.
+            campaignsApiOptions.UseFilesLocal();
             configureAction?.Invoke(campaignsApiOptions);
-            services.AddPushNotificationServiceNoOp();
+            campaignsApiOptions.Services = null;
             services.Configure<CampaignsApiOptions>(options => {
                 options.ApiPrefix = campaignsApiOptions.ApiPrefix;
                 options.ConfigureDbContext = campaignsApiOptions.ConfigureDbContext;
@@ -83,7 +84,6 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddTransient<CampaignManager>();
             // Register events.
             services.TryAddTransient<IPlatformEventService, PlatformEventService>();
-            services.AddPlatformEventHandler<CampaignCreatedEvent, CampaignCreatedEventHandler>();
             // Register validators.
             mvcBuilder.AddFluentValidation(options => options.RegisterValidatorsFromAssemblyContaining<CampaignsController>());
             // Register application DbContext.
@@ -104,22 +104,29 @@ namespace Microsoft.Extensions.DependencyInjection
         }
 
         /// <summary>
-        /// Adds the job handlers required the for Campaigns feature.
+        /// Adds <see cref="IFileService"/> using local file system as the backing store.
         /// </summary>
-        /// <param name="workerHostBuilder">A helper class to configure the worker host.</param>
-        /// <returns>The <see cref="WorkerHostBuilder"/> used to configure the worker host.</returns>
-        public static WorkerHostBuilder AddCampaignsJobs(this WorkerHostBuilder workerHostBuilder) => workerHostBuilder
-            .AddJob<CampaignCreatedJobHandler>()
-            .WithQueueTrigger<CampaignQueueItem>(options => {
-                options.QueueName = "campaign-created";
-                options.PollingInterval = TimeSpan.FromSeconds(30).TotalMilliseconds;
-                options.InstanceCount = 1;
-            })
-            .AddJob<SendPushNotificationJobHandler>()
-            .WithQueueTrigger<PushNotificationQueueItem>(options => {
-                options.QueueName = "send-push-notification";
-                options.PollingInterval = TimeSpan.FromSeconds(5).TotalMilliseconds;
-                options.InstanceCount = 1;
-            });
+        /// <param name="options">Options used to configure the Campaigns API feature.</param>
+        /// <param name="configure">Configure the available options. Null to use defaults.</param>
+        public static void UseFilesLocal(this CampaignsApiOptions options, Action<FileServiceLocal.FileServiceOptions> configure = null) =>
+            options.Services.AddFiles(options => options.AddFileSystem(CampaignsApi.FileServiceKey, configure));
+
+        /// <summary>
+        /// Adds <see cref="IFileService"/> using Azure Blob Storage as the backing store.
+        /// </summary>
+        /// <param name="options">Options used to configure the Campaigns API feature.</param>
+        /// <param name="configure">Configure the available options. Null to use defaults.</param>
+        public static void UseFilesAzure(this CampaignsApiOptions options, Action<FileServiceAzureStorage.FileServiceOptions> configure = null) =>
+            options.Services.AddFiles(options => options.AddAzureStorage(CampaignsApi.FileServiceKey, configure));
+
+        /// <summary>
+        /// Adds <see cref="IEventDispatcher"/> using Azure Storage as a queuing mechanism.
+        /// </summary>
+        /// <param name="options">Options used to configure the Campaigns API feature.</param>
+        /// <param name="configure">Configure the available options. Null to use defaults.</param>
+        public static void UseEventDispatcherAzure(this CampaignsApiOptions options, Action<IServiceProvider, EventDispatcherOptions> configure = null) {
+            options.Services.AddPlatformEventHandler<CampaignCreatedEvent, CampaignCreatedEventHandler>();
+            options.Services.AddEventDispatcherAzure(CampaignsApi.EventDispatcherAzureServiceKey, configure);
+        }
     }
 }

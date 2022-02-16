@@ -1,21 +1,11 @@
 using System;
 using System.Globalization;
-using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
-using System.Reflection;
-using System.Text.Json;
-using System.Text.Json.Serialization;
-using IdentityModel;
-using Indice.Api.Data;
-using Indice.Api.JobHandlers;
 using Indice.AspNetCore.Features.Campaigns;
-using Indice.AspNetCore.Swagger;
 using Indice.Configuration;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -38,95 +28,12 @@ namespace Indice.Api
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services) {
-            // Configure MVC
-            services.AddControllers()
-                    .AddCampaignsApiEndpoints(options => {
-                        options.ApiPrefix = "api";
-                        options.ConfigureDbContext = builder => builder.UseSqlServer(Configuration.GetConnectionString("CampaignsDb"));
-                        options.DatabaseSchema = "cmp";
-                        options.RequiredScope = $"backoffice:{CampaignsApi.Scope}";
-                        options.UserClaimType = JwtClaimTypes.Subject;
-                    })
-                    .AddJsonOptions(options => {
-                        options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
-                        options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
-                        options.JsonSerializerOptions.WriteIndented = true;
-                    });
-            // Configure default CORS policy
-            services.AddCors(options => options.AddDefaultPolicy(builder => {
-                builder.WithOrigins(Configuration.GetSection("AllowedOrigins").Get<string[]>())
-                       .WithMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
-                       .WithHeaders("Authorization", "Content-Type")
-                       .WithExposedHeaders("Content-Disposition")
-                       .SetPreflightMaxAge(TimeSpan.FromMinutes(10));
-            }));
-            // Configure Swagger
-            services.AddSwaggerGen(options => {
-                options.IndiceDefaults(Settings);
-                options.AddFluentValidationSupport();
-                options.AddOAuth2AuthorizationCodeFlow(Settings);
-                options.AddFormFileSupport();
-                options.IncludeXmlComments(Assembly.Load(CampaignsApi.AssemblyName));
-                options.AddDoc(CampaignsApi.Scope, "Campaigns API", "API for managing campaigns in the backoffice tool.");
-                options.AddDoc("lookups", "Lookups API", "API for various lookups.");
-            });
-            // Configure authentication
-            JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
-            var authenticationBuilder = services.AddAuthentication(options => {
-                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-            })
-            .AddJwtBearer(options => {
-                options.Audience = Settings?.Api?.ResourceName;
-                options.Authority = Settings?.Authority;
-                options.RequireHttpsMetadata = false;
-                options.TokenValidationParameters.NameClaimType = JwtClaimTypes.Name;
-                options.TokenValidationParameters.RoleClaimType = JwtClaimTypes.Role;
-                options.ForwardDefaultSelector = BearerSelector.ForwardReferenceToken("Introspection");
-            })
-            .AddOAuth2Introspection("Introspection", options => {
-                options.Authority = Settings?.Authority;
-                options.CacheDuration = TimeSpan.FromMinutes(5);
-                options.ClientId = Settings?.Api?.ResourceName;
-                options.ClientSecret = Settings?.Api?.Secrets["Introspection"];
-                options.EnableCaching = true;
-            });
-            services.AddScopeTransformation();
-            // Configure framework & custom services
-            services.AddDistributedMemoryCache();
-            services.AddFilesLocal(options => options.Path = "uploads");
-            // Setup worker host for executing background tasks.
-            services.AddWorkerHost(options => {
-                options.JsonOptions.JsonSerializerOptions.WriteIndented = true;
-                options.UseStoreRelational(builder => builder.UseSqlServer(Configuration.GetConnectionString("WorkerDb")));
-                //options.UseStoreRelational<ExtendedTaskDbContext>(builder => builder.UseNpgsql(Configuration.GetConnectionString("WorkerDb")));
-            })
-            .AddCampaignsJobs()
-            .AddJob<LongRunningTaskJobHandler>()
-            .WithScheduleTrigger("0 0/2 * * * ?", options => {
-                options.Name = "useless-task";
-                options.Description = "Does nothing for some minutes.";
-                options.Group = "indice";
-                options.Singleton = true;
-            })
-            .AddJob<LoadAvailableAlertsJobHandler>()
-            .WithScheduleTrigger<DemoCounterModel>("0 0/1 * * * ?", options => {
-                options.Name = "load-available-alerts";
-                options.Description = "Load alerts for the queue.";
-                options.Group = "indice";
-            })
-            .AddJob<SendSmsJobHandler>()
-            .WithQueueTrigger<SmsDto>(options => {
-                options.QueueName = "send-user-sms";
-                options.PollingInterval = 500;
-                options.InstanceCount = 3;
-            })
-            .AddJob<LogSendSmsJobHandler>()
-            .WithQueueTrigger<LogSmsDto>(options => {
-                options.QueueName = "log-send-user-sms";
-                options.PollingInterval = 500;
-                options.InstanceCount = 1;
-            });
+            services.AddMvcConfig(Configuration);
+            services.AddCorsConfig(Configuration)
+                    .AddSwaggerConfig(Settings)
+                    .AddDistributedMemoryCache()
+                    .AddAuthenticationConfig(Settings);
+            services.AddWorkerHostConfig(Configuration);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

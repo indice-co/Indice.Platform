@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Net.Mime;
 using System.Threading.Tasks;
-using Indice.AspNetCore.Features.Campaigns.Hosting;
 using Indice.AspNetCore.Features.Campaigns.Models;
 using Indice.AspNetCore.Features.Campaigns.Services;
 using Indice.AspNetCore.Filters;
 using Indice.Configuration;
+using Indice.Events;
 using Indice.Extensions;
 using Indice.Services;
 using Indice.Types;
@@ -31,12 +31,12 @@ namespace Indice.AspNetCore.Features.Campaigns.Controllers
 
         public CampaignsController(
             ICampaignService campaignService, 
-            IFileService fileService, 
+            Func<string, IFileService> getFileService, 
             IOptions<GeneralSettings> generalSettings, 
             IPlatformEventService eventService
         ) {
             CampaignService = campaignService ?? throw new ArgumentNullException(nameof(campaignService));
-            FileService = fileService ?? throw new ArgumentNullException(nameof(fileService));
+            FileService = getFileService(CampaignsApi.FileServiceKey) ?? throw new ArgumentNullException(nameof(getFileService));
             EventService = eventService ?? throw new ArgumentNullException(nameof(eventService));
             GeneralSettings = generalSettings?.Value ?? throw new ArgumentNullException(nameof(generalSettings));
         }
@@ -49,7 +49,7 @@ namespace Indice.AspNetCore.Features.Campaigns.Controllers
         /// <summary>
         /// Gets the list of all campaigns using the provided <see cref="ListOptions"/>.
         /// </summary>
-        /// <param name="options">List params used to navigate through collections. Contains parameters such as sort, search, page number and page size.</param>
+        /// <param name="options">List parameters used to navigate through collections. Contains parameters such as sort, search, page number and page size.</param>
         /// <response code="200">OK</response>
         [HttpGet]
         [Produces(MediaTypeNames.Application.Json)]

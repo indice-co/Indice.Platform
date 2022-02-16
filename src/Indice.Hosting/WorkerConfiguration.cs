@@ -35,7 +35,7 @@ namespace Microsoft.Extensions.DependencyInjection
             var workerHostOptions = new WorkerHostOptions(services) {
                 ScheduledTaskStoreType = typeof(NoOpScheduledTaskStore<>),
                 QueueStoreType = typeof(NoOpMessageQueue<>),
-                LockStoreType = typeof(NoOpLockManager)
+                LockStoreType = typeof(LockManagerNoop)
             };
             configureAction?.Invoke(workerHostOptions);
             services.AddSingleton(workerHostOptions.JsonOptions);
@@ -47,7 +47,7 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddSingleton<IJobFactory, QuartzJobFactory>();
             services.AddTransient<QuartzJobRunner>();
             services.AddTransient<TaskHandlerActivator>();
-            services.AddLockManagerNoOp();
+            services.AddLockManagerNoop();
             var configuration = serviceProvider.GetRequiredService<IConfiguration>();
             if (!configuration.WorkerHostDisabled()) {
                 services.AddHostedService<WorkerHostedService>();

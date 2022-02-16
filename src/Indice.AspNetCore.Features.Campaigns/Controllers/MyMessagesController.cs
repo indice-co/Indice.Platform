@@ -2,7 +2,6 @@
 using System.Net.Mime;
 using System.Security.Claims;
 using System.Threading.Tasks;
-using Indice.AspNetCore.Features.Campaigns.Configuration;
 using Indice.AspNetCore.Features.Campaigns.Models;
 using Indice.AspNetCore.Features.Campaigns.Services;
 using Indice.Types;

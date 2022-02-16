@@ -18,7 +18,7 @@ namespace Indice.AspNetCore.Features.Campaigns.Models
         /// </summary>
         public string Content { get; set; }
         /// <summary>
-        /// Defines a CTA (click-to-action) text.
+        /// Defines a CTA (call-to-action) text.
         /// </summary>
         public string ActionText { get; set; }
         /// <summary>

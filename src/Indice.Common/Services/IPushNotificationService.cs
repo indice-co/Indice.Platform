@@ -104,7 +104,6 @@ namespace Indice.Services
         /// </summary>
         /// <param name="service">Instance of <see cref="IPushNotificationService"/>.</param>
         /// <param name="configurePushNotificationMessage">The delegate that will be used to build the <see cref="PushNotificationMessage"/>.</param>
-        /// <returns></returns>
         public static async Task SendAsync(this IPushNotificationService service, Func<PushNotificationMessageBuilder, PushNotificationMessageBuilder> configurePushNotificationMessage) {
             if (configurePushNotificationMessage == null) {
                 throw new ArgumentNullException(nameof(configurePushNotificationMessage));
@@ -113,20 +112,5 @@ namespace Indice.Services
             var pushNotificationMessage = pushNotificationMessageBuilder.Build();
             await service.SendAsync(pushNotificationMessage.Message, pushNotificationMessage.Data, pushNotificationMessage.UserTag, pushNotificationMessage.Classification, pushNotificationMessage.Tags.ToArray());
         }
-    }
-
-    /// <summary>
-    /// Default push notification service implementation for clients who don't support it.
-    /// </summary>
-    public class NoOpPushNotificationService : IPushNotificationService
-    {
-        ///<inheritdoc/>
-        public Task Register(string deviceId, string pnsHandle, DevicePlatform devicePlatform, IList<string> tags) => Task.CompletedTask;
-
-        ///<inheritdoc/>
-        public Task SendAsync(string message, IList<string> tags, string data = null, string classification = null) => Task.CompletedTask;
-
-        ///<inheritdoc/>
-        public Task UnRegister(string deviceId) => Task.CompletedTask;
     }
 }

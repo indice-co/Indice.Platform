@@ -1,5 +1,4 @@
 ﻿using System;
-using Indice.AspNetCore.Features.Campaigns.Configuration;
 using Indice.AspNetCore.Features.Campaigns.Data.Models;
 using Indice.Configuration;
 using Indice.Types;

@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using Indice.AspNetCore.Features.Campaigns.Configuration;
 using Indice.AspNetCore.Features.Campaigns.Controllers;
 using Indice.AspNetCore.Features.Campaigns.Data;
 using Indice.AspNetCore.Features.Campaigns.Data.Models;
@@ -24,13 +22,13 @@ namespace Indice.AspNetCore.Features.Campaigns.Services
             CampaignsDbContext dbContext,
             IOptions<GeneralSettings> generalSettings,
             IOptions<CampaignsApiOptions> apiOptions,
-            IFileService fileService,
+            Func<string, IFileService> getFileService,
             IHttpContextAccessor httpContextAccessor,
             LinkGenerator linkGenerator
         ) {
             DbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
             ApiOptions = apiOptions?.Value ?? throw new ArgumentNullException(nameof(apiOptions));
-            FileService = fileService ?? throw new ArgumentNullException(nameof(fileService));
+            FileService = getFileService(CampaignsApi.FileServiceKey) ?? throw new ArgumentNullException(nameof(getFileService));
             GeneralSettings = generalSettings?.Value ?? throw new ArgumentNullException(nameof(generalSettings));
             HttpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
             LinkGenerator = linkGenerator ?? throw new ArgumentNullException(nameof(linkGenerator));

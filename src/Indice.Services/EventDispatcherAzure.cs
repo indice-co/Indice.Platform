@@ -108,7 +108,7 @@ namespace Indice.Services
         /// <summary>
         /// Determines how <see cref="QueueMessage.Body"/> is represented in HTTP requests and responses.
         /// </summary>
-        public QueueMessageEncoding MessageEncoding { get; set; }
+        public QueueMessageEncoding MessageEncoding { get; set; } = QueueMessageEncoding.Base64;
         /// <summary>
         /// A function that retrieves the current thread user from the current operation context.
         /// </summary>

@@ -1,5 +1,4 @@
 ﻿using System;
-using Indice.AspNetCore.Features.Campaigns.Configuration;
 using Microsoft.AspNetCore.Mvc.ApplicationModels;
 
 namespace Indice.AspNetCore.Features.Campaigns.Mvc.ApplicationModels

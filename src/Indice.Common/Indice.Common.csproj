@@ -37,15 +37,18 @@
     <PackageReference Include="Polly" Version="7.2.3" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'net6.0'">
-    <PackageReference Include="System.Text.Json" Version="6.0.2" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="6.0.0"></PackageReference>
     <PackageReference Include="Microsoft.Extensions.Localization.Abstractions" Version="6.0.2" />
+    <PackageReference Include="System.Text.Json" Version="6.0.2" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'net5.0'">
-    <PackageReference Include="System.Text.Json" Version="5.0.2" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="5.0.0"></PackageReference>
     <PackageReference Include="Microsoft.Extensions.Localization.Abstractions" Version="5.0.14" />
+    <PackageReference Include="System.Text.Json" Version="5.0.2" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
-    <PackageReference Include="System.Text.Json" Version="4.7.2" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="3.1.22"></PackageReference>
     <PackageReference Include="Microsoft.Extensions.Localization.Abstractions" Version="3.1.22" />
+    <PackageReference Include="System.Text.Json" Version="4.7.2" />
   </ItemGroup>
 </Project>

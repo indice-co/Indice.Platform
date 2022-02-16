@@ -6,41 +6,36 @@ using System.Threading.Tasks;
 namespace Indice.Services
 {
     /// <summary>
-    /// File storage abstraction
+    /// File storage abstraction.
     /// </summary>
     public interface IFileService
     {
         /// <summary>
         /// Saves a file.
         /// </summary>
-        /// <param name="filepath"></param>
-        /// <param name="stream"></param>
-        /// <returns></returns>
+        /// <param name="filepath">The file path.</param>
+        /// <param name="stream">The file content as a <see cref="Stream"/>.</param>
         Task SaveAsync(string filepath, Stream stream);
         /// <summary>
         /// Retrieves a file using a path.
         /// </summary>
-        /// <param name="filepath"></param>
-        /// <returns></returns>
+        /// <param name="filepath">The file path.</param>
         Task<byte[]> GetAsync(string filepath);
         /// <summary>
         /// Gets a path list. For a given folder
         /// </summary>
-        /// <param name="path">The file path</param>
-        /// <returns></returns>
+        /// <param name="path">The file path.</param>
         Task<IEnumerable<string>> SearchAsync(string path);
         /// <summary>
-        /// Gets the file properties
+        /// Gets the file properties.
         /// </summary>
-        /// <param name="filepath"></param>
-        /// <returns></returns>
+        /// <param name="filepath">The file path.</param>
         Task<FileProperties> GetPropertiesAsync(string filepath);
         /// <summary>
         /// Removes the file from storage. In case of a folder or virtual path prefix it will remove all files recursive.
         /// </summary>
-        /// <param name="filepath"></param>
-        /// <param name="isDirectory">Indicates the path is a directory</param>
-        /// <returns></returns>
+        /// <param name="filepath">The file path.</param>
+        /// <param name="isDirectory">Indicates that the path is a directory.</param>
         Task<bool> DeleteAsync(string filepath, bool isDirectory = false);
     }
 
@@ -50,40 +45,40 @@ namespace Indice.Services
     public class FileServiceException : Exception
     {
         /// <summary>
-        /// Constructor
+        /// Initializes a new instance of the <see cref="FileServiceException"/> class with a specified error message.
         /// </summary>
-        /// <param name="message"></param>
+        /// <param name="message">The message that describes the error.</param>
         public FileServiceException(string message) : base(message) { }
 
         /// <summary>
-        /// Constructs a new <see cref="FileServiceException"/> wrapping an other exception
+        /// Initializes a new instance of the <see cref="FileServiceException"/> class with a specified error message and a reference to the inner exception that is the cause of this exception.
         /// </summary>
-        /// <param name="message"></param>
-        /// <param name="inner"></param>
+        /// <param name="message">The error message that explains the reason for the exception.</param>
+        /// <param name="inner">The exception that is the cause of the current exception, or a null reference if no inner exception is specified.</param>
         public FileServiceException(string message, Exception inner) : base(message, inner) { }
     }
 
     /// <summary>
-    /// File not found exception.
+    /// Exception class for <see cref="IFileService"/> related exceptions.
     /// </summary>
     public class FileNotFoundServiceException : FileServiceException
     {
         /// <summary>
-        /// Constructor
+        /// Initializes a new instance of the <see cref="FileNotFoundServiceException"/> class with a specified error message.
         /// </summary>
-        /// <param name="message"></param>
+        /// <param name="message">The message that describes the error.</param>
         public FileNotFoundServiceException(string message) : base(message) { }
 
         /// <summary>
-        /// Constructs a new <see cref="FileNotFoundServiceException"/> wrapping an other exception
+        /// Initializes a new instance of the <see cref="FileNotFoundServiceException"/> class with a specified error message and a reference to the inner exception that is the cause of this exception.
         /// </summary>
-        /// <param name="message"></param>
-        /// <param name="inner"></param>
+        /// <param name="message">The error message that explains the reason for the exception.</param>
+        /// <param name="inner">The exception that is the cause of the current exception, or a null reference if no inner exception is specified.</param>
         public FileNotFoundServiceException(string message, Exception inner) : base(message, inner) { }
     }
 
     /// <summary>
-    /// File properties. Metadata class
+    /// File properties. Metadata class.
     /// </summary>
     public class FileProperties
     {
@@ -92,35 +87,35 @@ namespace Indice.Services
         /// </summary>
         public DateTimeOffset? LastModified { get; set; }
         /// <summary>
-        /// Etag
+        /// Etag.
         /// </summary>
         public string ETag { get; set; }
         /// <summary>
-        /// Media type (ie application/octet-stream)
+        /// Media type (i.e. application/octet-stream).
         /// </summary>
         public string ContentType { get; set; }
         /// <summary>
-        /// Content MD5 hash
+        /// Content MD5 hash.
         /// </summary>
         public string ContentHash { get; set; }
         /// <summary>
-        /// Size in Bytes
+        /// Size in bytes.
         /// </summary>
         public long Length { get; set; }
         /// <summary>
-        /// Content language
+        /// Content language.
         /// </summary>
         public string ContentLanguage { get; set; }
         /// <summary>
-        /// Content encoding
+        /// Content encoding.
         /// </summary>
         public string ContentEncoding { get; set; }
         /// <summary>
-        /// Content Disposition
+        /// Content disposition.
         /// </summary>
         public string ContentDisposition { get; set; }
         /// <summary>
-        /// Cache control
+        /// Cache control.
         /// </summary>
         public string CacheControl { get; set; }
     }

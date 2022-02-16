@@ -9,7 +9,7 @@
     <GenerateEmbeddedFilesManifest>true</GenerateEmbeddedFilesManifest>
     <SpaDistFolder>..\Indice.AspNetCore.Features.Campaigns.App\dist\campaigns-app</SpaDistFolder>
     <TargetFrameworks>netcoreapp3.1;net5.0;net6.0;</TargetFrameworks>
-    <VersionPrefix>5.2.3</VersionPrefix>
+    <VersionPrefix>5.2.4</VersionPrefix>
     <LangVersion>Latest</LangVersion>
   </PropertyGroup>
   <PropertyGroup Label="Package">
@@ -22,7 +22,7 @@
     <PackageId>Indice.AspNetCore.Features.Campaigns.UI</PackageId>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/indice-co/Indice.AspNet</PackageProjectUrl>
-    <PackageReleaseNotes>Allow scopes to be passed in app configuration.</PackageReleaseNotes>
+    <PackageReleaseNotes>Implement edit and delete functionality for campaigns.</PackageReleaseNotes>
     <PackageTags>AspNetCore;Campaigns;Notifications</PackageTags>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <RepositoryType>git</RepositoryType>
