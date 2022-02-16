@@ -159,7 +159,8 @@
                        (click)="openCampaignTypesModal()"
                        href="javascript:void(0);">εδώ</a> για να προσθέσετε ένα νέο τύπο καμπάνιας.</p>
             </div>
-            <div class="col-span-2 sm:col-span-4 mt-6 mr-6">
+            <div class="col-span-2 sm:col-span-4 mt-6 mr-6"
+                 *ngIf="model.actionText">
                 <dt class="text-sm font-medium text-gray-500">
                     Call-to-action κείμενο
                 </dt>
@@ -167,7 +168,8 @@
                     {{model.actionText}}
                 </dd>
             </div>
-            <div class="col-span-2 sm:col-span-4 mt-6 mr-6">
+            <div class="col-span-2 sm:col-span-4 mt-6 mr-6"
+                 *ngIf="model.actionUrl">
                 <dt class="text-sm font-medium text-gray-500">
                     Call-to-action σύνδεσμος
                 </dt>

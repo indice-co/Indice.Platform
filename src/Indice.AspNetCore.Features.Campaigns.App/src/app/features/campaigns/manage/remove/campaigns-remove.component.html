@@ -10,14 +10,6 @@
     </div>
     <div class="border-t border-gray-200 px-4 py-5 sm:px-6">
         <dl class="grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-6">
-            <div class="col-span-2 sm:col-span-6">
-                <dt class="text-sm font-medium text-gray-500">
-                    Τίτλος
-                </dt>
-                <dd class="mt-1 text-sm text-gray-900">
-                    {{ model.title }}
-                </dd>
-            </div>
             <div class="col-span-2">
                 <dt class="text-sm font-medium text-gray-500">
                     Ημερομηνία Δημιουργίας
@@ -47,22 +39,12 @@
                     [innerHtml]="model.published | beautifyBoolean">
                 </dd>
             </div>
-            <div class="col-span-2"
-                 *ngIf="model.activePeriod">
+            <div class="col-span-2 sm:col-span-6">
                 <dt class="text-sm font-medium text-gray-500">
-                    Ημερομηνία Έναρξης
+                    Τίτλος
                 </dt>
                 <dd class="mt-1 text-sm text-gray-900">
-                    {{ model.activePeriod.from | date:'dd/MM/YYYY' }}
-                </dd>
-            </div>
-            <div class="col-span-2"
-                 *ngIf="model.activePeriod">
-                <dt class="text-sm font-medium text-gray-500">
-                    Ημερομηνία Λήξης
-                </dt>
-                <dd class="mt-1 text-sm text-gray-900">
-                    {{ model.activePeriod.to | date:'dd/MM/YYYY' }}
+                    {{ model.title }}
                 </dd>
             </div>
             <div class="col-span-2 sm:col-span-6">
@@ -73,7 +55,25 @@
                     {{ model.content }}
                 </dd>
             </div>
-            <div class="col-span-2"
+            <div class="col-span-2 sm:col-span-3"
+                 *ngIf="model.activePeriod?.from">
+                <dt class="text-sm font-medium text-gray-500">
+                    Ημερομηνία Έναρξης
+                </dt>
+                <dd class="mt-1 text-sm text-gray-900">
+                    {{ model.activePeriod?.from | date:'dd/MM/YYYY' }}
+                </dd>
+            </div>
+            <div class="col-span-2 sm:col-span-3"
+                 *ngIf="model.activePeriod?.to">
+                <dt class="text-sm font-medium text-gray-500">
+                    Ημερομηνία Λήξης
+                </dt>
+                <dd class="mt-1 text-sm text-gray-900">
+                    {{ model.activePeriod?.to | date:'dd/MM/YYYY' }}
+                </dd>
+            </div>
+            <div class="col-span-2 sm:col-span-3"
                  *ngIf="model.actionText">
                 <dt class="text-sm font-medium text-gray-500">
                     Call-to-action κείμενο
@@ -82,7 +82,7 @@
                     {{ model.actionText }}
                 </dd>
             </div>
-            <div class="col-span-2"
+            <div class="col-span-2 sm:col-span-3"
                  *ngIf="model.actionUrl">
                 <dt class="text-sm font-medium text-gray-500">
                     Call-to-action σύνδεσμος
