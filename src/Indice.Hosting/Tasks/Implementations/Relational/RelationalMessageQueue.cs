@@ -67,7 +67,7 @@ namespace Indice.Hosting.Tasks.Implementations
                             QueueName = dataReader.IsDBNull(1) ? default : dataReader.GetString(1),
                             Payload = dataReader.IsDBNull(2) ? default : dataReader.GetString(2),
                             Date = dataReader.GetDateTime(3),
-                            RowVersion = dataReader.IsDBNull(4) ? default : (byte[])dataReader[nameof(DbQMessage.RowVersion)],
+                            RowVersion = dataReader.IsDBNull(4) ? default : dataReader.GetValue(4) as byte[],
                             DequeueCount = dataReader.GetInt32(5),
                             State = (QMessageState)dataReader.GetInt32(6)
                         };
@@ -181,7 +181,7 @@ namespace Indice.Hosting.Tasks.Implementations
         public const string Dequeue = @"
             SET NOCOUNT ON; 
             WITH cte AS (
-                SELECT TOP(1) [Id], [QueueName], [Payload], [Date], [DequeueCount], [State]
+                SELECT TOP(1) [Id], [QueueName], [Payload], [Date], [RowVersion], [DequeueCount], [State]
                 FROM [work].[QMessage] WITH (ROWLOCK, READPAST)
                 WHERE [QueueName] = @QueueName AND [Date] <= GETUTCDATE()
                 ORDER BY [Date] ASC

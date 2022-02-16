@@ -50,7 +50,7 @@ namespace Microsoft.Extensions.DependencyInjection
             configure?.Invoke(totpOptions);
             totpOptions.Services = null;
             services.TryAddSingleton(totpOptions);
-            services.TryAddTransient<IPushNotificationService, NoOpPushNotificationService>();
+            services.TryAddTransient<IPushNotificationService, PushNotificationServiceNoop>();
             services.TryAddTransient<ITotpService, TotpService>();
             services.TryAddSingleton(new Rfc6238AuthenticationService(totpOptions.Timestep, totpOptions.CodeLength));
             if (totpOptions.EnableDeveloperTotp) {

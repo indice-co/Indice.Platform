@@ -11,7 +11,6 @@ namespace Microsoft.Extensions.DependencyInjection
     /// </summary>
     public static class IServiceCollectionFilesExtensions
     {
-
         /// <summary>
         /// Adds <see cref="IFileService"/> using Azure Blob Storage as the backing store.
         /// </summary>
@@ -31,23 +30,28 @@ namespace Microsoft.Extensions.DependencyInjection
         }
 
         /// <summary>
+        /// The factory that creates the default instance and configuration for <see cref="FileServiceLocal"/>.
+        /// </summary>
+        public static readonly Func<IServiceProvider, Action<FileServiceLocal.FileServiceOptions>, FileServiceLocal> GetFileServiceLocal = (serviceProvider, configure) => {
+            var options = new FileServiceLocal.FileServiceOptions {
+                Path = "App_Data"
+            };
+            configure?.Invoke(options);
+            var hostingEnvironment = serviceProvider.GetRequiredService<IHostEnvironment>();
+            options.Path = Path.Combine(hostingEnvironment.ContentRootPath, options.Path);
+            if (!Directory.Exists(options.Path)) {
+                Directory.CreateDirectory(options.Path);
+            }
+            return new FileServiceLocal(options.Path);
+        };
+
+        /// <summary>
         /// Adds <see cref="IFileService"/> using local filesystem as the backing store.
         /// </summary>
         /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
         /// <param name="configure">Configure the available options. Null to use defaults.</param>
         public static IServiceCollection AddFilesLocal(this IServiceCollection services, Action<FileServiceLocal.FileServiceOptions> configure = null) {
-            services.AddTransient<IFileService, FileServiceLocal>(serviceProvider => {
-                var options = new FileServiceLocal.FileServiceOptions {
-                    Path = "App_Data"
-                };
-                configure?.Invoke(options);
-                var hostingEnvironment = serviceProvider.GetRequiredService<IHostEnvironment>();
-                options.Path = Path.Combine(hostingEnvironment.ContentRootPath, options.Path);
-                if (!Directory.Exists(options.Path)) {
-                    Directory.CreateDirectory(options.Path);
-                }
-                return new FileServiceLocal(options.Path);
-            });
+            services.AddTransient<IFileService, FileServiceLocal>(serviceProvider => GetFileServiceLocal(serviceProvider, configure));
             return services;
         }
 
@@ -75,7 +79,7 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <summary>
         /// Adds <see cref="FileServiceInMemory"/> implementation.
         /// </summary>
-        public static FileServiceConfigurationBuilder AddMemory(this FileServiceConfigurationBuilder builder) {
+        public static FileServiceConfigurationBuilder AddFilesInMemory(this FileServiceConfigurationBuilder builder) {
             AddFilesInMemory(builder.Services);
             return builder;
         }
@@ -83,7 +87,7 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <summary>
         /// Adds <see cref="FileServiceInMemory"/> implementation.
         /// </summary>
-        public static FileServiceConfigurationBuilder AddMemory(this FileServiceConfigurationBuilder builder, string name) {
+        public static FileServiceConfigurationBuilder AddFilesInMemory(this FileServiceConfigurationBuilder builder, string name) {
             builder.Services.AddKeyedService<IFileService, FileServiceInMemory, string>(name, serviceLifetime: ServiceLifetime.Transient);
             return builder;
         }
@@ -102,17 +106,7 @@ namespace Microsoft.Extensions.DependencyInjection
         public static FileServiceConfigurationBuilder AddFileSystem(this FileServiceConfigurationBuilder builder, string name, Action<FileServiceLocal.FileServiceOptions> configure = null) {
             builder.Services.AddKeyedService<IFileService, FileServiceLocal, string>(
                 key: name,
-                serviceProvider => {
-                    var options = new FileServiceLocal.FileServiceOptions() { Path = "App_Data" };
-                    configure?.Invoke(options);
-                    var hostingEnvironment = serviceProvider.GetRequiredService<IHostEnvironment>();
-                    options.Path = Path.Combine(hostingEnvironment.ContentRootPath, options.Path);
-
-                    if (!Directory.Exists(options.Path)) {
-                        Directory.CreateDirectory(options.Path);
-                    }
-                    return new FileServiceLocal(options.Path);
-                },
+                serviceProvider => GetFileServiceLocal(serviceProvider, configure),
                 serviceLifetime: ServiceLifetime.Transient
             );
             return builder;
@@ -154,13 +148,13 @@ namespace Microsoft.Extensions.DependencyInjection
             /// <summary>
             /// Constructs the builder.
             /// </summary>
-            /// <param name="services"></param>
+            /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
             internal FileServiceConfigurationBuilder(IServiceCollection services) {
                 Services = services;
             }
 
             /// <summary>
-            /// Service collection.
+            /// Specifies the contract for a collection of service descriptors.
             /// </summary>
             public IServiceCollection Services { get; }
         }

@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Dynamic;
 using Indice.AspNetCore.Features.Campaigns.Data.Models;
+using Indice.Events;
 using Indice.Types;
 
 namespace Indice.AspNetCore.Features.Campaigns.Models
@@ -23,11 +25,11 @@ namespace Indice.AspNetCore.Features.Campaigns.Models
         /// </summary>
         public string Content { get; set; }
         /// <summary>
-        /// Defines a CTA (click-to-action) text.
+        /// Defines a CTA (call-to-action) text.
         /// </summary>
         public string ActionText { get; set; }
         /// <summary>
-        /// Defines a CTA (click-to-action) URL.
+        /// Defines a CTA (call-to-action) URL.
         /// </summary>
         public string ActionUrl { get; set; }
         /// <summary>
@@ -58,5 +60,35 @@ namespace Indice.AspNetCore.Features.Campaigns.Models
         /// Optional data for the campaign.
         /// </summary>
         public ExpandoObject Data { get; set; }
+    }
+
+    /// <summary>
+    /// Extension methods on <see cref="Campaign"/> model.
+    /// </summary>
+    public static class CampaignExtensions
+    {
+        /// <summary>
+        /// Converts a <see cref="Campaign"/> model to it's corresponding <see cref="CampaignQueueItem"/> type.
+        /// </summary>
+        /// <param name="campaign">The campaign to convert.</param>
+        /// <param name="selectedUserCodes">Defines a list of user identifiers that constitutes the audience of the campaign.</param>
+        public static CampaignQueueItem ToCampaignQueueItem(this Campaign campaign, List<string> selectedUserCodes = null) => new() {
+            ActionText = campaign.ActionText,
+            ActionUrl = campaign.ActionUrl,
+            ActivePeriod = campaign.ActivePeriod,
+            Content = campaign.Content,
+            CreatedAt = campaign.CreatedAt,
+            Data = campaign.Data,
+            DeliveryChannel = (CampaignQueueItem.CampaignDeliveryChannel)(int)campaign.DeliveryChannel,
+            Id = campaign.Id,
+            IsGlobal = campaign.IsGlobal,
+            Published = campaign.Published,
+            SelectedUserCodes = selectedUserCodes ?? new List<string>(),
+            Title = campaign.Title,
+            Type = campaign.Type != default ? new CampaignQueueItem.CampaignType { 
+                Id = campaign.Type.Id,
+                Name = campaign.Type.Name
+            } : default
+        };
     }
 }

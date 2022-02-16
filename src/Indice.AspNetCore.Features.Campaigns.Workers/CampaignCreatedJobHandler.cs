@@ -1,10 +1,8 @@
-﻿using System;
-using System.Threading.Tasks;
-using Indice.AspNetCore.Features.Campaigns.Data.Models;
+﻿using Indice.Events;
 using Indice.Hosting.Tasks;
 using Microsoft.Extensions.Logging;
 
-namespace Indice.AspNetCore.Features.Campaigns.Hosting
+namespace Indice.AspNetCore.Features.Campaigns.Workers
 {
     /// <summary>
     /// This job handler executes when a new campaign is created. It checks for campaign's delivery channel and distributes work accordingly to the next hop.
@@ -23,15 +21,15 @@ namespace Indice.AspNetCore.Features.Campaigns.Hosting
             if (!campaign.Published) {
                 return;
             }
-            if (campaign.DeliveryChannel.HasFlag(CampaignDeliveryChannel.PushNotification)) {
+            if (campaign.DeliveryChannel.HasFlag(CampaignQueueItem.CampaignDeliveryChannel.PushNotification)) {
                 await ProcessPushNotifications(campaign);
                 return;
             }
-            if (campaign.DeliveryChannel.HasFlag(CampaignDeliveryChannel.Email)) {
+            if (campaign.DeliveryChannel.HasFlag(CampaignQueueItem.CampaignDeliveryChannel.Email)) {
                 // TODO: Create next hop to send campaign via email.
                 return;
             }
-            if (campaign.DeliveryChannel.HasFlag(CampaignDeliveryChannel.SMS)) {
+            if (campaign.DeliveryChannel.HasFlag(CampaignQueueItem.CampaignDeliveryChannel.SMS)) {
                 // TODO: Create next hop to send campaign via SMS gateway.
                 return;
             }

@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using Indice.AspNetCore.Features.Campaigns.Configuration;
 using Indice.AspNetCore.Features.Campaigns.Data;
 using Indice.AspNetCore.Features.Campaigns.Data.Models;
 using Indice.AspNetCore.Features.Campaigns.Models;

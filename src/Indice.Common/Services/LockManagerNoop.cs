@@ -6,9 +6,9 @@ using Indice.Types;
 namespace Indice.Services
 {
     /// <summary>
-    /// A lockmanager that does nothing.
+    /// A <see cref="ILockManager"/> implementation that does nothing.
     /// </summary>
-    public class NoOpLockManager : ILockManager
+    public class LockManagerNoop : ILockManager
     {
         /// <inheritdoc/>
         public Task<ILockLease> AcquireLock(string name, TimeSpan? duration = null, CancellationToken cancellationToken = default) => 

@@ -1,10 +1,9 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using Indice.Events;
 using Indice.Hosting.Tasks;
 using Indice.Services;
 using Microsoft.Extensions.Logging;
 
-namespace Indice.AspNetCore.Features.Campaigns.Hosting
+namespace Indice.AspNetCore.Features.Campaigns.Workers
 {
     internal class CampaignCreatedEventHandler : IPlatformEventHandler<CampaignCreatedEvent>
     {

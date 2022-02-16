@@ -19,7 +19,10 @@ namespace Indice.Hosting.Tasks
             Options = options;
         }
 
-        internal IServiceCollection Services { get; }
+        /// <summary>
+        /// Specifies the contract for a collection of service descriptors.
+        /// </summary>
+        public IServiceCollection Services { get; }
         internal WorkerHostOptions Options { get; }
     }
 
