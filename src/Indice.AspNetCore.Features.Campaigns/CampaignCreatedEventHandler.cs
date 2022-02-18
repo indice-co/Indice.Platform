@@ -16,6 +16,6 @@ namespace Indice.AspNetCore.Features.Campaigns
         public ILogger<CampaignCreatedEventHandler> Logger { get; }
         public IEventDispatcher EventDispatcher { get; }
 
-        public async Task Handle(CampaignCreatedEvent @event) => await EventDispatcher.RaiseEventAsync(@event.Campaign, wrap: false, queueName: QueueNames.CampaignCreated);
+        public async Task Handle(CampaignCreatedEvent @event) => await EventDispatcher.RaiseEventAsync(@event.Campaign, options => options.WrapInEnvelope(false).WithQueueName(QueueNames.CampaignCreated));
     }
 }

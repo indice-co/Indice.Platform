@@ -29,7 +29,7 @@
     <RepositoryUrl>https://github.com/indice-co/Indice.AspNet</RepositoryUrl>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Indice.Hosting" Version="5.2.18" />
+    <PackageReference Include="Indice.Hosting" Version="5.2.19" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
   </ItemGroup>

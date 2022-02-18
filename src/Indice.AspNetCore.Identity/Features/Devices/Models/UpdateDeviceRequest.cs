@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 
 namespace Indice.AspNetCore.Identity.Api.Models
 {
@@ -11,7 +10,6 @@ namespace Indice.AspNetCore.Identity.Api.Models
         /// <summary>
         /// Device name.
         /// </summary>
-        [Required(AllowEmptyStrings = false), MaxLength(250)]
         public string Name { get; set; }
         /// <summary>
         /// Tags are used to route notifications to the correct set of device handles.

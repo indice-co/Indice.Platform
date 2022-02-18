@@ -69,7 +69,10 @@ namespace Indice.AspNetCore.Features.Campaigns.Workers.Azure
                     Campaign = campaign,
                     Broadcast = true
                 };
-                await EventDispatcher.RaiseEventAsync(globalMessage, wrap: false, queueName: QueueNames.SendPushNotification);
+                await EventDispatcher.RaiseEventAsync(globalMessage, options => 
+                    options.WrapInEnvelope(false)
+                           .WithQueueName(QueueNames.SendPushNotification)
+                );
             } else {
                 foreach (var userCode in campaign.SelectedUserCodes) {
                     var userMessage = new PushNotificationQueueItem {
@@ -77,7 +80,10 @@ namespace Indice.AspNetCore.Features.Campaigns.Workers.Azure
                         Campaign = campaign,
                         Broadcast = false
                     };
-                    await EventDispatcher.RaiseEventAsync(userMessage, wrap: false, queueName: QueueNames.SendPushNotification);
+                    await EventDispatcher.RaiseEventAsync(userMessage, options =>
+                        options.WrapInEnvelope(false)
+                               .WithQueueName(QueueNames.SendPushNotification)
+                    );
                 }
             }
         }

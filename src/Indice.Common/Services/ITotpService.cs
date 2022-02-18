@@ -57,7 +57,7 @@ namespace Indice.Services
         /// <param name="userId">The user id.</param>
         /// <param name="message">The message to be sent in the SMS. It's important for the message to contain the {0} placeholder in the position where the OTP should be placed.</param>
         /// <param name="channel">Delivery channel.</param>
-        /// <param name="reason">Optionaly pass the reason to generate the TOTP.</param>
+        /// <param name="reason">Optionally pass the reason to generate the TOTP.</param>
         /// <exception cref="TotpServiceException">used to pass errors between service and the caller.</exception>
         public static Task<TotpResult> Send(this ITotpService service, string userId, string message, TotpDeliveryChannel channel = TotpDeliveryChannel.Sms, string reason = null) =>
             service.Send(new ClaimsPrincipal(new ClaimsIdentity(new[] { new Claim(BasicClaimTypes.Subject, userId) })), message, channel, reason);
@@ -476,7 +476,7 @@ namespace Indice.Services
         /// </summary>
         public bool Success { get; set; }
         /// <summary>
-        /// The error occured.
+        /// The error occurred.
         /// </summary>
         public string Error { get; set; }
     }

@@ -292,7 +292,7 @@ namespace Indice.AspNetCore.Identity
         }
 
         /// <summary>
-        /// Get the devices registed by the specified user.
+        /// Get the devices registered by the specified user.
         /// </summary>
         /// <param name="user">The user instance.</param>
         /// <param name="deviceId">The id of the device to look for.</param>

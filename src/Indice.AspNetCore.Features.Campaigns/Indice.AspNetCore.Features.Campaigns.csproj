@@ -8,7 +8,7 @@
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <LangVersion>Latest</LangVersion>
     <TargetFrameworks>netcoreapp3.1;net5.0;net6.0</TargetFrameworks>
-    <VersionPrefix>5.0.14</VersionPrefix>
+    <VersionPrefix>5.1.0</VersionPrefix>
     <!--<VersionSuffix>beta-02</VersionSuffix>-->
   </PropertyGroup>
   <PropertyGroup Label="Package">
@@ -20,7 +20,7 @@
     <PackageId>Indice.AspNetCore.Features.Campaigns</PackageId>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/indice-co/Indice.AspNet</PackageProjectUrl>
-    <PackageReleaseNotes>Update Indice packages.</PackageReleaseNotes>
+    <PackageReleaseNotes>Update Indice.AspNetCore. Remove dependency from Indice.Hosting. Exported background tasks to external packages.</PackageReleaseNotes>
     <PackageTags>AspNetCore;Campaign Management;</PackageTags>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <RepositoryType>git</RepositoryType>
@@ -28,7 +28,7 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="EPPlus" Version="4.5.3.3" />
-    <PackageReference Include="Indice.AspNetCore" Version="5.2.16" />
+    <PackageReference Include="Indice.AspNetCore" Version="5.2.17" />
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'net6.0'">

@@ -74,7 +74,7 @@ namespace Microsoft.Extensions.DependencyInjection
         /// </summary>
         /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
         /// <param name="configure">Configure the available options. Null to use defaults.</param>
-        public static IServiceCollection AddEventDispatcherAzure(this IServiceCollection services, Action<EventDispatcherOptions> configure = null) {
+        public static IServiceCollection AddEventDispatcherAzure(this IServiceCollection services, Action<EventDispatcherAzureOptions> configure = null) {
             services.AddEventDispatcherAzure((serviceProvider, options) => {
                 options.ClaimsPrincipalSelector = () => serviceProvider.GetRequiredService<IHttpContextAccessor>().HttpContext.User;
                 configure?.Invoke(options);

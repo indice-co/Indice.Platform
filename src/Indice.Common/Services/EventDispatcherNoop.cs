@@ -10,6 +10,6 @@ namespace Indice.Services
     public class EventDispatcherNoop : IEventDispatcher
     {
         /// <inheritdoc/>
-        public Task RaiseEventAsync<TEvent>(TEvent payload, ClaimsPrincipal actingPrincipal = null, TimeSpan? visibilityTimeout = null, bool wrap = true, string queueName = null) where TEvent : class => Task.CompletedTask;
+        public Task RaiseEventAsync<TEvent>(TEvent payload, ClaimsPrincipal actingPrincipal = null, TimeSpan? visibilityTimeout = null, bool wrap = true, string queueName = null, bool prependEnvironmentInQueueName = true) where TEvent : class => Task.CompletedTask;
     }
 }

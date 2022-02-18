@@ -21,7 +21,6 @@ namespace Indice.AspNetCore.Identity.Api.Models
         /// <summary>
         /// Device name.
         /// </summary>
-        [Required(AllowEmptyStrings = false), MaxLength(250)]
         public string Name { get; set; }
         /// <summary>
         /// Client device platform.

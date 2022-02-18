@@ -1,6 +1,5 @@
 ﻿using System.Text.Json;
 using System.Text.Json.Serialization;
-using Azure.Storage.Queues;
 using IdentityModel;
 using Indice.AspNetCore.Features.Campaigns;
 using Microsoft.EntityFrameworkCore;

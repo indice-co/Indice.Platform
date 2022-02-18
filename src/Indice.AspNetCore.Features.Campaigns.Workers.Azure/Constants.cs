@@ -3,7 +3,7 @@
     internal class QueueNames
     {
         public const string CampaignCreated = "campaign-created";
-        public const string SendPushNotification = "send-push-notification";
+        public const string SendPushNotification = "campaign-send-push-notification";
     }
 
     internal class FunctionNames

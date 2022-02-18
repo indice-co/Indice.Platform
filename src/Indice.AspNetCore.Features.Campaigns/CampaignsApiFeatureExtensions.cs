@@ -124,7 +124,7 @@ namespace Microsoft.Extensions.DependencyInjection
         /// </summary>
         /// <param name="options">Options used to configure the Campaigns API feature.</param>
         /// <param name="configure">Configure the available options. Null to use defaults.</param>
-        public static void UseEventDispatcherAzure(this CampaignsApiOptions options, Action<IServiceProvider, EventDispatcherOptions> configure = null) {
+        public static void UseEventDispatcherAzure(this CampaignsApiOptions options, Action<IServiceProvider, EventDispatcherAzureOptions> configure = null) {
             options.Services.AddPlatformEventHandler<CampaignCreatedEvent, CampaignCreatedEventHandler>();
             options.Services.AddEventDispatcherAzure(CampaignsApi.EventDispatcherAzureServiceKey, configure);
         }

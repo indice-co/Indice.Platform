@@ -39,7 +39,7 @@ namespace Microsoft.Extensions.Hosting
         /// </summary>
         /// <param name="options">Options used when configuring campaign Azure Functions.</param>
         /// <param name="configure">Configure the available options. Null to use defaults.</param>
-        public static void UseEventDispatcherAzure(this CampaignsOptions options, Action<IServiceProvider, EventDispatcherOptions> configure = null) =>
+        public static void UseEventDispatcherAzure(this CampaignsOptions options, Action<IServiceProvider, EventDispatcherAzureOptions> configure = null) =>
             options.Services.AddEventDispatcherAzure(configure);
     }
 }

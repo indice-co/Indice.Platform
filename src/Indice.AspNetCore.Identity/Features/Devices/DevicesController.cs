@@ -126,7 +126,7 @@ namespace Indice.AspNetCore.Identity.Api
                 try {
                     await PushNotificationService.Register(request.DeviceId, request.PnsHandle, request.Platform, user.Id, request.Tags?.ToArray());
                 } catch (Exception exception) {
-                    Logger.LogError("An exception occured when connection to Azure Notification Hubs. Exception is '{Exception}'. Inner Exception is '{InnerException}'.", exception.Message, exception.InnerException?.Message ?? "N/A");
+                    Logger.LogError("An exception occurred when connection to Azure Notification Hubs. Exception is '{Exception}'. Inner Exception is '{InnerException}'.", exception.Message, exception.InnerException?.Message ?? "N/A");
                     throw;
                 }
             }
@@ -181,7 +181,7 @@ namespace Indice.AspNetCore.Identity.Api
                     await PushNotificationService.Register(device.DeviceId, request.PnsHandle, device.Platform, user.Id, request.Tags?.ToArray());
                 }
             } catch (Exception exception) {
-                Logger.LogError("An exception occured when connection to Azure Notification Hubs. Exception is '{Exception}'. Inner Exception is '{InnerException}'.", exception.Message, exception.InnerException?.Message ?? "N/A");
+                Logger.LogError("An exception occurred when connection to Azure Notification Hubs. Exception is '{Exception}'. Inner Exception is '{InnerException}'.", exception.Message, exception.InnerException?.Message ?? "N/A");
                 throw;
             }
             device.IsPushNotificationsEnabled = shouldEnablePushNotifications;
@@ -216,7 +216,7 @@ namespace Indice.AspNetCore.Identity.Api
             try {
                 await PushNotificationService.UnRegister(deviceId);
             } catch (Exception exception) {
-                Logger.LogError("An exception occured when connection to Azure Notification Hubs. Exception is '{Exception}'. Inner Exception is '{InnerException}'.", exception.Message, exception.InnerException?.Message ?? "N/A");
+                Logger.LogError("An exception occurred when connection to Azure Notification Hubs. Exception is '{Exception}'. Inner Exception is '{InnerException}'.", exception.Message, exception.InnerException?.Message ?? "N/A");
                 throw;
             }
             DbContext.UserDevices.Remove(device);

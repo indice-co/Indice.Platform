@@ -179,15 +179,15 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <summary>
         /// The factory that creates the default instance and configuration for <see cref="EventDispatcherAzure"/>.
         /// </summary>
-        public static readonly Func<IServiceProvider, Action<IServiceProvider, EventDispatcherOptions>, EventDispatcherAzure> GetEventDispatcherAzure = (serviceProvider, configure) => {
-            var options = new EventDispatcherOptions {
+        public static readonly Func<IServiceProvider, Action<IServiceProvider, EventDispatcherAzureOptions>, EventDispatcherAzure> GetEventDispatcherAzure = (serviceProvider, configure) => {
+            var options = new EventDispatcherAzureOptions {
                 ConnectionString = serviceProvider.GetRequiredService<IConfiguration>().GetConnectionString(EventDispatcherAzure.CONNECTION_STRING_NAME),
                 Enabled = true,
                 EnvironmentName = serviceProvider.GetRequiredService<IHostEnvironment>().EnvironmentName,
                 ClaimsPrincipalSelector = ClaimsPrincipal.ClaimsPrincipalSelector ?? (() => ClaimsPrincipal.Current)
             };
             configure?.Invoke(serviceProvider, options);
-            return new EventDispatcherAzure(options.ConnectionString, options.EnvironmentName, options.Enabled, options.MessageEncoding, options.ClaimsPrincipalSelector, options.TenantIdSelector);
+            return new EventDispatcherAzure(options.ConnectionString, options.EnvironmentName, options.Enabled, options.ClaimsPrincipalSelector, options.TenantIdSelector);
         };
 
         /// <summary>
@@ -195,7 +195,7 @@ namespace Microsoft.Extensions.DependencyInjection
         /// </summary>
         /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
         /// <param name="configure">Configure the available options. Null to use defaults.</param>
-        public static IServiceCollection AddEventDispatcherAzure(this IServiceCollection services, Action<IServiceProvider, EventDispatcherOptions> configure = null) =>
+        public static IServiceCollection AddEventDispatcherAzure(this IServiceCollection services, Action<IServiceProvider, EventDispatcherAzureOptions> configure = null) =>
             services.AddTransient<IEventDispatcher, EventDispatcherAzure>(serviceProvider => GetEventDispatcherAzure(serviceProvider, configure));
 
         /// <summary>
@@ -204,7 +204,7 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
         /// <param name="name">The key under which the specified implementation is registered.</param>
         /// <param name="configure">Configure the available options. Null to use defaults.</param>
-        public static IServiceCollection AddEventDispatcherAzure(this IServiceCollection services, string name, Action<IServiceProvider, EventDispatcherOptions> configure = null) =>
+        public static IServiceCollection AddEventDispatcherAzure(this IServiceCollection services, string name, Action<IServiceProvider, EventDispatcherAzureOptions> configure = null) =>
             services.AddKeyedService<IEventDispatcher, EventDispatcherAzure, string>(
                 key: name,
                 serviceProvider => GetEventDispatcherAzure(serviceProvider, configure),
