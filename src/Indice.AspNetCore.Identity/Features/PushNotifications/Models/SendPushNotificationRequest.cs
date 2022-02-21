@@ -8,9 +8,13 @@ namespace Indice.AspNetCore.Identity.Api.Models
     public class SendPushNotificationRequest
     {
         /// <summary>
-        /// The message to send.
+        /// The title to send.
         /// </summary>
-        public string Message { get; set; }
+        public string Title { get; set; }
+        /// <summary>
+        /// The body to send.
+        /// </summary>
+        public string Body { get; set; }
         /// <summary>
         /// Defines if push notification is sent to all registered user devices.
         /// </summary>

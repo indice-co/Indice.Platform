@@ -179,7 +179,7 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <summary>
         /// The factory that creates the default instance and configuration for <see cref="EventDispatcherAzure"/>.
         /// </summary>
-        public static readonly Func<IServiceProvider, Action<IServiceProvider, EventDispatcherAzureOptions>, EventDispatcherAzure> GetEventDispatcherAzure = (serviceProvider, configure) => {
+        private static readonly Func<IServiceProvider, Action<IServiceProvider, EventDispatcherAzureOptions>, EventDispatcherAzure> GetEventDispatcherAzure = (serviceProvider, configure) => {
             var options = new EventDispatcherAzureOptions {
                 ConnectionString = serviceProvider.GetRequiredService<IConfiguration>().GetConnectionString(EventDispatcherAzure.CONNECTION_STRING_NAME),
                 Enabled = true,

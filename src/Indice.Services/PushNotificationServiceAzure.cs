@@ -15,17 +15,58 @@ namespace Indice.Services
     public class PushNotificationServiceAzure : IPushNotificationService
     {
         /// <summary>
-        /// Windows phone template.
+        /// iOS generic template.
         /// </summary>
-        private const string WindowsPhoneTemplate = @"<toast><visual><binding template=""ToastText01""><text id=""1"">$(message)</text><text id=""1"">$(data)</text></binding></visual></toast>";
+        private const string IosGenericTemplate = @"{
+            ""aps"":{
+                ""alert"":""$(message)"", 
+                ""category"":""$(classification)""
+            }, 
+            ""payload"":{
+                ""data"":""$(data)""
+            }
+        }";
         /// <summary>
-        /// iOS template.
+        /// iOS silent template.
         /// </summary>
-        private const string IosTemplate = @"{""aps"":{""alert"":""$(message)"", ""category"":""$(classification)""}, ""payload"":{""data"":""$(data)""}}";
+        private const string IosSilentTemplate = @"{
+            ""aps"":{, 
+                ""category"":""$(classification)""
+                ""content-available"":1,
+                ""apns-priority"":5,
+                ""sound"":"""",
+                ""badge"":0
+            },
+            ""message"":""$(message)"",
+            ""payload"":{
+                ""data"":""$(data)""
+            }
+        }";
         /// <summary>
-        /// Android template.
+        /// Android generic template.
         /// </summary>
-        private const string AndroidTemplate = @"{""data"":{""message"":""$(message)"", ""data"":""$(data)"", ""category"":""$(classification)""}}";
+        private const string AndroidGenericTemplate = @"{
+            ""notification"":{
+                ""title"":""$(message)"",
+                ""body"":""$(body)""
+            },
+            ""data"":{
+                ""message"":""$(message)"", 
+                ""data"":""$(data)"", 
+                ""category"":""$(classification)""
+            }
+        }";
+        /// <summary>
+        /// Android silent template.
+        /// </summary>
+        private const string AndroidSilentTemplate = @"{
+            ""data"":{
+                ""message"":""$(message)"", 
+                ""data"":""$(data)"", 
+                ""category"":""$(classification)""
+            }
+        }";
+
         /// <summary>
         /// The connection string parameter name. The setting key that will be searched inside the configuration.
         /// </summary>
@@ -43,17 +84,16 @@ namespace Indice.Services
             if (string.IsNullOrWhiteSpace(options?.ConnectionString) || string.IsNullOrWhiteSpace(options?.NotificationHubPath)) {
                 throw new InvalidOperationException($"{nameof(PushNotificationAzureOptions)} are not properly configured.");
             }
+            PushNotificationAzureOptions = options;
             NotificationHub = new NotificationHubClient(
-                options.ConnectionString,
-                options.NotificationHubPath,
-                options.MessageHandler != null ? new NotificationHubSettings { MessageHandler = options.MessageHandler } : null
+                PushNotificationAzureOptions.ConnectionString,
+                PushNotificationAzureOptions.NotificationHubPath,
+                PushNotificationAzureOptions.MessageHandler != null ? new NotificationHubSettings { MessageHandler = PushNotificationAzureOptions.MessageHandler } : null
             );
         }
 
-        /// <summary>
-        /// Notifications hub instance.
-        /// </summary>
         private NotificationHubClient NotificationHub { get; }
+        private PushNotificationAzureOptions PushNotificationAzureOptions { get; }
 
         /// <inheritdoc/>
         public async Task Register(string deviceId, string pnsHandle, DevicePlatform devicePlatform, IList<string> tags) {
@@ -70,28 +110,16 @@ namespace Indice.Services
                 Templates = new Dictionary<string, InstallationTemplate>()
             };
             switch (devicePlatform) {
-                case DevicePlatform.WindowsPhone:
-                    installationRequest.Platform = NotificationPlatform.Mpns;
-                    installationRequest.Templates.Add("DefaultMessage", new InstallationTemplate {
-                        Body = WindowsPhoneTemplate
-                    });
-                    break;
-                case DevicePlatform.UWP:
-                    installationRequest.Platform = NotificationPlatform.Wns;
-                    installationRequest.Templates.Add("DefaultMessage", new InstallationTemplate {
-                        Body = WindowsPhoneTemplate
-                    });
-                    break;
                 case DevicePlatform.iOS:
                     installationRequest.Platform = NotificationPlatform.Apns;
                     installationRequest.Templates.Add("DefaultMessage", new InstallationTemplate {
-                        Body = IosTemplate
+                        Body = PushNotificationAzureOptions.SilentNotifications ?? true ? IosSilentTemplate : IosGenericTemplate
                     });
                     break;
                 case DevicePlatform.Android:
                     installationRequest.Platform = NotificationPlatform.Fcm;
                     installationRequest.Templates.Add("DefaultMessage", new InstallationTemplate {
-                        Body = AndroidTemplate
+                        Body = PushNotificationAzureOptions.SilentNotifications ?? false ? AndroidSilentTemplate : AndroidGenericTemplate
                     });
                     break;
                 default:
@@ -109,12 +137,13 @@ namespace Indice.Services
         }
 
         /// <inheritdoc/>
-        public async Task SendAsync(string message, IList<string> tags, string data = null, string classification = null) {
-            if (string.IsNullOrEmpty(message)) {
-                throw new ArgumentNullException(nameof(message));
+        public async Task SendAsync(string title, string body, IList<string> tags, string data = null, string classification = null) {
+            if (string.IsNullOrEmpty(title)) {
+                throw new ArgumentNullException(nameof(title));
             }
             var notification = new Dictionary<string, string> {
-                { "message", message }
+                { "message", title },
+                { "body", body }
             };
             if (!string.IsNullOrEmpty(data)) {
                 notification.Add("data", data);
@@ -148,6 +177,10 @@ namespace Indice.Services
         /// Notifications hub name, if any.
         /// </summary>
         public string NotificationHubPath { get; set; }
+        /// <summary>
+        /// Specifies whether the notification is handled by the operating system.
+        /// </summary>
+        public bool? SilentNotifications { get; set; }
         /// <summary>
         /// Gets or sets HTTP message handler.
         /// </summary>

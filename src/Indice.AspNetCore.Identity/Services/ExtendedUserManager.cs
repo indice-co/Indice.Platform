@@ -56,7 +56,7 @@ namespace Indice.AspNetCore.Identity
         }
 
         /// <summary>
-        /// Gets a flag indicating whether the backing user store supports usernames that are the same as emails
+        /// Gets a flag indicating whether the backing user store supports user name that are the same as emails
         /// </summary>
         public bool SupportsEmailAsUserName => GetUserStore()?.EmailAsUserName == true;
 
@@ -166,6 +166,19 @@ namespace Indice.AspNetCore.Identity
             return await UpdateUserAsync(user);
         }
 
+        /// <inheritdoc />
+        public override async Task<IdentityResult> ResetPasswordAsync(TUser user, string token, string newPassword) {
+            var result = await base.ResetPasswordAsync(user, token, newPassword);
+            if (!result.Succeeded) {
+                return result;
+            }
+            if (await IsLockedOutAsync(user)) {
+                await SetLockoutEndDateAsync(user, null);
+                return await UpdateUserAsync(user);
+            }
+            return result;
+        }
+
         /// <summary>
         /// Adds the developer-totp claim to the provided user and provides a random 6-digit code.
         /// If the user is not a member of the 'Developer' role, it is also added automatically.
@@ -178,19 +191,6 @@ namespace Indice.AspNetCore.Identity
             }
             user.AddDeveloperTotp();
             return await UpdateUserAsync(user);
-        }
-
-        /// <inheritdoc />
-        public override async Task<IdentityResult> ResetPasswordAsync(TUser user, string token, string newPassword) {
-            var result = await base.ResetPasswordAsync(user, token, newPassword);
-            if (!result.Succeeded) {
-                return result;
-            }
-            if (await IsLockedOutAsync(user)) {
-                await SetLockoutEndDateAsync(user, null);
-                return await UpdateUserAsync(user);
-            }
-            return result;
         }
 
         /// <inheritdoc />

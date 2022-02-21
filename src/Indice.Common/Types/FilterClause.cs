@@ -12,6 +12,19 @@ namespace Indice.Types
     [TypeConverter(typeof(FilterClauseTypeConverter))]
     public struct FilterClause
     {
+        private const string REGEX_PATTERN = @"^\s*([A-Za-z_][A-Za-z0-9_{3}]+){2}+({0}){2}+(\(({1})\))?(.+)\s*$";
+
+        private static readonly Regex ParseRegex = new(
+            pattern: string.Format(
+                REGEX_PATTERN,
+                string.Join("|", Enum.GetNames(typeof(FilterOperator))).ToLowerInvariant(),
+                string.Join("|", Enum.GetNames(typeof(JsonDataType))).ToLowerInvariant(),
+                Regex.Escape(WHITE_SPACE_DELIMETER.ToString()),
+                Regex.Escape(MEMBER_PATH_DELIMETER.ToString())
+            ),
+            options: RegexOptions.IgnoreCase
+        );
+
         /// <summary>
         /// Used to separate <see cref="Member"/> value and <see cref="Operator"/>.
         /// </summary>
@@ -20,17 +33,6 @@ namespace Indice.Types
         /// Used to separate <see cref="Member"/> path segments.
         /// </summary>
         public static char MEMBER_PATH_DELIMETER = '.';
-        private const string REGEX_PATTERN = @"^\s*([A-Za-z_][A-Za-z0-9_{3}]+){2}+({0}){2}+(\(({1})\))?(.+)\s*$";
-        private static readonly Regex parseRegex = new(
-            pattern: string.Format(
-                REGEX_PATTERN, 
-                string.Join("|", Enum.GetNames(typeof(FilterOperator))).ToLowerInvariant(), 
-                string.Join("|", Enum.GetNames(typeof(JsonDataType))).ToLowerInvariant(),
-                Regex.Escape(WHITE_SPACE_DELIMETER.ToString()),
-                Regex.Escape(MEMBER_PATH_DELIMETER.ToString())
-            ),
-            options: RegexOptions.IgnoreCase
-        );
 
         /// <summary>
         /// Creates the Json filter by supplying all the required members.
@@ -64,7 +66,7 @@ namespace Indice.Types
         public JsonDataType DataType { get; }
 
         /// <summary>
-        /// Returnes a hash code for the value of this instance.
+        /// Returns a hash code for the value of this instance.
         /// </summary>
         /// <returns>An integer representing the hash code for the value of this instance.</returns>
         public override int GetHashCode() => (Member ?? string.Empty).GetHashCode() ^ (Value ?? string.Empty).GetHashCode() ^ Operator.GetHashCode() ^ DataType.GetHashCode();
@@ -95,7 +97,7 @@ namespace Indice.Types
         /// <returns></returns>
         public static FilterClause Parse(string filter) {
             if (filter != null) {
-                var match = parseRegex.Match(filter);
+                var match = ParseRegex.Match(filter);
                 if (match.Success) {
                     Enum.TryParse<FilterOperator>(match.Groups[2].Value, true, out var @operator);
                     Enum.TryParse<JsonDataType>(match.Groups[4].Value, true, out var jsonType);
@@ -133,7 +135,7 @@ namespace Indice.Types
     }
 
     /// <summary>
-    /// <see cref="FilterClause"/> <seealso cref="TypeConverter"/> is used for aspnet route binding to work from.
+    /// <see cref="FilterClause"/> <seealso cref="TypeConverter"/> is used for ASP.NET route binding to work from.
     /// </summary>
     public class FilterClauseTypeConverter : TypeConverter
     {

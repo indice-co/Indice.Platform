@@ -19,9 +19,9 @@ namespace Indice.AspNetCore.Features.Campaigns.Workers
                 data.TryAdd("id", pushNotification.Campaign.Id);
             }
             if (pushNotification.Broadcast) {
-                await PushNotificationService.BroadcastAsync(pushNotification.Campaign.Title, data, pushNotification.Campaign?.Type?.Name);
+                await PushNotificationService.BroadcastAsync(pushNotification.Campaign.Title, pushNotification.Campaign.Content, data, pushNotification.Campaign?.Type?.Name);
             } else {
-                await PushNotificationService.SendAsync(pushNotification.Campaign.Title, data, pushNotification.UserCode, classification: pushNotification.Campaign?.Type?.Name);
+                await PushNotificationService.SendAsync(pushNotification.Campaign.Title, pushNotification.Campaign.Content, data, pushNotification.UserCode, classification: pushNotification.Campaign?.Type?.Name);
             }
         }
     }

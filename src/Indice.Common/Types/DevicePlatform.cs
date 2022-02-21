@@ -6,13 +6,9 @@
     public enum DevicePlatform
     {
         /// <summary>
-        /// Unrecognised platform
+        /// Unrecognized platform.
         /// </summary>
         None = 0,
-        /// <summary>
-        /// Windows Phone
-        /// </summary>
-        WindowsPhone = 1,
         /// <summary>
         /// Android
         /// </summary>
@@ -20,10 +16,6 @@
         /// <summary>
         /// iOS
         /// </summary>
-        iOS = 3,
-        /// <summary>
-        /// Universal Windows Platform
-        /// </summary>
-        UWP = 4
+        iOS = 3
     }
 }

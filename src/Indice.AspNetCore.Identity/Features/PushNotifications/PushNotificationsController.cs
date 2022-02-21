@@ -47,9 +47,9 @@ namespace Indice.AspNetCore.Identity.Api
         [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest, type: typeof(ValidationProblemDetails))]
         public async Task<IActionResult> SendPushNotification([FromBody] SendPushNotificationRequest request) {
             if (request.Broadcast) {
-                await PushNotificationService.BroadcastAsync(request.Message, request.Data, request.Classification);
+                await PushNotificationService.BroadcastAsync(request.Title, request.Body, request.Data, request.Classification);
             } else {
-                await PushNotificationService.SendAsync(request.Message, request.Data, request.UserTag, request.Classification, request.Tags ?? Array.Empty<string>());
+                await PushNotificationService.SendAsync(request.Title, request.Body, request.Data, request.UserTag, request.Classification, request.Tags ?? Array.Empty<string>());
             }
             return NoContent();
         }

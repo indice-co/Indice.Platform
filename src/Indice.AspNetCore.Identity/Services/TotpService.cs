@@ -106,7 +106,7 @@ namespace Indice.AspNetCore.Identity
                     await _pushNotificationService.SendAsync(builder =>
                         builder.To(user?.Id)
                                .WithToken(token)
-                               .WithMessage(string.Format(message, token))
+                               .WithTitle(string.Format(message, token))
                                .WithData(data)
                                .WithClassification(classification));
                     break;
