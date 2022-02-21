@@ -79,7 +79,11 @@ namespace Microsoft.Extensions.DependencyInjection
                                          options.RegisterValidatorsFromAssemblyContaining<Startup>();
                                          options.ConfigureClientsideValidation();
                                      })
-                                     .AddAvatars()
+                                     .AddAvatars(o => {
+                                         o.TileSizes = new [] { 
+                                             129
+                                         };
+                                     })
                                      .AddViewLocalization(LanguageViewLocationExpanderFormat.Suffix, options => {
                                          options.ResourcesPath = "Resources";
                                      });

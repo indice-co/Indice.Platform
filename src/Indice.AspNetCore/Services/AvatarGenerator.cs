@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Indice.Extensions;
@@ -10,6 +11,7 @@ using SixLabors.ImageSharp.Formats.Png;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
 using SixLabors.Primitives;
+using SixLabors.Shapes;
 
 namespace Indice.Services
 {
@@ -20,14 +22,20 @@ namespace Indice.Services
     {
         private readonly FontCollection _openSansFont;
         private readonly AvatarColor[] _backgroundColours;
+        private readonly HashSet<int> _allowedSizes = new HashSet<int>() { 16, 24, 32, 48, 64, 128, 192, 256, 512 };
+
+        /// <summary>
+        /// Allowed tile sizes. Only these sizes are available.
+        /// </summary>
+        public ICollection<int> AllowedSizes => _allowedSizes;
 
         /// <summary>
         /// Constructor.
         /// </summary>
-        /// <param name="palette">The color palette to use.</param>
-        public AvatarGenerator(params AvatarColor[] palette) {
+        /// <param name="options">Generator options to use</param>
+        public AvatarGenerator(AvatarOptions options) {
             // https://www.materialpalette.com
-            if (palette == null || palette.Length == 0) {
+            if (options?.Palette is null || options.Palette.Count == 0) {
                 _backgroundColours = new[] {
                     new AvatarColor("f44336", "ffffff"), // red
                     new AvatarColor("e91e63", "ffffff"), // pink
@@ -50,8 +58,15 @@ namespace Indice.Services
                     new AvatarColor("607d8b", "ffffff"), // blue-grey
                 };
             } else {
-                _backgroundColours = palette;
+                _backgroundColours = options.Palette.ToArray();
             }
+            if (options?.TileSizes?.Count > 0) {
+                foreach (var size in options.TileSizes) {
+                    if (!_allowedSizes.Contains(size))
+                        _allowedSizes.Add(size);
+                }
+            } 
+            
             _openSansFont = new FontCollection();
             _openSansFont.Install(GetFontResourceStream("open-sans", "OpenSans-Regular.ttf"));
         }
@@ -65,15 +80,26 @@ namespace Indice.Services
         /// <param name="size">Image size.</param>
         /// <param name="jpeg">Specifies whether the image has .jpg extension.</param>
         /// <param name="background">The background color to use.</param>
-        public void Generate(Stream output, string firstName, string lastName, int size = 192, bool jpeg = false, string background = null) {
-            var avatarText = string.Format("{0}{1}", firstName?.Length > 0 ? firstName[0] : ' ', lastName?.Length > 0 ? lastName[0] : ' ').ToUpper().RemoveDiacritics();
+        /// <param name="circular">Determines whether the tile will be circular or sqare. Defaults to false (sqare)</param>
+        public void Generate(Stream output, string firstName, string lastName, int size = 192, bool jpeg = false, string background = null, bool circular = false) {
+            var avatarText = string.Format("{0}{1}", firstName?.Length > 0 ? firstName[0] : ' ', lastName?.Length > 0 ? lastName[0] : ' ').ToUpper().RemoveDiacritics().Trim();
+            if (int.TryParse(firstName, out var number) && string.IsNullOrWhiteSpace(lastName)) {
+                avatarText = firstName;
+            }
             var randomIndex = $"{firstName}{lastName}".ToCharArray().Sum(x => x) % _backgroundColours.Length;
             var accentColor = _backgroundColours[randomIndex];
             if (background != null) {
                 accentColor = new AvatarColor(background);
             }
             using (var image = new Image<Rgba32>(size, size)) {
-                image.Mutate(x => x.Fill(accentColor.Background));
+                // image center.
+                var center = new PointF(image.Width / 2, image.Height / 2);
+                if (circular) {
+                    image.Mutate(x => x.Fill(Rgba32.Transparent));
+                    image.Mutate(x => x.Fill(accentColor.Background, new EllipsePolygon(center, image.Width / 2)));
+                } else {
+                    image.Mutate(x => x.Fill(accentColor.Background));
+                }
                 var fonts = new FontCollection();
                 // For production application we would recomend you create a FontCollection singleton and manually install the ttf fonts yourself as using SystemFonts can be expensive and you risk font existing or not existing on a deployment by deployment basis.
                 var font = _openSansFont.CreateFont("Open Sans", 70, FontStyle.Regular); // for scaling water mark size is largly ignored.
@@ -83,7 +109,6 @@ namespace Indice.Services
                 var scalingFactor = Math.Min(image.Width * 0.6f / textSize.Width, image.Height * 0.6f / textSize.Height);
                 // Create a new font.
                 var scaledFont = new Font(font, scalingFactor * font.Size);
-                var center = new PointF(image.Width / 2, image.Height / 2);
                 var textGraphicOptions = new TextGraphicsOptions(true) {
                     HorizontalAlignment = HorizontalAlignment.Center,
                     VerticalAlignment = VerticalAlignment.Center
@@ -127,5 +152,22 @@ namespace Indice.Services
         public Rgba32 Color { get; }
 
         private int PerceivedBrightness(Rgba32 color) => (int)Math.Sqrt((color.R * color.R * .299) + (color.G * color.G * .587) + (color.B * color.B * .114));
+    }
+
+
+    /// <summary>
+    /// Avatar feature Options. Parameters including palette colours as available sizes.
+    /// </summary>
+    public class AvatarOptions
+    {
+        /// <summary>
+        /// The color palette to use. List of randomly used colors
+        /// </summary>
+        public ICollection<AvatarColor> Palette { get; set; } = new List<AvatarColor>();
+
+        /// <summary>
+        /// Additional valid tile sizes. Only these sizes are available.
+        /// </summary>
+        public ICollection<int> TileSizes { get; set; } = new HashSet<int>();
     }
 }
