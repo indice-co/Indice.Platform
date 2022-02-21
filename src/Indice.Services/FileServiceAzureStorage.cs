@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Azure;
@@ -17,7 +16,7 @@ namespace Indice.Services
     public class FileServiceAzureStorage : IFileService
     {
         /// <summary>
-        /// The conection string parameter name. The setting key that will be searched inside the configuration.
+        /// The connection string parameter name. The setting key that will be searched inside the configuration.
         /// </summary>
         public const string CONNECTION_STRING_NAME = "StorageConnection";
         private readonly string _containerName;

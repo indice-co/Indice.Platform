@@ -1,0 +1,56 @@
+<div class="input-group">
+    <div class="input-group-prepend"
+         ngbDropdown>
+        <button class="btn btn-secondary dropdown-toggle"
+                type="button"
+                ngbDropdownToggle>
+            {{ selectedCulture }}
+        </button>
+        <div class="dropdown-menu"
+             ngbDropdownMenu>
+            <a class="dropdown-item"
+               href="javascript:void(0);"
+               (click)="cultureChanged(culture)"
+               *ngFor="let culture of cultures">
+                {{ culture }}
+            </a>
+        </div>
+    </div>
+    <input [id]="id"
+           [name]="name"
+           [placeholder]="placeholder || ''"
+           type="text"
+           class="form-control"
+           [ngClass]="errorClass"
+           [required]="required"
+           (ngModelChange)="writeValue($event)"
+           [(ngModel)]="currentValue"
+           *ngIf="inputType === 'text'"
+           #translateInput="ngModel"
+           [disabled]="disabled" />
+    <textarea [id]="id"
+              [name]="name"
+              [placeholder]="placeholder || ''"
+              [ngClass]="errorClass"
+              class="form-control"
+              [(ngModel)]="currentValue"
+              (ngModelChange)="writeValue($event)"
+              rows="3"
+              [required]="required"
+              *ngIf="inputType === 'textarea'"
+              #translateTextArea="ngModel"
+              [disabled]="disabled">
+    </textarea>
+    <ckeditor [id]="id"
+              [name]="name"
+              [editor]="editor"
+              [config]="config"
+              [ngClass]="errorClass"
+              class="pl-0 pr-0 col"
+              [required]="required"
+              [(ngModel)]="currentValue"
+              (ngModelChange)="writeValue($event)"
+              *ngIf="inputType === 'texteditor'"
+              #translateTextEditor="ngModel">
+    </ckeditor>
+</div>

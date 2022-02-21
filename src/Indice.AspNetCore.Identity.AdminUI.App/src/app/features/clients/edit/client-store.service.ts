@@ -4,7 +4,7 @@ import { AsyncSubject, Observable, forkJoin } from 'rxjs';
 import { map } from 'rxjs/operators';
 import {
     IdentityApiService, SingleClientInfo, IdentityResourceInfoResultSet, IdentityResourceInfo, ApiResourceInfo, CreateClaimRequest, ClaimInfo, UpdateClientRequest, IUpdateClientRequest,
-    ApiScopeInfo, ApiScopeInfoResultSet, GrantTypeInfo, UpdateClientUrls, CreateSecretRequest, SecretInfo, ApiSecretInfo, ClientSecretInfo, FileParameter
+    ApiScopeInfo, ApiScopeInfoResultSet, GrantTypeInfo, UpdateClientUrls, CreateSecretRequest, SecretInfo, ClientSecretInfo, FileParameter, ClientTranslation
 } from 'src/app/core/services/identity-api.service';
 import { SelectableExternalProvider } from './details/selectable-external-provider.model';
 import { UrlType } from './urls/models/urlType';
@@ -29,6 +29,11 @@ export class ClientStore {
     }
 
     public updateClient(client: SingleClientInfo, providers?: SelectableExternalProvider[]): Observable<void> {
+        for (const key in client.translations) {
+            if (client.translations.hasOwnProperty(key)) {
+                client.translations[key] = new ClientTranslation(client.translations[key]);
+            }
+        }
         return this._api.updateClient(client.clientId, new UpdateClientRequest({
             accessTokenLifetime: client.accessTokenLifetime,
             absoluteRefreshTokenLifetime: client.absoluteRefreshTokenLifetime,
@@ -60,6 +65,7 @@ export class ClientStore {
             backChannelLogoutUri: client.backChannelLogoutUri,
             backChannelLogoutSessionRequired: client.backChannelLogoutSessionRequired,
             deviceCodeLifetime: client.deviceCodeLifetime,
+            translations: client.translations,
             userCodeType: client.userCodeType,
             enabled: client.enabled,
             slidingRefreshTokenLifetime: client.slidingRefreshTokenLifetime,

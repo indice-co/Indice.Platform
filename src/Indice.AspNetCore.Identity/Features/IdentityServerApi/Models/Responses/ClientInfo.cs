@@ -226,9 +226,9 @@ namespace Indice.AspNetCore.Identity.Api.Models
     public class ClientTranslation
     {
         /// <summary>
-        /// The display name of the client.
+        /// The name of the client.
         /// </summary>
-        public string DisplayName { get; set; }
+        public string ClientName { get; set; }
         /// <summary>
         /// The description of the client.
         /// </summary>
