@@ -80,8 +80,9 @@ namespace Indice.Services
         /// <param name="size">Image size.</param>
         /// <param name="jpeg">Specifies whether the image has .jpg extension.</param>
         /// <param name="background">The background color to use.</param>
+        /// <param name="foreground">The foreground color to use.</param>
         /// <param name="circular">Determines whether the tile will be circular or sqare. Defaults to false (sqare)</param>
-        public void Generate(Stream output, string firstName, string lastName, int size = 192, bool jpeg = false, string background = null, bool circular = false) {
+        public void Generate(Stream output, string firstName, string lastName, int size = 192, bool jpeg = false, string background = null, string foreground = null, bool circular = false) {
             var avatarText = string.Format("{0}{1}", firstName?.Length > 0 ? firstName[0] : ' ', lastName?.Length > 0 ? lastName[0] : ' ').ToUpper().RemoveDiacritics().Trim();
             if (int.TryParse(firstName, out var number) && string.IsNullOrWhiteSpace(lastName)) {
                 avatarText = firstName;
@@ -89,7 +90,7 @@ namespace Indice.Services
             var randomIndex = $"{firstName}{lastName}".ToCharArray().Sum(x => x) % _backgroundColours.Length;
             var accentColor = _backgroundColours[randomIndex];
             if (background != null) {
-                accentColor = new AvatarColor(background);
+                accentColor = new AvatarColor(background, foreground);
             }
             using (var image = new Image<Rgba32>(size, size)) {
                 // image center.
