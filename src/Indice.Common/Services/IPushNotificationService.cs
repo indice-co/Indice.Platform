@@ -79,7 +79,7 @@ namespace Indice.Services
         /// <param name="classification">The type of the Push Notification.</param>
         /// <param name="tags">Optional tag parameters.</param>
         public static Task SendAsync<TData>(this IPushNotificationService service, string title, string body, TData data, string userTag, string classification = null, params string[] tags) where TData : class =>
-            service.SendAsync(title, body, JsonSerializer.Serialize(data, JsonSerializerOptionDefaults.GetDefaultSettings()), userTag, classification, tags);
+            service.SendAsync(title, body, data != null ? JsonSerializer.Serialize(data, JsonSerializerOptionDefaults.GetDefaultSettings()) : null, userTag, classification, tags);
 
         /// <summary>
         /// Sends a notification to all registered devices.
