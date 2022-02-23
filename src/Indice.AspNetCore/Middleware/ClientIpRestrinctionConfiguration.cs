@@ -33,8 +33,8 @@ namespace Microsoft.Extensions.DependencyInjection
                             var addresses = section.GetSection("IpAddresses").Get<Dictionary<string, string>>();
                             var rules = section.GetSection("Rules").Get<List<ClientIpRestrictionRule>>();
                             var ignore = section.GetSection("Ignore").Get<List<ClientIpRestrictionIgnore>>();
-                            var statusCode = section.GetValue<int?>("StatusCodeOnAccessDenied");
-                            var disabled = section.GetValue<bool?>("Disabled");
+                            var statusCode = section.GetValue<int?>(nameof(ClientIpRestrictionOptions.HttpStatusCode));
+                            var disabled = section.GetValue<bool?>(nameof(ClientIpRestrictionOptions.Disabled));
                             if (addresses is not null) {
                                 foreach (var list in addresses) {
                                     options.AddIpAddressList(list.Key, list.Value);
