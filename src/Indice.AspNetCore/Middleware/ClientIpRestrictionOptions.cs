@@ -15,10 +15,12 @@ namespace Indice.AspNetCore.Middleware
     /// </summary>
     public class ClientIpRestrictionOptions
     {
+        private const string DEFAULT_CONFIG_SECTION_KEY = "IpRestrictions";
+
         /// <summary>
         /// Default Configuration key
         /// </summary>
-        internal string ConfugurationSectionName { get; private set; } = null;
+        internal string ConfigurationSectionName { get; private set; } = DEFAULT_CONFIG_SECTION_KEY;
 
         /// <summary>
         /// Paths that are exluded from <see cref="Mappings"/>, optionally based on provided HTTP method.
@@ -37,12 +39,12 @@ namespace Indice.AspNetCore.Middleware
         /// Status code to use when a client ip is dened access. Defaults to <see cref="HttpStatusCode.Forbidden"/>
         /// </summary>
         /// <remarks>For example this could be a <strong>404</strong> Not found as well as a <strong>403</strong> Forbidden.</remarks>
-        public HttpStatusCode StatusCodeOnAccessDenied { get; set; } = HttpStatusCode.Forbidden;
+        public HttpStatusCode HttpStatusCode { get; set; } = HttpStatusCode.Forbidden;
 
         /// <summary>
         /// Toggles feature. Defaults to false
         /// </summary>
-        public bool Disable { get; set; }
+        public bool Disabled { get; set; }
 
         /// <summary>
         /// Adds new list of ips under a given name.
@@ -55,7 +57,9 @@ namespace Indice.AspNetCore.Middleware
             for (var i = 0; i < ips.Length; i++) {
                 ipsBytes[i] = IPAddress.Parse(ips[i]).GetAddressBytes();
             }
-            IpAddressLists.Add(name, ipsBytes);
+            if (!IpAddressLists.ContainsKey(name)) {
+                IpAddressLists.Add(name, ipsBytes);
+            }
             return this;
         }
 
@@ -69,13 +73,16 @@ namespace Indice.AspNetCore.Middleware
                 throw new ArgumentException("The path must not end with a '/'", nameof(path));
             }
             if (path.HasValue) {
+                var listName = ipAddressesOrListName;
                 bool isIpList = ipAddressesOrListName.Contains(';') || IPAddress.TryParse(ipAddressesOrListName, out var _);
                 if (isIpList) {
-                    var listName = ipAddressesOrListName.GetHashCode().ToString();
+                    listName = ipAddressesOrListName.GetHashCode().ToString();
                     AddIpAddressList(listName, ipAddressesOrListName);
+                }
+                if (Mappings.ContainsKey(path.Value)) {
+                    Mappings[path.Value] = listName;
+                } else {
                     Mappings.Add(path.Value, listName);
-                } else { 
-                    Mappings.Add(path.Value, ipAddressesOrListName);
                 }
             }
             return this;
@@ -153,8 +160,21 @@ namespace Indice.AspNetCore.Middleware
         /// <param name="sectionName">If null defaults to <strong>IPRestrictions</strong></param>
         /// <returns>Self</returns>
         public ClientIpRestrictionOptions LoadFromConfiguration(string sectionName = null) {
-            ConfugurationSectionName = sectionName ?? "IPRestrictions";
+            ConfigurationSectionName = sectionName ?? DEFAULT_CONFIG_SECTION_KEY;
             return this;
         }
+    }
+
+    internal class ClientIpRestrictionRule
+    {
+        public string Name { get; set; }
+        public string Path { get; set; }
+        public string IpAddresses { get; set; }
+    }
+
+    internal class ClientIpRestrictionIgnore
+    {
+        public string Path { get; set; }
+        public string HttpMethods { get; set; }
     }
 }

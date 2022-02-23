@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using Indice.AspNetCore.Middleware;
@@ -24,12 +25,37 @@ namespace Microsoft.Extensions.DependencyInjection
                 var options = new ClientIpRestrictionOptions();
                 setupAction?.Invoke(options);
                 services.AddSingleton((sp) => {
-                    if (!string.IsNullOrEmpty(options.ConfugurationSectionName)) { 
+                    if (!string.IsNullOrEmpty(options.ConfigurationSectionName)) {
                         var config = sp.GetRequiredService<IConfiguration>();
-                        var section = config.GetSection(options.ConfugurationSectionName);
+                        var section = config.GetSection(options.ConfigurationSectionName);
                         if (section != null) {
                             // setup
-                            //section.
+                            var addresses = section.GetSection("IpAddresses").Get<Dictionary<string, string>>();
+                            var rules = section.GetSection("Rules").Get<List<ClientIpRestrictionRule>>();
+                            var ignore = section.GetSection("Ignore").Get<List<ClientIpRestrictionIgnore>>();
+                            var statusCode = section.GetValue<int?>("StatusCodeOnAccessDenied");
+                            var disabled = section.GetValue<bool?>("Disabled");
+                            if (addresses is not null) {
+                                foreach (var list in addresses) {
+                                    options.AddIpAddressList(list.Key, list.Value);
+                                }
+                            }
+                            if (rules is not null) {
+                                foreach (var rule in rules) {
+                                    options.MapPath(rule.Path, rule.IpAddresses);
+                                }
+                            }
+                            if (ignore is not null) {
+                                foreach (var item in ignore) {
+                                    options.IgnorePath(item.Path, item.HttpMethods.Split(','));
+                                }
+                            }
+                            if (statusCode.HasValue) {
+                                options.HttpStatusCode = (System.Net.HttpStatusCode)statusCode.Value;
+                            }
+                            if (disabled.HasValue) {
+                                options.Disabled = disabled.Value;
+                            }
                         }
                     }
                     return options;

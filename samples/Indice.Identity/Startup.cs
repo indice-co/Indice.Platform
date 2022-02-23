@@ -115,6 +115,14 @@ namespace Indice.Identity
                        .AddFrameAncestors("https://localhost:2002");
             });
             services.AddPlatformEventHandler<DeviceDeletedEvent, DeviceDeletedEventHandler>();
+            services.AddClientIpRestrinctions();
+            //services.AddClientIpRestrinctions(options => {
+            //    options.StatusCodeOnAccessDenied = System.Net.HttpStatusCode.NotFound;
+            //    options.AddIpAddressList("MyWhiteList", "127.0.0.1;192.168.1.5;::1");
+            //    options.MapPath("/admin", "192.168.1.5");
+            //    options.MapPath("/docs", "MyWhiteList");
+            //    options.IgnorePath("/admin", "GET");
+            //});
         }
 
         /// <summary>
@@ -129,6 +137,7 @@ namespace Indice.Identity
                 app.UseHsts();
                 app.UseHttpsRedirection();
             }
+            app.UseClientIpRestrictions();
             var staticFileOptions = new StaticFileOptions {
                 OnPrepareResponse = context => {
                     const int durationInSeconds = 60 * 60 * 24;

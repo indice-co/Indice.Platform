@@ -41,7 +41,7 @@ namespace Indice.AspNetCore.Middleware
         /// </summary>
         /// <param name="httpContext">Encapsulates all HTTP-specific information about an individual HTTP request.</param>
         public async Task Invoke(HttpContext httpContext) {
-            if (!_options.Disable && _options.TryMatch(httpContext, out var ipSafeList)) {
+            if (!_options.Disabled && _options.TryMatch(httpContext, out var ipSafeList)) {
                 var remoteIp = httpContext.Connection.RemoteIpAddress;
                 _logger.LogDebug("Request from Remote IP address: {RemoteIp}", remoteIp);
 
@@ -57,7 +57,7 @@ namespace Indice.AspNetCore.Middleware
                 if (badIp) {
                     _logger.LogWarning(
                         "Forbidden Request from Remote IP address: {RemoteIp}", remoteIp);
-                    httpContext.Response.StatusCode = (int)_options.StatusCodeOnAccessDenied;
+                    httpContext.Response.StatusCode = (int)_options.HttpStatusCode;
                     return;
                 }
             }
