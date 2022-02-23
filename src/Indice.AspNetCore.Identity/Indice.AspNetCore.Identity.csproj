@@ -56,6 +56,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Indice.AspNetCore\Indice.AspNetCore.csproj" />
+    <ProjectReference Include="..\Indice.Extensions.Configuration.Database\Indice.Extensions.Configuration.Database.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Compile Update="IdentityResources.Designer.cs">

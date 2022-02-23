@@ -1,4 +1,5 @@
 ﻿using Indice.AspNetCore.Identity.Data.Models;
+using Indice.Extensions.Configuration.Database;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -22,7 +23,7 @@ namespace Indice.AspNetCore.Identity.Data
     /// </summary>
     /// <typeparam name="TUser">The type of the user to use.</typeparam>
     /// <typeparam name="TRole">The type of the role to use.</typeparam>
-    public class IdentityDbContext<TUser, TRole> : IdentityDbContext<TUser, TRole, string>
+    public class IdentityDbContext<TUser, TRole> : IdentityDbContext<TUser, TRole, string>, IAppSettingsDbContext
         where TUser : User
         where TRole : IdentityRole
     {
@@ -41,9 +42,9 @@ namespace Indice.AspNetCore.Identity.Data
         /// </summary>
         public DbSet<UserDevice> UserDevices { get; set; }
         /// <summary>
-        /// Stores application settings in the database.
+        /// Application settings stored in the database.
         /// </summary>
-        internal DbSet<AppSetting> AppSettings { get; set; }
+        public DbSet<AppSetting> AppSettings { get; set; }
 
         /// <summary>
         /// Configures schema needed for the Identity framework.

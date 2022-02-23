@@ -1,60 +1,43 @@
-﻿using System;
-using System.Threading;
-using System.Threading.Tasks;
-using Indice.AspNetCore.Identity.Data;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 
-namespace Indice.Extensions.Configuration
+namespace Indice.Extensions.Configuration.Database
 {
     /// <summary>
     /// An Entity Framework Core based <see cref="ConfigurationProvider"/>.
     /// </summary>
-    internal class EntityConfigurationProvider : ConfigurationProvider, IDisposable
+    internal class EntityConfigurationProvider<TContext> : ConfigurationProvider, IDisposable where TContext : IAppSettingsDbContext
     {
-        private event EventHandler AppSettingsChanged;
         private readonly EntityConfigurationOptions _options;
         private Task _pollingTask;
         private readonly CancellationTokenSource _cancellationToken;
 
         /// <summary>
-        /// Creates a new instance of <see cref="EntityConfigurationProvider"/>.
+        /// Creates a new instance of <see cref="EntityConfigurationProvider{T}"/>.
         /// </summary>
-        /// <param name="options">Configuration options for <see cref="EntityConfigurationProvider"/>.</param>
+        /// <param name="options">Configuration options for <see cref="EntityConfigurationProvider{T}"/>.</param>
         public EntityConfigurationProvider(EntityConfigurationOptions options) {
             _options = options ?? throw new ArgumentNullException(nameof(options));
             _cancellationToken = new CancellationTokenSource();
             _pollingTask = null;
-            AppSettingsChanged += EntityConfigurationProviderAppSettingsChanged;
         }
 
         /// <inheritdoc/>
         public override void Load() => LoadData().ConfigureAwait(false).GetAwaiter().GetResult();
 
-        internal virtual void OnAppSettingsChanged() {
-            var handler = AppSettingsChanged;
-            handler?.Invoke(this, null);
-        }
-
         /// <inheritdoc/>
         public void Dispose() => _cancellationToken.Cancel();
-
-        private void EntityConfigurationProviderAppSettingsChanged(object sender, EventArgs eventArgs) {
-            if (_options.ReloadOnDatabaseChange) {
-                Load();
-            }
-        }
 
         /// <summary>
         /// Loads the configuration settings from the database.
         /// </summary>
         private async Task LoadData() {
-            var builder = new DbContextOptionsBuilder<IdentityDbContext>();
+            var builder = new DbContextOptionsBuilder<AppSettingsDbContext>();
             _options.ConfigureDbContext?.Invoke(builder);
-            using (var dbContext = new IdentityDbContext(builder.Options)) {
+            using (var dbContext = new AppSettingsDbContext(builder.Options)) {
                 var canConnect = await dbContext.Database.CanConnectAsync();
                 if (canConnect) {
-                    var data = await dbContext.AppSettings.ToDictionaryAsync(x => x.Key, y => y.Value, StringComparer.OrdinalIgnoreCase);
+                    var data = await dbContext.Set<AppSetting>().ToDictionaryAsync(x => x.Key, y => y.Value, StringComparer.OrdinalIgnoreCase);
                     if (data != null) {
                         Data = data;
                     }

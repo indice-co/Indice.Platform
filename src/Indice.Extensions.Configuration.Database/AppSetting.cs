@@ -1,4 +1,4 @@
-﻿namespace Indice.AspNetCore.Identity.Data.Models
+﻿namespace Indice.Extensions.Configuration.Database
 {
     /// <summary>
     /// Models application settings stored in the database.

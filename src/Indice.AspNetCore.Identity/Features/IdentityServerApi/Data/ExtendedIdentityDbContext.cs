@@ -1,11 +1,8 @@
 ﻿using System;
-using System.Linq;
 using Indice.AspNetCore.Identity.Api.Configuration;
 using Indice.AspNetCore.Identity.Data.Models;
-using Indice.Extensions.Configuration;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 
@@ -29,7 +26,6 @@ namespace Indice.AspNetCore.Identity.Data
         /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
         public ExtendedIdentityDbContext(DbContextOptions<ExtendedIdentityDbContext<TUser, TRole>> dbContextOptions, IdentityServerApiEndpointsOptions options, IWebHostEnvironment webHostEnvironment, IConfiguration configuration) : base(dbContextOptions) {
             /* https://docs.microsoft.com/en-us/ef/core/logging-events-diagnostics/events */
-            ChangeTracker.StateChanged += ChangeTrackerStateChanged;
             _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
             if (webHostEnvironment.IsDevelopment() && Database.EnsureCreated()) {
                 this.SeedAdminUser();
@@ -46,16 +42,6 @@ namespace Indice.AspNetCore.Identity.Data
         /// <param name="modelBuilder">Provides a simple API surface for configuring a <see cref="DbContext"/>.</param>
         protected override void OnModelCreating(ModelBuilder modelBuilder) {
             base.OnModelCreating(modelBuilder);
-        }
-
-        private void ChangeTrackerStateChanged(object sender, EntityStateChangedEventArgs eventArgs) {
-            var entity = eventArgs.Entry.Entity;
-            if (entity is AppSetting && (eventArgs.OldState == EntityState.Added || eventArgs.NewState == EntityState.Deleted || eventArgs.NewState == EntityState.Modified)) {
-                var entityConfigurationProvider = ((IConfigurationRoot)_configuration).Providers.SingleOrDefault(provider => provider is EntityConfigurationProvider);
-                if (entityConfigurationProvider != null) {
-                    ((EntityConfigurationProvider)entityConfigurationProvider).OnAppSettingsChanged();
-                }
-            }
         }
     }
 }

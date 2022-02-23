@@ -1,23 +1,22 @@
-﻿using Indice.AspNetCore.Identity.Data.Models;
-using Indice.Configuration;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace Indice.AspNetCore.Identity.Data
+namespace Indice.Extensions.Configuration.Database
 {
     /// <summary>
     /// Entity Framework mapping for type <see cref="AppSetting"/>.
     /// </summary>
-    internal class AppSettingMap : IEntityTypeConfiguration<AppSetting>
+    public class AppSettingMap : IEntityTypeConfiguration<AppSetting>
     {
+        /// <inheritdoc />
         public void Configure(EntityTypeBuilder<AppSetting> builder) {
             // Configure table name and schema.
             builder.ToTable(nameof(AppSetting), AppSetting.TableSchema);
             // Configure primary key.
             builder.HasKey(x => x.Key);
             // Configure fields.
-            builder.Property(x => x.Key).HasMaxLength(TextSizePresets.M512);
-            builder.Property(x => x.Value).HasMaxLength(TextSizePresets.L2048).IsRequired();
+            builder.Property(x => x.Key).HasMaxLength(512);
+            builder.Property(x => x.Value).HasMaxLength(2048).IsRequired();
         }
     }
 }
