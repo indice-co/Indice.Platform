@@ -4,6 +4,7 @@ using System.Linq;
 using Indice.Api.Data;
 using Indice.AspNetCore.Features.Campaigns;
 using Indice.Configuration;
+using Indice.Extensions.Configuration.Database;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;

@@ -21,7 +21,7 @@ namespace Indice.AspNetCore.Features.Settings.Controllers
     /// <response code="403">Forbidden</response>
     /// <response code="500">Internal Server Error</response>
     [ApiController]
-    [Authorize(AuthenticationSchemes = SettingsApi.AuthenticationScheme, Policy = SettingsApi.Policies.BeSettingsManager)]
+    [Authorize(Policy = SettingsApi.Policies.BeSettingsManager)]
     [Consumes(MediaTypeNames.Application.Json)]
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(statusCode: 400, type: typeof(ValidationProblemDetails))]
@@ -30,7 +30,8 @@ namespace Indice.AspNetCore.Features.Settings.Controllers
     [Route("[settingsApiPrefix]/app-settings")]
     internal class SettingsController : ControllerBase
     {
-        private readonly AppSettingsDbContext _dbContext;
+        private readonly IAppSettingsDbContext _appSettingsDbContext;
+        private DbContext _dbContext => (DbContext)_appSettingsDbContext;
         private readonly IWebHostEnvironment _webHostEnvironment;
         /// <summary>
         /// The name of the controller.
@@ -40,10 +41,10 @@ namespace Indice.AspNetCore.Features.Settings.Controllers
         /// <summary>
         /// Creates an instance of <see cref="SettingsController"/>.
         /// </summary>
-        /// <param name="dbContext"><see cref="DbContext"/> for the Identity Framework.</param>
+        /// <param name="dbContext"><see cref="Microsoft.EntityFrameworkCore.DbContext"/> for the Identity Framework.</param>
         /// <param name="webHostEnvironment">Provides information about the web hosting environment an application is running in.</param>
-        public SettingsController(AppSettingsDbContext dbContext, IWebHostEnvironment webHostEnvironment) {
-            _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
+        public SettingsController(IAppSettingsDbContext dbContext, IWebHostEnvironment webHostEnvironment) {
+            _appSettingsDbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
             _webHostEnvironment = webHostEnvironment ?? throw new ArgumentNullException(nameof(webHostEnvironment));
         }
 
@@ -55,7 +56,7 @@ namespace Indice.AspNetCore.Features.Settings.Controllers
         [HttpGet]
         [ProducesResponseType(statusCode: StatusCodes.Status200OK, type: typeof(ResultSet<AppSettingInfo>))]
         public async Task<IActionResult> GetSettings([FromQuery] ListOptions options) {
-            var query = _dbContext.AppSettings.AsNoTracking().AsQueryable();
+            var query = _appSettingsDbContext.AppSettings.AsNoTracking().AsQueryable();
             if (!string.IsNullOrEmpty(options.Search)) {
                 var searchTerm = options.Search.ToLower();
                 query = query.Where(x => x.Key.ToLower().Contains(searchTerm));
@@ -81,7 +82,7 @@ namespace Indice.AspNetCore.Features.Settings.Controllers
                 return NotFound();
             }
             var fileInfo = _webHostEnvironment.ContentRootFileProvider.GetFileInfo("appsettings.json");
-            var settingsExist = await _dbContext.AppSettings.AnyAsync();
+            var settingsExist = await _appSettingsDbContext.AppSettings.AnyAsync();
             if (settingsExist && !hardRefresh) {
                 return BadRequest(new ValidationProblemDetails {
                     Detail = "App settings are already loaded in the database."
@@ -94,7 +95,7 @@ namespace Indice.AspNetCore.Features.Settings.Controllers
             if (settingsExist) {
                 await _dbContext.Database.ExecuteSqlRawAsync($"TRUNCATE TABLE [{AppSetting.TableSchema}].[{nameof(AppSetting)}];");
             }
-            await _dbContext.AppSettings.AddRangeAsync(settings.Select(x => new AppSetting {
+            await _appSettingsDbContext.AppSettings.AddRangeAsync(settings.Select(x => new AppSetting {
                 Key = x.Key,
                 Value = x.Value
             }));
@@ -112,7 +113,7 @@ namespace Indice.AspNetCore.Features.Settings.Controllers
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
         [HttpGet("{key}")]
         public async Task<IActionResult> GetSetting([FromRoute] string key) {
-            var setting = await _dbContext.AppSettings.AsNoTracking().Select(x => new AppSettingInfo {
+            var setting = await _appSettingsDbContext.AppSettings.AsNoTracking().Select(x => new AppSettingInfo {
                 Key = x.Key,
                 Value = x.Value
             })
@@ -135,7 +136,7 @@ namespace Indice.AspNetCore.Features.Settings.Controllers
                 Key = request.Key,
                 Value = request.Value
             };
-            _dbContext.AppSettings.Add(setting);
+            _appSettingsDbContext.AppSettings.Add(setting);
             await _dbContext.SaveChangesAsync();
             return CreatedAtAction(nameof(GetSetting), Name, new { key = setting.Key }, new AppSettingInfo {
                 Key = setting.Key,
@@ -154,7 +155,7 @@ namespace Indice.AspNetCore.Features.Settings.Controllers
         [ProducesResponseType(statusCode: StatusCodes.Status200OK, type: typeof(AppSettingInfo))]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
         public async Task<IActionResult> UpdateSetting([FromRoute] string key, [FromBody] UpdateAppSettingRequest request) {
-            var setting = await _dbContext.AppSettings.SingleOrDefaultAsync(x => x.Key == key);
+            var setting = await _appSettingsDbContext.AppSettings.SingleOrDefaultAsync(x => x.Key == key);
             if (setting == null) {
                 return NotFound();
             }
@@ -178,11 +179,11 @@ namespace Indice.AspNetCore.Features.Settings.Controllers
         [ProducesResponseType(statusCode: StatusCodes.Status204NoContent, type: typeof(void))]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
         public async Task<IActionResult> DeleteSetting([FromRoute] string key) {
-            var setting = await _dbContext.AppSettings.AsNoTracking().SingleOrDefaultAsync(x => x.Key == key);
+            var setting = await _appSettingsDbContext.AppSettings.AsNoTracking().SingleOrDefaultAsync(x => x.Key == key);
             if (setting == null) {
                 return NotFound();
             }
-            _dbContext.AppSettings.Remove(setting);
+            _appSettingsDbContext.AppSettings.Remove(setting);
             await _dbContext.SaveChangesAsync();
             return NoContent();
         }

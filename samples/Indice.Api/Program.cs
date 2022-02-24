@@ -17,8 +17,7 @@ namespace Indice.Api
                 .ConfigureWebHostDefaults(webBuilder => {
                     webBuilder.UseStartup<Startup>();
                 })
-                .UseDatabaseConfiguration<ApiDbContext>(options => {
-                    var configuration = options.Configuration;
+                .UseDatabaseConfiguration<ApiDbContext>((options, configuration) => {
                     options.ReloadOnInterval = TimeSpan.FromMinutes(1);
                     options.ConfigureDbContext = builder => builder.UseSqlServer(configuration.GetConnectionString("SettingsDb"));
                 });

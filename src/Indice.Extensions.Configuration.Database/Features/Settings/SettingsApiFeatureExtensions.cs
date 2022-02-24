@@ -1,9 +1,7 @@
 ﻿using Indice.AspNetCore.Features.Settings;
 using Indice.AspNetCore.Mvc.ApplicationModels;
-using Indice.Extensions.Configuration.Database;
 using Indice.Security;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 
 namespace Microsoft.Extensions.DependencyInjection
@@ -38,17 +36,10 @@ namespace Microsoft.Extensions.DependencyInjection
             services.PostConfigure<MvcOptions>(options => {
                 options.Conventions.Add(new ApiPrefixControllerModelConvention("[settingsApiPrefix]", settingsApiOptions.ApiPrefix ?? "api"));
             });
-            // Register application DbContext.
-            //if (settingsApiOptions.ConfigureDbContext != null) {
-            //    services.AddDbContext<AppSettingsDbContext>(settingsApiOptions.ConfigureDbContext);
-            //} else {
-            //    services.AddDbContext<AppSettingsDbContext>((builder) => builder.UseSqlServer(configuration.GetConnectionString("SettingsDbConnection")));
-            //}
             // Configure authorization.
             services.AddAuthorizationCore(authOptions => {
                 authOptions.AddPolicy(SettingsApi.Policies.BeSettingsManager, policy => {
-                    policy.AddAuthenticationSchemes(SettingsApi.AuthenticationScheme)
-                          .RequireAuthenticatedUser()
+                    policy.RequireAuthenticatedUser()
                           .RequireAssertion(x => (string.IsNullOrWhiteSpace(settingsApiOptions.RequiredScope) ? x.User.HasScopeClaim(SettingsApi.Scope) : true) && x.User.IsAdmin());
                 });
             });

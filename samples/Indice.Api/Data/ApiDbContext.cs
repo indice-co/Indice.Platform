@@ -7,7 +7,11 @@ namespace Indice.Api.Data
 {
     public class ApiDbContext : DbContext, IAppSettingsDbContext
     {
-        public ApiDbContext(DbContextOptions<ApiDbContext> dbContextOptions) : base(dbContextOptions) { }
+        public ApiDbContext(DbContextOptions<ApiDbContext> dbContextOptions) : base(dbContextOptions) {
+#if DEBUG
+            Database.EnsureCreated();
+#endif
+        }
 
         public DbSet<AppSetting> AppSettings { get; set; }
 
