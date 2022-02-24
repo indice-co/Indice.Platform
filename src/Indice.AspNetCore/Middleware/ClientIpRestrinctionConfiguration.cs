@@ -41,8 +41,18 @@ namespace Microsoft.Extensions.DependencyInjection
                                 }
                             }
                             if (rules is not null) {
-                                foreach (var rule in rules) {
-                                    options.MapPath(rule.Path, rule.IpAddresses);
+                                for (var i = 0; i < rules.Count; i++) {
+                                    var ruleSection = section.GetSection($"Rules:{i}");
+                                    var ipAddressesList = ruleSection.GetSection("IpAddresses").Get<List<string>>() ?? new List<string>();
+                                    if (ipAddressesList.Count == 0) {
+                                        var value = ruleSection["IpAddresses"];
+                                        if (value is not null) { 
+                                            ipAddressesList.Add(value);
+                                        }
+                                    }
+                                    foreach (var ipAddresses in ipAddressesList) {
+                                        options.MapPath(rules[i].Path, ipAddresses);
+                                    }
                                 }
                             }
                             if (ignore is not null) {
@@ -58,6 +68,7 @@ namespace Microsoft.Extensions.DependencyInjection
                             }
                         }
                     }
+                    options.ClearUnusedLists();
                     return options;
                 });
             }

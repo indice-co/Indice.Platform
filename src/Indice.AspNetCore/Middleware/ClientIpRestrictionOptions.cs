@@ -52,17 +52,36 @@ namespace Indice.AspNetCore.Middleware
         /// <param name="name">The list name.</param>
         /// <param name="ipAddresses">A semicolon delimited string of ips.</param>
         public ClientIpRestrictionOptions AddIpAddressList(string name, string ipAddresses) {
-            var ips = ipAddresses.Split(';');
-            var ipsBytes = new byte[ips.Length][];
-            for (var i = 0; i < ips.Length; i++) {
-                ipsBytes[i] = IPAddress.Parse(ips[i]).GetAddressBytes();
+            byte[][] ipsBytes;
+            if (IsIpList(ipAddresses)) {
+                var ips = ipAddresses.Split(';');
+                ipsBytes = new byte[ips.Length][];
+                for (var i = 0; i < ips.Length; i++) {
+                    ipsBytes[i] = IPAddress.Parse(ips[i]).GetAddressBytes();
+                }
+            } else {
+                ipsBytes = IpAddressLists[ipAddresses];
             }
             if (!IpAddressLists.ContainsKey(name)) {
                 IpAddressLists.Add(name, ipsBytes);
+            } else {
+                var mergedList = IpAddressLists[name].ToList();
+                for (var i = 0; i < ipsBytes.Length; i++) {
+                    if (!mergedList.Contains(ipsBytes[i], new SequenceEqualityComparer<byte>())) {
+                        mergedList.Add(ipsBytes[i]);
+                    }
+                }
+                IpAddressLists[name] = mergedList.ToArray();
             }
             return this;
         }
 
+        internal void ClearUnusedLists() {
+            foreach (var key in IpAddressLists.Keys.Except(Mappings.Values)) {
+                IpAddressLists.Remove(key);
+            }
+        }
+        
         /// <summary>
         /// Adds a new map entry to the dictionary of mappings. This will be picked up by the <see cref="ClientIpRestrictionMiddleware"/> in order to determine which ips are exempted from the restrictions.
         /// </summary>
@@ -74,13 +93,16 @@ namespace Indice.AspNetCore.Middleware
             }
             if (path.HasValue) {
                 var listName = ipAddressesOrListName;
-                bool isIpList = ipAddressesOrListName.Contains(';') || IPAddress.TryParse(ipAddressesOrListName, out var _);
-                if (isIpList) {
+                if (IsIpList(ipAddressesOrListName)) {
                     listName = ipAddressesOrListName.GetHashCode().ToString();
                     AddIpAddressList(listName, ipAddressesOrListName);
                 }
                 if (Mappings.ContainsKey(path.Value)) {
-                    Mappings[path.Value] = listName;
+                    var oldListName = Mappings[path.Value];
+                    var mergedListName = $"{oldListName}.{listName}";
+                    AddIpAddressList(mergedListName, ipAddressesOrListName);
+                    AddIpAddressList(mergedListName, oldListName);
+                    Mappings[path.Value] = mergedListName;
                 } else {
                     Mappings.Add(path.Value, listName);
                 }
@@ -163,13 +185,28 @@ namespace Indice.AspNetCore.Middleware
             ConfigurationSectionName = sectionName ?? DEFAULT_CONFIG_SECTION_KEY;
             return this;
         }
+
+        private static bool IsIpList(string ipAddressesOrListName) => ipAddressesOrListName.Contains(';') || IPAddress.TryParse(ipAddressesOrListName, out var _);
+        class SequenceEqualityComparer<T> : IEqualityComparer<IEnumerable<T>>
+        {
+            public bool Equals(IEnumerable<T> a, IEnumerable<T> b) {
+                if (a == null) return b == null;
+                if (b == null) return false;
+                return a.SequenceEqual(b);
+            }
+
+            public int GetHashCode(IEnumerable<T> val) {
+                return val.Where(v => v != null)
+                        .Aggregate(0, (h, v) => h ^ v.GetHashCode());
+            }
+        }
     }
 
+    
     internal class ClientIpRestrictionRule
     {
         public string Name { get; set; }
         public string Path { get; set; }
-        public string IpAddresses { get; set; }
     }
 
     internal class ClientIpRestrictionIgnore
