@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Indice.Extensions.Configuration.Database.Data.Models;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 
 namespace Indice.Extensions.Configuration.Database
@@ -6,7 +7,7 @@ namespace Indice.Extensions.Configuration.Database
     /// <summary>
     /// An Entity Framework Core based <see cref="ConfigurationProvider"/>.
     /// </summary>
-    internal class EntityConfigurationProvider<TContext> : ConfigurationProvider, IDisposable where TContext : IAppSettingsDbContext
+    internal class EntityConfigurationProvider<TContext> : ConfigurationProvider, IDisposable where TContext : DbContext, IAppSettingsDbContext
     {
         private readonly EntityConfigurationOptions _options;
         private Task _pollingTask;
@@ -32,9 +33,9 @@ namespace Indice.Extensions.Configuration.Database
         /// Loads the configuration settings from the database.
         /// </summary>
         private async Task LoadData() {
-            var builder = new DbContextOptionsBuilder<AppSettingsDbContext>();
+            var builder = new DbContextOptionsBuilder<TContext>();
             _options.ConfigureDbContext?.Invoke(builder);
-            using (var dbContext = new AppSettingsDbContext(builder.Options)) {
+            using (var dbContext = (TContext)Activator.CreateInstance(typeof(TContext), new object[] { builder.Options })) {
                 var canConnect = await dbContext.Database.CanConnectAsync();
                 if (canConnect) {
                     var data = await dbContext.Set<AppSetting>().ToDictionaryAsync(x => x.Key, y => y.Value, StringComparer.OrdinalIgnoreCase);

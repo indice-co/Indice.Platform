@@ -1,5 +1,6 @@
 ﻿using Indice.Extensions.Configuration.Database;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 
@@ -10,16 +11,13 @@ namespace Indice.Extensions.Configuration
     /// </summary>
     public static class DatabaseConfigurationExtensions
     {
-        internal static IConfigurationBuilder AddDatabaseConfiguration<TContext>(this IConfigurationBuilder builder, EntityConfigurationOptions options) where TContext : IAppSettingsDbContext => 
-            builder.Add(new EntityConfigurationSource<TContext>(options));
-
         /// <summary>
         /// Registers and configures the <see cref="EntityConfigurationProvider{T}"/> using some default values.
         /// </summary>
         /// <param name="hostBuilder">A program initialization abstraction.</param>
         /// <param name="configureAction">The <see cref="EntityConfigurationOptions"/> to use.</param>
         /// <returns>The <see cref="IHostBuilder"/>.</returns>
-        public static IHostBuilder UseDatabaseConfiguration<TContext>(this IHostBuilder hostBuilder, Action<EntityConfigurationOptions> configureAction) where TContext : IAppSettingsDbContext =>
+        public static IHostBuilder UseDatabaseConfiguration<TContext>(this IHostBuilder hostBuilder, Action<EntityConfigurationOptions> configureAction) where TContext : DbContext, IAppSettingsDbContext =>
             hostBuilder.ConfigureWebHost(webHostBuilder => webHostBuilder.UseDatabaseConfiguration<TContext>(configureAction));
 
         /// <summary>
@@ -28,7 +26,7 @@ namespace Indice.Extensions.Configuration
         /// <param name="webHostBuilder">A builder for <see cref="IWebHost"/>.</param>
         /// <param name="configureAction">The <see cref="EntityConfigurationOptions"/> to use.</param>
         /// <returns>The <see cref="IHostBuilder"/>.</returns>
-        public static IWebHostBuilder UseDatabaseConfiguration<TContext>(this IWebHostBuilder webHostBuilder, Action<EntityConfigurationOptions> configureAction) where TContext : IAppSettingsDbContext {
+        public static IWebHostBuilder UseDatabaseConfiguration<TContext>(this IWebHostBuilder webHostBuilder, Action<EntityConfigurationOptions> configureAction) where TContext : DbContext, IAppSettingsDbContext {
             return webHostBuilder.ConfigureAppConfiguration((hostBuilderContext, configurationBuilder) => {
                 var options = new EntityConfigurationOptions {
                     Configuration = configurationBuilder.Build()
@@ -38,7 +36,7 @@ namespace Indice.Extensions.Configuration
                 if (!result.Succedded) {
                     throw new ArgumentException(result.Error);
                 }
-                configurationBuilder.AddDatabaseConfiguration<TContext>(options);
+                configurationBuilder.Add(new EntityConfigurationSource<TContext>(options));
             });
         }
     }

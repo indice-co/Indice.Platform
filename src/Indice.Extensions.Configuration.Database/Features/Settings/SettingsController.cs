@@ -1,14 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Mime;
-using System.Threading.Tasks;
-using Indice.AspNetCore.Identity.Api.Filters;
-using Indice.AspNetCore.Identity.Api.Models;
-using Indice.AspNetCore.Identity.Api.Security;
-using Indice.AspNetCore.Identity.Data;
-using Indice.AspNetCore.Identity.Data.Models;
+﻿using System.Net.Mime;
+using Indice.AspNetCore.Features.Settings.Models;
 using Indice.Extensions.Configuration.Database;
+using Indice.Extensions.Configuration.Database.Data.Models;
 using Indice.Types;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
@@ -18,7 +11,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration.Json;
 using Microsoft.Extensions.Hosting;
 
-namespace Indice.AspNetCore.Identity.Api.Controllers
+namespace Indice.AspNetCore.Features.Settings.Controllers
 {
     /// <summary>
     /// Contains operations for managing application settings in the database.
@@ -28,18 +21,16 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
     /// <response code="403">Forbidden</response>
     /// <response code="500">Internal Server Error</response>
     [ApiController]
-    [ApiExplorerSettings(GroupName = "identity")]
-    [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme, Policy = IdentityServerApi.Policies.BeAdmin)]
+    [Authorize(AuthenticationSchemes = SettingsApi.AuthenticationScheme, Policy = SettingsApi.Policies.BeSettingsManager)]
     [Consumes(MediaTypeNames.Application.Json)]
-    [ProblemDetailsExceptionFilter]
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(statusCode: 400, type: typeof(ValidationProblemDetails))]
     [ProducesResponseType(statusCode: 401, type: typeof(ProblemDetails))]
     [ProducesResponseType(statusCode: 403, type: typeof(ProblemDetails))]
-    [Route("api/app-settings")]
+    [Route("[settingsApiPrefix]/app-settings")]
     internal class SettingsController : ControllerBase
     {
-        private readonly ExtendedIdentityDbContext<User, Role> _dbContext;
+        private readonly AppSettingsDbContext _dbContext;
         private readonly IWebHostEnvironment _webHostEnvironment;
         /// <summary>
         /// The name of the controller.
@@ -51,7 +42,7 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
         /// </summary>
         /// <param name="dbContext"><see cref="DbContext"/> for the Identity Framework.</param>
         /// <param name="webHostEnvironment">Provides information about the web hosting environment an application is running in.</param>
-        public SettingsController(ExtendedIdentityDbContext<User, Role> dbContext, IWebHostEnvironment webHostEnvironment) {
+        public SettingsController(AppSettingsDbContext dbContext, IWebHostEnvironment webHostEnvironment) {
             _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
             _webHostEnvironment = webHostEnvironment ?? throw new ArgumentNullException(nameof(webHostEnvironment));
         }

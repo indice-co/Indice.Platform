@@ -1,5 +1,7 @@
 ﻿using Indice.AspNetCore.Identity.Data.Models;
 using Indice.Extensions.Configuration.Database;
+using Indice.Extensions.Configuration.Database.Data;
+using Indice.Extensions.Configuration.Database.Data.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -12,9 +14,9 @@ namespace Indice.AspNetCore.Identity.Data
     public class IdentityDbContext : IdentityDbContext<User, Role>
     {
         /// <summary>
-        /// Constructs the <see cref="DbContext"/> passing the options.
+        /// Constructs the <see cref="IdentityDbContext"/> passing the options.
         /// </summary>
-        /// <param name="options">The options to be used by a <see cref="DbContext"/>.</param>
+        /// <param name="options">The options to be used by a <see cref="IdentityDbContext"/>.</param>
         public IdentityDbContext(DbContextOptions options) : base(options) { }
     }
 

@@ -30,14 +30,20 @@ namespace Microsoft.Extensions.DependencyInjection
         public static IMvcBuilder AddIdentityServerApiEndpoints(this IMvcBuilder mvcBuilder, Action<IdentityServerApiEndpointsOptions> configureAction = null) {
             mvcBuilder.ConfigureApplicationPartManager(x => x.FeatureProviders.Add(new IdentityServerApiFeatureProvider()));
             var services = mvcBuilder.Services;
-            var serviceProvider = services.BuildServiceProvider();
-            var configuration = serviceProvider.GetRequiredService<IConfiguration>();
             var apiEndpointsOptions = new IdentityServerApiEndpointsOptions {
                 Services = services
             };
             // Initialize default options.
             configureAction?.Invoke(apiEndpointsOptions);
             apiEndpointsOptions.Services = null;
+            var serviceProvider = services.BuildServiceProvider();
+            var configuration = serviceProvider.GetRequiredService<IConfiguration>();
+            var dbContextOptions = serviceProvider.GetRequiredService<IdentityDbContextOptions>();
+            mvcBuilder.AddSettingsApiEndpoints(settingsApiOptions => {
+                settingsApiOptions.ApiPrefix = "api";
+                settingsApiOptions.RequiredScope = IdentityServerApi.Scope;
+                settingsApiOptions.ConfigureDbContext = dbContextOptions.ConfigureDbContext;
+            });
             services.AddDistributedMemoryCache();
             services.AddFeatureManagement(configuration.GetSection("IdentityServerApiFeatureManagement"));
             // Configure options for CacheResourceFilter.
@@ -73,11 +79,7 @@ namespace Microsoft.Extensions.DependencyInjection
             var dbContextOptions = new IdentityDbContextOptions();
             configureAction?.Invoke(dbContextOptions);
             options.Services.AddSingleton(dbContextOptions);
-            if (dbContextOptions.ResolveDbContextOptions != null) {
-                options.Services.AddDbContext<ExtendedIdentityDbContext<User, Role>>(dbContextOptions.ResolveDbContextOptions);
-            } else {
-                options.Services.AddDbContext<ExtendedIdentityDbContext<User, Role>>(dbContextOptions.ConfigureDbContext);
-            }
+            options.Services.AddDbContext<ExtendedIdentityDbContext<User, Role>>(dbContextOptions.ConfigureDbContext);
         }
 
         /// <summary>

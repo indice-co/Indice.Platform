@@ -1,11 +1,12 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 
 namespace Indice.Extensions.Configuration.Database
 {
     /// <summary>
     /// Represents database secrets as an <see cref="IConfigurationSource"/>.
     /// </summary>
-    internal class EntityConfigurationSource<TContext> : IConfigurationSource where TContext : IAppSettingsDbContext
+    internal class EntityConfigurationSource<TContext> : IConfigurationSource where TContext : DbContext, IAppSettingsDbContext
     {
         private readonly EntityConfigurationOptions _options;
 

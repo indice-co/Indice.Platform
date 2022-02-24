@@ -1,10 +1,11 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Indice.Extensions.Configuration.Database.Data.Models;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace Indice.Extensions.Configuration.Database
+namespace Indice.Extensions.Configuration.Database.Data
 {
     /// <summary>
-    /// Entity Framework mapping for type <see cref="AppSetting"/>.
+    /// Database configuration for <see cref="AppSetting"/> entity.
     /// </summary>
     public class AppSettingMap : IEntityTypeConfiguration<AppSetting>
     {

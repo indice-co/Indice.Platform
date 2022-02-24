@@ -1,14 +1,10 @@
-﻿namespace Indice.Extensions.Configuration.Database
+﻿namespace Indice.AspNetCore.Features.Settings.Models
 {
     /// <summary>
-    /// Models application settings stored in the database.
+    /// Models an application setting persisted in the database.
     /// </summary>
-    public class AppSetting
+    public class CreateAppSettingRequest
     {
-        /// <summary>
-        /// Schema name for table.
-        /// </summary>
-        public const string TableSchema = "config";
         /// <summary>
         /// The key of application setting.
         /// </summary>

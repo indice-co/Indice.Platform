@@ -6,9 +6,6 @@ using Microsoft.Extensions.Options;
 
 namespace Indice.AspNetCore.Features.Campaigns.Data
 {
-    /// <summary>
-    /// A <see cref="DbContext"/> that contains tables for campaign management system.
-    /// </summary>
     internal class CampaignsDbContext : DbContext
     {
         public CampaignsDbContext(DbContextOptions<CampaignsDbContext> options) : base(options) {

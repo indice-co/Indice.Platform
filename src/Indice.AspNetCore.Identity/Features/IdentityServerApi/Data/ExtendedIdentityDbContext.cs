@@ -1,5 +1,4 @@
-﻿using System;
-using Indice.AspNetCore.Identity.Api.Configuration;
+﻿using Indice.AspNetCore.Identity.Api.Configuration;
 using Indice.AspNetCore.Identity.Data.Models;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
@@ -11,12 +10,10 @@ namespace Indice.AspNetCore.Identity.Data
     /// <summary>
     /// An extended <see cref="DbContext"/> for the Identity framework.
     /// </summary>
-    public sealed class ExtendedIdentityDbContext<TUser, TRole> : IdentityDbContext<TUser, TRole>
+    public class ExtendedIdentityDbContext<TUser, TRole> : IdentityDbContext<TUser, TRole>
         where TUser : User, new()
         where TRole : Role, new()
     {
-        private readonly IConfiguration _configuration;
-
         /// <summary>
         /// Creates a new instance of <see cref="ExtendedIdentityDbContext{TUser, TRole}"/>.
         /// </summary>
@@ -25,8 +22,6 @@ namespace Indice.AspNetCore.Identity.Data
         /// <param name="webHostEnvironment">Provides information about the web hosting environment an application is running in.</param>
         /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
         public ExtendedIdentityDbContext(DbContextOptions<ExtendedIdentityDbContext<TUser, TRole>> dbContextOptions, IdentityServerApiEndpointsOptions options, IWebHostEnvironment webHostEnvironment, IConfiguration configuration) : base(dbContextOptions) {
-            /* https://docs.microsoft.com/en-us/ef/core/logging-events-diagnostics/events */
-            _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
             if (webHostEnvironment.IsDevelopment() && Database.EnsureCreated()) {
                 this.SeedAdminUser();
                 if (options.SeedDummyUsers) {
