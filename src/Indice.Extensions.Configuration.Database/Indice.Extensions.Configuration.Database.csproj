@@ -10,8 +10,8 @@
     <LangVersion>Latest</LangVersion>
     <Nullable>disable</Nullable>
     <TargetFrameworks>netcoreapp3.1;net5.0;net6.0</TargetFrameworks>
-    <VersionPrefix>5.0.0</VersionPrefix>
-    <!--<VersionSuffix>beta-01</VersionSuffix>-->
+    <VersionPrefix>6.0.0</VersionPrefix>
+    <VersionSuffix>beta-01</VersionSuffix>
   </PropertyGroup>
   <PropertyGroup Label="Package">
     <Company>Indice</Company>
