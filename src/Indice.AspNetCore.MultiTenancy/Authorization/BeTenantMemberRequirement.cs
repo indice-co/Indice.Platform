@@ -35,6 +35,11 @@ namespace Indice.AspNetCore.MultiTenancy.Authorization
         /// </summary>
         public int Level { get; set; }
 
+        /// <summary>
+        /// In case of user absense the policy will fallback and consider the current application (client_id) as the memberid
+        /// </summary>
+        public bool EnbaleApplicationMembership { get; set; } = false;
+
         /// <inheritdoc/>
         public override string ToString() => $"{nameof(BeTenantMemberRequirement)}: Requires access Level '{Level}' for the current user or client.";
     }
@@ -72,7 +77,7 @@ namespace Indice.AspNetCore.MultiTenancy.Authorization
             if (userIsAnonymous) {
                 return;
             }
-            var userId = context.User.FindFirstValue(JwtClaimTypesInternal.Subject);
+            var userId = context.User.FindFirstValue(JwtClaimTypesInternal.Subject) ?? (requirement.EnbaleApplicationMembership ? context.User.FindFirstValue(JwtClaimTypesInternal.ClientId) : null);
             if (_tenantAccessor.Tenant is null) {
                 // If you cannot determine if requirement succeeded or not, please do nothing.
                 return;
