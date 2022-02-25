@@ -10,7 +10,7 @@
     <SpaDistFolder>..\Indice.AspNetCore.Features.Campaigns.App\dist\campaigns-app</SpaDistFolder>
     <TargetFrameworks>netcoreapp3.1;net5.0;net6.0;</TargetFrameworks>
     <VersionPrefix>6.0.0</VersionPrefix>
-    <VersionSuffix>beta-01</VersionSuffix>
+    <VersionSuffix>beta-02</VersionSuffix>
     <LangVersion>Latest</LangVersion>
   </PropertyGroup>
   <PropertyGroup Label="Package">
@@ -46,7 +46,7 @@
     <None Remove="campaigns-ui-dist\index.html" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Indice.AspNetCore.EmbeddedUI" Version="5.2.2" />
+    <PackageReference Include="Indice.AspNetCore.EmbeddedUI" Version="6.0.0" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Indice.AspNetCore.EmbeddedUI\Indice.AspNetCore.EmbeddedUI.csproj" />
