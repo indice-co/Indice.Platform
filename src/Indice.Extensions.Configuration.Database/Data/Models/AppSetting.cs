@@ -1,10 +1,14 @@
-﻿namespace Indice.AspNetCore.Identity.Api.Models
+﻿namespace Indice.Extensions.Configuration.Database.Data.Models
 {
     /// <summary>
-    /// Models an application setting persisted in the database.
+    /// Models application settings stored in the database.
     /// </summary>
-    public class AppSettingInfo
+    public class AppSetting
     {
+        /// <summary>
+        /// Schema name for table.
+        /// </summary>
+        public const string TableSchema = "config";
         /// <summary>
         /// The key of application setting.
         /// </summary>

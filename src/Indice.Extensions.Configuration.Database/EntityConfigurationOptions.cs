@@ -1,11 +1,10 @@
-﻿using System;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 
-namespace Indice.Extensions.Configuration
+namespace Indice.Extensions.Configuration.Database
 {
     /// <summary>
-    /// Configuration options for <see cref="EntityConfigurationProvider"/>.
+    /// Configuration options for <see cref="EntityConfigurationProvider{T}"/>.
     /// </summary>
     public class EntityConfigurationOptions
     {
@@ -13,10 +12,6 @@ namespace Indice.Extensions.Configuration
         /// The <see cref="TimeSpan"/> to wait in between each attempt at polling the database for changes. Default is null which indicates no reloading.
         /// </summary>
         public TimeSpan? ReloadOnInterval { get; set; }
-        /// <summary>
-        /// Determines whether the application settings are reloaded when the corresponding database table changes. Default is true. This setting takes precedence over <see cref="ReloadOnInterval"/>.
-        /// </summary>
-        public bool ReloadOnDatabaseChange { get; set; } = true;
         /// <summary>
         /// Represents a set of key/value application configuration properties.
         /// </summary>

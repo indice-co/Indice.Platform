@@ -19,10 +19,6 @@ namespace Indice.AspNetCore.Identity.Data
         /// </summary>
         public Action<DbContextOptionsBuilder> ConfigureDbContext { get; set; }
         /// <summary>
-        /// Callback in DI to resolve the EF DbContextOptions. If set, ConfigureDbContext will not be used.
-        /// </summary>
-        public Action<IServiceProvider, DbContextOptionsBuilder> ResolveDbContextOptions { get; set; }
-        /// <summary>
         /// The expression used to filter the users list in the API.
         /// </summary>
         public static UserSearchFilterExpression<User, Role> UserSearchFilter { get; set; } = DefaultUserSearchFilterExpression;

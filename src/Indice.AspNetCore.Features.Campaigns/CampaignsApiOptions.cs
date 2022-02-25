@@ -13,7 +13,7 @@ namespace Indice.AspNetCore.Features.Campaigns
         internal IServiceCollection Services { get; set; }
         /// <summary>
         /// Configuration <see cref="Action"/> for internal <see cref="DbContext"/>. 
-        /// If not provided the underlying store defaults to SQL Server expecting the setting <i>ConnectionStrings:DefaultConnection</i> to be present.
+        /// If not provided the underlying store defaults to SQL Server expecting the setting <i>ConnectionStrings:CampaignsDbConnection</i> to be present.
         /// </summary>
         public Action<DbContextOptionsBuilder> ConfigureDbContext { get; set; }
         /// <summary>

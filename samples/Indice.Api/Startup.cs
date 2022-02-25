@@ -1,11 +1,14 @@
 using System;
 using System.Globalization;
 using System.Linq;
+using Indice.Api.Data;
 using Indice.AspNetCore.Features.Campaigns;
 using Indice.Configuration;
+using Indice.Extensions.Configuration.Database;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -32,7 +35,10 @@ namespace Indice.Api
             services.AddCorsConfig(Configuration)
                     .AddSwaggerConfig(Settings)
                     .AddDistributedMemoryCache()
-                    .AddAuthenticationConfig(Settings);
+                    .AddAuthenticationConfig(Settings)
+                    .AddDbContext<ApiDbContext>(builder => {
+                        builder.UseSqlServer(Configuration.GetConnectionString("SettingsDb"));
+                    });
             services.AddWorkerHostConfig(Configuration);
         }
 

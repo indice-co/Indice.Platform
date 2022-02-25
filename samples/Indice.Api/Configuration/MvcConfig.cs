@@ -20,6 +20,11 @@ namespace Microsoft.Extensions.DependencyInjection
                                          options.UseFilesLocal(fileOptions => fileOptions.Path = "uploads");
                                          options.UseEventDispatcherAzure((serviceProvider, eventDispatcherOptions) => { });
                                      })
+                                     .AddSettingsApiEndpoints(options => {
+                                         options.ApiPrefix = "api";
+                                         options.RequiredScope = "backoffice";
+                                         options.ConfigureDbContext = builder => builder.UseSqlServer(configuration.GetConnectionString("SettingsDb"));
+                                     })
                                      .AddJsonOptions(options => {
                                          options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
                                          options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;

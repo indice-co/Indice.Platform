@@ -1,4 +1,9 @@
+using System;
+using Indice.Api.Data;
+using Indice.Extensions.Configuration;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 
 namespace Indice.Api
@@ -11,6 +16,10 @@ namespace Indice.Api
             Host.CreateDefaultBuilder(args)
                 .ConfigureWebHostDefaults(webBuilder => {
                     webBuilder.UseStartup<Startup>();
+                })
+                .UseDatabaseConfiguration<ApiDbContext>((options, configuration) => {
+                    options.ReloadOnInterval = TimeSpan.FromMinutes(1);
+                    options.ConfigureDbContext = builder => builder.UseSqlServer(configuration.GetConnectionString("SettingsDb"));
                 });
     }
 }

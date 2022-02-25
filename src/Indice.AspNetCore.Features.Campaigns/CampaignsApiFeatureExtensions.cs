@@ -6,8 +6,8 @@ using Indice.AspNetCore.Features.Campaigns;
 using Indice.AspNetCore.Features.Campaigns.Controllers;
 using Indice.AspNetCore.Features.Campaigns.Data;
 using Indice.AspNetCore.Features.Campaigns.Formatters;
-using Indice.AspNetCore.Features.Campaigns.Mvc.ApplicationModels;
 using Indice.AspNetCore.Features.Campaigns.Services;
+using Indice.AspNetCore.Mvc.ApplicationModels;
 using Indice.AspNetCore.Swagger;
 using Indice.Events;
 using Indice.Extensions;
@@ -59,7 +59,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 options.FormatterMappings.SetMediaTypeMappingForFormat("json", MediaTypeNames.Application.Json);
                 options.FormatterMappings.SetMediaTypeMappingForFormat("xlsx", FileExtensions.GetMimeType("xlsx"));
                 options.OutputFormatters.Add(new XlsxCampaignStatisticsOutputFormatter());
-                options.Conventions.Add(new ApiPrefixControllerModelConvention(campaignsApiOptions));
+                options.Conventions.Add(new ApiPrefixControllerModelConvention("[campaignsApiPrefix]", campaignsApiOptions.ApiPrefix ?? "api"));
             });
             // Post configure JSON options.
             services.PostConfigure<JsonOptions>(options => {
@@ -90,7 +90,7 @@ namespace Microsoft.Extensions.DependencyInjection
             if (campaignsApiOptions.ConfigureDbContext != null) {
                 services.AddDbContext<CampaignsDbContext>(campaignsApiOptions.ConfigureDbContext);
             } else {
-                services.AddDbContext<CampaignsDbContext>((builder) => builder.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
+                services.AddDbContext<CampaignsDbContext>((builder) => builder.UseSqlServer(configuration.GetConnectionString("CampaignsDbConnection")));
             }
             // Configure authorization.
             services.AddAuthorizationCore(authOptions => {
