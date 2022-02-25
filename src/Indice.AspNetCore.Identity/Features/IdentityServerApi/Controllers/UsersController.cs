@@ -15,6 +15,7 @@ using Indice.AspNetCore.Identity.Api.Models;
 using Indice.AspNetCore.Identity.Api.Security;
 using Indice.AspNetCore.Identity.Data;
 using Indice.AspNetCore.Identity.Data.Models;
+using Indice.AspNetCore.Identity.Models;
 using Indice.Configuration;
 using Indice.Types;
 using Microsoft.AspNetCore.Authorization;
@@ -24,14 +25,12 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Options;
-using IEventService = Indice.AspNetCore.Identity.Api.Events.IEventService;
 
 namespace Indice.AspNetCore.Identity.Api.Controllers
 {
     /// <summary>
     /// Contains operations for managing applications users.
     /// </summary>
-    /// <response code="400">Bad Request</response>
     /// <response code="401">Unauthorized</response>
     /// <response code="403">Forbidden</response>
     /// <response code="500">Internal Server Error</response>
@@ -40,7 +39,6 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
     [Consumes(MediaTypeNames.Application.Json)]
     [ProblemDetailsExceptionFilter]
     [Produces(MediaTypeNames.Application.Json)]
-    [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest, type: typeof(ValidationProblemDetails))]
     [ProducesResponseType(statusCode: StatusCodes.Status401Unauthorized, type: typeof(ProblemDetails))]
     [ProducesResponseType(statusCode: StatusCodes.Status403Forbidden, type: typeof(ProblemDetails))]
     [Route("api/users")]
@@ -52,7 +50,7 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
         private readonly IPersistedGrantService _persistedGrantService;
         private readonly IClientStore _clientStore;
         private readonly IdentityServerApiEndpointsOptions _apiEndpointsOptions;
-        private readonly IEventService _eventService;
+        private readonly Indice.Services.IPlatformEventService _eventService;
         private readonly GeneralSettings _generalSettings;
         private readonly IStringLocalizer<UsersController> _localizer;
         private readonly ExtendedConfigurationDbContext _configurationDbContext;
@@ -81,7 +79,7 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
             IPersistedGrantService persistedGrantService,
             IClientStore clientStore,
             IdentityServerApiEndpointsOptions apiEndpointsOptions,
-            IEventService eventService,
+            Indice.Services.IPlatformEventService eventService,
             IOptions<GeneralSettings> generalSettings,
             IStringLocalizer<UsersController> localizer,
             ExtendedConfigurationDbContext configurationDbContext
@@ -145,7 +143,10 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
                 };
             if (options?.Search?.Length > 2) {
                 var userSearchFilterExpression = await IdentityDbContextOptions.UserSearchFilter(_dbContext, options.Search);
-                usersQuery = usersQuery.Where(userSearchFilterExpression);   
+                usersQuery = usersQuery.Where(userSearchFilterExpression);
+            }
+            if (options?.Filter?.UserId?.Any() == true) {
+                usersQuery = usersQuery.Where(x => options.Filter.UserId.Contains(x.Id));
             }
             return Ok(await usersQuery.ToResultSetAsync(options));
         }
@@ -216,9 +217,11 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
         /// </summary>
         /// <param name="request">Contains info about the user to be created.</param>
         /// <response code="201">Created</response>
+        /// <response code="400">Bad Request</response>
         [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme, Policy = IdentityServerApi.Policies.BeUsersWriter)]
         [HttpPost]
         [ProducesResponseType(statusCode: StatusCodes.Status201Created, type: typeof(SingleUserInfo))]
+        [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest, type: typeof(ValidationProblemDetails))]
         public async Task<IActionResult> CreateUser([FromBody] CreateUserRequest request) {
             var user = new User {
                 Id = $"{Guid.NewGuid()}",
@@ -232,7 +235,7 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
             if (string.IsNullOrEmpty(request.Password)) {
                 result = await _userManager.CreateAsync(user);
             } else {
-                result = await _userManager.CreateAsync(user, request.Password);
+                result = await _userManager.CreateAsync(user, request.Password, validatePassword: !request.BypassPasswordValidation.GetValueOrDefault());
             }
             if (!result.Succeeded) {
                 return BadRequest(result.Errors.ToValidationProblemDetails());
@@ -250,24 +253,8 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
             if (claims.Any()) {
                 await _userManager.AddClaimsAsync(user, claims);
             }
-            var response = new SingleUserInfo {
-                Id = user.Id,
-                UserName = user.UserName,
-                Email = user.Email,
-                PhoneNumber = user.PhoneNumber,
-                PasswordExpirationPolicy = user.PasswordExpirationPolicy,
-                IsAdmin = user.Admin,
-                TwoFactorEnabled = user.TwoFactorEnabled,
-                EmailConfirmed = user.EmailConfirmed,
-                PhoneNumberConfirmed = user.PhoneNumberConfirmed,
-                Claims = user.Claims?.Select(x => new ClaimInfo {
-                    Id = x.Id,
-                    Type = x.ClaimType,
-                    Value = x.ClaimValue
-                })
-                .ToList()
-            };
-            await _eventService.Raise(new UserCreatedEvent(response));
+            var response = SingleUserInfo.FromUser(user);
+            await _eventService.Publish(new UserCreatedEvent(response));
             return CreatedAtAction(nameof(GetUser), Name, new { userId = user.Id }, response);
         }
 
@@ -296,7 +283,7 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
             user.Admin = request.IsAdmin;
             user.EmailConfirmed = request.EmailConfirmed;
             user.PhoneNumberConfirmed = request.PhoneNumberConfirmed;
-            foreach (var requiredClaim in request.Claims) {
+            foreach (var requiredClaim in request.Claims ?? Enumerable.Empty<BasicClaimInfo>()) {
                 var claim = user.Claims.SingleOrDefault(x => x.ClaimType == requiredClaim.Type);
                 if (claim != null) {
                     claim.ClaimValue = requiredClaim.Value;
@@ -342,6 +329,7 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
         /// Resends the confirmation email for a given user.
         /// </summary>
         /// <response code="200">No Content</response>
+        /// <response code="400">Bad Request</response>
         /// <response code="404">Not Found</response>
         [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme, Policy = IdentityServerApi.Policies.BeUsersWriter)]
         [HttpPost("{userId}/email/confirmation")]
@@ -359,7 +347,7 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
             }
             var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
             var eventInfo = user.ToBasicUserInfo();
-            await _eventService.Raise(new UserEmailConfirmationResendEvent(eventInfo, token));
+            await _eventService.Publish(new UserEmailConfirmationResendEvent(eventInfo, token));
             return NoContent();
         }
 
@@ -568,11 +556,9 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
         /// </summary>
         /// <param name="userId">The id of the user.</param>
         /// <response code="200">OK</response>
-        /// <response code="404">Not Found</response>
         [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme, Policy = IdentityServerApi.Policies.BeUsersReader)]
         [HttpGet("{userId}/applications")]
         [ProducesResponseType(statusCode: StatusCodes.Status200OK, type: typeof(ResultSet<UserClientInfo>))]
-        [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
         public async Task<IActionResult> GetUserApplications([FromRoute] string userId) {
             var userGrants = await _persistedGrantService.GetAllGrantsAsync(userId);
             var clients = new List<UserClientInfo>();
@@ -595,6 +581,35 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
                 }
             }
             return Ok(clients.ToResultSet());
+        }
+
+        /// <summary>
+        /// Gets a list of the devices of the specified user.
+        /// </summary>
+        /// <param name="userId">The id of the user.</param>
+        /// <response code="200">OK</response>
+        [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme, Policy = IdentityServerApi.Policies.BeUsersReader)]
+        [HttpGet("{userId}/devices")]
+        [ProducesResponseType(statusCode: StatusCodes.Status200OK, type: typeof(ResultSet<DeviceInfo>))]
+        public async Task<IActionResult> GetUserDevices([FromRoute] string userId) {
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null) {
+                return NotFound();
+            }
+            var devices = await _userManager.GetDevicesAsync(user);
+            var response = devices.Select(device => new DeviceInfo {
+                Data = device.Data,
+                DateCreated = device.DateCreated.Value,
+                DeviceId = device.DeviceId,
+                IsPushNotificationsEnabled = device.IsPushNotificationsEnabled,
+                LastSignInDate = device.LastSignInDate,
+                Model = device.Model,
+                Name = device.Name,
+                OsVersion = device.OsVersion,
+                Platform = device.Platform
+            })
+            .ToResultSet();
+            return Ok(response);
         }
 
         /// <summary>
@@ -656,11 +671,13 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
         /// <param name="userId">The id of the user to block.</param>
         /// <param name="request">Contains info about whether to block the user or not.</param>
         /// <response code="204">No Content</response>
+        /// <response code="400">Bad Request</response>
         /// <response code="404">Not Found</response>
         [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme, Policy = IdentityServerApi.Policies.BeUsersWriter)]
         [CacheResourceFilter(DependentPaths = new string[] { "{userId}" })]
         [HttpPut("{userId}/set-block")]
         [ProducesResponseType(statusCode: StatusCodes.Status204NoContent, type: typeof(void))]
+        [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ValidationProblemDetails))]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
         public async Task<IActionResult> SetUserBlock([FromRoute] string userId, [FromBody] SetUserBlockRequest request) {
             var user = await _dbContext.Users.SingleOrDefaultAsync(x => x.Id == userId);
@@ -684,11 +701,13 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
         /// </summary>
         /// <param name="userId">The id of the user to unlock.</param>
         /// <response code="204">No Content</response>
+        /// <response code="400">Bad Request</response>
         /// <response code="404">Not Found</response>
         [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme, Policy = IdentityServerApi.Policies.BeUsersWriter)]
         [CacheResourceFilter(DependentPaths = new string[] { "{userId}" })]
         [HttpPut("{userId}/unlock")]
         [ProducesResponseType(statusCode: StatusCodes.Status204NoContent, type: typeof(void))]
+        [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest, type: typeof(ValidationProblemDetails))]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
         public async Task<IActionResult> UnlockUser([FromRoute] string userId) {
             var user = await _userManager.FindByIdAsync(userId);
@@ -712,35 +731,27 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
         /// <param name="userId">The identifier of the user.</param>
         /// <param name="request">Contains info about the user password to change.</param>
         /// <response code="204">No Content</response>
+        /// <response code="400">Bad Request</response>
         /// <response code="404">Not Found</response>
         [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme, Policy = IdentityServerApi.Policies.BeUsersWriter)]
         [CacheResourceFilter(DependentPaths = new string[] { "{userId}" })]
         [HttpPut("{userId}/set-password")]
         [ProducesResponseType(statusCode: StatusCodes.Status204NoContent, type: typeof(void))]
+        [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest, type: typeof(ValidationProblemDetails))]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
         public async Task<IActionResult> SetPassword([FromRoute] string userId, [FromBody] SetPasswordRequest request) {
             var user = await _dbContext.Users.SingleOrDefaultAsync(x => x.Id == userId);
             if (user == null) {
                 return NotFound();
             }
-            var hasPassword = await _userManager.HasPasswordAsync(user);
-            IdentityResult result;
-            if (hasPassword) {
-                result = await _userManager.RemovePasswordAsync(user);
-                if (!result.Succeeded) {
-                    return BadRequest(result.Errors.ToValidationProblemDetails());
-                }
-            }
-            result = await _userManager.AddPasswordAsync(user, request.Password);
+            var result = await _userManager.ResetPasswordAsync(user, request.Password, validatePassword: !request.BypassPasswordValidation.GetValueOrDefault());
             if (!result.Succeeded) {
                 return BadRequest(result.Errors.ToValidationProblemDetails());
             }
-            if (request.ChangePasswordAfterFirstSignIn.HasValue && request.ChangePasswordAfterFirstSignIn.Value == true) {
+            var @event = new PasswordChangedEvent(SingleUserInfo.FromUser(user));
+            await _eventService.Publish(@event);
+            if (request.ChangePasswordAfterFirstSignIn == true) {
                 await _userManager.SetPasswordExpiredAsync(user, true);
-            }
-            result = await _userManager.SetLockoutEndDateAsync(user, null);
-            if (!result.Succeeded) {
-                return BadRequest(result.Errors.ToValidationProblemDetails());
             }
             return NoContent();
         }

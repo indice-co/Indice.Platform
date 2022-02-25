@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Text.Json;
 
-namespace Indice.Hosting.EntityFrameworkCore
+namespace Indice.Hosting.Tasks.Data.Models
 {
     /// <summary>
     /// Tracks a queue message task
@@ -49,6 +49,10 @@ namespace Indice.Hosting.EntityFrameworkCore
         /// </summary>
         public string Errors { get; set; }
         /// <summary>
+        /// The last time an error occured.
+        /// </summary>
+        public DateTimeOffset? LastErrorDate { get; set; }
+        /// <summary>
         /// The payload.
         /// </summary>
         public string Payload { get; set; }
@@ -56,16 +60,21 @@ namespace Indice.Hosting.EntityFrameworkCore
         /// The status.
         /// </summary>
         public double Progress { get; set; }
+        /// <summary>
+        /// If this is set to false the schedule will be disabled
+        /// </summary>
+        public bool? Enabled { get; set; }
 
         /// <summary>
         /// Generates the DTO for this <see cref="DbScheduledTask"/>.
         /// </summary>
         /// <param name="options">Provides options to be used with <see cref="JsonSerializer"/>.</param>
-        public ScheduledTask<TState> ToModel<TState>(JsonSerializerOptions options = null) where TState : class => new ScheduledTask<TState> {
+        public ScheduledTask<TState> ToModel<TState>(JsonSerializerOptions options = null) where TState : class => new() {
             Id = Id,
             Description = Description,
             Group = Group,
             Errors = Errors,
+            LastErrorDate = LastErrorDate,
             ExecutionCount = ExecutionCount,
             LastExecution = LastExecution,
             NextExecution = NextExecution,
@@ -73,7 +82,8 @@ namespace Indice.Hosting.EntityFrameworkCore
             State = JsonSerializer.Deserialize<TState>(Payload, options ?? WorkerJsonOptions.GetDefaultSettings()),
             Status = Status,
             Type = Type,
-            WorkerId = WorkerId
+            WorkerId = WorkerId,
+            Enabled = Enabled ?? true,
         };
 
         internal DbScheduledTask From<TState>(ScheduledTask<TState> model, JsonSerializerOptions options = null) where TState : class {

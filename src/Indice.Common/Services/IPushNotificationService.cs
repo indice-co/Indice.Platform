@@ -1,6 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json;
 using System.Threading.Tasks;
+using Indice.Serialization;
 using Indice.Types;
 
 namespace Indice.Services
@@ -14,7 +17,7 @@ namespace Indice.Services
         /// Register a device to Azure notification hub.
         /// </summary>
         /// <param name="deviceId">The device id to register.</param>
-        /// <param name="pnsHandle">Platform Notification Service(pns) obtained from client platform.</param>
+        /// <param name="pnsHandle">Platform Notification Service(PNS) obtained from client platform.</param>
         /// <param name="devicePlatform">Client device platform.</param>
         /// <param name="tags">Tags are used to route notifications to the correct set of device handles.</param>
         Task Register(string deviceId, string pnsHandle, DevicePlatform devicePlatform, IList<string> tags);
@@ -26,10 +29,12 @@ namespace Indice.Services
         /// <summary>
         /// Send notifications to specified tags.
         /// </summary>
-        /// <param name="message">Message of notification.</param>
+        /// <param name="title">Title of notification.</param>
+        /// <param name="body">Body of notification.</param>
         /// <param name="tags">Tags are used to route notifications to the correct set of device handles.</param>
         /// <param name="data">Data passed to mobile client, not visible to notification toast.</param>
-        Task SendAsync(string message, IList<string> tags, string data = null);
+        /// <param name="classification">The notification's type.</param>
+        Task SendAsync(string title, string body, IList<string> tags, string data = null, string classification = null);
     }
 
     /// <summary>
@@ -42,53 +47,87 @@ namespace Indice.Services
         /// </summary>
         /// <param name="service">Instance of <see cref="IPushNotificationService"/>.</param>
         /// <param name="deviceId">DeviceId to register.</param>
-        /// <param name="pnsHandle">Platform notification service (pns) obtained from client platform.</param>
+        /// <param name="pnsHandle">Platform notification service (PNS) obtained from client platform.</param>
         /// <param name="devicePlatform">Client device platform.</param>
-        /// <param name="userId">UserId to be passed as tag.</param>
+        /// <param name="userTag">UserId to be passed as tag.</param>
         /// <param name="tags">Optional tag parameters.</param>
-        public static async Task Register(this IPushNotificationService service, string deviceId, string pnsHandle, DevicePlatform devicePlatform, string userId, params string[] tags) =>
-            await service.Register(deviceId, pnsHandle, devicePlatform, new string[] { userId }.Concat(tags ?? new string[0]).ToList());
+        public static Task Register(this IPushNotificationService service, string deviceId, string pnsHandle, DevicePlatform devicePlatform, string userTag, params string[] tags) =>
+            service.Register(deviceId, pnsHandle, devicePlatform, new string[] { userTag }.Concat(tags ?? Array.Empty<string>()).ToList());
 
         /// <summary>
-        /// Send notifications to devices registered to userId.
+        /// Send notifications to devices registered to userId with payload data and classification.
         /// </summary>
         /// <param name="service">Instance of <see cref="IPushNotificationService"/>.</param>
-        /// <param name="message">Message of notification.</param>
-        /// <param name="userId">UserId to be passed as tag.</param>
-        /// <param name="tags">Optional tag parameters.</param>
-        public static async Task SendAsync(this IPushNotificationService service, string message, string userId, params string[] tags) =>
-            await service.SendAsync(message, new string[] { userId }.Concat(tags ?? new string[0]).ToList());
-
-        /// <summary>
-        /// Send notifications to devices registered to userId.
-        /// </summary>
-        /// <param name="service">Instance of <see cref="IPushNotificationService"/>.</param>
-        /// <param name="message">Message of notification.</param>
+        /// <param name="title">Message of notification.</param>
+        /// <param name="body">Body of notification.</param>
         /// <param name="data">Data passed to mobile client, not visible to notification toast.</param>
-        /// <param name="userId">UserId to be passed as tag.</param>
+        /// <param name="userTag">UserId to be passed as tag.</param>
+        /// <param name="classification">The type of the Push Notification.</param>
         /// <param name="tags">Optional tag parameters.</param>
-        public static async Task SendAsync(this IPushNotificationService service, string message, string data, string userId, params string[] tags) =>
-            await service.SendAsync(message, new string[] { userId }.Concat(tags ?? new string[0]).ToList(), data);
-    }
+        public static Task SendAsync(this IPushNotificationService service, string title, string body, string data, string userTag, string classification = null, params string[] tags) =>
+            service.SendAsync(title, body, new string[] { userTag }.Concat(tags ?? Array.Empty<string>()).ToList(), data, classification);
 
-    /// <summary>
-    /// Default push notification service implementation for clients who don't support it.
-    /// </summary>
-    public class DefaultPushNotificationService : IPushNotificationService
-    {
-        ///<inheritdoc/>
-        public Task Register(string deviceId, string pnsHandle, DevicePlatform devicePlatform, IList<string> tags) {
-            throw new System.NotImplementedException();
-        }
+        /// <summary>
+        /// Send notifications to devices registered to userId with payload data and classification.
+        /// </summary>
+        /// <typeparam name="TData">The type of data sent in the notification payload.</typeparam>
+        /// <param name="service">Instance of <see cref="IPushNotificationService"/>.</param>
+        /// <param name="title">Message of notification.</param>
+        /// <param name="body">Body of notification.</param>
+        /// <param name="data">Data passed to mobile client, not visible to notification toast.</param>
+        /// <param name="userTag">UserId to be passed as tag.</param>
+        /// <param name="classification">The type of the Push Notification.</param>
+        /// <param name="tags">Optional tag parameters.</param>
+        public static Task SendAsync<TData>(this IPushNotificationService service, string title, string body, TData data, string userTag, string classification = null, params string[] tags) where TData : class =>
+            service.SendAsync(title, body, data != null ? JsonSerializer.Serialize(data, JsonSerializerOptionDefaults.GetDefaultSettings()) : null, userTag, classification, tags);
 
-        ///<inheritdoc/>
-        public Task SendAsync(string message, IList<string> tags, string data = null) {
-            throw new System.NotImplementedException();
-        }
+        /// <summary>
+        /// Sends a notification to all registered devices.
+        /// </summary>
+        /// <param name="service">Instance of <see cref="IPushNotificationService"/>.</param>
+        /// <param name="title">Message of notification.</param>
+        /// <param name="body">Body of notification.</param>
+        /// <param name="data">Data passed to mobile client, not visible to notification toast.</param>
+        /// <param name="classification">The type of the Push Notification.</param>
+        public static Task BroadcastAsync(this IPushNotificationService service, string title, string body, string data, string classification = null) =>
+            service.SendAsync(title, body, new List<string>(), data, classification);
 
-        ///<inheritdoc/>
-        public Task UnRegister(string deviceId) {
-            throw new System.NotImplementedException();
+        /// <summary>
+        /// Sends a notification to all registered devices.
+        /// </summary>
+        /// <typeparam name="TData">The type of data sent in the notification payload.</typeparam>
+        /// <param name="service">Instance of <see cref="IPushNotificationService"/>.</param>
+        /// <param name="title">Message of notification.</param>
+        /// <param name="body">Body of notification.</param>
+        /// <param name="data">Data passed to mobile client, not visible to notification toast.</param>
+        /// <param name="classification">The type of the Push Notification.</param>
+        public static Task BroadcastAsync<TData>(this IPushNotificationService service, string title, string body, TData data, string classification = null) where TData : class =>
+            service.BroadcastAsync(title, body, data != null ? JsonSerializer.Serialize(data, JsonSerializerOptionDefaults.GetDefaultSettings()) : null, classification);
+
+        /// <summary>
+        /// Send notifications to specified tags.
+        /// </summary>
+        /// <param name="service">Instance of <see cref="IPushNotificationService"/>.</param>
+        /// <param name="title">Message of notification.</param>
+        /// <param name="body">Body of notification.</param>
+        /// <param name="tags">Tags are used to route notifications to the correct set of device handles.</param>
+        /// <param name="data">Data passed to mobile client, not visible to notification toast.</param>
+        /// <param name="classification">The notification's type.</param>
+        public static Task SendAsync(this IPushNotificationService service, string title, string body, IList<string> tags, string data = null, string classification = null) =>
+            service.SendAsync(title, body, tags, data, classification);
+
+        /// <summary>
+        /// Send notification to devices registered to userId with optional data as payload.
+        /// </summary>
+        /// <param name="service">Instance of <see cref="IPushNotificationService"/>.</param>
+        /// <param name="configurePushNotificationMessage">The delegate that will be used to build the <see cref="PushNotificationMessage"/>.</param>
+        public static async Task SendAsync(this IPushNotificationService service, Func<PushNotificationMessageBuilder, PushNotificationMessageBuilder> configurePushNotificationMessage) {
+            if (configurePushNotificationMessage == null) {
+                throw new ArgumentNullException(nameof(configurePushNotificationMessage));
+            }
+            var pushNotificationMessageBuilder = configurePushNotificationMessage(new PushNotificationMessageBuilder());
+            var pushNotificationMessage = pushNotificationMessageBuilder.Build();
+            await service.SendAsync(pushNotificationMessage.Title, pushNotificationMessage.Body, pushNotificationMessage.Data, pushNotificationMessage.UserTag, pushNotificationMessage.Classification, pushNotificationMessage.Tags.ToArray());
         }
     }
 }

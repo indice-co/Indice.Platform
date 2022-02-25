@@ -80,9 +80,13 @@ namespace Indice.AspNetCore.Identity.Data.Models
         /// </summary>
         public virtual ICollection<IdentityUserClaim<string>> Claims { get; } = new List<IdentityUserClaim<string>>();
         /// <summary>
-        /// Navigation property for this users login accounts.
+        /// Navigation property for the user's login accounts.
         /// </summary>
         public virtual ICollection<IdentityUserLogin<string>> Logins { get; } = new List<IdentityUserLogin<string>>();
+        /// <summary>
+        /// Navigation property for the user's registered devices.
+        /// </summary>
+        public virtual ICollection<UserDevice> Devices { get; } = new List<UserDevice>();
 
         /// <summary>
         /// Calculates the next date that the user must change his password. Th
@@ -119,13 +123,13 @@ namespace Indice.AspNetCore.Identity.Data.Models
     /// <summary>
     /// Helper methods for <see cref="User"/> type.
     /// </summary>
-    public static class DbUserExtensions
+    public static class UserExtensions
     {
         /// <summary>
         /// Adds the developer-totp claim to the provided user instance and provides a random 6-digit code.
         /// </summary>
         /// <param name="user">Represents a user in the Identity system.</param>
-        public static void GenerateDeveloperTotp(this User user) {
+        public static void AddDeveloperTotp(this User user) {
             var developerTotpClaims = user.Claims.Where(x => x.ClaimType == BasicClaimTypes.DeveloperTotp).ToList();
             if (developerTotpClaims?.Count() > 0) {
                 foreach (var claim in developerTotpClaims) {

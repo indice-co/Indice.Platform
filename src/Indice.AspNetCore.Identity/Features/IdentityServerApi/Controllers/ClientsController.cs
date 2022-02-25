@@ -21,6 +21,7 @@ using Indice.AspNetCore.Identity.Data;
 using Indice.AspNetCore.Identity.Data.Models;
 using Indice.Configuration;
 using Indice.Security;
+using Indice.Services;
 using Indice.Types;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -38,7 +39,6 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
     /// <response code="400">Bad Request</response>
     /// <response code="401">Unauthorized</response>
     /// <response code="403">Forbidden</response>
-    /// <response code="500">Internal Server Error</response>
     [ApiController]
     [ApiExplorerSettings(GroupName = "identity")]
     [ProblemDetailsExceptionFilter]
@@ -50,7 +50,7 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
     {
         private readonly ExtendedConfigurationDbContext _configurationDbContext;
         private readonly GeneralSettings _generalSettings;
-        private readonly IEventService _eventService;
+        private readonly IPlatformEventService _eventService;
         private readonly IdentityServerApiEndpointsOptions _apiEndpointsOptions;
         /// <summary>
         /// The name of the controller.
@@ -67,7 +67,7 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
         public ClientsController(
             ExtendedConfigurationDbContext configurationDbContext,
             IOptionsSnapshot<GeneralSettings> generalSettings,
-            IEventService eventService,
+            IPlatformEventService eventService,
             IdentityServerApiEndpointsOptions apiEndpointsOptions
         ) {
             _configurationDbContext = configurationDbContext ?? throw new ArgumentNullException(nameof(configurationDbContext));
@@ -167,6 +167,8 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
                     UserCodeType = x.UserCodeType,
                     DeviceCodeLifetime = x.DeviceCodeLifetime,
                     SlidingRefreshTokenLifetime = x.SlidingRefreshTokenLifetime,
+                    EnableLocalLogin = x.EnableLocalLogin,
+                    IdentityProviderRestrictions = x.IdentityProviderRestrictions.Select(x => x.Provider),
                     ApiResources = x.AllowedScopes.Join(
                         _configurationDbContext.ApiResources.SelectMany(x => x.Scopes),
                         clientScope => clientScope.Scope,
@@ -209,13 +211,20 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
         /// </summary>
         /// <param name="request">Contains info about the client to be created.</param>
         /// <response code="201">Created</response>
+        /// <response code="400">Bad Request</response>
         [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme, Policy = IdentityServerApi.Policies.BeClientsWriter)]
         [CacheResourceFilter(DependentStaticPaths = new string[] { "api/dashboard/summary" })]
         [Consumes(MediaTypeNames.Application.Json)]
         [HttpPost]
         [Produces(MediaTypeNames.Application.Json)]
         [ProducesResponseType(statusCode: StatusCodes.Status201Created, type: typeof(ClientInfo))]
+        [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest, type: typeof(ValidationProblemDetails))]
         public async Task<IActionResult> CreateClient([FromBody] CreateClientRequest request) {
+            var clientIdExists = (await _configurationDbContext.Clients.CountAsync(x => x.ClientId == request.ClientId)) > 0;
+            if (clientIdExists) {
+                ModelState.AddModelError(nameof(request.ClientId), $"Client with id '{request.ClientId}' already exists.");
+                return BadRequest(new ValidationProblemDetails(ModelState));
+            }
             var client = CreateForType(request.ClientType, _generalSettings.Authority, request);
             _configurationDbContext.Clients.Add(client);
             _configurationDbContext.ClientUsers.Add(new ClientUser {
@@ -223,17 +232,8 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
                 UserId = UserId
             });
             await _configurationDbContext.SaveChangesAsync();
-            var response = new ClientInfo {
-                ClientId = client.ClientId,
-                ClientName = client.ClientName,
-                ClientUri = client.ClientUri,
-                Description = client.Description,
-                AllowRememberConsent = client.AllowRememberConsent,
-                Enabled = client.Enabled,
-                LogoUri = client.LogoUri,
-                RequireConsent = client.RequireConsent
-            };
-            await _eventService.Raise(new ClientCreatedEvent(response));
+            var response = ClientInfo.FromClient(client);
+            await _eventService.Publish(new ClientCreatedEvent(response));
             return CreatedAtAction(nameof(GetClient), new { clientId = client.ClientId }, response);
         }
 
@@ -252,7 +252,7 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
         [ProducesResponseType(statusCode: StatusCodes.Status204NoContent, type: typeof(void))]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
         public async Task<IActionResult> UpdateClient([FromRoute] string clientId, [FromBody] UpdateClientRequest request) {
-            var client = await _configurationDbContext.Clients.Include(x => x.Properties).SingleOrDefaultAsync(x => x.ClientId == clientId);
+            var client = await _configurationDbContext.Clients.Include(x => x.Properties).Include(x => x.IdentityProviderRestrictions).SingleOrDefaultAsync(x => x.ClientId == clientId);
             if (client == null) {
                 return NotFound();
             }
@@ -289,8 +289,14 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
             client.UserCodeType = request.UserCodeType;
             client.UserSsoLifetime = request.UserSsoLifetime;
             client.SlidingRefreshTokenLifetime = request.SlidingRefreshTokenLifetime;
+            client.EnableLocalLogin = request.EnableLocalLogin;
+            client.IdentityProviderRestrictions.RemoveAll(x => true);
+            client.IdentityProviderRestrictions.AddRange(request.IdentityProviderRestrictions.Select(provider => new ClientIdPRestriction { 
+                Provider = provider,
+                Client = client
+            }));
             var clientTranslations = client.Properties?.SingleOrDefault(x => x.Key == IdentityServerApi.ObjectTranslationKey);
-            if (clientTranslations == null) {
+            if (clientTranslations is null) {
                 AddClientTranslations(client, request.Translations.ToJson());
             } else {
                 clientTranslations.Value = request.Translations.ToJson() ?? string.Empty;
@@ -381,11 +387,12 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
         [ProducesResponseType(statusCode: StatusCodes.Status204NoContent, type: typeof(void))]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
         public async Task<IActionResult> UpdateClientUrls([FromRoute] string clientId, [FromBody] UpdateClientUrls request) {
-            var client = await _configurationDbContext.Clients
-                                                      .Include(x => x.AllowedCorsOrigins)
-                                                      .Include(x => x.RedirectUris)
-                                                      .Include(x => x.PostLogoutRedirectUris)
-                                                      .SingleOrDefaultAsync(x => x.ClientId == clientId);
+            var client = await _configurationDbContext
+                .Clients
+                .Include(x => x.AllowedCorsOrigins)
+                .Include(x => x.RedirectUris)
+                .Include(x => x.PostLogoutRedirectUris)
+                .SingleOrDefaultAsync(x => x.ClientId == clientId);
             if (client == null) {
                 return NotFound();
             }
@@ -395,7 +402,7 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
             if (request.AllowedCorsOrigins?.Count() > 0) {
                 client.AllowedCorsOrigins.AddRange(request.AllowedCorsOrigins.Select(x => new ClientCorsOrigin {
                     ClientId = client.Id,
-                    Origin = x
+                    Origin = x.TrimEnd('/')
                 }));
             }
             if (request.RedirectUris?.Count() > 0) {
@@ -794,7 +801,7 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
         /// <param name="clientType">The type of the client.</param>
         /// <param name="authorityUri">The IdentityServer instance URI.</param>
         /// <param name="clientRequest">Client information provided by the user.</param>
-        private Client CreateForType(ClientType clientType, string authorityUri, CreateClientRequest clientRequest) {
+        private static Client CreateForType(ClientType clientType, string authorityUri, CreateClientRequest clientRequest) {
             var client = new Client {
                 ClientId = clientRequest.ClientId,
                 ClientName = clientRequest.ClientName,
@@ -803,7 +810,9 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
                 LogoUri = clientRequest.LogoUri,
                 RequireConsent = clientRequest.RequireConsent,
                 BackChannelLogoutSessionRequired = true,
-                AllowedScopes = clientRequest.IdentityResources.Union(clientRequest.ApiResources).Select(scope => new ClientScope { Scope = scope }).ToList()
+                AllowedScopes = clientRequest.IdentityResources.Union(clientRequest.ApiResources).Select(scope => new ClientScope { Scope = scope }).ToList(),
+                EnableLocalLogin = true,
+                Enabled = true
             };
             if (!string.IsNullOrEmpty(clientRequest.RedirectUri)) {
                 client.RedirectUris = new List<ClientRedirectUri> {
@@ -901,7 +910,7 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
         /// <remarks>If the parameter translations is null, string.Empty will be persisted.</remarks>
         /// <param name="client">The <see cref="Client"/></param>
         /// <param name="translations">The json string with the translations</param>
-        private void AddClientTranslations(Client client, string translations) {
+        private static void AddClientTranslations(Client client, string translations) {
             client.Properties ??= new List<ClientProperty>();
             client.Properties.Add(new ClientProperty {
                 Key = IdentityServerApi.ObjectTranslationKey,

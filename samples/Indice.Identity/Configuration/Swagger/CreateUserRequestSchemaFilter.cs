@@ -9,15 +9,38 @@ namespace Indice.Identity.Configuration
     {
         public void Apply(OpenApiSchema schema, SchemaFilterContext context) {
             if (context.Type == typeof(CreateUserRequest)) {
-                var example = new CreateUserRequest {
+                schema.Example = new CreateUserRequest {
                     FirstName = "Georgios",
                     LastName = "Manoltzas",
                     Email = "g.manoltzas@indice.gr",
                     PhoneNumber = "6992731575",
                     UserName = "gmanoltzas",
-                    ChangePasswordAfterFirstSignIn = true
-                };
-                schema.Example = example.ToOpenApiAny();
+                    ChangePasswordAfterFirstSignIn = true,
+                    Claims = new System.Collections.Generic.List<BasicClaimInfo> {
+                        new BasicClaimInfo {
+                            Type = IdentityModel.JwtClaimTypes.Locale,
+                            Value = "el"
+                        }
+                    }
+                }
+                .ToOpenApiAny();
+                //schema.Example = new {
+                //    Test = "the string",
+                //    Age = 23,
+                //    Date = System.DateTimeOffset.Now,
+                //    Dictionary = new Dictionary<string, CreateUserRequest> {
+                //        ["One"] = example
+                //    },
+                //    YetAnotherDictionary = new TranslationDictionary<string> {
+                //        ["en"] = "Yes"
+                //    },
+                //    Test2 = new Dictionary<string, int> {
+                //        ["The"] = 1,
+                //        ["First"] = 2,
+                //        ["Thing"] = 2,
+                //    }
+                //}
+                //.ToOpenApiAny();
             }
         }
     }

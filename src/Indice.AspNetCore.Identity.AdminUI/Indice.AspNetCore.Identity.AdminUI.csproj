@@ -8,20 +8,22 @@
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <GenerateEmbeddedFilesManifest>true</GenerateEmbeddedFilesManifest>
     <SpaDistFolder>..\Indice.AspNetCore.Identity.AdminUI.App\dist\indice_admin_ui</SpaDistFolder>
-    <TargetFrameworks>netcoreapp3.1;net5.0</TargetFrameworks>
-    <VersionPrefix>5.0.6</VersionPrefix>
+    <TargetFrameworks>netcoreapp3.1;net5.0;net6.0;</TargetFrameworks>
+    <VersionPrefix>6.0.0</VersionPrefix>
+    <!--<VersionSuffix>beta-01</VersionSuffix>-->
     <LangVersion>Latest</LangVersion>
   </PropertyGroup>
   <PropertyGroup Label="Package">
+    <IsPackable>true</IsPackable>
     <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
     <Company>Indice</Company>
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <!--<GeneratePackageOnBuild>true</GeneratePackageOnBuild>-->
     <PackageIcon>icon-310.png</PackageIcon>
     <PackageId>Indice.AspNetCore.Identity.AdminUI</PackageId>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/indice-co/Indice.AspNet</PackageProjectUrl>
-    <PackageReleaseNotes>Bug fixing.</PackageReleaseNotes>
+    <PackageReleaseNotes>Add translate inputs.</PackageReleaseNotes>
     <PackageTags>AspNetCore;IdentityServer;AdminUI</PackageTags>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <RepositoryType>git</RepositoryType>
@@ -34,21 +36,21 @@
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
-  </ItemGroup>
-  <ItemGroup Condition=" '$(TargetFramework)' != 'netcoreapp3.1' ">
-    <PackageReference Include="Microsoft.Extensions.FileProviders.Embedded" Version="5.0.0" />
-  </ItemGroup>
-  <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
-    <PackageReference Include="Microsoft.Extensions.FileProviders.Embedded" Version="3.1.13" />
-  </ItemGroup>
-  <ItemGroup>
     <EmbeddedResource Include="admin-ui-dist/**/*" />
   </ItemGroup>
   <!-- Use Visual Studio npm package if it is installed. -->
   <PropertyGroup Condition="Exists('$(VsInstallRoot)\Web\External\npm.cmd')">
     <Path>$(Path)$(VsInstallRoot)\Web\External\;</Path>
   </PropertyGroup>
+  <ItemGroup>
+    <None Remove="admin-ui-dist\index.html" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Indice.AspNetCore.EmbeddedUI" Version="6.0.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Indice.AspNetCore.EmbeddedUI\Indice.AspNetCore.EmbeddedUI.csproj" />
+  </ItemGroup>
   <ItemGroup>
     <SpaSourceFolder Include="..\Indice.AspNetCore.Identity.AdminUI.App" />
   </ItemGroup>
@@ -59,13 +61,13 @@
     </Exec>
     <Error Condition="'$(ErrorCode)' != '0'" Text="Node.js/npm is required to build this project. To continue, please install Node.js from https://nodejs.org/ or Visual Studio Installer, and then restart your command prompt or IDE." />
   </Target>
-  <!-- Run 'npm run build:template' in order to build the admin ui app. -->
+   <!--Run 'npm run build:template' in order to build the admin ui app.--> 
   <Target Name="SpaBuild" BeforeTargets="Build" Condition="!Exists('$(SpaDistFolder)')">
     <Exec Command="npm run build:template" WorkingDirectory="@(SpaSourceFolder)" EnvironmentVariables="PATH=$(Path.Replace(';', '%3B'))" ContinueOnError="true">
       <Output TaskParameter="ExitCode" PropertyName="ErrorCode" />
     </Exec>
   </Target>
-  <!-- Copy artifacts from dist folder inside the project, so they can be used as embedded resources. -->
+   <!--Copy artifacts from dist folder inside the project, so they can be used as embedded resources.--> 
   <Target Name="CopyFiles" BeforeTargets="Build">
     <ItemGroup>
       <SpaDistFolderGlob Include="$(SpaDistFolder)\**\*" Exclude="$(SpaDistFolder)\index.html" />

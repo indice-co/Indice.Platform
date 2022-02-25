@@ -24,11 +24,11 @@ namespace Indice.Services.Tests
             }
             _LockManager = new LockManagerAzure(new LockManagerAzureOptions {
                 EnvironmentName = "test",
-                StorageConnection = _connectionString
+                ConnectionString = _connectionString
             });
             _FileService = new FileServiceAzureStorage(_connectionString, "test");
         }
-        [Fact]
+        [Fact(Skip = "Should integrate azurite on build yaml")]
         public async Task AquireLockTest() {   
             var duration = TimeSpan.FromSeconds(15);
             var name = "constantinos"; // using a random name :)
@@ -40,7 +40,7 @@ namespace Indice.Services.Tests
             await using (@lock2) {
                 await Task.Delay(TimeSpan.FromSeconds(0.5));
             }
-            var result = await _LockManager.TryAquireLock(name);
+            var result = await _LockManager.TryAcquireLock(name);
             if (result.Ok) { 
                 await using (result.Lock) {
                     await Task.Delay(TimeSpan.FromSeconds(0.5));

@@ -58,7 +58,7 @@ namespace Indice.AspNetCore.Identity
         }
 
         /// <inheritdoc />
-        public async Task<TotpResult> Send(ClaimsPrincipal principal, string message, TotpDeliveryChannel channel = TotpDeliveryChannel.Sms, string purpose = null, string securityToken = null, string phoneNumberOrEmail = null) {
+        public async Task<TotpResult> Send(ClaimsPrincipal principal, string message, TotpDeliveryChannel channel = TotpDeliveryChannel.Sms, string purpose = null, string securityToken = null, string phoneNumberOrEmail = null, string data = null, string classification = null, string subject = null) {
             var totpResult = ValidateParameters(principal, securityToken, phoneNumberOrEmail);
             if (!totpResult.Success) {
                 return totpResult;
@@ -85,25 +85,30 @@ namespace Indice.AspNetCore.Identity
             var userName = user?.UserName ?? "Anonymous";
             var cacheKey = $"totp{(hasPrincipal ? $":{user.Id}" : string.Empty)}:{channel}:{token}:{purpose}";
             if (await CacheKeyExists(cacheKey)) {
-                _logger.LogInformation($"User: '{userName}' - Last token has not expired yet. Throttling.");
+                _logger.LogInformation("User: '{UserName}' - Last token has not expired yet. Throttling", userName);
                 return TotpResult.ErrorResult(_localizer["Last token has not expired yet. Please wait a few seconds and try again."]);
             }
-            _logger.LogInformation($"User: '{userName}' - Token generated successfully.");
+            _logger.LogInformation("User: '{UserName}' - Token generated successfully", userName);
             switch (channel) {
                 case TotpDeliveryChannel.Sms:
                 case TotpDeliveryChannel.Viber:
                     var smsService = _smsServiceFactory.Create(channel.ToString());
-                    await smsService.SendAsync(user?.PhoneNumber ?? phoneNumberOrEmail, _localizer["OTP"], _localizer[message, token]);
+                    await smsService.SendAsync(user?.PhoneNumber ?? phoneNumberOrEmail, _localizer[subject ?? "OTP"], _localizer[message, token]);
                     break;
                 case TotpDeliveryChannel.Email:
                 case TotpDeliveryChannel.Telephone:
                 case TotpDeliveryChannel.EToken:
-                    throw new NotSupportedException($"EToken delivery channel {channel} is not implemented.");
+                    throw new NotSupportedException($"Delivery channel '{channel}' is not supported.");
                 case TotpDeliveryChannel.PushNotification:
                     if (_pushNotificationService == null) {
                         throw new ArgumentNullException(nameof(_pushNotificationService), $"Cannot send push notification since there is no implementation of {nameof(IPushNotificationService)}.");
                     }
-                    await _pushNotificationService.SendAsync(_localizer[message, token], token, user.Id);
+                    await _pushNotificationService.SendAsync(builder =>
+                        builder.To(user?.Id)
+                               .WithToken(token)
+                               .WithTitle(string.Format(message, token))
+                               .WithData(data)
+                               .WithClassification(classification));
                     break;
                 default:
                     break;
@@ -164,6 +169,12 @@ namespace Indice.AspNetCore.Identity
                     CanGenerate = true
                 },
                 new TotpProviderMetadata {
+                    Type = TotpProviderType.Phone,
+                    Channel = TotpDeliveryChannel.PushNotification,
+                    DisplayName = "PushNotification",
+                    CanGenerate = true
+                },
+                new TotpProviderMetadata {
                     Type = TotpProviderType.EToken,
                     Channel = TotpDeliveryChannel.EToken,
                     DisplayName = "e-Token",
@@ -190,7 +201,7 @@ namespace Indice.AspNetCore.Identity
             return exists;
         }
 
-        private string GetModifier(string purpose, string phoneNumberOrEmail) => $"{purpose}:{phoneNumberOrEmail}";
+        private static string GetModifier(string purpose, string phoneNumberOrEmail) => $"{purpose}:{phoneNumberOrEmail}";
 
         private TotpResult ValidateParameters(ClaimsPrincipal principal, string securityToken, string phoneNumberOrEmail) {
             var hasSecurityToken = !string.IsNullOrEmpty(securityToken);

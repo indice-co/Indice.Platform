@@ -1,7 +1,7 @@
 ﻿using System;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Indice.Hosting
+namespace Indice.Hosting.Tasks
 {
     /// <summary>
     /// A helper class to configure the worker host.
@@ -19,12 +19,15 @@ namespace Indice.Hosting
             Options = options;
         }
 
-        internal IServiceCollection Services { get; }
+        /// <summary>
+        /// Specifies the contract for a collection of service descriptors.
+        /// </summary>
+        public IServiceCollection Services { get; }
         internal WorkerHostOptions Options { get; }
     }
 
     /// <summary>
-    /// A helper class to configure the worker host. This variation enables the just added queue triggered job to change its qmessage store
+    /// A helper class to configure the worker host. This variation enables the just added queue triggered job to change it's qmessage store.
     /// </summary>
     public class WorkerHostBuilderForQueue : WorkerHostBuilder
     {

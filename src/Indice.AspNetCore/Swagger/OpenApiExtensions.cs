@@ -41,12 +41,12 @@ namespace Indice.AspNetCore.Swagger
                             continue;
                         }
                     } else {
-                        var array = default(OpenApiArray);
-                        if ((array = ToOpenApiArray(property.PropertyType, value)) != null) {
+                        var arrayOrDictionary = default(IOpenApiAny);
+                        if ((arrayOrDictionary = ToOpenApiArray(property.PropertyType, value)) != null) {
                             if (result.ContainsKey(key)) {
-                                result[key] = array;
+                                result[key] = arrayOrDictionary;
                             } else {
-                                result.Add(key, array);
+                                result.Add(key, arrayOrDictionary);
                             }
                             continue;
                         }
@@ -62,29 +62,41 @@ namespace Indice.AspNetCore.Swagger
             return result;
         }
 
-        private static OpenApiArray ToOpenApiArray(Type type, object instance) {
+        private static IOpenApiAny ToOpenApiArray(Type type, object instance) {
             var itemType = GetAnyElementType(type);
-            var array = default(OpenApiArray);
+
             if (itemType != null) {
-                array = new OpenApiArray();
-                array.AddRange(((IEnumerable)instance).Cast<object>().Select(x => GetStructValue(itemType ?? x.GetType(), x) ?? ToOpenApiAny(itemType ?? x.GetType(), x)));
+                var items = ((IEnumerable)instance).Cast<object>().Select(x => GetStructValue(itemType ?? x.GetType(), x) ?? ToOpenApiAny(itemType ?? x.GetType(), x));
+                if (IsDictionary(type)) {
+                    var dictionary = new OpenApiObject();
+                    foreach (OpenApiObject item in items) {
+                        dictionary.Add(((OpenApiString)item["key"]).Value, item["value"]);
+                    }
+                    return dictionary;
+                }
+                var array = new OpenApiArray();
+                array.AddRange(items);
+                return array;
             }
-            return array;
+            return null;
         }
 
+        private static bool IsDictionary(Type type) =>
+            type.GetInterfaces().Where(x => x.IsGenericType && x.GetGenericTypeDefinition() == typeof(IDictionary<,>)).Any();
+
         private static bool IsPrimitive(Type type) =>
-            type.IsValueType || type.IsPrimitive || type.Namespace.StartsWith("System") || type.IsEnum || type == typeof(string);
+            type.IsValueType || type.IsPrimitive || type.IsEnum || type == typeof(string);
 
         private static IOpenApiPrimitive GetStructValue(Type type, object value) {
             var openValue = default(IOpenApiPrimitive);
             if (type == typeof(DateTime?) && ((DateTime?)value).HasValue) {
-                openValue = new OpenApiDate(((DateTime?)value).Value.ToUniversalTime());
+                openValue = new OpenApiDate(((DateTime?)value).Value);
             } else if (type == typeof(DateTime) && ((DateTime)value) != default) {
-                openValue = new OpenApiDate(((DateTime)value).ToUniversalTime());
+                openValue = new OpenApiDate(((DateTime)value));
             } else if (type == typeof(DateTimeOffset) && ((DateTimeOffset)value) != default) {
-                openValue = new OpenApiDateTime(((DateTimeOffset)value).DateTime.ToUniversalTime());
+                openValue = new OpenApiDateTime((DateTimeOffset)value);
             } else if (type == typeof(DateTimeOffset?) && ((DateTimeOffset?)value).HasValue) {
-                openValue = new OpenApiDateTime(((DateTimeOffset?)value).Value.DateTime.ToUniversalTime());
+                openValue = new OpenApiDateTime(((DateTimeOffset?)value).Value);
             } else if (type == typeof(string)) {
                 openValue = new OpenApiString((string)value);
             } else if (type == typeof(int) || type == typeof(int?)) {

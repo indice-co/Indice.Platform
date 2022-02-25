@@ -6,14 +6,15 @@ using System.Reflection;
 using System.Threading.Tasks;
 using Hellang.Middleware.ProblemDetails;
 using Indice.AspNetCore.Filters;
+using Indice.AspNetCore.Identity.Api.Events;
 using Indice.AspNetCore.Identity.Api.Security;
 using Indice.AspNetCore.Identity.Data;
 using Indice.AspNetCore.Identity.Localization;
 using Indice.AspNetCore.Swagger;
 using Indice.Configuration;
 using Indice.Identity.Configuration;
-using Indice.Identity.Hosting;
 using Indice.Identity.Security;
+using Indice.Identity.Services;
 using Microsoft.ApplicationInsights.AspNetCore.Extensions;
 using Microsoft.ApplicationInsights.DataContracts;
 using Microsoft.AspNetCore.Builder;
@@ -39,12 +40,10 @@ namespace Indice.Identity
         /// </summary>
         /// <param name="hostingEnvironment">Provides information about the web hosting environment an application is running in.</param>
         /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
-        /// <param name="logger">Represents a type used to perform logging.</param>
-        public Startup(IWebHostEnvironment hostingEnvironment, IConfiguration configuration, ILogger<Startup> logger) {
+        public Startup(IWebHostEnvironment hostingEnvironment, IConfiguration configuration) {
             HostingEnvironment = hostingEnvironment ?? throw new ArgumentNullException(nameof(hostingEnvironment));
             Configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
             Settings = Configuration.GetSection(GeneralSettings.Name).Get<GeneralSettings>();
-            Logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
         /// <summary>
@@ -73,9 +72,10 @@ namespace Indice.Identity
             var aiOptions = new ApplicationInsightsServiceOptions();
             // https://docs.microsoft.com/en-us/azure/azure-monitor/app/asp-net-core
             services.AddApplicationInsightsTelemetry(aiOptions);
-            Logger.LogInformation("Application started configuring services.");
             services.AddMvcConfig(Configuration);
-            services.AddLocalization(options => options.ResourcesPath = "Resources");
+            services.AddLocalization(options => {
+                options.ResourcesPath = "Resources";
+            });
             services.AddCors(options => options.AddDefaultPolicy(builder => {
                 builder.WithOrigins(Configuration.GetSection("AllowedOrigins").Get<string[]>())
                        .WithMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
@@ -87,23 +87,23 @@ namespace Indice.Identity
             services.AddIdentityServerConfig(HostingEnvironment, Configuration, Settings);
             services.AddProblemDetailsConfig(HostingEnvironment);
             services.ConfigureNonBreakingSameSiteCookies();
-            services.AddSmsServiceYouboto(Configuration);
+            services.AddSmsServiceYuboto(Configuration);
             services.AddSwaggerGen(options => {
                 options.IndiceDefaults(Settings);
+                options.AddFluentValidationSupport();
                 options.AddOAuth2AuthorizationCodeFlow(Settings);
-                options.AddClientCredentials(Settings);
                 options.AddFormFileSupport();
                 options.SchemaFilter<CreateUserRequestSchemaFilter>();
                 options.IncludeXmlComments(Assembly.Load(IdentityServerApi.AssemblyName));
             });
+#if DEBUG
+            services.AddDataProtectionLocal();
+#else
+            services.AddDataProtectionAzure();
+#endif
             services.AddResponseCaching();
             services.AddDataProtectionLocal(options => options.FromConfiguration());
             services.AddEmailServiceSmtpRazor(Configuration);
-            /*services.AddSmsServiceApifon(Configuration, options => {
-                options.ConfigurePrimaryHttpMessageHandler = (serviceProvider) => new System.Net.Http.HttpClientHandler {
-                    ServerCertificateCustomValidationCallback = (httpRequestMessage, certificate, chain, sslPolicyErrors) => true
-                };
-            });*/
             services.AddCsp(options => {
                 options.ScriptSrc = CSP.Self;
                 options.AddSandbox("allow-popups")
@@ -114,24 +114,15 @@ namespace Indice.Identity
                        .AddConnectSrc("https://switzerlandnorth-0.in.applicationinsights.azure.com//v2/track")
                        .AddFrameAncestors("https://localhost:2002");
             });
-            // Setup worker host for executing background tasks.
-            services.AddWorkerHost(options => {
-                options.JsonOptions.JsonSerializerOptions.WriteIndented = true;
-                options.UseSqlServerStorage();
-                //options.UseEntityFrameworkStorage<ExtendedTaskDbContext>();
-            })
-            .AddJob<SmsAlertHandler>()
-            .WithQueueTrigger<SmsDto>(options => {
-                options.QueueName = "user-messages";
-                options.PollingInterval = 1000;
-                options.InstanceCount = 1;
-            })
-            .AddJob<LoadAvailableAlertsHandler>()
-            .WithScheduleTrigger<DemoCounterModel>("0/5 * * * * ?", options => {
-                options.Name = "load-available-alerts";
-                options.Description = "Load alerts for the queue.";
-                options.Group = "indice";
-            });
+            services.AddPlatformEventHandler<DeviceDeletedEvent, DeviceDeletedEventHandler>();
+            services.AddClientIpRestrinctions();
+            //services.AddClientIpRestrinctions(options => {
+            //    options.StatusCodeOnAccessDenied = System.Net.HttpStatusCode.NotFound;
+            //    options.AddIpAddressList("MyWhiteList", "127.0.0.1;192.168.1.5;::1");
+            //    options.MapPath("/admin", "192.168.1.5");
+            //    options.MapPath("/docs", "MyWhiteList");
+            //    options.IgnorePath("/admin", "GET");
+            //});
         }
 
         /// <summary>
@@ -140,14 +131,13 @@ namespace Indice.Identity
         /// <param name="app">Defines a class that provides the mechanisms to configure an application's request pipeline.</param>
         public void Configure(IApplicationBuilder app) {
             if (HostingEnvironment.IsDevelopment()) {
-                Logger.LogInformation("Configuring for Development environment.");
                 app.UseDeveloperExceptionPage();
                 app.IdentityServerStoreSetup<ExtendedConfigurationDbContext>(Clients.Get(), Resources.GetIdentityResources(), Resources.GetApis(), Resources.GetApiScopes());
             } else {
-                Logger.LogInformation("Configuring for Production environment.");
                 app.UseHsts();
                 app.UseHttpsRedirection();
             }
+            app.UseClientIpRestrictions();
             var staticFileOptions = new StaticFileOptions {
                 OnPrepareResponse = context => {
                     const int durationInSeconds = 60 * 60 * 24;
@@ -159,30 +149,33 @@ namespace Indice.Identity
             app.UseCookiePolicy();
             app.UseRouting();
             // Use the middleware with parameters to log request responses to the ILogger or use custom parameters to lets say take request response snapshots for testing purposes.
-            app.UseRequestResponseLogging((options) => {
-                //options.LogHandler = async (logger, model) => {
-                //    var filename = $"{model.RequestTime:yyyyMMdd.HHmmss}_{model.RequestTarget.Replace('/', '-')}_{model.StatusCode}";
-                //    var folder = Path.Combine(HostingEnvironment.ContentRootPath, @"App_Data\snapshots");
-                //    if (Directory.Exists(folder)) {
-                //        Directory.CreateDirectory(folder);
-                //    }
-                //    if (!string.IsNullOrEmpty(model.RequestBody)) {
-                //        await File.WriteAllTextAsync(Path.Combine(folder, $"{filename}_request.txt"), model.RequestBody);
-                //    }
-                //    if (!string.IsNullOrEmpty(model.ResponseBody)) {
-                //        await File.WriteAllTextAsync(Path.Combine(folder, $"{filename}_request.txt"), model.ResponseBody);
-                //    }
-                //};
-                options.LogHandler = (logger, model) => {
-                    // Write response body to App Insights
-                    var requestTelemetry = model.HttpContext.Features.Get<RequestTelemetry>();
-                    requestTelemetry?.Properties.Add(nameof(model.ResponseBody), model.ResponseBody);
-                    requestTelemetry?.Properties.Add(nameof(model.RequestBody), model.RequestBody);
-                    requestTelemetry?.Properties.Add("RequestHeaders", string.Join("\n", model.HttpContext.Request.Headers.Select(x => $"{x.Key}: {x.Value}")));
-                    requestTelemetry?.Properties.Add("ResponseHeaders", string.Join("\n", model.HttpContext.Response.Headers.Select(x => $"{x.Key}: {x.Value}")));
-                    return Task.CompletedTask;
-                };
-            });
+            var useRequestResponseLogging = Configuration.GetValue<bool>($"{nameof(GeneralSettings.Name)}:UseRequestResponseLogging");
+            if (useRequestResponseLogging) {
+                app.UseRequestResponseLogging((options) => {
+                    //options.LogHandler = async (logger, model) => {
+                    //    var filename = $"{model.RequestTime:yyyyMMdd.HHmmss}_{model.RequestTarget.Replace('/', '-')}_{model.StatusCode}";
+                    //    var folder = Path.Combine(HostingEnvironment.ContentRootPath, @"App_Data\snapshots");
+                    //    if (Directory.Exists(folder)) {
+                    //        Directory.CreateDirectory(folder);
+                    //    }
+                    //    if (!string.IsNullOrEmpty(model.RequestBody)) {
+                    //        await File.WriteAllTextAsync(Path.Combine(folder, $"{filename}_request.txt"), model.RequestBody);
+                    //    }
+                    //    if (!string.IsNullOrEmpty(model.ResponseBody)) {
+                    //        await File.WriteAllTextAsync(Path.Combine(folder, $"{filename}_request.txt"), model.ResponseBody);
+                    //    }
+                    //};
+                    options.LogHandler = (logger, model) => {
+                        // Write response body to App Insights.
+                        var requestTelemetry = model.HttpContext.Features.Get<RequestTelemetry>();
+                        requestTelemetry?.Properties.Add(nameof(model.ResponseBody), model.ResponseBody);
+                        requestTelemetry?.Properties.Add(nameof(model.RequestBody), model.RequestBody);
+                        requestTelemetry?.Properties.Add("RequestHeaders", string.Join("\n", model.HttpContext.Request.Headers.Select(x => $"{x.Key}: {x.Value}")));
+                        requestTelemetry?.Properties.Add("ResponseHeaders", string.Join("\n", model.HttpContext.Response.Headers.Select(x => $"{x.Key}: {x.Value}")));
+                        return Task.CompletedTask;
+                    };
+                });
+            }
             app.UseIdentityServer();
             app.UseCors();
             app.UseAuthentication();
@@ -206,7 +199,6 @@ namespace Indice.Identity
                 SupportedUICultures = SupportedCultures.Get().ToList()
             });
             app.UseResponseCaching();
-            app.UseSwagger();
             var enableSwagger = HostingEnvironment.IsDevelopment() || Configuration.GetValue<bool>($"{GeneralSettings.Name}:SwaggerUI");
             if (enableSwagger) {
                 app.UseSwaggerUI(options => {
@@ -218,6 +210,7 @@ namespace Indice.Identity
                     options.DocExpansion(DocExpansion.None);
                     options.OAuthUsePkce();
                     options.OAuthScopeSeparator(" ");
+                    options.EnableDeepLinking();
                 });
             }
             app.UseAdminUI(options => {
@@ -226,11 +219,13 @@ namespace Indice.Identity
                 options.DocumentTitle = "Admin UI";
                 options.Authority = Settings.Authority;
                 options.Host = Settings.Host;
+                options.PostLogoutRedirectUri = string.Empty;
                 options.Enabled = true;
                 options.OnPrepareResponse = staticFileOptions.OnPrepareResponse;
                 options.InjectStylesheet("/css/admin-ui-overrides.css");
             });
             app.UseEndpoints(endpoints => {
+                endpoints.MapSwagger();
                 endpoints.MapControllers();
                 endpoints.MapDefaultControllerRoute();
             });

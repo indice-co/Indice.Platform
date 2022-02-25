@@ -13,7 +13,7 @@ export class AuthCallbackComponent implements OnInit {
 
     public ngOnInit(): void {
         this._authService.signinRedirectCallback().subscribe((user: User) => {
-            if (user && this._authService.checkUserAccess()) {
+            if (user && this._authService.userHasAccess()) {
                 const target = 'app/dashboard';
                 this._router.navigateByUrl(user.state.url || target);
             }

@@ -16,7 +16,7 @@ namespace Indice.Common.Tests
                 PropertyNamingPolicy = JsonNamingPolicy.CamelCase
             };
             options.Converters.Add(new JsonStringEnumConverter());
-            options.IgnoreNullValues = true;
+            options.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
             var model = new { Field = "text field here", Value = 12.34 };
             var expectedJson = JsonSerializer.Serialize(model, options);
             var doc = JsonDocument.Parse(expectedJson);
@@ -31,7 +31,7 @@ namespace Indice.Common.Tests
             };
             options.Converters.Add(new JsonStringEnumConverter());
             options.Converters.Add(new TypeConverterJsonAdapter());
-            options.IgnoreNullValues = true;
+            options.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
             var model = new TestTypeConverters { Point = GeoPoint.Parse("37.9888529,23.7037796"), Id = new Base64Id(Guid.Parse("04F39650-F015-4831-8592-D2D82E70589F")) };
             var jsonExpected = "{\"point\":\"37.9888529,23.7037796\",\"id\":\"UJbzBBXwMUiFktLYLnBYnw\"}";
             var json = JsonSerializer.Serialize(model, options);
@@ -49,7 +49,7 @@ namespace Indice.Common.Tests
             options.Converters.Add(new JsonStringEnumConverter());
             options.Converters.Add(new TypeConverterJsonAdapterFactory());
             options.Converters.Add(new JsonObjectToInferredTypeConverter());
-            options.IgnoreNullValues = true;
+            options.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
             var model = new TestTypeConverters {
                 Point = GeoPoint.Parse("37.9888529,23.7037796"),
                 Id = new Base64Id(Guid.Parse("04F39650-F015-4831-8592-D2D82E70589F")),
@@ -58,10 +58,10 @@ namespace Indice.Common.Tests
                     LastName = "Leftheris"
                 },
                 Filters = new[] {
-                    FilterClause.Parse("name::In::(String)Constantinos, George")
+                    FilterClause.Parse("person.name::In::(String)Constantinos, George")
                 }
             };
-            var jsonExpected = "{\"point\":\"37.9888529,23.7037796\",\"id\":\"UJbzBBXwMUiFktLYLnBYnw\",\"filters\":[\"name::In::(String)Constantinos, George\"],\"mystery\":{\"firstName\":\"Constantinos\",\"lastName\":\"Leftheris\"}}";
+            var jsonExpected = "{\"point\":\"37.9888529,23.7037796\",\"id\":\"UJbzBBXwMUiFktLYLnBYnw\",\"filters\":[\"person.name::In::(String)Constantinos, George\"],\"mystery\":{\"firstName\":\"Constantinos\",\"lastName\":\"Leftheris\"}}";
             //var jsonExpected = "{\"point\":\"37.9888529,23.7037796\",\"id\":\"UJbzBBXwMUiFktLYLnBYnw\",\"mystery\":{\"firstName\":\"Constantinos\",\"lastName\":\"Leftheris\"}}";
             var json = JsonSerializer.Serialize(model, options);
             Assert.Equal(jsonExpected, json);
@@ -79,7 +79,7 @@ namespace Indice.Common.Tests
             };
             options.Converters.Add(new JsonStringEnumConverter());
             options.Converters.Add(new TypeConverterJsonAdapterFactory());
-            options.IgnoreNullValues = true;
+            options.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
             var model = new TestModel {
                 Point = GeoPoint.Parse("37.9888529,23.7037796"),
                 PointList = new List<GeoPoint> {
@@ -126,7 +126,7 @@ namespace Indice.Common.Tests
             };
             options.Converters.Add(new JsonStringEnumConverter());
             options.Converters.Add(new DictionaryEnumConverter());
-            options.IgnoreNullValues = true;
+            options.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
             var model = new MusicLibrary { 
                 Tracks = new Dictionary<MusicGenre, List<MusicTrack>> { 
                     [MusicGenre.Metal] = new List<MusicTrack> { 
@@ -154,7 +154,7 @@ namespace Indice.Common.Tests
             };
             options.Converters.Add(new JsonStringEnumConverter());
             options.Converters.Add(new JsonAnyStringConverter());
-            options.IgnoreNullValues = true;
+            options.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
             var sourceModel = new PocoValue<bool> { Value = true };
             var json = JsonSerializer.Serialize(sourceModel, options);
             var targetModel = JsonSerializer.Deserialize<PocoValue<string>>(json, options);
@@ -174,9 +174,15 @@ namespace Indice.Common.Tests
                 PropertyNamingPolicy = JsonNamingPolicy.CamelCase
             };
             options.Converters.Add(new JsonStringEnumConverter());
-            options.IgnoreNullValues = true;
+            options.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
+#if NET6_0_OR_GREATER
+            RoundtripSerialize(new PocoValue<TimeSpan?> { Value = new TimeSpan(2, 30, 12) }, options);
+            RoundtripSerialize(new PocoValue<TimeSpan> { Value = new TimeSpan(2, 30, 12) }, options);
+#else
             Assert.ThrowsAny<Exception>(() => RoundtripSerialize(new PocoValue<TimeSpan?> { Value = new TimeSpan(2, 30, 12) }, options));
             Assert.ThrowsAny<Exception>(() => RoundtripSerialize(new PocoValue<TimeSpan> { Value = new TimeSpan(2, 30, 12) }, options));
+#endif
+
             RoundtripSerialize(new PocoValue<TimeSpan?>(), options);
             options = new JsonSerializerOptions {
                 PropertyNamingPolicy = JsonNamingPolicy.CamelCase
@@ -184,10 +190,49 @@ namespace Indice.Common.Tests
             options.Converters.Add(new JsonStringEnumConverter());
             options.Converters.Add(new JsonTimeSpanConverter());
             options.Converters.Add(new JsonNullableTimeSpanConverter());
-            options.IgnoreNullValues = true;
+            options.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
             RoundtripSerialize(new PocoValue<TimeSpan?> { Value = new TimeSpan(2, 30, 12) }, options);
             RoundtripSerialize(new PocoValue<TimeSpan> { Value = new TimeSpan(2, 30, 12) }, options);
             RoundtripSerialize(new PocoValue<TimeSpan?>(), options);
+        }
+        [Fact(Skip = "Not ready")]
+        public void DateTime_UTC_JsonSupport() {
+            var options = new JsonSerializerOptions {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            };
+            options.Converters.Add(new JsonStringEnumConverter());
+            options.Converters.Add(new JsonUtcDateTimeConverter());
+            options.Converters.Add(new JsonNullableUtcDateTimeConverter());
+            options.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
+            var source = new DateTime(1981, 01, 28, 0, 0, 0, DateTimeKind.Unspecified);
+            var json = JsonSerializer.Serialize(source, options);
+            Assert.Equal("\"1981-01-28T00:00:00Z\"", json);
+            var source2 = new DateTime(1981, 01, 28, 0, 0, 0, DateTimeKind.Local);
+            json = JsonSerializer.Serialize(source2, options);
+            Assert.Equal("\"1981-01-27T22:00:00Z\"", json);
+            var source3 = new DateTime(1981, 01, 28, 0, 0, 0, DateTimeKind.Utc);
+            json = JsonSerializer.Serialize(source3, options);
+            Assert.Equal("\"1981-01-28T00:00:00Z\"", json);
+            var result = JsonSerializer.Deserialize<DateTime>("\"1981-01-27T22:00:00Z\"", options);
+            Assert.Equal(source.ToUniversalTime(), result.ToUniversalTime());
+            result = JsonSerializer.Deserialize<DateTime>("\"1981-01-27T22:00:00\"", options);
+            Assert.Equal(source.ToUniversalTime(), result.ToUniversalTime());
+            result = JsonSerializer.Deserialize<DateTime>("\"1981-01-28T00:00:00+02:00\"", options);
+            Assert.Equal(new DateTime(1981, 01, 27, 22, 0, 0, DateTimeKind.Utc) , result);
+        }
+
+        [Fact(Skip = "Not ready")]
+        public void DateTime_UTC_JsonSupport_Newtonsoft() {
+            var options = new Newtonsoft.Json.JsonSerializerSettings() {
+                DateTimeZoneHandling = Newtonsoft.Json.DateTimeZoneHandling.Utc,
+            };
+            var source = new DateTime(1981, 01, 28, 0, 0, 0, DateTimeKind.Unspecified);
+            var json = Newtonsoft.Json.JsonConvert.SerializeObject(source, options);
+            Assert.Equal("\"1981-01-28T00:00:00Z\"", json);
+            var result = Newtonsoft.Json.JsonConvert.DeserializeObject<DateTime>("\"1981-01-27T22:00:00Z\"", options);
+            Assert.Equal(source.ToUniversalTime(), result.ToUniversalTime());
+            result = Newtonsoft.Json.JsonConvert.DeserializeObject<DateTime>("\"1981-01-27T22:00:00\"", options);
+            Assert.Equal(source.ToUniversalTime(), result.ToUniversalTime());
         }
 
         private void RoundtripSerialize<T>(PocoValue<T> source, JsonSerializerOptions options) {

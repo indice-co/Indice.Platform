@@ -4,8 +4,9 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
 
-namespace Indice.Hosting
+namespace Indice.Hosting.Tasks
 {
     internal class TaskHandlerActivator
     {
@@ -17,32 +18,34 @@ namespace Indice.Hosting
 
         public async Task Invoke(Type jobHandlerType, object state, CancellationToken cancellationToken, object workItem = null) {
             var methods = jobHandlerType.GetMethods(BindingFlags.Instance | BindingFlags.Public);
-            var handler = _serviceProvider.GetService(jobHandlerType);
-            var processMethod = methods.Where(x => "Process".Equals(x.Name, StringComparison.OrdinalIgnoreCase)).First();
-            var stateType = state?.GetType() ?? typeof(IDictionary<string, object>);
-            object[] arguments;
-            if (workItem != null) {
-                var workItemType = workItem.GetType();
-                arguments = processMethod
-                    .GetParameters()
-                    .Select(x => x.ParameterType.IsAssignableFrom(workItemType) ? workItem :
-                                 x.ParameterType.IsAssignableFrom(typeof(CancellationToken)) ? cancellationToken :
-                                 x.ParameterType.IsAssignableFrom(stateType) ? state : 
-                                 _serviceProvider.GetService(x.ParameterType))
-                    .ToArray();
-            } else {
-                arguments = processMethod
-                    .GetParameters()
-                    .Select(x => x.ParameterType.IsAssignableFrom(typeof(CancellationToken)) ? cancellationToken :
-                                 x.ParameterType.IsAssignableFrom(stateType) ? state : 
-                                 _serviceProvider.GetService(x.ParameterType))
-                    .ToArray();
-            }
-            var isAwaitable = typeof(Task).IsAssignableFrom(processMethod.ReturnType);
-            if (isAwaitable) {
-                await (Task)processMethod.Invoke(handler, arguments);
-            } else {
-                processMethod.Invoke(handler, arguments);
+            using (var scope = _serviceProvider.CreateScope()) {
+                var handler = scope.ServiceProvider.GetService(jobHandlerType);
+                var processMethod = methods.Where(x => "Process".Equals(x.Name, StringComparison.OrdinalIgnoreCase)).First();
+                var stateType = state?.GetType() ?? typeof(IDictionary<string, object>);
+                object[] arguments;
+                if (workItem != null) {
+                    var workItemType = workItem.GetType();
+                    arguments = processMethod
+                        .GetParameters()
+                        .Select(x => x.ParameterType.IsAssignableFrom(workItemType) ? workItem :
+                                     x.ParameterType.IsAssignableFrom(typeof(CancellationToken)) ? cancellationToken :
+                                     x.ParameterType.IsAssignableFrom(stateType) ? state :
+                                     scope.ServiceProvider.GetService(x.ParameterType))
+                        .ToArray();
+                } else {
+                    arguments = processMethod
+                        .GetParameters()
+                        .Select(x => x.ParameterType.IsAssignableFrom(typeof(CancellationToken)) ? cancellationToken :
+                                     x.ParameterType.IsAssignableFrom(stateType) ? state :
+                                     scope.ServiceProvider.GetService(x.ParameterType))
+                        .ToArray();
+                }
+                var isAwaitable = typeof(Task).IsAssignableFrom(processMethod.ReturnType);
+                if (isAwaitable) {
+                    await (Task)processMethod.Invoke(handler, arguments);
+                } else {
+                    processMethod.Invoke(handler, arguments);
+                }
             }
         }
     }

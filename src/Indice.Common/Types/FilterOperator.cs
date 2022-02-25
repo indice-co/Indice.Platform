@@ -40,6 +40,10 @@
         /// <summary>
         /// Between a couple of values.
         /// </summary>
-        Between
+        Between,
+        /// <summary>
+        /// Starts with a specified value.
+        /// </summary>
+        StartsWith
     }
 }

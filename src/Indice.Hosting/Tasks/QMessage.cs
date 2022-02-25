@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Indice.Hosting
+namespace Indice.Hosting.Tasks
 {
     /// <summary>A queue message.</summary>
     /// <typeparam name="T">The message value type.</typeparam>
@@ -11,7 +11,7 @@ namespace Indice.Hosting
         /// <summary>
         /// The id
         /// </summary>
-        public Guid Id { get; internal set; }
+        public string Id { get; internal set; }
         /// <summary>
         /// The Queue name
         /// </summary>

@@ -20,7 +20,7 @@ namespace Indice.AspNetCore.Identity.Api
             typeof(ResourcesController).GetTypeInfo(),
             typeof(RolesController).GetTypeInfo(),
             typeof(UsersController).GetTypeInfo(),
-            typeof(SettingsController).GetTypeInfo()
+            typeof(LookupsController).GetTypeInfo()
         };
 
         /// <summary>

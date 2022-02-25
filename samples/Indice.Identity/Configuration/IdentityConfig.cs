@@ -4,7 +4,6 @@ using Indice.AspNetCore.Identity.Data;
 using Indice.AspNetCore.Identity.Data.Models;
 using Indice.Identity.Security;
 using Indice.Identity.Services;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 
@@ -22,17 +21,19 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
         public static IdentityBuilder AddIdentityConfig(this IServiceCollection services, IConfiguration configuration) {
             JwtSecurityTokenHandler.DefaultMapInboundClaims = false;
-            services.AddTransient<IClaimsTransformation, ClaimsTransformer>();
             services.Configure<IdentityOptions>(configuration.GetSection(nameof(IdentityOptions)));
+            services.AddScopeTransformation();
+            services.AddExternalProviderClaimsTransformation();
             return services.AddIdentity<User, Role>()
                            .AddErrorDescriber<LocalizedIdentityErrorDescriber>()
                            .AddIdentityMessageDescriber<LocalizedIdentityMessageDescriber>()
-                           .AddClaimsTransform<ExtendedUserClaimsPrincipalFactory<User, Role>>()
+                           .AddClaimsPrincipalFactory<MicrosoftGraphUserClaimsPrincipalFactory>()
                            .AddEntityFrameworkStores<ExtendedIdentityDbContext<User, Role>>()
                            .AddUserManager<ExtendedUserManager<User>>()
                            .AddUserStore<ExtendedUserStore<ExtendedIdentityDbContext<User, Role>, User, Role>>()
                            .AddExtendedSignInManager()
                            .AddDefaultPasswordValidators()
+                           .AddPasswordValidator<AllowedCharactersPasswordValidator>()
                            .AddDefaultTokenProviders()
                            .AddExtendedPhoneNumberTokenProvider();
         }

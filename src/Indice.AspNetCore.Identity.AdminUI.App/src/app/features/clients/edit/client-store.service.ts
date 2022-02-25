@@ -4,8 +4,9 @@ import { AsyncSubject, Observable, forkJoin } from 'rxjs';
 import { map } from 'rxjs/operators';
 import {
     IdentityApiService, SingleClientInfo, IdentityResourceInfoResultSet, IdentityResourceInfo, ApiResourceInfo, CreateClaimRequest, ClaimInfo, UpdateClientRequest, IUpdateClientRequest,
-    ApiScopeInfo, ApiScopeInfoResultSet, GrantTypeInfo, UpdateClientUrls, CreateSecretRequest, SecretInfo, ApiSecretInfo, ClientSecretInfo, FileParameter
+    ApiScopeInfo, ApiScopeInfoResultSet, GrantTypeInfo, UpdateClientUrls, CreateSecretRequest, SecretInfo, ClientSecretInfo, FileParameter, ClientTranslation
 } from 'src/app/core/services/identity-api.service';
+import { SelectableExternalProvider } from './details/selectable-external-provider.model';
 import { UrlType } from './urls/models/urlType';
 
 @Injectable()
@@ -27,7 +28,12 @@ export class ClientStore {
         return this._client;
     }
 
-    public updateClient(client: SingleClientInfo): Observable<void> {
+    public updateClient(client: SingleClientInfo, providers?: SelectableExternalProvider[]): Observable<void> {
+        for (const key in client.translations) {
+            if (client.translations.hasOwnProperty(key)) {
+                client.translations[key] = new ClientTranslation(client.translations[key]);
+            }
+        }
         return this._api.updateClient(client.clientId, new UpdateClientRequest({
             accessTokenLifetime: client.accessTokenLifetime,
             absoluteRefreshTokenLifetime: client.absoluteRefreshTokenLifetime,
@@ -59,9 +65,12 @@ export class ClientStore {
             backChannelLogoutUri: client.backChannelLogoutUri,
             backChannelLogoutSessionRequired: client.backChannelLogoutSessionRequired,
             deviceCodeLifetime: client.deviceCodeLifetime,
+            translations: client.translations,
             userCodeType: client.userCodeType,
             enabled: client.enabled,
-            slidingRefreshTokenLifetime: client.slidingRefreshTokenLifetime
+            slidingRefreshTokenLifetime: client.slidingRefreshTokenLifetime,
+            enableLocalLogin: client.enableLocalLogin,
+            identityProviderRestrictions: providers?.filter(x => !x.selected).map(x => x.authenticationScheme) || null
         } as IUpdateClientRequest)).pipe(map(_ => {
             this._client.next(client);
             this._client.complete();
@@ -70,36 +79,18 @@ export class ClientStore {
 
     public updateClientUrl(clientId: string, url: string, added: boolean, urlType: UrlType): void {
         this.getClient(clientId).subscribe((client: SingleClientInfo) => {
+            if (!client['deletingUrls']) {
+                client['deletingUrls'] = [];
+            }
             switch (urlType) {
                 case UrlType.Redirect:
-                    if (added) {
-                        client.redirectUris.push(url);
-                    } else {
-                        const index = client.redirectUris.findIndex(x => x === url);
-                        if (index > -1) {
-                            client.redirectUris.splice(index, 1);
-                        }
-                    }
+                    this.updateClientUrlState(client, url, added, 'redirectUris');
                     break;
                 case UrlType.Cors:
-                    if (added) {
-                        client.allowedCorsOrigins.push(url);
-                    } else {
-                        const index = client.allowedCorsOrigins.findIndex(x => x === url);
-                        if (index > -1) {
-                            client.allowedCorsOrigins.splice(index, 1);
-                        }
-                    }
+                    this.updateClientUrlState(client, url, added, 'allowedCorsOrigins');
                     break;
                 case UrlType.PostLogoutRedirect:
-                    if (added) {
-                        client.postLogoutRedirectUris.push(url);
-                    } else {
-                        const index = client.postLogoutRedirectUris.findIndex(x => x === url);
-                        if (index > -1) {
-                            client.postLogoutRedirectUris.splice(index, 1);
-                        }
-                    }
+                    this.updateClientUrlState(client, url, added, 'postLogoutRedirectUris');
                     break;
                 default:
                     break;
@@ -107,6 +98,25 @@ export class ClientStore {
             this._client.next(client);
             this._client.complete();
         });
+    }
+
+    private updateClientUrlState(client: SingleClientInfo, url: string, added: boolean, propertyName: string): void {
+        if (added) {
+            client[propertyName].push(url);
+            const index = client['deletingUrls'].findIndex((x: string) => x === url);
+            if (index > -1) {
+                client['deletingUrls'].splice(index, 1);
+            }
+        } else {
+            let index = client[propertyName].findIndex((x: string) => x === url);
+            if (index > -1) {
+                client[propertyName].splice(index, 1);
+                index = client.postLogoutRedirectUris.concat(client.allowedCorsOrigins.concat(client.redirectUris)).findIndex((x: string) => x === url);
+                if (index === -1) {
+                    client['deletingUrls'].push(url);
+                }
+            }
+        }
     }
 
     public sendUpdateClientUrls(clientId: string, allowedCorsOrigins: string[], postLogoutRedirectUris: string[], redirectUris: string[]): Observable<void> {

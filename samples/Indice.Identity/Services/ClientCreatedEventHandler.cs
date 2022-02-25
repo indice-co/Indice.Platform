@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Indice.AspNetCore.Identity.Api.Events;
+using Indice.Services;
 using Microsoft.Extensions.Logging;
 
 namespace Indice.Identity.Services
@@ -8,7 +9,7 @@ namespace Indice.Identity.Services
     /// <summary>
     /// Handler for <see cref="ClientCreatedEvent"/> raised by IdentityServer API.
     /// </summary>
-    public class ClientCreatedEventHandler : IIdentityServerApiEventHandler<ClientCreatedEvent>
+    public class ClientCreatedEventHandler : IPlatformEventHandler<ClientCreatedEvent>
     {
         private readonly ILogger<ClientCreatedEventHandler> _logger;
 

@@ -1,4 +1,6 @@
-﻿using System;
+﻿/* https://identityserver4.readthedocs.io/en/latest/topics/extension_grants.html */
+
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 using IdentityModel;
@@ -18,7 +20,7 @@ namespace Indice.AspNetCore.Identity
         /// <summary>
         /// Creates a new instance of <see cref="DelegationGrantValidator"/>.
         /// </summary>
-        /// <param name="validator"></param>
+        /// <param name="validator">Validates an access token.</param>
         public DelegationGrantValidator(ITokenValidator validator) {
             _validator = validator ?? throw new ArgumentNullException(nameof(validator));
         }
@@ -40,7 +42,6 @@ namespace Indice.AspNetCore.Identity
             }
             var subject = result.Claims.FirstOrDefault(x => x.Type == JwtClaimTypes.Subject).Value;
             context.Result = new GrantValidationResult(subject, GrantType);
-            return;
         }
     }
 }

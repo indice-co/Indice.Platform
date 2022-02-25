@@ -74,7 +74,7 @@ namespace Indice.AspNetCore.Identity
                 if (client != null) {
                     allowLocal = client.EnableLocalLogin;
                     if (client.IdentityProviderRestrictions != null && client.IdentityProviderRestrictions.Any()) {
-                        providers = providers.Where(provider => client.IdentityProviderRestrictions.Contains(provider.AuthenticationScheme)).ToList();
+                        providers = providers.Where(provider => !client.IdentityProviderRestrictions.Contains(provider.AuthenticationScheme)).ToList();
                     }
                 }
             }
@@ -138,9 +138,8 @@ namespace Indice.AspNetCore.Identity
                 var client = await _clientStore.FindEnabledClientByIdAsync(context.Client.ClientId);
                 if (client != null) {
                     allowLocal = client.EnableLocalLogin;
-
                     if (client.IdentityProviderRestrictions != null && client.IdentityProviderRestrictions.Any()) {
-                        providers = providers.Where(provider => client.IdentityProviderRestrictions.Contains(provider.AuthenticationScheme)).ToList();
+                        providers = providers.Where(provider => !client.IdentityProviderRestrictions.Contains(provider.AuthenticationScheme)).ToList();
                     }
                 }
             }
@@ -177,18 +176,12 @@ namespace Indice.AspNetCore.Identity
         /// <summary>
         /// Builds the logout viewmodel.
         /// </summary>
-        /// <param name="logoutId"></param>
+        /// <param name="logoutId">The logout id.</param>
         public async Task<LogoutViewModel> BuildLogoutViewModelAsync(string logoutId) {
-            var user = _httpContextAccessor.HttpContext.User;
             var viewModel = new LogoutViewModel {
                 LogoutId = logoutId,
                 ShowLogoutPrompt = AccountOptions.ShowLogoutPrompt
             };
-            if (user?.Identity.IsAuthenticated != true) {
-                // If the user is not authenticated, then just show logged out page.
-                viewModel.ShowLogoutPrompt = false;
-                return viewModel;
-            }
             var context = await _interaction.GetLogoutContextAsync(logoutId);
             viewModel.ClientId = context?.ClientId;
             if (context?.ShowSignoutPrompt == false) {
@@ -201,9 +194,9 @@ namespace Indice.AspNetCore.Identity
         }
 
         /// <summary>
-        /// Build the post logout viewmodel. <see cref="LoggedOutViewModel"/>
+        /// Build the post logout viewmodel. <see cref="LoggedOutViewModel"/>.
         /// </summary>
-        /// <param name="logoutId"></param>
+        /// <param name="logoutId">The logout id.</param>
         public async Task<LoggedOutViewModel> BuildLoggedOutViewModelAsync(string logoutId) {
             // Get context information (client name, post logout redirect URI and iframe for federated signout).
             var logout = await _interaction.GetLogoutContextAsync(logoutId);

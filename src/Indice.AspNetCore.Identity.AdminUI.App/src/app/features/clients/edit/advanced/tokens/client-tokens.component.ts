@@ -29,9 +29,7 @@ export class ClientTokensComponent implements OnInit, OnDestroy {
     public ngOnInit(): void {
         this.canEditClient = this._authService.isAdminUIClientsWriter();
         const clientId = this._route.parent.parent.snapshot.params.id;
-        this._getDataSubscription = this._clientStore.getClient(clientId).subscribe((client: SingleClientInfo) => {
-            this.client = client;
-        });
+        this._getDataSubscription = this._clientStore.getClient(clientId).subscribe((client: SingleClientInfo) => this.client = client);
     }
 
     public update(): void {
@@ -54,6 +52,15 @@ export class ClientTokensComponent implements OnInit, OnDestroy {
             });
         }
         return result;
+    }
+
+    public containsCustomGrantTypes(): boolean {
+        return this.client.grantTypes && this.client.grantTypes.some(x => !this.isKnownGrantType(x));
+    }
+
+    public isKnownGrantType(grantType: string): boolean {
+        const knownGrantTypes = ['authorization_code', 'client_credentials', 'delegation', 'hybrid', 'implicit', 'password', 'refresh_token', 'urn:ietf:params:oauth:grant-type:device_code'];
+        return knownGrantTypes.indexOf(grantType) > -1;
     }
 
     public ngOnDestroy(): void {

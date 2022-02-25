@@ -1,0 +1,237 @@
+<lib-side-view-layout title="Δημιουργία νέας καμπάνιας"
+                      [ok-close-dialog]="false"
+                      [ok-label]="'Δημιουργία'"
+                      [cancel-label]="'Κλείσιμο'"
+                      (ok)="submitButton.nativeElement.click()"
+                      [disabled]="!canSubmit() || submitInProgress"
+                      #sideViewLayout>
+    <div class="mt-4">
+        <form #campaignForm="ngForm"
+              (ngSubmit)="onSubmit()">
+            <div class="px-4 space-y-2 pb-4">
+                <div class="grid grid-cols-4 gap-4">
+                    <!-- Δημοσιευμένη -->
+                    <div class="col-span-4">
+                        <label for="campaignActive"
+                               class="field-label">Δημοσιευμένη</label>
+                        <div class="mt-1 flex rounded-sm">
+                            <lib-toggle-button id="campaignActive"
+                                               [value]="true"
+                                               (valueChange)="model.published = $event"></lib-toggle-button>
+                        </div>
+                        <p class="field-info col-span-3">Μία μη-δημοσιευμένη καμπάνια δεν θα εμφανιστεί στους χρήστες του συστήματος.</p>
+                    </div>
+                    <!-- Τίτλος -->
+                    <div class="col-span-4">
+                        <label for="campaignTitle"
+                               class="field-label">Τίτλος (*)</label>
+                        <div class="mt-1 flex rounded-sm">
+                            <input type="text"
+                                   name="campaignTitle"
+                                   id="campaignTitle"
+                                   [(ngModel)]="model.title"
+                                   placeholder="Ο τίτλος της καμπάνιας..."
+                                   maxlength="128"
+                                   required
+                                   #campaignTitle="ngModel">
+                        </div>
+                        <p *ngIf="campaignTitle.invalid && (campaignTitle.dirty || campaignTitle.touched)"
+                           class="mt-2 text-sm text-red-600">
+                            <span *ngIf="campaignTitle.errors!['required']">Παρακαλώ συμπλήρώστε ένα τίτλο.</span>
+                            <span *ngIf="campaignTitle.errors!['maxlength']">Παρακαλώ συμπλήρώστε ένα μικρότερο τίτλο.</span>
+                        </p>
+                        <p class="field-info col-span-3">Η ονομασία η οποία θα εμφανίζεται για την καμπάνια.</p>
+                    </div>
+                    <!-- Περιεχόμενο -->
+                    <div class="col-span-4">
+                        <label for="campaignContent"
+                               class="field-label">Περιεχόμενο (*)</label>
+                        <div class="mt-1 flex rounded-sm">
+                            <textarea id="campaignContent"
+                                      name="campaignContent"
+                                      [(ngModel)]="model.content"
+                                      rows="6"
+                                      placeholder="Το περιεχόμενο της καμπάνιας..."
+                                      required
+                                      #campaignContent="ngModel"></textarea>
+                        </div>
+                        <p *ngIf="campaignContent.invalid && (campaignContent.dirty || campaignContent.touched)"
+                           class="mt-2 text-sm text-red-600">
+                            <span *ngIf="campaignContent.errors!['required']">Παρακαλώ συμπλήρώστε το περιεχόμενο.</span>
+                        </p>
+                    </div>
+                    <!-- Ημ. Έναρξης -->
+                    <div class="col-span-4 sm:col-span-2">
+                        <label for="campaignStart"
+                               class="field-label">Ημ. Έναρξης</label>
+                        <div class="mt-1 flex rounded-sm col-span-3">
+                            <input type="datetime-local"
+                                   name="campaignStart"
+                                   id="campaignStart"
+                                   [value]="model.activePeriod!.from | date: 'yyyy-MM-ddThh:mm'"
+                                   (input)="model.activePeriod!.from = toDate($event)"
+                                   [min]="now | date: 'yyyy-MM-ddTHH:mm'"
+                                   [max]="model.activePeriod!.to | date: 'yyyy-MM-ddTHH:mm'">
+                        </div>
+                        <p class="field-info">Η ημέρα και ώρα έναρξης της καμπάνιας.</p>
+                    </div>
+                    <!-- Ημ. Λήξης -->
+                    <div class="col-span-4 sm:col-span-2">
+                        <label for="campaignEnd"
+                               class="field-label">Ημ. Λήξης</label>
+                        <div class="mt-1 flex rounded-sm col-span-3">
+                            <input type="datetime-local"
+                                   name="campaignEnd"
+                                   id="campaignEnd"
+                                   [value]="model.activePeriod!.to | date: 'yyyy-MM-ddTHH:mm'"
+                                   (input)="model.activePeriod!.to = toDate($event)"
+                                   [min]="model.activePeriod!.from | date: 'yyyy-MM-ddTHH:mm'"
+                                   [disabled]="model.activePeriod!.from === undefined">
+                        </div>
+                        <p class="field-info">Η ημέρα και ώρα λήξης της καμπάνιας.</p>
+                    </div>
+                    <!-- Τύπος -->
+                    <div class="col-span-4">
+                        <label for="campaignType"
+                               class="field-label">Τύπος</label>
+                        <div class="mt-1 flex rounded-sm">
+                            <lib-drop-down-menu id="campaignType"
+                                                class="w-full"
+                                                [selected]="model.typeId"
+                                                [options]="campaignTypes"
+                                                (selectedChanged)="model.typeId = $event"></lib-drop-down-menu>
+                        </div>
+                        <p class="field-info col-span-3">Πατήστε <a [attr.style]="'color: blue'"
+                               (click)="openCampaignTypesModal()"
+                               href="javascript:void(0);">εδώ</a> για να προσθέσετε ένα νέο τύπο καμπάνιας.</p>
+                    </div>
+                    <!-- Click to action text -->
+                    <div class="col-span-4">
+                        <label for="campaignClickToActionText"
+                               class="field-label">Call-to-action κείμενο</label>
+                        <div class="mt-1 flex rounded-sm">
+                            <input type="text"
+                                   name="campaignClickToActionText"
+                                   id="campaignClickToActionText"
+                                   [(ngModel)]="model.actionText"
+                                   placeholder="Πατήστε εδώ για να..."
+                                   maxlength="128"
+                                   #campaignClickToActionText="ngModel">
+                        </div>
+                    </div>
+                    <!-- Click to action link -->
+                    <div class="col-span-4">
+                        <label for="campaignClickToActionLink"
+                               class="field-label">Call-to-action σύνδεσμος</label>
+                        <div class="mt-1 flex rounded-sm">
+                            <input type="text"
+                                   name="campaignClickToActionLink"
+                                   id="campaignClickToActionLink"
+                                   pattern="^(?:http(s)?:\/\/)?[\w.-]+(?:\.[\w\.-]+)+[\w\-\._~:/?#[\]@!\$&'\(\)\*\+,;=.]+$"
+                                   [(ngModel)]="model.actionUrl"
+                                   placeholder="https://example.com"
+                                   maxlength="2048"
+                                   #campaignClickToActionLink="ngModel">
+                        </div>
+                        <p *ngIf="campaignClickToActionLink.invalid && (campaignClickToActionLink.dirty || campaignClickToActionLink.touched)"
+                           class="mt-2 text-sm text-red-600">
+                            <span *ngIf="campaignClickToActionLink.errors!['pattern']">Παρακαλώ συμπλήρώστε έναν έγκυρο σύνδεσμο.</span>
+                        </p>
+                    </div>
+                    <!-- Τρόπος Αποστολής -->
+                    <div class="col-span-4">
+                        <label class="field-label">Τροπος Αποστολής (*)</label>
+                        <lib-toggle-button [value]="containsDeliveryChannel(CampaignDeliveryChannel.Inbox)"
+                                           (valueChange)="toggleDeliveryChannel(CampaignDeliveryChannel.Inbox)"
+                                           [true-label]="'Η καμπάνια θα εμφανιστεί στο Inbox'"
+                                           [false-label]="'Μέσω Inbox'">
+                        </lib-toggle-button>
+                    </div>
+                    <div class="col-span-4">
+                        <lib-toggle-button [value]="containsDeliveryChannel(CampaignDeliveryChannel.PushNotification)"
+                                           (valueChange)="toggleDeliveryChannel(CampaignDeliveryChannel.PushNotification)"
+                                           [true-label]="'Η καμπάνια θα αποσταλλεί με Push Notification'"
+                                           [false-label]="'Μέσω Push Notification'">
+                        </lib-toggle-button>
+                    </div>
+                    <div class="col-span-4">
+                        <lib-toggle-button [value]="containsDeliveryChannel(CampaignDeliveryChannel.Email)"
+                                           (valueChange)="toggleDeliveryChannel(CampaignDeliveryChannel.Email)"
+                                           [true-label]="'Η καμπάνια θα αποσταλλεί με Email'"
+                                           [false-label]="'Μέσω Email'">
+                        </lib-toggle-button>
+                    </div>
+                    <div class="col-span-4">
+                        <lib-toggle-button [value]="containsDeliveryChannel(CampaignDeliveryChannel.SMS)"
+                                           (valueChange)="toggleDeliveryChannel(CampaignDeliveryChannel.SMS)"
+                                           [true-label]="'Η καμπάνια θα αποσταλλεί με SMS'"
+                                           [false-label]="'Μέσω SMS'">
+                        </lib-toggle-button>
+                        <p *ngIf="!hasDeliveryChannel()"
+                           class="mt-2 text-sm text-red-600">
+                            <span>Παρακαλώ επιλέξτε τρόπο αποστολής.</span>
+                        </p>
+                    </div>
+                    <!-- Κωδικοί χρηστών -->
+                    <div class="col-span-4">
+                        <div class="mt-1 flex rounded-sm">
+                            <lib-radio-buttons-list [options]="targetOptions"
+                                                    [value]="model.isGlobal"
+                                                    (valueChange)="setIsGlobal($event)"
+                                                    title="Προς"></lib-radio-buttons-list>
+                        </div>
+                    </div>
+                    <div class="col-span-4"
+                         *ngIf="!model.isGlobal">
+                        <label for="campaignUserCodes"
+                               class="field-label">Κωδικοί χρηστών (*)</label>
+                        <div class="mt-1 flex rounded-sm">
+                            <textarea id="campaignUserCodes"
+                                      name="campaignContent"
+                                      [ngModel]="toUserCodesString(model.selectedUserCodes)"
+                                      (ngModelChange)="model.selectedUserCodes = toUserCodesArray($event)"
+                                      rows="6"
+                                      placeholder="Η λίστα χρηστών της καμπάνιας...&#10;κωδικός_χρήστη_1&#10;κωδικός_χρήστη_2"
+                                      required
+                                      #campaignUserCodes="ngModel">
+                            </textarea>
+                        </div>
+                        <p *ngIf="campaignUserCodes.invalid && (campaignUserCodes.dirty || campaignUserCodes.touched)"
+                           class="mt-2 text-sm text-red-600">
+                            <span *ngIf="campaignUserCodes.errors!['required']">Παρακαλώ συμπλήρώστε τη λίστα χρηστών.</span>
+                        </p>
+                        <p class="field-info col-span-3">
+                            Προσδιορίστε τη λίστα χρηστών βάζοντας κάθε τιμή σε ξεχωριστή γραμμή.
+                            <span *ngIf="model.selectedUserCodes && model.selectedUserCodes.length > 0">{{ model.selectedUserCodes.length }} κωδικοί έχουν προστεθεί μέχρι στιγμής.</span>
+                        </p>
+                    </div>
+                    <div class="col-span-4">
+                        <label for="campaignMetadata"
+                               class="field-label">Μεταδεδομένα</label>
+                        <div class="mt-1 flex rounded-sm">
+                            <textarea id="campaignMetadata"
+                                      name="campaignMetadata"
+                                      [ngModel]="model.data | json"
+                                      (ngModelChange)="setCampaignCustomData($event)"
+                                      rows="6"
+                                      placeholder="Επιπρόσθετα δεδομένα της καμπάνιας σε JSON μορφή"
+                                      (focusout)="onCustomDataFocusOut()"
+                                      class="code-editor"
+                                      #campaignMetadata="ngModel">
+                            </textarea>
+                        </div>
+                        <p *ngIf="showCustomDataValidation && !customDataValid"
+                           class="mt-2 text-sm text-red-600">
+                            <span>Η μορφή του JSON δεν είναι έγκυρη.</span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <button type="submit"
+                    [style.visibility]="'hidden'"
+                    #submitBtn>Submit</button>
+        </form>
+        <pre class="mb-3 code-editor"
+             *ngIf="isDevelopment">{{ model | json }}</pre>
+    </div>
+</lib-side-view-layout>

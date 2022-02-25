@@ -1,5 +1,6 @@
 ﻿using FluentValidation;
 using Humanizer;
+using Indice.AspNetCore.Identity.Api.Models;
 using Indice.AspNetCore.Identity.Models;
 
 namespace Indice.Identity.Models.Validators

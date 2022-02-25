@@ -20,8 +20,9 @@ namespace Indice.AspNetCore.Identity
         /// </summary>
         /// <typeparam name="TUserClaimsPrincipalFactory">The type of factory to use in order to generate the claims principal.</typeparam>
         /// <param name="builder">The type of builder for configuring identity services.</param>
+        [Obsolete("Framework already provides AddClaimsPrincipalFactory extension. Will be removed in future versions.")]
         public static IdentityBuilder AddClaimsTransform<TUserClaimsPrincipalFactory>(this IdentityBuilder builder) where TUserClaimsPrincipalFactory : class, IUserClaimsPrincipalFactory<User> {
-            builder.Services.AddTransient<IUserClaimsPrincipalFactory<User>, TUserClaimsPrincipalFactory>();
+            builder.Services.AddScoped<IUserClaimsPrincipalFactory<User>, TUserClaimsPrincipalFactory>();
             return builder;
         }
 
@@ -90,13 +91,13 @@ namespace Indice.AspNetCore.Identity
         public static IdentityBuilder AddNonCommonPasswordValidator(this IdentityBuilder builder) => builder.AddNonCommonPasswordValidator<User>();
 
         /// <summary>
-        /// Registers the recommended password validators: <see cref="NonCommonPasswordValidator"/>, <see cref="LatinLettersOnlyPasswordValidator"/>, <see cref="PreviousPasswordAwareValidator"/> and <see cref="UserNameAsPasswordValidator"/>.
+        /// Registers the recommended password validators: <see cref="NonCommonPasswordValidator"/>, <see cref="UnicodeCharactersPasswordValidator"/>, <see cref="PreviousPasswordAwareValidator"/> and <see cref="UserNameAsPasswordValidator"/>.
         /// </summary>
         /// <param name="builder">Helper functions for configuring identity services.</param>
         /// <returns>The <see cref="IdentityBuilder"/>.</returns>
         public static IdentityBuilder AddDefaultPasswordValidators(this IdentityBuilder builder) {
             builder.AddNonCommonPasswordValidator();
-            builder.AddPasswordValidator<LatinLettersOnlyPasswordValidator>();
+            builder.AddPasswordValidator<UnicodeCharactersPasswordValidator>();
             builder.AddPasswordValidator<PreviousPasswordAwareValidator<ExtendedIdentityDbContext<User, Role>, User, Role>>();
             builder.AddPasswordValidator<UserNameAsPasswordValidator>();
             return builder;

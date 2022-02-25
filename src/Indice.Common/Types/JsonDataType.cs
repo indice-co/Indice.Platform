@@ -24,6 +24,6 @@
         /// <summary>
         /// DateTime.
         /// </summary>
-        DateTime,
+        DateTime
     }
 }

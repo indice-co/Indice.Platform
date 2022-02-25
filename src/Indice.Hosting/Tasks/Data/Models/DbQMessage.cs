@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Text.Json;
 
-namespace Indice.Hosting.EntityFrameworkCore
+namespace Indice.Hosting.Tasks.Data.Models
 {
     /// <summary>
     /// A queue message.
@@ -42,7 +42,7 @@ namespace Indice.Hosting.EntityFrameworkCore
         /// </summary>
         /// <typeparam name="T">The type of message to convert to.</typeparam>
         public QMessage<T> ToModel<T>(JsonSerializerOptions options = null) where T : class => new QMessage<T> {
-            Id = Id,
+            Id = Id.ToString(),
             Date = Date,
             DequeueCount = DequeueCount,
             QueueName = QueueName,

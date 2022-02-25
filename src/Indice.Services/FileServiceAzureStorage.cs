@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Azure;
@@ -17,27 +16,27 @@ namespace Indice.Services
     public class FileServiceAzureStorage : IFileService
     {
         /// <summary>
-        /// The conection string parameter name. The setting key that will be searched inside the configuration.
+        /// The connection string parameter name. The setting key that will be searched inside the configuration.
         /// </summary>
         public const string CONNECTION_STRING_NAME = "StorageConnection";
-        private readonly string _environmentName;
+        private readonly string _containerName;
         private readonly string _connectionString;
 
         /// <summary>
         /// Constructs the service.
         /// </summary>
         /// <param name="connectionString">The connection string to the Azure Storage account.</param>
-        /// <param name="environmentName">The environment name (ex. Development, Production).</param>
-        public FileServiceAzureStorage(string connectionString, string environmentName) {
+        /// <param name="containerName">Usually The environment name (ex. Development, Production).</param>
+        public FileServiceAzureStorage(string connectionString, string containerName) {
             if (string.IsNullOrEmpty(connectionString)) {
                 throw new ArgumentNullException(nameof(connectionString));
             }
-
-            if (string.IsNullOrEmpty(environmentName)) {
-                _environmentName = "production";
+            if (!string.IsNullOrEmpty(containerName)) {
+                _containerName = Regex.Replace(containerName, @"\s+", "-").ToLowerInvariant();
+            } else {
+                _containerName = null;
             }
             _connectionString = connectionString;
-            _environmentName = Regex.Replace(environmentName ?? "Development", @"\s+", "-").ToLowerInvariant();
         }
 
         /// <summary>
@@ -47,8 +46,8 @@ namespace Indice.Services
         /// <param name="stream">The content of the file represented as a <see cref="Stream"/>.</param>
         public async Task SaveAsync(string filepath, Stream stream) {
             filepath = filepath.TrimStart('\\', '/');
-            var folder = _environmentName ?? Path.GetDirectoryName(filepath);
-            var filename = _environmentName == null ? filepath.Substring(folder.Length) : filepath;
+            var folder = _containerName ?? Path.GetDirectoryName(filepath);
+            var filename = _containerName == null ? filepath.Substring(folder.Length) : filepath;
             var container = new BlobContainerClient(_connectionString, folder);
             await container.CreateIfNotExistsAsync();
             var blob = container.GetBlobClient(filename);
@@ -69,8 +68,8 @@ namespace Indice.Services
         /// <param name="filepath">The path to the file.</param>
         public async Task<byte[]> GetAsync(string filepath) {
             filepath = filepath.TrimStart('\\', '/');
-            var folder = _environmentName ?? Path.GetDirectoryName(filepath);
-            var filename = _environmentName == null ? filepath.Substring(folder.Length) : filepath;
+            var folder = _containerName ?? Path.GetDirectoryName(filepath);
+            var filename = _containerName == null ? filepath.Substring(folder.Length) : filepath;
             var container = new BlobContainerClient(_connectionString, folder);
             await container.CreateIfNotExistsAsync();
             var exists = await container.ExistsAsync();
@@ -99,8 +98,8 @@ namespace Indice.Services
         /// <param name="filepath">The path to the file.</param>
         public async Task<IEnumerable<string>> SearchAsync(string filepath) {
             filepath = filepath.TrimStart('\\', '/');
-            var folder = _environmentName ?? Path.GetDirectoryName(filepath);
-            var filename = _environmentName == null ? filepath.Substring(folder.Length) : filepath;
+            var folder = _containerName ?? Path.GetDirectoryName(filepath);
+            var filename = _containerName == null ? filepath.Substring(folder.Length) : filepath;
             var container = new BlobContainerClient(_connectionString, folder);
             var exists = await container.ExistsAsync();
             if (!exists) {
@@ -133,8 +132,8 @@ namespace Indice.Services
         /// <param name="filepath">The path to the file.</param>
         public async Task<FileProperties> GetPropertiesAsync(string filepath) {
             filepath = filepath.TrimStart('\\', '/');
-            var folder = _environmentName ?? Path.GetDirectoryName(filepath);
-            var filename = _environmentName == null ? filepath.Substring(folder.Length) : filepath;
+            var folder = _containerName ?? Path.GetDirectoryName(filepath);
+            var filename = _containerName == null ? filepath.Substring(folder.Length) : filepath;
             var container = new BlobContainerClient(_connectionString, folder);
             var exists = await container.ExistsAsync();
             if (!exists) {
@@ -150,7 +149,7 @@ namespace Indice.Services
                     ContentHash = System.Text.Encoding.UTF8.GetString(response.Value.ContentHash),
                     ContentType = response.Value.ContentType,
                     Length = response.Value.ContentLength,
-                    ETag = response.Value.ETag.ToString(),
+                    ETag = response.Value.ETag.GetHttpSafeETag(),
                     LastModified = response.Value.LastModified
                 };
             } catch (RequestFailedException ex)
@@ -166,8 +165,8 @@ namespace Indice.Services
         /// <param name="isDirectory">Determines if the <paramref name="filepath"/> points to a single file or a directory.</param>
         public async Task<bool> DeleteAsync(string filepath, bool isDirectory = false) {
             filepath = filepath.TrimStart('\\', '/');
-            var folder = _environmentName ?? Path.GetDirectoryName(filepath);
-            var filename = _environmentName == null ? filepath.Substring(folder.Length) : filepath;
+            var folder = _containerName ?? Path.GetDirectoryName(filepath);
+            var filename = _containerName == null ? filepath.Substring(folder.Length) : filepath;
             var container = new BlobContainerClient(_connectionString, folder);
             var exists = await container.ExistsAsync();
             if (!exists) {
@@ -193,13 +192,13 @@ namespace Indice.Services
         public class FileServiceOptions
         {
             /// <summary>
-            /// The connection string to the Azure Storage account.
+            /// The connection string setting name pointing to the to the Azure Storage account.
             /// </summary>
-            public string ConnectionString { get; set; }
+            public string ConnectionStringName { get; set; }
             /// <summary>
-            /// The environment name (ex. Development, Production).
+            /// Usually the environment name (ex. Development, Production).
             /// </summary>
-            public string EnvironmentName { get; set; }
+            public string ContainerName { get; set; }
         }
     }
 }

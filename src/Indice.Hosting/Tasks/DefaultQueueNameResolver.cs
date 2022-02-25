@@ -1,4 +1,4 @@
-﻿namespace Indice.Hosting
+﻿namespace Indice.Hosting.Tasks
 {
     /// <summary>
     /// Resolves the queue name. Uses the configured queue name through the corresponding <see cref="QueueOptions"/>. If that is empty fallback to the entity name.

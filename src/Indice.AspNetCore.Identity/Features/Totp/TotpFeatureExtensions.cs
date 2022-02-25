@@ -14,14 +14,14 @@ namespace Microsoft.Extensions.DependencyInjection
     public static class TotpFeatureExtensions
     {
         /// <summary>
-        /// Adds all required stuff in order for TOTP strong customer authentication (SCA) to work.
+        /// Adds all required services and controllers in order for TOTP strong customer authentication (SCA) to work.
         /// </summary>
         /// <param name="builder">IdentityServer builder Interface.</param>
         /// <param name="configure">Configuration used in <see cref="Rfc6238AuthenticationService"/> service.</param>
         public static IMvcBuilder AddTotp(this IMvcBuilder builder, Action<TotpOptions> configure = null) => AddTotp<TotpService>(builder, configure);
 
         /// <summary>
-        /// Adds all required stuff in order for TOTP strong customer authentication (SCA) to work.
+        /// Adds all required services and controllers in order for TOTP strong customer authentication (SCA) to work.
         /// </summary>
         /// <typeparam name="TotpService">The type of <see cref="ITotpService"/> service implementation to use.</typeparam>
         /// <param name="builder">IdentityServer builder Interface.</param>
@@ -33,21 +33,21 @@ namespace Microsoft.Extensions.DependencyInjection
         }
 
         /// <summary>
-        /// Adds all required stuff in order for TOTP strong customer authentication (SCA) to work.
+        /// Adds all required services and controllers in order for TOTP strong customer authentication (SCA) to work.
         /// </summary>
         /// <param name="builder">IdentityServer builder Interface.</param>
         /// <param name="configure">Configuration used in <see cref="Rfc6238AuthenticationService"/>.</param>
         public static IIdentityServerBuilder AddTotp(this IIdentityServerBuilder builder, Action<TotpOptions> configure = null) => AddTotp<TotpService>(builder, configure);
 
         /// <summary>
-        /// Adds all required stuff in order for TOTP strong customer authentication (SCA) to work.
+        /// Adds all required services and controllers in order for TOTP strong customer authentication (SCA) to work.
         /// </summary>
         /// <typeparam name="TotpService">The type of <see cref="ITotpService"/> service implementation to use.</typeparam>
         /// <param name="builder">IdentityServer builder Interface.</param>
         /// <param name="configure">Configuration used in <see cref="Rfc6238AuthenticationService"/> service.</param>
         public static IIdentityServerBuilder AddTotp<TotpService>(this IIdentityServerBuilder builder, Action<TotpOptions> configure = null) where TotpService : class, ITotpService {
             builder.Services.AddDefaultTotpService(configure);
-            builder.Services.Configure<IdentityServerOptions>((options) => {
+            builder.Services.Configure<IdentityServerOptions>(options => {
                 options.Discovery.CustomEntries.Add("totp", new {
                     endpoint = options.IssuerUri.TrimEnd('/') + "/totp",
                     providers = new[] { 

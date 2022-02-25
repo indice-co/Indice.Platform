@@ -2,13 +2,17 @@ export const environment = {
     api_url: '',
     api_docs: 'docs/index.html',
     auth_settings: {
+        accessTokenExpiringNotificationTime: 60,
         authority: '',
+        automaticSilentRenew: true,
         client_id: '',
         filterProtocolClaims: true,
         loadUserInfo: true,
-        post_logout_redirect_uri: 'logged-out',
+        monitorSession: true,
+        post_logout_redirect_uri: '',
         redirect_uri: 'auth-callback',
         response_type: 'code',
+        revokeAccessTokenOnSignout: true,
         scope: 'openid profile email role offline_access identity identity:clients identity:users',
         silent_redirect_uri: 'auth-renew'
     },

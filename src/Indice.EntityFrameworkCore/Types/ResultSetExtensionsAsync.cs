@@ -36,10 +36,10 @@ namespace Indice.Types
         /// <returns>The results in a set that contains a page set of the total available records and the total count.</returns>
         public static async Task<ResultSet<T>> ToResultSetAsync<T>(this IQueryable<T> source, int page, int size) {
             if (page <= 0) {
-                throw new ArgumentOutOfRangeException(nameof(page), "Must be a positive integer");
+                throw new ArgumentOutOfRangeException(nameof(page), "Must be a positive integer.");
             }
             if (size < 0) {
-                throw new ArgumentOutOfRangeException(nameof(size), "Must be a positive integer");
+                throw new ArgumentOutOfRangeException(nameof(size), "Must be a positive integer.");
             }
             var index = page - 1;
             if (size == 0) {

@@ -1,15 +1,15 @@
-﻿using System.Threading;
+﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using Indice.AspNetCore.Identity.Data.Models;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 
-namespace Indice.AspNetCore.Identity.Extensions
+namespace Indice.AspNetCore.Identity
 {
     /// <summary>
-    /// Custom <see cref="UserStore"/> that provides password history features.
+    /// Custom <see cref="IUserStore{T}"/> that provides password history features.
     /// </summary>
-    /// <typeparam name="TUser"></typeparam>
+    /// <typeparam name="TUser">The user type.</typeparam>
     public interface IExtendedUserStore<TUser> where TUser : User
     {
         /// <summary>
@@ -17,11 +17,6 @@ namespace Indice.AspNetCore.Identity.Extensions
         /// Then when a user changes his password these will be check against so that no new password matches any stored in the history table.
         /// </summary>
         int? PasswordHistoryLimit { get; }
-        /// <summary>
-        /// The password history retention is a double indicating the number of days the each password stored into history will be retained.
-        /// The expiration day is calculated according to the date changed and not the created date.
-        /// </summary>
-        double? PasswordHistoryRetentionDays { get; }
         /// <summary>
         /// The password expiration policy is the default setting that every new user created by the <see cref="UserManager{TUser}"/> will inherit in regards
         /// to when their password will need to be changed. This settings is only for new users created any only if no explicit password policy is set.
@@ -46,5 +41,12 @@ namespace Indice.AspNetCore.Identity.Extensions
         /// <param name="changePassword">The value to use.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
         Task SetPasswordExpiredAsync(TUser user, bool changePassword, CancellationToken cancellationToken);
+        /// <summary>
+        /// Sets the <see cref="User.LastSignInDate"/> property of the user.
+        /// </summary>
+        /// <param name="user">The user instance.</param>
+        /// <param name="timestamp">The <see cref="DateTimeOffset"/> value that the user signed in. Defaults to <see cref="DateTimeOffset.UtcNow"/>.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
+        Task SetLastSignInDateAsync(TUser user, DateTimeOffset? timestamp, CancellationToken cancellationToken);
     }
 }

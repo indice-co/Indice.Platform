@@ -1,4 +1,4 @@
-﻿namespace Indice.Hosting
+﻿namespace Indice.Hosting.Tasks
 {
     /// <summary>
     /// The queue message status

@@ -10,13 +10,13 @@ using IdentityServer4.Services;
 using IdentityServer4.Stores;
 using IdentityServer4.Validation;
 using Indice.AspNetCore.Filters;
-using Indice.AspNetCore.Identity;
 using Indice.AspNetCore.Identity.Extensions;
 using Indice.AspNetCore.Identity.Models;
 using Indice.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using IEventService = IdentityServer4.Services.IEventService;
 
 namespace Indice.Identity.Controllers
 {
@@ -48,7 +48,7 @@ namespace Indice.Identity.Controllers
         public ConsentController(
             IIdentityServerInteractionService interaction, 
             IClientStore clientStore, 
-            IResourceStore resourceStore, 
+            IResourceStore resourceStore,
             IEventService events, 
             ILogger<ConsentController> logger,
             ITotpService totpService
@@ -161,7 +161,7 @@ namespace Indice.Identity.Controllers
             return null;
         }
 
-        private ConsentViewModel CreateConsentViewModel(ConsentInputModel model, string returnUrl, AuthorizationRequest request) {
+        private static ConsentViewModel CreateConsentViewModel(ConsentInputModel model, string returnUrl, AuthorizationRequest request) {
             var viewModel = new ConsentViewModel {
                 RememberConsent = model?.RememberConsent ?? true,
                 ScopesConsented = model?.ScopesConsented ?? Enumerable.Empty<string>(),
@@ -188,7 +188,7 @@ namespace Indice.Identity.Controllers
             return viewModel;
         }
 
-        private ScopeViewModel CreateScopeViewModel(IdentityResource identity, bool check) => new ScopeViewModel {
+        private static ScopeViewModel CreateScopeViewModel(IdentityResource identity, bool check) => new() {
             Value = identity.Name,
             DisplayName = identity.DisplayName ?? identity.Name,
             Description = identity.Description,
@@ -212,7 +212,7 @@ namespace Indice.Identity.Controllers
             };
         }
 
-        private ScopeViewModel GetOfflineAccessScope(bool check) => new ScopeViewModel {
+        private static ScopeViewModel GetOfflineAccessScope(bool check) => new() {
             Value = IdentityServerConstants.StandardScopes.OfflineAccess,
             DisplayName = ConsentOptions.OfflineAccessDisplayName,
             Description = ConsentOptions.OfflineAccessDescription,

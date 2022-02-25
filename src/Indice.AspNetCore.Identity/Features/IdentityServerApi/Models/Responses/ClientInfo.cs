@@ -45,6 +45,21 @@ namespace Indice.AspNetCore.Identity.Api.Models
         /// Specifies whether the client can be edited or not.
         /// </summary>
         public bool NonEditable { get; set; }
+
+        /// <summary>
+        /// Creates a new instace of <see cref="ClientInfo"/> from a <see cref="IdentityServer4.EntityFramework.Entities.Client"/> object.
+        /// </summary>
+        /// <param name="client">The client instance.</param>
+        public static ClientInfo FromClient(IdentityServer4.EntityFramework.Entities.Client client) => new() {
+            ClientId = client.ClientId,
+            ClientName = client.ClientName,
+            ClientUri = client.ClientUri,
+            Description = client.Description,
+            AllowRememberConsent = client.AllowRememberConsent,
+            Enabled = client.Enabled,
+            LogoUri = client.LogoUri,
+            RequireConsent = client.RequireConsent
+        };
     }
 
     /// <summary>
@@ -195,6 +210,14 @@ namespace Indice.AspNetCore.Identity.Api.Models
         /// Translations.
         /// </summary>
         public TranslationDictionary<ClientTranslation> Translations { get; set; }
+        /// <summary>
+        /// Determines whether login using a local account is allowed for this client. 
+        /// </summary>
+        public bool EnableLocalLogin { get; set; }
+        /// <summary>
+        /// List of identity providers that are not allowed for this client.
+        /// </summary>
+        public IEnumerable<string> IdentityProviderRestrictions { get; set; }
     }
 
     /// <summary>
@@ -203,9 +226,9 @@ namespace Indice.AspNetCore.Identity.Api.Models
     public class ClientTranslation
     {
         /// <summary>
-        /// The display name of the client.
+        /// The name of the client.
         /// </summary>
-        public string DisplayName { get; set; }
+        public string ClientName { get; set; }
         /// <summary>
         /// The description of the client.
         /// </summary>

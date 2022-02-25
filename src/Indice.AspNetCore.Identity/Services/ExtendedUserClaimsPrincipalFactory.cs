@@ -21,9 +21,8 @@ namespace Indice.AspNetCore.Identity
         /// </summary>
         /// <param name="userManager">The <see cref="UserManager{TUser}"/> to retrieve user information from.</param>
         /// <param name="roleManager">The <see cref="RoleManager{TRole}"/> to retrieve a user's roles from.</param>
-        /// <param name="optionsAccessor">The configured <see cref="AppSetting"/>.</param>
-        public ExtendedUserClaimsPrincipalFactory(UserManager<User> userManager, RoleManager<IdentityRole> roleManager, IOptions<IdentityOptions> optionsAccessor)
-            : base(userManager, roleManager, optionsAccessor) { }
+        /// <param name="optionsAccessor">The configured <see cref="IdentityOptions"/>.</param>
+        public ExtendedUserClaimsPrincipalFactory(UserManager<User> userManager, RoleManager<IdentityRole> roleManager, IOptions<IdentityOptions> optionsAccessor) : base(userManager, roleManager, optionsAccessor) { }
 
         /// <summary>
         ///  Generates the claims for a user.
@@ -40,16 +39,15 @@ namespace Indice.AspNetCore.Identity
         where TUser : User
         where TRole : IdentityRole
     {
-        const string ISOFORMAT = "yyyy-MM-dd\\THH:mm:ss.fffK"; //ISO-8601 used by Javascript (ALWAYS UTC)
+        const string ISOFORMAT = "yyyy-MM-dd\\THH:mm:ss.fffK"; //ISO-8601 used by JavaScript (ALWAYS UTC)
 
         /// <summary>
         /// Constructor for the extender user claims principal factory.
         /// </summary>
         /// <param name="userManager">The <see cref="UserManager{TUser}"/> to retrieve user information from.</param>
         /// <param name="roleManager">The <see cref="RoleManager{TRole}"/> to retrieve a user's roles from.</param>
-        /// <param name="optionsAccessor">The configured <see cref="AppSetting"/>.</param>
-        public ExtendedUserClaimsPrincipalFactory(UserManager<TUser> userManager, RoleManager<TRole> roleManager, IOptions<IdentityOptions> optionsAccessor)
-            : base(userManager, roleManager, optionsAccessor) { }
+        /// <param name="optionsAccessor">The configured <see cref="IdentityOptions"/>.</param>
+        public ExtendedUserClaimsPrincipalFactory(UserManager<TUser> userManager, RoleManager<TRole> roleManager, IOptions<IdentityOptions> optionsAccessor) : base(userManager, roleManager, optionsAccessor) { }
 
         /// <summary>
         /// Generates the claims for a user.
@@ -71,6 +69,9 @@ namespace Indice.AspNetCore.Identity
                     }
                 }
                 additionalClaims.Add(new Claim(BasicClaimTypes.Admin, isAdmin.ToString().ToLower(), ClaimValueTypes.Boolean));
+            }
+            if (!identity.HasClaim(x => x.Type == BasicClaimTypes.PasswordExpired) && user.HasExpiredPassword()) {
+                additionalClaims.Add(new Claim(BasicClaimTypes.PasswordExpired, "true", ClaimValueTypes.Boolean));
             }
             if (!identity.HasClaim(x => x.Type == BasicClaimTypes.PasswordExpirationDate) && user.PasswordExpirationDate.HasValue) {
                 additionalClaims.Add(new Claim(BasicClaimTypes.PasswordExpirationDate, ToISOString(user.PasswordExpirationDate.Value.UtcDateTime), ClaimValueTypes.DateTime));

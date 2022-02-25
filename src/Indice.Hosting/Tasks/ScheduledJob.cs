@@ -1,10 +1,12 @@
 ﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
+using Indice.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Quartz;
 
-namespace Indice.Hosting
+namespace Indice.Hosting.Tasks
 {
     [PersistJobDataAfterExecution]
     internal class ScheduledJob<TTaskHandler, TState> : IJob where TTaskHandler : class where TState : class, new()
@@ -13,23 +15,35 @@ namespace Indice.Hosting
         private readonly ILogger<ScheduledJob<TTaskHandler, TState>> _logger;
         private readonly IScheduledTaskStore<TState> _scheduledTaskStore;
         private readonly IConfiguration _configuration;
+        private readonly ILockManager _lockManager;
 
-        public ScheduledJob(TaskHandlerActivator taskHandlerActivator, IScheduledTaskStore<TState> scheduledTaskStore, ILogger<ScheduledJob<TTaskHandler, TState>> logger, IConfiguration configuration) {
+        public ScheduledJob(TaskHandlerActivator taskHandlerActivator, IScheduledTaskStore<TState> scheduledTaskStore, ILogger<ScheduledJob<TTaskHandler, TState>> logger, IConfiguration configuration, ILockManager lockManager) {
             _taskHandlerActivator = taskHandlerActivator ?? throw new ArgumentNullException(nameof(taskHandlerActivator));
             _scheduledTaskStore = scheduledTaskStore ?? throw new ArgumentNullException(nameof(scheduledTaskStore));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
+            _lockManager = lockManager ?? throw new ArgumentNullException(nameof(lockManager));
         }
 
         public async Task Execute(IJobExecutionContext context) {
-            if (_configuration.StopWorkerHost()) {
-                return;
-            }
             _logger.LogInformation("Scheduled job run at: {Timestamp}", DateTime.UtcNow);
             var jobDataMap = context.JobDetail.JobDataMap;
             var jobHandlerType = jobDataMap[JobDataKeys.JobHandlerType] as Type;
+            var singleton = jobDataMap[JobDataKeys.Singleton] as bool? ?? false;
+            if (singleton) {
+                await _lockManager.ExclusiveRun(context.JobDetail.Key.ToString(), token => ExecuteInternal(context, jobHandlerType, token), context.CancellationToken);
+                return;
+            }
+            // No lock is needed so execute at will.
+            await ExecuteInternal(context, jobHandlerType);
+        }
+        
+        private async Task ExecuteInternal(IJobExecutionContext context, Type jobHandlerType, CancellationToken? cancellationToken = null) {
             var scheduledTask = await _scheduledTaskStore.GetById(context.JobDetail.Key.ToString());
-            if (scheduledTask == null) {
+            if (scheduledTask?.Enabled == false) {
+                return;
+            }
+            if (scheduledTask is null) {
                 scheduledTask = new ScheduledTask<TState> {
                     Id = context.JobDetail.Key.ToString(),
                     Description = context.JobDetail.Description,
@@ -41,19 +55,21 @@ namespace Indice.Hosting
                     State = new TState(),
                     Status = ScheduledTaskStatus.Running,
                     Type = context.JobDetail.JobType.ToString(),
-                    WorkerId = context.Scheduler.SchedulerName
+                    WorkerId = Environment.MachineName,
+                    Enabled = true
                 };
             }
             scheduledTask.ExecutionCount++;
             scheduledTask.LastExecution = context.FireTimeUtc;
             scheduledTask.NextExecution = context.NextFireTimeUtc;
             scheduledTask.Status = ScheduledTaskStatus.Running;
-            scheduledTask.WorkerId = context.Scheduler.SchedulerName;
+            scheduledTask.WorkerId = Environment.MachineName;
             await _scheduledTaskStore.Save(scheduledTask);
             try {
-                await _taskHandlerActivator.Invoke(jobHandlerType, scheduledTask.State, context.CancellationToken);
+                await _taskHandlerActivator.Invoke(jobHandlerType, scheduledTask.State, cancellationToken ?? context.CancellationToken);
             } catch (Exception exception) {
                 scheduledTask.Errors = exception.ToString();
+                scheduledTask.LastErrorDate = DateTimeOffset.UtcNow;
                 _logger.LogError("An error occured while executing task '{TaskHandlerName}'. Exception is: {Exception}", jobHandlerType.Name, exception);
             } finally {
                 scheduledTask.Status = ScheduledTaskStatus.Idle;

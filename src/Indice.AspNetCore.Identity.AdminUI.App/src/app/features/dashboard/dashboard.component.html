@@ -7,15 +7,23 @@
                 </div>
             </div>
         </div>
-        <h5 class="m-t-20 m-b-30">Overview</h5>
-        <div class="row">
+        <h5 class="m-t-20"
+            *ngIf="summary.totalUsers > 0">
+            Overview
+        </h5>
+        <p class="text-muted font-14 m-b-30"
+           *ngIf="authService.isAdminUIUsersReader() && summary.totalUsers > 0">
+            last updated {{ summary.lastUpdatedAt | date : 'dd/MM/yyyy HH:mm'}}
+        </p>
+        <div class="row"
+             *ngIf="summary.totalUsers > 0">
             <div class="col-xl-3 col-md-6"
                  *ngIf="authService.isAdminUIUsersReader()">
                 <div class="card bg-primary mini-stat text-white">
                     <div class="p-3 mini-stat-desc">
                         <div class="clearfix">
                             <h6 class="text-uppercase mt-0 float-left text-white-50">Users</h6>
-                            <h4 class="mb-3 mt-0 float-right">{{ summary.numberOfUsers }}</h4>
+                            <h4 class="mb-3 mt-0 float-right">{{ summary.totalUsers }}</h4>
                         </div>
                     </div>
                     <div class="p-3">
@@ -34,7 +42,7 @@
                     <div class="p-3 mini-stat-desc">
                         <div class="clearfix">
                             <h6 class="text-uppercase mt-0 float-left text-white-50">Clients</h6>
-                            <h4 class="mb-3 mt-0 float-right">{{ summary.numberOfClients }}</h4>
+                            <h4 class="mb-3 mt-0 float-right">{{ summary.totalClients }}</h4>
                         </div>
                     </div>
                     <div class="p-3">
@@ -47,9 +55,180 @@
                     </div>
                 </div>
             </div>
+            <div class="col-xl-3 col-md-6"
+                 *ngIf="authService.isAdminUIUsersReader()">
+                <div class="card bg-warning mini-stat text-white">
+                    <div class="p-3 mini-stat-desc">
+                        <div class="clearfix">
+                            <h6 class="text-uppercase mt-0 float-left text-white-50">Roles</h6>
+                            <h4 class="mb-3 mt-0 float-right">{{ summary.totalRoles }}</h4>
+                        </div>
+                    </div>
+                    <div class="p-3">
+                        <div class="float-right">
+                            <a class="text-white-50"
+                               [routerLink]="'/app/roles'">
+                                <i class="material-icons">security</i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
-        <h5 class="m-t-20 m-b-30">Latest News</h5>
-        <div class="card-columns">
+        <div class="row"
+             *ngIf="authService.isAdminUIUsersReader() && summary.activity">
+            <div class="col-xl-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h4 class="mt-0 header-title mb-4">User Activity</h4>
+                        <div class="latest-massage">
+                            <a href="javascript:void(0)"
+                               class="latest-message-list">
+                                <div class="border-bottom position-relative">
+                                    <div class="message-time"></div>
+                                    <div class="massage-desc">
+                                        <h5 class="font-14 mt-0 text-dark">Daily activity</h5>
+                                        <p class="text-muted mb-0">
+                                            <strong class="font-16">{{ summary.activity.day.count }}</strong>
+                                            signed in today
+                                        </p>
+                                        <p class="m-0 text-muted text-right">{{ summary.activity.day.percent }}%</p>
+                                        <div class="progress"
+                                             style="height: 5px;">
+                                            <div class="progress-bar bg-danger"
+                                                 role="progressbar"
+                                                 [ngStyle]="{ width: summary.activity.day.percent + '%' }"
+                                                 [attr.aria-valuenow]="summary.activity.day.percent"
+                                                 aria-valuemin="0"
+                                                 aria-valuemax="100">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </a>
+                            <hr>
+                            <a href="javascript:void(0)"
+                               class="latest-message-list">
+                                <div class="border-bottom position-relative">
+                                    <div class="message-time"></div>
+                                    <div class="massage-desc">
+                                        <h5 class="font-14 mt-0 text-dark">Weekly activity</h5>
+                                        <p class="text-muted mb-0">
+                                            <strong class="font-16">{{ summary.activity.week.count }}</strong>
+                                            signed in this week
+                                        </p>
+                                        <p class="m-0 text-muted text-right">{{ summary.activity.week.percent }}%</p>
+                                        <div class="progress"
+                                             style="height: 5px;">
+                                            <div class="progress-bar bg-warning"
+                                                 role="progressbar"
+                                                 [ngStyle]="{ width: summary.activity.week.percent + '%' }"
+                                                 [attr.aria-valuenow]="summary.activity.week.percent"
+                                                 aria-valuemin="0"
+                                                 aria-valuemax="100">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </a>
+                            <hr>
+                            <a href="javascript:void(0)"
+                               class="latest-message-list">
+                                <div class="border-bottom position-relative">
+                                    <div class="message-time"></div>
+                                    <div class="massage-desc">
+                                        <h5 class="font-14 mt-0 text-dark">Monthly activity</h5>
+                                        <p class="text-muted mb-0">
+                                            <strong class="font-16">{{ summary.activity.month.count }}</strong>
+                                            signed in this month
+                                        </p>
+                                        <p class="m-0 text-muted text-right">{{ summary.activity.month.percent }}%</p>
+                                        <div class="progress"
+                                             style="height: 5px;">
+                                            <div class="progress-bar bg-success"
+                                                 role="progressbar"
+                                                 [ngStyle]="{ width: summary.activity.month.percent + '%' }"
+                                                 [attr.aria-valuenow]="summary.activity.month.percent"
+                                                 aria-valuemin="0"
+                                                 aria-valuemax="100">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h4 class="mt-0 header-title mb-4">User Statistics</h4>
+                        <div class="latest-massage">
+                            <a href="javascript:void(0)"
+                               class="latest-message-list">
+                                <div class="border-bottom position-relative">
+                                    <div class="message-time"></div>
+                                    <div class="massage-desc">
+                                        <h5 class="font-14 mt-0 text-dark">Confirmed emails</h5>
+                                        <p class="text-muted mb-0">
+                                            <strong class="font-16">{{ summary.stats.emailsVerified.count }}</strong>
+                                            users have verified their email address
+                                        </p>
+                                        <p class="m-0 text-muted text-right">
+                                            {{ summary.stats.emailsVerified.percent }}%
+                                        </p>
+                                        <div class="progress"
+                                             style="height: 5px;">
+                                            <div class="progress-bar bg-danger"
+                                                 role="progressbar"
+                                                 [ngStyle]="{ width: summary.stats.emailsVerified.percent + '%' }"
+                                                 [attr.aria-valuenow]="summary.stats.emailsVerified.percent"
+                                                 aria-valuemin="0"
+                                                 aria-valuemax="100">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </a>
+                            <hr>
+                            <a href="javascript:void(0)"
+                               class="latest-message-list">
+                                <div class="border-bottom position-relative">
+                                    <div class="message-time"></div>
+                                    <div class="massage-desc">
+                                        <h5 class="font-14 mt-0 text-dark">Confirmed phone numbers</h5>
+                                        <p class="text-muted mb-0">
+                                            <strong class="font-16">
+                                                {{ summary.stats.phoneNumbersVerified.count }}
+                                            </strong>
+                                            users have verified their phone number
+                                        </p>
+                                        <p class="m-0 text-muted text-right">{{
+                                            summary.stats.phoneNumbersVerified.percent }}%</p>
+                                        <div class="progress"
+                                             style="height: 5px;">
+                                            <div class="progress-bar bg-warning"
+                                                 role="progressbar"
+                                                 [ngStyle]="{ width: summary.stats.phoneNumbersVerified.percent + '%' }"
+                                                 [attr.aria-valuenow]="summary.stats.phoneNumbersVerified.percent"
+                                                 aria-valuemin="0"
+                                                 aria-valuemax="100">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <h5 *ngIf="blogItems.length > 0">
+            Latest News
+        </h5>
+        <div class="card-columns"
+             *ngIf="blogItems">
             <div class="card m-b-30 card-body"
                  *ngFor="let item of blogItems; let i = index">
                 <h4 class="card-title font-16 mt-0">

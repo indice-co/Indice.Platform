@@ -4,7 +4,9 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using FluentValidation.AspNetCore;
 using Indice.AspNetCore.Identity.Api.Events;
+using Indice.AspNetCore.Identity.Data;
 using Indice.AspNetCore.Identity.Data.Models;
+using Indice.Extensions.Configuration.Database;
 using Indice.Identity;
 using Indice.Identity.Services;
 using Indice.Security;
@@ -13,7 +15,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
-using ValueType = Indice.AspNetCore.Identity.Data.Models.ValueType;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
@@ -28,69 +29,68 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
         /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
         public static IMvcBuilder AddMvcConfig(this IServiceCollection services, IConfiguration configuration) {
-            return services.AddControllersWithViews()
-                           .AddRazorRuntimeCompilation()
-                           .AddTotp()
-                           .AddIdentityServerApiEndpoints(options => {
-                               // Configure the DbContext.
-                               options.AddDbContext(identityOptions => {
-                                   identityOptions.ConfigureDbContext = builder => {
-                                       builder.UseSqlServer(configuration.GetConnectionString("IdentityDb"));
-                                   };
-                               });
-                               // Enable events and register handlers.
-                               options.CanRaiseEvents = true;
-                               options.DisableCache = false;
-                               options.AddEventHandler<ClientCreatedEvent, ClientCreatedEventHandler>();
-                               options.AddEventHandler<UserEmailConfirmedEvent, UserEmailConfirmedEventHandler>();
-                               // Update email options.
-                               options.Email.SendEmailOnUpdate = true;
-                               // Update phone number options.
-                               options.PhoneNumber.SendOtpOnUpdate = true;
-                               // Add custom initial user and enable test data.
-                               options.SeedDummyUsers = false;
-                               options.InitialUsers = GetInitialUsers();
-                               options.CustomClaims = GetCustomClaimTypes();
-                           })
-                           .SetCompatibilityVersion(CompatibilityVersion.Latest)
-                           .ConfigureApiBehaviorOptions(options => {
-                               options.ClientErrorMapping[400].Link = "https://httpstatuses.com/400";
-                               options.ClientErrorMapping[401].Link = "https://httpstatuses.com/401";
-                               options.ClientErrorMapping[403].Link = "https://httpstatuses.com/403";
-                               options.ClientErrorMapping[404].Link = "https://httpstatuses.com/404";
-                               options.ClientErrorMapping.Add(405, new ClientErrorData {
-                                   Link = "https://httpstatuses.com/405",
-                                   Title = "Method Not Allowed"
-                               });
-                               options.ClientErrorMapping[406].Link = "https://httpstatuses.com/406";
-                               options.ClientErrorMapping[409].Link = "https://httpstatuses.com/409";
-                               options.ClientErrorMapping.Add(429, new ClientErrorData {
-                                   Link = "https://httpstatuses.com/429",
-                                   Title = "Too Many Requests"
-                               });
-                               options.ClientErrorMapping[500].Link = "https://httpstatuses.com/500";
-                           })
-                           .AddCookieTempDataProvider()
-                           .AddMvcOptions(options => {
-                               options.FormatterMappings.SetMediaTypeMappingForFormat("json", "application/json");
-                               options.FormatterMappings.SetMediaTypeMappingForFormat("pdf", "application/pdf");
-                               options.FormatterMappings.SetMediaTypeMappingForFormat("html", "text/html");
-                               options.FormatterMappings.SetMediaTypeMappingForFormat("docx", "application/vnd.openxmlformats-officedocument.wordprocessingml.document");
-                               options.FormatterMappings.SetMediaTypeMappingForFormat("xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
-                           })
-                           .AddJsonOptions(options => {
-                               options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
-                               options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
-                               options.JsonSerializerOptions.Converters.Add(new JsonAnyStringConverter());
-                               options.JsonSerializerOptions.IgnoreNullValues = true;
-                           })
-                           .AddFluentValidation(options => {
-                               options.RegisterValidatorsFromAssemblyContaining<Startup>();
-                               options.ConfigureClientsideValidation();
-                               options.RunDefaultMvcValidationAfterFluentValidationExecutes = true;
-                           })
-                           .AddAvatars()
-                           .AddViewLocalization(LanguageViewLocationExpanderFormat.Suffix);
+            var mvcBuilder = services.AddControllersWithViews()
+                                     .AddRazorRuntimeCompilation()
+                                     .AddTotp()
+                                     .AddDevices(options => options.UsePushNotificationsServiceAzure())
+                                     .AddPushNotifications()
+                                     .AddIdentityServerApiEndpoints(options => {
+                                         options.AddDbContext(context => context.ConfigureDbContext = builder => builder.UseSqlServer(configuration.GetConnectionString("IdentityDb")));
+                                         options.CanRaiseEvents = true;
+                                         options.DisableCache = false;
+                                         options.AddPlatformEventHandler<ClientCreatedEvent, ClientCreatedEventHandler>();
+                                         options.AddPlatformEventHandler<UserEmailConfirmedEvent, UserEmailConfirmedEventHandler>();
+                                         options.Email.SendEmailOnUpdate = true;
+                                         options.PhoneNumber.SendOtpOnUpdate = true;
+                                         options.SeedDummyUsers = false;
+                                         options.InitialUsers = GetInitialUsers();
+                                         options.CustomClaims = GetCustomClaimTypes();
+                                     })
+                                     .ConfigureApiBehaviorOptions(options => {
+                                         options.ClientErrorMapping[400].Link = "https://httpstatuses.com/400";
+                                         options.ClientErrorMapping[401].Link = "https://httpstatuses.com/401";
+                                         options.ClientErrorMapping[403].Link = "https://httpstatuses.com/403";
+                                         options.ClientErrorMapping[404].Link = "https://httpstatuses.com/404";
+                                         options.ClientErrorMapping.Add(405, new ClientErrorData {
+                                             Link = "https://httpstatuses.com/405",
+                                             Title = "Method Not Allowed"
+                                         });
+                                         options.ClientErrorMapping[406].Link = "https://httpstatuses.com/406";
+                                         options.ClientErrorMapping[409].Link = "https://httpstatuses.com/409";
+                                         options.ClientErrorMapping.Add(429, new ClientErrorData {
+                                             Link = "https://httpstatuses.com/429",
+                                             Title = "Too Many Requests"
+                                         });
+                                         options.ClientErrorMapping[500].Link = "https://httpstatuses.com/500";
+                                     })
+                                     .AddCookieTempDataProvider()
+                                     .AddMvcOptions(options => {
+                                         options.FormatterMappings.SetMediaTypeMappingForFormat("json", "application/json");
+                                         options.FormatterMappings.SetMediaTypeMappingForFormat("pdf", "application/pdf");
+                                         options.FormatterMappings.SetMediaTypeMappingForFormat("html", "text/html");
+                                         options.FormatterMappings.SetMediaTypeMappingForFormat("docx", "application/vnd.openxmlformats-officedocument.wordprocessingml.document");
+                                         options.FormatterMappings.SetMediaTypeMappingForFormat("xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+                                     })
+                                     .AddJsonOptions(options => {
+                                         options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+                                         options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+                                         options.JsonSerializerOptions.Converters.Add(new JsonAnyStringConverter());
+                                         options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
+                                     })
+                                     .AddFluentValidation(options => {
+                                         options.RegisterValidatorsFromAssemblyContaining<Startup>();
+                                         options.ConfigureClientsideValidation();
+                                     })
+                                     .AddAvatars(o => {
+                                         o.TileSizes = new [] { 
+                                             129
+                                         };
+                                     })
+                                     .AddViewLocalization(LanguageViewLocationExpanderFormat.Suffix, options => {
+                                         options.ResourcesPath = "Resources";
+                                     });
+            services.AddClientAwareViewLocationExpander();
+            return mvcBuilder;
         }
 
         private static List<User> GetInitialUsers() => new() {
@@ -120,7 +120,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 Reserved = false,
                 Required = false,
                 UserEditable = false,
-                ValueType = ValueType.String
+                ValueType = Indice.AspNetCore.Identity.Data.Models.ValueType.String
             }
         };
     }

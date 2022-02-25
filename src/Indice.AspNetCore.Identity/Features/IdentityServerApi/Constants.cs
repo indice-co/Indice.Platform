@@ -65,7 +65,6 @@ namespace Indice.AspNetCore.Identity.Api.Security
             /// A user must have the 'Admin' flag or own one of the <see cref="BasicRoleNames.Administrator"/>, <see cref="BasicRoleNames.AdminUIAdministrator"/> or <see cref="BasicRoleNames.AdminUIClientsWriter"/> roles.
             /// </summary>
             public const string BeClientsWriter = nameof(BeClientsWriter);
-
             /// <summary>
             /// A user must have the 'Admin' flag or own one of the <see cref="BasicRoleNames.Administrator"/>, <see cref="BasicRoleNames.AdminUIAdministrator"/>, <see cref="BasicRoleNames.AdminUIUsersReader"/> or <see cref="BasicRoleNames.AdminUIClientsReader"/> roles.
             /// </summary>

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Indice.Hosting.EntityFrameworkCore
+namespace Indice.Hosting.Tasks.Data.Models
 {
     /// <summary>
     /// Tracks a queue message task.

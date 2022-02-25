@@ -1,846 +1,383 @@
-<p class="mt-3"
-   *ngIf="!client">
-    Loading client tokens...
-</p>
-<form class="needs-validation mt-3"
-      *ngIf="client"
-      [ngClass]="{ 'was-validated': form.submitted }"
-      (ngSubmit)="form.form.valid && update()"
-      novalidate
-      [formReadonly]="!canEditClient"
-      #form="ngForm">
-    <ng-template let-value="value"
-                 #secondsTextContent>
-        <span class="text-muted"
-              *ngIf="value && value !== ''">
+<p class="mt-3" *ngIf="!client">Loading client tokens...</p>
+<form class="needs-validation mt-3" *ngIf="client" [ngClass]="{ 'was-validated': form.submitted }" (ngSubmit)="form.form.valid && update()" novalidate [formReadonly]="!canEditClient" #form="ngForm">
+    <ng-template let-value="value" #secondsTextContent>
+        <span class="text-muted" *ngIf="value && value !== ''">
             <i class="material-icons align-middle">timer</i>
             {{ utilities.secondsToText(value) }}
         </span>
     </ng-template>
-    <div class="form-group row"
-         *ngIf="hasAnyOf(['authorization_code', 'password', 'hybrid', 'implicit', 'urn:ietf:params:oauth:grant-type:device_code'])">
-        <label for="client-identity-token-lifetime"
-               class="col-sm-3 col-form-label">
-            <i class="material-icons align-middle"
-               title="Lifetime of identity token in seconds.">
-                info
-            </i>
+    <div class="form-group row" *ngIf="hasAnyOf(['authorization_code', 'password', 'hybrid', 'implicit', 'urn:ietf:params:oauth:grant-type:device_code'])">
+        <label for="client-identity-token-lifetime" class="col-sm-3 col-form-label">
+            <i class="material-icons align-middle" title="Lifetime of identity token in seconds.">info</i>
             Identity Token Lifetime (sec) (*)
         </label>
         <div class="col-sm-9">
             <div class="input-group">
-                <span class="input-group-prepend"
-                      [ngStyle]="{ 'pointer-events': !canEditClient ? 'none' : 'auto' }"
-                      (click)="canEditClient ? client.identityTokenLifetime = utilities.minutesToSeconds(5) : null;">
-                    <span [ngClass]="{ 'active': client.identityTokenLifetime === utilities.minutesToSeconds(5) }"
-                          class="input-group-text btn btn-secondary"
-                          style="font-size: 12px;">
-                        5 mins
-                    </span>
+                <span class="input-group-prepend" [ngStyle]="{ 'pointer-events': !canEditClient ? 'none' : 'auto' }" (click)="canEditClient ? client.identityTokenLifetime = utilities.minutesToSeconds(5) : null;">
+                    <span [ngClass]="{ 'active': client.identityTokenLifetime === utilities.minutesToSeconds(5) }" class="input-group-text btn btn-secondary" style="font-size: 12px;">5 mins</span>
                 </span>
-                <span class="input-group-prepend"
-                      [ngStyle]="{ 'pointer-events': !canEditClient ? 'none' : 'auto' }"
-                      (click)="canEditClient ? client.identityTokenLifetime = utilities.minutesToSeconds(10) : null">
-                    <span [ngClass]="{ 'active': client.identityTokenLifetime === utilities.minutesToSeconds(10) }"
-                          class="input-group-text btn btn-secondary"
-                          style="font-size: 12px;">
-                        10 mins
-                    </span>
+                <span class="input-group-prepend" [ngStyle]="{ 'pointer-events': !canEditClient ? 'none' : 'auto' }" (click)="canEditClient ? client.identityTokenLifetime = utilities.minutesToSeconds(10) : null">
+                    <span [ngClass]="{ 'active': client.identityTokenLifetime === utilities.minutesToSeconds(10) }" class="input-group-text btn btn-secondary" style="font-size: 12px;">10 mins</span>
                 </span>
-                <input class="form-control"
-                       type="number"
-                       min="0"
-                       id="client-identity-token-lifetime"
-                       name="client-identity-token-lifetime"
-                       [(ngModel)]="client.identityTokenLifetime"
-                       required
-                       #identityTokenLifetime="ngModel" />
+                <input class="form-control" type="number" min="0" id="client-identity-token-lifetime" name="client-identity-token-lifetime" [(ngModel)]="client.identityTokenLifetime" required #identityTokenLifetime="ngModel" />
             </div>
-            <ng-container [ngTemplateOutlet]="secondsTextContent"
-                          [ngTemplateOutletContext]="{ value: client.identityTokenLifetime }">
+            <ng-container [ngTemplateOutlet]="secondsTextContent" [ngTemplateOutletContext]="{ value: client.identityTokenLifetime }">
             </ng-container>
-            <div *ngIf="form.submitted && identityTokenLifetime.invalid"
-                 class="form-control-feedback text-danger">
-                Field 'Identity Token Lifetime' is required.
-            </div>
+            <div *ngIf="form.submitted && identityTokenLifetime.invalid" class="form-control-feedback text-danger">Field 'Identity Token Lifetime' is required.</div>
         </div>
     </div>
-    <div class="form-group row"
-         *ngIf="hasAnyOf(['authorization_code', 'password', 'client_credentials', 'hybrid', 'implicit', 'urn:ietf:params:oauth:grant-type:device_code'])">
-        <label for="client-access-token-lifetime"
-               class="col-sm-3 col-form-label">
-            <i class="material-icons align-middle"
-               title="Lifetime of access token in seconds.">
-                info
-            </i>
+    <div class="form-group row" *ngIf="hasAnyOf(['authorization_code', 'password', 'client_credentials', 'hybrid', 'implicit', 'urn:ietf:params:oauth:grant-type:device_code'])">
+        <label for="client-access-token-lifetime" class="col-sm-3 col-form-label">
+            <i class="material-icons align-middle" title="Lifetime of access token in seconds.">info</i>
             Access Token Lifetime (sec) (*)
         </label>
         <div class="col-sm-9">
             <div class="input-group">
-                <span class="input-group-prepend"
-                      [ngStyle]="{ 'pointer-events': !canEditClient ? 'none' : 'auto' }"
-                      (click)="canEditClient ? client.accessTokenLifetime = utilities.minutesToSeconds(15) : null;">
-                    <span [ngClass]="{ 'active': client.accessTokenLifetime === utilities.minutesToSeconds(15) }"
-                          class="input-group-text btn btn-secondary"
-                          style="font-size: 12px;">
-                        15 mins
-                    </span>
+                <span class="input-group-prepend" [ngStyle]="{ 'pointer-events': !canEditClient ? 'none' : 'auto' }" (click)="canEditClient ? client.accessTokenLifetime = utilities.minutesToSeconds(15) : null;">
+                    <span [ngClass]="{ 'active': client.accessTokenLifetime === utilities.minutesToSeconds(15) }" class="input-group-text btn btn-secondary" style="font-size: 12px;">15 mins</span>
                 </span>
-                <span class="input-group-prepend"
-                      [ngStyle]="{ 'pointer-events': !canEditClient ? 'none' : 'auto' }"
-                      (click)="canEditClient ? client.accessTokenLifetime = utilities.minutesToSeconds(30) : null;">
-                    <span [ngClass]="{ 'active': client.accessTokenLifetime === utilities.minutesToSeconds(30) }"
-                          class="input-group-text btn btn-secondary"
-                          style="font-size: 12px;">
-                        30 mins
-                    </span>
+                <span class="input-group-prepend" [ngStyle]="{ 'pointer-events': !canEditClient ? 'none' : 'auto' }" (click)="canEditClient ? client.accessTokenLifetime = utilities.minutesToSeconds(30) : null;">
+                    <span [ngClass]="{ 'active': client.accessTokenLifetime === utilities.minutesToSeconds(30) }" class="input-group-text btn btn-secondary" style="font-size: 12px;">30 mins</span>
                 </span>
-                <span class="input-group-prepend"
-                      [ngStyle]="{ 'pointer-events': !canEditClient ? 'none' : 'auto' }"
-                      (click)="canEditClient ? client.accessTokenLifetime = utilities.hoursToSeconds(1) : null;">
-                    <span [ngClass]="{ 'active': client.accessTokenLifetime === utilities.hoursToSeconds(1) }"
-                          class="input-group-text btn btn-secondary"
-                          style="font-size: 12px;">
-                        1 hr
-                    </span>
+                <span class="input-group-prepend" [ngStyle]="{ 'pointer-events': !canEditClient ? 'none' : 'auto' }" (click)="canEditClient ? client.accessTokenLifetime = utilities.hoursToSeconds(1) : null;">
+                    <span [ngClass]="{ 'active': client.accessTokenLifetime === utilities.hoursToSeconds(1) }" class="input-group-text btn btn-secondary" style="font-size: 12px;">1 hr</span>
                 </span>
-                <span class="input-group-prepend"
-                      [ngStyle]="{ 'pointer-events': !canEditClient ? 'none' : 'auto' }"
-                      (click)="canEditClient ? client.accessTokenLifetime = utilities.hoursToSeconds(5) : null;">
-                    <span [ngClass]="{ 'active': client.accessTokenLifetime === utilities.hoursToSeconds(5) }"
-                          class="input-group-text btn btn-secondary"
-                          style="font-size: 12px;">
-                        5 hr
-                    </span>
+                <span class="input-group-prepend" [ngStyle]="{ 'pointer-events': !canEditClient ? 'none' : 'auto' }" (click)="canEditClient ? client.accessTokenLifetime = utilities.hoursToSeconds(5) : null;">
+                    <span [ngClass]="{ 'active': client.accessTokenLifetime === utilities.hoursToSeconds(5) }" class="input-group-text btn btn-secondary" style="font-size: 12px;">5 hr</span>
                 </span>
-                <input class="form-control"
-                       type="number"
-                       min="0"
-                       id="client-access-token-lifetime"
-                       name="client-access-token-lifetime"
-                       [(ngModel)]="client.accessTokenLifetime"
-                       required
-                       #accessTokenLifetime="ngModel" />
+                <input class="form-control" type="number" min="0" id="client-access-token-lifetime" name="client-access-token-lifetime" [(ngModel)]="client.accessTokenLifetime" required #accessTokenLifetime="ngModel" />
             </div>
-            <ng-container [ngTemplateOutlet]="secondsTextContent"
-                          [ngTemplateOutletContext]="{ value: client.accessTokenLifetime }">
-            </ng-container>
-            <div *ngIf="form.submitted && accessTokenLifetime.invalid"
-                 class="form-control-feedback text-danger">
-                Field 'Access Token Lifetime' is required.
-            </div>
+            <ng-container [ngTemplateOutlet]="secondsTextContent" [ngTemplateOutletContext]="{ value: client.accessTokenLifetime }"></ng-container>
+            <div *ngIf="form.submitted && accessTokenLifetime.invalid" class="form-control-feedback text-danger">Field 'Access Token Lifetime' is required.</div>
         </div>
     </div>
-    <div class="form-group row"
-         *ngIf="hasAnyOf(['password', 'hybrid', 'urn:ietf:params:oauth:grant-type:device_code', 'authorization_code', 'implicit'])">
-        <label for="absolute-refresh-token-lifetime"
-               class="col-sm-3 col-form-label">
-            <i class="material-icons align-middle"
-               title="Maximum lifetime of a refresh token in seconds.">
-                info
-            </i>
+    <div class="form-group row" *ngIf="hasAnyOf(['password', 'hybrid', 'urn:ietf:params:oauth:grant-type:device_code', 'authorization_code', 'implicit'])">
+        <label for="absolute-refresh-token-lifetime" class="col-sm-3 col-form-label">
+            <i class="material-icons align-middle" title="Maximum lifetime of a refresh token in seconds.">info</i>
             Absolute Refresh Token Lifetime (sec) (*)
         </label>
         <div class="col-sm-9">
             <div class="input-group">
-                <span class="input-group-prepend"
-                      [ngStyle]="{ 'pointer-events': !canEditClient ? 'none' : 'auto' }"
-                      (click)="canEditClient ? client.absoluteRefreshTokenLifetime = utilities.daysToSeconds(1) : null;">
-                    <span [ngClass]="{ 'active': client.absoluteRefreshTokenLifetime === utilities.daysToSeconds(1) }"
-                          class="input-group-text btn btn-secondary"
-                          style="font-size: 12px;">
-                        1 day
-                    </span>
+                <span class="input-group-prepend" [ngStyle]="{ 'pointer-events': !canEditClient ? 'none' : 'auto' }" (click)="canEditClient ? client.absoluteRefreshTokenLifetime = utilities.daysToSeconds(1) : null;">
+                    <span [ngClass]="{ 'active': client.absoluteRefreshTokenLifetime === utilities.daysToSeconds(1) }" class="input-group-text btn btn-secondary" style="font-size: 12px;">1 day</span>
                 </span>
-                <span class="input-group-prepend"
-                      [ngStyle]="{ 'pointer-events': !canEditClient ? 'none' : 'auto' }"
-                      (click)="canEditClient ? client.absoluteRefreshTokenLifetime = utilities.daysToSeconds(15) : null;">
-                    <span [ngClass]="{ 'active': client.absoluteRefreshTokenLifetime === utilities.daysToSeconds(15) }"
-                          class="input-group-text btn btn-secondary"
-                          style="font-size: 12px;">
-                        15 days
-                    </span>
+                <span class="input-group-prepend" [ngStyle]="{ 'pointer-events': !canEditClient ? 'none' : 'auto' }" (click)="canEditClient ? client.absoluteRefreshTokenLifetime = utilities.daysToSeconds(15) : null;">
+                    <span [ngClass]="{ 'active': client.absoluteRefreshTokenLifetime === utilities.daysToSeconds(15) }" class="input-group-text btn btn-secondary" style="font-size: 12px;">15 days</span>
                 </span>
-                <span class="input-group-prepend"
-                      [ngStyle]="{ 'pointer-events': !canEditClient ? 'none' : 'auto' }"
-                      (click)="canEditClient ? client.absoluteRefreshTokenLifetime = utilities.daysToSeconds(30) : null;">
-                    <span [ngClass]="{ 'active': client.absoluteRefreshTokenLifetime === utilities.daysToSeconds(30) }"
-                          class="input-group-text btn btn-secondary"
-                          style="font-size: 12px;">
-                        30 days
-                    </span>
+                <span class="input-group-prepend" [ngStyle]="{ 'pointer-events': !canEditClient ? 'none' : 'auto' }" (click)="canEditClient ? client.absoluteRefreshTokenLifetime = utilities.daysToSeconds(30) : null;">
+                    <span [ngClass]="{ 'active': client.absoluteRefreshTokenLifetime === utilities.daysToSeconds(30) }" class="input-group-text btn btn-secondary" style="font-size: 12px;">30 days</span>
                 </span>
-                <input class="form-control"
-                       type="number"
-                       min="0"
-                       id="absolute-refresh-token-lifetime"
-                       name="absolute-refresh-token-lifetime"
-                       [(ngModel)]="client.absoluteRefreshTokenLifetime"
-                       required
-                       #absoluteRefreshTokenLifetime="ngModel" />
+                <input class="form-control" type="number" min="0" id="absolute-refresh-token-lifetime" name="absolute-refresh-token-lifetime" [(ngModel)]="client.absoluteRefreshTokenLifetime" required
+                    #absoluteRefreshTokenLifetime="ngModel" />
             </div>
-            <ng-container [ngTemplateOutlet]="secondsTextContent"
-                          [ngTemplateOutletContext]="{ value: client.absoluteRefreshTokenLifetime }">
+            <ng-container [ngTemplateOutlet]="secondsTextContent" [ngTemplateOutletContext]="{ value: client.absoluteRefreshTokenLifetime }">
             </ng-container>
-            <div *ngIf="form.submitted && absoluteRefreshTokenLifetime.invalid"
-                 class="form-control-feedback text-danger">
-                Field 'Access Token Lifetime' is required.
-            </div>
+            <div *ngIf="form.submitted && absoluteRefreshTokenLifetime.invalid" class="form-control-feedback text-danger">Field 'Access Token Lifetime' is required.</div>
         </div>
     </div>
-    <div class="form-group row"
-         *ngIf="hasAnyOf(['password', 'hybrid', 'urn:ietf:params:oauth:grant-type:device_code', 'authorization_code', 'implicit'])">
-        <label for="sliding-refresh-token-lifetime"
-               class="col-sm-3 col-form-label">
-            <i class="material-icons align-middle"
-               title="Sliding lifetime of a refresh token in seconds.">
-                info
-            </i>
+    <div class="form-group row" *ngIf="hasAnyOf(['password', 'hybrid', 'urn:ietf:params:oauth:grant-type:device_code', 'authorization_code', 'implicit'])">
+        <label for="sliding-refresh-token-lifetime" class="col-sm-3 col-form-label">
+            <i class="material-icons align-middle" title="Sliding lifetime of a refresh token in seconds.">info</i>
             Sliding Refresh Token Lifetime (sec) (*)
         </label>
         <div class="col-sm-9">
             <div class="input-group">
-                <span class="input-group-prepend"
-                      [ngStyle]="{ 'pointer-events': !canEditClient ? 'none' : 'auto' }"
-                      (click)="canEditClient ? client.slidingRefreshTokenLifetime = utilities.daysToSeconds(1) : null;">
-                    <span [ngClass]="{ 'active': client.slidingRefreshTokenLifetime === utilities.daysToSeconds(1) }"
-                          class="input-group-text btn btn-secondary"
-                          style="font-size: 12px;">
-                        1 day
-                    </span>
+                <span class="input-group-prepend" [ngStyle]="{ 'pointer-events': !canEditClient ? 'none' : 'auto' }" (click)="canEditClient ? client.slidingRefreshTokenLifetime = utilities.daysToSeconds(1) : null;">
+                    <span [ngClass]="{ 'active': client.slidingRefreshTokenLifetime === utilities.daysToSeconds(1) }" class="input-group-text btn btn-secondary" style="font-size: 12px;">1 day</span>
                 </span>
-                <span class="input-group-prepend"
-                      [ngStyle]="{ 'pointer-events': !canEditClient ? 'none' : 'auto' }"
-                      (click)="canEditClient ? client.slidingRefreshTokenLifetime = utilities.daysToSeconds(15) : null;">
-                    <span [ngClass]="{ 'active': client.slidingRefreshTokenLifetime === utilities.daysToSeconds(15) }"
-                          class="input-group-text btn btn-secondary"
-                          style="font-size: 12px;">
-                        15 days
-                    </span>
+                <span class="input-group-prepend" [ngStyle]="{ 'pointer-events': !canEditClient ? 'none' : 'auto' }" (click)="canEditClient ? client.slidingRefreshTokenLifetime = utilities.daysToSeconds(15) : null;">
+                    <span [ngClass]="{ 'active': client.slidingRefreshTokenLifetime === utilities.daysToSeconds(15) }" class="input-group-text btn btn-secondary" style="font-size: 12px;">15 days</span>
                 </span>
-                <span class="input-group-prepend"
-                      [ngStyle]="{ 'pointer-events': !canEditClient ? 'none' : 'auto' }"
-                      (click)="canEditClient ? client.slidingRefreshTokenLifetime = utilities.daysToSeconds(30) : null;">
-                    <span [ngClass]="{ 'active': client.slidingRefreshTokenLifetime === utilities.daysToSeconds(30) }"
-                          class="input-group-text btn btn-secondary"
-                          style="font-size: 12px;">
-                        30 days
-                    </span>
+                <span class="input-group-prepend" [ngStyle]="{ 'pointer-events': !canEditClient ? 'none' : 'auto' }" (click)="canEditClient ? client.slidingRefreshTokenLifetime = utilities.daysToSeconds(30) : null;">
+                    <span [ngClass]="{ 'active': client.slidingRefreshTokenLifetime === utilities.daysToSeconds(30) }" class="input-group-text btn btn-secondary" style="font-size: 12px;">30 days</span>
                 </span>
-                <input class="form-control"
-                       type="number"
-                       min="0"
-                       id="sliding-refresh-token-lifetime"
-                       name="sliding-refresh-token-lifetime"
-                       [(ngModel)]="client.slidingRefreshTokenLifetime"
-                       required
-                       #slidingRefreshTokenLifetime="ngModel" />
+                <input class="form-control" type="number" min="0" id="sliding-refresh-token-lifetime" name="sliding-refresh-token-lifetime" [(ngModel)]="client.slidingRefreshTokenLifetime" required #slidingRefreshTokenLifetime="ngModel" />
             </div>
-            <ng-container [ngTemplateOutlet]="secondsTextContent"
-                          [ngTemplateOutletContext]="{ value: client.slidingRefreshTokenLifetime }">
-            </ng-container>
-            <div *ngIf="form.submitted && slidingRefreshTokenLifetime.invalid"
-                 class="form-control-feedback text-danger">
-                Field 'Sliding Refresh Token Lifetime' is required.
-            </div>
+            <ng-container [ngTemplateOutlet]="secondsTextContent" [ngTemplateOutletContext]="{ value: client.slidingRefreshTokenLifetime }"></ng-container>
+            <div *ngIf="form.submitted && slidingRefreshTokenLifetime.invalid" class="form-control-feedback text-danger">Field 'Sliding Refresh Token Lifetime' is required.</div>
         </div>
     </div>
-    <div class="form-group row"
-         *ngIf="hasAnyOf(['authorization_code', 'hybrid', 'implicit'])">
-        <label for="client-authorization-token-lifetime"
-               class="col-sm-3 col-form-label">
-            <i class="material-icons align-middle"
-               title="Lifetime of authorization code in seconds.">
-                info
-            </i>
+    <div class="form-group row" *ngIf="hasAnyOf(['authorization_code', 'hybrid', 'implicit'])">
+        <label for="client-authorization-token-lifetime" class="col-sm-3 col-form-label">
+            <i class="material-icons align-middle" title="Lifetime of authorization code in seconds.">info</i>
             Authorization Code Lifetime (sec) (*)
         </label>
         <div class="col-sm-9">
             <div class="input-group">
-                <span class="input-group-prepend"
-                      [ngStyle]="{ 'pointer-events': !canEditClient ? 'none' : 'auto' }"
-                      (click)="canEditClient ? client.authorizationCodeLifetime = utilities.minutesToSeconds(5) : null;">
-                    <span [ngClass]="{ 'active': client.authorizationCodeLifetime === utilities.minutesToSeconds(5) }"
-                          class="input-group-text btn btn-secondary"
-                          style="font-size: 12px;">
-                        5 mins
-                    </span>
+                <span class="input-group-prepend" [ngStyle]="{ 'pointer-events': !canEditClient ? 'none' : 'auto' }" (click)="canEditClient ? client.authorizationCodeLifetime = utilities.minutesToSeconds(5) : null;">
+                    <span [ngClass]="{ 'active': client.authorizationCodeLifetime === utilities.minutesToSeconds(5) }" class="input-group-text btn btn-secondary" style="font-size: 12px;">5 mins</span>
                 </span>
-                <span class="input-group-prepend"
-                      [ngStyle]="{ 'pointer-events': !canEditClient ? 'none' : 'auto' }"
-                      (click)="canEditClient ? client.authorizationCodeLifetime = utilities.minutesToSeconds(10) : null;">
-                    <span [ngClass]="{ 'active': client.authorizationCodeLifetime === utilities.minutesToSeconds(10) }"
-                          class="input-group-text btn btn-secondary"
-                          style="font-size: 12px;">
-                        10 mins
-                    </span>
+                <span class="input-group-prepend" [ngStyle]="{ 'pointer-events': !canEditClient ? 'none' : 'auto' }" (click)="canEditClient ? client.authorizationCodeLifetime = utilities.minutesToSeconds(10) : null;">
+                    <span [ngClass]="{ 'active': client.authorizationCodeLifetime === utilities.minutesToSeconds(10) }" class="input-group-text btn btn-secondary" style="font-size: 12px;">10 mins</span>
                 </span>
-                <input class="form-control"
-                       type="number"
-                       min="0"
-                       id="client-authorization-token-lifetime"
-                       name="client-authorization-token-lifetime"
-                       [(ngModel)]="client.authorizationCodeLifetime"
-                       required
-                       #authorizationCodeLifetime="ngModel" />
+                <input class="form-control" type="number" min="0" id="client-authorization-token-lifetime" name="client-authorization-token-lifetime" [(ngModel)]="client.authorizationCodeLifetime" required
+                    #authorizationCodeLifetime="ngModel" />
             </div>
-            <ng-container [ngTemplateOutlet]="secondsTextContent"
-                          [ngTemplateOutletContext]="{ value: client.authorizationCodeLifetime }">
-            </ng-container>
-            <div *ngIf="form.submitted && authorizationCodeLifetime.invalid"
-                 class="form-control-feedback text-danger">
-                Field 'Authorization Code Lifetime' is required.
-            </div>
+            <ng-container [ngTemplateOutlet]="secondsTextContent" [ngTemplateOutletContext]="{ value: client.authorizationCodeLifetime }"></ng-container>
+            <div *ngIf="form.submitted && authorizationCodeLifetime.invalid" class="form-control-feedback text-danger">Field 'Authorization Code Lifetime' is required.</div>
         </div>
     </div>
-    <div class="form-group row"
-         *ngIf="hasAnyOf(['authorization_code', 'hybrid', 'implicit', 'urn:ietf:params:oauth:grant-type:device_code'])">
-        <label for="client-consent-token-lifetime"
-               class="col-sm-3 col-form-label">
-            <i class="material-icons align-middle"
-               title="Lifetime of a user consent in seconds.">
-                info
-            </i>
+    <div class="form-group row" *ngIf="hasAnyOf(['authorization_code', 'hybrid', 'implicit', 'urn:ietf:params:oauth:grant-type:device_code'])">
+        <label for="client-consent-token-lifetime" class="col-sm-3 col-form-label">
+            <i class="material-icons align-middle" title="Lifetime of a user consent in seconds.">info</i>
             Consent Token Lifetime (sec)
         </label>
         <div class="col-sm-9">
             <div class="input-group">
-                <span class="input-group-prepend"
-                      [ngStyle]="{ 'pointer-events': !canEditClient ? 'none' : 'auto' }"
-                      (click)="canEditClient ? client.consentLifetime = utilities.daysToSeconds(7) : null;">
-                    <span [ngClass]="{ 'active': client.consentLifetime === utilities.daysToSeconds(7) }"
-                          class="input-group-text btn btn-secondary"
-                          style="font-size: 12px;">
-                        1 wk
-                    </span>
+                <span class="input-group-prepend" [ngStyle]="{ 'pointer-events': !canEditClient ? 'none' : 'auto' }" (click)="canEditClient ? client.consentLifetime = utilities.daysToSeconds(7) : null;">
+                    <span [ngClass]="{ 'active': client.consentLifetime === utilities.daysToSeconds(7) }" class="input-group-text btn btn-secondary" style="font-size: 12px;">1 wk</span>
                 </span>
-                <span class="input-group-prepend"
-                      [ngStyle]="{ 'pointer-events': !canEditClient ? 'none' : 'auto' }"
-                      (click)="canEditClient ? client.consentLifetime = utilities.monthsToSeconds(1) : null;">
-                    <span [ngClass]="{ 'active': client.consentLifetime === utilities.monthsToSeconds(1) }"
-                          class="input-group-text btn btn-secondary"
-                          style="font-size: 12px;">
-                        1 mo
-                    </span>
+                <span class="input-group-prepend" [ngStyle]="{ 'pointer-events': !canEditClient ? 'none' : 'auto' }" (click)="canEditClient ? client.consentLifetime = utilities.monthsToSeconds(1) : null;">
+                    <span [ngClass]="{ 'active': client.consentLifetime === utilities.monthsToSeconds(1) }" class="input-group-text btn btn-secondary" style="font-size: 12px;">1 mo</span>
                 </span>
-                <span class="input-group-prepend"
-                      [ngStyle]="{ 'pointer-events': !canEditClient ? 'none' : 'auto' }"
-                      (click)="canEditClient ? client.consentLifetime = utilities.yearsToSeconds(1) : null;">
-                    <span [ngClass]="{ 'active': client.consentLifetime === utilities.yearsToSeconds(1) }"
-                          class="input-group-text btn btn-secondary"
-                          style="font-size: 12px;">
-                        1 yr
-                    </span>
+                <span class="input-group-prepend" [ngStyle]="{ 'pointer-events': !canEditClient ? 'none' : 'auto' }" (click)="canEditClient ? client.consentLifetime = utilities.yearsToSeconds(1) : null;">
+                    <span [ngClass]="{ 'active': client.consentLifetime === utilities.yearsToSeconds(1) }" class="input-group-text btn btn-secondary" style="font-size: 12px;">1 yr</span>
                 </span>
-                <span class="input-group-prepend"
-                      [ngStyle]="{ 'pointer-events': !canEditClient ? 'none' : 'auto' }"
-                      (click)="canEditClient ? client.consentLifetime = undefined : null;">
-                    <span [ngClass]="{ 'active': client.consentLifetime === undefined }"
-                          class="input-group-text font-12 btn btn-secondary"
-                          style="font-size: 12px;">
-                        ∞
-                    </span>
+                <span class="input-group-prepend" [ngStyle]="{ 'pointer-events': !canEditClient ? 'none' : 'auto' }" (click)="canEditClient ? client.consentLifetime = undefined : null;">
+                    <span [ngClass]="{ 'active': client.consentLifetime === undefined }" class="input-group-text font-12 btn btn-secondary" style="font-size: 12px;">∞</span>
                 </span>
-                <input class="form-control"
-                       type="number"
-                       min="0"
-                       id="client-consent-token-lifetime"
-                       name="client-consent-token-lifetime"
-                       [(ngModel)]="client.consentLifetime"
-                       #consentTokenLifetime="ngModel" />
+                <input class="form-control" type="number" min="0" id="client-consent-token-lifetime" name="client-consent-token-lifetime" [(ngModel)]="client.consentLifetime" #consentTokenLifetime="ngModel" />
             </div>
-            <ng-container [ngTemplateOutlet]="secondsTextContent"
-                          [ngTemplateOutletContext]="{ value: client.consentLifetime }">
-            </ng-container>
+            <ng-container [ngTemplateOutlet]="secondsTextContent" [ngTemplateOutletContext]="{ value: client.consentLifetime }"></ng-container>
         </div>
     </div>
-    <div class="form-group row"
-         *ngIf="hasAnyOf(['authorization_code', 'hybrid', 'implicit', 'urn:ietf:params:oauth:grant-type:device_code'])">
-        <label for="client-sso-lifetime"
-               class="col-sm-3 col-form-label">
-            <i class="material-icons align-middle"
-               title="The maximum duration (in seconds) since the last time the user authenticated.">
-                info
-            </i>
+    <div class="form-group row" *ngIf="hasAnyOf(['authorization_code', 'hybrid', 'implicit', 'urn:ietf:params:oauth:grant-type:device_code'])">
+        <label for="client-sso-lifetime" class="col-sm-3 col-form-label">
+            <i class="material-icons align-middle" title="The maximum duration (in seconds) since the last time the user authenticated.">info</i>
             SSO Lifetime (sec)
         </label>
         <div class="col-sm-9">
             <div class="input-group">
-                <span class="input-group-prepend"
-                      [ngStyle]="{ 'pointer-events': !canEditClient ? 'none' : 'auto' }"
-                      (click)="canEditClient ? client.userSsoLifetime = utilities.hoursToSeconds(1) : null;">
-                    <span [ngClass]="{ 'active': client.userSsoLifetime === utilities.hoursToSeconds(1) }"
-                          class="input-group-text btn btn-secondary"
-                          style="font-size: 12px;">
-                        1 hr
-                    </span>
+                <span class="input-group-prepend" [ngStyle]="{ 'pointer-events': !canEditClient ? 'none' : 'auto' }" (click)="canEditClient ? client.userSsoLifetime = utilities.hoursToSeconds(1) : null;">
+                    <span [ngClass]="{ 'active': client.userSsoLifetime === utilities.hoursToSeconds(1) }" class="input-group-text btn btn-secondary" style="font-size: 12px;">1 hr</span>
                 </span>
-                <span class="input-group-prepend"
-                      [ngStyle]="{ 'pointer-events': !canEditClient ? 'none' : 'auto' }"
-                      (click)="canEditClient ? client.userSsoLifetime = utilities.hoursToSeconds(12) : null;">
-                    <span [ngClass]="{ 'active': client.userSsoLifetime === utilities.hoursToSeconds(12) }"
-                          class="input-group-text btn btn-secondary"
-                          style="font-size: 12px;">
-                        12 hr
-                    </span>
+                <span class="input-group-prepend" [ngStyle]="{ 'pointer-events': !canEditClient ? 'none' : 'auto' }" (click)="canEditClient ? client.userSsoLifetime = utilities.hoursToSeconds(12) : null;">
+                    <span [ngClass]="{ 'active': client.userSsoLifetime === utilities.hoursToSeconds(12) }" class="input-group-text btn btn-secondary" style="font-size: 12px;">12 hr</span>
                 </span>
-                <span class="input-group-prepend"
-                      [ngStyle]="{ 'pointer-events': !canEditClient ? 'none' : 'auto' }"
-                      (click)="canEditClient ? client.userSsoLifetime = utilities.daysToSeconds(1) : null;">
-                    <span [ngClass]="{ 'active': client.userSsoLifetime === utilities.daysToSeconds(1) }"
-                          class="input-group-text btn btn-secondary"
-                          style="font-size: 12px;">
-                        1 d
-                    </span>
+                <span class="input-group-prepend" [ngStyle]="{ 'pointer-events': !canEditClient ? 'none' : 'auto' }" (click)="canEditClient ? client.userSsoLifetime = utilities.daysToSeconds(1) : null;">
+                    <span [ngClass]="{ 'active': client.userSsoLifetime === utilities.daysToSeconds(1) }" class="input-group-text btn btn-secondary" style="font-size: 12px;">1 d</span>
                 </span>
-                <input class="form-control"
-                       type="number"
-                       min="0"
-                       id="client-sso-lifetime"
-                       name="client-sso-lifetime"
-                       [(ngModel)]="client.userSsoLifetime"
-                       #userSsoLifetime="ngModel" />
+                <input class="form-control" type="number" min="0" id="client-sso-lifetime" name="client-sso-lifetime" [(ngModel)]="client.userSsoLifetime" #userSsoLifetime="ngModel" />
             </div>
-            <ng-container [ngTemplateOutlet]="secondsTextContent"
-                          [ngTemplateOutletContext]="{ value: client.userSsoLifetime }">
-            </ng-container>
+            <ng-container [ngTemplateOutlet]="secondsTextContent" [ngTemplateOutletContext]="{ value: client.userSsoLifetime }"></ng-container>
         </div>
     </div>
-    <div class="form-group row"
-         *ngIf="hasAnyOf(['urn:ietf:params:oauth:grant-type:device_code'])">
-        <label for="client-device-code-lifetime"
-               class="col-sm-3 col-form-label">
-            <i class="material-icons align-middle"
-               title="Sets the device code lifetime.">
-                info
-            </i>
+    <div class="form-group row" *ngIf="hasAnyOf(['urn:ietf:params:oauth:grant-type:device_code'])">
+        <label for="client-device-code-lifetime" class="col-sm-3 col-form-label">
+            <i class="material-icons align-middle" title="Sets the device code lifetime.">info</i>
             Device Code Lifetime (sec)
         </label>
         <div class="col-sm-9">
             <div class="input-group">
-                <span class="input-group-prepend cursor-pointer"
-                      (click)="client.deviceCodeLifetime = utilities.minutesToSeconds(5)">
-                    <span [ngClass]="{ 'active': client.deviceCodeLifetime === utilities.minutesToSeconds(5) }"
-                          class="input-group-text btn btn-secondary"
-                          style="font-size: 12px;">
-                        5 mins
-                    </span>
+                <span class="input-group-prepend cursor-pointer" (click)="client.deviceCodeLifetime = utilities.minutesToSeconds(5)">
+                    <span [ngClass]="{ 'active': client.deviceCodeLifetime === utilities.minutesToSeconds(5) }" class="input-group-text btn btn-secondary" style="font-size: 12px;">5 mins</span>
                 </span>
-                <span class="input-group-prepend cursor-pointer"
-                      (click)="client.deviceCodeLifetime = utilities.minutesToSeconds(10)">
-                    <span [ngClass]="{ 'active': client.deviceCodeLifetime === utilities.minutesToSeconds(10) }"
-                          class="input-group-text btn btn-secondary"
-                          style="font-size: 12px;">
-                        10 mins
-                    </span>
+                <span class="input-group-prepend cursor-pointer" (click)="client.deviceCodeLifetime = utilities.minutesToSeconds(10)">
+                    <span [ngClass]="{ 'active': client.deviceCodeLifetime === utilities.minutesToSeconds(10) }" class="input-group-text btn btn-secondary" style="font-size: 12px;">10 mins</span>
                 </span>
-                <input class="form-control"
-                       type="number"
-                       min="0"
-                       id="client-device-code-lifetime"
-                       name="client-device-code-lifetime"
-                       [(ngModel)]="client.deviceCodeLifetime"
-                       #deviceCodeLifetime="ngModel" />
+                <input class="form-control" type="number" min="0" id="client-device-code-lifetime" name="client-device-code-lifetime" [(ngModel)]="client.deviceCodeLifetime" #deviceCodeLifetime="ngModel" />
             </div>
-            <ng-container [ngTemplateOutlet]="secondsTextContent"
-                          [ngTemplateOutletContext]="{ value: client.deviceCodeLifetime }">
-            </ng-container>
+            <ng-container [ngTemplateOutlet]="secondsTextContent" [ngTemplateOutletContext]="{ value: client.deviceCodeLifetime }"></ng-container>
         </div>
     </div>
-    <div class="form-group row"
-         *ngIf="hasAnyOf(['authorization_code', 'hybrid', 'implicit'])">
-        <label for="client-front-channel-logout-uri"
-               class="col-sm-3 col-form-label">
-            <i class="material-icons align-middle"
-               title="Specifies logout URI at client for HTTP front-channel based logout.">
-                info
-            </i>
+    <div class="form-group row" *ngIf="hasAnyOf(['authorization_code', 'hybrid', 'implicit'])">
+        <label for="client-front-channel-logout-uri" class="col-sm-3 col-form-label">
+            <i class="material-icons align-middle" title="Specifies logout URI at client for HTTP front-channel based logout.">info</i>
             Front Channel Logout URI
         </label>
         <div class="col-sm-9">
-            <input class="form-control"
-                   type="text"
-                   id="client-front-channel-logout-uri"
-                   name="client-front-channel-logout-uri"
-                   [(ngModel)]="client.frontChannelLogoutUri"
-                   #frontChannelLogoutUri="ngModel" />
+            <input class="form-control" type="text" id="client-front-channel-logout-uri" name="client-front-channel-logout-uri" [(ngModel)]="client.frontChannelLogoutUri" #frontChannelLogoutUri="ngModel" />
         </div>
     </div>
-    <div class="form-group row"
-         *ngIf="hasAnyOf(['hybrid']) 
+    <div class="form-group row" *ngIf="hasAnyOf(['hybrid']) 
              || hasAllOf(['authorization_code', 'client_credentials'])">
-        <label for="client-back-channel-logout-uri"
-               class="col-sm-3 col-form-label">
-            <i class="material-icons align-middle"
-               title="Specifies logout URI at client for HTTP back-channel based logout.">
-                info
-            </i>
+        <label for="client-back-channel-logout-uri" class="col-sm-3 col-form-label">
+            <i class="material-icons align-middle" title="Specifies logout URI at client for HTTP back-channel based logout.">info</i>
             Back Channel Logout Uri
         </label>
         <div class="col-sm-9">
-            <input class="form-control"
-                   type="text"
-                   id="client-back-channel-logout-uri"
-                   name="client-back-channel-logout-uri"
-                   [(ngModel)]="client.backChannelLogoutUri"
-                   #backChannelLogoutUri="ngModel" />
+            <input class="form-control" type="text" id="client-back-channel-logout-uri" name="client-back-channel-logout-uri" [(ngModel)]="client.backChannelLogoutUri" #backChannelLogoutUri="ngModel" />
         </div>
     </div>
-    <div class="form-group row"
-         *ngIf="hasAnyOf(['urn:ietf:params:oauth:grant-type:device_code'])">
-        <label for="client-user-code-generator-type"
-               class="col-sm-3 col-form-label">
-            <i class="material-icons align-middle"
-               title="Sets the type of the device flow user code.">
-                info
-            </i>
+    <div class="form-group row" *ngIf="hasAnyOf(['urn:ietf:params:oauth:grant-type:device_code'])">
+        <label for="client-user-code-generator-type" class="col-sm-3 col-form-label">
+            <i class="material-icons align-middle" title="Sets the type of the device flow user code.">info</i>
             User Code Generator Type
         </label>
         <div class="col-sm-9">
-            <input class="form-control"
-                   type="text"
-                   id="client-user-code-generator-type"
-                   name="client-user-code-generator-type"
-                   [(ngModel)]="client.userCodeType"
-                   #userCodeType="ngModel" />
+            <input class="form-control" type="text" id="client-user-code-generator-type" name="client-user-code-generator-type" [(ngModel)]="client.userCodeType" #userCodeType="ngModel" />
         </div>
     </div>
-    <div class="form-group row"
-         *ngIf="hasAnyOf(['authorization_code', 'password', 'client_credentials', 'hybrid', 'implicit', 'urn:ietf:params:oauth:grant-type:device_code'])">
-        <label for="client-pair-wise-subject-salt"
-               class="col-sm-3 col-form-label">
-            <i class="material-icons align-middle"
-               title="Sets a salt value used in pair-wise subjectId generation for users of this client.">
-                info
-            </i>
+    <div class="form-group row" *ngIf="hasAnyOf(['authorization_code', 'password', 'client_credentials', 'hybrid', 'implicit', 'urn:ietf:params:oauth:grant-type:device_code'])">
+        <label for="client-pair-wise-subject-salt" class="col-sm-3 col-form-label">
+            <i class="material-icons align-middle" title="Sets a salt value used in pair-wise subjectId generation for users of this client.">info</i>
             Pair Wise Subject Salt
         </label>
         <div class="col-sm-9">
-            <input class="form-control"
-                   type="text"
-                   id="client-pair-wise-subject-salt"
-                   name="client-pair-wise-subject-salt"
-                   [(ngModel)]="client.pairWiseSubjectSalt"
-                   #pairWiseSubjectSalt="ngModel" />
+            <input class="form-control" type="text" id="client-pair-wise-subject-salt" name="client-pair-wise-subject-salt" [(ngModel)]="client.pairWiseSubjectSalt" #pairWiseSubjectSalt="ngModel" />
         </div>
     </div>
-    <div class="form-group row"
-         *ngIf="hasAnyOf(['authorization_code', 'password', 'client_credentials', 'hybrid', 'implicit', 'urn:ietf:params:oauth:grant-type:device_code'])">
-        <label for="client-access-token-type"
-               class="col-sm-3 col-form-label">
-            <i class="material-icons align-middle"
-               title="Specifies whether the access token is a reference token or a self contained JWT token.">
-                info
-            </i>
+    <div class="form-group row" *ngIf="hasAnyOf(['authorization_code', 'password', 'client_credentials', 'hybrid', 'implicit', 'urn:ietf:params:oauth:grant-type:device_code'])">
+        <label for="client-access-token-type" class="col-sm-3 col-form-label">
+            <i class="material-icons align-middle" title="Specifies whether the access token is a reference token or a self contained JWT token.">info</i>
             Access Token Type
         </label>
         <div class="col-sm-9">
-            <select class="form-control custom-select"
-                    id="client-access-token-type"
-                    name="client-access-token-type"
-                    [(ngModel)]="client.accessTokenType"
-                    required
-                    #accessTokenType="ngModel">
+            <select class="form-control custom-select" id="client-access-token-type" name="client-access-token-type" [(ngModel)]="client.accessTokenType" required #accessTokenType="ngModel">
                 <option value="Jwt">Jwt</option>
                 <option value="Reference">Reference</option>
             </select>
-            <div *ngIf="form.submitted && accessTokenType.invalid"
-                 class="form-control-feedback text-danger">
-                Field 'Access Token Type' is required.
-            </div>
+            <div *ngIf="form.submitted && accessTokenType.invalid" class="form-control-feedback text-danger">Field 'Access Token Type' is required.</div>
         </div>
     </div>
-    <div class="form-group row"
-         *ngIf="hasAnyOf(['password', 'hybrid', 'urn:ietf:params:oauth:grant-type:device_code', 'authorization_code', 'implicit'])">
-        <label for="client-refresh-token-usage"
-               class="col-sm-3 col-form-label">
-            <i class="material-icons align-middle"
-               title="ReUse: the refresh token handle will stay the same when refreshing tokens. OneTime: the refresh token handle will be updated when refreshing tokens.">
-                info
-            </i>
+    <div class="form-group row" *ngIf="hasAnyOf(['password', 'hybrid', 'urn:ietf:params:oauth:grant-type:device_code', 'authorization_code', 'implicit'])">
+        <label for="client-refresh-token-usage" class="col-sm-3 col-form-label">
+            <i class="material-icons align-middle" title="ReUse: the refresh token handle will stay the same when refreshing tokens. OneTime: the refresh token handle will be updated when refreshing tokens.">info</i>
             Refresh Token Usage
         </label>
         <div class="col-sm-9">
-            <select class="form-control custom-select"
-                    id="client-refresh-token-usage"
-                    name="client-refresh-token-usage"
-                    [(ngModel)]="client.refreshTokenUsage"
-                    required
-                    #refreshTokenUsage="ngModel">
-                <option value="ReUse"
-                        title="The refresh token handle will stay the same when refreshing tokens.">
-                    ReUse
-                </option>
-                <option value="OneTimeOnly"
-                        title="The refresh token handle will be updated when refreshing tokens.">
-                    One Time Only
-                </option>
+            <select class="form-control custom-select" id="client-refresh-token-usage" name="client-refresh-token-usage" [(ngModel)]="client.refreshTokenUsage" required #refreshTokenUsage="ngModel">
+                <option value="ReUse" title="The refresh token handle will stay the same when refreshing tokens.">ReUse</option>
+                <option value="OneTimeOnly" title="The refresh token handle will be updated when refreshing tokens.">One Time Only</option>
             </select>
-            <div *ngIf="form.submitted && refreshTokenUsage.invalid"
-                 class="form-control-feedback text-danger">
-                Field 'Refresh Token Usage' is required.
-            </div>
+            <div *ngIf="form.submitted && refreshTokenUsage.invalid" class="form-control-feedback text-danger">Field 'Refresh Token Usage' is required.</div>
         </div>
     </div>
-    <div class="form-group row"
-         *ngIf="hasAnyOf(['password', 'hybrid', 'urn:ietf:params:oauth:grant-type:device_code', 'implicit', 'authorization_code'])">
-        <label for="client-refresh-token-expiration"
-               class="col-sm-3 col-form-label">
+    <div class="form-group row" *ngIf="hasAnyOf(['password', 'hybrid', 'urn:ietf:params:oauth:grant-type:device_code', 'implicit', 'authorization_code'])">
+        <label for="client-refresh-token-expiration" class="col-sm-3 col-form-label">
             <i class="material-icons align-middle"
-               title="Absolute: the refresh token will expire on a fixed point in time (specified by the AbsoluteRefreshTokenLifetime). Sliding: when refreshing the token, the lifetime of the refresh token will be renewed (by the amount specified in SlidingRefreshTokenLifetime).">
+                title="Absolute: the refresh token will expire on a fixed point in time (specified by the AbsoluteRefreshTokenLifetime). Sliding: when refreshing the token, the lifetime of the refresh token will be renewed (by the amount specified in SlidingRefreshTokenLifetime).">
                 info
             </i>
             Refresh Token Expiration
         </label>
         <div class="col-sm-9">
-            <select class="form-control custom-select"
-                    id="client-refresh-token-expiration"
-                    name="client-refresh-token-expiration"
-                    [(ngModel)]="client.refreshTokenExpiration"
-                    required
-                    #refreshTokenExpiration="ngModel">
-                <option value="Sliding"
-                        title="When refreshing the token, the lifetime of the refresh token will be renewed (by the amount specified in Sliding Refresh Token Lifetime).">
-                    Sliding
-                </option>
-                <option value="Absolute"
-                        title="The refresh token will expire on a fixed point in time (specified by the Absolute Refresh Token Lifetime).">
-                    Absolute
-                </option>
+            <select class="form-control custom-select" id="client-refresh-token-expiration" name="client-refresh-token-expiration" [(ngModel)]="client.refreshTokenExpiration" required #refreshTokenExpiration="ngModel">
+                <option value="Sliding" title="When refreshing the token, the lifetime of the refresh token will be renewed (by the amount specified in Sliding Refresh Token Lifetime).">Sliding</option>
+                <option value="Absolute" title="The refresh token will expire on a fixed point in time (specified by the Absolute Refresh Token Lifetime).">Absolute</option>
             </select>
-            <div *ngIf="form.submitted && refreshTokenExpiration.invalid"
-                 class="form-control-feedback text-danger">
-                Field 'Refresh Token Expiration' is required.
-            </div>
+            <div *ngIf="form.submitted && refreshTokenExpiration.invalid" class="form-control-feedback text-danger">Field 'Refresh Token Expiration' is required.</div>
         </div>
     </div>
-    <div class="form-group row"
-         *ngIf="hasAnyOf(['authorization_code', 'hybrid', 'implicit'])">
-        <label for="client-front-channel-logout-session-required"
-               class="col-sm-3 col-form-label">
-            <i class="material-icons align-middle"
-               title="Specifies if the user's session id should be sent to the FrontChannelLogoutUri.">
-                info
-            </i>
+    <div class="form-group row" *ngIf="hasAnyOf(['authorization_code', 'hybrid', 'implicit'])">
+        <label for="client-front-channel-logout-session-required" class="col-sm-3 col-form-label">
+            <i class="material-icons align-middle" title="Specifies if the user's session id should be sent to the FrontChannelLogoutUri.">info</i>
             Front Channel Logout Session Required
         </label>
         <div class="col-sm-9">
             <div class="form-check col-form-label custom-control custom-checkbox">
-                <input class="form-check-input custom-control-input"
-                       type="checkbox"
-                       id="client-front-channel-logout-session-required"
-                       name="client-front-channel-logout-session-required"
-                       [(ngModel)]="client.frontChannelLogoutSessionRequired"
-                       #frontChannelLogoutSessionRequired="ngModel" />
-                <label class="custom-control-label"
-                       for="client-front-channel-logout-session-required">
-                </label>
+                <input class="form-check-input custom-control-input" type="checkbox" id="client-front-channel-logout-session-required" name="client-front-channel-logout-session-required"
+                    [(ngModel)]="client.frontChannelLogoutSessionRequired" #frontChannelLogoutSessionRequired="ngModel" />
+                <label class="custom-control-label" for="client-front-channel-logout-session-required"></label>
             </div>
         </div>
     </div>
-    <div class="form-group row"
-         *ngIf="hasAnyOf(['hybrid', 'implicit'])">
-        <label for="client-allow-access-tokens-via-browser"
-               class="col-sm-3 col-form-label">
-            <i class="material-icons align-middle"
-               title="Controls whether access tokens are transmitted via the browser for this client. This can prevent accidental leakage of access tokens when multiple response types are allowed.">
+    <div class="form-group row" *ngIf="hasAnyOf(['hybrid', 'implicit'])">
+        <label for="client-allow-access-tokens-via-browser" class="col-sm-3 col-form-label">
+            <i class="material-icons align-middle" title="Controls whether access tokens are transmitted via the browser for this client. This can prevent accidental leakage of access tokens when multiple response types are allowed.">
                 info
             </i>
             Allow Access Tokens Via Browser
         </label>
         <div class="col-sm-9">
             <div class="form-check col-form-label custom-control custom-checkbox">
-                <input class="form-check-input custom-control-input"
-                       type="checkbox"
-                       id="client-allow-access-tokens-via-browser"
-                       name="client-allow-access-tokens-via-browser"
-                       [(ngModel)]="client.allowAccessTokensViaBrowser"
-                       #allowAccessTokensViaBrowser="ngModel" />
-                <label class="custom-control-label"
-                       for="client-allow-access-tokens-via-browser">
-                </label>
+                <input class="form-check-input custom-control-input" type="checkbox" id="client-allow-access-tokens-via-browser" name="client-allow-access-tokens-via-browser" [(ngModel)]="client.allowAccessTokensViaBrowser"
+                    #allowAccessTokensViaBrowser="ngModel" />
+                <label class="custom-control-label" for="client-allow-access-tokens-via-browser"></label>
             </div>
         </div>
     </div>
-    <div class="form-group row"
-         *ngIf="hasAnyOf(['hybrid']) 
+    <div class="form-group row" *ngIf="hasAnyOf(['hybrid']) 
              || hasAllOf(['authorization_code', 'client_credentials'])">
-        <label for="client-back-channel-logout-session-required"
-               class="col-sm-3 col-form-label">
-            <i class="material-icons align-middle"
-               title="Specifies if the user's session id should be sent to the BackChannelLogoutUri.">
-                info
-            </i>
+        <label for="client-back-channel-logout-session-required" class="col-sm-3 col-form-label">
+            <i class="material-icons align-middle" title="Specifies if the user's session id should be sent to the BackChannelLogoutUri.">info</i>
             Back Channel Logout Session Required
         </label>
         <div class="col-sm-9">
             <div class="form-check col-form-label custom-control custom-checkbox">
-                <input class="form-check-input custom-control-input"
-                       type="checkbox"
-                       id="client-back-channel-logout-session-required"
-                       name="client-back-channel-logout-session-required"
-                       [(ngModel)]="client.backChannelLogoutSessionRequired"
-                       #backChannelLogoutSessionRequired="ngModel" />
-                <label class="custom-control-label"
-                       for="client-back-channel-logout-session-required">
-                </label>
+                <input class="form-check-input custom-control-input" type="checkbox" id="client-back-channel-logout-session-required" name="client-back-channel-logout-session-required" [(ngModel)]="client.backChannelLogoutSessionRequired"
+                    #backChannelLogoutSessionRequired="ngModel" />
+                <label class="custom-control-label" for="client-back-channel-logout-session-required"></label>
             </div>
         </div>
     </div>
-    <div class="form-group row"
-         *ngIf="hasAnyOf(['authorization_code', 'hybrid'])">
-        <label for="client-require-pkce"
-               class="col-sm-3 col-form-label">
-            <i class="material-icons align-middle"
-               title="Specifies whether a proof key is required for authorization code based token requests.">
-                info
-            </i>
+    <div class="form-group row" *ngIf="hasAnyOf(['authorization_code', 'hybrid'])">
+        <label for="client-require-pkce" class="col-sm-3 col-form-label">
+            <i class="material-icons align-middle" title="Specifies whether a proof key is required for authorization code based token requests.">info</i>
             Require PKCE
         </label>
         <div class="col-sm-9">
             <div class="form-check col-form-label custom-control custom-checkbox">
-                <input class="form-check-input custom-control-input"
-                       type="checkbox"
-                       id="client-require-pkce"
-                       name="client-require-pkce"
-                       [(ngModel)]="client.requirePkce"
-                       #requirePkce="ngModel" />
-                <label class="custom-control-label"
-                       for="client-require-pkce">
-                </label>
+                <input class="form-check-input custom-control-input" type="checkbox" id="client-require-pkce" name="client-require-pkce" [(ngModel)]="client.requirePkce" #requirePkce="ngModel" />
+                <label class="custom-control-label" for="client-require-pkce"></label>
             </div>
         </div>
     </div>
-    <div class="form-group row"
-         *ngIf="hasAnyOf(['authorization_code', 'password', 'hybrid', 'implicit', 'urn:ietf:params:oauth:grant-type:device_code'])">
-        <label for="client-include-user-claims-in-id-token"
-               class="col-sm-3 col-form-label">
-            <i class="material-icons align-middle"
-               title="When requesting both an id token and access token, should the user claims always be added to the id token instead of requring the client to use the userinfo endpoint.">
-                info
-            </i>
+    <div class="form-group row" *ngIf="hasAnyOf(['authorization_code', 'password', 'hybrid', 'implicit', 'urn:ietf:params:oauth:grant-type:device_code'])">
+        <label for="client-include-user-claims-in-id-token" class="col-sm-3 col-form-label">
+            <i class="material-icons align-middle" title="When requesting both an id token and access token, should the user claims always be added to the id token instead of requring the client to use the userinfo endpoint.">info</i>
             Always Include User Claims In Id Token
         </label>
         <div class="col-sm-9">
             <div class="form-check col-form-label custom-control custom-checkbox">
-                <input class="form-check-input custom-control-input"
-                       type="checkbox"
-                       id="client-include-user-claims-in-id-token"
-                       name="client-include-user-claims-in-id-token"
-                       [(ngModel)]="client.alwaysIncludeUserClaimsInIdToken"
-                       #alwaysIncludeUserClaimsInIdToken="ngModel" />
-                <label class="custom-control-label"
-                       for="client-include-user-claims-in-id-token">
-                </label>
+                <input class="form-check-input custom-control-input" type="checkbox" id="client-include-user-claims-in-id-token" name="client-include-user-claims-in-id-token" [(ngModel)]="client.alwaysIncludeUserClaimsInIdToken"
+                    #alwaysIncludeUserClaimsInIdToken="ngModel" />
+                <label class="custom-control-label" for="client-include-user-claims-in-id-token"></label>
             </div>
         </div>
     </div>
-    <div class="form-group row"
-         *ngIf="hasAnyOf(['authorization_code', 'password', 'client_credentials', 'hybrid', 'implicit', 'urn:ietf:params:oauth:grant-type:device_code'])">
-        <label for="client-include-jwt-id"
-               class="col-sm-3 col-form-label">
-            <i class="material-icons align-middle"
-               title="Sets a value indicating whether JWT access tokens should include an identifier.">
-                info
-            </i>
+    <div class="form-group row" *ngIf="hasAnyOf(['authorization_code', 'password', 'client_credentials', 'hybrid', 'implicit', 'urn:ietf:params:oauth:grant-type:device_code'])">
+        <label for="client-include-jwt-id" class="col-sm-3 col-form-label">
+            <i class="material-icons align-middle" title="Sets a value indicating whether JWT access tokens should include an identifier.">info</i>
             Include JWT Id
         </label>
         <div class="col-sm-9">
             <div class="form-check col-form-label custom-control custom-checkbox">
-                <input class="form-check-input custom-control-input"
-                       type="checkbox"
-                       id="client-include-jwt-id"
-                       name="client-include-jwt-id"
-                       [(ngModel)]="client.includeJwtId"
-                       #includeJwtId="ngModel" />
-                <label class="custom-control-label"
-                       for="client-include-jwt-id">
-                </label>
+                <input class="form-check-input custom-control-input" type="checkbox" id="client-include-jwt-id" name="client-include-jwt-id" [(ngModel)]="client.includeJwtId" #includeJwtId="ngModel" />
+                <label class="custom-control-label" for="client-include-jwt-id"></label>
             </div>
         </div>
     </div>
-    <div class="form-group row"
-         *ngIf="hasAnyOf(['authorization_code', 'hybrid']) 
-             || hasAllOf(['authorization_code', 'client_credentials'])">
-        <label for="client-allow-plain-text-pkce"
-               class="col-sm-3 col-form-label">
-            <i class="material-icons align-middle"
-               title="Specifies whether a proof key can be sent using plain method.">
-                info
-            </i>
+    <div class="form-group row" *ngIf="hasAnyOf(['authorization_code', 'hybrid'])">
+        <label for="client-allow-plain-text-pkce" class="col-sm-3 col-form-label">
+            <i class="material-icons align-middle" title="Specifies whether a proof key can be sent using plain method.">info</i>
             Allow PlainText PKCE
         </label>
         <div class="col-sm-9">
             <div class="form-check col-form-label custom-control custom-checkbox">
-                <input class="form-check-input custom-control-input"
-                       type="checkbox"
-                       id="client-allow-plain-text-pkce"
-                       name="client-allow-plain-text-pkce"
-                       [(ngModel)]="client.allowPlainTextPkce"
-                       #allowPlainTextPkce="ngModel" />
-                <label class="custom-control-label"
-                       for="client-allow-plain-text-pkce">
-                </label>
+                <input class="form-check-input custom-control-input" type="checkbox" id="client-allow-plain-text-pkce" name="client-allow-plain-text-pkce" [(ngModel)]="client.allowPlainTextPkce" #allowPlainTextPkce="ngModel" />
+                <label class="custom-control-label" for="client-allow-plain-text-pkce"></label>
             </div>
         </div>
     </div>
-    <div class="form-group row"
-         *ngIf="hasAnyOf(['password', 'hybrid', 'urn:ietf:params:oauth:grant-type:device_code']) 
-             || hasAllOf(['authorization_code', 'client_credentials'])">
-        <label for="client-allow-offline-access"
-               class="col-sm-3 col-form-label">
-            <i class="material-icons align-middle"
-               title="Sets a value indicating whether to allow offline access.">
-                info
-            </i>
+    <div class="form-group row" *ngIf="hasAnyOf(['password', 'hybrid', 'urn:ietf:params:oauth:grant-type:device_code', 'authorization_code', 'hybrid', 'implicit']) || containsCustomGrantTypes()">
+        <label for="client-allow-offline-access" class="col-sm-3 col-form-label">
+            <i class="material-icons align-middle" title="Sets a value indicating whether to allow offline access.">info</i>
             Allow Offline Access
         </label>
         <div class="col-sm-9">
             <div class="form-check col-form-label custom-control custom-checkbox">
-                <input class="form-check-input custom-control-input"
-                       type="checkbox"
-                       id="client-allow-offline-access"
-                       name="client-allow-offline-access"
-                       [(ngModel)]="client.allowOfflineAccess"
-                       #allowOfflineAccess="ngModel" />
-                <label class="custom-control-label"
-                       for="client-allow-offline-access">
-                </label>
+                <input class="form-check-input custom-control-input" type="checkbox" id="client-allow-offline-access" name="client-allow-offline-access" [(ngModel)]="client.allowOfflineAccess" #allowOfflineAccess="ngModel" />
+                <label class="custom-control-label" for="client-allow-offline-access"></label>
             </div>
         </div>
     </div>
-    <div class="form-group row"
-         *ngIf="hasAnyOf(['password', 'hybrid', 'urn:ietf:params:oauth:grant-type:device_code']) 
-             || hasAllOf(['authorization_code', 'client_credentials'])">
-        <label for="client-update-access-token-claims-on-refresh"
-               class="col-sm-3 col-form-label">
-            <i class="material-icons align-middle"
-               title="Sets a value indicating whether the access token (and its claims) should be updated on a refresh token request.">
-                info
-            </i>
+    <div class="form-group row" *ngIf="hasAnyOf(['password', 'hybrid', 'urn:ietf:params:oauth:grant-type:device_code', 'authorization_code', 'hybrid', 'implicit'])">
+        <label for="client-update-access-token-claims-on-refresh" class="col-sm-3 col-form-label">
+            <i class="material-icons align-middle" title="Sets a value indicating whether the access token (and its claims) should be updated on a refresh token request.">info</i>
             Update Access Token Claims On Refresh
         </label>
         <div class="col-sm-9">
             <div class="form-check col-form-label custom-control custom-checkbox">
-                <input class="form-check-input custom-control-input"
-                       type="checkbox"
-                       id="client-update-access-token-claims-on-refresh"
-                       name="client-update-access-token-claims-on-refresh"
-                       [(ngModel)]="client.updateAccessTokenClaimsOnRefresh"
-                       #updateAccessTokenClaimsOnRefresh="ngModel" />
-                <label class="custom-control-label"
-                       for="client-update-access-token-claims-on-refresh">
-                </label>
+                <input class="form-check-input custom-control-input" type="checkbox" id="client-update-access-token-claims-on-refresh" name="client-update-access-token-claims-on-refresh" [(ngModel)]="client.updateAccessTokenClaimsOnRefresh"
+                    #updateAccessTokenClaimsOnRefresh="ngModel" />
+                <label class="custom-control-label" for="client-update-access-token-claims-on-refresh"></label>
             </div>
         </div>
     </div>
-    <div class="form-group"
-         *ngIf="canEditClient">
+    <div class="form-group" *ngIf="canEditClient">
         <div>
-            <button type="submit"
-                    class="btn btn-primary m-r-5">
-                Save Changes
-            </button>
+            <button type="submit" class="btn btn-primary m-r-5">Save Changes</button>
         </div>
     </div>
 </form>

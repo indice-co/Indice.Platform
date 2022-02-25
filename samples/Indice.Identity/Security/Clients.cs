@@ -3,6 +3,8 @@ using IdentityModel;
 using IdentityServer4;
 using IdentityServer4.Models;
 using Indice.AspNetCore.Identity.Api.Security;
+using Indice.Configuration;
+using Indice.Security;
 
 namespace Indice.Identity.Security
 {
@@ -18,12 +20,17 @@ namespace Indice.Identity.Security
             new Client {
                 ClientId = "postman",
                 ClientName = "PostMan",
-                AllowedGrantTypes = GrantTypes.ResourceOwnerPasswordAndClientCredentials,
+                AllowedGrantTypes = { 
+                    GrantType.ResourceOwnerPassword, 
+                    GrantType.ClientCredentials, 
+                    CustomGrantTypes.OtpAuthenticate 
+                },
                 AllowedScopes = {
                     IdentityServerApi.Scope,
                     IdentityServerApi.SubScopes.Clients,
                     IdentityServerApi.SubScopes.Users,
                     IdentityServerConstants.StandardScopes.Email,
+                    IdentityServerConstants.StandardScopes.Phone,
                     IdentityServerConstants.StandardScopes.OfflineAccess,
                     IdentityServerConstants.StandardScopes.OpenId,
                     IdentityServerConstants.StandardScopes.Profile,
@@ -39,13 +46,19 @@ namespace Indice.Identity.Security
                 RedirectUris = {
                     "https://www.getpostman.com/oauth2/callback"
                 },
-                RequireConsent = false
+                RequireConsent = false,
+                Claims = {
+                    new ClientClaim(BasicClaimTypes.System, "true")
+                }
             },
             new Client {
                 ClientId = "resource-owner-password-mvc",
                 ClientName = "Resource Owner Password MVC client",
-                AllowedGrantTypes = GrantTypes.ResourceOwnerPassword,
-                AccessTokenType = AccessTokenType.Reference,
+                AllowedGrantTypes = { 
+                    GrantType.ResourceOwnerPassword,
+                    CustomGrantTypes.OtpAuthenticate
+                },
+                AccessTokenType = AccessTokenType.Jwt,
                 AccessTokenLifetime = 300,
                 ClientSecrets = {
                     new Secret("ZWU0NTdmNWEtM2Y0MC00NzhiLWE1ZmUtZDFhZjA4YjlmMmEy".ToSha256())
@@ -55,6 +68,7 @@ namespace Indice.Identity.Security
                     IdentityServerApi.SubScopes.Clients,
                     IdentityServerApi.SubScopes.Users,
                     IdentityServerConstants.StandardScopes.Email,
+                    IdentityServerConstants.StandardScopes.Phone,
                     IdentityServerConstants.StandardScopes.OfflineAccess,
                     IdentityServerConstants.StandardScopes.OpenId,
                     IdentityServerConstants.StandardScopes.Profile,
@@ -80,16 +94,18 @@ namespace Indice.Identity.Security
                     IdentityServerApi.SubScopes.Clients,
                     IdentityServerApi.SubScopes.Users,
                     IdentityServerConstants.StandardScopes.Email,
+                    IdentityServerConstants.StandardScopes.Phone,
                     IdentityServerConstants.StandardScopes.OfflineAccess,
                     IdentityServerConstants.StandardScopes.OpenId,
                     IdentityServerConstants.StandardScopes.Profile,
-                    JwtClaimTypes.Role
+                    JwtClaimTypes.Role,
+                    BasicClaimTypes.MsGraphToken
                 },
                 AllowOfflineAccess = true,
                 ClientUri = "https://indice-idsrv.azurewebsites.net/admin",
                 PostLogoutRedirectUris = {
-                    "http://localhost:4200/admin/logged-out",
-                    "https://localhost:2000/admin/logged-out"
+                    "http://localhost:4200/admin",
+                    "https://localhost:2000/admin"
                 },
                 RedirectUris = {
                     "http://localhost:4200/admin/auth-callback",
@@ -139,10 +155,13 @@ namespace Indice.Identity.Security
                 AllowAccessTokensViaBrowser = false,
                 AllowedCorsOrigins = {
                     "https://localhost:2000",
+                    "https://localhost:2001",
                     "https://idsrv-admin-ui.azurewebsites.net"
                 },
                 AllowedGrantTypes = GrantTypes.Code,
                 AllowedScopes = {
+                    "backoffice",
+                    "backoffice:campaigns",
                     IdentityServerApi.Scope,
                     IdentityServerApi.SubScopes.Clients,
                     IdentityServerApi.SubScopes.Users,
@@ -152,16 +171,110 @@ namespace Indice.Identity.Security
                     JwtClaimTypes.Role
                 },
                 PostLogoutRedirectUris = {
-                    "https://localhost:2000/docs",
-                    "https://idsrv-admin-ui.azurewebsites.net/docs"
+                    "https://localhost:2000/docs/oauth2-redirect.html",
+                    "https://localhost:2001/docs/oauth2-redirect.html",
+                    "https://idsrv-admin-ui.azurewebsites.net/docs/oauth2-redirect.html"
                 },
                 RedirectUris = {
                     "https://localhost:2000/docs/oauth2-redirect.html",
+                    "https://localhost:2001/docs/oauth2-redirect.html",
                     "https://idsrv-admin-ui.azurewebsites.net/docs/oauth2-redirect.html"
                 },
                 RequireConsent = true,
                 RequirePkce = true,
                 RequireClientSecret = false
+            },
+            new Client {
+                ClientId = "ppk-client",
+                ClientName = "Public/Private key client",
+                AccessTokenType = AccessTokenType.Jwt,
+                AllowAccessTokensViaBrowser = false,
+                AllowedGrantTypes = GrantTypes.ResourceOwnerPasswordAndClientCredentials,
+                ClientSecrets = { 
+                    new Secret("JUEKX2XugFv5XrX3".ToSha256())
+                },
+                AllowedScopes = {
+                    IdentityServerConstants.StandardScopes.OpenId,
+                    IdentityServerConstants.StandardScopes.Phone
+                },
+                RequireConsent = false,
+                RequirePkce = false,
+                RequireClientSecret = true,
+                AllowOfflineAccess = true,
+                AlwaysSendClientClaims = true,
+                Claims = {
+                    new ClientClaim(BasicClaimTypes.TrustedDevice, bool.TrueString.ToLower())
+                }
+            },
+            new Client {
+                ClientId = "code-flow-mvc",
+                ClientName = "Code Flow MVC",
+                AccessTokenType = AccessTokenType.Reference,
+                AllowAccessTokensViaBrowser = false,
+                AllowedCorsOrigins = {
+                    "https://localhost:46632"
+                },
+                AllowedGrantTypes = GrantTypes.Code,
+                AllowedScopes = {
+                    IdentityServerApi.Scope,
+                    IdentityServerConstants.StandardScopes.Email,
+                    IdentityServerConstants.StandardScopes.OfflineAccess,
+                    IdentityServerConstants.StandardScopes.OpenId,
+                    IdentityServerConstants.StandardScopes.Profile,
+                    JwtClaimTypes.Role
+                },
+                ClientSecrets = { 
+                    new Secret("pHnd~)JAd5]YRb[".ToSha256())
+                },
+                AllowOfflineAccess = true,
+                ClientUri = "https://localhost:46632",
+                PostLogoutRedirectUris = {
+                    "https://localhost:46632"
+                },
+                RedirectUris = {
+                    "https://localhost:46632/signin-indice"
+                },
+                RequireClientSecret  = true,
+                RequirePkce = true,
+                RequireConsent = false
+            },
+            new Client {
+                ClientId = "backoffice-ui",
+                ClientName = "IdentityServer Management Tool",
+                AccessTokenType = AccessTokenType.Reference,
+                AllowAccessTokensViaBrowser = false,
+                AllowedCorsOrigins = {
+                    "http://localhost:4200"
+                },
+                AllowedGrantTypes = GrantTypes.Code,
+                AllowedScopes = {
+                    IdentityServerApi.Scope,
+                    IdentityServerApi.SubScopes.Clients,
+                    IdentityServerApi.SubScopes.Users,
+                    "backoffice",
+                    "backoffice:campaigns",
+                    IdentityServerConstants.StandardScopes.Email,
+                    IdentityServerConstants.StandardScopes.Phone,
+                    IdentityServerConstants.StandardScopes.OfflineAccess,
+                    IdentityServerConstants.StandardScopes.OpenId,
+                    IdentityServerConstants.StandardScopes.Profile,
+                    JwtClaimTypes.Role
+                },
+                AllowOfflineAccess = true,
+                ClientUri = "http://localhost:4200",
+                PostLogoutRedirectUris = {
+                    "http://localhost:4200",
+                    "https://localhost:2001/campaigns"
+                },
+                RedirectUris = {
+                    "http://localhost:4200/auth-callback",
+                    "http://localhost:4200/auth-renew",
+                    "https://localhost:2001/campaigns/auth-callback",
+                    "https://localhost:2001/campaigns/auth-renew"
+                },
+                RequireClientSecret  = false,
+                RequirePkce = true,
+                RequireConsent = false
             }
         };
     }

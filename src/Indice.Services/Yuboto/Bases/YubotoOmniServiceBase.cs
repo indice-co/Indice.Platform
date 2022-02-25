@@ -81,7 +81,11 @@ namespace Indice.Services.Yuboto.Bases
         /// Get default Json Serializer Options: CamelCase, ignore null values.
         /// </summary>
         protected JsonSerializerOptions GetJsonSerializerOptions() => new JsonSerializerOptions {
+#if NET5_0_OR_GREATER
+            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+#else
             IgnoreNullValues = true,
+#endif
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase
         };
         #endregion

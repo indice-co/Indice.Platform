@@ -3,8 +3,7 @@
       type="warning"
       [showCancelButton]="true"
       (confirm)="delete()"
-      #deleteAlert>
-</swal>
+      #deleteAlert></swal>
 <p *ngIf="!client">Loading client data...</p>
 <form class="needs-validation"
       *ngIf="client"
@@ -17,66 +16,66 @@
         <label for="client-id"
                class="col-sm-2 col-form-label">
             <i class="material-icons align-middle"
-               title="The unique identifier for this application.">
-                info
-            </i>
+               title="The unique identifier for this application.">info</i>
             Client Id
         </label>
         <div class="col-sm-10 col-form-label">
             <span class="col-form-label"
                   id="client-id"
-                  name="client-id">
-                {{ client.clientId }}
-            </span>
+                  name="client-id">{{ client.clientId }}</span>
         </div>
     </div>
     <div class="form-group row">
         <label for="client-display-name"
                class="col-sm-2 col-form-label">
             <i class="material-icons align-middle"
-               title="Application name that will be seen on consent screen.">
-                info
-            </i>
+               title="Application name that will be seen on consent screen.">info</i>
             Display Name (*)
         </label>
         <div class="col-sm-10">
-            <input class="form-control"
-                   type="text"
-                   id="client-display-name"
-                   name="client-display-name"
-                   [(ngModel)]="client.clientName"
-                   maxlength="200"
-                   required
-                   #clientName="ngModel" />
+            <app-translate-input maxlength="200"
+                                 required
+                                 [id]="'client-display-name'"
+                                 [name]="'client-display-name'"
+                                 [errorClass]="form.submitted && clientName.invalid ? 'invalid' : ''"
+                                 [(ngModel)]="client.clientName"
+                                 [cultures]="cultures"
+                                 [selectedCulture]="selectedCulture"
+                                 (changedCulture)="onCultureChanged($event)"
+                                 [initialValues]="nameTranslations"
+                                 (translations)="getClientNameTranslations($event)"
+                                 [inputType]="'text'"
+                                 #clientName="ngModel">
+            </app-translate-input>
             <div *ngIf="form.submitted && clientName.invalid"
-                 class="form-control-feedback text-danger">
-                Field 'Display Name' is required.
-            </div>
+                 class="form-control-feedback text-danger">Field 'Display Name' is required.</div>
         </div>
     </div>
     <div class="form-group row">
         <label for="client-description"
-               class="col-sm-2 col-form-label">
-            Description
-        </label>
+               class="col-sm-2 col-form-label">Description</label>
         <div class="col-sm-10">
-            <textarea id="client-description"
-                      name="client-description"
-                      class="form-control"
-                      rows="3"
-                      maxlength="1000"
-                      [(ngModel)]="client.description"
-                      #description="ngModel">
-            </textarea>
+            <app-translate-input maxlength="1000"
+                                 rows="3"
+                                 [id]="'client-description'"
+                                 [name]="'client-description'"
+                                 [errorClass]="form.submitted && description.invalid ? 'invalid' : ''"
+                                 [(ngModel)]="client.description"
+                                 [cultures]="cultures"
+                                 [selectedCulture]="selectedCulture"
+                                 (changedCulture)="onCultureChanged($event)"
+                                 [initialValues]="descriptionTranslations"
+                                 (translations)="getDescriptionTranslations($event)"
+                                 [inputType]="'text'"
+                                 #description="ngModel">
+            </app-translate-input>
         </div>
     </div>
     <div class="form-group row">
         <label for="client-display-url"
                class="col-sm-2 col-form-label">
             <i class="material-icons align-middle"
-               title="Application URL that will be seen on consent screen.">
-                info
-            </i>
+               title="Application URL that will be seen on consent screen.">info</i>
             Display URL
         </label>
         <div class="col-sm-10">
@@ -93,9 +92,7 @@
         <label for="client-logo-url"
                class="col-sm-2 col-form-label">
             <i class="material-icons align-middle"
-               title="Application logo that will be seen on consent screen.">
-                info
-            </i>
+               title="Application logo that will be seen on consent screen.">info</i>
             Logo URL
         </label>
         <div class="col-sm-10">
@@ -110,9 +107,7 @@
     </div>
     <div class="form-group row">
         <label for="client-enabled"
-               class="col-sm-2 col-form-label">
-            Enabled
-        </label>
+               class="col-sm-2 col-form-label">Enabled</label>
         <div class="col-sm-10">
             <div class="form-check col-form-label custom-control custom-checkbox">
                 <input class="form-check-input custom-control-input"
@@ -122,8 +117,7 @@
                        [(ngModel)]="client.enabled"
                        #enabled="ngModel" />
                 <label class="custom-control-label"
-                       for="client-enabled">
-                </label>
+                       for="client-enabled"></label>
             </div>
         </div>
     </div>
@@ -131,9 +125,7 @@
         <label for="client-require-consent"
                class="col-sm-2 col-form-label">
             <i class="material-icons align-middle"
-               title="Specifies whether a consent screen is required.">
-                info
-            </i>
+               title="Specifies whether a consent screen is required.">info</i>
             Require Consent
         </label>
         <div class="col-sm-10">
@@ -145,8 +137,7 @@
                        [(ngModel)]="client.requireConsent"
                        #requireConsent="ngModel" />
                 <label class="custom-control-label"
-                       for="client-require-consent">
-                </label>
+                       for="client-require-consent"></label>
             </div>
         </div>
     </div>
@@ -154,9 +145,7 @@
         <label for="client-remember-consent"
                class="col-sm-2 col-form-label">
             <i class="material-icons align-middle"
-               title="Specifies whether consent screen is remembered after having been given.">
-                info
-            </i>
+               title="Specifies whether consent screen is remembered after having been given.">info</i>
             Remember Consent
         </label>
         <div class="col-sm-10">
@@ -168,8 +157,48 @@
                        [(ngModel)]="client.allowRememberConsent"
                        #allowRememberonsent="ngModel" />
                 <label class="custom-control-label"
-                       for="client-remember-consent">
-                </label>
+                       for="client-remember-consent"></label>
+            </div>
+        </div>
+    </div>
+    <div class="form-group row">
+        <label for="client-enable-local-login"
+               class="col-sm-2 col-form-label">
+            <i class="material-icons align-middle"
+               title="Determines whether login using a local account is allowed for this client.">info</i>
+            Enable Local Login
+        </label>
+        <div class="col-sm-10">
+            <div class="form-check col-form-label custom-control custom-checkbox">
+                <input class="form-check-input custom-control-input"
+                       type="checkbox"
+                       id="client-enable-local-login"
+                       name="client-enable-local-login"
+                       [(ngModel)]="client.enableLocalLogin"
+                       #enableLocalLogin="ngModel" />
+                <label class="custom-control-label"
+                       for="client-enable-local-login"></label>
+            </div>
+        </div>
+    </div>
+    <div class="form-group row"
+         *ngIf="externalProviders.length > 0">
+        <label for="client-allowed-providers"
+               class="col-sm-2 col-form-label">
+            <i class="material-icons align-middle"
+               title="Specifies the external providers allowed by this client.">info</i>
+            Allowed External Providers
+        </label>
+        <div class="col-sm-10">
+            <div *ngFor="let provider of externalProviders"
+                 class="form-check col-form-label custom-control custom-checkbox">
+                <input class="form-check-input custom-control-input"
+                       type="checkbox"
+                       [id]="'provider' + provider.authenticationScheme"
+                       [name]="'provider' + provider.authenticationScheme"
+                       [(ngModel)]="provider.selected" />
+                <label class="custom-control-label"
+                       [for]="'provider' + provider.authenticationScheme">{{ provider.authenticationScheme }}</label>
             </div>
         </div>
     </div>
@@ -177,14 +206,10 @@
          *ngIf="canEditClient">
         <div>
             <button type="submit"
-                    class="btn btn-primary m-r-5">
-                Save Changes
-            </button>
+                    class="btn btn-primary m-r-5">Save Changes</button>
             <button type="button"
                     class="btn btn-danger m-r-5 float-right"
-                    (click)="deleteAlert.fire()">
-                Delete
-            </button>
+                    (click)="deleteAlert.fire()">Delete</button>
         </div>
     </div>
 </form>

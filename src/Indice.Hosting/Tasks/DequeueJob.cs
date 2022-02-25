@@ -5,7 +5,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Quartz;
 
-namespace Indice.Hosting
+namespace Indice.Hosting.Tasks
 {
     [PersistJobDataAfterExecution]
     internal class DequeueJob<TWorkItem> : IJob where TWorkItem : class
@@ -23,9 +23,6 @@ namespace Indice.Hosting
         }
 
         public async Task Execute(IJobExecutionContext context) {
-            if (_configuration.StopWorkerHost()) {
-                return;
-            }
             _logger.LogInformation("Dequeue job run at: {Timestamp}", DateTime.UtcNow);
             var jobDataMap = context.JobDetail.JobDataMap;
             var jobHandlerType = jobDataMap[JobDataKeys.JobHandlerType] as Type;

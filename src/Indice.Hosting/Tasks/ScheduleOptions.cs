@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 
-namespace Indice.Hosting
+namespace Indice.Hosting.Tasks
 {
     /// <summary>
     /// Configuration options for the schedule.
@@ -28,6 +28,12 @@ namespace Indice.Hosting
         /// The job group.
         /// </summary>
         public string Group { get; set; }
+        /// <summary>
+        /// When true it ensures the operation will run only in one instance at a time. Even when deployed in multiple machines. 
+        /// </summary>
+        /// <remarks>Under the hood will utilize an <see cref="Indice.Services.ILockManager"/> in order to block other competing worker instances from executing. 
+        /// </remarks>
+        public bool Singleton { get; set; }
         internal IServiceCollection Services { get; }
     }
 }

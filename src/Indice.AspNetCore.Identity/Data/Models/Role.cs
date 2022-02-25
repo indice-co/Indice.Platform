@@ -27,7 +27,6 @@ namespace Indice.AspNetCore.Identity.Data.Models
         /// <summary>
         /// Checks if the specified role is one of management roles.
         /// </summary>
-        /// <param name="role">The role to check.</param>
         public virtual bool IsManagementRole() => 
             Name is BasicRoleNames.Administrator or BasicRoleNames.AdminUIAdministrator or BasicRoleNames.AdminUIUsersReader or BasicRoleNames.AdminUIUsersWriter or BasicRoleNames.AdminUIClientsReader or BasicRoleNames.AdminUIClientsWriter;
     }

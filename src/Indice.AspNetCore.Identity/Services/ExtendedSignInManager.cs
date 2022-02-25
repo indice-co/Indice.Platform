@@ -31,7 +31,7 @@ namespace Indice.AspNetCore.Identity
         /// <param name="userManager">An instance of <see cref="UserManager{TUser}"/> used to retrieve users from and persist users.</param>
         /// <param name="contextAccessor">The accessor used to access the <see cref="HttpContext"/>.</param>
         /// <param name="claimsFactory">The factory to use to create claims principals for a user.</param>
-        /// <param name="optionsAccessor">The accessor used to access the <see cref="AppSetting"/>.</param>
+        /// <param name="optionsAccessor">The accessor used to access the <see cref="IdentityOptions"/>.</param>
         /// <param name="logger">The logger used to log messages, warnings and errors.</param>
         /// <param name="schemes">The scheme provider that is used enumerate the authentication schemes.</param>
         /// <param name="confirmation">The <see cref="IUserConfirmation{TUser}"/> used check whether a user account is confirmed.</param>
@@ -48,7 +48,7 @@ namespace Indice.AspNetCore.Identity
             IConfiguration configuration,
             IAuthenticationSchemeProvider authenticationSchemeProvider
         ) : base(userManager, contextAccessor, claimsFactory, optionsAccessor, logger, schemes, confirmation) {
-            RequirePostSignInConfirmedEmail = configuration.GetSection($"{nameof(IdentityOptions)}:{nameof(IdentityOptions.SignIn)}").GetValue<bool?>(nameof(RequirePostSignInConfirmedEmail)) == true ||
+            RequirePostSignInConfirmedEmail = configuration.GetValue<bool?>($"{nameof(IdentityOptions)}:{nameof(IdentityOptions.SignIn)}:{nameof(RequirePostSignInConfirmedEmail)}") == true ||
                                               configuration.GetSection(nameof(SignInOptions)).GetValue<bool?>(nameof(RequirePostSignInConfirmedEmail)) == true;
             RequirePostSignInConfirmedPhoneNumber = configuration.GetSection($"{nameof(IdentityOptions)}:{nameof(IdentityOptions.SignIn)}").GetValue<bool?>(nameof(RequirePostSignInConfirmedPhoneNumber)) == true ||
                                                     configuration.GetSection(nameof(SignInOptions)).GetValue<bool?>(nameof(RequirePostSignInConfirmedPhoneNumber)) == true;
@@ -172,7 +172,7 @@ namespace Indice.AspNetCore.Identity
         /// </summary>
         public async override Task SignOutAsync() {
             var schemes = await _authenticationSchemeProvider.GetAllSchemesAsync();
-            // Check if authentication scheme is registered before trying to signout out, to avoid errors.
+            // Check if authentication scheme is registered before trying to sign out, to avoid errors.
             if (schemes.Any(x => x.Name == ExtendedIdentityConstants.ExtendedValidationUserIdScheme)) {
                 await Context.SignOutAsync(ExtendedIdentityConstants.ExtendedValidationUserIdScheme);
             }

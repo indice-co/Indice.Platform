@@ -3,14 +3,16 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
+using Indice.Hosting.Tasks.Data.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace Indice.Hosting.EntityFrameworkCore
+namespace Indice.Hosting.Tasks.Data
 {
     /// <summary>
     /// An implementation of <see cref="IMessageQueue{T}"/> using Entity Framework Core.
     /// </summary>
     /// <typeparam name="T">The type of queue item.</typeparam>
+    [Obsolete("This implementation is fully functional but not very perfomant.")]
     public class EFMessageQueue<T> : IMessageQueue<T> where T : class
     {
         private readonly TaskDbContext _dbContext;
@@ -48,7 +50,7 @@ namespace Indice.Hosting.EntityFrameworkCore
                 } catch (DbUpdateException) {
                     // Could not aquire lock. Will try again.
                 }
-            } 
+            }
             while (!successfullLock);
             return message.ToModel<T>(_jsonSerializerOptions);
         }
@@ -56,9 +58,10 @@ namespace Indice.Hosting.EntityFrameworkCore
         /// <inheritdoc/>
         public async Task Enqueue(QMessage<T> item, bool isPoison) {
             DbQMessage message;
+            var messageId = Guid.Parse(item.Id);
             if (item.IsNew) {
                 message = new DbQMessage {
-                    Id = item.Id,
+                    Id = messageId,
                     Date = item.Date,
                     State = QMessageState.New,
                     Payload = JsonSerializer.Serialize(item.Value, _jsonSerializerOptions),
@@ -66,7 +69,7 @@ namespace Indice.Hosting.EntityFrameworkCore
                 };
                 _dbContext.Add(message);
             } else {
-                message = await _dbContext.Queue.Where(x => x.Id == item.Id).SingleAsync();
+                message = await _dbContext.Queue.Where(x => x.Id == messageId).SingleAsync();
                 message.State = isPoison ? QMessageState.Poison : QMessageState.New;
                 message.DequeueCount = item.DequeueCount;
                 _dbContext.Update(message);
@@ -75,12 +78,12 @@ namespace Indice.Hosting.EntityFrameworkCore
         }
 
         /// <inheritdoc/>
-        public async Task EnqueueRange(IEnumerable<T> items) {
-            _dbContext.AddRange(items.Select(x => new DbQMessage() {
-                Id = Guid.NewGuid(),
-                Date = DateTime.UtcNow,
+        public async Task EnqueueRange(IEnumerable<QMessage<T>> items) {
+            _dbContext.AddRange(items.Select(item => new DbQMessage() {
+                Id = Guid.Parse(item.Id),
+                Date = item.Date,
                 State = QMessageState.New,
-                Payload = JsonSerializer.Serialize(x, _jsonSerializerOptions),
+                Payload = JsonSerializer.Serialize(item.Value, _jsonSerializerOptions),
                 QueueName = _queueName
             }));
             await _dbContext.SaveChangesAsync();
@@ -97,13 +100,13 @@ namespace Indice.Hosting.EntityFrameworkCore
 
         /// <inheritdoc/>
         public async Task Cleanup(int? batchSize = null) {
-            var query = @"
-                DELETE FROM [work].[QMessage] 
-                WHERE Id IN (SELECT TOP ({0}) Id FROM [work].[QMessage] 
-                WHERE [State] = {1} AND [QueueName] = {2}
-                ORDER BY Date);
-            ";
-            await _dbContext.Database.ExecuteSqlRawAsync(query, batchSize ?? 1000, QMessageState.Dequeued, _queueName);
+            var itemsToDelete = _dbContext.Queue
+                .Where(x => x.QueueName == _queueName && x.State == QMessageState.Dequeued)
+                .OrderBy(x => x.Date)
+                .Take(batchSize ?? 1000)
+                .ToListAsync();
+            _dbContext.RemoveRange(itemsToDelete);
+            await _dbContext.SaveChangesAsync();
         }
 
         private IQueryable<DbQMessage> GetAvailableItems() => _dbContext.Queue.Where(x => x.QueueName == _queueName && x.State == QMessageState.New).OrderBy(x => x.Date);

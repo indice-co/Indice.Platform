@@ -43,6 +43,10 @@ namespace Indice.AspNetCore.Identity.Api.Models
         /// </summary>
         public bool? ChangePasswordAfterFirstSignIn { get; set; }
         /// <summary>
+        /// Bypasses all password validation rules.
+        /// </summary>
+        public bool? BypassPasswordValidation { get; set; }
+        /// <summary>
         /// Dynamic claims that have been marked as required.
         /// </summary>
         public List<BasicClaimInfo> Claims { get; set; } = new List<BasicClaimInfo>();

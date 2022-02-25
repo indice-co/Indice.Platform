@@ -98,6 +98,10 @@ namespace Indice.Security
         /// </summary>
         public const string PasswordExpirationDate = "password_expiration_date";
         /// <summary>
+        /// A boolean claim indicating that user password has expired.
+        /// </summary>
+        public const string PasswordExpired = "password_expired";
+        /// <summary>
         /// Defines the period in which a password expires.
         /// </summary>
         public const string PasswordExpirationPolicy = "password_expiration_policy";
@@ -121,6 +125,22 @@ namespace Indice.Security
         /// Terms of service consent date.
         /// </summary>
         public const string ConsentTermsDate = "consent_terms_date";
+        /// <summary>
+        /// Trusted device authorized client.
+        /// </summary>
+        public const string TrustedDevice = "trusted_device";
+        /// <summary>
+        /// OTP is already verified.
+        /// </summary>
+        public const string OtpAuthenticated = "otp_authenticated";
+        /// <summary>
+        /// Tax identification number.
+        /// </summary>
+        public const string Tin = "tin";
+        /// <summary>
+        /// Accesss token obtained by Microsoft Identity Platform.
+        /// </summary>
+        public const string MsGraphToken = "ms_graph_access_token";
         /// <summary>
         /// All possible user related claims.
         /// </summary>

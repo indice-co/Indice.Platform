@@ -13,6 +13,8 @@ export class UrlsStepComponent extends StepBaseComponent<ClientWizardModel> impl
         super();
     }
 
+    public urlPattern = /(?:^|\s)((https?:\/\/)?(?:localhost|[\w-]+(?:\.[\w-]+)+)(:\d+)?(\/\S*)?)/;
+
     public get callbackUrl(): AbstractControl {
         return this.data.form.get('callbackUrl');
     }

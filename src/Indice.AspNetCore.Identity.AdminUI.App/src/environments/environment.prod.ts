@@ -10,7 +10,11 @@ export const environment = {
     redirect_uri: 'https://indice-admin-ui.azureedge.net/#/auth-callback',
     response_type: 'code',
     scope: 'openid profile email role offline_access identity identity:clients identity:users',
-    silent_redirect_uri : 'https://indice-admin-ui.azureedge.net/#/auth-renew'
+    silent_redirect_uri: 'https://indice-admin-ui.azureedge.net/#/auth-renew',
+    revokeAccessTokenOnSignout: true,
+    accessTokenExpiringNotificationTime: 60,
+    monitorSession: true,
+    automaticSilentRenew: true
   },
   culture: 'el',
   isTemplate: false,

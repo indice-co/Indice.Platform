@@ -1,0 +1,16 @@
+{
+  "logging": {
+    "applicationInsights": {
+      "samplingSettings": {
+        "excludedTypes": "Request",
+        "isEnabled": true
+      }
+    }
+  },
+  "retry": {
+    "delayInterval": "00:01:00",
+    "maxRetryCount": 1,
+    "strategy": "fixedDelay"
+  },
+  "version": "2.0"
+}

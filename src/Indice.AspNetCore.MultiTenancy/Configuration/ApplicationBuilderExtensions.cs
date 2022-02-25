@@ -24,7 +24,6 @@ namespace Microsoft.AspNetCore.Builder
         /// <summary>
         /// Use the Teanant Middleware to process the request
         /// </summary>
-        /// <typeparam name="T"></typeparam>
         /// <param name="builder"></param>
         /// <returns></returns>
         public static IApplicationBuilder UseMultiTenancy(this IApplicationBuilder builder)

@@ -12,8 +12,9 @@ namespace Indice.AspNetCore.Middleware
     public class RedirectToHostRewriteRule : IRule
     {
         /// <summary>
-        /// The host binding under which we are serving. This should invlude if any the port and scheme.
+        /// The host binding under which we are serving. This should include if any the port and scheme.
         /// </summary>
+        /// <remarks>If no host is passed then the rule will only try to remove the www in front of a domain if found.</remarks>
         /// <param name="hostDomain"></param>
         public RedirectToHostRewriteRule(string hostDomain = null) {
             if (!string.IsNullOrEmpty(hostDomain)) {
@@ -29,6 +30,10 @@ namespace Indice.AspNetCore.Middleware
         /// Dont run under localhost. (Defaults to true).
         /// </summary>
         public bool ExcludeLocalhost { get; set; } = true;
+        /// <summary>
+        /// Dont run under localhost. (Defaults to true).
+        /// </summary>
+        internal RedirectToHostWwwHandling DefaultWwwHandling { get; set; }
         /// <summary>
         /// The host binding under which we are serving. This should invlude if any the port and scheme.
         /// </summary>
@@ -61,5 +66,25 @@ namespace Indice.AspNetCore.Middleware
             response.Headers[HeaderNames.Location] = newPath;
             context.Result = RuleResult.EndResponse;
         }
+    }
+
+    /// <summary>
+    /// An enum that has all available options for handling the www subdomain on a request host.
+    /// This is used by the <see cref="RedirectToHostRewriteRule"/>
+    /// </summary>
+    internal enum RedirectToHostWwwHandling 
+    { 
+        /// <summary>
+        /// Do nothing regarding the www subdomain.
+        /// </summary>
+        None = 0,
+        /// <summary>
+        /// Add a www subdomain if missing.
+        /// </summary>
+        Add = 1,
+        /// <summary>
+        ///  Remove the www subdomain if present.
+        /// </summary>
+        Remove = 2
     }
 }

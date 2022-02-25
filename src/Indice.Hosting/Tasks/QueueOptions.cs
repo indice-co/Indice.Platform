@@ -1,7 +1,7 @@
 ﻿using System;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Indice.Hosting
+namespace Indice.Hosting.Tasks
 {
     /// <summary>
     /// Configuration options for the queue.
@@ -21,15 +21,15 @@ namespace Indice.Hosting
         /// <summary>
         /// Specifies the time interval between two attempts to dequeue new items. Defaults to 300 milliseconds.
         /// </summary>
-        public int PollingInterval { get; set; } = 300;
+        public double PollingInterval { get; set; } = 300;
         /// <summary>
         /// Specifies the maximum time interval between two attempts to dequeue new items. Used as a backoff strategy threshold. Defaults to 5000 milliseconds.
         /// </summary>
-        public int MaxPollingInterval { get; set; } = 5000;
+        public double MaxPollingInterval { get; set; } = 5000;
         /// <summary>
-        /// Specifies the time interval between two attempts to cleanup items. Defaults to 3600 seconds (one hour).
+        /// Specifies the time interval between two attempts to cleanup items. Defaults to 0 seconds. Zero meaning off/not enabled.
         /// </summary>
-        public int CleanUpInterval { get; set; } = 3600;
+        public int CleanUpInterval { get; set; } = 0;
         /// <summary>
         /// Specifies the cleanup batch size.
         /// </summary>

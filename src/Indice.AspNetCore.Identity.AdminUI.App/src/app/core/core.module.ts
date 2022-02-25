@@ -3,6 +3,7 @@ import { CommonModule, registerLocaleData } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { NgModule, LOCALE_ID } from '@angular/core';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import localeGreek from '@angular/common/locales/el';
 import localeEn from '@angular/common/locales/en-GB';
 registerLocaleData(localeGreek);
@@ -31,7 +32,8 @@ import * as app from './models/settings';
         FormsModule,
         CoreRoutingModule,
         LayoutModule,
-        SweetAlert2Module.forRoot()
+        SweetAlert2Module.forRoot(),
+        BrowserAnimationsModule
     ],
     exports: [
         CoreRoutingModule

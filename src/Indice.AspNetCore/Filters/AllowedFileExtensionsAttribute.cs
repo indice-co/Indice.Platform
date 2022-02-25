@@ -11,6 +11,9 @@ namespace Indice.AspNetCore.Filters
     /// <summary>
     /// Sets the accepted file extensions for the request body.
     /// </summary>
+    /// <remarks>
+    /// .xlsx, .docx, .jpg
+    /// </remarks>
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
     public class AllowedFileExtensionsAttribute : Attribute, IActionFilter
     {
@@ -20,8 +23,11 @@ namespace Indice.AspNetCore.Filters
         /// Creates a new instance of <see cref="AllowedFileExtensionsAttribute"/>.
         /// </summary>
         /// <param name="fileExtensions">Allowed file extensions as a comma or space separated string.</param>
+        /// <remarks>
+        /// .xlsx, .docx, .jpg
+        /// </remarks>
         public AllowedFileExtensionsAttribute(params string[] fileExtensions) {
-            AllowedExtensions = fileExtensions.Select(x => x.Trim()).ToList();
+            AllowedExtensions = fileExtensions.Select(x => '.' + x.Trim().TrimStart('.')).ToList();
         }
 
         /// <inheritdoc />

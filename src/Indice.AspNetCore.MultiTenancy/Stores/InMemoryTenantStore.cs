@@ -22,16 +22,8 @@ namespace Indice.AspNetCore.MultiTenancy.Stores
         internal IEnumerable<T> Tenants { get; }
 
         /// <inheritdoc />
-        public Task<bool> CheckAccessAsync(string tenantId, string userId, int? level) {
-            var tenant = Tenants.SingleOrDefault(t => t.Id == tenantId);
-            if (tenant is null)
-                return Task.FromResult(false);
-            
-            if (tenant.Items.ContainsKey(userId)) {
-                var accessLevel = (int)tenant.Items[userId];
-                Task.FromResult(accessLevel >= level.GetValueOrDefault()); 
-            }
-            return Task.FromResult(false);
+        public Task<int?> GetAccessLevelAsync(Guid tenantId, string userId) {
+            return Task.FromResult<int?>(2);
         }
 
         /// <inheritdoc />

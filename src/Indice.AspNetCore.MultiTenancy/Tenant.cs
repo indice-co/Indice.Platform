@@ -12,7 +12,7 @@ namespace Indice.AspNetCore.MultiTenancy
         /// <summary>
         /// The tenant Id
         /// </summary>
-        public string Id { get; set; }
+        public Guid Id { get; set; }
 
         /// <summary>
         /// The tenant identifier

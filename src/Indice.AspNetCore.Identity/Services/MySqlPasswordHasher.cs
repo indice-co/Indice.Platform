@@ -47,7 +47,7 @@ namespace Indice.AspNetCore.Identity
         
         private string HashPasswordMySql(string password) {
             var keyArray = Encoding.UTF8.GetBytes(password);
-            var enc = new SHA1Managed();
+            var enc = SHA1.Create();
             var encodedKey = enc.ComputeHash(enc.ComputeHash(keyArray));
             var builder = new StringBuilder(encodedKey.Length);
             foreach (var b in encodedKey) {

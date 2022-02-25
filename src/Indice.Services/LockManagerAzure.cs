@@ -1,44 +1,59 @@
 ﻿using System;
 using System.IO;
+using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
-using Azure;
 using Azure.Storage.Blobs;
-using Azure.Storage.Blobs.Models;
 using Azure.Storage.Blobs.Specialized;
 
 namespace Indice.Services
 {
     /// <summary>
-    /// <see cref="ILockManager"/> implementation with Azure blob storage as the backing store.
+    /// <see cref="ILockManager"/> implementation with Azure Blob Storage as the backing store.
     /// </summary>
     public class LockManagerAzure : ILockManager
     {
         /// <summary>
-        /// The cloud container client
+        /// The default name of the storage connection string.
         /// </summary>
-        public BlobContainerClient BlobContainer { get; }
+        public const string CONNECTION_STRING_NAME = "StorageConnection";
 
         /// <summary>
-        /// Create the lockmanager
+        /// Creates a new instance of <see cref="LockManagerAzure"/>.
         /// </summary>
         /// <param name="options"></param>
         public LockManagerAzure(LockManagerAzureOptions options) {
-            if (options == null) throw new ArgumentNullException(nameof(options));
-            if (options.EnvironmentName == null) throw new ArgumentNullException(nameof(options.EnvironmentName));
-            if (options.StorageConnection == null) throw new ArgumentNullException(nameof(options.StorageConnection));
+            if (options == null) {
+                throw new ArgumentNullException(nameof(options));
+            }
+            if (string.IsNullOrWhiteSpace(options.EnvironmentName)) {
+                throw new ArgumentNullException(nameof(options.EnvironmentName));
+            }
+            if (string.IsNullOrWhiteSpace(options.ConnectionString)) {
+                throw new ArgumentNullException(nameof(options.ConnectionString));
+            }
             var environmentName = Regex.Replace(options.EnvironmentName ?? "Development", @"\s+", "-").ToLowerInvariant();
-            BlobContainer = new BlobContainerClient(options.StorageConnection, environmentName);
+            BlobContainer = new BlobContainerClient(options.ConnectionString, environmentName);
         }
 
+        /// <summary>
+        /// The cloud container client.
+        /// </summary>
+        public BlobContainerClient BlobContainer { get; }
+
         /// <inheritdoc />
-        public async Task<ILockLease> AcquireLock(string name, TimeSpan? duration = null) {
+        public async Task<ILockLease> AcquireLock(string name, TimeSpan? duration = null, CancellationToken cancellationToken = default) {
             await BlobContainer.CreateIfNotExistsAsync();
             var lockFileBlob = BlobContainer.GetBlobClient($"locks/{name}.lock");
-            await lockFileBlob.UploadAsync(new MemoryStream(System.Text.Encoding.ASCII.GetBytes("0")), overwrite: true);
-            var lockFileLease = lockFileBlob.GetBlobLeaseClient();
-            var leaseResponse = await lockFileLease.AcquireAsync(duration ?? TimeSpan.FromSeconds(30));
-            return new LockLease(leaseResponse.Value.LeaseId, name, this);
+            try {
+                await lockFileBlob.UploadAsync(new MemoryStream(Encoding.ASCII.GetBytes("0")), overwrite: true);
+                var lockFileLease = lockFileBlob.GetBlobLeaseClient();
+                var leaseResponse = await lockFileLease.AcquireAsync(duration ?? TimeSpan.FromSeconds(30), cancellationToken: cancellationToken);
+                return new LockLease(leaseResponse.Value.LeaseId, name, this);
+            } catch (Exception exception) {
+                throw new LockManagerException(name, exception);
+            }
         }
 
         /// <inheritdoc />
@@ -46,27 +61,18 @@ namespace Indice.Services
             var lockFileBlob = BlobContainer.GetBlobClient($"locks/{@lock.Name}.lock");
             var lockFileLease = lockFileBlob.GetBlobLeaseClient(@lock.LeaseId);
             await lockFileLease.ReleaseAsync();
-            // the following code that tries to delete had side-effects.
-            // Not deleting is not problem whatsoever but 
-            // there are multiple zero byte files that are never deleted on storage.
-            //try {
-            //    var response = await lockFileBlob.DeleteIfExistsAsync();
-            //} catch {; }
         }
 
         /// <inheritdoc />
-        public async Task<ILockLease> Renew(string name, string LeaseId) {
+        public async Task<ILockLease> Renew(string name, string leaseId, CancellationToken cancellationToken = default) {
             var lockFileBlob = BlobContainer.GetBlobClient($"locks/{name}.lock");
-            var lockFileLease = lockFileBlob.GetBlobLeaseClient(LeaseId);
-            var leaseResponse = await lockFileLease.RenewAsync();
+            var lockFileLease = lockFileBlob.GetBlobLeaseClient(leaseId);
+            var leaseResponse = await lockFileLease.RenewAsync(cancellationToken: cancellationToken);
             return new LockLease(leaseResponse.Value.LeaseId, name, this);
         }
 
         /// <inheritdoc />
-        public Task Cleanup() {
-            return Task.CompletedTask;
-        }
-
+        public Task Cleanup() => Task.CompletedTask;
     }
 
     /// <summary>
@@ -75,12 +81,12 @@ namespace Indice.Services
     public class LockManagerAzureOptions
     {
         /// <summary>
-        /// Hosting environment name
+        /// Hosting environment name.
         /// </summary>
         public string EnvironmentName { get; set; }
         /// <summary>
         /// Storage connection.
         /// </summary>
-        public string StorageConnection { get; set; }
+        public string ConnectionString { get; set; }
     }
 }

@@ -18,18 +18,21 @@ namespace Indice.Services
         /// <param name="principal">The <see cref="ClaimsPrincipal"/>.</param>
         /// <param name="message">The message to be sent in the SMS. It's important for the message to contain the {0} placeholder in the position where the OTP should be placed.</param>
         /// <param name="channel">Delivery channel.</param>
-        /// <param name="purpose">Optionaly pass the reason to generate the TOTP.</param>
+        /// <param name="purpose">Optionally pass the reason to generate the TOTP.</param>
         /// <param name="securityToken">The generated security token to use, if no <paramref name="principal"/> is provided.</param>
         /// <param name="phoneNumberOrEmail">The phone number to use, if no <paramref name="principal"/> is provided.</param>
+        /// <param name="data">The json string that will be passed as data to the <see cref="IPushNotificationService"/>. It's important for the data to contain the {0} placeholder in the position where the OTP should be placed.</param>
+        /// <param name="classification">The notification's type.</param>
+        /// <param name="subject">The subject of message when applicable.</param>
         /// <exception cref="TotpServiceException">Used to pass errors between service and the caller.</exception>
-        Task<TotpResult> Send(ClaimsPrincipal principal, string message, TotpDeliveryChannel channel = TotpDeliveryChannel.Sms, string purpose = null, string securityToken = null, string phoneNumberOrEmail = null);
+        Task<TotpResult> Send(ClaimsPrincipal principal, string message, TotpDeliveryChannel channel = TotpDeliveryChannel.Sms, string purpose = null, string securityToken = null, string phoneNumberOrEmail = null, string data = null, string classification = null, string subject = null);
         /// <summary>
         /// Verify the code received for the given claims principal.
         /// </summary>
         /// <param name="principal">The <see cref="ClaimsPrincipal"/>.</param>
         /// <param name="code">The TOTP code.</param>
-        /// <param name="provider">Optionaly pass the provider to use to verify. Defaults to DefaultPhoneProvider.</param>
-        /// <param name="purpose">Optionaly pass the reason used to generate the TOTP.</param>
+        /// <param name="provider">Optionally pass the provider to use to verify. Defaults to DefaultPhoneProvider.</param>
+        /// <param name="purpose">Optionally pass the reason used to generate the TOTP.</param>
         /// <param name="securityToken">The generated security token to use, if no <paramref name="principal"/> is provided.</param>
         /// <param name="phoneNumberOrEmail">The phone number to use, if no <paramref name="principal"/> is provided.</param>
         /// <exception cref="TotpServiceException">Used to pass errors between service and the caller.</exception>
@@ -54,7 +57,7 @@ namespace Indice.Services
         /// <param name="userId">The user id.</param>
         /// <param name="message">The message to be sent in the SMS. It's important for the message to contain the {0} placeholder in the position where the OTP should be placed.</param>
         /// <param name="channel">Delivery channel.</param>
-        /// <param name="reason">Optionaly pass the reason to generate the TOTP.</param>
+        /// <param name="reason">Optionally pass the reason to generate the TOTP.</param>
         /// <exception cref="TotpServiceException">used to pass errors between service and the caller.</exception>
         public static Task<TotpResult> Send(this ITotpService service, string userId, string message, TotpDeliveryChannel channel = TotpDeliveryChannel.Sms, string reason = null) =>
             service.Send(new ClaimsPrincipal(new ClaimsIdentity(new[] { new Claim(BasicClaimTypes.Subject, userId) })), message, channel, reason);
@@ -72,7 +75,7 @@ namespace Indice.Services
             var messageBuilder = new TotpMessageBuilder();
             configureMessage(messageBuilder);
             var totpMessage = messageBuilder.Build();
-            return service.Send(totpMessage.ClaimsPrincipal, totpMessage.Message, totpMessage.DeliveryChannel, totpMessage.Purpose, totpMessage.SecurityToken, totpMessage.PhoneNumberOrEmail);
+            return service.Send(totpMessage.ClaimsPrincipal, totpMessage.Message, totpMessage.DeliveryChannel, totpMessage.Purpose, totpMessage.SecurityToken, totpMessage.PhoneNumberOrEmail, totpMessage.Data, totpMessage.Classification);
         }
 
         /// <summary>
@@ -81,18 +84,16 @@ namespace Indice.Services
         /// <param name="service">The service to use.</param>
         /// <param name="userId">The user id.</param>
         /// <param name="code">The TOTP code.</param>
-        /// <param name="provider">Optionaly pass the provider to use to verify. Defaults to DefaultPhoneProvider</param>
-        /// <param name="reason">Optionaly pass the reason used to generate the TOTP.</param>
-        public static Task<TotpResult> Verify(this ITotpService service, string userId, string code, TotpProviderType? provider = null, string reason = null) =>
-            service.Verify(new ClaimsPrincipal(new ClaimsIdentity(new[] { new Claim(BasicClaimTypes.Subject, userId) })), code, provider, reason);
+        /// <param name="provider">Optionally pass the provider to use to verify. Defaults to DefaultPhoneProvider</param>
+        /// <param name="purpose">Optionally pass the reason used to generate the TOTP.</param>
+        public static Task<TotpResult> Verify(this ITotpService service, string userId, string code, TotpProviderType? provider = null, string purpose = null) => service.Verify(new ClaimsPrincipal(new ClaimsIdentity(new[] { new Claim(BasicClaimTypes.Subject, userId) })), code, provider, purpose);
 
         /// <summary>
         /// Gets list of available providers for the given claims principal.
         /// </summary>
         /// <param name="service">The service to use.</param>
         /// <param name="userId">The user id.</param>
-        public static Task<Dictionary<string, TotpProviderMetadata>> GetProviders(this ITotpService service, string userId) =>
-            service.GetProviders(new ClaimsPrincipal(new ClaimsIdentity(new[] { new Claim(BasicClaimTypes.Subject, userId) })));
+        public static Task<Dictionary<string, TotpProviderMetadata>> GetProviders(this ITotpService service, string userId) => service.GetProviders(new ClaimsPrincipal(new ClaimsIdentity(new[] { new Claim(BasicClaimTypes.Subject, userId) })));
     }
 
     #region Builder Classes
@@ -107,8 +108,14 @@ namespace Indice.Services
         public ClaimsPrincipal ClaimsPrincipal { get; internal set; }
         /// <summary>
         /// The message to be sent in the SMS. It's important for the message to contain the {0} placeholder in the position where the OTP should be placed.
+        /// If the <see cref="DeliveryChannel"/> is PushNotification, the {0} placeholder can be ignored and use a human friendly message.
         /// </summary>
         public string Message { get; internal set; }
+        /// <summary>
+        /// The payload data as json string to be sent in PushNotification. It's important for the data to contain the {0} placeholder in the position where the OTP should be placed.
+        /// <remarks>This applies only for <see cref="TotpDeliveryChannel.PushNotification"/>.</remarks>
+        /// </summary>
+        public string Data { get; internal set; }
         /// <summary>
         /// Security token.
         /// </summary>
@@ -125,6 +132,15 @@ namespace Indice.Services
         /// The purpose.
         /// </summary>
         public string Purpose { get; internal set; } = TotpConstants.TokenGenerationPurpose.StrongCustomerAuthentication;
+        /// <summary>
+        /// The type of the Push Notification.
+        /// </summary>
+        /// <remarks>This applies only for <see cref="TotpDeliveryChannel.PushNotification"/>.</remarks>
+        public string Classification { get; internal set; }
+        /// <summary>
+        /// The subject of message when applicable.
+        /// </summary>
+        public string Subject { get; set; }
 
         /// <summary>
         /// Sets the <see cref="ClaimsPrincipal"/> property.
@@ -132,9 +148,6 @@ namespace Indice.Services
         /// <param name="claimsPrincipal">The claims principal.</param>
         /// <returns>The <see cref="ITotpContactBuilder"/>.</returns>
         public ITotpMessageContentBuilder UsePrincipal(ClaimsPrincipal claimsPrincipal) {
-            if (claimsPrincipal == null) {
-                throw new ArgumentNullException($"Parameter {nameof(claimsPrincipal)} cannot be null.");
-            }
             ClaimsPrincipal = claimsPrincipal ?? throw new ArgumentNullException($"Parameter {nameof(claimsPrincipal)} cannot be null.");
             var totpMessageContentBuilder = new TotpMessageContentBuilder(this);
             return totpMessageContentBuilder;
@@ -147,7 +160,7 @@ namespace Indice.Services
         /// <returns>The <see cref="ITotpContactBuilder"/>.</returns>
         public ITotpMessageContentBuilder UseSecurityToken(string securityToken) {
             if (string.IsNullOrEmpty(securityToken)) {
-                throw new ArgumentNullException($"Parameter {nameof(securityToken)} cannot be null or empty.");
+                throw new ArgumentNullException(nameof(securityToken), $"Parameter {nameof(securityToken)} cannot be null or empty.");
             }
             SecurityToken = securityToken;
             var totpMessageContentBuilder = new TotpMessageContentBuilder(this);
@@ -157,14 +170,82 @@ namespace Indice.Services
         /// <summary>
         /// Builds the <see cref="TotpMessage"/>.
         /// </summary>
-        public TotpMessage Build() => new TotpMessage {
+        public TotpMessage Build() => new() {
             ClaimsPrincipal = ClaimsPrincipal,
             Message = Message,
+            Data = Data,
             SecurityToken = SecurityToken,
             PhoneNumberOrEmail = PhoneNumberOrEmail,
             DeliveryChannel = DeliveryChannel,
-            Purpose = Purpose
+            Purpose = Purpose,
+            Classification = Classification,
+            Subject = Subject
         };
+    }
+
+    /// <summary>
+    /// Builder for the <see cref="TotpDataBuilder"/>.
+    /// </summary>
+    public interface ITotpClassificationBuilder
+    {
+        /// <summary>
+        /// Specifies the type of the push notification.
+        /// </summary>
+        /// <param name="classification"></param>
+        void WithClassification(string classification);
+    }
+
+    /// <inheritdoc />
+    public class TotpClassificationBuilder : ITotpClassificationBuilder
+    {
+        private readonly TotpMessageBuilder _totpMessageBuilder;
+
+        /// <summary>
+        /// Creates a new instance of <see cref="TotpClassificationBuilder"/>.
+        /// </summary>
+        /// <param name="totpMessageBuilder">The instance of <see cref="TotpMessageBuilder"/>.</param>
+        /// <exception cref="ArgumentNullException">Thrown when <paramref name="totpMessageBuilder"/> is null.</exception>
+        public TotpClassificationBuilder(TotpMessageBuilder totpMessageBuilder) {
+            _totpMessageBuilder = totpMessageBuilder ?? throw new ArgumentNullException(nameof(totpMessageBuilder));
+        }
+
+        /// <inheritdoc />
+        public void WithClassification(string classification) {
+            _totpMessageBuilder.Classification = classification;
+        }
+    }
+
+    /// <summary>
+    /// Builder for the <see cref="TotpDataBuilder"/>.
+    /// </summary>
+    public interface ITotpDataBuilder
+    {
+        /// <summary>
+        /// Sets the <see cref="TotpMessageBuilder.Data"/> property.
+        /// </summary>
+        /// <param name="data">The payload data as json string to be sent in PushNotification. It's important for the data to contain the {0} placeholder in the position where the OTP should be placed.</param>
+        ITotpClassificationBuilder WithData(string data);
+    }
+
+    /// <inheritdoc />
+    public class TotpDataBuilder : ITotpDataBuilder
+    {
+        private readonly TotpMessageBuilder _totpMessageBuilder;
+
+        /// <summary>
+        /// Creates a new instance of <see cref="TotpDataBuilder"/>.
+        /// </summary>
+        /// <param name="totpMessageBuilder">The instance of <see cref="TotpMessageBuilder"/>.</param>
+        public TotpDataBuilder(TotpMessageBuilder totpMessageBuilder) {
+            _totpMessageBuilder = totpMessageBuilder ?? throw new ArgumentNullException(nameof(totpMessageBuilder));
+        }
+
+        /// <inheritdoc/>
+        public ITotpClassificationBuilder WithData(string data) {
+            _totpMessageBuilder.Data = data;
+            var dataBuilder = new TotpClassificationBuilder(_totpMessageBuilder);
+            return dataBuilder;
+        }
     }
 
     /// <summary>
@@ -196,7 +277,7 @@ namespace Indice.Services
         /// <inheritdoc/>
         public ITotpContactBuilder WithMessage(string message) {
             if (string.IsNullOrEmpty(message)) {
-                throw new ArgumentNullException($"Parameter {nameof(message)} cannot be null or empty.");
+                throw new ArgumentNullException(nameof(message), $"Parameter {nameof(message)} cannot be null or empty.");
             }
             _totpMessageBuilder.Message = message;
             var totpContactBuilder = new TotpContactBuilder(_totpMessageBuilder);
@@ -221,9 +302,14 @@ namespace Indice.Services
         /// <param name="phoneNumber">Phone number.</param>
         /// <returns></returns>
         ITotpPhoneProviderBuilder ToPhoneNumber(string phoneNumber);
+        /// <summary>
+        /// Sets the <see cref="TotpMessageBuilder.Purpose"/> property.
+        /// </summary>
+        /// <param name="purpose">The purpose.</param>
+        void WithPurpose(string purpose);
     }
 
-    /// <inheritdoc/>
+    /// <inheritdoc cref="ITotpContactBuilder" />
     public class TotpContactBuilder : TotpPhoneProviderBuilder, ITotpContactBuilder
     {
         private readonly TotpMessageBuilder _totpMessageBuilder;
@@ -239,7 +325,7 @@ namespace Indice.Services
         /// <inheritdoc/>
         public ITotpPurposeBuilder ToEmail(string email) {
             if (string.IsNullOrEmpty(email)) {
-                throw new ArgumentNullException($"Parameter {nameof(email)} cannot be null or empty.");
+                throw new ArgumentNullException(nameof(email), $"Parameter {nameof(email)} cannot be null or empty.");
             }
             _totpMessageBuilder.PhoneNumberOrEmail = email;
             var totpPurposeBuilder = new TotpPurposeBuilder(_totpMessageBuilder);
@@ -249,11 +335,19 @@ namespace Indice.Services
         /// <inheritdoc/>
         public ITotpPhoneProviderBuilder ToPhoneNumber(string phoneNumber) {
             if (string.IsNullOrEmpty(phoneNumber)) {
-                throw new ArgumentNullException($"Parameter {nameof(phoneNumber)} cannot be null or empty.");
+                throw new ArgumentNullException(nameof(phoneNumber), $"Parameter {nameof(phoneNumber)} cannot be null or empty.");
             }
             _totpMessageBuilder.PhoneNumberOrEmail = phoneNumber;
             var totpPhoneProviderBuilder = new TotpPhoneProviderBuilder(_totpMessageBuilder);
             return totpPhoneProviderBuilder;
+        }
+
+        /// <inheritdoc/>
+        public void WithPurpose(string purpose) {
+            if (string.IsNullOrEmpty(purpose)) {
+                throw new ArgumentNullException(nameof(purpose), $"Parameter {nameof(purpose)} cannot be null or empty.");
+            }
+            _totpMessageBuilder.Purpose = purpose;
         }
     }
 
@@ -266,7 +360,7 @@ namespace Indice.Services
         /// Sets the <see cref="TotpMessageBuilder.Purpose"/> property.
         /// </summary>
         /// <param name="purpose">The purpose.</param>
-        void WithPurpose(string purpose);
+        ITotpDataBuilder WithPurpose(string purpose);
     }
 
     /// <inheritdoc/>
@@ -283,11 +377,13 @@ namespace Indice.Services
         }
 
         /// <inheritdoc/>
-        public void WithPurpose(string purpose) {
+        public ITotpDataBuilder WithPurpose(string purpose) {
             if (string.IsNullOrEmpty(purpose)) {
-                throw new ArgumentNullException($"Parameter {nameof(purpose)} cannot be null or empty.");
+                throw new ArgumentNullException(nameof(purpose), $"Parameter {nameof(purpose)} cannot be null or empty.");
             }
             _totpMessageBuilder.Purpose = purpose;
+            var dataBuilder = new TotpDataBuilder(_totpMessageBuilder);
+            return dataBuilder;
         }
     }
 
@@ -297,25 +393,29 @@ namespace Indice.Services
     public interface ITotpPhoneProviderBuilder
     {
         /// <summary>
-        /// Sets the <see cref="TotpMessageBuilder.DeliveryChannel"/> property.
+        /// Sets the <see cref="TotpMessageBuilder.DeliveryChannel"/> property to <see cref="TotpDeliveryChannel.Sms"/>.
         /// </summary>
-        /// <returns></returns>
-        ITotpPurposeBuilder UsingSms();
+        /// <param name="subject">The subject of the SMS message.</param>
+        ITotpPurposeBuilder UsingSms(string subject = null);
         /// <summary>
-        /// Sets the <see cref="TotpMessageBuilder.DeliveryChannel"/> property.
+        /// Sets the <see cref="TotpMessageBuilder.DeliveryChannel"/> property to <see cref="TotpDeliveryChannel.Viber"/>.
         /// </summary>
-        /// <returns></returns>
-        ITotpPurposeBuilder UsingViber();
+        /// <param name="subject">The subject of the SMS message.</param>
+        ITotpPurposeBuilder UsingViber(string subject = null);
         /// <summary>
-        /// Sets the <see cref="TotpMessageBuilder.DeliveryChannel"/> property.
+        /// Sets the <see cref="TotpMessageBuilder.DeliveryChannel"/> property to <see cref="TotpDeliveryChannel.Telephone"/>.
         /// </summary>
-        /// <returns></returns>
         ITotpPurposeBuilder UsingTelephone();
         /// <summary>
-        /// Sets the <see cref="TotpMessageBuilder.DeliveryChannel"/> property.
+        /// Sets the <see cref="TotpMessageBuilder.DeliveryChannel"/> property to <see cref="TotpDeliveryChannel.PushNotification"/>.
         /// </summary>
-        /// <returns></returns>
         ITotpPurposeBuilder UsingPushNotification();
+        /// <summary>
+        /// Sets the <see cref="TotpMessageBuilder.DeliveryChannel"/> property to the specified value.
+        /// </summary>
+        /// <param name="deliveryChannel">The delivery channel.</param>
+        /// <param name="subject">The subject of message when applicable.</param>
+        ITotpPurposeBuilder UsingDeliveryChannel(TotpDeliveryChannel deliveryChannel, string subject = null);
     }
 
     /// <inheritdoc/>
@@ -332,29 +432,21 @@ namespace Indice.Services
         }
 
         /// <inheritdoc/>
-        public ITotpPurposeBuilder UsingSms() {
-            _totpMessageBuilder.DeliveryChannel = TotpDeliveryChannel.Sms;
-            var totpPurposeBuilder = new TotpPurposeBuilder(_totpMessageBuilder);
-            return totpPurposeBuilder;
-        }
+        public ITotpPurposeBuilder UsingSms(string subject) => UsingDeliveryChannel(TotpDeliveryChannel.Sms, subject);
 
         /// <inheritdoc/>
-        public ITotpPurposeBuilder UsingTelephone() {
-            _totpMessageBuilder.DeliveryChannel = TotpDeliveryChannel.Telephone;
-            var totpPurposeBuilder = new TotpPurposeBuilder(_totpMessageBuilder);
-            return totpPurposeBuilder;
-        }
+        public ITotpPurposeBuilder UsingTelephone() => UsingDeliveryChannel(TotpDeliveryChannel.Telephone);
 
         /// <inheritdoc/>
-        public ITotpPurposeBuilder UsingViber() {
-            _totpMessageBuilder.DeliveryChannel = TotpDeliveryChannel.Viber;
-            var totpPurposeBuilder = new TotpPurposeBuilder(_totpMessageBuilder);
-            return totpPurposeBuilder;
-        }
+        public ITotpPurposeBuilder UsingViber(string subject) => UsingDeliveryChannel(TotpDeliveryChannel.Viber, subject);
 
         /// <inheritdoc/>
-        public ITotpPurposeBuilder UsingPushNotification() {
-            _totpMessageBuilder.DeliveryChannel = TotpDeliveryChannel.PushNotification;
+        public ITotpPurposeBuilder UsingPushNotification() => UsingDeliveryChannel(TotpDeliveryChannel.PushNotification);
+
+        /// <inheritdoc/>
+        public ITotpPurposeBuilder UsingDeliveryChannel(TotpDeliveryChannel deliveryChannel, string subject = null) {
+            _totpMessageBuilder.DeliveryChannel = deliveryChannel;
+            _totpMessageBuilder.Subject = subject;
             var totpPurposeBuilder = new TotpPurposeBuilder(_totpMessageBuilder);
             return totpPurposeBuilder;
         }
@@ -371,32 +463,26 @@ namespace Indice.Services
         /// Constructs an error result.
         /// </summary>
         /// <param name="error">The error.</param>
-        /// <param name="moreErrors">Additional errors.</param>
-        public static TotpResult ErrorResult(string error, params string[] moreErrors) {
-            var result = new TotpResult();
-            result.Errors.Add(error);
-            if (moreErrors?.Length > 0) {
-                result.Errors.AddRange(moreErrors);
-            }
-            return result;
-        }
+        public static TotpResult ErrorResult(string error) => new TotpResult {
+            Error = error
+        };
 
         /// <summary>
         /// Constructs a success result.
         /// </summary>
-        public static TotpResult SuccessResult => new TotpResult { Success = true };
+        public static TotpResult SuccessResult => new() { Success = true };
         /// <summary>
         /// Indicates success.
         /// </summary>
         public bool Success { get; set; }
         /// <summary>
-        /// List of errors.
+        /// The error occurred.
         /// </summary>
-        public List<string> Errors { get; set; } = new List<string>();
+        public string Error { get; set; }
     }
 
     /// <summary>
-    /// Spesific exception used to pass errors between <see cref="ITotpService"/> and the caller.
+    /// Specific exception used to pass errors between <see cref="ITotpService"/> and the caller.
     /// </summary>
     [Serializable]
     public class TotpServiceException : Exception
@@ -514,8 +600,13 @@ namespace Indice.Services
         public ClaimsPrincipal ClaimsPrincipal { get; set; }
         /// <summary>
         /// The message to be sent in the SMS. It's important for the message to contain the {0} placeholder in the position where the OTP should be placed.
+        /// If the <see cref="DeliveryChannel"/> is PushNotification, the {0} placeholder can be ignored and use a human friendly message.
         /// </summary>
         public string Message { get; set; }
+        /// <summary>
+        /// The payload data as json string to be sent in PushNotification. It's important for the data to contain the {0} placeholder in the position where the OTP should be placed.
+        /// </summary>
+        public string Data { get; set; }
         /// <summary>
         /// Chosen delivery channel.
         /// </summary>
@@ -532,6 +623,14 @@ namespace Indice.Services
         /// Email address or phone number.
         /// </summary>
         public string PhoneNumberOrEmail { get; set; }
+        /// <summary>
+        /// The type of the push notification.
+        /// </summary>
+        public string Classification { get; set; }
+        /// <summary>
+        /// The subject of message when applicable.
+        /// </summary>
+        public string Subject { get; set; }
     }
 
     /// <summary>
@@ -545,13 +644,17 @@ namespace Indice.Services
         public static class TokenGenerationPurpose
         {
             /// <summary>
-            /// SCA
+            /// Strong Customer Authentication.
             /// </summary>
             public const string StrongCustomerAuthentication = "Strong Customer Authentication";
             /// <summary>
-            /// TFA
+            /// Two Factor Authentication.
             /// </summary>
             public const string TwoFactorAuthentication = "Two Factor Authentication";
+            /// <summary>
+            /// Session OTP.
+            /// </summary>
+            public const string SessionOtp = "Session OTP";
         }
 
         /// <summary>

@@ -5,6 +5,9 @@ using System.Net.Mime;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using IdentityModel;
+using IdentityServer4.Models;
+using IdentityServer4.Stores;
+using IdentityServer4.Stores.Serialization;
 using Indice.AspNetCore.Identity.Api.Configuration;
 using Indice.AspNetCore.Identity.Api.Events;
 using Indice.AspNetCore.Identity.Api.Filters;
@@ -26,6 +29,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Microsoft.FeatureManagement.Mvc;
+using static IdentityServer4.IdentityServerConstants;
 
 namespace Indice.AspNetCore.Identity.Api.Controllers
 {
@@ -53,9 +57,11 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
         private readonly IdentityOptions _identityOptions;
         private readonly IdentityServerApiEndpointsOptions _identityServerApiEndpointsOptions;
         private readonly IEmailService _emailService;
-        private readonly IEventService _eventService;
+        private readonly IPlatformEventService _eventService;
         private readonly ISmsServiceFactory _smsServiceFactory;
         private readonly ExtendedConfigurationDbContext _configurationDbContext;
+        private readonly IPersistedGrantStore _persistedGrantStore;
+        private readonly IPersistentGrantSerializer _serializer;
 
         /// <summary>
         /// The name of the controller.
@@ -68,11 +74,13 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
             IConfiguration configuration,
             IdentityServerApiEndpointsOptions identityServerApiEndpointsOptions,
             IEmailService emailService,
-            IEventService eventService,
+            IPlatformEventService eventService,
             IOptions<GeneralSettings> generalSettings,
             IOptionsSnapshot<IdentityOptions> identityOptions,
             ISmsServiceFactory smsServiceFactory,
-            ExtendedConfigurationDbContext configurationDbContext
+            ExtendedConfigurationDbContext configurationDbContext,
+            IPersistedGrantStore persistedGrantStore,
+            IPersistentGrantSerializer serializer
         ) {
             _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
             _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
@@ -84,6 +92,8 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
             _smsServiceFactory = smsServiceFactory ?? throw new ArgumentNullException(nameof(smsServiceFactory));
             _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
             _configurationDbContext = configurationDbContext ?? throw new ArgumentNullException(nameof(configurationDbContext));
+            _persistedGrantStore = persistedGrantStore ?? throw new ArgumentNullException(nameof(persistedGrantStore));
+            _serializer = serializer ?? throw new ArgumentNullException(nameof(serializer));
         }
 
         /// <summary>
@@ -159,7 +169,7 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
                 return BadRequest(result.Errors.ToValidationProblemDetails());
             }
             var eventInfo = user.ToBasicUserInfo();
-            await _eventService.Raise(new UserEmailConfirmedEvent(eventInfo));
+            await _eventService.Publish(new UserEmailConfirmedEvent(eventInfo));
             return NoContent();
         }
 
@@ -226,7 +236,7 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
                 return BadRequest(result.Errors.ToValidationProblemDetails());
             }
             var eventInfo = user.ToBasicUserInfo();
-            await _eventService.Raise(new UserPhoneNumberConfirmedEvent(eventInfo));
+            await _eventService.Publish(new UserPhoneNumberConfirmedEvent(eventInfo));
             return NoContent();
         }
 
@@ -250,6 +260,8 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
             if (!result.Succeeded) {
                 return BadRequest(result.Errors.ToValidationProblemDetails());
             }
+            var @event = new UserNameChangedEvent(SingleUserInfo.FromUser(user));
+            await _eventService.Publish(@event);
             return Ok();
         }
 
@@ -273,6 +285,8 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
             if (!result.Succeeded) {
                 return BadRequest(result.Errors.ToValidationProblemDetails());
             }
+            var @event = new PasswordChangedEvent(SingleUserInfo.FromUser(user));
+            await _eventService.Publish(@event);
             return NoContent();
         }
 
@@ -320,6 +334,8 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
             if (!result.Succeeded) {
                 return BadRequest(result.Errors.ToValidationProblemDetails());
             }
+            var @event = new PasswordChangedEvent(SingleUserInfo.FromUser(user));
+            await _eventService.Publish(@event);
             return NoContent();
         }
 
@@ -361,6 +377,23 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
                 Value = x.ClaimValue
             });
             return Ok(new ResultSet<ClaimInfo>(response, response.Count()));
+        }
+
+        /// <summary>
+        /// Gets the consents given by the user.
+        /// </summary>
+        /// <response code="200">OK</response>
+        /// <response code="404">Not Found</response>
+        [HttpGet("my/account/grants")]
+        [ProducesResponseType(statusCode: StatusCodes.Status200OK, type: typeof(ResultSet<UserConsentInfo>))]
+        [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
+        public async Task<IActionResult> GetConsents([FromQuery] ListOptions<UserConsentsListFilter> options) {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null) {
+                return NotFound();
+            }
+            var consents = await GetPersistedGrantsAsync(user.Id, options?.Filter?.ClientId, options?.Filter?.ConsentType.ToConstantName());
+            return Ok(consents.AsQueryable().ToResultSet(options));
         }
 
         /// <summary>
@@ -572,7 +605,8 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
                 Requirement = rule.Value.Hint
             });
             foreach (var validator in _userManager.PasswordValidators) {
-                var result = await validator.ValidateAsync(_userManager, user ?? new User(), request.Password ?? string.Empty);
+                var userInstance = user ?? (userNameAvailable ? new User { UserName = request.UserName } : new User());
+                var result = await validator.ValidateAsync(_userManager, userInstance, request.Password ?? string.Empty);
                 if (!result.Succeeded) {
                     foreach (var error in result.Errors) {
                         if (availableRules.ContainsKey(error.Code)) {
@@ -621,9 +655,9 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
                 }
                 return BadRequest(new ValidationProblemDetails(ModelState));
             }
-            var createdUser = new SingleUserInfo(user);
+            var createdUser = SingleUserInfo.FromUser(user);
             var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-            await _eventService.Raise(new UserRegisteredEvent(createdUser, token));
+            await _eventService.Publish(new UserRegisteredEvent(createdUser, token));
             return NoContent();
         }
 
@@ -713,12 +747,105 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
                 if (isPreviousPasswordAwareValidator && userAvailable) {
                     result.Add(PreviousPasswordAwareValidator.ErrorDescriber, (Description: messageDescriber.PasswordRecentlyUsed, Hint: messageDescriber.PasswordRecentlyUsedRequirement));
                 }
-                var isLatinCharactersPasswordValidator = validatorType == typeof(LatinLettersOnlyPasswordValidator) || validatorType == typeof(LatinLettersOnlyPasswordValidator<>);
-                if (isLatinCharactersPasswordValidator) {
-                    result.Add(LatinLettersOnlyPasswordValidator.ErrorDescriber, (Description: messageDescriber.PasswordHasNonLatinChars, Hint: messageDescriber.PasswordHasNonLatinCharsRequirement));
+                var isUnicodeCharactersPasswordValidator = validatorType == typeof(UnicodeCharactersPasswordValidator) || validatorType == typeof(UnicodeCharactersPasswordValidator<>);
+                if (isUnicodeCharactersPasswordValidator) {
+                    result.Add(UnicodeCharactersPasswordValidator.ErrorDescriber, (Description: messageDescriber.PasswordHasNonLatinChars, Hint: messageDescriber.PasswordHasNonLatinCharsRequirement));
+                }
+                var isNotAllowedCharactersPasswordValidator = validatorType == typeof(AllowedCharactersPasswordValidator) || validatorType == typeof(AllowedCharactersPasswordValidator<>);
+                if (isNotAllowedCharactersPasswordValidator) {
+                    result.Add(AllowedCharactersPasswordValidator.ErrorDescriber, (Description: messageDescriber.PasswordContainsNotAllowedChars, Hint: messageDescriber.PasswordContainsNotAllowedCharsRequirement));
                 }
             }
             return result;
+        }
+
+        private async Task<IEnumerable<UserConsentInfo>> GetPersistedGrantsAsync(string subjectId, string clientId, string consentType) {
+            if (string.IsNullOrWhiteSpace(subjectId)) {
+                throw new ArgumentNullException(nameof(subjectId));
+            }
+            var grants = (await _persistedGrantStore.GetAllAsync(new PersistedGrantFilter {
+                SubjectId = subjectId,
+                ClientId = clientId,
+                Type = consentType
+            }))
+            .ToArray();
+            try {
+                var consents = grants
+                    .Where(x => x.Type == PersistedGrantTypes.UserConsent)
+                    .Select(x => _serializer.Deserialize<Consent>(x.Data))
+                    .Select(x => new UserConsentInfo {
+                        ClientId = x.ClientId,
+                        Scopes = x.Scopes,
+                        CreatedAt = x.CreationTime,
+                        ExpiresAt = x.Expiration,
+                        Type = PersistedGrantTypes.UserConsent
+                    });
+                var codes = grants
+                    .Where(x => x.Type == PersistedGrantTypes.AuthorizationCode)
+                    .Select(x => _serializer.Deserialize<AuthorizationCode>(x.Data))
+                    .Select(x => new UserConsentInfo {
+                        ClientId = x.ClientId,
+                        Scopes = x.RequestedScopes,
+                        CreatedAt = x.CreationTime,
+                        ExpiresAt = x.CreationTime.AddSeconds(x.Lifetime),
+                        Type = PersistedGrantTypes.AuthorizationCode
+                    });
+                var refresh = grants
+                    .Where(x => x.Type == PersistedGrantTypes.RefreshToken)
+                    .Select(x => _serializer.Deserialize<RefreshToken>(x.Data))
+                    .Select(x => new UserConsentInfo {
+                        ClientId = x.ClientId,
+                        Scopes = x.Scopes,
+                        Claims = x.AccessToken?.Claims?.Select(x => new BasicClaimInfo {
+                            Type = x.Type,
+                            Value = x.Value
+                        }),
+                        CreatedAt = x.CreationTime,
+                        ExpiresAt = x.CreationTime.AddSeconds(x.Lifetime),
+                        Type = PersistedGrantTypes.RefreshToken
+                    });
+                var access = grants
+                    .Where(x => x.Type == PersistedGrantTypes.ReferenceToken)
+                    .Select(x => _serializer.Deserialize<Token>(x.Data))
+                    .Select(x => new UserConsentInfo {
+                        ClientId = x.ClientId,
+                        Scopes = x.Scopes,
+                        Claims = x.Claims.Select(x => new BasicClaimInfo {
+                            Type = x.Type,
+                            Value = x.Value
+                        }),
+                        CreatedAt = x.CreationTime,
+                        ExpiresAt = x.CreationTime.AddSeconds(x.Lifetime),
+                        Type = PersistedGrantTypes.ReferenceToken
+                    });
+                consents = Join(consents, codes);
+                consents = Join(consents, refresh);
+                consents = Join(consents, access);
+                return consents.ToArray();
+            } catch (Exception) { }
+            return Enumerable.Empty<UserConsentInfo>();
+        }
+
+        private static IEnumerable<UserConsentInfo> Join(IEnumerable<UserConsentInfo> first, IEnumerable<UserConsentInfo> second) {
+            var list = first.ToList();
+            foreach (var other in second) {
+                var match = list.FirstOrDefault(x => x.ClientId == other.ClientId);
+                if (match != null) {
+                    match.Claims = match.Claims.Union(other.Claims).Distinct();
+                    match.Scopes = match.Scopes.Union(other.Scopes).Distinct();
+                    if (match.CreatedAt > other.CreatedAt) {
+                        match.CreatedAt = other.CreatedAt;
+                    }
+                    if (match.ExpiresAt == null || other.ExpiresAt == null) {
+                        match.ExpiresAt = null;
+                    } else if (match.ExpiresAt < other.ExpiresAt) {
+                        match.ExpiresAt = other.ExpiresAt;
+                    }
+                } else {
+                    list.Add(other);
+                }
+            }
+            return list;
         }
     }
 }

@@ -6,12 +6,13 @@
     <VersionPrefix>1.0.4</VersionPrefix>
     <!--<VersionSuffix>beta1</VersionSuffix>-->
     <Authors>Constantinos Leftheris, Giorgos Manoltzas</Authors>
-    <TargetFrameworks>net40;net45;net461</TargetFrameworks>
+    <TargetFrameworks>net451;net461</TargetFrameworks>
     <AssemblyName>Indice.AspNet</AssemblyName>
     <AssemblyTitle>Indice.AspNet</AssemblyTitle>
     <!--<GenerateDocumentationFile>true</GenerateDocumentationFile>-->
   </PropertyGroup>
   <PropertyGroup Label="Package">
+    <IsPackable>true</IsPackable>
     <PackageId>Indice.AspNet</PackageId>
     <PackageTags>AspNet;HtmlHelpers;Grid</PackageTags>
     <PackageReleaseNotes>
@@ -23,7 +24,7 @@
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>https://github.com/indice-co/Indice.AspNet</RepositoryUrl>
     <Company>Indice</Company>
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <!--<GeneratePackageOnBuild>true</GeneratePackageOnBuild>-->
   </PropertyGroup>
   <ItemGroup>
     <None Include="..\..\icon\icon-128.png" Pack="true" Visible="false" PackagePath="" />

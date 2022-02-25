@@ -30,13 +30,19 @@
             Display Name
         </label>
         <div class="col-sm-10">
-            <input class="form-control"
-                   type="text"
-                   [id]="'scope-display-name-' + discriminator"
-                   [name]="'scope-display-name-' + discriminator"
-                   [(ngModel)]="scope.displayName"
-                   maxlength="200"
-                   #scopeName="ngModel" />
+            <app-translate-input maxlength="200"
+                                 [id]="'scope-display-name-' + discriminator"
+                                 [name]="'scope-display-name-' + discriminator"
+                                 [errorClass]="form.submitted && scopeName.invalid ? 'invalid' : ''"
+                                 [(ngModel)]="scope.displayName"
+                                 [cultures]="cultures"
+                                 [selectedCulture]="selectedCulture"
+                                 (changedCulture)="onCultureChanged($event)"
+                                 [initialValues]="nameTranslations"
+                                 (translations)="getDisplayNameTranslations($event)"
+                                 [inputType]="'text'"
+                                 #scopeName="ngModel">
+            </app-translate-input>
         </div>
     </div>
     <div class="form-group row">
@@ -45,14 +51,20 @@
             Description
         </label>
         <div class="col-sm-10">
-            <textarea [id]="'scope-description-' + discriminator"
-                      [name]="'scope-description-' + discriminator"
-                      class="form-control"
-                      rows="3"
-                      maxlength="1000"
-                      [(ngModel)]="scope.description"
-                      #description="ngModel">
-            </textarea>
+            <app-translate-input maxlength="1000"
+                                 [id]="'scope-description-' + discriminator"
+                                 [name]="'scope-description-' + discriminator"
+                                 [errorClass]="form.submitted && description.invalid ? 'invalid' : ''"
+                                 [(ngModel)]="scope.description"
+                                 [cultures]="cultures"
+                                 [selectedCulture]="selectedCulture"
+                                 (changedCulture)="onCultureChanged($event)"
+                                 [initialValues]="descriptionTranslations"
+                                 (translations)="getDescriptionTranslations($event)"
+                                 [inputType]="'textarea'"
+                                 rows="3"
+                                 #description="ngModel">
+            </app-translate-input>
         </div>
     </div>
     <div class="form-group row">

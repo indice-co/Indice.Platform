@@ -1,11 +1,8 @@
 ﻿using System;
 using System.Collections;
-using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Security.Claims;
-using System.Text.RegularExpressions;
-using System.Threading;
 using Indice.Configuration;
 using Indice.Services;
 using Indice.Services.Yuboto;
@@ -38,7 +35,9 @@ namespace Microsoft.Extensions.DependencyInjection
             services.TryAddTransient(serviceDescriptor.ImplementationType);
             return services.AddTransient<TService, TDecorator>(serviceProvider => {
                 var parameters = typeof(TDecorator).GetConstructors(BindingFlags.Public | BindingFlags.Instance).First().GetParameters();
-                var arguments = parameters.Select(x => x.ParameterType.Equals(typeof(TService)) ? serviceProvider.GetRequiredService(serviceDescriptor.ImplementationType) : serviceProvider.GetService(x.ParameterType)).ToArray();
+                var arguments = parameters.Select(x => x.ParameterType.Equals(typeof(TService))
+                    ? serviceProvider.GetRequiredService(serviceDescriptor.ImplementationType)
+                    : serviceProvider.GetService(x.ParameterType)).ToArray();
                 return (TDecorator)Activator.CreateInstance(typeof(TDecorator), arguments);
             });
         }
@@ -55,16 +54,41 @@ namespace Microsoft.Extensions.DependencyInjection
         }
 
         /// <summary>
-        /// Adds an implementation of <see cref="IPushNotificationService"/> using Azure cloud infrastructure for sending push nitifications.
+        /// The factory that creates the default instance and configuration for <see cref="PushNotificationServiceAzure"/>.
+        /// </summary>
+        public static readonly Func<IServiceProvider, Action<IServiceProvider, PushNotificationAzureOptions>, PushNotificationServiceAzure> GetPushNotificationServiceAzure = (serviceProvider, configure) => {
+            var configuration = serviceProvider.GetRequiredService<IConfiguration>();
+            var options = new PushNotificationAzureOptions {
+                ConnectionString = configuration.GetConnectionString(PushNotificationServiceAzure.ConnectionStringName) ??
+                                   configuration.GetSection(PushNotificationAzureOptions.Name).GetValue<string>(nameof(PushNotificationAzureOptions.ConnectionString)),
+                NotificationHubPath = configuration.GetSection(PushNotificationAzureOptions.Name).GetValue<string>(nameof(PushNotificationAzureOptions.NotificationHubPath)) ??
+                                      configuration.GetValue<string>(PushNotificationServiceAzure.NotificationsHubPath)
+            };
+            configure?.Invoke(serviceProvider, options);
+            return new PushNotificationServiceAzure(options);
+        };
+
+        /// <summary>
+        /// Adds an Azure specific implementation of <see cref="IPushNotificationService"/> for sending push notifications.
         /// </summary>
         /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
-        /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
-        public static IServiceCollection AddPushNotificationServiceAzure(this IServiceCollection services, IConfiguration configuration) {
-            services.Configure<PushNotificationOptions>(configuration.GetSection(PushNotificationOptions.Name));
-            services.AddTransient(serviceProvider => serviceProvider.GetRequiredService<IOptions<PushNotificationOptions>>().Value);
-            services.AddTransient<IPushNotificationService, PushNotificationServiceAzure>();
-            return services;
-        }
+        /// <param name="configure">Configure the available options for push notifications. Null to use defaults.</param>
+        public static IServiceCollection AddPushNotificationServiceAzure(this IServiceCollection services, Action<IServiceProvider, PushNotificationAzureOptions> configure = null) =>
+            services.AddTransient<IPushNotificationService>(serviceProvider => GetPushNotificationServiceAzure(serviceProvider, configure));
+
+        /// <summary>
+        /// Adds an Azure specific implementation, under the specified key, of <see cref="IPushNotificationService"/> for sending push notifications.
+        /// Inject <b>Func&lt;string, IPushNotificationService&gt;</b> and get the service instance by using the parameter <paramref name="name"/>.
+        /// </summary>
+        /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
+        /// <param name="name">The key under which the specified implementation is registered.</param>
+        /// <param name="configure">Configure the available options for push notifications. Null to use defaults.</param>
+        public static IServiceCollection AddPushNotificationServiceAzure(this IServiceCollection services, string name, Action<IServiceProvider, PushNotificationAzureOptions> configure = null) =>
+            services.AddKeyedService<IPushNotificationService, PushNotificationServiceAzure, string>(
+                key: name,
+                serviceProvider => GetPushNotificationServiceAzure(serviceProvider, configure),
+                serviceLifetime: ServiceLifetime.Transient
+            );
 
         /// <summary>
         /// Adds an instance of <see cref="IEmailService"/> using SMTP settings in configuration.
@@ -79,11 +103,11 @@ namespace Microsoft.Extensions.DependencyInjection
         }
 
         /// <summary>
-        /// Adds an instance of <see cref="ISmsService"/> using Youboto.
+        /// Adds an instance of <see cref="ISmsService"/> using Yuboto.
         /// </summary>
         /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
         /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
-        public static IServiceCollection AddSmsServiceYouboto(this IServiceCollection services, IConfiguration configuration) {
+        public static IServiceCollection AddSmsServiceYuboto(this IServiceCollection services, IConfiguration configuration) {
             services.Configure<SmsServiceSettings>(configuration.GetSection(SmsServiceSettings.Name));
             services.AddTransient(serviceProvider => serviceProvider.GetRequiredService<IOptions<SmsServiceSettings>>().Value);
             services.TryAddTransient<ISmsServiceFactory, DefaultSmsServiceFactory>();
@@ -114,7 +138,7 @@ namespace Microsoft.Extensions.DependencyInjection
         }
 
         /// <summary>
-        /// Adds an instance of <see cref="ISmsService"/> using Youboto.
+        /// Adds an instance of <see cref="ISmsService"/> using Yuboto.
         /// </summary>
         /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
         /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
@@ -127,7 +151,7 @@ namespace Microsoft.Extensions.DependencyInjection
         }
 
         /// <summary>
-        /// Adds an instance of <see cref="ISmsService"/> using Youboto Omni from sending regular SMS messages.
+        /// Adds an instance of <see cref="ISmsService"/> using Yuboto Omni from sending regular SMS messages.
         /// </summary>
         /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
         /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
@@ -140,7 +164,7 @@ namespace Microsoft.Extensions.DependencyInjection
         }
 
         /// <summary>
-        /// Adds an instance of <see cref="ISmsService"/> using Youboto Omni for sending Viber messages.
+        /// Adds an instance of <see cref="ISmsService"/> using Yuboto Omni for sending Viber messages.
         /// </summary>
         /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
         /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
@@ -153,23 +177,39 @@ namespace Microsoft.Extensions.DependencyInjection
         }
 
         /// <summary>
+        /// The factory that creates the default instance and configuration for <see cref="EventDispatcherAzure"/>.
+        /// </summary>
+        private static readonly Func<IServiceProvider, Action<IServiceProvider, EventDispatcherAzureOptions>, EventDispatcherAzure> GetEventDispatcherAzure = (serviceProvider, configure) => {
+            var options = new EventDispatcherAzureOptions {
+                ConnectionString = serviceProvider.GetRequiredService<IConfiguration>().GetConnectionString(EventDispatcherAzure.CONNECTION_STRING_NAME),
+                Enabled = true,
+                EnvironmentName = serviceProvider.GetRequiredService<IHostEnvironment>().EnvironmentName,
+                ClaimsPrincipalSelector = ClaimsPrincipal.ClaimsPrincipalSelector ?? (() => ClaimsPrincipal.Current)
+            };
+            configure?.Invoke(serviceProvider, options);
+            return new EventDispatcherAzure(options.ConnectionString, options.EnvironmentName, options.Enabled, options.ClaimsPrincipalSelector, options.TenantIdSelector);
+        };
+
+        /// <summary>
         /// Adds <see cref="IEventDispatcher"/> using Azure Storage as a queuing mechanism.
         /// </summary>
         /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
         /// <param name="configure">Configure the available options. Null to use defaults.</param>
-        public static IServiceCollection AddEventDispatcherAzure(this IServiceCollection services, Action<IServiceProvider, EventDispatcherOptions> configure) {
-            services.AddTransient<IEventDispatcher, EventDispatcherAzure>(serviceProvider => {
-                var options = new EventDispatcherOptions {
-                    ConnectionString = serviceProvider.GetRequiredService<IConfiguration>().GetConnectionString(EventDispatcherAzure.CONNECTION_STRING_NAME),
-                    Enabled = true,
-                    EnvironmentName = serviceProvider.GetRequiredService<IHostEnvironment>().EnvironmentName,
-                    ClaimsPrincipalSelector = ClaimsPrincipal.ClaimsPrincipalSelector ?? (() => ClaimsPrincipal.Current)
-                };
-                configure?.Invoke(serviceProvider, options);
-                return new EventDispatcherAzure(options.ConnectionString, options.EnvironmentName, options.Enabled, options.MessageEncoding, options.ClaimsPrincipalSelector);
-            });
-            return services;
-        }
+        public static IServiceCollection AddEventDispatcherAzure(this IServiceCollection services, Action<IServiceProvider, EventDispatcherAzureOptions> configure = null) =>
+            services.AddTransient<IEventDispatcher, EventDispatcherAzure>(serviceProvider => GetEventDispatcherAzure(serviceProvider, configure));
+
+        /// <summary>
+        /// Adds <see cref="IEventDispatcher"/> using Azure Storage as a queuing mechanism.
+        /// </summary>
+        /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
+        /// <param name="name">The key under which the specified implementation is registered.</param>
+        /// <param name="configure">Configure the available options. Null to use defaults.</param>
+        public static IServiceCollection AddEventDispatcherAzure(this IServiceCollection services, string name, Action<IServiceProvider, EventDispatcherAzureOptions> configure = null) =>
+            services.AddKeyedService<IEventDispatcher, EventDispatcherAzure, string>(
+                key: name,
+                serviceProvider => GetEventDispatcherAzure(serviceProvider, configure),
+                serviceLifetime: ServiceLifetime.Transient
+            );
 
         /// <summary>
         /// Adds <see cref="IEventDispatcher"/> using an in-memory <seealso cref="Queue"/> as a backing store.
@@ -181,48 +221,41 @@ namespace Microsoft.Extensions.DependencyInjection
         }
 
         /// <summary>
-        /// Adds <see cref="IFileService"/> using Azure Blob Storage as the backing store.
+        /// Registers an implementation of <see cref="ILockManager"/> that uses Microsoft Azure Blob Storage as a backing store.
         /// </summary>
         /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
         /// <param name="configure">Configure the available options. Null to use defaults.</param>
-        public static IServiceCollection AddFilesAzure(this IServiceCollection services, Action<FileServiceAzureStorage.FileServiceOptions> configure = null) {
-            services.AddTransient<IFileService, FileServiceAzureStorage>(serviceProvider => {
-                var options = new FileServiceAzureStorage.FileServiceOptions {
-                    ConnectionString = serviceProvider.GetRequiredService<IConfiguration>().GetConnectionString(FileServiceAzureStorage.CONNECTION_STRING_NAME),
+        public static IServiceCollection AddLockManagerAzure(this IServiceCollection services, Action<IServiceProvider, LockManagerAzureOptions> configure = null) {
+            services.AddTransient<ILockManager, LockManagerAzure>(serviceProvider => {
+                var options = new LockManagerAzureOptions {
+                    ConnectionString = serviceProvider.GetRequiredService<IConfiguration>().GetConnectionString(LockManagerAzure.CONNECTION_STRING_NAME),
                     EnvironmentName = serviceProvider.GetRequiredService<IHostEnvironment>().EnvironmentName
                 };
-                configure?.Invoke(options);
-                return new FileServiceAzureStorage(options.ConnectionString, options.EnvironmentName);
+                configure?.Invoke(serviceProvider, options);
+                return new LockManagerAzure(options);
             });
             return services;
         }
 
         /// <summary>
-        /// Adds <see cref="IFileService"/> using local filesystem as the backing store.
+        /// Adds a in-memory implementation of <see cref="ILockManager"/>.
         /// </summary>
         /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
-        /// <param name="path">The path to use save.</param>
-        public static IServiceCollection AddFilesLocal(this IServiceCollection services, string path = null) {
-            services.AddTransient<IFileService, FileServiceLocal>(serviceProvider => {
-                if (path == null) {
-                    var hostingEnvironment = serviceProvider.GetRequiredService<IHostEnvironment>();
-                    var environmentName = Regex.Replace(hostingEnvironment.EnvironmentName ?? "Development", @"\s+", "-").ToLowerInvariant();
-                    path = Path.Combine(hostingEnvironment.ContentRootPath, "App_Data");
-                }
-                if (!Directory.Exists(path)) {
-                    Directory.CreateDirectory(path);
-                }
-                return new FileServiceLocal(path);
-            });
+        public static IServiceCollection AddLockManagerInMemory(this IServiceCollection services) {
+            services.AddSingleton<ILockManager, LockManagerInMemory>();
             return services;
         }
 
         /// <summary>
-        /// Adds <see cref="IFileService"/> using in-memory storage as the backing store. Only for testing purposes.
+        /// Registers an implementation of <see cref="IPlatformEventHandler{TEvent}"/> for the specified event type.
         /// </summary>
-        /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
-        public static IServiceCollection AddFilesInMemory(this IServiceCollection services) {
-            services.AddTransient<IFileService, FileServiceInMemory>();
+        /// <typeparam name="TEvent">The type of the event to handler.</typeparam>
+        /// <typeparam name="TEventHandler">The handler to user for the specified event.</typeparam>
+        /// <param name="services">The services available in the application.</param>
+        public static IServiceCollection AddPlatformEventHandler<TEvent, TEventHandler>(this IServiceCollection services)
+            where TEvent : IPlatformEvent
+            where TEventHandler : class, IPlatformEventHandler<TEvent> {
+            services.TryAddTransient(typeof(IPlatformEventHandler<TEvent>), typeof(TEventHandler));
             return services;
         }
     }

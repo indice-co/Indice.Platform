@@ -4,7 +4,7 @@ import { AsyncSubject, Observable, forkJoin } from 'rxjs';
 import { map } from 'rxjs/operators';
 import {
     ApiResourceInfo, IdentityApiService, ApiScopeInfo, ClaimTypeInfo, ClaimTypeInfoResultSet, UpdateApiResourceRequest, IUpdateApiResourceRequest, CreateApiScopeRequest,
-    UpdateApiScopeRequest, IUpdateApiScopeRequest, CreateSecretRequest, ApiSecretInfo, SecretInfo
+    UpdateApiScopeRequest, IUpdateApiScopeRequest, CreateSecretRequest, ApiSecretInfo, SecretInfo, ApiScopeTranslation
 } from 'src/app/core/services/identity-api.service';
 
 @Injectable()
@@ -115,9 +115,15 @@ export class ApiResourceStore {
 
     public updateApiResourceScope(apiResourceId: number, scope: ApiScopeInfo) {
         const getApiResource = this.getApiResource(apiResourceId);
+        for (const key in scope.translations) {
+            if (scope.translations.hasOwnProperty(key)) {
+                scope.translations[key] = new ApiScopeTranslation(scope.translations[key]);
+            }
+        }
         const updateScope = this._api.updateApiResourceScope(apiResourceId, scope.id, new UpdateApiScopeRequest({
             displayName: scope.displayName,
             description: scope.description,
+            translations: scope.translations,
             emphasize: scope.emphasize,
             showInDiscoveryDocument: scope.showInDiscoveryDocument
         } as IUpdateApiScopeRequest));

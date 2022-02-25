@@ -76,14 +76,15 @@ namespace Indice.AspNetCore.Swagger
                         }
                         return $"{prefix}{name}Of{paramName}";
                     }
-                } else if (typeof(ProblemDetails).IsAssignableFrom(typeInfo)) {
+                } else if (typeof(ProblemDetails).IsAssignableFrom(typeInfo) ||
+                           type.Namespace.StartsWith("Indice.Types") ||
+                           type.Namespace.StartsWith("Indice.Globalization")) {
                     return typeInfo.Name;
                 } else if (type.Namespace.Contains("Models")) {
-                    var name = type.Name.Replace(type.Namespace, string.Empty);
-                    name = name.Replace("Info", string.Empty);
+                    var name = typeInfo.Name.Replace("Info", string.Empty);
                     return name;
                 }
-                return type.FullName;
+                return typeInfo.FullName;
             });
         }
 

@@ -2,13 +2,13 @@
 using Indice.AspNetCore.Identity;
 using Indice.AspNetCore.Identity.Api;
 using Indice.AspNetCore.Identity.Api.Configuration;
-using Indice.AspNetCore.Identity.Api.Events;
 using Indice.AspNetCore.Identity.Api.Filters;
 using Indice.AspNetCore.Identity.Api.Security;
 using Indice.AspNetCore.Identity.Data;
 using Indice.AspNetCore.Identity.Data.Models;
 using Indice.Configuration;
 using Indice.Security;
+using Indice.Services;
 using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -23,21 +23,27 @@ namespace Microsoft.Extensions.DependencyInjection
     public static class IdentityServerApiFeatureExtensions
     {
         /// <summary>
-        /// Adds the IdentityServer API endpoints to MVC.
+        /// Adds the IdentityServer API endpoints in the MVC project.
         /// </summary>
         /// <param name="mvcBuilder">An interface for configuring MVC services.</param>
         /// <param name="configureAction">Configuration options for IdentityServer API feature.</param>
         public static IMvcBuilder AddIdentityServerApiEndpoints(this IMvcBuilder mvcBuilder, Action<IdentityServerApiEndpointsOptions> configureAction = null) {
             mvcBuilder.ConfigureApplicationPartManager(x => x.FeatureProviders.Add(new IdentityServerApiFeatureProvider()));
             var services = mvcBuilder.Services;
-            var serviceProvider = services.BuildServiceProvider();
-            var configuration = serviceProvider.GetRequiredService<IConfiguration>();
             var apiEndpointsOptions = new IdentityServerApiEndpointsOptions {
                 Services = services
             };
             // Initialize default options.
             configureAction?.Invoke(apiEndpointsOptions);
             apiEndpointsOptions.Services = null;
+            var serviceProvider = services.BuildServiceProvider();
+            var configuration = serviceProvider.GetRequiredService<IConfiguration>();
+            var dbContextOptions = serviceProvider.GetRequiredService<IdentityDbContextOptions>();
+            mvcBuilder.AddSettingsApiEndpoints(settingsApiOptions => {
+                settingsApiOptions.ApiPrefix = "api";
+                settingsApiOptions.RequiredScope = IdentityServerApi.Scope;
+                settingsApiOptions.ConfigureDbContext = dbContextOptions.ConfigureDbContext;
+            });
             services.AddDistributedMemoryCache();
             services.AddFeatureManagement(configuration.GetSection("IdentityServerApiFeatureManagement"));
             // Configure options for CacheResourceFilter.
@@ -45,19 +51,17 @@ namespace Microsoft.Extensions.DependencyInjection
             // Invoke action provided by developer to override default options.
             services.AddSingleton(apiEndpointsOptions);
             services.AddGeneralSettings(configuration);
-            services.AddTransient<IEventService, EventService>();
+            services.TryAddTransient<IPlatformEventService, PlatformEventService>();
             // Register validation filters.
             services.AddScoped<CreateClaimTypeRequestValidationFilter>();
             services.AddScoped<CreateRoleRequestValidationFilter>();
             // Add authorization policies that are used by the IdentityServer API.
             services.AddIdentityApiAuthorization();
             // Configure antiforgery token options.
-            services.Configure<AntiforgeryOptions>(options => {
-                options.HeaderName = CustomHeaderNames.AntiforgeryHeaderName;
-            });
-            // Try register the extended version of UserManager<DbUser>.
-            services.TryAddScoped<ExtendedUserManager<User>>();
+            services.Configure<AntiforgeryOptions>(options => options.HeaderName = CustomHeaderNames.AntiforgeryHeaderName);
             services.TryAddScoped<IdentityMessageDescriber>();
+            // Try register the extended version of UserManager<User>.
+            services.TryAddScoped<ExtendedUserManager<User>>();
             // Register the authentication handler, using a custom scheme name, for local APIs.
             services.AddAuthentication()
                     .AddLocalApi(IdentityServerApi.AuthenticationScheme, options => {
@@ -75,23 +79,19 @@ namespace Microsoft.Extensions.DependencyInjection
             var dbContextOptions = new IdentityDbContextOptions();
             configureAction?.Invoke(dbContextOptions);
             options.Services.AddSingleton(dbContextOptions);
-            if (dbContextOptions.ResolveDbContextOptions != null) {
-                options.Services.AddDbContext<ExtendedIdentityDbContext<User, Role>>(dbContextOptions.ResolveDbContextOptions);
-            } else {
-                options.Services.AddDbContext<ExtendedIdentityDbContext<User, Role>>(dbContextOptions.ConfigureDbContext);
-            }
+            options.Services.AddDbContext<ExtendedIdentityDbContext<User, Role>>(dbContextOptions.ConfigureDbContext);
         }
 
         /// <summary>
-        /// Registers an implementation of <see cref="IIdentityServerApiEventHandler{TEvent}"/> for the specified event type.
+        /// Registers an implementation of <see cref="IPlatformEventHandler{TEvent}"/> for the specified event type.
         /// </summary>
         /// <typeparam name="TEvent">The type of the event to handler.</typeparam>
         /// <typeparam name="TEventHandler">The handler to user for the specified event.</typeparam>
         /// <param name="options">Options for configuring the IdentityServer API feature.</param>
-        public static IdentityServerApiEndpointsOptions AddEventHandler<TEvent, TEventHandler>(this IdentityServerApiEndpointsOptions options)
-            where TEvent : IIdentityServerApiEvent
-            where TEventHandler : class, IIdentityServerApiEventHandler<TEvent> {
-            options.Services.AddTransient(typeof(IIdentityServerApiEventHandler<TEvent>), typeof(TEventHandler));
+        public static IdentityServerApiEndpointsOptions AddPlatformEventHandler<TEvent, TEventHandler>(this IdentityServerApiEndpointsOptions options)
+            where TEvent : IPlatformEvent
+            where TEventHandler : class, IPlatformEventHandler<TEvent> {
+            options.Services.AddPlatformEventHandler<TEvent, TEventHandler>();
             return options;
         }
 
