@@ -48,7 +48,7 @@ namespace Indice.AspNetCore.Features.Campaigns.Services
         }
 
         public async Task<AttachmentLink> CreateAttachment(IFormFile file) {
-            var attachment = new DbAttachment();
+            var attachment = new DbCampaignAttachment();
             attachment.PopulateFrom(file);
             using (var stream = file.OpenReadStream()) {
                 await FileService.SaveAsync($"campaigns/{attachment.Uri}", stream);

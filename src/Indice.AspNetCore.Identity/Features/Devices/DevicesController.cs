@@ -217,7 +217,6 @@ namespace Indice.AspNetCore.Identity.Api
                 await PushNotificationService.UnRegister(deviceId);
             } catch (Exception exception) {
                 Logger.LogError("An exception occurred when connection to Azure Notification Hubs. Exception is '{Exception}'. Inner Exception is '{InnerException}'.", exception.Message, exception.InnerException?.Message ?? "N/A");
-                throw;
             }
             DbContext.UserDevices.Remove(device);
             await DbContext.SaveChangesAsync();

@@ -7,17 +7,17 @@ using Microsoft.Extensions.Options;
 
 namespace Indice.AspNetCore.Features.Campaigns.Data
 {
-    internal class DbAttachmentMap : IEntityTypeConfiguration<DbAttachment>
+    internal class DbCampaignAttachmentMap : IEntityTypeConfiguration<DbCampaignAttachment>
     {
-        public DbAttachmentMap(IOptions<CampaignsApiOptions> campaignsApiOptions) {
+        public DbCampaignAttachmentMap(IOptions<CampaignsApiOptions> campaignsApiOptions) {
             CampaignsApiOptions = campaignsApiOptions?.Value ?? throw new ArgumentNullException(nameof(campaignsApiOptions));
         }
 
         public CampaignsApiOptions CampaignsApiOptions { get; }
 
-        public void Configure(EntityTypeBuilder<DbAttachment> builder) {
+        public void Configure(EntityTypeBuilder<DbCampaignAttachment> builder) {
             // Configure table name.
-            builder.ToTable("Attachment", CampaignsApiOptions.DatabaseSchema);
+            builder.ToTable("CampaignAttachment", CampaignsApiOptions.DatabaseSchema);
             // Configure primary key.
             builder.HasKey(x => x.Id);
             // Configure properties.

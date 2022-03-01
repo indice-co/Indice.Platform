@@ -5,16 +5,16 @@ using Microsoft.AspNetCore.Http;
 
 namespace Indice.AspNetCore.Features.Campaigns.Data.Models
 {
-    internal class DbAttachment
+    internal class DbCampaignAttachment
     {
-        public DbAttachment() {
+        public DbCampaignAttachment() {
             Id = Guid.NewGuid();
             Guid = Guid.NewGuid();
         }
 
-        public DbAttachment(string fileName) : this() => PopulateFrom(fileName, null, false);
+        public DbCampaignAttachment(string fileName) : this() => PopulateFrom(fileName, null, false);
 
-        public DbAttachment(string fileName, Stream dataStream, bool saveData = false) : this() => PopulateFrom(fileName, dataStream, saveData);
+        public DbCampaignAttachment(string fileName, Stream dataStream, bool saveData = false) : this() => PopulateFrom(fileName, dataStream, saveData);
 
         public Guid Id { get; set; }
         public Guid Guid { get; set; }
