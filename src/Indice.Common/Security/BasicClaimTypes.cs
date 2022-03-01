@@ -106,7 +106,7 @@ namespace Indice.Security
         /// </summary>
         public const string PasswordExpirationPolicy = "password_expiration_policy";
         /// <summary>
-        /// Defines a standard OTP code used for bypassing OTP verification for developement environment.
+        /// Defines a standard OTP code used for bypassing OTP verification for development environment.
         /// </summary>
         public const string DeveloperTotp = "developer_totp";
         /// <summary>

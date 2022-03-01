@@ -8,6 +8,7 @@ using IdentityServer4.Stores;
 using IdentityServer4.Validation;
 using Indice.AspNetCore.Identity.Data.Models;
 using Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Configuration;
+using Indice.Configuration;
 using Indice.Services;
 using Microsoft.Extensions.Logging;
 
@@ -72,8 +73,8 @@ namespace Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Validation
             if (client == null) {
                 return Error(OidcConstants.AuthorizeErrors.UnauthorizedClient, "Client is unknown or not enabled.");
             }
-            if (client.AllowedGrantTypes.Except(Constants.RequiredGrantTypes).Any()) {
-                return Error(OidcConstants.AuthorizeErrors.UnauthorizedClient, $"Client not authorized any of the following grant types: {string.Join(", ", Constants.RequiredGrantTypes)}");
+            if (!client.AllowedGrantTypes.Contains(CustomGrantTypes.TrustedDevice)) {
+                return Error(OidcConstants.AuthorizeErrors.UnauthorizedClient, $"Trusted device flow is not enabled for this client.");
             }
             // Find requested scopes.
             var requestedScopes = tokenValidationResult.Claims.Where(claim => claim.Type == JwtClaimTypes.Scope).Select(claim => claim.Value).ToList();

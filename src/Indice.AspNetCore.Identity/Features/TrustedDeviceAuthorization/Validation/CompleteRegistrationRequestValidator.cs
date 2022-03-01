@@ -12,6 +12,7 @@ using Indice.AspNetCore.Identity.Data.Models;
 using Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Configuration;
 using Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Models;
 using Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Stores;
+using Indice.Configuration;
 using Indice.Extensions;
 using Indice.Security;
 using Indice.Services;
@@ -102,8 +103,8 @@ namespace Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Validation
             if (client == null) {
                 return Error(OidcConstants.AuthorizeErrors.UnauthorizedClient, $"Client is unknown or not enabled.");
             }
-            if (client.AllowedGrantTypes.Except(Constants.RequiredGrantTypes).Any()) {
-                return Error(OidcConstants.AuthorizeErrors.UnauthorizedClient, $"Client not authorized any of the following grant types: {string.Join(", ", Constants.RequiredGrantTypes)}");
+            if (!client.AllowedGrantTypes.Contains(CustomGrantTypes.TrustedDevice)) {
+                return Error(OidcConstants.AuthorizeErrors.UnauthorizedClient, $"Trusted device flow is not enabled for this client.");
             }
             // Validate authorization code against code verifier given by the client.
             var codeVerifier = parameters.Get(RegistrationRequestParameters.CodeVerifier);

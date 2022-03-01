@@ -59,7 +59,6 @@ namespace Indice.Services
             switch (devicePlatform) {
                 case DevicePlatform.iOS:
                     installationRequest.Platform = NotificationPlatform.Apns;
-                    // If silent notifications are not set, then default to generic notifications for iOS.
                     installationRequest.Templates.Add("DefaultMessage", new InstallationTemplate {
                         Body = PushNotificationAzureOptions.SilentNotifications ?? false ? PushNotificationServiceAzureTemplates.Silent.IOS : PushNotificationServiceAzureTemplates.Generic.IOS
                     });
@@ -67,7 +66,6 @@ namespace Indice.Services
                 case DevicePlatform.Android:
                     installationRequest.Platform = NotificationPlatform.Fcm;
                     installationRequest.Templates.Add("DefaultMessage", new InstallationTemplate {
-                        // If silent notifications are not set, then default to silent notifications for Android.
                         Body = PushNotificationAzureOptions.SilentNotifications ?? true ? PushNotificationServiceAzureTemplates.Silent.ANDROID : PushNotificationServiceAzureTemplates.Generic.ANDROID
                     });
                     break;

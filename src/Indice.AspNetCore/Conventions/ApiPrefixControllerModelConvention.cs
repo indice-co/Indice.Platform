@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc.ApplicationModels;
 namespace Indice.AspNetCore.Mvc.ApplicationModels
 {
     /// <summary>
-    /// Allows to dynamically set the the route prefix of a controller.
+    /// Allows to dynamically set the route prefix of a controller.
     /// </summary>
     /// <remarks>https://docs.microsoft.com/en-us/aspnet/core/mvc/controllers/application-model?view=aspnetcore-5.0#modify-the-controllermodel-description</remarks>
     public class ApiPrefixControllerModelConvention : IControllerModelConvention
@@ -26,7 +26,7 @@ namespace Indice.AspNetCore.Mvc.ApplicationModels
         /// <inheritdoc />
         public void Apply(ControllerModel controller) {
             var selector = controller.Selectors[0];
-            if (selector.AttributeRouteModel == null) { 
+            if (selector.AttributeRouteModel == null) {
                 selector.AttributeRouteModel = new AttributeRouteModel();
             }
             selector.AttributeRouteModel.Template = selector.AttributeRouteModel.Template?.Replace(_templatePrefixPlaceholder, _replacementValue);
