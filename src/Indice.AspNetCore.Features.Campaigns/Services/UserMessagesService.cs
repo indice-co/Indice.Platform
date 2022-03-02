@@ -39,12 +39,12 @@ namespace Indice.AspNetCore.Features.Campaigns.Services
         }
 
         public async Task MarkMessageAsDeleted(Guid messageId, string userCode) {
-            var message = await DbContext.CampaignUsers.SingleOrDefaultAsync(x => x.CampaignId == messageId && x.UserCode == userCode);
+            var message = await DbContext.Notifications.SingleOrDefaultAsync(x => x.CampaignId == messageId && x.UserCode == userCode);
             if (message != null) {
                 message.IsDeleted = true;
                 message.DeleteDate = DateTime.UtcNow;
             } else {
-                DbContext.CampaignUsers.Add(new DbCampaignUser {
+                DbContext.Notifications.Add(new DbNotification {
                     CampaignId = messageId,
                     DeleteDate = DateTime.UtcNow,
                     Id = Guid.NewGuid(),
@@ -56,12 +56,12 @@ namespace Indice.AspNetCore.Features.Campaigns.Services
         }
 
         public async Task MarkMessageAsRead(Guid messageId, string userCode) {
-            var message = await DbContext.CampaignUsers.SingleOrDefaultAsync(x => x.CampaignId == messageId && x.UserCode == userCode);
+            var message = await DbContext.Notifications.SingleOrDefaultAsync(x => x.CampaignId == messageId && x.UserCode == userCode);
             if (message is not null) {
                 message.IsRead = true;
                 message.ReadDate = DateTime.UtcNow;
             } else {
-                DbContext.CampaignUsers.Add(new DbCampaignUser {
+                DbContext.Notifications.Add(new DbNotification {
                     CampaignId = messageId,
                     Id = Guid.NewGuid(),
                     IsRead = true,
@@ -79,7 +79,7 @@ namespace Indice.AspNetCore.Features.Campaigns.Services
                 .Include(x => x.Attachment)
                 .Include(x => x.Type)
                 .SelectMany(
-                    collectionSelector: campaign => DbContext.CampaignUsers.AsNoTracking().Where(x => x.CampaignId == campaign.Id && x.UserCode == userCode).DefaultIfEmpty(),
+                    collectionSelector: campaign => DbContext.Notifications.AsNoTracking().Where(x => x.CampaignId == campaign.Id && x.UserCode == userCode).DefaultIfEmpty(),
                     resultSelector: (campaign, message) => new { Campaign = campaign, Message = message }
                 )
                 .Where(x => x.Campaign.Published

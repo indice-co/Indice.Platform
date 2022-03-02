@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Dynamic;
-using Indice.AspNetCore.Features.Campaigns.Data.Models;
 using Indice.Events;
 using Indice.Types;
 
@@ -59,7 +57,7 @@ namespace Indice.AspNetCore.Features.Campaigns.Models
         /// <summary>
         /// Optional data for the campaign.
         /// </summary>
-        public ExpandoObject Data { get; set; }
+        public dynamic Data { get; set; }
     }
 
     /// <summary>

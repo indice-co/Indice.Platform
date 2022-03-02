@@ -1,6 +1,4 @@
-﻿using Indice.AspNetCore.Features.Campaigns.Data.Models;
-
-namespace Indice.AspNetCore.Features.Campaigns.Models
+﻿namespace Indice.AspNetCore.Features.Campaigns.Models
 {
     /// <summary>
     /// Options used to filter the list of campaigns.

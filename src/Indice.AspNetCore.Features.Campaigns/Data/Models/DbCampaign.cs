@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Dynamic;
-using System.Text.Json;
-using Indice.Serialization;
+using Indice.AspNetCore.Features.Campaigns.Models;
 using Indice.Types;
 
 namespace Indice.AspNetCore.Features.Campaigns.Data.Models
@@ -17,15 +15,11 @@ namespace Indice.AspNetCore.Features.Campaigns.Data.Models
         public bool Published { get; set; }
         public Period ActivePeriod { get; set; }
         public bool IsGlobal { get; set; }
-        public ExpandoObject Data { get; set; }
-        public string DataJson {
-            get { return Data != null ? JsonSerializer.Serialize(Data, JsonSerializerOptionDefaults.GetDefaultSettings()) : null; }
-            set { Data = value != null ? JsonSerializer.Deserialize<ExpandoObject>(value, JsonSerializerOptionDefaults.GetDefaultSettings()) : null; }
-        }
+        public dynamic Data { get; set; }
         public CampaignDeliveryChannel DeliveryChannel { get; set; }
         public Guid? TypeId { get; set; }
         public Guid? AttachmentId { get; set; }
         public virtual DbCampaignAttachment Attachment { get; set; }
-        public virtual DbCampaignType Type { get; set; }
+        public virtual DbNotificationType Type { get; set; }
     }
 }

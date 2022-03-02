@@ -54,6 +54,6 @@ namespace Indice.AspNetCore.Features.Campaigns.Services
 
         private CampaignsDbContext DbContext { get; }
 
-        private async Task<bool> BeExistingTypeId(Guid? typeId, CancellationToken cancellationToken) => await DbContext.CampaignTypes.FindAsync(typeId) is not null;
+        private async Task<bool> BeExistingTypeId(Guid? typeId, CancellationToken cancellationToken) => await DbContext.NotificationTypes.FindAsync(typeId) is not null;
     }
 }

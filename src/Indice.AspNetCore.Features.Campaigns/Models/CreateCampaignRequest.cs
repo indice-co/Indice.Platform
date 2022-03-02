@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
-using Indice.AspNetCore.Features.Campaigns.Data.Models;
 
 namespace Indice.AspNetCore.Features.Campaigns.Models
 {

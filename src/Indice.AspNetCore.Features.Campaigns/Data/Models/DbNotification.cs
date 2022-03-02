@@ -2,7 +2,7 @@
 
 namespace Indice.AspNetCore.Features.Campaigns.Data.Models
 {
-    internal class DbCampaignUser
+    internal class DbNotification
     {
         public Guid Id { get; set; }
         public string UserCode { get; set; }

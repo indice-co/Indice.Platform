@@ -2,9 +2,10 @@
 
 namespace Indice.AspNetCore.Features.Campaigns.Data.Models
 {
-    internal class DbCampaignType
+    internal class DbTemplate
     {
-        public Guid Id { get; set; } = Guid.NewGuid();
+        public Guid Id { get; set; }
         public string Name { get; set; }
+        public DbContent Content { get; set; }
     }
 }

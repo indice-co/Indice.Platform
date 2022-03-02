@@ -32,8 +32,7 @@ namespace Indice.AspNetCore.Features.Campaigns.Data
             builder.OwnsOne(x => x.ActivePeriod).Property(x => x.From).HasColumnName(nameof(Period.From));
             builder.OwnsOne(x => x.ActivePeriod).Property(x => x.To).HasColumnName(nameof(Period.To));
             builder.Property(x => x.IsGlobal).IsRequired();
-            builder.Property(x => x.DataJson).HasColumnName(nameof(DbCampaign.Data));
-            builder.Ignore(x => x.Data);
+            builder.Property(x => x.Data).HasJsonConversion();
             // Configure relationships.
             builder.HasOne(x => x.Attachment).WithMany().HasForeignKey(x => x.AttachmentId);
             builder.HasOne(x => x.Type).WithMany().HasForeignKey(x => x.TypeId);

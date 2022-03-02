@@ -36,6 +36,6 @@ namespace Indice.AspNetCore.Features.Campaigns.Models
         /// <summary>
         /// Optional data for the campaign.
         /// </summary>
-        public ExpandoObject Data { get; set; }
+        public dynamic Data { get; set; }
     }
 }

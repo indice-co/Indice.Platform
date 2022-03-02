@@ -6,17 +6,17 @@ using Microsoft.Extensions.Options;
 
 namespace Indice.AspNetCore.Features.Campaigns.Data
 {
-    internal class DbCampaignUserMap : IEntityTypeConfiguration<DbCampaignUser>
+    internal class DbNotificationMap : IEntityTypeConfiguration<DbNotification>
     {
-        public DbCampaignUserMap(IOptions<CampaignsApiOptions> campaignsApiOptions) {
+        public DbNotificationMap(IOptions<CampaignsApiOptions> campaignsApiOptions) {
             CampaignsApiOptions = campaignsApiOptions?.Value ?? throw new ArgumentNullException(nameof(campaignsApiOptions));
         }
 
         public CampaignsApiOptions CampaignsApiOptions { get; }
 
-        public void Configure(EntityTypeBuilder<DbCampaignUser> builder) {
+        public void Configure(EntityTypeBuilder<DbNotification> builder) {
             // Configure table name.
-            builder.ToTable("CampaignUser", CampaignsApiOptions.DatabaseSchema);
+            builder.ToTable("Notification", CampaignsApiOptions.DatabaseSchema);
             // Configure primary keys.
             builder.HasKey(x => x.Id);
             builder.HasAlternateKey(x => new { x.CampaignId, x.UserCode });
