@@ -28,6 +28,7 @@ namespace Indice.AspNetCore.Features.Campaigns.Data
             builder.ApplyConfiguration(new DbCampaignMap(campaignsApiOptions));
             builder.ApplyConfiguration(new DbCampaignVisitMap(campaignsApiOptions));
             builder.ApplyConfiguration(new DbDistributionListMap(campaignsApiOptions));
+            builder.ApplyConfiguration(new DbContactMap(campaignsApiOptions));
             builder.ApplyConfiguration(new DbNotificationMap(campaignsApiOptions));
             builder.ApplyConfiguration(new DbNotificationTypeMap(campaignsApiOptions));
             builder.ApplyConfiguration(new DbTemplateMap(campaignsApiOptions));
