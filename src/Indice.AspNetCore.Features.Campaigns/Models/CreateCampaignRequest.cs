@@ -27,8 +27,8 @@ namespace Indice.AspNetCore.Features.Campaigns.Models
         /// </summary>
         public string ActionUrl { get; set; }
         /// <summary>
-        /// The delivery channel of a campaign. Default is <see cref="CampaignDeliveryChannel.Inbox"/>.
+        /// The delivery channel of a campaign. Default is <see cref="MessageDeliveryChannel.Inbox"/>.
         /// </summary>
-        public CampaignDeliveryChannel DeliveryChannel { get; set; } = CampaignDeliveryChannel.Inbox;
+        public MessageDeliveryChannel DeliveryChannel { get; set; } = MessageDeliveryChannel.Inbox;
     }
 }

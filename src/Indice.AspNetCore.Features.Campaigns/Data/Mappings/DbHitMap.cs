@@ -6,17 +6,17 @@ using Microsoft.Extensions.Options;
 
 namespace Indice.AspNetCore.Features.Campaigns.Data
 {
-    internal class DbCampaignVisitMap : IEntityTypeConfiguration<DbCampaignVisit>
+    internal class DbHitMap : IEntityTypeConfiguration<DbHit>
     {
-        public DbCampaignVisitMap(IOptions<CampaignsApiOptions> campaignsApiOptions) {
+        public DbHitMap(IOptions<CampaignsApiOptions> campaignsApiOptions) {
             CampaignsApiOptions = campaignsApiOptions?.Value ?? throw new ArgumentNullException(nameof(campaignsApiOptions));
         }
 
         public CampaignsApiOptions CampaignsApiOptions { get; }
 
-        public void Configure(EntityTypeBuilder<DbCampaignVisit> builder) {
+        public void Configure(EntityTypeBuilder<DbHit> builder) {
             // Configure table name.
-            builder.ToTable("CampaignVisit", CampaignsApiOptions.DatabaseSchema);
+            builder.ToTable("Hit", CampaignsApiOptions.DatabaseSchema);
             // Configure key.
             builder.HasKey(x => x.Id);
             // Configure indexes.

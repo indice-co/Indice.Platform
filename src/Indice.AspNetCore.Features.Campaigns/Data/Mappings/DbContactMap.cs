@@ -23,7 +23,7 @@ namespace Indice.AspNetCore.Features.Campaigns.Data
             // Configure primary key.
             builder.HasKey(x => x.Id);
             // Configure properties.
-            builder.Property(x => x.Salute).HasMaxLength(TextSizePresets.S32);
+            builder.Property(x => x.Salutation).HasMaxLength(TextSizePresets.S32);
             builder.Property(x => x.FirstName).HasMaxLength(TextSizePresets.M128);
             builder.Property(x => x.LastName).HasMaxLength(TextSizePresets.M128);
             builder.Property(x => x.FullName).HasMaxLength(TextSizePresets.M256);

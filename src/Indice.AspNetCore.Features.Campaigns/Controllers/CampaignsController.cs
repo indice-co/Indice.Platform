@@ -142,7 +142,7 @@ namespace Indice.AspNetCore.Features.Campaigns.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ValidationProblemDetails))]
         public async Task<IActionResult> CreateCampaign([FromBody] CreateCampaignRequest request) {
             var campaign = await CampaignService.CreateCampaign(request);
-            await EventService.Publish(new CampaignCreatedEvent(campaign.ToCampaignQueueItem(request.SelectedUserCodes)));
+            await EventService.Publish(new CampaignCreatedEvent(campaign.ToCampaignQueueItem(selectedUserCodes: request.SelectedUserCodes)));
             return CreatedAtAction(nameof(GetCampaignById), new { campaignId = campaign.Id }, campaign);
         }
 

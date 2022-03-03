@@ -48,7 +48,7 @@ namespace Indice.AspNetCore.Features.Campaigns.Services
         }
 
         public async Task<AttachmentLink> CreateAttachment(IFormFile file) {
-            var attachment = new DbCampaignAttachment();
+            var attachment = new DbAttachment();
             attachment.PopulateFrom(file);
             using (var stream = file.OpenReadStream()) {
                 await FileService.SaveAsync($"campaigns/{attachment.Uri}", stream);
@@ -72,12 +72,12 @@ namespace Indice.AspNetCore.Features.Campaigns.Services
             var dbCampaign = request.ToDbCampaign();
             DbContext.Campaigns.Add(dbCampaign);
             if (!request.IsGlobal && request.SelectedUserCodes?.Count > 0) {
-                var campaignUsers = request.SelectedUserCodes.Select(userId => new DbNotification {
+                var campaignUsers = request.SelectedUserCodes.Select(userId => new DbMessage {
                     Id = Guid.NewGuid(),
-                    UserCode = userId,
+                    RecipientId = userId,
                     CampaignId = dbCampaign.Id
                 });
-                DbContext.Notifications.AddRange(campaignUsers);
+                DbContext.Messages.AddRange(campaignUsers);
             }
             await DbContext.SaveChangesAsync();
             var campaign = dbCampaign.ToCampaign();
@@ -85,11 +85,11 @@ namespace Indice.AspNetCore.Features.Campaigns.Services
         }
 
         public async Task<CampaignType> CreateCampaignType(UpsertCampaignTypeRequest request) {
-            var campaignType = new DbNotificationType {
+            var campaignType = new DbMessageType {
                 Id = Guid.NewGuid(),
                 Name = request.Name
             };
-            DbContext.NotificationTypes.Add(campaignType);
+            DbContext.MessageTypes.Add(campaignType);
             await DbContext.SaveChangesAsync();
             return new CampaignType {
                 Id = campaignType.Id,
@@ -107,7 +107,7 @@ namespace Indice.AspNetCore.Features.Campaigns.Services
         }
 
         public async Task DeleteCampaignType(Guid campaignTypeId) {
-            var campaignType = await DbContext.NotificationTypes.FindAsync(campaignTypeId);
+            var campaignType = await DbContext.MessageTypes.FindAsync(campaignTypeId);
             if (campaignType is null) {
                 return;
             }
@@ -182,12 +182,12 @@ namespace Indice.AspNetCore.Features.Campaigns.Services
             if (campaign is null) {
                 return default;
             }
-            var clickToActionCount = await DbContext.CampaignVisits.AsNoTracking().CountAsync(x => x.CampaignId == campaignId);
-            var readCount = await DbContext.Notifications.AsNoTracking().CountAsync(x => x.CampaignId == campaignId && x.IsRead);
-            var deletedCount = await DbContext.Notifications.AsNoTracking().CountAsync(x => x.CampaignId == campaignId && x.IsDeleted);
+            var clickToActionCount = await DbContext.Hits.AsNoTracking().CountAsync(x => x.CampaignId == campaignId);
+            var readCount = await DbContext.Messages.AsNoTracking().CountAsync(x => x.CampaignId == campaignId && x.IsRead);
+            var deletedCount = await DbContext.Messages.AsNoTracking().CountAsync(x => x.CampaignId == campaignId && x.IsDeleted);
             int? notReadCount = null;
             if (!campaign.IsGlobal) {
-                notReadCount = await DbContext.Notifications.AsNoTracking().CountAsync(x => x.CampaignId == campaignId && !x.IsRead);
+                notReadCount = await DbContext.Messages.AsNoTracking().CountAsync(x => x.CampaignId == campaignId && !x.IsRead);
             }
             return new CampaignStatistics {
                 ClickToActionCount = clickToActionCount,
@@ -200,7 +200,7 @@ namespace Indice.AspNetCore.Features.Campaigns.Services
         }
 
         public async Task<CampaignType> GetCampaignTypeById(Guid campaignTypeId) {
-            var campaign = await DbContext.NotificationTypes.FindAsync(campaignTypeId);
+            var campaign = await DbContext.MessageTypes.FindAsync(campaignTypeId);
             if (campaign is null) {
                 return default;
             }
@@ -211,7 +211,7 @@ namespace Indice.AspNetCore.Features.Campaigns.Services
         }
 
         public async Task<CampaignType> GetCampaignTypeByName(string name) {
-            var campaign = await DbContext.NotificationTypes.SingleOrDefaultAsync(x => x.Name == name);
+            var campaign = await DbContext.MessageTypes.SingleOrDefaultAsync(x => x.Name == name);
             if (campaign is null) {
                 return default;
             }
@@ -222,7 +222,7 @@ namespace Indice.AspNetCore.Features.Campaigns.Services
         }
 
         public Task<ResultSet<CampaignType>> GetCampaignTypes(ListOptions options) =>
-            DbContext.NotificationTypes
+            DbContext.MessageTypes
                      .AsNoTracking()
                      .Select(campaignType => new CampaignType {
                          Id = campaignType.Id,
@@ -244,7 +244,7 @@ namespace Indice.AspNetCore.Features.Campaigns.Services
         }
 
         public async Task UpdateCampaignType(Guid campaignTypeId, UpsertCampaignTypeRequest request) {
-            var campaignType = await DbContext.NotificationTypes.FindAsync(campaignTypeId);
+            var campaignType = await DbContext.MessageTypes.FindAsync(campaignTypeId);
             if (campaignType is null) {
                 return;
             }
@@ -253,7 +253,7 @@ namespace Indice.AspNetCore.Features.Campaigns.Services
         }
 
         public async Task UpdateCampaignVisit(Guid campaignId) {
-            DbContext.CampaignVisits.Add(new DbCampaignVisit {
+            DbContext.Hits.Add(new DbHit {
                 CampaignId = campaignId,
                 TimeStamp = DateTimeOffset.UtcNow
             });

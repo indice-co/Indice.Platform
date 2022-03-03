@@ -21,12 +21,10 @@ namespace Indice.AspNetCore.Features.Campaigns.Data
             // Configure primary key.
             builder.HasKey(x => x.Id);
             // Configure properties.
-            builder.Property(x => x.Name).HasMaxLength(TextSizePresets.M128);
-            builder.OwnsOne(x => x.Content, options => {
-                options.Property(x => x.Sms).HasMaxLength(TextSizePresets.L1024).HasColumnName("SmsContent");
-                options.Property(x => x.PushNotification).HasMaxLength(TextSizePresets.L1024).HasColumnName("PushNotificationContent");
-                options.Property(x => x.Email).HasColumnName("EmailContent");
-            });
+            builder.Property(x => x.Name).HasMaxLength(TextSizePresets.M256).IsRequired(); 
+            builder.Property(x => x.Content).HasJsonConversion();
+            // Configure indexes.
+            builder.HasIndex(x => x.Name).IsUnique();
         }
     }
 }

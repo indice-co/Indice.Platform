@@ -6,7 +6,7 @@ namespace Indice.AspNetCore.Features.Campaigns.Models
     /// The delivery channel of a campaign.
     /// </summary>
     [Flags]
-    public enum CampaignDeliveryChannel : byte
+    public enum MessageDeliveryChannel : byte
     {
         /// <summary>
         /// No delivery.

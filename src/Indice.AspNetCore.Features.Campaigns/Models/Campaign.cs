@@ -21,7 +21,10 @@ namespace Indice.AspNetCore.Features.Campaigns.Models
         /// <summary>
         /// The content of the campaign.
         /// </summary>
-        public string Content { get; set; }
+        public Dictionary<MessageDeliveryChannel, MessageContent> Content { get; set; } = new Dictionary<MessageDeliveryChannel, MessageContent> {
+            [MessageDeliveryChannel.Inbox] = new MessageContent()
+        };
+
         /// <summary>
         /// Defines a CTA (call-to-action) text.
         /// </summary>
@@ -53,7 +56,7 @@ namespace Indice.AspNetCore.Features.Campaigns.Models
         /// <summary>
         /// The delivery channel of a campaign.
         /// </summary>
-        public CampaignDeliveryChannel DeliveryChannel { get; set; }
+        public MessageDeliveryChannel DeliveryChannel { get; set; }
         /// <summary>
         /// Optional data for the campaign.
         /// </summary>
@@ -74,7 +77,7 @@ namespace Indice.AspNetCore.Features.Campaigns.Models
             ActionText = campaign.ActionText,
             ActionUrl = campaign.ActionUrl,
             ActivePeriod = campaign.ActivePeriod,
-            Content = campaign.Content,
+            Content = campaign.Content[MessageDeliveryChannel.Inbox].Body,
             CreatedAt = campaign.CreatedAt,
             Data = campaign.Data,
             DeliveryChannel = (CampaignQueueItem.CampaignDeliveryChannel)(int)campaign.DeliveryChannel,

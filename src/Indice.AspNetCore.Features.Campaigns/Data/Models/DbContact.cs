@@ -8,7 +8,7 @@ namespace Indice.AspNetCore.Features.Campaigns.Data.Models
     {
         public Guid Id { get; set; } = Guid.NewGuid();
         public string RecipientId { get; set; }
-        public string Salute { get; set; }
+        public string Salutation { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public string FullName { get; set; }

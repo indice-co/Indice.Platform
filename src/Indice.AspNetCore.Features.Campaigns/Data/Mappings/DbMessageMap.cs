@@ -1,27 +1,31 @@
 ﻿using System;
 using Indice.AspNetCore.Features.Campaigns.Data.Models;
+using Indice.Configuration;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.Extensions.Options;
 
 namespace Indice.AspNetCore.Features.Campaigns.Data
 {
-    internal class DbNotificationMap : IEntityTypeConfiguration<DbNotification>
+    internal class DbMessageMap : IEntityTypeConfiguration<DbMessage>
     {
-        public DbNotificationMap(IOptions<CampaignsApiOptions> campaignsApiOptions) {
+        public DbMessageMap(IOptions<CampaignsApiOptions> campaignsApiOptions) {
             CampaignsApiOptions = campaignsApiOptions?.Value ?? throw new ArgumentNullException(nameof(campaignsApiOptions));
         }
 
         public CampaignsApiOptions CampaignsApiOptions { get; }
 
-        public void Configure(EntityTypeBuilder<DbNotification> builder) {
+        public void Configure(EntityTypeBuilder<DbMessage> builder) {
             // Configure table name.
-            builder.ToTable("Notification", CampaignsApiOptions.DatabaseSchema);
+            builder.ToTable("Message", CampaignsApiOptions.DatabaseSchema);
             // Configure primary keys.
             builder.HasKey(x => x.Id);
-            builder.HasAlternateKey(x => new { x.CampaignId, x.UserCode });
-            // Configure properties.
-            builder.Property(x => x.Id).ValueGeneratedNever();
+            builder.HasAlternateKey(x => new { x.CampaignId, x.RecipientId });
+            
+            builder.Property(c => c.Title).HasMaxLength(TextSizePresets.M256);
+            builder.Property(c => c.Body);
+
+            builder.HasIndex(x => x.RecipientId);
         }
     }
 }

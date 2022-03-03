@@ -2,7 +2,7 @@
 
 namespace Indice.AspNetCore.Features.Campaigns.Data.Models
 {
-    internal class DbCampaignVisit
+    internal class DbHit
     {
         public int Id { get; }
         public Guid CampaignId { get; set; }

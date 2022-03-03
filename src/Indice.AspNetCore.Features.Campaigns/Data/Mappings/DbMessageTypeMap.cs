@@ -7,25 +7,24 @@ using Microsoft.Extensions.Options;
 
 namespace Indice.AspNetCore.Features.Campaigns.Data
 {
-    internal class DbCampaignAttachmentMap : IEntityTypeConfiguration<DbCampaignAttachment>
+    internal class DbMessageTypeMap : IEntityTypeConfiguration<DbMessageType>
     {
-        public DbCampaignAttachmentMap(IOptions<CampaignsApiOptions> campaignsApiOptions) {
+        public DbMessageTypeMap(IOptions<CampaignsApiOptions> campaignsApiOptions) {
             CampaignsApiOptions = campaignsApiOptions?.Value ?? throw new ArgumentNullException(nameof(campaignsApiOptions));
         }
 
         public CampaignsApiOptions CampaignsApiOptions { get; }
 
-        public void Configure(EntityTypeBuilder<DbCampaignAttachment> builder) {
+        public void Configure(EntityTypeBuilder<DbMessageType> builder) {
             // Configure table name.
-            builder.ToTable("CampaignAttachment", CampaignsApiOptions.DatabaseSchema);
+            builder.ToTable("MessageType", CampaignsApiOptions.DatabaseSchema);
             // Configure primary key.
             builder.HasKey(x => x.Id);
             // Configure properties.
             builder.Property(x => x.Name).HasMaxLength(TextSizePresets.M256).IsRequired();
-            builder.Property(x => x.ContentType).HasMaxLength(TextSizePresets.M256).IsRequired();
-            builder.Property(x => x.FileExtension).HasMaxLength(TextSizePresets.S08).IsRequired();
-            builder.Property(x => x.Data).HasColumnType("image");
-            builder.Ignore(x => x.Uri);
+            // Configure indexes.
+            builder.HasIndex(x => x.Name).IsUnique();
+            
         }
     }
 }

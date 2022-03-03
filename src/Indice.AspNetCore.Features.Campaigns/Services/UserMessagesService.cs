@@ -39,34 +39,34 @@ namespace Indice.AspNetCore.Features.Campaigns.Services
         }
 
         public async Task MarkMessageAsDeleted(Guid messageId, string userCode) {
-            var message = await DbContext.Notifications.SingleOrDefaultAsync(x => x.CampaignId == messageId && x.UserCode == userCode);
+            var message = await DbContext.Messages.SingleOrDefaultAsync(x => x.CampaignId == messageId && x.RecipientId == userCode);
             if (message != null) {
                 message.IsDeleted = true;
                 message.DeleteDate = DateTime.UtcNow;
             } else {
-                DbContext.Notifications.Add(new DbNotification {
+                DbContext.Messages.Add(new DbMessage {
                     CampaignId = messageId,
                     DeleteDate = DateTime.UtcNow,
                     Id = Guid.NewGuid(),
                     IsDeleted = true,
-                    UserCode = userCode
+                    RecipientId = userCode
                 });
             }
             await DbContext.SaveChangesAsync();
         }
 
         public async Task MarkMessageAsRead(Guid messageId, string userCode) {
-            var message = await DbContext.Notifications.SingleOrDefaultAsync(x => x.CampaignId == messageId && x.UserCode == userCode);
+            var message = await DbContext.Messages.SingleOrDefaultAsync(x => x.CampaignId == messageId && x.RecipientId == userCode);
             if (message is not null) {
                 message.IsRead = true;
                 message.ReadDate = DateTime.UtcNow;
             } else {
-                DbContext.Notifications.Add(new DbNotification {
+                DbContext.Messages.Add(new DbMessage {
                     CampaignId = messageId,
                     Id = Guid.NewGuid(),
                     IsRead = true,
                     ReadDate = DateTime.UtcNow,
-                    UserCode = userCode
+                    RecipientId = userCode
                 });
             }
             await DbContext.SaveChangesAsync();
@@ -79,12 +79,12 @@ namespace Indice.AspNetCore.Features.Campaigns.Services
                 .Include(x => x.Attachment)
                 .Include(x => x.Type)
                 .SelectMany(
-                    collectionSelector: campaign => DbContext.Notifications.AsNoTracking().Where(x => x.CampaignId == campaign.Id && x.UserCode == userCode).DefaultIfEmpty(),
+                    collectionSelector: campaign => DbContext.Messages.AsNoTracking().Where(x => x.CampaignId == campaign.Id && x.RecipientId == userCode).DefaultIfEmpty(),
                     resultSelector: (campaign, message) => new { Campaign = campaign, Message = message }
                 )
                 .Where(x => x.Campaign.Published
                         && (x.Message == null || !x.Message.IsDeleted)
-                        && (x.Campaign.IsGlobal || (x.Message != null && x.Message.UserCode == userCode))
+                        && (x.Campaign.IsGlobal || (x.Message != null && x.Message.RecipientId == userCode))
                 );
             if (options?.Filter is not null) {
                 if (options.Filter.ShowExpired.HasValue) {
@@ -108,11 +108,11 @@ namespace Indice.AspNetCore.Features.Campaigns.Services
                 ActionUrl = !string.IsNullOrEmpty(x.Campaign.ActionUrl) ? $"{GeneralSettings.Host.TrimEnd('/')}/{ApiOptions.ApiPrefix}/campaigns/track/{(Base64Id)x.Campaign.Id}" : null,
                 ActivePeriod = x.Campaign.ActivePeriod,
                 AttachmentUrl = x.Campaign.Attachment != null ? $"{GeneralSettings.Host.TrimEnd('/')}/{ApiOptions.ApiPrefix}/campaigns/attachments/{(Base64Id)x.Campaign.Attachment.Guid}.{Path.GetExtension(x.Campaign.Attachment.Name).TrimStart('.')}" : null,
-                Content = x.Campaign.Content,
+                Title = x.Message.Title,
+                Content = x.Message.Body,
                 CreatedAt = x.Campaign.CreatedAt,
                 Id = x.Campaign.Id,
                 IsRead = x.Message != null && x.Message.IsRead,
-                Title = x.Campaign.Title,
                 Type = x.Campaign.Type != null ? new CampaignType {
                     Id = x.Campaign.Type.Id,
                     Name = x.Campaign.Type.Name

@@ -14,23 +14,24 @@ namespace Indice.AspNetCore.Features.Campaigns.Data
             }
         }
 
-        public DbSet<DbCampaignAttachment> Attachments { get; set; }
+        public DbSet<DbAttachment> Attachments { get; set; }
         public DbSet<DbCampaign> Campaigns { get; set; }
-        public DbSet<DbNotificationType> NotificationTypes { get; set; }
-        public DbSet<DbNotification> Notifications { get; set; }
-        public DbSet<DbCampaignVisit> CampaignVisits { get; set; }
+        public DbSet<DbMessageType> MessageTypes { get; set; }
+        public DbSet<DbMessage> Messages { get; set; }
+        public DbSet<DbHit> Hits { get; set; }
         public DbSet<DbTemplate> Templates { get; set; }
         public DbSet<DbDistributionList> DistributionList { get; set; }
+        public DbSet<DbContact> Contacts { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder) {
             var campaignsApiOptions = Database.GetService<IOptions<CampaignsApiOptions>>();
-            builder.ApplyConfiguration(new DbCampaignAttachmentMap(campaignsApiOptions));
+            builder.ApplyConfiguration(new DbAttachmentMap(campaignsApiOptions));
             builder.ApplyConfiguration(new DbCampaignMap(campaignsApiOptions));
-            builder.ApplyConfiguration(new DbCampaignVisitMap(campaignsApiOptions));
+            builder.ApplyConfiguration(new DbHitMap(campaignsApiOptions));
             builder.ApplyConfiguration(new DbDistributionListMap(campaignsApiOptions));
             builder.ApplyConfiguration(new DbContactMap(campaignsApiOptions));
-            builder.ApplyConfiguration(new DbNotificationMap(campaignsApiOptions));
-            builder.ApplyConfiguration(new DbNotificationTypeMap(campaignsApiOptions));
+            builder.ApplyConfiguration(new DbMessageMap(campaignsApiOptions));
+            builder.ApplyConfiguration(new DbMessageTypeMap(campaignsApiOptions));
             builder.ApplyConfiguration(new DbTemplateMap(campaignsApiOptions));
         }
     }

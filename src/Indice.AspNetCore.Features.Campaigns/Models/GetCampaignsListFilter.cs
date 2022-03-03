@@ -8,7 +8,7 @@
         /// <summary>
         /// The delivery channel of a campaign.
         /// </summary>
-        public CampaignDeliveryChannel? DeliveryChannel { get; set; }
+        public MessageDeliveryChannel? DeliveryChannel { get; set; }
         /// <summary>
         /// Determines if a campaign is published.
         /// </summary>

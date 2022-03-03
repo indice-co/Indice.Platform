@@ -24,7 +24,7 @@ namespace Indice.AspNetCore.Features.Campaigns.Data
             // Configure properties.
             builder.Property(x => x.Id).ValueGeneratedNever();
             builder.Property(x => x.Title).HasMaxLength(TextSizePresets.M128).IsRequired();
-            builder.Property(x => x.Content).IsRequired();
+            builder.Property(x => x.Content).HasJsonConversion().IsRequired();
             builder.Property(x => x.ActionText).HasMaxLength(TextSizePresets.M128);
             builder.Property(x => x.ActionUrl).HasMaxLength(TextSizePresets.L2048);
             builder.Property(x => x.CreatedAt).IsRequired();
@@ -36,6 +36,7 @@ namespace Indice.AspNetCore.Features.Campaigns.Data
             // Configure relationships.
             builder.HasOne(x => x.Attachment).WithMany().HasForeignKey(x => x.AttachmentId);
             builder.HasOne(x => x.Type).WithMany().HasForeignKey(x => x.TypeId);
+            builder.HasOne(x => x.DistributionList).WithMany().HasForeignKey(x => x.DistributionListId);
         }
     }
 }
