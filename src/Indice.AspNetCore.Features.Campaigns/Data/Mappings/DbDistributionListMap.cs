@@ -7,26 +7,21 @@ using Microsoft.Extensions.Options;
 
 namespace Indice.AspNetCore.Features.Campaigns.Data
 {
-    internal class DbTemplateMap : IEntityTypeConfiguration<DbTemplate>
+    internal class DbDistributionListMap : IEntityTypeConfiguration<DbDistributionList>
     {
-        public DbTemplateMap(IOptions<CampaignsApiOptions> campaignsApiOptions) {
+        public DbDistributionListMap(IOptions<CampaignsApiOptions> campaignsApiOptions) {
             CampaignsApiOptions = campaignsApiOptions?.Value ?? throw new ArgumentNullException(nameof(campaignsApiOptions));
         }
 
         public CampaignsApiOptions CampaignsApiOptions { get; }
 
-        public void Configure(EntityTypeBuilder<DbTemplate> builder) {
+        public void Configure(EntityTypeBuilder<DbDistributionList> builder) {
             // Configure table name.
-            builder.ToTable("Template", CampaignsApiOptions.DatabaseSchema);
+            builder.ToTable("DistributionList", CampaignsApiOptions.DatabaseSchema);
             // Configure primary key.
             builder.HasKey(x => x.Id);
             // Configure properties.
             builder.Property(x => x.Name).HasMaxLength(TextSizePresets.M128);
-            builder.OwnsOne(x => x.Content, options => {
-                options.Property(x => x.Sms).HasMaxLength(TextSizePresets.L1024).HasColumnName("SmsContent");
-                options.Property(x => x.PushNotification).HasMaxLength(TextSizePresets.L1024).HasColumnName("PushNotificationContent");
-                options.Property(x => x.Email).HasColumnName("EmailContent");
-            });
         }
     }
 }

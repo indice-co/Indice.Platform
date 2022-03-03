@@ -20,14 +20,17 @@ namespace Indice.AspNetCore.Features.Campaigns.Data
         public DbSet<DbNotification> Notifications { get; set; }
         public DbSet<DbCampaignVisit> CampaignVisits { get; set; }
         public DbSet<DbTemplate> Templates { get; set; }
+        public DbSet<DbDistributionList> DistributionList { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder) {
             var campaignsApiOptions = Database.GetService<IOptions<CampaignsApiOptions>>();
             builder.ApplyConfiguration(new DbCampaignAttachmentMap(campaignsApiOptions));
             builder.ApplyConfiguration(new DbCampaignMap(campaignsApiOptions));
-            builder.ApplyConfiguration(new DbNotificationTypeMap(campaignsApiOptions));
-            builder.ApplyConfiguration(new DbNotificationMap(campaignsApiOptions));
             builder.ApplyConfiguration(new DbCampaignVisitMap(campaignsApiOptions));
+            builder.ApplyConfiguration(new DbDistributionListMap(campaignsApiOptions));
+            builder.ApplyConfiguration(new DbNotificationMap(campaignsApiOptions));
+            builder.ApplyConfiguration(new DbNotificationTypeMap(campaignsApiOptions));
+            builder.ApplyConfiguration(new DbTemplateMap(campaignsApiOptions));
         }
     }
 }
