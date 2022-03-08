@@ -66,7 +66,7 @@ namespace Indice.AspNetCore.Features.Campaigns.Formatters
                 worksheet.Cells[2, 1].Value = data.ReadCount;
                 worksheet.Cells[2, 2].Value = data.NotReadCount.HasValue ? data.NotReadCount.ToString() : "N/A";
                 worksheet.Cells[2, 3].Value = data.DeletedCount;
-                worksheet.Cells[2, 4].Value = data.ClickToActionCount;
+                worksheet.Cells[2, 4].Value = data.CallToActionCount;
                 // Create table name and apply some settings.
                 var tableName = Regex.Replace(data.Title.Unidecode(), @"[^0-9a-zA-Z ]+", string.Empty).ToLowerInvariant();
                 tableName = Regex.Replace(tableName, @"\s+(\w)", match => match.Groups[1].Value.ToUpperInvariant(), RegexOptions.IgnoreCase).Trim(); // We need to remove whitespaces.

@@ -24,7 +24,6 @@ namespace Indice.AspNetCore.Features.Campaigns.Data
             builder.Property(x => x.Name).HasMaxLength(TextSizePresets.M256).IsRequired();
             // Configure indexes.
             builder.HasIndex(x => x.Name).IsUnique();
-            
         }
     }
 }

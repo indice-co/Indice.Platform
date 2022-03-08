@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using Indice.AspNetCore.Features.Campaigns.Data.Models;
 using Indice.Configuration;
 using Microsoft.EntityFrameworkCore;
@@ -30,14 +28,11 @@ namespace Indice.AspNetCore.Features.Campaigns.Data
             builder.Property(x => x.PhoneNumber).HasMaxLength(TextSizePresets.S64);
             builder.Property(x => x.Email).HasMaxLength(TextSizePresets.S64);
             builder.Property(x => x.DeviceId).HasMaxLength(TextSizePresets.M128);
-
             builder.Property(x => x.RecipientId).HasMaxLength(TextSizePresets.S64);
-
+            // Configure indexes.
             builder.HasIndex(x => x.RecipientId);
-
-            builder.HasOne<DbDistributionList>()
-                   .WithMany(x => x.Contacts)
-                   .HasForeignKey(x => x.DistributionListId);
+            // Configure relationships.
+            builder.HasOne<DbDistributionList>().WithMany(x => x.Contacts).HasForeignKey(x => x.DistributionListId);
         }
     }
 }

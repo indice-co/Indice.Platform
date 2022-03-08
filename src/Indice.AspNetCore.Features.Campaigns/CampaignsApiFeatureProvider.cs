@@ -11,7 +11,7 @@ namespace Indice.AspNetCore.Features.Campaigns
     {
         private static IReadOnlyList<TypeInfo> ControllerTypes => new List<TypeInfo>() {
             typeof(CampaignsController).GetTypeInfo(),
-            typeof(CampaignTypesController).GetTypeInfo(),
+            typeof(MessageTypesController).GetTypeInfo(),
             typeof(MyMessagesController).GetTypeInfo()
         };
 

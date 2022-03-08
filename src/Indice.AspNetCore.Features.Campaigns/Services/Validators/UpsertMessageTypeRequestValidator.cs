@@ -6,18 +6,18 @@ using Microsoft.Extensions.DependencyInjection;
 namespace Indice.AspNetCore.Features.Campaigns.Services
 {
     /// <summary>
-    /// Contains validation logic for <see cref="UpsertCampaignTypeRequest"/>.
+    /// Contains validation logic for <see cref="UpsertMessageTypeRequest"/>.
     /// </summary>
-    public class UpsertCampaignTypeRequestValidator : AbstractValidator<UpsertCampaignTypeRequest>
+    public class UpsertMessageTypeRequestValidator : AbstractValidator<UpsertMessageTypeRequest>
     {
         /// <summary>
-        /// Creates a new instance of <see cref="UpsertCampaignTypeRequestValidator"/>.
+        /// Creates a new instance of <see cref="UpsertMessageTypeRequestValidator"/>.
         /// </summary>
-        public UpsertCampaignTypeRequestValidator(IServiceProvider serviceProvider) {
+        public UpsertMessageTypeRequestValidator(IServiceProvider serviceProvider) {
             var campaignService = serviceProvider.GetRequiredService<ICampaignService>();
             RuleFor(x => x.Name).NotEmpty()
                                 .WithMessage("Please provide a name for the campaign type.")
-                                .MustAsync(async (name, cancellationToken) => await campaignService.GetCampaignTypeByName(name) == null)
+                                .MustAsync(async (name, cancellationToken) => await campaignService.GetMessageTypeByName(name) == null)
                                 .WithMessage(x => $"There is already a campaign type with name '{x.Name}'.");
         }
     }

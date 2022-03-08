@@ -21,10 +21,10 @@ namespace Indice.AspNetCore.Features.Campaigns.Data
             // Configure primary keys.
             builder.HasKey(x => x.Id);
             builder.HasAlternateKey(x => new { x.CampaignId, x.RecipientId });
-            
-            builder.Property(c => c.Title).HasMaxLength(TextSizePresets.M256);
-            builder.Property(c => c.Body);
-
+            // Configure properties.
+            builder.Property(x => x.Title).HasMaxLength(TextSizePresets.M256);
+            builder.Property(x => x.Body);
+            // Configure indexes.
             builder.HasIndex(x => x.RecipientId);
         }
     }

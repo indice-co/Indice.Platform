@@ -6,7 +6,7 @@ namespace Indice.AspNetCore.Features.Campaigns.Models
     /// <summary>
     /// The request model used to create a new campaign type.
     /// </summary>
-    public class UpsertCampaignTypeRequest
+    public class UpsertMessageTypeRequest
     {
         /// <summary>
         /// The id of the campaign type.

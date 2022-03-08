@@ -24,14 +24,14 @@ namespace Indice.AspNetCore.Features.Campaigns.Controllers
     internal class MyMessagesController : ControllerBase
     {
         public MyMessagesController(
-            IUserMessagesService userMessagesService,
+            IMessagesService userMessagesService,
             IOptions<CampaignsApiOptions> campaignsApiOptions
         ) {
             UserMessagesService = userMessagesService ?? throw new ArgumentNullException(nameof(userMessagesService));
             CampaignsApiOptions = campaignsApiOptions?.Value ?? throw new ArgumentNullException(nameof(campaignsApiOptions));
         }
 
-        public IUserMessagesService UserMessagesService { get; }
+        public IMessagesService UserMessagesService { get; }
         public CampaignsApiOptions CampaignsApiOptions { get; }
         public string UserCode => User.FindFirstValue(CampaignsApiOptions.UserClaimType);
 
@@ -41,10 +41,10 @@ namespace Indice.AspNetCore.Features.Campaigns.Controllers
         /// <param name="options">List params used to navigate through collections. Contains parameters such as sort, search, page number and page size.</param>
         /// <response code="200">OK</response>
         [HttpGet]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ResultSet<UserMessage>))]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ResultSet<Message>))]
         [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ProblemDetails))]
-        public async Task<IActionResult> GetMessages([FromQuery] ListOptions<UserMessageFilter> options) {
-            var messages = await UserMessagesService.GetUserMessages(UserCode, options);
+        public async Task<IActionResult> GetMessages([FromQuery] ListOptions<GetMessagesListFilter> options) {
+            var messages = await UserMessagesService.GetMessages(UserCode, options);
             return Ok(messages);
         }
 
@@ -55,7 +55,7 @@ namespace Indice.AspNetCore.Features.Campaigns.Controllers
         /// <response code="200">OK</response>
         /// <response code="404">Not Found</response>
         [HttpGet("{messageId:guid}")]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(UserMessage))]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Message))]
         [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ProblemDetails))]
         public async Task<IActionResult> GetMessageById([FromRoute] Guid messageId) {
             var message = await UserMessagesService.GetMessageById(messageId, UserCode);

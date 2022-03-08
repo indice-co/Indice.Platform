@@ -26,7 +26,7 @@ namespace Indice.AspNetCore.Features.Campaigns.Models
         /// <summary>
         /// 
         /// </summary>
-        public int ClickToActionCount { get; set; }
+        public int CallToActionCount { get; set; }
         /// <summary>
         /// 
         /// </summary>

@@ -12,9 +12,9 @@ using Microsoft.Extensions.Options;
 
 namespace Indice.AspNetCore.Features.Campaigns.Services
 {
-    internal class UserMessagesService : IUserMessagesService
+    internal class MessagesService : IMessagesService
     {
-        public UserMessagesService(
+        public MessagesService(
             CampaignsDbContext dbContext,
             IOptions<CampaignsApiOptions> apiOptions,
             IOptions<GeneralSettings> generalSettings
@@ -28,15 +28,15 @@ namespace Indice.AspNetCore.Features.Campaigns.Services
         public CampaignsApiOptions ApiOptions { get; }
         public GeneralSettings GeneralSettings { get; }
 
-        public Task<UserMessage> GetMessageById(Guid messageId, string userCode) => GetUserMessagesQuery(userCode).SingleOrDefaultAsync(x => x.Id == messageId);
-
-        public async Task<ResultSet<UserMessage>> GetUserMessages(string userCode, ListOptions<UserMessageFilter> options) {
+        public async Task<ResultSet<Message>> GetMessages(string userCode, ListOptions<GetMessagesListFilter> options) {
             var userMessages = await GetUserMessagesQuery(userCode, options).ToResultSetAsync(options);
-            return new ResultSet<UserMessage> {
+            return new ResultSet<Message> {
                 Count = userMessages.Count,
                 Items = userMessages.Items
             };
         }
+
+        public Task<Message> GetMessageById(Guid messageId, string userCode) => GetUserMessagesQuery(userCode).SingleOrDefaultAsync(x => x.Id == messageId);
 
         public async Task MarkMessageAsDeleted(Guid messageId, string userCode) {
             var message = await DbContext.Messages.SingleOrDefaultAsync(x => x.CampaignId == messageId && x.RecipientId == userCode);
@@ -72,7 +72,7 @@ namespace Indice.AspNetCore.Features.Campaigns.Services
             await DbContext.SaveChangesAsync();
         }
 
-        private IQueryable<UserMessage> GetUserMessagesQuery(string userCode, ListOptions<UserMessageFilter> options = null) {
+        private IQueryable<Message> GetUserMessagesQuery(string userCode, ListOptions<GetMessagesListFilter> options = null) {
             var query = DbContext
                 .Campaigns
                 .AsNoTracking()
@@ -103,7 +103,7 @@ namespace Indice.AspNetCore.Features.Campaigns.Services
                     query = query.Where(x => ((bool?)x.Message.IsRead ?? false) == options.Filter.IsRead);
                 }
             }
-            return query.Select(x => new UserMessage {
+            return query.Select(x => new Message {
                 ActionText = x.Campaign.ActionText,
                 ActionUrl = !string.IsNullOrEmpty(x.Campaign.ActionUrl) ? $"{GeneralSettings.Host.TrimEnd('/')}/{ApiOptions.ApiPrefix}/campaigns/track/{(Base64Id)x.Campaign.Id}" : null,
                 ActivePeriod = x.Campaign.ActivePeriod,
@@ -113,7 +113,7 @@ namespace Indice.AspNetCore.Features.Campaigns.Services
                 CreatedAt = x.Campaign.CreatedAt,
                 Id = x.Campaign.Id,
                 IsRead = x.Message != null && x.Message.IsRead,
-                Type = x.Campaign.Type != null ? new CampaignType {
+                Type = x.Campaign.Type != null ? new MessageType {
                     Id = x.Campaign.Type.Id,
                     Name = x.Campaign.Type.Name
                 } : null

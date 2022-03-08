@@ -80,7 +80,7 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddResponseCaching();
             // Register custom services.
             services.AddTransient<ICampaignService, CampaignService>();
-            services.AddTransient<IUserMessagesService, UserMessagesService>();
+            services.AddTransient<IMessagesService, MessagesService>();
             services.AddTransient<CampaignManager>();
             // Register events.
             services.TryAddTransient<IPlatformEventService, PlatformEventService>();

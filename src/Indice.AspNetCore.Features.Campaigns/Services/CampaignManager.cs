@@ -50,14 +50,14 @@ namespace Indice.AspNetCore.Features.Campaigns
         /// Creates a new campaign type.
         /// </summary>
         /// <param name="campaignType">The request model used to create a new campaign type.</param>
-        public async Task<CampaignResult> CreateType(UpsertCampaignTypeRequest campaignType) {
-            var validator = ServiceProvider.GetRequiredService<UpsertCampaignTypeRequestValidator>();
+        public async Task<CampaignResult> CreateType(UpsertMessageTypeRequest campaignType) {
+            var validator = ServiceProvider.GetRequiredService<UpsertMessageTypeRequestValidator>();
             var validationResult = validator.Validate(campaignType);
             if (!validationResult.IsValid) {
                 var errorMessages = validationResult.Errors.Select(x => x.ErrorMessage).ToArray();
                 return CampaignResult.Fail(errorMessages);
             }
-            var createdCampaignType = await CampaignService.CreateCampaignType(campaignType);
+            var createdCampaignType = await CampaignService.CreateMessageType(campaignType);
             campaignType.Id = createdCampaignType.Id;
             return CampaignResult.Success();
         }
@@ -66,6 +66,6 @@ namespace Indice.AspNetCore.Features.Campaigns
         /// Retrieves the campaign type with the specified name.
         /// </summary>
         /// <param name="name">The name of the campaign type to look for.</param>
-        public Task<CampaignType> GetTypeByName(string name) => CampaignService.GetCampaignTypeByName(name);
+        public Task<MessageType> GetTypeByName(string name) => CampaignService.GetMessageTypeByName(name);
     }
 }

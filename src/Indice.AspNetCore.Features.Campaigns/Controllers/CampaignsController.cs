@@ -226,7 +226,7 @@ namespace Indice.AspNetCore.Features.Campaigns.Controllers
             if (campaign is null) {
                 return NotFound();
             }
-            await CampaignService.UpdateCampaignVisit(campaignId);
+            await CampaignService.UpdateCampaignHit(campaignId);
             return Redirect(campaign.ActionUrl);
         }
 

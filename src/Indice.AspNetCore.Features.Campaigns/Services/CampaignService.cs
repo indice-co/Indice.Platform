@@ -41,78 +41,35 @@ namespace Indice.AspNetCore.Features.Campaigns.Services
         public IHttpContextAccessor HttpContextAccessor { get; }
         public LinkGenerator LinkGenerator { get; }
 
-        public async Task AssociateCampaignAttachment(Guid campaignId, Guid attachmentId) {
-            var campaign = await DbContext.Campaigns.FindAsync(campaignId);
-            campaign.AttachmentId = attachmentId;
-            await DbContext.SaveChangesAsync();
-        }
-
-        public async Task<AttachmentLink> CreateAttachment(IFormFile file) {
-            var attachment = new DbAttachment();
-            attachment.PopulateFrom(file);
-            using (var stream = file.OpenReadStream()) {
-                await FileService.SaveAsync($"campaigns/{attachment.Uri}", stream);
+        public Task<ResultSet<Campaign>> GetCampaigns(ListOptions<GetCampaignsListFilter> options) {
+            var query = DbContext.Campaigns.Include(x => x.Type).AsNoTracking().Select(campaign => new Campaign {
+                ActionText = campaign.ActionText,
+                ActionUrl = campaign.ActionUrl,
+                ActivePeriod = campaign.ActivePeriod,
+                Content = campaign.Content,
+                CreatedAt = campaign.CreatedAt,
+                DeliveryChannel = campaign.DeliveryChannel,
+                Data = campaign.Data,
+                Id = campaign.Id,
+                IsGlobal = campaign.IsGlobal,
+                Published = campaign.Published,
+                Title = campaign.Title,
+                Type = campaign.Type != null ? new MessageType {
+                    Id = campaign.Type.Id,
+                    Name = campaign.Type.Name
+                } : null
+            });
+            if (!string.IsNullOrEmpty(options.Search)) {
+                var searchTerm = options.Search.Trim();
+                query = query.Where(x => x.Title != null && x.Title.Contains(searchTerm));
             }
-            DbContext.Attachments.Add(attachment);
-            await DbContext.SaveChangesAsync();
-            return new AttachmentLink {
-                ContentType = file.ContentType,
-                FileGuid = attachment.Guid,
-                Id = attachment.Id,
-                Label = file.FileName,
-                PermaLink = LinkGenerator.GetUriByAction(HttpContextAccessor.HttpContext, nameof(CampaignsController.GetCampaignAttachment), CampaignsController.Name, new {
-                    fileGuid = (Base64Id)attachment.Guid,
-                    format = Path.GetExtension(attachment.Name).TrimStart('.')
-                }),
-                Size = file.Length
-            };
-        }
-
-        public async Task<Campaign> CreateCampaign(CreateCampaignRequest request) {
-            var dbCampaign = request.ToDbCampaign();
-            DbContext.Campaigns.Add(dbCampaign);
-            if (!request.IsGlobal && request.SelectedUserCodes?.Count > 0) {
-                var campaignUsers = request.SelectedUserCodes.Select(userId => new DbMessage {
-                    Id = Guid.NewGuid(),
-                    RecipientId = userId,
-                    CampaignId = dbCampaign.Id
-                });
-                DbContext.Messages.AddRange(campaignUsers);
+            if (options.Filter.DeliveryChannel.HasValue) {
+                query = query.Where(x => x.DeliveryChannel.HasFlag(options.Filter.DeliveryChannel.Value));
             }
-            await DbContext.SaveChangesAsync();
-            var campaign = dbCampaign.ToCampaign();
-            return campaign;
-        }
-
-        public async Task<CampaignType> CreateCampaignType(UpsertCampaignTypeRequest request) {
-            var campaignType = new DbMessageType {
-                Id = Guid.NewGuid(),
-                Name = request.Name
-            };
-            DbContext.MessageTypes.Add(campaignType);
-            await DbContext.SaveChangesAsync();
-            return new CampaignType {
-                Id = campaignType.Id,
-                Name = campaignType.Name
-            };
-        }
-
-        public async Task DeleteCampaign(Guid campaignId) {
-            var campaign = await DbContext.Campaigns.FindAsync(campaignId);
-            if (campaign is null) {
-                return;
+            if (options.Filter.Published.HasValue) {
+                query = query.Where(x => x.Published == options.Filter.Published.Value);
             }
-            DbContext.Remove(campaign);
-            await DbContext.SaveChangesAsync();
-        }
-
-        public async Task DeleteCampaignType(Guid campaignTypeId) {
-            var campaignType = await DbContext.MessageTypes.FindAsync(campaignTypeId);
-            if (campaignType is null) {
-                return;
-            }
-            DbContext.Remove(campaignType);
-            await DbContext.SaveChangesAsync();
+            return query.ToResultSetAsync(options);
         }
 
         public Task<CampaignDetails> GetCampaignById(Guid campaignId) =>
@@ -139,96 +96,28 @@ namespace Indice.AspNetCore.Features.Campaigns.Services
                          Published = campaign.Published,
                          IsGlobal = campaign.IsGlobal,
                          Title = campaign.Title,
-                         Type = campaign.Type != null ? new CampaignType {
+                         Type = campaign.Type != null ? new MessageType {
                              Id = campaign.Type.Id,
                              Name = campaign.Type.Name
                          } : null
                      })
                      .SingleOrDefaultAsync(x => x.Id == campaignId);
 
-        public Task<ResultSet<Campaign>> GetCampaigns(ListOptions<GetCampaignsListFilter> options) {
-            var query = DbContext.Campaigns.Include(x => x.Type).AsNoTracking().Select(campaign => new Campaign {
-                ActionText = campaign.ActionText,
-                ActionUrl = campaign.ActionUrl,
-                ActivePeriod = campaign.ActivePeriod,
-                Content = campaign.Content,
-                CreatedAt = campaign.CreatedAt,
-                DeliveryChannel = campaign.DeliveryChannel,
-                Data = campaign.Data,
-                Id = campaign.Id,
-                IsGlobal = campaign.IsGlobal,
-                Published = campaign.Published,
-                Title = campaign.Title,
-                Type = campaign.Type != null ? new CampaignType {
-                    Id = campaign.Type.Id,
-                    Name = campaign.Type.Name
-                } : null
-            });
-            if (!string.IsNullOrEmpty(options.Search)) {
-                var searchTerm = options.Search.Trim();
-                query = query.Where(x => (x.Title != null && x.Title.Contains(searchTerm)));
+        public async Task<Campaign> CreateCampaign(CreateCampaignRequest request) {
+            var dbCampaign = request.ToDbCampaign();
+            DbContext.Campaigns.Add(dbCampaign);
+            if (!request.IsGlobal && request.SelectedUserCodes?.Count > 0) {
+                var campaignUsers = request.SelectedUserCodes.Select(userId => new DbMessage {
+                    Id = Guid.NewGuid(),
+                    RecipientId = userId,
+                    CampaignId = dbCampaign.Id
+                });
+                DbContext.Messages.AddRange(campaignUsers);
             }
-            if (options.Filter.DeliveryChannel.HasValue) {
-                query = query.Where(x => x.DeliveryChannel.HasFlag(options.Filter.DeliveryChannel.Value));
-            }
-            if (options.Filter.Published.HasValue) {
-                query = query.Where(x => x.Published == options.Filter.Published.Value);
-            }
-            return query.ToResultSetAsync(options);
+            await DbContext.SaveChangesAsync();
+            var campaign = dbCampaign.ToCampaign();
+            return campaign;
         }
-
-        public async Task<CampaignStatistics> GetCampaignStatistics(Guid campaignId) {
-            var campaign = await DbContext.Campaigns.FindAsync(campaignId);
-            if (campaign is null) {
-                return default;
-            }
-            var clickToActionCount = await DbContext.Hits.AsNoTracking().CountAsync(x => x.CampaignId == campaignId);
-            var readCount = await DbContext.Messages.AsNoTracking().CountAsync(x => x.CampaignId == campaignId && x.IsRead);
-            var deletedCount = await DbContext.Messages.AsNoTracking().CountAsync(x => x.CampaignId == campaignId && x.IsDeleted);
-            int? notReadCount = null;
-            if (!campaign.IsGlobal) {
-                notReadCount = await DbContext.Messages.AsNoTracking().CountAsync(x => x.CampaignId == campaignId && !x.IsRead);
-            }
-            return new CampaignStatistics {
-                ClickToActionCount = clickToActionCount,
-                DeletedCount = deletedCount,
-                LastUpdated = DateTime.UtcNow,
-                NotReadCount = notReadCount,
-                ReadCount = readCount,
-                Title = campaign.Title
-            };
-        }
-
-        public async Task<CampaignType> GetCampaignTypeById(Guid campaignTypeId) {
-            var campaign = await DbContext.MessageTypes.FindAsync(campaignTypeId);
-            if (campaign is null) {
-                return default;
-            }
-            return new CampaignType {
-                Id = campaign.Id,
-                Name = campaign.Name
-            };
-        }
-
-        public async Task<CampaignType> GetCampaignTypeByName(string name) {
-            var campaign = await DbContext.MessageTypes.SingleOrDefaultAsync(x => x.Name == name);
-            if (campaign is null) {
-                return default;
-            }
-            return new CampaignType {
-                Id = campaign.Id,
-                Name = campaign.Name
-            };
-        }
-
-        public Task<ResultSet<CampaignType>> GetCampaignTypes(ListOptions options) =>
-            DbContext.MessageTypes
-                     .AsNoTracking()
-                     .Select(campaignType => new CampaignType {
-                         Id = campaignType.Id,
-                         Name = campaignType.Name
-                     })
-                     .ToResultSetAsync(options);
 
         public async Task UpdateCampaign(Guid campaignId, UpdateCampaignRequest request) {
             var campaign = await DbContext.Campaigns.FindAsync(campaignId);
@@ -243,16 +132,127 @@ namespace Indice.AspNetCore.Features.Campaigns.Services
             await DbContext.SaveChangesAsync();
         }
 
-        public async Task UpdateCampaignType(Guid campaignTypeId, UpsertCampaignTypeRequest request) {
-            var campaignType = await DbContext.MessageTypes.FindAsync(campaignTypeId);
-            if (campaignType is null) {
+        public async Task DeleteCampaign(Guid campaignId) {
+            var campaign = await DbContext.Campaigns.FindAsync(campaignId);
+            if (campaign is null) {
                 return;
             }
-            campaignType.Name = request.Name;
+            DbContext.Remove(campaign);
             await DbContext.SaveChangesAsync();
         }
 
-        public async Task UpdateCampaignVisit(Guid campaignId) {
+        public async Task<AttachmentLink> CreateAttachment(IFormFile file) {
+            var attachment = new DbAttachment();
+            attachment.PopulateFrom(file);
+            using (var stream = file.OpenReadStream()) {
+                await FileService.SaveAsync($"campaigns/{attachment.Uri}", stream);
+            }
+            DbContext.Attachments.Add(attachment);
+            await DbContext.SaveChangesAsync();
+            return new AttachmentLink {
+                ContentType = file.ContentType,
+                FileGuid = attachment.Guid,
+                Id = attachment.Id,
+                Label = file.FileName,
+                PermaLink = LinkGenerator.GetUriByAction(HttpContextAccessor.HttpContext, nameof(CampaignsController.GetCampaignAttachment), CampaignsController.Name, new {
+                    fileGuid = (Base64Id)attachment.Guid,
+                    format = Path.GetExtension(attachment.Name).TrimStart('.')
+                }),
+                Size = file.Length
+            };
+        }
+
+        public async Task AssociateCampaignAttachment(Guid campaignId, Guid attachmentId) {
+            var campaign = await DbContext.Campaigns.FindAsync(campaignId);
+            campaign.AttachmentId = attachmentId;
+            await DbContext.SaveChangesAsync();
+        }
+
+        public Task<ResultSet<MessageType>> GetMessageTypes(ListOptions options) =>
+            DbContext.MessageTypes
+                     .AsNoTracking()
+                     .Select(campaignType => new MessageType {
+                         Id = campaignType.Id,
+                         Name = campaignType.Name
+                     })
+                     .ToResultSetAsync(options);
+
+        public async Task<MessageType> GetMessageTypeById(Guid campaignTypeId) {
+            var messageType = await DbContext.MessageTypes.FindAsync(campaignTypeId);
+            if (messageType is null) {
+                return default;
+            }
+            return new MessageType {
+                Id = messageType.Id,
+                Name = messageType.Name
+            };
+        }
+
+        public async Task<MessageType> GetMessageTypeByName(string name) {
+            var messageType = await DbContext.MessageTypes.SingleOrDefaultAsync(x => x.Name == name);
+            if (messageType is null) {
+                return default;
+            }
+            return new MessageType {
+                Id = messageType.Id,
+                Name = messageType.Name
+            };
+        }
+
+        public async Task<MessageType> CreateMessageType(UpsertMessageTypeRequest request) {
+            var messageType = new DbMessageType {
+                Id = Guid.NewGuid(),
+                Name = request.Name
+            };
+            DbContext.MessageTypes.Add(messageType);
+            await DbContext.SaveChangesAsync();
+            return new MessageType {
+                Id = messageType.Id,
+                Name = messageType.Name
+            };
+        }
+
+        public async Task UpdateMessageType(Guid campaignTypeId, UpsertMessageTypeRequest request) {
+            var messageType = await DbContext.MessageTypes.FindAsync(campaignTypeId);
+            if (messageType is null) {
+                return;
+            }
+            messageType.Name = request.Name;
+            await DbContext.SaveChangesAsync();
+        }
+
+        public async Task DeleteMessageType(Guid campaignTypeId) {
+            var messageType = await DbContext.MessageTypes.FindAsync(campaignTypeId);
+            if (messageType is null) {
+                return;
+            }
+            DbContext.Remove(messageType);
+            await DbContext.SaveChangesAsync();
+        }
+
+        public async Task<CampaignStatistics> GetCampaignStatistics(Guid campaignId) {
+            var campaign = await DbContext.Campaigns.FindAsync(campaignId);
+            if (campaign is null) {
+                return default;
+            }
+            var callToActionCount = await DbContext.Hits.AsNoTracking().CountAsync(x => x.CampaignId == campaignId);
+            var readCount = await DbContext.Messages.AsNoTracking().CountAsync(x => x.CampaignId == campaignId && x.IsRead);
+            var deletedCount = await DbContext.Messages.AsNoTracking().CountAsync(x => x.CampaignId == campaignId && x.IsDeleted);
+            int? notReadCount = null;
+            if (!campaign.IsGlobal) {
+                notReadCount = await DbContext.Messages.AsNoTracking().CountAsync(x => x.CampaignId == campaignId && !x.IsRead);
+            }
+            return new CampaignStatistics {
+                CallToActionCount = callToActionCount,
+                DeletedCount = deletedCount,
+                LastUpdated = DateTime.UtcNow,
+                NotReadCount = notReadCount,
+                ReadCount = readCount,
+                Title = campaign.Title
+            };
+        }
+
+        public async Task UpdateCampaignHit(Guid campaignId) {
             DbContext.Hits.Add(new DbHit {
                 CampaignId = campaignId,
                 TimeStamp = DateTimeOffset.UtcNow

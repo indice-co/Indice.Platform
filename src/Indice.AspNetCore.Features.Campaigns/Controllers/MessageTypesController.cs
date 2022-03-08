@@ -16,10 +16,10 @@ namespace Indice.AspNetCore.Features.Campaigns.Controllers
     [ApiExplorerSettings(GroupName = "campaigns")]
     [ProducesResponseType(StatusCodes.Status401Unauthorized, Type = typeof(ProblemDetails))]
     [ProducesResponseType(StatusCodes.Status403Forbidden, Type = typeof(ProblemDetails))]
-    [Route("[campaignsApiPrefix]/campaign-types")]
-    internal class CampaignTypesController : ControllerBase
+    [Route("[campaignsApiPrefix]/message-types")]
+    internal class MessageTypesController : ControllerBase
     {
-        public CampaignTypesController(ICampaignService campaignService) {
+        public MessageTypesController(ICampaignService campaignService) {
             CampaignService = campaignService ?? throw new ArgumentNullException(nameof(campaignService));
         }
 
@@ -35,11 +35,11 @@ namespace Indice.AspNetCore.Features.Campaigns.Controllers
         [HttpGet]
         [Produces(MediaTypeNames.Application.Json)]
         [Consumes(MediaTypeNames.Application.Json)]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ResultSet<CampaignType>))]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ResultSet<MessageType>))]
         [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ValidationProblemDetails))]
-        public async Task<IActionResult> GetCampaignTypes([FromQuery] ListOptions options) {
-            var campaignTypes = await CampaignService.GetCampaignTypes(options);
-            return Ok(campaignTypes);
+        public async Task<IActionResult> GetMessageTypes([FromQuery] ListOptions options) {
+            var messageTypes = await CampaignService.GetMessageTypes(options);
+            return Ok(messageTypes);
         }
 
         /// <summary>
@@ -52,11 +52,11 @@ namespace Indice.AspNetCore.Features.Campaigns.Controllers
         [HttpPost]
         [Produces(MediaTypeNames.Application.Json)]
         [Consumes(MediaTypeNames.Application.Json)]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CampaignType))]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(MessageType))]
         [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ValidationProblemDetails))]
-        public async Task<IActionResult> CreateCampaignType([FromBody] UpsertCampaignTypeRequest request) {
-            var campaign = await CampaignService.CreateCampaignType(request);
-            return Ok(campaign);
+        public async Task<IActionResult> CreateMessageType([FromBody] UpsertMessageTypeRequest request) {
+            var messageType = await CampaignService.CreateMessageType(request);
+            return Ok(messageType);
         }
 
         /// <summary>
@@ -70,15 +70,15 @@ namespace Indice.AspNetCore.Features.Campaigns.Controllers
         [HttpPut("{campaignTypeId}")]
         [Produces(MediaTypeNames.Application.Json)]
         [Consumes(MediaTypeNames.Application.Json)]
-        [ProducesResponseType(StatusCodes.Status204NoContent, Type = typeof(CampaignType))]
+        [ProducesResponseType(StatusCodes.Status204NoContent, Type = typeof(MessageType))]
         [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ValidationProblemDetails))]
         [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ProblemDetails))]
-        public async Task<IActionResult> UpdateCampaignType([FromRoute] Guid campaignTypeId, [FromBody] UpsertCampaignTypeRequest request) {
-            var campaignType = await CampaignService.GetCampaignTypeById(campaignTypeId);
-            if (campaignType is null) {
+        public async Task<IActionResult> UpdateMessageType([FromRoute] Guid campaignTypeId, [FromBody] UpsertMessageTypeRequest request) {
+            var messageType = await CampaignService.GetMessageTypeById(campaignTypeId);
+            if (messageType is null) {
                 return NotFound();
             }
-            await CampaignService.UpdateCampaignType(campaignTypeId, request);
+            await CampaignService.UpdateMessageType(campaignTypeId, request);
             return NoContent();
         }
 
@@ -93,12 +93,12 @@ namespace Indice.AspNetCore.Features.Campaigns.Controllers
         [Produces(MediaTypeNames.Application.Json)]
         [ProducesResponseType(StatusCodes.Status204NoContent, Type = typeof(void))]
         [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ProblemDetails))]
-        public async Task<IActionResult> DeleteCampaignType([FromRoute] Guid campaignTypeId) {
-            var campaignType = await CampaignService.GetCampaignTypeById(campaignTypeId);
-            if (campaignType == null) {
+        public async Task<IActionResult> DeleteMessageType([FromRoute] Guid campaignTypeId) {
+            var messageType = await CampaignService.GetMessageTypeById(campaignTypeId);
+            if (messageType == null) {
                 return NotFound();
             }
-            await CampaignService.DeleteCampaignType(campaignTypeId);
+            await CampaignService.DeleteMessageType(campaignTypeId);
             return NoContent();
         }
     }

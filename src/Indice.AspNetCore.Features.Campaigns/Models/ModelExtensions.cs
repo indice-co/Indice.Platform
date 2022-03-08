@@ -3,7 +3,7 @@ using Indice.AspNetCore.Features.Campaigns.Data.Models;
 
 namespace Indice.AspNetCore.Features.Campaigns.Models
 {
-    internal static class ModelMappingExtensions
+    internal static class ModelExtensions
     {
         public static DbCampaign ToDbCampaign(this CreateCampaignRequest request) => new() {
             ActionText = request.ActionText,
@@ -32,7 +32,7 @@ namespace Indice.AspNetCore.Features.Campaigns.Models
             IsGlobal = campaign.IsGlobal,
             Published = campaign.Published,
             Title = campaign.Title,
-            Type = campaign.Type != null ? new CampaignType { 
+            Type = campaign.Type != null ? new MessageType { 
                 Id = campaign.Type.Id, 
                 Name = campaign.Type.Name 
             } : null

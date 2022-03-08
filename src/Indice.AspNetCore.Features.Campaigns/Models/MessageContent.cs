@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Indice.AspNetCore.Features.Campaigns.Models
+﻿namespace Indice.AspNetCore.Features.Campaigns.Models
 {
     /// <summary>
     /// Encapsulates the message content for a given <see cref="MessageDeliveryChannel"/>
@@ -17,6 +13,5 @@ namespace Indice.AspNetCore.Features.Campaigns.Models
         /// The body of the message
         /// </summary>
         public string Body { get; set; }
-
     }
 }

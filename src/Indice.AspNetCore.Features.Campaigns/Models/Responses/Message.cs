@@ -6,7 +6,7 @@ namespace Indice.AspNetCore.Features.Campaigns.Models
     /// <summary>
     /// Models a user message.
     /// </summary>
-    public class UserMessage
+    public class Message
     {
         /// <summary>
         /// The unique identifier of the user message.
@@ -47,6 +47,6 @@ namespace Indice.AspNetCore.Features.Campaigns.Models
         /// <summary>
         /// The type details of the campaign.
         /// </summary>
-        public CampaignType Type { get; set; }
+        public MessageType Type { get; set; }
     }
 }

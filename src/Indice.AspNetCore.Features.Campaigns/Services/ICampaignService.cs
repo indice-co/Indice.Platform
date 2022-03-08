@@ -8,20 +8,20 @@ namespace Indice.AspNetCore.Features.Campaigns.Services
 {
     internal interface ICampaignService
     {
-        Task AssociateCampaignAttachment(Guid campaignId, Guid attachmentId);
-        Task<AttachmentLink> CreateAttachment(IFormFile file);
-        Task<Campaign> CreateCampaign(CreateCampaignRequest request);
-        Task<CampaignType> CreateCampaignType(UpsertCampaignTypeRequest request);
-        Task DeleteCampaign(Guid campaignId);
-        Task DeleteCampaignType(Guid campaignTypeId);
-        Task<CampaignDetails> GetCampaignById(Guid campaignId);
         Task<ResultSet<Campaign>> GetCampaigns(ListOptions<GetCampaignsListFilter> options);
-        Task<CampaignStatistics> GetCampaignStatistics(Guid campaignId);
-        Task<CampaignType> GetCampaignTypeById(Guid campaignTypeId);
-        Task<CampaignType> GetCampaignTypeByName(string name);
-        Task<ResultSet<CampaignType>> GetCampaignTypes(ListOptions options);
+        Task<CampaignDetails> GetCampaignById(Guid campaignId);
+        Task<Campaign> CreateCampaign(CreateCampaignRequest request);
         Task UpdateCampaign(Guid campaignId, UpdateCampaignRequest request);
-        Task UpdateCampaignType(Guid campaignTypeId, UpsertCampaignTypeRequest request);
-        Task UpdateCampaignVisit(Guid campaignId);
+        Task DeleteCampaign(Guid campaignId);
+        Task<AttachmentLink> CreateAttachment(IFormFile file);
+        Task AssociateCampaignAttachment(Guid campaignId, Guid attachmentId);
+        Task<ResultSet<MessageType>> GetMessageTypes(ListOptions options);
+        Task<MessageType> GetMessageTypeById(Guid campaignTypeId);
+        Task<MessageType> GetMessageTypeByName(string name);
+        Task<MessageType> CreateMessageType(UpsertMessageTypeRequest request);
+        Task UpdateMessageType(Guid campaignTypeId, UpsertMessageTypeRequest request);
+        Task DeleteMessageType(Guid campaignTypeId);
+        Task<CampaignStatistics> GetCampaignStatistics(Guid campaignId);
+        Task UpdateCampaignHit(Guid campaignId);
     }
 }

@@ -52,7 +52,7 @@ namespace Indice.AspNetCore.Features.Campaigns.Models
         /// <summary>
         /// The type details of the campaign.
         /// </summary>
-        public CampaignType Type { get; set; }
+        public MessageType Type { get; set; }
         /// <summary>
         /// The delivery channel of a campaign.
         /// </summary>
