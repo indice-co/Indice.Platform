@@ -16,6 +16,7 @@
                                class="field-label">Δημοσιευμένη</label>
                         <div class="mt-1 flex rounded-sm">
                             <lib-toggle-button id="campaignActive"
+                                               name="campaignActive"
                                                [value]="true"
                                                (valueChange)="model.published = $event"></lib-toggle-button>
                         </div>
@@ -37,8 +38,8 @@
                         </div>
                         <p *ngIf="campaignTitle.invalid && (campaignTitle.dirty || campaignTitle.touched)"
                            class="mt-2 text-sm text-red-600">
-                            <span *ngIf="campaignTitle.errors!['required']">Παρακαλώ συμπλήρώστε ένα τίτλο.</span>
-                            <span *ngIf="campaignTitle.errors!['maxlength']">Παρακαλώ συμπλήρώστε ένα μικρότερο τίτλο.</span>
+                            <span *ngIf="campaignTitle.errors!['required']">Παρακαλώ συμπληρώστε ένα τίτλο.</span>
+                            <span *ngIf="campaignTitle.errors!['maxlength']">Παρακαλώ συμπληρώστε ένα μικρότερο τίτλο.</span>
                         </p>
                         <p class="field-info col-span-3">Η ονομασία η οποία θα εμφανίζεται για την καμπάνια.</p>
                     </div>
@@ -57,7 +58,7 @@
                         </div>
                         <p *ngIf="campaignContent.invalid && (campaignContent.dirty || campaignContent.touched)"
                            class="mt-2 text-sm text-red-600">
-                            <span *ngIf="campaignContent.errors!['required']">Παρακαλώ συμπλήρώστε το περιεχόμενο.</span>
+                            <span *ngIf="campaignContent.errors!['required']">Παρακαλώ συμπληρώστε το περιεχόμενο.</span>
                         </p>
                     </div>
                     <!-- Ημ. Έναρξης -->
@@ -135,34 +136,38 @@
                         </div>
                         <p *ngIf="campaignClickToActionLink.invalid && (campaignClickToActionLink.dirty || campaignClickToActionLink.touched)"
                            class="mt-2 text-sm text-red-600">
-                            <span *ngIf="campaignClickToActionLink.errors!['pattern']">Παρακαλώ συμπλήρώστε έναν έγκυρο σύνδεσμο.</span>
+                            <span *ngIf="campaignClickToActionLink.errors!['pattern']">Παρακαλώ συμπληρώστε έναν έγκυρο σύνδεσμο.</span>
                         </p>
                     </div>
                     <!-- Τρόπος Αποστολής -->
                     <div class="col-span-4">
                         <label class="field-label">Τροπος Αποστολής (*)</label>
-                        <lib-toggle-button [value]="containsDeliveryChannel(CampaignDeliveryChannel.Inbox)"
+                        <lib-toggle-button id="inbox"
+                                           [value]="containsDeliveryChannel(CampaignDeliveryChannel.Inbox)"
                                            (valueChange)="toggleDeliveryChannel(CampaignDeliveryChannel.Inbox)"
                                            [true-label]="'Η καμπάνια θα εμφανιστεί στο Inbox'"
                                            [false-label]="'Μέσω Inbox'">
                         </lib-toggle-button>
                     </div>
                     <div class="col-span-4">
-                        <lib-toggle-button [value]="containsDeliveryChannel(CampaignDeliveryChannel.PushNotification)"
+                        <lib-toggle-button id="pushNotification"
+                                           [value]="containsDeliveryChannel(CampaignDeliveryChannel.PushNotification)"
                                            (valueChange)="toggleDeliveryChannel(CampaignDeliveryChannel.PushNotification)"
                                            [true-label]="'Η καμπάνια θα αποσταλλεί με Push Notification'"
                                            [false-label]="'Μέσω Push Notification'">
                         </lib-toggle-button>
                     </div>
                     <div class="col-span-4">
-                        <lib-toggle-button [value]="containsDeliveryChannel(CampaignDeliveryChannel.Email)"
+                        <lib-toggle-button id="email"
+                                           [value]="containsDeliveryChannel(CampaignDeliveryChannel.Email)"
                                            (valueChange)="toggleDeliveryChannel(CampaignDeliveryChannel.Email)"
                                            [true-label]="'Η καμπάνια θα αποσταλλεί με Email'"
                                            [false-label]="'Μέσω Email'">
                         </lib-toggle-button>
                     </div>
                     <div class="col-span-4">
-                        <lib-toggle-button [value]="containsDeliveryChannel(CampaignDeliveryChannel.SMS)"
+                        <lib-toggle-button id="sms"
+                                           [value]="containsDeliveryChannel(CampaignDeliveryChannel.SMS)"
                                            (valueChange)="toggleDeliveryChannel(CampaignDeliveryChannel.SMS)"
                                            [true-label]="'Η καμπάνια θα αποσταλλεί με SMS'"
                                            [false-label]="'Μέσω SMS'">
@@ -175,7 +180,8 @@
                     <!-- Κωδικοί χρηστών -->
                     <div class="col-span-4">
                         <div class="mt-1 flex rounded-sm">
-                            <lib-radio-buttons-list [options]="targetOptions"
+                            <lib-radio-buttons-list id="setAsGlobal"
+                                                    [options]="targetOptions"
                                                     [value]="model.isGlobal"
                                                     (valueChange)="setIsGlobal($event)"
                                                     title="Προς"></lib-radio-buttons-list>
@@ -187,7 +193,7 @@
                                class="field-label">Κωδικοί χρηστών (*)</label>
                         <div class="mt-1 flex rounded-sm">
                             <textarea id="campaignUserCodes"
-                                      name="campaignContent"
+                                      name="campaignUserCodes"
                                       [ngModel]="toUserCodesString(model.selectedUserCodes)"
                                       (ngModelChange)="model.selectedUserCodes = toUserCodesArray($event)"
                                       rows="6"
@@ -198,7 +204,7 @@
                         </div>
                         <p *ngIf="campaignUserCodes.invalid && (campaignUserCodes.dirty || campaignUserCodes.touched)"
                            class="mt-2 text-sm text-red-600">
-                            <span *ngIf="campaignUserCodes.errors!['required']">Παρακαλώ συμπλήρώστε τη λίστα χρηστών.</span>
+                            <span *ngIf="campaignUserCodes.errors!['required']">Παρακαλώ συμπληρώστε τη λίστα χρηστών.</span>
                         </p>
                         <p class="field-info col-span-3">
                             Προσδιορίστε τη λίστα χρηστών βάζοντας κάθε τιμή σε ξεχωριστή γραμμή.
