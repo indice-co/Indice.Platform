@@ -11,8 +11,8 @@
     <form class="border-t border-gray-200 px-4 py-5 sm:p-0"
           #form="ngForm">
         <div class="px-4 py-5 bg-white space-y-6 sm:p-6 grid grid-cols-2 sm:grid-cols-4">
-            <div class="col-span-2 sm:col-span-4 grid sm:grid-cols-3 xs:grid-rows-2 gap-5 my-5">
-                <div class="sm:flex sm:flex-col sm:items-center sm:justify-center">
+            <div class="col-span-2 sm:col-span-4 grid sm:grid-cols-2 lg:grid-cols-4 gap-5 py-5 border-b border-gray-100">
+                <div class="sm:flex sm:flex-col sm:items-center sm:justify-center order-2 sm:order-first">
                     <dt class="text-sm font-medium text-gray-500">
                         Ημερομηνία Δημιουργίας
                     </dt>
@@ -20,7 +20,7 @@
                         {{ model.createdAt | date:'dd/MM/YYYY' }}
                     </dd>
                 </div>
-                <div class="sm:flex sm:flex-col sm:items-center sm:justify-center">
+                <div class="sm:flex sm:flex-col sm:items-center sm:justify-center order-3">
                     <dt class="text-sm font-medium text-gray-500">
                         Προς
                     </dt>
@@ -33,7 +33,19 @@
                         Ομάδα χρηστών
                     </dd>
                 </div>
-                <div class="sm:flex sm:flex-col sm:items-center sm:justify-center">
+                <div class="sm:flex sm:flex-col sm:items-center sm:justify-center order-4">
+                    <dt class="text-sm font-medium text-gray-500">
+                        Τροπος Αποστολής
+                    </dt>
+                    <dd class="mt-1 text-sm text-gray-900" >
+                        <ul class="list-inside flex flex-wrap items-center">
+                            <li class="pr-2 last:pr-0" *ngFor="let item of model.deliveryChannel; last as isLast">
+                                {{ item }}<span *ngIf="!isLast">, </span>
+                            </li>
+                        </ul>
+                    </dd>
+                </div>
+                <div class="sm:flex sm:flex-col sm:items-center sm:justify-center order-first sm:order-2 lg:order-last">
                     <div class="flex sm:items-center justify-between flex-col">
                         <span class="flex-grow flex flex-col self-start">
                             <span class="text-sm font-medium text-gray-500 mb-1"
@@ -174,7 +186,7 @@
                     Call-to-action σύνδεσμος
                 </dt>
                 <dd class="mt-1 text-sm text-gray-900">
-                    {{model.actionUrl}}
+                    {{model.actionUrl || "-"}}
                 </dd>
             </div>
             <div class="col-span-2 sm:col-span-4 mt-6 mr-6">

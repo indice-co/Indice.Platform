@@ -1,4 +1,6 @@
-﻿using Indice.EntityFrameworkCore.ValueConversion;
+﻿using System.Text.Json;
+using Indice.EntityFrameworkCore.ValueConversion;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 {
@@ -14,7 +16,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="builder">The builder instance.</param>
         /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
         public static PropertyBuilder HasJsonConversion<TProperty>(this PropertyBuilder<TProperty> builder) where TProperty : class {
-            builder.HasConversion(new JsonStringValueConverter<TProperty>());
+            // https://docs.microsoft.com/en-us/ef/core/modeling/value-comparers
+            var valueComparer = new ValueComparer<TProperty>(
+                equalsExpression: (obj1, obj2) => (obj1 != default(TProperty) ? JsonSerializer.Serialize(obj1, JsonStringValueConverter<TProperty>.SerializerOptions) : null) == (obj2 != default(TProperty) ? JsonSerializer.Serialize(obj2, JsonStringValueConverter<TProperty>.SerializerOptions) : null),
+                hashCodeExpression: obj => obj.GetHashCode(),
+                snapshotExpression: obj => JsonSerializer.Deserialize<TProperty>(JsonSerializer.Serialize(obj, JsonStringValueConverter<TProperty>.SerializerOptions), JsonStringValueConverter<TProperty>.SerializerOptions)
+            );
+#if NET5_0_OR_GREATER
+            builder.HasConversion(new JsonStringValueConverter<TProperty>(), valueComparer);
+#endif
+#if NETSTANDARD2_0
+            builder.HasConversion(new JsonStringValueConverter<TProperty>()).Metadata.SetValueComparer(valueComparer);
+#endif
             return builder;
         }
     }
