@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using Indice.Events;
+using Indice.AspNetCore.Features.Campaigns.Events;
 using Indice.Types;
 
 namespace Indice.AspNetCore.Features.Campaigns.Models
@@ -21,10 +21,7 @@ namespace Indice.AspNetCore.Features.Campaigns.Models
         /// <summary>
         /// The content of the campaign.
         /// </summary>
-        public Dictionary<MessageDeliveryChannel, MessageContent> Content { get; set; } = new Dictionary<MessageDeliveryChannel, MessageContent> {
-            [MessageDeliveryChannel.Inbox] = new MessageContent()
-        };
-
+        public CampaignContent Content { get; set; }
         /// <summary>
         /// Defines a CTA (call-to-action) text.
         /// </summary>
@@ -77,19 +74,16 @@ namespace Indice.AspNetCore.Features.Campaigns.Models
             ActionText = campaign.ActionText,
             ActionUrl = campaign.ActionUrl,
             ActivePeriod = campaign.ActivePeriod,
-            Content = campaign.Content[MessageDeliveryChannel.Inbox].Body,
+            Content = campaign.Content,
             CreatedAt = campaign.CreatedAt,
             Data = campaign.Data,
-            DeliveryChannel = (CampaignQueueItem.CampaignDeliveryChannel)(int)campaign.DeliveryChannel,
+            DeliveryChannel = campaign.DeliveryChannel,
             Id = campaign.Id,
             IsGlobal = campaign.IsGlobal,
             Published = campaign.Published,
             SelectedUserCodes = selectedUserCodes ?? new List<string>(),
             Title = campaign.Title,
-            Type = campaign.Type != default ? new CampaignQueueItem.CampaignType { 
-                Id = campaign.Type.Id,
-                Name = campaign.Type.Name
-            } : default
+            Type = campaign.Type
         };
     }
 }

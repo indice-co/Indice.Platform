@@ -1,9 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Dynamic;
+﻿using System.Dynamic;
+using Indice.AspNetCore.Features.Campaigns.Models;
 using Indice.Types;
 
-namespace Indice.Events
+namespace Indice.AspNetCore.Features.Campaigns.Events
 {
     /// <summary>
     /// Models a campaign when persisted as a queue item.
@@ -21,7 +20,7 @@ namespace Indice.Events
         /// <summary>
         /// The content of the campaign.
         /// </summary>
-        public string Content { get; set; }
+        public CampaignContent Content { get; set; }
         /// <summary>
         /// Defines a CTA (call-to-action) text.
         /// </summary>
@@ -49,61 +48,18 @@ namespace Indice.Events
         /// <summary>
         /// The type details of the campaign.
         /// </summary>
-        public CampaignType Type { get; set; }
+        public MessageType Type { get; set; }
         /// <summary>
         /// The delivery channel of a campaign.
         /// </summary>
-        public CampaignDeliveryChannel DeliveryChannel { get; set; }
+        public MessageDeliveryChannel DeliveryChannel { get; set; }
         /// <summary>
         /// Optional data for the campaign.
         /// </summary>
         public ExpandoObject Data { get; set; }
         /// <summary>
-        /// 
+        /// Defines a list of user identifiers that constitutes the audience of the campaign.
         /// </summary>
         public List<string> SelectedUserCodes { get; set; } = new List<string>();
-
-        /// <summary>
-        /// Models a campaign type.
-        /// </summary>
-        public class CampaignType
-        {
-            /// <summary>
-            /// The id of a campaign type.
-            /// </summary>
-            public Guid Id { get; set; }
-            /// <summary>
-            /// The name of a campaign type.
-            /// </summary>
-            public string Name { get; set; }
-        }
-
-        /// <summary>
-        /// The delivery channel of a campaign.
-        /// </summary>
-        [Flags]
-        public enum CampaignDeliveryChannel : byte
-        {
-            /// <summary>
-            /// No delivery.
-            /// </summary>
-            None = 0,
-            /// <summary>
-            /// Campaign is displayed on user inbox.
-            /// </summary>
-            Inbox = 1,
-            /// <summary>
-            /// Campaign is sent as push notification.
-            /// </summary>
-            PushNotification = 2,
-            /// <summary>
-            /// Campaign is sent as email.
-            /// </summary>
-            Email = 4,
-            /// <summary>
-            /// Campaign is sent as SMS.
-            /// </summary>
-            SMS = 8
-        }
     }
 }

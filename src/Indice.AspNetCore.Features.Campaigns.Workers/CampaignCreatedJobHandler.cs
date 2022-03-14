@@ -1,4 +1,5 @@
-﻿using Indice.Events;
+﻿using Indice.AspNetCore.Features.Campaigns.Events;
+using Indice.AspNetCore.Features.Campaigns.Models;
 using Indice.Hosting.Tasks;
 using Microsoft.Extensions.Logging;
 
@@ -21,15 +22,15 @@ namespace Indice.AspNetCore.Features.Campaigns.Workers
             if (!campaign.Published) {
                 return;
             }
-            if (campaign.DeliveryChannel.HasFlag(CampaignQueueItem.CampaignDeliveryChannel.PushNotification)) {
+            if (campaign.DeliveryChannel.HasFlag(MessageDeliveryChannel.PushNotification)) {
                 await ProcessPushNotifications(campaign);
                 return;
             }
-            if (campaign.DeliveryChannel.HasFlag(CampaignQueueItem.CampaignDeliveryChannel.Email)) {
+            if (campaign.DeliveryChannel.HasFlag(MessageDeliveryChannel.Email)) {
                 // TODO: Create next hop to send campaign via email.
                 return;
             }
-            if (campaign.DeliveryChannel.HasFlag(CampaignQueueItem.CampaignDeliveryChannel.SMS)) {
+            if (campaign.DeliveryChannel.HasFlag(MessageDeliveryChannel.SMS)) {
                 // TODO: Create next hop to send campaign via SMS gateway.
                 return;
             }

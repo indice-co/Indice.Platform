@@ -13,7 +13,7 @@ using Microsoft.EntityFrameworkCore;
 namespace Indice.Hosting.Tasks.Implementations
 {
     /// <summary>
-    /// An implementation of <see cref="IMessageQueue{T}"/> for relational backend. Supports PostgreSQL and SQL Server through EntityFramework.
+    /// An implementation of <see cref="IMessageQueue{T}"/> for relational back-end. Supports PostgreSQL and SQL Server through EntityFramework.
     /// </summary>
     /// <typeparam name="T">The type of message.</typeparam>
     public class RelationalMessageQueue<T> : IMessageQueue<T> where T : class

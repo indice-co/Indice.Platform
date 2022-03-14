@@ -41,6 +41,7 @@
     <None Include="..\..\icon\icon-310.png" Pack="true" Visible="false" PackagePath="" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Indice.AspNetCore.Features.Campaigns.Common\Indice.AspNetCore.Features.Campaigns.Common.csproj" />
     <ProjectReference Include="..\Indice.Hosting\Indice.Hosting.csproj" />
   </ItemGroup>
 </Project>

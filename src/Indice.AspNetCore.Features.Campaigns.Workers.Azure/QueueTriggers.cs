@@ -1,6 +1,7 @@
 ﻿using System.Dynamic;
 using System.Text.Json;
-using Indice.Events;
+using Indice.AspNetCore.Features.Campaigns.Events;
+using Indice.AspNetCore.Features.Campaigns.Models;
 using Indice.Serialization;
 using Indice.Services;
 using Microsoft.Azure.Functions.Worker;
@@ -29,15 +30,15 @@ namespace Indice.AspNetCore.Features.Campaigns.Workers.Azure
             if (!campaign.Published) {
                 return;
             }
-            if (campaign.DeliveryChannel.HasFlag(CampaignQueueItem.CampaignDeliveryChannel.PushNotification)) {
+            if (campaign.DeliveryChannel.HasFlag(MessageDeliveryChannel.PushNotification)) {
                 await ProcessPushNotifications(campaign);
                 return;
             }
-            if (campaign.DeliveryChannel.HasFlag(CampaignQueueItem.CampaignDeliveryChannel.Email)) {
+            if (campaign.DeliveryChannel.HasFlag(MessageDeliveryChannel.Email)) {
                 // TODO: Create next hop to send campaign via email.
                 return;
             }
-            if (campaign.DeliveryChannel.HasFlag(CampaignQueueItem.CampaignDeliveryChannel.SMS)) {
+            if (campaign.DeliveryChannel.HasFlag(MessageDeliveryChannel.SMS)) {
                 // TODO: Create next hop to send campaign via SMS gateway.
                 return;
             }
@@ -56,10 +57,12 @@ namespace Indice.AspNetCore.Features.Campaigns.Workers.Azure
             if (!dataDictionary.ContainsKey("id")) {
                 data.TryAdd("id", pushNotification.Campaign.Id);
             }
+            var pushContent = pushNotification.Campaign.Content.Push;
+            var pushTitle = pushContent.Title ?? pushNotification.Campaign.Title;
             if (pushNotification.Broadcast) {
-                await PushNotificationService.BroadcastAsync(pushNotification.Campaign.Title, pushNotification.Campaign.Content, data, pushNotification.Campaign?.Type?.Name);
+                await PushNotificationService.BroadcastAsync(pushTitle, pushContent?.Body, data, pushNotification.Campaign?.Type?.Name);
             } else {
-                await PushNotificationService.SendAsync(pushNotification.Campaign.Title, pushNotification.Campaign.Content, data, pushNotification.UserCode, classification: pushNotification.Campaign?.Type?.Name);
+                await PushNotificationService.SendAsync(pushTitle, pushContent?.Body, data, pushNotification.UserCode, classification: pushNotification.Campaign?.Type?.Name);
             }
         }
 

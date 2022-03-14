@@ -1,5 +1,5 @@
 ﻿using System.Dynamic;
-using Indice.Events;
+using Indice.AspNetCore.Features.Campaigns.Events;
 using Indice.Services;
 
 namespace Indice.AspNetCore.Features.Campaigns.Workers
@@ -18,10 +18,12 @@ namespace Indice.AspNetCore.Features.Campaigns.Workers
             if (!dataDictionary.ContainsKey("id")) {
                 data.TryAdd("id", pushNotification.Campaign.Id);
             }
+            var pushContent = pushNotification.Campaign.Content.Push;
+            var pushTitle = pushContent.Title ?? pushNotification.Campaign.Title;
             if (pushNotification.Broadcast) {
-                await PushNotificationService.BroadcastAsync(pushNotification.Campaign.Title, pushNotification.Campaign.Content, data, pushNotification.Campaign?.Type?.Name);
+                await PushNotificationService.BroadcastAsync(pushTitle, pushContent?.Body, data, pushNotification.Campaign?.Type?.Name);
             } else {
-                await PushNotificationService.SendAsync(pushNotification.Campaign.Title, pushNotification.Campaign.Content, data, pushNotification.UserCode, classification: pushNotification.Campaign?.Type?.Name);
+                await PushNotificationService.SendAsync(pushTitle, pushContent?.Body, data, pushNotification.UserCode, classification: pushNotification.Campaign?.Type?.Name);
             }
         }
     }

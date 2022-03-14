@@ -69,6 +69,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Indice.AspNetCore.Features.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Indice.AspNetCore.Features.Campaigns.Workers.Azure", "src\Indice.AspNetCore.Features.Campaigns.Workers.Azure\Indice.AspNetCore.Features.Campaigns.Workers.Azure.csproj", "{B7AA6019-53F8-4239-BA70-36675267B24E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Indice.AspNetCore.Features.Campaigns.Common", "src\Indice.AspNetCore.Features.Campaigns.Common\Indice.AspNetCore.Features.Campaigns.Common.csproj", "{D260ADF3-9C2F-40BE-821D-859938E15EB4}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -179,6 +181,10 @@ Global
 		{B7AA6019-53F8-4239-BA70-36675267B24E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B7AA6019-53F8-4239-BA70-36675267B24E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B7AA6019-53F8-4239-BA70-36675267B24E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D260ADF3-9C2F-40BE-821D-859938E15EB4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D260ADF3-9C2F-40BE-821D-859938E15EB4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D260ADF3-9C2F-40BE-821D-859938E15EB4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D260ADF3-9C2F-40BE-821D-859938E15EB4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -210,6 +216,7 @@ Global
 		{BA0577DB-5B44-462B-811B-B0909B6C8606} = {09C5F009-8096-498D-A578-511456E53E65}
 		{CF1AA972-0F9F-4FEB-BF54-519D0067B3C1} = {643960D9-48C5-4EA3-BED5-486CCC694947}
 		{B7AA6019-53F8-4239-BA70-36675267B24E} = {643960D9-48C5-4EA3-BED5-486CCC694947}
+		{D260ADF3-9C2F-40BE-821D-859938E15EB4} = {643960D9-48C5-4EA3-BED5-486CCC694947}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {C2B9151E-8A85-444E-93A9-78264FD0FE4A}

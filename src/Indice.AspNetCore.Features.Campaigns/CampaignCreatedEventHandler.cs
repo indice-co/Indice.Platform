@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
-using Indice.Events;
+using Indice.AspNetCore.Features.Campaigns.Events;
 using Indice.Services;
 using Microsoft.Extensions.Logging;
 

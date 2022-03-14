@@ -1,8 +1,11 @@
-﻿using Indice.AspNetCore.Features.Campaigns.Workers;
-using Indice.Events;
+﻿using System.Security.Claims;
+using Indice.AspNetCore.Features.Campaigns;
+using Indice.AspNetCore.Features.Campaigns.Events;
+using Indice.AspNetCore.Features.Campaigns.Workers;
 using Indice.Hosting.Tasks;
 using Indice.Services;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Hosting;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
@@ -18,25 +21,36 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <param name="configure"></param>
         /// <returns>The <see cref="WorkerHostBuilder"/> used to configure the worker host.</returns>
         public static WorkerHostBuilder AddCampaignsJobs(this WorkerHostBuilder workerHostBuilder, Action<CampaignsJobsOptions> configure = null) {
-            var options = new CampaignsJobsOptions { 
+            var options = new CampaignsJobsOptions {
                 Services = workerHostBuilder.Services
             };
             configure?.Invoke(options);
             options.Services = null;
-            workerHostBuilder.Services.AddPlatformEventHandler<CampaignCreatedEvent, CampaignCreatedEventHandler>();
+            workerHostBuilder.AddJob<CampaignCreatedJobHandler>()
+                             .WithQueueTrigger<CampaignQueueItem>(options => {
+                                 options.QueueName = QueueNames.CampaignCreated;
+                                 options.PollingInterval = TimeSpan.FromSeconds(30).TotalMilliseconds;
+                                 options.InstanceCount = 1;
+                             })
+                             .AddJob<SendPushNotificationJobHandler>()
+                             .WithQueueTrigger<PushNotificationQueueItem>(options => {
+                                 options.QueueName = QueueNames.SendPushNotification;
+                                 options.PollingInterval = TimeSpan.FromSeconds(5).TotalMilliseconds;
+                                 options.InstanceCount = 1;
+                             });
             workerHostBuilder.Services.TryAddTransient<Func<string, IPushNotificationService>>(serviceProvider => key => new PushNotificationServiceNoop());
-            return workerHostBuilder.AddJob<CampaignCreatedJobHandler>()
-                                    .WithQueueTrigger<CampaignQueueItem>(options => {
-                                        options.QueueName = QueueNames.CampaignCreated;
-                                        options.PollingInterval = TimeSpan.FromSeconds(30).TotalMilliseconds;
-                                        options.InstanceCount = 1;
-                                    })
-                                    .AddJob<SendPushNotificationJobHandler>()
-                                    .WithQueueTrigger<PushNotificationQueueItem>(options => {
-                                        options.QueueName = QueueNames.SendPushNotification;
-                                        options.PollingInterval = TimeSpan.FromSeconds(5).TotalMilliseconds;
-                                        options.InstanceCount = 1;
-                                    });
+            workerHostBuilder.Services.AddKeyedService<IEventDispatcher, EventDispatcherMessageQueue, string>(
+                key: CampaignsApi.EventDispatcherAzureServiceKey,
+                serviceProvider => new EventDispatcherMessageQueue(
+                    messageQueueFactory: new MessageQueueFactory(serviceProvider),
+                    environmentName: serviceProvider.GetRequiredService<IHostEnvironment>().EnvironmentName,
+                    enabled: true,
+                    claimsPrincipalSelector: ClaimsPrincipal.ClaimsPrincipalSelector ?? (() => ClaimsPrincipal.Current),
+                    tenantIdSelector: null
+                ),
+                serviceLifetime: ServiceLifetime.Scoped
+            );
+            return workerHostBuilder;
         }
 
         /// <summary>
@@ -44,7 +58,7 @@ namespace Microsoft.Extensions.DependencyInjection
         /// </summary>
         /// <param name="options">Options for configuring internal campaign jobs used by the worker host.</param>
         /// <param name="configure">Configure the available options for push notifications. Null to use defaults.</param>
-        public static void UsePushNotificationServiceAzure(this CampaignsJobsOptions options, Action<IServiceProvider, PushNotificationAzureOptions> configure = null) => 
+        public static void UsePushNotificationServiceAzure(this CampaignsJobsOptions options, Action<IServiceProvider, PushNotificationAzureOptions> configure = null) =>
             options.Services.AddPushNotificationServiceAzure(KeyedServiceNames.PushNotificationServiceAzureKey, configure);
     }
 }

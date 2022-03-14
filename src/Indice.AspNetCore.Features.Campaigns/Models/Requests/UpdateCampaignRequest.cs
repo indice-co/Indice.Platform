@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Dynamic;
 using Indice.Types;
 
 namespace Indice.AspNetCore.Features.Campaigns.Models
@@ -17,7 +15,7 @@ namespace Indice.AspNetCore.Features.Campaigns.Models
         /// <summary>
         /// The content of the campaign.
         /// </summary>
-        public Dictionary<MessageDeliveryChannel, MessageContent> Content { get; set; }
+        public CampaignContent Content { get; set; }
         /// <summary>
         /// Defines a CTA (call-to-action) text.
         /// </summary>

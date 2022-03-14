@@ -1,7 +1,7 @@
 ﻿using System;
 using Indice.Services;
 
-namespace Indice.Events
+namespace Indice.AspNetCore.Features.Campaigns.Events
 {
     /// <summary>
     /// Models an event raised when a new campaign is created.

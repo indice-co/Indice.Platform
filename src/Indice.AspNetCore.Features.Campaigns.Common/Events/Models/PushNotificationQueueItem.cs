@@ -1,4 +1,4 @@
-﻿namespace Indice.Events
+﻿namespace Indice.AspNetCore.Features.Campaigns.Events
 {
     /// <summary>
     /// Models a push notification when persisted as a queue item.

@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Net.Mime;
 using System.Threading.Tasks;
+using Indice.AspNetCore.Features.Campaigns.Events;
 using Indice.AspNetCore.Features.Campaigns.Models;
 using Indice.AspNetCore.Features.Campaigns.Services;
 using Indice.AspNetCore.Filters;
 using Indice.Configuration;
-using Indice.Events;
 using Indice.Extensions;
 using Indice.Services;
 using Indice.Types;

@@ -18,7 +18,7 @@ namespace Microsoft.Extensions.DependencyInjection
                                          options.RequiredScope = $"backoffice:{CampaignsApi.Scope}";
                                          options.UserClaimType = JwtClaimTypes.Subject;
                                          options.UseFilesLocal(fileOptions => fileOptions.Path = "uploads");
-                                         options.UseEventDispatcherAzure((serviceProvider, eventDispatcherOptions) => { });
+                                         //options.UseEventDispatcherAzure((serviceProvider, eventDispatcherOptions) => { });
                                      })
                                      .AddSettingsApiEndpoints(options => {
                                          options.ApiPrefix = "api";

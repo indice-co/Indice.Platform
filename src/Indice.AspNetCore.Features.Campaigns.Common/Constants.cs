@@ -8,8 +8,8 @@ namespace Indice.AspNetCore.Features.Campaigns
     /// </summary>
     public static class CampaignsApi
     {
-        internal const string FileServiceKey = "Campaigns:FileServiceKey";
-        internal const string EventDispatcherAzureServiceKey = "Campaigns:EventDispatcherAzureServiceKey";
+        public const string FileServiceKey = "Campaigns:FileServiceKey";
+        public const string EventDispatcherAzureServiceKey = "Campaigns:EventDispatcherAzureServiceKey";
         /// <summary>
         /// The assembly name.
         /// </summary>
@@ -39,7 +39,10 @@ namespace Indice.AspNetCore.Features.Campaigns
         }
     }
 
-    internal class QueueNames
+    /// <summary>
+    /// Constant values for Campaigns API queue names.
+    /// </summary>
+    public class QueueNames
     {
         public const string CampaignCreated = "campaign-created";
         public const string SendPushNotification = "campaign-send-push-notification";

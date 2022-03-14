@@ -13,10 +13,10 @@ namespace Microsoft.Extensions.DependencyInjection
                 options.UseStoreRelational(builder => builder.UseSqlServer(configuration.GetConnectionString("WorkerDb")));
                 //options.UseStoreRelational<ExtendedTaskDbContext>(builder => builder.UseNpgsql(Configuration.GetConnectionString("WorkerDb")));
             })
-            /*.AddCampaignsJobs(options => {
-                //options.UsePushNotificationServiceAzure();
+            .AddCampaignsJobs(options => {
+                options.UsePushNotificationServiceAzure();
             })
-            .AddSampleJobs()*/;
+            /*.AddSampleJobs()*/;
             return workerHostBuilder;
         }
 

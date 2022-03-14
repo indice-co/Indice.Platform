@@ -5,11 +5,11 @@ using FluentValidation.AspNetCore;
 using Indice.AspNetCore.Features.Campaigns;
 using Indice.AspNetCore.Features.Campaigns.Controllers;
 using Indice.AspNetCore.Features.Campaigns.Data;
+using Indice.AspNetCore.Features.Campaigns.Events;
 using Indice.AspNetCore.Features.Campaigns.Formatters;
 using Indice.AspNetCore.Features.Campaigns.Services;
 using Indice.AspNetCore.Mvc.ApplicationModels;
 using Indice.AspNetCore.Swagger;
-using Indice.Events;
 using Indice.Extensions;
 using Indice.Security;
 using Indice.Serialization;
@@ -25,7 +25,8 @@ namespace Microsoft.Extensions.DependencyInjection
     /// <summary>
     /// Contains extension methods on <see cref="IMvcBuilder"/> for configuring Campaigns API feature.
     /// </summary>
-    public static class CampaignsApiFeatureExtensions {
+    public static class CampaignsApiFeatureExtensions
+    {
         /// <summary>
         /// Add the Campaigns API endpoints in the MVC project.
         /// </summary>
@@ -84,6 +85,7 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddTransient<CampaignManager>();
             // Register events.
             services.TryAddTransient<IPlatformEventService, PlatformEventService>();
+            services.AddPlatformEventHandler<CampaignCreatedEvent, CampaignCreatedEventHandler>();
             // Register validators.
             mvcBuilder.AddFluentValidation(options => options.RegisterValidatorsFromAssemblyContaining<CampaignsController>());
             // Register application DbContext.
