@@ -12,6 +12,6 @@ namespace Indice.AspNetCore.Features.Campaigns.Workers
 
         public IPushNotificationService PushNotificationService { get; }
 
-        public async Task Process(PushNotificationQueueItem pushNotification) => await DispatchPushNotification(pushNotification);
+        public async Task Process(PushNotificationQueueItem pushNotification) => await base.DispatchPushNotification(pushNotification);
     }
 }

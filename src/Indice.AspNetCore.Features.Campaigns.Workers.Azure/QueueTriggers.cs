@@ -36,7 +36,7 @@ namespace Indice.AspNetCore.Features.Campaigns.Workers.Azure
             var logger = executionContext.GetLogger(FunctionNames.SendPushNotification);
             logger.LogInformation("Function '{FunctionName}' was triggered.", FunctionNames.SendPushNotification);
             var pushNotification = JsonSerializer.Deserialize<PushNotificationQueueItem>(message, JsonSerializerOptionDefaults.GetDefaultSettings());
-            await DispatchPushNotification(pushNotification);
+            await base.DispatchPushNotification(pushNotification);
         }
     }
 }
