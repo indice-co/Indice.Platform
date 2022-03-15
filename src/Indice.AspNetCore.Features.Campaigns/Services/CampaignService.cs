@@ -28,7 +28,7 @@ namespace Indice.AspNetCore.Features.Campaigns.Services
         ) {
             DbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
             ApiOptions = apiOptions?.Value ?? throw new ArgumentNullException(nameof(apiOptions));
-            FileService = getFileService(CampaignsApi.FileServiceKey) ?? throw new ArgumentNullException(nameof(getFileService));
+            FileService = getFileService(KeyedServiceNames.FileServiceKey) ?? throw new ArgumentNullException(nameof(getFileService));
             GeneralSettings = generalSettings?.Value ?? throw new ArgumentNullException(nameof(generalSettings));
             HttpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
             LinkGenerator = linkGenerator ?? throw new ArgumentNullException(nameof(linkGenerator));

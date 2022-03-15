@@ -1,6 +1,8 @@
-﻿using Indice.AspNetCore.Features.Campaigns.Workers.Azure;
+﻿using Indice.AspNetCore.Features.Campaigns;
+using Indice.AspNetCore.Features.Campaigns.Workers.Azure;
 using Indice.Services;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Microsoft.Extensions.Hosting
 {
@@ -20,8 +22,8 @@ namespace Microsoft.Extensions.Hosting
                     Services = services
                 };
                 configure?.Invoke(options);
-                services.AddPushNotificationServiceNoop();
-                services.AddEventDispatcherNoop();
+                services.TryAddTransient<Func<string, IPushNotificationService>>(serviceProvider => key => new PushNotificationServiceNoop());
+                services.TryAddTransient<Func<string, IEventDispatcher>>(serviceProvider => key => new EventDispatcherNoop());
             });
             return hostBuilder;
         }
@@ -32,7 +34,7 @@ namespace Microsoft.Extensions.Hosting
         /// <param name="options">Options used when configuring campaign Azure Functions.</param>
         /// <param name="configure">Configure the available options for push notifications. Null to use defaults.</param>
         public static void UsePushNotificationServiceAzure(this CampaignsOptions options, Action<IServiceProvider, PushNotificationAzureOptions> configure = null) =>
-            options.Services.AddPushNotificationServiceAzure(configure);
+            options.Services.AddPushNotificationServiceAzure(KeyedServiceNames.PushNotificationServiceAzureKey, configure);
 
         /// <summary>
         /// Adds <see cref="IEventDispatcher"/> using Azure Storage as a queuing mechanism.
@@ -40,6 +42,6 @@ namespace Microsoft.Extensions.Hosting
         /// <param name="options">Options used when configuring campaign Azure Functions.</param>
         /// <param name="configure">Configure the available options. Null to use defaults.</param>
         public static void UseEventDispatcherAzure(this CampaignsOptions options, Action<IServiceProvider, EventDispatcherAzureOptions> configure = null) =>
-            options.Services.AddEventDispatcherAzure(configure);
+            options.Services.AddEventDispatcherAzure(KeyedServiceNames.EventDispatcherAzureServiceKey, configure);
     }
 }

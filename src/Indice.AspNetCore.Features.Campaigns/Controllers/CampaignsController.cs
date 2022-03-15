@@ -35,9 +35,9 @@ namespace Indice.AspNetCore.Features.Campaigns.Controllers
             Func<string, IEventDispatcher> getEventDispatcher
         ) {
             CampaignService = campaignService ?? throw new ArgumentNullException(nameof(campaignService));
-            FileService = getFileService(CampaignsApi.FileServiceKey) ?? throw new ArgumentNullException(nameof(getFileService));
+            FileService = getFileService(KeyedServiceNames.FileServiceKey) ?? throw new ArgumentNullException(nameof(getFileService));
             GeneralSettings = generalSettings?.Value ?? throw new ArgumentNullException(nameof(generalSettings));
-            EventDispatcher = getEventDispatcher(CampaignsApi.EventDispatcherAzureServiceKey) ?? throw new ArgumentNullException(nameof(getEventDispatcher));
+            EventDispatcher = getEventDispatcher(KeyedServiceNames.EventDispatcherAzureServiceKey) ?? throw new ArgumentNullException(nameof(getEventDispatcher));
         }
 
         public ICampaignService CampaignService { get; }

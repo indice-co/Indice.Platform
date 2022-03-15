@@ -38,7 +38,7 @@ namespace Microsoft.Extensions.DependencyInjection
                              });
             workerHostBuilder.Services.TryAddTransient<Func<string, IPushNotificationService>>(serviceProvider => key => new PushNotificationServiceNoop());
             workerHostBuilder.Services.AddKeyedService<IEventDispatcher, EventDispatcherMessageQueue, string>(
-                key: CampaignsApi.EventDispatcherAzureServiceKey,
+                key: KeyedServiceNames.EventDispatcherAzureServiceKey,
                 serviceProvider => new EventDispatcherMessageQueue(new MessageQueueFactory(serviceProvider)),
                 serviceLifetime: ServiceLifetime.Transient
             );

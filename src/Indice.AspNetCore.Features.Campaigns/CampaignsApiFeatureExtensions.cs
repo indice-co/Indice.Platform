@@ -108,7 +108,7 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <param name="options">Options used to configure the Campaigns API feature.</param>
         /// <param name="configure">Configure the available options. Null to use defaults.</param>
         public static void UseFilesLocal(this CampaignsApiOptions options, Action<FileServiceLocal.FileServiceOptions> configure = null) =>
-            options.Services.AddFiles(options => options.AddFileSystem(CampaignsApi.FileServiceKey, configure));
+            options.Services.AddFiles(options => options.AddFileSystem(KeyedServiceNames.FileServiceKey, configure));
 
         /// <summary>
         /// Adds <see cref="IFileService"/> using Azure Blob Storage as the backing store.
@@ -116,7 +116,7 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <param name="options">Options used to configure the Campaigns API feature.</param>
         /// <param name="configure">Configure the available options. Null to use defaults.</param>
         public static void UseFilesAzure(this CampaignsApiOptions options, Action<FileServiceAzureStorage.FileServiceOptions> configure = null) =>
-            options.Services.AddFiles(options => options.AddAzureStorage(CampaignsApi.FileServiceKey, configure));
+            options.Services.AddFiles(options => options.AddAzureStorage(KeyedServiceNames.FileServiceKey, configure));
 
         /// <summary>
         /// Adds <see cref="IEventDispatcher"/> using Azure Storage as a queuing mechanism.
@@ -124,6 +124,6 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <param name="options">Options used to configure the Campaigns API feature.</param>
         /// <param name="configure">Configure the available options. Null to use defaults.</param>
         public static void UseEventDispatcherAzure(this CampaignsApiOptions options, Action<IServiceProvider, EventDispatcherAzureOptions> configure = null) => 
-            options.Services.AddEventDispatcherAzure(CampaignsApi.EventDispatcherAzureServiceKey, configure);
+            options.Services.AddEventDispatcherAzure(KeyedServiceNames.EventDispatcherAzureServiceKey, configure);
     }
 }

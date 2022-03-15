@@ -1,5 +1,6 @@
 ﻿using System.Reflection;
 using Indice.Security;
+using Indice.Services;
 
 namespace Indice.AspNetCore.Features.Campaigns
 {
@@ -8,8 +9,6 @@ namespace Indice.AspNetCore.Features.Campaigns
     /// </summary>
     public static class CampaignsApi
     {
-        public const string FileServiceKey = "Campaigns:FileServiceKey";
-        public const string EventDispatcherAzureServiceKey = "Campaigns:EventDispatcherAzureServiceKey";
         /// <summary>
         /// The assembly name.
         /// </summary>
@@ -46,5 +45,24 @@ namespace Indice.AspNetCore.Features.Campaigns
     {
         public const string CampaignCreated = "campaign-created";
         public const string SendPushNotification = "campaign-send-push-notification";
+    }
+
+    /// <summary>
+    /// Service keys for campaigns.
+    /// </summary>
+    public class KeyedServiceNames
+    {
+        /// <summary>
+        /// Key service name for <see cref="IPushNotificationService"/> implementation.
+        /// </summary>
+        public const string PushNotificationServiceAzureKey = "Campaigns:PushNotificationServiceAzureKey";
+        /// <summary>
+        /// Key service name for <see cref="IFileService"/> implementation.
+        /// </summary>
+        public const string FileServiceKey = "Campaigns:FileServiceKey";
+        /// <summary>
+        /// Key service name for <see cref="IEventDispatcher"/> implementation.
+        /// </summary>
+        public const string EventDispatcherAzureServiceKey = "Campaigns:EventDispatcherAzureServiceKey";
     }
 }

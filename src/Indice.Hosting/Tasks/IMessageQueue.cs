@@ -45,7 +45,7 @@ namespace Indice.Hosting.Tasks
     /// <summary>
     /// Extension methods on <see cref="IMessageQueue{T}"/>.
     /// </summary>
-    public static class MessageQueueExtensions
+    public static class IMessageQueueExtensions
     {
         /// <summary>
         /// Shorthand dequeue to extract the payload directly.
