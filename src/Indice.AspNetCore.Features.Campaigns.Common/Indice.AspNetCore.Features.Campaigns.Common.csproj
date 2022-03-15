@@ -6,6 +6,6 @@
     <TargetFrameworks>netstandard2.1</TargetFrameworks>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Indice.Common\Indice.Common.csproj" />
+    <ProjectReference Include="..\Indice.Services\Indice.Services.csproj" />
   </ItemGroup>
 </Project>

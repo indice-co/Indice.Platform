@@ -1,11 +1,9 @@
-﻿using System.Security.Claims;
-using Indice.AspNetCore.Features.Campaigns;
+﻿using Indice.AspNetCore.Features.Campaigns;
 using Indice.AspNetCore.Features.Campaigns.Events;
 using Indice.AspNetCore.Features.Campaigns.Workers;
 using Indice.Hosting.Tasks;
 using Indice.Services;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using Microsoft.Extensions.Hosting;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
@@ -41,14 +39,8 @@ namespace Microsoft.Extensions.DependencyInjection
             workerHostBuilder.Services.TryAddTransient<Func<string, IPushNotificationService>>(serviceProvider => key => new PushNotificationServiceNoop());
             workerHostBuilder.Services.AddKeyedService<IEventDispatcher, EventDispatcherMessageQueue, string>(
                 key: CampaignsApi.EventDispatcherAzureServiceKey,
-                serviceProvider => new EventDispatcherMessageQueue(
-                    messageQueueFactory: new MessageQueueFactory(serviceProvider),
-                    environmentName: serviceProvider.GetRequiredService<IHostEnvironment>().EnvironmentName,
-                    enabled: true,
-                    claimsPrincipalSelector: ClaimsPrincipal.ClaimsPrincipalSelector ?? (() => ClaimsPrincipal.Current),
-                    tenantIdSelector: null
-                ),
-                serviceLifetime: ServiceLifetime.Scoped
+                serviceProvider => new EventDispatcherMessageQueue(new MessageQueueFactory(serviceProvider)),
+                serviceLifetime: ServiceLifetime.Transient
             );
             return workerHostBuilder;
         }

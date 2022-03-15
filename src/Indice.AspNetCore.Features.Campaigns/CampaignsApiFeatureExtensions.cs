@@ -83,9 +83,6 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddTransient<ICampaignService, CampaignService>();
             services.AddTransient<IMessagesService, MessagesService>();
             services.AddTransient<CampaignManager>();
-            // Register events.
-            services.TryAddTransient<IPlatformEventService, PlatformEventService>();
-            services.AddPlatformEventHandler<CampaignCreatedEvent, CampaignCreatedEventHandler>();
             // Register validators.
             mvcBuilder.AddFluentValidation(options => options.RegisterValidatorsFromAssemblyContaining<CampaignsController>());
             // Register application DbContext.
@@ -126,9 +123,7 @@ namespace Microsoft.Extensions.DependencyInjection
         /// </summary>
         /// <param name="options">Options used to configure the Campaigns API feature.</param>
         /// <param name="configure">Configure the available options. Null to use defaults.</param>
-        public static void UseEventDispatcherAzure(this CampaignsApiOptions options, Action<IServiceProvider, EventDispatcherAzureOptions> configure = null) {
-            options.Services.AddPlatformEventHandler<CampaignCreatedEvent, CampaignCreatedEventHandler>();
+        public static void UseEventDispatcherAzure(this CampaignsApiOptions options, Action<IServiceProvider, EventDispatcherAzureOptions> configure = null) => 
             options.Services.AddEventDispatcherAzure(CampaignsApi.EventDispatcherAzureServiceKey, configure);
-        }
     }
 }

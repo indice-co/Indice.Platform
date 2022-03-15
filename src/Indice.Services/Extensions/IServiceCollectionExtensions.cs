@@ -255,7 +255,7 @@ namespace Microsoft.Extensions.DependencyInjection
         public static IServiceCollection AddPlatformEventHandler<TEvent, TEventHandler>(this IServiceCollection services)
             where TEvent : IPlatformEvent
             where TEventHandler : class, IPlatformEventHandler<TEvent> {
-            services.TryAddTransient(typeof(IPlatformEventHandler<TEvent>), typeof(TEventHandler));
+            services.AddTransient(typeof(IPlatformEventHandler<TEvent>), typeof(TEventHandler));
             return services;
         }
     }

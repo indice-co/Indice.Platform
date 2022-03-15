@@ -180,7 +180,7 @@ namespace Microsoft.Extensions.DependencyInjection
             var options = new QueueOptions(builder.Services);
             configureAction?.Invoke(options);
             options.Services.AddTransient(builder.JobHandlerType);
-            options.Services.AddTransient(typeof(IQueueNameResolver<TWorkItem>), sp => Activator.CreateInstance(typeof(DefaultQueueNameResolver<TWorkItem>), new object[] { options }));
+            options.Services.AddTransient(typeof(IQueueNameResolver<TWorkItem>), serviceProvider => Activator.CreateInstance(typeof(DefaultQueueNameResolver<TWorkItem>), new object[] { options }));
             options.Services.AddTransient(typeof(IMessageQueue<TWorkItem>), queueStoreTypeImplementation);
             var queueStoreTypeDefault = builder.Options.QueueStoreType.MakeGenericType(typeof(TWorkItem));
             if (!queueStoreTypeDefault.Equals(queueStoreTypeImplementation)) {

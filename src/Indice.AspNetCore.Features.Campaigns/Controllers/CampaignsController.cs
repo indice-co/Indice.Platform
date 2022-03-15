@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Net.Mime;
 using System.Threading.Tasks;
-using Indice.AspNetCore.Features.Campaigns.Events;
 using Indice.AspNetCore.Features.Campaigns.Models;
 using Indice.AspNetCore.Features.Campaigns.Services;
 using Indice.AspNetCore.Filters;
@@ -32,19 +31,19 @@ namespace Indice.AspNetCore.Features.Campaigns.Controllers
         public CampaignsController(
             ICampaignService campaignService, 
             Func<string, IFileService> getFileService, 
-            IOptions<GeneralSettings> generalSettings, 
-            IPlatformEventService eventService
+            IOptions<GeneralSettings> generalSettings,
+            Func<string, IEventDispatcher> getEventDispatcher
         ) {
             CampaignService = campaignService ?? throw new ArgumentNullException(nameof(campaignService));
             FileService = getFileService(CampaignsApi.FileServiceKey) ?? throw new ArgumentNullException(nameof(getFileService));
-            EventService = eventService ?? throw new ArgumentNullException(nameof(eventService));
             GeneralSettings = generalSettings?.Value ?? throw new ArgumentNullException(nameof(generalSettings));
+            EventDispatcher = getEventDispatcher(CampaignsApi.EventDispatcherAzureServiceKey) ?? throw new ArgumentNullException(nameof(getEventDispatcher));
         }
 
         public ICampaignService CampaignService { get; }
         public IFileService FileService { get; }
-        public IPlatformEventService EventService { get; }
         public GeneralSettings GeneralSettings { get; }
+        public IEventDispatcher EventDispatcher { get; }
 
         /// <summary>
         /// Gets the list of all campaigns using the provided <see cref="ListOptions"/>.
@@ -142,7 +141,7 @@ namespace Indice.AspNetCore.Features.Campaigns.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ValidationProblemDetails))]
         public async Task<IActionResult> CreateCampaign([FromBody] CreateCampaignRequest request) {
             var campaign = await CampaignService.CreateCampaign(request);
-            await EventService.Publish(new CampaignCreatedEvent(campaign.ToCampaignQueueItem(selectedUserCodes: request.SelectedUserCodes)));
+            await EventDispatcher.RaiseEventAsync(campaign.ToCampaignQueueItem(selectedUserCodes: request.SelectedUserCodes), options => options.WrapInEnvelope(false).WithQueueName(QueueNames.CampaignCreated));
             return CreatedAtAction(nameof(GetCampaignById), new { campaignId = campaign.Id }, campaign);
         }
 

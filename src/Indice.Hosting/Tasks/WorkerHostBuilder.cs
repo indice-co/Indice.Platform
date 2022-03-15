@@ -22,8 +22,11 @@ namespace Indice.Hosting.Tasks
         /// <summary>
         /// Specifies the contract for a collection of service descriptors.
         /// </summary>
-        public IServiceCollection Services { get; }
-        internal WorkerHostOptions Options { get; }
+        public IServiceCollection Services { get; protected set; }
+        /// <summary>
+        /// Options for configuring the worker host.
+        /// </summary>
+        public WorkerHostOptions Options { get; protected set; }
     }
 
     /// <summary>
@@ -33,6 +36,8 @@ namespace Indice.Hosting.Tasks
     {
         internal WorkerHostBuilderForQueue(IServiceCollection services, WorkerHostOptions options, Type workItemType) : base(services, options) {
             WorkItemType = workItemType;
+            Services = services;
+            Options = options;
         }
 
         internal Type WorkItemType { get; }
