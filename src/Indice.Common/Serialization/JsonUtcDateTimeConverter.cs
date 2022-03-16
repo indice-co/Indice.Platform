@@ -53,7 +53,7 @@ namespace Indice.Serialization
     /// </summary>
     public class JsonNullableUtcDateTimeConverter : JsonConverter<DateTime?>
     {
-#if !NETSTANDARD2_0
+#if NET5_0_OR_GREATER
         /// <inheritdoc/>
         public override bool HandleNull => true;
 #endif
