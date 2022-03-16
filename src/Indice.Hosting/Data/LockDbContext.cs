@@ -1,4 +1,4 @@
-﻿using Indice.Hosting.Tasks.Implementations;
+﻿using Indice.Hosting.Services;
 using Microsoft.EntityFrameworkCore;
 
 namespace Indice.Hosting.Data

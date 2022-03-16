@@ -13,6 +13,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\Indice.AspNetCore.Features.Campaigns.UI\Indice.AspNetCore.Features.Campaigns.UI.csproj" />
+    <ProjectReference Include="..\..\src\Indice.AspNetCore.Features.Campaigns.Workers.Azure\Indice.AspNetCore.Features.Campaigns.Workers.Azure.csproj" />
     <ProjectReference Include="..\..\src\Indice.AspNetCore.Features.Campaigns.Workers\Indice.AspNetCore.Features.Campaigns.Workers.csproj" />
     <ProjectReference Include="..\..\src\Indice.AspNetCore.Features.Campaigns\Indice.AspNetCore.Features.Campaigns.csproj" />
     <ProjectReference Include="..\..\src\Indice.Extensions.Configuration.Database\Indice.Extensions.Configuration.Database.csproj" />

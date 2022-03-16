@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Text.Json;
+using Indice.Hosting.Models;
 using Indice.Hosting.Tasks;
 
 namespace Indice.Hosting.Data.Models
@@ -42,7 +43,7 @@ namespace Indice.Hosting.Data.Models
         /// Generate the DTO for this <see cref="DbQMessage"/>.
         /// </summary>
         /// <typeparam name="T">The type of message to convert to.</typeparam>
-        public QMessage<T> ToModel<T>(JsonSerializerOptions options = null) where T : class => new QMessage<T> {
+        public QMessage<T> ToModel<T>(JsonSerializerOptions options = null) where T : class => new() {
             Id = Id.ToString(),
             Date = Date,
             DequeueCount = DequeueCount,

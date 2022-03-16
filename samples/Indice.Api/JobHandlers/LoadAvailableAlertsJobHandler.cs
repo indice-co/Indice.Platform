@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
-using Indice.Hosting.Tasks;
+using Indice.Hosting.Services;
 using Microsoft.Extensions.Logging;
 
 namespace Indice.Api.JobHandlers

@@ -7,9 +7,10 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using Indice.Hosting.Data;
 using Indice.Hosting.Data.Models;
+using Indice.Hosting.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace Indice.Hosting.Tasks.Implementations
+namespace Indice.Hosting.Services
 {
     /// <summary>
     /// An implementation of <see cref="IMessageQueue{T}"/> for relational back-end. Supports PostgreSQL and SQL Server through EntityFramework.
@@ -67,7 +68,6 @@ namespace Indice.Hosting.Tasks.Implementations
                             Payload = dataReader.IsDBNull(2) ? default : dataReader.GetString(2),
                             Date = dataReader.GetDateTime(3),
                             RowVersion = dataReader.IsDBNull(4) ? default : dataReader.GetValue(4) as byte[],
-                            DequeueCount = dataReader.GetInt32(5),
                             State = (QMessageState)dataReader.GetInt32(6)
                         };
                     }

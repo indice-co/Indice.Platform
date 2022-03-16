@@ -5,9 +5,11 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using Indice.Hosting.Data;
 using Indice.Hosting.Data.Models;
+using Indice.Hosting.Models;
+using Indice.Types;
 using Microsoft.EntityFrameworkCore;
 
-namespace Indice.Hosting.Tasks.Data
+namespace Indice.Hosting.Services
 {
     /// <summary>
     /// An implementation of <see cref="IMessageQueue{T}"/> using Entity Framework Core.

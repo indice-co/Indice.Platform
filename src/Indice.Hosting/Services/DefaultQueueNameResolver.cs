@@ -1,9 +1,9 @@
-﻿namespace Indice.Hosting.Tasks
+﻿namespace Indice.Hosting.Services
 {
     /// <summary>
-    /// Resolves the queue name. Uses the configured queue name through the corresponding <see cref="QueueOptions"/>. If that is empty fallback to the entity name.
+    /// Resolves the queue name. Uses the configured queue name through the corresponding <see cref="QueueOptions"/>. If that is empty fall-back to the entity name.
     /// </summary>
-    /// <typeparam name="TWorkItem">The type of the workitem in the queue</typeparam>
+    /// <typeparam name="TWorkItem">The type of the work item in the queue</typeparam>
     public class DefaultQueueNameResolver<TWorkItem> : IQueueNameResolver<TWorkItem> where TWorkItem : class
     {
         private readonly string _queueName;

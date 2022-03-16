@@ -1,7 +1,7 @@
 ﻿using System;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Indice.Hosting.Tasks
+namespace Indice.Hosting
 {
     /// <summary>
     /// Configuration options for the queue.
@@ -14,6 +14,7 @@ namespace Indice.Hosting.Tasks
         /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
         public QueueOptions(IServiceCollection services) => Services = services;
 
+        internal IServiceCollection Services { get; }
         /// <summary>
         /// The name of the queue. If not specified a random GUID is assigned.
         /// </summary>
@@ -23,7 +24,7 @@ namespace Indice.Hosting.Tasks
         /// </summary>
         public double PollingInterval { get; set; } = 300;
         /// <summary>
-        /// Specifies the maximum time interval between two attempts to dequeue new items. Used as a backoff strategy threshold. Defaults to 5000 milliseconds.
+        /// Specifies the maximum time interval between two attempts to dequeue new items. Used as a back-off strategy threshold. Defaults to 5000 milliseconds.
         /// </summary>
         public double MaxPollingInterval { get; set; } = 5000;
         /// <summary>
@@ -38,6 +39,5 @@ namespace Indice.Hosting.Tasks
         /// Specifies number of concurrent instances. Defaults to one.
         /// </summary>
         public int InstanceCount { get; set; } = 1;
-        internal IServiceCollection Services { get; }
     }
 }

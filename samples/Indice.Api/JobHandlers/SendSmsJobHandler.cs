@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
-using Indice.Hosting.Tasks;
+using Indice.Hosting.Services;
 
 namespace Indice.Api.JobHandlers
 {

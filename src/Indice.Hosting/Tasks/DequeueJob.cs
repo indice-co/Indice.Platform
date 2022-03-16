@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Indice.Hosting.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Quartz;
@@ -23,7 +24,7 @@ namespace Indice.Hosting.Tasks
         }
 
         public async Task Execute(IJobExecutionContext context) {
-            _logger.LogInformation("Dequeue job run at: {Timestamp}", DateTime.UtcNow);
+            _logger.LogInformation("Dequeue job run at: {TimeStamp}", DateTime.UtcNow);
             var jobDataMap = context.JobDetail.JobDataMap;
             var jobHandlerType = jobDataMap[JobDataKeys.JobHandlerType] as Type;
             var workItem = await _workItemQueue.Dequeue();
@@ -37,7 +38,7 @@ namespace Indice.Hosting.Tasks
                     } else {
                         await _workItemQueue.MarkPoison(workItem); // Enqueue to poison enqueue.
                     }
-                    _logger.LogError("An error occured while processing work item '{WorkItem}'. Exception is: {Exception}", workItem, exception);
+                    _logger.LogError("An error occurred while processing work item '{WorkItem}'. Exception is: {Exception}", workItem, exception);
                 }
             } else {
                 jobDataMap[JobDataKeys.BackoffIndex] = (int)(jobDataMap[JobDataKeys.BackoffIndex] ?? 0) + 1;
@@ -59,7 +60,7 @@ namespace Indice.Hosting.Tasks
                 backoffTime = threshold;
                 jobDataMap[JobDataKeys.BackoffIndex] = backoffIndex - 1;
             }
-            _logger.LogInformation("Backoff: {time}", backoffTime);
+            _logger.LogInformation("Back-off: {time}", backoffTime);
             // Get the next execution date.
             var nextExecutionDate = DateTime.Now.AddMilliseconds(backoffTime);
             // Get the current trigger.

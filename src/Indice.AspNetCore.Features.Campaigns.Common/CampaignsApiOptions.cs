@@ -1,5 +1,4 @@
-﻿using System;
-using Indice.Security;
+﻿using Indice.Security;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -10,7 +9,7 @@ namespace Indice.AspNetCore.Features.Campaigns
     /// </summary>
     public class CampaignsApiOptions
     {
-        internal IServiceCollection Services { get; set; }
+        public IServiceCollection Services { get; set; }
         /// <summary>
         /// Configuration <see cref="Action"/> for internal <see cref="DbContext"/>. 
         /// If not provided the underlying store defaults to SQL Server expecting the setting <i>ConnectionStrings:CampaignsDbConnection</i> to be present.

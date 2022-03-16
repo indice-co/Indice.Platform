@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Text.Json;
-using Indice.Hosting.Tasks;
+using Indice.Hosting.Models;
 
 namespace Indice.Hosting.Data.Models
 {

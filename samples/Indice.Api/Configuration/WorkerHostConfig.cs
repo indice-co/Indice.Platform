@@ -1,5 +1,5 @@
 ﻿using Indice.Api.JobHandlers;
-using Indice.Hosting.Tasks;
+using Indice.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 
@@ -14,7 +14,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 //options.UseStoreRelational<ExtendedTaskDbContext>(builder => builder.UseNpgsql(Configuration.GetConnectionString("WorkerDb")));
             })
             .AddCampaignsJobs(options => {
-                options.UsePushNotificationServiceAzure();
+                //options.UsePushNotificationServiceAzure();
             })
             /*.AddSampleJobs()*/;
             return workerHostBuilder;

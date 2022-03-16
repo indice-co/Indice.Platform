@@ -1,6 +1,7 @@
 ﻿using System.Threading.Tasks;
+using Indice.Hosting.Models;
 
-namespace Indice.Hosting.Tasks.Implementations
+namespace Indice.Hosting.Services
 {
     /// <summary>
     /// Not operational implementation for <see cref="IScheduledTaskStore{TState}"/>.

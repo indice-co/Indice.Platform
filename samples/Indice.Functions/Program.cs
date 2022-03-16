@@ -18,7 +18,7 @@ namespace Indice.Functions
             .ConfigureFunctionsWorkerDefaults(builder => { })
             .ConfigureServices(services => { })
             .ConfigureCampaigns(options => {
-                options.UsePushNotificationServiceAzure();
+                //options.UsePushNotificationServiceAzure();
                 options.UseEventDispatcherAzure();
             })
             .UseEnvironment(Environment.GetEnvironmentVariable("ENVIRONMENT"));

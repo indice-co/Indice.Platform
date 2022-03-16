@@ -9,7 +9,7 @@ namespace Indice.Hosting.Tasks
 {
     /// <summary>
     /// An "intermediary" <see cref="IJob"/> implementation, <see cref="QuartzJobRunner"/>, that sits between the <seealso cref="IJobFactory"/> and the <seealso cref="IJob "/> you want to run. 
-    /// It takes care of instansiating your real jobs while managing scope.
+    /// It takes care of instantiating your real jobs while managing scope.
     /// </summary>
     internal class QuartzJobRunner : IJob
     {
@@ -35,7 +35,7 @@ namespace Indice.Hosting.Tasks
                     await job.Execute(context);
                 }
             } catch (Exception exception) {
-                _logger.LogError(exception, "An unhandled exception occured while executing job '{0}'.", context.JobDetail.JobType.Name);
+                _logger.LogError(exception, "An unhandled exception occurred while executing job '{Name}'.", context.JobDetail.JobType.Name);
                 throw;
             }
         }

@@ -1,7 +1,7 @@
-﻿namespace Indice.Hosting.Tasks
+﻿namespace Indice.Hosting.Models
 {
     /// <summary>
-    /// The queue message status
+    /// The queue message status.
     /// </summary>
     public enum QMessageState
     {
@@ -20,7 +20,7 @@
     }
 
     /// <summary>
-    /// Task status. As in Job state persisted state (in quarz lingo)
+    /// Task status. As in Job state persisted state (in quartz lingo).
     /// </summary>
     public enum ScheduledTaskStatus
     {

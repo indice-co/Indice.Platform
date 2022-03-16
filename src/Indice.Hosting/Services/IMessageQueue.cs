@@ -2,8 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Indice.Hosting.Models;
 
-namespace Indice.Hosting.Tasks
+namespace Indice.Hosting.Services
 {
     /// <summary>Represents a first-in, first-out collection of objects.</summary>
     /// <typeparam name="T">The type of the queue item.</typeparam>

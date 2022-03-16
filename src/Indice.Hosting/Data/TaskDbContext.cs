@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics;
 using Indice.Hosting.Data.Models;
-using Indice.Hosting.Tasks;
+using Indice.Hosting.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;

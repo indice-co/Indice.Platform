@@ -1,13 +1,11 @@
 ﻿using System;
 
-namespace Indice.Hosting.Tasks
+namespace Indice.Hosting.Models
 {
     /// <summary>A queue message.</summary>
     /// <typeparam name="T">The message value type.</typeparam>
     public sealed class QMessage<T> where T : class
     {
-        internal QMessage() { }
-
         /// <summary>
         /// The id
         /// </summary>

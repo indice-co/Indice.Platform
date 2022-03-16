@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Indice.Hosting.Tasks
+namespace Indice.Hosting.Models
 {
     /// <summary>
     /// The default implementation for the <see cref="ScheduledTask{TState}"/> with state as <see cref="Dictionary{String, Object}"/>
@@ -9,7 +9,7 @@ namespace Indice.Hosting.Tasks
     public class ScheduledTask : ScheduledTask<Dictionary<string, object>> { }
 
     /// <summary>
-    /// A dto representing a worker task.
+    /// A DTO representing a worker task.
     /// </summary>
     /// <typeparam name="TState"></typeparam>
     public class ScheduledTask<TState> where TState : class
@@ -55,7 +55,7 @@ namespace Indice.Hosting.Tasks
         /// </summary>
         public string Errors { get; set; }
         /// <summary>
-        /// The last time an error occured.
+        /// The last time an error occurred.
         /// </summary>
         public DateTimeOffset? LastErrorDate { get; set; }
         /// <summary>

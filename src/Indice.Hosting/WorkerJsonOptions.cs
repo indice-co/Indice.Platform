@@ -1,7 +1,7 @@
 ﻿using System.Text.Json;
 using Indice.Serialization;
 
-namespace Indice.Hosting.Tasks
+namespace Indice.Hosting
 {
     /// <summary>
     /// These are the options regarding json Serialization. They are used internally for persisting payloads.

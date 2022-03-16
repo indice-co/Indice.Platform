@@ -1,7 +1,7 @@
 ﻿using Indice.AspNetCore.Features.Campaigns;
 using Indice.AspNetCore.Features.Campaigns.Events;
 using Indice.AspNetCore.Features.Campaigns.Workers;
-using Indice.Hosting.Tasks;
+using Indice.Hosting;
 using Indice.Services;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
@@ -37,11 +37,6 @@ namespace Microsoft.Extensions.DependencyInjection
                                  options.InstanceCount = 1;
                              });
             workerHostBuilder.Services.TryAddTransient<Func<string, IPushNotificationService>>(serviceProvider => key => new PushNotificationServiceNoop());
-            workerHostBuilder.Services.AddKeyedService<IEventDispatcher, EventDispatcherMessageQueue, string>(
-                key: KeyedServiceNames.EventDispatcherAzureServiceKey,
-                serviceProvider => new EventDispatcherMessageQueue(new MessageQueueFactory(serviceProvider)),
-                serviceLifetime: ServiceLifetime.Transient
-            );
             return workerHostBuilder;
         }
 
