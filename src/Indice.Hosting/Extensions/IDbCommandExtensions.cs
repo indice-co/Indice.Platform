@@ -1,6 +1,4 @@
-﻿using System.Data;
-
-namespace Indice.Hosting.Tasks.Data.Extensions
+﻿namespace System.Data
 {
     /// <summary>
     /// Helper methods for <see cref="IDbCommand"/>.

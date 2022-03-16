@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Text.Json;
+using Indice.Hosting.Tasks;
 
-namespace Indice.Hosting.Tasks.Data.Models
+namespace Indice.Hosting.Data.Models
 {
     /// <summary>
     /// Tracks a queue message task
@@ -49,7 +50,7 @@ namespace Indice.Hosting.Tasks.Data.Models
         /// </summary>
         public string Errors { get; set; }
         /// <summary>
-        /// The last time an error occured.
+        /// The last time an error occurred.
         /// </summary>
         public DateTimeOffset? LastErrorDate { get; set; }
         /// <summary>

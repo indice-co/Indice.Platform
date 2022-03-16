@@ -1,11 +1,11 @@
-﻿using Indice.Hosting.Tasks.Data.Models;
+﻿using Indice.Hosting.Data.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace Indice.Hosting.Tasks.Data.Configuration
+namespace Indice.Hosting.Data
 {
     /// <summary>
-    /// EF Core confirugation for <see cref="DbScheduledTask"/> entity.
+    /// EF Core configuration for <see cref="DbScheduledTask"/> entity.
     /// </summary>
     public sealed class DbScheduledTaskMap : IEntityTypeConfiguration<DbScheduledTask>
     {

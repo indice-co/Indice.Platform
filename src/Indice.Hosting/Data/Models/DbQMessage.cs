@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Text.Json;
+using Indice.Hosting.Tasks;
 
-namespace Indice.Hosting.Tasks.Data.Models
+namespace Indice.Hosting.Data.Models
 {
     /// <summary>
     /// A queue message.

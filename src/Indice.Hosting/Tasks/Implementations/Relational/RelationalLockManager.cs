@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using Indice.Hosting.Tasks.Data;
-using Indice.Hosting.Tasks.Data.Models;
+using Indice.Hosting.Data;
+using Indice.Hosting.Data.Models;
 using Indice.Services;
 using Indice.Types;
 using Microsoft.Data.SqlClient;

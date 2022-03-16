@@ -9,7 +9,7 @@
     <PackageReference Include="Indice.AspNetCore.Features.Campaigns.UI" Version="5.2.4" />-->
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.2" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="6.0.3" />   
-    <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" Version="6.2.3" />
+    <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" Version="6.3.0" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\Indice.AspNetCore.Features.Campaigns.UI\Indice.AspNetCore.Features.Campaigns.UI.csproj" />

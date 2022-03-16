@@ -1,7 +1,7 @@
 ﻿using Indice.Hosting.Tasks.Implementations;
 using Microsoft.EntityFrameworkCore;
 
-namespace Indice.Hosting.Tasks.Data
+namespace Indice.Hosting.Data
 {
     /// <summary>
     /// Contains the required tables to implement a locking mechanism using a relational database.

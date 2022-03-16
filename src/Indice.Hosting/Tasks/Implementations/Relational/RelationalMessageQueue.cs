@@ -5,9 +5,8 @@ using System.Linq;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
-using Indice.Hosting.Tasks.Data;
-using Indice.Hosting.Tasks.Data.Extensions;
-using Indice.Hosting.Tasks.Data.Models;
+using Indice.Hosting.Data;
+using Indice.Hosting.Data.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace Indice.Hosting.Tasks.Implementations
@@ -43,7 +42,7 @@ namespace Indice.Hosting.Tasks.Implementations
         /// <inheritdoc/>
         public async Task<int> Count() {
             var dbConnection = await _dbContext.Database.EnsureOpenConnectionAsync();
-            using (var command = dbConnection.CreateCommand()) {
+            await using (var command = dbConnection.CreateCommand()) {
                 command.AddParameterWithValue("@QueueName", _queueNameResolver.Resolve(), DbType.String);
                 command.CommandText = _queryDescriptor.Count;
                 command.CommandType = CommandType.Text;
@@ -55,11 +54,11 @@ namespace Indice.Hosting.Tasks.Implementations
         /// <inheritdoc/>
         public async Task<QMessage<T>> Dequeue() {
             var dbConnection = await _dbContext.Database.EnsureOpenConnectionAsync();
-            using (var command = dbConnection.CreateCommand()) {
+            await using (var command = dbConnection.CreateCommand()) {
                 command.AddParameterWithValue("@QueueName", _queueNameResolver.Resolve(), DbType.String);
                 command.CommandText = _queryDescriptor.Dequeue;
                 command.CommandType = CommandType.Text;
-                using (var dataReader = await command.ExecuteReaderAsync()) {
+                await using (var dataReader = await command.ExecuteReaderAsync()) {
                     DbQMessage message = null;
                     while (dataReader.Read()) {
                         message = new DbQMessage {
@@ -80,7 +79,7 @@ namespace Indice.Hosting.Tasks.Implementations
         /// <inheritdoc/>
         public async Task Enqueue(QMessage<T> item, bool isPoison) {
             var dbConnection = await _dbContext.Database.EnsureOpenConnectionAsync();
-            using (var command = dbConnection.CreateCommand()) {
+            await using (var command = dbConnection.CreateCommand()) {
                 command.AddParameterWithValue("@Id", Guid.Parse(item.Id), DbType.Guid);
                 command.AddParameterWithValue("@QueueName", _queueNameResolver.Resolve(isPoison), DbType.String);
                 command.AddParameterWithValue("@Payload", JsonSerializer.Serialize(item.Value, _jsonSerializerOptions), DbType.String);
@@ -101,7 +100,7 @@ namespace Indice.Hosting.Tasks.Implementations
             for (var i = 0; i < batches; i++) {
                 var remainingItemsCount = items.Count() - i * maxBatchSize;
                 var iterationLength = remainingItemsCount >= maxBatchSize ? maxBatchSize : remainingItemsCount;
-                using (var command = dbConnection.CreateCommand()) {
+                await using (var command = dbConnection.CreateCommand()) {
                     for (var j = 0; j < iterationLength; j++) {
                         query.AppendFormat(_queryDescriptor.EnqueueRangeValuesStatement, j);
                         var isLastItem = j == iterationLength - 1;
@@ -125,11 +124,11 @@ namespace Indice.Hosting.Tasks.Implementations
         /// <inheritdoc/>
         public async Task<T> Peek() {
             var dbConnection = await _dbContext.Database.EnsureOpenConnectionAsync();
-            using (var command = dbConnection.CreateCommand()) {
+            await using (var command = dbConnection.CreateCommand()) {
                 command.AddParameterWithValue("@QueueName", _queueNameResolver.Resolve(), DbType.String);
                 command.CommandText = _queryDescriptor.Peek;
                 command.CommandType = CommandType.Text;
-                using (var dataReader = await command.ExecuteReaderAsync()) {
+                await using (var dataReader = await command.ExecuteReaderAsync()) {
                     string payload = null;
                     while (dataReader.Read()) {
                         payload = dataReader.IsDBNull(0) ? default : dataReader.GetString(2);

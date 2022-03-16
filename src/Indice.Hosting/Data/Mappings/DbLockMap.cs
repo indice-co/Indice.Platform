@@ -1,11 +1,11 @@
-﻿using Indice.Hosting.Tasks.Data.Models;
+﻿using Indice.Hosting.Data.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace Indice.Hosting.Tasks.Data.Configuration
+namespace Indice.Hosting.Data
 {
     /// <summary>
-    /// EF Core confirugation for <see cref="DbLock"/> entity.
+    /// EF Core configuration for <see cref="DbLock"/> entity.
     /// </summary>
     public sealed class DbLockMap : IEntityTypeConfiguration<DbLock>
     {

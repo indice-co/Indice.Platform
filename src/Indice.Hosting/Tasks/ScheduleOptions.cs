@@ -7,6 +7,7 @@ namespace Indice.Hosting.Tasks
     /// </summary>
     public class ScheduleOptions
     {
+        internal IServiceCollection Services { get; }
         /// <summary>
         /// Creates a new instance of <see cref="WorkerHostBuilder"/>.
         /// </summary>
@@ -34,6 +35,5 @@ namespace Indice.Hosting.Tasks
         /// <remarks>Under the hood will utilize an <see cref="Indice.Services.ILockManager"/> in order to block other competing worker instances from executing. 
         /// </remarks>
         public bool Singleton { get; set; }
-        internal IServiceCollection Services { get; }
     }
 }

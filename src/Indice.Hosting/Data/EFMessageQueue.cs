@@ -3,7 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
-using Indice.Hosting.Tasks.Data.Models;
+using Indice.Hosting.Data;
+using Indice.Hosting.Data.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace Indice.Hosting.Tasks.Data
@@ -12,7 +13,7 @@ namespace Indice.Hosting.Tasks.Data
     /// An implementation of <see cref="IMessageQueue{T}"/> using Entity Framework Core.
     /// </summary>
     /// <typeparam name="T">The type of queue item.</typeparam>
-    [Obsolete("This implementation is fully functional but not very perfomant.")]
+    [Obsolete("This implementation is fully functional but not very efficient performance wise.")]
     public class EFMessageQueue<T> : IMessageQueue<T> where T : class
     {
         private readonly TaskDbContext _dbContext;
@@ -48,7 +49,7 @@ namespace Indice.Hosting.Tasks.Data
                     await _dbContext.SaveChangesAsync();
                     successfullLock = true;
                 } catch (DbUpdateException) {
-                    // Could not aquire lock. Will try again.
+                    // Could not acquire lock. Will try again.
                 }
             }
             while (!successfullLock);

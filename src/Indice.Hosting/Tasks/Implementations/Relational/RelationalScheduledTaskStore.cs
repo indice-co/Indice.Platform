@@ -2,8 +2,8 @@
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
-using Indice.Hosting.Tasks.Data;
-using Indice.Hosting.Tasks.Data.Models;
+using Indice.Hosting.Data;
+using Indice.Hosting.Data.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace Indice.Hosting.Tasks.Implementations
