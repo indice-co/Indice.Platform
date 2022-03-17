@@ -3,12 +3,12 @@
     /// <summary>
     /// Models a push notification when persisted as a queue item.
     /// </summary>
-    public class PushNotificationQueueItem
+    public class SendPushNotificationEvent
     {
         /// <summary>
         /// Models a campaign when persisted as a queue item.
         /// </summary>
-        public CampaignQueueItem Campaign { get; set; }
+        public CampaignCreatedEvent Campaign { get; set; }
         /// <summary>
         /// 
         /// </summary>

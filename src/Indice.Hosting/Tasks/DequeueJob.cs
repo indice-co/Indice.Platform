@@ -14,13 +14,11 @@ namespace Indice.Hosting.Tasks
         private readonly IMessageQueue<TWorkItem> _workItemQueue;
         private readonly TaskHandlerActivator _taskHandlerActivator;
         private readonly ILogger<DequeueJob<TWorkItem>> _logger;
-        private readonly IConfiguration _configuration;
 
-        public DequeueJob(IMessageQueue<TWorkItem> workItemQueue, TaskHandlerActivator taskHandlerActivator, ILogger<DequeueJob<TWorkItem>> logger, IConfiguration configuration) {
+        public DequeueJob(IMessageQueue<TWorkItem> workItemQueue, TaskHandlerActivator taskHandlerActivator, ILogger<DequeueJob<TWorkItem>> logger) {
             _workItemQueue = workItemQueue ?? throw new ArgumentNullException(nameof(workItemQueue));
             _taskHandlerActivator = taskHandlerActivator ?? throw new ArgumentNullException(nameof(taskHandlerActivator));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
         }
 
         public async Task Execute(IJobExecutionContext context) {
@@ -62,7 +60,7 @@ namespace Indice.Hosting.Tasks
             }
             _logger.LogInformation("Back-off: {time}", backoffTime);
             // Get the next execution date.
-            var nextExecutionDate = DateTime.Now.AddMilliseconds(backoffTime);
+            var nextExecutionDate = DateTime.UtcNow.AddMilliseconds(backoffTime);
             // Get the current trigger.
             var currentTrigger = context.Trigger;
             // Get a new builder instance from the current trigger.

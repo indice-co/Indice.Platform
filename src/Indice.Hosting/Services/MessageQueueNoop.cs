@@ -8,7 +8,7 @@ namespace Indice.Hosting.Services
     /// Not operational implementation for <see cref="IMessageQueue{T}"/>.
     /// </summary>
     /// <typeparam name="T">The type of message.</typeparam>
-    public class NoOpMessageQueue<T> : IMessageQueue<T> where T : class
+    public class MessageQueueNoop<T> : IMessageQueue<T> where T : class
     {
         /// <inheritdoc/>
         public Task Cleanup(int? batchSize = null) => Task.CompletedTask;

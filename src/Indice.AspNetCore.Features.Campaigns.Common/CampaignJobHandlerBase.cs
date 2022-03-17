@@ -15,7 +15,7 @@ namespace Indice.AspNetCore.Features.Campaigns
         public Func<string, IEventDispatcher> EventDispatcherAccessor { get; }
         public Func<string, IPushNotificationService> PushNotificationServiceAccessor { get; }
 
-        public virtual async Task DistributeCampaign(CampaignQueueItem campaign) {
+        public virtual async Task DistributeCampaign(CampaignCreatedEvent campaign) {
             if (!campaign.Published) {
                 return;
             }
@@ -33,17 +33,17 @@ namespace Indice.AspNetCore.Features.Campaigns
             }
         }
 
-        public virtual async Task ProcessPushNotifications(CampaignQueueItem campaign) {
+        public virtual async Task ProcessPushNotifications(CampaignCreatedEvent campaign) {
             var eventDispatcher = EventDispatcherAccessor(KeyedServiceNames.EventDispatcherAzureServiceKey);
             if (campaign.IsGlobal) {
-                var globalMessage = new PushNotificationQueueItem {
+                var globalMessage = new SendPushNotificationEvent {
                     Campaign = campaign,
                     Broadcast = true
                 };
                 await eventDispatcher.RaiseEventAsync(globalMessage, options => options.WrapInEnvelope(false).At(campaign.ActivePeriod?.From?.DateTime ?? DateTime.UtcNow).WithQueueName(QueueNames.SendPushNotification));
             } else {
                 foreach (var userCode in campaign.SelectedUserCodes) {
-                    var userMessage = new PushNotificationQueueItem {
+                    var userMessage = new SendPushNotificationEvent {
                         UserCode = userCode,
                         Campaign = campaign,
                         Broadcast = false
@@ -53,7 +53,7 @@ namespace Indice.AspNetCore.Features.Campaigns
             }
         }
 
-        public virtual async Task DispatchPushNotification(PushNotificationQueueItem pushNotification) {
+        public virtual async Task DispatchPushNotification(SendPushNotificationEvent pushNotification) {
             var data = pushNotification.Campaign?.Data ?? new ExpandoObject();
             var dataDictionary = data as IDictionary<string, object>;
             if (!dataDictionary.ContainsKey("id")) {

@@ -10,7 +10,7 @@ namespace Microsoft.Extensions.DependencyInjection
     public static class CampaignsApiOptionsExtensions
     {
         /// <summary>
-        /// Adds <see cref="IEventDispatcher"/> using Azure Storage as a queuing mechanism.
+        /// Adds <see cref="IEventDispatcher"/> using Indice worker host as a queuing mechanism.
         /// </summary>
         /// <param name="options">Options used to configure the Campaigns API feature.</param>
         public static void UseEventDispatcherHosting(this CampaignsApiOptions options) =>

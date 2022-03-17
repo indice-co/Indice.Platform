@@ -7,7 +7,7 @@ namespace Indice.AspNetCore.Features.Campaigns.Events
     /// <summary>
     /// Models a campaign when persisted as a queue item.
     /// </summary>
-    public class CampaignQueueItem
+    public class CampaignCreatedEvent
     {
         /// <summary>
         /// The unique identifier of the campaign.

@@ -13,16 +13,16 @@ namespace Indice.Hosting.Services
     /// Entity framework backed store implementation for <see cref="IScheduledTaskStore{TState}"/>.
     /// </summary>
     /// <typeparam name="TState">The type of state object.</typeparam>
-    public class RelationalScheduledTaskStore<TState> : IScheduledTaskStore<TState> where TState : class
+    public class ScheduledTaskStoreEF<TState> : IScheduledTaskStore<TState> where TState : class
     {
         private readonly TaskDbContext _dbContext;
         private readonly JsonSerializerOptions _jsonSerializerOptions;
         /// <summary>
-        /// Creates a new instance of <see cref="RelationalScheduledTaskStore{TState}"/>.
+        /// Creates a new instance of <see cref="ScheduledTaskStoreEF{TState}"/>.
         /// </summary>
         /// <param name="dbContext"></param>
         /// <param name="workerJsonOptions"></param>
-        public RelationalScheduledTaskStore(TaskDbContext dbContext, WorkerJsonOptions workerJsonOptions) {
+        public ScheduledTaskStoreEF(TaskDbContext dbContext, WorkerJsonOptions workerJsonOptions) {
             _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
             _jsonSerializerOptions = workerJsonOptions?.JsonSerializerOptions ?? throw new ArgumentNullException(nameof(workerJsonOptions));
         }

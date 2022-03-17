@@ -16,7 +16,7 @@ namespace Indice.Hosting.Services
     /// </summary>
     /// <typeparam name="T">The type of queue item.</typeparam>
     [Obsolete("This implementation is fully functional but not very efficient performance wise.")]
-    public class EFMessageQueue<T> : IMessageQueue<T> where T : class
+    public class MessageQueueEF<T> : IMessageQueue<T> where T : class
     {
         private readonly TaskDbContext _dbContext;
         private readonly string _queueName;
@@ -28,7 +28,7 @@ namespace Indice.Hosting.Services
         /// <param name="dbContext"></param>
         /// <param name="queueNameResolver"></param>
         /// <param name="workerJsonOptions"></param>
-        public EFMessageQueue(TaskDbContext dbContext, IQueueNameResolver<T> queueNameResolver, WorkerJsonOptions workerJsonOptions) {
+        public MessageQueueEF(TaskDbContext dbContext, IQueueNameResolver<T> queueNameResolver, WorkerJsonOptions workerJsonOptions) {
             _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
             _queueName = queueNameResolver?.Resolve() ?? throw new ArgumentNullException(nameof(queueNameResolver));
             _jsonSerializerOptions = workerJsonOptions?.JsonSerializerOptions ?? throw new ArgumentNullException(nameof(workerJsonOptions));

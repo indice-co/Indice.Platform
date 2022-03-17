@@ -16,7 +16,7 @@ namespace Indice.Hosting.Services
     /// An implementation of <see cref="IMessageQueue{T}"/> for relational back-end. Supports PostgreSQL and SQL Server through EntityFramework.
     /// </summary>
     /// <typeparam name="T">The type of message.</typeparam>
-    public class RelationalMessageQueue<T> : IMessageQueue<T> where T : class
+    public class MessageQueueRelational<T> : IMessageQueue<T> where T : class
     {
         private readonly TaskDbContext _dbContext;
         private readonly IQueueNameResolver<T> _queueNameResolver;
@@ -24,12 +24,12 @@ namespace Indice.Hosting.Services
         private readonly MessageQueueQueryDescriptor _queryDescriptor;
 
         /// <summary>
-        /// Constructs a new <see cref="RelationalMessageQueue{T}"/>.
+        /// Constructs a new <see cref="MessageQueueRelational{T}"/>.
         /// </summary>
         /// <param name="dbContext">A <see cref="DbContext"/> for hosting multiple <see cref="IMessageQueue{T}"/>.</param>
         /// <param name="queueNameResolver">Resolves the queue name.</param>
         /// <param name="workerJsonOptions">These are the options regarding json Serialization. They are used internally for persisting payloads.</param>
-        public RelationalMessageQueue(TaskDbContext dbContext, IQueueNameResolver<T> queueNameResolver, WorkerJsonOptions workerJsonOptions) {
+        public MessageQueueRelational(TaskDbContext dbContext, IQueueNameResolver<T> queueNameResolver, WorkerJsonOptions workerJsonOptions) {
             _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
             _queueNameResolver = queueNameResolver ?? throw new ArgumentNullException(nameof(queueNameResolver));
             _jsonSerializerOptions = workerJsonOptions?.JsonSerializerOptions ?? throw new ArgumentNullException(nameof(workerJsonOptions));

@@ -14,16 +14,16 @@ namespace Indice.Hosting.Services
     /// <summary>
     /// <see cref="ILockManager"/> implementation for a relational database.
     /// </summary>
-    public class RelationalLockManager : ILockManager
+    public class LockManagerRelational : ILockManager
     {
         private readonly TaskDbContext _dbContext;
         private readonly LockManagerQueryDescriptor _queryDescriptor;
 
         /// <summary>
-        /// Constructs the <see cref="RelationalLockManager"/>.
+        /// Constructs the <see cref="LockManagerRelational"/>.
         /// </summary>
         /// <param name="dbContext">Contains the required tables to implement a locking mechanism using a relational database.</param>
-        public RelationalLockManager(LockDbContext dbContext) {
+        public LockManagerRelational(LockDbContext dbContext) {
             _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
             _queryDescriptor = new LockManagerQueryDescriptor(dbContext);
         }

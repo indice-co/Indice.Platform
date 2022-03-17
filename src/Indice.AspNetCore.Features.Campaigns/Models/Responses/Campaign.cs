@@ -66,11 +66,11 @@ namespace Indice.AspNetCore.Features.Campaigns.Models
     public static class CampaignExtensions
     {
         /// <summary>
-        /// Converts a <see cref="Campaign"/> model to it's corresponding <see cref="CampaignQueueItem"/> type.
+        /// Converts a <see cref="Campaign"/> model to it's corresponding <see cref="CampaignCreatedEvent"/> type.
         /// </summary>
         /// <param name="campaign">The campaign to convert.</param>
         /// <param name="selectedUserCodes">Defines a list of user identifiers that constitutes the audience of the campaign.</param>
-        public static CampaignQueueItem ToCampaignQueueItem(this Campaign campaign, List<string> selectedUserCodes = null) => new() {
+        public static CampaignCreatedEvent ToCampaignQueueItem(this Campaign campaign, List<string> selectedUserCodes = null) => new() {
             ActionText = campaign.ActionText,
             ActionUrl = campaign.ActionUrl,
             ActivePeriod = campaign.ActivePeriod,

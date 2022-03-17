@@ -39,7 +39,8 @@ namespace Microsoft.Extensions.DependencyInjection
             // Configure authorization.
             services.AddAuthorizationCore(authOptions => {
                 authOptions.AddPolicy(SettingsApi.Policies.BeSettingsManager, policy => {
-                    policy.RequireAuthenticatedUser()
+                    policy.AddAuthenticationSchemes("Bearer")
+                          .RequireAuthenticatedUser()
                           .RequireAssertion(x => (string.IsNullOrWhiteSpace(settingsApiOptions.RequiredScope) ? x.User.HasScopeClaim(SettingsApi.Scope) : true) && x.User.IsAdmin());
                 });
             });

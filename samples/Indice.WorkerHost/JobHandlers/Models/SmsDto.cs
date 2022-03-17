@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Indice.Api.JobHandlers
+﻿namespace Indice.WorkerHost.JobHandlers
 {
     public class SmsDto
     {

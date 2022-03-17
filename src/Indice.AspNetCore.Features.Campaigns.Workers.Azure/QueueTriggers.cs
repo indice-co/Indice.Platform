@@ -24,7 +24,7 @@ namespace Indice.AspNetCore.Features.Campaigns.Workers.Azure
         ) {
             var logger = executionContext.GetLogger(FunctionNames.CampaignCreated);
             logger.LogInformation("Function '{FunctionName}' was triggered.", FunctionNames.CampaignCreated);
-            var campaign = JsonSerializer.Deserialize<CampaignQueueItem>(message, JsonSerializerOptionDefaults.GetDefaultSettings());
+            var campaign = JsonSerializer.Deserialize<CampaignCreatedEvent>(message, JsonSerializerOptionDefaults.GetDefaultSettings());
             await base.DistributeCampaign(campaign);
         }
 
@@ -35,7 +35,7 @@ namespace Indice.AspNetCore.Features.Campaigns.Workers.Azure
         ) {
             var logger = executionContext.GetLogger(FunctionNames.SendPushNotification);
             logger.LogInformation("Function '{FunctionName}' was triggered.", FunctionNames.SendPushNotification);
-            var pushNotification = JsonSerializer.Deserialize<PushNotificationQueueItem>(message, JsonSerializerOptionDefaults.GetDefaultSettings());
+            var pushNotification = JsonSerializer.Deserialize<SendPushNotificationEvent>(message, JsonSerializerOptionDefaults.GetDefaultSettings());
             await base.DispatchPushNotification(pushNotification);
         }
     }

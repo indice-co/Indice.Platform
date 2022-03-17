@@ -7,7 +7,7 @@ namespace Indice.Hosting.Services
     /// Not operational implementation for <see cref="IScheduledTaskStore{TState}"/>.
     /// </summary>
     /// <typeparam name="TState">The type of state object.</typeparam>
-    public class NoOpScheduledTaskStore<TState> : IScheduledTaskStore<TState> where TState : class
+    public class ScheduledTaskStoreNoop<TState> : IScheduledTaskStore<TState> where TState : class
     {
         /// <inheritdoc/>
         public Task<ScheduledTask<TState>> GetById(string taskId) => Task.FromResult(new ScheduledTask<TState>());
