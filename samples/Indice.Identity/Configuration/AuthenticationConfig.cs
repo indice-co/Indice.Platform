@@ -40,7 +40,6 @@ namespace Microsoft.Extensions.DependencyInjection
             }
             var appleSettings = configuration.GetSection($"Auth:{AppleDefaults.AuthenticationScheme}").Get<AppleOptions>();
             if (!string.IsNullOrEmpty(appleSettings?.ServiceId) && !string.IsNullOrEmpty(appleSettings?.PrivateKey)) {
-                var serviceProvider = services.BuildServiceProvider();
                 authBuilder.AddAppleID(AppleDefaults.AuthenticationScheme, options => {
                     options.ServiceId = appleSettings.ServiceId;
                     options.TeamId = appleSettings.TeamId;
@@ -52,7 +51,6 @@ namespace Microsoft.Extensions.DependencyInjection
             }
             var govGrSettings = configuration.GetSection($"Auth:{GovGrDefaults.AuthenticationScheme}").Get<GovGrOptions>();
             if (!string.IsNullOrEmpty(govGrSettings?.ClientId) && !string.IsNullOrEmpty(govGrSettings?.ClientSecret)) {
-                var serviceProvider = services.BuildServiceProvider();
                 authBuilder.AddGovGr(GovGrDefaults.AuthenticationScheme, options => {
                     options.ClientId = govGrSettings.ClientId;
                     options.ClientSecret = govGrSettings.ClientSecret;
