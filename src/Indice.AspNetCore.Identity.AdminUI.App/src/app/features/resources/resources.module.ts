@@ -50,10 +50,6 @@ import { BasicInfoStepComponent } from './add/wizard/steps/basic-info/basic-info
         SharedModule,
         SweetAlert2Module,
         NgbDatepickerModule
-    ],
-    entryComponents: [
-        BasicInfoStepComponent,
-        UserClaimsStepComponent
     ]
 })
 export class ResourcesModule { }
