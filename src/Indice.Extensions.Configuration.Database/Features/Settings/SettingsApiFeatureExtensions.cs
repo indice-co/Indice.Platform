@@ -40,8 +40,10 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddAuthorizationCore(authOptions => {
                 authOptions.AddPolicy(SettingsApi.Policies.BeSettingsManager, policy => {
                     policy.RequireAuthenticatedUser()
-                          .AddAuthenticationSchemes(settingsApiOptions.AuthenticationSchemes.ToArray())
                           .RequireAssertion(x => (string.IsNullOrWhiteSpace(settingsApiOptions.RequiredScope) ? x.User.HasScopeClaim(SettingsApi.Scope) : true) && x.User.IsAdmin());
+                    if (settingsApiOptions.AuthenticationSchemes?.Count > 0) {
+                        policy.AddAuthenticationSchemes();
+                    }
                 });
             });
             return mvcBuilder;
