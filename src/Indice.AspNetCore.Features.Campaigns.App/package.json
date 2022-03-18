@@ -2,7 +2,7 @@
   "name": "campaigns-app",
   "version": "1.0.0",
   "scripts": {
-    "build:template": "ng build --build-optimizer --optimization --output-hashing none -c template",
+    "build:template": "ng build --build-optimizer --optimization --output-hashing none --configuration template",
     "build": "ng build --configuration production --buildOptimizer --optimization",
     "e2e": "ng e2e",
     "lint": "ng lint",
