@@ -18,7 +18,8 @@
                             <lib-toggle-button id="campaignActive"
                                                name="campaignActive"
                                                [value]="true"
-                                               (valueChange)="model.published = $event"></lib-toggle-button>
+                                               (valueChange)="model.published = $event">
+                            </lib-toggle-button>
                         </div>
                         <p class="field-info col-span-3">Μία μη-δημοσιευμένη καμπάνια δεν θα εμφανιστεί στους χρήστες του συστήματος.</p>
                     </div>
@@ -54,7 +55,8 @@
                                       rows="6"
                                       placeholder="Το περιεχόμενο της καμπάνιας..."
                                       required
-                                      #campaignContent="ngModel"></textarea>
+                                      #campaignContent="ngModel">
+                            </textarea>
                         </div>
                         <p *ngIf="campaignContent.invalid && (campaignContent.dirty || campaignContent.touched)"
                            class="mt-2 text-sm text-red-600">
@@ -184,7 +186,8 @@
                                                     [options]="targetOptions"
                                                     [value]="model.isGlobal"
                                                     (valueChange)="setIsGlobal($event)"
-                                                    title="Προς"></lib-radio-buttons-list>
+                                                    title="Προς">
+                            </lib-radio-buttons-list>
                         </div>
                     </div>
                     <div class="col-span-4"
@@ -235,9 +238,13 @@
             </div>
             <button type="submit"
                     [style.visibility]="'hidden'"
-                    #submitBtn>Submit</button>
+                    #submitBtn>
+                Submit
+            </button>
         </form>
         <pre class="mb-3 code-editor"
-             *ngIf="isDevelopment">{{ model | json }}</pre>
+             *ngIf="isDevelopment">
+             {{ model | json }}
+        </pre>
     </div>
 </lib-side-view-layout>

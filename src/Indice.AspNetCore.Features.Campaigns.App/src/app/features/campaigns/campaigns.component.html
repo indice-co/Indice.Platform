@@ -11,6 +11,7 @@
                    [sort-options]="sortOptions"
                    [sort]="sort"
                    [sort-dir]="sortdir"
+                   [busy]="!items"
                    (pageChanged)="pageChanged($event)"
                    (pageSizeChanged)="pageSizeChanged($event)"
                    (sortChanged)="sortChanged($event)"
