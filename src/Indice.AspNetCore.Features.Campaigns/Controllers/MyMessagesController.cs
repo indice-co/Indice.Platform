@@ -38,7 +38,7 @@ namespace Indice.AspNetCore.Features.Campaigns.Controllers
         /// <summary>
         /// Gets the list of all user messages using the provided <see cref="ListOptions"/>.
         /// </summary>
-        /// <param name="options">List params used to navigate through collections. Contains parameters such as sort, search, page number and page size.</param>
+        /// <param name="options">List parameters used to navigate through collections. Contains parameters such as sort, search, page number and page size.</param>
         /// <response code="200">OK</response>
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ResultSet<Message>))]

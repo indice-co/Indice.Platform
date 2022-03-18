@@ -28,7 +28,7 @@ namespace Indice.AspNetCore.Features.Campaigns.Controllers
         /// <summary>
         /// Gets the list of available campaign types.
         /// </summary>
-        /// <param name="options">List params used to navigate through collections. Contains parameters such as sort, search, page number and page size.</param>
+        /// <param name="options">List parameters used to navigate through collections. Contains parameters such as sort, search, page number and page size.</param>
         /// <response code="200">OK</response>
         /// <response code="400">Bad Request</response>
         [Authorize(AuthenticationSchemes = CampaignsApi.AuthenticationScheme)]

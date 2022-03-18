@@ -2,6 +2,7 @@
 using System.Text.Json.Serialization;
 using IdentityModel;
 using Indice.AspNetCore.Features.Campaigns;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 
@@ -24,6 +25,7 @@ namespace Microsoft.Extensions.DependencyInjection
                                      .AddSettingsApiEndpoints(options => {
                                          options.ApiPrefix = "api";
                                          options.RequiredScope = "backoffice";
+                                         options.AuthenticationSchemes = new[] { JwtBearerDefaults.AuthenticationScheme };
                                          options.ConfigureDbContext = builder => builder.UseSqlServer(configuration.GetConnectionString("SettingsDb"));
                                      })
                                      .AddJsonOptions(options => {
