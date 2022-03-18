@@ -2,7 +2,7 @@
 <input *ngIf="modelType === 'String' || modelType === undefined" class="form-control" type="text" [id]="id" [name]="name" [(ngModel)]="value" [placeholder]="placeholder || ''" 
     (ngModelChange)="updateChanges()" required />
 <!-- Boolean -->
-<select *ngIf="modelType === 'Boolean'" class="form-control custom-select" [id]="id" [name]="name" [(ngModel)]="value" (ngModelChange)="updateChanges()" required>
+<select *ngIf="modelType === 'Boolean'" class="form-control form-select" [id]="id" [name]="name" [(ngModel)]="value" (ngModelChange)="updateChanges()" required>
     <option value="" disabled>Please select a suitable value</option>
     <option value="true">Yes</option>
     <option value="false">No</option>

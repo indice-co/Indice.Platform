@@ -33,7 +33,7 @@
 <div *ngIf="canEditUser">
     <hr />
     <button type="button"
-            class="btn btn-secondary m-r-5 float-right"
+            class="btn btn-secondary m-r-5 float-end"
             (click)="toggleAdmin()"
             [disabled]="currentUserId === user.id">
         {{ !user.isAdmin ? 'Mark as admin' : 'Remove from admins' }}

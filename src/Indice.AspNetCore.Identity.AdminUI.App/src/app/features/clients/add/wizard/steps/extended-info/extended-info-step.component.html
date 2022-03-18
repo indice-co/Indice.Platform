@@ -1,5 +1,5 @@
 <div [formGroup]="data.form">
-    <div class="form-group row">
+    <div class="mb-3 row">
         <label for="client-id"
                class="col-sm-2 col-form-label">
             <i class="material-icons align-middle"
@@ -10,12 +10,10 @@
         </label>
         <div class="col-sm-10">
             <div class="input-group">
-                <span class="input-group-prepend cursor-pointer"
+                <span class="input-group-text cursor-pointer"
                       title="Generate a random name."
                       (click)="generateName()">
-                    <span class="input-group-text">
-                        <i class="material-icons align-middle font-12">add</i>
-                    </span>
+                    <i class="material-icons align-middle font-12">add</i>
                 </span>
                 <input class="form-control"
                        type="text"
@@ -32,7 +30,7 @@
             </div>
         </div>
     </div>
-    <div class="form-group row">
+    <div class="mb-3 row">
         <label for="client-name"
                class="col-sm-2 col-form-label">
             <i class="material-icons align-middle"
@@ -56,7 +54,7 @@
             </div>
         </div>
     </div>
-    <div class="form-group row">
+    <div class="mb-3 row">
         <label for="require-consent"
                class="col-sm-2 col-form-label">
             <i class="material-icons align-middle"
@@ -78,7 +76,7 @@
             </div>
         </div>
     </div>
-    <div class="form-group row">
+    <div class="mb-3 row">
         <label for="client-url"
                class="col-sm-2 col-form-label">
             <i class="material-icons align-middle"
@@ -95,7 +93,7 @@
                    [formControlName]="'clientUrl'" />
         </div>
     </div>
-    <div class="form-group row">
+    <div class="mb-3 row">
         <label for="logo-url"
                class="col-sm-2 col-form-label">
             <i class="material-icons align-middle"
@@ -112,7 +110,7 @@
                    [formControlName]="'logoUrl'" />
         </div>
     </div>
-    <div class="form-group row">
+    <div class="mb-3 row">
         <label for="description"
                class="col-sm-2 col-form-label">
             Description

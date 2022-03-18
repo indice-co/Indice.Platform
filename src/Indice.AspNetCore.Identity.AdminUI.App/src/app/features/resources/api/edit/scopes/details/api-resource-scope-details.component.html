@@ -11,7 +11,7 @@
       novalidate
       [formReadonly]="!canEditResource"
       #form="ngForm">
-    <div class="form-group row">
+    <div class="mb-3 row">
         <label for="scope-id"
                class="col-sm-2 col-form-label">
             Scope Id
@@ -24,7 +24,7 @@
             </span>
         </div>
     </div>
-    <div class="form-group row">
+    <div class="mb-3 row">
         <label for="scope-display-name"
                class="col-sm-2 col-form-label">
             Display Name
@@ -45,7 +45,7 @@
             </app-translate-input>
         </div>
     </div>
-    <div class="form-group row">
+    <div class="mb-3 row">
         <label for="scope-description"
                class="col-sm-2 col-form-label">
             Description
@@ -67,7 +67,7 @@
             </app-translate-input>
         </div>
     </div>
-    <div class="form-group row">
+    <div class="mb-3 row">
         <label for="scope-show-in-dd"
                class="col-sm-2 col-form-label">Show in Discovery Document</label>
         <div class="col-sm-10">
@@ -84,7 +84,7 @@
             </div>
         </div>
     </div>
-    <div class="form-group row">
+    <div class="mb-3 row">
         <label for="scope-emphasize"
                class="col-sm-2 col-form-label">Emphasize</label>
         <div class="col-sm-10">
@@ -101,7 +101,7 @@
             </div>
         </div>
     </div>
-    <div class="form-group"
+    <div class="mb-3"
          *ngIf="canEditResource">
         <div>
             <button type="submit"
@@ -109,7 +109,7 @@
                 Save Changes
             </button>
             <button type="button"
-                    class="btn btn-danger m-r-5 float-right"
+                    class="btn btn-danger m-r-5 float-end"
                     (click)="deletePrompt(scope)"
                     *ngIf="editable">
                 Delete

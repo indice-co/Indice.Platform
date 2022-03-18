@@ -4,13 +4,13 @@
       novalidate
       *ngIf="canEditUser"
       #form="ngForm">
-    <div class="form-row">
+    <div class="row g-3">
         <div class="col">
-            <label class="sr-only"
+            <label class="visually-hidden"
                    for="claims-select">
                 Claim
             </label>
-            <select class="form-control custom-select"
+            <select class="form-control form-select"
                     id="claims-select"
                     name="claims-select"
                     [ngModel]="selectedClaimName"
@@ -32,7 +32,7 @@
             </div>
         </div>
         <div class="col">
-            <label class="sr-only"
+            <label class="visually-hidden"
                    for="claim-value">
                 Value
             </label>
@@ -50,7 +50,7 @@
                 Please provide a value.
             </div>
         </div>
-        <div class="col-md-1 text-right">
+        <div class="col-md-1 text-end">
             <button type="submit"
                     class="btn btn-primary waves-effect waves-light m-r-5">
                 Add

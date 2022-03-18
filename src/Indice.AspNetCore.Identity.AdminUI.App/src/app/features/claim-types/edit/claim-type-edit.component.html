@@ -19,7 +19,7 @@
                       novalidate
                       [formReadonly]="!canEditClaimType"
                       #form="ngForm">
-                    <div class="form-group row">
+                    <div class="mb-3 row">
                         <label for="claim-type-name"
                                class="col-sm-2 col-form-label">
                             Name
@@ -32,7 +32,7 @@
                             </span>
                         </div>
                     </div>
-                    <div class="form-group row">
+                    <div class="mb-3 row">
                         <label for="claim-type-display-name"
                                class="col-sm-2 col-form-label">
                             Display Name
@@ -48,7 +48,7 @@
                                    #displayName="ngModel" />
                         </div>
                     </div>
-                    <div class="form-group row">
+                    <div class="mb-3 row">
                         <label for="claim-type-description"
                                class="col-sm-2 col-form-label">
                             Description
@@ -63,7 +63,7 @@
                             </textarea>
                         </div>
                     </div>
-                    <div class="form-group row">
+                    <div class="mb-3 row">
                         <label for="claim-type"
                                class="col-sm-2 col-form-label">
                             Type (*)
@@ -71,7 +71,7 @@
                         <div class="col-sm-10">
                             <select id="claim-type"
                                     name="claim-type"
-                                    class="form-control custom-select"
+                                    class="form-control form-select"
                                     [ngClass]="{ 'invalid': form.submitted && type.invalid }"
                                     [(ngModel)]="claimValueType"
                                     required
@@ -92,7 +92,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="form-group row">
+                    <div class="mb-3 row">
                         <label for="claim-type-rule"
                                class="col-sm-2 col-form-label">
                             Regex Rule
@@ -106,7 +106,7 @@
                                    [(ngModel)]="claimType.rule" />
                         </div>
                     </div>
-                    <div class="form-group row">
+                    <div class="mb-3 row">
                         <label for="claim-type-confirmed"
                                class="col-sm-2 col-form-label">
                             Required Claim
@@ -124,7 +124,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="form-group row">
+                    <div class="mb-3 row">
                         <label for="claim-type-editable"
                                class="col-sm-2 col-form-label">
                             User Editable
@@ -143,7 +143,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="form-group"
+                    <div class="mb-3"
                          *ngIf="canEditClaimType">
                         <div>
                             <button type="submit"
@@ -151,7 +151,7 @@
                                 Save Changes
                             </button>
                             <button type="button"
-                                    class="btn btn-danger m-r-5 float-right"
+                                    class="btn btn-danger m-r-5 float-end"
                                     (click)="deleteAlert.fire()"
                                     *ngIf="!claimType.reserved">
                                 Delete
