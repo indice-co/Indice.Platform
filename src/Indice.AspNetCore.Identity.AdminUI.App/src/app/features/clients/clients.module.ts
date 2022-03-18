@@ -59,16 +59,6 @@ import { ClientSecretsComponent } from './edit/secrets/client-secrets.component'
         SharedModule,
         SweetAlert2Module,
         NgbDatepickerModule
-    ],
-    // Add here any components that are dynamically loaded.
-    entryComponents: [
-        ExtendedInfoStepComponent,
-        BasicInfoStepComponent,
-        UrlsStepComponent,
-        IdentityResourcesStepComponent,
-        ApiResourcesStepComponent,
-        SecretsStepComponent,
-        SummaryStepComponent
     ]
 })
 export class ClientsModule { }
