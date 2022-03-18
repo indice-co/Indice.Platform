@@ -55,7 +55,7 @@
     <SpaSourceFolder Include="..\Indice.AspNetCore.Identity.AdminUI.App" />
   </ItemGroup>
   <!-- Run 'npm install' command to download node modules for admin ui. -->
-  <Target Name="NpmInstall" BeforeTargets="Build">
+  <Target Name="NpmInstall" BeforeTargets="DispatchToInnerBuilds">
     <Exec Command="npm install" WorkingDirectory="@(SpaSourceFolder)" EnvironmentVariables="PATH=$(Path.Replace(';', '%3B'))" ContinueOnError="true">
       <Output TaskParameter="ExitCode" PropertyName="ErrorCode" />
     </Exec>
