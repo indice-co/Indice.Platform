@@ -13,6 +13,14 @@ namespace Indice.Types
     public struct FilterClause
     {
         private const string REGEX_PATTERN = @"^\s*([A-Za-z_][A-Za-z0-9_{3}]+){2}+({0}){2}+(\(({1})\))?(.+)\s*$";
+        /// <summary>
+        /// Used to separate <see cref="Member"/> value and <see cref="Operator"/>.
+        /// </summary>
+        public static string WHITE_SPACE_DELIMETER = "::";
+        /// <summary>
+        /// Used to separate <see cref="Member"/> path segments.
+        /// </summary>
+        public static char MEMBER_PATH_DELIMETER = '.';
 
         private static readonly Regex ParseRegex = new(
             pattern: string.Format(
@@ -24,15 +32,6 @@ namespace Indice.Types
             ),
             options: RegexOptions.IgnoreCase
         );
-
-        /// <summary>
-        /// Used to separate <see cref="Member"/> value and <see cref="Operator"/>.
-        /// </summary>
-        public static string WHITE_SPACE_DELIMETER = "::";
-        /// <summary>
-        /// Used to separate <see cref="Member"/> path segments.
-        /// </summary>
-        public static char MEMBER_PATH_DELIMETER = '.';
 
         /// <summary>
         /// Creates the Json filter by supplying all the required members.

@@ -9,7 +9,7 @@
     <GenerateEmbeddedFilesManifest>true</GenerateEmbeddedFilesManifest>
     <SpaDistFolder>..\Indice.AspNetCore.Identity.AdminUI.App\dist\indice_admin_ui</SpaDistFolder>
     <TargetFrameworks>netcoreapp3.1;net5.0;net6.0;</TargetFrameworks>
-    <VersionPrefix>6.0.0</VersionPrefix>
+    <VersionPrefix>6.0.1</VersionPrefix>
     <!--<VersionSuffix>beta-01</VersionSuffix>-->
     <LangVersion>Latest</LangVersion>
   </PropertyGroup>
@@ -55,7 +55,7 @@
     <SpaSourceFolder Include="..\Indice.AspNetCore.Identity.AdminUI.App" />
   </ItemGroup>
   <!-- Run 'npm install' command to download node modules for admin ui. -->
-  <Target Name="NpmInstall" BeforeTargets="Build">
+  <Target Name="NpmInstall" BeforeTargets="DispatchToInnerBuilds">
     <Exec Command="npm install" WorkingDirectory="@(SpaSourceFolder)" EnvironmentVariables="PATH=$(Path.Replace(';', '%3B'))" ContinueOnError="true">
       <Output TaskParameter="ExitCode" PropertyName="ErrorCode" />
     </Exec>

@@ -55,7 +55,7 @@ export class MenuService {
     }
 
     public toggleSideMenu(): void {
-        this._menuToggled.next();
+        this._menuToggled.next(undefined);
     }
 
     public toggleMenuItem(menuItem: MenuItem): void {

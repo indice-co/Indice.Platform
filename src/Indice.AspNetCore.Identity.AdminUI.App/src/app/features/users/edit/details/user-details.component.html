@@ -13,19 +13,19 @@
     <div class="modal-body">
         <form class="needs-validation" *ngIf="user" [ngClass]="{ 'was-validated': userPasswordform.submitted }" (ngSubmit)="userPasswordform.form.valid && resetPassword()" novalidate autocomplete="off" #userPasswordform="ngForm">
             <app-validation-summary [problemDetails]="problemDetails" #validationSummary></app-validation-summary>
-            <div class="form-group">
+            <div class="mb-3">
                 <label for="user-new-password">Password (*)</label>
                 <input type="password" class="form-control" id="user-new-password" name="user-new-password" [(ngModel)]="newPassword" #userNewPassword="ngModel" autocomplete="new-password" required>
                 <div *ngIf="userPasswordform.submitted && userNewPassword.invalid" class="form-control-feedback text-danger">Field 'Password' is required.</div>
             </div>
-            <div class="form-group">
+            <div class="mb-3">
                 <div class="form-check col-form-label custom-control custom-checkbox">
                     <input class="form-check-input custom-control-input" type="checkbox" id="change-password-after-first-sign-in-check" name="change-password-after-first-sign-in-check" [(ngModel)]="changePasswordAfterFirstSignIn"
                         #changePasswordAfterFirstSignInCheck="ngModel" />
                     <label class="custom-control-label" for="change-password-after-first-sign-in-check">Require this user to change their password when they first sign in</label>
                 </div>
             </div>
-            <div class="form-group">
+            <div class="mb-3">
                 <div class="form-check col-form-label custom-control custom-checkbox">
                     <input class="form-check-input custom-control-input" type="checkbox" id="bypass-password-validation" name="bypass-password-validation" [(ngModel)]="bypassPasswordValidation" #bypassPasswordValidationInput="ngModel" />
                     <label class="custom-control-label" for="bypass-password-validation">Bypass password validation</label>
@@ -41,14 +41,14 @@
         <b class="flex-fill">User is locked until {{ user.lockoutEnd | date: 'medium' }}.</b>
         <button type="button" class="btn btn-secondary" (click)="unlockAlert.fire()">Unlock</button>
     </div>
-    <div class="form-group row">
+    <div class="mb-3 row">
         <label for="user-name" class="col-sm-2 col-form-label">Username (*)</label>
         <div class="col-sm-10">
             <input class="form-control" type="text" id="user-name" name="user-name" [(ngModel)]="user.userName" maxlength="256" required #userName="ngModel" />
             <div *ngIf="form.submitted && userName.invalid" class="form-control-feedback text-danger">Field 'Username' is required.</div>
         </div>
     </div>
-    <div class="form-group row">
+    <div class="mb-3 row">
         <label for="user-email" class="col-sm-2 col-form-label">Email (*)</label>
         <div class="col-sm-10">
             <input class="form-control" type="text" id="user-email" name="user-email" [(ngModel)]="user.email" maxlength="256" required email #email="ngModel" />
@@ -56,7 +56,7 @@
             <div *ngIf="form.submitted && email.invalid && email.errors['email']" class="form-control-feedback text-danger">Please enter a valid email address.</div>
         </div>
     </div>
-    <div class="form-group row">
+    <div class="mb-3 row">
         <label for="user-email-confirmed" class="col-sm-2 col-form-label">Email Confirmed</label>
         <div class="col-sm-10">
             <div class="form-check col-form-label custom-control custom-checkbox">
@@ -65,25 +65,25 @@
             </div>
         </div>
     </div>
-    <div class="form-group row">
+    <div class="mb-3 row">
         <label for="user-create-date" class="col-sm-2 col-form-label">Create Date</label>
         <div class="col-sm-10 col-form-label">
             <span class="col-form-label" id="user-create-date" name="user-create-date">{{ user.createDate | date: 'medium' }}</span>
         </div>
     </div>
-    <div class="form-group row">
+    <div class="mb-3 row">
         <label for="user-last-sign-in-date" class="col-sm-2 col-form-label">Last Sign In Date</label>
         <div class="col-sm-10 col-form-label">
             <span class="col-form-label" id="user-last-sign-in-date" name="user-last-sign-in-date">{{ user.lastSignInDate ? (user.lastSignInDate | date: 'medium') : '-' }}</span>
         </div>
     </div>
-    <div class="form-group row">
+    <div class="mb-3 row">
         <label for="user-phone-number" class="col-sm-2 col-form-label">Phone Number</label>
         <div class="col-sm-10">
             <input class="form-control" type="tel" id="user-phone-number" name="user-phone-number" [(ngModel)]="user.phoneNumber" />
         </div>
     </div>
-    <div class="form-group row">
+    <div class="mb-3 row">
         <label for="user-phone-number-confirmed" class="col-sm-2 col-form-label">Phone Number Confirmed</label>
         <div class="col-sm-10">
             <div class="form-check col-form-label custom-control custom-checkbox">
@@ -92,10 +92,10 @@
             </div>
         </div>
     </div>
-    <div class="form-group row">
+    <div class="mb-3 row">
         <label for="resource-type" class="col-sm-2 col-form-label">Password Expires</label>
         <div class="col-sm-10">
-            <select class="form-control custom-select" id="user-password-expiration-policy" name="user-password-expiration-policy" [(ngModel)]="userPasswordExpirationPolicy" #passwordExpirationPolicy="ngModel">
+            <select class="form-control form-select" id="user-password-expiration-policy" name="user-password-expiration-policy" [(ngModel)]="userPasswordExpirationPolicy" #passwordExpirationPolicy="ngModel">
                 <option value="">Please select a password expiration policy</option>
                 <option value="Never">Never</option>
                 <option value="Monthly">Monthly</option>
@@ -106,13 +106,13 @@
             </select>
         </div>
     </div>
-    <div class="form-group row">
+    <div class="mb-3 row">
         <label for="user-password-expiration-date" class="col-sm-2 col-form-label">Password Expiration Date</label>
         <div class="col-sm-10 col-form-label">
             <span class="col-form-label" id="user-password-expiration-date" name="user-password-expiration-date">{{ user.passwordExpirationDate ? (user.passwordExpirationDate | date: 'medium') : '-' }}</span>
         </div>
     </div>
-    <div class="form-group row" *ngFor="let claim of requiredClaims; let i = index">
+    <div class="mb-3 row" *ngFor="let claim of requiredClaims; let i = index">
         <label [for]="'user-' + claim.name" class="col-sm-2 col-form-label">{{ claim.displayName || claim.name }} (*)</label>
         <div class="col-sm-10">
             <app-dynamic-input [id]="'user-' + claim.name" [name]="'user-' + claim.name" [pattern]="claim.rule" [(ngModel)]="requiredClaims[i].value" [modelType]="claim.valueType" required #input="ngModel"></app-dynamic-input>
@@ -120,18 +120,18 @@
             <div *ngIf="form.submitted && input.invalid && input.errors['pattern']" class="form-control-feedback text-danger">Pattern not correct.</div>
         </div>
     </div>
-    <div class="form-group" *ngIf="canEditUser">
+    <div class="mb-3" *ngIf="canEditUser">
         <div>
             <button type="submit" class="btn btn-primary m-r-5">
                 <i class="material-icons align-middle">save</i>Save Changes
             </button>
-            <button type="button" class="btn btn-danger m-r-5 float-right" (click)="deleteAlert.fire()" [disabled]="currentUserId === user.id">
+            <button type="button" class="btn btn-danger m-r-5 float-end" (click)="deleteAlert.fire()" [disabled]="currentUserId === user.id">
                 <i class="material-icons align-middle">delete</i>Delete
             </button>
-            <button type="button" class="btn btn-secondary m-r-5 float-right" (click)="blockAlert.fire()" [disabled]="currentUserId === user.id">
+            <button type="button" class="btn btn-secondary m-r-5 float-end" (click)="blockAlert.fire()" [disabled]="currentUserId === user.id">
                 <i class="material-icons align-middle">{{ !user.blocked ? 'lock' : 'lock_open' }}</i>{{ !user.blocked ? 'Block' : 'Unblock' }}
             </button>
-            <button type="button" class="btn btn-secondary m-r-5 float-right" (click)="showResetPassword(content)" [disabled]="currentUserId === user.id">
+            <button type="button" class="btn btn-secondary m-r-5 float-end" (click)="showResetPassword(content)" [disabled]="currentUserId === user.id">
                 <i class="material-icons align-middle">vpn_key</i>Reset Password
             </button>
         </div>

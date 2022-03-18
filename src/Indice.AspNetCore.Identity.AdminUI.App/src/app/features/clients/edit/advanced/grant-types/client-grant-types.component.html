@@ -2,10 +2,10 @@
 </swal>
 <p class="mt-3" *ngIf="!client">Loading client grant types...</p>
 <form class="needs-validation mt-3" *ngIf="canEditClient && client" [ngClass]="{ 'was-validated': grantTypesform.submitted }" (ngSubmit)="grantTypesform.form.valid && addGrantType()" novalidate #grantTypesform="ngForm">
-    <div class="form-row">
+    <div class="row g-3">
         <div class="col">
-            <label class="sr-only" for="grant-type">Grant Type</label>
-            <select class="form-control custom-select" id="grant-type" name="grant-type" [(ngModel)]="selectedGrantType" required #grantType="ngModel">
+            <label class="visually-hidden" for="grant-type">Grant Type</label>
+            <select class="form-control form-select" id="grant-type" name="grant-type" [(ngModel)]="selectedGrantType" required #grantType="ngModel">
                 <option value="" disabled>Please select a suitable grant type</option>
                 <option *ngFor="let grantType of availableGrantTypes" [value]="grantType" [disabled]="ownsGrantType(grantType)">{{ grantType }}</option>
                 <!-- <option value="custom">custom</option> -->
@@ -13,11 +13,11 @@
             <div *ngIf="grantTypesform.submitted && grantType.invalid" class="form-control-feedback text-danger">Please select a value.</div>
         </div>
         <div class="col" *ngIf="selectedGrantType === 'custom'">
-            <label class="sr-only" for="claim-value">Value</label>
+            <label class="visually-hidden" for="claim-value">Value</label>
             <input class="form-control" id="claim-value" name="claim-value" [(ngModel)]="customGrantName" [placeholder]="'Please provide a value...'" type="text" required #value="ngModel" />
             <div *ngIf="grantTypesform.submitted && value.invalid" class="form-control-feedback text-danger">Please provide a value.</div>
         </div>
-        <div class="col-md-1 text-right">
+        <div class="col-md-1 text-end">
             <button type="submit" class="btn btn-primary waves-effect waves-light m-r-5">Add</button>
         </div>
     </div>
