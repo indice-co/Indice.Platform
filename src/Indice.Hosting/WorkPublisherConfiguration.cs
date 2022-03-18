@@ -62,32 +62,32 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <summary>
         /// 
         /// </summary>
-        /// <typeparam name="TWorkItem"></typeparam>
+        /// <typeparam name="TEvent"></typeparam>
         /// <param name="builder"></param>
         /// <returns></returns>
-        public static WorkPublisherBuilder ForWorkItem<TWorkItem>(this WorkPublisherBuilder builder) where TWorkItem : class =>
-            builder.ForWorkItem<TWorkItem>(builder.Options.QueueStoreType?.MakeGenericType(typeof(TWorkItem)), typeof(TWorkItem).Name.ToKebabCase());
+        public static WorkPublisherBuilder ForEvent<TEvent>(this WorkPublisherBuilder builder) where TEvent : class =>
+            builder.ForEvent<TEvent>(builder.Options.QueueStoreType?.MakeGenericType(typeof(TEvent)), typeof(TEvent).Name.ToKebabCase());
 
         /// <summary>
         /// 
         /// </summary>
-        /// <typeparam name="TWorkItem"></typeparam>
+        /// <typeparam name="TEvent"></typeparam>
         /// <param name="builder"></param>
         /// <param name="queueName"></param>
         /// <returns></returns>
-        public static WorkPublisherBuilder ForEvent<TWorkItem>(this WorkPublisherBuilder builder, string queueName) where TWorkItem : class =>
-            builder.ForWorkItem<TWorkItem>(builder.Options.QueueStoreType?.MakeGenericType(typeof(TWorkItem)), queueName);
+        public static WorkPublisherBuilder ForEvent<TEvent>(this WorkPublisherBuilder builder, string queueName) where TEvent : class =>
+            builder.ForEvent<TEvent>(builder.Options.QueueStoreType?.MakeGenericType(typeof(TEvent)), queueName);
 
-        private static WorkPublisherBuilder ForWorkItem<TWorkItem>(this WorkPublisherBuilder builder, Type messageQueueType, string queueName) where TWorkItem : class {
+        private static WorkPublisherBuilder ForEvent<TEvent>(this WorkPublisherBuilder builder, Type messageQueueType, string queueName) where TEvent : class {
             if (messageQueueType is null) {
                 throw new ArgumentNullException(nameof(messageQueueType), $"You must provide an implementation for the backing store. Use one of the 'UseStoreXXX' methods to configure the builder.");
             }
             var options = new QueueOptions(builder.Services) {
                 QueueName = queueName
             };
-            builder.Services.AddTransient(typeof(IQueueNameResolver<TWorkItem>), serviceProvider => Activator.CreateInstance(typeof(DefaultQueueNameResolver<TWorkItem>), new object[] { options }));
-            builder.Services.AddTransient(typeof(IMessageQueue<TWorkItem>), messageQueueType);
-            var messageQueueDefaultType = builder.Options.QueueStoreType.MakeGenericType(typeof(TWorkItem));
+            builder.Services.AddTransient(typeof(IQueueNameResolver<TEvent>), serviceProvider => Activator.CreateInstance(typeof(DefaultQueueNameResolver<TEvent>), new object[] { options }));
+            builder.Services.AddTransient(typeof(IMessageQueue<TEvent>), messageQueueType);
+            var messageQueueDefaultType = builder.Options.QueueStoreType.MakeGenericType(typeof(TEvent));
             if (!messageQueueDefaultType.Equals(messageQueueType)) {
                 builder.Services.TryAddTransient(messageQueueDefaultType);
             }
