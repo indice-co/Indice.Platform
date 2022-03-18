@@ -289,7 +289,9 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
             client.UserCodeType = request.UserCodeType;
             client.UserSsoLifetime = request.UserSsoLifetime;
             client.SlidingRefreshTokenLifetime = request.SlidingRefreshTokenLifetime;
-            client.EnableLocalLogin = request.EnableLocalLogin;
+            if (request.EnableLocalLogin.HasValue) {
+                client.EnableLocalLogin = request.EnableLocalLogin.Value;
+            }
             client.IdentityProviderRestrictions.RemoveAll(x => true);
             client.IdentityProviderRestrictions.AddRange(request.IdentityProviderRestrictions.Select(provider => new ClientIdPRestriction { 
                 Provider = provider,
