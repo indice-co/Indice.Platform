@@ -162,7 +162,7 @@ namespace Indice.AspNetCore.Identity.Api.Models
         /// <summary>
         /// Determines whether login using a local account is allowed for this client. 
         /// </summary>
-        public bool EnableLocalLogin { get; set; }
+        public bool? EnableLocalLogin { get; set; }
         /// <summary>
         /// List of identity providers that are not allowed for this client.
         /// </summary>
