@@ -20,18 +20,21 @@ namespace Indice.AspNetCore.Features.Campaigns.Controllers
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized, Type = typeof(ProblemDetails))]
     [ProducesResponseType(StatusCodes.Status403Forbidden, Type = typeof(ProblemDetails))]
-    [Route($"{ApiPrefixes.InboxApi}/my/messages")]
+    [Route($"{ApiPrefixes.InboxApi}")]
     internal class InboxController : ControllerBase
     {
         public InboxController(
             IInboxService inboxService,
+            ICampaignService campaignService,
             IOptions<CampaignEndpointOptions> campaignEndpointOptions
         ) {
             InboxService = inboxService ?? throw new ArgumentNullException(nameof(inboxService));
+            CampaignService = campaignService ?? throw new ArgumentNullException(nameof(campaignService));
             CampaignEndpointOptions = campaignEndpointOptions?.Value ?? throw new ArgumentNullException(nameof(campaignEndpointOptions));
         }
 
         public IInboxService InboxService { get; }
+        public ICampaignService CampaignService { get; }
         public CampaignEndpointOptions CampaignEndpointOptions { get; }
         public string UserCode => User.FindFirstValue(CampaignEndpointOptions.UserClaimType);
 
@@ -40,7 +43,7 @@ namespace Indice.AspNetCore.Features.Campaigns.Controllers
         /// </summary>
         /// <param name="options">List parameters used to navigate through collections. Contains parameters such as sort, search, page number and page size.</param>
         /// <response code="200">OK</response>
-        [HttpGet]
+        [HttpGet("my/messages")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ResultSet<Message>))]
         [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ProblemDetails))]
         public async Task<IActionResult> GetMessages([FromQuery] ListOptions<MessagesFilter> options) {
@@ -54,7 +57,7 @@ namespace Indice.AspNetCore.Features.Campaigns.Controllers
         /// <param name="messageId">The id of the message.</param>
         /// <response code="200">OK</response>
         /// <response code="404">Not Found</response>
-        [HttpGet("{messageId:guid}")]
+        [HttpGet("my/messages/{messageId:guid}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Message))]
         [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ProblemDetails))]
         public async Task<IActionResult> GetMessageById([FromRoute] Guid messageId) {
@@ -72,7 +75,7 @@ namespace Indice.AspNetCore.Features.Campaigns.Controllers
         /// <response code="204">No Content</response>
         /// <response code="400">Bad Request</response>
         /// <response code="404">Not Found</response>
-        [HttpPut("{messageId:guid}/read")]
+        [HttpPut("my/messages/{messageId:guid}/read")]
         [ProducesResponseType(StatusCodes.Status204NoContent, Type = typeof(void))]
         [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ValidationProblemDetails))]
         [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(void))]
@@ -94,7 +97,7 @@ namespace Indice.AspNetCore.Features.Campaigns.Controllers
         /// </summary>
         /// <param name="messageId">The id of the message.</param>
         /// <response code="204">No Content</response>
-        [HttpDelete("{messageId:guid}")]
+        [HttpDelete("my/messages/{messageId:guid}")]
         [ProducesResponseType(StatusCodes.Status204NoContent, Type = typeof(void))]
         [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(void))]
         public async Task<IActionResult> DeleteMessage([FromRoute] Guid messageId) {
@@ -104,6 +107,20 @@ namespace Indice.AspNetCore.Features.Campaigns.Controllers
             }
             await InboxService.MarkMessageAsDeleted(messageId, UserCode);
             return NoContent();
+        }
+
+        [AllowAnonymous]
+        [ApiExplorerSettings(IgnoreApi = true)]
+        [HttpGet("messages/cta/{trackingCode}")]
+        public async Task<IActionResult> Track([FromRoute] Base64Id trackingCode) {
+            var campaignId = trackingCode.Id;
+            // TODO: Add a method on campaign service that returns the cta link.
+            var campaign = await CampaignService.GetCampaignById(campaignId);
+            if (campaign is null) {
+                return NotFound();
+            }
+            await CampaignService.UpdateCampaignHit(campaignId);
+            return Redirect(campaign.ActionUrl);
         }
     }
 }

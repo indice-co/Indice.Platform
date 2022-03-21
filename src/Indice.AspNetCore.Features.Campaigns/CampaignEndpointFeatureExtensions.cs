@@ -52,8 +52,6 @@ namespace Microsoft.Extensions.DependencyInjection
             });
             // Register framework services.
             services.AddHttpContextAccessor();
-            // Register custom services.
-            services.AddTransient<ICampaignService, CampaignService>();
             // Register events.
             services.TryAddTransient<IPlatformEventService, PlatformEventService>();
             // Configure authorization.
@@ -104,7 +102,13 @@ namespace Microsoft.Extensions.DependencyInjection
             campaignsApiOptions.UseFilesLocal();
             configureAction?.Invoke(campaignsApiOptions);
             campaignsApiOptions.Services = null;
-            services.Configure<CampaignEndpointOptions>(options => options = (CampaignEndpointOptions)campaignsApiOptions.Clone());
+            services.Configure<CampaignEndpointOptions>(options => {
+                options.ConfigureDbContext = campaignsApiOptions.ConfigureDbContext;
+                options.ApiPrefix = campaignsApiOptions.ApiPrefix;
+                options.DatabaseSchema = campaignsApiOptions.DatabaseSchema;
+                options.RequiredScope = campaignsApiOptions.RequiredScope;
+                options.UserClaimType = campaignsApiOptions.UserClaimType;
+            });
             // Try add general settings.
             services.AddGeneralSettings(configuration);
             // Post configure JSON options.
@@ -130,6 +134,7 @@ namespace Microsoft.Extensions.DependencyInjection
             // Register framework services.
             services.AddResponseCaching();
             // Register custom services.
+            services.TryAddTransient<ICampaignService, CampaignService>();
             services.TryAddTransient<CampaignManager>();
             // Register application DbContext.
             Action<DbContextOptionsBuilder> sqlServerConfiguration = (builder) => builder.UseSqlServer(configuration.GetConnectionString("CampaignsDbConnection"));

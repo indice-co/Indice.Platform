@@ -15,7 +15,7 @@ namespace Indice.AspNetCore.Features.Campaigns.Models
         /// <summary>
         /// The unique file identifier.
         /// </summary>
-        public Guid FileGuid { get; set; }
+        public Guid FileGuid { get; set; } // TODO: Consider removing it.
         /// <summary>
         /// The URL to the file.
         /// </summary>

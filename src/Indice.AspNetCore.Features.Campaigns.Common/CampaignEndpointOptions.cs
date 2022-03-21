@@ -7,7 +7,7 @@ namespace Indice.AspNetCore.Features.Campaigns
     /// <summary>
     /// Options used to configure the Campaigns API feature.
     /// </summary>
-    public class CampaignEndpointOptions : ICloneable
+    public class CampaignEndpointOptions
     {
         public CampaignEndpointOptions(IServiceCollection services) {
             Services = services ?? throw new ArgumentNullException(nameof(services));
@@ -40,8 +40,5 @@ namespace Indice.AspNetCore.Features.Campaigns
         /// Schema name used for tables. Defaults to <i>campaign</i>.
         /// </summary>
         public string DatabaseSchema { get; set; } = CampaignsApi.DatabaseSchema;
-
-        /// <inheritdoc />
-        public object Clone() => MemberwiseClone();
     }
 }

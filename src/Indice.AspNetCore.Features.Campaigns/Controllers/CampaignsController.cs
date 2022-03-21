@@ -216,19 +216,6 @@ namespace Indice.AspNetCore.Features.Campaigns.Controllers
             return Ok(attachment);
         }
 
-        [AllowAnonymous]
-        [ApiExplorerSettings(IgnoreApi = true)]
-        [HttpGet("track/{trackingCode}")]
-        public async Task<IActionResult> Track([FromRoute] Base64Id trackingCode) {
-            var campaignId = trackingCode.Id;
-            var campaign = await CampaignService.GetCampaignById(campaignId);
-            if (campaign is null) {
-                return NotFound();
-            }
-            await CampaignService.UpdateCampaignHit(campaignId);
-            return Redirect(campaign.ActionUrl);
-        }
-
         private async Task<IActionResult> GetFile(string rootFolder, Guid fileGuid, string format) {
             if (format.StartsWith('.')) {
                 format = format.TrimStart('.');

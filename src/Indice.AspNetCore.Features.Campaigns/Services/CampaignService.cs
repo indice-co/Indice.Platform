@@ -24,7 +24,7 @@ namespace Indice.AspNetCore.Features.Campaigns.Services
             IOptions<CampaignEndpointOptions> apiOptions,
             Func<string, IFileService> getFileService,
             IHttpContextAccessor httpContextAccessor,
-            LinkGenerator linkGenerator
+            LinkGenerator linkGenerator // TODO: Decouple this service from LinkGenerator and IHttpContextAccessor
         ) {
             DbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
             ApiOptions = apiOptions?.Value ?? throw new ArgumentNullException(nameof(apiOptions));
