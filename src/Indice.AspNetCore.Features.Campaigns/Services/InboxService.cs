@@ -12,11 +12,11 @@ using Microsoft.Extensions.Options;
 
 namespace Indice.AspNetCore.Features.Campaigns.Services
 {
-    internal class UserMessagesService : IUserMessagesService
+    internal class InboxService : IInboxService
     {
-        public UserMessagesService(
+        public InboxService(
             CampaignsDbContext dbContext,
-            IOptions<CampaignsApiOptions> apiOptions,
+            IOptions<CampaignEndpointOptions> apiOptions,
             IOptions<GeneralSettings> generalSettings
         ) {
             DbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
@@ -25,7 +25,7 @@ namespace Indice.AspNetCore.Features.Campaigns.Services
         }
 
         public CampaignsDbContext DbContext { get; }
-        public CampaignsApiOptions ApiOptions { get; }
+        public CampaignEndpointOptions ApiOptions { get; }
         public GeneralSettings GeneralSettings { get; }
 
         public Task<UserMessage> GetMessageById(Guid messageId, string userCode) => GetUserMessagesQuery(userCode).SingleOrDefaultAsync(x => x.Id == messageId);

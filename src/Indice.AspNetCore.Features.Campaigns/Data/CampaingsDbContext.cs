@@ -21,12 +21,13 @@ namespace Indice.AspNetCore.Features.Campaigns.Data
         public DbSet<DbCampaignVisit> CampaignVisits { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder) {
-            var campaignsApiOptions = Database.GetService<IOptions<CampaignsApiOptions>>();
-            builder.ApplyConfiguration(new DbCampaignAttachmentMap(campaignsApiOptions));
-            builder.ApplyConfiguration(new DbCampaignMap(campaignsApiOptions));
-            builder.ApplyConfiguration(new DbCampaignTypeMap(campaignsApiOptions));
-            builder.ApplyConfiguration(new DbCampaignUserMap(campaignsApiOptions));
-            builder.ApplyConfiguration(new DbCampaignVisitMap(campaignsApiOptions));
+            var campaignsApiOptions = Database.GetService<IOptions<CampaignEndpointOptions>>();
+            var schemaName = campaignsApiOptions.Value.DatabaseSchema;
+            builder.ApplyConfiguration(new DbCampaignAttachmentMap(schemaName));
+            builder.ApplyConfiguration(new DbCampaignMap(schemaName));
+            builder.ApplyConfiguration(new DbCampaignTypeMap(schemaName));
+            builder.ApplyConfiguration(new DbCampaignUserMap(schemaName));
+            builder.ApplyConfiguration(new DbCampaignVisitMap(schemaName));
         }
     }
 }
