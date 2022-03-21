@@ -33,7 +33,7 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <param name="configureAction">Configuration for several options of Campaigns API feature.</param>
         public static IMvcBuilder AddCampaignEndpoints(this IMvcBuilder mvcBuilder, Action<CampaignEndpointOptions> configureAction = null) =>
             mvcBuilder.AddCampaignManagementEndpoints(configureAction)
-                      .AddCampaignInboxEndpoints();
+                      .AddCampaignInboxEndpoints(configureAction);
 
         /// <summary>
         /// Add Campaigns management API endpoints in the MVC project.
@@ -49,7 +49,7 @@ namespace Microsoft.Extensions.DependencyInjection
             services.PostConfigure<MvcOptions>(options => {
                 options.FormatterMappings.SetMediaTypeMappingForFormat("xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
                 options.OutputFormatters.Add(new XlsxCampaignStatisticsOutputFormatter());
-                options.Conventions.Add(new ApiPrefixControllerModelConvention(ApiPrefixes.ManagementApi, campaignsApiOptions.ApiPrefix ?? "api"));
+                options.Conventions.Add(new ApiPrefixControllerModelConvention(ApiPrefixes.ManagementApi, campaignsApiOptions.ApiPrefix));
             });
             // Register framework services.
             services.AddHttpContextAccessor();
@@ -79,7 +79,7 @@ namespace Microsoft.Extensions.DependencyInjection
             var campaignsApiOptions = mvcBuilder.AddCampaignCore(configureAction);
             // Post configure MVC options.
             services.PostConfigure<MvcOptions>(options => {
-                options.Conventions.Add(new ApiPrefixControllerModelConvention(ApiPrefixes.InboxApi, campaignsApiOptions.ApiPrefix ?? "api"));
+                options.Conventions.Add(new ApiPrefixControllerModelConvention(ApiPrefixes.InboxApi, campaignsApiOptions.ApiPrefix));
             });
             // Register custom services.
             services.AddTransient<IInboxService, InboxService>();
