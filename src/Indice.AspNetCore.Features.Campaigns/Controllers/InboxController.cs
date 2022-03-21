@@ -20,20 +20,20 @@ namespace Indice.AspNetCore.Features.Campaigns.Controllers
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized, Type = typeof(ProblemDetails))]
     [ProducesResponseType(StatusCodes.Status403Forbidden, Type = typeof(ProblemDetails))]
-    [Route("[campaignsApiPrefix]/my/messages")]
-    internal class MyMessagesController : ControllerBase
+    [Route($"{ApiPrefixes.InboxApi}/my/messages")]
+    internal class InboxController : ControllerBase
     {
-        public MyMessagesController(
-            IMessagesService userMessagesService,
-            IOptions<CampaignsApiOptions> campaignsApiOptions
+        public InboxController(
+            IInboxService inboxService,
+            IOptions<CampaignEndpointOptions> campaignEndpointOptions
         ) {
-            UserMessagesService = userMessagesService ?? throw new ArgumentNullException(nameof(userMessagesService));
-            CampaignsApiOptions = campaignsApiOptions?.Value ?? throw new ArgumentNullException(nameof(campaignsApiOptions));
+            InboxService = inboxService ?? throw new ArgumentNullException(nameof(inboxService));
+            CampaignEndpointOptions = campaignEndpointOptions?.Value ?? throw new ArgumentNullException(nameof(campaignEndpointOptions));
         }
 
-        public IMessagesService UserMessagesService { get; }
-        public CampaignsApiOptions CampaignsApiOptions { get; }
-        public string UserCode => User.FindFirstValue(CampaignsApiOptions.UserClaimType);
+        public IInboxService InboxService { get; }
+        public CampaignEndpointOptions CampaignEndpointOptions { get; }
+        public string UserCode => User.FindFirstValue(CampaignEndpointOptions.UserClaimType);
 
         /// <summary>
         /// Gets the list of all user messages using the provided <see cref="ListOptions"/>.
@@ -43,8 +43,8 @@ namespace Indice.AspNetCore.Features.Campaigns.Controllers
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ResultSet<Message>))]
         [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ProblemDetails))]
-        public async Task<IActionResult> GetMessages([FromQuery] ListOptions<GetMessagesListFilter> options) {
-            var messages = await UserMessagesService.GetMessages(UserCode, options);
+        public async Task<IActionResult> GetMessages([FromQuery] ListOptions<MessagesFilter> options) {
+            var messages = await InboxService.GetMessages(UserCode, options);
             return Ok(messages);
         }
 
@@ -58,7 +58,7 @@ namespace Indice.AspNetCore.Features.Campaigns.Controllers
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Message))]
         [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ProblemDetails))]
         public async Task<IActionResult> GetMessageById([FromRoute] Guid messageId) {
-            var message = await UserMessagesService.GetMessageById(messageId, UserCode);
+            var message = await InboxService.GetMessageById(messageId, UserCode);
             if (message == null) {
                 return NotFound();
             }
@@ -77,7 +77,7 @@ namespace Indice.AspNetCore.Features.Campaigns.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ValidationProblemDetails))]
         [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(void))]
         public async Task<IActionResult> MarkMessageAsRead([FromRoute] Guid messageId) {
-            var message = await UserMessagesService.GetMessageById(messageId, UserCode);
+            var message = await InboxService.GetMessageById(messageId, UserCode);
             if (message == null) {
                 return NotFound();
             }
@@ -85,7 +85,7 @@ namespace Indice.AspNetCore.Features.Campaigns.Controllers
                 ModelState.AddModelError(nameof(message), "This message is already read.");
                 return BadRequest(new ValidationProblemDetails(ModelState));
             }
-            await UserMessagesService.MarkMessageAsRead(messageId, UserCode);
+            await InboxService.MarkMessageAsRead(messageId, UserCode);
             return NoContent();
         }
 
@@ -98,11 +98,11 @@ namespace Indice.AspNetCore.Features.Campaigns.Controllers
         [ProducesResponseType(StatusCodes.Status204NoContent, Type = typeof(void))]
         [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(void))]
         public async Task<IActionResult> DeleteMessage([FromRoute] Guid messageId) {
-            var message = await UserMessagesService.GetMessageById(messageId, UserCode);
+            var message = await InboxService.GetMessageById(messageId, UserCode);
             if (message == null) {
                 return NotFound();
             }
-            await UserMessagesService.MarkMessageAsDeleted(messageId, UserCode);
+            await InboxService.MarkMessageAsDeleted(messageId, UserCode);
             return NoContent();
         }
     }

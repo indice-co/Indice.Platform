@@ -5,10 +5,10 @@ using Indice.Types;
 
 namespace Indice.AspNetCore.Features.Campaigns.Services
 {
-    internal interface IMessagesService
+    internal interface IInboxService
     {
-        Task<ResultSet<Message>> GetMessages(string userCode, ListOptions<GetMessagesListFilter> options);
         Task<Message> GetMessageById(Guid messageId, string userCode);
+        Task<ResultSet<Message>> GetMessages(string userCode, ListOptions<MessagesFilter> options);
         Task MarkMessageAsRead(Guid messageId, string userCode);
         Task MarkMessageAsDeleted(Guid messageId, string userCode);
     }

@@ -21,7 +21,7 @@ namespace Indice.AspNetCore.Features.Campaigns.Services
         public CampaignService(
             CampaignsDbContext dbContext,
             IOptions<GeneralSettings> generalSettings,
-            IOptions<CampaignsApiOptions> apiOptions,
+            IOptions<CampaignEndpointOptions> apiOptions,
             Func<string, IFileService> getFileService,
             IHttpContextAccessor httpContextAccessor,
             LinkGenerator linkGenerator
@@ -35,13 +35,13 @@ namespace Indice.AspNetCore.Features.Campaigns.Services
         }
 
         public CampaignsDbContext DbContext { get; }
-        public CampaignsApiOptions ApiOptions { get; }
+        public CampaignEndpointOptions ApiOptions { get; }
         public IFileService FileService { get; }
         public GeneralSettings GeneralSettings { get; }
         public IHttpContextAccessor HttpContextAccessor { get; }
         public LinkGenerator LinkGenerator { get; }
 
-        public Task<ResultSet<Campaign>> GetCampaigns(ListOptions<GetCampaignsListFilter> options) {
+        public Task<ResultSet<Campaign>> GetCampaigns(ListOptions<CampaignsFilter> options) {
             var query = DbContext.Campaigns.Include(x => x.Type).AsNoTracking().Select(campaign => new Campaign {
                 ActionText = campaign.ActionText,
                 ActionUrl = campaign.ActionUrl,

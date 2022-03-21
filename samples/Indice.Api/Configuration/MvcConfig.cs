@@ -12,7 +12,7 @@ namespace Microsoft.Extensions.DependencyInjection
     {
         public static IMvcBuilder AddMvcConfig(this IServiceCollection services, IConfiguration configuration) {
             var mvcBuilder = services.AddControllers()
-                                     .AddCampaignsApiEndpoints(options => {
+                                     .AddCampaignEndpoints(options => {
                                          options.ApiPrefix = "api";
                                          options.ConfigureDbContext = builder => builder.UseSqlServer(configuration.GetConnectionString("CampaignsDb"));
                                          options.DatabaseSchema = "cmp";

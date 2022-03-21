@@ -12,11 +12,11 @@ using Microsoft.Extensions.Options;
 
 namespace Indice.AspNetCore.Features.Campaigns.Services
 {
-    internal class MessagesService : IMessagesService
+    internal class InboxService : IInboxService
     {
-        public MessagesService(
+        public InboxService(
             CampaignsDbContext dbContext,
-            IOptions<CampaignsApiOptions> apiOptions,
+            IOptions<CampaignEndpointOptions> apiOptions,
             IOptions<GeneralSettings> generalSettings
         ) {
             DbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
@@ -25,10 +25,10 @@ namespace Indice.AspNetCore.Features.Campaigns.Services
         }
 
         public CampaignsDbContext DbContext { get; }
-        public CampaignsApiOptions ApiOptions { get; }
+        public CampaignEndpointOptions ApiOptions { get; }
         public GeneralSettings GeneralSettings { get; }
 
-        public async Task<ResultSet<Message>> GetMessages(string userCode, ListOptions<GetMessagesListFilter> options) {
+        public async Task<ResultSet<Message>> GetMessages(string userCode, ListOptions<MessagesFilter> options) {
             var userMessages = await GetUserMessagesQuery(userCode, options).ToResultSetAsync(options);
             return new ResultSet<Message> {
                 Count = userMessages.Count,
@@ -72,7 +72,7 @@ namespace Indice.AspNetCore.Features.Campaigns.Services
             await DbContext.SaveChangesAsync();
         }
 
-        private IQueryable<Message> GetUserMessagesQuery(string userCode, ListOptions<GetMessagesListFilter> options = null) {
+        private IQueryable<Message> GetUserMessagesQuery(string userCode, ListOptions<MessagesFilter> options = null) {
             var query = DbContext
                 .Campaigns
                 .AsNoTracking()

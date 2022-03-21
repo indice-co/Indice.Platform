@@ -3,21 +3,20 @@ using Indice.AspNetCore.Features.Campaigns.Data.Models;
 using Indice.Configuration;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Microsoft.Extensions.Options;
 
 namespace Indice.AspNetCore.Features.Campaigns.Data
 {
 
     internal class DbContactMap : IEntityTypeConfiguration<DbContact>
     {
-        public DbContactMap(IOptions<CampaignsApiOptions> campaignsApiOptions) {
-            CampaignsApiOptions = campaignsApiOptions?.Value ?? throw new ArgumentNullException(nameof(campaignsApiOptions));
+        public DbContactMap(string schemaName) {
+            SchemaName = schemaName ?? throw new ArgumentNullException(nameof(schemaName));
         }
 
-        public CampaignsApiOptions CampaignsApiOptions { get; }
+        public string SchemaName { get; }
 
         public void Configure(EntityTypeBuilder<DbContact> builder) {
-            builder.ToTable("Contact", CampaignsApiOptions.DatabaseSchema);
+            builder.ToTable("Contact", SchemaName);
             // Configure primary key.
             builder.HasKey(x => x.Id);
             // Configure properties.

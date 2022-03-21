@@ -69,9 +69,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Indice.AspNetCore.Features.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Indice.AspNetCore.Features.Campaigns.Workers.Azure", "src\Indice.AspNetCore.Features.Campaigns.Workers.Azure\Indice.AspNetCore.Features.Campaigns.Workers.Azure.csproj", "{B7AA6019-53F8-4239-BA70-36675267B24E}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Indice.AspNetCore.Features.Campaigns.Common", "src\Indice.AspNetCore.Features.Campaigns.Common\Indice.AspNetCore.Features.Campaigns.Common.csproj", "{D260ADF3-9C2F-40BE-821D-859938E15EB4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Indice.AspNetCore.Features.Campaigns.Core", "src\Indice.AspNetCore.Features.Campaigns.Common\Indice.AspNetCore.Features.Campaigns.Core.csproj", "{D260ADF3-9C2F-40BE-821D-859938E15EB4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Indice.WorkerHost", "samples\Indice.WorkerHost\Indice.WorkerHost.csproj", "{7ABDA4B1-FF9B-4BF9-B11A-DE12032760D1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Indice.WorkerHost", "samples\Indice.WorkerHost\Indice.WorkerHost.csproj", "{7ABDA4B1-FF9B-4BF9-B11A-DE12032760D1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

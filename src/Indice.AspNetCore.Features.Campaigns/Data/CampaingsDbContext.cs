@@ -24,15 +24,16 @@ namespace Indice.AspNetCore.Features.Campaigns.Data
         public DbSet<DbContact> Contacts { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder) {
-            var campaignsApiOptions = Database.GetService<IOptions<CampaignsApiOptions>>();
-            builder.ApplyConfiguration(new DbAttachmentMap(campaignsApiOptions));
-            builder.ApplyConfiguration(new DbCampaignMap(campaignsApiOptions));
-            builder.ApplyConfiguration(new DbHitMap(campaignsApiOptions));
-            builder.ApplyConfiguration(new DbDistributionListMap(campaignsApiOptions));
-            builder.ApplyConfiguration(new DbContactMap(campaignsApiOptions));
-            builder.ApplyConfiguration(new DbMessageMap(campaignsApiOptions));
-            builder.ApplyConfiguration(new DbMessageTypeMap(campaignsApiOptions));
-            builder.ApplyConfiguration(new DbTemplateMap(campaignsApiOptions));
+            var campaignsApiOptions = Database.GetService<IOptions<CampaignEndpointOptions>>();
+            var schemaName = campaignsApiOptions.Value.DatabaseSchema;
+            builder.ApplyConfiguration(new DbAttachmentMap(schemaName));
+            builder.ApplyConfiguration(new DbCampaignMap(schemaName));
+            builder.ApplyConfiguration(new DbHitMap(schemaName));
+            builder.ApplyConfiguration(new DbDistributionListMap(schemaName));
+            builder.ApplyConfiguration(new DbContactMap(schemaName));
+            builder.ApplyConfiguration(new DbMessageMap(schemaName));
+            builder.ApplyConfiguration(new DbMessageTypeMap(schemaName));
+            builder.ApplyConfiguration(new DbTemplateMap(schemaName));
         }
     }
 }

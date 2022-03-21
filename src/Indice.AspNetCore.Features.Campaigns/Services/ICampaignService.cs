@@ -8,7 +8,7 @@ namespace Indice.AspNetCore.Features.Campaigns.Services
 {
     internal interface ICampaignService
     {
-        Task<ResultSet<Campaign>> GetCampaigns(ListOptions<GetCampaignsListFilter> options);
+        Task<ResultSet<Campaign>> GetCampaigns(ListOptions<CampaignsFilter> options);
         Task<CampaignDetails> GetCampaignById(Guid campaignId);
         Task<Campaign> CreateCampaign(CreateCampaignRequest request);
         Task UpdateCampaign(Guid campaignId, UpdateCampaignRequest request);

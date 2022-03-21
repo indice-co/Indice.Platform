@@ -35,6 +35,10 @@ namespace Indice.AspNetCore.Features.Campaigns
             /// A user must have the <i>Admin</i> flag or own the <see cref="BasicRoleNames.AdminUICampaignsManager"/> role.
             /// </summary>
             public const string BeCampaignsManager = nameof(BeCampaignsManager);
+            /// <summary>
+            /// A user must have the configured API scope for campaigns.
+            /// </summary>
+            public const string HaveCampaignsScope = nameof(HaveCampaignsScope);
         }
     }
 
@@ -45,6 +49,12 @@ namespace Indice.AspNetCore.Features.Campaigns
     {
         public const string CampaignCreated = "campaign-created";
         public const string SendPushNotification = "campaign-send-push-notification";
+    }
+
+    public class ApiPrefixes 
+    {
+        public const string ManagementApi = "[campaignsManagementApiPrefix]";
+        public const string InboxApi = "[campaignsInboxApiPrefix]";
     }
 
     /// <summary>

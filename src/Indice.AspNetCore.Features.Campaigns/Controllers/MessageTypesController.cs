@@ -16,7 +16,7 @@ namespace Indice.AspNetCore.Features.Campaigns.Controllers
     [ApiExplorerSettings(GroupName = "campaigns")]
     [ProducesResponseType(StatusCodes.Status401Unauthorized, Type = typeof(ProblemDetails))]
     [ProducesResponseType(StatusCodes.Status403Forbidden, Type = typeof(ProblemDetails))]
-    [Route("[campaignsApiPrefix]/message-types")]
+    [Route($"{ApiPrefixes.ManagementApi}/message-types")]
     internal class MessageTypesController : ControllerBase
     {
         public MessageTypesController(ICampaignService campaignService) {
