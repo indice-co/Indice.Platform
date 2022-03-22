@@ -1,8 +1,8 @@
 ﻿using System.Diagnostics;
 using Indice.AspNetCore.Features.Campaigns.Data.Models;
+using Indice.AspNetCore.Features.Campaigns.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.Extensions.Options;
 
 namespace Indice.AspNetCore.Features.Campaigns.Data
 {
@@ -24,8 +24,8 @@ namespace Indice.AspNetCore.Features.Campaigns.Data
         public DbSet<DbContact> Contacts { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder) {
-            var campaignsApiOptions = Database.GetService<IOptions<CampaignEndpointOptions>>();
-            var schemaName = campaignsApiOptions.Value.DatabaseSchema;
+            var schemaNameResolver = Database.GetService<DatabaseSchemaNameResolver>();
+            var schemaName = schemaNameResolver.GetSchemaName();
             builder.ApplyConfiguration(new DbAttachmentMap(schemaName));
             builder.ApplyConfiguration(new DbCampaignMap(schemaName));
             builder.ApplyConfiguration(new DbHitMap(schemaName));

@@ -21,13 +21,13 @@ namespace Indice.AspNetCore.Features.Campaigns.Services
         public CampaignService(
             CampaignsDbContext dbContext,
             IOptions<GeneralSettings> generalSettings,
-            IOptions<CampaignEndpointOptions> apiOptions,
+            IOptions<CampaignManagementOptions> campaignManagementOptions,
             Func<string, IFileService> getFileService,
             IHttpContextAccessor httpContextAccessor,
             LinkGenerator linkGenerator // TODO: Decouple this service from LinkGenerator and IHttpContextAccessor
         ) {
             DbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
-            ApiOptions = apiOptions?.Value ?? throw new ArgumentNullException(nameof(apiOptions));
+            CampaignManagementOptions = campaignManagementOptions?.Value ?? throw new ArgumentNullException(nameof(campaignManagementOptions));
             FileService = getFileService(KeyedServiceNames.FileServiceKey) ?? throw new ArgumentNullException(nameof(getFileService));
             GeneralSettings = generalSettings?.Value ?? throw new ArgumentNullException(nameof(generalSettings));
             HttpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
@@ -35,7 +35,7 @@ namespace Indice.AspNetCore.Features.Campaigns.Services
         }
 
         public CampaignsDbContext DbContext { get; }
-        public CampaignEndpointOptions ApiOptions { get; }
+        public CampaignManagementOptions CampaignManagementOptions { get; }
         public IFileService FileService { get; }
         public GeneralSettings GeneralSettings { get; }
         public IHttpContextAccessor HttpContextAccessor { get; }
@@ -86,7 +86,7 @@ namespace Indice.AspNetCore.Features.Campaigns.Services
                              ContentType = campaign.Attachment.ContentType,
                              Label = campaign.Attachment.Name,
                              Size = campaign.Attachment.ContentLength,
-                             PermaLink = $"{GeneralSettings.Host.TrimEnd('/')}/{ApiOptions.ApiPrefix}/campaigns/attachments/{(Base64Id)campaign.Attachment.Guid}.{Path.GetExtension(campaign.Attachment.Name).TrimStart('.')}"
+                             PermaLink = $"{GeneralSettings.Host.TrimEnd('/')}/{CampaignManagementOptions.ApiPrefix}/campaigns/attachments/{(Base64Id)campaign.Attachment.Guid}.{Path.GetExtension(campaign.Attachment.Name).TrimStart('.')}"
                          } : null,
                          Content = campaign.Content,
                          CreatedAt = campaign.CreatedAt,

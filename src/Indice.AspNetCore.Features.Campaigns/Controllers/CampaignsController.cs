@@ -5,14 +5,12 @@ using Indice.AspNetCore.Features.Campaigns.Models;
 using Indice.AspNetCore.Features.Campaigns.Services;
 using Indice.AspNetCore.Filters;
 using Indice.Configuration;
-using Indice.Extensions;
 using Indice.Services;
 using Indice.Types;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
-using Microsoft.Net.Http.Headers;
 
 namespace Indice.AspNetCore.Features.Campaigns.Controllers
 {
@@ -23,25 +21,26 @@ namespace Indice.AspNetCore.Features.Campaigns.Controllers
     [Authorize(AuthenticationSchemes = CampaignsApi.AuthenticationScheme, Policy = CampaignsApi.Policies.BeCampaignsManager)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized, Type = typeof(ProblemDetails))]
     [ProducesResponseType(StatusCodes.Status403Forbidden, Type = typeof(ProblemDetails))]
-    [Route($"{ApiPrefixes.ManagementApi}/campaigns")]
-    internal class CampaignsController : ControllerBase
+    [Route($"{ApiPrefixes.CampaignManagementEndpoints}/campaigns")]
+    internal class CampaignsController : CampaignsControllerBase
     {
         public const string Name = "Campaigns";
 
         public CampaignsController(
-            ICampaignService campaignService, 
-            Func<string, IFileService> getFileService, 
+            ICampaignService campaignService,
+            Func<string, IFileService> getFileService,
+            Func<string, IEventDispatcher> getEventDispatcher,
             IOptions<GeneralSettings> generalSettings,
-            Func<string, IEventDispatcher> getEventDispatcher
-        ) {
+            IPlatformEventService eventService
+        ) : base(getFileService) {
             CampaignService = campaignService ?? throw new ArgumentNullException(nameof(campaignService));
-            FileService = getFileService(KeyedServiceNames.FileServiceKey) ?? throw new ArgumentNullException(nameof(getFileService));
+            EventService = eventService ?? throw new ArgumentNullException(nameof(eventService));
             GeneralSettings = generalSettings?.Value ?? throw new ArgumentNullException(nameof(generalSettings));
             EventDispatcher = getEventDispatcher(KeyedServiceNames.EventDispatcherAzureServiceKey) ?? throw new ArgumentNullException(nameof(getEventDispatcher));
         }
 
         public ICampaignService CampaignService { get; }
-        public IFileService FileService { get; }
+        public IPlatformEventService EventService { get; }
         public GeneralSettings GeneralSettings { get; }
         public IEventDispatcher EventDispatcher { get; }
 
@@ -75,21 +74,6 @@ namespace Indice.AspNetCore.Features.Campaigns.Controllers
             }
             return Ok(campaign);
         }
-
-        /// <summary>
-        /// Gets the attachment associated with a campaign.
-        /// </summary>
-        /// <param name="fileGuid">Contains the photo's Id.</param>
-        /// <param name="format">Contains the format of the uploaded attachment extension.</param>
-        /// <response code="200">OK</response>
-        /// <response code="404">Not Found</response>
-        [AllowAnonymous]
-        [HttpGet("attachments/{fileGuid}.{format}")]
-        [Produces(MediaTypeNames.Application.Octet)]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IFormFile))]
-        [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ProblemDetails))]
-        [ResponseCache(Duration = 345600, Location = ResponseCacheLocation.Any, VaryByQueryKeys = new[] { "v" })]
-        public async Task<IActionResult> GetCampaignAttachment([FromRoute] Base64Id fileGuid, [FromRoute] string format) => await GetFile("campaigns", fileGuid, format);
 
         /// <summary>
         /// Gets the statistics for a specified campaign.
@@ -216,21 +200,20 @@ namespace Indice.AspNetCore.Features.Campaigns.Controllers
             return Ok(attachment);
         }
 
-        private async Task<IActionResult> GetFile(string rootFolder, Guid fileGuid, string format) {
-            if (format.StartsWith('.')) {
-                format = format.TrimStart('.');
-            }
-            var path = $"{rootFolder}/{fileGuid.ToString("N").Substring(0, 2)}/{fileGuid:N}.{format}";
-            var properties = await FileService.GetPropertiesAsync(path);
-            if (properties is null) {
-                return NotFound();
-            }
-            var data = await FileService.GetAsync(path);
-            var contentType = properties.ContentType;
-            if (contentType == MediaTypeNames.Application.Octet && !string.IsNullOrEmpty(format)) {
-                contentType = FileExtensions.GetMimeType($".{format}");
-            }
-            return File(data, contentType, properties.LastModified, new EntityTagHeaderValue(properties.ETag, true));
-        }
+        /// <summary>
+        /// Gets the attachment associated with a campaign.
+        /// </summary>
+        /// <param name="fileGuid">Contains the photo's Id.</param>
+        /// <param name="format">Contains the format of the uploaded attachment extension.</param>
+        /// <response code="200">OK</response>
+        /// <response code="404">Not Found</response>
+        [AllowAnonymous]
+        [ApiExplorerSettings(IgnoreApi = true)]
+        [HttpGet("attachments/{fileGuid}.{format}")]
+        [Produces(MediaTypeNames.Application.Octet)]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IFormFile))]
+        [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ProblemDetails))]
+        [ResponseCache(Duration = 345600, Location = ResponseCacheLocation.Any, VaryByQueryKeys = new[] { "v" })]
+        public async Task<IActionResult> GetCampaignAttachment([FromRoute] Base64Id fileGuid, [FromRoute] string format) => await GetFile("campaigns", fileGuid, format);
     }
 }

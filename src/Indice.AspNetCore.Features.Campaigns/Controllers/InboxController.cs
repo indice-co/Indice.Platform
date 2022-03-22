@@ -4,6 +4,7 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using Indice.AspNetCore.Features.Campaigns.Models;
 using Indice.AspNetCore.Features.Campaigns.Services;
+using Indice.Services;
 using Indice.Types;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -20,23 +21,24 @@ namespace Indice.AspNetCore.Features.Campaigns.Controllers
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized, Type = typeof(ProblemDetails))]
     [ProducesResponseType(StatusCodes.Status403Forbidden, Type = typeof(ProblemDetails))]
-    [Route($"{ApiPrefixes.InboxApi}")]
-    internal class InboxController : ControllerBase
+    [Route(ApiPrefixes.CampaignInboxEndpoints)]
+    internal class InboxController : CampaignsControllerBase
     {
         public InboxController(
             IInboxService inboxService,
             ICampaignService campaignService,
-            IOptions<CampaignEndpointOptions> campaignEndpointOptions
-        ) {
+            IOptions<CampaignInboxOptions> campaignEndpointOptions,
+            Func<string, IFileService> getFileService
+        ) : base(getFileService) {
             InboxService = inboxService ?? throw new ArgumentNullException(nameof(inboxService));
             CampaignService = campaignService ?? throw new ArgumentNullException(nameof(campaignService));
-            CampaignEndpointOptions = campaignEndpointOptions?.Value ?? throw new ArgumentNullException(nameof(campaignEndpointOptions));
+            CampaignInboxOptions = campaignEndpointOptions?.Value ?? throw new ArgumentNullException(nameof(campaignEndpointOptions));
         }
 
         public IInboxService InboxService { get; }
         public ICampaignService CampaignService { get; }
-        public CampaignEndpointOptions CampaignEndpointOptions { get; }
-        public string UserCode => User.FindFirstValue(CampaignEndpointOptions.UserClaimType);
+        public CampaignInboxOptions CampaignInboxOptions { get; }
+        public string UserCode => User.FindFirstValue(CampaignInboxOptions.UserClaimType);
 
         /// <summary>
         /// Gets the list of all user messages using the provided <see cref="ListOptions"/>.
@@ -122,5 +124,21 @@ namespace Indice.AspNetCore.Features.Campaigns.Controllers
             await CampaignService.UpdateCampaignHit(campaignId);
             return Redirect(campaign.ActionUrl);
         }
+
+        /// <summary>
+        /// Gets the attachment associated with a campaign.
+        /// </summary>
+        /// <param name="fileGuid">Contains the photo's Id.</param>
+        /// <param name="format">Contains the format of the uploaded attachment extension.</param>
+        /// <response code="200">OK</response>
+        /// <response code="404">Not Found</response>
+        [AllowAnonymous]
+        [ApiExplorerSettings(IgnoreApi = true)]
+        [HttpGet("messages/attachments/{fileGuid}.{format}")]
+        [Produces(MediaTypeNames.Application.Octet)]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IFormFile))]
+        [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ProblemDetails))]
+        [ResponseCache(Duration = 345600, Location = ResponseCacheLocation.Any, VaryByQueryKeys = new[] { "v" })]
+        public async Task<IActionResult> GetMessageAttachment([FromRoute] Base64Id fileGuid, [FromRoute] string format) => await GetFile("campaigns", fileGuid, format);
     }
 }
