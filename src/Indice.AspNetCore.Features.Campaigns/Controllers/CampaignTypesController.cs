@@ -16,7 +16,7 @@ namespace Indice.AspNetCore.Features.Campaigns.Controllers
     [ApiExplorerSettings(GroupName = "campaigns")]
     [ProducesResponseType(StatusCodes.Status401Unauthorized, Type = typeof(ProblemDetails))]
     [ProducesResponseType(StatusCodes.Status403Forbidden, Type = typeof(ProblemDetails))]
-    [Route($"{ApiPrefixes.ManagementApi}/campaign-types")]
+    [Route($"{ApiPrefixes.CampaignManagementEndpoints}/campaign-types")]
     internal class CampaignTypesController : ControllerBase
     {
         public CampaignTypesController(ICampaignService campaignService) {

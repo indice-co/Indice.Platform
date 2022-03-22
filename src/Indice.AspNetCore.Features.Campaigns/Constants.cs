@@ -51,7 +51,7 @@ namespace Indice.AspNetCore.Features.Campaigns
 
     internal class ApiPrefixes 
     {
-        public const string ManagementApi = "[campaignsManagementApiPrefix]";
-        public const string InboxApi = "[campaignsInboxApiPrefix]";
+        public const string CampaignManagementEndpoints = "[campaignManagementEndpointsPrefix]";
+        public const string CampaignInboxEndpoints = "[campaignInboxEndpointsPrefix]";
     }
 }
