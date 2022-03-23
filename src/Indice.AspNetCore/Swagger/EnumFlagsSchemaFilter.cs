@@ -23,6 +23,7 @@ namespace Indice.AspNetCore.Swagger
             schema.Nullable = context.Type.IsReferenceOrNullableType();
             schema.Enum = null;
             schema.Items ??= new OpenApiSchema();
+            schema.Items.Type = "string";
             schema.Items.Enum = Enum.GetNames(context.Type).Select(name => (IOpenApiAny)new OpenApiString(name)).ToList();
         }
     }

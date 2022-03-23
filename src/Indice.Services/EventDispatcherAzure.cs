@@ -66,7 +66,7 @@ namespace Indice.Services
             var payloadBytes = Array.Empty<byte>();
             // Special cases string, byte[] or stream.
             switch (payload) {
-                case string text: payloadBytes = Encoding.Unicode.GetBytes(text); break;
+                case string text: payloadBytes = Encoding.UTF8.GetBytes(text); break;
                 case byte[] bytes: payloadBytes = bytes; break;
                 case ReadOnlyMemory<byte> memory: payloadBytes = memory.ToArray(); break;
                 case Stream stream:
@@ -80,7 +80,7 @@ namespace Indice.Services
                     var jsonPayload = wrap
                         ? JsonSerializer.Serialize(Envelope.Create(user, payload, _tenantIdSelector()), _jsonSerializerOptions)
                         : JsonSerializer.Serialize(payload, _jsonSerializerOptions);
-                    payloadBytes = Encoding.Unicode.GetBytes(jsonPayload);
+                    payloadBytes = Encoding.UTF8.GetBytes(jsonPayload);
                     break;
             }
             if (_useCompression) {
