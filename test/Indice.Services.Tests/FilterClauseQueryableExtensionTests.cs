@@ -25,7 +25,6 @@ namespace Indice.Services.Tests
                 .AddInMemoryCollection(inMemorySettings)
                 .Build();
             var collection = new ServiceCollection()
-                .AddLogging()
                 .AddDbContext<DummyDbContext>(builder => builder.UseSqlServer(configuration.GetConnectionString("TestDb")), ServiceLifetime.Singleton)
                 .AddSingleton(configuration);
             ServiceProvider = collection.BuildServiceProvider();

@@ -30,7 +30,7 @@ namespace Indice.Types
                 return source;
             }
             foreach (var filter in predicateList) {
-                query = query.ApplyJsonFilter(filter);
+                query = query.Where(filter);
             }
             return query;
         }
@@ -78,98 +78,110 @@ namespace Indice.Types
             return query;
         }
 
-        /// <summary>
-        /// Apply json filter
-        /// </summary>
-        /// <typeparam name="TSource"></typeparam>
-        /// <param name="query"></param>
-        /// <param name="filter"></param>
-        /// <returns></returns>
-        /// <exception cref="ArgumentOutOfRangeException"></exception>
-        private static IQueryable<TSource> ApplyJsonFilter<TSource>(this IQueryable<TSource> query, FilterClause filter) {
+        private static IQueryable<TSource> Where<TSource>(this IQueryable<TSource> source,
+                FilterClause filter) {
+            var getValue = GetFullPredicateExpressionTree<TSource>(filter);
+            return source.Where(getValue);
+        }
+
+        private static Expression<Func<TSource, bool>> GetFullPredicateExpressionTree<TSource>(FilterClause filter) {
             var path = "$" + filter.Member[filter.Member.IndexOf('.')..];
             var member = filter.Member[..filter.Member.IndexOf('.')];
-            var selectorExpression = GetMemberExpression<TSource>(member);
+            var predicateExpression = GetPredicateExpression(filter);
+            var castExpression = GetCastExpression(filter.DataType);
+            var jsonValueExpression = GetJsonValueExpression(path);
+            var memberExpression = GetMemberExpression<TSource>(member);
+            if (castExpression is null)
+                return (Expression<Func<TSource, bool>>)ParameterToMemberExpressionRebinder.Combine(ParameterToMemberExpressionRebinder.Combine(memberExpression, jsonValueExpression), predicateExpression);
+            else 
+                return (Expression<Func<TSource, bool>>)ParameterToMemberExpressionRebinder.Combine(ParameterToMemberExpressionRebinder.Combine(ParameterToMemberExpressionRebinder.Combine(memberExpression, jsonValueExpression), castExpression), predicateExpression);
+        }
 
+        /// <summary>
+        /// x => x == value
+        /// </summary>
+        /// <param name="filter"></param>
+        /// <returns></returns>
+        private static LambdaExpression GetPredicateExpression(FilterClause filter) {
+            LambdaExpression predicate;
             switch (filter.Operator) {
                 // Equals
                 case FilterOperator.Eq when filter.DataType == JsonDataType.Integer && int.TryParse(filter.Value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var value):
-                    query = query.Where<TSource, object>(selectorExpression, x => Convert.ToInt32(JsonFunctions.JsonValue(x, path)) == value);
+                    predicate = (Expression<Func<int, bool>>)(x => x == value);
                     break;
                 case FilterOperator.Eq when filter.DataType == JsonDataType.Number && double.TryParse(filter.Value, NumberStyles.Number, CultureInfo.InvariantCulture, out var value):
-                    query = query.Where<TSource, object>(selectorExpression, x => Convert.ToDouble(JsonFunctions.JsonValue(x, path)) == value);
+                    predicate = (Expression<Func<double, bool>>)(x => x == value);
                     break;
                 case FilterOperator.Eq when filter.DataType == JsonDataType.Boolean && bool.TryParse(filter.Value, out var value):
-                    query = query.Where<TSource, object>(selectorExpression, x => Convert.ToBoolean(JsonFunctions.JsonValue(x, path)) == value);
+                    predicate = (Expression<Func<bool, bool>>)(x => x == value);
                     break;
                 case FilterOperator.Eq when filter.DataType == JsonDataType.DateTime && DateTime.TryParse(filter.Value, CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind, out var value):
                     var period = new Period { From = value.Date, To = value.Date.AddDays(1) };
-                    query = query.Where<TSource, object>(selectorExpression, x => period.From <= JsonFunctions.CastToDate(JsonFunctions.JsonValue(x, path)) &&
-                                             period.To > JsonFunctions.CastToDate(JsonFunctions.JsonValue(x, path)));
+                    predicate = (Expression<Func<DateTime?, bool>>)(x => period.From <= x && period.To > x);
                     break;
                 case FilterOperator.Eq:
-                    query = query.Where<TSource, object>(selectorExpression, x => JsonFunctions.JsonValue(x, path) == filter.Value);
+                    predicate = (Expression<Func<string, bool>>)(x => x == filter.Value);
                     break;
                 // Not equal
                 case FilterOperator.Neq when filter.DataType == JsonDataType.Integer && int.TryParse(filter.Value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var value):
-                    query = query.Where<TSource, object>(selectorExpression, x => Convert.ToInt32(JsonFunctions.JsonValue(x, path)) != value || JsonFunctions.JsonValue(x, path) == null);
+                    predicate = (Expression<Func<int, bool>>)(x => x != value || x == null);
                     break;
                 case FilterOperator.Neq when filter.DataType == JsonDataType.Number && double.TryParse(filter.Value, NumberStyles.Number, CultureInfo.InvariantCulture, out var value):
-                    query = query.Where<TSource, object>(selectorExpression, x => Convert.ToDouble(JsonFunctions.JsonValue(x, path)) != value || JsonFunctions.JsonValue(x, path) == null);
+                    predicate = (Expression<Func<double, bool>>)(x => x != value || x == null);
                     break;
                 case FilterOperator.Neq when filter.DataType == JsonDataType.Boolean && bool.TryParse(filter.Value, out var value):
-                    query = query.Where<TSource, object>(selectorExpression, x => Convert.ToBoolean(JsonFunctions.JsonValue(x, path)) != value || JsonFunctions.JsonValue(x, path) == null);
+                    predicate = (Expression<Func<bool, bool>>)(x => x != value || x == null);
                     break;
                 case FilterOperator.Neq when filter.DataType == JsonDataType.DateTime && DateTime.TryParse(filter.Value, CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind, out var value):
                     period = new Period { From = value.Date, To = value.Date.AddDays(1) };
-                    query = query.Where<TSource, object>(selectorExpression, x => period.From > JsonFunctions.CastToDate(JsonFunctions.JsonValue(x, path)) &&
-                                             period.To <= JsonFunctions.CastToDate(JsonFunctions.JsonValue(x, path)));
+                    predicate = (Expression<Func<DateTime?, bool>>)(x => period.From > x && period.To <= x);
                     break;
                 case FilterOperator.Neq:
-                    query = query.Where<TSource, object>(selectorExpression, x => JsonFunctions.JsonValue(x, path) != filter.Value || JsonFunctions.JsonValue(x, path) == null);
+                    predicate = (Expression<Func<string, bool>>)(x => x != filter.Value || x == null);
                     break;
                 // Greater than
                 case FilterOperator.Gt when filter.DataType == JsonDataType.Integer && int.TryParse(filter.Value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var value):
-                    query = query.Where<TSource, object>(selectorExpression, x => Convert.ToInt32(JsonFunctions.JsonValue(x, path)) > value);
+                    predicate = (Expression<Func<int, bool>>)(x => x > value);
                     break;
                 case FilterOperator.Gt when filter.DataType == JsonDataType.Number && double.TryParse(filter.Value, NumberStyles.Number, CultureInfo.InvariantCulture, out var value):
-                    query = query.Where<TSource, object>(selectorExpression, x => Convert.ToDouble(JsonFunctions.JsonValue(x, path)) > value);
+                    predicate = (Expression<Func<double, bool>>)(x => x > value);
                     break;
                 case FilterOperator.Gt when filter.DataType == JsonDataType.DateTime && DateTime.TryParse(filter.Value, CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind, out var value):
-                    query = query.Where<TSource, object>(selectorExpression, x => JsonFunctions.CastToDate(JsonFunctions.JsonValue(x, path)) > value);
+                    predicate = (Expression<Func<DateTime?, bool>>)(x => x > value);
                     break;
                 // Greater than or equal
                 case FilterOperator.Gte when filter.DataType == JsonDataType.Integer && int.TryParse(filter.Value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var value):
-                    query = query.Where<TSource, object>(selectorExpression, x => Convert.ToInt32(JsonFunctions.JsonValue(x, path)) >= value);
+                    predicate = (Expression<Func<int, bool>>)(x => x >= value);
                     break;
                 case FilterOperator.Gte when filter.DataType == JsonDataType.Number && double.TryParse(filter.Value, NumberStyles.Number, CultureInfo.InvariantCulture, out var value):
-                    query = query.Where<TSource, object>(selectorExpression, x => Convert.ToDouble(JsonFunctions.JsonValue(x, path)) >= value);
+                    predicate = (Expression<Func<double, bool>>)(x => x >= value);
                     break;
                 case FilterOperator.Gte when filter.DataType == JsonDataType.DateTime && DateTime.TryParse(filter.Value, CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind, out var value):
-                    query = query.Where<TSource, object>(selectorExpression, x => JsonFunctions.CastToDate(JsonFunctions.JsonValue(x, path)) >= value);
+                    predicate = (Expression<Func<DateTime?, bool>>)(x => x >= value);
                     break;
                 // Less than
                 case FilterOperator.Lt when filter.DataType == JsonDataType.Integer && int.TryParse(filter.Value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var value):
-                    query = query.Where<TSource, object>(selectorExpression, x => Convert.ToInt32(JsonFunctions.JsonValue(x, path)) < value);
+                    predicate = (Expression<Func<int, bool>>)(x => x < value);
                     break;
                 case FilterOperator.Lt when filter.DataType == JsonDataType.Number && double.TryParse(filter.Value, NumberStyles.Number, CultureInfo.InvariantCulture, out var value):
-                    query = query.Where<TSource, object>(selectorExpression, x => Convert.ToDouble(JsonFunctions.JsonValue(x, path)) < value);
+                    predicate = (Expression<Func<double, bool>>)(x => x < value);
                     break;
                 case FilterOperator.Lt when filter.DataType == JsonDataType.DateTime && DateTime.TryParse(filter.Value, CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind, out var value):
-                    query = query.Where<TSource, object>(selectorExpression, x => JsonFunctions.CastToDate(JsonFunctions.JsonValue(x, path)) < value);
+                    predicate = (Expression<Func<DateTime?, bool>>)(x => x < value);
                     break;
                 // Less than or equal
                 case FilterOperator.Lte when filter.DataType == JsonDataType.Integer && int.TryParse(filter.Value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var value):
-                    query = query.Where<TSource, object>(selectorExpression, x => Convert.ToInt32(JsonFunctions.JsonValue(x, path)) <= value);
+                    predicate = (Expression<Func<int, bool>>)(x => x <= value);
                     break;
                 case FilterOperator.Lte when filter.DataType == JsonDataType.Number && double.TryParse(filter.Value, NumberStyles.Number, CultureInfo.InvariantCulture, out var value):
-                    query = query.Where<TSource, object>(selectorExpression, x => Convert.ToDouble(JsonFunctions.JsonValue(x, path)) <= value);
+                    predicate = (Expression<Func<double, bool>>)(x => x <= value);
                     break;
                 case FilterOperator.Lte when filter.DataType == JsonDataType.DateTime && DateTime.TryParse(filter.Value, CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind, out var value):
-                    query = query.Where<TSource, object>(selectorExpression, x => JsonFunctions.CastToDate(JsonFunctions.JsonValue(x, path)) <= value);
+                    predicate = (Expression<Func<DateTime?, bool>>)(x => x <= value);
                     break;
+                // Contains
                 case FilterOperator.Contains:
-                    query = query.Where<TSource, object>(selectorExpression, x => JsonFunctions.JsonValue(x, path).Contains(filter.Value));
+                    predicate = (Expression<Func<string, bool>>)(x => x.Contains(filter.Value));
                     break;
                 case FilterOperator.In:
                     var values = filter.Value.Split(',', StringSplitOptions.RemoveEmptyEntries);
@@ -179,42 +191,85 @@ namespace Indice.Types
                                 .Where(x => x.HasValue)
                                 .Select(x => x.Value)
                                 .ToList();
-                            query = query.Where<TSource, object>(selectorExpression, x => integers.Contains(Convert.ToInt32(JsonFunctions.JsonValue(x, path))));
+                            predicate = (Expression<Func<int, bool>>)(x => integers.Contains(x));
                             break;
                         case JsonDataType.Number:
                             var doubles = values.Select(x => double.TryParse(x, NumberStyles.Number, CultureInfo.InvariantCulture, out var value) ? value : (double?)null)
                                 .Where(x => x.HasValue)
                                 .Select(x => x.Value)
                                 .ToList();
-                            query = query.Where<TSource, object>(selectorExpression, x => doubles.Contains(Convert.ToDouble(JsonFunctions.JsonValue(x, path))));
+                            predicate = (Expression<Func<double, bool>>)(x => doubles.Contains(x));
                             break;
                         case JsonDataType.DateTime:
                             var dates = values.Select(x => DateTime.TryParse(x, CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind, out var value) ? value : (DateTime?)null)
                                 .Where(x => x.HasValue)
                                 .Select(x => x.Value)
                                 .ToList();
-                            query = query.Where<TSource, object>(selectorExpression, x => dates.Contains(JsonFunctions.CastToDate(JsonFunctions.JsonValue(x, path)).Value));
+                            predicate = (Expression<Func<DateTime?, bool>>)(x => dates.Contains(x.Value));
                             break;
                         case JsonDataType.String:
                         default:
-                            query = query.Where<TSource, object>(selectorExpression, x => values.Contains(JsonFunctions.JsonValue(x, path)));
+                            predicate = (Expression<Func<string, bool>>)(x => values.Contains(x));
                             break;
                     }
                     break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(FilterOperator), filter.Operator, $"Cannot apply operator \"{filter.Operator}\" to a value of type \"{filter.DataType}\"");
             }
-            return query;
+            return predicate;
         }
 
-        private static IQueryable<TSource> Where<TSource, TMember>(this IQueryable<TSource> source,
-                LambdaExpression propertySelector,
-                Expression<Func<TMember, bool>> propertyPredicate) { 
-            return source.Where(ParameterToMemberExpressionRebinder.Combine<TSource, TMember>(propertySelector, propertyPredicate));
+        /// <summary>
+        /// x => Convert.ToInt32(x)
+        /// </summary>
+        /// <param name="dataType"></param>
+        /// <returns></returns>
+        private static LambdaExpression GetCastExpression(JsonDataType dataType) {
+            var argument = Expression.Parameter(typeof(string), "x");
+            MethodInfo castMethod;
+            switch (dataType) {
+                case JsonDataType.Integer:
+                    castMethod = typeof(Convert).GetMethod(nameof(Convert.ToInt32), BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static);
+                    break;
+                case JsonDataType.Number:
+                    castMethod = typeof(Convert).GetMethod(nameof(Convert.ToDouble), BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static);
+                    break;
+                case JsonDataType.Boolean:
+                    castMethod = typeof(Convert).GetMethod(nameof(Convert.ToBoolean), BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static);
+                    break;
+                case JsonDataType.DateTime:
+                    castMethod = typeof(JsonFunctions).GetMethod(nameof(JsonFunctions.CastToDate), BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static);
+                    break;
+                case JsonDataType.String:
+                default:
+                    return null;
+            }
+            var body = Expression.Call(castMethod, argument);
+            return Expression.Lambda(body, argument);
         }
 
-        private static LambdaExpression GetMemberExpression<T>(string property) {
-            var properties = property.Split('.');
+        /// <summary>
+        /// x => JsonFunctions.JsonValue(x, path)
+        /// </summary>
+        /// <param name="memberPath"></param>
+        /// <returns></returns>
+        private static LambdaExpression GetJsonValueExpression(string memberPath) {
+            var path = "$" + memberPath[memberPath.IndexOf('.')..];
+            var argument = Expression.Parameter(typeof(object), "x");
+            MethodInfo jsonValueMethod = typeof(JsonFunctions).GetMethod(nameof(JsonFunctions.JsonValue), BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static);
+            var body = Expression.Call(jsonValueMethod, argument, Expression.Constant(path));
+            var delegateType = typeof(Func<,>).MakeGenericType(typeof(object), typeof(string));
+            return Expression.Lambda(delegateType, body, argument);
+        }
+
+        /// <summary>
+        /// x => x.Member.Path
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="memberPath"></param>
+        /// <returns></returns>
+        private static LambdaExpression GetMemberExpression<T>(string memberPath) {
+            var properties = memberPath.Split('.');
             var type = typeof(T);
             var argument = Expression.Parameter(type, "x");
             Expression expression = argument;
@@ -231,18 +286,18 @@ namespace Indice.Types
         internal class ParameterToMemberExpressionRebinder : ExpressionVisitor
         {
             ParameterExpression _paramExpr;
-            MemberExpression _memberExpr;
+            Expression _memberOrMethodCallExpr;
 
-            ParameterToMemberExpressionRebinder(ParameterExpression paramExpr, MemberExpression memberExpr) {
+            ParameterToMemberExpressionRebinder(ParameterExpression paramExpr, Expression memberOrMethodCallExpr) {
                 _paramExpr = paramExpr;
-                _memberExpr = memberExpr;
+                _memberOrMethodCallExpr = memberOrMethodCallExpr;
             }
 
             public override Expression Visit(Expression p) {
-                return base.Visit(p == _paramExpr ? _memberExpr : p);
+                return base.Visit(p == _paramExpr ? _memberOrMethodCallExpr : p);
             }
 
-            public static Expression<Func<TSource, bool>> Combine<TSource, TMember>(
+            public static Expression<Func<TSource, bool>> CombineMemberSelectorWithPredicate<TSource, TMember>(
                 LambdaExpression propertySelector,
                 Expression<Func<TMember, bool>> propertyPredicate) {
                 if (propertySelector.Body is not MemberExpression memberExpression) {
@@ -251,6 +306,26 @@ namespace Indice.Types
                 var expr = Expression.Lambda<Func<TSource, bool>>(propertyPredicate.Body, propertySelector.Parameters);
                 var rebinder = new ParameterToMemberExpressionRebinder(propertyPredicate.Parameters[0], memberExpression);
                 return (Expression<Func<TSource, bool>>)rebinder.Visit(expr);
+            }
+
+            public static LambdaExpression Combine(
+                LambdaExpression innerExpression,
+                LambdaExpression outerExpression) {
+                //Func<TSource, TOut>
+                var delegateType = typeof(Func<,>).MakeGenericType(outerExpression.Body.Type, innerExpression.Parameters[0].Type);
+                //var expr = Expression.Lambda(delegateType, lambdaExpression.Body, propertySelector.Parameters);
+                var expr = Expression.Lambda(outerExpression.Body, innerExpression.Parameters);
+                if (innerExpression.Body is MemberExpression memberExpression) {
+                    var rebinder = new ParameterToMemberExpressionRebinder(outerExpression.Parameters[0], memberExpression);
+                    return (LambdaExpression)rebinder.Visit(expr);
+                } else if (innerExpression.Body is MethodCallExpression methodCallExpression) {
+                    var rebinder = new ParameterToMemberExpressionRebinder(outerExpression.Parameters[0], methodCallExpression);
+                    return (LambdaExpression)rebinder.Visit(expr);
+                } else {
+                    throw new ArgumentException("innerExpression");
+                }
+                
+                
             }
         }
     }
