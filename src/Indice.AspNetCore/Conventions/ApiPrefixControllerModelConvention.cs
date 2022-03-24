@@ -20,7 +20,7 @@ namespace Indice.AspNetCore.Mvc.ApplicationModels
         /// <param name="replacementValue">The value to replace.</param>
         public ApiPrefixControllerModelConvention(string templatePrefixPlaceholder, string replacementValue) {
             _templatePrefixPlaceholder = templatePrefixPlaceholder ?? throw new ArgumentNullException(nameof(templatePrefixPlaceholder));
-            _replacementValue = replacementValue ?? throw new ArgumentNullException(nameof(replacementValue));
+            _replacementValue = replacementValue;
         }
 
         /// <inheritdoc />
@@ -29,7 +29,11 @@ namespace Indice.AspNetCore.Mvc.ApplicationModels
             if (selector.AttributeRouteModel == null) {
                 selector.AttributeRouteModel = new AttributeRouteModel();
             }
-            selector.AttributeRouteModel.Template = selector.AttributeRouteModel.Template?.Replace(_templatePrefixPlaceholder, _replacementValue);
+            if (!string.IsNullOrWhiteSpace(_replacementValue)) {
+                selector.AttributeRouteModel.Template = selector.AttributeRouteModel.Template?.Replace(_templatePrefixPlaceholder, _replacementValue);
+            } else {
+                selector.AttributeRouteModel.Template = selector.AttributeRouteModel.Template?.Replace($"{_templatePrefixPlaceholder}/", string.Empty);
+            }
         }
     }
 }

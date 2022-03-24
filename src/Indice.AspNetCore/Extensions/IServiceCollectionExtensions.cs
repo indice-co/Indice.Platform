@@ -10,7 +10,6 @@ using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.DataProtection.AuthenticatedEncryption;
 using Microsoft.AspNetCore.DataProtection.AuthenticatedEncryption.ConfigurationModel;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
@@ -66,19 +65,6 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
         public static IServiceCollection AddMarkdown(this IServiceCollection services) {
             services.AddTransient<IMarkdownProcessor, MarkdigProcessor>();
-            return services;
-        }
-
-        /// <summary>
-        /// Adds <see cref="IEventDispatcher"/> using Azure Storage as a queuing mechanism.
-        /// </summary>
-        /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
-        /// <param name="configure">Configure the available options. Null to use defaults.</param>
-        public static IServiceCollection AddEventDispatcherAzure(this IServiceCollection services, Action<EventDispatcherAzureOptions> configure = null) {
-            services.AddEventDispatcherAzure((serviceProvider, options) => {
-                options.ClaimsPrincipalSelector = () => serviceProvider.GetRequiredService<IHttpContextAccessor>().HttpContext.User;
-                configure?.Invoke(options);
-            });
             return services;
         }
 

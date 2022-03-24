@@ -12,20 +12,20 @@ using Microsoft.Extensions.Options;
 
 namespace Indice.AspNetCore.Features.Campaigns.Services
 {
-    internal class UserMessagesService : IUserMessagesService
+    internal class InboxService : IInboxService
     {
-        public UserMessagesService(
+        public InboxService(
             CampaignsDbContext dbContext,
-            IOptions<CampaignsApiOptions> apiOptions,
+            IOptions<CampaignInboxOptions> campaignInboxOptions,
             IOptions<GeneralSettings> generalSettings
         ) {
             DbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
-            ApiOptions = apiOptions?.Value ?? throw new ArgumentNullException(nameof(apiOptions));
+            CampaignInboxOptions = campaignInboxOptions?.Value ?? throw new ArgumentNullException(nameof(campaignInboxOptions));
             GeneralSettings = generalSettings?.Value ?? throw new ArgumentNullException(nameof(generalSettings));
         }
 
         public CampaignsDbContext DbContext { get; }
-        public CampaignsApiOptions ApiOptions { get; }
+        public CampaignInboxOptions CampaignInboxOptions { get; }
         public GeneralSettings GeneralSettings { get; }
 
         public Task<UserMessage> GetMessageById(Guid messageId, string userCode) => GetUserMessagesQuery(userCode).SingleOrDefaultAsync(x => x.Id == messageId);
@@ -83,8 +83,8 @@ namespace Indice.AspNetCore.Features.Campaigns.Services
                     resultSelector: (campaign, message) => new { Campaign = campaign, Message = message }
                 )
                 .Where(x => x.Campaign.Published
-                        && (x.Message == null || !x.Message.IsDeleted)
-                        && (x.Campaign.IsGlobal || (x.Message != null && x.Message.UserCode == userCode))
+                    && (x.Message == null || !x.Message.IsDeleted)
+                    && (x.Campaign.IsGlobal || (x.Message != null && x.Message.UserCode == userCode))
                 );
             if (options?.Filter is not null) {
                 if (options.Filter.ShowExpired.HasValue) {
@@ -105,9 +105,9 @@ namespace Indice.AspNetCore.Features.Campaigns.Services
             }
             return query.Select(x => new UserMessage {
                 ActionText = x.Campaign.ActionText,
-                ActionUrl = !string.IsNullOrEmpty(x.Campaign.ActionUrl) ? $"{GeneralSettings.Host.TrimEnd('/')}/{ApiOptions.ApiPrefix}/campaigns/track/{(Base64Id)x.Campaign.Id}" : null,
+                ActionUrl = !string.IsNullOrEmpty(x.Campaign.ActionUrl) ? $"{GeneralSettings.Host.TrimEnd('/')}/{CampaignInboxOptions.ApiPrefix}/messages/cta/{(Base64Id)x.Campaign.Id}" : null,
                 ActivePeriod = x.Campaign.ActivePeriod,
-                AttachmentUrl = x.Campaign.Attachment != null ? $"{GeneralSettings.Host.TrimEnd('/')}/{ApiOptions.ApiPrefix}/campaigns/attachments/{(Base64Id)x.Campaign.Attachment.Guid}.{Path.GetExtension(x.Campaign.Attachment.Name).TrimStart('.')}" : null,
+                AttachmentUrl = x.Campaign.Attachment != null ? $"{GeneralSettings.Host.TrimEnd('/')}/{CampaignInboxOptions.ApiPrefix}/messages/attachments/{(Base64Id)x.Campaign.Attachment.Guid}.{Path.GetExtension(x.Campaign.Attachment.Name).TrimStart('.')}" : null,
                 Content = x.Campaign.Content,
                 CreatedAt = x.Campaign.CreatedAt,
                 Id = x.Campaign.Id,

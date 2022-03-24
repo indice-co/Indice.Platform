@@ -5,7 +5,7 @@ using Indice.Types;
 
 namespace Indice.AspNetCore.Features.Campaigns.Services
 {
-    internal interface IUserMessagesService
+    internal interface IInboxService
     {
         Task<UserMessage> GetMessageById(Guid messageId, string userCode);
         Task<ResultSet<UserMessage>> GetUserMessages(string userCode, ListOptions<UserMessageFilter> options);

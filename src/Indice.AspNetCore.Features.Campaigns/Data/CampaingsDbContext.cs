@@ -1,8 +1,8 @@
 ﻿using System.Diagnostics;
 using Indice.AspNetCore.Features.Campaigns.Data.Models;
+using Indice.AspNetCore.Features.Campaigns.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.Extensions.Options;
 
 namespace Indice.AspNetCore.Features.Campaigns.Data
 {
@@ -21,12 +21,13 @@ namespace Indice.AspNetCore.Features.Campaigns.Data
         public DbSet<DbCampaignVisit> CampaignVisits { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder) {
-            var campaignsApiOptions = Database.GetService<IOptions<CampaignsApiOptions>>();
-            builder.ApplyConfiguration(new DbCampaignAttachmentMap(campaignsApiOptions));
-            builder.ApplyConfiguration(new DbCampaignMap(campaignsApiOptions));
-            builder.ApplyConfiguration(new DbCampaignTypeMap(campaignsApiOptions));
-            builder.ApplyConfiguration(new DbCampaignUserMap(campaignsApiOptions));
-            builder.ApplyConfiguration(new DbCampaignVisitMap(campaignsApiOptions));
+            var schemaNameResolver = Database.GetService<DatabaseSchemaNameResolver>();
+            var schemaName = schemaNameResolver.GetSchemaName();
+            builder.ApplyConfiguration(new DbCampaignAttachmentMap(schemaName));
+            builder.ApplyConfiguration(new DbCampaignMap(schemaName));
+            builder.ApplyConfiguration(new DbCampaignTypeMap(schemaName));
+            builder.ApplyConfiguration(new DbCampaignUserMap(schemaName));
+            builder.ApplyConfiguration(new DbCampaignVisitMap(schemaName));
         }
     }
 }

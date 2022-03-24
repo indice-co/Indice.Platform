@@ -3,21 +3,20 @@ using Indice.AspNetCore.Features.Campaigns.Data.Models;
 using Indice.Configuration;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Microsoft.Extensions.Options;
 
 namespace Indice.AspNetCore.Features.Campaigns.Data
 {
     internal class DbCampaignTypeMap : IEntityTypeConfiguration<DbCampaignType>
     {
-        public DbCampaignTypeMap(IOptions<CampaignsApiOptions> campaignsApiOptions) {
-            CampaignsApiOptions = campaignsApiOptions?.Value ?? throw new ArgumentNullException(nameof(campaignsApiOptions));
+        public DbCampaignTypeMap(string schemaName) {
+            SchemaName = schemaName ?? throw new ArgumentNullException(nameof(schemaName));
         }
 
-        public CampaignsApiOptions CampaignsApiOptions { get; }
+        public string SchemaName { get; }
 
         public void Configure(EntityTypeBuilder<DbCampaignType> builder) {
             // Configure table name.
-            builder.ToTable("CampaignType", CampaignsApiOptions.DatabaseSchema);
+            builder.ToTable("CampaignType", SchemaName);
             // Configure primary key.
             builder.HasKey(x => x.Id);
             // Configure indexes.
