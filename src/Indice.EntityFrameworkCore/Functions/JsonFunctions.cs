@@ -12,11 +12,11 @@ namespace Indice.EntityFrameworkCore.Functions
         /// <summary>
         /// Represents the json value expression on a given text column with inner path
         /// </summary>
-        /// <param name="column">The database column name</param>
+        /// <param name="column">The database column expression. In clr terms the member parameter</param>
         /// <param name="path">The json path</param>
         /// <returns>The json value as string</returns>
         /// <exception cref="NotSupportedException"></exception>
-        public static string JsonValue(string column, [NotParameterized] string path) {
+        public static string JsonValue(object column, [NotParameterized] string path) {
             throw new NotSupportedException();
         }
 

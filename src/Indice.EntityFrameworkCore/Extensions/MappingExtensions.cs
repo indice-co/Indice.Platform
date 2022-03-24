@@ -1,4 +1,7 @@
-﻿using System.Text.Json;
+﻿using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Text.Json;
 using Indice.EntityFrameworkCore.ValueConversion;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 
@@ -9,6 +12,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
     /// </summary>
     public static class MappingExtensions
     {
+        /// <summary>
+        /// Static map of Dynamic Json Columns.
+        /// </summary>
+        internal static readonly ConcurrentDictionary<Type, List<string>> JsonColumns = new ConcurrentDictionary<Type, List<string>>();
+
         /// <summary>
         /// Configures the property so that the property value is converted to and from the database using the <see cref="JsonStringValueConverter{T}"/>.
         /// </summary>
@@ -24,10 +32,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             );
 #if NET5_0_OR_GREATER
             builder.HasConversion(new JsonStringValueConverter<TProperty>(), valueComparer);
-#endif
-#if NETSTANDARD2_0
+#else
             builder.HasConversion(new JsonStringValueConverter<TProperty>()).Metadata.SetValueComparer(valueComparer);
 #endif
+            var jsonColumns = JsonColumns.GetOrAdd(builder.Metadata.DeclaringType.ClrType, t => new List<string>());
+            jsonColumns.Add(builder.Metadata.Name);
             return builder;
         }
     }

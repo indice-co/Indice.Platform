@@ -4,6 +4,7 @@ using Indice.EntityFrameworkCore.Functions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Indice.EntityFrameworkCore
 {
@@ -28,7 +29,7 @@ namespace Indice.EntityFrameworkCore
         }
 
         /// <summary>
-        /// Applies configuration so that we can user <see cref="JsonFunctions.JsonValue(string, string)"/>
+        /// Applies configuration so that we can user <see cref="JsonFunctions.JsonValue(object, string)"/>
         /// </summary>
         /// <param name="modelBuilder"></param>
         /// <returns></returns>
@@ -36,7 +37,7 @@ namespace Indice.EntityFrameworkCore
             if (modelBuilder is null) {
                 throw new ArgumentNullException(nameof(modelBuilder));
             }
-            return modelBuilder.HasDbFunction(typeof(JsonFunctions).GetMethod(nameof(JsonFunctions.JsonValue)))
+            var functionBuilder = modelBuilder.HasDbFunction(typeof(JsonFunctions).GetMethod(nameof(JsonFunctions.JsonValue)))
                         .HasTranslation(args => {
 #if NET5_0_OR_GREATER
                             return new SqlFunctionExpression("JSON_VALUE", args, nullable: true, argumentsPropagateNullability: args.Select(x => true), typeof(string), null);
@@ -45,6 +46,8 @@ namespace Indice.EntityFrameworkCore
 #endif
                         })
                         .HasSchema(string.Empty);
+            functionBuilder.HasParameter("column").Metadata.TypeMapping = new StringTypeMapping("NVARCHAR(MAX)", null);
+            return functionBuilder;
         }
 
         /// <summary>
