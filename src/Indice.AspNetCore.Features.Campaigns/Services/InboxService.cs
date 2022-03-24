@@ -29,14 +29,14 @@ namespace Indice.AspNetCore.Features.Campaigns.Services
         public GeneralSettings GeneralSettings { get; }
 
         public async Task<ResultSet<Message>> GetMessages(string userCode, ListOptions<MessagesFilter> options) {
-            var userMessages = await GetUserMessagesQuery(userCode, options).ToResultSetAsync(options);
+            var userMessages = await GetUserInboxQuery(userCode, options).ToResultSetAsync(options);
             return new ResultSet<Message> {
                 Count = userMessages.Count,
                 Items = userMessages.Items
             };
         }
 
-        public Task<Message> GetMessageById(Guid messageId, string userCode) => GetUserMessagesQuery(userCode).SingleOrDefaultAsync(x => x.Id == messageId);
+        public Task<Message> GetMessageById(Guid messageId, string userCode) => GetUserInboxQuery(userCode).SingleOrDefaultAsync(x => x.Id == messageId);
 
         public async Task MarkMessageAsDeleted(Guid messageId, string userCode) {
             var message = await DbContext.Messages.SingleOrDefaultAsync(x => x.CampaignId == messageId && x.RecipientId == userCode);
@@ -72,7 +72,7 @@ namespace Indice.AspNetCore.Features.Campaigns.Services
             await DbContext.SaveChangesAsync();
         }
 
-        private IQueryable<Message> GetUserMessagesQuery(string userCode, ListOptions<MessagesFilter> options = null) {
+        private IQueryable<Message> GetUserInboxQuery(string userCode, ListOptions<MessagesFilter> options = null) {
             var query = DbContext
                 .Campaigns
                 .AsNoTracking()
@@ -83,6 +83,7 @@ namespace Indice.AspNetCore.Features.Campaigns.Services
                     resultSelector: (campaign, message) => new { Campaign = campaign, Message = message }
                 )
                 .Where(x => x.Campaign.Published
+                    && x.Campaign.DeliveryChannel.HasFlag(MessageDeliveryChannel.Inbox)
                     && (x.Message == null || !x.Message.IsDeleted)
                     && (x.Campaign.IsGlobal || (x.Message != null && x.Message.RecipientId == userCode))
                 );
@@ -105,9 +106,13 @@ namespace Indice.AspNetCore.Features.Campaigns.Services
             }
             return query.Select(x => new Message {
                 ActionText = x.Campaign.ActionText,
-                ActionUrl = !string.IsNullOrEmpty(x.Campaign.ActionUrl) ? $"{GeneralSettings.Host.TrimEnd('/')}/{CampaignInboxOptions.ApiPrefix}/messages/cta/{(Base64Id)x.Campaign.Id}" : null,
+                ActionUrl = !string.IsNullOrEmpty(x.Campaign.ActionUrl) 
+                    ? $"{CampaignInboxOptions.ApiPrefix}/messages/cta/{(Base64Id)x.Campaign.Id}"
+                    : null,
                 ActivePeriod = x.Campaign.ActivePeriod,
-                AttachmentUrl = x.Campaign.Attachment != null ? $"{GeneralSettings.Host.TrimEnd('/')}/{CampaignInboxOptions.ApiPrefix}/campaigns/attachments/{(Base64Id)x.Campaign.Attachment.Guid}.{Path.GetExtension(x.Campaign.Attachment.Name).TrimStart('.')}" : null,
+                AttachmentUrl = x.Campaign.Attachment != null 
+                    ? $"{CampaignInboxOptions.ApiPrefix}/campaigns/attachments/{(Base64Id)x.Campaign.Attachment.Guid}.{Path.GetExtension(x.Campaign.Attachment.Name).TrimStart('.')}"
+                    : null,
                 Title = x.Message.Title,
                 Content = x.Message.Body,
                 CreatedAt = x.Campaign.CreatedAt,

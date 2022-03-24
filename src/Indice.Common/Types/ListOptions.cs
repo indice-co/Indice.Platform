@@ -106,9 +106,8 @@ namespace Indice.Types
         public void AddSortRedirect(string from, string to) => SortRedirects.Add(from, to);
 
         /// <summary>
-        /// Convert all the list parameters into
+        /// Convert all the list parameters into a <see cref="Dictionary{TKey, TValue}"/>.
         /// </summary>
-        /// <returns></returns>
         public virtual IDictionary<string, object> ToDictionary() {
             var dictionary = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase) {
                 { nameof(Page).ToLower(), Page.ToString() },

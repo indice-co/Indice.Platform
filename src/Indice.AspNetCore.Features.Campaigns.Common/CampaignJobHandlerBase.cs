@@ -8,14 +8,14 @@ namespace Indice.AspNetCore.Features.Campaigns
     public abstract class CampaignJobHandlerBase
     {
         public CampaignJobHandlerBase(Func<string, IEventDispatcher> getEventDispatcher, Func<string, IPushNotificationService> getPushNotificationService) {
-            EventDispatcherAccessor = getEventDispatcher ?? throw new ArgumentNullException(nameof(getEventDispatcher));
-            PushNotificationServiceAccessor = getPushNotificationService ?? throw new ArgumentNullException(nameof(getPushNotificationService));
+            GetEventDispatcher = getEventDispatcher ?? throw new ArgumentNullException(nameof(getEventDispatcher));
+            GetPushNotificationService = getPushNotificationService ?? throw new ArgumentNullException(nameof(getPushNotificationService));
         }
 
-        public Func<string, IEventDispatcher> EventDispatcherAccessor { get; }
-        public Func<string, IPushNotificationService> PushNotificationServiceAccessor { get; }
+        public Func<string, IEventDispatcher> GetEventDispatcher { get; }
+        public Func<string, IPushNotificationService> GetPushNotificationService { get; }
 
-        public virtual async Task DistributeCampaign(CampaignCreatedEvent campaign) {
+        public virtual async Task TryDistributeCampaign(CampaignCreatedEvent campaign) {
             if (!campaign.Published) {
                 return;
             }
@@ -34,21 +34,28 @@ namespace Indice.AspNetCore.Features.Campaigns
         }
 
         public virtual async Task ProcessPushNotifications(CampaignCreatedEvent campaign) {
-            var eventDispatcher = EventDispatcherAccessor(KeyedServiceNames.EventDispatcherAzureServiceKey);
+            var eventDispatcher = GetEventDispatcher(KeyedServiceNames.EventDispatcherAzureServiceKey);
             if (campaign.IsGlobal) {
-                var globalMessage = new SendPushNotificationEvent {
-                    Campaign = campaign,
-                    Broadcast = true
-                };
-                await eventDispatcher.RaiseEventAsync(globalMessage, options => options.WrapInEnvelope(false).At(campaign.ActivePeriod?.From?.DateTime ?? DateTime.UtcNow).WithQueueName(QueueNames.SendPushNotification));
+                await eventDispatcher.RaiseEventAsync(
+                    payload: new SendPushNotificationEvent {
+                        Campaign = campaign,
+                        Broadcast = true
+                    }, 
+                    configure: options => options.WrapInEnvelope(false)
+                                                 .At(campaign.ActivePeriod?.From?.DateTime ?? DateTime.UtcNow)
+                                                 .WithQueueName(QueueNames.SendPushNotification)
+                );
             } else {
                 foreach (var userCode in campaign.SelectedUserCodes) {
-                    var userMessage = new SendPushNotificationEvent {
-                        UserCode = userCode,
-                        Campaign = campaign,
-                        Broadcast = false
-                    };
-                    await eventDispatcher.RaiseEventAsync(userMessage, options => options.WrapInEnvelope(false).At(campaign.ActivePeriod?.From?.DateTime ?? DateTime.UtcNow).WithQueueName(QueueNames.SendPushNotification));
+                    await eventDispatcher.RaiseEventAsync(
+                        payload: new SendPushNotificationEvent {
+                            UserCode = userCode,
+                            Campaign = campaign,
+                            Broadcast = false
+                        },
+                        configure: options => options.WrapInEnvelope(false)
+                                                     .At(campaign.ActivePeriod?.From?.DateTime ?? DateTime.UtcNow)
+                                                     .WithQueueName(QueueNames.SendPushNotification));
                 }
             }
         }
@@ -59,7 +66,7 @@ namespace Indice.AspNetCore.Features.Campaigns
             if (!dataDictionary.ContainsKey("id")) {
                 data.TryAdd("id", pushNotification.Campaign.Id);
             }
-            var pushNotificationService = PushNotificationServiceAccessor(KeyedServiceNames.PushNotificationServiceAzureKey);
+            var pushNotificationService = GetPushNotificationService(KeyedServiceNames.PushNotificationServiceAzureKey);
             var pushContent = pushNotification.Campaign.Content.Push;
             var pushTitle = pushContent?.Title ?? pushNotification.Campaign.Title;
             var pushBody = pushContent?.Body ?? "-";

@@ -25,12 +25,20 @@ namespace Indice.AspNetCore.Features.Campaigns.Services
                 .MaximumLength(TextSizePresets.M128)
                 .WithMessage($"Campaign title cannot exceed {TextSizePresets.M128} characters.");
             RuleFor(campaign => campaign.SelectedUserCodes)
-                .Must(userCodes => userCodes.Count > 0)
-                .When(campaign => !campaign.IsGlobal)
-                .WithMessage("Please provide a list of recipients since the campaign is not intended for all users (global).");
+                .Must(userCodes => userCodes?.Count == 0)
+                .When(campaign => campaign.IsGlobal)
+                .WithMessage("Cannot provide a list of recipients since the campaign global.");
             RuleFor(campaign => campaign.TypeId)
                 .MustAsync(BeExistingTypeId)
-                .When(campaign => campaign.TypeId is not null);
+                .When(campaign => campaign.TypeId is not null)
+                .WithMessage("Specified type id is not valid.");
+            RuleFor(campaign => campaign.DistributionListId)
+                .Must(id => id == null)
+                .When(campaign => campaign.IsGlobal)
+                .WithMessage("Cannot provide a distribution list since the campaign global.")
+                .MustAsync(BeExistingDistributionListId)
+                .When(campaign => campaign.DistributionListId is not null)
+                .WithMessage("Specified distribution list id is not valid.");
             RuleFor(campaign => campaign.Content)
                 .NotEmpty()
                 .WithMessage("Please provide content for the campaign.");
@@ -55,5 +63,7 @@ namespace Indice.AspNetCore.Features.Campaigns.Services
         private CampaignsDbContext DbContext { get; }
 
         private async Task<bool> BeExistingTypeId(Guid? typeId, CancellationToken cancellationToken) => await DbContext.MessageTypes.FindAsync(typeId) is not null;
+
+        private async Task<bool> BeExistingDistributionListId(Guid? typeId, CancellationToken cancellationToken) => await DbContext.DistributionLists.FindAsync(typeId) is not null;
     }
 }

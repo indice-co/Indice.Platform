@@ -14,6 +14,7 @@ namespace Indice.AspNetCore.Features.Campaigns.Controllers
     /// <response code="403">Forbidden</response>
     [ApiController]
     [ApiExplorerSettings(GroupName = "campaigns")]
+    [Authorize(AuthenticationSchemes = CampaignsApi.AuthenticationScheme, Policy = CampaignsApi.Policies.BeCampaignsManager)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized, Type = typeof(ProblemDetails))]
     [ProducesResponseType(StatusCodes.Status403Forbidden, Type = typeof(ProblemDetails))]
     [Route($"{ApiPrefixes.CampaignManagementEndpoints}/message-types")]
@@ -30,13 +31,10 @@ namespace Indice.AspNetCore.Features.Campaigns.Controllers
         /// </summary>
         /// <param name="options">List parameters used to navigate through collections. Contains parameters such as sort, search, page number and page size.</param>
         /// <response code="200">OK</response>
-        /// <response code="400">Bad Request</response>
-        [Authorize(AuthenticationSchemes = CampaignsApi.AuthenticationScheme)]
         [HttpGet]
         [Produces(MediaTypeNames.Application.Json)]
         [Consumes(MediaTypeNames.Application.Json)]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ResultSet<MessageType>))]
-        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ValidationProblemDetails))]
         public async Task<IActionResult> GetMessageTypes([FromQuery] ListOptions options) {
             var messageTypes = await CampaignService.GetMessageTypes(options);
             return Ok(messageTypes);
@@ -48,7 +46,6 @@ namespace Indice.AspNetCore.Features.Campaigns.Controllers
         /// <param name="request">Contains info about the campaign type to be created.</param>
         /// <response code="200">OK</response>
         /// <response code="400">Bad Request</response>
-        [Authorize(AuthenticationSchemes = CampaignsApi.AuthenticationScheme, Policy = CampaignsApi.Policies.BeCampaignsManager)]
         [HttpPost]
         [Produces(MediaTypeNames.Application.Json)]
         [Consumes(MediaTypeNames.Application.Json)]
@@ -66,7 +63,6 @@ namespace Indice.AspNetCore.Features.Campaigns.Controllers
         /// <param name="request">Contains info about the campaign type to update.</param>
         /// <response code="204">No Content</response>
         /// <response code="400">Bad Request</response>
-        [Authorize(AuthenticationSchemes = CampaignsApi.AuthenticationScheme, Policy = CampaignsApi.Policies.BeCampaignsManager)]
         [HttpPut("{campaignTypeId}")]
         [Produces(MediaTypeNames.Application.Json)]
         [Consumes(MediaTypeNames.Application.Json)]
@@ -88,7 +84,6 @@ namespace Indice.AspNetCore.Features.Campaigns.Controllers
         /// <param name="campaignTypeId">The id of the campaign type.</param>
         /// <response code="204">No Content</response>
         /// <response code="404">Not Found</response>
-        [Authorize(AuthenticationSchemes = CampaignsApi.AuthenticationScheme, Policy = CampaignsApi.Policies.BeCampaignsManager)]
         [HttpDelete]
         [Produces(MediaTypeNames.Application.Json)]
         [ProducesResponseType(StatusCodes.Status204NoContent, Type = typeof(void))]

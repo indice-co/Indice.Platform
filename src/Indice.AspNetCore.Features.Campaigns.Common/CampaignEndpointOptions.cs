@@ -48,6 +48,8 @@ namespace Indice.AspNetCore.Features.Campaigns
     /// </summary>
     public class CampaignOptionsBase
     {
+        private string _apiPrefix;
+
         public CampaignOptionsBase(IServiceCollection services) {
             Services = services ?? throw new ArgumentNullException(nameof(services));
         }
@@ -72,9 +74,12 @@ namespace Indice.AspNetCore.Features.Campaigns
         /// </summary>
         public string DatabaseSchema { get; set; } = CampaignsApi.DatabaseSchema;
         /// <summary>
-        /// Specifies a prefix for the API endpoints. Defaults to <i>api</i>.
+        /// Specifies a prefix for the API endpoints.
         /// </summary>
-        public string ApiPrefix { get; set; }
+        public string ApiPrefix {
+            get => _apiPrefix;
+            set { _apiPrefix = string.IsNullOrWhiteSpace(value) ? "/" : value; }
+        }
         /// <summary>
         /// The default scope name to be used for Campaigns API. Defaults to <see cref="CampaignsApi.Scope"/>.
         /// </summary>

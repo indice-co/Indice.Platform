@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Indice.AspNetCore.Features.Campaigns.Data.Models;
 using Indice.AspNetCore.Features.Campaigns.Events;
 using Indice.Types;
 
@@ -51,6 +52,10 @@ namespace Indice.AspNetCore.Features.Campaigns.Models
         /// </summary>
         public MessageType Type { get; set; }
         /// <summary>
+        /// The distribution list of the campaign.
+        /// </summary>
+        public DistributionList DistributionList { get; set; }
+        /// <summary>
         /// The delivery channel of a campaign.
         /// </summary>
         public MessageDeliveryChannel DeliveryChannel { get; set; }
@@ -63,14 +68,9 @@ namespace Indice.AspNetCore.Features.Campaigns.Models
     /// <summary>
     /// Extension methods on <see cref="Campaign"/> model.
     /// </summary>
-    public static class CampaignExtensions
+    internal static class CampaignExtensions
     {
-        /// <summary>
-        /// Converts a <see cref="Campaign"/> model to it's corresponding <see cref="CampaignCreatedEvent"/> type.
-        /// </summary>
-        /// <param name="campaign">The campaign to convert.</param>
-        /// <param name="selectedUserCodes">Defines a list of user identifiers that constitutes the audience of the campaign.</param>
-        public static CampaignCreatedEvent ToCampaignQueueItem(this Campaign campaign, List<string> selectedUserCodes = null) => new() {
+        public static CampaignCreatedEvent ToCampaignCreatedEvent(this Campaign campaign, List<string> selectedUserCodes = null) => new() {
             ActionText = campaign.ActionText,
             ActionUrl = campaign.ActionUrl,
             ActivePeriod = campaign.ActivePeriod,
@@ -84,6 +84,22 @@ namespace Indice.AspNetCore.Features.Campaigns.Models
             SelectedUserCodes = selectedUserCodes ?? new List<string>(),
             Title = campaign.Title,
             Type = campaign.Type
+        };
+
+        public static DbCampaign ToDbCampaign(this CreateCampaignRequest request) => new() {
+            ActionText = request.ActionText,
+            ActionUrl = request.ActionUrl,
+            ActivePeriod = request.ActivePeriod,
+            Content = request.Content,
+            CreatedAt = DateTime.UtcNow,
+            Data = request.Data,
+            DeliveryChannel = request.DeliveryChannel,
+            DistributionListId = request.DistributionListId,
+            Id = Guid.NewGuid(),
+            IsGlobal = request.IsGlobal,
+            Published = request.Published,
+            Title = request.Title,
+            TypeId = request.TypeId
         };
     }
 }

@@ -14,9 +14,6 @@ namespace Indice.AspNetCore.Features.Campaigns.Workers.Azure
             Func<string, IPushNotificationService> getPushNotificationService
         ) : base(getEventDispatcher, getPushNotificationService) { }
 
-        public IEventDispatcher EventDispatcher { get; }
-        public IPushNotificationService PushNotificationService { get; }
-
         [Function(FunctionNames.CampaignCreated)]
         public async Task CampaignCreatedHandler(
             [QueueTrigger("%ENVIRONMENT%-" + QueueNames.CampaignCreated, Connection = "StorageConnection")] string message,
@@ -25,7 +22,7 @@ namespace Indice.AspNetCore.Features.Campaigns.Workers.Azure
             var logger = executionContext.GetLogger(FunctionNames.CampaignCreated);
             logger.LogInformation("Function '{FunctionName}' was triggered.", FunctionNames.CampaignCreated);
             var campaign = JsonSerializer.Deserialize<CampaignCreatedEvent>(message, JsonSerializerOptionDefaults.GetDefaultSettings());
-            await base.DistributeCampaign(campaign);
+            await base.TryDistributeCampaign(campaign);
         }
 
         [Function(FunctionNames.SendPushNotification)]

@@ -42,23 +42,12 @@ namespace Indice.AspNetCore.Features.Campaigns.Services
         public LinkGenerator LinkGenerator { get; }
 
         public Task<ResultSet<Campaign>> GetCampaigns(ListOptions<CampaignsFilter> options) {
-            var query = DbContext.Campaigns.Include(x => x.Type).AsNoTracking().Select(campaign => new Campaign {
-                ActionText = campaign.ActionText,
-                ActionUrl = campaign.ActionUrl,
-                ActivePeriod = campaign.ActivePeriod,
-                Content = campaign.Content,
-                CreatedAt = campaign.CreatedAt,
-                DeliveryChannel = campaign.DeliveryChannel,
-                Data = campaign.Data,
-                Id = campaign.Id,
-                IsGlobal = campaign.IsGlobal,
-                Published = campaign.Published,
-                Title = campaign.Title,
-                Type = campaign.Type != null ? new MessageType {
-                    Id = campaign.Type.Id,
-                    Name = campaign.Type.Name
-                } : null
-            });
+            var query = DbContext
+                .Campaigns
+                .Include(x => x.Type)
+                .Include(x => x.DistributionList)
+                .AsNoTracking()
+                .Select(Mapper.ProjectToCampaign);
             if (!string.IsNullOrEmpty(options.Search)) {
                 var searchTerm = options.Search.Trim();
                 query = query.Where(x => x.Title != null && x.Title.Contains(searchTerm));
@@ -72,51 +61,27 @@ namespace Indice.AspNetCore.Features.Campaigns.Services
             return query.ToResultSetAsync(options);
         }
 
-        public Task<CampaignDetails> GetCampaignById(Guid campaignId) =>
-            DbContext.Campaigns
-                     .AsNoTracking()
-                     .Include(x => x.Attachment)
-                     .Select(campaign => new CampaignDetails {
-                         ActionText = campaign.ActionText,
-                         ActionUrl = campaign.ActionUrl,
-                         ActivePeriod = campaign.ActivePeriod,
-                         Attachment = campaign.Attachment != null ? new AttachmentLink {
-                             Id = campaign.Attachment.Id,
-                             FileGuid = campaign.Attachment.Guid,
-                             ContentType = campaign.Attachment.ContentType,
-                             Label = campaign.Attachment.Name,
-                             Size = campaign.Attachment.ContentLength,
-                             PermaLink = $"{GeneralSettings.Host.TrimEnd('/')}/{CampaignManagementOptions.ApiPrefix}/campaigns/attachments/{(Base64Id)campaign.Attachment.Guid}.{Path.GetExtension(campaign.Attachment.Name).TrimStart('.')}"
-                         } : null,
-                         Content = campaign.Content,
-                         CreatedAt = campaign.CreatedAt,
-                         Data = campaign.Data,
-                         DeliveryChannel = campaign.DeliveryChannel,
-                         Id = campaign.Id,
-                         Published = campaign.Published,
-                         IsGlobal = campaign.IsGlobal,
-                         Title = campaign.Title,
-                         Type = campaign.Type != null ? new MessageType {
-                             Id = campaign.Type.Id,
-                             Name = campaign.Type.Name
-                         } : null
-                     })
-                     .SingleOrDefaultAsync(x => x.Id == campaignId);
+        public async Task<CampaignDetails> GetCampaignById(Guid campaignId) {
+            var campaign = await DbContext
+                .Campaigns
+                .AsNoTracking()
+                .Include(x => x.Attachment)
+                .Include(x => x.DistributionList)
+                .Select(Mapper.ProjectToCampaignDetails)
+                .SingleOrDefaultAsync(x => x.Id == campaignId);
+            if (campaign.Attachment is not null) {
+                campaign.Attachment.PermaLink = $"{CampaignManagementOptions.ApiPrefix}/{campaign.Attachment.PermaLink.TrimStart('/')}";
+            }
+            return campaign;
+        }
 
         public async Task<Campaign> CreateCampaign(CreateCampaignRequest request) {
             var dbCampaign = request.ToDbCampaign();
             DbContext.Campaigns.Add(dbCampaign);
-            if (!request.IsGlobal && request.SelectedUserCodes?.Count > 0) {
-                var campaignUsers = request.SelectedUserCodes.Select(userId => new DbMessage {
-                    Id = Guid.NewGuid(),
-                    RecipientId = userId,
-                    CampaignId = dbCampaign.Id
-                });
-                DbContext.Messages.AddRange(campaignUsers);
-            }
             await DbContext.SaveChangesAsync();
-            var campaign = dbCampaign.ToCampaign();
-            return campaign;
+            // TODO: Take advantage of campaign created event and create message asynchronously. We possibly need to create messages when the campaign is published. Then the campaign should be locked.
+            await CreateMessages(request, dbCampaign.Id);
+            return Mapper.ProjectToCampaign.Compile()(dbCampaign);
         }
 
         public async Task UpdateCampaign(Guid campaignId, UpdateCampaignRequest request) {
@@ -258,6 +223,33 @@ namespace Indice.AspNetCore.Features.Campaigns.Services
                 TimeStamp = DateTimeOffset.UtcNow
             });
             await DbContext.SaveChangesAsync();
+        }
+
+        private async Task CreateMessages(CreateCampaignRequest request, Guid campaignId) {
+            if (!request.IsGlobal && request.Published) {
+                if (request.SelectedUserCodes?.Count > 0) {
+                    DbContext.Messages.AddRange(request.SelectedUserCodes.Select(userId => new DbMessage {
+                        Id = Guid.NewGuid(),
+                        RecipientId = userId,
+                        CampaignId = campaignId
+                    }));
+                    await DbContext.SaveChangesAsync();
+                }
+                if (request.DistributionListId is not null) {
+                    var distributionList = await DbContext
+                        .DistributionLists
+                        .Include(x => x.Contacts)
+                        .SingleOrDefaultAsync(x => x.Id == request.DistributionListId);
+                    if (distributionList.Contacts.Any()) {
+                        DbContext.Messages.AddRange(distributionList.Contacts.Select(contact => new DbMessage {
+                            Id = Guid.NewGuid(),
+                            RecipientId = contact.RecipientId,
+                            CampaignId = campaignId
+                        }));
+                    }
+                    await DbContext.SaveChangesAsync();
+                }
+            }
         }
     }
 }

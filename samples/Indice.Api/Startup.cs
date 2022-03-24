@@ -71,7 +71,7 @@ namespace Indice.Api
                     options.OAuth2RedirectUrl($"{Settings.Host}/docs/oauth2-redirect.html");
                     options.OAuthClientId("swagger-ui");
                     options.OAuthAppName("Swagger UI");
-                    options.DocExpansion(DocExpansion.List);
+                    options.DocExpansion(DocExpansion.None);
                     options.OAuthUsePkce();
                     options.OAuthScopeSeparator(" ");
                 });

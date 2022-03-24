@@ -57,7 +57,7 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <param name="mvcBuilder">An interface for configuring MVC services.</param>
         /// <param name="configureAction">Configuration for several options of Campaigns management API feature.</param>
         public static IMvcBuilder AddCampaignManagementEndpoints(this IMvcBuilder mvcBuilder, Action<CampaignManagementOptions> configureAction = null) {
-            mvcBuilder.ConfigureApplicationPartManager(x => x.FeatureProviders.Add(new CampaignEndpointFeatureProvider(includeManagementApi: true, includeUserApi: false)));
+            mvcBuilder.ConfigureApplicationPartManager(x => x.FeatureProviders.Add(new CampaignEndpointFeatureProvider(includeManagementApi: true, includeInboxApi: false)));
             var services = mvcBuilder.Services;
             // Configure options.
             var managementApiOptions = new CampaignManagementOptions(services);
@@ -100,7 +100,7 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <param name="mvcBuilder">An interface for configuring MVC services.</param>
         /// <param name="configureAction">Configuration for several options of Campaigns inbox API feature.</param>
         public static IMvcBuilder AddCampaignInboxEndpoints(this IMvcBuilder mvcBuilder, Action<CampaignInboxOptions> configureAction = null) {
-            mvcBuilder.ConfigureApplicationPartManager(x => x.FeatureProviders.Add(new CampaignEndpointFeatureProvider(includeManagementApi: false, includeUserApi: true)));
+            mvcBuilder.ConfigureApplicationPartManager(x => x.FeatureProviders.Add(new CampaignEndpointFeatureProvider(includeManagementApi: false, includeInboxApi: true)));
             var services = mvcBuilder.Services;
             // Configure options.
             var inboxApiOptions = new CampaignInboxOptions(services);
@@ -164,6 +164,7 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddResponseCaching();
             // Register custom services.
             services.TryAddTransient<ICampaignService, CampaignService>();
+            services.TryAddTransient<IDistributionListService, DistributionListService>();
             services.TryAddTransient<CampaignManager>();
             // Register application DbContext.
             Action<DbContextOptionsBuilder> sqlServerConfiguration = (builder) => builder.UseSqlServer(configuration.GetConnectionString("CampaignsDbConnection"));

@@ -11,27 +11,28 @@ namespace Indice.AspNetCore.Features.Campaigns
     {
         private static IReadOnlyList<TypeInfo> ManagementApiControllerTypes => new List<TypeInfo>() {
             typeof(CampaignsController).GetTypeInfo(),
-            typeof(MessageTypesController).GetTypeInfo()
+            typeof(MessageTypesController).GetTypeInfo(),
+            typeof(DistributionListsController).GetTypeInfo()
         };
 
-        private static IReadOnlyList<TypeInfo> UserApiControllerTypes => new List<TypeInfo>() {
+        private static IReadOnlyList<TypeInfo> InboxApiControllerTypes => new List<TypeInfo>() {
             typeof(InboxController).GetTypeInfo()
         };
 
-        public CampaignEndpointFeatureProvider(bool includeManagementApi = true, bool includeUserApi = true) {
+        public CampaignEndpointFeatureProvider(bool includeManagementApi = true, bool includeInboxApi = true) {
             IncludeManagementApi = includeManagementApi;
-            IncludeUserApi = includeUserApi;
+            IncludeInboxApi = includeInboxApi;
         }
 
         public bool IncludeManagementApi { get; }
-        public bool IncludeUserApi { get; }
+        public bool IncludeInboxApi { get; }
 
         public void PopulateFeature(IEnumerable<ApplicationPart> parts, ControllerFeature feature) {
             if (IncludeManagementApi) {
                 AddControllers(feature, ManagementApiControllerTypes);
             }
-            if (IncludeUserApi) {
-                AddControllers(feature, UserApiControllerTypes);
+            if (IncludeInboxApi) {
+                AddControllers(feature, InboxApiControllerTypes);
             }
         }
 

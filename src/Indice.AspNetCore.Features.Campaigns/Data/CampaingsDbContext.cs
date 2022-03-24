@@ -20,12 +20,11 @@ namespace Indice.AspNetCore.Features.Campaigns.Data
         public DbSet<DbMessage> Messages { get; set; }
         public DbSet<DbHit> Hits { get; set; }
         public DbSet<DbTemplate> Templates { get; set; }
-        public DbSet<DbDistributionList> DistributionList { get; set; }
+        public DbSet<DbDistributionList> DistributionLists { get; set; }
         public DbSet<DbContact> Contacts { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder) {
-            var schemaNameResolver = Database.GetService<DatabaseSchemaNameResolver>();
-            var schemaName = schemaNameResolver.GetSchemaName();
+            var schemaName = Database.GetService<DatabaseSchemaNameResolver>().GetSchemaName();
             builder.ApplyConfiguration(new DbAttachmentMap(schemaName));
             builder.ApplyConfiguration(new DbCampaignMap(schemaName));
             builder.ApplyConfiguration(new DbHitMap(schemaName));

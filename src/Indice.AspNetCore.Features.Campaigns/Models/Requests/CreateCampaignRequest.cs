@@ -56,6 +56,10 @@ namespace Indice.AspNetCore.Features.Campaigns.Models
         /// </summary>
         public Guid? TypeId { get; set; }
         /// <summary>
+        /// The id of the distribution list.
+        /// </summary>
+        public Guid? DistributionListId { get; set; }
+        /// <summary>
         /// Optional data for the campaign.
         /// </summary>
         public dynamic Data { get; set; }

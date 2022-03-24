@@ -76,6 +76,34 @@ namespace Indice.AspNetCore.Features.Campaigns.Controllers
         }
 
         /// <summary>
+        /// Publishes a campaign.
+        /// </summary>
+        /// <param name="campaignId">The id of the campaign.</param>
+        /// <response code="200">OK</response>
+        /// <response code="400">Bad Request</response>
+        [HttpPost("{campaignId:guid}/publish")]
+        [ProducesResponseType(typeof(void), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> PublishCampaign([FromRoute] Guid campaignId) {
+            await Task.CompletedTask;
+            return Ok();
+        }
+
+        /// <summary>
+        /// Gets the status of a campaign. 
+        /// </summary>
+        /// <param name="campaignId">The id of the campaign.</param>
+        /// <response code="200">OK</response>
+        /// <response code="404">Not Found</response>
+        [HttpGet("{campaignId:guid}/status")]
+        [ProducesResponseType(typeof(void), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> GetCampaignStatus([FromRoute] Guid campaignId) {
+            await Task.CompletedTask;
+            return Ok();
+        }
+
+        /// <summary>
         /// Gets the statistics for a specified campaign.
         /// </summary>
         /// <param name="campaignId">The id of the campaign.</param>
@@ -125,7 +153,10 @@ namespace Indice.AspNetCore.Features.Campaigns.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ValidationProblemDetails))]
         public async Task<IActionResult> CreateCampaign([FromBody] CreateCampaignRequest request) {
             var campaign = await CampaignService.CreateCampaign(request);
-            await EventDispatcher.RaiseEventAsync(campaign.ToCampaignQueueItem(selectedUserCodes: request.SelectedUserCodes), options => options.WrapInEnvelope(false).WithQueueName(QueueNames.CampaignCreated));
+            await EventDispatcher.RaiseEventAsync(
+                payload: campaign.ToCampaignCreatedEvent(selectedUserCodes: request.SelectedUserCodes),
+                configure: options => options.WrapInEnvelope(false).WithQueueName(QueueNames.CampaignCreated)
+            );
             return CreatedAtAction(nameof(GetCampaignById), new { campaignId = campaign.Id }, campaign);
         }
 

@@ -20,7 +20,9 @@ namespace Indice.AspNetCore.Features.Campaigns.Data
             // Configure primary keys.
             builder.HasKey(x => x.Id);
             // Configure properties.
-            builder.Property(x => x.Name).HasMaxLength(TextSizePresets.M128);
+            builder.Property(x => x.Name).HasMaxLength(TextSizePresets.M128).IsRequired();
+            // Configure indexes.
+            builder.HasIndex(x => x.Name).IsUnique();
         }
     }
 }

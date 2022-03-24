@@ -1,6 +1,7 @@
 ﻿using System;
 using FluentValidation;
 using Indice.AspNetCore.Features.Campaigns.Models;
+using Indice.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Indice.AspNetCore.Features.Campaigns.Services
@@ -17,6 +18,8 @@ namespace Indice.AspNetCore.Features.Campaigns.Services
             var campaignService = serviceProvider.GetRequiredService<ICampaignService>();
             RuleFor(x => x.Name).NotEmpty()
                                 .WithMessage("Please provide a name for the campaign type.")
+                                .MaximumLength(TextSizePresets.M128)
+                                .WithMessage($"Maximum length for name is {TextSizePresets.M128} characters.")
                                 .MustAsync(async (name, cancellationToken) => await campaignService.GetMessageTypeByName(name) == null)
                                 .WithMessage(x => $"There is already a campaign type with name '{x.Name}'.");
         }
