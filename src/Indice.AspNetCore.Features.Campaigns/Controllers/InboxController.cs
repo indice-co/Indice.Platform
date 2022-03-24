@@ -54,6 +54,23 @@ namespace Indice.AspNetCore.Features.Campaigns.Controllers
         }
 
         /// <summary>
+        /// Gets the list of available campaign types.
+        /// </summary>
+        /// <param name="options">List params used to navigate through collections. Contains parameters such as sort, search, page number and page size.</param>
+        /// <response code="200">OK</response>
+        /// <response code="400">Bad Request</response>
+        [Authorize(AuthenticationSchemes = CampaignsApi.AuthenticationScheme)]
+        [HttpGet("message-types")]
+        [Produces(MediaTypeNames.Application.Json)]
+        [Consumes(MediaTypeNames.Application.Json)]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ResultSet<CampaignType>))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ValidationProblemDetails))]
+        public async Task<IActionResult> GetMessageTypes([FromQuery] ListOptions options) {
+            var campaignTypes = await CampaignService.GetCampaignTypes(options);
+            return Ok(campaignTypes);
+        }
+
+        /// <summary>
         /// Gets the message with the specified id.
         /// </summary>
         /// <param name="messageId">The id of the message.</param>

@@ -56,7 +56,7 @@
   </ItemGroup>
   <!-- Run 'npm install' command to download node modules for campaigns ui. -->
   <Target Name="NpmInstall" BeforeTargets="DispatchToInnerBuilds">
-    <Exec Command="npm install" WorkingDirectory="@(SpaSourceFolder)" EnvironmentVariables="PATH=$(Path.Replace(';', '%3B'))" ContinueOnError="true">
+    <Exec Command="npm install --force" WorkingDirectory="@(SpaSourceFolder)" EnvironmentVariables="PATH=$(Path.Replace(';', '%3B'))" ContinueOnError="true">
       <Output TaskParameter="ExitCode" PropertyName="ErrorCode" />
     </Exec>
     <Error Condition="'$(ErrorCode)' != '0'" Text="Node.js/npm is required to build this project. To continue, please install Node.js from https://nodejs.org/ or Visual Studio Installer, and then restart your command prompt or IDE." />
