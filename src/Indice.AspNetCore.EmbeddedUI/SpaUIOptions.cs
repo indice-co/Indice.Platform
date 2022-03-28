@@ -5,7 +5,7 @@ namespace Indice.AspNetCore.EmbeddedUI
 {
 
     /// <summary>
-    /// Options for configuring <see cref="SpaUIMiddleware"/> middleware.
+    /// Options for configuring <see cref="SpaUIMiddleware{TOptions}"/> middleware.
     /// </summary>
     public class SpaUIOptions
     {
@@ -22,7 +22,7 @@ namespace Indice.AspNetCore.EmbeddedUI
         /// <summary>
         /// The client id used to identify the application in the authority server. Defaults to <b>spa-ui</b>.
         /// </summary>
-        public string ClientId { get; set; } = "spa-ui";
+        public string ClientId { get; set; } = "spa-ui"; 
         /// <summary>
         /// The default scope names, as space separated values, to be used for Campaigns API. This can include the main scope (audience) and sub-scopes. Defaults to <b>campaigns</b>.
         /// </summary>

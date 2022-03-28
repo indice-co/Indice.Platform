@@ -11,13 +11,13 @@ using Indice.Types;
 namespace Indice.Extensions
 {
     /// <summary>
-    /// Extension methods related to building dynamic querys involving the translation of query spesifications (<see cref="FilterClause"/>) and sort expressions (<seealso cref="SortByClause"/>).
+    /// Extension methods related to building dynamic queries involving the translation of query specifications (<see cref="FilterClause"/>) and sort expressions (<seealso cref="SortByClause"/>).
     /// </summary>
     public static class DynamicExtensions
     {
 
         /// <summary>
-        /// Gets the coplete predicate expression tree. 
+        /// Gets the complete predicate expression tree. 
         /// Involves 
         /// <ul>
         /// <li>member access</li>
@@ -41,9 +41,9 @@ namespace Indice.Extensions
             else
                 return (Expression<Func<TSource, bool>>)ParameterToMemberExpressionRebinder.CombineAll(memberExpression, jsonValueExpression, castExpression, predicateExpression);
         }
-        
+
         /// <summary>
-        /// Gets the coplete predicate expression tree. 
+        /// Gets the complete predicate expression tree. 
         /// Involves 
         /// <ul>
         /// <li>member access</li>
@@ -69,7 +69,7 @@ namespace Indice.Extensions
         }
 
         /// <summary>
-        /// Gets the coplete predicate expression tree. 
+        /// Gets the complete predicate expression tree. 
         /// Involves 
         /// <ul>
         /// <li>member access</li>

@@ -4,7 +4,6 @@
     <Copyright>Copyright (c) 2022 Indice</Copyright>
     <Description>Indice.AspNetCore.EmbeddedUI Class Library</Description>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <GenerateEmbeddedFilesManifest>true</GenerateEmbeddedFilesManifest>
     <TargetFrameworks>netcoreapp3.1;net5.0;net6.0;</TargetFrameworks>
     <VersionPrefix>6.0.0</VersionPrefix>
     <!--<VersionSuffix>beta-01</VersionSuffix>-->
