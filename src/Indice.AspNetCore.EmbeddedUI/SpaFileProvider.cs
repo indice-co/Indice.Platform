@@ -12,21 +12,17 @@ namespace Indice.AspNetCore.EmbeddedUI
     {
         private readonly EmbeddedFileProvider _inner;
         private readonly TOptions _options;
-        private readonly Type _fileInfoType;
 
-        public SpaFileProvider(EmbeddedFileProvider inner, TOptions options, Type fileInfoType) {
+        public SpaFileProvider(EmbeddedFileProvider inner, TOptions options) {
             _inner = inner ?? throw new ArgumentNullException(nameof(inner));
             _options = options ?? throw new ArgumentNullException(nameof(options));
-            _fileInfoType = fileInfoType ?? throw new ArgumentNullException(nameof(fileInfoType));
         }
 
         public IDirectoryContents GetDirectoryContents(string subpath) => _inner.GetDirectoryContents(subpath);
 
         public IFileInfo GetFileInfo(string subpath) {
             if (subpath.Equals("/index.html", StringComparison.OrdinalIgnoreCase)) {
-                //var fileInfoType = _fileInfoType.MakeGenericType(typeof(TOptions));
-                var fileInfoInstance = Activator.CreateInstance(_fileInfoType, _inner.GetFileInfo("index.html"), _options);
-                return (IFileInfo)fileInfoInstance;
+                return new SpaIndexFileInfo(_inner.GetFileInfo("index.html"), _options);
             }
             return _inner.GetFileInfo(subpath);
         }
@@ -37,18 +33,18 @@ namespace Indice.AspNetCore.EmbeddedUI
     /// <summary>
     /// Represents the starting point file for a SPA (index.html) in the given file provider.
     /// </summary>
-    public class SpaIndexFileInfo<TOptions> : IFileInfo where TOptions : SpaUIOptions
+    internal class SpaIndexFileInfo : IFileInfo
     {
         private readonly IFileInfo _fileInfo;
-        private readonly TOptions _options;
+        private readonly SpaUIOptions _options;
         private long? _length;
 
         /// <summary>
-        /// Creates a new instance of <see cref="SpaIndexFileInfo{TOptions}"/>.
+        /// Creates a new instance of <see cref="SpaIndexFileInfo"/>.
         /// </summary>
         /// <param name="fileInfo">Represents a file in the given file provider.</param>
         /// <param name="options">Options for configuring <see cref="SpaUIMiddleware{TOptions}"/> middleware.</param>
-        public SpaIndexFileInfo(IFileInfo fileInfo, TOptions options) {
+        public SpaIndexFileInfo(IFileInfo fileInfo, SpaUIOptions options) {
             _fileInfo = fileInfo ?? throw new ArgumentNullException(nameof(fileInfo));
             _options = options ?? throw new ArgumentNullException(nameof(options));
         }
@@ -93,17 +89,21 @@ namespace Indice.AspNetCore.EmbeddedUI
         /// <summary>
         /// Creates a <see cref="Dictionary{TKey, TValue}"/> that is used to replace options in the index.html file.
         /// </summary>
-        protected virtual IDictionary<string, string> GetIndexArguments() => new Dictionary<string, string>() {
-            { "%(Authority)", _options.Authority.TrimEnd('/') },
-            { "%(ClientId)", _options.ClientId },
-            { "%(DocumentTitle)", _options.DocumentTitle },
-            { "%(Host)", _options.Host.TrimEnd('/') },
-            { "%(Path)", _options.Path.Trim('/') },
-            { "%(HeadContent)", _options.HeadContent },
-            { "%(Culture)", CultureInfo.CurrentCulture.TwoLetterISOLanguageName },
-            { "%(ProductVersion)", _options.Version },
-            { "%(Scopes)", _options.Scope },
-            { "%(PostLogoutRedirectUri)", _options.PostLogoutRedirectUri?.Trim('/') ?? string.Empty }
-        };
+        private IDictionary<string, string> GetIndexArguments() {
+            var arguments = new Dictionary<string, string>() {
+                ["%(Authority)"] = _options.Authority.TrimEnd('/'),
+                ["%(ClientId)"] = _options.ClientId,
+                ["%(DocumentTitle)"] = _options.DocumentTitle,
+                ["%(Host)"] = _options.Host.TrimEnd('/'),
+                ["%(Path)"] = _options.Path.Trim('/'),
+                ["%(HeadContent)"] = _options.HeadContent,
+                ["%(Culture)"] = CultureInfo.CurrentCulture.TwoLetterISOLanguageName,
+                ["%(ProductVersion)"] = _options.Version,
+                ["%(Scopes)"] = _options.Scope,
+                ["%(PostLogoutRedirectUri)"] = _options.PostLogoutRedirectUri?.Trim('/') ?? string.Empty
+            };
+            _options.ConfigureIndexParameters?.Invoke(arguments);
+            return arguments;
+        }
     }
 }

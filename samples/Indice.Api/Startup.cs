@@ -86,7 +86,6 @@ namespace Indice.Api
                 options.Host = Settings.Host;
                 options.Enabled = true;
                 options.OnPrepareResponse = staticFileOptions.OnPrepareResponse;
-                options.ActiveDeliveryChannels = CampaignDeliveryChannel.Inbox | CampaignDeliveryChannel.PushNotification;
                 options.InjectStylesheet("/css/campaigns-ui-overrides.css");
             });
             app.UseEndpoints(endpoints => {

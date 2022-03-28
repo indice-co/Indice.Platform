@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Microsoft.AspNetCore.StaticFiles;
 
 namespace Indice.AspNetCore.EmbeddedUI
@@ -61,5 +62,9 @@ namespace Indice.AspNetCore.EmbeddedUI
         /// Called after the status code and headers have been set, but before the body has been written. This can be used to add or change the response headers.
         /// </summary>
         public Action<StaticFileResponseContext> OnPrepareResponse { get; set; }
+        /// <summary>
+        /// 
+        /// </summary>
+        public Action<Dictionary<string, string>> ConfigureIndexParameters { get; set; }
     }
 }
