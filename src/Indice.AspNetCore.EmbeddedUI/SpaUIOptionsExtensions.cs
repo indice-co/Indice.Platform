@@ -9,10 +9,10 @@ namespace Microsoft.AspNetCore.Builder
     public static class SpaUIOptionsExtensions
     {
         /// <summary>
-        /// Injects additional Javascript files into the index.html page.
+        /// Injects additional JavaScript files into the index.html page.
         /// </summary>
-        /// <param name="options">Options for configuring <see cref="SpaUIMiddleware"/> middleware.</param>
-        /// <param name="path">A path to the javascript - i.e. the script "src" attribute.</param>
+        /// <param name="options">Options for configuring <see cref="SpaUIMiddleware{TOptions}"/> middleware.</param>
+        /// <param name="path">A path to the JavaScript - i.e. the script "src" attribute.</param>
         /// <param name="type">The script type - i.e. the script "type" attribute.</param>
         /// <returns></returns>
         public static SpaUIOptions InjectJavascript(this SpaUIOptions options, string path, string type = "text/javascript") {
@@ -23,10 +23,10 @@ namespace Microsoft.AspNetCore.Builder
         }
 
         /// <summary>
-        /// Injects additional CSS stylesheets into the index.html page.
+        /// Injects additional CSS style-sheets into the index.html page.
         /// </summary>
-        /// <param name="options">Options for configuring <see cref="SpaUIMiddleware"/> middleware.</param>
-        /// <param name="path">A path to the stylesheet - i.e. the link "href" attribute.</param>
+        /// <param name="options">Options for configuring <see cref="SpaUIMiddleware{TOptions}"/> middleware.</param>
+        /// <param name="path">A path to the style-sheet - i.e. the link "href" attribute.</param>
         /// <param name="media">The target media - i.e. the link "media" attribute.</param>
         public static SpaUIOptions InjectStylesheet(this SpaUIOptions options, string path, string media = "screen") {
             var builder = new StringBuilder(options.HeadContent);

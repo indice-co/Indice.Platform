@@ -14,30 +14,37 @@ namespace Indice.AspNetCore.EmbeddedUI
     /// <summary>
     /// A middleware used to configure and serve the admin back-office application for an Identity Server instance.
     /// </summary>
-    public class SpaUIMiddleware
+    public class SpaUIMiddleware<TOptions> where TOptions : SpaUIOptions, new()
     {
-        private readonly SpaUIOptions _options;
+        private readonly TOptions _options;
         private readonly RequestDelegate _next;
         private readonly StaticFileMiddleware _staticFileMiddleware;
         private StaticFileOptions _staticFileOptions;
 
         /// <summary>
-        /// Constructs a new instance of <see cref="SpaUIMiddleware"/>.
+        /// Constructs a new instance of <see cref="SpaUIMiddleware{TOptions}"/>.
         /// </summary>
-        /// <param name="options">Options for configuring <see cref="SpaUIMiddleware"/> middleware.</param>
+        /// <param name="options">Options for configuring <see cref="SpaUIMiddleware{TOptions}"/> middleware.</param>
         /// <param name="embeddedUIRoot">Embedded UI root folder name.</param>
         /// <param name="assembly">The assembly containing the embedded resources.</param>
         /// <param name="loggerFactory">Represents a type used to configure the logging system.</param>
         /// <param name="hostingEnvironment">Provides information about the web hosting environment an application is running in.</param>
         /// <param name="next">A function that can process an HTTP request.</param>
-        public SpaUIMiddleware(SpaUIOptions options, string embeddedUIRoot, Assembly assembly, ILoggerFactory loggerFactory, IWebHostEnvironment hostingEnvironment, RequestDelegate next) {
-            _options = options ?? new SpaUIOptions();
-            _next = next;
+        public SpaUIMiddleware(
+            TOptions options, 
+            string embeddedUIRoot, 
+            Assembly assembly, 
+            ILoggerFactory loggerFactory, 
+            IWebHostEnvironment hostingEnvironment, 
+            RequestDelegate next
+        ) {
+            _options = options ?? new TOptions();
+            _next = next ?? throw new ArgumentNullException(nameof(next));
             _staticFileMiddleware = CreateStaticFileMiddleware(hostingEnvironment, loggerFactory, embeddedUIRoot, assembly);
         }
 
         /// <summary>
-        /// Invokes the <see cref="SpaUIMiddleware"/>.
+        /// Invokes the <see cref="SpaUIMiddleware{TOptions}"/>.
         /// </summary>
         /// <param name="httpContext">Encapsulates all HTTP-specific information about an individual HTTP request.</param>
         public async Task Invoke(HttpContext httpContext) {
@@ -64,7 +71,7 @@ namespace Indice.AspNetCore.EmbeddedUI
             var baseNamespace = $"{assembly.GetName().Name}.{embeddedUIRoot.Replace("-", "_")}";
             _staticFileOptions = new StaticFileOptions {
                 RequestPath = string.IsNullOrEmpty(_options.Path) ? string.Empty : _options.Path,
-                FileProvider = new SpaFileProvider(new EmbeddedFileProvider(assembly, baseNamespace), _options),
+                FileProvider = new SpaFileProvider<TOptions>(new EmbeddedFileProvider(assembly, baseNamespace), _options),
                 ContentTypeProvider = new FileExtensionContentTypeProvider()
             };
             if (_options.OnPrepareResponse != null) {

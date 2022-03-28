@@ -3,6 +3,7 @@ using System.Globalization;
 using System.Linq;
 using Indice.Api.Data;
 using Indice.AspNetCore.Features.Campaigns;
+using Indice.AspNetCore.Features.Campaigns.UI;
 using Indice.Configuration;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
