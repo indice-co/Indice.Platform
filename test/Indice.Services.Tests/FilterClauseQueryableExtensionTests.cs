@@ -50,11 +50,13 @@ namespace Indice.Services.Tests
         [Fact]
         public async Task ToResultset_Translates_DynamicJsonPaths_Test() {
             var dbContext = ServiceProvider.GetRequiredService<DummyDbContext>();
-            var options = new ListOptions() {
-                Sort = "data.displayName-,name"
-            };
             var query = dbContext.Dummies;
-            var results = await query.ToResultSetAsync(options);
+            var results = await query.ToResultSetAsync(new ListOptions { Sort = "data.displayName,name" });
+            results = await query.ToResultSetAsync(new ListOptions { Sort = "data.displayName" });
+            results = await query.ToResultSetAsync(new ListOptions { Sort = "(integer)data.order" });
+            results = await query.ToResultSetAsync(new ListOptions { Sort = "(datetime)data.period.from+" });
+            results = await query.ToResultSetAsync(new ListOptions { Sort = "(datetime)data.birthDate-" });
+            results = await query.ToResultSetAsync(new ListOptions { Sort = "(number)data.Balance-" });
             Assert.True(true);
         }
 
@@ -70,9 +72,9 @@ namespace Indice.Services.Tests
         public DummyDbContext(DbContextOptions<DummyDbContext> options) : base(options) {
             if (Database.EnsureCreated()) {
                 Dummies.AddRange(
-                    new Dummy { Name = "Κωνσταντίνος", Metadata = new Dictionary<string, string> { ["NAME"] = "Thanos", ["Surname"] = "Panos" } , Data = new DummyItem { DisplayName = "Κωνσταντίνος Θέρης", Enabled = true, Order = 1, TheDate = new DateTime(1981, 01, 28), Balance = 100.0, Period = new Period { From = DateTime.Now.AddDays(-10), To = DateTime.Now.AddDays(10) } } },
-                    new Dummy { Name = "Γιώργος", Data = new DummyItem { DisplayName = "Γιώργος Τζάς", Enabled = false, Order = 2, TheDate = new DateTime(1989, 10, 24), Balance = 360.23 } },
-                    new Dummy { Name = "Γιάννης", Metadata = new Dictionary<string, string> { ["NAME"] = "Thanos" }, Data = new DummyItem { DisplayName = "Γιάννης Νές", Enabled = true, Order = 3, TheDate = new DateTime(1971, 12, 1), Balance = 1260.23 } }
+                    new Dummy { Name = "Κωνσταντίνος", Metadata = new Dictionary<string, string> { ["NAME"] = "Thanos", ["Surname"] = "Panos" } , Data = new DummyItem { DisplayName = "Κωνσταντίνος Θέρης", Enabled = true, Order = 7, BirthDate = new DateTime(1981, 01, 28), Balance = 100.0, Period = new Period { From = DateTime.Now.AddDays(-10), To = DateTime.Now.AddDays(10) } } },
+                    new Dummy { Name = "Γιώργος", Data = new DummyItem { DisplayName = "Γιώργος Τζάς", Enabled = false, Order = -14, BirthDate = new DateTime(1989, 10, 24), Balance = 360.23 } },
+                    new Dummy { Name = "Γιάννης", Metadata = new Dictionary<string, string> { ["NAME"] = "Thanos" }, Data = new DummyItem { DisplayName = "Γιάννης Νές", Enabled = true, Order = 2, BirthDate = new DateTime(1971, 12, 1), Balance = 1260.23 } }
                     );
                 SaveChanges();
             }
@@ -92,7 +94,7 @@ namespace Indice.Services.Tests
     
     public class DummyItem
     {
-        public DateTime? TheDate { get; set; }
+        public DateTime? BirthDate { get; set; }
         public int Order { get; set; }
         public bool Enabled { get; set; }
         public string DisplayName { get; set; }

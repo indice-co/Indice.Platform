@@ -227,13 +227,13 @@ namespace Indice.Extensions
             MethodInfo castMethod;
             switch (dataType) {
                 case JsonDataType.Integer:
-                    castMethod = typeof(Convert).GetMethod(nameof(Convert.ToInt32), BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static);
+                    castMethod = typeof(Convert).GetMethod(nameof(Convert.ToInt32), new[] { typeof(string) });
                     break;
                 case JsonDataType.Number:
-                    castMethod = typeof(Convert).GetMethod(nameof(Convert.ToDouble), BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static);
+                    castMethod = typeof(Convert).GetMethod(nameof(Convert.ToDouble), new[] { typeof(string) });
                     break;
                 case JsonDataType.Boolean:
-                    castMethod = typeof(Convert).GetMethod(nameof(Convert.ToBoolean), BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static);
+                    castMethod = typeof(Convert).GetMethod(nameof(Convert.ToBoolean), new[] { typeof(string) });
                     break;
                 case JsonDataType.DateTime:
                     castMethod = typeof(JsonFunctions).GetMethod(nameof(JsonFunctions.CastToDate), BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static);
