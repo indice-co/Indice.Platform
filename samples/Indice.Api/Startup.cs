@@ -3,6 +3,7 @@ using System.Globalization;
 using System.Linq;
 using Indice.Api.Data;
 using Indice.AspNetCore.Features.Campaigns;
+using Indice.AspNetCore.Features.Campaigns.UI;
 using Indice.Configuration;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -85,6 +86,7 @@ namespace Indice.Api
                 options.Host = Settings.Host;
                 options.Enabled = true;
                 options.OnPrepareResponse = staticFileOptions.OnPrepareResponse;
+                options.ActiveDeliveryChannels = CampaignDeliveryChannel.Inbox | CampaignDeliveryChannel.PushNotification;
                 options.InjectStylesheet("/css/campaigns-ui-overrides.css");
             });
             app.UseEndpoints(endpoints => {
