@@ -15,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <summary>
         /// Static map of Dynamic Json Columns.
         /// </summary>
-        internal static readonly ConcurrentDictionary<Type, List<string>> JsonColumns = new ConcurrentDictionary<Type, List<string>>();
+        internal static readonly ConcurrentDictionary<Type, HashSet<string>> JsonColumns = new ConcurrentDictionary<Type, HashSet<string>>();
 
         /// <summary>
         /// Configures the property so that the property value is converted to and from the database using the <see cref="JsonStringValueConverter{T}"/>.
@@ -35,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 #else
             builder.HasConversion(new JsonStringValueConverter<TProperty>()).Metadata.SetValueComparer(valueComparer);
 #endif
-            var jsonColumns = JsonColumns.GetOrAdd(builder.Metadata.DeclaringType.ClrType, t => new List<string>());
+            var jsonColumns = JsonColumns.GetOrAdd(builder.Metadata.DeclaringType.ClrType, t => new HashSet<string>(StringComparer.OrdinalIgnoreCase));
             jsonColumns.Add(builder.Metadata.Name);
             return builder;
         }

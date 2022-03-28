@@ -38,14 +38,26 @@ namespace Indice.Services.Tests
 
             var filters = new List<FilterClause> {
                 (FilterClause)"data.displayName::contains::κων",
-                (FilterClause)"data.period.to::gt::(DateTime)2022-03-24",
+                (FilterClause)$"data.period.to::gt::(DateTime){DateTime.Now:yyyy-MM-dd}",
                 (FilterClause)"metadata.NAME::eq::Thanos",
                 //(FilterClause)"name::eq::Κωνσταντίνος",
             };
             var query = dbContext.Dummies.Where(filters);
             var results = await query.ToListAsync();
+            Assert.Single(results);
+        }
+
+        [Fact]
+        public async Task ToResultset_Translates_DynamicJsonPaths_Test() {
+            var dbContext = ServiceProvider.GetRequiredService<DummyDbContext>();
+            var options = new ListOptions() {
+                Sort = "data.displayName-,name"
+            };
+            var query = dbContext.Dummies;
+            var results = await query.ToResultSetAsync(options);
             Assert.True(true);
         }
+
         public void Dispose() {
             var dbContext = ServiceProvider.GetRequiredService<DummyDbContext>();
             dbContext.Database.EnsureDeleted();
