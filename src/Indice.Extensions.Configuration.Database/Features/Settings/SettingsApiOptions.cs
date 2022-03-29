@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System.Collections.ObjectModel;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Indice.AspNetCore.Features.Settings
@@ -22,5 +23,9 @@ namespace Indice.AspNetCore.Features.Settings
         /// The default scope name to be used for Settings API. Defaults to <see cref="SettingsApi.Scope"/>.
         /// </summary>
         public string RequiredScope { get; set; } = SettingsApi.Scope;
+        /// <summary>
+        /// list of Authentication schemes. If left empty the default scheme will be used
+        /// </summary>
+        public ICollection<string> AuthenticationSchemes { get; set; } = new Collection<string>();
     }
 }

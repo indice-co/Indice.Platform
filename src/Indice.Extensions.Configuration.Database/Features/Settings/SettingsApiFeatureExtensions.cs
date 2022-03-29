@@ -41,6 +41,9 @@ namespace Microsoft.Extensions.DependencyInjection
                 authOptions.AddPolicy(SettingsApi.Policies.BeSettingsManager, policy => {
                     policy.RequireAuthenticatedUser()
                           .RequireAssertion(x => (string.IsNullOrWhiteSpace(settingsApiOptions.RequiredScope) ? x.User.HasScopeClaim(SettingsApi.Scope) : true) && x.User.IsAdmin());
+                    if (settingsApiOptions.AuthenticationSchemes?.Count > 0) {
+                        policy.AddAuthenticationSchemes();
+                    }
                 });
             });
             return mvcBuilder;

@@ -42,7 +42,7 @@ namespace Indice.AspNetCore.Swagger
                         }
                     });
                 }
-                var scopes = new[] { _apiSettings.ResourceName }.Union(_apiSettings.Scopes.Select(x => $"{_apiSettings.ResourceName}:{x.Name}"));
+                var scopes = new[] { _apiSettings.ResourceName }.Union(_apiSettings.Scopes.Select(x => x.Name));
                 var oAuthScheme = new OpenApiSecurityScheme {
                     Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = _securitySchemeName }
                 };

@@ -59,7 +59,6 @@ namespace Indice.Services
             switch (devicePlatform) {
                 case DevicePlatform.iOS:
                     installationRequest.Platform = NotificationPlatform.Apns;
-                    // If silent notifications are not set, then default to generic notifications for iOS.
                     installationRequest.Templates.Add("DefaultMessage", new InstallationTemplate {
                         Body = PushNotificationAzureOptions.SilentNotifications ?? false ? PushNotificationServiceAzureTemplates.Silent.IOS : PushNotificationServiceAzureTemplates.Generic.IOS
                     });
@@ -67,7 +66,6 @@ namespace Indice.Services
                 case DevicePlatform.Android:
                     installationRequest.Platform = NotificationPlatform.Fcm;
                     installationRequest.Templates.Add("DefaultMessage", new InstallationTemplate {
-                        // If silent notifications are not set, then default to silent notifications for Android.
                         Body = PushNotificationAzureOptions.SilentNotifications ?? true ? PushNotificationServiceAzureTemplates.Silent.ANDROID : PushNotificationServiceAzureTemplates.Generic.ANDROID
                     });
                     break;
@@ -139,23 +137,25 @@ namespace Indice.Services
     /// <summary>
     /// Generic and silent push notification templates for Android and iOS.
     /// </summary>
-    public class PushNotificationServiceAzureTemplates 
+    public class PushNotificationServiceAzureTemplates
     {
         /// <summary>
         /// Generic templates.
         /// </summary>
-        public class Generic 
+        public class Generic
         {
             /// <summary>
             /// iOS generic template.
             /// </summary>
             public const string IOS = @"{
                 ""aps"":{
-                    ""alert"":""$(message)"", 
-                    ""category"":""$(classification)""
+                    ""alert"": ""$(message)"", 
+                    ""category"": ""$(classification)""
                 }, 
                 ""payload"":{
-                    ""data"":""$(data)""
+                    ""message"": ""$(message)"", 
+                    ""data"": ""$(data)"", 
+                    ""category"": ""$(classification)""
                 }
             }";
 
@@ -164,13 +164,13 @@ namespace Indice.Services
             /// </summary>
             public const string ANDROID = @"{
                 ""notification"":{
-                    ""title"":""$(message)"",
-                    ""body"":""$(body)""
+                    ""title"": ""$(message)"",
+                    ""body"": ""$(body)""
                 },
                 ""data"":{
-                    ""message"":""$(message)"", 
-                    ""data"":""$(data)"", 
-                    ""category"":""$(classification)""
+                    ""message"": ""$(message)"", 
+                    ""data"": ""$(data)"", 
+                    ""category"": ""$(classification)""
                 }
             }";
         }
@@ -178,22 +178,24 @@ namespace Indice.Services
         /// <summary>
         /// Silent templates.
         /// </summary>
-        public class Silent 
+        public class Silent
         {
             /// <summary>
             /// iOS silent template.
             /// </summary>
             public const string IOS = @"{
                 ""aps"":{, 
-                    ""category"":""$(classification)""
-                    ""content-available"":1,
-                    ""apns-priority"":5,
-                    ""sound"":"""",
-                    ""badge"":0
+                    ""category"": ""$(classification)"",
+                    ""content-available"": 1,
+                    ""apns-priority"": 5,
+                    ""sound"": """",
+                    ""badge"": 0
                 },
-                ""message"":""$(message)"",
+                ""message"": ""$(message)"",
                 ""payload"":{
-                    ""data"":""$(data)""
+                    ""message"": ""$(message)"", 
+                    ""data"": ""$(data)"", 
+                    ""category"": ""$(classification)""
                 }
             }";
 
@@ -202,9 +204,9 @@ namespace Indice.Services
             /// </summary>
             public const string ANDROID = @"{
                 ""data"":{
-                    ""message"":""$(message)"", 
-                    ""data"":""$(data)"", 
-                    ""category"":""$(classification)""
+                    ""message"": ""$(message)"", 
+                    ""data"": ""$(data)"", 
+                    ""category"": ""$(classification)""
                 }
             }";
         }

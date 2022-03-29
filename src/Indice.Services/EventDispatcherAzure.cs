@@ -1,6 +1,8 @@
 ﻿using System;
 using System.IO;
+using System.IO.Compression;
 using System.Security.Claims;
+using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -18,12 +20,14 @@ namespace Indice.Services
         /// The default name of the storage connection string.
         /// </summary>
         public const string CONNECTION_STRING_NAME = "StorageConnection";
+        private readonly string _connectionString;
+        private readonly string _environmentName;
         private readonly bool _enabled;
+        private readonly bool _useCompression;
+        private readonly QueueMessageEncoding _queueMessageEncoding;
         private readonly Func<ClaimsPrincipal> _claimsPrincipalSelector;
         private readonly Func<Guid?> _tenantIdSelector;
         private readonly JsonSerializerOptions _jsonSerializerOptions;
-        private readonly string _environmentName;
-        private readonly string _connectionString;
 
         /// <summary>
         /// Create a new <see cref="EventDispatcherAzure"/> instance.
@@ -31,20 +35,18 @@ namespace Indice.Services
         /// <param name="connectionString">The connection string to the Azure Storage account. By default it searches for <see cref="CONNECTION_STRING_NAME"/> application setting inside ConnectionStrings section.</param>
         /// <param name="environmentName">The environment name to use. Defaults to 'Production'.</param>
         /// <param name="enabled">Provides a way to enable/disable event dispatching at will. Defaults to true.</param>
+        /// <param name="useCompression">When selected, applies Brotli compression algorithm in the queue message payload. Defaults to false.</param>
+        /// <param name="queueMessageEncoding">Determines how <see cref="Azure.Storage.Queues.Models.QueueMessage.Body"/> is represented in HTTP requests and responses.</param>
         /// <param name="claimsPrincipalSelector">Provides a way to access the current <see cref="ClaimsPrincipal"/> inside a service.</param>
         /// <param name="tenantIdSelector">Provides a way to access the current tenant id if any.</param>
-        public EventDispatcherAzure(string connectionString, string environmentName, bool enabled, Func<ClaimsPrincipal> claimsPrincipalSelector, Func<Guid?> tenantIdSelector) {
-            if (string.IsNullOrEmpty(connectionString)) {
-                throw new ArgumentNullException(nameof(connectionString));
-            }
-            if (string.IsNullOrEmpty(environmentName)) {
-                _environmentName = "production";
-            }
-            _enabled = enabled;
+        public EventDispatcherAzure(string connectionString, string environmentName, bool enabled, bool useCompression, QueueMessageEncoding queueMessageEncoding, Func<ClaimsPrincipal> claimsPrincipalSelector, Func<Guid?> tenantIdSelector) {
+            _connectionString = connectionString ?? throw new ArgumentNullException(nameof(connectionString));
             _environmentName = Regex.Replace(environmentName ?? "Development", @"\s+", "-").ToLowerInvariant();
-            _connectionString = connectionString;
+            _enabled = enabled;
+            _useCompression = useCompression;
+            _queueMessageEncoding = queueMessageEncoding;
             _claimsPrincipalSelector = claimsPrincipalSelector ?? throw new ArgumentNullException(nameof(claimsPrincipalSelector));
-            _tenantIdSelector = tenantIdSelector ?? new Func<Guid?> (() => new Guid?());
+            _tenantIdSelector = tenantIdSelector ?? new Func<Guid?>(() => new Guid?());
             _jsonSerializerOptions = JsonSerializerOptionDefaults.GetDefaultSettings();
         }
 
@@ -61,28 +63,36 @@ namespace Indice.Services
             }
             var queue = await EnsureExistsAsync(queueName);
             var user = actingPrincipal ?? _claimsPrincipalSelector?.Invoke();
+            var payloadBytes = Array.Empty<byte>();
             // Special cases string, byte[] or stream.
             switch (payload) {
-                case string text: await queue.SendMessageAsync(text, visibilityTimeout); return;
-                case byte[] bytes: await queue.SendMessageAsync(new BinaryData(bytes), visibilityTimeout); return;
-                case ReadOnlyMemory<byte> memory: await queue.SendMessageAsync(new BinaryData(memory), visibilityTimeout); return;
+                case string text: payloadBytes = Encoding.UTF8.GetBytes(text); break;
+                case byte[] bytes: payloadBytes = bytes; break;
+                case ReadOnlyMemory<byte> memory: payloadBytes = memory.ToArray(); break;
                 case Stream stream:
-                    using (var memoryStream = new MemoryStream()) {
-                        stream.CopyTo(memoryStream);
-                        await queue.SendMessageAsync(new BinaryData(memoryStream.ToArray()), visibilityTimeout);
+                    await using (var memoryStream = new MemoryStream()) {
+                        await stream.CopyToAsync(memoryStream);
+                        payloadBytes = memoryStream.ToArray();
                     }
-                    return;
+                    break;
+                default:
+                    // Create a message and add it to the queue.
+                    var jsonPayload = wrap
+                        ? JsonSerializer.Serialize(Envelope.Create(user, payload, _tenantIdSelector()), _jsonSerializerOptions)
+                        : JsonSerializer.Serialize(payload, _jsonSerializerOptions);
+                    payloadBytes = Encoding.UTF8.GetBytes(jsonPayload);
+                    break;
             }
-            // Create a message and add it to the queue.
-            var data = wrap
-                ? new BinaryData(Envelope.Create(user, payload, _tenantIdSelector()), options: _jsonSerializerOptions, type: typeof(Envelope<TEvent>))
-                : new BinaryData(payload, options: _jsonSerializerOptions, type: typeof(TEvent));
-            await queue.SendMessageAsync(data, visibilityTimeout);
+            if (_useCompression) {
+                await queue.SendMessageAsync(new BinaryData(await CompressionUtils.Compress(payloadBytes)), visibilityTimeout);
+                return;
+            }
+            await queue.SendMessageAsync(new BinaryData(payloadBytes), visibilityTimeout);
         }
 
         private async Task<QueueClient> EnsureExistsAsync(string queueName) {
             var queueClient = new QueueClient(_connectionString, queueName, new QueueClientOptions {
-                MessageEncoding = QueueMessageEncoding.Base64
+                MessageEncoding = _queueMessageEncoding
             });
             await queueClient.CreateIfNotExistsAsync();
             return queueClient;
@@ -114,5 +124,13 @@ namespace Indice.Services
         /// A function that retrieves the current tenant id by any means possible. This is optional.
         /// </summary>
         public Func<Guid?> TenantIdSelector { get; set; }
+        /// <summary>
+        /// Determines how <see cref="Azure.Storage.Queues.Models.QueueMessage.Body"/> is represented in HTTP requests and responses.
+        /// </summary>
+        public QueueMessageEncoding QueueMessageEncoding { get; set; } = QueueMessageEncoding.Base64;
+        /// <summary>
+        /// When selected, applies Brotli compression algorithm in the queue message payload. Defaults to false.
+        /// </summary>
+        public bool UseCompression { get; set; }
     }
 }

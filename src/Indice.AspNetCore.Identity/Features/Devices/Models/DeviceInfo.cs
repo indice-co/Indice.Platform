@@ -47,7 +47,7 @@ namespace Indice.AspNetCore.Identity.Api.Models
         public dynamic Data { get; set; }
 
         /// <summary>
-        /// Creates a new instace of <see cref="DeviceInfo"/> from a <see cref="UserDevice"/> object.
+        /// Creates a new instance of <see cref="DeviceInfo"/> from a <see cref="UserDevice"/> object.
         /// </summary>
         /// <param name="device">The device instance.</param>
         public static DeviceInfo FromUserDevice(UserDevice device) => new() {

@@ -18,7 +18,7 @@
                       (ngSubmit)="form.form.valid && update()"
                       novalidate
                       #form="ngForm">
-                    <div class="form-group row">
+                    <div class="mb-3 row">
                         <label for="setting-name"
                                class="col-sm-2 col-form-label">
                             Name
@@ -31,7 +31,7 @@
                             </span>
                         </div>
                     </div>
-                    <div class="form-group row">
+                    <div class="mb-3 row">
                         <label for="setting-value"
                                class="col-sm-2 col-form-label">
                             Value
@@ -51,14 +51,14 @@
                             </div>
                         </div>
                     </div>
-                    <div class="form-group">
+                    <div class="mb-3">
                         <div>
                             <button type="submit"
                                     class="btn btn-primary m-r-5">
                                 Save Changes
                             </button>
                             <button type="button"
-                                    class="btn btn-danger m-r-5 float-right"
+                                    class="btn btn-danger m-r-5 float-end"
                                     (click)="deletePrompt()">
                                 Delete
                             </button>

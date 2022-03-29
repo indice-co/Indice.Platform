@@ -1,5 +1,5 @@
 <form novalidate>
-    <div class="form-group row">
+    <div class="mb-3 row">
         <label class="col-sm-2 col-form-label">
             Client Id
         </label>
@@ -11,7 +11,7 @@
             </span>
         </div>
     </div>
-    <div class="form-group row">
+    <div class="mb-3 row">
         <label class="col-sm-2 col-form-label">
             Client Name
         </label>
@@ -23,7 +23,7 @@
             </span>
         </div>
     </div>
-    <div class="form-group row">
+    <div class="mb-3 row">
         <label class="col-sm-2 col-form-label">
             Require Consent
         </label>
@@ -35,7 +35,7 @@
             </span>
         </div>
     </div>
-    <div class="form-group row"
+    <div class="mb-3 row"
          *ngIf="summary.clientUri">
         <label class="col-sm-2 col-form-label">
             Client URI
@@ -48,7 +48,7 @@
             </span>
         </div>
     </div>
-    <div class="form-group row"
+    <div class="mb-3 row"
          *ngIf="summary.logoUri">
         <label class="col-sm-2 col-form-label">
             Logo URI
@@ -61,7 +61,7 @@
             </span>
         </div>
     </div>
-    <div class="form-group row">
+    <div class="mb-3 row">
         <label class="col-sm-2 col-form-label">
             Description
         </label>
@@ -73,7 +73,7 @@
             </span>
         </div>
     </div>
-    <div class="form-group row"
+    <div class="mb-3 row"
          *ngIf="summary.redirectUri">
         <label class="col-sm-2 col-form-label">
             Callback URL
@@ -86,7 +86,7 @@
             </span>
         </div>
     </div>
-    <div class="form-group row"
+    <div class="mb-3 row"
          *ngIf="summary.postLogoutRedirectUri">
         <label class="col-sm-2 col-form-label">
             Post Logout URL
@@ -99,7 +99,7 @@
             </span>
         </div>
     </div>
-    <div class="form-group row"
+    <div class="mb-3 row"
          *ngIf="(summary.secrets || certificates) && summary.clientType === 'Machine'">
         <label class="col-sm-2 col-form-label">
             Secrets
@@ -112,7 +112,7 @@
             </span>
         </div>
     </div>
-    <div class="form-group row"
+    <div class="mb-3 row"
          *ngIf="summary.identityResources">
         <label class="col-sm-2 col-form-label">
             Identity Resources
@@ -126,7 +126,7 @@
             </h6>
         </div>
     </div>
-    <div class="form-group row"
+    <div class="mb-3 row"
          *ngIf="summary.apiResources">
         <label class="col-sm-2 col-form-label">
             API Resources

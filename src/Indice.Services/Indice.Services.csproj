@@ -3,10 +3,10 @@
     <Description>Indice.Services Class Library</Description>
     <Copyright>Copyright (c) 2018 Indice</Copyright>
     <AssemblyTitle>Indice.Services</AssemblyTitle>
-    <VersionPrefix>6.0.0</VersionPrefix>
+    <VersionPrefix>6.0.5</VersionPrefix>
     <!--<VersionSuffix>beta-01</VersionSuffix>-->
     <Authors>Constantinos Leftheris, Georgios Manoltzas</Authors>
-    <TargetFrameworks>netstandard2.0;net5.0;net6.0;</TargetFrameworks>
+    <TargetFrameworks>netstandard2.1;net5.0;net6.0;</TargetFrameworks>
     <AssemblyName>Indice.Services</AssemblyName>
     <AssemblyTitle>Indice.Services</AssemblyTitle>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
@@ -16,7 +16,7 @@
     <IsPackable>true</IsPackable>
     <PackageId>Indice.Services</PackageId>
     <PackageTags>Events;Files;Emails;Sms;Push Notifications;Locking</PackageTags>
-    <PackageReleaseNotes>Update Indice.Common. IPushNotificationService breaking changes.</PackageReleaseNotes>
+    <PackageReleaseNotes>Fix encoding issue in EventDispatcherAzure.</PackageReleaseNotes>
     <PackageIcon>icon-310.png</PackageIcon>
     <PackageProjectUrl>https://github.com/indice-co/Indice.AspNet</PackageProjectUrl>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
@@ -34,7 +34,7 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Azure.Storage.Queues" Version="12.8.0" />
-    <PackageReference Include="Indice.Common" Version="6.0.0" />
+    <PackageReference Include="Indice.Common" Version="6.0.3" />
     <PackageReference Include="MailKit" Version="3.1.1" />
     <PackageReference Include="Microsoft.Azure.NotificationHubs" Version="4.1.0" />
     <PackageReference Include="Azure.Storage.Blobs" Version="12.10.0" />
@@ -52,7 +52,7 @@
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="5.0.0" />
     <PackageReference Include="Microsoft.Extensions.Http" Version="5.0.0" />
   </ItemGroup>
-  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
+  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.1'">
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="3.1.22" />
     <PackageReference Include="Microsoft.Extensions.Caching.Abstractions" Version="3.1.22" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="3.1.22" />

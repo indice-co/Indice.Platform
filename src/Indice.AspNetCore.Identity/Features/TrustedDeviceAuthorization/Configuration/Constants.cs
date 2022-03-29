@@ -1,6 +1,4 @@
 ﻿using IdentityModel;
-using IdentityServer4.Models;
-using Indice.Configuration;
 
 namespace Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Configuration
 {
@@ -23,13 +21,6 @@ namespace Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Configuration
             JwtClaimTypes.ReferenceTokenId,
             JwtClaimTypes.SessionId,
             JwtClaimTypes.Scope
-        };
-
-        public static readonly string[] RequiredGrantTypes = {
-            CustomGrantTypes.TrustedDevice,
-            CustomGrantTypes.OtpAuthenticate,
-            GrantType.ClientCredentials,
-            GrantType.ResourceOwnerPassword
         };
     }
 

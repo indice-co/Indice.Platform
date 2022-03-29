@@ -25,7 +25,7 @@ namespace Indice.AspNetCore.Features.Campaigns.Data.Models
         public CampaignDeliveryChannel DeliveryChannel { get; set; }
         public Guid? TypeId { get; set; }
         public Guid? AttachmentId { get; set; }
-        public virtual DbAttachment Attachment { get; set; }
+        public virtual DbCampaignAttachment Attachment { get; set; }
         public virtual DbCampaignType Type { get; set; }
     }
 }

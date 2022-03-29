@@ -42,6 +42,7 @@ namespace Microsoft.Extensions.DependencyInjection
             mvcBuilder.AddSettingsApiEndpoints(settingsApiOptions => {
                 settingsApiOptions.ApiPrefix = "api";
                 settingsApiOptions.RequiredScope = IdentityServerApi.Scope;
+                settingsApiOptions.AuthenticationSchemes = new[] { IdentityServerApi.AuthenticationScheme };
                 settingsApiOptions.ConfigureDbContext = dbContextOptions.ConfigureDbContext;
             });
             services.AddDistributedMemoryCache();

@@ -11,7 +11,7 @@
     <Nullable>disable</Nullable>
     <TargetFrameworks>netcoreapp3.1;net5.0;net6.0</TargetFrameworks>
     <VersionPrefix>6.0.0</VersionPrefix>
-    <VersionSuffix>beta-01</VersionSuffix>
+    <!--<VersionSuffix>beta01</VersionSuffix>-->
   </PropertyGroup>
   <PropertyGroup Label="Package">
     <Company>Indice</Company>

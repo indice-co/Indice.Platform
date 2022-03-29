@@ -21,6 +21,7 @@ namespace Indice.Services.Tests
             }
             _FileService = new FileServiceAzureStorage(_connectionString, "test");
         }
+
         [Fact(Skip = "Should integrate azurite on build yaml")]
         public async Task UploadFile() {
             var folder = new Base64Id(Guid.NewGuid());

@@ -21,13 +21,13 @@ namespace Indice.AspNetCore.Features.Campaigns.Services
         public CampaignService(
             CampaignsDbContext dbContext,
             IOptions<GeneralSettings> generalSettings,
-            IOptions<CampaignsApiOptions> apiOptions,
+            IOptions<CampaignManagementOptions> campaignManagementOptions,
             Func<string, IFileService> getFileService,
             IHttpContextAccessor httpContextAccessor,
             LinkGenerator linkGenerator
         ) {
             DbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
-            ApiOptions = apiOptions?.Value ?? throw new ArgumentNullException(nameof(apiOptions));
+            CampaignManagementOptions = campaignManagementOptions?.Value ?? throw new ArgumentNullException(nameof(campaignManagementOptions));
             FileService = getFileService(CampaignsApi.FileServiceKey) ?? throw new ArgumentNullException(nameof(getFileService));
             GeneralSettings = generalSettings?.Value ?? throw new ArgumentNullException(nameof(generalSettings));
             HttpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
@@ -35,7 +35,7 @@ namespace Indice.AspNetCore.Features.Campaigns.Services
         }
 
         public CampaignsDbContext DbContext { get; }
-        public CampaignsApiOptions ApiOptions { get; }
+        public CampaignManagementOptions CampaignManagementOptions { get; }
         public IFileService FileService { get; }
         public GeneralSettings GeneralSettings { get; }
         public IHttpContextAccessor HttpContextAccessor { get; }
@@ -48,7 +48,7 @@ namespace Indice.AspNetCore.Features.Campaigns.Services
         }
 
         public async Task<AttachmentLink> CreateAttachment(IFormFile file) {
-            var attachment = new DbAttachment();
+            var attachment = new DbCampaignAttachment();
             attachment.PopulateFrom(file);
             using (var stream = file.OpenReadStream()) {
                 await FileService.SaveAsync($"campaigns/{attachment.Uri}", stream);
@@ -129,7 +129,7 @@ namespace Indice.AspNetCore.Features.Campaigns.Services
                              ContentType = campaign.Attachment.ContentType,
                              Label = campaign.Attachment.Name,
                              Size = campaign.Attachment.ContentLength,
-                             PermaLink = $"{GeneralSettings.Host.TrimEnd('/')}/{ApiOptions.ApiPrefix}/campaigns/attachments/{(Base64Id)campaign.Attachment.Guid}.{Path.GetExtension(campaign.Attachment.Name).TrimStart('.')}"
+                             PermaLink = $"{GeneralSettings.Host.TrimEnd('/')}/{CampaignManagementOptions.ApiPrefix}/campaigns/attachments/{(Base64Id)campaign.Attachment.Guid}.{Path.GetExtension(campaign.Attachment.Name).TrimStart('.')}"
                          } : null,
                          Content = campaign.Content,
                          CreatedAt = campaign.CreatedAt,

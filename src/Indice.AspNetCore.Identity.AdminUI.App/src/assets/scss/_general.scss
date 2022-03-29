@@ -52,6 +52,8 @@ h5 {
 }
 
 a {
+  text-decoration: none;
+  background-color: transparent;
   &:hover {
     outline: 0;
     text-decoration: none;

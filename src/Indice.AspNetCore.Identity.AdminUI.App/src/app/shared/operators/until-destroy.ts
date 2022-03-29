@@ -21,6 +21,6 @@ export function addDestroyObservableToComponent(component: any) {
             observer.complete();
             originalDestroy.call(component);
         };
-        return (_: any) => (component[destroy$] = undefined);
+        return () => (component[destroy$] = undefined);
     });
 }

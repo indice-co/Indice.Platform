@@ -22,12 +22,12 @@
                 <div class="card bg-primary mini-stat text-white">
                     <div class="p-3 mini-stat-desc">
                         <div class="clearfix">
-                            <h6 class="text-uppercase mt-0 float-left text-white-50">Users</h6>
-                            <h4 class="mb-3 mt-0 float-right">{{ summary.totalUsers }}</h4>
+                            <h6 class="text-uppercase mt-0 float-start text-white-50">Users</h6>
+                            <h4 class="mb-3 mt-0 float-end">{{ summary.totalUsers }}</h4>
                         </div>
                     </div>
                     <div class="p-3">
-                        <div class="float-right">
+                        <div class="float-end">
                             <a class="text-white-50"
                                [routerLink]="'/app/users'">
                                 <i class="material-icons">group</i>
@@ -41,12 +41,12 @@
                 <div class="card bg-info mini-stat text-white">
                     <div class="p-3 mini-stat-desc">
                         <div class="clearfix">
-                            <h6 class="text-uppercase mt-0 float-left text-white-50">Clients</h6>
-                            <h4 class="mb-3 mt-0 float-right">{{ summary.totalClients }}</h4>
+                            <h6 class="text-uppercase mt-0 float-start text-white-50">Clients</h6>
+                            <h4 class="mb-3 mt-0 float-end">{{ summary.totalClients }}</h4>
                         </div>
                     </div>
                     <div class="p-3">
-                        <div class="float-right">
+                        <div class="float-end">
                             <a class="text-white-50"
                                [routerLink]="'/app/clients'">
                                 <i class="material-icons">apps</i>
@@ -60,12 +60,12 @@
                 <div class="card bg-warning mini-stat text-white">
                     <div class="p-3 mini-stat-desc">
                         <div class="clearfix">
-                            <h6 class="text-uppercase mt-0 float-left text-white-50">Roles</h6>
-                            <h4 class="mb-3 mt-0 float-right">{{ summary.totalRoles }}</h4>
+                            <h6 class="text-uppercase mt-0 float-start text-white-50">Roles</h6>
+                            <h4 class="mb-3 mt-0 float-end">{{ summary.totalRoles }}</h4>
                         </div>
                     </div>
                     <div class="p-3">
-                        <div class="float-right">
+                        <div class="float-end">
                             <a class="text-white-50"
                                [routerLink]="'/app/roles'">
                                 <i class="material-icons">security</i>
@@ -83,7 +83,7 @@
                         <h4 class="mt-0 header-title mb-4">User Activity</h4>
                         <div class="latest-massage">
                             <a href="javascript:void(0)"
-                               class="latest-message-list">
+                               class="latest-message-list text-decoration-none">
                                 <div class="border-bottom position-relative">
                                     <div class="message-time"></div>
                                     <div class="massage-desc">
@@ -92,7 +92,7 @@
                                             <strong class="font-16">{{ summary.activity.day.count }}</strong>
                                             signed in today
                                         </p>
-                                        <p class="m-0 text-muted text-right">{{ summary.activity.day.percent }}%</p>
+                                        <p class="m-0 text-muted text-end">{{ summary.activity.day.percent }}%</p>
                                         <div class="progress"
                                              style="height: 5px;">
                                             <div class="progress-bar bg-danger"
@@ -108,7 +108,7 @@
                             </a>
                             <hr>
                             <a href="javascript:void(0)"
-                               class="latest-message-list">
+                               class="latest-message-list text-decoration-none">
                                 <div class="border-bottom position-relative">
                                     <div class="message-time"></div>
                                     <div class="massage-desc">
@@ -117,7 +117,7 @@
                                             <strong class="font-16">{{ summary.activity.week.count }}</strong>
                                             signed in this week
                                         </p>
-                                        <p class="m-0 text-muted text-right">{{ summary.activity.week.percent }}%</p>
+                                        <p class="m-0 text-muted text-end">{{ summary.activity.week.percent }}%</p>
                                         <div class="progress"
                                              style="height: 5px;">
                                             <div class="progress-bar bg-warning"
@@ -133,7 +133,7 @@
                             </a>
                             <hr>
                             <a href="javascript:void(0)"
-                               class="latest-message-list">
+                               class="latest-message-list text-decoration-none">
                                 <div class="border-bottom position-relative">
                                     <div class="message-time"></div>
                                     <div class="massage-desc">
@@ -142,7 +142,7 @@
                                             <strong class="font-16">{{ summary.activity.month.count }}</strong>
                                             signed in this month
                                         </p>
-                                        <p class="m-0 text-muted text-right">{{ summary.activity.month.percent }}%</p>
+                                        <p class="m-0 text-muted text-end">{{ summary.activity.month.percent }}%</p>
                                         <div class="progress"
                                              style="height: 5px;">
                                             <div class="progress-bar bg-success"
@@ -166,7 +166,7 @@
                         <h4 class="mt-0 header-title mb-4">User Statistics</h4>
                         <div class="latest-massage">
                             <a href="javascript:void(0)"
-                               class="latest-message-list">
+                               class="latest-message-list text-decoration-none">
                                 <div class="border-bottom position-relative">
                                     <div class="message-time"></div>
                                     <div class="massage-desc">
@@ -175,7 +175,7 @@
                                             <strong class="font-16">{{ summary.stats.emailsVerified.count }}</strong>
                                             users have verified their email address
                                         </p>
-                                        <p class="m-0 text-muted text-right">
+                                        <p class="m-0 text-muted text-end">
                                             {{ summary.stats.emailsVerified.percent }}%
                                         </p>
                                         <div class="progress"
@@ -193,7 +193,7 @@
                             </a>
                             <hr>
                             <a href="javascript:void(0)"
-                               class="latest-message-list">
+                               class="latest-message-list text-decoration-none">
                                 <div class="border-bottom position-relative">
                                     <div class="message-time"></div>
                                     <div class="massage-desc">
@@ -204,7 +204,7 @@
                                             </strong>
                                             users have verified their phone number
                                         </p>
-                                        <p class="m-0 text-muted text-right">{{
+                                        <p class="m-0 text-muted text-end">{{
                                             summary.stats.phoneNumbersVerified.percent }}%</p>
                                         <div class="progress"
                                              style="height: 5px;">
@@ -227,23 +227,24 @@
         <h5 *ngIf="blogItems.length > 0">
             Latest News
         </h5>
-        <div class="card-columns"
+        <div class="row row-cols-1 row-cols-md-3"
              *ngIf="blogItems">
-            <div class="card m-b-30 card-body"
-                 *ngFor="let item of blogItems; let i = index">
-                <h4 class="card-title font-16 mt-0">
-                    {{ i + 1 }} - {{ item.title }}
-                    <a [href]="item.link"
-                       target="_blank">
-                        <i class="material-icons">link</i>
-                    </a>
-                </h4>
-                <p class="card-text">{{ item.description }}</p>
-                <p class="card-text">
-                    <small class="text-muted">
-                        <u>Publish on</u>: {{ item.publishDate | date:'medium' }}
-                    </small>
-                </p>
+             <div class="col" *ngFor="let item of blogItems; let i = index">
+                <div class="card m-b-30 card-body">
+                    <h4 class="card-title font-16 mt-0">
+                        {{ i + 1 }} - {{ item.title }}
+                        <a [href]="item.link"
+                        target="_blank">
+                            <i class="material-icons">link</i>
+                        </a>
+                    </h4>
+                    <p class="card-text">{{ item.description }}</p>
+                    <p class="card-text">
+                        <small class="text-muted">
+                            <u>Publish on</u>: {{ item.publishDate | date:'medium' }}
+                        </small>
+                    </p>
+                </div>
             </div>
         </div>
         <div>

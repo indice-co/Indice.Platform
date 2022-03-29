@@ -1,12 +1,12 @@
 <form class="needs-validation mt-3" *ngIf="canEditClient && client" [ngClass]="{ 'was-validated': urlForm.submitted }" (ngSubmit)="urlForm.form.valid && addClientUrl()" novalidate #urlForm="ngForm">
-    <div class="form-row">
+    <div class="row g-3">
         <div class="col-md">
-            <label class="sr-only" for="url">URL</label>
+            <label class="visually-hidden" for="url">URL</label>
             <input class="form-control" id="url" name="url" [(ngModel)]="url" [placeholder]="'Please provide a url...'" [pattern]="urlPattern" required #addedUrl="ngModel" />
             <div *ngIf="urlForm.submitted && addedUrl.invalid && addedUrl.errors['required']" class="form-control-feedback text-danger">Please select a value.</div>
             <div *ngIf="urlForm.submitted && addedUrl.invalid && addedUrl.errors['pattern']" class="form-control-feedback text-danger">Please enter a valid URL.</div>
         </div>
-        <div class="col-md-1 text-right">
+        <div class="col-md-1 text-end">
             <button type="submit" class="btn btn-primary m-r-5">Add</button>
         </div>
     </div>
@@ -17,7 +17,7 @@
     </div>
 </div>
 <form class="mt-3" *ngIf="canEditClient">
-    <div class="form-group">
+    <div class="mb-3">
         <div>
             <button type="submit" class="btn btn-primary m-r-5" (click)="update()" [disabled]="hasErrors()">Save Changes</button>
         </div>
