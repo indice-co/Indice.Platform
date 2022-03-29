@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Indice.AspNetCore.Features.Campaigns.Controllers;
 using Indice.AspNetCore.Features.Campaigns.Data;
 using Indice.AspNetCore.Features.Campaigns.Data.Models;
+using Indice.AspNetCore.Features.Campaigns.Exceptions;
 using Indice.AspNetCore.Features.Campaigns.Models;
 using Indice.Configuration;
 using Indice.Services;
@@ -41,7 +42,7 @@ namespace Indice.AspNetCore.Features.Campaigns.Services
         public IHttpContextAccessor HttpContextAccessor { get; }
         public LinkGenerator LinkGenerator { get; }
 
-        public Task<ResultSet<Campaign>> GetCampaigns(ListOptions<CampaignsFilter> options) {
+        public Task<ResultSet<Campaign>> GetList(ListOptions<CampaignsFilter> options) {
             var query = DbContext
                 .Campaigns
                 .Include(x => x.Type)
@@ -61,7 +62,7 @@ namespace Indice.AspNetCore.Features.Campaigns.Services
             return query.ToResultSetAsync(options);
         }
 
-        public async Task<CampaignDetails> GetCampaignById(Guid campaignId) {
+        public async Task<CampaignDetails> GetById(Guid campaignId) {
             var campaign = await DbContext
                 .Campaigns
                 .AsNoTracking()
@@ -75,19 +76,19 @@ namespace Indice.AspNetCore.Features.Campaigns.Services
             return campaign;
         }
 
-        public async Task<Campaign> CreateCampaign(CreateCampaignRequest request) {
-            var dbCampaign = request.ToDbCampaign();
+        public async Task<Campaign> Create(CreateCampaignRequest request) {
+            var dbCampaign = Mapper.ToDbCampaign(request);
             DbContext.Campaigns.Add(dbCampaign);
             await DbContext.SaveChangesAsync();
             // TODO: Take advantage of campaign created event and create message asynchronously. We possibly need to create messages when the campaign is published. Then the campaign should be locked.
             await CreateMessages(request, dbCampaign.Id);
-            return Mapper.ProjectToCampaign.Compile()(dbCampaign);
+            return Mapper.ToCampaign(dbCampaign);
         }
 
-        public async Task UpdateCampaign(Guid campaignId, UpdateCampaignRequest request) {
+        public async Task<bool> Update(Guid campaignId, UpdateCampaignRequest request) {
             var campaign = await DbContext.Campaigns.FindAsync(campaignId);
             if (campaign is null) {
-                return;
+                return false;
             }
             campaign.ActionText = request.ActionText;
             campaign.ActivePeriod = request.ActivePeriod;
@@ -95,15 +96,17 @@ namespace Indice.AspNetCore.Features.Campaigns.Services
             campaign.Title = request.Title;
             campaign.Published = request.Published;
             await DbContext.SaveChangesAsync();
+            return true;
         }
 
-        public async Task DeleteCampaign(Guid campaignId) {
+        public async Task<bool> Delete(Guid campaignId) {
             var campaign = await DbContext.Campaigns.FindAsync(campaignId);
             if (campaign is null) {
-                return;
+                return false;
             }
             DbContext.Remove(campaign);
             await DbContext.SaveChangesAsync();
+            return true;
         }
 
         public async Task<AttachmentLink> CreateAttachment(IFormFile file) {
@@ -127,75 +130,13 @@ namespace Indice.AspNetCore.Features.Campaigns.Services
             };
         }
 
-        public async Task AssociateCampaignAttachment(Guid campaignId, Guid attachmentId) {
+        public async Task AssociateAttachment(Guid campaignId, Guid attachmentId) {
             var campaign = await DbContext.Campaigns.FindAsync(campaignId);
             campaign.AttachmentId = attachmentId;
             await DbContext.SaveChangesAsync();
         }
 
-        public Task<ResultSet<MessageType>> GetMessageTypes(ListOptions options) =>
-            DbContext.MessageTypes
-                     .AsNoTracking()
-                     .Select(campaignType => new MessageType {
-                         Id = campaignType.Id,
-                         Name = campaignType.Name
-                     })
-                     .ToResultSetAsync(options);
-
-        public async Task<MessageType> GetMessageTypeById(Guid campaignTypeId) {
-            var messageType = await DbContext.MessageTypes.FindAsync(campaignTypeId);
-            if (messageType is null) {
-                return default;
-            }
-            return new MessageType {
-                Id = messageType.Id,
-                Name = messageType.Name
-            };
-        }
-
-        public async Task<MessageType> GetMessageTypeByName(string name) {
-            var messageType = await DbContext.MessageTypes.SingleOrDefaultAsync(x => x.Name == name);
-            if (messageType is null) {
-                return default;
-            }
-            return new MessageType {
-                Id = messageType.Id,
-                Name = messageType.Name
-            };
-        }
-
-        public async Task<MessageType> CreateMessageType(UpsertMessageTypeRequest request) {
-            var messageType = new DbMessageType {
-                Id = Guid.NewGuid(),
-                Name = request.Name
-            };
-            DbContext.MessageTypes.Add(messageType);
-            await DbContext.SaveChangesAsync();
-            return new MessageType {
-                Id = messageType.Id,
-                Name = messageType.Name
-            };
-        }
-
-        public async Task UpdateMessageType(Guid campaignTypeId, UpsertMessageTypeRequest request) {
-            var messageType = await DbContext.MessageTypes.FindAsync(campaignTypeId);
-            if (messageType is null) {
-                return;
-            }
-            messageType.Name = request.Name;
-            await DbContext.SaveChangesAsync();
-        }
-
-        public async Task DeleteMessageType(Guid campaignTypeId) {
-            var messageType = await DbContext.MessageTypes.FindAsync(campaignTypeId);
-            if (messageType is null) {
-                return;
-            }
-            DbContext.Remove(messageType);
-            await DbContext.SaveChangesAsync();
-        }
-
-        public async Task<CampaignStatistics> GetCampaignStatistics(Guid campaignId) {
+        public async Task<CampaignStatistics> GetStatistics(Guid campaignId) {
             var campaign = await DbContext.Campaigns.FindAsync(campaignId);
             if (campaign is null) {
                 return default;
@@ -217,12 +158,25 @@ namespace Indice.AspNetCore.Features.Campaigns.Services
             };
         }
 
-        public async Task UpdateCampaignHit(Guid campaignId) {
+        public async Task UpdateHit(Guid campaignId) {
             DbContext.Hits.Add(new DbHit {
                 CampaignId = campaignId,
                 TimeStamp = DateTimeOffset.UtcNow
             });
             await DbContext.SaveChangesAsync();
+        }
+
+        public async Task<bool> Publish(Guid campaignId) {
+            var campaign = await DbContext.Campaigns.FindAsync(campaignId);
+            if (campaign is null) {
+                return false;
+            }
+            if (campaign.Published) {
+                throw new CampaignException("Campaign is already published.", nameof(campaignId));
+            }
+            campaign.Published = true;
+            await DbContext.SaveChangesAsync();
+            return true;
         }
 
         private async Task CreateMessages(CreateCampaignRequest request, Guid campaignId) {

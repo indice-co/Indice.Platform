@@ -18,11 +18,16 @@ namespace Indice.AspNetCore.Features.Campaigns.Controllers
     [Route($"{ApiPrefixes.CampaignManagementEndpoints}/distribution-lists")]
     internal class DistributionListsController : ControllerBase
     {
-        public DistributionListsController(IDistributionListService distributionListService) {
+        public DistributionListsController(
+            IDistributionListService distributionListService,
+            IContactService contactService
+        ) {
             DistributionListService = distributionListService ?? throw new ArgumentNullException(nameof(distributionListService));
+            ContactService = contactService ?? throw new ArgumentNullException(nameof(contactService));
         }
 
         public IDistributionListService DistributionListService { get; }
+        public IContactService ContactService { get; }
 
         /// <summary>
         /// Gets the list of available campaign types.
@@ -33,38 +38,55 @@ namespace Indice.AspNetCore.Features.Campaigns.Controllers
         [Produces(MediaTypeNames.Application.Json)]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ResultSet<DistributionList>))]
         public async Task<IActionResult> GetDistributionLists([FromQuery] ListOptions options) {
-            var lists = await DistributionListService.GetDistributionLists(options);
+            var lists = await DistributionListService.GetList(options);
             return Ok(lists);
         }
 
         /// <summary>
-        /// 
+        /// Gets the contacts of a given distribution list.
         /// </summary>
-        /// <param name="options"></param>
-        /// <param name="distributionListId"></param>
+        /// <param name="options">List parameters used to navigate through collections. Contains parameters such as sort, search, page number and page size.</param>
+        /// <param name="distributionListId">The id of the distribution list.</param>
         /// <response code="200">OK</response>
         [HttpGet("{distributionListId:guid}/contacts")]
         [Produces(MediaTypeNames.Application.Json)]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ResultSet<Contact>))]
-        public async Task<IActionResult> GetDistributionListContacts([FromQuery] ListOptions options, [FromRoute] Guid distributionListId) {
-            await Task.CompletedTask;
-            return Ok();
+        public async Task<IActionResult> GetDistributionListContacts([FromRoute] Guid distributionListId, [FromQuery] ListOptions options) {
+            var contacts = await DistributionListService.GetContactsList(distributionListId, options);
+            return Ok(contacts);
+        }
+
+        /// <summary>
+        /// Adds a new or existing contact in the specified distribution list.
+        /// </summary>
+        /// <param name="distributionListId">The id of the distribution list.</param>
+        /// <param name="request">Contains info about the contact to be assigned to the distribution list.</param>
+        /// <response code="204">No Content</response>
+        /// <response code="204">Bad Request</response>
+        [HttpPost("{distributionListId:guid}/contacts")]
+        [Consumes(MediaTypeNames.Application.Json)]
+        [Produces(MediaTypeNames.Application.Json)]
+        [ProducesResponseType(typeof(void), StatusCodes.Status204NoContent)]
+        [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> AddContactToDistributionList([FromRoute] Guid distributionListId, [FromBody] CreateDistributionListContactRequest request) {
+            await ContactService.AddToDistributionList(request, distributionListId);
+            return NoContent();
         }
 
         /// <summary>
         /// Creates a new distribution list.
         /// </summary>
-        /// <param name="request">Contains info about the campaign type to be created.</param>
+        /// <param name="request">Contains info about the distribution list to be created.</param>
         /// <response code="200">OK</response>
         /// <response code="400">Bad Request</response>
         [HttpPost]
         [Produces(MediaTypeNames.Application.Json)]
         [Consumes(MediaTypeNames.Application.Json)]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(DistributionList))]
-        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ValidationProblemDetails))]
+        [ProducesResponseType(typeof(DistributionList), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> CreateDistributionList([FromBody] CreateDistributionListRequest request) {
-            var newList = await DistributionListService.CreateDistributionList(request);
-            return Ok(newList);
+            var list = await DistributionListService.Create(request);
+            return Ok(list);
         }
     }
 }

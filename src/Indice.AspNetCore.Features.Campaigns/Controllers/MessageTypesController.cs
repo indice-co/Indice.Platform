@@ -20,14 +20,19 @@ namespace Indice.AspNetCore.Features.Campaigns.Controllers
     [Route($"{ApiPrefixes.CampaignManagementEndpoints}/message-types")]
     internal class MessageTypesController : ControllerBase
     {
-        public MessageTypesController(ICampaignService campaignService) {
+        public MessageTypesController(
+            ICampaignService campaignService,
+            IMessageTypeService messageTypeService
+        ) {
             CampaignService = campaignService ?? throw new ArgumentNullException(nameof(campaignService));
+            MessageTypeService = messageTypeService ?? throw new ArgumentNullException(nameof(messageTypeService));
         }
 
         public ICampaignService CampaignService { get; }
+        public IMessageTypeService MessageTypeService { get; }
 
         /// <summary>
-        /// Gets the list of available campaign types.
+        /// Gets the list of available message types.
         /// </summary>
         /// <param name="options">List parameters used to navigate through collections. Contains parameters such as sort, search, page number and page size.</param>
         /// <response code="200">OK</response>
@@ -36,14 +41,14 @@ namespace Indice.AspNetCore.Features.Campaigns.Controllers
         [Consumes(MediaTypeNames.Application.Json)]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ResultSet<MessageType>))]
         public async Task<IActionResult> GetMessageTypes([FromQuery] ListOptions options) {
-            var messageTypes = await CampaignService.GetMessageTypes(options);
+            var messageTypes = await MessageTypeService.GetList(options);
             return Ok(messageTypes);
         }
 
         /// <summary>
-        /// Creates a new campaign type.
+        /// Creates a new message type.
         /// </summary>
-        /// <param name="request">Contains info about the campaign type to be created.</param>
+        /// <param name="request">Contains info about the message type to be created.</param>
         /// <response code="200">OK</response>
         /// <response code="400">Bad Request</response>
         [HttpPost]
@@ -52,15 +57,15 @@ namespace Indice.AspNetCore.Features.Campaigns.Controllers
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(MessageType))]
         [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ValidationProblemDetails))]
         public async Task<IActionResult> CreateMessageType([FromBody] UpsertMessageTypeRequest request) {
-            var messageType = await CampaignService.CreateMessageType(request);
+            var messageType = await MessageTypeService.Create(request);
             return Ok(messageType);
         }
 
         /// <summary>
-        /// Updates an existing campaign type.
+        /// Updates an existing message type.
         /// </summary>
-        /// <param name="campaignTypeId">The id of the campaign type.</param>
-        /// <param name="request">Contains info about the campaign type to update.</param>
+        /// <param name="campaignTypeId">The id of the message type.</param>
+        /// <param name="request">Contains info about the message type to update.</param>
         /// <response code="204">No Content</response>
         /// <response code="400">Bad Request</response>
         [HttpPut("{campaignTypeId}")]
@@ -70,18 +75,17 @@ namespace Indice.AspNetCore.Features.Campaigns.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ValidationProblemDetails))]
         [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ProblemDetails))]
         public async Task<IActionResult> UpdateMessageType([FromRoute] Guid campaignTypeId, [FromBody] UpsertMessageTypeRequest request) {
-            var messageType = await CampaignService.GetMessageTypeById(campaignTypeId);
-            if (messageType is null) {
+            var updated = await MessageTypeService.Update(campaignTypeId, request);
+            if (!updated) {
                 return NotFound();
             }
-            await CampaignService.UpdateMessageType(campaignTypeId, request);
             return NoContent();
         }
 
         /// <summary>
-        /// Permanently deletes a campaign type.
+        /// Permanently deletes a message type.
         /// </summary>
-        /// <param name="campaignTypeId">The id of the campaign type.</param>
+        /// <param name="campaignTypeId">The id of the message type.</param>
         /// <response code="204">No Content</response>
         /// <response code="404">Not Found</response>
         [HttpDelete]
@@ -89,11 +93,10 @@ namespace Indice.AspNetCore.Features.Campaigns.Controllers
         [ProducesResponseType(StatusCodes.Status204NoContent, Type = typeof(void))]
         [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ProblemDetails))]
         public async Task<IActionResult> DeleteMessageType([FromRoute] Guid campaignTypeId) {
-            var messageType = await CampaignService.GetMessageTypeById(campaignTypeId);
-            if (messageType == null) {
+            var deleted = await MessageTypeService.Delete(campaignTypeId);
+            if (!deleted) {
                 return NotFound();
             }
-            await CampaignService.DeleteMessageType(campaignTypeId);
             return NoContent();
         }
     }

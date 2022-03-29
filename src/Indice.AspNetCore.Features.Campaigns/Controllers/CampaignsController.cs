@@ -53,7 +53,7 @@ namespace Indice.AspNetCore.Features.Campaigns.Controllers
         [Produces(MediaTypeNames.Application.Json)]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ResultSet<Campaign>))]
         public async Task<IActionResult> GetCampaigns([FromQuery] ListOptions<CampaignsFilter> options) {
-            var campaigns = await CampaignService.GetCampaigns(options);
+            var campaigns = await CampaignService.GetList(options);
             return Ok(campaigns);
         }
 
@@ -68,7 +68,7 @@ namespace Indice.AspNetCore.Features.Campaigns.Controllers
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CampaignDetails))]
         [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ProblemDetails))]
         public async Task<IActionResult> GetCampaignById([FromRoute] Guid campaignId) {
-            var campaign = await CampaignService.GetCampaignById(campaignId);
+            var campaign = await CampaignService.GetById(campaignId);
             if (campaign is null) {
                 return NotFound();
             }
@@ -85,8 +85,11 @@ namespace Indice.AspNetCore.Features.Campaigns.Controllers
         [ProducesResponseType(typeof(void), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> PublishCampaign([FromRoute] Guid campaignId) {
-            await Task.CompletedTask;
-            return Ok();
+            var updated = await CampaignService.Publish(campaignId);
+            if (!updated) {
+                return NotFound();
+            }
+            return NoContent();
         }
 
         /// <summary>
@@ -115,7 +118,7 @@ namespace Indice.AspNetCore.Features.Campaigns.Controllers
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CampaignStatistics))]
         [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ProblemDetails))]
         public async Task<IActionResult> GetCampaignStatistics([FromRoute] Guid campaignId) {
-            var statistics = await CampaignService.GetCampaignStatistics(campaignId);
+            var statistics = await CampaignService.GetStatistics(campaignId);
             if (statistics is null) {
                 return NotFound();
             }
@@ -133,7 +136,7 @@ namespace Indice.AspNetCore.Features.Campaigns.Controllers
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IFormFile))]
         [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ProblemDetails))]
         public async Task<ActionResult<CampaignStatistics>> ExportCampaignStatistics([FromRoute] Guid campaignId) {
-            var statistics = await CampaignService.GetCampaignStatistics(campaignId);
+            var statistics = await CampaignService.GetStatistics(campaignId);
             if (statistics == null) {
                 return NotFound();
             }
@@ -152,9 +155,9 @@ namespace Indice.AspNetCore.Features.Campaigns.Controllers
         [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(Campaign))]
         [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ValidationProblemDetails))]
         public async Task<IActionResult> CreateCampaign([FromBody] CreateCampaignRequest request) {
-            var campaign = await CampaignService.CreateCampaign(request);
+            var campaign = await CampaignService.Create(request);
             await EventDispatcher.RaiseEventAsync(
-                payload: campaign.ToCampaignCreatedEvent(selectedUserCodes: request.SelectedUserCodes),
+                payload: Mapper.ToCampaignCreatedEvent(campaign, request.SelectedUserCodes),
                 configure: options => options.WrapInEnvelope(false).WithQueueName(QueueNames.CampaignCreated)
             );
             return CreatedAtAction(nameof(GetCampaignById), new { campaignId = campaign.Id }, campaign);
@@ -174,11 +177,10 @@ namespace Indice.AspNetCore.Features.Campaigns.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ValidationProblemDetails))]
         [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ProblemDetails))]
         public async Task<IActionResult> UpdateCampaign([FromRoute] Guid campaignId, [FromBody] UpdateCampaignRequest request) {
-            var campaign = await CampaignService.GetCampaignById(campaignId);
-            if (campaign is null) {
+            var updated = await CampaignService.Update(campaignId, request);
+            if (!updated) {
                 return NotFound();
             }
-            await CampaignService.UpdateCampaign(campaignId, request);
             return NoContent();
         }
 
@@ -193,11 +195,10 @@ namespace Indice.AspNetCore.Features.Campaigns.Controllers
         [ProducesResponseType(StatusCodes.Status204NoContent, Type = typeof(void))]
         [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ProblemDetails))]
         public async Task<IActionResult> DeleteCampaign([FromRoute] Guid campaignId) {
-            var campaign = await CampaignService.GetCampaignById(campaignId);
-            if (campaign == null) {
+            var deleted = await CampaignService.Delete(campaignId);
+            if (!deleted) {
                 return NotFound();
             }
-            await CampaignService.DeleteCampaign(campaignId);
             return NoContent();
         }
 
@@ -222,12 +223,12 @@ namespace Indice.AspNetCore.Features.Campaigns.Controllers
                 ModelState.AddModelError(nameof(file), "File is empty.");
                 return BadRequest(new ValidationProblemDetails(ModelState));
             }
-            var campaign = await CampaignService.GetCampaignById(campaignId);
+            var campaign = await CampaignService.GetById(campaignId);
             if (campaign is null) {
                 return NotFound();
             }
             var attachment = await CampaignService.CreateAttachment(file);
-            await CampaignService.AssociateCampaignAttachment(campaignId, attachment.Id);
+            await CampaignService.AssociateAttachment(campaignId, attachment.Id);
             return Ok(attachment);
         }
 

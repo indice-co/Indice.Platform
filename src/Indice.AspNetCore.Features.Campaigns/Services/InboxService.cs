@@ -28,7 +28,7 @@ namespace Indice.AspNetCore.Features.Campaigns.Services
         public CampaignInboxOptions CampaignInboxOptions { get; }
         public GeneralSettings GeneralSettings { get; }
 
-        public async Task<ResultSet<Message>> GetMessages(string userCode, ListOptions<MessagesFilter> options) {
+        public async Task<ResultSet<Message>> GetList(string userCode, ListOptions<MessagesFilter> options) {
             var userMessages = await GetUserInboxQuery(userCode, options).ToResultSetAsync(options);
             return new ResultSet<Message> {
                 Count = userMessages.Count,
@@ -36,9 +36,9 @@ namespace Indice.AspNetCore.Features.Campaigns.Services
             };
         }
 
-        public Task<Message> GetMessageById(Guid messageId, string userCode) => GetUserInboxQuery(userCode).SingleOrDefaultAsync(x => x.Id == messageId);
+        public Task<Message> GetById(Guid messageId, string userCode) => GetUserInboxQuery(userCode).SingleOrDefaultAsync(x => x.Id == messageId);
 
-        public async Task MarkMessageAsDeleted(Guid messageId, string userCode) {
+        public async Task MarkAsDeleted(Guid messageId, string userCode) {
             var message = await DbContext.Messages.SingleOrDefaultAsync(x => x.CampaignId == messageId && x.RecipientId == userCode);
             if (message != null) {
                 message.IsDeleted = true;
@@ -55,7 +55,7 @@ namespace Indice.AspNetCore.Features.Campaigns.Services
             await DbContext.SaveChangesAsync();
         }
 
-        public async Task MarkMessageAsRead(Guid messageId, string userCode) {
+        public async Task MarkAsRead(Guid messageId, string userCode) {
             var message = await DbContext.Messages.SingleOrDefaultAsync(x => x.CampaignId == messageId && x.RecipientId == userCode);
             if (message is not null) {
                 message.IsRead = true;

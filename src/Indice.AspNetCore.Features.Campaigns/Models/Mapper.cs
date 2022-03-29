@@ -1,14 +1,16 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq.Expressions;
 using Indice.AspNetCore.Features.Campaigns.Data.Models;
+using Indice.AspNetCore.Features.Campaigns.Events;
 using Indice.Types;
 
 namespace Indice.AspNetCore.Features.Campaigns.Models
 {
     internal class Mapper
     {
-        public static Expression<Func<DbCampaign, Campaign>> ProjectToCampaign = campaign => new () {
+        public static Expression<Func<DbCampaign, Campaign>> ProjectToCampaign = campaign => new() {
             ActionText = campaign.ActionText,
             ActionUrl = campaign.ActionUrl,
             ActivePeriod = campaign.ActivePeriod,
@@ -30,7 +32,22 @@ namespace Indice.AspNetCore.Features.Campaigns.Models
             } : null
         };
 
-        public static Expression<Func<DbCampaign, CampaignDetails>> ProjectToCampaignDetails = campaign => new () {
+        public static Campaign ToCampaign(DbCampaign campaign) => ProjectToCampaign.Compile()(campaign);
+
+        public static Expression<Func<DbContact, Contact>> ProjectToContact = contact => new() {
+            Email = contact.Email,
+            FirstName = contact.FirstName,
+            FullName = contact.FullName,
+            Id = contact.Id,
+            LastName = contact.LastName,
+            PhoneNumber = contact.PhoneNumber,
+            RecipientId = contact.RecipientId,
+            Salutation = contact.Salutation
+        };
+
+        public static Contact ToContact(DbContact contact) => ProjectToContact.Compile()(contact);
+
+        public static Expression<Func<DbCampaign, CampaignDetails>> ProjectToCampaignDetails = campaign => new() {
             ActionText = campaign.ActionText,
             ActionUrl = campaign.ActionUrl,
             ActivePeriod = campaign.ActivePeriod,
@@ -58,6 +75,62 @@ namespace Indice.AspNetCore.Features.Campaigns.Models
                 Id = campaign.Type.Id,
                 Name = campaign.Type.Name
             } : null
+        };
+
+        public static CampaignDetails ToCampaignDetails(DbCampaign campaign) => ProjectToCampaignDetails.Compile()(campaign);
+
+        public static CampaignCreatedEvent ToCampaignCreatedEvent(Campaign campaign, List<string> selectedUserCodes = null) => new() {
+            ActionText = campaign.ActionText,
+            ActionUrl = campaign.ActionUrl,
+            ActivePeriod = campaign.ActivePeriod,
+            Content = campaign.Content,
+            CreatedAt = campaign.CreatedAt,
+            Data = campaign.Data,
+            DeliveryChannel = campaign.DeliveryChannel,
+            Id = campaign.Id,
+            IsGlobal = campaign.IsGlobal,
+            Published = campaign.Published,
+            SelectedUserCodes = selectedUserCodes ?? new List<string>(),
+            Title = campaign.Title,
+            Type = campaign.Type
+        };
+
+        public static DbCampaign ToDbCampaign(CreateCampaignRequest request) => new() {
+            ActionText = request.ActionText,
+            ActionUrl = request.ActionUrl,
+            ActivePeriod = request.ActivePeriod,
+            Content = request.Content,
+            CreatedAt = DateTime.UtcNow,
+            Data = request.Data,
+            DeliveryChannel = request.DeliveryChannel,
+            DistributionListId = request.DistributionListId,
+            Id = Guid.NewGuid(),
+            IsGlobal = request.IsGlobal,
+            Published = request.Published,
+            Title = request.Title,
+            TypeId = request.TypeId
+        };
+
+        public static DbContact ToDbContact(CreateDistributionListContactRequest request) => new() { 
+            Email = request.Email,
+            FirstName = request.FirstName,
+            FullName = request.FullName,
+            Id = request.Id.HasValue ? request.Id.Value : Guid.NewGuid(),
+            LastName = request.LastName,
+            PhoneNumber = request.PhoneNumber,
+            RecipientId = request.RecipientId,
+            Salutation = request.Salutation
+        };
+
+        public static DbContact ToDbContact(CreateContactRequest request) => new() {
+            Email = request.Email,
+            FirstName = request.FirstName,
+            FullName = request.FullName,
+            Id = Guid.NewGuid(),
+            LastName = request.LastName,
+            PhoneNumber = request.PhoneNumber,
+            RecipientId = request.RecipientId,
+            Salutation = request.Salutation
         };
     }
 }

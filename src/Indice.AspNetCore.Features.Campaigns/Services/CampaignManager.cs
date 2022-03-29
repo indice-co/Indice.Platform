@@ -18,10 +18,12 @@ namespace Indice.AspNetCore.Features.Campaigns
         public CampaignManager(IServiceProvider serviceProvider) {
             ServiceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
             CampaignService = ServiceProvider.GetRequiredService<ICampaignService>();
+            MessageTypeService = ServiceProvider.GetRequiredService<IMessageTypeService>();
         }
 
         private IServiceProvider ServiceProvider { get; }
         private ICampaignService CampaignService { get; }
+        private IMessageTypeService MessageTypeService { get; }
 
         /// <summary>
         /// Creates a new campaign.
@@ -34,7 +36,7 @@ namespace Indice.AspNetCore.Features.Campaigns
                 var errorMessages = validationResult.Errors.Select(x => x.ErrorMessage).ToArray();
                 return CampaignResult.Fail(errorMessages);
             }
-            var createdCampaign = await CampaignService.CreateCampaign(campaign);
+            var createdCampaign = await CampaignService.Create(campaign);
             campaign.Id = createdCampaign.Id;
             return CampaignResult.Success();
         }
@@ -44,7 +46,7 @@ namespace Indice.AspNetCore.Features.Campaigns
         /// </summary>
         /// <param name="campaignId">The id of the campaign.</param>
         /// <returns>The campaign with the specified id, otherwise null.</returns>
-        public Task<CampaignDetails> GetById(Guid campaignId) => CampaignService.GetCampaignById(campaignId);
+        public Task<CampaignDetails> GetById(Guid campaignId) => CampaignService.GetById(campaignId);
 
         /// <summary>
         /// Creates a new campaign type.
@@ -57,7 +59,7 @@ namespace Indice.AspNetCore.Features.Campaigns
                 var errorMessages = validationResult.Errors.Select(x => x.ErrorMessage).ToArray();
                 return CampaignResult.Fail(errorMessages);
             }
-            var createdCampaignType = await CampaignService.CreateMessageType(campaignType);
+            var createdCampaignType = await MessageTypeService.Create(campaignType);
             campaignType.Id = createdCampaignType.Id;
             return CampaignResult.Success();
         }
@@ -66,6 +68,6 @@ namespace Indice.AspNetCore.Features.Campaigns
         /// Retrieves the campaign type with the specified name.
         /// </summary>
         /// <param name="name">The name of the campaign type to look for.</param>
-        public Task<MessageType> GetTypeByName(string name) => CampaignService.GetMessageTypeByName(name);
+        public Task<MessageType> GetTypeByName(string name) => MessageTypeService.GetByName(name);
     }
 }

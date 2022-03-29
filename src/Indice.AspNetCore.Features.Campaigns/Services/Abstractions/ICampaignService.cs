@@ -8,20 +8,15 @@ namespace Indice.AspNetCore.Features.Campaigns.Services
 {
     internal interface ICampaignService
     {
-        Task<ResultSet<Campaign>> GetCampaigns(ListOptions<CampaignsFilter> options);
-        Task<CampaignDetails> GetCampaignById(Guid campaignId);
-        Task<Campaign> CreateCampaign(CreateCampaignRequest request);
-        Task UpdateCampaign(Guid campaignId, UpdateCampaignRequest request);
-        Task DeleteCampaign(Guid campaignId);
+        Task<ResultSet<Campaign>> GetList(ListOptions<CampaignsFilter> options);
+        Task<CampaignDetails> GetById(Guid campaignId);
+        Task<Campaign> Create(CreateCampaignRequest request);
+        Task<bool> Update(Guid campaignId, UpdateCampaignRequest request);
+        Task<bool> Delete(Guid campaignId);
+        Task<bool> Publish(Guid campaignId);
         Task<AttachmentLink> CreateAttachment(IFormFile file);
-        Task AssociateCampaignAttachment(Guid campaignId, Guid attachmentId);
-        Task<ResultSet<MessageType>> GetMessageTypes(ListOptions options);
-        Task<MessageType> GetMessageTypeById(Guid campaignTypeId);
-        Task<MessageType> GetMessageTypeByName(string name);
-        Task<MessageType> CreateMessageType(UpsertMessageTypeRequest request);
-        Task UpdateMessageType(Guid campaignTypeId, UpsertMessageTypeRequest request);
-        Task DeleteMessageType(Guid campaignTypeId);
-        Task<CampaignStatistics> GetCampaignStatistics(Guid campaignId);
-        Task UpdateCampaignHit(Guid campaignId);
+        Task AssociateAttachment(Guid campaignId, Guid attachmentId);
+        Task<CampaignStatistics> GetStatistics(Guid campaignId);
+        Task UpdateHit(Guid campaignId);
     }
 }

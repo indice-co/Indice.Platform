@@ -17,20 +17,20 @@ namespace Indice.AspNetCore.Features.Campaigns.Services
 
         public CampaignsDbContext DbContext { get; }
 
-        public async Task<DistributionList> CreateDistributionList(CreateDistributionListRequest distributionList) {
-            var newList = new DbDistributionList {
+        public async Task<DistributionList> Create(CreateDistributionListRequest request) {
+            var list = new DbDistributionList {
                 Id = Guid.NewGuid(),
-                Name = distributionList.Name
+                Name = request.Name
             };
-            DbContext.DistributionLists.Add(newList);
+            DbContext.DistributionLists.Add(list);
             await DbContext.SaveChangesAsync();
             return new DistributionList {
-                Id = newList.Id,
-                Name = newList.Name
+                Id = list.Id,
+                Name = list.Name
             };
         }
 
-        public async Task<DistributionList> GetDistributionListByName(string name) {
+        public async Task<DistributionList> GetByName(string name) {
             var list = await DbContext.DistributionLists.SingleOrDefaultAsync(x => x.Name == name);
             if (list is null) {
                 return default;
@@ -41,13 +41,24 @@ namespace Indice.AspNetCore.Features.Campaigns.Services
             };
         }
 
-        public Task<ResultSet<DistributionList>> GetDistributionLists(ListOptions options) =>
-            DbContext.DistributionLists
-                     .AsNoTracking()
-                     .Select(campaignType => new DistributionList {
-                         Id = campaignType.Id,
-                         Name = campaignType.Name
-                     })
-                     .ToResultSetAsync(options);
+        public async Task<ResultSet<Contact>> GetContactsList(Guid id, ListOptions options) {
+            var query = DbContext
+                .Contacts
+                .AsNoTracking()
+                .Where(x => x.DistributionListId == id)
+                .Select(Mapper.ProjectToContact);
+            return await query.ToResultSetAsync(options);
+        }
+
+        public Task<ResultSet<DistributionList>> GetList(ListOptions options) {
+            var query = DbContext
+                .DistributionLists
+                .AsNoTracking()
+                .Select(campaignType => new DistributionList {
+                    Id = campaignType.Id,
+                    Name = campaignType.Name
+                });
+            return query.ToResultSetAsync(options);
+        }
     }
 }

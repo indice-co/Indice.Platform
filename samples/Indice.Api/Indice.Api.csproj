@@ -4,6 +4,7 @@
     <UserSecretsId>bcf160ad-5384-417a-bb7c-e17caa9c35ae</UserSecretsId>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="Hellang.Middleware.ProblemDetails" Version="6.4.0" />
     <PackageReference Include="IdentityModel.AspNetCore.OAuth2Introspection" Version="6.0.0" />
     <!--<PackageReference Include="Indice.AspNetCore.Features.Campaigns" Version="5.0.9" />
     <PackageReference Include="Indice.AspNetCore.Features.Campaigns.UI" Version="5.2.4" />-->
@@ -19,6 +20,7 @@
     <ProjectReference Include="..\..\src\Indice.Extensions.Configuration.Database\Indice.Extensions.Configuration.Database.csproj" />
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="App_Data\" />
     <Folder Include="uploads\" />
   </ItemGroup>
 </Project>

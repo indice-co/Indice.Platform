@@ -1,16 +1,10 @@
-﻿using System;
-
-namespace Indice.AspNetCore.Features.Campaigns.Models
+﻿namespace Indice.AspNetCore.Features.Campaigns.Models
 {
     /// <summary>
-    /// Models a contact in the system as a member of a distribution list.
+    /// The request model used to create a new contact.
     /// </summary>
-    public class Contact
+    public class CreateContactRequest
     {
-        /// <summary>
-        /// The unique id of the contact.
-        /// </summary>
-        public Guid Id { get; set; }
         /// <summary>
         /// The recipient correlation code.
         /// </summary>

@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Indice.AspNetCore.Features.Campaigns.Data.Models
 {
@@ -15,6 +13,6 @@ namespace Indice.AspNetCore.Features.Campaigns.Data.Models
         public string Email { get; set; }
         public string PhoneNumber { get; set; }
         public string DeviceId { get; set; }
-        public Guid DistributionListId { get; set; }
+        public Guid? DistributionListId { get; set; }
     }
 }
