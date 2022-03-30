@@ -19,8 +19,8 @@ namespace Indice.AspNetCore.Features.Campaigns.Controllers
     [ApiController]
     [ApiExplorerSettings(GroupName = "campaigns")]
     [Authorize(AuthenticationSchemes = CampaignsApi.AuthenticationScheme, Policy = CampaignsApi.Policies.BeCampaignsManager)]
-    [ProducesResponseType(StatusCodes.Status401Unauthorized, Type = typeof(ProblemDetails))]
-    [ProducesResponseType(StatusCodes.Status403Forbidden, Type = typeof(ProblemDetails))]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
     [Route($"{ApiPrefixes.CampaignManagementEndpoints}/campaigns")]
     internal class CampaignsController : CampaignsControllerBase
     {
@@ -51,7 +51,7 @@ namespace Indice.AspNetCore.Features.Campaigns.Controllers
         /// <response code="200">OK</response>
         [HttpGet]
         [Produces(MediaTypeNames.Application.Json)]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ResultSet<Campaign>))]
+        [ProducesResponseType(typeof(ResultSet<Campaign>), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetCampaigns([FromQuery] ListOptions<CampaignsFilter> options) {
             var campaigns = await CampaignService.GetList(options);
             return Ok(campaigns);
@@ -65,8 +65,8 @@ namespace Indice.AspNetCore.Features.Campaigns.Controllers
         /// <response code="404">Not Found</response>
         [HttpGet("{campaignId:guid}")]
         [Produces(MediaTypeNames.Application.Json)]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CampaignDetails))]
-        [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ProblemDetails))]
+        [ProducesResponseType(typeof(CampaignDetails), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetCampaignById([FromRoute] Guid campaignId) {
             var campaign = await CampaignService.GetById(campaignId);
             if (campaign is null) {
@@ -79,16 +79,14 @@ namespace Indice.AspNetCore.Features.Campaigns.Controllers
         /// Publishes a campaign.
         /// </summary>
         /// <param name="campaignId">The id of the campaign.</param>
-        /// <response code="200">OK</response>
+        /// <response code="204">No Content</response>
         /// <response code="400">Bad Request</response>
         [HttpPost("{campaignId:guid}/publish")]
-        [ProducesResponseType(typeof(void), StatusCodes.Status200OK)]
+        [Produces(MediaTypeNames.Application.Json)]
         [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(void), StatusCodes.Status204NoContent)]
         public async Task<IActionResult> PublishCampaign([FromRoute] Guid campaignId) {
-            var updated = await CampaignService.Publish(campaignId);
-            if (!updated) {
-                return NotFound();
-            }
+            await CampaignService.Publish(campaignId);
             return NoContent();
         }
 
@@ -99,6 +97,7 @@ namespace Indice.AspNetCore.Features.Campaigns.Controllers
         /// <response code="200">OK</response>
         /// <response code="404">Not Found</response>
         [HttpGet("{campaignId:guid}/status")]
+        [Produces(MediaTypeNames.Application.Json)]
         [ProducesResponseType(typeof(void), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetCampaignStatus([FromRoute] Guid campaignId) {
@@ -115,8 +114,8 @@ namespace Indice.AspNetCore.Features.Campaigns.Controllers
         [CacheResourceFilter(Expiration = 5)]
         [HttpGet("{campaignId:guid}/statistics")]
         [Produces(MediaTypeNames.Application.Json)]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CampaignStatistics))]
-        [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ProblemDetails))]
+        [ProducesResponseType(typeof(CampaignStatistics), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetCampaignStatistics([FromRoute] Guid campaignId) {
             var statistics = await CampaignService.GetStatistics(campaignId);
             if (statistics is null) {
@@ -133,8 +132,8 @@ namespace Indice.AspNetCore.Features.Campaigns.Controllers
         /// <response code="404">Not Found</response>
         [HttpGet("{campaignId:guid}/statistics/export")]
         [Produces("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IFormFile))]
-        [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ProblemDetails))]
+        [ProducesResponseType(typeof(IFormFile), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
         public async Task<ActionResult<CampaignStatistics>> ExportCampaignStatistics([FromRoute] Guid campaignId) {
             var statistics = await CampaignService.GetStatistics(campaignId);
             if (statistics == null) {
@@ -149,11 +148,11 @@ namespace Indice.AspNetCore.Features.Campaigns.Controllers
         /// <param name="request">Contains info about the campaign to be created.</param>
         /// <response code="201">Created</response>
         /// <response code="400">Bad Request</response>
+        [Consumes(MediaTypeNames.Application.Json)]
         [HttpPost]
         [Produces(MediaTypeNames.Application.Json)]
-        [Consumes(MediaTypeNames.Application.Json)]
-        [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(Campaign))]
-        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ValidationProblemDetails))]
+        [ProducesResponseType(typeof(Campaign), StatusCodes.Status201Created)]
+        [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> CreateCampaign([FromBody] CreateCampaignRequest request) {
             var campaign = await CampaignService.Create(request);
             await EventDispatcher.RaiseEventAsync(
@@ -169,18 +168,14 @@ namespace Indice.AspNetCore.Features.Campaigns.Controllers
         /// <param name="campaignId">The id of the campaign to update.</param>
         /// <param name="request">Contains info about the campaign to update.</param>
         /// <response code="204">No Content</response>
-        /// <response code="404">Not Found</response>
+        /// <response code="400">Bad Request</response>
+        [Consumes(MediaTypeNames.Application.Json)]
         [HttpPut("{campaignId}")]
         [Produces(MediaTypeNames.Application.Json)]
-        [Consumes(MediaTypeNames.Application.Json)]
-        [ProducesResponseType(StatusCodes.Status204NoContent, Type = typeof(void))]
-        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ValidationProblemDetails))]
-        [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ProblemDetails))]
+        [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(void), StatusCodes.Status204NoContent)]
         public async Task<IActionResult> UpdateCampaign([FromRoute] Guid campaignId, [FromBody] UpdateCampaignRequest request) {
-            var updated = await CampaignService.Update(campaignId, request);
-            if (!updated) {
-                return NotFound();
-            }
+            await CampaignService.Update(campaignId, request);
             return NoContent();
         }
 
@@ -189,16 +184,13 @@ namespace Indice.AspNetCore.Features.Campaigns.Controllers
         /// </summary>
         /// <param name="campaignId">The id of the campaign.</param>
         /// <response code="204">No Content</response>
-        /// <response code="404">Not Found</response>
+        /// <response code="400">Bad Request</response>
         [HttpDelete("{campaignId}")]
         [Produces(MediaTypeNames.Application.Json)]
-        [ProducesResponseType(StatusCodes.Status204NoContent, Type = typeof(void))]
-        [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ProblemDetails))]
+        [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(void), StatusCodes.Status204NoContent)]
         public async Task<IActionResult> DeleteCampaign([FromRoute] Guid campaignId) {
-            var deleted = await CampaignService.Delete(campaignId);
-            if (!deleted) {
-                return NotFound();
-            }
+            await CampaignService.Delete(campaignId);
             return NoContent();
         }
 
@@ -209,23 +201,17 @@ namespace Indice.AspNetCore.Features.Campaigns.Controllers
         /// <param name="file">Contains the stream of the attachment to be uploaded.</param>
         /// <response code="200">OK</response>
         /// <response code="400">Bad Request</response>
-        /// <response code="404">Not Found</response>
         [AllowedFileSize(6291456)] // 6 MegaBytes
         [Consumes("multipart/form-data")]
         [DisableRequestSizeLimit]
         [HttpPost("{campaignId}/attachment")]
         [Produces(MediaTypeNames.Application.Json)]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(AttachmentLink))]
-        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ValidationProblemDetails))]
-        [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(void))]
+        [ProducesResponseType(typeof(AttachmentLink), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> UploadCampaignAttachment([FromRoute] Guid campaignId, [FromForm] IFormFile file) {
             if (file == null) {
                 ModelState.AddModelError(nameof(file), "File is empty.");
                 return BadRequest(new ValidationProblemDetails(ModelState));
-            }
-            var campaign = await CampaignService.GetById(campaignId);
-            if (campaign is null) {
-                return NotFound();
             }
             var attachment = await CampaignService.CreateAttachment(file);
             await CampaignService.AssociateAttachment(campaignId, attachment.Id);
@@ -243,8 +229,8 @@ namespace Indice.AspNetCore.Features.Campaigns.Controllers
         [ApiExplorerSettings(IgnoreApi = true)]
         [HttpGet("attachments/{fileGuid}.{format}")]
         [Produces(MediaTypeNames.Application.Octet)]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IFormFile))]
-        [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ProblemDetails))]
+        [ProducesResponseType(typeof(IFormFile), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
         [ResponseCache(Duration = 345600, Location = ResponseCacheLocation.Any, VaryByQueryKeys = new[] { "v" })]
         public async Task<IActionResult> GetCampaignAttachment([FromRoute] Base64Id fileGuid, [FromRoute] string format) => await GetFile("campaigns", fileGuid, format);
     }

@@ -62,14 +62,17 @@ namespace Indice.AspNetCore.Features.Campaigns.Services
             return query.ToResultSetAsync(options);
         }
 
-        public async Task<CampaignDetails> GetById(Guid campaignId) {
+        public async Task<CampaignDetails> GetById(Guid id) {
             var campaign = await DbContext
                 .Campaigns
                 .AsNoTracking()
                 .Include(x => x.Attachment)
                 .Include(x => x.DistributionList)
                 .Select(Mapper.ProjectToCampaignDetails)
-                .SingleOrDefaultAsync(x => x.Id == campaignId);
+                .SingleOrDefaultAsync(x => x.Id == id);
+            if (campaign is null) {
+                return default;
+            }
             if (campaign.Attachment is not null) {
                 campaign.Attachment.PermaLink = $"{CampaignManagementOptions.ApiPrefix}/{campaign.Attachment.PermaLink.TrimStart('/')}";
             }
@@ -85,28 +88,25 @@ namespace Indice.AspNetCore.Features.Campaigns.Services
             return Mapper.ToCampaign(dbCampaign);
         }
 
-        public async Task<bool> Update(Guid campaignId, UpdateCampaignRequest request) {
-            var campaign = await DbContext.Campaigns.FindAsync(campaignId);
+        public async Task Update(Guid id, UpdateCampaignRequest request) {
+            var campaign = await DbContext.Campaigns.FindAsync(id);
             if (campaign is null) {
-                return false;
+                throw CampaignException.CampaignNotFound(id);
             }
             campaign.ActionText = request.ActionText;
             campaign.ActivePeriod = request.ActivePeriod;
             campaign.Content = request.Content;
             campaign.Title = request.Title;
-            campaign.Published = request.Published;
             await DbContext.SaveChangesAsync();
-            return true;
         }
 
-        public async Task<bool> Delete(Guid campaignId) {
-            var campaign = await DbContext.Campaigns.FindAsync(campaignId);
+        public async Task Delete(Guid id) {
+            var campaign = await DbContext.Campaigns.FindAsync(id);
             if (campaign is null) {
-                return false;
+                throw CampaignException.CampaignNotFound(id);
             }
             DbContext.Remove(campaign);
             await DbContext.SaveChangesAsync();
-            return true;
         }
 
         public async Task<AttachmentLink> CreateAttachment(IFormFile file) {
@@ -130,23 +130,26 @@ namespace Indice.AspNetCore.Features.Campaigns.Services
             };
         }
 
-        public async Task AssociateAttachment(Guid campaignId, Guid attachmentId) {
-            var campaign = await DbContext.Campaigns.FindAsync(campaignId);
+        public async Task AssociateAttachment(Guid id, Guid attachmentId) {
+            var campaign = await DbContext.Campaigns.FindAsync(id);
+            if (campaign is null) {
+                throw CampaignException.CampaignNotFound(id);
+            }
             campaign.AttachmentId = attachmentId;
             await DbContext.SaveChangesAsync();
         }
 
-        public async Task<CampaignStatistics> GetStatistics(Guid campaignId) {
-            var campaign = await DbContext.Campaigns.FindAsync(campaignId);
+        public async Task<CampaignStatistics> GetStatistics(Guid id) {
+            var campaign = await DbContext.Campaigns.FindAsync(id);
             if (campaign is null) {
                 return default;
             }
-            var callToActionCount = await DbContext.Hits.AsNoTracking().CountAsync(x => x.CampaignId == campaignId);
-            var readCount = await DbContext.Messages.AsNoTracking().CountAsync(x => x.CampaignId == campaignId && x.IsRead);
-            var deletedCount = await DbContext.Messages.AsNoTracking().CountAsync(x => x.CampaignId == campaignId && x.IsDeleted);
+            var callToActionCount = await DbContext.Hits.AsNoTracking().CountAsync(x => x.CampaignId == id);
+            var readCount = await DbContext.Messages.AsNoTracking().CountAsync(x => x.CampaignId == id && x.IsRead);
+            var deletedCount = await DbContext.Messages.AsNoTracking().CountAsync(x => x.CampaignId == id && x.IsDeleted);
             int? notReadCount = null;
             if (!campaign.IsGlobal) {
-                notReadCount = await DbContext.Messages.AsNoTracking().CountAsync(x => x.CampaignId == campaignId && !x.IsRead);
+                notReadCount = await DbContext.Messages.AsNoTracking().CountAsync(x => x.CampaignId == id && !x.IsRead);
             }
             return new CampaignStatistics {
                 CallToActionCount = callToActionCount,
@@ -158,34 +161,33 @@ namespace Indice.AspNetCore.Features.Campaigns.Services
             };
         }
 
-        public async Task UpdateHit(Guid campaignId) {
+        public async Task UpdateHit(Guid id) {
             DbContext.Hits.Add(new DbHit {
-                CampaignId = campaignId,
+                CampaignId = id,
                 TimeStamp = DateTimeOffset.UtcNow
             });
             await DbContext.SaveChangesAsync();
         }
 
-        public async Task<bool> Publish(Guid campaignId) {
-            var campaign = await DbContext.Campaigns.FindAsync(campaignId);
+        public async Task Publish(Guid id) {
+            var campaign = await DbContext.Campaigns.FindAsync(id);
             if (campaign is null) {
-                return false;
+                throw CampaignException.CampaignNotFound(id);
             }
             if (campaign.Published) {
-                throw new CampaignException("Campaign is already published.", nameof(campaignId));
+                throw CampaignException.CampaignAlreadyPublished(id);
             }
             campaign.Published = true;
             await DbContext.SaveChangesAsync();
-            return true;
         }
 
-        private async Task CreateMessages(CreateCampaignRequest request, Guid campaignId) {
+        private async Task CreateMessages(CreateCampaignRequest request, Guid id) {
             if (!request.IsGlobal && request.Published) {
                 if (request.SelectedUserCodes?.Count > 0) {
                     DbContext.Messages.AddRange(request.SelectedUserCodes.Select(userId => new DbMessage {
                         Id = Guid.NewGuid(),
                         RecipientId = userId,
-                        CampaignId = campaignId
+                        CampaignId = id
                     }));
                     await DbContext.SaveChangesAsync();
                 }
@@ -198,7 +200,7 @@ namespace Indice.AspNetCore.Features.Campaigns.Services
                         DbContext.Messages.AddRange(distributionList.Contacts.Select(contact => new DbMessage {
                             Id = Guid.NewGuid(),
                             RecipientId = contact.RecipientId,
-                            CampaignId = campaignId
+                            CampaignId = id
                         }));
                     }
                     await DbContext.SaveChangesAsync();

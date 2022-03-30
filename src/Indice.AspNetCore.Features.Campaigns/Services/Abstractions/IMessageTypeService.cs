@@ -8,10 +8,10 @@ namespace Indice.AspNetCore.Features.Campaigns.Services
     internal interface IMessageTypeService
     {
         Task<ResultSet<MessageType>> GetList(ListOptions options);
-        Task<MessageType> GetById(Guid campaignTypeId);
+        Task<MessageType> GetById(Guid id);
         Task<MessageType> GetByName(string name);
         Task<MessageType> Create(UpsertMessageTypeRequest request);
-        Task<bool> Update(Guid campaignTypeId, UpsertMessageTypeRequest request);
-        Task<bool> Delete(Guid campaignTypeId);
+        Task Update(Guid id, UpsertMessageTypeRequest request);
+        Task Delete(Guid id);
     }
 }

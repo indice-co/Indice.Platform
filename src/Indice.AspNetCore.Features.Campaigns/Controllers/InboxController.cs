@@ -17,8 +17,6 @@ namespace Indice.AspNetCore.Features.Campaigns.Controllers
     /// <response code="403">Forbidden</response>
     [ApiController]
     [Authorize(AuthenticationSchemes = CampaignsApi.AuthenticationScheme)]
-    [Consumes(MediaTypeNames.Application.Json)]
-    [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized, Type = typeof(ProblemDetails))]
     [ProducesResponseType(StatusCodes.Status403Forbidden, Type = typeof(ProblemDetails))]
     [Route(ApiPrefixes.CampaignInboxEndpoints)]
@@ -49,8 +47,8 @@ namespace Indice.AspNetCore.Features.Campaigns.Controllers
         /// <param name="options">List parameters used to navigate through collections. Contains parameters such as sort, search, page number and page size.</param>
         /// <response code="200">OK</response>
         [HttpGet("my/messages")]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ResultSet<Message>))]
-        [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ProblemDetails))]
+        [Produces(MediaTypeNames.Application.Json)]
+        [ProducesResponseType(typeof(ResultSet<Message>), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetMessages([FromQuery] ListOptions<MessagesFilter> options) {
             var messages = await InboxService.GetList(UserCode, options);
             return Ok(messages);
@@ -59,15 +57,12 @@ namespace Indice.AspNetCore.Features.Campaigns.Controllers
         /// <summary>
         /// Gets the list of available campaign types.
         /// </summary>
-        /// <param name="options">List params used to navigate through collections. Contains parameters such as sort, search, page number and page size.</param>
+        /// <param name="options">List parameters used to navigate through collections. Contains parameters such as sort, search, page number and page size.</param>
         /// <response code="200">OK</response>
-        /// <response code="400">Bad Request</response>
         [Authorize(AuthenticationSchemes = CampaignsApi.AuthenticationScheme)]
         [HttpGet("messages/types")]
         [Produces(MediaTypeNames.Application.Json)]
-        [Consumes(MediaTypeNames.Application.Json)]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ResultSet<MessageType>))]
-        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ValidationProblemDetails))]
+        [ProducesResponseType(typeof(ResultSet<MessageType>), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetMessageTypes([FromQuery] ListOptions options) {
             var campaignTypes = await MessageTypeService.GetList(options);
             return Ok(campaignTypes);
@@ -80,8 +75,9 @@ namespace Indice.AspNetCore.Features.Campaigns.Controllers
         /// <response code="200">OK</response>
         /// <response code="404">Not Found</response>
         [HttpGet("my/messages/{messageId:guid}")]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Message))]
-        [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ProblemDetails))]
+        [Produces(MediaTypeNames.Application.Json)]
+        [ProducesResponseType(typeof(Message), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetMessageById([FromRoute] Guid messageId) {
             var message = await InboxService.GetById(messageId, UserCode);
             if (message == null) {
@@ -96,20 +92,11 @@ namespace Indice.AspNetCore.Features.Campaigns.Controllers
         /// <param name="messageId">The id of the message.</param>
         /// <response code="204">No Content</response>
         /// <response code="400">Bad Request</response>
-        /// <response code="404">Not Found</response>
         [HttpPut("my/messages/{messageId:guid}/read")]
-        [ProducesResponseType(StatusCodes.Status204NoContent, Type = typeof(void))]
-        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ValidationProblemDetails))]
-        [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(void))]
+        [Produces(MediaTypeNames.Application.Json)]
+        [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(void), StatusCodes.Status204NoContent)]
         public async Task<IActionResult> MarkMessageAsRead([FromRoute] Guid messageId) {
-            var message = await InboxService.GetById(messageId, UserCode);
-            if (message == null) {
-                return NotFound();
-            }
-            if (message.IsRead) {
-                ModelState.AddModelError(nameof(message), "This message is already read.");
-                return BadRequest(new ValidationProblemDetails(ModelState));
-            }
             await InboxService.MarkAsRead(messageId, UserCode);
             return NoContent();
         }
@@ -119,14 +106,12 @@ namespace Indice.AspNetCore.Features.Campaigns.Controllers
         /// </summary>
         /// <param name="messageId">The id of the message.</param>
         /// <response code="204">No Content</response>
+        /// <response code="400">Bad Request</response>
         [HttpDelete("my/messages/{messageId:guid}")]
-        [ProducesResponseType(StatusCodes.Status204NoContent, Type = typeof(void))]
-        [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(void))]
+        [Produces(MediaTypeNames.Application.Json)]
+        [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(void), StatusCodes.Status204NoContent)]
         public async Task<IActionResult> DeleteMessage([FromRoute] Guid messageId) {
-            var message = await InboxService.GetById(messageId, UserCode);
-            if (message == null) {
-                return NotFound();
-            }
             await InboxService.MarkAsDeleted(messageId, UserCode);
             return NoContent();
         }
@@ -136,12 +121,11 @@ namespace Indice.AspNetCore.Features.Campaigns.Controllers
         [HttpGet("messages/cta/{trackingCode}")]
         public async Task<IActionResult> Track([FromRoute] Base64Id trackingCode) {
             var campaignId = trackingCode.Id;
-            // TODO: Add a method on campaign service that returns the cta link.
             var campaign = await CampaignService.GetById(campaignId);
             if (campaign is null) {
                 return NotFound();
             }
-            await CampaignService.UpdateHit(campaignId);
+            await CampaignService.UpdateHit(trackingCode.Id);
             return Redirect(campaign.ActionUrl);
         }
 
@@ -156,8 +140,8 @@ namespace Indice.AspNetCore.Features.Campaigns.Controllers
         [ApiExplorerSettings(IgnoreApi = true)]
         [HttpGet("messages/attachments/{fileGuid}.{format}")]
         [Produces(MediaTypeNames.Application.Octet)]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IFormFile))]
-        [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ProblemDetails))]
+        [ProducesResponseType(typeof(IFormFile), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
         [ResponseCache(Duration = 345600, Location = ResponseCacheLocation.Any, VaryByQueryKeys = new[] { "v" })]
         public async Task<IActionResult> GetMessageAttachment([FromRoute] Base64Id fileGuid, [FromRoute] string format) => await GetFile("campaigns", fileGuid, format);
     }

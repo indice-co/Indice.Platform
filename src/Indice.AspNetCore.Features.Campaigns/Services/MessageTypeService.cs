@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Indice.AspNetCore.Features.Campaigns.Data;
 using Indice.AspNetCore.Features.Campaigns.Data.Models;
+using Indice.AspNetCore.Features.Campaigns.Exceptions;
 using Indice.AspNetCore.Features.Campaigns.Models;
 using Indice.Types;
 using Microsoft.EntityFrameworkCore;
@@ -30,18 +31,17 @@ namespace Indice.AspNetCore.Features.Campaigns.Services
             };
         }
 
-        public async Task<bool> Delete(Guid campaignTypeId) {
-            var messageType = await DbContext.MessageTypes.FindAsync(campaignTypeId);
+        public async Task Delete(Guid id) {
+            var messageType = await DbContext.MessageTypes.FindAsync(id);
             if (messageType is null) {
-                return false;
+                throw CampaignException.MessageTypeNotFound(id);
             }
             DbContext.Remove(messageType);
             await DbContext.SaveChangesAsync();
-            return true;
         }
 
-        public async Task<MessageType> GetById(Guid campaignTypeId) {
-            var messageType = await DbContext.MessageTypes.FindAsync(campaignTypeId);
+        public async Task<MessageType> GetById(Guid id) {
+            var messageType = await DbContext.MessageTypes.FindAsync(id);
             if (messageType is null) {
                 return default;
             }
@@ -71,14 +71,13 @@ namespace Indice.AspNetCore.Features.Campaigns.Services
                      })
                      .ToResultSetAsync(options);
 
-        public async Task<bool> Update(Guid campaignTypeId, UpsertMessageTypeRequest request) {
-            var messageType = await DbContext.MessageTypes.FindAsync(campaignTypeId);
+        public async Task Update(Guid id, UpsertMessageTypeRequest request) {
+            var messageType = await DbContext.MessageTypes.FindAsync(id);
             if (messageType is null) {
-                return false;
+                throw CampaignException.MessageTypeNotFound(id);
             }
             messageType.Name = request.Name;
             await DbContext.SaveChangesAsync();
-            return true;
         }
     }
 }

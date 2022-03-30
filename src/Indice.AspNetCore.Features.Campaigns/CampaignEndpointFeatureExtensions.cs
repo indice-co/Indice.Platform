@@ -2,11 +2,8 @@
 using System.Linq;
 using System.Net.Mime;
 using FluentValidation.AspNetCore;
-using Hellang.Middleware.ProblemDetails;
 using Indice.AspNetCore.Features.Campaigns;
-using Indice.AspNetCore.Features.Campaigns.Controllers;
 using Indice.AspNetCore.Features.Campaigns.Data;
-using Indice.AspNetCore.Features.Campaigns.Exceptions;
 using Indice.AspNetCore.Features.Campaigns.Formatters;
 using Indice.AspNetCore.Features.Campaigns.Services;
 using Indice.AspNetCore.Mvc.ApplicationModels;
@@ -14,7 +11,6 @@ using Indice.AspNetCore.Swagger;
 using Indice.Security;
 using Indice.Serialization;
 using Indice.Services;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -161,17 +157,6 @@ namespace Microsoft.Extensions.DependencyInjection
             // Post configure MVC options.
             services.PostConfigure<MvcOptions>(options => {
                 options.FormatterMappings.SetMediaTypeMappingForFormat("json", MediaTypeNames.Application.Json);
-            });
-            // Post configure Problem Details options.
-            services.PostConfigure<ProblemDetailsOptions>(options => {
-                options.Map<CampaignException>(exception => {
-                    var response = new ValidationProblemDetails(exception.Errors) {
-                        Title = exception.Message,
-                        Status = StatusCodes.Status400BadRequest
-                    };
-                    response.Extensions["code"] = exception.Code;
-                    return response;
-                });
             });
             // Register validators.
             mvcBuilder.AddFluentValidation(options => options.RegisterValidatorsFromAssemblyContaining<CreateCampaignRequestValidator>());

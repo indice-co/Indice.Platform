@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Indice.AspNetCore.Features.Campaigns.Data;
 using Indice.AspNetCore.Features.Campaigns.Data.Models;
+using Indice.AspNetCore.Features.Campaigns.Exceptions;
 using Indice.AspNetCore.Features.Campaigns.Models;
 using Indice.Configuration;
 using Indice.Types;
@@ -30,22 +31,22 @@ namespace Indice.AspNetCore.Features.Campaigns.Services
 
         public async Task<ResultSet<Message>> GetList(string userCode, ListOptions<MessagesFilter> options) {
             var userMessages = await GetUserInboxQuery(userCode, options).ToResultSetAsync(options);
-            return new ResultSet<Message> {
-                Count = userMessages.Count,
-                Items = userMessages.Items
-            };
+            return userMessages;
         }
 
-        public Task<Message> GetById(Guid messageId, string userCode) => GetUserInboxQuery(userCode).SingleOrDefaultAsync(x => x.Id == messageId);
+        public Task<Message> GetById(Guid id, string userCode) => GetUserInboxQuery(userCode).SingleOrDefaultAsync(x => x.Id == id);
 
-        public async Task MarkAsDeleted(Guid messageId, string userCode) {
-            var message = await DbContext.Messages.SingleOrDefaultAsync(x => x.CampaignId == messageId && x.RecipientId == userCode);
-            if (message != null) {
+        public async Task MarkAsDeleted(Guid id, string userCode) {
+            var message = await DbContext.Messages.SingleOrDefaultAsync(x => x.CampaignId == id && x.RecipientId == userCode);
+            if (message is not null) {
+                if (message.IsDeleted) {
+                    throw CampaignException.MessageAlreadyRead(id);
+                }
                 message.IsDeleted = true;
                 message.DeleteDate = DateTime.UtcNow;
             } else {
                 DbContext.Messages.Add(new DbMessage {
-                    CampaignId = messageId,
+                    CampaignId = id,
                     DeleteDate = DateTime.UtcNow,
                     Id = Guid.NewGuid(),
                     IsDeleted = true,
@@ -55,14 +56,17 @@ namespace Indice.AspNetCore.Features.Campaigns.Services
             await DbContext.SaveChangesAsync();
         }
 
-        public async Task MarkAsRead(Guid messageId, string userCode) {
-            var message = await DbContext.Messages.SingleOrDefaultAsync(x => x.CampaignId == messageId && x.RecipientId == userCode);
+        public async Task MarkAsRead(Guid id, string userCode) {
+            var message = await DbContext.Messages.SingleOrDefaultAsync(x => x.CampaignId == id && x.RecipientId == userCode);
             if (message is not null) {
+                if (message.IsRead) {
+                    throw CampaignException.MessageAlreadyRead(id);
+                }
                 message.IsRead = true;
                 message.ReadDate = DateTime.UtcNow;
             } else {
                 DbContext.Messages.Add(new DbMessage {
-                    CampaignId = messageId,
+                    CampaignId = id,
                     Id = Guid.NewGuid(),
                     IsRead = true,
                     ReadDate = DateTime.UtcNow,

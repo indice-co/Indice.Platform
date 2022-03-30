@@ -15,8 +15,10 @@ namespace Indice.AspNetCore.Features.Campaigns.Controllers
     [ApiController]
     [ApiExplorerSettings(GroupName = "campaigns")]
     [Authorize(AuthenticationSchemes = CampaignsApi.AuthenticationScheme, Policy = CampaignsApi.Policies.BeCampaignsManager)]
-    [ProducesResponseType(StatusCodes.Status401Unauthorized, Type = typeof(ProblemDetails))]
-    [ProducesResponseType(StatusCodes.Status403Forbidden, Type = typeof(ProblemDetails))]
+    [Consumes(MediaTypeNames.Application.Json)]
+    [Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
     [Route($"{ApiPrefixes.CampaignManagementEndpoints}/contacts")]
     internal class ContactsController : ControllerBase
     {
@@ -33,15 +35,13 @@ namespace Indice.AspNetCore.Features.Campaigns.Controllers
         /// <response code="200">OK</response>
         [HttpGet]
         [Produces(MediaTypeNames.Application.Json)]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ResultSet<Contact>))]
+        [ProducesResponseType(typeof(ResultSet<Contact>), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetCampaigns([FromQuery] ListOptions options) {
             var contacts = await ContactService.GetList(options);
             return Ok(contacts);
         }
 
         [HttpPost]
-        [Produces(MediaTypeNames.Application.Json)]
-        [Consumes(MediaTypeNames.Application.Json)]
         [ProducesResponseType(typeof(MessageType), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> CreateContact([FromBody] CreateContactRequest request) {

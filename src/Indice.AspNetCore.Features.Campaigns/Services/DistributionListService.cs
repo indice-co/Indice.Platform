@@ -30,6 +30,17 @@ namespace Indice.AspNetCore.Features.Campaigns.Services
             };
         }
 
+        public async Task<DistributionList> GetById(Guid id) {
+            var list = await DbContext.DistributionLists.FindAsync(id);
+            if (list is null) {
+                return default;
+            }
+            return new DistributionList {
+                Id = list.Id,
+                Name = list.Name
+            };
+        }
+
         public async Task<DistributionList> GetByName(string name) {
             var list = await DbContext.DistributionLists.SingleOrDefaultAsync(x => x.Name == name);
             if (list is null) {

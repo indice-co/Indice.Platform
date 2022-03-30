@@ -2,7 +2,6 @@
 using System.Threading;
 using System.Threading.Tasks;
 using FluentValidation;
-using Indice.AspNetCore.Features.Campaigns.Data;
 using Indice.AspNetCore.Features.Campaigns.Models;
 using Indice.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -18,7 +17,8 @@ namespace Indice.AspNetCore.Features.Campaigns.Services
         /// Creates a new instance of <see cref="CreateCampaignRequestValidator"/>.
         /// </summary>
         public CreateCampaignRequestValidator(IServiceProvider serviceProvider) {
-            DbContext = serviceProvider.GetRequiredService<CampaignsDbContext>();
+            MessageTypeService = serviceProvider.GetRequiredService<IMessageTypeService>();
+            DistributionListService = serviceProvider.GetRequiredService<IDistributionListService>();
             RuleFor(campaign => campaign.Title)
                 .NotEmpty()
                 .WithMessage("Please provide a title for the campaign.")
@@ -60,10 +60,11 @@ namespace Indice.AspNetCore.Features.Campaigns.Services
                 .WithMessage($"Campaign action URL is not valid.");
         }
 
-        private CampaignsDbContext DbContext { get; }
+        private IMessageTypeService MessageTypeService { get; }
+        private IDistributionListService DistributionListService { get; }
 
-        private async Task<bool> BeExistingTypeId(Guid? typeId, CancellationToken cancellationToken) => await DbContext.MessageTypes.FindAsync(typeId) is not null;
+        private async Task<bool> BeExistingTypeId(Guid? id, CancellationToken cancellationToken) => await MessageTypeService.GetById(id.Value) is not null;
 
-        private async Task<bool> BeExistingDistributionListId(Guid? typeId, CancellationToken cancellationToken) => await DbContext.DistributionLists.FindAsync(typeId) is not null;
+        private async Task<bool> BeExistingDistributionListId(Guid? id, CancellationToken cancellationToken) => await DistributionListService.GetById(id.Value) is not null;
     }
 }

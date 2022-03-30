@@ -15,8 +15,10 @@ namespace Indice.AspNetCore.Features.Campaigns.Controllers
     [ApiController]
     [ApiExplorerSettings(GroupName = "campaigns")]
     [Authorize(AuthenticationSchemes = CampaignsApi.AuthenticationScheme, Policy = CampaignsApi.Policies.BeCampaignsManager)]
-    [ProducesResponseType(StatusCodes.Status401Unauthorized, Type = typeof(ProblemDetails))]
-    [ProducesResponseType(StatusCodes.Status403Forbidden, Type = typeof(ProblemDetails))]
+    [Consumes(MediaTypeNames.Application.Json)]
+    [Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
     [Route($"{ApiPrefixes.CampaignManagementEndpoints}/message-types")]
     internal class MessageTypesController : ControllerBase
     {
@@ -37,9 +39,7 @@ namespace Indice.AspNetCore.Features.Campaigns.Controllers
         /// <param name="options">List parameters used to navigate through collections. Contains parameters such as sort, search, page number and page size.</param>
         /// <response code="200">OK</response>
         [HttpGet]
-        [Produces(MediaTypeNames.Application.Json)]
-        [Consumes(MediaTypeNames.Application.Json)]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ResultSet<MessageType>))]
+        [ProducesResponseType(typeof(ResultSet<MessageType>), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetMessageTypes([FromQuery] ListOptions options) {
             var messageTypes = await MessageTypeService.GetList(options);
             return Ok(messageTypes);
@@ -52,10 +52,8 @@ namespace Indice.AspNetCore.Features.Campaigns.Controllers
         /// <response code="200">OK</response>
         /// <response code="400">Bad Request</response>
         [HttpPost]
-        [Produces(MediaTypeNames.Application.Json)]
-        [Consumes(MediaTypeNames.Application.Json)]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(MessageType))]
-        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ValidationProblemDetails))]
+        [ProducesResponseType(typeof(MessageType), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> CreateMessageType([FromBody] UpsertMessageTypeRequest request) {
             var messageType = await MessageTypeService.Create(request);
             return Ok(messageType);
@@ -69,16 +67,10 @@ namespace Indice.AspNetCore.Features.Campaigns.Controllers
         /// <response code="204">No Content</response>
         /// <response code="400">Bad Request</response>
         [HttpPut("{campaignTypeId}")]
-        [Produces(MediaTypeNames.Application.Json)]
-        [Consumes(MediaTypeNames.Application.Json)]
-        [ProducesResponseType(StatusCodes.Status204NoContent, Type = typeof(MessageType))]
-        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ValidationProblemDetails))]
-        [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ProblemDetails))]
+        [ProducesResponseType(typeof(void), StatusCodes.Status204NoContent)]
+        [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> UpdateMessageType([FromRoute] Guid campaignTypeId, [FromBody] UpsertMessageTypeRequest request) {
-            var updated = await MessageTypeService.Update(campaignTypeId, request);
-            if (!updated) {
-                return NotFound();
-            }
+            await MessageTypeService.Update(campaignTypeId, request);
             return NoContent();
         }
 
@@ -87,16 +79,12 @@ namespace Indice.AspNetCore.Features.Campaigns.Controllers
         /// </summary>
         /// <param name="campaignTypeId">The id of the message type.</param>
         /// <response code="204">No Content</response>
-        /// <response code="404">Not Found</response>
+        /// <response code="400">Bad Request</response>
         [HttpDelete]
-        [Produces(MediaTypeNames.Application.Json)]
-        [ProducesResponseType(StatusCodes.Status204NoContent, Type = typeof(void))]
-        [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ProblemDetails))]
+        [ProducesResponseType(typeof(void), StatusCodes.Status204NoContent)]
+        [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> DeleteMessageType([FromRoute] Guid campaignTypeId) {
-            var deleted = await MessageTypeService.Delete(campaignTypeId);
-            if (!deleted) {
-                return NotFound();
-            }
+            await MessageTypeService.Delete(campaignTypeId);
             return NoContent();
         }
     }

@@ -1,6 +1,7 @@
 using System;
 using System.Globalization;
 using System.Linq;
+using Hellang.Middleware.ProblemDetails;
 using Indice.Api.Data;
 using Indice.AspNetCore.Features.Campaigns;
 using Indice.Configuration;
@@ -62,6 +63,7 @@ namespace Indice.Api
             app.UseCors();
             app.UseRouting();
             app.UseResponseCaching();
+            app.UseProblemDetails();
             app.UseAuthentication();
             app.UseAuthorization();
             if (Configuration.EnableSwaggerUi()) {
@@ -72,7 +74,7 @@ namespace Indice.Api
                     options.OAuth2RedirectUrl($"{Settings.Host}/docs/oauth2-redirect.html");
                     options.OAuthClientId("swagger-ui");
                     options.OAuthAppName("Swagger UI");
-                    options.DocExpansion(DocExpansion.None);
+                    options.DocExpansion(DocExpansion.List);
                     options.OAuthUsePkce();
                     options.OAuthScopeSeparator(" ");
                 });

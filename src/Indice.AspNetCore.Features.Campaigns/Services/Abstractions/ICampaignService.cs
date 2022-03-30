@@ -9,14 +9,14 @@ namespace Indice.AspNetCore.Features.Campaigns.Services
     internal interface ICampaignService
     {
         Task<ResultSet<Campaign>> GetList(ListOptions<CampaignsFilter> options);
-        Task<CampaignDetails> GetById(Guid campaignId);
+        Task<CampaignDetails> GetById(Guid id);
         Task<Campaign> Create(CreateCampaignRequest request);
-        Task<bool> Update(Guid campaignId, UpdateCampaignRequest request);
-        Task<bool> Delete(Guid campaignId);
-        Task<bool> Publish(Guid campaignId);
+        Task Update(Guid id, UpdateCampaignRequest request);
+        Task Delete(Guid id);
+        Task Publish(Guid id);
         Task<AttachmentLink> CreateAttachment(IFormFile file);
-        Task AssociateAttachment(Guid campaignId, Guid attachmentId);
-        Task<CampaignStatistics> GetStatistics(Guid campaignId);
-        Task UpdateHit(Guid campaignId);
+        Task AssociateAttachment(Guid id, Guid attachmentId);
+        Task<CampaignStatistics> GetStatistics(Guid id);
+        Task UpdateHit(Guid id);
     }
 }

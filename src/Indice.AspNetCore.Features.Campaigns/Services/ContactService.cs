@@ -22,12 +22,12 @@ namespace Indice.AspNetCore.Features.Campaigns.Services
             DbContact contact;
             var list = await DbContext.DistributionLists.FindAsync(id);
             if (list is null) {
-                throw new CampaignException($"Distribution list with id '{request.Id.Value}' does not exist.", nameof(id));
+                throw CampaignException.DistributionListNotFound(id);
             }
             if (request.Id.HasValue) {
                 contact = await DbContext.Contacts.FindAsync(request.Id.Value);
                 if (contact is null) {
-                    throw new CampaignException($"Contact with id '{request.Id.Value}' does not exist.", nameof(request.Id));
+                    throw CampaignException.ContactNotFound(id);
                 }
                 contact.DistributionListId = list.Id;
                 contact.Email = request.Email;
