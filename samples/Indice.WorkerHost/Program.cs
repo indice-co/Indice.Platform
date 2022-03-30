@@ -20,7 +20,7 @@ host.ConfigureAppConfiguration((hostBuilderContext, configurationBuilder) => {
             })
             //.AddAlertJobs()
             .AddCampaignsJobs(options => {
-                //options.UsePushNotificationServiceAzure();
+                options.UseEventDispatcherHosting();
             });
 })
 .ConfigureLogging(loggingBuilder => loggingBuilder.AddConsole())

@@ -9,10 +9,10 @@ namespace Indice.Services
     public class EmailServiceNoop : IEmailService
     {
         /// <inheritdoc/>
-        public async Task SendAsync(string[] recipients, string subject, string body, FileAttachment[] attachments = null) => await SendAsync<object>(recipients, subject, body, null, null);
+        public async Task SendAsync(string[] recipients, string subject, string body, EmailAttachment[] attachments = null) => await SendAsync<object>(recipients, subject, body, null, null);
 
         /// <inheritdoc/>
-        public Task SendAsync<TModel>(string[] recipients, string subject, string body, string template, TModel data, FileAttachment[] attachments = null) where TModel : class {
+        public Task SendAsync<TModel>(string[] recipients, string subject, string body, string template, TModel data, EmailAttachment[] attachments = null) where TModel : class {
             foreach (var recipient in recipients) {
                 Console.WriteLine($"Email:\n\t\t{recipient}/{subject}\n\n\t\t{body}");
             }

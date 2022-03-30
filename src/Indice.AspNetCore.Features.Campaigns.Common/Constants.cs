@@ -49,6 +49,7 @@ namespace Indice.AspNetCore.Features.Campaigns
     {
         public const string CampaignCreated = "campaign-created";
         public const string SendPushNotification = "campaign-send-push-notification";
+        public const string DistributeInbox = "campaign-inbox-distribution";
     }
 
     public class ApiPrefixes 

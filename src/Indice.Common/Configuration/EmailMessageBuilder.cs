@@ -36,7 +36,7 @@ namespace Indice.Services
         /// <summary>
         /// Optional attachments contained in the message.
         /// </summary>
-        public IList<FileAttachment> Attachments { get; set; } = new List<FileAttachment>();
+        public IList<EmailAttachment> Attachments { get; set; } = new List<EmailAttachment>();
     }
 
     /// <summary>
@@ -109,7 +109,7 @@ namespace Indice.Services
         /// <param name="builder">The builder</param>
         /// <param name="attachments">Optional attachments contained in the message.</param>
         /// <returns></returns>
-        public static EmailMessageBuilder WithAttachments(this EmailMessageBuilder builder, params FileAttachment[] attachments) {
+        public static EmailMessageBuilder WithAttachments(this EmailMessageBuilder builder, params EmailAttachment[] attachments) {
             if (attachments?.Length == 0) {
                 throw new ArgumentException("One or more attachments must be declared for the message.", nameof(attachments));
             }

@@ -71,7 +71,7 @@ namespace Indice.Services
         /// <param name="body">The body of the email message.</param>
         /// <param name="attachments">The files that will be attached in the email message.</param>
         /// <returns></returns>
-        Task SendAsync(string[] recipients, string subject, string body, FileAttachment[] attachments = null);
+        Task SendAsync(string[] recipients, string subject, string body, EmailAttachment[] attachments = null);
 
         /// <summary>
         /// Sends an email.
@@ -84,7 +84,7 @@ namespace Indice.Services
         /// <param name="data">The data model that contains information to render in the email message.</param>
         /// <param name="attachments">The files that will be attached in the email message.</param>
         /// <returns></returns>
-        Task SendAsync<TModel>(string[] recipients, string subject, string body, string template, TModel data, FileAttachment[] attachments = null) where TModel : class;
+        Task SendAsync<TModel>(string[] recipients, string subject, string body, string template, TModel data, EmailAttachment[] attachments = null) where TModel : class;
     }
 
     /// <summary>

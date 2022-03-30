@@ -46,10 +46,10 @@ namespace Indice.Services
         }
 
         /// <inheritdoc/>
-        public async Task SendAsync(string[] recipients, string subject, string body, FileAttachment[] attachments = null) => await SendAsync<object>(recipients, subject, body, "Email", null, attachments);
+        public async Task SendAsync(string[] recipients, string subject, string body, EmailAttachment[] attachments = null) => await SendAsync<object>(recipients, subject, body, "Email", null, attachments);
 
         /// <inheritdoc/>
-        public abstract Task SendAsync<TModel>(string[] recipients, string subject, string body, string template, TModel data, FileAttachment[] attachments = null) where TModel : class;
+        public abstract Task SendAsync<TModel>(string[] recipients, string subject, string body, string template, TModel data, EmailAttachment[] attachments = null) where TModel : class;
 
         /// <summary>
         /// Generates the email body using the Razor engine.

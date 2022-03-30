@@ -86,7 +86,7 @@ namespace Indice.Services
         }
 
         /// <inheritdoc/>
-        public override async Task SendAsync<TModel>(string[] recipients, string subject, string body, string template, TModel data, FileAttachment[] attachments = null) {
+        public override async Task SendAsync<TModel>(string[] recipients, string subject, string body, string template, TModel data, EmailAttachment[] attachments = null) {
             var bccRecipients = (_settings.BccRecipients ?? "").Split(';', ',');
             var recipientAddresses = recipients.Select(recipient => new SparkPostRecipient {
                 Address = new SparkPostRecipientEmailAddress {

@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Indice.AspNetCore.Features.Campaigns.Models
+﻿namespace Indice.AspNetCore.Features.Campaigns.Models
 {
     /// <summary>
     /// Models a campaign type.

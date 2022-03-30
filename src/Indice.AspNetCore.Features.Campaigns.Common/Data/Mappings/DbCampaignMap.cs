@@ -1,0 +1,40 @@
+﻿using Indice.AspNetCore.Features.Campaigns.Data.Models;
+using Indice.Configuration;
+using Indice.Types;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+
+namespace Indice.AspNetCore.Features.Campaigns.Data
+{
+    public class DbCampaignMap : IEntityTypeConfiguration<DbCampaign>
+    {
+        public DbCampaignMap(string schemaName) {
+            SchemaName = schemaName ?? throw new ArgumentNullException(nameof(schemaName));
+        }
+
+        public string SchemaName { get; }
+
+        public void Configure(EntityTypeBuilder<DbCampaign> builder) {
+            // Configure table name.
+            builder.ToTable("Campaign", SchemaName);
+            // Configure primary key.
+            builder.HasKey(x => x.Id);
+            // Configure properties.
+            builder.Property(x => x.Id).ValueGeneratedNever();
+            builder.Property(x => x.Title).HasMaxLength(TextSizePresets.M128).IsRequired();
+            builder.Property(x => x.Content).HasJsonConversion().IsRequired();
+            builder.Property(x => x.ActionText).HasMaxLength(TextSizePresets.M128);
+            builder.Property(x => x.ActionUrl).HasMaxLength(TextSizePresets.L2048);
+            builder.Property(x => x.CreatedAt).IsRequired();
+            builder.Property(x => x.Published).IsRequired();
+            builder.OwnsOne(x => x.ActivePeriod).Property(x => x.From).HasColumnName(nameof(Period.From));
+            builder.OwnsOne(x => x.ActivePeriod).Property(x => x.To).HasColumnName(nameof(Period.To));
+            builder.Property(x => x.IsGlobal).IsRequired();
+            builder.Property(x => x.Data).HasJsonConversion();
+            // Configure relationships.
+            builder.HasOne(x => x.Attachment).WithMany().HasForeignKey(x => x.AttachmentId);
+            builder.HasOne(x => x.Type).WithMany().HasForeignKey(x => x.TypeId);
+            builder.HasOne(x => x.DistributionList).WithMany().HasForeignKey(x => x.DistributionListId);
+        }
+    }
+}

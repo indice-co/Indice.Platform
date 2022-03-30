@@ -16,6 +16,7 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <returns>The <see cref="WorkPublisherBuilder"/> used to configure the worker host.</returns>
         public static WorkPublisherBuilder AddCampaignsEvents(this WorkPublisherBuilder workPublisherBuilder) => 
             workPublisherBuilder.ForEvent<CampaignCreatedEvent>(QueueNames.CampaignCreated)
-                                .ForEvent<SendPushNotificationEvent>(QueueNames.SendPushNotification);
+                                .ForEvent<SendPushNotificationEvent>(QueueNames.SendPushNotification)
+                                .ForEvent<InboxDistributionEvent>(QueueNames.DistributeInbox);
     }
 }

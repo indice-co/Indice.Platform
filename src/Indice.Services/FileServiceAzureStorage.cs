@@ -185,20 +185,20 @@ namespace Indice.Services
             }
             return deleted;
         }
+    }
 
+    /// <summary>
+    /// File service options specific to Azure.
+    /// </summary>
+    public class FileServiceAzureOptions
+    {
         /// <summary>
-        /// File service options specific to Azure.
+        /// The connection string setting name pointing to the to the Azure Storage account.
         /// </summary>
-        public class FileServiceOptions
-        {
-            /// <summary>
-            /// The connection string setting name pointing to the to the Azure Storage account.
-            /// </summary>
-            public string ConnectionStringName { get; set; }
-            /// <summary>
-            /// Usually the environment name (ex. Development, Production).
-            /// </summary>
-            public string ContainerName { get; set; }
-        }
+        public string ConnectionStringName { get; set; }
+        /// <summary>
+        /// Usually the environment name (ex. Development, Production).
+        /// </summary>
+        public string ContainerName { get; set; }
     }
 }

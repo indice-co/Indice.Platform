@@ -172,8 +172,8 @@ namespace Indice.AspNetCore.Features.Campaigns.Controllers
         [Consumes(MediaTypeNames.Application.Json)]
         [HttpPut("{campaignId}")]
         [Produces(MediaTypeNames.Application.Json)]
-        [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(void), StatusCodes.Status204NoContent)]
+        [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> UpdateCampaign([FromRoute] Guid campaignId, [FromBody] UpdateCampaignRequest request) {
             await CampaignService.Update(campaignId, request);
             return NoContent();
@@ -187,8 +187,8 @@ namespace Indice.AspNetCore.Features.Campaigns.Controllers
         /// <response code="400">Bad Request</response>
         [HttpDelete("{campaignId}")]
         [Produces(MediaTypeNames.Application.Json)]
-        [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(void), StatusCodes.Status204NoContent)]
+        [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> DeleteCampaign([FromRoute] Guid campaignId) {
             await CampaignService.Delete(campaignId);
             return NoContent();
@@ -213,9 +213,10 @@ namespace Indice.AspNetCore.Features.Campaigns.Controllers
                 ModelState.AddModelError(nameof(file), "File is empty.");
                 return BadRequest(new ValidationProblemDetails(ModelState));
             }
-            var attachment = await CampaignService.CreateAttachment(file);
-            await CampaignService.AssociateAttachment(campaignId, attachment.Id);
-            return Ok(attachment);
+            var attachment = new FileAttachment(file.OpenReadStream).PopulateFrom(file);
+            var attachmentLink = await CampaignService.CreateAttachment(attachment);
+            await CampaignService.AssociateAttachment(campaignId, attachmentLink.Id);
+            return Ok(attachmentLink);
         }
 
         /// <summary>

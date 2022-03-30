@@ -16,9 +16,9 @@ namespace Microsoft.Extensions.DependencyInjection
         /// </summary>
         /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
         /// <param name="configure">Configure the available options. Null to use defaults.</param>
-        public static IServiceCollection AddFilesAzure(this IServiceCollection services, Action<FileServiceAzureStorage.FileServiceOptions> configure = null) {
+        public static IServiceCollection AddFilesAzure(this IServiceCollection services, Action<FileServiceAzureOptions> configure = null) {
             services.AddTransient<IFileService, FileServiceAzureStorage>(serviceProvider => {
-                var options = new FileServiceAzureStorage.FileServiceOptions {
+                var options = new FileServiceAzureOptions {
                     ConnectionStringName = FileServiceAzureStorage.CONNECTION_STRING_NAME,
                     ContainerName = serviceProvider.GetRequiredService<IHostEnvironment>().EnvironmentName
                 };
@@ -32,8 +32,8 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <summary>
         /// The factory that creates the default instance and configuration for <see cref="FileServiceLocal"/>.
         /// </summary>
-        public static readonly Func<IServiceProvider, Action<FileServiceLocal.FileServiceOptions>, FileServiceLocal> GetFileServiceLocal = (serviceProvider, configure) => {
-            var options = new FileServiceLocal.FileServiceOptions {
+        public static readonly Func<IServiceProvider, Action<FileServiceLocalOptions>, FileServiceLocal> GetFileServiceLocal = (serviceProvider, configure) => {
+            var options = new FileServiceLocalOptions {
                 Path = "App_Data"
             };
             configure?.Invoke(options);
@@ -46,11 +46,11 @@ namespace Microsoft.Extensions.DependencyInjection
         };
 
         /// <summary>
-        /// Adds <see cref="IFileService"/> using local filesystem as the backing store.
+        /// Adds <see cref="IFileService"/> using local file system as the backing store.
         /// </summary>
         /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
         /// <param name="configure">Configure the available options. Null to use defaults.</param>
-        public static IServiceCollection AddFilesLocal(this IServiceCollection services, Action<FileServiceLocal.FileServiceOptions> configure = null) {
+        public static IServiceCollection AddFilesLocal(this IServiceCollection services, Action<FileServiceLocalOptions> configure = null) {
             services.AddTransient<IFileService, FileServiceLocal>(serviceProvider => GetFileServiceLocal(serviceProvider, configure));
             return services;
         }
@@ -95,7 +95,7 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <summary>
         /// Adds <see cref="FileServiceLocal"/> implementation.
         /// </summary>
-        public static FileServiceConfigurationBuilder AddFileSystem(this FileServiceConfigurationBuilder builder, Action<FileServiceLocal.FileServiceOptions> configure = null) {
+        public static FileServiceConfigurationBuilder AddFileSystem(this FileServiceConfigurationBuilder builder, Action<FileServiceLocalOptions> configure = null) {
             AddFilesLocal(builder.Services, configure);
             return builder;
         }
@@ -103,7 +103,7 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <summary>
         /// Adds <see cref="FileServiceLocal"/> implementation.
         /// </summary>
-        public static FileServiceConfigurationBuilder AddFileSystem(this FileServiceConfigurationBuilder builder, string name, Action<FileServiceLocal.FileServiceOptions> configure = null) {
+        public static FileServiceConfigurationBuilder AddFileSystem(this FileServiceConfigurationBuilder builder, string name, Action<FileServiceLocalOptions> configure = null) {
             builder.Services.AddKeyedService<IFileService, FileServiceLocal, string>(
                 key: name,
                 serviceProvider => GetFileServiceLocal(serviceProvider, configure),
@@ -115,7 +115,7 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <summary>
         /// Adds <see cref="FileServiceAzureStorage"/> implementation.
         /// </summary>
-        public static FileServiceConfigurationBuilder AddAzureStorage(this FileServiceConfigurationBuilder builder, Action<FileServiceAzureStorage.FileServiceOptions> configure = null) {
+        public static FileServiceConfigurationBuilder AddAzureStorage(this FileServiceConfigurationBuilder builder, Action<FileServiceAzureOptions> configure = null) {
             AddFilesAzure(builder.Services, configure);
             return builder;
         }
@@ -123,11 +123,11 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <summary>
         /// Adds <see cref="FileServiceAzureStorage"/> implementation.
         /// </summary>
-        public static FileServiceConfigurationBuilder AddAzureStorage(this FileServiceConfigurationBuilder builder, string name, Action<FileServiceAzureStorage.FileServiceOptions> configure = null) {
+        public static FileServiceConfigurationBuilder AddAzureStorage(this FileServiceConfigurationBuilder builder, string name, Action<FileServiceAzureOptions> configure = null) {
             builder.Services.AddKeyedService<IFileService, FileServiceAzureStorage, string>(
                 key: name,
                 serviceProvider => {
-                    var options = new FileServiceAzureStorage.FileServiceOptions {
+                    var options = new FileServiceAzureOptions {
                         ConnectionStringName = FileServiceAzureStorage.CONNECTION_STRING_NAME,
                         ContainerName = serviceProvider.GetRequiredService<IHostEnvironment>().EnvironmentName
                     };

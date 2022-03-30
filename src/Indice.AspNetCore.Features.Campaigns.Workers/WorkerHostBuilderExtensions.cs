@@ -36,6 +36,12 @@ namespace Microsoft.Extensions.DependencyInjection
                                  options.QueueName = QueueNames.SendPushNotification;
                                  options.PollingInterval = TimeSpan.FromSeconds(5).TotalMilliseconds;
                                  options.InstanceCount = 1;
+                             })
+                             .AddJob<InboxDistributionJobHandler>()
+                             .WithQueueTrigger<InboxDistributionEvent>(options => {
+                                 options.QueueName = QueueNames.DistributeInbox;
+                                 options.PollingInterval = TimeSpan.FromSeconds(5).TotalMilliseconds;
+                                 options.InstanceCount = 1;
                              });
             workerHostBuilder.Services.TryAddTransient<Func<string, IPushNotificationService>>(serviceProvider => key => new PushNotificationServiceNoop());
             workerHostBuilder.Services.TryAddTransient<Func<string, IEventDispatcher>>(serviceProvider => key => new EventDispatcherNoop());
@@ -54,7 +60,7 @@ namespace Microsoft.Extensions.DependencyInjection
         /// Adds <see cref="IEventDispatcher"/> using Indice worker host as a queuing mechanism.
         /// </summary>
         /// <param name="options">Options for configuring internal campaign jobs used by the worker host.</param>
-        public static void UsePushNotificationServiceAzure(this CampaignsJobsOptions options) =>
+        public static void UseEventDispatcherHosting(this CampaignsJobsOptions options) =>
             options.Services.AddKeyedService<IEventDispatcher, EventDispatcherHosting, string>(
                 key: KeyedServiceNames.EventDispatcherAzureServiceKey,
                 serviceProvider => new EventDispatcherHosting(new MessageQueueFactory(serviceProvider)),

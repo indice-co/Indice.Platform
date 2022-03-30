@@ -37,7 +37,7 @@ namespace Indice.Services
         ) : base(viewEngine, tempDataProvider, httpContextAccessor, serviceProvider) => _settings = settings ?? throw new ArgumentNullException(nameof(settings));
 
         /// <inheritdoc/>
-        public override async Task SendAsync<TModel>(string[] recipients, string subject, string body, string template, TModel data, FileAttachment[] attachments = null) {
+        public override async Task SendAsync<TModel>(string[] recipients, string subject, string body, string template, TModel data, EmailAttachment[] attachments = null) {
             var message = new MimeMessage();
             message.From.Add(new MailboxAddress(_settings.SenderName, _settings.Sender));
             message.To.AddRange(recipients.Select(recipient => InternetAddress.Parse(recipient)));
