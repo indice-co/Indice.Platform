@@ -1,7 +1,6 @@
 ﻿using System.Text.Json;
 using Indice.AspNetCore.Features.Campaigns.Events;
 using Indice.Serialization;
-using Indice.Services;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
 
@@ -9,10 +8,7 @@ namespace Indice.AspNetCore.Features.Campaigns.Workers.Azure
 {
     internal class QueueTriggers : CampaignJobHandlerBase
     {
-        public QueueTriggers(
-            Func<string, IEventDispatcher> getEventDispatcher,
-            Func<string, IPushNotificationService> getPushNotificationService
-        ) : base(getEventDispatcher, getPushNotificationService) { }
+        public QueueTriggers(IServiceProvider serviceProvider) : base(serviceProvider) { }
 
         [Function(FunctionNames.CampaignCreated)]
         public async Task CampaignCreatedHandler(

@@ -1,16 +1,18 @@
 ﻿using Indice.AspNetCore.Features.Campaigns.Events;
-using Indice.Services;
+using Microsoft.Extensions.Logging;
 
 namespace Indice.AspNetCore.Features.Campaigns.Workers
 {
     internal class SendPushNotificationJobHandler : CampaignJobHandlerBase
     {
         public SendPushNotificationJobHandler(
-            Func<string, IEventDispatcher> getEventDispatcher,
-            Func<string, IPushNotificationService> getPushNotificationService
-        ) : base(getEventDispatcher, getPushNotificationService) { }
+            ILogger<SendPushNotificationJobHandler> logger,
+            IServiceProvider serviceProvider
+        ) : base(serviceProvider) {
+            Logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        }
 
-        public IPushNotificationService PushNotificationService { get; }
+        public ILogger<SendPushNotificationJobHandler> Logger { get; }
 
         public async Task Process(SendPushNotificationEvent pushNotification) => await base.DispatchPushNotification(pushNotification);
     }

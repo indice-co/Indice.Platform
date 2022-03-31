@@ -2,7 +2,6 @@
 using Indice.AspNetCore.Features.Campaigns.Data.Models;
 using Indice.AspNetCore.Features.Campaigns.Exceptions;
 using Indice.AspNetCore.Features.Campaigns.Models;
-using Indice.Configuration;
 using Indice.Types;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
@@ -13,17 +12,14 @@ namespace Indice.AspNetCore.Features.Campaigns.Services
     {
         public InboxService(
             CampaignsDbContext dbContext,
-            IOptions<CampaignInboxOptions> campaignInboxOptions,
-            IOptions<GeneralSettings> generalSettings
+            IOptions<CampaignInboxOptions> campaignInboxOptions
         ) {
             DbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
             CampaignInboxOptions = campaignInboxOptions?.Value ?? throw new ArgumentNullException(nameof(campaignInboxOptions));
-            GeneralSettings = generalSettings?.Value ?? throw new ArgumentNullException(nameof(generalSettings));
         }
 
         public CampaignsDbContext DbContext { get; }
         public CampaignInboxOptions CampaignInboxOptions { get; }
-        public GeneralSettings GeneralSettings { get; }
 
         public async Task<ResultSet<Message>> GetList(string userCode, ListOptions<MessagesFilter> options) {
             var userMessages = await GetUserInboxQuery(userCode, options).ToResultSetAsync(options);

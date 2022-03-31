@@ -4,11 +4,12 @@ using Indice.Types;
 
 namespace Indice.AspNetCore.Features.Campaigns.Events
 {
-    public class InboxDistributionEvent
+    public class PersistInboxMessageEvent
     {
+        public string RecipientId { get; set; }
         public Guid Id { get; set; }
         public string Title { get; set; }
-        public CampaignContent Content { get; set; }
+        public string Body { get; set; }
         public string ActionText { get; set; }
         public string ActionUrl { get; set; }
         public DateTimeOffset CreatedAt { get; set; }
@@ -18,23 +19,20 @@ namespace Indice.AspNetCore.Features.Campaigns.Events
         public ExpandoObject Data { get; set; }
         public MessageDeliveryChannel DeliveryChannel { get; set; }
         public MessageType Type { get; set; }
-        public DistributionList DistributionList { get; set; }
-        public List<string> SelectedUserCodes { get; set; } = new List<string>();
 
-        internal static InboxDistributionEvent FromCampaignCreatedEvent(CampaignCreatedEvent @event) => new() {
+        internal static PersistInboxMessageEvent FromInboxDistributionEvent(InboxDistributionEvent @event, string recipientId) => new() {
             ActionText = @event.ActionText,
             ActionUrl = @event.ActionUrl,
             ActivePeriod = @event.ActivePeriod,
-            Content = @event.Content,
+            Body = @event.Content.Inbox.Body,
             CreatedAt = @event.CreatedAt,
             Data = @event.Data,
             DeliveryChannel = @event.DeliveryChannel,
-            DistributionList = @event.DistributionList,
             Id = @event.Id,
             IsGlobal = @event.IsGlobal,
             Published = @event.Published,
-            SelectedUserCodes = @event.SelectedUserCodes,
-            Title = @event.Title,
+            RecipientId = recipientId,
+            Title = @event.Content.Inbox.Title,
             Type = @event.Type
         };
     }

@@ -50,6 +50,7 @@ namespace Indice.AspNetCore.Features.Campaigns
         public const string CampaignCreated = "campaign-created";
         public const string SendPushNotification = "campaign-send-push-notification";
         public const string DistributeInbox = "campaign-inbox-distribution";
+        public const string PersistInboxMessage = "persist-inbox-message";
     }
 
     public class ApiPrefixes 
@@ -66,7 +67,7 @@ namespace Indice.AspNetCore.Features.Campaigns
         /// <summary>
         /// Key service name for <see cref="IPushNotificationService"/> implementation.
         /// </summary>
-        public const string PushNotificationServiceAzureKey = "Campaigns:PushNotificationServiceAzureKey";
+        public const string PushNotificationServiceKey = "Campaigns:PushNotificationServiceKey";
         /// <summary>
         /// Key service name for <see cref="IFileService"/> implementation.
         /// </summary>
@@ -74,6 +75,6 @@ namespace Indice.AspNetCore.Features.Campaigns
         /// <summary>
         /// Key service name for <see cref="IEventDispatcher"/> implementation.
         /// </summary>
-        public const string EventDispatcherAzureServiceKey = "Campaigns:EventDispatcherAzureServiceKey";
+        public const string EventDispatcherServiceKey = "Campaigns:EventDispatcherServiceKey";
     }
 }

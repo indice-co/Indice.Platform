@@ -36,7 +36,7 @@ namespace Indice.AspNetCore.Features.Campaigns.Controllers
             CampaignService = campaignService ?? throw new ArgumentNullException(nameof(campaignService));
             EventService = eventService ?? throw new ArgumentNullException(nameof(eventService));
             GeneralSettings = generalSettings?.Value ?? throw new ArgumentNullException(nameof(generalSettings));
-            EventDispatcher = getEventDispatcher(KeyedServiceNames.EventDispatcherAzureServiceKey) ?? throw new ArgumentNullException(nameof(getEventDispatcher));
+            EventDispatcher = getEventDispatcher(KeyedServiceNames.EventDispatcherServiceKey) ?? throw new ArgumentNullException(nameof(getEventDispatcher));
         }
 
         public ICampaignService CampaignService { get; }

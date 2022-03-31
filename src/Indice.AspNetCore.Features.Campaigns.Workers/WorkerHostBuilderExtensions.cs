@@ -1,9 +1,13 @@
 ﻿using Indice.AspNetCore.Features.Campaigns;
+using Indice.AspNetCore.Features.Campaigns.Data;
 using Indice.AspNetCore.Features.Campaigns.Events;
+using Indice.AspNetCore.Features.Campaigns.Services;
 using Indice.AspNetCore.Features.Campaigns.Workers;
 using Indice.Hosting;
 using Indice.Hosting.Services;
 using Indice.Services;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Microsoft.Extensions.DependencyInjection
@@ -28,7 +32,7 @@ namespace Microsoft.Extensions.DependencyInjection
             workerHostBuilder.AddJob<CampaignCreatedJobHandler>()
                              .WithQueueTrigger<CampaignCreatedEvent>(options => {
                                  options.QueueName = QueueNames.CampaignCreated;
-                                 options.PollingInterval = TimeSpan.FromSeconds(30).TotalMilliseconds;
+                                 options.PollingInterval = TimeSpan.FromSeconds(5).TotalMilliseconds;
                                  options.InstanceCount = 1;
                              })
                              .AddJob<SendPushNotificationJobHandler>()
@@ -43,8 +47,16 @@ namespace Microsoft.Extensions.DependencyInjection
                                  options.PollingInterval = TimeSpan.FromSeconds(5).TotalMilliseconds;
                                  options.InstanceCount = 1;
                              });
+            var serviceProvider = workerHostBuilder.Services.BuildServiceProvider();
+            var configuration = serviceProvider.GetRequiredService<IConfiguration>();
+            Action<DbContextOptionsBuilder> sqlServerConfiguration = (builder) => builder.UseSqlServer(configuration.GetConnectionString("CampaignsDbConnection"));
+            workerHostBuilder.Services.AddDbContext<CampaignsDbContext>(options.ConfigureDbContext ?? sqlServerConfiguration);
             workerHostBuilder.Services.TryAddTransient<Func<string, IPushNotificationService>>(serviceProvider => key => new PushNotificationServiceNoop());
             workerHostBuilder.Services.TryAddTransient<Func<string, IEventDispatcher>>(serviceProvider => key => new EventDispatcherNoop());
+            workerHostBuilder.Services.TryAddTransient<IContactResolver, ContactResolverNoop>();
+            workerHostBuilder.Services.TryAddTransient<IDistributionListService, DistributionListService>();
+            workerHostBuilder.Services.TryAddTransient<IMessageService, MessageService>();
+            workerHostBuilder.Services.AddSingleton(new DatabaseSchemaNameResolver(options.DatabaseSchema));
             return workerHostBuilder;
         }
 
@@ -54,7 +66,7 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <param name="options">Options for configuring internal campaign jobs used by the worker host.</param>
         /// <param name="configure">Configure the available options for push notifications. Null to use defaults.</param>
         public static void UsePushNotificationServiceAzure(this CampaignsJobsOptions options, Action<IServiceProvider, PushNotificationAzureOptions> configure = null) =>
-            options.Services.AddPushNotificationServiceAzure(KeyedServiceNames.PushNotificationServiceAzureKey, configure);
+            options.Services.AddPushNotificationServiceAzure(KeyedServiceNames.PushNotificationServiceKey, configure);
 
         /// <summary>
         /// Adds <see cref="IEventDispatcher"/> using Indice worker host as a queuing mechanism.
@@ -62,9 +74,28 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <param name="options">Options for configuring internal campaign jobs used by the worker host.</param>
         public static void UseEventDispatcherHosting(this CampaignsJobsOptions options) =>
             options.Services.AddKeyedService<IEventDispatcher, EventDispatcherHosting, string>(
-                key: KeyedServiceNames.EventDispatcherAzureServiceKey,
+                key: KeyedServiceNames.EventDispatcherServiceKey,
                 serviceProvider => new EventDispatcherHosting(new MessageQueueFactory(serviceProvider)),
                 serviceLifetime: ServiceLifetime.Transient
             );
+
+        /// <summary>
+        /// Configures that campaign contact information will be resolved by contacting the Identity Server instance. 
+        /// </summary>
+        /// <param name="options">Options for configuring internal campaign jobs used by the worker host.</param>
+        /// <param name="configure">Delegate used to configure <see cref="ContactResolverIdentity"/> service.</param>
+        public static void UseIdentityContactResolver(this CampaignsJobsOptions options, Action<ContactResolverIdentityOptions> configure) {
+            var serviceOptions = new ContactResolverIdentityOptions();
+            configure.Invoke(serviceOptions);
+            options.Services.Configure<ContactResolverIdentityOptions>(config => {
+                config.BaseAddress = serviceOptions.BaseAddress;
+                config.ClientId = serviceOptions.ClientId;
+                config.ClientSecret = serviceOptions.ClientSecret;
+            });
+            options.Services.AddDistributedMemoryCache();
+            options.Services.AddHttpClient<IContactResolver, ContactResolverIdentity>(httpClient => {
+                httpClient.BaseAddress = serviceOptions.BaseAddress;
+            });
+        }
     }
 }

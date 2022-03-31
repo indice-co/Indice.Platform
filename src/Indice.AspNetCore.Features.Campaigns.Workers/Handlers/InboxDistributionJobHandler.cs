@@ -1,5 +1,4 @@
 ﻿using Indice.AspNetCore.Features.Campaigns.Events;
-using Indice.Services;
 using Microsoft.Extensions.Logging;
 
 namespace Indice.AspNetCore.Features.Campaigns.Workers
@@ -8,9 +7,8 @@ namespace Indice.AspNetCore.Features.Campaigns.Workers
     {
         public InboxDistributionJobHandler(
             ILogger<InboxDistributionJobHandler> logger,
-            Func<string, IEventDispatcher> getEventDispatcher,
-            Func<string, IPushNotificationService> getPushNotificationService
-        ) : base(getEventDispatcher, getPushNotificationService) {
+            IServiceProvider serviceProvider
+        ) : base(serviceProvider) {
             Logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 

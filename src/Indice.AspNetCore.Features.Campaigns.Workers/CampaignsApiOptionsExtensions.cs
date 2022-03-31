@@ -15,7 +15,7 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <param name="options">Options used to configure the Campaigns API feature.</param>
         public static void UseEventDispatcherHosting(this CampaignEndpointOptions options) =>
             options.Services.AddKeyedService<IEventDispatcher, EventDispatcherHosting, string>(
-                key: KeyedServiceNames.EventDispatcherAzureServiceKey,
+                key: KeyedServiceNames.EventDispatcherServiceKey,
                 serviceProvider => new EventDispatcherHosting(new MessageQueueFactory(serviceProvider)),
                 serviceLifetime: ServiceLifetime.Transient
             );

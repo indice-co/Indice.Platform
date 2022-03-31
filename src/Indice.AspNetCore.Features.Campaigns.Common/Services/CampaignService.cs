@@ -70,7 +70,6 @@ namespace Indice.AspNetCore.Features.Campaigns.Services
             var dbCampaign = Mapper.ToDbCampaign(request);
             DbContext.Campaigns.Add(dbCampaign);
             await DbContext.SaveChangesAsync();
-            //await CreateMessages(request, dbCampaign.Id);
             return Mapper.ToCampaign(dbCampaign);
         }
 
@@ -160,33 +159,6 @@ namespace Indice.AspNetCore.Features.Campaigns.Services
             }
             campaign.Published = true;
             await DbContext.SaveChangesAsync();
-        }
-
-        private async Task CreateMessages(CreateCampaignRequest request, Guid id) {
-            if (!request.IsGlobal && request.Published) {
-                if (request.SelectedUserCodes?.Count > 0) {
-                    DbContext.Messages.AddRange(request.SelectedUserCodes.Select(userId => new DbMessage {
-                        Id = Guid.NewGuid(),
-                        RecipientId = userId,
-                        CampaignId = id
-                    }));
-                    await DbContext.SaveChangesAsync();
-                }
-                if (request.DistributionListId is not null) {
-                    var distributionList = await DbContext
-                        .DistributionLists
-                        .Include(x => x.Contacts)
-                        .SingleOrDefaultAsync(x => x.Id == request.DistributionListId);
-                    if (distributionList.Contacts.Any()) {
-                        DbContext.Messages.AddRange(distributionList.Contacts.Select(contact => new DbMessage {
-                            Id = Guid.NewGuid(),
-                            RecipientId = contact.RecipientId,
-                            CampaignId = id
-                        }));
-                    }
-                    await DbContext.SaveChangesAsync();
-                }
-            }
         }
     }
 }
