@@ -1,11 +1,10 @@
 ﻿using System.Linq.Expressions;
 using Indice.AspNetCore.Features.Campaigns.Data.Models;
-using Indice.AspNetCore.Features.Campaigns.Events;
 using Indice.Types;
 
 namespace Indice.AspNetCore.Features.Campaigns.Models
 {
-    public class Mapper
+    internal class Mapper
     {
         public static Expression<Func<DbCampaign, Campaign>> ProjectToCampaign = campaign => new() {
             ActionText = campaign.ActionText,
@@ -39,10 +38,30 @@ namespace Indice.AspNetCore.Features.Campaigns.Models
             LastName = contact.LastName,
             PhoneNumber = contact.PhoneNumber,
             RecipientId = contact.RecipientId,
-            Salutation = contact.Salutation
+            Salutation = contact.Salutation,
+            UpdatedAt = contact.UpdatedAt
         };
 
         public static Contact ToContact(DbContact contact) => ProjectToContact.Compile()(contact);
+
+        public static CreateContactRequest ToCreateContactRequest(Contact request) => new() {
+            Email = request.Email,
+            FirstName = request.FirstName,
+            FullName = request.FullName,
+            LastName = request.LastName,
+            PhoneNumber = request.PhoneNumber,
+            RecipientId = request.RecipientId,
+            Salutation = request.Salutation
+        };
+
+        public static UpdateContactRequest ToUpdateContactRequest(Contact request) => new() {
+            Email = request.Email,
+            FirstName = request.FirstName,
+            FullName = request.FullName,
+            LastName = request.LastName,
+            PhoneNumber = request.PhoneNumber,
+            Salutation = request.Salutation
+        };
 
         public static Expression<Func<DbCampaign, CampaignDetails>> ProjectToCampaignDetails = campaign => new() {
             ActionText = campaign.ActionText,
@@ -75,23 +94,6 @@ namespace Indice.AspNetCore.Features.Campaigns.Models
 
         public static CampaignDetails ToCampaignDetails(DbCampaign campaign) => ProjectToCampaignDetails.Compile()(campaign);
 
-        public static CampaignCreatedEvent ToCampaignCreatedEvent(Campaign campaign, List<string> selectedUserCodes = null) => new() {
-            ActionText = campaign.ActionText,
-            ActionUrl = campaign.ActionUrl,
-            ActivePeriod = campaign.ActivePeriod,
-            Content = campaign.Content,
-            CreatedAt = campaign.CreatedAt,
-            Data = campaign.Data,
-            DeliveryChannel = campaign.DeliveryChannel,
-            DistributionList = campaign.DistributionList,
-            Id = campaign.Id,
-            IsGlobal = campaign.IsGlobal,
-            Published = campaign.Published,
-            SelectedUserCodes = selectedUserCodes ?? new List<string>(),
-            Title = campaign.Title,
-            Type = campaign.Type
-        };
-
         public static DbCampaign ToDbCampaign(CreateCampaignRequest request) => new() {
             ActionText = request.ActionText,
             ActionUrl = request.ActionUrl,
@@ -108,15 +110,16 @@ namespace Indice.AspNetCore.Features.Campaigns.Models
             TypeId = request.TypeId
         };
 
-        public static DbContact ToDbContact(CreateDistributionListContactRequest request) => new() { 
+        public static DbContact ToDbContact(CreateDistributionListContactRequest request) => new() {
             Email = request.Email,
             FirstName = request.FirstName,
             FullName = request.FullName,
-            Id = request.Id.HasValue ? request.Id.Value : Guid.NewGuid(),
+            Id = request.Id ?? Guid.NewGuid(),
             LastName = request.LastName,
             PhoneNumber = request.PhoneNumber,
             RecipientId = request.RecipientId,
-            Salutation = request.Salutation
+            Salutation = request.Salutation,
+            UpdatedAt = DateTimeOffset.UtcNow
         };
 
         public static DbContact ToDbContact(CreateContactRequest request) => new() {
@@ -127,7 +130,8 @@ namespace Indice.AspNetCore.Features.Campaigns.Models
             LastName = request.LastName,
             PhoneNumber = request.PhoneNumber,
             RecipientId = request.RecipientId,
-            Salutation = request.Salutation
+            Salutation = request.Salutation,
+            UpdatedAt = DateTimeOffset.UtcNow
         };
 
         public static DbAttachment ToDbAttachment(FileAttachment fileAttachment) => new() {

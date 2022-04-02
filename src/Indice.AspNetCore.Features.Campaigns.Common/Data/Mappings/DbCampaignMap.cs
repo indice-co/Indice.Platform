@@ -6,14 +6,23 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Indice.AspNetCore.Features.Campaigns.Data
 {
+    /// <summary>
+    /// Configuration for <see cref="DbCampaign"/> entity.
+    /// </summary>
     public class DbCampaignMap : IEntityTypeConfiguration<DbCampaign>
     {
+        /// <summary>
+        /// Creates a new instance of <see cref="DbCampaignMap"/>.
+        /// </summary>
+        /// <param name="schemaName">The schema name.</param>
+        /// <exception cref="ArgumentNullException"></exception>
         public DbCampaignMap(string schemaName) {
             SchemaName = schemaName ?? throw new ArgumentNullException(nameof(schemaName));
         }
 
-        public string SchemaName { get; }
+        private string SchemaName { get; }
 
+        /// <inheritdoc />
         public void Configure(EntityTypeBuilder<DbCampaign> builder) {
             // Configure table name.
             builder.ToTable("Campaign", SchemaName);

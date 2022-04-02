@@ -3,7 +3,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using Indice.AspNetCore.Features.Campaigns.Models;
 using Indice.AspNetCore.Features.Campaigns.Services;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace Indice.AspNetCore.Features.Campaigns
 {
@@ -15,23 +14,29 @@ namespace Indice.AspNetCore.Features.Campaigns
         /// <summary>
         /// Creates a new instance of <see cref="CampaignManager"/>.
         /// </summary>
-        public CampaignManager(IServiceProvider serviceProvider) {
-            ServiceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
-            CampaignService = ServiceProvider.GetRequiredService<ICampaignService>();
-            MessageTypeService = ServiceProvider.GetRequiredService<IMessageTypeService>();
+        public CampaignManager(
+            ICampaignService campaignService, 
+            IMessageTypeService messageTypeService,
+            CreateCampaignRequestValidator createCampaignValidator,
+            UpsertMessageTypeRequestValidator messageTypeValidator
+        ) {
+            CampaignService = campaignService ?? throw new ArgumentNullException(nameof(campaignService));
+            MessageTypeService = messageTypeService ?? throw new ArgumentNullException(nameof(messageTypeService));
+            CreateCampaignValidator = createCampaignValidator ?? throw new ArgumentNullException(nameof(createCampaignValidator));
+            MessageTypeValidator = messageTypeValidator ?? throw new ArgumentNullException(nameof(messageTypeValidator));
         }
 
-        private IServiceProvider ServiceProvider { get; }
         private ICampaignService CampaignService { get; }
         private IMessageTypeService MessageTypeService { get; }
+        private CreateCampaignRequestValidator CreateCampaignValidator { get; }
+        private UpsertMessageTypeRequestValidator MessageTypeValidator { get; }
 
         /// <summary>
         /// Creates a new campaign.
         /// </summary>
         /// <param name="campaign">The request model used to create a new campaign.</param>
         public async Task<CampaignResult> Create(CreateCampaignRequest campaign) {
-            var validator = ServiceProvider.GetRequiredService<CreateCampaignRequestValidator>();
-            var validationResult = validator.Validate(campaign);
+            var validationResult = CreateCampaignValidator.Validate(campaign);
             if (!validationResult.IsValid) {
                 var errorMessages = validationResult.Errors.Select(x => x.ErrorMessage).ToArray();
                 return CampaignResult.Fail(errorMessages);
@@ -53,8 +58,7 @@ namespace Indice.AspNetCore.Features.Campaigns
         /// </summary>
         /// <param name="campaignType">The request model used to create a new campaign type.</param>
         public async Task<CampaignResult> CreateType(UpsertMessageTypeRequest campaignType) {
-            var validator = ServiceProvider.GetRequiredService<UpsertMessageTypeRequestValidator>();
-            var validationResult = validator.Validate(campaignType);
+            var validationResult = MessageTypeValidator.Validate(campaignType);
             if (!validationResult.IsValid) {
                 var errorMessages = validationResult.Errors.Select(x => x.ErrorMessage).ToArray();
                 return CampaignResult.Fail(errorMessages);

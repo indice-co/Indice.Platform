@@ -133,9 +133,8 @@ namespace Indice.Services
         /// <param name="bytes"></param>
         /// <returns></returns>
         public static async Task SaveAsync(this IFileService fileService, string filepath, byte[] bytes) {
-            using (var stream = new MemoryStream(bytes)) {
-                await fileService.SaveAsync(filepath, stream);
-            }
+            using var stream = new MemoryStream(bytes);
+            await fileService.SaveAsync(filepath, stream);
         }
     }
 }

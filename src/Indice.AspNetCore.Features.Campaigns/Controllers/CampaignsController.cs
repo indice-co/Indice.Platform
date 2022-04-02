@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Net.Mime;
 using System.Threading.Tasks;
+using Indice.AspNetCore.Features.Campaigns.Events;
 using Indice.AspNetCore.Features.Campaigns.Models;
 using Indice.AspNetCore.Features.Campaigns.Services;
 using Indice.AspNetCore.Filters;
@@ -156,7 +157,7 @@ namespace Indice.AspNetCore.Features.Campaigns.Controllers
         public async Task<IActionResult> CreateCampaign([FromBody] CreateCampaignRequest request) {
             var campaign = await CampaignService.Create(request);
             await EventDispatcher.RaiseEventAsync(
-                payload: Mapper.ToCampaignCreatedEvent(campaign, request.SelectedUserCodes),
+                payload: CampaignCreatedEvent.FromCampaign(campaign, request.SelectedUserCodes),
                 configure: options => options.WrapInEnvelope(false).WithQueueName(QueueNames.CampaignCreated)
             );
             return CreatedAtAction(nameof(GetCampaignById), new { campaignId = campaign.Id }, campaign);

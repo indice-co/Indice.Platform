@@ -6,11 +6,11 @@
     public class MessageContent
     {
         /// <summary>
-        /// The title of the message
+        /// The title of the message.
         /// </summary>
         public string Title { get; set; }
         /// <summary>
-        /// The body of the message
+        /// The body of the message.
         /// </summary>
         public string Body { get; set; }
     }

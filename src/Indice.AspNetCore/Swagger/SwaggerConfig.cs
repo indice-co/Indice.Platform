@@ -57,7 +57,7 @@ namespace Indice.AspNetCore.Swagger
                     var args = tInfo.GetGenericArguments();
                     var param = args[0];
                     var prefix = string.Empty;
-                    var name = tInfo.Name.Substring(0, tInfo.Name.IndexOf("`"));
+                    var name = tInfo.Name[..tInfo.Name.IndexOf("`")];
                     return $"{prefix}{name}Of{param.Name}";
                 });
                 if (typeInfo.IsGenericType) {
@@ -67,7 +67,7 @@ namespace Indice.AspNetCore.Swagger
                     } else if (args.Length == 1 || type.Name.Contains("ResultSet")) {
                         var param = args[0];
                         var prefix = string.Empty;
-                        var name = type.Name.Substring(0, type.Name.IndexOf("`"));
+                        var name = type.Name[..type.Name.IndexOf("`")];
                         var paramName = param.Name;
                         if (param.Name.Contains("KeyValuePair")) {
                             paramName = getKeyValueTypeName(param.GetTypeInfo());

@@ -2,7 +2,6 @@
 using Indice.AspNetCore.Features.Campaigns.Data.Models;
 using Indice.AspNetCore.Features.Campaigns.Exceptions;
 using Indice.AspNetCore.Features.Campaigns.Models;
-using Indice.Configuration;
 using Indice.Services;
 using Indice.Types;
 using Microsoft.EntityFrameworkCore;
@@ -10,32 +9,40 @@ using Microsoft.Extensions.Options;
 
 namespace Indice.AspNetCore.Features.Campaigns.Services
 {
+    /// <summary>
+    /// An implementation of <see cref="ICampaignService"/> for Entity Framework Core.
+    /// </summary>
     public class CampaignService : ICampaignService
     {
+        /// <summary>
+        /// Creates a new instance of <see cref="CampaignService"/>.
+        /// </summary>
+        /// <param name="dbContext">The <see cref="Microsoft.EntityFrameworkCore.DbContext"/> for Campaigns API feature.</param>
+        /// <param name="campaignManagementOptions">Options used to configure the Campaigns management API feature.</param>
+        /// <param name="getFileService">File storage abstraction.</param>
+        /// <exception cref="ArgumentNullException"></exception>
         public CampaignService(
             CampaignsDbContext dbContext,
-            IOptions<GeneralSettings> generalSettings,
             IOptions<CampaignManagementOptions> campaignManagementOptions,
             Func<string, IFileService> getFileService
         ) {
             DbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
             CampaignManagementOptions = campaignManagementOptions?.Value ?? throw new ArgumentNullException(nameof(campaignManagementOptions));
             FileService = getFileService(KeyedServiceNames.FileServiceKey) ?? throw new ArgumentNullException(nameof(getFileService));
-            GeneralSettings = generalSettings?.Value ?? throw new ArgumentNullException(nameof(generalSettings));
         }
 
-        public CampaignsDbContext DbContext { get; }
-        public CampaignManagementOptions CampaignManagementOptions { get; }
-        public IFileService FileService { get; }
-        public GeneralSettings GeneralSettings { get; }
+        private CampaignsDbContext DbContext { get; }
+        private CampaignManagementOptions CampaignManagementOptions { get; }
+        private IFileService FileService { get; }
 
+        /// <inheritdoc />
         public Task<ResultSet<Campaign>> GetList(ListOptions<CampaignsFilter> options) {
             var query = DbContext
-                .Campaigns
-                .Include(x => x.Type)
-                .Include(x => x.DistributionList)
-                .AsNoTracking()
-                .Select(Mapper.ProjectToCampaign);
+                    .Campaigns
+                    .Include(x => x.Type)
+                    .Include(x => x.DistributionList)
+                    .AsNoTracking()
+                    .Select(Mapper.ProjectToCampaign);
             if (!string.IsNullOrEmpty(options.Search)) {
                 var searchTerm = options.Search.Trim();
                 query = query.Where(x => x.Title != null && x.Title.Contains(searchTerm));
@@ -49,6 +56,7 @@ namespace Indice.AspNetCore.Features.Campaigns.Services
             return query.ToResultSetAsync(options);
         }
 
+        /// <inheritdoc />
         public async Task<CampaignDetails> GetById(Guid id) {
             var campaign = await DbContext
                 .Campaigns
@@ -66,6 +74,7 @@ namespace Indice.AspNetCore.Features.Campaigns.Services
             return campaign;
         }
 
+        /// <inheritdoc />
         public async Task<Campaign> Create(CreateCampaignRequest request) {
             var dbCampaign = Mapper.ToDbCampaign(request);
             DbContext.Campaigns.Add(dbCampaign);
@@ -73,10 +82,14 @@ namespace Indice.AspNetCore.Features.Campaigns.Services
             return Mapper.ToCampaign(dbCampaign);
         }
 
+        /// <inheritdoc />
         public async Task Update(Guid id, UpdateCampaignRequest request) {
             var campaign = await DbContext.Campaigns.FindAsync(id);
             if (campaign is null) {
                 throw CampaignException.CampaignNotFound(id);
+            }
+            if (campaign.Published) {
+                throw CampaignException.CampaignAlreadyPublished(id);
             }
             campaign.ActionText = request.ActionText;
             campaign.ActivePeriod = request.ActivePeriod;
@@ -85,6 +98,7 @@ namespace Indice.AspNetCore.Features.Campaigns.Services
             await DbContext.SaveChangesAsync();
         }
 
+        /// <inheritdoc />
         public async Task Delete(Guid id) {
             var campaign = await DbContext.Campaigns.FindAsync(id);
             if (campaign is null) {
@@ -94,6 +108,7 @@ namespace Indice.AspNetCore.Features.Campaigns.Services
             await DbContext.SaveChangesAsync();
         }
 
+        /// <inheritdoc />
         public async Task<AttachmentLink> CreateAttachment(FileAttachment fileAttachment) {
             var attachment = Mapper.ToDbAttachment(fileAttachment);
             using (var stream = fileAttachment.OpenReadStream()) {
@@ -110,6 +125,7 @@ namespace Indice.AspNetCore.Features.Campaigns.Services
             };
         }
 
+        /// <inheritdoc />
         public async Task AssociateAttachment(Guid id, Guid attachmentId) {
             var campaign = await DbContext.Campaigns.FindAsync(id);
             if (campaign is null) {
@@ -119,6 +135,7 @@ namespace Indice.AspNetCore.Features.Campaigns.Services
             await DbContext.SaveChangesAsync();
         }
 
+        /// <inheritdoc />
         public async Task<CampaignStatistics> GetStatistics(Guid id) {
             var campaign = await DbContext.Campaigns.FindAsync(id);
             if (campaign is null) {
@@ -141,6 +158,7 @@ namespace Indice.AspNetCore.Features.Campaigns.Services
             };
         }
 
+        /// <inheritdoc />
         public async Task UpdateHit(Guid id) {
             DbContext.Hits.Add(new DbHit {
                 CampaignId = id,
@@ -149,6 +167,7 @@ namespace Indice.AspNetCore.Features.Campaigns.Services
             await DbContext.SaveChangesAsync();
         }
 
+        /// <inheritdoc />
         public async Task Publish(Guid id) {
             var campaign = await DbContext.Campaigns.FindAsync(id);
             if (campaign is null) {

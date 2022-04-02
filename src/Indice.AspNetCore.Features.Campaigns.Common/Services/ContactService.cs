@@ -7,15 +7,24 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Indice.AspNetCore.Features.Campaigns.Services
 {
+    /// <summary>
+    /// An implementation of <see cref="IContactService"/> for Entity Framework Core.
+    /// </summary>
     public class ContactService : IContactService
     {
+        /// <summary>
+        /// Creates a new instance of <see cref="ContactService"/>.
+        /// </summary>
+        /// <param name="dbContext">The <see cref="Microsoft.EntityFrameworkCore.DbContext"/> for Campaigns API feature.</param>
+        /// <exception cref="ArgumentNullException"></exception>
         public ContactService(CampaignsDbContext dbContext) {
             DbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
         }
 
-        public CampaignsDbContext DbContext { get; }
+        private CampaignsDbContext DbContext { get; }
 
-        public async Task AddToDistributionList(CreateDistributionListContactRequest request, Guid id) {
+        /// <inheritdoc />
+        public async Task AddToDistributionList(Guid id, CreateDistributionListContactRequest request) {
             DbContact contact;
             var list = await DbContext.DistributionLists.FindAsync(id);
             if (list is null) {
@@ -30,11 +39,12 @@ namespace Indice.AspNetCore.Features.Campaigns.Services
                 contact.Email = request.Email;
                 contact.FirstName = request.FirstName;
                 contact.FullName = request.FullName;
-                contact.Id = request.Id.HasValue ? request.Id.Value : Guid.NewGuid();
+                contact.Id = request.Id ?? Guid.NewGuid();
                 contact.LastName = request.LastName;
                 contact.PhoneNumber = request.PhoneNumber;
                 contact.RecipientId = request.RecipientId;
                 contact.Salutation = request.Salutation;
+                contact.UpdatedAt = DateTimeOffset.UtcNow;
                 await DbContext.SaveChangesAsync();
                 return;
             }
@@ -44,6 +54,7 @@ namespace Indice.AspNetCore.Features.Campaigns.Services
             await DbContext.SaveChangesAsync();
         }
 
+        /// <inheritdoc />
         public async Task<Contact> Create(CreateContactRequest request) {
             var contact = Mapper.ToDbContact(request);
             DbContext.Contacts.Add(contact);
@@ -51,6 +62,7 @@ namespace Indice.AspNetCore.Features.Campaigns.Services
             return Mapper.ToContact(contact);
         }
 
+        /// <inheritdoc />
         public async Task<Contact> GetById(Guid id) {
             var contact = await DbContext.Contacts.FindAsync(id);
             if (contact is null) {
@@ -59,12 +71,38 @@ namespace Indice.AspNetCore.Features.Campaigns.Services
             return Mapper.ToContact(contact);
         }
 
+        /// <inheritdoc />
+        public async Task<Contact> GetByRecipientId(string id) {
+            var contact = await DbContext.Contacts.SingleOrDefaultAsync(x => x.RecipientId == id);
+            if (contact is null) {
+                return default;
+            }
+            return Mapper.ToContact(contact);
+        }
+
+        /// <inheritdoc />
         public async Task<ResultSet<Contact>> GetList(ListOptions options) {
             var query = DbContext
                 .Contacts
                 .AsNoTracking()
                 .Select(Mapper.ProjectToContact);
             return await query.ToResultSetAsync(options);
+        }
+
+        /// <inheritdoc />
+        public async Task Update(Guid id, UpdateContactRequest request) {
+            var contact = await DbContext.Contacts.FindAsync(id);
+            if (contact is null) {
+                throw CampaignException.ContactNotFound(id);
+            }
+            contact.Email = request.Email;
+            contact.FirstName = request.FirstName;
+            contact.FullName = request.FullName;
+            contact.LastName = request.LastName;
+            contact.PhoneNumber = request.PhoneNumber;
+            contact.Salutation = request.Salutation;
+            contact.UpdatedAt = DateTimeOffset.UtcNow;
+            await DbContext.SaveChangesAsync();
         }
     }
 }

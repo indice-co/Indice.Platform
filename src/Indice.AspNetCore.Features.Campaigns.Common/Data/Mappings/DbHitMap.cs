@@ -4,14 +4,23 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Indice.AspNetCore.Features.Campaigns.Data
 {
+    /// <summary>
+    /// Configuration for <see cref="DbHit"/> entity.
+    /// </summary>
     public class DbHitMap : IEntityTypeConfiguration<DbHit>
     {
+        /// <summary>
+        /// Creates a new instance of <see cref="DbHitMap"/>.
+        /// </summary>
+        /// <param name="schemaName">The schema name.</param>
+        /// <exception cref="ArgumentNullException"></exception>
         public DbHitMap(string schemaName) {
             SchemaName = schemaName ?? throw new ArgumentNullException(nameof(schemaName));
         }
 
-        public string SchemaName { get; }
+        private string SchemaName { get; }
 
+        /// <inheritdoc />
         public void Configure(EntityTypeBuilder<DbHit> builder) {
             // Configure table name.
             builder.ToTable("Hit", SchemaName);

@@ -7,14 +7,23 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Indice.AspNetCore.Features.Campaigns.Services
 {
+    /// <summary>
+    /// An implementation of <see cref="IMessageTypeService"/> for Entity Framework Core.
+    /// </summary>
     public class MessageTypeService : IMessageTypeService
     {
+        /// <summary>
+        /// Creates a new instance of <see cref="MessageTypeService"/>.
+        /// </summary>
+        /// <param name="dbContext">The <see cref="Microsoft.EntityFrameworkCore.DbContext"/> for Campaigns API feature.</param>
+        /// <exception cref="ArgumentNullException"></exception>
         public MessageTypeService(CampaignsDbContext dbContext) {
             DbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
         }
 
-        public CampaignsDbContext DbContext { get; }
+        private CampaignsDbContext DbContext { get; }
 
+        /// <inheritdoc />
         public async Task<MessageType> Create(UpsertMessageTypeRequest request) {
             var messageType = new DbMessageType {
                 Id = Guid.NewGuid(),
@@ -28,6 +37,7 @@ namespace Indice.AspNetCore.Features.Campaigns.Services
             };
         }
 
+        /// <inheritdoc />
         public async Task Delete(Guid id) {
             var messageType = await DbContext.MessageTypes.FindAsync(id);
             if (messageType is null) {
@@ -37,6 +47,7 @@ namespace Indice.AspNetCore.Features.Campaigns.Services
             await DbContext.SaveChangesAsync();
         }
 
+        /// <inheritdoc />
         public async Task<MessageType> GetById(Guid id) {
             var messageType = await DbContext.MessageTypes.FindAsync(id);
             if (messageType is null) {
@@ -48,6 +59,7 @@ namespace Indice.AspNetCore.Features.Campaigns.Services
             };
         }
 
+        /// <inheritdoc />
         public async Task<MessageType> GetByName(string name) {
             var messageType = await DbContext.MessageTypes.SingleOrDefaultAsync(x => x.Name == name);
             if (messageType is null) {
@@ -59,6 +71,7 @@ namespace Indice.AspNetCore.Features.Campaigns.Services
             };
         }
 
+        /// <inheritdoc />
         public Task<ResultSet<MessageType>> GetList(ListOptions options) =>
             DbContext.MessageTypes
                      .AsNoTracking()
@@ -68,6 +81,7 @@ namespace Indice.AspNetCore.Features.Campaigns.Services
                      })
                      .ToResultSetAsync(options);
 
+        /// <inheritdoc />
         public async Task Update(Guid id, UpsertMessageTypeRequest request) {
             var messageType = await DbContext.MessageTypes.FindAsync(id);
             if (messageType is null) {

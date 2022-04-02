@@ -13,7 +13,8 @@ namespace Microsoft.Extensions.DependencyInjection
                 options.AddFluentValidationSupport();
                 options.AddOAuth2AuthorizationCodeFlow(generalSettings);
                 options.AddFormFileSupport();
-                options.IncludeXmlComments(Assembly.Load(CampaignsApi.AssemblyName));
+                options.IncludeXmlComments(Assembly.GetAssembly(typeof(CampaignManager)));
+                options.IncludeXmlComments(Assembly.GetAssembly(typeof(CampaignEndpointOptions)));
                 options.AddDoc(CampaignsApi.Scope, "Campaigns API", "API for managing campaigns in the backoffice tool.");
                 options.AddDoc("lookups", "Lookups API", "API for various lookups.");
             });

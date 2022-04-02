@@ -1,5 +1,4 @@
-﻿using System;
-using Indice.Types;
+﻿using Indice.Types;
 
 namespace Indice.AspNetCore.Features.Campaigns.Models
 {

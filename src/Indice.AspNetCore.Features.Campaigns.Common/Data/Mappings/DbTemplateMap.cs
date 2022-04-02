@@ -5,14 +5,23 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Indice.AspNetCore.Features.Campaigns.Data
 {
+    /// <summary>
+    /// Configuration for <see cref="DbTemplate"/> entity.
+    /// </summary>
     public class DbTemplateMap : IEntityTypeConfiguration<DbTemplate>
     {
+        /// <summary>
+        /// Creates a new instance of <see cref="DbTemplateMap"/>.
+        /// </summary>
+        /// <param name="schemaName">The schema name.</param>
+        /// <exception cref="ArgumentNullException"></exception>
         public DbTemplateMap(string schemaName) {
             SchemaName = schemaName ?? throw new ArgumentNullException(nameof(schemaName));
         }
 
-        public string SchemaName { get; }
+        private string SchemaName { get; }
 
+        /// <inheritdoc />
         public void Configure(EntityTypeBuilder<DbTemplate> builder) {
             // Configure table name.
             builder.ToTable("Template", SchemaName);

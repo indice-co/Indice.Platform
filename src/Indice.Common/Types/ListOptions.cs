@@ -5,13 +5,13 @@ using System.Linq;
 namespace Indice.Types
 {
     /// <summary>
-    /// List params used to navigate through collections. Contains parameters such as sort, search, page number and page size.
+    /// List parameters used to navigate through collections. Contains parameters such as sort, search, page number and page size.
     /// </summary>
     public class ListOptions
     {
         private readonly Dictionary<string, string> SortRedirects;
         /// <summary>
-        /// Creates instance with default parameters
+        /// Creates instance with default parameters.
         /// </summary>
         public ListOptions() {
             Page = 1;
@@ -83,7 +83,7 @@ namespace Indice.Types
                     Sort = string.Join(",", parts.Concat(new[] { (string)sort }).ToArray());
                 }
             }
-            
+
         }
         /// <summary>
         /// Remove a <see cref="SortByClause"/> to the current <seealso cref="Sort"/> string.
@@ -143,7 +143,7 @@ namespace Indice.Types
 
         /// <summary>
         /// Converts the options to a dictionary of key value pairs suitable for use 
-        /// as Route parameters and / or querystring parameters depending on client or server use.
+        /// as Route parameters and / or query string parameters depending on client or server use.
         /// </summary>
         /// <returns></returns>
         public override IDictionary<string, object> ToDictionary() {

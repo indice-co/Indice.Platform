@@ -1,18 +1,10 @@
-﻿namespace Indice.AspNetCore.Features.Campaigns.Data.Models
+﻿namespace Indice.AspNetCore.Features.Campaigns.Models
 {
     /// <summary>
-    /// Contact entity.
+    /// The request model used to update an existing contact.
     /// </summary>
-    public class DbContact
+    public class UpdateContactRequest
     {
-        /// <summary>
-        /// The unique id of the contact.
-        /// </summary>
-        public Guid Id { get; set; } = Guid.NewGuid();
-        /// <summary>
-        /// The recipient correlation code.
-        /// </summary>
-        public string RecipientId { get; set; }
         /// <summary>
         /// Contact salutation (Mr, Mrs etc).
         /// </summary>
@@ -37,13 +29,5 @@
         /// The phone number.
         /// </summary>
         public string PhoneNumber { get; set; }
-        /// <summary>
-        /// Indicates when contact info were last updated.
-        /// </summary>
-        public DateTimeOffset UpdatedAt { get; set; }
-        /// <summary>
-        /// Foreign key to the <see cref="DbDistributionList"/>.
-        /// </summary>
-        public Guid? DistributionListId { get; set; }
     }
 }

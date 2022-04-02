@@ -78,7 +78,7 @@ namespace Indice.Hosting
                                                [JobDataKeys.CleanUpBatchSize] = dequeueJobSchedule.CleanupBatchSize,
                                            } as IDictionary<string, object>))
                                            .Build();
-                await Scheduler.AddJob(cleanUpJob, replace: true);
+                await Scheduler.AddJob(cleanUpJob, replace: true, cancellationToken);
                 var cleanUpTrigger = TriggerBuilder.Create()
                                                    .ForJob(cleanUpJob)
                                                    .WithIdentity(name: $"{cleanUpJob.Key.Name}Trigger", group: JobGroups.InternalJobsGroup)

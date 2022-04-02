@@ -1,19 +1,27 @@
-﻿using System;
-using Indice.AspNetCore.Features.Campaigns.Data.Models;
+﻿using Indice.AspNetCore.Features.Campaigns.Data.Models;
 using Indice.Configuration;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Indice.AspNetCore.Features.Campaigns.Data
 {
+    /// <summary>
+    /// Configuration for <see cref="DbAttachment"/> entity.
+    /// </summary>
     public class DbAttachmentMap : IEntityTypeConfiguration<DbAttachment>
     {
+        /// <summary>
+        /// Creates a new instance of <see cref="DbAttachmentMap"/>.
+        /// </summary>
+        /// <param name="schemaName">The schema name.</param>
+        /// <exception cref="ArgumentNullException"></exception>
         public DbAttachmentMap(string schemaName) {
             SchemaName = schemaName ?? throw new ArgumentNullException(nameof(schemaName));
         }
 
-        public string SchemaName { get; }
+        private string SchemaName { get; }
 
+        /// <inheritdoc />
         public void Configure(EntityTypeBuilder<DbAttachment> builder) {
             // Configure table name.
             builder.ToTable("Attachment", SchemaName);

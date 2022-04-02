@@ -4,6 +4,7 @@ using System.Text.Json;
 using IdentityModel.Client;
 using Indice.AspNetCore.Features.Campaigns.Models;
 using Indice.Security;
+using Indice.Serialization;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Options;
 
@@ -29,9 +30,9 @@ namespace Indice.AspNetCore.Features.Campaigns.Services
             Cache = cache ?? throw new ArgumentNullException(nameof(cache));
         }
 
-        public HttpClient HttpClient { get; }
-        public ContactResolverIdentityOptions Options { get; }
-        public IDistributedCache Cache { get; }
+        private HttpClient HttpClient { get; }
+        private ContactResolverIdentityOptions Options { get; }
+        private IDistributedCache Cache { get; }
 
         /// <inheritdoc />
         public async Task<Contact> Resolve(string id) {
@@ -43,7 +44,7 @@ namespace Indice.AspNetCore.Features.Campaigns.Services
             }
             response.EnsureSuccessStatusCode();
             var responseJson = await response.Content.ReadAsStringAsync();
-            var identityUser = JsonSerializer.Deserialize<IdentityUserResponse>(responseJson);
+            var identityUser = JsonSerializer.Deserialize<IdentityUserResponse>(responseJson, JsonSerializerOptionDefaults.GetDefaultSettings());
             var contact = new Contact {
                 Id = Guid.NewGuid(),
                 RecipientId = identityUser.Id,

@@ -9,6 +9,10 @@ namespace Indice.AspNetCore.Features.Campaigns
     /// </summary>
     public class CampaignEndpointOptions : CampaignOptionsBase
     {
+        /// <summary>
+        /// Creates a new instance of <see cref="CampaignEndpointOptions"/>.
+        /// </summary>
+        /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
         public CampaignEndpointOptions(IServiceCollection services) : base(services) { }
 
         /// <summary>
@@ -22,6 +26,10 @@ namespace Indice.AspNetCore.Features.Campaigns
     /// </summary>
     public class CampaignManagementOptions : CampaignOptionsBase
     {
+        /// <summary>
+        /// Creates a new instance of <see cref="CampaignManagementOptions"/>.
+        /// </summary>
+        /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
         public CampaignManagementOptions(IServiceCollection services) : base(services) { }
 
         /// <summary>
@@ -35,6 +43,10 @@ namespace Indice.AspNetCore.Features.Campaigns
     /// </summary>
     public class CampaignInboxOptions : CampaignOptionsBase
     {
+        /// <summary>
+        /// Creates a new instance of <see cref="CampaignInboxOptions"/>.
+        /// </summary>
+        /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
         public CampaignInboxOptions(IServiceCollection services) : base(services) { }
 
         /// <summary>
@@ -50,6 +62,11 @@ namespace Indice.AspNetCore.Features.Campaigns
     {
         private string _apiPrefix;
 
+        /// <summary>
+        /// Creates a new instance of <see cref="CampaignOptionsBase"/>.
+        /// </summary>
+        /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
+        /// <exception cref="ArgumentNullException"></exception>
         public CampaignOptionsBase(IServiceCollection services) {
             Services = services ?? throw new ArgumentNullException(nameof(services));
         }
@@ -59,6 +76,9 @@ namespace Indice.AspNetCore.Features.Campaigns
         /// </summary>
         public CampaignOptionsBase() { }
 
+        /// <summary>
+        /// Specifies the contract for a collection of service descriptors.
+        /// </summary>
         public IServiceCollection Services { get; }
         /// <summary>
         /// Configuration <see cref="Action"/> for internal <see cref="DbContext"/>. 

@@ -1,5 +1,4 @@
-﻿using System.Reflection;
-using Indice.Security;
+﻿using Indice.Security;
 using Indice.Services;
 
 namespace Indice.AspNetCore.Features.Campaigns
@@ -9,10 +8,6 @@ namespace Indice.AspNetCore.Features.Campaigns
     /// </summary>
     public static class CampaignsApi
     {
-        /// <summary>
-        /// The assembly name.
-        /// </summary>
-        public static readonly string AssemblyName = Assembly.GetExecutingAssembly().GetName().Name;
         /// <summary>
         /// Authentication scheme name used by Campaigns API.
         /// </summary>
@@ -47,15 +42,44 @@ namespace Indice.AspNetCore.Features.Campaigns
     /// </summary>
     public class QueueNames
     {
+        /// <summary>
+        /// Name for the queue that stores campaign created events.
+        /// </summary>
         public const string CampaignCreated = "campaign-created";
+        /// <summary>
+        /// Name for the queue that stores events for delivering push notifications.
+        /// </summary>
         public const string SendPushNotification = "campaign-send-push-notification";
+        /// <summary>
+        /// Name for the queue that stores events for distributing inbox messages.
+        /// </summary>
         public const string DistributeInbox = "campaign-inbox-distribution";
-        public const string PersistInboxMessage = "persist-inbox-message";
+        /// <summary>
+        /// Name for the queue that stores events for persisting inbox messages.
+        /// </summary>
+        public const string PersistInboxMessage = "campaign-persist-inbox-message";
+        /// <summary>
+        /// Name for the queue that stores events for inserting or updating contacts.
+        /// </summary>
+        public const string UpsertContact = "campaign-upsert-contact";
+        /// <summary>
+        /// Name for the queue that stores events for resolving contacts from external systems.
+        /// </summary>
+        public const string ResolveContact = "campaign-resolve-contact";
     }
 
+    /// <summary>
+    /// Placeholder for prefixing Campaigns API endpoints.
+    /// </summary>
     public class ApiPrefixes 
     {
+        /// <summary>
+        /// Management API prefix placeholder.
+        /// </summary>
         public const string CampaignManagementEndpoints = "[campaignManagementEndpointsPrefix]";
+        /// <summary>
+        /// Inbox API prefix placeholder.
+        /// </summary>
         public const string CampaignInboxEndpoints = "[campaignInboxEndpointsPrefix]";
     }
 

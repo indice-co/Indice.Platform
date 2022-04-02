@@ -37,5 +37,9 @@
         /// The phone number.
         /// </summary>
         public string PhoneNumber { get; set; }
+        /// <summary>
+        /// Indicates when contact info were last updated.
+        /// </summary>
+        public DateTimeOffset? UpdatedAt { get; set; }
     }
 }

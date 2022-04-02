@@ -67,7 +67,7 @@ namespace Indice.AspNetCore.Features.Campaigns.Controllers
         [ProducesResponseType(typeof(void), StatusCodes.Status204NoContent)]
         [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> AddContactToDistributionList([FromRoute] Guid distributionListId, [FromBody] CreateDistributionListContactRequest request) {
-            await ContactService.AddToDistributionList(request, distributionListId);
+            await ContactService.AddToDistributionList(distributionListId, request);
             return NoContent();
         }
 

@@ -5,14 +5,23 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Indice.AspNetCore.Features.Campaigns.Data
 {
+    /// <summary>
+    /// Configuration for <see cref="DbMessageType"/> entity.
+    /// </summary>
     public class DbMessageTypeMap : IEntityTypeConfiguration<DbMessageType>
     {
+        /// <summary>
+        /// Creates a new instance of <see cref="DbMessageTypeMap"/>.
+        /// </summary>
+        /// <param name="schemaName">The schema name.</param>
+        /// <exception cref="ArgumentNullException"></exception>
         public DbMessageTypeMap(string schemaName) {
             SchemaName = schemaName ?? throw new ArgumentNullException(nameof(schemaName));
         }
 
-        public string SchemaName { get; }
+        private string SchemaName { get; }
 
+        /// <inheritdoc />
         public void Configure(EntityTypeBuilder<DbMessageType> builder) {
             // Configure table name.
             builder.ToTable("MessageType", SchemaName);

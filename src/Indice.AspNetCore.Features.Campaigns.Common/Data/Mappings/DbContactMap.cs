@@ -5,15 +5,23 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Indice.AspNetCore.Features.Campaigns.Data
 {
-
+    /// <summary>
+    /// Configuration for <see cref="DbContact"/> entity.
+    /// </summary>
     public class DbContactMap : IEntityTypeConfiguration<DbContact>
     {
+        /// <summary>
+        /// Creates a new instance of <see cref="DbContactMap"/>.
+        /// </summary>
+        /// <param name="schemaName">The schema name.</param>
+        /// <exception cref="ArgumentNullException"></exception>
         public DbContactMap(string schemaName) {
             SchemaName = schemaName ?? throw new ArgumentNullException(nameof(schemaName));
         }
 
-        public string SchemaName { get; }
+        private string SchemaName { get; }
 
+        /// <inheritdoc />
         public void Configure(EntityTypeBuilder<DbContact> builder) {
             builder.ToTable("Contact", SchemaName);
             // Configure primary key.
@@ -25,7 +33,6 @@ namespace Indice.AspNetCore.Features.Campaigns.Data
             builder.Property(x => x.FullName).HasMaxLength(TextSizePresets.M256);
             builder.Property(x => x.PhoneNumber).HasMaxLength(TextSizePresets.S64);
             builder.Property(x => x.Email).HasMaxLength(TextSizePresets.S64);
-            builder.Property(x => x.DeviceId).HasMaxLength(TextSizePresets.M128);
             builder.Property(x => x.RecipientId).HasMaxLength(TextSizePresets.S64);
             // Configure indexes.
             builder.HasIndex(x => x.RecipientId);

@@ -8,8 +8,17 @@ using Microsoft.Extensions.Options;
 
 namespace Indice.AspNetCore.Features.Campaigns.Services
 {
+    /// <summary>
+    /// An implementation of <see cref="IInboxService"/> for Entity Framework Core.
+    /// </summary>
     public class InboxService : IInboxService
     {
+        /// <summary>
+        /// Creates a new instance of <see cref="InboxService"/>.
+        /// </summary>
+        /// <param name="dbContext">The <see cref="Microsoft.EntityFrameworkCore.DbContext"/> for Campaigns API feature.</param>
+        /// <param name="campaignInboxOptions">Options used to configure the Campaigns inbox API feature.</param>
+        /// <exception cref="ArgumentNullException"></exception>
         public InboxService(
             CampaignsDbContext dbContext,
             IOptions<CampaignInboxOptions> campaignInboxOptions
@@ -18,18 +27,21 @@ namespace Indice.AspNetCore.Features.Campaigns.Services
             CampaignInboxOptions = campaignInboxOptions?.Value ?? throw new ArgumentNullException(nameof(campaignInboxOptions));
         }
 
-        public CampaignsDbContext DbContext { get; }
-        public CampaignInboxOptions CampaignInboxOptions { get; }
+        private CampaignsDbContext DbContext { get; }
+        private CampaignInboxOptions CampaignInboxOptions { get; }
 
+        /// <inheritdoc />
         public async Task<ResultSet<Message>> GetList(string userCode, ListOptions<MessagesFilter> options) {
             var userMessages = await GetUserInboxQuery(userCode, options).ToResultSetAsync(options);
             return userMessages;
         }
 
-        public Task<Message> GetById(Guid id, string userCode) => GetUserInboxQuery(userCode).SingleOrDefaultAsync(x => x.Id == id);
+        /// <inheritdoc />
+        public Task<Message> GetById(Guid id, string recipientId) => GetUserInboxQuery(recipientId).SingleOrDefaultAsync(x => x.Id == id);
 
-        public async Task MarkAsDeleted(Guid id, string userCode) {
-            var message = await DbContext.Messages.SingleOrDefaultAsync(x => x.CampaignId == id && x.RecipientId == userCode);
+        /// <inheritdoc />
+        public async Task MarkAsDeleted(Guid id, string recipientId) {
+            var message = await DbContext.Messages.SingleOrDefaultAsync(x => x.CampaignId == id && x.RecipientId == recipientId);
             if (message is not null) {
                 if (message.IsDeleted) {
                     throw CampaignException.MessageAlreadyRead(id);
@@ -42,14 +54,15 @@ namespace Indice.AspNetCore.Features.Campaigns.Services
                     DeleteDate = DateTime.UtcNow,
                     Id = Guid.NewGuid(),
                     IsDeleted = true,
-                    RecipientId = userCode
+                    RecipientId = recipientId
                 });
             }
             await DbContext.SaveChangesAsync();
         }
 
-        public async Task MarkAsRead(Guid id, string userCode) {
-            var message = await DbContext.Messages.SingleOrDefaultAsync(x => x.CampaignId == id && x.RecipientId == userCode);
+        /// <inheritdoc />
+        public async Task MarkAsRead(Guid id, string recipientId) {
+            var message = await DbContext.Messages.SingleOrDefaultAsync(x => x.CampaignId == id && x.RecipientId == recipientId);
             if (message is not null) {
                 if (message.IsRead) {
                     throw CampaignException.MessageAlreadyRead(id);
@@ -62,26 +75,26 @@ namespace Indice.AspNetCore.Features.Campaigns.Services
                     Id = Guid.NewGuid(),
                     IsRead = true,
                     ReadDate = DateTime.UtcNow,
-                    RecipientId = userCode
+                    RecipientId = recipientId
                 });
             }
             await DbContext.SaveChangesAsync();
         }
 
-        private IQueryable<Message> GetUserInboxQuery(string userCode, ListOptions<MessagesFilter> options = null) {
+        private IQueryable<Message> GetUserInboxQuery(string recipientId, ListOptions<MessagesFilter> options = null) {
             var query = DbContext
                 .Campaigns
                 .AsNoTracking()
                 .Include(x => x.Attachment)
                 .Include(x => x.Type)
                 .SelectMany(
-                    collectionSelector: campaign => DbContext.Messages.AsNoTracking().Where(x => x.CampaignId == campaign.Id && x.RecipientId == userCode).DefaultIfEmpty(),
+                    collectionSelector: campaign => DbContext.Messages.AsNoTracking().Where(x => x.CampaignId == campaign.Id && x.RecipientId == recipientId).DefaultIfEmpty(),
                     resultSelector: (campaign, message) => new { Campaign = campaign, Message = message }
                 )
                 .Where(x => x.Campaign.Published
                     && x.Campaign.DeliveryChannel.HasFlag(MessageDeliveryChannel.Inbox)
                     && (x.Message == null || !x.Message.IsDeleted)
-                    && (x.Campaign.IsGlobal || (x.Message != null && x.Message.RecipientId == userCode))
+                    && (x.Campaign.IsGlobal || (x.Message != null && x.Message.RecipientId == recipientId))
                 );
             if (options?.Filter is not null) {
                 if (options.Filter.ShowExpired.HasValue) {

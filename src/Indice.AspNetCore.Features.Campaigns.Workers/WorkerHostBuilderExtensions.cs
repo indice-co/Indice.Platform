@@ -29,21 +29,33 @@ namespace Microsoft.Extensions.DependencyInjection
             };
             configure?.Invoke(options);
             options.Services = null;
-            workerHostBuilder.AddJob<CampaignCreatedJobHandler>()
-                             .WithQueueTrigger<CampaignCreatedEvent>(options => {
+            workerHostBuilder.AddJob<CampaignCreatedJobHandler>().WithQueueTrigger<CampaignCreatedEvent>(options => {
                                  options.QueueName = QueueNames.CampaignCreated;
                                  options.PollingInterval = TimeSpan.FromSeconds(5).TotalMilliseconds;
                                  options.InstanceCount = 1;
                              })
-                             .AddJob<SendPushNotificationJobHandler>()
-                             .WithQueueTrigger<SendPushNotificationEvent>(options => {
-                                 options.QueueName = QueueNames.SendPushNotification;
+                             .AddJob<InboxDistributionJobHandler>().WithQueueTrigger<InboxDistributionEvent>(options => {
+                                 options.QueueName = QueueNames.DistributeInbox;
                                  options.PollingInterval = TimeSpan.FromSeconds(5).TotalMilliseconds;
                                  options.InstanceCount = 1;
                              })
-                             .AddJob<InboxDistributionJobHandler>()
-                             .WithQueueTrigger<InboxDistributionEvent>(options => {
-                                 options.QueueName = QueueNames.DistributeInbox;
+                             .AddJob<PersistInboxMessageJobHandler>().WithQueueTrigger<PersistInboxMessageEvent>(options => {
+                                 options.QueueName = QueueNames.PersistInboxMessage;
+                                 options.PollingInterval = TimeSpan.FromSeconds(5).TotalMilliseconds;
+                                 options.InstanceCount = 1;
+                             })
+                             .AddJob<ResolveContactJobHandler>().WithQueueTrigger<ContactResolutionEvent>(options => {
+                                 options.QueueName = QueueNames.ResolveContact;
+                                 options.PollingInterval = TimeSpan.FromSeconds(5).TotalMilliseconds;
+                                 options.InstanceCount = 1;
+                             })
+                             .AddJob<UpsertContactJobHandler>().WithQueueTrigger<UpsertContactEvent>(options => {
+                                 options.QueueName = QueueNames.UpsertContact;
+                                 options.PollingInterval = TimeSpan.FromSeconds(5).TotalMilliseconds;
+                                 options.InstanceCount = 1;
+                             })
+                             .AddJob<SendPushNotificationJobHandler>().WithQueueTrigger<SendPushNotificationEvent>(options => {
+                                 options.QueueName = QueueNames.SendPushNotification;
                                  options.PollingInterval = TimeSpan.FromSeconds(5).TotalMilliseconds;
                                  options.InstanceCount = 1;
                              });
@@ -56,7 +68,8 @@ namespace Microsoft.Extensions.DependencyInjection
             workerHostBuilder.Services.TryAddTransient<IContactResolver, ContactResolverNoop>();
             workerHostBuilder.Services.TryAddTransient<IDistributionListService, DistributionListService>();
             workerHostBuilder.Services.TryAddTransient<IMessageService, MessageService>();
-            workerHostBuilder.Services.AddSingleton(new DatabaseSchemaNameResolver(options.DatabaseSchema));
+            workerHostBuilder.Services.TryAddTransient<IContactService, ContactService>();
+            workerHostBuilder.Services.TryAddSingleton(new DatabaseSchemaNameResolver(options.DatabaseSchema));
             return workerHostBuilder;
         }
 
