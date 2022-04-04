@@ -78,7 +78,7 @@ namespace Indice.AspNetCore.Features.Campaigns.Events
             Id = @event.Id,
             IsGlobal = @event.IsGlobal,
             Published = @event.Published,
-            SelectedUserCodes = @event.SelectedUserCodes,
+            SelectedUserCodes = @event.SelectedRecipientIds,
             Title = @event.Title,
             Type = @event.Type
         };

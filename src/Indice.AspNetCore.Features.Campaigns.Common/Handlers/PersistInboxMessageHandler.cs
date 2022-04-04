@@ -38,11 +38,11 @@ namespace Indice.AspNetCore.Features.Campaigns
                 RecipientId = message.RecipientId,
                 Title = message.Title
             });
-            var eventDispatcher = GetEventDispatcher(KeyedServiceNames.EventDispatcherServiceKey);
-            await eventDispatcher.RaiseEventAsync(
-                payload: new ContactResolutionEvent(message.RecipientId),
-                configure: options => options.WrapInEnvelope(false).WithQueueName(QueueNames.ContactResolution)
-            );
+            //var eventDispatcher = GetEventDispatcher(KeyedServiceNames.EventDispatcherServiceKey);
+            //await eventDispatcher.RaiseEventAsync(
+            //    payload: new ContactResolutionEvent(message.RecipientId),
+            //    configure: options => options.WrapInEnvelope(false).WithQueueName(QueueNames.ContactResolution)
+            //);
         }
     }
 }

@@ -39,7 +39,7 @@ namespace Indice.AspNetCore.Features.Campaigns
             var isNew = contact is null;
             var needsUpdate = !isNew && DateTimeOffset.UtcNow - contact.UpdatedAt > TimeSpan.FromDays(1);
             if (isNew || needsUpdate) {
-                contact = await ContactResolver.Resolve(@event.RecipientId.ToString());
+                contact = await ContactResolver.GetById(@event.RecipientId.ToString());
                 if (contact is not null) {
                     var eventDispatcher = GetEventDispatcher(KeyedServiceNames.EventDispatcherServiceKey);
                     await eventDispatcher.RaiseEventAsync(

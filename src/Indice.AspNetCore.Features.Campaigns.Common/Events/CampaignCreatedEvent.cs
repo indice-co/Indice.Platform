@@ -64,7 +64,7 @@ namespace Indice.AspNetCore.Features.Campaigns.Events
         /// <summary>
         /// Defines a list of user identifiers that constitutes the audience of the campaign.
         /// </summary>
-        public List<string> SelectedUserCodes { get; set; } = new List<string>();
+        public List<string> SelectedRecipientIds { get; set; } = new List<string>();
 
         /// <summary>
         /// Creates a <see cref="CampaignCreatedEvent"/> instance from a <see cref="Campaign"/> instance.
@@ -83,7 +83,7 @@ namespace Indice.AspNetCore.Features.Campaigns.Events
             Id = campaign.Id,
             IsGlobal = campaign.IsGlobal,
             Published = campaign.Published,
-            SelectedUserCodes = selectedUserCodes ?? new List<string>(),
+            SelectedRecipientIds = selectedUserCodes ?? new List<string>(),
             Title = campaign.Title,
             Type = campaign.Type
         };

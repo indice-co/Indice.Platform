@@ -5,6 +5,7 @@ using IdentityModel.Client;
 using Indice.AspNetCore.Features.Campaigns.Models;
 using Indice.Security;
 using Indice.Serialization;
+using Indice.Types;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Options;
 
@@ -35,7 +36,17 @@ namespace Indice.AspNetCore.Features.Campaigns.Services
         private IDistributedCache Cache { get; }
 
         /// <inheritdoc />
-        public async Task<Contact> Resolve(string id) {
+        public async Task<ResultSet<Contact>> Find(ListOptions<ContactSearchFilter> options) {
+            var accessToken = await GetAccessToken();
+            HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+            var response = await HttpClient.GetAsync($"api/users");
+            response.EnsureSuccessStatusCode();
+            var responseJson = await response.Content.ReadAsStringAsync();
+            return null;
+        }
+
+        /// <inheritdoc />
+        public async Task<Contact> GetById(string id) {
             var accessToken = await GetAccessToken();
             HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
             var response = await HttpClient.GetAsync($"api/users/{id}");

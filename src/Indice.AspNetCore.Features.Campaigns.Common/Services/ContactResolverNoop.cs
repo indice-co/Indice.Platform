@@ -8,6 +8,6 @@ namespace Indice.AspNetCore.Features.Campaigns.Services
     public class ContactResolverNoop : IContactResolver
     {
         /// <inheritdoc />
-        public Task<Contact> Resolve(string id) => Task.FromResult<Contact>(null);
+        public Task<Contact> GetById(string id) => Task.FromResult<Contact>(null);
     }
 }

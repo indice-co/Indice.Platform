@@ -37,9 +37,11 @@ namespace Indice.AspNetCore.Features.Campaigns
                 return;
             }
             if (campaign.DeliveryChannel.HasFlag(MessageDeliveryChannel.Email)) {
+                await ProcessEmails();
                 return;
             }
             if (campaign.DeliveryChannel.HasFlag(MessageDeliveryChannel.SMS)) {
+                await ProcessSms();
                 return;
             }
         }
@@ -68,7 +70,7 @@ namespace Indice.AspNetCore.Features.Campaigns
                     configure: options => options.WrapInEnvelope(false).At(campaign.ActivePeriod?.From?.DateTime ?? DateTime.UtcNow).WithQueueName(QueueNames.SendPushNotification)
                 );
             } else {
-                foreach (var userCode in campaign.SelectedUserCodes) {
+                foreach (var userCode in campaign.SelectedRecipientIds) {
                     await eventDispatcher.RaiseEventAsync(
                         payload: new SendPushNotificationEvent {
                             RecipientId = userCode,
@@ -78,6 +80,14 @@ namespace Indice.AspNetCore.Features.Campaigns
                         configure: options => options.WrapInEnvelope(false).At(campaign.ActivePeriod?.From?.DateTime ?? DateTime.UtcNow).WithQueueName(QueueNames.SendPushNotification));
                 }
             }
+        }
+
+        private async Task ProcessEmails() {
+            await Task.CompletedTask;
+        }
+
+        private async Task ProcessSms() {
+            await Task.CompletedTask;
         }
     }
 }
