@@ -14,6 +14,6 @@ namespace Indice.AspNetCore.Features.Campaigns.Workers
 
         public ILogger<CampaignCreatedJobHandler> Logger { get; }
 
-        public async Task Process(CampaignCreatedEvent campaign) => await TryDistributeCampaign(campaign);
+        public async Task Process(CampaignCreatedEvent campaign) => await TryDistribute(campaign);
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 
@@ -17,9 +18,16 @@ namespace Indice.Functions
             })
             .ConfigureFunctionsWorkerDefaults(builder => { })
             .ConfigureServices(services => { })
-            .ConfigureCampaigns(options => {
-                //options.UsePushNotificationServiceAzure();
+            .ConfigureCampaigns((configuration, options) => {
+                options.ConfigureDbContext = builder => builder.UseSqlServer(configuration.GetConnectionString("CampaignsDb"));
+                options.DatabaseSchema = "cmp";
                 options.UseEventDispatcherAzure();
+                //options.UsePushNotificationServiceAzure();
+                options.UseIdentityContactResolver(resolverOptions => {
+                    resolverOptions.BaseAddress = new Uri(configuration["IdentityServer:BaseAddress"]);
+                    resolverOptions.ClientId = configuration["IdentityServer:ClientId"];
+                    resolverOptions.ClientSecret = configuration["IdentityServer:ClientSecret"];
+                });
             })
             .UseEnvironment(Environment.GetEnvironmentVariable("ENVIRONMENT"));
             // Build host and run.

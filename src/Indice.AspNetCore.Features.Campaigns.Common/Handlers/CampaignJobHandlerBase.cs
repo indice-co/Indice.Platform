@@ -38,24 +38,25 @@ namespace Indice.AspNetCore.Features.Campaigns
         /// Distributes a campaign for further processing base on the <see cref="CampaignCreatedEvent.DeliveryChannel"/>.
         /// </summary>
         /// <param name="campaign">The event model used when a new campaign is created.</param>
-        protected virtual async Task TryDistributeCampaign(CampaignCreatedEvent campaign) {
+        protected virtual async Task<bool> TryDistribute(CampaignCreatedEvent campaign) {
             // If campaign is not published, then nothing is sent yet.
             if (!campaign.Published) {
-                return;
+                return false;
             }
             if (campaign.DeliveryChannel.HasFlag(MessageDeliveryChannel.Inbox)) {
                 await ProcessInbox(campaign);
             }
             if (campaign.DeliveryChannel.HasFlag(MessageDeliveryChannel.PushNotification)) {
                 await ProcessPushNotifications(campaign);
-                return;
+                return true;
             }
             if (campaign.DeliveryChannel.HasFlag(MessageDeliveryChannel.Email)) {
-                return;
+                return false;
             }
             if (campaign.DeliveryChannel.HasFlag(MessageDeliveryChannel.SMS)) {
-                return;
+                return false;
             }
+            return true;
         }
 
         #region Inbox Operations
@@ -74,11 +75,11 @@ namespace Indice.AspNetCore.Features.Campaigns
         /// <summary>
         /// Creates events in order to distribute inbox messages to selected users or users from a distribution list.
         /// </summary>
-        /// <param name="campaign">The event model used when distributing a message to selected users.</param>
-        protected virtual async Task DistributeInbox(InboxDistributionEvent campaign) {
-            var recipients = campaign.SelectedUserCodes ?? new List<string>();
-            if (campaign.DistributionList is not null) {
-                var contacts = await DistributionListService.GetContactsList(campaign.DistributionList.Id, new ListOptions {
+        /// <param name="inboxDistribution">The event model used when distributing a message to selected users.</param>
+        protected virtual async Task DistributeInbox(InboxDistributionEvent inboxDistribution) {
+            var recipients = inboxDistribution.SelectedUserCodes ?? new List<string>();
+            if (inboxDistribution.DistributionList is not null) {
+                var contacts = await DistributionListService.GetContactsList(inboxDistribution.DistributionList.Id, new ListOptions {
                     Page = 1,
                     Size = int.MaxValue
                 });
@@ -87,7 +88,7 @@ namespace Indice.AspNetCore.Features.Campaigns
             var eventDispatcher = GetEventDispatcher(KeyedServiceNames.EventDispatcherServiceKey);
             foreach (var id in recipients) {
                 await eventDispatcher.RaiseEventAsync(
-                    payload: PersistInboxMessageEvent.FromInboxDistributionEvent(campaign, id),
+                    payload: PersistInboxMessageEvent.FromInboxDistributionEvent(inboxDistribution, id),
                     configure: options => options.WrapInEnvelope(false).WithQueueName(QueueNames.PersistInboxMessage)
                 );
             }

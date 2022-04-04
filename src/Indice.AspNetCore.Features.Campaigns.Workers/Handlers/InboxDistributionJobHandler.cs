@@ -14,6 +14,6 @@ namespace Indice.AspNetCore.Features.Campaigns.Workers
 
         public ILogger<InboxDistributionJobHandler> Logger { get; }
 
-        public async Task Process(InboxDistributionEvent campaign) => await DistributeInbox(campaign);
+        public async Task Process(InboxDistributionEvent inboxDistribution) => await DistributeInbox(inboxDistribution);
     }
 }
