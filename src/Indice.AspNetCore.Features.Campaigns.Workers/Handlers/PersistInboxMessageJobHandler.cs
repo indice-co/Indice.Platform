@@ -3,17 +3,22 @@ using Microsoft.Extensions.Logging;
 
 namespace Indice.AspNetCore.Features.Campaigns.Workers
 {
-    internal class PersistInboxMessageJobHandler : CampaignJobHandlerBase
+    internal class PersistInboxMessageJobHandler
     {
         public PersistInboxMessageJobHandler(
             ILogger<PersistInboxMessageJobHandler> logger,
-            IServiceProvider serviceProvider
-        ) : base(serviceProvider) {
+            CampaignJobHandlerFactory campaignJobHandlerFactory
+        ) {
             Logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            CampaignJobHandlerFactory = campaignJobHandlerFactory ?? throw new ArgumentNullException(nameof(campaignJobHandlerFactory));
         }
 
         public ILogger<PersistInboxMessageJobHandler> Logger { get; }
+        public CampaignJobHandlerFactory CampaignJobHandlerFactory { get; }
 
-        public async Task Process(PersistInboxMessageEvent message) => await PersistInboxMessage(message);
+        public async Task Process(PersistInboxMessageEvent message) {
+            var handler = CampaignJobHandlerFactory.Create<PersistInboxMessageEvent>();
+            await handler.Process(message);
+        }
     }
 }

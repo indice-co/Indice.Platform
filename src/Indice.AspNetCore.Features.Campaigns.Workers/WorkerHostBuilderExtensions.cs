@@ -30,35 +30,35 @@ namespace Microsoft.Extensions.DependencyInjection
             configure?.Invoke(options);
             options.Services = null;
             workerHostBuilder.AddJob<CampaignCreatedJobHandler>().WithQueueTrigger<CampaignCreatedEvent>(options => {
-                                 options.QueueName = QueueNames.CampaignCreated;
-                                 options.PollingInterval = TimeSpan.FromSeconds(5).TotalMilliseconds;
-                                 options.InstanceCount = 1;
-                             })
-                             .AddJob<InboxDistributionJobHandler>().WithQueueTrigger<InboxDistributionEvent>(options => {
-                                 options.QueueName = QueueNames.DistributeInbox;
-                                 options.PollingInterval = TimeSpan.FromSeconds(5).TotalMilliseconds;
-                                 options.InstanceCount = 1;
-                             })
-                             .AddJob<PersistInboxMessageJobHandler>().WithQueueTrigger<PersistInboxMessageEvent>(options => {
-                                 options.QueueName = QueueNames.PersistInboxMessage;
-                                 options.PollingInterval = TimeSpan.FromSeconds(5).TotalMilliseconds;
-                                 options.InstanceCount = 1;
-                             })
-                             .AddJob<ResolveContactJobHandler>().WithQueueTrigger<ContactResolutionEvent>(options => {
-                                 options.QueueName = QueueNames.ResolveContact;
-                                 options.PollingInterval = TimeSpan.FromSeconds(5).TotalMilliseconds;
-                                 options.InstanceCount = 1;
-                             })
-                             .AddJob<UpsertContactJobHandler>().WithQueueTrigger<UpsertContactEvent>(options => {
-                                 options.QueueName = QueueNames.UpsertContact;
-                                 options.PollingInterval = TimeSpan.FromSeconds(5).TotalMilliseconds;
-                                 options.InstanceCount = 1;
-                             })
-                             .AddJob<SendPushNotificationJobHandler>().WithQueueTrigger<SendPushNotificationEvent>(options => {
-                                 options.QueueName = QueueNames.SendPushNotification;
-                                 options.PollingInterval = TimeSpan.FromSeconds(5).TotalMilliseconds;
-                                 options.InstanceCount = 1;
-                             });
+                options.QueueName = QueueNames.CampaignCreated;
+                options.PollingInterval = TimeSpan.FromSeconds(5).TotalMilliseconds;
+                options.InstanceCount = 1;
+            })
+            .AddJob<InboxDistributionJobHandler>().WithQueueTrigger<InboxDistributionEvent>(options => {
+                options.QueueName = QueueNames.DistributeInbox;
+                options.PollingInterval = TimeSpan.FromSeconds(5).TotalMilliseconds;
+                options.InstanceCount = 1;
+            })
+            .AddJob<PersistInboxMessageJobHandler>().WithQueueTrigger<PersistInboxMessageEvent>(options => {
+                options.QueueName = QueueNames.PersistInboxMessage;
+                options.PollingInterval = TimeSpan.FromSeconds(5).TotalMilliseconds;
+                options.InstanceCount = 1;
+            })
+            .AddJob<ContactResolutionJobHandler>().WithQueueTrigger<ContactResolutionEvent>(options => {
+                options.QueueName = QueueNames.ContactResolution;
+                options.PollingInterval = TimeSpan.FromSeconds(5).TotalMilliseconds;
+                options.InstanceCount = 1;
+            })
+            .AddJob<UpsertContactJobHandler>().WithQueueTrigger<UpsertContactEvent>(options => {
+                options.QueueName = QueueNames.UpsertContact;
+                options.PollingInterval = TimeSpan.FromSeconds(5).TotalMilliseconds;
+                options.InstanceCount = 1;
+            })
+            .AddJob<SendPushNotificationJobHandler>().WithQueueTrigger<SendPushNotificationEvent>(options => {
+                options.QueueName = QueueNames.SendPushNotification;
+                options.PollingInterval = TimeSpan.FromSeconds(5).TotalMilliseconds;
+                options.InstanceCount = 1;
+            });
             var serviceProvider = workerHostBuilder.Services.BuildServiceProvider();
             var configuration = serviceProvider.GetRequiredService<IConfiguration>();
             Action<DbContextOptionsBuilder> sqlServerConfiguration = (builder) => builder.UseSqlServer(configuration.GetConnectionString("CampaignsDbConnection"));
@@ -110,5 +110,13 @@ namespace Microsoft.Extensions.DependencyInjection
                 httpClient.BaseAddress = serviceOptions.BaseAddress;
             });
         }
+
+        /// <summary>
+        /// Adds a custom contact resolver that discovers contact information from a third-party system.
+        /// </summary>
+        /// <typeparam name="TContactResolver">The concrete type of <see cref="IContactResolver"/>.</typeparam>
+        /// <param name="options">Options for configuring internal campaign jobs used by the worker host.</param>
+        public static void UseContactResolver<TContactResolver>(this CampaignsJobsOptions options) where TContactResolver : IContactResolver =>
+            options.Services.AddTransient(typeof(IContactResolver), typeof(TContactResolver));
     }
 }

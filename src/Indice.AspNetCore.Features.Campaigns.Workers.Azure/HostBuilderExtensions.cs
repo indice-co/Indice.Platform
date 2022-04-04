@@ -1,5 +1,6 @@
 ﻿using Indice.AspNetCore.Features.Campaigns;
 using Indice.AspNetCore.Features.Campaigns.Data;
+using Indice.AspNetCore.Features.Campaigns.Events;
 using Indice.AspNetCore.Features.Campaigns.Services;
 using Indice.AspNetCore.Features.Campaigns.Workers.Azure;
 using Indice.Services;
@@ -21,22 +22,39 @@ namespace Microsoft.Extensions.Hosting
         /// <param name="hostBuilder">A program initialization abstraction.</param>
         /// <param name="configure">Configure action for <see cref="CampaignsOptions"/>.</param>
         public static IHostBuilder ConfigureCampaigns(this IHostBuilder hostBuilder, Action<IConfiguration, CampaignsOptions> configure = null) {
-            hostBuilder.ConfigureServices((context, services) => {
+            hostBuilder.ConfigureServices((hostBuilderContext, services) => {
                 var options = new CampaignsOptions {
                     Services = services
                 };
-                configure?.Invoke(context.Configuration, options);
-                services.TryAddTransient<Func<string, IPushNotificationService>>(serviceProvider => key => new PushNotificationServiceNoop());
-                services.TryAddTransient<Func<string, IEventDispatcher>>(serviceProvider => key => new EventDispatcherNoop());
-                Action<DbContextOptionsBuilder> sqlServerConfiguration = (builder) => builder.UseSqlServer(context.Configuration.GetConnectionString("CampaignsDbConnection"));
-                services.AddDbContext<CampaignsDbContext>(options.ConfigureDbContext ?? sqlServerConfiguration);
-                services.TryAddTransient<IContactResolver, ContactResolverNoop>();
-                services.TryAddTransient<IDistributionListService, DistributionListService>();
-                services.TryAddTransient<IMessageService, MessageService>();
-                services.TryAddTransient<IContactService, ContactService>();
-                services.TryAddSingleton(new DatabaseSchemaNameResolver(options.DatabaseSchema));
+                configure?.Invoke(hostBuilderContext.Configuration, options);
+                services.AddCoreServices(options, hostBuilderContext.Configuration);
+                services.AddJobHandlerServices();
             });
             return hostBuilder;
+        }
+
+        private static IServiceCollection AddCoreServices(this IServiceCollection services, CampaignsOptions options, IConfiguration configuration) {
+            services.TryAddTransient<Func<string, IPushNotificationService>>(serviceProvider => key => new PushNotificationServiceNoop());
+            services.TryAddTransient<Func<string, IEventDispatcher>>(serviceProvider => key => new EventDispatcherNoop());
+            Action<DbContextOptionsBuilder> sqlServerConfiguration = (builder) => builder.UseSqlServer(configuration.GetConnectionString("CampaignsDbConnection"));
+            services.AddDbContext<CampaignsDbContext>(options.ConfigureDbContext ?? sqlServerConfiguration);
+            services.TryAddTransient<IContactResolver, ContactResolverNoop>();
+            services.TryAddTransient<IDistributionListService, DistributionListService>();
+            services.TryAddTransient<IMessageService, MessageService>();
+            services.TryAddTransient<IContactService, ContactService>();
+            services.TryAddSingleton(new DatabaseSchemaNameResolver(options.DatabaseSchema));
+            return services;
+        }
+
+        private static IServiceCollection AddJobHandlerServices(this IServiceCollection services) {
+            services.TryAddTransient<ICampaignJobHandler<CampaignCreatedEvent>, CampaignCreatedHandler>();
+            services.TryAddTransient<ICampaignJobHandler<InboxDistributionEvent>, InboxDistributionHandler>();
+            services.TryAddTransient<ICampaignJobHandler<PersistInboxMessageEvent>, PersistInboxMessageHandler>();
+            services.TryAddTransient<ICampaignJobHandler<ContactResolutionEvent>, ContactResolutionHandler>();
+            services.TryAddTransient<ICampaignJobHandler<UpsertContactEvent>, UpsertContactHandler>();
+            services.TryAddTransient<ICampaignJobHandler<SendPushNotificationEvent>, SendPushNotificationHandler>();
+            services.AddTransient<CampaignJobHandlerFactory>();
+            return services;
         }
 
         /// <summary>
@@ -73,5 +91,13 @@ namespace Microsoft.Extensions.Hosting
                 httpClient.BaseAddress = serviceOptions.BaseAddress;
             });
         }
+
+        /// <summary>
+        /// Adds a custom contact resolver that discovers contact information from a third-party system.
+        /// </summary>
+        /// <typeparam name="TContactResolver">The concrete type of <see cref="IContactResolver"/>.</typeparam>
+        /// <param name="options">Options for configuring internal campaign jobs used by the worker host.</param>
+        public static void UseContactResolver<TContactResolver>(this CampaignsOptions options) where TContactResolver : IContactResolver =>
+            options.Services.AddTransient(typeof(IContactResolver), typeof(TContactResolver));
     }
 }

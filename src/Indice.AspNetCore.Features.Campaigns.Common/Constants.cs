@@ -65,7 +65,7 @@ namespace Indice.AspNetCore.Features.Campaigns
         /// <summary>
         /// Name for the queue that stores events for resolving contacts from external systems.
         /// </summary>
-        public const string ResolveContact = "campaign-resolve-contact";
+        public const string ContactResolution = "campaign-contact-resolution";
     }
 
     /// <summary>
