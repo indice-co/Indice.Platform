@@ -1,5 +1,4 @@
 ﻿using System.Linq.Expressions;
-using Indice.AspNetCore.Features.Campaigns.Models;
 using Indice.Features.Messages.Core.Data.Models;
 using Indice.Features.Messages.Core.Models.Requests;
 using Indice.Types;

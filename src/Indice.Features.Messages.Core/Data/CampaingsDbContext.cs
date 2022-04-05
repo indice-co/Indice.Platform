@@ -1,5 +1,5 @@
 ﻿using System.Diagnostics;
-using Indice.AspNetCore.Features.Campaigns.Data;
+using Indice.Features.Messages.Core.Data.Mappings;
 using Indice.Features.Messages.Core.Data.Models;
 using Indice.Features.Messages.Core.Services;
 using Microsoft.EntityFrameworkCore;

@@ -1,5 +1,5 @@
-﻿using Indice.AspNetCore.Features.Campaigns.Data.Models;
-using Indice.Features.Messages.Core.Data;
+﻿using Indice.Features.Messages.Core.Data;
+using Indice.Features.Messages.Core.Data.Models;
 using Indice.Features.Messages.Core.Models.Requests;
 using Indice.Features.Messages.Core.Services.Abstractions;
 

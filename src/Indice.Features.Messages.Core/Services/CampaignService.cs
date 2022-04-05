@@ -1,6 +1,5 @@
-﻿using Indice.AspNetCore.Features.Campaigns.Data.Models;
-using Indice.Features.Messages.Core;
-using Indice.Features.Messages.Core.Data;
+﻿using Indice.Features.Messages.Core.Data;
+using Indice.Features.Messages.Core.Data.Models;
 using Indice.Features.Messages.Core.Exceptions;
 using Indice.Features.Messages.Core.Models;
 using Indice.Features.Messages.Core.Models.Requests;
