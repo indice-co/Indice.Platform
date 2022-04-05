@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
-using Indice.AspNetCore.Features.Campaigns.Models;
 using Indice.AspNetCore.Features.Campaigns.Services;
+using Indice.Features.Messages.Core.Models;
+using Indice.Features.Messages.Core.Models.Requests;
+using Indice.Features.Messages.Core.Services.Abstractions;
 
 namespace Indice.AspNetCore.Features.Campaigns
 {

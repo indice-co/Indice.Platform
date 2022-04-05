@@ -1,4 +1,5 @@
-﻿using Indice.AspNetCore.Features.Campaigns.Events;
+﻿using Indice.Features.Messages.Core.Events;
+using Indice.Features.Messages.Core.Handlers;
 using Microsoft.Extensions.Logging;
 
 namespace Indice.AspNetCore.Features.Campaigns.Workers

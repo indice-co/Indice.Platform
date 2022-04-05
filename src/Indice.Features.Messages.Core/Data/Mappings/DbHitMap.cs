@@ -1,8 +1,8 @@
-﻿using Indice.AspNetCore.Features.Campaigns.Data.Models;
+﻿using Indice.Features.Messages.Core.Data.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace Indice.AspNetCore.Features.Campaigns.Data
+namespace Indice.Features.Messages.Core.Data.Mappings
 {
     /// <summary>
     /// Configuration for <see cref="DbHit"/> entity.

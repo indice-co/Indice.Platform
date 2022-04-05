@@ -1,5 +1,7 @@
 ﻿using System.Text.Json;
-using Indice.AspNetCore.Features.Campaigns.Events;
+using Indice.Features.Messages.Core;
+using Indice.Features.Messages.Core.Events;
+using Indice.Features.Messages.Core.Handlers;
 using Indice.Serialization;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;

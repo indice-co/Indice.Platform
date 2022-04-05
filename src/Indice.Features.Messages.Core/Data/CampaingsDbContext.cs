@@ -1,10 +1,11 @@
 ﻿using System.Diagnostics;
-using Indice.AspNetCore.Features.Campaigns.Data.Models;
-using Indice.AspNetCore.Features.Campaigns.Services;
+using Indice.AspNetCore.Features.Campaigns.Data;
+using Indice.Features.Messages.Core.Data.Models;
+using Indice.Features.Messages.Core.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 
-namespace Indice.AspNetCore.Features.Campaigns.Data
+namespace Indice.Features.Messages.Core.Data
 {
     /// <summary>
     /// The <see cref="DbContext"/> for Campaigns API feature.

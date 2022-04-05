@@ -1,13 +1,16 @@
-﻿using Indice.AspNetCore.Features.Campaigns.Data;
-using Indice.AspNetCore.Features.Campaigns.Data.Models;
-using Indice.AspNetCore.Features.Campaigns.Exceptions;
-using Indice.AspNetCore.Features.Campaigns.Models;
+﻿using Indice.AspNetCore.Features.Campaigns.Data.Models;
+using Indice.Features.Messages.Core;
+using Indice.Features.Messages.Core.Data;
+using Indice.Features.Messages.Core.Exceptions;
+using Indice.Features.Messages.Core.Models;
+using Indice.Features.Messages.Core.Models.Requests;
+using Indice.Features.Messages.Core.Services.Abstractions;
 using Indice.Services;
 using Indice.Types;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 
-namespace Indice.AspNetCore.Features.Campaigns.Services
+namespace Indice.Features.Messages.Core.Services
 {
     /// <summary>
     /// An implementation of <see cref="ICampaignService"/> for Entity Framework Core.

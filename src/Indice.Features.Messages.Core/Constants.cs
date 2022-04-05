@@ -1,7 +1,7 @@
 ﻿using Indice.Security;
 using Indice.Services;
 
-namespace Indice.AspNetCore.Features.Campaigns
+namespace Indice.Features.Messages.Core
 {
     /// <summary>
     /// Constant values for Campaigns API.
@@ -24,7 +24,7 @@ namespace Indice.AspNetCore.Features.Campaigns
         /// <summary>
         /// Campaigns API policies.
         /// </summary>
-        public static class Policies 
+        public static class Policies
         {
             /// <summary>
             /// A user must have the <i>Admin</i> flag or own the <see cref="BasicRoleNames.AdminUICampaignsManager"/> role.
@@ -59,7 +59,7 @@ namespace Indice.AspNetCore.Features.Campaigns
     /// <summary>
     /// Placeholder for prefixing Campaigns API endpoints.
     /// </summary>
-    public class ApiPrefixes 
+    public class ApiPrefixes
     {
         /// <summary>
         /// Management API prefix placeholder.

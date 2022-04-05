@@ -1,4 +1,4 @@
-﻿namespace Indice.AspNetCore.Features.Campaigns.Models
+﻿namespace Indice.Features.Messages.Core.Models.Requests
 {
     /// <summary>
     /// The event model used when creating a new inbox message.

@@ -1,9 +1,9 @@
-﻿using Indice.AspNetCore.Features.Campaigns.Data.Models;
-using Indice.Configuration;
+﻿using Indice.Configuration;
+using Indice.Features.Messages.Core.Data.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace Indice.AspNetCore.Features.Campaigns.Data
+namespace Indice.Features.Messages.Core.Data.Mappings
 {
     /// <summary>
     /// Configuration for <see cref="DbTemplate"/> entity.
@@ -28,7 +28,7 @@ namespace Indice.AspNetCore.Features.Campaigns.Data
             // Configure primary key.
             builder.HasKey(x => x.Id);
             // Configure properties.
-            builder.Property(x => x.Name).HasMaxLength(TextSizePresets.M256).IsRequired(); 
+            builder.Property(x => x.Name).HasMaxLength(TextSizePresets.M256).IsRequired();
             builder.Property(x => x.Content).HasJsonConversion();
             // Configure indexes.
             builder.HasIndex(x => x.Name).IsUnique();

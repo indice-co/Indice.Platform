@@ -2,8 +2,9 @@
 using System.Threading;
 using System.Threading.Tasks;
 using FluentValidation;
-using Indice.AspNetCore.Features.Campaigns.Models;
 using Indice.Configuration;
+using Indice.Features.Messages.Core.Models.Requests;
+using Indice.Features.Messages.Core.Services.Abstractions;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Indice.AspNetCore.Features.Campaigns.Services

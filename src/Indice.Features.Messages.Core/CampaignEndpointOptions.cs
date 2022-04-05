@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Indice.AspNetCore.Features.Campaigns
+namespace Indice.Features.Messages.Core
 {
     /// <summary>
     /// Options used to configure the Campaigns API feature.

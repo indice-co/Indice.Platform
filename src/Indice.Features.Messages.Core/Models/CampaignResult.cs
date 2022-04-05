@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Indice.AspNetCore.Features.Campaigns.Models
+namespace Indice.Features.Messages.Core.Models
 {
     /// <summary>
     /// Represents the result of a campaign operation.

@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using Indice.AspNetCore.Features.Campaigns.Models;
 using Indice.Extensions;
+using Indice.Features.Messages.Core.Models;
 using Indice.Security;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Mvc.Formatters;

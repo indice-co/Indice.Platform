@@ -2,6 +2,7 @@
 using System.Net.Mime;
 using System.Threading.Tasks;
 using Indice.Extensions;
+using Indice.Features.Messages.Core;
 using Indice.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Net.Http.Headers;

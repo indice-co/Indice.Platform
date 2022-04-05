@@ -1,6 +1,6 @@
-﻿using Indice.AspNetCore.Features.Campaigns.Services;
+﻿using Indice.Features.Messages.Core.Services;
 
-namespace Indice.AspNetCore.Features.Campaigns
+namespace Indice.Features.Messages.Core
 {
     /// <summary>
     /// Options for configuring <see cref="ContactResolverIdentity"/>.

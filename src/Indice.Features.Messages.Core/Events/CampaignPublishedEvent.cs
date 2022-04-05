@@ -1,8 +1,8 @@
 ﻿using System.Dynamic;
-using Indice.AspNetCore.Features.Campaigns.Models;
+using Indice.Features.Messages.Core.Models;
 using Indice.Types;
 
-namespace Indice.AspNetCore.Features.Campaigns.Events
+namespace Indice.Features.Messages.Core.Events
 {
     /// <summary>
     /// The event model used when a new campaign is created.

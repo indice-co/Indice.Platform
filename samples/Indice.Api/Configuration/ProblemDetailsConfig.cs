@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Net.Http;
 using Hellang.Middleware.ProblemDetails;
-using Indice.AspNetCore.Features.Campaigns.Exceptions;
+using Indice.Features.Messages.Core.Exceptions;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;

@@ -2,7 +2,7 @@
 using System.Text.Json.Serialization;
 using Indice.Types;
 
-namespace Indice.AspNetCore.Features.Campaigns.Models
+namespace Indice.Features.Messages.Core.Models.Requests
 {
     /// <summary>
     /// The request model used to create a new campaign.

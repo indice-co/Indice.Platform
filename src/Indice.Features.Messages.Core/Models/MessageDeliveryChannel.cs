@@ -1,4 +1,4 @@
-﻿namespace Indice.AspNetCore.Features.Campaigns.Models
+﻿namespace Indice.Features.Messages.Core.Models
 {
     /// <summary>
     /// The delivery channel of a campaign.

@@ -1,4 +1,4 @@
-﻿namespace Indice.AspNetCore.Features.Campaigns.Services
+﻿namespace Indice.Features.Messages.Core.Services
 {
     /// <summary>
     /// Resolver for Campaigns API feature database schema name.

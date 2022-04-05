@@ -1,8 +1,9 @@
-﻿using Indice.AspNetCore.Features.Campaigns;
-using Indice.AspNetCore.Features.Campaigns.Data;
-using Indice.AspNetCore.Features.Campaigns.Events;
-using Indice.AspNetCore.Features.Campaigns.Services;
-using Indice.AspNetCore.Features.Campaigns.Workers;
+﻿using Indice.AspNetCore.Features.Campaigns.Workers;
+using Indice.Features.Messages.Core;
+using Indice.Features.Messages.Core.Data;
+using Indice.Features.Messages.Core.Events;
+using Indice.Features.Messages.Core.Services;
+using Indice.Features.Messages.Core.Services.Abstractions;
 using Indice.Hosting;
 using Indice.Hosting.Services;
 using Indice.Services;

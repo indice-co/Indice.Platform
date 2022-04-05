@@ -1,7 +1,7 @@
 ﻿using System.Dynamic;
 using Indice.Types;
 
-namespace Indice.AspNetCore.Features.Campaigns.Models
+namespace Indice.Features.Messages.Core.Models
 {
     /// <summary>
     /// Models a campaign.

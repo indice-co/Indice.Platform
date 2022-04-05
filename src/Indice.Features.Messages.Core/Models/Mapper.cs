@@ -1,8 +1,10 @@
 ﻿using System.Linq.Expressions;
-using Indice.AspNetCore.Features.Campaigns.Data.Models;
+using Indice.AspNetCore.Features.Campaigns.Models;
+using Indice.Features.Messages.Core.Data.Models;
+using Indice.Features.Messages.Core.Models.Requests;
 using Indice.Types;
 
-namespace Indice.AspNetCore.Features.Campaigns.Models
+namespace Indice.Features.Messages.Core.Models
 {
     internal class Mapper
     {

@@ -1,4 +1,4 @@
-﻿namespace Indice.AspNetCore.Features.Campaigns
+﻿namespace Indice.Features.Messages.Core.Handlers
 {
     /// <summary>
     /// Abstracts the various implementations of campaign job handlers.

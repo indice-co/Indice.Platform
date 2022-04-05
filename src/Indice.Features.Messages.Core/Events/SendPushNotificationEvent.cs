@@ -1,7 +1,7 @@
 ﻿using System.Dynamic;
-using Indice.AspNetCore.Features.Campaigns.Models;
+using Indice.Features.Messages.Core.Models;
 
-namespace Indice.AspNetCore.Features.Campaigns.Events
+namespace Indice.Features.Messages.Core.Events
 {
     /// <summary>
     /// The event model used when sending a push notification.

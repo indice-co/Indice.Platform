@@ -1,6 +1,6 @@
-﻿using Indice.AspNetCore.Features.Campaigns.Models;
+﻿using Indice.Features.Messages.Core.Models.Requests;
 
-namespace Indice.AspNetCore.Features.Campaigns.Services
+namespace Indice.Features.Messages.Core.Services.Abstractions
 {
     /// <summary>
     /// A service that contains message related operations.

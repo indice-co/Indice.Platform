@@ -2,14 +2,17 @@
 using System.Net.Http.Headers;
 using System.Text.Json;
 using IdentityModel.Client;
-using Indice.AspNetCore.Features.Campaigns.Models;
+using Indice.Features.Messages.Core;
+using Indice.Features.Messages.Core.Models;
+using Indice.Features.Messages.Core.Models.Requests;
+using Indice.Features.Messages.Core.Services.Abstractions;
 using Indice.Security;
 using Indice.Serialization;
 using Indice.Types;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Options;
 
-namespace Indice.AspNetCore.Features.Campaigns.Services
+namespace Indice.Features.Messages.Core.Services
 {
     /// <summary>
     /// An implementation of <see cref="IContactService"/> that gets contact information from Indice API for IdentityServer4.
@@ -75,7 +78,7 @@ namespace Indice.AspNetCore.Features.Campaigns.Services
             if (!string.IsNullOrWhiteSpace(accessToken)) {
                 return accessToken;
             }
-            var response = await HttpClient.RequestClientCredentialsTokenAsync(new ClientCredentialsTokenRequest { 
+            var response = await HttpClient.RequestClientCredentialsTokenAsync(new ClientCredentialsTokenRequest {
                 Address = $"{Options.BaseAddress}/connect/token",
                 ClientId = Options.ClientId,
                 ClientSecret = Options.ClientSecret,

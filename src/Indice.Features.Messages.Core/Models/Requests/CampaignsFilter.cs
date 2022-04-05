@@ -1,4 +1,6 @@
-﻿namespace Indice.AspNetCore.Features.Campaigns.Models
+﻿using Indice.Features.Messages.Core.Models;
+
+namespace Indice.Features.Messages.Core.Models.Requests
 {
     /// <summary>
     /// Options used to filter the list of campaigns.

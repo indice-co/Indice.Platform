@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using Indice.Features.Messages.Core.Models;
 using Microsoft.AspNetCore.Http;
 
 namespace Indice.AspNetCore.Features.Campaigns.Models

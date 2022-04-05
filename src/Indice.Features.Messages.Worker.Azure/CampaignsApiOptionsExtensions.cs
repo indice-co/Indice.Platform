@@ -1,4 +1,4 @@
-﻿using Indice.AspNetCore.Features.Campaigns;
+﻿using Indice.Features.Messages.Core;
 using Indice.Services;
 
 namespace Microsoft.Extensions.DependencyInjection

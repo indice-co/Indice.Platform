@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Indice.AspNetCore.Features.Campaigns.Models
+namespace Indice.Features.Messages.Core.Models.Requests
 {
     /// <inheritdoc />
     public class CreateDistributionListContactRequest : CreateContactRequest

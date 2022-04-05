@@ -1,5 +1,5 @@
-﻿using Indice.AspNetCore.Features.Campaigns;
-using Indice.AspNetCore.Features.Campaigns.Events;
+﻿using Indice.Features.Messages.Core;
+using Indice.Features.Messages.Core.Events;
 using Indice.Hosting;
 
 namespace Microsoft.Extensions.DependencyInjection

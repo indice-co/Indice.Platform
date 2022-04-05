@@ -1,6 +1,6 @@
 ﻿using Indice.Extensions;
 
-namespace Indice.AspNetCore.Features.Campaigns.Models
+namespace Indice.Features.Messages.Core.Models
 {
     /// <summary>
     /// Models an attachment that is associated with a campaign.

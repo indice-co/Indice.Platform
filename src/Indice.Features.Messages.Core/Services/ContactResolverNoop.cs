@@ -1,7 +1,9 @@
-﻿using Indice.AspNetCore.Features.Campaigns.Models;
+﻿using Indice.Features.Messages.Core.Models;
+using Indice.Features.Messages.Core.Models.Requests;
+using Indice.Features.Messages.Core.Services.Abstractions;
 using Indice.Types;
 
-namespace Indice.AspNetCore.Features.Campaigns.Services
+namespace Indice.Features.Messages.Core.Services
 {
     /// <summary>
     /// An implementation of <see cref="IContactService"/> that does nothing.

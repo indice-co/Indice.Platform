@@ -1,12 +1,16 @@
-﻿using Indice.AspNetCore.Features.Campaigns.Data;
-using Indice.AspNetCore.Features.Campaigns.Data.Models;
-using Indice.AspNetCore.Features.Campaigns.Exceptions;
+﻿using Indice.AspNetCore.Features.Campaigns.Data.Models;
 using Indice.AspNetCore.Features.Campaigns.Models;
+using Indice.Features.Messages.Core;
+using Indice.Features.Messages.Core.Data;
+using Indice.Features.Messages.Core.Exceptions;
+using Indice.Features.Messages.Core.Models;
+using Indice.Features.Messages.Core.Models.Requests;
+using Indice.Features.Messages.Core.Services.Abstractions;
 using Indice.Types;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 
-namespace Indice.AspNetCore.Features.Campaigns.Services
+namespace Indice.Features.Messages.Core.Services
 {
     /// <summary>
     /// An implementation of <see cref="IInboxService"/> for Entity Framework Core.
@@ -94,7 +98,7 @@ namespace Indice.AspNetCore.Features.Campaigns.Services
                 .Where(x => x.Campaign.Published
                     && x.Campaign.DeliveryChannel.HasFlag(MessageDeliveryChannel.Inbox)
                     && (x.Message == null || !x.Message.IsDeleted)
-                    && (x.Campaign.IsGlobal || (x.Message != null && x.Message.RecipientId == recipientId))
+                    && (x.Campaign.IsGlobal || x.Message != null && x.Message.RecipientId == recipientId)
                 );
             if (options?.Filter is not null) {
                 if (options.Filter.ShowExpired.HasValue) {

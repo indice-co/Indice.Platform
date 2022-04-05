@@ -1,9 +1,10 @@
-﻿using Indice.AspNetCore.Features.Campaigns.Events;
-using Indice.AspNetCore.Features.Campaigns.Models;
-using Indice.AspNetCore.Features.Campaigns.Services;
+﻿using Indice.Features.Messages.Core;
+using Indice.Features.Messages.Core.Events;
+using Indice.Features.Messages.Core.Models;
+using Indice.Features.Messages.Core.Services.Abstractions;
 using Indice.Services;
 
-namespace Indice.AspNetCore.Features.Campaigns
+namespace Indice.Features.Messages.Core.Handlers
 {
     /// <summary>
     /// Job handler for <see cref="CampaignPublishedEvent"/>.

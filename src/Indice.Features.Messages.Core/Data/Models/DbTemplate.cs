@@ -1,6 +1,6 @@
-﻿using Indice.AspNetCore.Features.Campaigns.Models;
+﻿using Indice.Features.Messages.Core.Models;
 
-namespace Indice.AspNetCore.Features.Campaigns.Data.Models
+namespace Indice.Features.Messages.Core.Data.Models
 {
     /// <summary>
     /// Template entity.

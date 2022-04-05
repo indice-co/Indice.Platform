@@ -1,8 +1,9 @@
 ﻿using System.Dynamic;
-using Indice.AspNetCore.Features.Campaigns.Events;
+using Indice.Features.Messages.Core;
+using Indice.Features.Messages.Core.Events;
 using Indice.Services;
 
-namespace Indice.AspNetCore.Features.Campaigns
+namespace Indice.Features.Messages.Core.Handlers
 {
     /// <summary>
     /// Job handler for <see cref="SendPushNotificationEvent"/>.

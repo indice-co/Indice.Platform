@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 
-namespace Indice.AspNetCore.Features.Campaigns
+namespace Indice.Features.Messages.Core.Handlers
 {
     /// <summary>
     /// A factory class that creates instance of <see cref="ICampaignJobHandler{TEvent}"/> implementations based on the type of event.

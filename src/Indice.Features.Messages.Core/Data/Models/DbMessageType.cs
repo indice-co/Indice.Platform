@@ -1,4 +1,4 @@
-﻿namespace Indice.AspNetCore.Features.Campaigns.Data.Models
+﻿namespace Indice.Features.Messages.Core.Data.Models
 {
     /// <summary>
     /// Message type entity.

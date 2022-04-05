@@ -1,4 +1,4 @@
-﻿namespace Indice.AspNetCore.Features.Campaigns.Models
+﻿namespace Indice.Features.Messages.Core.Models
 {
     /// <summary>
     /// Encapsulates the message content for a given <see cref="MessageDeliveryChannel"/>

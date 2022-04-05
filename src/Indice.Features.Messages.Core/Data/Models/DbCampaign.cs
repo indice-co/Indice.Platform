@@ -1,8 +1,8 @@
 ﻿using System.Dynamic;
-using Indice.AspNetCore.Features.Campaigns.Models;
+using Indice.Features.Messages.Core.Models;
 using Indice.Types;
 
-namespace Indice.AspNetCore.Features.Campaigns.Data.Models
+namespace Indice.Features.Messages.Core.Data.Models
 {
     /// <summary>
     /// Campaign entity.

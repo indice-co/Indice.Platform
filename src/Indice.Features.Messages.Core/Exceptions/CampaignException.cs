@@ -1,4 +1,4 @@
-﻿namespace Indice.AspNetCore.Features.Campaigns.Exceptions
+﻿namespace Indice.Features.Messages.Core.Exceptions
 {
     /// <summary>
     /// Exception thrown from Campaigns API feature.
