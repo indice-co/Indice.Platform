@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>disable</Nullable>
@@ -11,7 +11,7 @@
     <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="6.0.0" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\src\Indice.AspNetCore.Features.Campaigns.Workers\Indice.AspNetCore.Features.Campaigns.Workers.csproj" />
+    <ProjectReference Include="..\..\src\Indice.Features.Messages.Worker\Indice.Features.Messages.Worker.csproj" />
     <ProjectReference Include="..\..\src\Indice.Hosting\Indice.Hosting.csproj" />
   </ItemGroup>
   <ItemGroup>

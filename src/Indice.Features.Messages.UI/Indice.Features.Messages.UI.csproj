@@ -1,7 +1,5 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <AssemblyName>Indice.AspNetCore.Features.Campaigns.UI</AssemblyName>
-    <AssemblyTitle>Indice.AspNetCore.Features.Campaigns.UI</AssemblyTitle>
     <Authors>Constantinos Leftheris, Georgios Manoltzas</Authors>
     <Copyright>Copyright (c) 2022 Indice</Copyright>
     <Description>Indice.AspNetCore.Features.Campaigns.UI Class Library</Description>
@@ -20,7 +18,7 @@
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
     <!--<GeneratePackageOnBuild>true</GeneratePackageOnBuild>-->
     <PackageIcon>icon-310.png</PackageIcon>
-    <PackageId>Indice.AspNetCore.Features.Campaigns.UI</PackageId>
+    <PackageId>Indice.Features.Messages.UI</PackageId>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/indice-co/Indice.AspNet</PackageProjectUrl>
     <PackageReleaseNotes>Implement edit and delete functionality for campaigns.</PackageReleaseNotes>
@@ -52,7 +50,7 @@
     <ProjectReference Include="..\Indice.AspNetCore.EmbeddedUI\Indice.AspNetCore.EmbeddedUI.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <SpaSourceFolder Include="..\Indice.AspNetCore.Features.Campaigns.App" />
+    <SpaSourceFolder Include="..\Indice.Features.Messages.App" />
   </ItemGroup>
   <!-- Run 'npm install' command to download node modules for campaigns ui. -->
   <Target Name="NpmInstall" BeforeTargets="DispatchToInnerBuilds">

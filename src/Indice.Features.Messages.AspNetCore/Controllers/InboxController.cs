@@ -126,7 +126,7 @@ namespace Indice.AspNetCore.Features.Campaigns.Controllers
                 return NotFound();
             }
             await CampaignService.UpdateHit(trackingCode.Id);
-            return Redirect(campaign.ActionUrl);
+            return Redirect(campaign.ActionLink.Href);
         }
 
         /// <summary>

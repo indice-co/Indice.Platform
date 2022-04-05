@@ -50,12 +50,12 @@ namespace Indice.AspNetCore.Features.Campaigns.Services
                 .Must(campaign => campaign.To > campaign.From)
                 .When(campaign => campaign.ActivePeriod?.From is not null && campaign.ActivePeriod?.To is not null)
                 .WithMessage("Campaign should end after the start date.");
-            RuleFor(campaign => campaign.ActionText)
+            RuleFor(campaign => campaign.ActionLink.Text)
                 .MaximumLength(TextSizePresets.M128)
                 .WithMessage($"Campaign action text cannot exceed {TextSizePresets.M128} characters.");
-            RuleFor(campaign => campaign.ActionUrl)
-                .MaximumLength(TextSizePresets.L2048)
-                .WithMessage($"Campaign action URL cannot exceed {TextSizePresets.L2048} characters.")
+            RuleFor(campaign => campaign.ActionLink.Href)
+                .MaximumLength(TextSizePresets.L1024)
+                .WithMessage($"Campaign action URL cannot exceed {TextSizePresets.L1024} characters.")
                 .Matches(@"^(?:http(s)?:\/\/)?[\w.-]+(?:\.[\w\.-]+)+[\w\-\._~:/?#[\]@!\$&'\(\)\*\+,;=.]+$")
                 .WithMessage($"Campaign action URL is not valid.");
         }

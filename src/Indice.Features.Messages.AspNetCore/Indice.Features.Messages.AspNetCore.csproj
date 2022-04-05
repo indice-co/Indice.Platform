@@ -1,7 +1,5 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <AssemblyName>Indice.AspNetCore.Features.Campaigns</AssemblyName>
-    <AssemblyTitle>Indice.AspNetCore.Features.Campaigns</AssemblyTitle>
     <Authors>Constantinos Leftheris, Georgios Manoltzas</Authors>
     <Copyright>Copyright (c) 2021 Indice</Copyright>
     <Description>Indice.AspNetCore.Features.Campaigns Class Library</Description>
@@ -15,9 +13,9 @@
     <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
     <Company>Indice</Company>
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
     <PackageIcon>icon-310.png</PackageIcon>
-    <PackageId>Indice.AspNetCore.Features.Campaigns</PackageId>
+    <PackageId>Indice.Features.Messages.AspNetCore</PackageId>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/indice-co/Indice.AspNet</PackageProjectUrl>
     <PackageReleaseNotes>Update Indice.AspNetCore.</PackageReleaseNotes>
@@ -29,6 +27,7 @@
   <ItemGroup>
     <PackageReference Include="EPPlus" Version="4.5.3.3" />
     <PackageReference Include="Indice.AspNetCore" Version="6.0.5" />
+    <PackageReference Include="Indice.Features.Messages.Core" Version="6.0.0" />
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'net6.0'">
@@ -41,7 +40,7 @@
     <None Include="..\..\icon\icon-310.png" Pack="true" Visible="false" PackagePath="" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Indice.AspNetCore.Features.Campaigns.Common\Indice.AspNetCore.Features.Campaigns.Core.csproj" />
+    <ProjectReference Include="..\Indice.Features.Messages.Core\Indice.Features.Messages.Core.csproj" />
     <ProjectReference Include="..\Indice.AspNetCore\Indice.AspNetCore.csproj" />
   </ItemGroup>
 </Project>

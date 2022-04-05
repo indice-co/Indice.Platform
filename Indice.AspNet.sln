@@ -53,9 +53,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CodeFlowMvc", "samples\Code
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Indice.Api", "samples\Indice.Api\Indice.Api.csproj", "{916421F9-5705-448F-AD75-108F00008B06}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Indice.AspNetCore.Features.Campaigns", "src\Indice.AspNetCore.Features.Campaigns\Indice.AspNetCore.Features.Campaigns.csproj", "{6E025904-03D4-4010-A9AD-02B2A0F95200}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Indice.Features.Messages.AspNetCore", "src\Indice.Features.Messages.AspNetCore\Indice.Features.Messages.AspNetCore.csproj", "{6E025904-03D4-4010-A9AD-02B2A0F95200}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Indice.AspNetCore.Features.Campaigns.UI", "src\Indice.AspNetCore.Features.Campaigns.UI\Indice.AspNetCore.Features.Campaigns.UI.csproj", "{C2CD0301-195C-4780-9BAF-0DCA9357BB76}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Indice.Features.Messages.UI", "src\Indice.Features.Messages.UI\Indice.Features.Messages.UI.csproj", "{C2CD0301-195C-4780-9BAF-0DCA9357BB76}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Indice.AspNetCore.Authentication.GovGr", "src\Indice.AspNetCore.Authentication.GovGr\Indice.AspNetCore.Authentication.GovGr.csproj", "{433CA241-B811-4079-9C3C-5DF9726CC7F8}"
 EndProject
@@ -65,11 +65,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Indice.Extensions.Configura
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Indice.Functions", "samples\Indice.Functions\Indice.Functions.csproj", "{BA0577DB-5B44-462B-811B-B0909B6C8606}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Indice.AspNetCore.Features.Campaigns.Workers", "src\Indice.AspNetCore.Features.Campaigns.Workers\Indice.AspNetCore.Features.Campaigns.Workers.csproj", "{CF1AA972-0F9F-4FEB-BF54-519D0067B3C1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Indice.Features.Messages.Worker", "src\Indice.Features.Messages.Worker\Indice.Features.Messages.Worker.csproj", "{CF1AA972-0F9F-4FEB-BF54-519D0067B3C1}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Indice.AspNetCore.Features.Campaigns.Workers.Azure", "src\Indice.AspNetCore.Features.Campaigns.Workers.Azure\Indice.AspNetCore.Features.Campaigns.Workers.Azure.csproj", "{B7AA6019-53F8-4239-BA70-36675267B24E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Indice.Features.Messages.Worker.Azure", "src\Indice.Features.Messages.Worker.Azure\Indice.Features.Messages.Worker.Azure.csproj", "{B7AA6019-53F8-4239-BA70-36675267B24E}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Indice.AspNetCore.Features.Campaigns.Core", "src\Indice.AspNetCore.Features.Campaigns.Common\Indice.AspNetCore.Features.Campaigns.Core.csproj", "{D260ADF3-9C2F-40BE-821D-859938E15EB4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Indice.Features.Messages.Core", "src\Indice.Features.Messages.Core\Indice.Features.Messages.Core.csproj", "{D260ADF3-9C2F-40BE-821D-859938E15EB4}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Indice.WorkerHost", "samples\Indice.WorkerHost\Indice.WorkerHost.csproj", "{7ABDA4B1-FF9B-4BF9-B11A-DE12032760D1}"
 EndProject
