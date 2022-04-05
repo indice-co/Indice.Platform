@@ -29,33 +29,18 @@ namespace Microsoft.Extensions.DependencyInjection
             };
             configure?.Invoke(options);
             options.Services = null;
-            workerHostBuilder.AddJob<CampaignCreatedJobHandler>().WithQueueTrigger<CampaignCreatedEvent>(options => {
-                options.QueueName = QueueNames.CampaignCreated;
+            workerHostBuilder.AddJob<CampaignPublishedJobHandler>().WithQueueTrigger<CampaignPublishedEvent>(options => {
+                options.QueueName = EventNames.CampaignPublished;
                 options.PollingInterval = TimeSpan.FromSeconds(5).TotalMilliseconds;
                 options.InstanceCount = 1;
             })
-            .AddJob<InboxDistributionJobHandler>().WithQueueTrigger<InboxDistributionEvent>(options => {
-                options.QueueName = QueueNames.DistributeInbox;
-                options.PollingInterval = TimeSpan.FromSeconds(5).TotalMilliseconds;
-                options.InstanceCount = 1;
-            })
-            .AddJob<PersistInboxMessageJobHandler>().WithQueueTrigger<PersistInboxMessageEvent>(options => {
-                options.QueueName = QueueNames.PersistInboxMessage;
-                options.PollingInterval = TimeSpan.FromSeconds(5).TotalMilliseconds;
-                options.InstanceCount = 1;
-            })
-            .AddJob<ContactResolutionJobHandler>().WithQueueTrigger<ContactResolutionEvent>(options => {
-                options.QueueName = QueueNames.ContactResolution;
-                options.PollingInterval = TimeSpan.FromSeconds(5).TotalMilliseconds;
-                options.InstanceCount = 1;
-            })
-            .AddJob<UpsertContactJobHandler>().WithQueueTrigger<UpsertContactEvent>(options => {
-                options.QueueName = QueueNames.UpsertContact;
+            .AddJob<ResolveMessageJobHandler>().WithQueueTrigger<ResolveMessageEvent>(options => {
+                options.QueueName = EventNames.ResolveMessage;
                 options.PollingInterval = TimeSpan.FromSeconds(5).TotalMilliseconds;
                 options.InstanceCount = 1;
             })
             .AddJob<SendPushNotificationJobHandler>().WithQueueTrigger<SendPushNotificationEvent>(options => {
-                options.QueueName = QueueNames.SendPushNotification;
+                options.QueueName = EventNames.SendPushNotification;
                 options.PollingInterval = TimeSpan.FromSeconds(5).TotalMilliseconds;
                 options.InstanceCount = 1;
             });

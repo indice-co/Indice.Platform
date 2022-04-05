@@ -18,6 +18,6 @@ namespace Indice.AspNetCore.Features.Campaigns.Data.Models
         /// <summary>
         /// The content of the template.
         /// </summary>
-        public CampaignContent Content { get; set; }
+        public Dictionary<string, MessageContent> Content { get; set; } = new Dictionary<string, MessageContent>();
     }
 }

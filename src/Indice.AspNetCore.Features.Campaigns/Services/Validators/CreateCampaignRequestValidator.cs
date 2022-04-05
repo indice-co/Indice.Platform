@@ -24,7 +24,7 @@ namespace Indice.AspNetCore.Features.Campaigns.Services
                 .WithMessage("Please provide a title for the campaign.")
                 .MaximumLength(TextSizePresets.M128)
                 .WithMessage($"Campaign title cannot exceed {TextSizePresets.M128} characters.");
-            RuleFor(campaign => campaign.SelectedUserCodes)
+            RuleFor(campaign => campaign.SelectedRecipientIds)
                 .Must(userCodes => userCodes?.Count == 0)
                 .When(campaign => campaign.IsGlobal)
                 .WithMessage("Cannot provide a list of recipients since the campaign global.");

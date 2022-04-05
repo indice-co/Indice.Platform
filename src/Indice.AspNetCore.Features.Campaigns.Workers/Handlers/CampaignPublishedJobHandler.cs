@@ -3,22 +3,22 @@ using Microsoft.Extensions.Logging;
 
 namespace Indice.AspNetCore.Features.Campaigns.Workers
 {
-    internal class ContactResolutionJobHandler
+    internal class CampaignPublishedJobHandler
     {
-        public ContactResolutionJobHandler(
-            ILogger<ContactResolutionJobHandler> logger,
+        public CampaignPublishedJobHandler(
+            ILogger<CampaignPublishedJobHandler> logger,
             CampaignJobHandlerFactory campaignJobHandlerFactory
         ) {
             Logger = logger ?? throw new ArgumentNullException(nameof(logger));
             CampaignJobHandlerFactory = campaignJobHandlerFactory;
         }
 
-        public ILogger<ContactResolutionJobHandler> Logger { get; }
+        public ILogger<CampaignPublishedJobHandler> Logger { get; }
         public CampaignJobHandlerFactory CampaignJobHandlerFactory { get; }
 
-        public async Task Process(ContactResolutionEvent @event) {
-            var handler = CampaignJobHandlerFactory.Create<ContactResolutionEvent>();
-            await handler.Process(@event);
+        public async Task Process(CampaignPublishedEvent campaign) {
+            var handler = CampaignJobHandlerFactory.Create<CampaignPublishedEvent>();
+            await handler.Process(campaign);
         }
     }
 }

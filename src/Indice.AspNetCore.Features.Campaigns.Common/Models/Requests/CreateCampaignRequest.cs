@@ -21,11 +21,7 @@ namespace Indice.AspNetCore.Features.Campaigns.Models
         /// <summary>
         /// Defines a list of user identifiers that constitutes the audience of the campaign.
         /// </summary>
-        public List<string> SelectedUserCodes { get; set; } = new List<string>();
-        /// <summary>
-        /// Defines a CTA (call-to-action) URL.
-        /// </summary>
-        public string ActionUrl { get; set; }
+        public List<string> SelectedRecipientIds { get; set; } = new List<string>();
         /// <summary>
         /// The delivery channel of a campaign. Default is <see cref="MessageDeliveryChannel.Inbox"/>.
         /// </summary>
@@ -35,13 +31,13 @@ namespace Indice.AspNetCore.Features.Campaigns.Models
         /// </summary>
         public string Title { get; set; }
         /// <summary>
-        /// The content of the campaign.
+        /// The contents of the campaign.
         /// </summary>
-        public CampaignContent Content { get; set; }
+        public Dictionary<string, MessageContent> Content { get; set; } = new Dictionary<string, MessageContent>();
         /// <summary>
-        /// Defines a CTA (call-to-action) text.
+        /// Defines a (call-to-action) link.
         /// </summary>
-        public string ActionText { get; set; }
+        public Hyperlink ActionLink { get; set; }
         /// <summary>
         /// Determines if a campaign is published.
         /// </summary>

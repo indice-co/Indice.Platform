@@ -7,8 +7,7 @@ namespace Indice.AspNetCore.Features.Campaigns.Models
     internal class Mapper
     {
         public static Expression<Func<DbCampaign, Campaign>> ProjectToCampaign = campaign => new() {
-            ActionText = campaign.ActionText,
-            ActionUrl = campaign.ActionUrl,
+            ActionLink = campaign.ActionLink,
             ActivePeriod = campaign.ActivePeriod,
             Content = campaign.Content,
             CreatedAt = campaign.CreatedAt,
@@ -64,8 +63,7 @@ namespace Indice.AspNetCore.Features.Campaigns.Models
         };
 
         public static Expression<Func<DbCampaign, CampaignDetails>> ProjectToCampaignDetails = campaign => new() {
-            ActionText = campaign.ActionText,
-            ActionUrl = campaign.ActionUrl,
+            ActionLink = campaign.ActionLink,
             ActivePeriod = campaign.ActivePeriod,
             Attachment = campaign.Attachment != null ? new AttachmentLink {
                 Id = campaign.Attachment.Id,
@@ -95,9 +93,7 @@ namespace Indice.AspNetCore.Features.Campaigns.Models
         public static CampaignDetails ToCampaignDetails(DbCampaign campaign) => ProjectToCampaignDetails.Compile()(campaign);
 
         public static DbCampaign ToDbCampaign(CreateCampaignRequest request) => new() {
-            ActionText = request.ActionText,
-            ActionUrl = request.ActionUrl,
-            ActivePeriod = request.ActivePeriod,
+            ActionLink = request.ActionLink,
             Content = request.Content,
             CreatedAt = DateTime.UtcNow,
             Data = request.Data,

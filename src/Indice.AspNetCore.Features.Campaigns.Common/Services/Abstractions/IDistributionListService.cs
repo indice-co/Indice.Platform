@@ -33,6 +33,6 @@ namespace Indice.AspNetCore.Features.Campaigns.Services
         /// </summary>
         /// <param name="id">The id of the distribution list.</param>
         /// <param name="options">List parameters used to navigate through collections. Contains parameters such as sort, search, page number and page size.</param>
-        Task<ResultSet<Contact>> GetContactsList(Guid id, ListOptions options);
+        Task<ResultSet<Contact>> GetContactsList(Guid id, ListOptions options = null);
     }
 }

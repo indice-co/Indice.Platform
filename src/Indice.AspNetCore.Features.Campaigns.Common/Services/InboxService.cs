@@ -114,12 +114,14 @@ namespace Indice.AspNetCore.Features.Campaigns.Services
                 }
             }
             return query.Select(x => new Message {
-                ActionText = x.Campaign.ActionText,
-                ActionUrl = !string.IsNullOrEmpty(x.Campaign.ActionUrl) 
-                    ? $"{CampaignInboxOptions.ApiPrefix}/messages/cta/{(Base64Id)x.Campaign.Id}"
-                    : null,
+                ActionLink = new Hyperlink {
+                    Text = x.Campaign.ActionLink.Text,
+                    Href = !string.IsNullOrEmpty(x.Campaign.ActionLink.Href)
+                        ? $"{CampaignInboxOptions.ApiPrefix}/messages/cta/{(Base64Id)x.Campaign.Id}"
+                        : null,
+                },
                 ActivePeriod = x.Campaign.ActivePeriod,
-                AttachmentUrl = x.Campaign.Attachment != null 
+                AttachmentUrl = x.Campaign.Attachment != null
                     ? $"{CampaignInboxOptions.ApiPrefix}/messages/attachments/{(Base64Id)x.Campaign.Attachment.Guid}.{Path.GetExtension(x.Campaign.Attachment.Name).TrimStart('.')}"
                     : null,
                 Title = x.Message.Title,

@@ -61,7 +61,11 @@ namespace Indice.AspNetCore.Features.Campaigns.Services
         }
 
         /// <inheritdoc />
-        public async Task<ResultSet<Contact>> GetContactsList(Guid id, ListOptions options) {
+        public async Task<ResultSet<Contact>> GetContactsList(Guid id, ListOptions options = null) {
+            options ??= new ListOptions { 
+                Page = 1,
+                Size = int.MaxValue
+            };
             var query = DbContext
                 .Contacts
                 .AsNoTracking()

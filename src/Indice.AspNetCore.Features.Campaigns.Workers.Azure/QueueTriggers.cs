@@ -14,73 +14,37 @@ namespace Indice.AspNetCore.Features.Campaigns.Workers.Azure
 
         private CampaignJobHandlerFactory CampaignJobHandlerFactory { get; }
 
-        [Function(QueueNames.CampaignCreated)]
-        public async Task CampaignCreatedHandler(
-            [QueueTrigger("%ENVIRONMENT%-" + QueueNames.CampaignCreated, Connection = "StorageConnection")] string message,
+        [Function(EventNames.CampaignPublished)]
+        public async Task CampaignPublishedHandler(
+            [QueueTrigger("%ENVIRONMENT%-" + EventNames.CampaignPublished, Connection = "StorageConnection")] string message,
             FunctionContext executionContext
         ) {
-            var logger = executionContext.GetLogger(QueueNames.CampaignCreated);
-            logger.LogInformation("Function '{FunctionName}' was triggered.", QueueNames.CampaignCreated);
-            var campaign = JsonSerializer.Deserialize<CampaignCreatedEvent>(message, JsonSerializerOptionDefaults.GetDefaultSettings());
-            var handler = CampaignJobHandlerFactory.Create<CampaignCreatedEvent>();
+            var logger = executionContext.GetLogger(EventNames.CampaignPublished);
+            logger.LogInformation("Function '{FunctionName}' was triggered.", EventNames.CampaignPublished);
+            var campaign = JsonSerializer.Deserialize<CampaignPublishedEvent>(message, JsonSerializerOptionDefaults.GetDefaultSettings());
+            var handler = CampaignJobHandlerFactory.Create<CampaignPublishedEvent>();
             await handler.Process(campaign);
         }
 
-        [Function(QueueNames.DistributeInbox)]
-        public async Task InboxDistributionHandler(
-            [QueueTrigger("%ENVIRONMENT%-" + QueueNames.DistributeInbox, Connection = "StorageConnection")] string message,
+        [Function(EventNames.ResolveMessage)]
+        public async Task ResolveMessageHandler(
+            [QueueTrigger("%ENVIRONMENT%-" + EventNames.ResolveMessage, Connection = "StorageConnection")] string message,
             FunctionContext executionContext
         ) {
-            var logger = executionContext.GetLogger(QueueNames.DistributeInbox);
-            logger.LogInformation("Function '{FunctionName}' was triggered.", QueueNames.DistributeInbox);
-            var inboxDistribution = JsonSerializer.Deserialize<InboxDistributionEvent>(message, JsonSerializerOptionDefaults.GetDefaultSettings());
-            var handler = CampaignJobHandlerFactory.Create<InboxDistributionEvent>();
-            await handler.Process(inboxDistribution);
-        }
-
-        [Function(QueueNames.PersistInboxMessage)]
-        public async Task PersistInboxMessageHandler(
-            [QueueTrigger("%ENVIRONMENT%-" + QueueNames.PersistInboxMessage, Connection = "StorageConnection")] string message,
-            FunctionContext executionContext
-        ) {
-            var logger = executionContext.GetLogger(QueueNames.PersistInboxMessage);
-            logger.LogInformation("Function '{FunctionName}' was triggered.", QueueNames.PersistInboxMessage);
-            var inboxMessage = JsonSerializer.Deserialize<PersistInboxMessageEvent>(message, JsonSerializerOptionDefaults.GetDefaultSettings());
-            var handler = CampaignJobHandlerFactory.Create<PersistInboxMessageEvent>();
-            await handler.Process(inboxMessage);
-        }
-
-        [Function(QueueNames.ContactResolution)]
-        public async Task ResolveContactHandler(
-            [QueueTrigger("%ENVIRONMENT%-" + QueueNames.ContactResolution, Connection = "StorageConnection")] string message,
-            FunctionContext executionContext
-        ) {
-            var logger = executionContext.GetLogger(QueueNames.ContactResolution);
-            logger.LogInformation("Function '{FunctionName}' was triggered.", QueueNames.ContactResolution);
-            var @event = JsonSerializer.Deserialize<ContactResolutionEvent>(message, JsonSerializerOptionDefaults.GetDefaultSettings());
-            var handler = CampaignJobHandlerFactory.Create<ContactResolutionEvent>();
+            var logger = executionContext.GetLogger(EventNames.ResolveMessage);
+            logger.LogInformation("Function '{FunctionName}' was triggered.", EventNames.ResolveMessage);
+            var @event = JsonSerializer.Deserialize<ResolveMessageEvent>(message, JsonSerializerOptionDefaults.GetDefaultSettings());
+            var handler = CampaignJobHandlerFactory.Create<ResolveMessageEvent>();
             await handler.Process(@event);
         }
 
-        [Function(QueueNames.UpsertContact)]
-        public async Task UpsertContactHandler(
-            [QueueTrigger("%ENVIRONMENT%-" + QueueNames.UpsertContact, Connection = "StorageConnection")] string message,
-            FunctionContext executionContext
-        ) {
-            var logger = executionContext.GetLogger(QueueNames.UpsertContact);
-            logger.LogInformation("Function '{FunctionName}' was triggered.", QueueNames.UpsertContact);
-            var @event = JsonSerializer.Deserialize<UpsertContactEvent>(message, JsonSerializerOptionDefaults.GetDefaultSettings());
-            var handler = CampaignJobHandlerFactory.Create<UpsertContactEvent>();
-            await handler.Process(@event);
-        }
-
-        [Function(QueueNames.SendPushNotification)]
+        [Function(EventNames.SendPushNotification)]
         public async Task SendPushNotificationHandler(
-            [QueueTrigger("%ENVIRONMENT%-" + QueueNames.SendPushNotification, Connection = "StorageConnection")] string message,
+            [QueueTrigger("%ENVIRONMENT%-" + EventNames.SendPushNotification, Connection = "StorageConnection")] string message,
             FunctionContext executionContext
         ) {
-            var logger = executionContext.GetLogger(QueueNames.SendPushNotification);
-            logger.LogInformation("Function '{FunctionName}' was triggered.", QueueNames.SendPushNotification);
+            var logger = executionContext.GetLogger(EventNames.SendPushNotification);
+            logger.LogInformation("Function '{FunctionName}' was triggered.", EventNames.SendPushNotification);
             var pushNotification = JsonSerializer.Deserialize<SendPushNotificationEvent>(message, JsonSerializerOptionDefaults.GetDefaultSettings());
             var handler = CampaignJobHandlerFactory.Create<SendPushNotificationEvent>();
             await handler.Process(pushNotification);

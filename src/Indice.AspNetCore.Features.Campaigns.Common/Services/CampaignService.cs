@@ -91,7 +91,7 @@ namespace Indice.AspNetCore.Features.Campaigns.Services
             if (campaign.Published) {
                 throw CampaignException.CampaignAlreadyPublished(id);
             }
-            campaign.ActionText = request.ActionText;
+            campaign.ActionLink = request.ActionLink;
             campaign.ActivePeriod = request.ActivePeriod;
             campaign.Content = request.Content;
             campaign.Title = request.Title;

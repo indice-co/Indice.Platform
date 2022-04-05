@@ -63,6 +63,12 @@ namespace Indice.AspNetCore.Features.Campaigns.Services
         }
 
         /// <inheritdoc />
+        public async Task CreateMany(IEnumerable<CreateContactRequest> contacts) {
+            DbContext.Contacts.AddRange(contacts.Select(contact => Mapper.ToDbContact(contact)));
+            await DbContext.SaveChangesAsync();
+        }
+
+        /// <inheritdoc />
         public async Task<Contact> GetById(Guid id) {
             var contact = await DbContext.Contacts.FindAsync(id);
             if (contact is null) {

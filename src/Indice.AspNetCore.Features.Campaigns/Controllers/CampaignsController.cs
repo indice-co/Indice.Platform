@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Net.Mime;
 using System.Threading.Tasks;
 using Indice.AspNetCore.Features.Campaigns.Events;
@@ -29,18 +31,24 @@ namespace Indice.AspNetCore.Features.Campaigns.Controllers
 
         public CampaignsController(
             ICampaignService campaignService,
+            IDistributionListService distributionListService,
+            IContactService contactService,
             Func<string, IFileService> getFileService,
             Func<string, IEventDispatcher> getEventDispatcher,
             IOptions<GeneralSettings> generalSettings,
             IPlatformEventService eventService
         ) : base(getFileService) {
             CampaignService = campaignService ?? throw new ArgumentNullException(nameof(campaignService));
+            DistributionListService = distributionListService ?? throw new ArgumentNullException(nameof(distributionListService));
+            ContactService = contactService ?? throw new ArgumentNullException(nameof(contactService));
             EventService = eventService ?? throw new ArgumentNullException(nameof(eventService));
             GeneralSettings = generalSettings?.Value ?? throw new ArgumentNullException(nameof(generalSettings));
             EventDispatcher = getEventDispatcher(KeyedServiceNames.EventDispatcherServiceKey) ?? throw new ArgumentNullException(nameof(getEventDispatcher));
         }
 
         public ICampaignService CampaignService { get; }
+        public IDistributionListService DistributionListService { get; }
+        public IContactService ContactService { get; }
         public IPlatformEventService EventService { get; }
         public GeneralSettings GeneralSettings { get; }
         public IEventDispatcher EventDispatcher { get; }
@@ -155,11 +163,27 @@ namespace Indice.AspNetCore.Features.Campaigns.Controllers
         [ProducesResponseType(typeof(Campaign), StatusCodes.Status201Created)]
         [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> CreateCampaign([FromBody] CreateCampaignRequest request) {
+            // TODO: Add the following logic to CampaignManager.
+            // Create a distribution list (if not given as input) with the same name as the campaign.
+            if (!request.DistributionListId.HasValue) {
+                var createdList = await DistributionListService.Create(new CreateDistributionListRequest { Name = request.Title });
+                request.DistributionListId = createdList.Id;
+            }
+            // Create campaign in the store.
             var campaign = await CampaignService.Create(request);
-            await EventDispatcher.RaiseEventAsync(
-                payload: CampaignCreatedEvent.FromCampaign(campaign, request.SelectedUserCodes),
-                configure: options => options.WrapInEnvelope(false).WithQueueName(QueueNames.CampaignCreated)
-            );
+            // Create contacts as part of a bulk insert only using the recipient ids.
+            if (request.SelectedRecipientIds.Any()) {
+                var contacts = new List<CreateContactRequest>();
+                contacts.AddRange(request.SelectedRecipientIds.Select(id => new CreateContactRequest { RecipientId = id }));
+                await ContactService.CreateMany(contacts);
+            }
+            if (campaign.Published) {
+                // Dispatch event that the campaign was created.
+                await EventDispatcher.RaiseEventAsync(
+                    payload: CampaignPublishedEvent.FromCampaign(campaign),
+                    configure: options => options.WrapInEnvelope(false).WithQueueName(EventNames.CampaignPublished)
+                );
+            }
             return CreatedAtAction(nameof(GetCampaignById), new { campaignId = campaign.Id }, campaign);
         }
 

@@ -47,11 +47,8 @@ namespace Microsoft.Extensions.Hosting
         }
 
         private static IServiceCollection AddJobHandlerServices(this IServiceCollection services) {
-            services.TryAddTransient<ICampaignJobHandler<CampaignCreatedEvent>, CampaignCreatedHandler>();
-            services.TryAddTransient<ICampaignJobHandler<InboxDistributionEvent>, InboxDistributionHandler>();
-            services.TryAddTransient<ICampaignJobHandler<PersistInboxMessageEvent>, PersistInboxMessageHandler>();
-            services.TryAddTransient<ICampaignJobHandler<ContactResolutionEvent>, ContactResolutionHandler>();
-            services.TryAddTransient<ICampaignJobHandler<UpsertContactEvent>, UpsertContactHandler>();
+            services.TryAddTransient<ICampaignJobHandler<CampaignPublishedEvent>, CampaignPublishedHandler>();
+            services.TryAddTransient<ICampaignJobHandler<ResolveMessageEvent>, ResolveMessageHandler>();
             services.TryAddTransient<ICampaignJobHandler<SendPushNotificationEvent>, SendPushNotificationHandler>();
             services.AddTransient<CampaignJobHandlerFactory>();
             return services;

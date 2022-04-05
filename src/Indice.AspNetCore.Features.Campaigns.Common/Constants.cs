@@ -40,32 +40,20 @@ namespace Indice.AspNetCore.Features.Campaigns
     /// <summary>
     /// Constant values for Campaigns API queue names.
     /// </summary>
-    public class QueueNames
+    public class EventNames
     {
         /// <summary>
-        /// Name for the queue that stores campaign created events.
+        /// Name for the event that is raised when a campaign event is published.
         /// </summary>
-        public const string CampaignCreated = "campaign-created";
+        public const string CampaignPublished = "campaign-published";
         /// <summary>
         /// Name for the queue that stores events for delivering push notifications.
         /// </summary>
         public const string SendPushNotification = "campaign-send-push-notification";
         /// <summary>
-        /// Name for the queue that stores events for distributing inbox messages.
-        /// </summary>
-        public const string DistributeInbox = "campaign-inbox-distribution";
-        /// <summary>
-        /// Name for the queue that stores events for persisting inbox messages.
-        /// </summary>
-        public const string PersistInboxMessage = "campaign-persist-inbox-message";
-        /// <summary>
-        /// Name for the queue that stores events for inserting or updating contacts.
-        /// </summary>
-        public const string UpsertContact = "campaign-upsert-contact";
-        /// <summary>
         /// Name for the queue that stores events for resolving contacts from external systems.
         /// </summary>
-        public const string ContactResolution = "campaign-contact-resolution";
+        public const string ResolveMessage = "campaign-resolve-message";
     }
 
     /// <summary>

@@ -25,16 +25,14 @@ namespace Indice.AspNetCore.Features.Campaigns
         /// </summary>
         /// <param name="pushNotification">The event model used when sending a push notification.</param>
         public async Task Process(SendPushNotificationEvent pushNotification) {
-            var data = pushNotification.Campaign?.Data ?? new ExpandoObject();
-            data.TryAdd("campaignId", pushNotification.Campaign.Id);
+            var data = pushNotification.Data ?? new ExpandoObject();
+            data.TryAdd("campaignId", pushNotification.CampaignId);
             var pushNotificationService = GetPushNotificationService(KeyedServiceNames.PushNotificationServiceKey);
-            var pushContent = pushNotification.Campaign.Content.Push;
-            var pushTitle = pushContent?.Title ?? pushNotification.Campaign.Title;
-            var pushBody = pushContent?.Body ?? "-";
+            var pushBody = pushNotification.Body ?? "-";
             if (pushNotification.Broadcast) {
-                await pushNotificationService.BroadcastAsync(pushTitle, pushBody, data, pushNotification.Campaign?.Type?.Name);
+                await pushNotificationService.BroadcastAsync(pushNotification.Title, pushBody, data, pushNotification.MessageType?.Name);
             } else {
-                await pushNotificationService.SendAsync(pushTitle, pushBody, data, pushNotification.RecipientId, classification: pushNotification.Campaign?.Type?.Name);
+                await pushNotificationService.SendAsync(pushNotification.Title, pushBody, data, pushNotification.RecipientId, classification: pushNotification.MessageType?.Name);
             }
         }
     }

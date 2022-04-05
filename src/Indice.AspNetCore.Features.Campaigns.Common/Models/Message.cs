@@ -24,13 +24,9 @@ namespace Indice.AspNetCore.Features.Campaigns.Models
         /// </summary>
         public bool IsRead { get; set; }
         /// <summary>
-        /// Defines a CTA (call-to-action) text.
+        /// Defines a (call-to-action) link.
         /// </summary>
-        public string ActionText { get; set; }
-        /// <summary>
-        /// Defines a CTA (call-to-action) URL.
-        /// </summary>
-        public string ActionUrl { get; set; }
+        public Hyperlink ActionLink { get; set; }
         /// <summary>
         /// The URL to the attachment.
         /// </summary>

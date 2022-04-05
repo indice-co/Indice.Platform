@@ -32,14 +32,17 @@ namespace Indice.AspNetCore.Features.Campaigns.Data
             builder.Property(x => x.Id).ValueGeneratedNever();
             builder.Property(x => x.Title).HasMaxLength(TextSizePresets.M128).IsRequired();
             builder.Property(x => x.Content).HasJsonConversion().IsRequired();
-            builder.Property(x => x.ActionText).HasMaxLength(TextSizePresets.M128);
-            builder.Property(x => x.ActionUrl).HasMaxLength(TextSizePresets.L2048);
             builder.Property(x => x.CreatedAt).IsRequired();
             builder.Property(x => x.Published).IsRequired();
             builder.OwnsOne(x => x.ActivePeriod).Property(x => x.From).HasColumnName(nameof(Period.From));
             builder.OwnsOne(x => x.ActivePeriod).Property(x => x.To).HasColumnName(nameof(Period.To));
             builder.Property(x => x.IsGlobal).IsRequired();
             builder.Property(x => x.Data).HasJsonConversion();
+            // Owned properties
+            builder.OwnsOne(x => x.ActionLink, actionLinkBuilder => {
+                actionLinkBuilder.Property(x => x.Text).HasMaxLength(TextSizePresets.M128);
+                actionLinkBuilder.Property(x => x.Href).HasMaxLength(TextSizePresets.L1024);
+            });
             // Configure relationships.
             builder.HasOne(x => x.Attachment).WithMany().HasForeignKey(x => x.AttachmentId);
             builder.HasOne(x => x.Type).WithMany().HasForeignKey(x => x.TypeId);

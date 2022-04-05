@@ -35,6 +35,11 @@ namespace Indice.AspNetCore.Features.Campaigns.Services
         /// <param name="request">The data for the contact to create.</param>
         Task<Contact> Create(CreateContactRequest request);
         /// <summary>
+        /// Creates multiple contacts in the store.
+        /// </summary>
+        /// <param name="contacts">The data for the contacts to create.</param>
+        Task CreateMany(IEnumerable<CreateContactRequest> contacts);
+        /// <summary>
         /// Updates an existing contact.
         /// </summary>
         /// <param name="id">The id of the contact.</param>

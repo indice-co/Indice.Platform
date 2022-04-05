@@ -14,11 +14,11 @@ namespace Indice.AspNetCore.Features.Campaigns.Models
         /// <summary>
         /// The content of the campaign.
         /// </summary>
-        public CampaignContent Content { get; set; }
+        public Dictionary<string, MessageContent> Content { get; set; } = new Dictionary<string, MessageContent>();
         /// <summary>
-        /// Defines a CTA (call-to-action) text.
+        /// Defines a (call-to-action) link.
         /// </summary>
-        public string ActionText { get; set; }
+        public Hyperlink ActionLink { get; set; }
         /// <summary>
         /// Specifies the time period that a campaign is active.
         /// </summary>
