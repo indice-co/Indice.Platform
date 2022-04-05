@@ -14,7 +14,7 @@ namespace Microsoft.Extensions.DependencyInjection
         /// </summary>
         /// <param name="workPublisherBuilder">A helper class to configure the work publisher.</param>
         /// <returns>The <see cref="WorkPublisherBuilder"/> used to configure the worker host.</returns>
-        public static WorkPublisherBuilder AddCampaignsEvents(this WorkPublisherBuilder workPublisherBuilder) => 
+        public static WorkPublisherBuilder AddCampaignsEvents(this WorkPublisherBuilder workPublisherBuilder) =>
             workPublisherBuilder.ForEvent<CampaignPublishedEvent>(EventNames.CampaignPublished)
                                 .ForEvent<ResolveMessageEvent>(EventNames.ResolveMessage)
                                 .ForEvent<SendPushNotificationEvent>(EventNames.SendPushNotification);

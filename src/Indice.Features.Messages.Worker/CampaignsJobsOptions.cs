@@ -2,12 +2,12 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Indice.AspNetCore.Features.Campaigns.Workers
+namespace Indice.Features.Messages.Worker
 {
     /// <summary>
     /// Options for configuring internal campaign jobs used by the worker host.
     /// </summary>
-    public class CampaignsJobsOptions 
+    public class CampaignsJobsOptions
     {
         internal IServiceCollection Services { get; set; }
         /// <summary>

@@ -1,7 +1,7 @@
 ﻿using System.Reflection;
-using Indice.AspNetCore.Features.Campaigns;
 using Indice.AspNetCore.Swagger;
 using Indice.Configuration;
+using Indice.Features.Messages.AspNetCore.Services;
 using Indice.Features.Messages.Core;
 
 namespace Microsoft.Extensions.DependencyInjection

@@ -10,7 +10,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Indice.AspNetCore.Features.Campaigns.Controllers
+namespace Indice.Features.Messages.AspNetCore.Controllers
 {
     [ApiController]
     [ApiExplorerSettings(GroupName = "campaigns")]

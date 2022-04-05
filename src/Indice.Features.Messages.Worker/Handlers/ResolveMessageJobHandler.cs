@@ -2,7 +2,7 @@
 using Indice.Features.Messages.Core.Handlers;
 using Microsoft.Extensions.Logging;
 
-namespace Indice.AspNetCore.Features.Campaigns.Workers
+namespace Indice.Features.Messages.Worker.Handlers
 {
     internal class ResolveMessageJobHandler
     {

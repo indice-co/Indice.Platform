@@ -7,7 +7,7 @@ using Indice.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Net.Http.Headers;
 
-namespace Indice.AspNetCore.Features.Campaigns.Controllers
+namespace Indice.Features.Messages.AspNetCore.Controllers
 {
     internal abstract class CampaignsControllerBase : ControllerBase
     {

@@ -1,7 +1,8 @@
 ﻿using Indice.Features.Messages.Core;
 using Indice.Services;
+using Microsoft.Extensions.DependencyInjection;
 
-namespace Microsoft.Extensions.DependencyInjection
+namespace Indice.Features.Messages.Worker.Azure
 {
     /// <summary>
     /// Extensions on <see cref="CampaignEndpointOptions"/>.

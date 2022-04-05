@@ -1,9 +1,10 @@
-﻿using Indice.AspNetCore.Features.Campaigns.Workers;
-using Indice.Features.Messages.Core;
+﻿using Indice.Features.Messages.Core;
 using Indice.Features.Messages.Core.Data;
 using Indice.Features.Messages.Core.Events;
 using Indice.Features.Messages.Core.Services;
 using Indice.Features.Messages.Core.Services.Abstractions;
+using Indice.Features.Messages.Worker;
+using Indice.Features.Messages.Worker.Handlers;
 using Indice.Hosting;
 using Indice.Hosting.Services;
 using Indice.Services;

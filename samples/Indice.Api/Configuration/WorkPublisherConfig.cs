@@ -1,4 +1,5 @@
-﻿using Indice.Hosting;
+﻿using Indice.Features.Messages.Worker;
+using Indice.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 

@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Indice.AspNetCore.Features.Campaigns.Workers.Azure
+namespace Indice.Features.Messages.Worker.Azure
 {
     /// <summary>
     /// Options used when configuring campaign Azure Functions.

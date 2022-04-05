@@ -5,7 +5,7 @@ using Indice.Features.Messages.Core.Models.Requests;
 using Indice.Features.Messages.Core.Services.Abstractions;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Indice.AspNetCore.Features.Campaigns.Services
+namespace Indice.Features.Messages.AspNetCore.Services.Validators
 {
     /// <summary>
     /// Contains validation logic for <see cref="UpsertMessageTypeRequest"/>.

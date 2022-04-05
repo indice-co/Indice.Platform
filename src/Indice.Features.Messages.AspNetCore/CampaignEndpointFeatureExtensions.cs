@@ -2,11 +2,12 @@
 using System.Linq;
 using System.Net.Mime;
 using FluentValidation.AspNetCore;
-using Indice.AspNetCore.Features.Campaigns;
-using Indice.AspNetCore.Features.Campaigns.Formatters;
-using Indice.AspNetCore.Features.Campaigns.Services;
 using Indice.AspNetCore.Mvc.ApplicationModels;
 using Indice.AspNetCore.Swagger;
+using Indice.Features.Messages.AspNetCore;
+using Indice.Features.Messages.AspNetCore.Mvc.Formatters;
+using Indice.Features.Messages.AspNetCore.Services;
+using Indice.Features.Messages.AspNetCore.Services.Validators;
 using Indice.Features.Messages.Core;
 using Indice.Features.Messages.Core.Data;
 using Indice.Features.Messages.Core.Services;

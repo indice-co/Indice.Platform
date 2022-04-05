@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Mime;
 using System.Threading.Tasks;
-using Indice.AspNetCore.Features.Campaigns.Models;
 using Indice.AspNetCore.Filters;
 using Indice.Configuration;
+using Indice.Features.Messages.AspNetCore.Extensions;
 using Indice.Features.Messages.Core;
 using Indice.Features.Messages.Core.Events;
 using Indice.Features.Messages.Core.Models;
@@ -18,7 +18,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 
-namespace Indice.AspNetCore.Features.Campaigns.Controllers
+namespace Indice.Features.Messages.AspNetCore.Controllers
 {
     /// <response code="401">Unauthorized</response>
     /// <response code="403">Forbidden</response>

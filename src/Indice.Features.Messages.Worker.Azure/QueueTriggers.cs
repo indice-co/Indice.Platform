@@ -6,7 +6,7 @@ using Indice.Serialization;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
 
-namespace Indice.AspNetCore.Features.Campaigns.Workers.Azure
+namespace Indice.Features.Messages.Worker.Azure
 {
     internal class QueueTriggers
     {

@@ -1,6 +1,6 @@
 ﻿using Indice.AspNetCore.EmbeddedUI;
 
-namespace Indice.AspNetCore.Features.Campaigns.UI
+namespace Indice.Features.Messages.UI
 {
     /// <summary>
     /// Options for configuring <see cref="SpaUIMiddleware{TOptions}"/> middleware.

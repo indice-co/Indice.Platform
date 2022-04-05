@@ -2,7 +2,7 @@
 using Indice.Features.Messages.Core.Models;
 using Microsoft.AspNetCore.Http;
 
-namespace Indice.AspNetCore.Features.Campaigns.Models
+namespace Indice.Features.Messages.AspNetCore.Extensions
 {
     /// <summary>
     /// Extension methods on <see cref="FileAttachment"/> type.

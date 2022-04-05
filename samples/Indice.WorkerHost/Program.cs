@@ -1,4 +1,5 @@
 ﻿// See https://aka.ms/new-console-template for more information
+using Indice.Features.Messages.Worker;
 using Indice.Hosting;
 using Indice.WorkerHost.JobHandlers;
 using Microsoft.EntityFrameworkCore;

@@ -10,7 +10,7 @@ using Microsoft.Net.Http.Headers;
 using OfficeOpenXml;
 using OfficeOpenXml.Table;
 
-namespace Indice.AspNetCore.Features.Campaigns.Formatters
+namespace Indice.Features.Messages.AspNetCore.Mvc.Formatters
 {
     internal class XlsxCampaignStatisticsOutputFormatter : OutputFormatter
     {

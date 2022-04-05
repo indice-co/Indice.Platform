@@ -1,11 +1,11 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using Indice.AspNetCore.Features.Campaigns.Controllers;
+using Indice.Features.Messages.AspNetCore.Controllers;
 using Microsoft.AspNetCore.Mvc.ApplicationParts;
 using Microsoft.AspNetCore.Mvc.Controllers;
 
-namespace Indice.AspNetCore.Features.Campaigns
+namespace Indice.Features.Messages.AspNetCore
 {
     internal class CampaignEndpointFeatureProvider : IApplicationFeatureProvider<ControllerFeature>
     {

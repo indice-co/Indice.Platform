@@ -1,6 +1,6 @@
 ﻿using System;
 using Indice.AspNetCore.EmbeddedUI;
-using Indice.AspNetCore.Features.Campaigns.UI;
+using Indice.Features.Messages.UI;
 
 namespace Microsoft.AspNetCore.Builder
 {

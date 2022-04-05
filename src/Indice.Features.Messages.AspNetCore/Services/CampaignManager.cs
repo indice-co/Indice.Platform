@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
-using Indice.AspNetCore.Features.Campaigns.Services;
+using Indice.Features.Messages.AspNetCore.Services.Validators;
 using Indice.Features.Messages.Core.Models;
 using Indice.Features.Messages.Core.Models.Requests;
 using Indice.Features.Messages.Core.Services.Abstractions;
 
-namespace Indice.AspNetCore.Features.Campaigns
+namespace Indice.Features.Messages.AspNetCore.Services
 {
     /// <summary>
     /// 
@@ -17,7 +17,7 @@ namespace Indice.AspNetCore.Features.Campaigns
         /// Creates a new instance of <see cref="CampaignManager"/>.
         /// </summary>
         public CampaignManager(
-            ICampaignService campaignService, 
+            ICampaignService campaignService,
             IMessageTypeService messageTypeService,
             CreateCampaignRequestValidator createCampaignValidator,
             UpsertMessageTypeRequestValidator messageTypeValidator

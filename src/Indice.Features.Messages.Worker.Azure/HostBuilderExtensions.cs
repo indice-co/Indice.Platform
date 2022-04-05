@@ -1,10 +1,10 @@
-﻿using Indice.AspNetCore.Features.Campaigns.Workers.Azure;
-using Indice.Features.Messages.Core;
+﻿using Indice.Features.Messages.Core;
 using Indice.Features.Messages.Core.Data;
 using Indice.Features.Messages.Core.Events;
 using Indice.Features.Messages.Core.Handlers;
 using Indice.Features.Messages.Core.Services;
 using Indice.Features.Messages.Core.Services.Abstractions;
+using Indice.Features.Messages.Worker.Azure;
 using Indice.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
