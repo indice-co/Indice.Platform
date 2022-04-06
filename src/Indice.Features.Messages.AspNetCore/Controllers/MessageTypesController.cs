@@ -15,8 +15,8 @@ namespace Indice.Features.Messages.AspNetCore.Controllers
     /// <response code="401">Unauthorized</response>
     /// <response code="403">Forbidden</response>
     [ApiController]
-    [ApiExplorerSettings(GroupName = "campaigns")]
-    [Authorize(AuthenticationSchemes = CampaignsApi.AuthenticationScheme, Policy = CampaignsApi.Policies.BeCampaignsManager)]
+    [ApiExplorerSettings(GroupName = "messages")]
+    [Authorize(AuthenticationSchemes = MessagesApi.AuthenticationScheme, Policy = MessagesApi.Policies.BeCampaignManager)]
     [Consumes(MediaTypeNames.Application.Json)]
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]

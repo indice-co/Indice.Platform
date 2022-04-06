@@ -4,41 +4,41 @@ using Indice.Services;
 namespace Indice.Features.Messages.Core
 {
     /// <summary>
-    /// Constant values for Campaigns API.
+    /// Constant values for Messages API.
     /// </summary>
-    public static class CampaignsApi
+    public static class MessagesApi
     {
         /// <summary>
-        /// Authentication scheme name used by Campaigns API.
+        /// Authentication scheme name used by Messages API.
         /// </summary>
         public const string AuthenticationScheme = "Bearer";
         /// <summary>
-        /// Campaigns API scope.
+        ///  Messages API scope.
         /// </summary>
-        public const string Scope = "campaigns";
+        public const string Scope = "messages";
         /// <summary>
         /// Default database schema.
         /// </summary>
-        public const string DatabaseSchema = "campaign";
+        public const string DatabaseSchema = "cmp";
 
         /// <summary>
-        /// Campaigns API policies.
+        ///  Messages API policies.
         /// </summary>
         public static class Policies
         {
             /// <summary>
-            /// A user must have the <i>Admin</i> flag or own the <see cref="BasicRoleNames.AdminUICampaignsManager"/> role.
+            /// A user must have the <i>Admin</i> flag or own the <see cref="BasicRoleNames.CampaignManager"/> role.
             /// </summary>
-            public const string BeCampaignsManager = nameof(BeCampaignsManager);
+            public const string BeCampaignManager = nameof(BeCampaignManager);
             /// <summary>
-            /// A user must have the configured API scope for campaigns.
+            /// A user must have the configured API scope for messages.
             /// </summary>
-            public const string HaveCampaignsScope = nameof(HaveCampaignsScope);
+            public const string HaveMessagesScope = nameof(HaveMessagesScope);
         }
     }
 
     /// <summary>
-    /// Constant values for Campaigns API queue names.
+    /// Constant values for Messages API queue names.
     /// </summary>
     public class EventNames
     {
@@ -57,7 +57,7 @@ namespace Indice.Features.Messages.Core
     }
 
     /// <summary>
-    /// Placeholder for prefixing Campaigns API endpoints.
+    /// Placeholder for prefixing Messages API endpoints.
     /// </summary>
     public class ApiPrefixes
     {
@@ -72,21 +72,21 @@ namespace Indice.Features.Messages.Core
     }
 
     /// <summary>
-    /// Service keys for campaigns.
+    /// Service keys for Messages.
     /// </summary>
     public class KeyedServiceNames
     {
         /// <summary>
         /// Key service name for <see cref="IPushNotificationService"/> implementation.
         /// </summary>
-        public const string PushNotificationServiceKey = "Campaigns:PushNotificationServiceKey";
+        public const string PushNotificationServiceKey = "Messages:PushNotificationServiceKey";
         /// <summary>
         /// Key service name for <see cref="IFileService"/> implementation.
         /// </summary>
-        public const string FileServiceKey = "Campaigns:FileServiceKey";
+        public const string FileServiceKey = "Messages:FileServiceKey";
         /// <summary>
         /// Key service name for <see cref="IEventDispatcher"/> implementation.
         /// </summary>
-        public const string EventDispatcherServiceKey = "Campaigns:EventDispatcherServiceKey";
+        public const string EventDispatcherServiceKey = "Messages:EventDispatcherServiceKey";
     }
 }

@@ -1,5 +1,4 @@
 ﻿using System.Dynamic;
-using Indice.Features.Messages.Core;
 using Indice.Features.Messages.Core.Events;
 using Indice.Services;
 

@@ -31,7 +31,6 @@ namespace Indice.Features.Messages.Core.Data.Mappings
             // Configure properties.
             builder.Property(x => x.Id).ValueGeneratedNever();
             builder.Property(x => x.Title).HasMaxLength(TextSizePresets.M128).IsRequired();
-            builder.Property(x => x.Content).HasJsonConversion().IsRequired();
             builder.Property(x => x.CreatedAt).IsRequired();
             builder.Property(x => x.Published).IsRequired();
             builder.OwnsOne(x => x.ActivePeriod).Property(x => x.From).HasColumnName(nameof(Period.From));
@@ -40,13 +39,14 @@ namespace Indice.Features.Messages.Core.Data.Mappings
             builder.Property(x => x.Data).HasJsonConversion();
             // Owned properties
             builder.OwnsOne(x => x.ActionLink, actionLinkBuilder => {
-                actionLinkBuilder.Property(x => x.Text).HasMaxLength(TextSizePresets.M128);
-                actionLinkBuilder.Property(x => x.Href).HasMaxLength(TextSizePresets.L1024);
+                actionLinkBuilder.Property(x => x.Text).HasMaxLength(TextSizePresets.M128).HasColumnName("ActionText");
+                actionLinkBuilder.Property(x => x.Href).HasMaxLength(TextSizePresets.L1024).HasColumnName("ActionHref");
             });
             // Configure relationships.
             builder.HasOne(x => x.Attachment).WithMany().HasForeignKey(x => x.AttachmentId);
             builder.HasOne(x => x.Type).WithMany().HasForeignKey(x => x.TypeId);
             builder.HasOne(x => x.DistributionList).WithMany().HasForeignKey(x => x.DistributionListId);
+            builder.HasOne(x => x.Template).WithMany().HasForeignKey(x => x.TemplateId);
         }
     }
 }

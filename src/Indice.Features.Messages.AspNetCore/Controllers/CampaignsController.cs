@@ -23,8 +23,8 @@ namespace Indice.Features.Messages.AspNetCore.Controllers
     /// <response code="401">Unauthorized</response>
     /// <response code="403">Forbidden</response>
     [ApiController]
-    [ApiExplorerSettings(GroupName = "campaigns")]
-    [Authorize(AuthenticationSchemes = CampaignsApi.AuthenticationScheme, Policy = CampaignsApi.Policies.BeCampaignsManager)]
+    [ApiExplorerSettings(GroupName = "messages")]
+    [Authorize(AuthenticationSchemes = MessagesApi.AuthenticationScheme, Policy = MessagesApi.Policies.BeCampaignManager)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
     [Route($"{ApiPrefixes.CampaignManagementEndpoints}/campaigns")]
@@ -98,7 +98,12 @@ namespace Indice.Features.Messages.AspNetCore.Controllers
         [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(void), StatusCodes.Status204NoContent)]
         public async Task<IActionResult> PublishCampaign([FromRoute] Guid campaignId) {
-            await CampaignService.Publish(campaignId);
+            var publishedCampaign = await CampaignService.Publish(campaignId);
+            // Dispatch event that the campaign was created.
+            await EventDispatcher.RaiseEventAsync(
+                payload: CampaignPublishedEvent.FromCampaign(publishedCampaign),
+                configure: options => options.WrapInEnvelope(false).WithQueueName(EventNames.CampaignPublished)
+            );
             return NoContent();
         }
 
@@ -175,9 +180,12 @@ namespace Indice.Features.Messages.AspNetCore.Controllers
             // Create campaign in the store.
             var campaign = await CampaignService.Create(request);
             // Create contacts as part of a bulk insert only using the recipient ids.
-            if (request.SelectedRecipientIds.Any()) {
+            if (request.RecipientIds.Any()) {
                 var contacts = new List<CreateContactRequest>();
-                contacts.AddRange(request.SelectedRecipientIds.Select(id => new CreateContactRequest { RecipientId = id }));
+                contacts.AddRange(request.RecipientIds.Select(id => new CreateContactRequest { 
+                    RecipientId = id,
+                    DistributionListId = request.DistributionListId
+                }));
                 await ContactService.CreateMany(contacts);
             }
             if (campaign.Published) {

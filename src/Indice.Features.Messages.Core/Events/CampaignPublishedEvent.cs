@@ -36,7 +36,7 @@ namespace Indice.Features.Messages.Core.Events
         /// <summary>
         /// The delivery channel of a campaign.
         /// </summary>
-        public MessageDeliveryChannel DeliveryChannel { get; set; }
+        public MessageChannelKind DeliveryChannel { get; set; }
         /// <summary>
         /// The distribution list of the campaign.
         /// </summary>

@@ -26,31 +26,31 @@ namespace Microsoft.Extensions.DependencyInjection
     /// <summary>
     /// Contains extension methods on <see cref="IMvcBuilder"/> for configuring Campaigns API feature.
     /// </summary>
-    public static class CampaignEndpointFeatureExtensions
+    public static class MessageFeatureExtensions
     {
         /// <summary>
         /// Add all Campaigns (both management and self-service) API endpoints in the MVC project.
         /// </summary>
         /// <param name="mvcBuilder">An interface for configuring MVC services.</param>
         /// <param name="configureAction">Configuration for several options of Campaigns API feature.</param>
-        public static IMvcBuilder AddCampaignEndpoints(this IMvcBuilder mvcBuilder, Action<CampaignEndpointOptions> configureAction = null) {
+        public static IMvcBuilder AddMessageEndpoints(this IMvcBuilder mvcBuilder, Action<MessageEndpointOptions> configureAction = null) {
             var services = mvcBuilder.Services;
             // Configure options.
-            var campaignsApiOptions = new CampaignEndpointOptions(services);
-            configureAction?.Invoke(campaignsApiOptions);
-            return mvcBuilder.AddCampaignManagementEndpoints(options => {
-                options.ApiPrefix = campaignsApiOptions.ApiPrefix;
-                options.ConfigureDbContext = campaignsApiOptions.ConfigureDbContext;
-                options.DatabaseSchema = campaignsApiOptions.DatabaseSchema;
-                options.RequiredScope = campaignsApiOptions.RequiredScope;
-                options.UserClaimType = campaignsApiOptions.UserClaimType;
+            var apiOptions = new MessageEndpointOptions(services);
+            configureAction?.Invoke(apiOptions);
+            return mvcBuilder.AddMessageManagementEndpoints(options => {
+                options.ApiPrefix = apiOptions.ApiPrefix;
+                options.ConfigureDbContext = apiOptions.ConfigureDbContext;
+                options.DatabaseSchema = apiOptions.DatabaseSchema;
+                options.RequiredScope = apiOptions.RequiredScope;
+                options.UserClaimType = apiOptions.UserClaimType;
             })
-            .AddCampaignInboxEndpoints(options => {
-                options.ApiPrefix = campaignsApiOptions.ApiPrefix;
-                options.ConfigureDbContext = campaignsApiOptions.ConfigureDbContext;
-                options.DatabaseSchema = campaignsApiOptions.DatabaseSchema;
-                options.RequiredScope = campaignsApiOptions.RequiredScope;
-                options.UserClaimType = campaignsApiOptions.UserClaimType;
+            .AddMessageInboxEndpoints(options => {
+                options.ApiPrefix = apiOptions.ApiPrefix;
+                options.ConfigureDbContext = apiOptions.ConfigureDbContext;
+                options.DatabaseSchema = apiOptions.DatabaseSchema;
+                options.RequiredScope = apiOptions.RequiredScope;
+                options.UserClaimType = apiOptions.UserClaimType;
             });
         }
 
@@ -59,26 +59,26 @@ namespace Microsoft.Extensions.DependencyInjection
         /// </summary>
         /// <param name="mvcBuilder">An interface for configuring MVC services.</param>
         /// <param name="configureAction">Configuration for several options of Campaigns management API feature.</param>
-        public static IMvcBuilder AddCampaignManagementEndpoints(this IMvcBuilder mvcBuilder, Action<CampaignManagementOptions> configureAction = null) {
-            mvcBuilder.ConfigureApplicationPartManager(x => x.FeatureProviders.Add(new CampaignEndpointFeatureProvider(includeManagementApi: true, includeInboxApi: false)));
+        public static IMvcBuilder AddMessageManagementEndpoints(this IMvcBuilder mvcBuilder, Action<MessageManagementOptions> configureAction = null) {
+            mvcBuilder.ConfigureApplicationPartManager(x => x.FeatureProviders.Add(new MessageFeatureProvider(includeManagementApi: true, includeInboxApi: false)));
             var services = mvcBuilder.Services;
             // Configure options.
-            var managementApiOptions = new CampaignManagementOptions(services);
-            configureAction?.Invoke(managementApiOptions);
+            var apiOptions = new MessageManagementOptions(services);
+            configureAction?.Invoke(apiOptions);
             // Configure campaigns system core requirements.
-            mvcBuilder.AddCampaignCore(managementApiOptions);
-            services.Configure<CampaignManagementOptions>(options => {
-                options.ApiPrefix = managementApiOptions.ApiPrefix;
-                options.ConfigureDbContext = managementApiOptions.ConfigureDbContext;
-                options.DatabaseSchema = managementApiOptions.DatabaseSchema;
-                options.RequiredScope = managementApiOptions.RequiredScope;
-                options.UserClaimType = managementApiOptions.UserClaimType;
-                options.RequiredScope = managementApiOptions.RequiredScope;
+            mvcBuilder.AddCampaignCore(apiOptions);
+            services.Configure<MessageManagementOptions>(options => {
+                options.ApiPrefix = apiOptions.ApiPrefix;
+                options.ConfigureDbContext = apiOptions.ConfigureDbContext;
+                options.DatabaseSchema = apiOptions.DatabaseSchema;
+                options.RequiredScope = apiOptions.RequiredScope;
+                options.UserClaimType = apiOptions.UserClaimType;
+                options.RequiredScope = apiOptions.RequiredScope;
             });
-            services.AddSingleton(new DatabaseSchemaNameResolver(managementApiOptions.DatabaseSchema));
+            services.AddSingleton(new DatabaseSchemaNameResolver(apiOptions.DatabaseSchema));
             // Post configure MVC options.
             services.PostConfigure<MvcOptions>(options => {
-                options.Conventions.Add(new ApiPrefixControllerModelConvention(ApiPrefixes.CampaignManagementEndpoints, managementApiOptions.ApiPrefix));
+                options.Conventions.Add(new ApiPrefixControllerModelConvention(ApiPrefixes.CampaignManagementEndpoints, apiOptions.ApiPrefix));
                 options.FormatterMappings.SetMediaTypeMappingForFormat("xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
                 options.OutputFormatters.Add(new XlsxCampaignStatisticsOutputFormatter());
             });
@@ -87,12 +87,13 @@ namespace Microsoft.Extensions.DependencyInjection
             // Register events.
             services.TryAddTransient<IPlatformEventService, PlatformEventService>();
             services.TryAddTransient<IContactService, ContactService>();
+            services.TryAddTransient<ITemplateService, TemplateService>();
             // Configure authorization.
             services.AddAuthorizationCore(authOptions => {
-                authOptions.AddPolicy(CampaignsApi.Policies.BeCampaignsManager, policy => {
-                    policy.AddAuthenticationSchemes(CampaignsApi.AuthenticationScheme)
+                authOptions.AddPolicy(MessagesApi.Policies.BeCampaignManager, policy => {
+                    policy.AddAuthenticationSchemes(MessagesApi.AuthenticationScheme)
                           .RequireAuthenticatedUser()
-                          .RequireAssertion(x => x.User.HasScopeClaim(managementApiOptions.RequiredScope ?? CampaignsApi.Scope) && x.User.CanManageCampaigns());
+                          .RequireAssertion(x => x.User.HasScopeClaim(apiOptions.RequiredScope ?? MessagesApi.Scope) && x.User.CanManageCampaigns());
                 });
             });
             return mvcBuilder;
@@ -103,34 +104,34 @@ namespace Microsoft.Extensions.DependencyInjection
         /// </summary>
         /// <param name="mvcBuilder">An interface for configuring MVC services.</param>
         /// <param name="configureAction">Configuration for several options of Campaigns inbox API feature.</param>
-        public static IMvcBuilder AddCampaignInboxEndpoints(this IMvcBuilder mvcBuilder, Action<CampaignInboxOptions> configureAction = null) {
-            mvcBuilder.ConfigureApplicationPartManager(x => x.FeatureProviders.Add(new CampaignEndpointFeatureProvider(includeManagementApi: false, includeInboxApi: true)));
+        public static IMvcBuilder AddMessageInboxEndpoints(this IMvcBuilder mvcBuilder, Action<MessageInboxOptions> configureAction = null) {
+            mvcBuilder.ConfigureApplicationPartManager(x => x.FeatureProviders.Add(new MessageFeatureProvider(includeManagementApi: false, includeInboxApi: true)));
             var services = mvcBuilder.Services;
             // Configure options.
-            var inboxApiOptions = new CampaignInboxOptions(services);
-            configureAction?.Invoke(inboxApiOptions);
-            mvcBuilder.AddCampaignCore(inboxApiOptions);
-            services.Configure<CampaignInboxOptions>(options => {
-                options.ApiPrefix = inboxApiOptions.ApiPrefix;
-                options.ConfigureDbContext = inboxApiOptions.ConfigureDbContext;
-                options.DatabaseSchema = inboxApiOptions.DatabaseSchema;
-                options.RequiredScope = inboxApiOptions.RequiredScope;
-                options.UserClaimType = inboxApiOptions.UserClaimType;
-                options.RequiredScope = inboxApiOptions.RequiredScope;
+            var apiOptions = new MessageInboxOptions(services);
+            configureAction?.Invoke(apiOptions);
+            mvcBuilder.AddCampaignCore(apiOptions);
+            services.Configure<MessageInboxOptions>(options => {
+                options.ApiPrefix = apiOptions.ApiPrefix;
+                options.ConfigureDbContext = apiOptions.ConfigureDbContext;
+                options.DatabaseSchema = apiOptions.DatabaseSchema;
+                options.RequiredScope = apiOptions.RequiredScope;
+                options.UserClaimType = apiOptions.UserClaimType;
+                options.RequiredScope = apiOptions.RequiredScope;
             });
-            services.AddSingleton(new DatabaseSchemaNameResolver(inboxApiOptions.DatabaseSchema));
+            services.AddSingleton(new DatabaseSchemaNameResolver(apiOptions.DatabaseSchema));
             // Post configure MVC options.
             services.PostConfigure<MvcOptions>(options => {
-                options.Conventions.Add(new ApiPrefixControllerModelConvention(ApiPrefixes.CampaignInboxEndpoints, inboxApiOptions.ApiPrefix));
+                options.Conventions.Add(new ApiPrefixControllerModelConvention(ApiPrefixes.CampaignInboxEndpoints, apiOptions.ApiPrefix));
             });
             // Register custom services.
             services.AddTransient<IInboxService, InboxService>();
             // Configure authorization.
             services.AddAuthorizationCore(authOptions => {
-                authOptions.AddPolicy(CampaignsApi.Policies.HaveCampaignsScope, policy => {
-                    policy.AddAuthenticationSchemes(CampaignsApi.AuthenticationScheme)
+                authOptions.AddPolicy(MessagesApi.Policies.HaveMessagesScope, policy => {
+                    policy.AddAuthenticationSchemes(MessagesApi.AuthenticationScheme)
                           .RequireAuthenticatedUser()
-                          .RequireAssertion(x => x.User.HasScopeClaim(inboxApiOptions.RequiredScope ?? CampaignsApi.Scope));
+                          .RequireAssertion(x => x.User.HasScopeClaim(apiOptions.RequiredScope ?? MessagesApi.Scope));
                 });
             });
             return mvcBuilder;
@@ -172,7 +173,7 @@ namespace Microsoft.Extensions.DependencyInjection
             services.TryAddTransient<IDistributionListService, DistributionListService>();
             services.TryAddTransient<CampaignManager>();
             // Register application DbContext.
-            Action<DbContextOptionsBuilder> sqlServerConfiguration = (builder) => builder.UseSqlServer(configuration.GetConnectionString("CampaignsDbConnection"));
+            Action<DbContextOptionsBuilder> sqlServerConfiguration = (builder) => builder.UseSqlServer(configuration.GetConnectionString("MessagesDbConnection"));
             services.AddDbContext<CampaignsDbContext>(baseOptions.ConfigureDbContext ?? sqlServerConfiguration);
             return mvcBuilder;
         }

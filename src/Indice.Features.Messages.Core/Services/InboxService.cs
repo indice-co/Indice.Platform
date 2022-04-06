@@ -23,14 +23,14 @@ namespace Indice.Features.Messages.Core.Services
         /// <exception cref="ArgumentNullException"></exception>
         public InboxService(
             CampaignsDbContext dbContext,
-            IOptions<CampaignInboxOptions> campaignInboxOptions
+            IOptions<MessageInboxOptions> campaignInboxOptions
         ) {
             DbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
             CampaignInboxOptions = campaignInboxOptions?.Value ?? throw new ArgumentNullException(nameof(campaignInboxOptions));
         }
 
         private CampaignsDbContext DbContext { get; }
-        private CampaignInboxOptions CampaignInboxOptions { get; }
+        private MessageInboxOptions CampaignInboxOptions { get; }
 
         /// <inheritdoc />
         public async Task<ResultSet<Message>> GetList(string userCode, ListOptions<MessagesFilter> options) {
@@ -94,7 +94,7 @@ namespace Indice.Features.Messages.Core.Services
                     resultSelector: (campaign, message) => new { Campaign = campaign, Message = message }
                 )
                 .Where(x => x.Campaign.Published
-                    && x.Campaign.DeliveryChannel.HasFlag(MessageDeliveryChannel.Inbox)
+                    && x.Campaign.DeliveryChannel.HasFlag(MessageChannelKind.Inbox)
                     && (x.Message == null || !x.Message.IsDeleted)
                     && (x.Campaign.IsGlobal || x.Message != null && x.Message.RecipientId == recipientId)
                 );

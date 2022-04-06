@@ -149,7 +149,7 @@ namespace Indice.Security
         /// </summary>
         /// <param name="principal">The current principal.</param>
         public static bool CanManageCampaigns(this ClaimsPrincipal principal) =>
-            principal.HasRoleClaim(BasicRoleNames.AdminUICampaignsManager) || principal.IsAdmin() || principal.IsSystemClient();
+            principal.HasRoleClaim(BasicRoleNames.CampaignManager) || principal.IsAdmin() || principal.IsSystemClient();
 
         /// <summary>
         /// Logic for normalizing scope claims to separate claim types.

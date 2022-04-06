@@ -10,7 +10,7 @@ namespace Indice.Features.Messages.Core.Models.Requests
         /// <summary>
         /// The delivery channel of a campaign.
         /// </summary>
-        public MessageDeliveryChannel? DeliveryChannel { get; set; }
+        public MessageChannelKind? DeliveryChannel { get; set; }
         /// <summary>
         /// Determines if a campaign is published.
         /// </summary>

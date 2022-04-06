@@ -5,7 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 namespace Indice.Features.Messages.Worker.Azure
 {
     /// <summary>
-    /// Extensions on <see cref="CampaignEndpointOptions"/>.
+    /// Extensions on <see cref="MessageEndpointOptions"/>.
     /// </summary>
     public static class CampaignsApiOptionsExtensions
     {
@@ -14,7 +14,7 @@ namespace Indice.Features.Messages.Worker.Azure
         /// </summary>
         /// <param name="options">Options used to configure the Campaigns API feature.</param>
         /// <param name="configure">Configure the available options. Null to use defaults.</param>
-        public static void UseEventDispatcherAzure(this CampaignEndpointOptions options, Action<IServiceProvider, EventDispatcherAzureOptions> configure = null) =>
+        public static void UseEventDispatcherAzure(this MessageEndpointOptions options, Action<IServiceProvider, EventDispatcherAzureOptions> configure = null) =>
             options.Services.AddEventDispatcherAzure(KeyedServiceNames.EventDispatcherServiceKey, configure);
     }
 }

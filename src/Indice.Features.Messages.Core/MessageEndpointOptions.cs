@@ -7,52 +7,52 @@ namespace Indice.Features.Messages.Core
     /// <summary>
     /// Options used to configure the Campaigns API feature.
     /// </summary>
-    public class CampaignEndpointOptions : CampaignOptionsBase
+    public class MessageEndpointOptions : CampaignOptionsBase
     {
         /// <summary>
-        /// Creates a new instance of <see cref="CampaignEndpointOptions"/>.
+        /// Creates a new instance of <see cref="MessageEndpointOptions"/>.
         /// </summary>
         /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
-        public CampaignEndpointOptions(IServiceCollection services) : base(services) { }
+        public MessageEndpointOptions(IServiceCollection services) : base(services) { }
 
         /// <summary>
-        /// Creates a new instance of <see cref="CampaignEndpointOptions"/>.
+        /// Creates a new instance of <see cref="MessageEndpointOptions"/>.
         /// </summary>
-        public CampaignEndpointOptions() : base() { }
+        public MessageEndpointOptions() : base() { }
     }
 
     /// <summary>
     /// Options used to configure the Campaigns management API feature.
     /// </summary>
-    public class CampaignManagementOptions : CampaignOptionsBase
+    public class MessageManagementOptions : CampaignOptionsBase
     {
         /// <summary>
-        /// Creates a new instance of <see cref="CampaignManagementOptions"/>.
+        /// Creates a new instance of <see cref="MessageManagementOptions"/>.
         /// </summary>
         /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
-        public CampaignManagementOptions(IServiceCollection services) : base(services) { }
+        public MessageManagementOptions(IServiceCollection services) : base(services) { }
 
         /// <summary>
-        /// Creates a new instance of <see cref="CampaignManagementOptions"/>.
+        /// Creates a new instance of <see cref="MessageManagementOptions"/>.
         /// </summary>
-        public CampaignManagementOptions() : base() { }
+        public MessageManagementOptions() : base() { }
     }
 
     /// <summary>
     /// Options used to configure the Campaigns inbox API feature.
     /// </summary>
-    public class CampaignInboxOptions : CampaignOptionsBase
+    public class MessageInboxOptions : CampaignOptionsBase
     {
         /// <summary>
-        /// Creates a new instance of <see cref="CampaignInboxOptions"/>.
+        /// Creates a new instance of <see cref="MessageInboxOptions"/>.
         /// </summary>
         /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
-        public CampaignInboxOptions(IServiceCollection services) : base(services) { }
+        public MessageInboxOptions(IServiceCollection services) : base(services) { }
 
         /// <summary>
-        /// Creates a new instance of <see cref="CampaignInboxOptions"/>.
+        /// Creates a new instance of <see cref="MessageInboxOptions"/>.
         /// </summary>
-        public CampaignInboxOptions() : base() { }
+        public MessageInboxOptions() : base() { }
     }
 
     /// <summary>
@@ -92,7 +92,7 @@ namespace Indice.Features.Messages.Core
         /// <summary>
         /// Schema name used for tables. Defaults to <i>campaign</i>.
         /// </summary>
-        public string DatabaseSchema { get; set; } = CampaignsApi.DatabaseSchema;
+        public string DatabaseSchema { get; set; } = MessagesApi.DatabaseSchema;
         /// <summary>
         /// Specifies a prefix for the API endpoints.
         /// </summary>
@@ -101,8 +101,8 @@ namespace Indice.Features.Messages.Core
             set { _apiPrefix = string.IsNullOrWhiteSpace(value) ? "/" : value; }
         }
         /// <summary>
-        /// The default scope name to be used for Campaigns API. Defaults to <see cref="CampaignsApi.Scope"/>.
+        /// The default scope name to be used for Campaigns API. Defaults to <see cref="MessagesApi.Scope"/>.
         /// </summary>
-        public string RequiredScope { get; set; } = CampaignsApi.Scope;
+        public string RequiredScope { get; set; } = MessagesApi.Scope;
     }
 }

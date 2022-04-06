@@ -25,7 +25,7 @@ namespace Indice.Features.Messages.Core.Services
         /// <exception cref="ArgumentNullException"></exception>
         public CampaignService(
             CampaignsDbContext dbContext,
-            IOptions<CampaignManagementOptions> campaignManagementOptions,
+            IOptions<MessageManagementOptions> campaignManagementOptions,
             Func<string, IFileService> getFileService
         ) {
             DbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
@@ -34,7 +34,7 @@ namespace Indice.Features.Messages.Core.Services
         }
 
         private CampaignsDbContext DbContext { get; }
-        private CampaignManagementOptions CampaignManagementOptions { get; }
+        private MessageManagementOptions CampaignManagementOptions { get; }
         private IFileService FileService { get; }
 
         /// <inheritdoc />
@@ -79,14 +79,27 @@ namespace Indice.Features.Messages.Core.Services
         /// <inheritdoc />
         public async Task<Campaign> Create(CreateCampaignRequest request) {
             var dbCampaign = Mapper.ToDbCampaign(request);
+            if (!request.TemplateId.HasValue) {
+                dbCampaign.Template = new DbTemplate {
+                    Content = request.Content,
+                    Id = Guid.NewGuid(),
+                    Name = request.Title
+                };
+            }
             DbContext.Campaigns.Add(dbCampaign);
             await DbContext.SaveChangesAsync();
+            if (dbCampaign.Template is null) {
+                dbCampaign.Template = await DbContext.Templates.FindAsync(request.TemplateId);
+            }
             return Mapper.ToCampaign(dbCampaign);
         }
 
         /// <inheritdoc />
         public async Task Update(Guid id, UpdateCampaignRequest request) {
-            var campaign = await DbContext.Campaigns.FindAsync(id);
+            var campaign = await DbContext
+                .Campaigns
+                .Include(x => x.Template)
+                .SingleOrDefaultAsync(x => x.Id == id);
             if (campaign is null) {
                 throw CampaignException.CampaignNotFound(id);
             }
@@ -95,7 +108,7 @@ namespace Indice.Features.Messages.Core.Services
             }
             campaign.ActionLink = request.ActionLink;
             campaign.ActivePeriod = request.ActivePeriod;
-            campaign.Content = request.Content;
+            campaign.Template.Content = request.Content;
             campaign.Title = request.Title;
             await DbContext.SaveChangesAsync();
         }
@@ -170,8 +183,13 @@ namespace Indice.Features.Messages.Core.Services
         }
 
         /// <inheritdoc />
-        public async Task Publish(Guid id) {
-            var campaign = await DbContext.Campaigns.FindAsync(id);
+        public async Task<Campaign> Publish(Guid id) {
+            var campaign = await DbContext
+                .Campaigns
+                .Include(x => x.Type)
+                .Include(x => x.DistributionList)
+                .Include(x => x.Template)
+                .SingleOrDefaultAsync(x => x.Id == id);
             if (campaign is null) {
                 throw CampaignException.CampaignNotFound(id);
             }
@@ -180,6 +198,7 @@ namespace Indice.Features.Messages.Core.Services
             }
             campaign.Published = true;
             await DbContext.SaveChangesAsync();
+            return Mapper.ToCampaign(campaign);
         }
     }
 }

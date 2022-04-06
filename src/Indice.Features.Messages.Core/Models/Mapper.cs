@@ -10,7 +10,7 @@ namespace Indice.Features.Messages.Core.Models
         public static Expression<Func<DbCampaign, Campaign>> ProjectToCampaign = campaign => new() {
             ActionLink = campaign.ActionLink,
             ActivePeriod = campaign.ActivePeriod,
-            Content = campaign.Content,
+            Content = campaign.Template.Content,
             CreatedAt = campaign.CreatedAt,
             Data = campaign.Data,
             DeliveryChannel = campaign.DeliveryChannel,
@@ -44,7 +44,8 @@ namespace Indice.Features.Messages.Core.Models
 
         public static Contact ToContact(DbContact contact) => ProjectToContact.Compile()(contact);
 
-        public static CreateContactRequest ToCreateContactRequest(Contact request) => new() {
+        public static CreateContactRequest ToCreateContactRequest(Contact request, Guid? distributionListId = null) => new() {
+            DistributionListId = distributionListId,
             Email = request.Email,
             FirstName = request.FirstName,
             FullName = request.FullName,
@@ -73,7 +74,7 @@ namespace Indice.Features.Messages.Core.Models
                 Size = campaign.Attachment.ContentLength,
                 PermaLink = $"/campaigns/attachments/{(Base64Id)campaign.Attachment.Guid}.{Path.GetExtension(campaign.Attachment.Name).TrimStart('.')}"
             } : null,
-            Content = campaign.Content,
+            Content = campaign.Template.Content,
             CreatedAt = campaign.CreatedAt,
             Data = campaign.Data,
             DeliveryChannel = campaign.DeliveryChannel,
@@ -95,7 +96,7 @@ namespace Indice.Features.Messages.Core.Models
 
         public static DbCampaign ToDbCampaign(CreateCampaignRequest request) => new() {
             ActionLink = request.ActionLink,
-            Content = request.Content,
+            ActivePeriod = request.ActivePeriod,
             CreatedAt = DateTime.UtcNow,
             Data = request.Data,
             DeliveryChannel = request.DeliveryChannel,
@@ -103,6 +104,7 @@ namespace Indice.Features.Messages.Core.Models
             Id = Guid.NewGuid(),
             IsGlobal = request.IsGlobal,
             Published = request.Published,
+            TemplateId = request.TemplateId.Value,
             Title = request.Title,
             TypeId = request.TypeId
         };
@@ -120,6 +122,7 @@ namespace Indice.Features.Messages.Core.Models
         };
 
         public static DbContact ToDbContact(CreateContactRequest request) => new() {
+            DistributionListId = request.DistributionListId,
             Email = request.Email,
             FirstName = request.FirstName,
             FullName = request.FullName,

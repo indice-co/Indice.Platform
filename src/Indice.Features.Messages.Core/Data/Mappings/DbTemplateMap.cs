@@ -29,7 +29,7 @@ namespace Indice.Features.Messages.Core.Data.Mappings
             builder.HasKey(x => x.Id);
             // Configure properties.
             builder.Property(x => x.Name).HasMaxLength(TextSizePresets.M256).IsRequired();
-            builder.Property(x => x.Content).HasJsonConversion();
+            builder.Property(x => x.Content).HasJsonConversion().IsRequired();
             // Configure indexes.
             builder.HasIndex(x => x.Name).IsUnique();
         }

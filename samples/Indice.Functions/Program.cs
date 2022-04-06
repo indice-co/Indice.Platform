@@ -3,7 +3,6 @@ using System.Threading.Tasks;
 using Indice.Features.Messages.Worker.Azure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
 namespace Indice.Functions
@@ -21,7 +20,7 @@ namespace Indice.Functions
             .ConfigureFunctionsWorkerDefaults(builder => { })
             .ConfigureServices(services => { })
             .ConfigureCampaigns((configuration, options) => {
-                options.ConfigureDbContext = builder => builder.UseSqlServer(configuration.GetConnectionString("CampaignsDb"));
+                options.ConfigureDbContext = builder => builder.UseSqlServer(configuration.GetConnectionString("MessagesDb"));
                 options.DatabaseSchema = "cmp";
                 options.UseEventDispatcherAzure();
                 //options.UsePushNotificationServiceAzure();

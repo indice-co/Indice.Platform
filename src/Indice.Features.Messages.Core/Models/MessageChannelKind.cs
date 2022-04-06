@@ -4,7 +4,7 @@
     /// The delivery channel of a campaign.
     /// </summary>
     [Flags]
-    public enum MessageDeliveryChannel : byte
+    public enum MessageChannelKind : byte
     {
         /// <summary>
         /// No delivery.

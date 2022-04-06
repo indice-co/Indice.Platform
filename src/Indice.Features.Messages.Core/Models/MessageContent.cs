@@ -1,7 +1,7 @@
 ﻿namespace Indice.Features.Messages.Core.Models
 {
     /// <summary>
-    /// Encapsulates the message content for a given <see cref="MessageDeliveryChannel"/>
+    /// Encapsulates the message content for a given <see cref="MessageChannelKind"/>
     /// </summary>
     public class MessageContent
     {

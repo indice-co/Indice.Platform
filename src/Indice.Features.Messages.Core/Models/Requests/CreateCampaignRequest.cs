@@ -21,11 +21,11 @@ namespace Indice.Features.Messages.Core.Models.Requests
         /// <summary>
         /// Defines a list of user identifiers that constitutes the audience of the campaign.
         /// </summary>
-        public List<string> SelectedRecipientIds { get; set; } = new List<string>();
+        public List<string> RecipientIds { get; set; } = new List<string>();
         /// <summary>
-        /// The delivery channel of a campaign. Default is <see cref="MessageDeliveryChannel.Inbox"/>.
+        /// The delivery channel of a campaign. Default is <see cref="MessageChannelKind.Inbox"/>.
         /// </summary>
-        public MessageDeliveryChannel DeliveryChannel { get; set; } = MessageDeliveryChannel.Inbox;
+        public MessageChannelKind DeliveryChannel { get; set; } = MessageChannelKind.Inbox;
         /// <summary>
         /// The title of the campaign.
         /// </summary>
@@ -54,6 +54,10 @@ namespace Indice.Features.Messages.Core.Models.Requests
         /// The id of the distribution list.
         /// </summary>
         public Guid? DistributionListId { get; set; }
+        /// <summary>
+        /// The id of the template.
+        /// </summary>
+        public Guid? TemplateId { get; set; }
         /// <summary>
         /// Optional data for the campaign.
         /// </summary>

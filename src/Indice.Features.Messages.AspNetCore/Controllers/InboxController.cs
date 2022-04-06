@@ -18,7 +18,7 @@ namespace Indice.Features.Messages.AspNetCore.Controllers
     /// <response code="401">Unauthorized</response>
     /// <response code="403">Forbidden</response>
     [ApiController]
-    [Authorize(AuthenticationSchemes = CampaignsApi.AuthenticationScheme)]
+    [Authorize(AuthenticationSchemes = MessagesApi.AuthenticationScheme)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized, Type = typeof(ProblemDetails))]
     [ProducesResponseType(StatusCodes.Status403Forbidden, Type = typeof(ProblemDetails))]
     [Route(ApiPrefixes.CampaignInboxEndpoints)]
@@ -28,7 +28,7 @@ namespace Indice.Features.Messages.AspNetCore.Controllers
             IInboxService inboxService,
             ICampaignService campaignService,
             IMessageTypeService messageTypeService,
-            IOptions<CampaignInboxOptions> campaignEndpointOptions,
+            IOptions<MessageInboxOptions> campaignEndpointOptions,
             Func<string, IFileService> getFileService
         ) : base(getFileService) {
             InboxService = inboxService ?? throw new ArgumentNullException(nameof(inboxService));
@@ -40,7 +40,7 @@ namespace Indice.Features.Messages.AspNetCore.Controllers
         public IInboxService InboxService { get; }
         public ICampaignService CampaignService { get; }
         public IMessageTypeService MessageTypeService { get; }
-        public CampaignInboxOptions CampaignInboxOptions { get; }
+        public MessageInboxOptions CampaignInboxOptions { get; }
         public string UserCode => User.FindFirstValue(CampaignInboxOptions.UserClaimType);
 
         /// <summary>
@@ -61,7 +61,7 @@ namespace Indice.Features.Messages.AspNetCore.Controllers
         /// </summary>
         /// <param name="options">List parameters used to navigate through collections. Contains parameters such as sort, search, page number and page size.</param>
         /// <response code="200">OK</response>
-        [Authorize(AuthenticationSchemes = CampaignsApi.AuthenticationScheme)]
+        [Authorize(AuthenticationSchemes = MessagesApi.AuthenticationScheme)]
         [HttpGet("messages/types")]
         [Produces(MediaTypeNames.Application.Json)]
         [ProducesResponseType(typeof(ResultSet<MessageType>), StatusCodes.Status200OK)]

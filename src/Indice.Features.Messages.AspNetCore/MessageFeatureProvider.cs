@@ -7,20 +7,21 @@ using Microsoft.AspNetCore.Mvc.Controllers;
 
 namespace Indice.Features.Messages.AspNetCore
 {
-    internal class CampaignEndpointFeatureProvider : IApplicationFeatureProvider<ControllerFeature>
+    internal class MessageFeatureProvider : IApplicationFeatureProvider<ControllerFeature>
     {
         private static IReadOnlyList<TypeInfo> ManagementApiControllerTypes => new List<TypeInfo>() {
             typeof(CampaignsController).GetTypeInfo(),
-            typeof(MessageTypesController).GetTypeInfo(),
+            typeof(ContactsController).GetTypeInfo(),
             typeof(DistributionListsController).GetTypeInfo(),
-            typeof(ContactsController).GetTypeInfo()
+            typeof(MessageTypesController).GetTypeInfo(),
+            typeof(TemplatesController).GetTypeInfo()
         };
 
         private static IReadOnlyList<TypeInfo> InboxApiControllerTypes => new List<TypeInfo>() {
             typeof(InboxController).GetTypeInfo()
         };
 
-        public CampaignEndpointFeatureProvider(bool includeManagementApi = true, bool includeInboxApi = true) {
+        public MessageFeatureProvider(bool includeManagementApi = true, bool includeInboxApi = true) {
             IncludeManagementApi = includeManagementApi;
             IncludeInboxApi = includeInboxApi;
         }

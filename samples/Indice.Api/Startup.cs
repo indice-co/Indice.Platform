@@ -69,7 +69,7 @@ namespace Indice.Api
             if (Configuration.EnableSwaggerUi()) {
                 app.UseSwaggerUI(options => {
                     options.RoutePrefix = "docs";
-                    options.SwaggerEndpoint($"/swagger/{CampaignsApi.Scope}/swagger.json", CampaignsApi.Scope);
+                    options.SwaggerEndpoint($"/swagger/{MessagesApi.Scope}/swagger.json", MessagesApi.Scope);
                     options.SwaggerEndpoint($"/swagger/lookups/swagger.json", "lookups");
                     options.OAuth2RedirectUrl($"{Settings.Host}/docs/oauth2-redirect.html");
                     options.OAuthClientId("swagger-ui");
@@ -82,7 +82,7 @@ namespace Indice.Api
             app.UseCampaignsUI(options => {
                 options.Path = "campaigns";
                 options.ClientId = "backoffice-ui";
-                options.Scope = "backoffice backoffice:campaigns";
+                options.Scope = "backoffice backoffice:messages";
                 options.DocumentTitle = "Campaigns UI";
                 options.Authority = Settings.Authority;
                 options.Host = Settings.Host;

@@ -51,7 +51,7 @@ namespace Indice.Features.Messages.Core.Models
         /// <summary>
         /// The delivery channel of a campaign.
         /// </summary>
-        public MessageDeliveryChannel DeliveryChannel { get; set; }
+        public MessageChannelKind DeliveryChannel { get; set; }
         /// <summary>
         /// Optional data for the campaign.
         /// </summary>

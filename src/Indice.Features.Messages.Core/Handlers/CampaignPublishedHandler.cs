@@ -1,5 +1,4 @@
-﻿using Indice.Features.Messages.Core;
-using Indice.Features.Messages.Core.Events;
+﻿using Indice.Features.Messages.Core.Events;
 using Indice.Features.Messages.Core.Models;
 using Indice.Features.Messages.Core.Services.Abstractions;
 using Indice.Services;
@@ -34,7 +33,7 @@ namespace Indice.Features.Messages.Core.Handlers
         /// <param name="campaign">The event model used when a new campaign is created.</param>
         public async Task Process(CampaignPublishedEvent campaign) {
             // If campaign is global and has push notification as delivery channel, then we short-circuit the flow and we immediately broadcast the message.
-            if (campaign.IsGlobal && campaign.DeliveryChannel.HasFlag(MessageDeliveryChannel.PushNotification)) {
+            if (campaign.IsGlobal && campaign.DeliveryChannel.HasFlag(MessageChannelKind.PushNotification)) {
                 var eventDispatcher = GetEventDispatcher(KeyedServiceNames.EventDispatcherServiceKey);
                 await eventDispatcher.RaiseEventAsync(
                     payload: SendPushNotificationEvent.FromCampaignCreatedEvent(campaign, broadcast: true),

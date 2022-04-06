@@ -39,7 +39,7 @@ namespace Indice.Features.Messages.Core.Services.Abstractions
         /// Publishes an existing campaign.
         /// </summary>
         /// <param name="id">The id of the campaign.</param>
-        Task Publish(Guid id);
+        Task<Campaign> Publish(Guid id);
         /// <summary>
         /// Creates a new attachment.
         /// </summary>

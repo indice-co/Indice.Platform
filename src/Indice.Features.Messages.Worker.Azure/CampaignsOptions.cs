@@ -18,6 +18,6 @@ namespace Indice.Features.Messages.Worker.Azure
         /// <summary>
         /// Schema name used for tables. Defaults to <i>campaign</i>.
         /// </summary>
-        public string DatabaseSchema { get; set; } = CampaignsApi.DatabaseSchema;
+        public string DatabaseSchema { get; set; } = MessagesApi.DatabaseSchema;
     }
 }
