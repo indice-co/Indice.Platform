@@ -83,7 +83,7 @@ namespace Microsoft.Extensions.Hosting
         /// <param name="options">Options used when configuring messages in Azure Functions.</param>
         /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
         public static MessageOptions UseEmailService(this MessageOptions options, IConfiguration configuration) {
-            options.Services.AddEmailService(configuration);
+            options.Services.AddEmailServiceSmtp(configuration);
             return options;
         }
 

@@ -95,10 +95,22 @@ namespace Microsoft.Extensions.DependencyInjection
         /// </summary>
         /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
         /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
-        public static IServiceCollection AddEmailService(this IServiceCollection services, IConfiguration configuration) {
+        public static IServiceCollection AddEmailServiceSmtp(this IServiceCollection services, IConfiguration configuration) {
             services.Configure<EmailServiceSettings>(configuration.GetSection(EmailServiceSettings.Name));
             services.AddTransient(serviceProvider => serviceProvider.GetRequiredService<IOptions<EmailServiceSettings>>().Value);
             services.AddTransient<IEmailService, EmailServiceSmtp>();
+            return services;
+        }
+
+        /// <summary>
+        /// Adds an instance of <see cref="IEmailService"/> that uses Sparkpost to send and Razor templates.
+        /// </summary>
+        /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
+        /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
+        public static IServiceCollection AddEmailServiceSparkpost(this IServiceCollection services, IConfiguration configuration) {
+            services.Configure<EmailServiceSparkPostSettings>(configuration.GetSection(EmailServiceSparkPostSettings.Name));
+            services.AddTransient(serviceProvider => serviceProvider.GetRequiredService<IOptions<EmailServiceSparkPostSettings>>().Value);
+            services.AddHttpClient<IEmailService, EmailServiceSparkpost>().SetHandlerLifetime(TimeSpan.FromMinutes(5));
             return services;
         }
 

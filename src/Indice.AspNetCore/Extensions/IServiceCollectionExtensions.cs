@@ -36,26 +36,15 @@ namespace Microsoft.Extensions.DependencyInjection
         }
 
         /// <summary>
-        /// Adds an instance of <see cref="IEmailService"/> that uses Sparkpost to send and Razor templates.
+        /// Adds an instance of <see cref="IHtmlRenderingEngine"/> for generating html content for usecases like email sending and other non http related operations.
         /// </summary>
         /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
         /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
-        public static IServiceCollection AddEmailServiceSparkpost(this IServiceCollection services, IConfiguration configuration) {
-            services.Configure<EmailServiceSparkPostSettings>(configuration.GetSection(EmailServiceSparkPostSettings.Name));
-            services.AddTransient(serviceProvider => serviceProvider.GetRequiredService<IOptions<EmailServiceSparkPostSettings>>().Value);
-            services.AddHttpClient<IEmailService, EmailServiceSparkpost>().SetHandlerLifetime(TimeSpan.FromMinutes(5));
-            return services;
-        }
-
-        /// <summary>
-        /// Adds an instance of <see cref="IEmailService"/> using SMTP settings in configuration plus Razor email templates.
-        /// </summary>
-        /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
-        /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
-        public static IServiceCollection AddEmailServiceSmtpRazor(this IServiceCollection services, IConfiguration configuration) {
+        public static IServiceCollection AddHtmlRenderingEngineRazorMvc(this IServiceCollection services, IConfiguration configuration) {
             services.Configure<EmailServiceSettings>(configuration.GetSection(EmailServiceSettings.Name));
             services.AddTransient(serviceProvider => serviceProvider.GetRequiredService<IOptions<EmailServiceSettings>>().Value);
-            services.AddTransient<IEmailService, EmailServiceSmtpRazor>();
+            services.AddTransient<IHtmlRenderingEngine,  HtmlRenderingEngineMvcRazor>();
+            services.AddTransient<IEmailService, EmailServiceSmtp>();
             return services;
         }
 

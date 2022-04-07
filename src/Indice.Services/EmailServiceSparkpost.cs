@@ -9,11 +9,7 @@ using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
-using Indice.Configuration;
 using Indice.Extensions;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc.ViewEngines;
-using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.Extensions.Logging;
 
 namespace Indice.Services
@@ -52,7 +48,7 @@ namespace Indice.Services
     /// SparkPost implementation for the email service abstraction.
     /// https://developers.sparkpost.com/api/transmissions.html
     /// </summary>
-    public class EmailServiceSparkpost : EmailServiceRazorBase {
+    public class EmailServiceSparkpost : IEmailService {
         private readonly EmailServiceSparkPostSettings _settings;
         private readonly HttpClient _httpClient;
         private readonly ILogger<EmailServiceSparkpost> _logger;
@@ -61,21 +57,13 @@ namespace Indice.Services
         /// constructs the service
         /// </summary>
         /// <param name="settings">An instance of <see cref="EmailServiceSparkPostSettings"/> used to initialize the service.</param>
-        /// <param name="viewEngine">Represents an <see cref="IViewEngine"/> that delegates to one of a collection of view engines.</param>
-        /// <param name="tempDataProvider">Defines the contract for temporary-data providers that store data that is viewed on the next request.</param>
-        /// <param name="httpContextAccessor">Used to access the <see cref="HttpContext"/> through the <see cref="IHttpContextAccessor"/> interface and its default implementation <see cref="HttpContextAccessor"/>.</param>
         /// <param name="httpClient">The http client to use (DI managed)</param>
         /// <param name="logger">Represents a type used to perform logging.</param>
-        /// <param name="serviceProvider">Defines a mechanism for retrieving a service object; that is, an object that provides custom support to other objects.</param>
         public EmailServiceSparkpost(
             EmailServiceSparkPostSettings settings,
-            ICompositeViewEngine viewEngine,
-            ITempDataProvider tempDataProvider,
-            IHttpContextAccessor httpContextAccessor,
             HttpClient httpClient,
-            ILogger<EmailServiceSparkpost> logger,
-            IServiceProvider serviceProvider
-        ) : base(viewEngine, tempDataProvider, httpContextAccessor, serviceProvider) {
+            ILogger<EmailServiceSparkpost> logger
+        ) {
             _settings = settings ?? throw new ArgumentNullException(nameof(settings));
             _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -86,7 +74,7 @@ namespace Indice.Services
         }
 
         /// <inheritdoc/>
-        public override async Task SendAsync<TModel>(string[] recipients, string subject, string body, string template, TModel data, EmailAttachment[] attachments = null) {
+        public async Task SendAsync(string[] recipients, string subject, string body, EmailAttachment[] attachments = null) {
             var bccRecipients = (_settings.BccRecipients ?? "").Split(';', ',');
             var recipientAddresses = recipients.Select(recipient => new SparkPostRecipient {
                 Address = new SparkPostRecipientEmailAddress {
@@ -106,7 +94,7 @@ namespace Indice.Services
                         Name = _settings.SenderName
                     },
                     Subject = subject,
-                    Html = await GetHtmlAsync(body, subject, template.ToString(), data)
+                    Html = body
                 },
                 Recipients = recipientAddresses.Concat(bccAddresses).ToArray()
             };

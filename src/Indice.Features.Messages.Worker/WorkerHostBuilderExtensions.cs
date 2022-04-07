@@ -100,7 +100,7 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <param name="options">Options used when configuring messages in Azure Functions.</param>
         /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
         public static MessageJobsOptions UseEmailService(this MessageJobsOptions options, IConfiguration configuration) {
-            options.Services.AddEmailService(configuration);
+            options.Services.AddEmailServiceSmtp(configuration);
             return options;
         }
 
