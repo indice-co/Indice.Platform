@@ -1,5 +1,4 @@
-﻿using Indice.Configuration;
-using Indice.Features.Messages.Core.Data.Models;
+﻿using Indice.Features.Messages.Core.Data.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -29,8 +28,7 @@ namespace Indice.Features.Messages.Core.Data.Mappings
             builder.HasKey(x => x.Id);
             builder.HasAlternateKey(x => new { x.CampaignId, x.RecipientId });
             // Configure properties.
-            builder.Property(x => x.Title).HasMaxLength(TextSizePresets.M256);
-            builder.Property(x => x.Body);
+            builder.Property(x => x.Content).HasJsonConversion().IsRequired();
             // Configure indexes.
             builder.HasIndex(x => x.RecipientId);
         }

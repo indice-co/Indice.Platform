@@ -25,7 +25,7 @@ namespace Indice.Features.Messages.Core.Models.Requests
         /// <summary>
         /// The delivery channel of a campaign. Default is <see cref="MessageChannelKind.Inbox"/>.
         /// </summary>
-        public MessageChannelKind DeliveryChannel { get; set; } = MessageChannelKind.Inbox;
+        public MessageChannelKind MessageChannelKind { get; set; } = MessageChannelKind.Inbox;
         /// <summary>
         /// The title of the campaign.
         /// </summary>
@@ -33,7 +33,7 @@ namespace Indice.Features.Messages.Core.Models.Requests
         /// <summary>
         /// The contents of the campaign.
         /// </summary>
-        public Dictionary<string, MessageContent> Content { get; set; } = new Dictionary<string, MessageContent>();
+        public Dictionary<string, MessageContent> Content { get; set; } = new Dictionary<string, MessageContent>(StringComparer.OrdinalIgnoreCase);
         /// <summary>
         /// Defines a (call-to-action) link.
         /// </summary>

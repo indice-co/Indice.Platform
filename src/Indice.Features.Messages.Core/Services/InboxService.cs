@@ -94,7 +94,7 @@ namespace Indice.Features.Messages.Core.Services
                     resultSelector: (campaign, message) => new { Campaign = campaign, Message = message }
                 )
                 .Where(x => x.Campaign.Published
-                    && x.Campaign.DeliveryChannel.HasFlag(MessageChannelKind.Inbox)
+                    && x.Campaign.MessageChannelKind.HasFlag(MessageChannelKind.Inbox)
                     && (x.Message == null || !x.Message.IsDeleted)
                     && (x.Campaign.IsGlobal || x.Message != null && x.Message.RecipientId == recipientId)
                 );
@@ -126,8 +126,8 @@ namespace Indice.Features.Messages.Core.Services
                 AttachmentUrl = x.Campaign.Attachment != null
                     ? $"{CampaignInboxOptions.ApiPrefix}/messages/attachments/{(Base64Id)x.Campaign.Attachment.Guid}.{Path.GetExtension(x.Campaign.Attachment.Name).TrimStart('.')}"
                     : null,
-                Title = x.Message.Title,
-                Content = x.Message.Body,
+                Title = x.Message.Content["inbox"].Title,
+                Content = x.Message.Content["inbox"].Body,
                 CreatedAt = x.Campaign.CreatedAt,
                 Id = x.Campaign.Id,
                 IsRead = x.Message != null && x.Message.IsRead,

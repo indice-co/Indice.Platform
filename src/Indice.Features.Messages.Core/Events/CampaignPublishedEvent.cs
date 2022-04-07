@@ -16,7 +16,7 @@ namespace Indice.Features.Messages.Core.Events
         /// <summary>
         /// The content of the campaign.
         /// </summary>
-        public Dictionary<string, MessageContent> Content { get; set; } = new Dictionary<string, MessageContent>();
+        public Dictionary<string, MessageContent> Content { get; set; } = new Dictionary<string, MessageContent>(StringComparer.OrdinalIgnoreCase);
         /// <summary>
         /// Determines if a campaign is published.
         /// </summary>
@@ -36,7 +36,7 @@ namespace Indice.Features.Messages.Core.Events
         /// <summary>
         /// The delivery channel of a campaign.
         /// </summary>
-        public MessageChannelKind DeliveryChannel { get; set; }
+        public MessageChannelKind MessageChannelKind { get; set; }
         /// <summary>
         /// The distribution list of the campaign.
         /// </summary>
@@ -54,7 +54,7 @@ namespace Indice.Features.Messages.Core.Events
             ActivePeriod = campaign.ActivePeriod,
             Content = campaign.Content,
             Data = campaign.Data,
-            DeliveryChannel = campaign.DeliveryChannel,
+            MessageChannelKind = campaign.MessageChannelKind,
             DistributionListId = campaign.DistributionList?.Id,
             Id = campaign.Id,
             IsGlobal = campaign.IsGlobal,

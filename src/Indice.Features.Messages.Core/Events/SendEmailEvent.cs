@@ -4,9 +4,9 @@ using Indice.Features.Messages.Core.Models;
 namespace Indice.Features.Messages.Core.Events
 {
     /// <summary>
-    /// The event model used when sending a push notification.
+    /// The event model used when sending an email.
     /// </summary>
-    public class SendPushNotificationEvent
+    public class SendEmailEvent
     {
         /// <summary>
         /// The id of the campaign.
@@ -38,34 +38,18 @@ namespace Indice.Features.Messages.Core.Events
         public MessageType MessageType { get; set; }
 
         /// <summary>
-        /// Creates a <see cref="SendPushNotificationEvent"/> instance from a <see cref="CampaignPublishedEvent"/> instance.
-        /// </summary>
-        /// <param name="campaign">Models a contact in the system as a member of a distribution list.</param>
-        /// <param name="broadcast">Defines if push notification is sent to all registered user devices.</param>
-        /// <param name="recipientId">The id of the recipient.</param>
-        public static SendPushNotificationEvent FromCampaignCreatedEvent(CampaignPublishedEvent campaign, bool broadcast, string recipientId = null) => new() {
-            Body = campaign.Content["pushNotification"].Body,
-            Broadcast = broadcast,
-            CampaignId = campaign.Id,
-            Data = campaign.Data,
-            MessageType = campaign.Type,
-            RecipientId = recipientId,
-            Title = campaign.Content["pushNotification"].Title
-        };
-
-        /// <summary>
-        /// Creates a <see cref="SendPushNotificationEvent"/> instance from a <see cref="ResolveMessageEvent"/> instance.
+        /// Creates a <see cref="SendEmailEvent"/> instance from a <see cref="ResolveMessageEvent"/> instance.
         /// </summary>
         /// <param name="contact">The event model used when a contact is resolved from an external system.</param>
         /// <param name="broadcast">Defines if push notification is sent to all registered user devices.</param>
         public static SendPushNotificationEvent FromContactResolutionEvent(ResolveMessageEvent contact, bool broadcast) => new() {
-            Body = contact.Campaign.Content["pushNotification"].Body,
+            Body = contact.Campaign.Content["email"].Body,
             Broadcast = broadcast,
             CampaignId = contact.Campaign.Id,
             Data = contact.Campaign.Data,
             MessageType = contact.Campaign.Type,
             RecipientId = contact.Contact.RecipientId,
-            Title = contact.Campaign.Content["pushNotification"].Title
+            Title = contact.Campaign.Content["email"].Title
         };
     }
 }

@@ -2,10 +2,10 @@
   <PropertyGroup>
     <Authors>Constantinos Leftheris, Georgios Manoltzas</Authors>
     <Copyright>Copyright (c) 2022 Indice</Copyright>
-    <Description>Indice.AspNetCore.Features.Campaigns.UI Class Library</Description>
+    <Description>Indice.Features.Messages.UI Class Library</Description>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <GenerateEmbeddedFilesManifest>true</GenerateEmbeddedFilesManifest>
-    <SpaDistFolder>..\Indice.AspNetCore.Features.Campaigns.App\dist\campaigns-app</SpaDistFolder>
+    <SpaDistFolder>..\Indice.Features.Messages.App\dist\campaigns-app</SpaDistFolder>
     <TargetFrameworks>netcoreapp3.1;net5.0;net6.0;</TargetFrameworks>
     <VersionPrefix>6.0.1</VersionPrefix>
     <!--<VersionSuffix>beta-02</VersionSuffix>-->

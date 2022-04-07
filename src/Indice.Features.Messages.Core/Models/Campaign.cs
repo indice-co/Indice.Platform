@@ -19,7 +19,7 @@ namespace Indice.Features.Messages.Core.Models
         /// <summary>
         /// The content of the campaign.
         /// </summary>
-        public Dictionary<string, MessageContent> Content { get; set; } = new Dictionary<string, MessageContent>();
+        public Dictionary<string, MessageContent> Content { get; set; } = new Dictionary<string, MessageContent>(StringComparer.OrdinalIgnoreCase);
         /// <summary>
         /// Defines a (call-to-action) link.
         /// </summary>
@@ -51,7 +51,7 @@ namespace Indice.Features.Messages.Core.Models
         /// <summary>
         /// The delivery channel of a campaign.
         /// </summary>
-        public MessageChannelKind DeliveryChannel { get; set; }
+        public MessageChannelKind MessageChannelKind { get; set; }
         /// <summary>
         /// Optional data for the campaign.
         /// </summary>

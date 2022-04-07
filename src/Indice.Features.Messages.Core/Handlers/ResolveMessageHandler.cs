@@ -43,37 +43,50 @@ namespace Indice.Features.Messages.Core.Handlers
         /// <param name="event">The event model used when a contact is resolved from an external system.</param>
         public async Task Process(ResolveMessageEvent @event) {
             var contact = @event.Contact;
+            var contactId = contact.Id;
             if (!string.IsNullOrWhiteSpace(@event.Contact.RecipientId)) {
                 contact = await ContactResolver.GetById(@event.Contact.RecipientId);
-                // Persist contact in campaign's distribution list.
-                await ContactService.Create(Mapper.ToCreateContactRequest(contact, @event.Campaign.DistributionListId));
+                // Update contact in campaign's distribution list.
+                await ContactService.Update(contactId, Mapper.ToUpdateContactRequest(contact, @event.Campaign.DistributionListId));
             }
             // Make substitution to message content using contact resolved data.
+            var handlebars = Handlebars.Create();
+            handlebars.Configuration.TextEncoder = new HtmlEncoder();
             foreach (var content in @event.Campaign.Content) {
-                var template = Handlebars.Compile(content.Value.Body);
-                content.Value.Body = template(contact);
+                dynamic templateData = new { contact, data = @event.Campaign.Data };
+                var titleTemplate = handlebars.Compile(content.Value.Title);
+                content.Value.Title = titleTemplate(templateData);
+                var bodyTemplate = handlebars.Compile(content.Value.Body);
+                content.Value.Body = bodyTemplate(templateData);
             }
             var campaign = @event.Campaign;
-            // Persist inbox message with merged content.
-            if (campaign.DeliveryChannel.HasFlag(MessageChannelKind.Inbox)) {
-                var inboxContent = @event.Campaign.Content[nameof(MessageChannelKind.Inbox)];
-                await MessageService.Create(new CreateMessageRequest {
-                    Body = inboxContent.Body,
-                    CampaignId = campaign.Id,
-                    RecipientId = contact.RecipientId,
-                    Title = inboxContent.Title
-                });
-            }
+            // Persist message with merged contents.
+            await MessageService.Create(new CreateMessageRequest {
+                CampaignId = campaign.Id,
+                Content = @event.Campaign.Content,
+                RecipientId = contact.RecipientId
+            });
             var eventDispatcher = GetEventDispatcher(KeyedServiceNames.EventDispatcherServiceKey);
-            if (campaign.DeliveryChannel.HasFlag(MessageChannelKind.PushNotification)) {
+            if (campaign.MessageChannelKind.HasFlag(MessageChannelKind.PushNotification)) {
                 await eventDispatcher.RaiseEventAsync(
                     payload: SendPushNotificationEvent.FromContactResolutionEvent(@event, broadcast: false),
                     configure: options => options.WrapInEnvelope(false).At(campaign.ActivePeriod?.From?.DateTime ?? DateTime.UtcNow).WithQueueName(EventNames.SendPushNotification)
                 );
+                return;
             }
-            if (campaign.DeliveryChannel.HasFlag(MessageChannelKind.Email)) {
+            if (campaign.MessageChannelKind.HasFlag(MessageChannelKind.Email)) {
+                await eventDispatcher.RaiseEventAsync(
+                    payload: SendEmailEvent.FromContactResolutionEvent(@event, broadcast: false),
+                    configure: options => options.WrapInEnvelope(false).At(campaign.ActivePeriod?.From?.DateTime ?? DateTime.UtcNow).WithQueueName(EventNames.SendEmail)
+                );
+                return;
             }
-            if (campaign.DeliveryChannel.HasFlag(MessageChannelKind.SMS)) {
+            if (campaign.MessageChannelKind.HasFlag(MessageChannelKind.SMS)) {
+                await eventDispatcher.RaiseEventAsync(
+                    payload: SendSmsEvent.FromContactResolutionEvent(@event, broadcast: false),
+                    configure: options => options.WrapInEnvelope(false).At(campaign.ActivePeriod?.From?.DateTime ?? DateTime.UtcNow).WithQueueName(EventNames.SendSms)
+                );
+                return;
             }
         }
     }

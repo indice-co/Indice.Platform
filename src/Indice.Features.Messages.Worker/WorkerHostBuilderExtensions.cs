@@ -25,8 +25,8 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <param name="workerHostBuilder">A helper class to configure the worker host.</param>
         /// <param name="configure"></param>
         /// <returns>The <see cref="WorkerHostBuilder"/> used to configure the worker host.</returns>
-        public static WorkerHostBuilder AddCampaignsJobs(this WorkerHostBuilder workerHostBuilder, Action<CampaignsJobsOptions> configure = null) {
-            var options = new CampaignsJobsOptions {
+        public static WorkerHostBuilder AddMessageJobs(this WorkerHostBuilder workerHostBuilder, Action<MessageJobsOptions> configure = null) {
+            var options = new MessageJobsOptions {
                 Services = workerHostBuilder.Services
             };
             configure?.Invoke(options);
@@ -45,6 +45,16 @@ namespace Microsoft.Extensions.DependencyInjection
                 options.QueueName = EventNames.SendPushNotification;
                 options.PollingInterval = TimeSpan.FromSeconds(5).TotalMilliseconds;
                 options.InstanceCount = 1;
+            })
+            .AddJob<SendEmailJobHandler>().WithQueueTrigger<SendEmailEvent>(options => {
+                options.QueueName = EventNames.SendEmail;
+                options.PollingInterval = TimeSpan.FromSeconds(5).TotalMilliseconds;
+                options.InstanceCount = 1;
+            })
+            .AddJob<SendSmsJobHandler>().WithQueueTrigger<SendSmsEvent>(options => {
+                options.QueueName = EventNames.SendSms;
+                options.PollingInterval = TimeSpan.FromSeconds(5).TotalMilliseconds;
+                options.InstanceCount = 1;
             });
             var serviceProvider = workerHostBuilder.Services.BuildServiceProvider();
             var configuration = serviceProvider.GetRequiredService<IConfiguration>();
@@ -52,6 +62,7 @@ namespace Microsoft.Extensions.DependencyInjection
             workerHostBuilder.Services.AddDbContext<CampaignsDbContext>(options.ConfigureDbContext ?? sqlServerConfiguration);
             workerHostBuilder.Services.TryAddTransient<Func<string, IPushNotificationService>>(serviceProvider => key => new PushNotificationServiceNoop());
             workerHostBuilder.Services.TryAddTransient<Func<string, IEventDispatcher>>(serviceProvider => key => new EventDispatcherNoop());
+            workerHostBuilder.Services.TryAddTransient<IEmailService, EmailServiceNoop>();
             workerHostBuilder.Services.TryAddTransient<IContactResolver, ContactResolverNoop>();
             workerHostBuilder.Services.TryAddTransient<IDistributionListService, DistributionListService>();
             workerHostBuilder.Services.TryAddTransient<IMessageService, MessageService>();
@@ -65,26 +76,81 @@ namespace Microsoft.Extensions.DependencyInjection
         /// </summary>
         /// <param name="options">Options for configuring internal campaign jobs used by the worker host.</param>
         /// <param name="configure">Configure the available options for push notifications. Null to use defaults.</param>
-        public static void UsePushNotificationServiceAzure(this CampaignsJobsOptions options, Action<IServiceProvider, PushNotificationAzureOptions> configure = null) =>
+        public static MessageJobsOptions UsePushNotificationServiceAzure(this MessageJobsOptions options, Action<IServiceProvider, PushNotificationAzureOptions> configure = null) {
             options.Services.AddPushNotificationServiceAzure(KeyedServiceNames.PushNotificationServiceKey, configure);
+            return options;
+        }
 
         /// <summary>
         /// Adds <see cref="IEventDispatcher"/> using Indice worker host as a queuing mechanism.
         /// </summary>
         /// <param name="options">Options for configuring internal campaign jobs used by the worker host.</param>
-        public static void UseEventDispatcherHosting(this CampaignsJobsOptions options) =>
+        public static MessageJobsOptions UseEventDispatcherHosting(this MessageJobsOptions options) {
             options.Services.AddKeyedService<IEventDispatcher, EventDispatcherHosting, string>(
                 key: KeyedServiceNames.EventDispatcherServiceKey,
                 serviceProvider => new EventDispatcherHosting(new MessageQueueFactory(serviceProvider)),
                 serviceLifetime: ServiceLifetime.Transient
             );
+            return options;
+        }
+
+        /// <summary>
+        /// Adds an instance of <see cref="IEmailService"/> using SMTP settings in configuration.
+        /// </summary>
+        /// <param name="options">Options used when configuring messages in Azure Functions.</param>
+        /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
+        public static MessageJobsOptions UseEmailService(this MessageJobsOptions options, IConfiguration configuration) {
+            options.Services.AddEmailService(configuration);
+            return options;
+        }
+
+        /// <summary>
+        /// Adds an instance of <see cref="ISmsService"/> using Yuboto.
+        /// </summary>
+        /// <param name="options">Options used when configuring messages in Azure Functions.</param>
+        /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
+        public static MessageJobsOptions UseSmsServiceYuboto(this MessageJobsOptions options, IConfiguration configuration) {
+            options.Services.AddSmsServiceYuboto(configuration);
+            return options;
+        }
+
+        /// <summary>
+        /// Adds an instance of <see cref="ISmsService"/> using Apifon.
+        /// </summary>
+        /// <param name="options">Options used when configuring messages in Azure Functions.</param>
+        /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
+        /// <param name="configure">Configure the available options. Null to use defaults.</param>
+        public static MessageJobsOptions UseSmsServiceApifon(this MessageJobsOptions options, IConfiguration configuration, Action<SmsServiceApifonOptions> configure = null) {
+            options.Services.AddSmsServiceApifon(configuration, configure);
+            return options;
+        }
+
+        /// <summary>
+        /// Adds an instance of <see cref="ISmsService"/> using Yuboto.
+        /// </summary>
+        /// <param name="options">Options used when configuring messages in Azure Functions.</param>
+        /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
+        public static MessageJobsOptions UseSmsServiceViber(this MessageJobsOptions options, IConfiguration configuration) {
+            options.Services.AddSmsServiceViber(configuration);
+            return options;
+        }
+
+        /// <summary>
+        /// Adds an instance of <see cref="ISmsService"/> using Yuboto Omni for sending Viber messages.
+        /// </summary>
+        /// <param name="options">Options used when configuring messages in Azure Functions.</param>
+        /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
+        public static MessageJobsOptions UseViberServiceYubotoOmni(this MessageJobsOptions options, IConfiguration configuration) {
+            options.Services.AddViberServiceYubotoOmni(configuration);
+            return options;
+        }
 
         /// <summary>
         /// Configures that campaign contact information will be resolved by contacting the Identity Server instance. 
         /// </summary>
         /// <param name="options">Options for configuring internal campaign jobs used by the worker host.</param>
         /// <param name="configure">Delegate used to configure <see cref="ContactResolverIdentity"/> service.</param>
-        public static void UseIdentityContactResolver(this CampaignsJobsOptions options, Action<ContactResolverIdentityOptions> configure) {
+        public static MessageJobsOptions UseIdentityContactResolver(this MessageJobsOptions options, Action<ContactResolverIdentityOptions> configure) {
             var serviceOptions = new ContactResolverIdentityOptions();
             configure.Invoke(serviceOptions);
             options.Services.Configure<ContactResolverIdentityOptions>(config => {
@@ -96,6 +162,7 @@ namespace Microsoft.Extensions.DependencyInjection
             options.Services.AddHttpClient<IContactResolver, ContactResolverIdentity>(httpClient => {
                 httpClient.BaseAddress = serviceOptions.BaseAddress;
             });
+            return options;
         }
 
         /// <summary>
@@ -103,7 +170,9 @@ namespace Microsoft.Extensions.DependencyInjection
         /// </summary>
         /// <typeparam name="TContactResolver">The concrete type of <see cref="IContactResolver"/>.</typeparam>
         /// <param name="options">Options for configuring internal campaign jobs used by the worker host.</param>
-        public static void UseContactResolver<TContactResolver>(this CampaignsJobsOptions options) where TContactResolver : IContactResolver =>
+        public static MessageJobsOptions UseContactResolver<TContactResolver>(this MessageJobsOptions options) where TContactResolver : IContactResolver {
             options.Services.AddTransient(typeof(IContactResolver), typeof(TContactResolver));
+            return options;
+        }
     }
 }

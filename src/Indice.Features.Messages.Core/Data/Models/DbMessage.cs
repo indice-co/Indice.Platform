@@ -1,4 +1,6 @@
-﻿namespace Indice.Features.Messages.Core.Data.Models
+﻿using Indice.Features.Messages.Core.Models;
+
+namespace Indice.Features.Messages.Core.Data.Models
 {
     /// <summary>
     /// Inbox message entity.
@@ -22,13 +24,9 @@
         /// </summary>
         public bool IsRead { get; set; }
         /// <summary>
-        /// The title of the inbox message.
+        /// The contents of the template.
         /// </summary>
-        public string Title { get; set; }
-        /// <summary>
-        /// The body of the inbox message.
-        /// </summary>
-        public string Body { get; set; }
+        public Dictionary<string, MessageContent> Content { get; set; } = new Dictionary<string, MessageContent>(StringComparer.OrdinalIgnoreCase);
         /// <summary>
         /// Defines when the inbox message was read.
         /// </summary>

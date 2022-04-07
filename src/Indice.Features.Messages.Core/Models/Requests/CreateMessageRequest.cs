@@ -10,13 +10,9 @@
         /// </summary>
         public string RecipientId { get; set; }
         /// <summary>
-        /// The title of the message.
+        /// The contents of the template.
         /// </summary>
-        public string Title { get; set; }
-        /// <summary>
-        /// The body of the message.
-        /// </summary>
-        public string Body { get; set; }
+        public Dictionary<string, MessageContent> Content { get; set; } = new Dictionary<string, MessageContent>(StringComparer.OrdinalIgnoreCase);
         /// <summary>
         /// The unique identifier of the campaign.
         /// </summary>

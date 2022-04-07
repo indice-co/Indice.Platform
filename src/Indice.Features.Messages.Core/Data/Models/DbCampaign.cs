@@ -44,7 +44,7 @@ namespace Indice.Features.Messages.Core.Data.Models
         /// <summary>
         /// The delivery channel of a campaign.
         /// </summary>
-        public MessageChannelKind DeliveryChannel { get; set; }
+        public MessageChannelKind MessageChannelKind { get; set; }
         /// <summary>
         /// Foreign key to the <see cref="DbMessageType"/>.
         /// </summary>

@@ -5,9 +5,9 @@ using Microsoft.Extensions.DependencyInjection;
 namespace Indice.Features.Messages.Worker.Azure
 {
     /// <summary>
-    /// Options used when configuring campaign Azure Functions.
+    /// Options used when configuring messages in Azure Functions.
     /// </summary>
-    public class CampaignsOptions
+    public class MessageOptions
     {
         internal IServiceCollection Services { get; set; }
         /// <summary>

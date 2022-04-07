@@ -13,7 +13,7 @@ namespace Indice.Features.Messages.Core.Models
             Content = campaign.Template.Content,
             CreatedAt = campaign.CreatedAt,
             Data = campaign.Data,
-            DeliveryChannel = campaign.DeliveryChannel,
+            MessageChannelKind = campaign.MessageChannelKind,
             DistributionList = campaign.DistributionList != null ? new DistributionList {
                 Id = campaign.DistributionList.Id,
                 Name = campaign.DistributionList.Name
@@ -55,7 +55,8 @@ namespace Indice.Features.Messages.Core.Models
             Salutation = request.Salutation
         };
 
-        public static UpdateContactRequest ToUpdateContactRequest(Contact request) => new() {
+        public static UpdateContactRequest ToUpdateContactRequest(Contact request, Guid? distributionListId = null) => new() {
+            DistributionListId = distributionListId,
             Email = request.Email,
             FirstName = request.FirstName,
             FullName = request.FullName,
@@ -77,7 +78,7 @@ namespace Indice.Features.Messages.Core.Models
             Content = campaign.Template.Content,
             CreatedAt = campaign.CreatedAt,
             Data = campaign.Data,
-            DeliveryChannel = campaign.DeliveryChannel,
+            MessageChannelKind = campaign.MessageChannelKind,
             DistributionList = campaign.DistributionList != null ? new DistributionList {
                 Id = campaign.DistributionList.Id,
                 Name = campaign.DistributionList.Name
@@ -99,7 +100,7 @@ namespace Indice.Features.Messages.Core.Models
             ActivePeriod = request.ActivePeriod,
             CreatedAt = DateTime.UtcNow,
             Data = request.Data,
-            DeliveryChannel = request.DeliveryChannel,
+            MessageChannelKind = request.MessageChannelKind,
             DistributionListId = request.DistributionListId,
             Id = Guid.NewGuid(),
             IsGlobal = request.IsGlobal,

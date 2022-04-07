@@ -28,12 +28,12 @@ namespace Indice.Features.Messages.Core.Handlers
         private IDistributionListService DistributionListService { get; }
 
         /// <summary>
-        /// Distributes a campaign for further processing base on the <see cref="CampaignPublishedEvent.DeliveryChannel"/>.
+        /// Distributes a campaign for further processing base on the <see cref="CampaignPublishedEvent.MessageChannelKind"/>.
         /// </summary>
         /// <param name="campaign">The event model used when a new campaign is created.</param>
         public async Task Process(CampaignPublishedEvent campaign) {
             // If campaign is global and has push notification as delivery channel, then we short-circuit the flow and we immediately broadcast the message.
-            if (campaign.IsGlobal && campaign.DeliveryChannel.HasFlag(MessageChannelKind.PushNotification)) {
+            if (campaign.IsGlobal && campaign.MessageChannelKind.HasFlag(MessageChannelKind.PushNotification)) {
                 var eventDispatcher = GetEventDispatcher(KeyedServiceNames.EventDispatcherServiceKey);
                 await eventDispatcher.RaiseEventAsync(
                     payload: SendPushNotificationEvent.FromCampaignCreatedEvent(campaign, broadcast: true),

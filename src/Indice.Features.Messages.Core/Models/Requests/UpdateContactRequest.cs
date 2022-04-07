@@ -29,5 +29,9 @@
         /// The phone number.
         /// </summary>
         public string PhoneNumber { get; set; }
+        /// <summary>
+        /// The id of the distribution list.
+        /// </summary>
+        public Guid? DistributionListId { get; set; }
     }
 }

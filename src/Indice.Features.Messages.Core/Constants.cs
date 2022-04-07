@@ -47,13 +47,21 @@ namespace Indice.Features.Messages.Core
         /// </summary>
         public const string CampaignPublished = "campaign-published";
         /// <summary>
+        /// Name for the queue that stores events for resolving contacts from external systems.
+        /// </summary>
+        public const string ResolveMessage = "campaign-resolve-message";
+        /// <summary>
         /// Name for the queue that stores events for delivering push notifications.
         /// </summary>
         public const string SendPushNotification = "campaign-send-push-notification";
         /// <summary>
-        /// Name for the queue that stores events for resolving contacts from external systems.
+        /// Name for the queue that stores events for delivering emails.
         /// </summary>
-        public const string ResolveMessage = "campaign-resolve-message";
+        public const string SendEmail = "campaign-send-email";
+        /// <summary>
+        /// Name for the queue that stores events for delivering SMS.
+        /// </summary>
+        public const string SendSms = "campaign-send-sms";
     }
 
     /// <summary>

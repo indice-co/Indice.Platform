@@ -24,11 +24,10 @@ namespace Indice.Features.Messages.Core.Services
         /// <inheritdoc />
         public async Task Create(CreateMessageRequest request) {
             var dbMessage = new DbMessage {
-                Body = request.Body,
                 CampaignId = request.CampaignId,
+                Content = request.Content,
                 Id = Guid.NewGuid(),
-                RecipientId = request.RecipientId,
-                Title = request.Title
+                RecipientId = request.RecipientId
             };
             DbContext.Messages.Add(dbMessage);
             await DbContext.SaveChangesAsync();

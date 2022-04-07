@@ -18,17 +18,17 @@ host.ConfigureAppConfiguration((hostBuilderContext, configurationBuilder) => {
                 options.JsonOptions.JsonSerializerOptions.WriteIndented = true;
                 options.UseStoreRelational(builder => builder.UseSqlServer(hostBuilderContext.Configuration.GetConnectionString("WorkerDb")));
             })
-            .AddCampaignsJobs(options => {
+            .AddMessageJobs(options => {
                 var configuration = hostBuilderContext.Configuration;
                 options.ConfigureDbContext = builder => builder.UseSqlServer(configuration.GetConnectionString("MessagesDb"));
                 options.DatabaseSchema = "cmp";
-                options.UseEventDispatcherHosting();
-                //options.UsePushNotificationServiceAzure();
-                options.UseIdentityContactResolver(resolverOptions => {
-                    resolverOptions.BaseAddress = new Uri(configuration["IdentityServer:BaseAddress"]);
-                    resolverOptions.ClientId = configuration["IdentityServer:ClientId"];
-                    resolverOptions.ClientSecret = configuration["IdentityServer:ClientSecret"];
-                });
+                options.UseEventDispatcherHosting()
+                       //.UsePushNotificationServiceAzure()
+                       .UseIdentityContactResolver(resolverOptions => {
+                           resolverOptions.BaseAddress = new Uri(configuration["IdentityServer:BaseAddress"]);
+                           resolverOptions.ClientId = configuration["IdentityServer:ClientId"];
+                           resolverOptions.ClientSecret = configuration["IdentityServer:ClientSecret"];
+                       });
             })
             /*.AddAlertJobs()*/;
 })

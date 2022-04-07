@@ -8,17 +8,17 @@ namespace Indice.Features.Messages.Worker.Handlers
     {
         public ResolveMessageJobHandler(
             ILogger<ResolveMessageJobHandler> logger,
-            CampaignJobHandlerFactory campaignJobHandlerFactory
+            MessageJobHandlerFactory messageJobHandlerFactory
         ) {
             Logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            CampaignJobHandlerFactory = campaignJobHandlerFactory;
+            MessageJobHandlerFactory = messageJobHandlerFactory;
         }
 
         public ILogger<ResolveMessageJobHandler> Logger { get; }
-        public CampaignJobHandlerFactory CampaignJobHandlerFactory { get; }
+        public MessageJobHandlerFactory MessageJobHandlerFactory { get; }
 
         public async Task Process(ResolveMessageEvent @event) {
-            var handler = CampaignJobHandlerFactory.Create<ResolveMessageEvent>();
+            var handler = MessageJobHandlerFactory.Create<ResolveMessageEvent>();
             await handler.Process(@event);
         }
     }

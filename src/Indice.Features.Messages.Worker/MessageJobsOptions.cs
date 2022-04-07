@@ -7,7 +7,7 @@ namespace Indice.Features.Messages.Worker
     /// <summary>
     /// Options for configuring internal campaign jobs used by the worker host.
     /// </summary>
-    public class CampaignsJobsOptions
+    public class MessageJobsOptions
     {
         internal IServiceCollection Services { get; set; }
         /// <summary>

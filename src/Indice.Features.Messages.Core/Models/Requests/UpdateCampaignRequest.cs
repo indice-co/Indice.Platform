@@ -14,7 +14,7 @@ namespace Indice.Features.Messages.Core.Models.Requests
         /// <summary>
         /// The content of the campaign.
         /// </summary>
-        public Dictionary<string, MessageContent> Content { get; set; } = new Dictionary<string, MessageContent>();
+        public Dictionary<string, MessageContent> Content { get; set; } = new Dictionary<string, MessageContent>(StringComparer.OrdinalIgnoreCase);
         /// <summary>
         /// Defines a (call-to-action) link.
         /// </summary>

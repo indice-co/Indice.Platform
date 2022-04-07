@@ -7,7 +7,7 @@ namespace Microsoft.Extensions.DependencyInjection
     /// <summary>
     /// Extensions on <see cref="MessageEndpointOptions"/>.
     /// </summary>
-    public static class CampaignsApiOptionsExtensions
+    public static class MessageApiOptionsExtensions
     {
         /// <summary>
         /// Adds <see cref="IEventDispatcher"/> using Indice worker host as a queuing mechanism.

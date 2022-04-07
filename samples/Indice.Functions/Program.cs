@@ -19,16 +19,16 @@ namespace Indice.Functions
             })
             .ConfigureFunctionsWorkerDefaults(builder => { })
             .ConfigureServices(services => { })
-            .ConfigureCampaigns((configuration, options) => {
+            .ConfigureMessages((configuration, options) => {
                 options.ConfigureDbContext = builder => builder.UseSqlServer(configuration.GetConnectionString("MessagesDb"));
                 options.DatabaseSchema = "cmp";
-                options.UseEventDispatcherAzure();
-                //options.UsePushNotificationServiceAzure();
-                options.UseIdentityContactResolver(resolverOptions => {
-                    resolverOptions.BaseAddress = new Uri(configuration["IdentityServer:BaseAddress"]);
-                    resolverOptions.ClientId = configuration["IdentityServer:ClientId"];
-                    resolverOptions.ClientSecret = configuration["IdentityServer:ClientSecret"];
-                });
+                options.UseEventDispatcherAzure()
+                       //.UsePushNotificationServiceAzure()
+                       .UseIdentityContactResolver(resolverOptions => {
+                           resolverOptions.BaseAddress = new Uri(configuration["IdentityServer:BaseAddress"]);
+                           resolverOptions.ClientId = configuration["IdentityServer:ClientId"];
+                           resolverOptions.ClientSecret = configuration["IdentityServer:ClientSecret"];
+                       });
             })
             .UseEnvironment(Environment.GetEnvironmentVariable("ENVIRONMENT"));
             // Build host and run.

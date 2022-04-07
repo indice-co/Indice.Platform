@@ -49,8 +49,8 @@ namespace Indice.Features.Messages.Core.Services
                 var searchTerm = options.Search.Trim();
                 query = query.Where(x => x.Title != null && x.Title.Contains(searchTerm));
             }
-            if (options.Filter.DeliveryChannel.HasValue) {
-                query = query.Where(x => x.DeliveryChannel.HasFlag(options.Filter.DeliveryChannel.Value));
+            if (options.Filter.MessageChannelKind.HasValue) {
+                query = query.Where(x => x.MessageChannelKind.HasFlag(options.Filter.MessageChannelKind.Value));
             }
             if (options.Filter.Published.HasValue) {
                 query = query.Where(x => x.Published == options.Filter.Published.Value);

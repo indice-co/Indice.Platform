@@ -5,14 +5,14 @@ namespace Indice.Features.Messages.Core.Handlers
     /// <summary>
     /// A factory class that creates instance of <see cref="ICampaignJobHandler{TEvent}"/> implementations based on the type of event.
     /// </summary>
-    public class CampaignJobHandlerFactory
+    public class MessageJobHandlerFactory
     {
         /// <summary>
-        /// Creates a new instance of <see cref="CampaignJobHandlerFactory"/>.
+        /// Creates a new instance of <see cref="MessageJobHandlerFactory"/>.
         /// </summary>
         /// <param name="serviceProvider"></param>
         /// <exception cref="ArgumentNullException"></exception>
-        public CampaignJobHandlerFactory(IServiceProvider serviceProvider) {
+        public MessageJobHandlerFactory(IServiceProvider serviceProvider) {
             ServiceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
         }
 
