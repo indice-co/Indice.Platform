@@ -21,7 +21,6 @@ namespace Microsoft.Extensions.DependencyInjection
     /// </summary>
     public static class ServiceCollectionExtensions
     {
-
         /// <summary>
         /// Adds content security policy. See also <see cref="SecurityHeadersAttribute"/> that enables the policy on a specific action.
         /// </summary>
@@ -36,15 +35,11 @@ namespace Microsoft.Extensions.DependencyInjection
         }
 
         /// <summary>
-        /// Adds an instance of <see cref="IHtmlRenderingEngine"/> for generating html content for usecases like email sending and other non http related operations.
+        /// Adds an instance of <see cref="IHtmlRenderingEngine"/> for generating HTML content for use cases like email sending and other non HTTP related operations.
         /// </summary>
         /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
-        /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
-        public static IServiceCollection AddHtmlRenderingEngineRazorMvc(this IServiceCollection services, IConfiguration configuration) {
-            services.Configure<EmailServiceSettings>(configuration.GetSection(EmailServiceSettings.Name));
-            services.AddTransient(serviceProvider => serviceProvider.GetRequiredService<IOptions<EmailServiceSettings>>().Value);
-            services.AddTransient<IHtmlRenderingEngine,  HtmlRenderingEngineMvcRazor>();
-            services.AddTransient<IEmailService, EmailServiceSmtp>();
+        public static IServiceCollection AddHtmlRenderingEngineRazorMvc(this IServiceCollection services) {
+            services.AddTransient<IHtmlRenderingEngine, HtmlRenderingEngineMvcRazor>();
             return services;
         }
 

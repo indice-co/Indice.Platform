@@ -15,46 +15,17 @@ using Microsoft.Extensions.Logging;
 namespace Indice.Services
 {
     /// <summary>
-    /// Custom settings that are used to send emails via SparkPost.
-    /// </summary>
-    public class EmailServiceSparkPostSettings {
-        /// <summary>
-        /// The config section name.
-        /// </summary>
-        public const string Name = "SparkPost";
-        /// <summary>
-        /// The default sender address (ex. no-reply@indice.gr).
-        /// </summary>
-        public string Sender { get; set; }
-        /// <summary>
-        /// The default sender name (ex. INDICE OE)
-        /// </summary>
-        public string SenderName { get; set; }
-        /// <summary>
-        /// Optional email addresses that are always added as blind carbon copy recipients.
-        /// </summary>
-        public string BccRecipients { get; set; }
-        /// <summary>
-        /// The SparkPost API key.
-        /// </summary>
-        public string ApiKey { get; set; }
-        /// <summary>
-        /// The SparkPost API URL (ex. https://api.sparkpost.com/api/v1/).
-        /// </summary>
-        public string Api { get; set; } = "https://api.sparkpost.com/api/v1/";
-    }
-
-    /// <summary>
     /// SparkPost implementation for the email service abstraction.
     /// https://developers.sparkpost.com/api/transmissions.html
     /// </summary>
-    public class EmailServiceSparkpost : IEmailService {
+    public class EmailServiceSparkpost : IEmailService
+    {
         private readonly EmailServiceSparkPostSettings _settings;
         private readonly HttpClient _httpClient;
         private readonly ILogger<EmailServiceSparkpost> _logger;
 
         /// <summary>
-        /// constructs the service
+        /// Creates a new instance of <see cref="EmailServiceSparkpost"/>.
         /// </summary>
         /// <param name="settings">An instance of <see cref="EmailServiceSparkPostSettings"/> used to initialize the service.</param>
         /// <param name="httpClient">The http client to use (DI managed)</param>
@@ -127,13 +98,46 @@ namespace Indice.Services
         }
     }
 
+    /// <summary>
+    /// Custom settings that are used to send emails via SparkPost.
+    /// </summary>
+    public class EmailServiceSparkPostSettings
+    {
+        /// <summary>
+        /// The configuration section name.
+        /// </summary>
+        public const string Name = "SparkPost";
+        /// <summary>
+        /// The default sender address (ex. no-reply@indice.gr).
+        /// </summary>
+        public string Sender { get; set; }
+        /// <summary>
+        /// The default sender name (ex. INDICE OE)
+        /// </summary>
+        public string SenderName { get; set; }
+        /// <summary>
+        /// Optional email addresses that are always added as blind carbon copy recipients.
+        /// </summary>
+        public string BccRecipients { get; set; }
+        /// <summary>
+        /// The SparkPost API key.
+        /// </summary>
+        public string ApiKey { get; set; }
+        /// <summary>
+        /// The SparkPost API URL (ex. https://api.sparkpost.com/api/v1/).
+        /// </summary>
+        public string Api { get; set; } = "https://api.sparkpost.com/api/v1/";
+    }
+
     #region SparkPost Models
-    internal class SparkPostRequest {
+    internal class SparkPostRequest
+    {
         public SparkPostContent Content { get; set; }
         public SparkPostRecipient[] Recipients { get; set; }
     }
 
-    internal class SparkPostContent {
+    internal class SparkPostContent
+    {
         public SparkPostSenderAddress From { get; set; }
         public string Subject { get; set; }
         public string Html { get; set; }
@@ -146,11 +150,13 @@ namespace Indice.Services
         public string Name { get; set; }
     }
 
-    internal class SparkPostRecipient {
+    internal class SparkPostRecipient
+    {
         public SparkPostRecipientEmailAddress Address { get; set; }
     }
 
-    internal class SparkPostRecipientEmailAddress {
+    internal class SparkPostRecipientEmailAddress
+    {
         public string Email { get; set; }
         /// <summary>
         /// Decides whether this email address will be associated with an other one. 

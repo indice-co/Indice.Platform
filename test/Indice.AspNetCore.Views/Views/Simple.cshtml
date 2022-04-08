@@ -1,0 +1,14 @@
+﻿@{
+    var subject = ViewData["Subject"];
+    var body = ViewData["Body"];
+}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Page Title</title>
+</head>
+<body>
+    Hello @Model.Salutation @Model.FullName
+    <p>@Model.Message</p>
+</body>
+</html>

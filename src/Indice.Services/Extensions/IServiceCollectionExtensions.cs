@@ -103,7 +103,7 @@ namespace Microsoft.Extensions.DependencyInjection
         }
 
         /// <summary>
-        /// Adds an instance of <see cref="IEmailService"/> that uses Sparkpost to send and Razor templates.
+        /// Adds an instance of <see cref="IEmailService"/> that uses SparkPost to send and Razor templates.
         /// </summary>
         /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
         /// <param name="configuration">Represents a set of key/value application configuration properties.</param>

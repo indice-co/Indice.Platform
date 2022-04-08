@@ -73,6 +73,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Indice.Features.Messages.Co
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Indice.WorkerHost", "samples\Indice.WorkerHost\Indice.WorkerHost.csproj", "{7ABDA4B1-FF9B-4BF9-B11A-DE12032760D1}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Indice.AspNetCore.Tests", "test\Indice.AspNetCore.Tests\Indice.AspNetCore.Tests.csproj", "{10DDF041-7564-4009-B108-E87427CFC524}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Indice.AspNetCore.Views", "test\Indice.AspNetCore.Views\Indice.AspNetCore.Views.csproj", "{A1E3CF4C-271D-4FC7-86A2-604B41DA8CAB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -191,6 +195,14 @@ Global
 		{7ABDA4B1-FF9B-4BF9-B11A-DE12032760D1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7ABDA4B1-FF9B-4BF9-B11A-DE12032760D1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7ABDA4B1-FF9B-4BF9-B11A-DE12032760D1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{10DDF041-7564-4009-B108-E87427CFC524}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{10DDF041-7564-4009-B108-E87427CFC524}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{10DDF041-7564-4009-B108-E87427CFC524}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{10DDF041-7564-4009-B108-E87427CFC524}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A1E3CF4C-271D-4FC7-86A2-604B41DA8CAB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A1E3CF4C-271D-4FC7-86A2-604B41DA8CAB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A1E3CF4C-271D-4FC7-86A2-604B41DA8CAB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A1E3CF4C-271D-4FC7-86A2-604B41DA8CAB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -224,6 +236,8 @@ Global
 		{B7AA6019-53F8-4239-BA70-36675267B24E} = {643960D9-48C5-4EA3-BED5-486CCC694947}
 		{D260ADF3-9C2F-40BE-821D-859938E15EB4} = {643960D9-48C5-4EA3-BED5-486CCC694947}
 		{7ABDA4B1-FF9B-4BF9-B11A-DE12032760D1} = {09C5F009-8096-498D-A578-511456E53E65}
+		{10DDF041-7564-4009-B108-E87427CFC524} = {613A1373-9A47-42DD-A076-7F310D0440B9}
+		{A1E3CF4C-271D-4FC7-86A2-604B41DA8CAB} = {613A1373-9A47-42DD-A076-7F310D0440B9}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {C2B9151E-8A85-444E-93A9-78264FD0FE4A}

@@ -2,7 +2,6 @@
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using Indice.Configuration;
 using Indice.Extensions;
 using MailKit.Net.Smtp;
 using MimeKit;
@@ -18,7 +17,7 @@ namespace Indice.Services
         private readonly EmailServiceSettings _settings;
 
         /// <summary>
-        /// Cconstructs the service.
+        /// Creates a new instance of <see cref="EmailServiceSmtp"/>.
         /// </summary>
         /// <param name="settings">The SMTP settings to use.</param>
         public EmailServiceSmtp(EmailServiceSettings settings) => _settings = settings ?? throw new ArgumentNullException(nameof(settings));

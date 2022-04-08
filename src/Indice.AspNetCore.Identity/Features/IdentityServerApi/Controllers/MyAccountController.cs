@@ -124,12 +124,6 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
             if (!_identityServerApiEndpointsOptions.Email.SendEmailOnUpdate) {
                 return NoContent();
             }
-            if (_emailService == null) {
-                var message = $"No concrete implementation of {nameof(IEmailService)} is registered. " +
-                              $"Check {nameof(IndiceServicesServiceCollectionExtensions.AddEmailServiceSmtp)}, {nameof(ServiceCollectionExtensions.AddEmailServiceSmtpRazor)} or " +
-                              $"{nameof(ServiceCollectionExtensions.AddEmailServiceSparkpost)} extensions on {nameof(IServiceCollection)} or provide your own implementation.";
-                throw new Exception(message);
-            }
             var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
             var data = new User {
                 UserName = User.FindDisplayName() ?? user.UserName
