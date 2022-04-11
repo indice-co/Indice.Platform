@@ -1,13 +1,10 @@
-﻿using System;
-using System.Threading;
-using System.Threading.Tasks;
-using FluentValidation;
+﻿using FluentValidation;
 using Indice.Configuration;
 using Indice.Features.Messages.Core.Models.Requests;
 using Indice.Features.Messages.Core.Services.Abstractions;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Indice.Features.Messages.AspNetCore.Services.Validators
+namespace Indice.Features.Messages.Core.Services.Validators
 {
     /// <summary>
     /// Contains validation logic for <see cref="CreateCampaignRequest"/>.

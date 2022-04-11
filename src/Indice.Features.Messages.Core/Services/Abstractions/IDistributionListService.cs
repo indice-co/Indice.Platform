@@ -29,11 +29,5 @@ namespace Indice.Features.Messages.Core.Services.Abstractions
         /// </summary>
         /// <param name="options">List parameters used to navigate through collections. Contains parameters such as sort, search, page number and page size.</param>
         Task<ResultSet<DistributionList>> GetList(ListOptions options);
-        /// <summary>
-        /// Gets the contacts associated with the specified distribution list.
-        /// </summary>
-        /// <param name="id">The id of the distribution list.</param>
-        /// <param name="options">List parameters used to navigate through collections. Contains parameters such as sort, search, page number and page size.</param>
-        Task<ResultSet<Contact>> GetContactsList(Guid id, ListOptions options = null);
     }
 }

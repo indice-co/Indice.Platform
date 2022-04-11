@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 namespace Indice.Services
 {
     /// <summary>
-    /// This is an abstraction for the rendering Engine. Usually works with <see cref="IEmailService"/> implementation. 
+    /// This is an abstraction for the rendering engine. Usually works with <see cref="IEmailService"/> implementation. 
     /// Decouple the email sending from the content rendering.
     /// </summary>
     public interface IHtmlRenderingEngine {
@@ -32,7 +32,7 @@ namespace Indice.Services
         /// <param name="data">The data usually used to substitute/bind to the given <paramref name="template"/>.</param>
         /// <returns>The rendered HTML output.</returns>
         public static Task<string> RenderAsync<TData>(this IHtmlRenderingEngine engine, string template, TData data) =>
-            engine.RenderAsync(template, typeof(TData), data);
+            engine.RenderAsync(template, data.GetType(), data);
 
     }
 }

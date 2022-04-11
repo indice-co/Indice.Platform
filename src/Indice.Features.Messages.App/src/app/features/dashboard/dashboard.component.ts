@@ -1,60 +1,39 @@
-import { CampaignsApiService } from 'src/app/core/services/campaigns-api.services';
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 
+import { forkJoin } from 'rxjs';
 import { HeaderMetaItem, Icons } from '@indice/ng-components';
-import { forkJoin, of } from 'rxjs';
-import { take, catchError } from 'rxjs/operators';
+import { CampaignResultSet, MessagesApiClient } from 'src/app/core/services/campaigns-api.services';
 
 @Component({
     selector: 'app-dashboard',
     templateUrl: './dashboard.component.html'
 })
 export class DashboardComponent implements OnInit {
-    constructor(private router: Router, private _api: CampaignsApiService) { }
+    constructor(
+        private _router: Router,
+        private _api: MessagesApiClient
+    ) { }
 
     public metaItems: HeaderMetaItem[] | null = [];
     public loaded = false;
-    public campaigns: any;
-    public activeCampaigns: any;
+    public campaignsCount = 0;
+    public activeCampaignsCount = 0;
 
-    ngOnInit(): void {
+    public ngOnInit(): void {
         this.metaItems = [
             { key: 'NG-LIB version :', icon: Icons.DateTime, text: new Date().toLocaleTimeString() }
         ];
-        const campaigns$ = this._api.getCampaigns(
-            undefined,
-            undefined,
-            1,
-            0,
-            undefined,
-            undefined
-        ).pipe(
-            take(1),
-            catchError((err) => {
-                return of({ error: err, isError: true });
-            }));
-        const activeCampaigns$ = this._api.getCampaigns(
-            undefined,
-            true,
-            1,
-            0,
-            undefined,
-            undefined
-        ).pipe(
-            take(1),
-            catchError((err) => {
-                return of({ error: err, isError: true });
-            }));
-            
-        forkJoin([campaigns$, activeCampaigns$]).subscribe(results => {
-            this.campaigns = results[0];
-            this.activeCampaigns = results[1];
+        const campaigns$ = this._api.getCampaigns(undefined, undefined, 1, 0, undefined, undefined);
+        const activeCampaigns$ = this._api.getCampaigns(undefined, true, 1, 0, undefined, undefined);
+        forkJoin([campaigns$, activeCampaigns$]).subscribe((results: [CampaignResultSet, CampaignResultSet]) => {
+            this.campaignsCount = results[0].count || 0;
+            this.activeCampaignsCount = results[1].count || 0;
             this.loaded = true;
         });
     }
 
     public navigate(path: string): void {
-        this.router.navigateByUrl(path);
+        this._router.navigateByUrl(path);
     }
 }

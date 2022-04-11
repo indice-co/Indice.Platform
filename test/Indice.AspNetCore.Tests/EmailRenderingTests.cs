@@ -31,8 +31,10 @@ namespace Indice.AspNetCore.Tests
         }
 
         [Fact]
-        public async Task Can() {
+        public async Task Can_Send_Email_With_Simple_Template() {
             var emailServiceMock = new Mock<IEmailService>();
+            var renderingEngine = TestServer.GetRequiredService<IHtmlRenderingEngine>();
+            emailServiceMock.Setup(x => x.HtmlRenderingEngine).Returns(renderingEngine);
             await emailServiceMock.Object.SendAsync(messageBuilder => messageBuilder
                 .To("g.manoltzas@indice.gr")
                 .WithSubject("Verification")
@@ -43,6 +45,17 @@ namespace Indice.AspNetCore.Tests
                 })
                 .UsingTemplate("Simple")
             );
+            var outputFilePath = Path.Combine(Directory.GetCurrentDirectory(), "Outputs\\simple.html");
+            if (!File.Exists(outputFilePath)) {
+                throw new FileNotFoundException($"Output file '{outputFilePath}' does not exist");
+            }
+            var expectedBody = await File.ReadAllTextAsync(outputFilePath);
+            emailServiceMock.Verify(p => p.SendAsync(
+                It.Is<string[]>(recipients => recipients[0] == "g.manoltzas@indice.gr"),
+                It.Is<string>(subject => subject == "Verification"),
+                It.Is<string>(body => body == expectedBody),
+                It.Is<EmailAttachment[]>(attachments => attachments.Count() == 0)
+            ), Times.Once);
         }
     }
 

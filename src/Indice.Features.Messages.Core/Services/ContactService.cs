@@ -89,12 +89,15 @@ namespace Indice.Features.Messages.Core.Services
         }
 
         /// <inheritdoc />
-        public async Task<ResultSet<Contact>> GetList(ListOptions options) {
+        public async Task<ResultSet<Contact>> GetList(ListOptions<ContactListFilter> options) {
             var query = DbContext
                 .Contacts
-                .AsNoTracking()
-                .Select(Mapper.ProjectToContact);
-            return await query.ToResultSetAsync(options);
+                .AsNoTracking();
+            var filter = options.Filter;
+            if (filter?.DistributionListId is not null) {
+                query = query.Where(x => x.DistributionListId == filter.DistributionListId.Value);
+            }
+            return await query.Select(Mapper.ProjectToContact).ToResultSetAsync(options);
         }
 
         /// <inheritdoc />

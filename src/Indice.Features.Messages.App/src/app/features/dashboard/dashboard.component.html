@@ -1,15 +1,6 @@
-<lib-view-layout title="Καλώς ήλθατε,"
-                 [meta-items]="metaItems">
+<lib-view-layout title="Καλώς ήλθατε," [meta-items]="metaItems">
     <div class="cards-deck-4">
-        <lib-kpi-tile title="Καμπανιες"
-                      [busy]="!campaigns"
-                      [kpi]="campaigns?.count"
-                      (tile-action)="navigate('/campaigns')">
-        </lib-kpi-tile>
-        <lib-kpi-tile title="Ενεργες"
-                      [busy]="!activeCampaigns"
-                      [kpi]="activeCampaigns?.count"
-                      (tile-action)="navigate('/campaigns')">
-        </lib-kpi-tile>
+        <lib-kpi-tile title="Καμπανιες" [busy]="!loaded" [kpi]="campaignsCount" (tile-action)="navigate('/campaigns')"></lib-kpi-tile>
+        <lib-kpi-tile title="Ενεργες" [busy]="!loaded" [kpi]="activeCampaignsCount" (tile-action)="navigate('/campaigns')"></lib-kpi-tile>
     </div>
 </lib-view-layout>

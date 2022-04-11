@@ -33,6 +33,10 @@ namespace Indice.Features.Messages.Core.Events
         /// </summary>
         public string RecipientId { get; set; }
         /// <summary>
+        /// The phone number of the recipient.
+        /// </summary>
+        public string RecipientPhoneNumber { get; set; }
+        /// <summary>
         /// The type details of the campaign.
         /// </summary>
         public MessageType MessageType { get; set; }
@@ -49,6 +53,7 @@ namespace Indice.Features.Messages.Core.Events
             Data = contact.Campaign.Data,
             MessageType = contact.Campaign.Type,
             RecipientId = contact.Contact.RecipientId,
+            RecipientPhoneNumber = contact.Contact.PhoneNumber,
             Title = contact.Campaign.Content["sms"].Title
         };
     }

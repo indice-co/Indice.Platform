@@ -54,7 +54,16 @@ namespace Indice.Features.Messages.AspNetCore.Controllers
         [HttpGet("{distributionListId:guid}/contacts")]
         [ProducesResponseType(typeof(ResultSet<Contact>), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetDistributionListContacts([FromRoute] Guid distributionListId, [FromQuery] ListOptions options) {
-            var contacts = await DistributionListService.GetContactsList(distributionListId, options);
+            var listOptions = new ListOptions<ContactListFilter> { 
+                Page = options.Page,
+                Size = options.Size,
+                Sort = options.Sort,
+                Search = options.Search,
+                Filter = new ContactListFilter { 
+                    DistributionListId = distributionListId 
+                }
+            };
+            var contacts = await ContactService.GetList(listOptions);
             return Ok(contacts);
         }
 

@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace Indice.Features.Messages.Core.Models
+﻿namespace Indice.Features.Messages.Core.Models
 {
     /// <summary>
     /// Represents the result of a campaign operation.
@@ -26,7 +24,7 @@ namespace Indice.Features.Messages.Core.Models
         /// <summary>
         /// Creates a failed <see cref="CampaignResult"/>.
         /// </summary>
-        /// <param name="errors">A list of errors that occured.</param>
+        /// <param name="errors">A list of errors that occurred.</param>
         public static CampaignResult Fail(params string[] errors) => new() {
             Succeeded = false,
             Errors = errors

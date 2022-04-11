@@ -38,7 +38,7 @@ namespace Indice.Features.Messages.AspNetCore.Controllers
         [HttpGet]
         [Produces(MediaTypeNames.Application.Json)]
         [ProducesResponseType(typeof(ResultSet<Contact>), StatusCodes.Status200OK)]
-        public async Task<IActionResult> GetCampaigns([FromQuery] ListOptions options) {
+        public async Task<IActionResult> GetContacts([FromQuery] ListOptions<ContactListFilter> options) {
             var contacts = await ContactService.GetList(options);
             return Ok(contacts);
         }

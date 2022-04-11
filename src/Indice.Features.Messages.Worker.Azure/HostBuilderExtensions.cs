@@ -39,9 +39,9 @@ namespace Microsoft.Extensions.Hosting
             services.TryAddTransient<Func<string, IPushNotificationService>>(serviceProvider => key => new PushNotificationServiceNoop());
             services.TryAddTransient<Func<string, IEventDispatcher>>(serviceProvider => key => new EventDispatcherNoop());
             services.TryAddTransient<IEmailService, EmailServiceNoop>();
+            services.TryAddTransient<IContactResolver, ContactResolverNoop>();
             Action<DbContextOptionsBuilder> sqlServerConfiguration = (builder) => builder.UseSqlServer(configuration.GetConnectionString("CampaignsDbConnection"));
             services.AddDbContext<CampaignsDbContext>(options.ConfigureDbContext ?? sqlServerConfiguration);
-            services.TryAddTransient<IContactResolver, ContactResolverNoop>();
             services.TryAddTransient<IDistributionListService, DistributionListService>();
             services.TryAddTransient<IMessageService, MessageService>();
             services.TryAddTransient<IContactService, ContactService>();
@@ -53,6 +53,8 @@ namespace Microsoft.Extensions.Hosting
             services.TryAddTransient<ICampaignJobHandler<CampaignPublishedEvent>, CampaignPublishedHandler>();
             services.TryAddTransient<ICampaignJobHandler<ResolveMessageEvent>, ResolveMessageHandler>();
             services.TryAddTransient<ICampaignJobHandler<SendPushNotificationEvent>, SendPushNotificationHandler>();
+            services.TryAddTransient<ICampaignJobHandler<SendEmailEvent>, SendEmailHandler>();
+            services.TryAddTransient<ICampaignJobHandler<SendSmsEvent>, SendSmsHandler>();
             services.AddTransient<MessageJobHandlerFactory>();
             return services;
         }
@@ -82,8 +84,18 @@ namespace Microsoft.Extensions.Hosting
         /// </summary>
         /// <param name="options">Options used when configuring messages in Azure Functions.</param>
         /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
-        public static MessageOptions UseEmailService(this MessageOptions options, IConfiguration configuration) {
+        public static MessageOptions UseEmailServiceSmtp(this MessageOptions options, IConfiguration configuration) {
             options.Services.AddEmailServiceSmtp(configuration);
+            return options;
+        }
+
+        /// <summary>
+        /// Adds an instance of <see cref="IEmailService"/> that uses SparkPost to send emails.
+        /// </summary>
+        /// <param name="options">Options used when configuring messages in Azure Functions.</param>
+        /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
+        public static MessageOptions UseEmailServiceSparkpost(this MessageOptions options, IConfiguration configuration) {
+            options.Services.AddEmailServiceSparkpost(configuration);
             return options;
         }
 

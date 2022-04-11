@@ -3,7 +3,7 @@
     /// <summary>
     /// Options used to filter the list of campaigns.
     /// </summary>
-    public class CampaignsFilter
+    public class CampaignListFilter
     {
         /// <summary>
         /// The delivery channel of a campaign.

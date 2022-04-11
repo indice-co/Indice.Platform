@@ -38,7 +38,7 @@ namespace Indice.Features.Messages.Core.Services
         private IFileService FileService { get; }
 
         /// <inheritdoc />
-        public Task<ResultSet<Campaign>> GetList(ListOptions<CampaignsFilter> options) {
+        public Task<ResultSet<Campaign>> GetList(ListOptions<CampaignListFilter> options) {
             var query = DbContext
                     .Campaigns
                     .Include(x => x.Type)

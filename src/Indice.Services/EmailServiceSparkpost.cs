@@ -20,33 +20,38 @@ namespace Indice.Services
     /// </summary>
     public class EmailServiceSparkpost : IEmailService
     {
-        private readonly EmailServiceSparkPostSettings _settings;
-        private readonly HttpClient _httpClient;
-        private readonly ILogger<EmailServiceSparkpost> _logger;
-
         /// <summary>
         /// Creates a new instance of <see cref="EmailServiceSparkpost"/>.
         /// </summary>
         /// <param name="settings">An instance of <see cref="EmailServiceSparkPostSettings"/> used to initialize the service.</param>
         /// <param name="httpClient">The http client to use (DI managed)</param>
         /// <param name="logger">Represents a type used to perform logging.</param>
+        /// <param name="htmlRenderingEngine">This is an abstraction for the rendering engine.</param>
         public EmailServiceSparkpost(
             EmailServiceSparkPostSettings settings,
             HttpClient httpClient,
-            ILogger<EmailServiceSparkpost> logger
+            ILogger<EmailServiceSparkpost> logger,
+            IHtmlRenderingEngine htmlRenderingEngine
         ) {
-            _settings = settings ?? throw new ArgumentNullException(nameof(settings));
-            _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
-            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            if (_httpClient.BaseAddress == null) {
-                _httpClient.BaseAddress = new Uri(_settings.Api.TrimEnd('/') + "/");
-                _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(_settings.ApiKey);
+            Settings = settings ?? throw new ArgumentNullException(nameof(settings));
+            HttpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
+            Logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            HtmlRenderingEngine = htmlRenderingEngine ?? throw new ArgumentNullException(nameof(htmlRenderingEngine));
+            if (HttpClient.BaseAddress == null) {
+                HttpClient.BaseAddress = new Uri(Settings.Api.TrimEnd('/') + "/");
+                HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(Settings.ApiKey);
             }
         }
 
+        private EmailServiceSparkPostSettings Settings { get; }
+        private HttpClient HttpClient { get; }
+        private ILogger<EmailServiceSparkpost> Logger { get; }
+        /// <inheritdoc/>
+        public IHtmlRenderingEngine HtmlRenderingEngine { get; }
+
         /// <inheritdoc/>
         public async Task SendAsync(string[] recipients, string subject, string body, EmailAttachment[] attachments = null) {
-            var bccRecipients = (_settings.BccRecipients ?? "").Split(';', ',');
+            var bccRecipients = (Settings.BccRecipients ?? "").Split(';', ',');
             var recipientAddresses = recipients.Select(recipient => new SparkPostRecipient {
                 Address = new SparkPostRecipientEmailAddress {
                     Email = recipient
@@ -61,8 +66,8 @@ namespace Indice.Services
             var request = new SparkPostRequest {
                 Content = new SparkPostContent {
                     From = new SparkPostSenderAddress {
-                        Email = _settings.Sender,
-                        Name = _settings.SenderName
+                        Email = Settings.Sender,
+                        Name = Settings.SenderName
                     },
                     Subject = subject,
                     Html = body
@@ -88,11 +93,11 @@ namespace Indice.Services
                 IgnoreNullValues = true
 #endif
             });
-            var response = await _httpClient.PostAsync("transmissions", new StringContent(requestJson, Encoding.UTF8, MediaTypeNames.Application.Json));
+            var response = await HttpClient.PostAsync("transmissions", new StringContent(requestJson, Encoding.UTF8, MediaTypeNames.Application.Json));
             if (!response.IsSuccessStatusCode) {
                 var content = await response.Content.ReadAsStringAsync();
                 var message = $"SparkPost service could not send email to recipients '{string.Join(", ", recipients)}'. Error is: '{content}'.";
-                _logger.LogError(message);
+                Logger.LogError(message);
                 throw new InvalidOperationException(message);
             }
         }

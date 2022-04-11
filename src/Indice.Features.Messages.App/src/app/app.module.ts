@@ -10,7 +10,7 @@ import { AppComponent } from './app.component';
 import { AppLinks } from './app.links';
 import { AppRoutingModule } from './app-routing.module';
 import { CampaignCreateComponent } from './features/campaigns/create/campaign-create.component';
-import { CAMPAIGNS_API_BASE_URL } from './core/services/campaigns-api.services';
+import { MESSAGES_API_BASE_URL } from './core/services/campaigns-api.services';
 import { CampaignsComponent } from './features/campaigns/campaigns.component';
 import { CampaignTypesModalComponent } from './features/campaigns/campaign-types-modal/campaign-types.component';
 import { DashboardComponent } from './features/dashboard/dashboard.component';
@@ -58,7 +58,7 @@ import { CampaignsRemoveComponent } from './features/campaigns/manage/remove/cam
     ModalService,
     { provide: APP_LINKS, useFactory: () => new AppLinks() },
     { provide: AUTH_SETTINGS, useFactory: () => app.settings.auth_settings },
-    { provide: CAMPAIGNS_API_BASE_URL, useFactory: () => app.settings.api_url },
+    { provide: MESSAGES_API_BASE_URL, useFactory: () => app.settings.api_url },
     { provide: HTTP_INTERCEPTORS, useClass: AuthHttpInterceptor, multi: true },
     { provide: SHELL_CONFIG, useFactory: () => new ShellConfig() }
   ],

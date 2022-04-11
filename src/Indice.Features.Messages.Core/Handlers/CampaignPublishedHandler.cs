@@ -1,7 +1,9 @@
 ﻿using Indice.Features.Messages.Core.Events;
 using Indice.Features.Messages.Core.Models;
+using Indice.Features.Messages.Core.Models.Requests;
 using Indice.Features.Messages.Core.Services.Abstractions;
 using Indice.Services;
+using Indice.Types;
 
 namespace Indice.Features.Messages.Core.Handlers
 {
@@ -14,18 +16,18 @@ namespace Indice.Features.Messages.Core.Handlers
         /// Creates a new instance of <see cref="CampaignPublishedHandler"/>.
         /// </summary>
         /// <param name="getEventDispatcher">Provides methods that allow application components to communicate with each other by dispatching events.</param>
-        /// <param name="distributionListService">A service that contains distribution list related operations.</param>
+        /// <param name="contactService">A service that contains contact related operations.</param>
         /// <exception cref="ArgumentNullException"></exception>
         public CampaignPublishedHandler(
             Func<string, IEventDispatcher> getEventDispatcher,
-            IDistributionListService distributionListService
+            IContactService contactService
         ) {
             GetEventDispatcher = getEventDispatcher ?? throw new ArgumentNullException(nameof(getEventDispatcher));
-            DistributionListService = distributionListService ?? throw new ArgumentNullException(nameof(distributionListService));
+            ContactService = contactService ?? throw new ArgumentNullException(nameof(contactService));
         }
 
         private Func<string, IEventDispatcher> GetEventDispatcher { get; }
-        private IDistributionListService DistributionListService { get; }
+        private IContactService ContactService { get; }
 
         /// <summary>
         /// Distributes a campaign for further processing base on the <see cref="CampaignPublishedEvent.MessageChannelKind"/>.
@@ -35,23 +37,24 @@ namespace Indice.Features.Messages.Core.Handlers
             // If campaign is global and has push notification as delivery channel, then we short-circuit the flow and we immediately broadcast the message.
             if (campaign.IsGlobal && campaign.MessageChannelKind.HasFlag(MessageChannelKind.PushNotification)) {
                 var eventDispatcher = GetEventDispatcher(KeyedServiceNames.EventDispatcherServiceKey);
-                await eventDispatcher.RaiseEventAsync(
-                    payload: SendPushNotificationEvent.FromCampaignCreatedEvent(campaign, broadcast: true),
-                    configure: options => options.WrapInEnvelope(false).At(campaign.ActivePeriod?.From?.DateTime ?? DateTime.UtcNow).WithQueueName(EventNames.SendPushNotification)
-                );
+                await eventDispatcher.RaiseEventAsync(SendPushNotificationEvent.FromCampaignCreatedEvent(campaign, broadcast: true),
+                    options => options.WrapInEnvelope(false).At(campaign.ActivePeriod?.From?.DateTime ?? DateTime.UtcNow).WithQueueName(EventNames.SendPushNotification));
             }
             // If campaign is not global and a distribution list has been set, then we will create multiple events in order to
             // resolve contact info, merge campaign template with contact data and dispatch messages in various channels.
             if (!campaign.IsGlobal && campaign.DistributionListId.HasValue) {
                 var contacts = Array.Empty<Contact>();
-                var contactsResultSet = await DistributionListService.GetContactsList(campaign.DistributionListId.Value);
+                var contactsResultSet = await ContactService.GetList(new ListOptions<ContactListFilter> {
+                    Page = 1,
+                    Size = int.MaxValue,
+                    Filter = new ContactListFilter {
+                        DistributionListId = campaign.DistributionListId.Value
+                    }
+                });
                 contacts = contactsResultSet.Items;
                 var eventDispatcher = GetEventDispatcher(KeyedServiceNames.EventDispatcherServiceKey);
                 foreach (var contact in contacts) {
-                    await eventDispatcher.RaiseEventAsync(
-                        payload: ResolveMessageEvent.FromCampaignCreatedEvent(campaign, contact),
-                        configure: options => options.WrapInEnvelope(false).WithQueueName(EventNames.ResolveMessage)
-                    );
+                    await eventDispatcher.RaiseEventAsync(ResolveMessageEvent.FromCampaignCreatedEvent(campaign, contact), options => options.WrapInEnvelope(false).WithQueueName(EventNames.ResolveMessage));
                 }
             }
         }

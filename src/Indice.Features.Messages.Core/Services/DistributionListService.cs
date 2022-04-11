@@ -63,20 +63,6 @@ namespace Indice.Features.Messages.Core.Services
         }
 
         /// <inheritdoc />
-        public async Task<ResultSet<Contact>> GetContactsList(Guid id, ListOptions options = null) {
-            options ??= new ListOptions {
-                Page = 1,
-                Size = int.MaxValue
-            };
-            var query = DbContext
-                .Contacts
-                .AsNoTracking()
-                .Where(x => x.DistributionListId == id)
-                .Select(Mapper.ProjectToContact);
-            return await query.ToResultSetAsync(options);
-        }
-
-        /// <inheritdoc />
         public Task<ResultSet<DistributionList>> GetList(ListOptions options) {
             var query = DbContext
                 .DistributionLists

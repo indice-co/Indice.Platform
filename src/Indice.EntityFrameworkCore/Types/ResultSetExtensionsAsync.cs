@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 namespace Indice.Types
 {
     /// <summary>
-    /// Async version of the Resultset extensions. These operate well with entity framework and <see cref="IQueryable"/>.
+    /// Asynchronous version of the <see cref="ResultSetExtensions"/>. These operate well with entity framework and <see cref="IQueryable"/>.
     /// </summary>
     public static class ResultSetExtensionsAsync
     {
@@ -16,7 +16,7 @@ namespace Indice.Types
         /// </summary>
         /// <typeparam name="T">The type to contain in the result items.</typeparam>
         /// <param name="source">The source collection</param>
-        /// <param name="options">The options to use for sortig and paging</param>
+        /// <param name="options">The options to use for sorting and paging</param>
         /// <returns>The results in a set that contains a page set of the total available records and the total count</returns>
         public static async Task<ResultSet<T>> ToResultSetAsync<T>(this IQueryable<T> source, ListOptions options) {
             options ??= new ListOptions();

@@ -13,7 +13,7 @@ namespace Indice.Features.Messages.Core.Services.Abstractions
         /// Gets a list of all contacts in the system.
         /// </summary>
         /// <param name="options">List parameters used to navigate through collections. Contains parameters such as sort, search, page number and page size.</param>
-        Task<ResultSet<Contact>> GetList(ListOptions options);
+        Task<ResultSet<Contact>> GetList(ListOptions<ContactListFilter> options);
         /// <summary>
         /// Gets a contact by it's unique id.
         /// </summary>

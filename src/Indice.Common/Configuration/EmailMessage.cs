@@ -33,27 +33,27 @@ namespace Indice.Services
         /// <summary>
         /// The email addresses of the recipients.
         /// </summary>
-        public IList<string> Recipients { get; } = new List<string>();
+        internal IList<string> Recipients { get; } = new List<string>();
         /// <summary>
         /// The subject of the message.
         /// </summary>
-        public string Subject { get; }
+        internal string Subject { get; }
         /// <summary>
         /// The body of the message.
         /// </summary>
-        public string Body { get; }
+        internal string Body { get; set; }
         /// <summary>
         /// The template used to render the email. Defaults to 'Email'.
         /// </summary>
-        public string Template { get; }
+        internal string Template { get; }
         /// <summary>
         /// Data that are passed to the email template.
         /// </summary>
-        public object Data { get; }
+        internal object Data { get; }
         /// <summary>
         /// Optional attachments contained in the message.
         /// </summary>
-        public IList<EmailAttachment> Attachments { get; set; }
+        internal IList<EmailAttachment> Attachments { get; set; } = new List<EmailAttachment>();
     }
 
     /// <summary>

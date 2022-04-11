@@ -6,12 +6,11 @@ using Indice.AspNetCore.Mvc.ApplicationModels;
 using Indice.AspNetCore.Swagger;
 using Indice.Features.Messages.AspNetCore;
 using Indice.Features.Messages.AspNetCore.Mvc.Formatters;
-using Indice.Features.Messages.AspNetCore.Services;
-using Indice.Features.Messages.AspNetCore.Services.Validators;
 using Indice.Features.Messages.Core;
 using Indice.Features.Messages.Core.Data;
 using Indice.Features.Messages.Core.Services;
 using Indice.Features.Messages.Core.Services.Abstractions;
+using Indice.Features.Messages.Core.Services.Validators;
 using Indice.Security;
 using Indice.Serialization;
 using Indice.Services;
@@ -171,7 +170,7 @@ namespace Microsoft.Extensions.DependencyInjection
             services.TryAddTransient<ICampaignService, CampaignService>();
             services.TryAddTransient<IMessageTypeService, MessageTypeService>();
             services.TryAddTransient<IDistributionListService, DistributionListService>();
-            services.TryAddTransient<CampaignManager>();
+            services.TryAddTransient<MessageManager>();
             // Register application DbContext.
             Action<DbContextOptionsBuilder> sqlServerConfiguration = (builder) => builder.UseSqlServer(configuration.GetConnectionString("MessagesDbConnection"));
             services.AddDbContext<CampaignsDbContext>(baseOptions.ConfigureDbContext ?? sqlServerConfiguration);

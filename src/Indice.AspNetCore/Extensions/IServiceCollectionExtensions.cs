@@ -12,7 +12,6 @@ using Microsoft.AspNetCore.DataProtection.AuthenticatedEncryption.ConfigurationM
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using Microsoft.Extensions.Options;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
@@ -26,7 +25,6 @@ namespace Microsoft.Extensions.DependencyInjection
         /// </summary>
         /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
         /// <param name="configureAction"></param>
-        /// <returns></returns>
         public static IServiceCollection AddCsp(this IServiceCollection services, Action<CSP> configureAction = null) {
             var policy = CSP.DefaultPolicy.Clone();
             configureAction?.Invoke(policy);
@@ -41,6 +39,15 @@ namespace Microsoft.Extensions.DependencyInjection
         public static IServiceCollection AddHtmlRenderingEngineRazorMvc(this IServiceCollection services) {
             services.AddTransient<IHtmlRenderingEngine, HtmlRenderingEngineMvcRazor>();
             return services;
+        }
+
+        /// <summary>
+        /// Registers <see cref="HtmlRenderingEngineMvcRazor"/> to be used by the <see cref="IEmailService"/> implementation.
+        /// </summary>
+        /// <param name="builder">Builder class for <see cref="IEmailService"/>.</param>
+        public static IServiceCollection WithMvcRazorRendering(this EmailServiceBuilder builder) {
+            builder.WithHtmlRenderingEngine<HtmlRenderingEngineMvcRazor>();
+            return builder.Services;
         }
 
         /// <summary>

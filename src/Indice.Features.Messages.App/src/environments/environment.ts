@@ -6,7 +6,7 @@ export const environment = {
   api_url: 'https://localhost:2001',
   auth_settings: {
     accessTokenExpiringNotificationTime: 60,
-    authority: 'https://localhost:2000',
+    authority: 'https://indice-idsrv.azurewebsites.net',
     automaticSilentRenew: true,
     client_id: 'backoffice-ui',
     filterProtocolClaims: true,
@@ -16,7 +16,7 @@ export const environment = {
     redirect_uri: 'http://localhost:4200/auth-callback',
     response_type: 'code',
     revokeAccessTokenOnSignout: true,
-    scope: 'openid profile role email phone backoffice backoffice:campaigns',
+    scope: 'openid profile role email phone backoffice backoffice:messages',
     silent_redirect_uri: 'http://localhost:4200/auth-renew',
     useRefreshToken: true
   },

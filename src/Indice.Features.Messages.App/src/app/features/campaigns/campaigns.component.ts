@@ -4,14 +4,18 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { BaseListComponent, Icons, IResultSet, ListViewType, MenuOption, ViewAction } from '@indice/ng-components';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { Campaign, CampaignsApiService, CampaignResultSet } from 'src/app/core/services/campaigns-api.services';
+import { Campaign, CampaignResultSet, MessagesApiClient } from 'src/app/core/services/campaigns-api.services';
 
 @Component({
     selector: 'app-campaigns',
     templateUrl: './campaigns.component.html'
 })
 export class CampaignsComponent extends BaseListComponent<Campaign> implements OnInit {
-    constructor(route: ActivatedRoute, router: Router, private api: CampaignsApiService) {
+    constructor(
+        route: ActivatedRoute,
+        router: Router,
+        private _api: MessagesApiClient
+    ) {
         super(route, router);
         this.view = ListViewType.Table;
         this.pageSize = 10;
@@ -19,9 +23,9 @@ export class CampaignsComponent extends BaseListComponent<Campaign> implements O
         this.sortdir = 'desc';
         this.search = '';
         this.sortOptions = [
-          new MenuOption('Ημ/νια Δημιουργίας', 'createdAt'),
-          new MenuOption('Τίτλος', 'title'),
-          new MenuOption('Ενεργή Από', 'activePeriod.from')
+            new MenuOption('Ημ/νια Δημιουργίας', 'createdAt'),
+            new MenuOption('Τίτλος', 'title'),
+            new MenuOption('Ενεργή Από', 'activePeriod.from')
         ];
     }
 
@@ -33,7 +37,7 @@ export class CampaignsComponent extends BaseListComponent<Campaign> implements O
     }
 
     public loadItems(): Observable<IResultSet<Campaign> | null | undefined> {
-        return this.api
+        return this._api
             .getCampaigns(undefined, undefined, this.page, this.pageSize, this.sortdir === 'asc' ? this.sort! : this.sort + '-', this.search || undefined)
             .pipe(map((result: CampaignResultSet) => (result as IResultSet<Campaign>)));
     }

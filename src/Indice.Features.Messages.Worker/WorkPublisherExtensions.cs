@@ -17,6 +17,8 @@ namespace Microsoft.Extensions.DependencyInjection
         public static WorkPublisherBuilder AddCampaignsEvents(this WorkPublisherBuilder workPublisherBuilder) =>
             workPublisherBuilder.ForEvent<CampaignPublishedEvent>(EventNames.CampaignPublished)
                                 .ForEvent<ResolveMessageEvent>(EventNames.ResolveMessage)
-                                .ForEvent<SendPushNotificationEvent>(EventNames.SendPushNotification);
+                                .ForEvent<SendPushNotificationEvent>(EventNames.SendPushNotification)
+                                .ForEvent<SendEmailEvent>(EventNames.SendEmail)
+                                .ForEvent<SendSmsEvent>(EventNames.SendSms);
     }
 }

@@ -33,6 +33,10 @@ namespace Indice.Features.Messages.Core.Events
         /// </summary>
         public string RecipientId { get; set; }
         /// <summary>
+        /// The email of the recipient.
+        /// </summary>
+        public string RecipientEmail { get; set; }
+        /// <summary>
         /// The type details of the campaign.
         /// </summary>
         public MessageType MessageType { get; set; }
@@ -42,12 +46,13 @@ namespace Indice.Features.Messages.Core.Events
         /// </summary>
         /// <param name="contact">The event model used when a contact is resolved from an external system.</param>
         /// <param name="broadcast">Defines if push notification is sent to all registered user devices.</param>
-        public static SendPushNotificationEvent FromContactResolutionEvent(ResolveMessageEvent contact, bool broadcast) => new() {
+        public static SendEmailEvent FromContactResolutionEvent(ResolveMessageEvent contact, bool broadcast) => new() {
             Body = contact.Campaign.Content["email"].Body,
             Broadcast = broadcast,
             CampaignId = contact.Campaign.Id,
             Data = contact.Campaign.Data,
             MessageType = contact.Campaign.Type,
+            RecipientEmail = contact.Contact.Email,
             RecipientId = contact.Contact.RecipientId,
             Title = contact.Campaign.Content["email"].Title
         };

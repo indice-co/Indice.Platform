@@ -53,7 +53,7 @@ namespace Indice.Services
             viewDataDictionary.Model = data switch {
                 string text => text,
                 null => null,
-                _ => ToExpandoObject(dataType, data),
+                _ => ToExpandoObject(dataType, data)
             };
             var actionContext = GetActionContext();
             var tempDataDictionary = new TempDataDictionary(actionContext.HttpContext, _tempDataProvider);

@@ -5,7 +5,7 @@ import { Router } from '@angular/router';
 import { MenuOption, Modal, ModalService, SideViewLayoutComponent, ToasterService, ToastType } from '@indice/ng-components';
 import { map } from 'rxjs/operators';
 import * as app from 'src/app/core/models/settings';
-import { Campaign, DeliveryChannel, CampaignsApiService, CampaignTypeResultSet, CreateCampaignRequest, Period, ValidationProblemDetails } from 'src/app/core/services/campaigns-api.services';
+import { Campaign, CreateCampaignRequest, Period, ValidationProblemDetails, MessagesApiClient, MessageChannelKind, MessageTypeResultSet, MessageContent, Hyperlink } from 'src/app/core/services/campaigns-api.services';
 import { UtilitiesService } from 'src/app/shared/utilities.service';
 import { CampaignTypesModalComponent } from '../campaign-types-modal/campaign-types.component';
 
@@ -19,27 +19,35 @@ export class CampaignCreateComponent implements OnInit, AfterViewInit {
     @ViewChild('submitBtn', { static: false }) public submitButton!: ElementRef;
 
     constructor(
-        private api: CampaignsApiService,
-        private modal: ModalService,
-        private router: Router,
-        public _utilities: UtilitiesService,
-        private changeDetector: ChangeDetectorRef,
-        @Inject(ToasterService) private toaster: ToasterService
+        private _api: MessagesApiClient,
+        private _modal: ModalService,
+        private _router: Router,
+        public utilities: UtilitiesService,
+        private _changeDetector: ChangeDetectorRef,
+        @Inject(ToasterService) private _toaster: ToasterService
     ) { }
 
     public now: Date = new Date();
     public model = new CreateCampaignRequest({
-        activePeriod: new Period({ from: this.now }),
-        published: true,
+        activePeriod: new Period({
+            from: this.now
+        }),
+        published: false,
         isGlobal: true,
-        deliveryChannel: [DeliveryChannel.Inbox],
+        messageChannelKind: [MessageChannelKind.Inbox],
         title: '',
-        content: ''
+        content: {
+            'inbox': new MessageContent()
+        },
+        actionLink: new Hyperlink({
+            href: '',
+            text: ''
+        })
     });
-    public campaignTypes: MenuOption[] = [];
+    public messageTypes: MenuOption[] = [];
     public campaignTypesModalRef: Modal | undefined;
     public isDevelopment = !app.settings.production;
-    public CampaignDeliveryChannel = DeliveryChannel;
+    public MessageChannelKind = MessageChannelKind;
     public customDataValid = true;
     public showCustomDataValidation = false;
     public submitInProgress = false;
@@ -53,7 +61,7 @@ export class CampaignCreateComponent implements OnInit, AfterViewInit {
     }
 
     public ngAfterViewInit(): void {
-        this.changeDetector.detectChanges();
+        this._changeDetector.detectChanges();
     }
 
     public canSubmit(): boolean {
@@ -65,26 +73,26 @@ export class CampaignCreateComponent implements OnInit, AfterViewInit {
             return;
         }
         this.submitInProgress = true;
-        this.api
+        this._api
             .createCampaign(this.model)
             .subscribe((campaign: Campaign) => {
                 this.submitInProgress = false;
                 // This is to force reload campaigns page when a new campaign is successfully saved. 
-                this.router.navigateByUrl('/', { skipLocationChange: true }).then(() => this.router.navigate(['campaigns']));
-                this.toaster.show(ToastType.Success, 'Επιτυχής αποθήκευση', `Η καμπάνια με τίτλο '${campaign.title}' δημιουργήθηκε με επιτυχία.`);
+                this._router.navigateByUrl('/', { skipLocationChange: true }).then(() => this._router.navigate(['campaigns']));
+                this._toaster.show(ToastType.Success, 'Επιτυχής αποθήκευση', `Η καμπάνια με τίτλο '${campaign.title}' δημιουργήθηκε με επιτυχία.`);
             }, (problemDetails: ValidationProblemDetails) => {
                 // This is to force reload campaigns page when a new campaign is successfully saved.
-                this.toaster.show(ToastType.Error, 'Αποτυχής αποθήκευση', `${this._utilities.getValidationProblemDetails(problemDetails)}`, 6000);
+                this._toaster.show(ToastType.Error, 'Αποτυχής αποθήκευση', `${this.utilities.getValidationProblemDetails(problemDetails)}`, 6000);
             });
     }
 
     public openCampaignTypesModal(): void {
-        this.campaignTypesModalRef = this.modal.show(CampaignTypesModalComponent, {
+        this.campaignTypesModalRef = this._modal.show(CampaignTypesModalComponent, {
             backdrop: 'static',
             keyboard: false,
             animated: true,
             initialState: {
-                campaignTypes: this.campaignTypes.filter(x => x.value != null)
+                campaignTypes: this.messageTypes.filter(x => x.value != null)
             }
         });
         this.campaignTypesModalRef.onHidden?.subscribe((response: any) => {
@@ -105,7 +113,7 @@ export class CampaignCreateComponent implements OnInit, AfterViewInit {
     public setIsGlobal(isGlobal: boolean): void {
         this.model.isGlobal = isGlobal;
         if (isGlobal) {
-            delete this.model.selectedUserCodes;
+            delete this.model.recipientIds;
         }
     }
 
@@ -117,24 +125,24 @@ export class CampaignCreateComponent implements OnInit, AfterViewInit {
         return userCodes ? userCodes.join('\n') : '';
     }
 
-    public toggleDeliveryChannel(deliveryType: DeliveryChannel): void {
-        if (deliveryType !== DeliveryChannel.Inbox) {
-            this.model.deliveryChannel = this.model.deliveryChannel!.filter(x => x === DeliveryChannel.Inbox || x === deliveryType);
+    public toggleDeliveryChannel(deliveryType: MessageChannelKind): void {
+        if (deliveryType !== MessageChannelKind.Inbox) {
+            this.model.messageChannelKind = this.model.messageChannelKind!.filter(x => x === MessageChannelKind.Inbox || x === deliveryType);
         }
-        const index = this.model.deliveryChannel!.findIndex(channel => channel === deliveryType);
+        const index = this.model.messageChannelKind!.findIndex(channel => channel === deliveryType);
         if (index > -1) {
-            this.model.deliveryChannel!.splice(index, 1);
+            this.model.messageChannelKind!.splice(index, 1);
         } else {
-            this.model.deliveryChannel!.push(deliveryType);
+            this.model.messageChannelKind!.push(deliveryType);
         }
     }
 
     public hasDeliveryChannel(): boolean {
-        return this.model.deliveryChannel!.length > 0;
+        return this.model.messageChannelKind!.length > 0;
     }
 
-    public containsDeliveryChannel(deliveryType: DeliveryChannel): boolean {
-        return this.model.deliveryChannel!.indexOf(deliveryType) > -1;
+    public containsDeliveryChannel(deliveryType: MessageChannelKind): boolean {
+        return this.model.messageChannelKind!.indexOf(deliveryType) > -1;
     }
 
     public setCampaignCustomData(metadataJson: string): void {
@@ -158,13 +166,13 @@ export class CampaignCreateComponent implements OnInit, AfterViewInit {
     }
 
     private loadCampaignTypes(): void {
-        this.campaignTypes = [];
-        this.api
-            .getCampaignTypes()
-            .pipe(map((campaignTypes: CampaignTypeResultSet) => {
-                if (campaignTypes.items) {
-                    this.campaignTypes = campaignTypes.items.map(type => new MenuOption(type.name || '', type.id));
-                    this.campaignTypes.unshift(new MenuOption('Παρακαλώ επιλέξτε...', null));
+        this.messageTypes = [];
+        this._api
+            .getMessageTypes()
+            .pipe(map((messageTypes: MessageTypeResultSet) => {
+                if (messageTypes.items) {
+                    this.messageTypes = messageTypes.items.map(type => new MenuOption(type.name || '', type.id));
+                    this.messageTypes.unshift(new MenuOption('Παρακαλώ επιλέξτε...', null));
                 }
             }))
             .subscribe();

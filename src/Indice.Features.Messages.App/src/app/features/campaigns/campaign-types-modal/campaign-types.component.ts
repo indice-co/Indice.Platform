@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 
 import { MenuOption, Modal } from '@indice/ng-components';
 import { map } from 'rxjs/operators';
-import { CampaignsApiService, CampaignType, UpsertCampaignTypeRequest } from 'src/app/core/services/campaigns-api.services';
+import { MessagesApiClient, MessageType, UpsertMessageTypeRequest } from 'src/app/core/services/campaigns-api.services';
 
 @Component({
     selector: 'app-campaign-types-modal',
@@ -13,7 +13,7 @@ export class CampaignTypesModalComponent {
 
     constructor(
         public modalRef: Modal,
-        public api: CampaignsApiService
+        public api: MessagesApiClient
     ) { }
 
     public campaignTypes: MenuOption[] = [];
@@ -48,14 +48,14 @@ export class CampaignTypesModalComponent {
         this.isAddingNewType = false;
         this.campaignTypesChanged = true;
         const isNew = type.value === '';
-        const body = { name: type.text } as UpsertCampaignTypeRequest;
+        const body = { name: type.text } as UpsertMessageTypeRequest;
         if (isNew) {
-            this.api.createCampaignType(body).subscribe((createdCampaign: CampaignType) => {
+            this.api.createMessageType(body).subscribe((createdCampaign: MessageType) => {
                 (type as any).editMode = false;
                 type.value = createdCampaign.id;
             });
         } else {
-            this.api.updateCampaignType(type.value, body).subscribe(() => {
+            this.api.updateMessageType(type.value, body).subscribe(() => {
                 (type as any).editMode = false;
             });
         }
@@ -64,7 +64,7 @@ export class CampaignTypesModalComponent {
     public onDeleteCampaignType(type: MenuOption): void {
         const typeId = type.value;
         this.api
-            .deleteCampaignType(typeId)
+            .deleteMessageType(typeId)
             .pipe(map(_ => {
                 this.campaignTypesChanged = true;
                 const foundCampaignType = this.campaignTypes.find(x => x.value === typeId);

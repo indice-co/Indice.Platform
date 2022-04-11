@@ -12,7 +12,6 @@ namespace Indice.AspNetCore.Tests
             services.AddMvc();
             services.AddHtmlRenderingEngineRazorMvc();
             services.AddSingleton(serviceProvider => new Mock<IHttpContextAccessor>().Object);
-            services.AddEmailServiceNoop();
             return services.BuildServiceProvider();
         }
 

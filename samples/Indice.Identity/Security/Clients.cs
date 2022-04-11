@@ -240,7 +240,7 @@ namespace Indice.Identity.Security
             },
             new Client {
                 ClientId = "backoffice-ui",
-                ClientName = "IdentityServer Management Tool",
+                ClientName = "Back-Office Management Tool",
                 AccessTokenType = AccessTokenType.Reference,
                 AllowAccessTokensViaBrowser = false,
                 AllowedCorsOrigins = {

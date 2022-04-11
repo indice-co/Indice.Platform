@@ -53,11 +53,10 @@ namespace Indice.Features.Messages.Core.Handlers
             var handlebars = Handlebars.Create();
             handlebars.Configuration.TextEncoder = new HtmlEncoder();
             foreach (var content in @event.Campaign.Content) {
+                // TODO: Make it work with camel case properties.
                 dynamic templateData = new { contact, data = @event.Campaign.Data };
-                var titleTemplate = handlebars.Compile(content.Value.Title);
-                content.Value.Title = titleTemplate(templateData);
-                var bodyTemplate = handlebars.Compile(content.Value.Body);
-                content.Value.Body = bodyTemplate(templateData);
+                content.Value.Title = handlebars.Compile(content.Value.Title)(templateData);
+                content.Value.Body = handlebars.Compile(content.Value.Body)(templateData);
             }
             var campaign = @event.Campaign;
             // Persist message with merged contents.
@@ -68,24 +67,18 @@ namespace Indice.Features.Messages.Core.Handlers
             });
             var eventDispatcher = GetEventDispatcher(KeyedServiceNames.EventDispatcherServiceKey);
             if (campaign.MessageChannelKind.HasFlag(MessageChannelKind.PushNotification)) {
-                await eventDispatcher.RaiseEventAsync(
-                    payload: SendPushNotificationEvent.FromContactResolutionEvent(@event, broadcast: false),
-                    configure: options => options.WrapInEnvelope(false).At(campaign.ActivePeriod?.From?.DateTime ?? DateTime.UtcNow).WithQueueName(EventNames.SendPushNotification)
-                );
+                await eventDispatcher.RaiseEventAsync(SendPushNotificationEvent.FromContactResolutionEvent(@event, broadcast: false),
+                    options => options.WrapInEnvelope(false).At(campaign.ActivePeriod?.From?.DateTime ?? DateTime.UtcNow).WithQueueName(EventNames.SendPushNotification));
                 return;
             }
             if (campaign.MessageChannelKind.HasFlag(MessageChannelKind.Email)) {
-                await eventDispatcher.RaiseEventAsync(
-                    payload: SendEmailEvent.FromContactResolutionEvent(@event, broadcast: false),
-                    configure: options => options.WrapInEnvelope(false).At(campaign.ActivePeriod?.From?.DateTime ?? DateTime.UtcNow).WithQueueName(EventNames.SendEmail)
-                );
+                await eventDispatcher.RaiseEventAsync(SendEmailEvent.FromContactResolutionEvent(@event, broadcast: false),
+                    options => options.WrapInEnvelope(false).At(campaign.ActivePeriod?.From?.DateTime ?? DateTime.UtcNow).WithQueueName(EventNames.SendEmail));
                 return;
             }
             if (campaign.MessageChannelKind.HasFlag(MessageChannelKind.SMS)) {
-                await eventDispatcher.RaiseEventAsync(
-                    payload: SendSmsEvent.FromContactResolutionEvent(@event, broadcast: false),
-                    configure: options => options.WrapInEnvelope(false).At(campaign.ActivePeriod?.From?.DateTime ?? DateTime.UtcNow).WithQueueName(EventNames.SendSms)
-                );
+                await eventDispatcher.RaiseEventAsync(SendSmsEvent.FromContactResolutionEvent(@event, broadcast: false),
+                    options => options.WrapInEnvelope(false).At(campaign.ActivePeriod?.From?.DateTime ?? DateTime.UtcNow).WithQueueName(EventNames.SendSms));
                 return;
             }
         }

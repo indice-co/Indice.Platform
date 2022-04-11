@@ -97,17 +97,27 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <summary>
         /// Adds an instance of <see cref="IEmailService"/> using SMTP settings in configuration.
         /// </summary>
-        /// <param name="options">Options used when configuring messages in Azure Functions.</param>
+        /// <param name="options">Options for configuring internal campaign jobs used by the worker host.</param>
         /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
-        public static MessageJobsOptions UseEmailService(this MessageJobsOptions options, IConfiguration configuration) {
+        public static MessageJobsOptions UseEmailServiceSmtp(this MessageJobsOptions options, IConfiguration configuration) {
             options.Services.AddEmailServiceSmtp(configuration);
+            return options;
+        }
+
+        /// <summary>
+        /// Adds an instance of <see cref="IEmailService"/> that uses SparkPost to send emails.
+        /// </summary>
+        /// <param name="options">Options for configuring internal campaign jobs used by the worker host.</param>
+        /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
+        public static MessageJobsOptions UseEmailServiceSparkpost(this MessageJobsOptions options, IConfiguration configuration) {
+            options.Services.AddEmailServiceSparkpost(configuration);
             return options;
         }
 
         /// <summary>
         /// Adds an instance of <see cref="ISmsService"/> using Yuboto.
         /// </summary>
-        /// <param name="options">Options used when configuring messages in Azure Functions.</param>
+        /// <param name="options">Options for configuring internal campaign jobs used by the worker host.</param>
         /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
         public static MessageJobsOptions UseSmsServiceYuboto(this MessageJobsOptions options, IConfiguration configuration) {
             options.Services.AddSmsServiceYuboto(configuration);
@@ -117,7 +127,7 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <summary>
         /// Adds an instance of <see cref="ISmsService"/> using Apifon.
         /// </summary>
-        /// <param name="options">Options used when configuring messages in Azure Functions.</param>
+        /// <param name="options">Options for configuring internal campaign jobs used by the worker host.</param>
         /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
         /// <param name="configure">Configure the available options. Null to use defaults.</param>
         public static MessageJobsOptions UseSmsServiceApifon(this MessageJobsOptions options, IConfiguration configuration, Action<SmsServiceApifonOptions> configure = null) {
@@ -128,7 +138,7 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <summary>
         /// Adds an instance of <see cref="ISmsService"/> using Yuboto.
         /// </summary>
-        /// <param name="options">Options used when configuring messages in Azure Functions.</param>
+        /// <param name="options">Options for configuring internal campaign jobs used by the worker host.</param>
         /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
         public static MessageJobsOptions UseSmsServiceViber(this MessageJobsOptions options, IConfiguration configuration) {
             options.Services.AddSmsServiceViber(configuration);
@@ -138,7 +148,7 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <summary>
         /// Adds an instance of <see cref="ISmsService"/> using Yuboto Omni for sending Viber messages.
         /// </summary>
-        /// <param name="options">Options used when configuring messages in Azure Functions.</param>
+        /// <param name="options">Options for configuring internal campaign jobs used by the worker host.</param>
         /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
         public static MessageJobsOptions UseViberServiceYubotoOmni(this MessageJobsOptions options, IConfiguration configuration) {
             options.Services.AddViberServiceYubotoOmni(configuration);

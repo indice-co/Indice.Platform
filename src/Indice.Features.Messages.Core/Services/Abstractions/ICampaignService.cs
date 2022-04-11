@@ -13,7 +13,7 @@ namespace Indice.Features.Messages.Core.Services.Abstractions
         /// Gets a list of all campaigns in the system.
         /// </summary>
         /// <param name="options">List parameters used to navigate through collections. Contains parameters such as sort, search, page number and page size.</param>
-        Task<ResultSet<Campaign>> GetList(ListOptions<CampaignsFilter> options);
+        Task<ResultSet<Campaign>> GetList(ListOptions<CampaignListFilter> options);
         /// <summary>
         /// Gets a campaign by it's unique id.
         /// </summary>

@@ -15,7 +15,7 @@
                     Ημερομηνία Δημιουργίας
                 </dt>
                 <dd class="mt-1 text-sm text-gray-900">
-                    {{ model.createdAt | date:'dd/MM/YYYY' }}
+                    {{ model.createdAt | date: 'dd/MM/YYYY' }}
                 </dd>
             </div>
             <div class="col-span-2">
@@ -74,21 +74,21 @@
                 </dd>
             </div>
             <div class="col-span-2 sm:col-span-3"
-                 *ngIf="model.actionText">
+                 *ngIf="model.actionLink?.href">
                 <dt class="text-sm font-medium text-gray-500">
                     Call-to-action κείμενο
                 </dt>
                 <dd class="mt-1 text-sm text-gray-900">
-                    {{ model.actionText }}
+                    {{ model.actionLink?.text }}
                 </dd>
             </div>
             <div class="col-span-2 sm:col-span-3"
-                 *ngIf="model.actionUrl">
+                 *ngIf="model.actionLink?.href">
                 <dt class="text-sm font-medium text-gray-500">
                     Call-to-action σύνδεσμος
                 </dt>
                 <dd class="mt-1 text-sm text-gray-900">
-                    {{ model.actionUrl }}
+                    {{ model.actionLink?.text }}
                 </dd>
             </div>
         </dl>

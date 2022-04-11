@@ -65,7 +65,7 @@ namespace Indice.Features.Messages.AspNetCore.Controllers
         [HttpGet("messages/types")]
         [Produces(MediaTypeNames.Application.Json)]
         [ProducesResponseType(typeof(ResultSet<MessageType>), StatusCodes.Status200OK)]
-        public async Task<IActionResult> GetMessageTypes([FromQuery] ListOptions options) {
+        public async Task<IActionResult> GetInboxMessageTypes([FromQuery] ListOptions options) {
             var campaignTypes = await MessageTypeService.GetList(options);
             return Ok(campaignTypes);
         }

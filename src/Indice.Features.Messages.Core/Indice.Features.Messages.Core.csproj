@@ -26,6 +26,7 @@
     <None Include="..\..\icon\icon-310.png" Pack="true" Visible="false" PackagePath="" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="FluentValidation" Version="10.4.0" />
     <PackageReference Include="Handlebars.Net" Version="2.1.1" />
     <PackageReference Include="IdentityModel" Version="6.0.0" />
     <PackageReference Include="Indice.EntityFrameworkCore" Version="6.0.1" />

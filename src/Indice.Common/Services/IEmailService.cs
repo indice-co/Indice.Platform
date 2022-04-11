@@ -11,6 +11,10 @@ namespace Indice.Services
     public interface IEmailService
     {
         /// <summary>
+        /// This is an abstraction for the rendering engine.
+        /// </summary>
+        public IHtmlRenderingEngine HtmlRenderingEngine { get; }
+        /// <summary>
         /// Sends an email.
         /// </summary>
         /// <param name="recipients">The recipients of the email message.</param>
@@ -27,9 +31,9 @@ namespace Indice.Services
     public static class EmailServiceExtensions
     {
         /// <summary>
-        /// Send an email using a single recipient and default template with the name of "Email".
+        /// Send an email using a single recipient.
         /// </summary>
-        /// <param name="emailService"></param>
+        /// <param name="emailService">Abstraction for sending email through different providers and implementations. SMTP, SparkPost, Mailchimp etc.</param>
         /// <param name="recipient">The recipient of the email message.</param>
         /// <param name="subject">The subject of the email message.</param>
         /// <param name="body">The body of the email message.</param>
@@ -48,6 +52,9 @@ namespace Indice.Services
             var builder = new EmailMessageBuilder();
             configureMessage?.Invoke(builder);
             var message = builder.Build();
+            if (!string.IsNullOrWhiteSpace(message.Template)) {
+                message.Body = await emailService.HtmlRenderingEngine?.RenderAsync(message.Template, message.Data);
+            }
             await emailService.SendAsync(message.Recipients.ToArray(), message.Subject, message.Body, message.Attachments.ToArray());
         }
     }

@@ -64,7 +64,7 @@ namespace Indice.Features.Messages.AspNetCore.Controllers
         [HttpGet]
         [Produces(MediaTypeNames.Application.Json)]
         [ProducesResponseType(typeof(ResultSet<Campaign>), StatusCodes.Status200OK)]
-        public async Task<IActionResult> GetCampaigns([FromQuery] ListOptions<CampaignsFilter> options) {
+        public async Task<IActionResult> GetCampaigns([FromQuery] ListOptions<CampaignListFilter> options) {
             var campaigns = await CampaignService.GetList(options);
             return Ok(campaigns);
         }
@@ -174,7 +174,9 @@ namespace Indice.Features.Messages.AspNetCore.Controllers
             // TODO: Add the following logic to CampaignManager.
             // Create a distribution list (if not given as input) with the same name as the campaign.
             if (!request.DistributionListId.HasValue) {
-                var createdList = await DistributionListService.Create(new CreateDistributionListRequest { Name = request.Title });
+                var createdList = await DistributionListService.Create(new CreateDistributionListRequest { 
+                    Name = $"{request.Title} - {DateTimeOffset.UtcNow.ToUnixTimeSeconds()}" 
+                });
                 request.DistributionListId = createdList.Id;
             }
             // Create campaign in the store.
@@ -182,7 +184,7 @@ namespace Indice.Features.Messages.AspNetCore.Controllers
             // Create contacts as part of a bulk insert only using the recipient ids.
             if (request.RecipientIds.Any()) {
                 var contacts = new List<CreateContactRequest>();
-                contacts.AddRange(request.RecipientIds.Select(id => new CreateContactRequest { 
+                contacts.AddRange(request.RecipientIds.Select(id => new CreateContactRequest {
                     RecipientId = id,
                     DistributionListId = request.DistributionListId
                 }));
@@ -190,10 +192,8 @@ namespace Indice.Features.Messages.AspNetCore.Controllers
             }
             if (campaign.Published) {
                 // Dispatch event that the campaign was created.
-                await EventDispatcher.RaiseEventAsync(
-                    payload: CampaignPublishedEvent.FromCampaign(campaign),
-                    configure: options => options.WrapInEnvelope(false).WithQueueName(EventNames.CampaignPublished)
-                );
+                await EventDispatcher.RaiseEventAsync(CampaignPublishedEvent.FromCampaign(campaign), 
+                    options => options.WrapInEnvelope(false).At(campaign.ActivePeriod?.From?.DateTime ?? DateTime.UtcNow).WithQueueName(EventNames.CampaignPublished));
             }
             return CreatedAtAction(nameof(GetCampaignById), new { campaignId = campaign.Id }, campaign);
         }

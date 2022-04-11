@@ -23,8 +23,10 @@ namespace Indice.Features.Messages.Core.Handlers
         /// Sends a push notification to a single user.
         /// </summary>
         /// <param name="event">The event model used when sending an email.</param>
-        public Task Process(SendEmailEvent @event) {
-            throw new NotImplementedException();
-        }
+        public async Task Process(SendEmailEvent @event) => await EmailService.SendAsync(message => message
+            .To(@event.RecipientEmail)
+            .WithSubject(@event.Title)
+            .WithBody(@event.Body)
+        );
     }
 }

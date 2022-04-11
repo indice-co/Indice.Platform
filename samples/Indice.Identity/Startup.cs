@@ -103,7 +103,8 @@ namespace Indice.Identity
 #endif
             services.AddResponseCaching();
             services.AddDataProtectionLocal(options => options.FromConfiguration());
-            services.AddEmailServiceSmtp(Configuration);
+            services.AddEmailServiceSmtp(Configuration)
+                    .WithMvcRazorRendering();
             services.AddCsp(options => {
                 options.ScriptSrc = CSP.Self;
                 options.AddSandbox("allow-popups")

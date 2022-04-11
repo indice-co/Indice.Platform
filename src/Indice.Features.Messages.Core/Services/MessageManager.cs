@@ -1,22 +1,19 @@
-﻿using System;
-using System.Linq;
-using System.Threading.Tasks;
-using Indice.Features.Messages.AspNetCore.Services.Validators;
-using Indice.Features.Messages.Core.Models;
+﻿using Indice.Features.Messages.Core.Models;
 using Indice.Features.Messages.Core.Models.Requests;
 using Indice.Features.Messages.Core.Services.Abstractions;
+using Indice.Features.Messages.Core.Services.Validators;
 
-namespace Indice.Features.Messages.AspNetCore.Services
+namespace Indice.Features.Messages.Core.Services
 {
     /// <summary>
     /// 
     /// </summary>
-    public class CampaignManager
+    public class MessageManager
     {
         /// <summary>
-        /// Creates a new instance of <see cref="CampaignManager"/>.
+        /// Creates a new instance of <see cref="MessageManager"/>.
         /// </summary>
-        public CampaignManager(
+        public MessageManager(
             ICampaignService campaignService,
             IMessageTypeService messageTypeService,
             CreateCampaignRequestValidator createCampaignValidator,

@@ -8,6 +8,18 @@ namespace Indice.Services
     /// </summary>
     public class EmailServiceNoop : IEmailService
     {
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="htmlRenderingEngine"></param>
+        /// <exception cref="System.ArgumentNullException"></exception>
+        public EmailServiceNoop(IHtmlRenderingEngine htmlRenderingEngine) {
+            HtmlRenderingEngine = htmlRenderingEngine ?? throw new System.ArgumentNullException(nameof(htmlRenderingEngine));
+        }
+
+        /// <inheritdoc/>
+        public IHtmlRenderingEngine HtmlRenderingEngine { get; }
+
         /// <inheritdoc/>
         public Task SendAsync(string[] recipients, string subject, string body, EmailAttachment[] attachments = null) {
             foreach (var recipient in recipients) {
