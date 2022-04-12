@@ -1,11 +1,15 @@
 import { Injectable } from '@angular/core';
+
 import { ValidationProblemDetails } from '../core/services/campaigns-api.services';
 
 @Injectable({
   providedIn: 'root'
 })
 export class UtilitiesService {
+  constructor() { }
+
   public problemDetails?: ValidationProblemDetails;
+
   public get validationErrors() {
     const messages: string[] = [];
     const errors = this.problemDetails && this.problemDetails.errors;
@@ -25,8 +29,6 @@ export class UtilitiesService {
     }
     return messages;
   }
-
-  constructor() { }
 
   public getValidationProblemDetails(problemDetails: ValidationProblemDetails): string[] {
     this.problemDetails = problemDetails;

@@ -9,41 +9,41 @@ import { APP_LINKS, IndiceComponentsModule, ModalService, SHELL_CONFIG } from '@
 import { AppComponent } from './app.component';
 import { AppLinks } from './app.links';
 import { AppRoutingModule } from './app-routing.module';
+import { BeautifyBooleanPipe } from './shared/pipes.services';
 import { CampaignCreateComponent } from './features/campaigns/create/campaign-create.component';
-import { MESSAGES_API_BASE_URL } from './core/services/campaigns-api.services';
 import { CampaignsComponent } from './features/campaigns/campaigns.component';
-import { CampaignTypesModalComponent } from './features/campaigns/campaign-types-modal/campaign-types.component';
+import { CampaignsDetailsComponent } from './features/campaigns/manage/details/campaigns-details.component';
+import { CampaignsManageComponent } from './features/campaigns/manage/campaigns-manage.component';
+import { CampaignsRemoveComponent } from './features/campaigns/manage/remove/campaigns-remove.component';
 import { DashboardComponent } from './features/dashboard/dashboard.component';
-import * as app from 'src/app/core/models/settings';
 import { HomeComponent } from './features/home/home.component';
+import { LogOutComponent } from './core/services/logout/logout.component';
+import { MESSAGES_API_BASE_URL } from './core/services/campaigns-api.services';
+import { MessageTypeCreateComponent } from './features/message-types/create/message-type-create.component';
+import { MessageTypesComponent } from './features/message-types/message-types.component';
 import { PageIllustrationComponent } from './shared/components/page-illustration/page-illustration.component';
 import { RadioButtonsListComponent } from './shared/components/radio-buttons-list/radio-buttons-list.component';
 import { ShellConfig } from './shell.config';
 import { ToggleButtonComponent } from './shared/components/toggle-button/toggle-button.component';
-import { LogOutComponent } from './core/services/logout/logout.component';
-import { BeautifyBooleanPipe } from './shared/pipes.services';
-import { CampaignsManageComponent } from './features/campaigns/manage/campaigns-manage.component';
-import { CampaignsDetailsComponent } from './features/campaigns/manage/details/campaigns-details.component';
-import { CampaignsRemoveComponent } from './features/campaigns/manage/remove/campaigns-remove.component';
+import * as app from 'src/app/core/models/settings';
 
 @NgModule({
   declarations: [
-    // Utilities
-    BeautifyBooleanPipe,
-
     AppComponent,
+    BeautifyBooleanPipe,
     CampaignCreateComponent,
     CampaignsComponent,
-    CampaignTypesModalComponent,
+    CampaignsDetailsComponent,
+    CampaignsManageComponent,
+    CampaignsRemoveComponent,
     DashboardComponent,
     HomeComponent,
     LogOutComponent,
+    MessageTypesComponent,
+    MessageTypeCreateComponent,
     PageIllustrationComponent,
     RadioButtonsListComponent,
-    ToggleButtonComponent,
-    CampaignsManageComponent,
-    CampaignsDetailsComponent,
-    CampaignsRemoveComponent
+    ToggleButtonComponent
   ],
   imports: [
     AppRoutingModule,

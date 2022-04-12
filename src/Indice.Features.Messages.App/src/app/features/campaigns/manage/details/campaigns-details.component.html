@@ -8,7 +8,7 @@
             <div class="col-span-2 sm:col-span-4 grid sm:grid-cols-2 lg:grid-cols-4 gap-5 py-5 border-b border-gray-100">
                 <div class="sm:flex sm:flex-col sm:items-center sm:justify-center order-2 sm:order-first">
                     <dt class="text-sm font-medium text-gray-500">Ημερομηνία Δημιουργίας</dt>
-                    <dd class="mt-1 text-sm text-gray-900">{{ model.createdAt | date:'dd/MM/YYYY' }}</dd>
+                    <dd class="mt-1 text-sm text-gray-900">{{ model.createdAt | date: 'dd/MM/YYYY' }}</dd>
                 </div>
                 <div class="sm:flex sm:flex-col sm:items-center sm:justify-center order-3">
                     <dt class="text-sm font-medium text-gray-500">Προς</dt>
@@ -75,11 +75,10 @@
                 </span>
             </div>
             <div class="col-span-2 sm:col-span-4 mt-6 mr-6">
-                <label for="campaignType" class="field-label">Τύπος</label>
+                <label for="messageType" class="field-label">Τύπος</label>
                 <div class="mt-1 flex rounded-sm">
-                    <lib-drop-down-menu id="campaignType" class="w-full" [selected]="model.type?.id" [options]="campaignTypes" (selectedChanged)="typeSelected($event, form)"></lib-drop-down-menu>
+                    <lib-drop-down-menu id="messageType" class="w-full" [selected]="model.type?.id" [options]="messageTypes" (selectedChanged)="messageTypeSelected($event, form)"></lib-drop-down-menu>
                 </div>
-                <p class="field-info col-span-3">Πατήστε <a [attr.style]="'color: blue'" (click)="openCampaignTypesModal()" href="javascript:void(0);">εδώ</a> για να προσθέσετε ένα νέο τύπο καμπάνιας.</p>
             </div>
             <div class="col-span-2 sm:col-span-4 mt-6 mr-6" *ngIf="model.actionText">
                 <dt class="text-sm font-medium text-gray-500">Call-to-action κείμενο</dt>

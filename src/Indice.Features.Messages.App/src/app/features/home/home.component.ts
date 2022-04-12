@@ -12,19 +12,19 @@ import { map } from 'rxjs/operators';
 export class HomeComponent implements OnInit {
     constructor(
         @Inject(SHELL_CONFIG) public shellConfig: IShellConfig,
-        @Inject(AuthService) private authService: AuthService,
-        private router: Router
+        @Inject(AuthService) private _authService: AuthService,
+        private _router: Router
     ) { }
 
     public ngOnInit(): void {
-        this.authService
+        this._authService
             .isLoggedIn()
             .pipe(map((isLoggedIn: Boolean) => {
                 if (isLoggedIn) {
-                    this.router.navigate(['/dashboard']);
+                    this._router.navigate(['/dashboard']);
                     return;
                 }
-                this.authService.signinRedirect('/dashboard');
+                this._authService.signinRedirect('/dashboard');
             }))
             .subscribe();
     }

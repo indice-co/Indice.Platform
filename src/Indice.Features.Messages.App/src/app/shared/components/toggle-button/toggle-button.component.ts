@@ -13,29 +13,28 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
     ]
 })
 export class ToggleButtonComponent implements OnInit, ControlValueAccessor {
+    private _onChange$: any | undefined = undefined;
+    private _onTouched$: any | undefined = undefined;
+
+    constructor() { }
 
     @Input() value: boolean = false;
     @Output() valueChange: EventEmitter<boolean> = new EventEmitter(false);
     @Input('true-label') trueLabel = '';
     @Input('false-label') falseLabel = '';
 
-    private onChange$: any | undefined = undefined;
-    private onTouched$: any | undefined = undefined;
-
-    constructor() { }
-
-    writeValue(obj: any): void {
+    public writeValue(obj: any): void {
         if (obj) {
             this.value = obj || false;
         }
     }
 
-    registerOnChange(fn: any): void {
-        this.onChange$ = fn;
+    public registerOnChange(fn: any): void {
+        this._onChange$ = fn;
     }
 
-    registerOnTouched(fn: any): void {
-        this.onTouched$ = fn;
+    public registerOnTouched(fn: any): void {
+        this._onTouched$ = fn;
     }
 
     public ngOnInit(): void { }
@@ -43,11 +42,11 @@ export class ToggleButtonComponent implements OnInit, ControlValueAccessor {
     public toggleValue(): void {
         this.value = !this.value;
         this.valueChange.emit(this.value);
-        if (this.onChange$) {
-            this.onChange$(this.value);
+        if (this._onChange$) {
+            this._onChange$(this.value);
         }
-        if (this.onTouched$) {
-            this.onTouched$();
+        if (this._onTouched$) {
+            this._onTouched$();
         }
     }
 }

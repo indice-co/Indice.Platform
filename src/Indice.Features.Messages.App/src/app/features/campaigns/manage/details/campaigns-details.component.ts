@@ -4,10 +4,9 @@ import { NgForm } from '@angular/forms';
 import { Location } from '@angular/common';
 
 import { map } from 'rxjs/operators';
-import { MenuOption, Modal, ModalService, ToasterService, ToastType } from '@indice/ng-components';
+import { MenuOption, Modal, ToasterService, ToastType } from '@indice/ng-components';
 import { Campaign, MessagesApiClient, MessageType, MessageTypeResultSet, UpdateCampaignRequest, ValidationProblemDetails } from 'src/app/core/services/campaigns-api.services';
 import { UtilitiesService } from 'src/app/shared/utilities.service';
-import { CampaignTypesModalComponent } from '../../campaign-types-modal/campaign-types.component';
 
 @Component({
   selector: 'app-campaigns-details',
@@ -18,7 +17,6 @@ export class CampaignsDetailsComponent implements OnInit {
 
   constructor(
     private _api: MessagesApiClient,
-    private _modal: ModalService,
     private _route: ActivatedRoute,
     private _toaster: ToasterService,
     public _utilities: UtilitiesService,
@@ -29,12 +27,12 @@ export class CampaignsDetailsComponent implements OnInit {
   public model: Campaign | null | undefined = null;
   public showCustomDataValidation = false;
   public now: Date = new Date();
-  public campaignTypes: MenuOption[] = [];
+  public messageTypes: MenuOption[] = [];
   public typeId?: string;
   public campaignTypesModalRef: Modal | undefined;
 
   public ngOnInit(): void {
-    this.loadCampaignTypes();
+    this.loadMessageTypes();
     this._route.parent?.params.subscribe((params: Params) => {
       this._campaignId = params.campaignId;
       this._api.getCampaignById(this._campaignId).subscribe(campaign => {
@@ -52,22 +50,29 @@ export class CampaignsDetailsComponent implements OnInit {
       activePeriod: this.model?.activePeriod,
       data: this.model?.data
     } as UpdateCampaignRequest;
-    this._api.updateCampaign(this._campaignId, request).subscribe(_ => {
-      this._toaster.show(ToastType.Success, 'Επιτυχής επεξεργασία', `Η καμπάνια με τίτλο '${this.model?.title}' υπέστη επεξεργασία με επιτυχία.`, 5000);
-      this._location.back();
-    }, (problemDetails: ValidationProblemDetails) => {
-      this._toaster.show(ToastType.Error, 'Αποτυχία επεξεργασίας', `${this._utilities.getValidationProblemDetails(problemDetails)}`, 6000);
-    });
+    this._api
+      .updateCampaign(this._campaignId, request)
+      .subscribe({
+        next: _ => {
+          this._toaster.show(ToastType.Success, 'Επιτυχής επεξεργασία', `Η καμπάνια με τίτλο '${this.model?.title}' υπέστη επεξεργασία με επιτυχία.`, 5000);
+          this._location.back();
+        },
+        error: (problemDetails: ValidationProblemDetails) => {
+          this._toaster.show(ToastType.Error, 'Αποτυχία επεξεργασίας', `${this._utilities.getValidationProblemDetails(problemDetails)}`, 6000);
+        }
+      });
   }
 
-  private loadCampaignTypes(): void {
-    this.campaignTypes = [];
-    this._api.getMessageTypes().pipe(map((messageTypes: MessageTypeResultSet) => {
-      if (messageTypes.items) {
-        this.campaignTypes = messageTypes.items.map(type => new MenuOption(type.name || '', type.id));
-        this.campaignTypes.unshift(new MenuOption('Παρακαλώ επιλέξτε...', null));
-      }
-    })).subscribe();
+  private loadMessageTypes(): void {
+    this._api
+      .getMessageTypes()
+      .pipe(map((messageTypes: MessageTypeResultSet) => {
+        if (messageTypes.items) {
+          this.messageTypes = messageTypes.items.map(type => new MenuOption(type.name || '', type.id));
+          this.messageTypes.unshift(new MenuOption('Παρακαλώ επιλέξτε...', null));
+        }
+      }))
+      .subscribe();
   }
 
   public setCampaignCustomData(metadataJson: string): void {
@@ -99,29 +104,11 @@ export class CampaignsDetailsComponent implements OnInit {
     return undefined;
   }
 
-  public openCampaignTypesModal(): void {
-    this.campaignTypesModalRef = this._modal.show(CampaignTypesModalComponent, {
-      backdrop: 'static',
-      keyboard: false,
-      animated: true,
-      initialState: {
-        campaignTypes: this.campaignTypes.filter(x => x.value != null)
-      }
-    });
-    this.campaignTypesModalRef.onHidden?.subscribe((response: any) => {
-      if (response.result.campaignTypesChanged) {
-        this.loadCampaignTypes();
-      }
-    });
-  }
-
-  public typeSelected(selectedtypeId: string, form: NgForm) {
+  public messageTypeSelected(selectedtypeId: string, form: NgForm) {
     if (this.model?.type) {
       this.model.type.id = selectedtypeId;
     } else {
-      this.model!.type = new MessageType({
-        id: selectedtypeId
-      })
+      this.model!.type = new MessageType({ id: selectedtypeId });
     }
     this.typeId = selectedtypeId;
     form.form.markAsDirty();

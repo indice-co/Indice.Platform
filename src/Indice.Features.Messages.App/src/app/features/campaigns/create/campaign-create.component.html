@@ -57,7 +57,6 @@
                         <div class="mt-1 flex rounded-sm">
                             <lib-drop-down-menu id="campaignType" class="w-full" [selected]="model.typeId" [options]="messageTypes" (selectedChanged)="model.typeId = $event"></lib-drop-down-menu>
                         </div>
-                        <p class="field-info col-span-3">Πατήστε <a [attr.style]="'color: blue'" (click)="openCampaignTypesModal()" href="javascript:void(0);">εδώ</a> για να προσθέσετε ένα νέο τύπο καμπάνιας.</p>
                     </div>
                     <!-- Click to action text -->
                     <div class="col-span-4">
@@ -80,25 +79,25 @@
                     <!-- Τρόπος Αποστολής -->
                     <div class="col-span-4">
                         <label class="field-label">Τροπος Αποστολής (*)</label>
-                        <lib-toggle-button id="inbox" [value]="containsDeliveryChannel(MessageChannelKind.Inbox)" (valueChange)="toggleDeliveryChannel(MessageChannelKind.Inbox)" [true-label]="'Η καμπάνια θα εμφανιστεί στο Inbox'"
+                        <lib-toggle-button id="inbox" [value]="containsMessageChannelKind(MessageChannelKind.Inbox)" (valueChange)="toggleMessageChannelKind(MessageChannelKind.Inbox)" [true-label]="'Η καμπάνια θα εμφανιστεί στο Inbox'"
                             [false-label]="'Μέσω Inbox'">
                         </lib-toggle-button>
                     </div>
                     <div class="col-span-4">
-                        <lib-toggle-button id="pushNotification" [value]="containsDeliveryChannel(MessageChannelKind.PushNotification)" (valueChange)="toggleDeliveryChannel(MessageChannelKind.PushNotification)"
+                        <lib-toggle-button id="pushNotification" [value]="containsMessageChannelKind(MessageChannelKind.PushNotification)" (valueChange)="toggleMessageChannelKind(MessageChannelKind.PushNotification)"
                             [true-label]="'Η καμπάνια θα αποσταλλεί με Push Notification'" [false-label]="'Μέσω Push Notification'">
                         </lib-toggle-button>
                     </div>
                     <div class="col-span-4">
-                        <lib-toggle-button id="email" [value]="containsDeliveryChannel(MessageChannelKind.Email)" (valueChange)="toggleDeliveryChannel(MessageChannelKind.Email)" [true-label]="'Η καμπάνια θα αποσταλλεί με Email'"
+                        <lib-toggle-button id="email" [value]="containsMessageChannelKind(MessageChannelKind.Email)" (valueChange)="toggleMessageChannelKind(MessageChannelKind.Email)" [true-label]="'Η καμπάνια θα αποσταλλεί με Email'"
                             [false-label]="'Μέσω Email'">
                         </lib-toggle-button>
                     </div>
                     <div class="col-span-4">
-                        <lib-toggle-button id="sms" [value]="containsDeliveryChannel(MessageChannelKind.SMS)" (valueChange)="toggleDeliveryChannel(MessageChannelKind.SMS)" [true-label]="'Η καμπάνια θα αποσταλλεί με SMS'"
+                        <lib-toggle-button id="sms" [value]="containsMessageChannelKind(MessageChannelKind.SMS)" (valueChange)="toggleMessageChannelKind(MessageChannelKind.SMS)" [true-label]="'Η καμπάνια θα αποσταλλεί με SMS'"
                             [false-label]="'Μέσω SMS'">
                         </lib-toggle-button>
-                        <p *ngIf="!hasDeliveryChannel()" class="mt-2 text-sm text-red-600">
+                        <p *ngIf="!hasMessageChannelKind()" class="mt-2 text-sm text-red-600">
                             <span>Παρακαλώ επιλέξτε τρόπο αποστολής.</span>
                         </p>
                     </div>
@@ -109,14 +108,14 @@
                         </div>
                     </div>
                     <div class="col-span-4" *ngIf="!model.isGlobal">
-                        <label for="campaignUserCodes" class="field-label">Κωδικοί χρηστών (*)</label>
+                        <label for="campaignRecipientIds" class="field-label">Κωδικοί χρηστών (*)</label>
                         <div class="mt-1 flex rounded-sm">
-                            <textarea id="campaignUserCodes" name="campaignUserCodes" [ngModel]="toUserCodesString(model.recipientIds)" (ngModelChange)="model.recipientIds = toUserCodesArray($event)" rows="6"
-                                placeholder="Η λίστα χρηστών της καμπάνιας...&#10;κωδικός_χρήστη_1&#10;κωδικός_χρήστη_2" required #campaignUserCodes="ngModel">
+                            <textarea id="campaignRecipientIds" name="campaignRecipientIds" [ngModel]="toRecipientIdsString(model.recipientIds)" (ngModelChange)="model.recipientIds = toRecipientIdsArray($event)" rows="6"
+                                placeholder="Η λίστα χρηστών της καμπάνιας...&#10;κωδικός_χρήστη_1&#10;κωδικός_χρήστη_2" required #campaignRecipientIds="ngModel">
                             </textarea>
                         </div>
-                        <p *ngIf="campaignUserCodes.invalid && (campaignUserCodes.dirty || campaignUserCodes.touched)" class="mt-2 text-sm text-red-600">
-                            <span *ngIf="campaignUserCodes.errors!['required']">Παρακαλώ συμπληρώστε τη λίστα χρηστών.</span>
+                        <p *ngIf="campaignRecipientIds.invalid && (campaignRecipientIds.dirty || campaignRecipientIds.touched)" class="mt-2 text-sm text-red-600">
+                            <span *ngIf="campaignRecipientIds.errors!['required']">Παρακαλώ συμπληρώστε τη λίστα χρηστών.</span>
                         </p>
                         <p class="field-info col-span-3">
                             Προσδιορίστε τη λίστα χρηστών βάζοντας κάθε τιμή σε ξεχωριστή γραμμή.

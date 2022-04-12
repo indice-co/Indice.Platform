@@ -29,7 +29,7 @@ export class CampaignsComponent extends BaseListComponent<Campaign> implements O
         ];
     }
 
-    public newItemLink: string | null = 'create';
+    public newItemLink: string | null = 'create-campaign';
     public full = true;
 
     public ngOnInit(): void {

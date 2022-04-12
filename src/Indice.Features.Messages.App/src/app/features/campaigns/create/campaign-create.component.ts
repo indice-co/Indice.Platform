@@ -2,47 +2,37 @@ import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, Inject, OnInit
 import { NgForm } from '@angular/forms';
 import { Router } from '@angular/router';
 
-import { MenuOption, Modal, ModalService, SideViewLayoutComponent, ToasterService, ToastType } from '@indice/ng-components';
+import { MenuOption, Modal, ToasterService, ToastType } from '@indice/ng-components';
 import { map } from 'rxjs/operators';
 import * as app from 'src/app/core/models/settings';
 import { Campaign, CreateCampaignRequest, Period, ValidationProblemDetails, MessagesApiClient, MessageChannelKind, MessageTypeResultSet, MessageContent, Hyperlink } from 'src/app/core/services/campaigns-api.services';
 import { UtilitiesService } from 'src/app/shared/utilities.service';
-import { CampaignTypesModalComponent } from '../campaign-types-modal/campaign-types.component';
 
 @Component({
-    selector: 'app-campaigns',
+    selector: 'app-campaign-create',
     templateUrl: './campaign-create.component.html'
 })
 export class CampaignCreateComponent implements OnInit, AfterViewInit {
-    @ViewChild('campaignForm', { static: false }) private campaignForm!: NgForm;
-    @ViewChild('sideViewLayout', { static: false }) private sideViewLayout!: SideViewLayoutComponent;
+    @ViewChild('campaignForm', { static: false }) private _campaignForm!: NgForm;
     @ViewChild('submitBtn', { static: false }) public submitButton!: ElementRef;
 
     constructor(
         private _api: MessagesApiClient,
-        private _modal: ModalService,
         private _router: Router,
-        public utilities: UtilitiesService,
+        private _utilities: UtilitiesService,
         private _changeDetector: ChangeDetectorRef,
         @Inject(ToasterService) private _toaster: ToasterService
     ) { }
 
     public now: Date = new Date();
     public model = new CreateCampaignRequest({
-        activePeriod: new Period({
-            from: this.now
-        }),
+        activePeriod: new Period({ from: this.now }),
         published: false,
         isGlobal: true,
         messageChannelKind: [MessageChannelKind.Inbox],
         title: '',
-        content: {
-            'inbox': new MessageContent()
-        },
-        actionLink: new Hyperlink({
-            href: '',
-            text: ''
-        })
+        content: { 'inbox': new MessageContent() },
+        actionLink: new Hyperlink({ href: '', text: '' })
     });
     public messageTypes: MenuOption[] = [];
     public campaignTypesModalRef: Modal | undefined;
@@ -51,13 +41,10 @@ export class CampaignCreateComponent implements OnInit, AfterViewInit {
     public customDataValid = true;
     public showCustomDataValidation = false;
     public submitInProgress = false;
-    public targetOptions: MenuOption[] = [
-        new MenuOption('Όλους τους χρήστες', true),
-        new MenuOption('Ομάδα χρηστών', false)
-    ];
+    public targetOptions: MenuOption[] = [new MenuOption('Όλους τους χρήστες', true), new MenuOption('Ομάδα χρηστών', false)];
 
     public ngOnInit(): void {
-        this.loadCampaignTypes();
+        this.loadMessageTypes();
     }
 
     public ngAfterViewInit(): void {
@@ -65,7 +52,7 @@ export class CampaignCreateComponent implements OnInit, AfterViewInit {
     }
 
     public canSubmit(): boolean {
-        return this.campaignForm?.valid === true && this.hasDeliveryChannel();
+        return this._campaignForm?.valid === true && this.hasMessageChannelKind();
     }
 
     public onSubmit(): void {
@@ -75,31 +62,17 @@ export class CampaignCreateComponent implements OnInit, AfterViewInit {
         this.submitInProgress = true;
         this._api
             .createCampaign(this.model)
-            .subscribe((campaign: Campaign) => {
-                this.submitInProgress = false;
-                // This is to force reload campaigns page when a new campaign is successfully saved. 
-                this._router.navigateByUrl('/', { skipLocationChange: true }).then(() => this._router.navigate(['campaigns']));
-                this._toaster.show(ToastType.Success, 'Επιτυχής αποθήκευση', `Η καμπάνια με τίτλο '${campaign.title}' δημιουργήθηκε με επιτυχία.`);
-            }, (problemDetails: ValidationProblemDetails) => {
-                // This is to force reload campaigns page when a new campaign is successfully saved.
-                this._toaster.show(ToastType.Error, 'Αποτυχής αποθήκευση', `${this.utilities.getValidationProblemDetails(problemDetails)}`, 6000);
+            .subscribe({
+                next: (campaign: Campaign) => {
+                    this.submitInProgress = false;
+                    // This is to force reload campaigns page when a new campaign is successfully saved. 
+                    this._router.navigateByUrl('/', { skipLocationChange: true }).then(() => this._router.navigate(['campaigns']));
+                    this._toaster.show(ToastType.Success, 'Επιτυχής αποθήκευση', `Η καμπάνια με τίτλο '${campaign.title}' δημιουργήθηκε με επιτυχία.`);
+                },
+                error: (problemDetails: ValidationProblemDetails) => {
+                    this._toaster.show(ToastType.Error, 'Αποτυχής αποθήκευση', `${this._utilities.getValidationProblemDetails(problemDetails)}`, 6000);
+                }
             });
-    }
-
-    public openCampaignTypesModal(): void {
-        this.campaignTypesModalRef = this._modal.show(CampaignTypesModalComponent, {
-            backdrop: 'static',
-            keyboard: false,
-            animated: true,
-            initialState: {
-                campaignTypes: this.messageTypes.filter(x => x.value != null)
-            }
-        });
-        this.campaignTypesModalRef.onHidden?.subscribe((response: any) => {
-            if (response.result.campaignTypesChanged) {
-                this.loadCampaignTypes();
-            }
-        });
     }
 
     public toDate(event: any): Date | undefined {
@@ -117,32 +90,32 @@ export class CampaignCreateComponent implements OnInit, AfterViewInit {
         }
     }
 
-    public toUserCodesArray(userCodes: string | undefined): string[] {
-        return userCodes ? [...new Set(userCodes.split('\n').filter(x => x !== ''))] : [];
+    public toRecipientIdsArray(recipientIds: string | undefined): string[] {
+        return recipientIds ? [...new Set(recipientIds.split('\n').filter(x => x !== ''))] : [];
     }
 
-    public toUserCodesString(userCodes: string[] | undefined): string {
-        return userCodes ? userCodes.join('\n') : '';
+    public toRecipientIdsString(recipientIds: string[] | undefined): string {
+        return recipientIds ? recipientIds.join('\n') : '';
     }
 
-    public toggleDeliveryChannel(deliveryType: MessageChannelKind): void {
-        if (deliveryType !== MessageChannelKind.Inbox) {
-            this.model.messageChannelKind = this.model.messageChannelKind!.filter(x => x === MessageChannelKind.Inbox || x === deliveryType);
+    public toggleMessageChannelKind(messageChannelKind: MessageChannelKind): void {
+        if (messageChannelKind !== MessageChannelKind.Inbox) {
+            this.model.messageChannelKind = this.model.messageChannelKind!.filter(x => x === MessageChannelKind.Inbox || x === messageChannelKind);
         }
-        const index = this.model.messageChannelKind!.findIndex(channel => channel === deliveryType);
+        const index = this.model.messageChannelKind!.findIndex(channel => channel === messageChannelKind);
         if (index > -1) {
             this.model.messageChannelKind!.splice(index, 1);
         } else {
-            this.model.messageChannelKind!.push(deliveryType);
+            this.model.messageChannelKind!.push(messageChannelKind);
         }
     }
 
-    public hasDeliveryChannel(): boolean {
+    public hasMessageChannelKind(): boolean {
         return this.model.messageChannelKind!.length > 0;
     }
 
-    public containsDeliveryChannel(deliveryType: MessageChannelKind): boolean {
-        return this.model.messageChannelKind!.indexOf(deliveryType) > -1;
+    public containsMessageChannelKind(messageChannelKind: MessageChannelKind): boolean {
+        return this.model.messageChannelKind!.indexOf(messageChannelKind) > -1;
     }
 
     public setCampaignCustomData(metadataJson: string): void {
@@ -165,7 +138,7 @@ export class CampaignCreateComponent implements OnInit, AfterViewInit {
         this.showCustomDataValidation = true;
     }
 
-    private loadCampaignTypes(): void {
+    private loadMessageTypes(): void {
         this.messageTypes = [];
         this._api
             .getMessageTypes()
