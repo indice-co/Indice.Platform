@@ -55,8 +55,9 @@ namespace Indice.Features.Messages.Core.Handlers
             foreach (var content in @event.Campaign.Content) {
                 // TODO: Make it work with camel case properties.
                 dynamic templateData = new { contact, data = @event.Campaign.Data };
-                content.Value.Title = handlebars.Compile(content.Value.Title)(templateData);
-                content.Value.Body = handlebars.Compile(content.Value.Body)(templateData);
+                var messageContent = @event.Campaign.Content[content.Key];
+                messageContent.Title = handlebars.Compile(content.Value.Title)(templateData);
+                messageContent.Body = handlebars.Compile(content.Value.Body)(templateData);
             }
             var campaign = @event.Campaign;
             // Persist message with merged contents.

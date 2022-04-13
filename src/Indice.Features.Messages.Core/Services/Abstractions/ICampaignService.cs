@@ -41,17 +41,6 @@ namespace Indice.Features.Messages.Core.Services.Abstractions
         /// <param name="id">The id of the campaign.</param>
         Task<Campaign> Publish(Guid id);
         /// <summary>
-        /// Creates a new attachment.
-        /// </summary>
-        /// <param name="fileAttachment">The file attachment.</param>
-        Task<AttachmentLink> CreateAttachment(FileAttachment fileAttachment);
-        /// <summary>
-        /// Associates a campaign with an attachment.
-        /// </summary>
-        /// <param name="id">The id of the campaign.</param>
-        /// <param name="attachmentId">The id of the attachment.</param>
-        Task AssociateAttachment(Guid id, Guid attachmentId);
-        /// <summary>
         /// Gets some statistics for the campaign.
         /// </summary>
         /// <param name="id">The id of the campaign.</param>

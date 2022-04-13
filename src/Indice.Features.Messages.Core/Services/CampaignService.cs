@@ -4,7 +4,6 @@ using Indice.Features.Messages.Core.Exceptions;
 using Indice.Features.Messages.Core.Models;
 using Indice.Features.Messages.Core.Models.Requests;
 using Indice.Features.Messages.Core.Services.Abstractions;
-using Indice.Services;
 using Indice.Types;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
@@ -21,27 +20,24 @@ namespace Indice.Features.Messages.Core.Services
         /// </summary>
         /// <param name="dbContext">The <see cref="Microsoft.EntityFrameworkCore.DbContext"/> for Campaigns API feature.</param>
         /// <param name="campaignManagementOptions">Options used to configure the Campaigns management API feature.</param>
-        /// <param name="getFileService">File storage abstraction.</param>
         /// <exception cref="ArgumentNullException"></exception>
         public CampaignService(
             CampaignsDbContext dbContext,
-            IOptions<MessageManagementOptions> campaignManagementOptions,
-            Func<string, IFileService> getFileService
+            IOptions<MessageManagementOptions> campaignManagementOptions
         ) {
             DbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
             CampaignManagementOptions = campaignManagementOptions?.Value ?? throw new ArgumentNullException(nameof(campaignManagementOptions));
-            FileService = getFileService(KeyedServiceNames.FileServiceKey) ?? throw new ArgumentNullException(nameof(getFileService));
         }
 
         private CampaignsDbContext DbContext { get; }
         private MessageManagementOptions CampaignManagementOptions { get; }
-        private IFileService FileService { get; }
 
         /// <inheritdoc />
         public Task<ResultSet<Campaign>> GetList(ListOptions<CampaignListFilter> options) {
             var query = DbContext
                     .Campaigns
                     .Include(x => x.Type)
+                    .Include(x => x.Template)
                     .Include(x => x.DistributionList)
                     .AsNoTracking()
                     .Select(Mapper.ProjectToCampaign);
@@ -64,6 +60,8 @@ namespace Indice.Features.Messages.Core.Services
                 .Campaigns
                 .AsNoTracking()
                 .Include(x => x.Attachment)
+                .Include(x => x.Type)
+                .Include(x => x.Template)
                 .Include(x => x.DistributionList)
                 .Select(Mapper.ProjectToCampaignDetails)
                 .SingleOrDefaultAsync(x => x.Id == id);
@@ -79,18 +77,8 @@ namespace Indice.Features.Messages.Core.Services
         /// <inheritdoc />
         public async Task<Campaign> Create(CreateCampaignRequest request) {
             var dbCampaign = Mapper.ToDbCampaign(request);
-            if (!request.TemplateId.HasValue) {
-                dbCampaign.Template = new DbTemplate {
-                    Content = request.Content,
-                    Id = Guid.NewGuid(),
-                    Name = request.Title
-                };
-            }
             DbContext.Campaigns.Add(dbCampaign);
             await DbContext.SaveChangesAsync();
-            if (dbCampaign.Template is null) {
-                dbCampaign.Template = await DbContext.Templates.FindAsync(request.TemplateId);
-            }
             return Mapper.ToCampaign(dbCampaign);
         }
 
@@ -120,33 +108,6 @@ namespace Indice.Features.Messages.Core.Services
                 throw CampaignException.CampaignNotFound(id);
             }
             DbContext.Remove(campaign);
-            await DbContext.SaveChangesAsync();
-        }
-
-        /// <inheritdoc />
-        public async Task<AttachmentLink> CreateAttachment(FileAttachment fileAttachment) {
-            var attachment = Mapper.ToDbAttachment(fileAttachment);
-            using (var stream = fileAttachment.OpenReadStream()) {
-                await FileService.SaveAsync($"campaigns/{attachment.Uri}", stream);
-            }
-            DbContext.Attachments.Add(attachment);
-            await DbContext.SaveChangesAsync();
-            return new AttachmentLink {
-                ContentType = fileAttachment.ContentType,
-                Id = attachment.Id,
-                Label = fileAttachment.Name,
-                PermaLink = $"{CampaignManagementOptions.ApiPrefix}/campaigns/attachments/{(Base64Id)attachment.Guid}.{Path.GetExtension(attachment.Name).TrimStart('.')}",
-                Size = fileAttachment.ContentLength
-            };
-        }
-
-        /// <inheritdoc />
-        public async Task AssociateAttachment(Guid id, Guid attachmentId) {
-            var campaign = await DbContext.Campaigns.FindAsync(id);
-            if (campaign is null) {
-                throw CampaignException.CampaignNotFound(id);
-            }
-            campaign.AttachmentId = attachmentId;
             await DbContext.SaveChangesAsync();
         }
 

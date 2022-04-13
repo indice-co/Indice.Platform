@@ -90,7 +90,7 @@ namespace Indice.Features.Messages.Core
         /// </summary>
         public string UserClaimType { get; set; } = BasicClaimTypes.Subject;
         /// <summary>
-        /// Schema name used for tables. Defaults to <i>campaign</i>.
+        /// Schema name used for tables. Defaults to <i>cmp</i>.
         /// </summary>
         public string DatabaseSchema { get; set; } = MessagesApi.DatabaseSchema;
         /// <summary>

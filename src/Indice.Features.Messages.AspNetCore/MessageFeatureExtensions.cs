@@ -8,6 +8,7 @@ using Indice.Features.Messages.AspNetCore;
 using Indice.Features.Messages.AspNetCore.Mvc.Formatters;
 using Indice.Features.Messages.Core;
 using Indice.Features.Messages.Core.Data;
+using Indice.Features.Messages.Core.Manager;
 using Indice.Features.Messages.Core.Services;
 using Indice.Features.Messages.Core.Services.Abstractions;
 using Indice.Features.Messages.Core.Services.Validators;
@@ -87,6 +88,7 @@ namespace Microsoft.Extensions.DependencyInjection
             services.TryAddTransient<IPlatformEventService, PlatformEventService>();
             services.TryAddTransient<IContactService, ContactService>();
             services.TryAddTransient<ITemplateService, TemplateService>();
+            services.TryAddTransient<ICampaignAttachmentService, CampaignAttachmentService>();
             // Configure authorization.
             services.AddAuthorizationCore(authOptions => {
                 authOptions.AddPolicy(MessagesApi.Policies.BeCampaignManager, policy => {
@@ -170,7 +172,7 @@ namespace Microsoft.Extensions.DependencyInjection
             services.TryAddTransient<ICampaignService, CampaignService>();
             services.TryAddTransient<IMessageTypeService, MessageTypeService>();
             services.TryAddTransient<IDistributionListService, DistributionListService>();
-            services.TryAddTransient<MessageManager>();
+            services.TryAddTransient<NotificationsManager>();
             // Register application DbContext.
             Action<DbContextOptionsBuilder> sqlServerConfiguration = (builder) => builder.UseSqlServer(configuration.GetConnectionString("MessagesDbConnection"));
             services.AddDbContext<CampaignsDbContext>(baseOptions.ConfigureDbContext ?? sqlServerConfiguration);

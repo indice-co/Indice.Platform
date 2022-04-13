@@ -1,5 +1,8 @@
-﻿using System.Linq.Expressions;
+﻿using System.Dynamic;
+using System.Linq.Expressions;
+using System.Reflection;
 using Indice.Features.Messages.Core.Data.Models;
+using Indice.Features.Messages.Core.Manager.Commands;
 using Indice.Features.Messages.Core.Models.Requests;
 using Indice.Types;
 
@@ -10,7 +13,7 @@ namespace Indice.Features.Messages.Core.Models
         public static Expression<Func<DbCampaign, Campaign>> ProjectToCampaign = campaign => new() {
             ActionLink = campaign.ActionLink,
             ActivePeriod = campaign.ActivePeriod,
-            Content = campaign.Template.Content,
+            Content = campaign.Template != null ? campaign.Template.Content : new Dictionary<string, MessageContent>(),
             CreatedAt = campaign.CreatedAt,
             Data = campaign.Data,
             MessageChannelKind = campaign.MessageChannelKind,
@@ -21,6 +24,11 @@ namespace Indice.Features.Messages.Core.Models
             Id = campaign.Id,
             IsGlobal = campaign.IsGlobal,
             Published = campaign.Published,
+            Template = campaign.Template != null ? new Template {
+                Content = campaign.Template.Content,
+                Id = campaign.Template.Id,
+                Name = campaign.Template.Name,
+            } : null,
             Title = campaign.Title,
             Type = campaign.Type != null ? new MessageType {
                 Id = campaign.Type.Id,
@@ -105,7 +113,7 @@ namespace Indice.Features.Messages.Core.Models
             Id = Guid.NewGuid(),
             IsGlobal = request.IsGlobal,
             Published = request.Published,
-            TemplateId = request.TemplateId.Value,
+            TemplateId = request.TemplateId,
             Title = request.Title,
             TypeId = request.TypeId
         };
@@ -145,5 +153,47 @@ namespace Indice.Features.Messages.Core.Models
             Name = fileAttachment.Name,
             Uri = fileAttachment.Uri
         };
+
+        public static CreateCampaignCommand ToCreateCampaignCommand(CreateCampaignRequest request) => new() {
+            ActionLink = request.ActionLink,
+            ActivePeriod = request.ActivePeriod,
+            Content = request.Content.ToDictionary(x => Enum.Parse<MessageChannelKind>(x.Key, ignoreCase: true), y => y.Value),
+            Data = request.Data,
+            DistributionList = request.DistributionListId.HasValue ? new DistributionList { Id = request.DistributionListId.Value } : null,
+            IsGlobal = request.IsGlobal,
+            MessageChannelKind = request.MessageChannelKind,
+            Published = request.Published,
+            RecipientIds = request.RecipientIds,
+            Template = request.TemplateId.HasValue ? new Template { 
+                Id = request.TemplateId.Value,
+                Content = request.Content
+            } : null,
+            Title = request.Title,
+            Type = request.TypeId.HasValue ? new MessageType { Id = request.TypeId.Value } : null
+        };
+
+        public static CreateCampaignRequest ToCreateCampaignRequest(CreateCampaignCommand command) => new() {
+            ActionLink = command.ActionLink,
+            ActivePeriod = command.ActivePeriod,
+            Content = command.Content.ToDictionary(x => x.Key.ToString(), y => y.Value),
+            Data = command.Data != null ? ToExpandoObject(command.Data) : null,
+            DistributionListId = command.DistributionList?.Id,
+            IsGlobal = command.IsGlobal,
+            MessageChannelKind = command.MessageChannelKind,
+            Published = command.Published,
+            RecipientIds = command.RecipientIds,
+            TemplateId = command.Template?.Id,
+            Title = command.Title,
+            TypeId = command.Type?.Id
+        };
+
+        private static ExpandoObject ToExpandoObject(object value) {
+            var dataType = value.GetType();
+            var obj = new ExpandoObject() as IDictionary<string, object>;
+            foreach (var property in dataType.GetProperties(BindingFlags.Public | BindingFlags.Instance)) {
+                obj.Add(property.Name, property.GetValue(value, null));
+            }
+            return obj as ExpandoObject;
+        }
     }
 }

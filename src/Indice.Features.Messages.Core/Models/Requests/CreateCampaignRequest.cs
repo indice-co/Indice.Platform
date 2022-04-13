@@ -1,5 +1,4 @@
 ﻿using System.Dynamic;
-using System.Text.Json.Serialization;
 using Indice.Types;
 
 namespace Indice.Features.Messages.Core.Models.Requests
@@ -9,11 +8,6 @@ namespace Indice.Features.Messages.Core.Models.Requests
     /// </summary>
     public class CreateCampaignRequest
     {
-        /// <summary>
-        /// The id of the campaign.
-        /// </summary>
-        [JsonIgnore]
-        public Guid Id { get; set; }
         /// <summary>
         /// Determines if campaign targets all user base. Defaults to true.
         /// </summary>

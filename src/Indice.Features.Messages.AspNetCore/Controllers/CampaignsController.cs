@@ -8,6 +8,7 @@ using Indice.Configuration;
 using Indice.Features.Messages.AspNetCore.Extensions;
 using Indice.Features.Messages.Core;
 using Indice.Features.Messages.Core.Events;
+using Indice.Features.Messages.Core.Manager;
 using Indice.Features.Messages.Core.Models;
 using Indice.Features.Messages.Core.Models.Requests;
 using Indice.Features.Messages.Core.Services.Abstractions;
@@ -39,12 +40,16 @@ namespace Indice.Features.Messages.AspNetCore.Controllers
             Func<string, IFileService> getFileService,
             Func<string, IEventDispatcher> getEventDispatcher,
             IOptions<GeneralSettings> generalSettings,
-            IPlatformEventService eventService
+            IPlatformEventService eventService,
+            ICampaignAttachmentService campaignAttachmentService,
+            NotificationsManager notificationsManager
         ) : base(getFileService) {
             CampaignService = campaignService ?? throw new ArgumentNullException(nameof(campaignService));
             DistributionListService = distributionListService ?? throw new ArgumentNullException(nameof(distributionListService));
             ContactService = contactService ?? throw new ArgumentNullException(nameof(contactService));
             EventService = eventService ?? throw new ArgumentNullException(nameof(eventService));
+            CampaignAttachmentService = campaignAttachmentService ?? throw new ArgumentNullException(nameof(campaignAttachmentService));
+            NotificationsManager = notificationsManager ?? throw new ArgumentNullException(nameof(notificationsManager));
             GeneralSettings = generalSettings?.Value ?? throw new ArgumentNullException(nameof(generalSettings));
             EventDispatcher = getEventDispatcher(KeyedServiceNames.EventDispatcherServiceKey) ?? throw new ArgumentNullException(nameof(getEventDispatcher));
         }
@@ -53,6 +58,8 @@ namespace Indice.Features.Messages.AspNetCore.Controllers
         public IDistributionListService DistributionListService { get; }
         public IContactService ContactService { get; }
         public IPlatformEventService EventService { get; }
+        public ICampaignAttachmentService CampaignAttachmentService { get; }
+        public NotificationsManager NotificationsManager { get; }
         public GeneralSettings GeneralSettings { get; }
         public IEventDispatcher EventDispatcher { get; }
 
@@ -171,31 +178,13 @@ namespace Indice.Features.Messages.AspNetCore.Controllers
         [ProducesResponseType(typeof(Campaign), StatusCodes.Status201Created)]
         [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> CreateCampaign([FromBody] CreateCampaignRequest request) {
-            // TODO: Add the following logic to CampaignManager.
-            // Create a distribution list (if not given as input) with the same name as the campaign.
-            if (!request.DistributionListId.HasValue) {
-                var createdList = await DistributionListService.Create(new CreateDistributionListRequest { 
-                    Name = $"{request.Title} - {DateTimeOffset.UtcNow.ToUnixTimeSeconds()}" 
-                });
-                request.DistributionListId = createdList.Id;
-            }
-            // Create campaign in the store.
-            var campaign = await CampaignService.Create(request);
-            // Create contacts as part of a bulk insert only using the recipient ids.
-            if (request.RecipientIds.Any()) {
-                var contacts = new List<CreateContactRequest>();
-                contacts.AddRange(request.RecipientIds.Select(id => new CreateContactRequest {
-                    RecipientId = id,
-                    DistributionListId = request.DistributionListId
-                }));
-                await ContactService.CreateMany(contacts);
-            }
-            if (campaign.Published) {
+            var result = await NotificationsManager.CreateCampaignInternal(request, validateRules: false);
+            if (request.Published) {
                 // Dispatch event that the campaign was created.
-                await EventDispatcher.RaiseEventAsync(CampaignPublishedEvent.FromCampaign(campaign), 
-                    options => options.WrapInEnvelope(false).At(campaign.ActivePeriod?.From?.DateTime ?? DateTime.UtcNow).WithQueueName(EventNames.CampaignPublished));
+                //await EventDispatcher.RaiseEventAsync(CampaignPublishedEvent.FromCampaign(campaign),
+                //    options => options.WrapInEnvelope(false).At(request.ActivePeriod?.From?.DateTime ?? DateTime.UtcNow).WithQueueName(EventNames.CampaignPublished));
             }
-            return CreatedAtAction(nameof(GetCampaignById), new { campaignId = campaign.Id }, campaign);
+            return CreatedAtAction(nameof(GetCampaignById), new { campaignId = result.CampaignId }, null);
         }
 
         /// <summary>
@@ -250,8 +239,8 @@ namespace Indice.Features.Messages.AspNetCore.Controllers
                 return BadRequest(new ValidationProblemDetails(ModelState));
             }
             var attachment = new FileAttachment(file.OpenReadStream).PopulateFrom(file);
-            var attachmentLink = await CampaignService.CreateAttachment(attachment);
-            await CampaignService.AssociateAttachment(campaignId, attachmentLink.Id);
+            var attachmentLink = await CampaignAttachmentService.Create(attachment);
+            await CampaignAttachmentService.Associate(campaignId, attachmentLink.Id);
             return Ok(attachmentLink);
         }
 

@@ -23,7 +23,7 @@ namespace Indice.Functions
                 options.ConfigureDbContext = builder => builder.UseSqlServer(configuration.GetConnectionString("MessagesDb"));
                 options.DatabaseSchema = "cmp";
                 options.UseEventDispatcherAzure()
-                       //.UsePushNotificationServiceAzure()
+                       //.UsePushNotificationServiceAzure((serviceProvider, options) => { })
                        .UseIdentityContactResolver(resolverOptions => {
                            resolverOptions.BaseAddress = new Uri(configuration["IdentityServer:BaseAddress"]);
                            resolverOptions.ClientId = configuration["IdentityServer:ClientId"];

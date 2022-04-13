@@ -60,7 +60,7 @@ namespace Indice.Features.Messages.Core.Data.Models
         /// <summary>
         /// Foreign key to the <see cref="DbTemplate"/>.
         /// </summary>
-        public Guid TemplateId { get; set; }
+        public Guid? TemplateId { get; set; }
         /// <summary>
         /// An attachment object for the campaign.
         /// </summary>
