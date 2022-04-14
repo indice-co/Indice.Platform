@@ -33,12 +33,9 @@ namespace Indice.Features.Messages.Core.Data.Mappings
             builder.Property(x => x.FullName).HasMaxLength(TextSizePresets.M256);
             builder.Property(x => x.PhoneNumber).HasMaxLength(TextSizePresets.S64);
             builder.Property(x => x.Email).HasMaxLength(TextSizePresets.S64);
-            builder.Property(x => x.RecipientId).HasMaxLength(TextSizePresets.S64);
+            builder.Property(x => x.RecipientId).HasMaxLength(TextSizePresets.S64).IsRequired();
             // Configure indexes.
             builder.HasIndex(x => x.RecipientId);
-            builder.HasIndex(x => x.DistributionListId);
-            // Configure relationships.
-            builder.HasOne<DbDistributionList>().WithMany(x => x.Contacts).HasForeignKey(x => x.DistributionListId);
         }
     }
 }

@@ -13,7 +13,7 @@ namespace Indice.Features.Messages.Core.Models
         public static Expression<Func<DbCampaign, Campaign>> ProjectToCampaign = campaign => new() {
             ActionLink = campaign.ActionLink,
             ActivePeriod = campaign.ActivePeriod,
-            Content = campaign.Template != null ? campaign.Template.Content : new Dictionary<string, MessageContent>(),
+            Content = campaign.Content ?? new Dictionary<string, MessageContent>(),
             CreatedAt = campaign.CreatedAt,
             Data = campaign.Data,
             MessageChannelKind = campaign.MessageChannelKind,
@@ -24,11 +24,6 @@ namespace Indice.Features.Messages.Core.Models
             Id = campaign.Id,
             IsGlobal = campaign.IsGlobal,
             Published = campaign.Published,
-            Template = campaign.Template != null ? new Template {
-                Content = campaign.Template.Content,
-                Id = campaign.Template.Id,
-                Name = campaign.Template.Name,
-            } : null,
             Title = campaign.Title,
             Type = campaign.Type != null ? new MessageType {
                 Id = campaign.Type.Id,
@@ -52,8 +47,7 @@ namespace Indice.Features.Messages.Core.Models
 
         public static Contact ToContact(DbContact contact) => ProjectToContact.Compile()(contact);
 
-        public static CreateContactRequest ToCreateContactRequest(Contact request, Guid? distributionListId = null) => new() {
-            DistributionListId = distributionListId,
+        public static CreateContactRequest ToCreateContactRequest(Contact request) => new() {
             Email = request.Email,
             FirstName = request.FirstName,
             FullName = request.FullName,
@@ -83,7 +77,7 @@ namespace Indice.Features.Messages.Core.Models
                 Size = campaign.Attachment.ContentLength,
                 PermaLink = $"/campaigns/attachments/{(Base64Id)campaign.Attachment.Guid}.{Path.GetExtension(campaign.Attachment.Name).TrimStart('.')}"
             } : null,
-            Content = campaign.Template.Content,
+            Content = campaign.Content ?? new Dictionary<string, MessageContent>(),
             CreatedAt = campaign.CreatedAt,
             Data = campaign.Data,
             MessageChannelKind = campaign.MessageChannelKind,
@@ -106,14 +100,14 @@ namespace Indice.Features.Messages.Core.Models
         public static DbCampaign ToDbCampaign(CreateCampaignRequest request) => new() {
             ActionLink = request.ActionLink,
             ActivePeriod = request.ActivePeriod,
+            Content = request.Content,
             CreatedAt = DateTime.UtcNow,
             Data = request.Data,
-            MessageChannelKind = request.MessageChannelKind,
             DistributionListId = request.DistributionListId,
             Id = Guid.NewGuid(),
             IsGlobal = request.IsGlobal,
+            MessageChannelKind = request.MessageChannelKind,
             Published = request.Published,
-            TemplateId = request.TemplateId,
             Title = request.Title,
             TypeId = request.TypeId
         };
@@ -130,8 +124,18 @@ namespace Indice.Features.Messages.Core.Models
             UpdatedAt = DateTimeOffset.UtcNow
         };
 
+        public static CreateDistributionListContactRequest ToCreateDistributionListContactRequest(Contact contact) => new() {
+            Email = contact.Email,
+            FirstName = contact.FirstName,
+            FullName = contact.FullName,
+            Id = contact.Id,
+            LastName = contact.LastName,
+            PhoneNumber = contact.PhoneNumber,
+            RecipientId = contact.RecipientId,
+            Salutation = contact.Salutation
+        };
+
         public static DbContact ToDbContact(CreateContactRequest request) => new() {
-            DistributionListId = request.DistributionListId,
             Email = request.Email,
             FirstName = request.FirstName,
             FullName = request.FullName,
@@ -159,15 +163,12 @@ namespace Indice.Features.Messages.Core.Models
             ActivePeriod = request.ActivePeriod,
             Content = request.Content.ToDictionary(x => Enum.Parse<MessageChannelKind>(x.Key, ignoreCase: true), y => y.Value),
             Data = request.Data,
-            DistributionList = request.DistributionListId.HasValue ? new DistributionList { Id = request.DistributionListId.Value } : null,
+            DistributionListId = request.DistributionListId,
             IsGlobal = request.IsGlobal,
             MessageChannelKind = request.MessageChannelKind,
             Published = request.Published,
             RecipientIds = request.RecipientIds,
-            Template = request.TemplateId.HasValue ? new Template { 
-                Id = request.TemplateId.Value,
-                Content = request.Content
-            } : null,
+            TemplateId = request.TemplateId,
             Title = request.Title,
             Type = request.TypeId.HasValue ? new MessageType { Id = request.TypeId.Value } : null
         };
@@ -177,12 +178,12 @@ namespace Indice.Features.Messages.Core.Models
             ActivePeriod = command.ActivePeriod,
             Content = command.Content.ToDictionary(x => x.Key.ToString(), y => y.Value),
             Data = command.Data != null ? ToExpandoObject(command.Data) : null,
-            DistributionListId = command.DistributionList?.Id,
+            DistributionListId = command.DistributionListId,
             IsGlobal = command.IsGlobal,
             MessageChannelKind = command.MessageChannelKind,
             Published = command.Published,
             RecipientIds = command.RecipientIds,
-            TemplateId = command.Template?.Id,
+            TemplateId = command.TemplateId,
             Title = command.Title,
             TypeId = command.Type?.Id
         };

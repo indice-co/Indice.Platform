@@ -27,12 +27,16 @@ namespace Indice.Features.Messages.Core.Services
         /// <inheritdoc />
         public async Task<DistributionList> Create(CreateDistributionListRequest request) {
             var list = new DbDistributionList {
+                CreatedAt = DateTimeOffset.UtcNow,
+                CreatedBy = request.CreatedBy,
                 Id = Guid.NewGuid(),
                 Name = request.Name
             };
             DbContext.DistributionLists.Add(list);
             await DbContext.SaveChangesAsync();
             return new DistributionList {
+                CreatedAt = list.CreatedAt,
+                CreatedBy = list.CreatedBy,
                 Id = list.Id,
                 Name = list.Name
             };
@@ -45,6 +49,8 @@ namespace Indice.Features.Messages.Core.Services
                 return default;
             }
             return new DistributionList {
+                CreatedAt = list.CreatedAt,
+                CreatedBy = list.CreatedBy,
                 Id = list.Id,
                 Name = list.Name
             };
@@ -57,6 +63,8 @@ namespace Indice.Features.Messages.Core.Services
                 return default;
             }
             return new DistributionList {
+                CreatedAt = list.CreatedAt,
+                CreatedBy = list.CreatedBy,
                 Id = list.Id,
                 Name = list.Name
             };
@@ -64,13 +72,12 @@ namespace Indice.Features.Messages.Core.Services
 
         /// <inheritdoc />
         public Task<ResultSet<DistributionList>> GetList(ListOptions options) {
-            var query = DbContext
-                .DistributionLists
-                .AsNoTracking()
-                .Select(campaignType => new DistributionList {
-                    Id = campaignType.Id,
-                    Name = campaignType.Name
-                });
+            var query = DbContext.DistributionLists.AsNoTracking().Select(list => new DistributionList {
+                CreatedAt = list.CreatedAt,
+                CreatedBy = list.CreatedBy,
+                Id = list.Id,
+                Name = list.Name
+            });
             return query.ToResultSetAsync(options);
         }
     }

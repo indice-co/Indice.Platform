@@ -50,6 +50,9 @@ namespace Indice.Features.Messages.Core.Services
 
         /// <inheritdoc />
         public async Task<Contact> GetById(string id) {
+            if (string.IsNullOrWhiteSpace(id)) {
+                return default;
+            }
             var accessToken = await GetAccessToken();
             HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
             var response = await HttpClient.GetAsync($"api/users/{id}");
@@ -60,7 +63,6 @@ namespace Indice.Features.Messages.Core.Services
             var responseJson = await response.Content.ReadAsStringAsync();
             var identityUser = JsonSerializer.Deserialize<IdentityUserResponse>(responseJson, JsonSerializerOptionDefaults.GetDefaultSettings());
             var contact = new Contact {
-                Id = Guid.NewGuid(),
                 RecipientId = identityUser.Id,
                 Email = identityUser.Email,
                 PhoneNumber = identityUser.PhoneNumber,

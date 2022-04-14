@@ -45,12 +45,17 @@ namespace Indice.Features.Messages.Core.Events
         /// The type details of the campaign.
         /// </summary>
         public MessageType Type { get; set; }
+        /// <summary>
+        /// Defines a list of user identifiers that constitutes the audience of the campaign.
+        /// </summary>
+        public List<string> RecipientIds { get; set; } = new List<string>();
 
         /// <summary>
         /// Creates a <see cref="CampaignPublishedEvent"/> instance from a <see cref="Campaign"/> instance.
         /// </summary>
         /// <param name="campaign">Models a campaign.</param>
-        public static CampaignPublishedEvent FromCampaign(Campaign campaign) => new() {
+        /// <param name="recipientIds">Defines a list of user identifiers that constitutes the audience of the campaign.</param>
+        public static CampaignPublishedEvent FromCampaign(Campaign campaign, List<string> recipientIds = null) => new() {
             ActivePeriod = campaign.ActivePeriod,
             Content = campaign.Content,
             Data = campaign.Data,
@@ -58,7 +63,8 @@ namespace Indice.Features.Messages.Core.Events
             DistributionListId = campaign.DistributionList?.Id,
             Id = campaign.Id,
             IsGlobal = campaign.IsGlobal,
-            Published = campaign.Published
+            Published = campaign.Published,
+            RecipientIds = recipientIds ?? new List<string>()
         };
     }
 }

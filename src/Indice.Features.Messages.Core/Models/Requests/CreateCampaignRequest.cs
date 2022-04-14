@@ -49,12 +49,12 @@ namespace Indice.Features.Messages.Core.Models.Requests
         /// </summary>
         public Guid? DistributionListId { get; set; }
         /// <summary>
-        /// The id of the template.
-        /// </summary>
-        public Guid? TemplateId { get; set; }
-        /// <summary>
         /// Optional data for the campaign.
         /// </summary>
         public ExpandoObject Data { get; set; }
+        /// <summary>
+        /// The id of the template to use.
+        /// </summary>
+        public Guid? TemplateId { get; set; }
     }
 }

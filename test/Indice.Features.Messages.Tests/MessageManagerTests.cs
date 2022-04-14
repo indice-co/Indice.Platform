@@ -76,8 +76,7 @@ namespace Indice.Features.Messages.Tests
             };
             var result = await manager.CreateCampaign(campaign);
             Assert.True(result.Succeeded);
-            Assert.NotEqual(default, campaign.CreatedAt);
-            Assert.NotEqual(default, campaign.Id);
+            Assert.NotEqual(default, result.CampaignId);
         }
 
         [Fact]
@@ -103,13 +102,11 @@ namespace Indice.Features.Messages.Tests
             };
             var result = await manager.CreateCampaign(campaign);
             Assert.True(result.Succeeded);
-            Assert.NotNull(campaign.Template);
-            Assert.NotNull(campaign.DistributionList);
-            Assert.NotEqual(default, campaign.CreatedAt);
-            Assert.NotEqual(default, campaign.Id);
+            Assert.NotEqual(default, result.CampaignId);
         }
 
         public ValueTask DisposeAsync() {
+            GC.SuppressFinalize(this);
             return ServiceProvider.DisposeAsync();
         }
     }

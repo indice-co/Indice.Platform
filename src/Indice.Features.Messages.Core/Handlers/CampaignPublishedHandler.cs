@@ -42,16 +42,19 @@ namespace Indice.Features.Messages.Core.Handlers
             }
             // If campaign is not global and a distribution list has been set, then we will create multiple events in order to
             // resolve contact info, merge campaign template with contact data and dispatch messages in various channels.
-            if (!campaign.IsGlobal && campaign.DistributionListId.HasValue) {
-                var contacts = Array.Empty<Contact>();
-                var contactsResultSet = await ContactService.GetList(new ListOptions<ContactListFilter> {
-                    Page = 1,
-                    Size = int.MaxValue,
-                    Filter = new ContactListFilter {
-                        DistributionListId = campaign.DistributionListId.Value
-                    }
-                });
-                contacts = contactsResultSet.Items;
+            if (!campaign.IsGlobal) {
+                var contacts = new List<Contact>();
+                if (campaign.DistributionListId.HasValue) {
+                    var contactsResultSet = await ContactService.GetList(new ListOptions<ContactListFilter> {
+                        Page = 1,
+                        Size = int.MaxValue,
+                        Filter = new ContactListFilter { DistributionListId = campaign.DistributionListId.Value }
+                    });
+                    contacts.AddRange(contactsResultSet.Items);
+                }
+                if (campaign.RecipientIds.Any()) {
+                    contacts.AddRange(campaign.RecipientIds.Select(id => new Contact { RecipientId = id }));
+                }
                 var eventDispatcher = GetEventDispatcher(KeyedServiceNames.EventDispatcherServiceKey);
                 foreach (var contact in contacts) {
                     await eventDispatcher.RaiseEventAsync(ResolveMessageEvent.FromCampaignCreatedEvent(campaign, contact), options => options.WrapInEnvelope(false).WithQueueName(EventNames.ResolveMessage));

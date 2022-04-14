@@ -5,14 +5,10 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Indice.Features.Messages.Core.Data.Mappings
 {
-    /// <summary>
-    /// Configuration for <see cref="DbAttachment"/> entity.
-    /// </summary>
+    /// <summary>Configuration for <see cref="DbAttachment"/> entity.</summary>
     public class DbAttachmentMap : IEntityTypeConfiguration<DbAttachment>
     {
-        /// <summary>
-        /// Creates a new instance of <see cref="DbAttachmentMap"/>.
-        /// </summary>
+        /// <summary>Creates a new instance of <see cref="DbAttachmentMap"/>.</summary>
         /// <param name="schemaName">The schema name.</param>
         /// <exception cref="ArgumentNullException"></exception>
         public DbAttachmentMap(string schemaName) {

@@ -60,9 +60,10 @@ namespace Indice.Features.Messages.Core.Data
             var schemaName = Database.GetService<DatabaseSchemaNameResolver>().GetSchemaName();
             builder.ApplyConfiguration(new DbAttachmentMap(schemaName));
             builder.ApplyConfiguration(new DbCampaignMap(schemaName));
-            builder.ApplyConfiguration(new DbHitMap(schemaName));
-            builder.ApplyConfiguration(new DbDistributionListMap(schemaName));
+            builder.ApplyConfiguration(new DbContactDistributionListMap(schemaName));
             builder.ApplyConfiguration(new DbContactMap(schemaName));
+            builder.ApplyConfiguration(new DbDistributionListMap(schemaName));
+            builder.ApplyConfiguration(new DbHitMap(schemaName));
             builder.ApplyConfiguration(new DbMessageMap(schemaName));
             builder.ApplyConfiguration(new DbMessageTypeMap(schemaName));
             builder.ApplyConfiguration(new DbTemplateMap(schemaName));

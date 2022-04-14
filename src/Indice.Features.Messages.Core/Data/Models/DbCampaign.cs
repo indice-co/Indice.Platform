@@ -18,6 +18,10 @@ namespace Indice.Features.Messages.Core.Data.Models
         /// </summary>
         public string Title { get; set; }
         /// <summary>
+        /// The contents of the template.
+        /// </summary>
+        public Dictionary<string, MessageContent> Content { get; set; } = new Dictionary<string, MessageContent>(StringComparer.OrdinalIgnoreCase);
+        /// <summary>
         /// Defines a (call-to-action) link.
         /// </summary>
         public Hyperlink ActionLink { get; set; }
@@ -58,10 +62,6 @@ namespace Indice.Features.Messages.Core.Data.Models
         /// </summary>
         public Guid? DistributionListId { get; set; }
         /// <summary>
-        /// Foreign key to the <see cref="DbTemplate"/>.
-        /// </summary>
-        public Guid? TemplateId { get; set; }
-        /// <summary>
         /// An attachment object for the campaign.
         /// </summary>
         public virtual DbAttachment Attachment { get; set; }
@@ -73,9 +73,5 @@ namespace Indice.Features.Messages.Core.Data.Models
         /// The distribution list of the campaign.
         /// </summary>
         public virtual DbDistributionList DistributionList { get; set; }
-        /// <summary>
-        /// The template of the campaign.
-        /// </summary>
-        public virtual DbTemplate Template { get; set; }
     }
 }

@@ -37,11 +37,13 @@ namespace Indice.Features.Messages.Core.Services
                 if (contact is null) {
                     throw CampaignException.ContactNotFound(id);
                 }
-                contact.DistributionListId = list.Id;
+                contact.ContactDistributionLists.Add(new DbContactDistributionList {
+                    ContactId = request.Id.Value,
+                    DistributionListId = list.Id
+                });
                 contact.Email = request.Email;
                 contact.FirstName = request.FirstName;
                 contact.FullName = request.FullName;
-                contact.Id = request.Id ?? Guid.NewGuid();
                 contact.LastName = request.LastName;
                 contact.PhoneNumber = request.PhoneNumber;
                 contact.RecipientId = request.RecipientId;
@@ -51,7 +53,10 @@ namespace Indice.Features.Messages.Core.Services
                 return;
             }
             contact = Mapper.ToDbContact(request);
-            contact.DistributionListId = id;
+            contact.ContactDistributionLists.Add(new DbContactDistributionList {
+                ContactId = Guid.NewGuid(),
+                DistributionListId = list.Id
+            });
             DbContext.Contacts.Add(contact);
             await DbContext.SaveChangesAsync();
         }
@@ -90,12 +95,10 @@ namespace Indice.Features.Messages.Core.Services
 
         /// <inheritdoc />
         public async Task<ResultSet<Contact>> GetList(ListOptions<ContactListFilter> options) {
-            var query = DbContext
-                .Contacts
-                .AsNoTracking();
+            var query = DbContext.Contacts.AsNoTracking();
             var filter = options.Filter;
             if (filter?.DistributionListId is not null) {
-                query = query.Where(x => x.DistributionListId == filter.DistributionListId.Value);
+                query = query.Where(x => x.ContactDistributionLists.Any(y => y.DistributionListId == filter.DistributionListId.Value));
             }
             return await query.Select(Mapper.ProjectToContact).ToResultSetAsync(options);
         }

@@ -1,7 +1,4 @@
-﻿using System.Dynamic;
-using System.Reflection;
-using Indice.Features.Messages.Core.Models;
-using Indice.Features.Messages.Core.Models.Requests;
+﻿using Indice.Features.Messages.Core.Models;
 using Indice.Types;
 
 namespace Indice.Features.Messages.Core.Manager.Commands
@@ -50,7 +47,7 @@ namespace Indice.Features.Messages.Core.Manager.Commands
         /// <summary>
         /// The distribution list of the campaign. Alternatively you can set the <see cref="RecipientIds"/> property.
         /// </summary>
-        public DistributionList DistributionList { get; set; }
+        public Guid? DistributionListId { get; set; }
         /// <summary>
         /// Defines a list of user identifiers that constitutes the audience of the campaign.
         /// </summary>
@@ -62,7 +59,7 @@ namespace Indice.Features.Messages.Core.Manager.Commands
         /// <summary>
         /// The template of the campaign.
         /// </summary>
-        public Template Template { get; set; }
+        public Guid? TemplateId { get; set; }
         /// <summary>
         /// Optional data for the campaign.
         /// </summary>

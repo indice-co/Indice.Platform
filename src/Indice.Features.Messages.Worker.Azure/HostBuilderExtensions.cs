@@ -2,6 +2,7 @@
 using Indice.Features.Messages.Core.Data;
 using Indice.Features.Messages.Core.Events;
 using Indice.Features.Messages.Core.Handlers;
+using Indice.Features.Messages.Core.Manager;
 using Indice.Features.Messages.Core.Services;
 using Indice.Features.Messages.Core.Services.Abstractions;
 using Indice.Features.Messages.Worker.Azure;
@@ -45,6 +46,7 @@ namespace Microsoft.Extensions.Hosting
             services.TryAddTransient<IDistributionListService, DistributionListService>();
             services.TryAddTransient<IMessageService, MessageService>();
             services.TryAddTransient<IContactService, ContactService>();
+            services.TryAddTransient<NotificationsManager>();
             services.TryAddSingleton(new DatabaseSchemaNameResolver(options.DatabaseSchema));
             return services;
         }

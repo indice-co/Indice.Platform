@@ -1,6 +1,7 @@
 ﻿using Indice.Features.Messages.Core;
 using Indice.Features.Messages.Core.Data;
 using Indice.Features.Messages.Core.Events;
+using Indice.Features.Messages.Core.Manager;
 using Indice.Features.Messages.Core.Services;
 using Indice.Features.Messages.Core.Services.Abstractions;
 using Indice.Features.Messages.Worker;
@@ -67,6 +68,7 @@ namespace Microsoft.Extensions.DependencyInjection
             workerHostBuilder.Services.TryAddTransient<IDistributionListService, DistributionListService>();
             workerHostBuilder.Services.TryAddTransient<IMessageService, MessageService>();
             workerHostBuilder.Services.TryAddTransient<IContactService, ContactService>();
+            workerHostBuilder.Services.TryAddTransient<NotificationsManager>();
             workerHostBuilder.Services.TryAddSingleton(new DatabaseSchemaNameResolver(options.DatabaseSchema));
             return workerHostBuilder;
         }

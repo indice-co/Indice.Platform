@@ -42,8 +42,8 @@
         /// </summary>
         public DateTimeOffset UpdatedAt { get; set; }
         /// <summary>
-        /// Foreign key to the <see cref="DbDistributionList"/>.
+        /// Contact - Distribution list join entity type.
         /// </summary>
-        public Guid? DistributionListId { get; set; }
+        public List<DbContactDistributionList> ContactDistributionLists { get; set; } = new List<DbContactDistributionList>();
     }
 }

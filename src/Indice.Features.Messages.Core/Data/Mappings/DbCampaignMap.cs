@@ -29,7 +29,7 @@ namespace Indice.Features.Messages.Core.Data.Mappings
             // Configure primary key.
             builder.HasKey(x => x.Id);
             // Configure properties.
-            builder.Property(x => x.Id).ValueGeneratedNever();
+            builder.Property(x => x.Id);
             builder.Property(x => x.Title).HasMaxLength(TextSizePresets.M128).IsRequired();
             builder.Property(x => x.CreatedAt).IsRequired();
             builder.Property(x => x.Published).IsRequired();
@@ -37,6 +37,7 @@ namespace Indice.Features.Messages.Core.Data.Mappings
             builder.OwnsOne(x => x.ActivePeriod).Property(x => x.To).HasColumnName(nameof(Period.To));
             builder.Property(x => x.IsGlobal).IsRequired();
             builder.Property(x => x.Data).HasJsonConversion();
+            builder.Property(x => x.Content).HasJsonConversion();
             // Owned properties
             builder.OwnsOne(x => x.ActionLink, actionLinkBuilder => {
                 actionLinkBuilder.Property(x => x.Text).HasMaxLength(TextSizePresets.M128).HasColumnName("ActionText");
@@ -46,7 +47,6 @@ namespace Indice.Features.Messages.Core.Data.Mappings
             builder.HasOne(x => x.Attachment).WithMany().HasForeignKey(x => x.AttachmentId);
             builder.HasOne(x => x.Type).WithMany().HasForeignKey(x => x.TypeId);
             builder.HasOne(x => x.DistributionList).WithMany().HasForeignKey(x => x.DistributionListId);
-            builder.HasOne(x => x.Template).WithMany().HasForeignKey(x => x.TemplateId);
         }
     }
 }

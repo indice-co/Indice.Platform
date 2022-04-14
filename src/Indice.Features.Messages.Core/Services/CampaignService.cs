@@ -37,7 +37,6 @@ namespace Indice.Features.Messages.Core.Services
             var query = DbContext
                     .Campaigns
                     .Include(x => x.Type)
-                    .Include(x => x.Template)
                     .Include(x => x.DistributionList)
                     .AsNoTracking()
                     .Select(Mapper.ProjectToCampaign);
@@ -61,7 +60,6 @@ namespace Indice.Features.Messages.Core.Services
                 .AsNoTracking()
                 .Include(x => x.Attachment)
                 .Include(x => x.Type)
-                .Include(x => x.Template)
                 .Include(x => x.DistributionList)
                 .Select(Mapper.ProjectToCampaignDetails)
                 .SingleOrDefaultAsync(x => x.Id == id);
@@ -84,10 +82,7 @@ namespace Indice.Features.Messages.Core.Services
 
         /// <inheritdoc />
         public async Task Update(Guid id, UpdateCampaignRequest request) {
-            var campaign = await DbContext
-                .Campaigns
-                .Include(x => x.Template)
-                .SingleOrDefaultAsync(x => x.Id == id);
+            var campaign = await DbContext.Campaigns.SingleOrDefaultAsync(x => x.Id == id);
             if (campaign is null) {
                 throw CampaignException.CampaignNotFound(id);
             }
@@ -96,7 +91,7 @@ namespace Indice.Features.Messages.Core.Services
             }
             campaign.ActionLink = request.ActionLink;
             campaign.ActivePeriod = request.ActivePeriod;
-            campaign.Template.Content = request.Content;
+            campaign.Content = request.Content;
             campaign.Title = request.Title;
             await DbContext.SaveChangesAsync();
         }
@@ -149,7 +144,6 @@ namespace Indice.Features.Messages.Core.Services
                 .Campaigns
                 .Include(x => x.Type)
                 .Include(x => x.DistributionList)
-                .Include(x => x.Template)
                 .SingleOrDefaultAsync(x => x.Id == id);
             if (campaign is null) {
                 throw CampaignException.CampaignNotFound(id);

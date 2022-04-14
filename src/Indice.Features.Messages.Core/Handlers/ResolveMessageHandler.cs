@@ -42,28 +42,40 @@ namespace Indice.Features.Messages.Core.Handlers
         /// </summary>
         /// <param name="event">The event model used when a contact is resolved from an external system.</param>
         public async Task Process(ResolveMessageEvent @event) {
-            var contact = @event.Contact;
-            var contactId = contact.Id;
-            if (!string.IsNullOrWhiteSpace(@event.Contact.RecipientId)) {
-                contact = await ContactResolver.GetById(@event.Contact.RecipientId);
-                // Update contact in campaign's distribution list.
-                await ContactService.Update(contactId, Mapper.ToUpdateContactRequest(contact, @event.Campaign.DistributionListId));
+            Contact contact;
+            var recipientId = @event.Contact.RecipientId;
+            var isNewContact = false;
+            var needsUpdate = false;
+            contact = await ContactService.GetByRecipientId(recipientId);
+            needsUpdate = contact?.UpdatedAt.HasValue == true && (DateTimeOffset.UtcNow - contact.UpdatedAt.Value) > TimeSpan.FromDays(5);
+            if (contact is null) {
+                isNewContact = true;
+                contact = await ContactResolver.GetById(recipientId);
+            }
+            if (contact is null) {
+                return;
+            }
+            if (isNewContact) {
+                await ContactService.AddToDistributionList(@event.Campaign.DistributionListId.Value, Mapper.ToCreateDistributionListContactRequest(contact));
+            }
+            if (needsUpdate) {
+                await ContactService.Update(contact.Id.Value, Mapper.ToUpdateContactRequest(contact, @event.Campaign.DistributionListId));
             }
             // Make substitution to message content using contact resolved data.
             var handlebars = Handlebars.Create();
             handlebars.Configuration.TextEncoder = new HtmlEncoder();
+            var campaign = @event.Campaign;
             foreach (var content in @event.Campaign.Content) {
                 // TODO: Make it work with camel case properties.
                 dynamic templateData = new { contact, data = @event.Campaign.Data };
-                var messageContent = @event.Campaign.Content[content.Key];
+                var messageContent = campaign.Content[content.Key];
                 messageContent.Title = handlebars.Compile(content.Value.Title)(templateData);
                 messageContent.Body = handlebars.Compile(content.Value.Body)(templateData);
             }
-            var campaign = @event.Campaign;
             // Persist message with merged contents.
             await MessageService.Create(new CreateMessageRequest {
                 CampaignId = campaign.Id,
-                Content = @event.Campaign.Content,
+                Content = campaign.Content,
                 RecipientId = contact.RecipientId
             });
             var eventDispatcher = GetEventDispatcher(KeyedServiceNames.EventDispatcherServiceKey);

@@ -92,6 +92,7 @@ namespace Indice.Features.Messages.AspNetCore.Controllers
         [ProducesResponseType(typeof(DistributionList), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> CreateDistributionList([FromBody] CreateDistributionListRequest request) {
+            request.CreatedBy = CreatedBy.User;
             var list = await DistributionListService.Create(request);
             return Ok(list);
         }

@@ -53,10 +53,6 @@ namespace Indice.Features.Messages.Core.Models
         /// </summary>
         public MessageChannelKind MessageChannelKind { get; set; }
         /// <summary>
-        /// The template of a campaign.
-        /// </summary>
-        public Template Template { get; set; }
-        /// <summary>
         /// Optional data for the campaign.
         /// </summary>
         public ExpandoObject Data { get; set; }
