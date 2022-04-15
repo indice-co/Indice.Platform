@@ -177,7 +177,7 @@ namespace Indice.Features.Messages.Core.Models
             ActionLink = command.ActionLink,
             ActivePeriod = command.ActivePeriod,
             Content = command.Content.ToDictionary(x => x.Key.ToString(), y => y.Value),
-            Data = command.Data != null ? ToExpandoObject(command.Data) : null,
+            Data = ToExpandoObject(command.Data),
             DistributionListId = command.DistributionListId,
             IsGlobal = command.IsGlobal,
             MessageChannelKind = command.MessageChannelKind,
@@ -188,7 +188,10 @@ namespace Indice.Features.Messages.Core.Models
             TypeId = command.Type?.Id
         };
 
-        private static ExpandoObject ToExpandoObject(object value) {
+        public static ExpandoObject ToExpandoObject(object value) {
+            if (value is null) {
+                return default;
+            }
             var dataType = value.GetType();
             var obj = new ExpandoObject() as IDictionary<string, object>;
             foreach (var property in dataType.GetProperties(BindingFlags.Public | BindingFlags.Instance)) {

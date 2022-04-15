@@ -38,59 +38,75 @@ namespace Indice.Features.Messages.Core.Manager
         private CreateCampaignRequestValidator CreateCampaignValidator { get; }
         private UpsertMessageTypeRequestValidator MessageTypeValidator { get; }
 
-        /// <summary>
-        /// Creates a new campaign.
-        /// </summary>
+        /// <summary>Creates a new campaign.</summary>
         /// <param name="campaign">The request model used to create a new campaign.</param>
         public Task<CreateCampaignResult> CreateCampaign(CreateCampaignCommand campaign) {
             var request = Mapper.ToCreateCampaignRequest(campaign);
             return CreateCampaignInternal(request);
         }
 
-        /// <summary>
-        /// Creates a new campaign for the specified recipients.
-        /// </summary>
+        /// <summary>Creates a new message for the specified recipients.</summary>
         /// <param name="title">The title of the campaign.</param>
-        /// <param name="content">The content of the campaign.</param>
         /// <param name="messageChannelKind">The delivery channel of a campaign.</param>
-        /// <param name="period">Specifies the time period that a campaign is active.</param>
+        /// <param name="content">The content of the campaign.</param>
+        /// <param name="period">Specifies the time period that a campaign is active. If not set campaign inbox is shown indefinitely.</param>
         /// <param name="actionLink">Defines a (call-to-action) link.</param>
-        /// <param name="typeId">The id of the campaign type.</param>
-        /// <param name="published">Determines if a campaign is published.</param>
+        /// <param name="type">The id or name of the campaign type.</param>
         /// <param name="data">Optional data for the campaign.</param>
         /// <param name="recipientIds">Defines a list of user identifiers that constitutes the audience of the campaign.</param>
-        public Task<CreateCampaignResult> CreateCampaignForRecipients(string title, Dictionary<MessageChannelKind, MessageContent> content, MessageChannelKind messageChannelKind, Period period = null,
-            Hyperlink actionLink = null, Guid? typeId = null, bool published = true, dynamic data = null, params string[] recipientIds) {
+        public async Task<CreateCampaignResult> SendMessageToRecipients(string title, MessageChannelKind messageChannelKind, Dictionary<MessageChannelKind, MessageContent> content, Period period = null,
+            Hyperlink actionLink = null, string type = null, dynamic data = null, params string[] recipientIds) {
+            Guid? typeId = null;
+            if (!string.IsNullOrWhiteSpace(type)) {
+                var isGuid = Guid.TryParse(type, out var typeGuid);
+                if (isGuid) {
+                    typeId = typeGuid;
+                } else {
+                    var messageType = await GetMessageTypeByName(type);
+                    if (messageType is null) {
+                        return CreateCampaignResult.Fail("Specified type id is not valid.");
+                    }
+                    typeId = messageType.Id;
+                }
+            }
             var request = new CreateCampaignRequest {
                 ActionLink = actionLink,
                 ActivePeriod = period,
                 Content = content.ToDictionary(x => x.Key.ToString(), y => y.Value),
-                Data = data,
+                Data = Mapper.ToExpandoObject(data),
                 IsGlobal = false,
                 MessageChannelKind = messageChannelKind,
-                Published = published,
+                Published = true,
                 RecipientIds = recipientIds?.ToList(),
                 Title = title,
                 TypeId = typeId
             };
-            return CreateCampaignInternal(request);
+            return await CreateCampaignInternal(request);
         }
 
-        /// <summary>
-        /// Creates a new campaign for the specified recipient.
-        /// </summary>
+        /// <summary>Creates a new message for the specified recipient.</summary>
         /// <param name="recipientId">The id of the recipient.</param>
         /// <param name="title">The title of the campaign.</param>
-        /// <param name="content">The content of the campaign.</param>
         /// <param name="messageChannelKind">The delivery channel of a campaign.</param>
-        /// <param name="period">Specifies the time period that a campaign is active.</param>
+        /// <param name="content">The content of the campaign.</param>
+        /// <param name="period">Specifies the time period that a campaign is active. If not set campaign inbox is shown indefinitely.</param>
         /// <param name="actionLink">Defines a (call-to-action) link.</param>
-        /// <param name="typeId">The id of the campaign type.</param>
-        /// <param name="published">Determines if a campaign is published.</param>
+        /// <param name="type">The id or name of the campaign type.</param>
         /// <param name="data">Optional data for the campaign.</param>
-        public Task<CreateCampaignResult> CreateCampaignForRecipient(string recipientId, string title, Dictionary<MessageChannelKind, MessageContent> content, MessageChannelKind messageChannelKind, Period period = null,
-            Hyperlink actionLink = null, Guid? typeId = null, bool published = true, dynamic data = null) =>
-            CreateCampaignForRecipients(title, content, messageChannelKind, period, actionLink, typeId, published, data, recipientId);
+        public Task<CreateCampaignResult> SendMessageToRecipient(string recipientId, string title, MessageChannelKind messageChannelKind, Dictionary<MessageChannelKind, MessageContent> content, Period period = null,
+            Hyperlink actionLink = null, string type = null, dynamic data = null) =>
+            SendMessageToRecipients(title, messageChannelKind, content, period, actionLink, type, data, recipientId);
+
+        /// <summary>Creates a new inbox message for the specified recipient.</summary>
+        /// <param name="recipient">The id of the recipient.</param>
+        /// <param name="title">The title of the campaign.</param>
+        /// <param name="content">The content of the inbox message.</param>
+        /// <param name="period">Specifies the time period that a campaign is active. If not set campaign inbox is shown indefinitely.</param>
+        /// <param name="actionLink">Defines a (call-to-action) link.</param>
+        /// <param name="type">The id or name of the campaign type.</param>
+        /// <param name="data">Optional data for the campaign.</param>
+        public Task<CreateCampaignResult> SendInboxMessageToRecipient(string recipient, string title, MessageContent content, Period period = null, Hyperlink actionLink = null, string type = null, dynamic data = null) =>
+            SendMessageToRecipient(recipient, title, MessageChannelKind.Inbox, new Dictionary<MessageChannelKind, MessageContent> { { MessageChannelKind.Inbox, content } }, period, actionLink, type, data);
 
         internal async Task<CreateCampaignResult> CreateCampaignInternal(CreateCampaignRequest request, bool? validateRules = true) {
             if (validateRules.Value) {
@@ -119,16 +135,12 @@ namespace Indice.Features.Messages.Core.Manager
             return CreateCampaignResult.Success(createdCampaign);
         }
 
-        /// <summary>
-        /// Retrieves the campaign with the specified id.
-        /// </summary>
+        /// <summary>Retrieves the campaign with the specified id.</summary>
         /// <param name="campaignId">The id of the campaign.</param>
         /// <returns>The campaign with the specified id, otherwise null.</returns>
         public Task<CampaignDetails> GetCampaignById(Guid campaignId) => CampaignService.GetById(campaignId);
 
-        /// <summary>
-        /// Creates a new campaign type.
-        /// </summary>
+        /// <summary>Creates a new campaign type.</summary>
         /// <param name="campaignType">The request model used to create a new campaign type.</param>
         public async Task<CreateMessageTypeResult> CreateMessageType(UpsertMessageTypeRequest campaignType) {
             var validationResult = MessageTypeValidator.Validate(campaignType);
@@ -140,9 +152,7 @@ namespace Indice.Features.Messages.Core.Manager
             return CreateMessageTypeResult.Success(createdCampaignType.Id);
         }
 
-        /// <summary>
-        /// Retrieves the campaign type with the specified name.
-        /// </summary>
+        /// <summary>Retrieves the campaign type with the specified name.</summary>
         /// <param name="name">The name of the campaign type to look for.</param>
         public Task<MessageType> GetMessageTypeByName(string name) => MessageTypeService.GetByName(name);
     }

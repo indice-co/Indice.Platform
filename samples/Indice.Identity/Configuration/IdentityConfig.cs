@@ -1,5 +1,4 @@
-﻿using System;
-using System.IdentityModel.Tokens.Jwt;
+﻿using System.IdentityModel.Tokens.Jwt;
 using Indice.AspNetCore.Identity;
 using Indice.AspNetCore.Identity.Data;
 using Indice.AspNetCore.Identity.Data.Models;
@@ -23,9 +22,6 @@ namespace Microsoft.Extensions.DependencyInjection
         public static IdentityBuilder AddIdentityConfig(this IServiceCollection services, IConfiguration configuration) {
             JwtSecurityTokenHandler.DefaultMapInboundClaims = false;
             services.Configure<IdentityOptions>(configuration.GetSection(nameof(IdentityOptions)));
-            services.ConfigureApplicationCookie(options => {
-                options.Cookie.Expiration = TimeSpan.FromDays(5);
-            });
             services.AddScopeTransformation();
             services.AddExternalProviderClaimsTransformation();
             return services.AddIdentity<User, Role>()

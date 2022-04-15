@@ -97,4 +97,6 @@ namespace Indice.Features.Messages.Core
         /// </summary>
         public const string EventDispatcherServiceKey = "Messages:EventDispatcherServiceKey";
     }
+
+    internal class ErrorMessages { }
 }

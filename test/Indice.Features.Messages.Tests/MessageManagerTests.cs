@@ -105,6 +105,22 @@ namespace Indice.Features.Messages.Tests
             Assert.NotEqual(default, result.CampaignId);
         }
 
+        [Fact]
+        public async Task CanCreateCampaignUsingHelperMethods() {
+            var manager = ServiceProvider.GetRequiredService<NotificationsManager>();
+            var result = await manager.SendMessageToRecipient(
+                recipientId: Guid.NewGuid().ToString(),
+                title: "Welcome",
+                messageChannelKind: MessageChannelKind.Inbox | MessageChannelKind.PushNotification,
+                content: new Dictionary<MessageChannelKind, MessageContent> {
+                    { MessageChannelKind.Inbox, new MessageContent("Welcome", "Hello {{contact.Salutation}} {{contact.FullName}} and welcome to our company.") },
+                    { MessageChannelKind.PushNotification, new MessageContent("Welcome", "Hello {{contact.Salutation}} {{contact.FullName}} and welcome to our company.") }
+                }
+            );
+            Assert.True(result.Succeeded);
+            Assert.NotEqual(default, result.CampaignId);
+        }
+
         public ValueTask DisposeAsync() {
             GC.SuppressFinalize(this);
             return ServiceProvider.DisposeAsync();

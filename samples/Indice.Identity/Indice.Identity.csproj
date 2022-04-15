@@ -7,6 +7,12 @@
     <IsPackable>false</IsPackable>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Remove="wwwroot\admin\**" />
+    <Content Remove="wwwroot\admin\**" />
+    <EmbeddedResource Remove="wwwroot\admin\**" />
+    <None Remove="wwwroot\admin\**" />
+  </ItemGroup>
+  <ItemGroup>
     <Content Remove="bundleconfig.json" />
   </ItemGroup>
   <ItemGroup>
@@ -40,6 +46,5 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
-    <Folder Include="wwwroot\admin\assets\img\" />
   </ItemGroup>
 </Project>

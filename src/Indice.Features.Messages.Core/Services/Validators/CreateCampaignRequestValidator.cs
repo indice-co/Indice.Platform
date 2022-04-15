@@ -4,6 +4,7 @@ using Indice.Features.Messages.Core.Models;
 using Indice.Features.Messages.Core.Models.Requests;
 using Indice.Features.Messages.Core.Services.Abstractions;
 using Microsoft.Extensions.DependencyInjection;
+using Indice.Extensions;
 
 namespace Indice.Features.Messages.Core.Services.Validators
 {
@@ -28,9 +29,22 @@ namespace Indice.Features.Messages.Core.Services.Validators
                 .Must(channel => channel != MessageChannelKind.None)
                 .WithMessage($"Please specify the campaign channel.");
             RuleFor(campaign => campaign.Content)
-                .NotEmpty()
+                .Must(content => content.Count > 0)
                 .WithMessage("Please provide content for the campaign.")
-                .When(x => !x.TemplateId.HasValue && x.Published); // Content property must not be empty when the campaign is Published and a TemplateId is not provided at the same time.
+                .When(campaign => !campaign.TemplateId.HasValue && campaign.Published) // Content property must not be empty when the campaign is Published and a TemplateId is not provided at the same time.
+                .Must(HaveContentAccordingToChannelKind)
+                .WithMessage("Please provide content for all defined channels of the campaign.")
+                .When(campaign => campaign.Content.Count > 0);
+            RuleFor(campaign => campaign.TemplateId)
+                .NotNull()
+                .WithMessage("Please provide a template for the campaign.")
+                .When(campaign => campaign.Content?.Count == 0 && campaign.Published) // TemplateId property must not be empty when the campaign is Published and Content is not provided at the same time.
+                .MustAsync(BeExistingTemplateId)
+                .When(campaign => campaign.TemplateId.HasValue) // Check that TemplateId is valid, when it is provided.
+                .WithMessage("Specified template id is not valid.")
+                .MustAsync(HaveTemplateAccordingToChannelKind)
+                .WithMessage("Please select a template that has content for all defined channels of the campaign.")
+                .When(campaign => campaign.TemplateId.HasValue);
             RuleFor(campaign => campaign.RecipientIds)
                 .Must(recipientIds => recipientIds?.Count == 0)
                 .When(campaign => campaign.IsGlobal) // RecipientIds property must be empty when campaign is global.
@@ -38,10 +52,6 @@ namespace Indice.Features.Messages.Core.Services.Validators
                 .Must(recipientIds => recipientIds?.Count > 0)
                 .When(campaign => !campaign.DistributionListId.HasValue && !campaign.IsGlobal) // RecipientIds property must not be empty when a DistributionListId is not provided.
                 .WithMessage("Please provide either recipient ids or a distribution list id.");
-            RuleFor(campaign => campaign.TypeId)
-                .MustAsync(BeExistingTypeId)
-                .When(campaign => campaign.TypeId.HasValue) // Check that TypeId is valid, when it is provided.
-                .WithMessage("Specified type id is not valid.");
             RuleFor(campaign => campaign.DistributionListId)
                 .Must(id => id is null)
                 .When(campaign => campaign.IsGlobal) // DistributionListId property must not be provided when campaign is global.
@@ -52,6 +62,10 @@ namespace Indice.Features.Messages.Core.Services.Validators
                 .Must(id => id is not null)
                 .When(campaign => campaign.RecipientIds?.Count == 0 && !campaign.IsGlobal)
                 .WithMessage("Please provide either recipient ids or a distribution list id.");
+            RuleFor(campaign => campaign.TypeId)
+                .MustAsync(BeExistingTypeId)
+                .When(campaign => campaign.TypeId.HasValue) // Check that TypeId is valid, when it is provided.
+                .WithMessage("Specified type id is not valid.");
             RuleFor(campaign => campaign.ActivePeriod.From)
                 .Must(from => from.Value.Date >= DateTimeOffset.UtcNow.Date)
                 .When(campaign => campaign.ActivePeriod?.From is not null)
@@ -70,18 +84,28 @@ namespace Indice.Features.Messages.Core.Services.Validators
                 .Matches(@"^(?:http(s)?:\/\/)?[\w.-]+(?:\.[\w\.-]+)+[\w\-\._~:/?#[\]@!\$&'\(\)\*\+,;=.]+$")
                 .WithMessage($"Campaign action URL is not valid.")
                 .When(x => !string.IsNullOrWhiteSpace(x.ActionLink?.Href));
-            RuleFor(campaign => campaign.TemplateId)
-                .MustAsync(BeExistingTemplateId)
-                .When(campaign => campaign.TemplateId.HasValue) // Check that TemplateId is valid, when it is provided.
-                .WithMessage("Specified template id is not valid.")
-                .Must(id => id is null)
-                .When(campaign => campaign.Content?.Count > 0)
-                .WithMessage("Cannot provide a template id when submitting campaign content.");
         }
 
         private IMessageTypeService MessageTypeService { get; }
         private IDistributionListService DistributionListService { get; }
         private ITemplateService TemplateService { get; }
+
+        private bool HaveContentAccordingToChannelKind(CreateCampaignRequest campaign, Dictionary<string, MessageContent> content) {
+            var channels = campaign.MessageChannelKind.GetValues().ToList();
+            channels.Remove(MessageChannelKind.None);
+            foreach (var channel in channels) {
+                var pair = content.Where(x => x.Key.ToLower() == channel.ToString().ToLower()).FirstOrDefault();
+                if (pair.Key is null) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        private async Task<bool> HaveTemplateAccordingToChannelKind(CreateCampaignRequest campaign, Guid? templateId, CancellationToken cancellationToken) {
+            var template = await TemplateService.GetById(templateId.Value);
+            return HaveContentAccordingToChannelKind(campaign, template.Content);
+        }
 
         private async Task<bool> BeExistingTypeId(Guid? id, CancellationToken cancellationToken) => await MessageTypeService.GetById(id.Value) is not null;
 

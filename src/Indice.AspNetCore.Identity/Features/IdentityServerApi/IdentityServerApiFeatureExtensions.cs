@@ -58,7 +58,7 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddScoped<CreateRoleRequestValidationFilter>();
             // Add authorization policies that are used by the IdentityServer API.
             services.AddIdentityApiAuthorization();
-            // Configure antiforgery token options.
+            // Configure anti-forgery token options.
             services.Configure<AntiforgeryOptions>(options => options.HeaderName = CustomHeaderNames.AntiforgeryHeaderName);
             services.TryAddScoped<IdentityMessageDescriber>();
             // Try register the extended version of UserManager<User>.
