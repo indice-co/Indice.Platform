@@ -5,7 +5,8 @@
     <LangVersion>Latest</LangVersion>
     <Nullable>disable</Nullable>
     <TargetFrameworks>netstandard2.1;net5.0;net6.0</TargetFrameworks>
-    <VersionPrefix>6.0.0</VersionPrefix>
+    <VersionPrefix>6.1.0</VersionPrefix>
+    <VersionSuffix>beta-01</VersionSuffix>
   </PropertyGroup>
   <PropertyGroup Label="Package">
     <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
@@ -16,8 +17,8 @@
     <PackageId>Indice.Features.Messages.Core</PackageId>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/indice-co/Indice.AspNet</PackageProjectUrl>
-    <PackageReleaseNotes>Update Indice.AspNetCore.</PackageReleaseNotes>
-    <PackageTags>AspNetCore;Campaign Management;</PackageTags>
+    <PackageReleaseNotes>Initial Release.</PackageReleaseNotes>
+    <PackageTags>AspNetCore;Campaign-Management;Messages;Notifications</PackageTags>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>https://github.com/indice-co/Indice.AspNet</RepositoryUrl>
@@ -28,9 +29,10 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="FluentValidation" Version="10.4.0" />
-    <PackageReference Include="Handlebars.Net" Version="2.1.1" />
+    <PackageReference Include="Handlebars.Net" Version="2.1.2" />
     <PackageReference Include="IdentityModel" Version="6.0.0" />
     <PackageReference Include="Indice.EntityFrameworkCore" Version="6.0.1" />
+    <PackageReference Include="Indice.Services" Version="6.1.0" />
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
   </ItemGroup>
   <ItemGroup>
@@ -38,12 +40,12 @@
     <ProjectReference Include="..\Indice.Services\Indice.Services.csproj" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'net6.0'">
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="6.0.3" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="6.0.4" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'net5.0'">
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="5.0.15" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="5.0.16" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.1'">
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="3.1.23" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="3.1.24" />
   </ItemGroup>
 </Project>
