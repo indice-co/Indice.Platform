@@ -43,7 +43,7 @@ namespace Indice.Serialization
             while (reader.Read()) {
                 if (reader.TokenType == JsonTokenType.EndArray) {
                     var underlyingType = Nullable.GetUnderlyingType(typeToConvert);
-                    return (TEnum)Enum.Parse(underlyingType ?? typeToConvert, string.Join(", ", enumValues));
+                    return (TEnum)Enum.Parse(underlyingType ?? typeToConvert, string.Join(", ", enumValues), ignoreCase: true);
                 } else if (reader.TokenType == JsonTokenType.String) {
                     enumValues.Add(reader.GetString());
                 } else {

@@ -9,7 +9,7 @@
     <Nullable>disable</Nullable>
     <TargetFrameworks>net5.0;net6.0</TargetFrameworks>
     <VersionPrefix>6.1.0</VersionPrefix>
-    <VersionSuffix>beta-01</VersionSuffix>
+    <VersionSuffix>beta-02</VersionSuffix>
   </PropertyGroup>
   <PropertyGroup Label="Package">
     <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
@@ -20,7 +20,7 @@
     <PackageId>Indice.Features.Messages.Worker.Azure</PackageId>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/indice-co/Indice.AspNet</PackageProjectUrl>
-    <PackageReleaseNotes>Update Indice.Services.</PackageReleaseNotes>
+    <PackageReleaseNotes>Update Indice.Features.Messages.Core.</PackageReleaseNotes>
     <PackageTags>Azure Functions;Campaign-Management;Workers;Cloud</PackageTags>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <RepositoryType>git</RepositoryType>
@@ -28,7 +28,7 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Indice.Services" Version="6.1.0" />
-    <PackageReference Include="Indice.Features.Messages.Core" Version="6.1.0" />
+    <PackageReference Include="Indice.Features.Messages.Core" Version="6.1.0-beta-02" />
     <PackageReference Include="Microsoft.Azure.Functions.Worker.Core" Version="1.4.0" />
     <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Storage.Queues" Version="5.0.0" />
   </ItemGroup>

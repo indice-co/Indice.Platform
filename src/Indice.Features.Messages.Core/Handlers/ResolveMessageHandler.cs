@@ -58,6 +58,7 @@ namespace Indice.Features.Messages.Core.Handlers
             if (contact is null) {
                 return;
             }
+            @event.Contact = contact;
             if (isNewContact) {
                 await ContactService.AddToDistributionList(@event.Campaign.DistributionListId.Value, Mapper.ToCreateDistributionListContactRequest(contact));
             }
