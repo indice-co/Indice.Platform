@@ -3,26 +3,26 @@
     /// <summary>
     /// Exception thrown from Campaigns API feature.
     /// </summary>
-    public class CampaignException : Exception
+    public class MessageException : Exception
     {
         /// <summary>
-        /// Creates a new instance of <see cref="CampaignException"/>.
+        /// Creates a new instance of <see cref="MessageException"/>.
         /// </summary>
-        public CampaignException() : base() { }
+        public MessageException() : base() { }
 
         /// <summary>
-        /// Creates a new instance of <see cref="CampaignException"/>.
+        /// Creates a new instance of <see cref="MessageException"/>.
         /// </summary>
         /// <param name="message">The error message.</param>
-        public CampaignException(string message) : base(message) { }
+        public MessageException(string message) : base(message) { }
 
         /// <summary>
-        /// Creates a new instance of <see cref="CampaignException"/>.
+        /// Creates a new instance of <see cref="MessageException"/>.
         /// </summary>
         /// <param name="message">The error message.</param>
         /// <param name="code">The error code.</param>
         /// <param name="errors">The errors collection.</param>
-        public CampaignException(string message, string code, IEnumerable<string> errors = null) : base(message) {
+        public MessageException(string message, string code, IEnumerable<string> errors = null) : base(message) {
             Code = code;
             if (errors != null) {
                 Errors.Add(code, errors.ToArray());
@@ -42,41 +42,41 @@
         /// Campaign already published exception.
         /// </summary>
         /// <param name="id">The campaign id.</param>
-        public static CampaignException CampaignAlreadyPublished(Guid id) => new($"Campaign with id '{id}' is already published.", nameof(id));
+        public static MessageException CampaignAlreadyPublished(Guid id) => new($"Campaign with id '{id}' is already published.", nameof(id));
         /// <summary>
         /// Campaign not found exception.
         /// </summary>
         /// <param name="id">The campaign id.</param>
-        public static CampaignException CampaignNotFound(Guid id) => new($"Campaign with id '{id}' does not exist.", nameof(id));
+        public static MessageException CampaignNotFound(Guid id) => new($"Campaign with id '{id}' does not exist.", nameof(id));
         /// <summary>
         /// Contact not found exception.
         /// </summary>
         /// <param name="id">The contact id.</param>
-        public static CampaignException ContactNotFound(Guid id) => new($"Contact with id '{id}' does not exist.", nameof(id));
+        public static MessageException ContactNotFound(Guid id) => new($"Contact with id '{id}' does not exist.", nameof(id));
         /// <summary>
         /// Distribution list not found exception.
         /// </summary>
         /// <param name="id">The distribution list id.</param>
-        public static CampaignException DistributionListNotFound(Guid id) => new($"Distribution list with id '{id}' does not exist.", nameof(id));
+        public static MessageException DistributionListNotFound(Guid id) => new($"Distribution list with id '{id}' does not exist.", nameof(id));
         /// <summary>
         /// Message type not found exception.
         /// </summary>
         /// <param name="id">The message type id.</param>
-        public static CampaignException MessageTypeNotFound(Guid id) => new($"Message type with id '{id}' does not exist.", nameof(id));
+        public static MessageException MessageTypeNotFound(Guid id) => new($"Message type with id '{id}' does not exist.", nameof(id));
         /// <summary>
         /// Message not found exception.
         /// </summary>
         /// <param name="id">The message id.</param>
-        public static CampaignException MessageNotFound(Guid id) => new($"Message with id '{id}' does not exist.", nameof(id));
+        public static MessageException MessageNotFound(Guid id) => new($"Message with id '{id}' does not exist.", nameof(id));
         /// <summary>
         /// Message already read exception.
         /// </summary>
         /// <param name="id">The message id.</param>
-        public static CampaignException MessageAlreadyRead(Guid id) => new($"Message with id '{id}' is already read.", nameof(id));
+        public static MessageException MessageAlreadyRead(Guid id) => new($"Message with id '{id}' is already read.", nameof(id));
         /// <summary>
         /// Message already deleted exception.
         /// </summary>
         /// <param name="id">The message id.</param>
-        public static CampaignException MessageAlreadyDeleted(Guid id) => new($"Message with id '{id}' is already deleted.", nameof(id));
+        public static MessageException MessageAlreadyDeleted(Guid id) => new($"Message with id '{id}' is already deleted.", nameof(id));
     }
 }

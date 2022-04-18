@@ -1,5 +1,6 @@
 ﻿using Indice.Features.Messages.Core.Models;
 using Indice.Features.Messages.Core.Models.Requests;
+using Indice.Types;
 
 namespace Indice.Features.Messages.Core.Services.Abstractions
 {
@@ -18,5 +19,11 @@ namespace Indice.Features.Messages.Core.Services.Abstractions
         /// </summary>
         /// <param name="id">The id of the template.</param>
         Task<Template> GetById(Guid id);
+        /// <summary>
+        /// Gets a list of all available templates.
+        /// </summary>
+        /// <param name="options">List parameters used to navigate through collections. Contains parameters such as sort, search, page number and page size.</param>
+        /// <returns></returns>
+        Task<ResultSet<Template>> GetList(ListOptions options);
     }
 }

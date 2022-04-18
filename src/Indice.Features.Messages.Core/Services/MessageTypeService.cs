@@ -43,7 +43,7 @@ namespace Indice.Features.Messages.Core.Services
         public async Task Delete(Guid id) {
             var messageType = await DbContext.MessageTypes.FindAsync(id);
             if (messageType is null) {
-                throw CampaignException.MessageTypeNotFound(id);
+                throw MessageException.MessageTypeNotFound(id);
             }
             DbContext.Remove(messageType);
             await DbContext.SaveChangesAsync();
@@ -63,7 +63,7 @@ namespace Indice.Features.Messages.Core.Services
 
         /// <inheritdoc />
         public async Task<MessageType> GetByName(string name) {
-            var messageType = await DbContext.MessageTypes.SingleOrDefaultAsync(x => x.Name == name);
+            var messageType = await DbContext.MessageTypes.Where(x => x.Name == name).FirstOrDefaultAsync();
             if (messageType is null) {
                 return default;
             }
@@ -87,7 +87,7 @@ namespace Indice.Features.Messages.Core.Services
         public async Task Update(Guid id, UpsertMessageTypeRequest request) {
             var messageType = await DbContext.MessageTypes.FindAsync(id);
             if (messageType is null) {
-                throw CampaignException.MessageTypeNotFound(id);
+                throw MessageException.MessageTypeNotFound(id);
             }
             messageType.Name = request.Name;
             await DbContext.SaveChangesAsync();

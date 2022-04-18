@@ -1,4 +1,5 @@
-﻿using Indice.Features.Messages.Core.Manager.Commands;
+﻿using Indice.Extensions;
+using Indice.Features.Messages.Core.Manager.Commands;
 using Indice.Features.Messages.Core.Models;
 using Indice.Features.Messages.Core.Models.Requests;
 using Indice.Features.Messages.Core.Services.Abstractions;
@@ -47,14 +48,14 @@ namespace Indice.Features.Messages.Core.Manager
 
         /// <summary>Creates a new message for the specified recipients.</summary>
         /// <param name="title">The title of the campaign.</param>
-        /// <param name="messageChannelKind">The delivery channel of a campaign.</param>
-        /// <param name="content">The content of the campaign.</param>
+        /// <param name="channels">The delivery channels of a campaign.</param>
+        /// <param name="templates">The content of the campaign. If handlebars are found, then data binding will occur between content and <paramref name="data"/>.</param>
         /// <param name="period">Specifies the time period that a campaign is active. If not set campaign inbox is shown indefinitely.</param>
         /// <param name="actionLink">Defines a (call-to-action) link.</param>
         /// <param name="type">The id or name of the campaign type.</param>
         /// <param name="data">Optional data for the campaign.</param>
         /// <param name="recipientIds">Defines a list of user identifiers that constitutes the audience of the campaign.</param>
-        public async Task<CreateCampaignResult> SendMessageToRecipients(string title, MessageChannelKind messageChannelKind, Dictionary<MessageChannelKind, MessageContent> content, Period period = null,
+        public async Task<CreateCampaignResult> SendMessageToRecipients(string title, MessageChannelKind channels, Dictionary<MessageChannelKind, MessageContent> templates, Period period = null,
             Hyperlink actionLink = null, string type = null, dynamic data = null, params string[] recipientIds) {
             Guid? typeId = null;
             if (!string.IsNullOrWhiteSpace(type)) {
@@ -72,10 +73,10 @@ namespace Indice.Features.Messages.Core.Manager
             var request = new CreateCampaignRequest {
                 ActionLink = actionLink,
                 ActivePeriod = period,
-                Content = content.ToDictionary(x => x.Key.ToString(), y => y.Value),
+                Content = templates.ToDictionary(x => x.Key.ToString(), y => y.Value),
                 Data = Mapper.ToExpandoObject(data),
                 IsGlobal = false,
-                MessageChannelKind = messageChannelKind,
+                MessageChannelKind = channels,
                 Published = true,
                 RecipientIds = recipientIds?.ToList(),
                 Title = title,
@@ -87,26 +88,77 @@ namespace Indice.Features.Messages.Core.Manager
         /// <summary>Creates a new message for the specified recipient.</summary>
         /// <param name="recipientId">The id of the recipient.</param>
         /// <param name="title">The title of the campaign.</param>
-        /// <param name="messageChannelKind">The delivery channel of a campaign.</param>
-        /// <param name="content">The content of the campaign.</param>
+        /// <param name="channels">The delivery channels of a campaign.</param>
+        /// <param name="templates">The content of the campaign. If handlebars are found, then data binding will occur between content and <paramref name="data"/>.</param>
         /// <param name="period">Specifies the time period that a campaign is active. If not set campaign inbox is shown indefinitely.</param>
         /// <param name="actionLink">Defines a (call-to-action) link.</param>
         /// <param name="type">The id or name of the campaign type.</param>
         /// <param name="data">Optional data for the campaign.</param>
-        public Task<CreateCampaignResult> SendMessageToRecipient(string recipientId, string title, MessageChannelKind messageChannelKind, Dictionary<MessageChannelKind, MessageContent> content, Period period = null,
+        public Task<CreateCampaignResult> SendMessageToRecipient(string recipientId, string title, MessageChannelKind channels, Dictionary<MessageChannelKind, MessageContent> templates, Period period = null,
             Hyperlink actionLink = null, string type = null, dynamic data = null) =>
-            SendMessageToRecipients(title, messageChannelKind, content, period, actionLink, type, data, recipientId);
+            SendMessageToRecipients(title, channels, templates, period, actionLink, type, data, recipientId);
 
-        /// <summary>Creates a new inbox message for the specified recipient.</summary>
-        /// <param name="recipient">The id of the recipient.</param>
+        /// <summary>
+        /// Creates a new message for the specified recipient.
+        /// </summary>
+        /// <param name="recipientId">The id of the recipient.</param>
         /// <param name="title">The title of the campaign.</param>
-        /// <param name="content">The content of the inbox message.</param>
+        /// <param name="channels">The delivery channels of a campaign.</param>
+        /// <param name="template">The content of the campaign. If handlebars are found, then data binding will occur between content and <paramref name="data"/>.</param>
         /// <param name="period">Specifies the time period that a campaign is active. If not set campaign inbox is shown indefinitely.</param>
         /// <param name="actionLink">Defines a (call-to-action) link.</param>
         /// <param name="type">The id or name of the campaign type.</param>
         /// <param name="data">Optional data for the campaign.</param>
-        public Task<CreateCampaignResult> SendInboxMessageToRecipient(string recipient, string title, MessageContent content, Period period = null, Hyperlink actionLink = null, string type = null, dynamic data = null) =>
-            SendMessageToRecipient(recipient, title, MessageChannelKind.Inbox, new Dictionary<MessageChannelKind, MessageContent> { { MessageChannelKind.Inbox, content } }, period, actionLink, type, data);
+        public Task<CreateCampaignResult> SendMessageToRecipient(string recipientId, string title, MessageChannelKind channels, MessageContent template, Period period = null,
+            Hyperlink actionLink = null, string type = null, dynamic data = null) =>
+            SendMessageToRecipients(title, channels, channels.GetValues().ToDictionary(x => x, y => template), period, actionLink, type, data, recipientId);
+
+        /// <summary>
+        /// Creates a new message for the specified recipient.
+        /// </summary>
+        /// <param name="recipientId">The id of the recipient.</param>
+        /// <param name="title">The title of the campaign.</param>
+        /// <param name="channels">The delivery channels of a campaign.</param>
+        /// <param name="templateId">The content of the campaign. If handlebars are found, then data binding will occur between content and <paramref name="data"/>.</param>
+        /// <param name="period">Specifies the time period that a campaign is active. If not set campaign inbox is shown indefinitely.</param>
+        /// <param name="actionLink">Defines a (call-to-action) link.</param>
+        /// <param name="type">The id or name of the campaign type.</param>
+        /// <param name="data">Optional data for the campaign.</param>
+        public Task<CreateCampaignResult> SendMessageToRecipient(string recipientId, string title, MessageChannelKind channels, Guid templateId, Period period = null,
+            Hyperlink actionLink = null, string type = null, dynamic data = null) =>
+            SendMessageToRecipients(title, channels, templateId, period, actionLink, type, data, recipientId);
+
+        /// <summary>
+        /// Creates a new message for the specified recipients.
+        /// </summary>
+        /// <param name="title">The title of the campaign.</param>
+        /// <param name="channels">The delivery channels of a campaign.</param>
+        /// <param name="templateId">The content of the campaign. If handlebars are found, then data binding will occur between content and <paramref name="data"/>.</param>
+        /// <param name="period">Specifies the time period that a campaign is active. If not set campaign inbox is shown indefinitely.</param>
+        /// <param name="actionLink">Defines a (call-to-action) link.</param>
+        /// <param name="type">The id or name of the campaign type.</param>
+        /// <param name="data">Optional data for the campaign.</param>
+        /// <param name="recipientIds">Defines a list of user identifiers that constitutes the audience of the campaign.</param>
+        public async Task<CreateCampaignResult> SendMessageToRecipients(string title, MessageChannelKind channels, Guid templateId, Period period = null,
+            Hyperlink actionLink = null, string type = null, dynamic data = null, params string[] recipientIds) {
+            var template = await TemplateService.GetById(templateId);
+            return await SendMessageToRecipients(title, channels, template.Content.ToDictionary(x => Enum.Parse<MessageChannelKind>(x.Key), x => x.Value), period, actionLink, type, data, recipientIds);
+        }
+
+        /// <summary>
+        /// Creates a new message for the specified recipients.
+        /// </summary>
+        /// <param name="title">The title of the campaign.</param>
+        /// <param name="channels">The delivery channels of a campaign.</param>
+        /// <param name="template">The content of the campaign. If handlebars are found, then data binding will occur between content and <paramref name="data"/>.</param>
+        /// <param name="period">Specifies the time period that a campaign is active. If not set campaign inbox is shown indefinitely.</param>
+        /// <param name="actionLink">Defines a (call-to-action) link.</param>
+        /// <param name="type">The id or name of the campaign type.</param>
+        /// <param name="data">Optional data for the campaign.</param>
+        /// <param name="recipientIds">Defines a list of user identifiers that constitutes the audience of the campaign.</param>
+        public Task<CreateCampaignResult> SendMessageToRecipients(string title, MessageChannelKind channels, MessageContent template, Period period = null,
+            Hyperlink actionLink = null, string type = null, dynamic data = null, params string[] recipientIds) =>
+            SendMessageToRecipients(title, channels, channels.GetValues().ToDictionary(x => x, y => template), period, actionLink, type, data, recipientIds);
 
         internal async Task<CreateCampaignResult> CreateCampaignInternal(CreateCampaignRequest request, bool? validateRules = true) {
             if (validateRules.Value) {
@@ -155,5 +207,12 @@ namespace Indice.Features.Messages.Core.Manager
         /// <summary>Retrieves the campaign type with the specified name.</summary>
         /// <param name="name">The name of the campaign type to look for.</param>
         public Task<MessageType> GetMessageTypeByName(string name) => MessageTypeService.GetByName(name);
+
+        /// <summary>
+        /// Gets a list of all available templates.
+        /// </summary>
+        /// <param name="options">List parameters used to navigate through collections. Contains parameters such as sort, search, page number and page size.</param>
+        /// <returns></returns>
+        public Task<ResultSet<Template>> GetTemplates(ListOptions options) => TemplateService.GetList(options);
     }
 }

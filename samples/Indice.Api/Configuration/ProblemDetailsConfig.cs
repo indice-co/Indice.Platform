@@ -15,7 +15,7 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddProblemDetails(options => {
                 // This is the default behavior; only include exception details in a development environment.
                 options.IncludeExceptionDetails = (httpContext, exception) => environment.IsDevelopment();
-                options.Map<CampaignException>(exception => {
+                options.Map<MessageException>(exception => {
                     var response = new ValidationProblemDetails(exception.Errors) {
                         Title = exception.Message,
                         Status = StatusCodes.Status400BadRequest

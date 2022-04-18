@@ -30,12 +30,12 @@ namespace Indice.Features.Messages.Core.Services
             DbContact contact;
             var list = await DbContext.DistributionLists.FindAsync(id);
             if (list is null) {
-                throw CampaignException.DistributionListNotFound(id);
+                throw MessageException.DistributionListNotFound(id);
             }
             if (request.Id.HasValue) {
                 contact = await DbContext.Contacts.FindAsync(request.Id.Value);
                 if (contact is null) {
-                    throw CampaignException.ContactNotFound(id);
+                    throw MessageException.ContactNotFound(id);
                 }
                 contact.ContactDistributionLists.Add(new DbContactDistributionList {
                     ContactId = request.Id.Value,
@@ -107,7 +107,7 @@ namespace Indice.Features.Messages.Core.Services
         public async Task Update(Guid id, UpdateContactRequest request) {
             var contact = await DbContext.Contacts.FindAsync(id);
             if (contact is null) {
-                throw CampaignException.ContactNotFound(id);
+                throw MessageException.ContactNotFound(id);
             }
             contact.Email = request.Email;
             contact.FirstName = request.FirstName;

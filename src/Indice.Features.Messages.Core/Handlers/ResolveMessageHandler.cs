@@ -1,8 +1,11 @@
-﻿using HandlebarsDotNet;
+﻿using System.Dynamic;
+using System.Text.Json;
+using HandlebarsDotNet;
 using Indice.Features.Messages.Core.Events;
 using Indice.Features.Messages.Core.Models;
 using Indice.Features.Messages.Core.Models.Requests;
 using Indice.Features.Messages.Core.Services.Abstractions;
+using Indice.Serialization;
 using Indice.Services;
 
 namespace Indice.Features.Messages.Core.Handlers
@@ -66,8 +69,10 @@ namespace Indice.Features.Messages.Core.Handlers
             handlebars.Configuration.TextEncoder = new HtmlEncoder();
             var campaign = @event.Campaign;
             foreach (var content in @event.Campaign.Content) {
-                // TODO: Make it work with camel case properties.
-                dynamic templateData = new { contact, data = @event.Campaign.Data };
+                dynamic templateData = new { 
+                    contact = JsonSerializer.Deserialize<ExpandoObject>(JsonSerializer.Serialize(contact, JsonSerializerOptionDefaults.GetDefaultSettings()), JsonSerializerOptionDefaults.GetDefaultSettings()), 
+                    data = JsonSerializer.Deserialize<ExpandoObject>(JsonSerializer.Serialize(@event.Campaign.Data, JsonSerializerOptionDefaults.GetDefaultSettings()), JsonSerializerOptionDefaults.GetDefaultSettings())
+                };
                 var messageContent = campaign.Content[content.Key];
                 messageContent.Title = handlebars.Compile(content.Value.Title)(templateData);
                 messageContent.Body = handlebars.Compile(content.Value.Body)(templateData);

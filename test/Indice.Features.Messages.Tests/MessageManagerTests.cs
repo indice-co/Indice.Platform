@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Dynamic;
 using System.IO;
+using System.Text.Json;
 using System.Threading.Tasks;
 using Indice.Features.Messages.Core;
 using Indice.Features.Messages.Core.Data;
@@ -11,6 +12,7 @@ using Indice.Features.Messages.Core.Models;
 using Indice.Features.Messages.Core.Services;
 using Indice.Features.Messages.Core.Services.Abstractions;
 using Indice.Features.Messages.Core.Services.Validators;
+using Indice.Serialization;
 using Indice.Types;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -89,7 +91,7 @@ namespace Indice.Features.Messages.Tests
                 },
                 ActivePeriod = new Period { From = DateTimeOffset.UtcNow },
                 Content = new Dictionary<MessageChannelKind, MessageContent> {
-                    { MessageChannelKind.Inbox, new MessageContent { Title = "Welcome", Body = "Dear {{contact.fullName}}, thank you for registering." } }
+                    [MessageChannelKind.Inbox] = new MessageContent { Title = "Welcome", Body = "Dear {{contact.fullName}}, thank you for registering." }
                 },
                 Data = new {
                     Code = "123abc"
@@ -111,10 +113,10 @@ namespace Indice.Features.Messages.Tests
             var result = await manager.SendMessageToRecipient(
                 recipientId: Guid.NewGuid().ToString(),
                 title: "Welcome",
-                messageChannelKind: MessageChannelKind.Inbox | MessageChannelKind.PushNotification,
-                content: new Dictionary<MessageChannelKind, MessageContent> {
-                    { MessageChannelKind.Inbox, new MessageContent("Welcome", "Hello {{contact.Salutation}} {{contact.FullName}} and welcome to our company.") },
-                    { MessageChannelKind.PushNotification, new MessageContent("Welcome", "Hello {{contact.Salutation}} {{contact.FullName}} and welcome to our company.") }
+                channels: MessageChannelKind.Inbox | MessageChannelKind.PushNotification,
+                templates: new Dictionary<MessageChannelKind, MessageContent> {
+                    [MessageChannelKind.Inbox] = new MessageContent("Welcome", "Hello {{contact.Salutation}} {{contact.FullName}} and welcome to our company."),
+                    [MessageChannelKind.PushNotification] = new MessageContent("Welcome", "Hello {{contact.Salutation}} {{contact.FullName}} and welcome to our company.")
                 }
             );
             Assert.True(result.Succeeded);

@@ -3,6 +3,7 @@ using Indice.Features.Messages.Core.Data.Models;
 using Indice.Features.Messages.Core.Models;
 using Indice.Features.Messages.Core.Models.Requests;
 using Indice.Features.Messages.Core.Services.Abstractions;
+using Indice.Types;
 
 namespace Indice.Features.Messages.Core.Services
 {
@@ -44,11 +45,24 @@ namespace Indice.Features.Messages.Core.Services
             if (template is null) {
                 return default;
             }
-            return new Template { 
+            return new Template {
                 Content = template.Content,
-                Id= template.Id,
+                Id = template.Id,
                 Name = template.Name
             };
+        }
+
+        /// <inheritdoc />
+        public async Task<ResultSet<Template>> GetList(ListOptions options) {
+            var query = DbContext.Templates.Select(x => new Template {
+                Content = x.Content,
+                Id = x.Id,
+                Name = x.Name
+            });
+            if (!string.IsNullOrWhiteSpace(options.Search)) {
+                query = query.Where(x => x.Name.ToLower().Contains(options.Search.ToLower()));
+            }
+            return await query.ToResultSetAsync(options);
         }
     }
 }
