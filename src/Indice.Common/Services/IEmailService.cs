@@ -1,11 +1,64 @@
 ﻿using System;
 using System.Linq;
-using System.Reflection;
 using System.Threading.Tasks;
 using Indice.Configuration;
 
 namespace Indice.Services
 {
+    /// <summary>
+    /// Abstraction for sending email through different providers and implementations. SMTP, SparkPost, Mailchimp etc.
+    /// </summary>
+    public interface IEmailService
+    {
+        /// <summary>
+        /// This is an abstraction for the rendering engine.
+        /// </summary>
+        public IHtmlRenderingEngine HtmlRenderingEngine { get; }
+        /// <summary>
+        /// Sends an email.
+        /// </summary>
+        /// <param name="recipients">The recipients of the email message.</param>
+        /// <param name="subject">The subject of the email message.</param>
+        /// <param name="body">The body of the email message.</param>
+        /// <param name="attachments">The files that will be attached in the email message.</param>
+        /// <returns></returns>
+        Task SendAsync(string[] recipients, string subject, string body, EmailAttachment[] attachments = null);
+    }
+
+    /// <summary>
+    /// Service extensions for <see cref="IEmailService"/>.
+    /// </summary>
+    public static class EmailServiceExtensions
+    {
+        /// <summary>
+        /// Send an email using a single recipient.
+        /// </summary>
+        /// <param name="emailService">Abstraction for sending email through different providers and implementations. SMTP, SparkPost, Mailchimp etc.</param>
+        /// <param name="recipient">The recipient of the email message.</param>
+        /// <param name="subject">The subject of the email message.</param>
+        /// <param name="body">The body of the email message.</param>
+        public static async Task SendAsync(this IEmailService emailService, string recipient, string subject, string body) =>
+            await emailService.SendAsync(new string[] { recipient }, subject, body);
+
+        /// <summary>
+        /// Sends an email by using a fluent configuration.
+        /// </summary>
+        /// <param name="emailService">Abstraction for sending email through different providers and implementations. SMTP, SparkPost, Mailchimp etc.</param>
+        /// <param name="configureMessage">The delegate that will be used to build the message.</param>
+        public static async Task SendAsync(this IEmailService emailService, Action<EmailMessageBuilder> configureMessage) {
+            if (configureMessage == null) {
+                throw new ArgumentNullException(nameof(configureMessage));
+            }
+            var builder = new EmailMessageBuilder();
+            configureMessage?.Invoke(builder);
+            var message = builder.Build();
+            if (!string.IsNullOrWhiteSpace(message.Template)) {
+                message.Body = await emailService.HtmlRenderingEngine?.RenderAsync(message.Template, message.Data);
+            }
+            await emailService.SendAsync(message.Recipients.ToArray(), message.Subject, message.Body, message.Attachments.ToArray());
+        }
+    }
+
     /// <summary>
     /// Settings used to bootstrap email service clients.
     /// </summary>
@@ -24,7 +77,7 @@ namespace Indice.Services
         /// </summary>
         public string SenderName { get; set; }
         /// <summary>
-        /// The host of the SMTP server (ie mail.indice.gr).
+        /// The host of the SMTP server (i.e mail.indice.gr).
         /// </summary>
         public string SmtpHost { get; set; }
         /// <summary>
@@ -32,7 +85,7 @@ namespace Indice.Services
         /// </summary>
         public int SmtpPort { get; set; }
         /// <summary>
-        /// Toggles between http and https.
+        /// Toggles between HTTP and HTTPS.
         /// </summary>
         public bool UseSSL { get; set; }
         /// <summary>
@@ -56,77 +109,5 @@ namespace Indice.Services
         /// Get or set whether connecting via SSL/TLS should check certificate revocation.
         /// </summary>
         public bool CheckCertificateRevocation { get; set; } = true;
-    }
-
-    /// <summary>
-    /// Abstraction for sending email through different providers and implementations. SMTP, SparkPost, Mailchimp etc.
-    /// </summary>
-    public interface IEmailService
-    {
-        /// <summary>
-        /// Sends an email.
-        /// </summary>
-        /// <param name="recipients">The recipients of the email message.</param>
-        /// <param name="subject">The subject of the email message.</param>
-        /// <param name="body">The body of the email message.</param>
-        /// <param name="attachments">The files that will be attached in the email message.</param>
-        /// <returns></returns>
-        Task SendAsync(string[] recipients, string subject, string body, FileAttachment[] attachments = null);
-
-        /// <summary>
-        /// Sends an email.
-        /// </summary>
-        /// <typeparam name="TModel">The type of the <paramref name="data"/> that will be applied to the template.</typeparam>
-        /// <param name="recipients">The recipients of the email message.</param>
-        /// <param name="subject">The subject of the email message.</param>
-        /// <param name="body">The body of the email message.</param>
-        /// <param name="template">The name of the template used for the message.</param>
-        /// <param name="data">The data model that contains information to render in the email message.</param>
-        /// <param name="attachments">The files that will be attached in the email message.</param>
-        /// <returns></returns>
-        Task SendAsync<TModel>(string[] recipients, string subject, string body, string template, TModel data, FileAttachment[] attachments = null) where TModel : class;
-    }
-
-    /// <summary>
-    /// Service extensions for <see cref="IEmailService"/>.
-    /// </summary>
-    public static class EmailServiceExtensions
-    {
-        /// <summary>
-        /// Send an email using a single recipient and default template with the name of "Email".
-        /// </summary>
-        /// <param name="emailService"></param>
-        /// <param name="recipient">The recipient of the email message.</param>
-        /// <param name="subject">The subject of the email message.</param>
-        /// <param name="body">The body of the email message.</param>
-        public static async Task SendAsync(this IEmailService emailService, string recipient, string subject, string body) =>
-            await emailService.SendAsync<object>(new string[] { recipient }, subject, body, "Email", null);
-
-        /// <summary>
-        /// Send an email using a single recipient.
-        /// </summary>
-        /// <typeparam name="TModel">The type of the <paramref name="data"/> that will be applied to the template.</typeparam>
-        /// <param name="emailService"></param>
-        /// <param name="recipient">The recipient of the email message.</param>
-        /// <param name="subject">The subject of the email message.</param>
-        /// <param name="body">The body of the email message.</param>
-        /// <param name="template">The name of the template used for the message.</param>
-        /// <param name="data">The data model that contains information to render in the email message.</param>
-        public static async Task SendAsync<TModel>(this IEmailService emailService, string recipient, string subject, string body, string template, TModel data) where TModel : class =>
-            await emailService.SendAsync(new string[] { recipient }, subject, body, template, data);
-
-        /// <summary>
-        /// Sends an email by using a fluent configuration.
-        /// </summary>
-        /// <param name="emailService">Abstraction for sending email through different providers and implementations. SMTP, SparkPost, Mailchimp etc.</param>
-        /// <param name="configureMessage">The delegate that will be used to build the message.</param>
-        public static async Task SendAsync(this IEmailService emailService, Func<EmailMessageBuilder, EmailMessageBuilder> configureMessage) {
-            if (configureMessage == null) {
-                throw new ArgumentNullException(nameof(configureMessage));
-            }
-            var messageBuilder = configureMessage(new EmailMessageBuilder());
-            var message = messageBuilder.Build();
-            await emailService.SendAsync(message.Recipients.ToArray(), message.Subject, message.Body, message.Template, message.Data, message.Attachments.ToArray());
-        }
     }
 }

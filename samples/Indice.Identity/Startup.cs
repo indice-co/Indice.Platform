@@ -103,7 +103,8 @@ namespace Indice.Identity
 #endif
             services.AddResponseCaching();
             services.AddDataProtectionLocal(options => options.FromConfiguration());
-            services.AddEmailServiceSmtpRazor(Configuration);
+            services.AddEmailServiceSmtp(Configuration)
+                    .WithMvcRazorRendering();
             services.AddCsp(options => {
                 options.ScriptSrc = CSP.Self;
                 options.AddSandbox("allow-popups")
@@ -115,7 +116,7 @@ namespace Indice.Identity
                        .AddFrameAncestors("https://localhost:2002");
             });
             services.AddPlatformEventHandler<DeviceDeletedEvent, DeviceDeletedEventHandler>();
-            services.AddClientIpRestrinctions();
+            //services.AddClientIpRestrinctions();
             //services.AddClientIpRestrinctions(options => {
             //    options.StatusCodeOnAccessDenied = System.Net.HttpStatusCode.NotFound;
             //    options.AddIpAddressList("MyWhiteList", "127.0.0.1;192.168.1.5;::1");
@@ -137,7 +138,7 @@ namespace Indice.Identity
                 app.UseHsts();
                 app.UseHttpsRedirection();
             }
-            app.UseClientIpRestrictions();
+            //app.UseClientIpRestrictions();
             var staticFileOptions = new StaticFileOptions {
                 OnPrepareResponse = context => {
                     const int durationInSeconds = 60 * 60 * 24;

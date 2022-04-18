@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Indice.Hosting.Models;
+using Indice.Hosting.Services;
 using Indice.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -26,7 +28,7 @@ namespace Indice.Hosting.Tasks
         }
 
         public async Task Execute(IJobExecutionContext context) {
-            _logger.LogInformation("Scheduled job run at: {Timestamp}", DateTime.UtcNow);
+            _logger.LogInformation("Scheduled job run at: {TimeStamp}", DateTime.UtcNow);
             var jobDataMap = context.JobDetail.JobDataMap;
             var jobHandlerType = jobDataMap[JobDataKeys.JobHandlerType] as Type;
             var singleton = jobDataMap[JobDataKeys.Singleton] as bool? ?? false;
@@ -70,7 +72,7 @@ namespace Indice.Hosting.Tasks
             } catch (Exception exception) {
                 scheduledTask.Errors = exception.ToString();
                 scheduledTask.LastErrorDate = DateTimeOffset.UtcNow;
-                _logger.LogError("An error occured while executing task '{TaskHandlerName}'. Exception is: {Exception}", jobHandlerType.Name, exception);
+                _logger.LogError("An error occurred while executing task '{TaskHandlerName}'. Exception is: {Exception}", jobHandlerType.Name, exception);
             } finally {
                 scheduledTask.Status = ScheduledTaskStatus.Idle;
                 await _scheduledTaskStore.Save(scheduledTask);

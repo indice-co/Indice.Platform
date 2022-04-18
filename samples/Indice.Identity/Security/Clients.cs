@@ -161,7 +161,7 @@ namespace Indice.Identity.Security
                 AllowedGrantTypes = GrantTypes.Code,
                 AllowedScopes = {
                     "backoffice",
-                    "backoffice:campaigns",
+                    "backoffice:messages",
                     IdentityServerApi.Scope,
                     IdentityServerApi.SubScopes.Clients,
                     IdentityServerApi.SubScopes.Users,
@@ -240,7 +240,7 @@ namespace Indice.Identity.Security
             },
             new Client {
                 ClientId = "backoffice-ui",
-                ClientName = "IdentityServer Management Tool",
+                ClientName = "Back-Office Management Tool",
                 AccessTokenType = AccessTokenType.Reference,
                 AllowAccessTokensViaBrowser = false,
                 AllowedCorsOrigins = {
@@ -252,7 +252,7 @@ namespace Indice.Identity.Security
                     IdentityServerApi.SubScopes.Clients,
                     IdentityServerApi.SubScopes.Users,
                     "backoffice",
-                    "backoffice:campaigns",
+                    "backoffice:messages",
                     IdentityServerConstants.StandardScopes.Email,
                     IdentityServerConstants.StandardScopes.Phone,
                     IdentityServerConstants.StandardScopes.OfflineAccess,

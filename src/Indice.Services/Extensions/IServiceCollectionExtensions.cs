@@ -95,11 +95,35 @@ namespace Microsoft.Extensions.DependencyInjection
         /// </summary>
         /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
         /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
-        public static IServiceCollection AddEmailService(this IServiceCollection services, IConfiguration configuration) {
+        public static EmailServiceBuilder AddEmailServiceSmtp(this IServiceCollection services, IConfiguration configuration) {
             services.Configure<EmailServiceSettings>(configuration.GetSection(EmailServiceSettings.Name));
             services.AddTransient(serviceProvider => serviceProvider.GetRequiredService<IOptions<EmailServiceSettings>>().Value);
             services.AddTransient<IEmailService, EmailServiceSmtp>();
-            return services;
+            services.AddHtmlRenderingEngineNoop();
+            return new EmailServiceBuilder(services);
+        }
+
+        /// <summary>
+        /// Adds an instance of <see cref="IEmailService"/> that uses SparkPost to send emails.
+        /// </summary>
+        /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
+        /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
+        public static EmailServiceBuilder AddEmailServiceSparkpost(this IServiceCollection services, IConfiguration configuration) {
+            services.Configure<EmailServiceSparkPostSettings>(configuration.GetSection(EmailServiceSparkPostSettings.Name));
+            services.AddTransient(serviceProvider => serviceProvider.GetRequiredService<IOptions<EmailServiceSparkPostSettings>>().Value);
+            services.AddHttpClient<IEmailService, EmailServiceSparkpost>().SetHandlerLifetime(TimeSpan.FromMinutes(5));
+            services.AddHtmlRenderingEngineNoop();
+            return new EmailServiceBuilder(services);
+        }
+
+        /// <summary>
+        /// Registers a rendering engine to be used by the <see cref="IEmailService"/> implementation.
+        /// </summary>
+        /// <typeparam name="THtmlRenderingEngine">The concrete type of <see cref="IHtmlRenderingEngine"/> to use.</typeparam>
+        /// <param name="builder">Builder class for <see cref="IEmailService"/>.</param>
+        public static IServiceCollection WithHtmlRenderingEngine<THtmlRenderingEngine>(this EmailServiceBuilder builder) where THtmlRenderingEngine : IHtmlRenderingEngine {
+            builder.Services.AddTransient(typeof(IHtmlRenderingEngine), typeof(THtmlRenderingEngine));
+            return builder.Services;
         }
 
         /// <summary>
@@ -190,10 +214,10 @@ namespace Microsoft.Extensions.DependencyInjection
             return new EventDispatcherAzure(
                 options.ConnectionString,
                 options.EnvironmentName,
-                options.Enabled, 
-                options.UseCompression, 
-                options.QueueMessageEncoding, 
-                options.ClaimsPrincipalSelector, 
+                options.Enabled,
+                options.UseCompression,
+                options.QueueMessageEncoding,
+                options.ClaimsPrincipalSelector,
                 options.TenantIdSelector
             );
         };
@@ -263,7 +287,7 @@ namespace Microsoft.Extensions.DependencyInjection
         public static IServiceCollection AddPlatformEventHandler<TEvent, TEventHandler>(this IServiceCollection services)
             where TEvent : IPlatformEvent
             where TEventHandler : class, IPlatformEventHandler<TEvent> {
-            services.TryAddTransient(typeof(IPlatformEventHandler<TEvent>), typeof(TEventHandler));
+            services.AddTransient(typeof(IPlatformEventHandler<TEvent>), typeof(TEventHandler));
             return services;
         }
     }

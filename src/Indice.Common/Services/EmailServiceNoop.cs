@@ -1,26 +1,31 @@
-﻿using System;
+﻿using System.Diagnostics;
 using System.Threading.Tasks;
 
 namespace Indice.Services
 {
     /// <summary>
-    /// Noop implementation of <see cref="IEmailService"/>.
+    /// A default implementation for <see cref="IEmailService"/> that does nothing.
     /// </summary>
     public class EmailServiceNoop : IEmailService
     {
-        /// <inheritdoc/>
-        public async Task SendAsync(string[] recipients, string subject, string body, FileAttachment[] attachments = null) => await SendAsync<object>(recipients, subject, body, null, null);
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="htmlRenderingEngine"></param>
+        /// <exception cref="System.ArgumentNullException"></exception>
+        public EmailServiceNoop(IHtmlRenderingEngine htmlRenderingEngine) {
+            HtmlRenderingEngine = htmlRenderingEngine ?? throw new System.ArgumentNullException(nameof(htmlRenderingEngine));
+        }
 
         /// <inheritdoc/>
-        public Task SendAsync<TModel>(string[] recipients, string subject, string body, string template, TModel data, FileAttachment[] attachments = null) where TModel : class {
+        public IHtmlRenderingEngine HtmlRenderingEngine { get; }
+
+        /// <inheritdoc/>
+        public Task SendAsync(string[] recipients, string subject, string body, EmailAttachment[] attachments = null) {
             foreach (var recipient in recipients) {
-                Console.WriteLine($"Email:\n\t\t{recipient}/{subject}\n\n\t\t{body}");
+                Debug.WriteLine($"Email:\n\t\t{recipient}/{subject}\n\n\t\t{body}");
             }
-#if NET452
-            return Task.FromResult(0);
-#else
             return Task.CompletedTask;
-#endif
         }
     }
 }

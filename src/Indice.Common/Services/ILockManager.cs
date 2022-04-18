@@ -9,19 +9,19 @@ namespace Indice.Services
     /// Provides an abstraction for operations that help manage an exclusive lock on a distributed environment.
     /// </summary>
     /// <remarks>
-    /// If you need to acquire a theoritical background, i would suggest to read the following:
+    /// If you need to acquire a theoretical background, i would suggest to read the following:
     /// https://martin.kleppmann.com/2016/02/08/how-to-do-distributed-locking.html
     /// https://pdfs.semanticscholar.org/a25e/ee836dbd2a5ae680f835309a484c9f39ae4e.pdf
     /// </remarks>
     public interface ILockManager
     {
         /// <summary>
-        /// Aquire a lock or throws.
+        /// Acquire a lock or throws.
         /// </summary>
         /// <param name="name">Topic or name.</param>
         /// <param name="duration">The duration the lease will be active. Defaults 30 seconds.</param>
         /// <param name="cancellationToken">Propagates notification that operations should be canceled.</param>
-        /// <exception cref="LockManagerException">Occures when the lock cannot be aquired.</exception>
+        /// <exception cref="LockManagerException">Occurs when the lock cannot be acquired.</exception>
         Task<ILockLease> AcquireLock(string name, TimeSpan? duration = null, CancellationToken cancellationToken = default);
         /// <summary>
         /// Renews an existing lease by lease id. This extends the duration of a non expired existing lease.
@@ -113,7 +113,7 @@ namespace Indice.Services
     }
 
     /// <summary>
-    /// A result object repesenting the lock operation result on the <see cref="ILockManager"/>.
+    /// A result object representing the lock operation result on the <see cref="ILockManager"/>.
     /// </summary>
     public class LockLeaseResult
     {
@@ -127,7 +127,7 @@ namespace Indice.Services
         /// </summary>
         public bool Ok { get; }
         /// <summary>
-        /// The lock itsef. It is <see cref="IDisposable"/>
+        /// The lock itself. It is <see cref="IDisposable"/>
         /// </summary>
         public ILockLease Lock { get; }
 
@@ -149,7 +149,7 @@ namespace Indice.Services
     public static class ILockManagerExtensions
     {
         /// <summary>
-        /// Try aquire the lock. If success it will return a successful <see cref="LockLeaseResult"/>.
+        /// Try acquire the lock. If success it will return a successful <see cref="LockLeaseResult"/>.
         /// If the <see cref="ILockManager"/> throws a <seealso cref="LockManagerException"/> it will catch that and return a failed <see cref="LockLeaseResult"/>.
         /// </summary>
         /// <param name="manager">The instance of <see cref="ILockManager"/>.</param>
@@ -167,14 +167,14 @@ namespace Indice.Services
         }
 
         /// <summary>
-        /// Try aquire the lock. If success it will return a successful <see cref="LockLeaseResult"/>.
+        /// Try acquire the lock. If success it will return a successful <see cref="LockLeaseResult"/>.
         /// If the <see cref="ILockManager"/> throws a <seealso cref="LockManagerException"/> it will catch that and return a failed <see cref="LockLeaseResult"/>.
         /// In case of failure it will retry sometimes before calling it a day.
         /// </summary>
         /// <param name="manager">The instance of <see cref="ILockManager"/>.</param>
         /// <param name="name">Topic or name.</param>
         /// <param name="retryCount">Specifies the number of retries to perform.</param>
-        /// <param name="retryAfter">Specifies the duration in seconds to wait for for a particular retry attempt.</param>
+        /// <param name="retryAfter">Specifies the duration in seconds to wait for a particular retry attempt.</param>
         /// <param name="cancellationToken">Propagates notification that operations should be canceled.</param>
         /// <returns>The task the represent the asynchronous operation result for acquiring the lock.</returns>
         public static async Task<LockLeaseResult> TryAcquireLockWithRetryPolicy(this ILockManager manager, string name, int retryCount = 3, int retryAfter = 3, CancellationToken cancellationToken = default) {
@@ -292,21 +292,21 @@ namespace Indice.Services
     }
 
     /// <summary>
-    /// Exception thrown when the <see cref="ILockManager"/> could not aquire a lock.
+    /// Exception thrown when the <see cref="ILockManager"/> could not acquire a lock.
     /// </summary>
     public class LockManagerException : Exception
     {
         /// <summary>
-        /// Contructs a new <see cref="LockManagerException"/>.
+        /// Constructs a new <see cref="LockManagerException"/>.
         /// </summary>
         /// <param name="lockName">the name of the lock</param>
-        public LockManagerException(string lockName) : base($"Could not aquire lock '{lockName}'.") { }
+        public LockManagerException(string lockName) : base($"Could not acquire lock '{lockName}'.") { }
         /// <summary>
-        /// Contructs a new <see cref="LockManagerException"/>.
+        /// Constructs a new <see cref="LockManagerException"/>.
         /// </summary>
         /// <param name="lockName">The name of the lock.</param>
         /// <param name="innerException">The inner exception.</param>
-        public LockManagerException(string lockName, Exception innerException) : base($"Could not aquire lock '{lockName}'.", innerException) { }
+        public LockManagerException(string lockName, Exception innerException) : base($"Could not acquire lock '{lockName}'.", innerException) { }
     }
 
     /// <summary>

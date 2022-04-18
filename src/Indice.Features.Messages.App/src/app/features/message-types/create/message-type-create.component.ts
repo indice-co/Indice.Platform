@@ -1,0 +1,48 @@
+import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, Inject, OnInit, ViewChild } from "@angular/core";
+import { Router } from "@angular/router";
+
+import { ToasterService, ToastType } from "@indice/ng-components";
+import { MessagesApiClient, MessageType, UpsertMessageTypeRequest, ValidationProblemDetails } from "src/app/core/services/campaigns-api.services";
+import { UtilitiesService } from "src/app/shared/utilities.service";
+
+@Component({
+    selector: 'app-message-type-create',
+    templateUrl: './message-type-create.component.html'
+})
+export class MessageTypeCreateComponent implements OnInit, AfterViewInit {
+    @ViewChild('submitBtn', { static: false }) public submitButton!: ElementRef;
+
+    constructor(
+        private _changeDetector: ChangeDetectorRef,
+        private _api: MessagesApiClient,
+        private _router: Router,
+        @Inject(ToasterService) private _toaster: ToasterService,
+        private _utilities: UtilitiesService
+    ) { }
+
+    public submitInProgress = false;
+    public model = new UpsertMessageTypeRequest({ name: '' });
+
+    public ngOnInit(): void { }
+
+    public ngAfterViewInit(): void {
+        this._changeDetector.detectChanges();
+    }
+
+    public onSubmit(): void {
+        this.submitInProgress = true;
+        this._api
+            .createMessageType(this.model)
+            .subscribe({
+                next: (messageType: MessageType) => {
+                    this.submitInProgress = false;
+                    // This is to force reload message types page when a new campaign is successfully saved. 
+                    this._router.navigateByUrl('/', { skipLocationChange: true }).then(() => this._router.navigate(['message-types']));
+                    this._toaster.show(ToastType.Success, 'Επιτυχής αποθήκευση', `Ο τύπος με όνομα '${messageType.name}' δημιουργήθηκε με επιτυχία.`);
+                },
+                error: (problemDetails: ValidationProblemDetails) => {
+                    this._toaster.show(ToastType.Error, 'Αποτυχής αποθήκευση', `${this._utilities.getValidationProblemDetails(problemDetails)}`, 6000);
+                }
+            });
+    }
+}

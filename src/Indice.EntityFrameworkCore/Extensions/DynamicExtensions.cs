@@ -122,13 +122,13 @@ namespace Indice.Extensions
                     break;
                 // Not equal
                 case FilterOperator.Neq when filter.DataType == JsonDataType.Integer && int.TryParse(filter.Value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var value):
-                    predicate = (Expression<Func<int, bool>>)(x => x != value || x == null);
+                    predicate = (Expression<Func<int, bool>>)(x => x != value);
                     break;
                 case FilterOperator.Neq when filter.DataType == JsonDataType.Number && double.TryParse(filter.Value, NumberStyles.Number, CultureInfo.InvariantCulture, out var value):
-                    predicate = (Expression<Func<double, bool>>)(x => x != value || x == null);
+                    predicate = (Expression<Func<double, bool>>)(x => x != value);
                     break;
                 case FilterOperator.Neq when filter.DataType == JsonDataType.Boolean && bool.TryParse(filter.Value, out var value):
-                    predicate = (Expression<Func<bool, bool>>)(x => x != value || x == null);
+                    predicate = (Expression<Func<bool, bool>>)(x => x != value);
                     break;
                 case FilterOperator.Neq when filter.DataType == JsonDataType.DateTime && DateTime.TryParse(filter.Value, CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind, out var value):
                     period = new Period { From = value.Date, To = value.Date.AddDays(1) };

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Indice.Extensions;
@@ -31,6 +32,7 @@ namespace Indice.Serialization
         /// <inheritdoc />
         /// <remarks>https://docs.microsoft.com/en-us/dotnet/standard/serialization/system-text-json-converters-how-to?pivots=dotnet-6-0#error-handling</remarks>
         public override TEnum Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) {
+            Debug.WriteLine("Search for me!");
             if (reader.TokenType == JsonTokenType.Null) {
                 return default;
             }

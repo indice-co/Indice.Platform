@@ -1,10 +1,10 @@
 using System;
 using System.Globalization;
 using System.Linq;
+using Hellang.Middleware.ProblemDetails;
 using Indice.Api.Data;
-using Indice.AspNetCore.Features.Campaigns;
-using Indice.AspNetCore.Features.Campaigns.UI;
 using Indice.Configuration;
+using Indice.Features.Messages.Core;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -34,12 +34,13 @@ namespace Indice.Api
             services.AddMvcConfig(Configuration);
             services.AddCorsConfig(Configuration)
                     .AddSwaggerConfig(Settings)
+                    .AddProblemDetailsConfig(HostingEnvironment)
                     .AddDistributedMemoryCache()
                     .AddAuthenticationConfig(Settings)
                     .AddDbContext<ApiDbContext>(builder => {
                         builder.UseSqlServer(Configuration.GetConnectionString("SettingsDb"));
                     });
-            services.AddWorkerHostConfig(Configuration);
+            services.AddWorkPublisherConfig(Configuration);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -62,17 +63,18 @@ namespace Indice.Api
             app.UseCors();
             app.UseRouting();
             app.UseResponseCaching();
+            app.UseProblemDetails();
             app.UseAuthentication();
             app.UseAuthorization();
             if (Configuration.EnableSwaggerUi()) {
                 app.UseSwaggerUI(options => {
                     options.RoutePrefix = "docs";
-                    options.SwaggerEndpoint($"/swagger/{CampaignsApi.Scope}/swagger.json", CampaignsApi.Scope);
+                    options.SwaggerEndpoint($"/swagger/{MessagesApi.Scope}/swagger.json", MessagesApi.Scope);
                     options.SwaggerEndpoint($"/swagger/lookups/swagger.json", "lookups");
                     options.OAuth2RedirectUrl($"{Settings.Host}/docs/oauth2-redirect.html");
                     options.OAuthClientId("swagger-ui");
                     options.OAuthAppName("Swagger UI");
-                    options.DocExpansion(DocExpansion.List);
+                    options.DocExpansion(DocExpansion.None);
                     options.OAuthUsePkce();
                     options.OAuthScopeSeparator(" ");
                 });
@@ -80,7 +82,7 @@ namespace Indice.Api
             app.UseCampaignsUI(options => {
                 options.Path = "campaigns";
                 options.ClientId = "backoffice-ui";
-                options.Scope = "backoffice backoffice:campaigns";
+                options.Scope = "backoffice backoffice:messages";
                 options.DocumentTitle = "Campaigns UI";
                 options.Authority = Settings.Authority;
                 options.Host = Settings.Host;

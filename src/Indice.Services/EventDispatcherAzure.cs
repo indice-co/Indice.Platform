@@ -83,6 +83,8 @@ namespace Indice.Services
                     payloadBytes = Encoding.UTF8.GetBytes(jsonPayload);
                     break;
             }
+            var maxTimeSpan = TimeSpan.FromDays(5);
+            visibilityTimeout = visibilityTimeout.HasValue && visibilityTimeout.Value > maxTimeSpan ? maxTimeSpan : visibilityTimeout;
             if (_useCompression) {
                 await queue.SendMessageAsync(new BinaryData(await CompressionUtils.Compress(payloadBytes)), visibilityTimeout);
                 return;

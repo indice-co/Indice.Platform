@@ -3,7 +3,7 @@
 namespace Indice.Types
 {
     /// <summary>
-    /// Custom dictionary for representing querystring parameters.
+    /// Custom dictionary for representing query string parameters.
     /// </summary>
     public class QueryStringParams : Dictionary<string, object>
     {
@@ -19,7 +19,7 @@ namespace Indice.Types
         public QueryStringParams(object parameters) => this.Merge(parameters);
 
         /// <summary>
-        /// Converts to string
+        /// Converts to string.
         /// </summary>
         /// <returns></returns>
         public override string ToString() => this.ToFormUrlEncodedString();

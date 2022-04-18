@@ -105,7 +105,6 @@ namespace Indice.Types
         /// Converts the payload to the specified type.
         /// </summary>
         /// <typeparam name="T"></typeparam>
-        /// <returns></returns>
         public T ReadAs<T>() => Payload.ToObject<T>(JsonSerializerOptionDefaults.GetDefaultSettings());
 
         /// <summary>
@@ -113,7 +112,6 @@ namespace Indice.Types
         /// </summary>
         /// <typeparam name="TAnonymous"></typeparam>
         /// <param name="instanceDummy"></param>
-        /// <returns></returns>
         public TAnonymous ReadAs<TAnonymous>(TAnonymous instanceDummy) => Payload.ToObject<TAnonymous>();
 
         /// <summary>
@@ -123,8 +121,7 @@ namespace Indice.Types
         /// <param name="user"></param>
         /// <param name="payload"></param>
         /// <param name="tenantId">The tenant id if any</param>
-        /// <returns></returns>
-        public static Envelope<TInstance> Create<TInstance>(IPrincipal user, TInstance payload, Guid? tenantId = null) => new Envelope<TInstance>(user, payload, tenantId);
+        public static Envelope<TInstance> Create<TInstance>(IPrincipal user, TInstance payload, Guid? tenantId = null) => new(user, payload, tenantId);
 
         /// <summary>
         /// 
@@ -134,7 +131,6 @@ namespace Indice.Types
         /// <param name="user"></param>
         /// <param name="payload"></param>
         /// <param name="tenantId">The tenant id if any</param>
-        /// <returns></returns>
         public static TMessage Create<TMessage, TInstance>(IPrincipal user, TInstance payload, Guid? tenantId = null) where TMessage : Envelope<TInstance>, new() =>
             new TMessage().Populate(user, payload, tenantId) as TMessage;
     }

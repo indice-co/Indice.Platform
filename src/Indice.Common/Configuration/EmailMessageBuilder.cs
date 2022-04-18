@@ -4,53 +4,48 @@ using System.Linq;
 
 namespace Indice.Services
 {
-    
     /// <summary>
-    /// A convinient builder to construct an instance of <see cref="EmailMessage"/>.
+    /// A convenient builder to construct an instance of <see cref="EmailMessage"/>.
     /// </summary>
-    public class EmailMessageBuilder {
+    public class EmailMessageBuilder
+    {
         /// <summary>
         /// The email addresses of the recipients.
         /// </summary>
-        public IList<string> Recipients { get; set; } = new List<string>();
-
+        internal IList<string> Recipients { get; set; } = new List<string>();
         /// <summary>
         /// The subject of the message.
         /// </summary>
-        public string Subject { get; set; }
-
+        internal string Subject { get; set; }
         /// <summary>
         /// The body of the message.
         /// </summary>
-        public string Body { get; set; }
-
+        internal string Body { get; set; }
         /// <summary>
-        /// The template used to render the email. Defaults to 'Email'.
+        /// The template used to render the email.
         /// </summary>
-        public string Template { get; set; } = "Email";
+        internal string Template { get; set; }
         /// <summary>
         /// Data that are passed to the email template.
         /// </summary>
-        public object Data { get; set; }
-
+        internal object Data { get; set; }
         /// <summary>
         /// Optional attachments contained in the message.
         /// </summary>
-        public IList<FileAttachment> Attachments { get; set; } = new List<FileAttachment>();
+        internal IList<EmailAttachment> Attachments { get; set; } = new List<EmailAttachment>();
     }
 
     /// <summary>
-    /// <see cref="EmailMessageBuilder" /> extensions
+    /// <see cref="EmailMessageBuilder" /> extensions.
     /// </summary>
     public static class EmailMessageBuilderExtensions
     {
-
         /// <summary>
         /// Adds one or more recipients to the message.
         /// </summary>
-        /// <param name="builder">The builder</param>
+        /// <param name="builder">The builder.</param>
         /// <param name="recipients">The email addresses of the recipients.</param>
-        /// <returns></returns>
+        /// <returns>The builder.</returns>
         public static EmailMessageBuilder To(this EmailMessageBuilder builder, params string[] recipients) {
             if (recipients?.Length == 0) {
                 throw new ArgumentException("One or more recipients must be declared for the message.", nameof(recipients));
@@ -64,9 +59,9 @@ namespace Indice.Services
         /// <summary>
         /// Defines the subject of the message.
         /// </summary>
-        /// <param name="builder">The builder</param>
+        /// <param name="builder">The builder.</param>
         /// <param name="subject">The subject of the message.</param>
-        /// <returns></returns>
+        /// <returns>The builder.</returns>
         public static EmailMessageBuilder WithSubject(this EmailMessageBuilder builder, string subject) {
             if (string.IsNullOrEmpty(subject)) {
                 throw new ArgumentException("A subject for the message cannot be null or empty", nameof(subject));
@@ -78,9 +73,9 @@ namespace Indice.Services
         /// <summary>
         /// Defines the body of the message.
         /// </summary>
-        /// <param name="builder">The builder</param>
+        /// <param name="builder">The builder.</param>
         /// <param name="body">The body of the message.</param>
-        /// <returns></returns>
+        /// <returns>The builder.</returns>
         public static EmailMessageBuilder WithBody(this EmailMessageBuilder builder, string body) {
             if (string.IsNullOrEmpty(body)) {
                 throw new ArgumentException("A body for the message cannot be null or empty", nameof(body));
@@ -90,11 +85,11 @@ namespace Indice.Services
         }
 
         /// <summary>
-        /// Defines the template used to render the email. Defaults to 'Email'. It has to be a Razor view, discoverable by the Razor Engine. (ex. Located in Views -> Shared folder).
+        /// Defines the template used to render the email. If set, it takes precedence over <see cref="WithBody(EmailMessageBuilder, string)"/> method. It has to be a Razor view, discoverable by the Razor Engine. (ex. Located in Views -> Shared folder).
         /// </summary>
-        /// <param name="builder">The builder</param>
+        /// <param name="builder">The builder.</param>
         /// <param name="template">The template used to render the email. Defaults to 'Email'.</param>
-        /// <returns></returns>
+        /// <returns>The builder.</returns>
         public static EmailMessageBuilder UsingTemplate(this EmailMessageBuilder builder, string template) {
             if (string.IsNullOrEmpty(template)) {
                 throw new ArgumentException("A template name cannot be null or empty", nameof(template));
@@ -106,23 +101,25 @@ namespace Indice.Services
         /// <summary>
         /// Adds one or more attachments to the message. Attachments length cannot exceed 20 MB.
         /// </summary>
-        /// <param name="builder">The builder</param>
+        /// <param name="builder">The builder.</param>
         /// <param name="attachments">Optional attachments contained in the message.</param>
-        /// <returns></returns>
-        public static EmailMessageBuilder WithAttachments(this EmailMessageBuilder builder, params FileAttachment[] attachments) {
+        /// <returns>The builder.</returns>
+        public static EmailMessageBuilder WithAttachments(this EmailMessageBuilder builder, params EmailAttachment[] attachments) {
             if (attachments?.Length == 0) {
                 throw new ArgumentException("One or more attachments must be declared for the message.", nameof(attachments));
             }
-            builder.Attachments = attachments;
+            foreach (var attachment in attachments) {
+                builder.Attachments.Add(attachment);
+            }
             return builder;
         }
 
         /// <summary>
         /// Adds a model that is passed to the email template.
         /// </summary>
-        /// <param name="builder">The builder</param>
+        /// <param name="builder">The builder.</param>
         /// <param name="data">Data that are passed to the email template.</param>
-        /// <returns></returns>
+        /// <returns>The builder.</returns>
         public static EmailMessageBuilder WithData<TModel>(this EmailMessageBuilder builder, TModel data) where TModel : class {
             builder.Data = data;
             return builder;
@@ -131,9 +128,9 @@ namespace Indice.Services
         /// <summary>
         /// Returns the <see cref="EmailMessage"/> instance made by the builder.
         /// </summary>
-        /// <param name="builder">The builder</param>
-        /// <returns></returns>
-        public static EmailMessage Build(this EmailMessageBuilder builder) => 
-            new EmailMessage(builder.Recipients, builder.Subject, builder.Body, builder.Template, builder.Data, builder.Attachments);
+        /// <param name="builder">The builder.</param>
+        /// <returns>The configured <see cref="EmailMessage"/>.</returns>
+        public static EmailMessage Build(this EmailMessageBuilder builder) =>
+            new(builder.Recipients, builder.Subject, builder.Body, builder.Template, builder.Data, builder.Attachments);
     }
 }

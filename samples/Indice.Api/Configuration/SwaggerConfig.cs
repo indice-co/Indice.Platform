@@ -1,7 +1,7 @@
 ﻿using System.Reflection;
-using Indice.AspNetCore.Features.Campaigns;
 using Indice.AspNetCore.Swagger;
 using Indice.Configuration;
+using Indice.Features.Messages.Core;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
@@ -13,8 +13,9 @@ namespace Microsoft.Extensions.DependencyInjection
                 options.AddFluentValidationSupport();
                 options.AddOAuth2AuthorizationCodeFlow(generalSettings);
                 options.AddFormFileSupport();
-                options.IncludeXmlComments(Assembly.Load(CampaignsApi.AssemblyName));
-                options.AddDoc(CampaignsApi.Scope, "Campaigns API", "API for managing campaigns in the backoffice tool.");
+                options.IncludeXmlComments(Assembly.GetAssembly(typeof(MessageFeatureExtensions)));
+                options.IncludeXmlComments(Assembly.GetAssembly(typeof(MessageEndpointOptions)));
+                options.AddDoc(MessagesApi.Scope, "Campaigns API", "API for managing campaigns in the backoffice tool.");
                 options.AddDoc("lookups", "Lookups API", "API for various lookups.");
             });
             return services;

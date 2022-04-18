@@ -53,7 +53,7 @@ namespace Indice.Services
         /// </summary>
         public bool TestMode { get; set; }
         /// <summary>
-        /// In case of viber failure fallback to sms
+        /// In case of viber failure fall-back to sms
         /// </summary>
         public bool ViberFallbackEnabled { get; set; } = false;
         /// <summary>
@@ -68,7 +68,7 @@ namespace Indice.Services
     public interface ISmsService
     {
         /// <summary>
-        /// Checkes the implementation if supports the given <paramref name="deliveryChannel"/>.
+        /// Checks the implementation if supports the given <paramref name="deliveryChannel"/>.
         /// </summary>
         /// <param name="deliveryChannel">A string representing the delivery channel. ie 'SMS'</param>
         /// <returns></returns>
