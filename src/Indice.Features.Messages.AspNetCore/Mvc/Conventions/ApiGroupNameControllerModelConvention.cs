@@ -39,7 +39,7 @@ namespace Indice.AspNetCore.Mvc.ApplicationModels
             if (!currentGroupName.Contains(_groupNamePlaceholder)) {
                 return;
             }
-            var newGroupName = currentGroupName?.Replace(_groupNamePlaceholder, _replacementValue);
+            var newGroupName = string.IsNullOrWhiteSpace(_replacementValue) ? null : currentGroupName.Replace(_groupNamePlaceholder, _replacementValue);
             if (controller.ApiExplorer is not null) {
                 controller.ApiExplorer.GroupName = newGroupName;
             }
