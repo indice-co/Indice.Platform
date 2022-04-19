@@ -67,7 +67,7 @@ namespace Indice.Features.Messages.Core
     /// <summary>
     /// Placeholder for prefixing Messages API endpoints.
     /// </summary>
-    public class ApiPrefixes
+    internal class ApiPrefixes
     {
         /// <summary>
         /// Management API prefix placeholder.
@@ -76,11 +76,17 @@ namespace Indice.Features.Messages.Core
         /// <summary>
         /// Inbox API prefix placeholder.
         /// </summary>
-        public const string CampaignInboxEndpoints = "[campaignInboxEndpointsPrefix]";
+        public const string MessageInboxEndpoints = "[messageInboxEndpointsPrefix]";
+    }
+
+    internal class ApiGroups
+    {
+        public const string CampaignManagementEndpoints = "[campaignManagementEndpointsGroupName]";
+        public const string MessageInboxEndpoints = "[messageInboxEndpointsGroupName]";
     }
 
     /// <summary>
-    /// Service keys for Messages.
+    /// Service keys for Messages API.
     /// </summary>
     public class KeyedServiceNames
     {

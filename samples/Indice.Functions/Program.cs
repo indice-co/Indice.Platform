@@ -25,7 +25,7 @@ namespace Indice.Functions
                 options.UseEventDispatcherAzure()
                        .UsePushNotificationServiceAzure()
                        .UseEmailServiceSparkpost(configuration)
-                       .UseSmsServiceYuboto(configuration)
+                       .UseViberServiceYubotoOmni(configuration)
                        .UseIdentityContactResolver(resolverOptions => {
                            resolverOptions.BaseAddress = new Uri(configuration["IdentityServer:BaseAddress"]);
                            resolverOptions.ClientId = configuration["IdentityServer:ClientId"];

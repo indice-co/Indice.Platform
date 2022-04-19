@@ -193,8 +193,9 @@ namespace Indice.Features.Messages.Core.Manager
         public Task<CampaignDetails> GetCampaignById(Guid campaignId) => CampaignService.GetById(campaignId);
 
         /// <summary>Creates a new campaign type.</summary>
-        /// <param name="campaignType">The request model used to create a new campaign type.</param>
-        public async Task<CreateMessageTypeResult> CreateMessageType(UpsertMessageTypeRequest campaignType) {
+        /// <param name="name">The name used to create a new campaign type.</param>
+        public async Task<CreateMessageTypeResult> CreateMessageType(string name) {
+            var campaignType = new UpsertMessageTypeRequest { Name = name };
             var validationResult = MessageTypeValidator.Validate(campaignType);
             if (!validationResult.IsValid) {
                 var errorMessages = validationResult.Errors.Select(x => x.ErrorMessage).ToArray();

@@ -1,17 +1,10 @@
-﻿using System.Text.Json.Serialization;
-
-namespace Indice.Features.Messages.Core.Models.Requests
+﻿namespace Indice.Features.Messages.Core.Models.Requests
 {
     /// <summary>
     /// The request model used to create a new campaign type.
     /// </summary>
     public class UpsertMessageTypeRequest
     {
-        /// <summary>
-        /// The id of the campaign type.
-        /// </summary>
-        [JsonIgnore]
-        public Guid Id { get; set; }
         /// <summary>
         /// The name of a campaign type.
         /// </summary>

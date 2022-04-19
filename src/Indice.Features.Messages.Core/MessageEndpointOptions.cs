@@ -19,6 +19,19 @@ namespace Indice.Features.Messages.Core
         /// Creates a new instance of <see cref="MessageEndpointOptions"/>.
         /// </summary>
         public MessageEndpointOptions() : base() { }
+
+        /// <summary>
+        /// The default scope name to be used for Campaigns API. Defaults to <see cref="MessagesApi.Scope"/>.
+        /// </summary>
+        public string RequiredScope { get; set; } = MessagesApi.Scope;
+        /// <summary>
+        /// Group name for inbox controllers, used in API explorer. If not set, no group is used.
+        /// </summary>
+        public string InboxGroupName { get; set; }
+        /// <summary>
+        /// Group name for management controllers, used in API explorer. Default is 'messages';
+        /// </summary>
+        public string ManagementGroupName { get; set; } = "messages";
     }
 
     /// <summary>
@@ -36,6 +49,15 @@ namespace Indice.Features.Messages.Core
         /// Creates a new instance of <see cref="MessageManagementOptions"/>.
         /// </summary>
         public MessageManagementOptions() : base() { }
+
+        /// <summary>
+        /// The default scope name to be used for Campaigns API. Defaults to <see cref="MessagesApi.Scope"/>.
+        /// </summary>
+        public string RequiredScope { get; set; } = MessagesApi.Scope;
+        /// <summary>
+        /// Group name for management controllers, used in API explorer. Default is 'messages';
+        /// </summary>
+        public string GroupName { get; set; } = "messages";
     }
 
     /// <summary>
@@ -53,6 +75,11 @@ namespace Indice.Features.Messages.Core
         /// Creates a new instance of <see cref="MessageInboxOptions"/>.
         /// </summary>
         public MessageInboxOptions() : base() { }
+
+        /// <summary>
+        /// Group name for inbox controllers, used in API explorer. If not set, no group is used.
+        /// </summary>
+        public string GroupName { get; set; }
     }
 
     /// <summary>
@@ -100,9 +127,5 @@ namespace Indice.Features.Messages.Core
             get => _apiPrefix;
             set { _apiPrefix = string.IsNullOrWhiteSpace(value) ? "/" : value; }
         }
-        /// <summary>
-        /// The default scope name to be used for Campaigns API. Defaults to <see cref="MessagesApi.Scope"/>.
-        /// </summary>
-        public string RequiredScope { get; set; } = MessagesApi.Scope;
     }
 }
