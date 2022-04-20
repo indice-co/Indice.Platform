@@ -52,6 +52,8 @@ namespace Indice.AspNetCore.Identity
                                               configuration.GetSection(nameof(SignInOptions)).GetValue<bool?>(nameof(RequirePostSignInConfirmedEmail)) == true;
             RequirePostSignInConfirmedPhoneNumber = configuration.GetSection($"{nameof(IdentityOptions)}:{nameof(IdentityOptions.SignIn)}").GetValue<bool?>(nameof(RequirePostSignInConfirmedPhoneNumber)) == true ||
                                                     configuration.GetSection(nameof(SignInOptions)).GetValue<bool?>(nameof(RequirePostSignInConfirmedPhoneNumber)) == true;
+            ExpireBlacklistedPasswordsOnSignIn = configuration.GetSection($"{nameof(IdentityOptions)}:{nameof(IdentityOptions.SignIn)}").GetValue<bool?>(nameof(ExpireBlacklistedPasswordsOnSignIn)) == true ||
+                                                    configuration.GetSection(nameof(SignInOptions)).GetValue<bool?>(nameof(ExpireBlacklistedPasswordsOnSignIn)) == true;
             ExternalScheme = configuration.GetSection($"{nameof(IdentityOptions)}:{nameof(IdentityOptions.SignIn)}").GetValue<string>(nameof(ExternalScheme)) ?? IdentityConstants.ExternalScheme;
             _authenticationSchemeProvider = authenticationSchemeProvider ?? throw new ArgumentNullException(nameof(authenticationSchemeProvider));
         }
@@ -65,9 +67,19 @@ namespace Indice.AspNetCore.Identity
         /// </summary>
         public bool RequirePostSignInConfirmedPhoneNumber { get; }
         /// <summary>
+        /// If enabled then users with blacklisted passwords will be forced to change their password upon signin 
+        /// instead of waiting for the next time they need to change it.
+        /// </summary>
+        public bool ExpireBlacklistedPasswordsOnSignIn { get; }
+        /// <summary>
         /// The scheme used to identify external authentication cookies.
         /// </summary>
         public string ExternalScheme { get; }
+
+        /// <summary>
+        /// The <see cref="ExtendedUserManager{TUser}"/> used.
+        /// </summary>
+        public ExtendedUserManager<TUser> ExtendedUserManager => (ExtendedUserManager<TUser>)UserManager;
 
         /// <summary>
         /// Gets the external login information for the current login, as an asynchronous operation.
@@ -220,6 +232,22 @@ namespace Indice.AspNetCore.Identity
                 identity.AddClaim(new Claim(JwtClaimTypes.FamilyName, lastName));
             }
             return new ClaimsPrincipal(identity);
+        }
+        
+        /// <inheritdoc/>
+        public override async Task<SignInResult> CheckPasswordSignInAsync(TUser user, string password, bool lockoutOnFailure) {
+            var attempt = await base.CheckPasswordSignInAsync(user, password, lockoutOnFailure);
+
+            if (attempt.Succeeded && ExpireBlacklistedPasswordsOnSignIn) {
+                // not sure the following is correct.
+                var blacklistPasswordValidator = UserManager.PasswordValidators.OfType<NonCommonPasswordValidator<TUser>>().FirstOrDefault();
+                if (blacklistPasswordValidator is not null && await blacklistPasswordValidator.IsBlacklistedAsync(password)) {
+                    // if black
+                    // then expire users pass before proceding.
+                    await ExtendedUserManager.SetPasswordExpiredAsync(user, true);
+                }
+            }
+            return attempt;
         }
     }
 
