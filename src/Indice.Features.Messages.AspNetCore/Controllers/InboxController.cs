@@ -18,10 +18,11 @@ namespace Indice.Features.Messages.AspNetCore.Controllers
     /// <response code="401">Unauthorized</response>
     /// <response code="403">Forbidden</response>
     [ApiController]
+    [ApiExplorerSettings(GroupName = ApiGroups.MessageInboxEndpoints)]
     [Authorize(AuthenticationSchemes = MessagesApi.AuthenticationScheme)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized, Type = typeof(ProblemDetails))]
     [ProducesResponseType(StatusCodes.Status403Forbidden, Type = typeof(ProblemDetails))]
-    [Route(ApiPrefixes.CampaignInboxEndpoints)]
+    [Route(ApiPrefixes.MessageInboxEndpoints)]
     internal class InboxController : CampaignsControllerBase
     {
         public InboxController(

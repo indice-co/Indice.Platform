@@ -7,7 +7,7 @@
     <LangVersion>Latest</LangVersion>
     <TargetFrameworks>netcoreapp3.1;net5.0;net6.0</TargetFrameworks>
     <VersionPrefix>6.1.2</VersionPrefix>
-    <VersionSuffix>beta-02</VersionSuffix>
+    <VersionSuffix>beta-03</VersionSuffix>
   </PropertyGroup>
   <PropertyGroup Label="Package">
     <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
@@ -19,7 +19,7 @@
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/indice-co/Indice.AspNet</PackageProjectUrl>
     <PackageReleaseNotes>Update Indice.Features.Messages.Core.</PackageReleaseNotes>
-    <PackageTags>AspNetCore;Campaign-Management;</PackageTags>
+    <PackageTags>AspNetCore;CampaignManagement;</PackageTags>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>https://github.com/indice-co/Indice.AspNet</RepositoryUrl>
@@ -27,7 +27,7 @@
   <ItemGroup>
     <PackageReference Include="EPPlus" Version="4.5.3.3" />
     <PackageReference Include="Indice.AspNetCore" Version="6.1.0" />
-    <PackageReference Include="Indice.Features.Messages.Core" Version="6.1.0-beta-02" />
+    <PackageReference Include="Indice.Features.Messages.Core" Version="6.1.0-beta-03" />
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'net6.0'">

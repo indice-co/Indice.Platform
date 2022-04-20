@@ -44,13 +44,14 @@ namespace Microsoft.Extensions.DependencyInjection
                 options.DatabaseSchema = apiOptions.DatabaseSchema;
                 options.RequiredScope = apiOptions.RequiredScope;
                 options.UserClaimType = apiOptions.UserClaimType;
+                options.GroupName = apiOptions.ManagementGroupName;
             })
             .AddMessageInboxEndpoints(options => {
                 options.ApiPrefix = apiOptions.ApiPrefix;
                 options.ConfigureDbContext = apiOptions.ConfigureDbContext;
                 options.DatabaseSchema = apiOptions.DatabaseSchema;
-                options.RequiredScope = apiOptions.RequiredScope;
                 options.UserClaimType = apiOptions.UserClaimType;
+                options.GroupName = apiOptions.InboxGroupName;
             });
         }
 
@@ -74,11 +75,13 @@ namespace Microsoft.Extensions.DependencyInjection
                 options.RequiredScope = apiOptions.RequiredScope;
                 options.UserClaimType = apiOptions.UserClaimType;
                 options.RequiredScope = apiOptions.RequiredScope;
+                options.GroupName = apiOptions.GroupName;
             });
             services.AddSingleton(new DatabaseSchemaNameResolver(apiOptions.DatabaseSchema));
             // Post configure MVC options.
             services.PostConfigure<MvcOptions>(options => {
                 options.Conventions.Add(new ApiPrefixControllerModelConvention(ApiPrefixes.CampaignManagementEndpoints, apiOptions.ApiPrefix));
+                options.Conventions.Add(new ApiGroupNameControllerModelConvention(ApiGroups.CampaignManagementEndpoints, apiOptions.GroupName));
                 options.FormatterMappings.SetMediaTypeMappingForFormat("xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
                 options.OutputFormatters.Add(new XlsxCampaignStatisticsOutputFormatter());
             });
@@ -89,6 +92,13 @@ namespace Microsoft.Extensions.DependencyInjection
             services.TryAddTransient<IContactService, ContactService>();
             services.TryAddTransient<ITemplateService, TemplateService>();
             services.TryAddTransient<ICampaignAttachmentService, CampaignAttachmentService>();
+            services.TryAddTransient<NotificationsManager>();
+            services.TryAddTransient<IDistributionListService, DistributionListService>();
+            services.TryAddTransient<IMessageService, MessageService>();
+            services.TryAddTransient<ICampaignService, CampaignService>();
+            services.TryAddTransient<IMessageTypeService, MessageTypeService>();
+            services.TryAddTransient<CreateCampaignRequestValidator>();
+            services.TryAddTransient<UpsertMessageTypeRequestValidator>();
             // Configure authorization.
             services.AddAuthorizationCore(authOptions => {
                 authOptions.AddPolicy(MessagesApi.Policies.BeCampaignManager, policy => {
@@ -116,25 +126,17 @@ namespace Microsoft.Extensions.DependencyInjection
                 options.ApiPrefix = apiOptions.ApiPrefix;
                 options.ConfigureDbContext = apiOptions.ConfigureDbContext;
                 options.DatabaseSchema = apiOptions.DatabaseSchema;
-                options.RequiredScope = apiOptions.RequiredScope;
                 options.UserClaimType = apiOptions.UserClaimType;
-                options.RequiredScope = apiOptions.RequiredScope;
+                options.GroupName = apiOptions.GroupName;
             });
             services.AddSingleton(new DatabaseSchemaNameResolver(apiOptions.DatabaseSchema));
             // Post configure MVC options.
             services.PostConfigure<MvcOptions>(options => {
-                options.Conventions.Add(new ApiPrefixControllerModelConvention(ApiPrefixes.CampaignInboxEndpoints, apiOptions.ApiPrefix));
+                options.Conventions.Add(new ApiPrefixControllerModelConvention(ApiPrefixes.MessageInboxEndpoints, apiOptions.ApiPrefix));
+                options.Conventions.Add(new ApiGroupNameControllerModelConvention(ApiGroups.MessageInboxEndpoints, apiOptions.GroupName));
             });
             // Register custom services.
             services.AddTransient<IInboxService, InboxService>();
-            // Configure authorization.
-            services.AddAuthorizationCore(authOptions => {
-                authOptions.AddPolicy(MessagesApi.Policies.HaveMessagesScope, policy => {
-                    policy.AddAuthenticationSchemes(MessagesApi.AuthenticationScheme)
-                          .RequireAuthenticatedUser()
-                          .RequireAssertion(x => x.User.HasScopeClaim(apiOptions.RequiredScope ?? MessagesApi.Scope));
-                });
-            });
             return mvcBuilder;
         }
 
@@ -172,7 +174,6 @@ namespace Microsoft.Extensions.DependencyInjection
             services.TryAddTransient<ICampaignService, CampaignService>();
             services.TryAddTransient<IMessageTypeService, MessageTypeService>();
             services.TryAddTransient<IDistributionListService, DistributionListService>();
-            services.TryAddTransient<NotificationsManager>();
             // Register application DbContext.
             Action<DbContextOptionsBuilder> sqlServerConfiguration = (builder) => builder.UseSqlServer(configuration.GetConnectionString("MessagesDbConnection"));
             services.AddDbContext<CampaignsDbContext>(baseOptions.ConfigureDbContext ?? sqlServerConfiguration);
