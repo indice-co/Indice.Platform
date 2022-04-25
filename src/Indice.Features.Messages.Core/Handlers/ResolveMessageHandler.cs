@@ -88,17 +88,14 @@ namespace Indice.Features.Messages.Core.Handlers
             if (campaign.MessageChannelKind.HasFlag(MessageChannelKind.PushNotification)) {
                 await eventDispatcher.RaiseEventAsync(SendPushNotificationEvent.FromContactResolutionEvent(@event, broadcast: false),
                     options => options.WrapInEnvelope(false).At(campaign.ActivePeriod?.From?.DateTime ?? DateTime.UtcNow).WithQueueName(EventNames.SendPushNotification));
-                return;
             }
             if (campaign.MessageChannelKind.HasFlag(MessageChannelKind.Email)) {
                 await eventDispatcher.RaiseEventAsync(SendEmailEvent.FromContactResolutionEvent(@event, broadcast: false),
                     options => options.WrapInEnvelope(false).At(campaign.ActivePeriod?.From?.DateTime ?? DateTime.UtcNow).WithQueueName(EventNames.SendEmail));
-                return;
             }
             if (campaign.MessageChannelKind.HasFlag(MessageChannelKind.SMS)) {
                 await eventDispatcher.RaiseEventAsync(SendSmsEvent.FromContactResolutionEvent(@event, broadcast: false),
                     options => options.WrapInEnvelope(false).At(campaign.ActivePeriod?.From?.DateTime ?? DateTime.UtcNow).WithQueueName(EventNames.SendSms));
-                return;
             }
         }
     }

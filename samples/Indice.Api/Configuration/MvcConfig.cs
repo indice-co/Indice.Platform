@@ -20,7 +20,8 @@ namespace Microsoft.Extensions.DependencyInjection
                     options.DatabaseSchema = "cmp";
                     options.RequiredScope = $"backoffice:{MessagesApi.Scope}";
                     options.UserClaimType = JwtClaimTypes.Subject;
-                    options.UseFilesLocal(fileOptions => fileOptions.Path = "uploads");
+                    options.UseFilesAzure();
+                    //options.UseFilesLocal(fileOptions => fileOptions.Path = "uploads");
                     //options.UseEventDispatcherHosting();
                     options.UseEventDispatcherAzure();
                 })

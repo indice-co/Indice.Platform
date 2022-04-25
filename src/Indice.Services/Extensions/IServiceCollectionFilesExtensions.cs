@@ -7,7 +7,7 @@ using Microsoft.Extensions.Hosting;
 namespace Microsoft.Extensions.DependencyInjection
 {
     /// <summary>
-    /// Extensions on the <see cref="ServiceCollection"/> arround <see cref="IFileService"/>.
+    /// Extensions on the <see cref="ServiceCollection"/> around <see cref="IFileService"/>.
     /// </summary>
     public static class IServiceCollectionFilesExtensions
     {
@@ -17,25 +17,25 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
         /// <param name="configure">Configure the available options. Null to use defaults.</param>
         public static IServiceCollection AddFilesAzure(this IServiceCollection services, Action<FileServiceAzureOptions> configure = null) {
-            services.AddTransient<IFileService, FileServiceAzureStorage>(serviceProvider => {
-                var options = new FileServiceAzureOptions {
-                    ConnectionStringName = FileServiceAzureStorage.CONNECTION_STRING_NAME,
-                    ContainerName = serviceProvider.GetRequiredService<IHostEnvironment>().EnvironmentName
-                };
-                configure?.Invoke(options);
-                var connectionString = serviceProvider.GetRequiredService<IConfiguration>().GetConnectionString(options.ConnectionStringName);
-                return new FileServiceAzureStorage(connectionString, options.ContainerName);
-            });
+            services.AddTransient<IFileService, FileServiceAzureStorage>(serviceProvider => GetFileServiceAzureStorage(serviceProvider, configure));
             return services;
         }
+
+        private static readonly Func<IServiceProvider, Action<FileServiceAzureOptions>, FileServiceAzureStorage> GetFileServiceAzureStorage = (serviceProvider, configure) => {
+            var options = new FileServiceAzureOptions {
+                ConnectionStringName = FileServiceAzureStorage.CONNECTION_STRING_NAME,
+                ContainerName = serviceProvider.GetRequiredService<IHostEnvironment>().EnvironmentName
+            };
+            configure?.Invoke(options);
+            var connectionString = serviceProvider.GetRequiredService<IConfiguration>().GetConnectionString(options.ConnectionStringName);
+            return new FileServiceAzureStorage(connectionString, options.ContainerName);
+        };
 
         /// <summary>
         /// The factory that creates the default instance and configuration for <see cref="FileServiceLocal"/>.
         /// </summary>
-        public static readonly Func<IServiceProvider, Action<FileServiceLocalOptions>, FileServiceLocal> GetFileServiceLocal = (serviceProvider, configure) => {
-            var options = new FileServiceLocalOptions {
-                Path = "App_Data"
-            };
+        private static readonly Func<IServiceProvider, Action<FileServiceLocalOptions>, FileServiceLocal> GetFileServiceLocal = (serviceProvider, configure) => {
+            var options = new FileServiceLocalOptions();
             configure?.Invoke(options);
             var hostingEnvironment = serviceProvider.GetRequiredService<IHostEnvironment>();
             options.Path = Path.Combine(hostingEnvironment.ContentRootPath, options.Path);
@@ -126,15 +126,7 @@ namespace Microsoft.Extensions.DependencyInjection
         public static FileServiceConfigurationBuilder AddAzureStorage(this FileServiceConfigurationBuilder builder, string name, Action<FileServiceAzureOptions> configure = null) {
             builder.Services.AddKeyedService<IFileService, FileServiceAzureStorage, string>(
                 key: name,
-                serviceProvider => {
-                    var options = new FileServiceAzureOptions {
-                        ConnectionStringName = FileServiceAzureStorage.CONNECTION_STRING_NAME,
-                        ContainerName = serviceProvider.GetRequiredService<IHostEnvironment>().EnvironmentName
-                    };
-                    configure?.Invoke(options);
-                    var connectionString = serviceProvider.GetRequiredService<IConfiguration>().GetConnectionString(options.ConnectionStringName);
-                    return new FileServiceAzureStorage(connectionString, options.ContainerName);
-                },
+                serviceProvider => GetFileServiceAzureStorage(serviceProvider, configure),
                 serviceLifetime: ServiceLifetime.Transient
             );
             return builder;

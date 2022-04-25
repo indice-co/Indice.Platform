@@ -139,6 +139,6 @@ namespace Indice.Services
         /// <summary>
         /// The path to use for storing the images. Can be a relative path or absolute. 
         /// </summary>
-        public string Path { get; set; }
+        public string Path { get; set; } = "App_Data";
     }
 }

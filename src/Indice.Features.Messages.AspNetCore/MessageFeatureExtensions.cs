@@ -142,7 +142,6 @@ namespace Microsoft.Extensions.DependencyInjection
 
         private static IMvcBuilder AddCampaignCore(this IMvcBuilder mvcBuilder, CampaignOptionsBase baseOptions) {
             var services = mvcBuilder.Services;
-            baseOptions.UseFilesLocal();
             // Build service provider and get IConfiguration instance.
             var serviceProvider = services.BuildServiceProvider();
             var configuration = serviceProvider.GetRequiredService<IConfiguration>();
@@ -185,7 +184,7 @@ namespace Microsoft.Extensions.DependencyInjection
         /// </summary>
         /// <param name="options">Options used to configure the Campaigns API feature.</param>
         /// <param name="configure">Configure the available options. Null to use defaults.</param>
-        public static void UseFilesLocal(this CampaignOptionsBase options, Action<FileServiceLocalOptions> configure = null) =>
+        public static void UseFilesLocal(this CampaignOptionsBase options, Action<FileServiceLocalOptions> configure = null) => 
             options.Services.AddFiles(options => options.AddFileSystem(KeyedServiceNames.FileServiceKey, configure));
 
         /// <summary>

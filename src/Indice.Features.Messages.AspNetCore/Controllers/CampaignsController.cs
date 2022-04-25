@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net.Mime;
 using System.Threading.Tasks;
 using Indice.AspNetCore.Filters;
@@ -179,11 +177,6 @@ namespace Indice.Features.Messages.AspNetCore.Controllers
         [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> CreateCampaign([FromBody] CreateCampaignRequest request) {
             var result = await NotificationsManager.CreateCampaignInternal(request, validateRules: false);
-            if (request.Published) {
-                // Dispatch event that the campaign was created.
-                await EventDispatcher.RaiseEventAsync(CampaignPublishedEvent.FromCampaign(result.Campaign, request.RecipientIds),
-                    options => options.WrapInEnvelope(false).At(request.ActivePeriod?.From?.DateTime ?? DateTime.UtcNow).WithQueueName(EventNames.CampaignPublished));
-            }
             return CreatedAtAction(nameof(GetCampaignById), new { campaignId = result.CampaignId }, result.Campaign);
         }
 

@@ -1,8 +1,6 @@
 using System;
 using System.Collections.Generic;
-using System.Dynamic;
 using System.IO;
-using System.Text.Json;
 using System.Threading.Tasks;
 using Indice.Features.Messages.Core;
 using Indice.Features.Messages.Core.Data;
@@ -12,7 +10,7 @@ using Indice.Features.Messages.Core.Models;
 using Indice.Features.Messages.Core.Services;
 using Indice.Features.Messages.Core.Services.Abstractions;
 using Indice.Features.Messages.Core.Services.Validators;
-using Indice.Serialization;
+using Indice.Services;
 using Indice.Types;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -51,6 +49,7 @@ namespace Indice.Features.Messages.Tests
                 .AddTransient<ITemplateService, TemplateService>()
                 .AddTransient<CreateCampaignRequestValidator>()
                 .AddTransient<UpsertMessageTypeRequestValidator>()
+                .AddTransient<Func<string, IEventDispatcher>>(serviceProvider => key => new EventDispatcherNoop())
                 .AddTransient(serviceProvider => new DatabaseSchemaNameResolver("cmp"))
                 //.AddKeyedService<IFileService, FileServiceInMemory, string>(KeyedServiceNames.FileServiceKey, ServiceLifetime.Singleton)
                 //.AddFiles(x => x.AddFilesInMemory())
@@ -108,7 +107,7 @@ namespace Indice.Features.Messages.Tests
         }
 
         [Fact]
-        public async Task CanCreateCampaignUsingHelperMethods() {
+        public async Task CanCreateCampaignUsingDifferentContent() {
             var manager = ServiceProvider.GetRequiredService<NotificationsManager>();
             var result = await manager.SendMessageToRecipient(
                 recipientId: Guid.NewGuid().ToString(),
@@ -118,6 +117,19 @@ namespace Indice.Features.Messages.Tests
                     [MessageChannelKind.Inbox] = new MessageContent("Welcome", "Hello {{contact.Salutation}} {{contact.FullName}} and welcome to our company."),
                     [MessageChannelKind.PushNotification] = new MessageContent("Welcome", "Hello {{contact.Salutation}} {{contact.FullName}} and welcome to our company.")
                 }
+            );
+            Assert.True(result.Succeeded);
+            Assert.NotEqual(default, result.CampaignId);
+        }
+
+        [Fact]
+        public async Task CanCreateCampaignUsingSameContent() {
+            var manager = ServiceProvider.GetRequiredService<NotificationsManager>();
+            var result = await manager.SendMessageToRecipient(
+                recipientId: Guid.NewGuid().ToString(),
+                title: "Welcome",
+                channels: MessageChannelKind.Inbox | MessageChannelKind.PushNotification,
+                template: new MessageContent("Welcome", "Hello {{contact.Salutation}} {{contact.FullName}} and welcome to our company.")
             );
             Assert.True(result.Succeeded);
             Assert.NotEqual(default, result.CampaignId);

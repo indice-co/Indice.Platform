@@ -47,14 +47,14 @@ namespace Indice.Features.Messages.Core.Events
         /// <param name="contact">The event model used when a contact is resolved from an external system.</param>
         /// <param name="broadcast">Defines if push notification is sent to all registered user devices.</param>
         public static SendSmsEvent FromContactResolutionEvent(ResolveMessageEvent contact, bool broadcast) => new() {
-            Body = contact.Campaign.Content["sms"].Body,
+            Body = contact.Campaign.Content[nameof(MessageChannelKind.SMS)].Body,
             Broadcast = broadcast,
             CampaignId = contact.Campaign.Id,
             Data = contact.Campaign.Data,
             MessageType = contact.Campaign.Type,
             RecipientId = contact.Contact.RecipientId,
             RecipientPhoneNumber = contact.Contact.PhoneNumber,
-            Title = contact.Campaign.Content["sms"].Title
+            Title = contact.Campaign.Content[nameof(MessageChannelKind.SMS)].Title
         };
     }
 }

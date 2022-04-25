@@ -8,6 +8,8 @@ namespace Indice.Features.Messages.Core.Models.Requests
     /// </summary>
     public class CreateCampaignRequest
     {
+        private Dictionary<string, MessageContent> _content = new(StringComparer.OrdinalIgnoreCase);
+
         /// <summary>
         /// Determines if campaign targets all user base. Defaults to true.
         /// </summary>
@@ -27,7 +29,10 @@ namespace Indice.Features.Messages.Core.Models.Requests
         /// <summary>
         /// The contents of the campaign.
         /// </summary>
-        public Dictionary<string, MessageContent> Content { get; set; } = new Dictionary<string, MessageContent>();
+        public Dictionary<string, MessageContent> Content {
+            get { return _content; }
+            set { _content = new Dictionary<string, MessageContent>(value, StringComparer.OrdinalIgnoreCase); }
+        }
         /// <summary>
         /// Defines a (call-to-action) link.
         /// </summary>

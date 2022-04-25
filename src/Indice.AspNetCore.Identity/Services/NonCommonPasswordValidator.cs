@@ -16,22 +16,16 @@ namespace Indice.AspNetCore.Identity
         public NonCommonPasswordValidator(IEnumerable<IPasswordBlacklistProvider> providers, IdentityMessageDescriber messageDescriber) : base(providers, messageDescriber) { }
     }
 
-    /// <summary>
-    /// A validator that checks if the user's password is a very common one and as a result easy to guess.
-    /// </summary>
+    /// <summary>A validator that checks if the user's password is a very common one and as a result easy to guess.</summary>
     /// <typeparam name="TUser">The type of user instance.</typeparam>
     public class NonCommonPasswordValidator<TUser> : IPasswordValidator<TUser> where TUser : User
     {
         private readonly IEnumerable<IPasswordBlacklistProvider> _providers;
         private readonly IdentityMessageDescriber _messageDescriber;
-        /// <summary>
-        /// The code used when describing the <see cref="IdentityError"/>.
-        /// </summary>
+        /// <summary>The code used when describing the <see cref="IdentityError"/>.</summary>
         public static string ErrorDescriber = "PasswordIsBlacklisted";
 
-        /// <summary>
-        /// Creates a new instance of <see cref="NonCommonPasswordValidator"/>.
-        /// </summary>
+        /// <summary>Creates a new instance of <see cref="NonCommonPasswordValidator"/>.</summary>
         /// <param name="providers">The list of <see cref="IPasswordBlacklistProvider"/> providers to use.</param>
         /// <param name="messageDescriber">Provides the various messages used throughout Indice packages.</param>
         public NonCommonPasswordValidator(IEnumerable<IPasswordBlacklistProvider> providers, IdentityMessageDescriber messageDescriber) {
@@ -42,7 +36,6 @@ namespace Indice.AspNetCore.Identity
         /// <inheritdoc/>
         public async Task<IdentityResult> ValidateAsync(UserManager<TUser> manager, TUser user, string password) {
             var result = IdentityResult.Success;
-            
             if (string.IsNullOrWhiteSpace(password) || await IsBlacklistedAsync(password)) {
                 result = IdentityResult.Failed(new IdentityError {
                     Code = ErrorDescriber,
@@ -52,16 +45,14 @@ namespace Indice.AspNetCore.Identity
             return result;
         }
 
-        /// <summary>
-        /// Check all available providers for blacklisted passwords
-        /// </summary>
+        /// <summary>Check all available providers for blacklisted passwords.</summary>
         /// <param name="password">The given password to check</param>
         /// <param name="cancellationToken">Indicates that the search process should no longer be continued.</param>
         /// <returns>True if blacklisted otherwise false if all is stellar.</returns>
         /// <remarks>https://docs.microsoft.com/en-us/dotnet/csharp/programming-guide/concepts/async/#await-tasks-efficiently</remarks>
         public async Task<bool> IsBlacklistedAsync(string password, CancellationToken cancellationToken = default) {
             var linkedTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
-            var tasks = _providers.Select(p => p.ContainsAsync(password, linkedTokenSource.Token)).ToList();
+            var tasks = _providers.Select(x => x.ContainsAsync(password, linkedTokenSource.Token)).ToList();
             while (tasks.Count > 0 && !linkedTokenSource.IsCancellationRequested) {
                 var finishedTask = await Task.WhenAny(tasks);
                 if (finishedTask.Result) {
@@ -74,17 +65,10 @@ namespace Indice.AspNetCore.Identity
         }
     }
 
-    /// <summary>
-    /// Must implement one or more of these in order to enrich the list of available blacklisted passwords.
-    /// </summary>
+    /// <summary>Must implement one or more of these in order to enrich the list of available blacklisted passwords.</summary>
     public interface IPasswordBlacklistProvider
     {
-
-        //HashSet<string> Blacklist { get; }
-
-        /// <summary>
-        /// Checks to see if password is blacklisted.
-        /// </summary>
+        /// <summary>Checks to see if password is blacklisted.</summary>
         /// <param name="password">The given password to check</param>
         /// <param name="cancellationToken">Indicates that the search process should no longer be continued.</param>
         /// <returns>True if blacklisted otherwise false if all is stellar.</returns>
@@ -92,13 +76,11 @@ namespace Indice.AspNetCore.Identity
     }
 
     /// <summary>
-    /// A provider for <see cref="NonCommonPasswordValidator"/> that contains a hardcoded list of blacklisted passwords that the user cannot use.
+    /// A provider for <see cref="NonCommonPasswordValidator"/> that contains a hard-coded list of blacklisted passwords that the user cannot use.
     /// </summary>
     public class DefaultPasswordBlacklistProvider : IPasswordBlacklistProvider
     {
-        /// <summary>
-        /// Gets a list containing passwords to blacklist.
-        /// </summary>
+        /// <summary>Gets a list containing passwords to blacklist.</summary>
         protected HashSet<string> Blacklist { get; } = new HashSet<string> {
             "12345", "123456", "123456789", "test1", "password", "12345678", "zinch", "g_czechout", "asdf", "qwerty", "1234567890", "1234567", "Aa123456.", "iloveyou", "1234", "abc123", "111111",
             "123123", "dubsmash", "test", "princess", "qwertyuiop", "sunshine", "BvtTest123", "11111", "letmein", "football", "admin", "welcome", "monkey", "login", "starwars", "dragon", "passw0rd",
@@ -115,9 +97,7 @@ namespace Indice.AspNetCore.Identity
     public class ConfigPasswordBlacklistProvider : IPasswordBlacklistProvider
     {
 
-        /// <summary>
-        /// Gets a list containing passwords to blacklist.
-        /// </summary>
+        /// <summary>Gets a list containing passwords to blacklist.</summary>
         protected HashSet<string> Blacklist { get; }
 
         /// <inheritdoc/>

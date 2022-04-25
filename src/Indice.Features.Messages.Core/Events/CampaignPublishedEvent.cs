@@ -9,6 +9,8 @@ namespace Indice.Features.Messages.Core.Events
     /// </summary>
     public class CampaignPublishedEvent
     {
+        private Dictionary<string, MessageContent> _content = new(StringComparer.OrdinalIgnoreCase);
+
         /// <summary>
         /// The unique identifier of the campaign.
         /// </summary>
@@ -16,7 +18,10 @@ namespace Indice.Features.Messages.Core.Events
         /// <summary>
         /// The content of the campaign.
         /// </summary>
-        public Dictionary<string, MessageContent> Content { get; set; } = new Dictionary<string, MessageContent>(StringComparer.OrdinalIgnoreCase);
+        public Dictionary<string, MessageContent> Content {
+            get { return _content; }
+            set { _content = new Dictionary<string, MessageContent>(value, StringComparer.OrdinalIgnoreCase); }
+        }
         /// <summary>
         /// Determines if a campaign is published.
         /// </summary>

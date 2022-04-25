@@ -72,7 +72,7 @@ namespace Indice.Identity.Controllers
         public string UserName => User.FindFirstValue(JwtClaimTypes.Name);
 
         /// <summary>
-        /// Displayes the login page.
+        /// Displays the login page.
         /// </summary>
         /// <param name="returnUrl">The URL to navigate after a successful login.</param>
         [HttpGet("login")]

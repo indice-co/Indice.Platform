@@ -91,7 +91,7 @@ namespace Indice.Features.Messages.Core.Services.Validators
         private ITemplateService TemplateService { get; }
 
         private bool HaveContentAccordingToChannelKind(CreateCampaignRequest campaign, Dictionary<string, MessageContent> content) {
-            var channels = campaign.MessageChannelKind.GetValues().ToList();
+            var channels = campaign.MessageChannelKind.GetFlagValues().ToList();
             channels.Remove(MessageChannelKind.None);
             foreach (var channel in channels) {
                 var pair = content.Where(x => x.Key.ToLower() == channel.ToString().ToLower()).FirstOrDefault();

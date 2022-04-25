@@ -9,7 +9,7 @@
     <Nullable>disable</Nullable>
     <TargetFrameworks>net5.0;net6.0</TargetFrameworks>
     <VersionPrefix>6.1.0</VersionPrefix>
-    <VersionSuffix>beta-03</VersionSuffix>
+    <VersionSuffix>beta-05</VersionSuffix>
   </PropertyGroup>
   <PropertyGroup Label="Package">
     <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
@@ -28,7 +28,7 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Indice.Services" Version="6.1.0" />
-    <PackageReference Include="Indice.Features.Messages.Core" Version="6.1.0-beta-03" />
+    <PackageReference Include="Indice.Features.Messages.Core" Version="6.1.0-beta-05" />
     <PackageReference Include="Microsoft.Azure.Functions.Worker.Core" Version="1.4.0" />
     <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Storage.Queues" Version="5.0.0" />
   </ItemGroup>

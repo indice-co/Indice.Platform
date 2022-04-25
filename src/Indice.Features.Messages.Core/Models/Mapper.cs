@@ -18,6 +18,8 @@ namespace Indice.Features.Messages.Core.Models
             Data = campaign.Data,
             MessageChannelKind = campaign.MessageChannelKind,
             DistributionList = campaign.DistributionList != null ? new DistributionList {
+                CreatedAt = campaign.DistributionList.CreatedAt,
+                CreatedBy = campaign.DistributionList.CreatedBy,
                 Id = campaign.DistributionList.Id,
                 Name = campaign.DistributionList.Name
             } : null,
@@ -82,6 +84,8 @@ namespace Indice.Features.Messages.Core.Models
             Data = campaign.Data,
             MessageChannelKind = campaign.MessageChannelKind,
             DistributionList = campaign.DistributionList != null ? new DistributionList {
+                CreatedAt = campaign.DistributionList.CreatedAt,
+                CreatedBy = campaign.DistributionList.CreatedBy,
                 Id = campaign.DistributionList.Id,
                 Name = campaign.DistributionList.Name
             } : null,

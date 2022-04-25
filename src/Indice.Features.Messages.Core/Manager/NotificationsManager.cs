@@ -1,9 +1,11 @@
 ﻿using Indice.Extensions;
+using Indice.Features.Messages.Core.Events;
 using Indice.Features.Messages.Core.Manager.Commands;
 using Indice.Features.Messages.Core.Models;
 using Indice.Features.Messages.Core.Models.Requests;
 using Indice.Features.Messages.Core.Services.Abstractions;
 using Indice.Features.Messages.Core.Services.Validators;
+using Indice.Services;
 using Indice.Types;
 
 namespace Indice.Features.Messages.Core.Manager
@@ -22,7 +24,8 @@ namespace Indice.Features.Messages.Core.Manager
             IDistributionListService distributionListService,
             ITemplateService templateService,
             CreateCampaignRequestValidator createCampaignValidator,
-            UpsertMessageTypeRequestValidator messageTypeValidator
+            UpsertMessageTypeRequestValidator messageTypeValidator,
+            Func<string, IEventDispatcher> getEventDispatcher
         ) {
             CampaignService = campaignService ?? throw new ArgumentNullException(nameof(campaignService));
             MessageTypeService = messageTypeService ?? throw new ArgumentNullException(nameof(messageTypeService));
@@ -30,6 +33,7 @@ namespace Indice.Features.Messages.Core.Manager
             TemplateService = templateService ?? throw new ArgumentNullException(nameof(templateService));
             CreateCampaignValidator = createCampaignValidator ?? throw new ArgumentNullException(nameof(createCampaignValidator));
             MessageTypeValidator = messageTypeValidator ?? throw new ArgumentNullException(nameof(messageTypeValidator));
+            EventDispatcher = getEventDispatcher(KeyedServiceNames.EventDispatcherServiceKey) ?? throw new ArgumentNullException(nameof(getEventDispatcher));
         }
 
         private ICampaignService CampaignService { get; }
@@ -38,6 +42,7 @@ namespace Indice.Features.Messages.Core.Manager
         private ITemplateService TemplateService { get; }
         private CreateCampaignRequestValidator CreateCampaignValidator { get; }
         private UpsertMessageTypeRequestValidator MessageTypeValidator { get; }
+        private IEventDispatcher EventDispatcher { get; }
 
         /// <summary>Creates a new campaign.</summary>
         /// <param name="campaign">The request model used to create a new campaign.</param>
@@ -111,7 +116,7 @@ namespace Indice.Features.Messages.Core.Manager
         /// <param name="data">Optional data for the campaign.</param>
         public Task<CreateCampaignResult> SendMessageToRecipient(string recipientId, string title, MessageChannelKind channels, MessageContent template, Period period = null,
             Hyperlink actionLink = null, string type = null, dynamic data = null) =>
-            SendMessageToRecipients(title, channels, channels.GetValues().ToDictionary(x => x, y => template), period, actionLink, type, data, recipientId);
+            SendMessageToRecipients(title, channels, channels.GetFlagValues().ToDictionary(x => x, y => template), period, actionLink, type, data, recipientId);
 
         /// <summary>
         /// Creates a new message for the specified recipient.
@@ -158,7 +163,7 @@ namespace Indice.Features.Messages.Core.Manager
         /// <param name="recipientIds">Defines a list of user identifiers that constitutes the audience of the campaign.</param>
         public Task<CreateCampaignResult> SendMessageToRecipients(string title, MessageChannelKind channels, MessageContent template, Period period = null,
             Hyperlink actionLink = null, string type = null, dynamic data = null, params string[] recipientIds) =>
-            SendMessageToRecipients(title, channels, channels.GetValues().ToDictionary(x => x, y => template), period, actionLink, type, data, recipientIds);
+            SendMessageToRecipients(title, channels, channels.GetFlagValues().ToDictionary(x => x, y => template), period, actionLink, type, data, recipientIds);
 
         internal async Task<CreateCampaignResult> CreateCampaignInternal(CreateCampaignRequest request, bool? validateRules = true) {
             if (validateRules.Value) {
@@ -184,6 +189,11 @@ namespace Indice.Features.Messages.Core.Manager
             }
             // Create campaign in the store.
             var createdCampaign = await CampaignService.Create(request);
+            if (createdCampaign.Published) {
+                // Dispatch event that the campaign was created.
+                await EventDispatcher.RaiseEventAsync(CampaignPublishedEvent.FromCampaign(createdCampaign, request.RecipientIds),
+                    options => options.WrapInEnvelope(false).At(request.ActivePeriod?.From?.DateTime ?? DateTime.UtcNow).WithQueueName(EventNames.CampaignPublished));
+            }
             return CreateCampaignResult.Success(createdCampaign);
         }
 
