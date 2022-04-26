@@ -77,9 +77,7 @@ namespace Microsoft.Extensions.Hosting
             return options;
         }
 
-        /// <summary>
-        /// Adds <see cref="IEventDispatcher"/> using Azure Storage as a queuing mechanism.
-        /// </summary>
+        /// <summary>Adds <see cref="IEventDispatcher"/> using Azure Storage as a queuing mechanism.</summary>
         /// <param name="options">Options used when configuring campaign Azure Functions.</param>
         /// <param name="configure">Configure the available options. Null to use defaults.</param>
         public static MessageOptions UseEventDispatcherAzure(this MessageOptions options, Action<IServiceProvider, EventDispatcherAzureOptions> configure = null) {
@@ -87,9 +85,7 @@ namespace Microsoft.Extensions.Hosting
             return options;
         }
 
-        /// <summary>
-        /// Adds an instance of <see cref="IEmailService"/> using SMTP settings in configuration.
-        /// </summary>
+        /// <summary>Adds an instance of <see cref="IEmailService"/> using SMTP settings in configuration.</summary>
         /// <param name="options">Options used when configuring messages in Azure Functions.</param>
         /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
         public static MessageOptions UseEmailServiceSmtp(this MessageOptions options, IConfiguration configuration) {
@@ -97,9 +93,7 @@ namespace Microsoft.Extensions.Hosting
             return options;
         }
 
-        /// <summary>
-        /// Adds an instance of <see cref="IEmailService"/> that uses SparkPost to send emails.
-        /// </summary>
+        /// <summary>Adds an instance of <see cref="IEmailService"/> that uses SparkPost to send emails.</summary>
         /// <param name="options">Options used when configuring messages in Azure Functions.</param>
         /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
         public static MessageOptions UseEmailServiceSparkpost(this MessageOptions options, IConfiguration configuration) {
@@ -107,9 +101,7 @@ namespace Microsoft.Extensions.Hosting
             return options;
         }
 
-        /// <summary>
-        /// Adds an instance of <see cref="ISmsService"/> using Yuboto.
-        /// </summary>
+        /// <summary>Adds an instance of <see cref="ISmsService"/> using Yuboto.</summary>
         /// <param name="options">Options used when configuring messages in Azure Functions.</param>
         /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
         public static MessageOptions UseSmsServiceYuboto(this MessageOptions options, IConfiguration configuration) {
@@ -117,9 +109,7 @@ namespace Microsoft.Extensions.Hosting
             return options;
         }
 
-        /// <summary>
-        /// Adds an instance of <see cref="ISmsService"/> using Apifon.
-        /// </summary>
+        /// <summary>Adds an instance of <see cref="ISmsService"/> using Apifon.</summary>
         /// <param name="options">Options used when configuring messages in Azure Functions.</param>
         /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
         /// <param name="configure">Configure the available options. Null to use defaults.</param>
@@ -128,9 +118,7 @@ namespace Microsoft.Extensions.Hosting
             return options;
         }
 
-        /// <summary>
-        /// Adds an instance of <see cref="ISmsService"/> using Yuboto.
-        /// </summary>
+        /// <summary>Adds an instance of <see cref="ISmsService"/> using Yuboto.</summary>
         /// <param name="options">Options used when configuring messages in Azure Functions.</param>
         /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
         public static MessageOptions UseSmsServiceViber(this MessageOptions options, IConfiguration configuration) {
@@ -138,13 +126,19 @@ namespace Microsoft.Extensions.Hosting
             return options;
         }
 
-        /// <summary>
-        /// Adds an instance of <see cref="ISmsService"/> using Yuboto Omni for sending Viber messages.
-        /// </summary>
+        /// <summary>Adds an instance of <see cref="ISmsService"/> using Yuboto Omni for sending Viber messages.</summary>
         /// <param name="options">Options used when configuring messages in Azure Functions.</param>
         /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
         public static MessageOptions UseViberServiceYubotoOmni(this MessageOptions options, IConfiguration configuration) {
             options.Services.AddViberServiceYubotoOmni(configuration);
+            return options;
+        }
+
+        /// <summary>Adds an instance of <see cref="ISmsService"/> using Yuboto Omni from sending regular SMS messages.</summary>
+        /// <param name="options">Options used when configuring messages in Azure Functions.</param>
+        /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
+        public static MessageOptions UseSmsServiceYubotoOmni(this MessageOptions options, IConfiguration configuration) {
+            options.Services.AddSmsServiceYubotoOmni(configuration);
             return options;
         }
 

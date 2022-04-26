@@ -6,14 +6,10 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Indice.Features.Messages.Core.Services.Validators
 {
-    /// <summary>
-    /// Contains validation logic for <see cref="UpsertMessageTypeRequest"/>.
-    /// </summary>
+    /// <summary>Contains validation logic for <see cref="UpsertMessageTypeRequest"/>.</summary>
     public class UpsertMessageTypeRequestValidator : AbstractValidator<UpsertMessageTypeRequest>
     {
-        /// <summary>
-        /// Creates a new instance of <see cref="UpsertMessageTypeRequestValidator"/>.
-        /// </summary>
+        /// <summary>Creates a new instance of <see cref="UpsertMessageTypeRequestValidator"/>.</summary>
         public UpsertMessageTypeRequestValidator(IServiceProvider serviceProvider) {
             var messageTypeService = serviceProvider.GetRequiredService<IMessageTypeService>();
             RuleFor(x => x.Name)

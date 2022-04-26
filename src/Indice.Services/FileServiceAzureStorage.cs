@@ -54,9 +54,9 @@ namespace Indice.Services
             var extension = Path.GetExtension(filepath);
             stream.Position = 0;
             if (!string.IsNullOrEmpty(extension)) {
-                var result = await blob.UploadAsync(stream, new BlobHttpHeaders { ContentType = FileExtensions.GetMimeType(extension) });
+                await blob.UploadAsync(stream, new BlobHttpHeaders { ContentType = FileExtensions.GetMimeType(extension) });
             } else {
-                var result = await blob.UploadAsync(stream, overwrite: true);
+                await blob.UploadAsync(stream, overwrite: true);
             }
         }
 
@@ -152,8 +152,7 @@ namespace Indice.Services
                     ETag = response.Value.ETag.GetHttpSafeETag(),
                     LastModified = response.Value.LastModified
                 };
-            } catch (RequestFailedException ex)
-                  when (ex.ErrorCode == BlobErrorCode.BlobNotFound) {
+            } catch (RequestFailedException exception) when (exception.ErrorCode == BlobErrorCode.BlobNotFound) {
                 throw new FileNotFoundServiceException($"File {filename} not found.");
             }
         }
