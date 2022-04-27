@@ -47,19 +47,18 @@ namespace Indice.Features.Messages.Core.Handlers
         public async Task Process(ResolveMessageEvent @event) {
             Contact contact;
             var recipientId = @event.Contact.RecipientId;
-            var isNewContact = false;
             var needsUpdate = false;
             contact = await ContactService.GetByRecipientId(recipientId);
             needsUpdate = contact?.UpdatedAt.HasValue == true && (DateTimeOffset.UtcNow - contact.UpdatedAt.Value) > TimeSpan.FromDays(5);
             if (contact is null) {
-                isNewContact = true;
                 contact = await ContactResolver.GetById(recipientId);
             }
             if (contact is null) {
                 return;
             }
             @event.Contact = contact;
-            if (isNewContact) {
+            var campaign = @event.Campaign;
+            if (campaign.IsNewDistributionList) {
                 await ContactService.AddToDistributionList(@event.Campaign.DistributionListId.Value, Mapper.ToCreateDistributionListContactRequest(contact));
             }
             if (needsUpdate) {
@@ -68,10 +67,9 @@ namespace Indice.Features.Messages.Core.Handlers
             // Make substitution to message content using contact resolved data.
             var handlebars = Handlebars.Create();
             handlebars.Configuration.TextEncoder = new HtmlEncoder();
-            var campaign = @event.Campaign;
             foreach (var content in @event.Campaign.Content) {
-                dynamic templateData = new { 
-                    contact = JsonSerializer.Deserialize<ExpandoObject>(JsonSerializer.Serialize(contact, JsonSerializerOptionDefaults.GetDefaultSettings()), JsonSerializerOptionDefaults.GetDefaultSettings()), 
+                dynamic templateData = new {
+                    contact = JsonSerializer.Deserialize<ExpandoObject>(JsonSerializer.Serialize(contact, JsonSerializerOptionDefaults.GetDefaultSettings()), JsonSerializerOptionDefaults.GetDefaultSettings()),
                     data = JsonSerializer.Deserialize<ExpandoObject>(JsonSerializer.Serialize(@event.Campaign.Data, JsonSerializerOptionDefaults.GetDefaultSettings()), JsonSerializerOptionDefaults.GetDefaultSettings())
                 };
                 var messageContent = campaign.Content[content.Key];

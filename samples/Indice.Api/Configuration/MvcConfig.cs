@@ -22,8 +22,8 @@ namespace Microsoft.Extensions.DependencyInjection
                     options.UserClaimType = JwtClaimTypes.Subject;
                     options.UseFilesAzure();
                     //options.UseFilesLocal(fileOptions => fileOptions.Path = "uploads");
-                    //options.UseEventDispatcherHosting();
-                    options.UseEventDispatcherAzure();
+                    options.UseEventDispatcherHosting();
+                    //options.UseEventDispatcherAzure();
                 })
                 .AddSettingsApiEndpoints(options => {
                     options.ApiPrefix = "api";

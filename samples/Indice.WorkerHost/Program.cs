@@ -23,7 +23,9 @@ host.ConfigureAppConfiguration((hostBuilderContext, configurationBuilder) => {
                 options.ConfigureDbContext = builder => builder.UseSqlServer(configuration.GetConnectionString("MessagesDb"));
                 options.DatabaseSchema = "cmp";
                 options.UseEventDispatcherHosting()
-                       //.UsePushNotificationServiceAzure()
+                       .UsePushNotificationServiceAzure()
+                       .UseEmailServiceSparkpost(configuration)
+                       .UseSmsServiceYubotoOmni(configuration)
                        .UseIdentityContactResolver(resolverOptions => {
                            resolverOptions.BaseAddress = new Uri(configuration["IdentityServer:BaseAddress"]);
                            resolverOptions.ClientId = configuration["IdentityServer:ClientId"];

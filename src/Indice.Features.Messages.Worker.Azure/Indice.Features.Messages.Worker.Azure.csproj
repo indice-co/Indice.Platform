@@ -9,7 +9,7 @@
     <Nullable>disable</Nullable>
     <TargetFrameworks>net5.0;net6.0</TargetFrameworks>
     <VersionPrefix>6.1.0</VersionPrefix>
-    <VersionSuffix>beta-06</VersionSuffix>
+    <VersionSuffix>beta-07</VersionSuffix>
   </PropertyGroup>
   <PropertyGroup Label="Package">
     <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
@@ -27,8 +27,8 @@
     <RepositoryUrl>https://github.com/indice-co/Indice.AspNet</RepositoryUrl>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Indice.Services" Version="6.1.0" />
-    <PackageReference Include="Indice.Features.Messages.Core" Version="6.1.0-beta-06" />
+    <PackageReference Include="Indice.Services" Version="6.1.1" />
+    <PackageReference Include="Indice.Features.Messages.Core" Version="6.1.0-beta-07" />
     <PackageReference Include="Microsoft.Azure.Functions.Worker.Core" Version="1.4.0" />
     <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Storage.Queues" Version="5.0.0" />
   </ItemGroup>

@@ -6,7 +6,7 @@
     <Nullable>disable</Nullable>
     <TargetFrameworks>netstandard2.1;net5.0;net6.0</TargetFrameworks>
     <VersionPrefix>6.1.0</VersionPrefix>
-    <VersionSuffix>beta-06</VersionSuffix>
+    <VersionSuffix>beta-07</VersionSuffix>
   </PropertyGroup>
   <PropertyGroup Label="Package">
     <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
@@ -17,7 +17,7 @@
     <PackageId>Indice.Features.Messages.Core</PackageId>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/indice-co/Indice.AspNet</PackageProjectUrl>
-    <PackageReleaseNotes>Add compression to messages.</PackageReleaseNotes>
+    <PackageReleaseNotes>Fix bug on distribution lists.</PackageReleaseNotes>
     <PackageTags>AspNetCore;CampaignManagement;Messages;Notifications</PackageTags>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <RepositoryType>git</RepositoryType>
@@ -32,7 +32,7 @@
     <PackageReference Include="Handlebars.Net" Version="2.1.2" />
     <PackageReference Include="IdentityModel" Version="6.0.0" />
     <PackageReference Include="Indice.EntityFrameworkCore" Version="6.0.1" />
-    <PackageReference Include="Indice.Services" Version="6.1.0" />
+    <PackageReference Include="Indice.Services" Version="6.1.1" />
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
   </ItemGroup>
   <ItemGroup>
