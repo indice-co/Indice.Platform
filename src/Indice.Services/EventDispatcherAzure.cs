@@ -10,15 +10,14 @@ using Azure.Storage.Queues;
 using Indice.Extensions;
 using Indice.Serialization;
 using Indice.Types;
+using Microsoft.Extensions.Hosting;
 
 namespace Indice.Services
 {
     /// <inheritdoc/>
     public class EventDispatcherAzure : IEventDispatcher
     {
-        /// <summary>
-        /// The default name of the storage connection string.
-        /// </summary>
+        /// <summary>The default name of the storage connection string.</summary>
         public const string CONNECTION_STRING_NAME = "StorageConnection";
         private readonly string _connectionString;
         private readonly string _environmentName;
@@ -29,9 +28,7 @@ namespace Indice.Services
         private readonly Func<Guid?> _tenantIdSelector;
         private readonly JsonSerializerOptions _jsonSerializerOptions;
 
-        /// <summary>
-        /// Create a new <see cref="EventDispatcherAzure"/> instance.
-        /// </summary>
+        /// <summary>Create a new <see cref="EventDispatcherAzure"/> instance.</summary>
         /// <param name="connectionString">The connection string to the Azure Storage account. By default it searches for <see cref="CONNECTION_STRING_NAME"/> application setting inside ConnectionStrings section.</param>
         /// <param name="environmentName">The environment name to use. Defaults to 'Production'.</param>
         /// <param name="enabled">Provides a way to enable/disable event dispatching at will. Defaults to true.</param>
@@ -101,38 +98,22 @@ namespace Indice.Services
         }
     }
 
-    /// <summary>
-    /// Options for configuring <see cref="EventDispatcherAzure"/>.
-    /// </summary>
+    /// <summary>Options for configuring <see cref="EventDispatcherAzure"/>.</summary>
     public class EventDispatcherAzureOptions
     {
-        /// <summary>
-        /// The connection string to the Azure Storage account. By default it searches for <see cref="EventDispatcherAzure.CONNECTION_STRING_NAME"/> application setting inside ConnectionStrings section.
-        /// </summary>
+        /// <summary>The connection string to the Azure Storage account. By default it searches for <see cref="EventDispatcherAzure.CONNECTION_STRING_NAME"/> application setting inside ConnectionStrings section.</summary>
         public string ConnectionString { get; set; }
-        /// <summary>
-        /// The environment name to use. Defaults to 'Production'.
-        /// </summary>
+        /// <summary>The environment name to use. Defaults to <see cref="IHostEnvironment.EnvironmentName"/>.</summary>
         public string EnvironmentName { get; set; } = "Production";
-        /// <summary>
-        /// Provides a way to enable/disable event dispatching at will. Defaults to true.
-        /// </summary>
+        /// <summary>Provides a way to enable/disable event dispatching at will. Defaults to true.</summary>
         public bool Enabled { get; set; } = true;
-        /// <summary>
-        /// A function that retrieves the current thread user from the current operation context.
-        /// </summary>
+        /// <summary>A function that retrieves the current thread user from the current operation context.</summary>
         public Func<ClaimsPrincipal> ClaimsPrincipalSelector { get; set; }
-        /// <summary>
-        /// A function that retrieves the current tenant id by any means possible. This is optional.
-        /// </summary>
+        /// <summary>A function that retrieves the current tenant id by any means possible. This is optional.</summary>
         public Func<Guid?> TenantIdSelector { get; set; }
-        /// <summary>
-        /// Determines how <see cref="Azure.Storage.Queues.Models.QueueMessage.Body"/> is represented in HTTP requests and responses.
-        /// </summary>
+        /// <summary>Determines how <see cref="Azure.Storage.Queues.Models.QueueMessage.Body"/> is represented in HTTP requests and responses.</summary>
         public QueueMessageEncoding QueueMessageEncoding { get; set; } = QueueMessageEncoding.Base64;
-        /// <summary>
-        /// When selected, applies Brotli compression algorithm in the queue message payload. Defaults to false.
-        /// </summary>
+        /// <summary>When selected, applies Brotli compression algorithm in the queue message payload. Defaults to false.</summary>
         public bool UseCompression { get; set; }
     }
 }

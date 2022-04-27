@@ -234,12 +234,13 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
         /// <param name="name">The key under which the specified implementation is registered.</param>
         /// <param name="configure">Configure the available options. Null to use defaults.</param>
-        public static IServiceCollection AddEventDispatcherAzure(this IServiceCollection services, string name, Action<IServiceProvider, EventDispatcherAzureOptions> configure = null) =>
-            services.AddKeyedService<IEventDispatcher, EventDispatcherAzure, string>(
+        public static IServiceCollection AddEventDispatcherAzure(this IServiceCollection services, string name, Action<IServiceProvider, EventDispatcherAzureOptions> configure = null) {
+            return services.AddKeyedService<IEventDispatcher, EventDispatcherAzure, string>(
                 key: name,
-                serviceProvider => GetEventDispatcherAzure(serviceProvider, configure),
+                implementationFactory: serviceProvider => GetEventDispatcherAzure(serviceProvider, configure),
                 serviceLifetime: ServiceLifetime.Transient
             );
+        }
 
         /// <summary>
         /// Adds <see cref="IEventDispatcher"/> using an in-memory <seealso cref="Queue"/> as a backing store.

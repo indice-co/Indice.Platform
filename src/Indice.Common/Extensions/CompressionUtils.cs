@@ -22,7 +22,6 @@ namespace System.IO.Compression
         /// <param name="compressedBytes">The compressed bytes.</param>
         /// <returns>The payload decompressed as a byte array.</returns>
         public static async Task<string> DecompressToString(byte[] compressedBytes) => Encoding.Unicode.GetString(await Decompress(compressedBytes));
-
 #if NETSTANDARD2_1 || NET5_0_OR_GREATER
         /// <summary>
         /// Compresses the given payload.

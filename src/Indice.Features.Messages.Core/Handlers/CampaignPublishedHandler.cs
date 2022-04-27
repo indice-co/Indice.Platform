@@ -40,8 +40,7 @@ namespace Indice.Features.Messages.Core.Handlers
                 await eventDispatcher.RaiseEventAsync(SendPushNotificationEvent.FromCampaignCreatedEvent(campaign, broadcast: true),
                     options => options.WrapInEnvelope(false).At(campaign.ActivePeriod?.From?.DateTime ?? DateTime.UtcNow).WithQueueName(EventNames.SendPushNotification));
             }
-            // If campaign is not global and a distribution list has been set, then we will create multiple events in order to
-            // resolve contact info, merge campaign template with contact data and dispatch messages in various channels.
+            // If campaign is not global and a distribution list has been set, then we will create multiple events in order to resolve contact info, merge campaign template with contact data and dispatch messages in various channels.
             if (!campaign.IsGlobal) {
                 var contacts = new List<Contact>();
                 if (campaign.DistributionListId.HasValue) {

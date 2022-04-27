@@ -1,4 +1,5 @@
-﻿using System.Text.Json;
+﻿using System.IO.Compression;
+using System.Text.Json;
 using Indice.Features.Messages.Core;
 using Indice.Features.Messages.Core.Events;
 using Indice.Features.Messages.Core.Handlers;
@@ -26,14 +27,14 @@ namespace Indice.Features.Messages.Worker.Azure
 
         [Function(EventNames.CampaignPublished)]
         public async Task CampaignPublishedHandler(
-            [QueueTrigger("%ENVIRONMENT%-" + EventNames.CampaignPublished, Connection = "StorageConnection")] string message,
+            [QueueTrigger("%ENVIRONMENT%-" + EventNames.CampaignPublished, Connection = "StorageConnection")] byte[] message,
             FunctionContext executionContext
         ) {
             LogExecution(executionContext, EventNames.CampaignPublished);
-            var @event = JsonSerializer.Deserialize<CampaignPublishedEvent>(message, JsonSerializerOptions);
+            var originalMessage = await CompressionUtils.Decompress(message);
+            var @event = JsonSerializer.Deserialize<CampaignPublishedEvent>(originalMessage, JsonSerializerOptions);
             var campaignStart = @event.ActivePeriod?.From;
-            // Azure queues can store a queue message with a visibility window up to 7 days. So if a campaign must start (appear on queue) after more than 7 days
-            // then we should check the campaign start date and re-enqueue the message.
+            // Azure queues can store a queue message with a visibility window up to 7 days. So if a campaign must start (appear on queue) after more than 7 days then we should check the campaign start date and re-enqueue the message.
             if (campaignStart > DateTimeOffset.UtcNow) {
                 var nextExecutionTimeSpan = campaignStart.Value - DateTimeOffset.UtcNow;
                 var visibilityWindow = nextExecutionTimeSpan > TimeSpan.FromDays(5) ? TimeSpan.FromDays(5) : nextExecutionTimeSpan;
@@ -46,38 +47,46 @@ namespace Indice.Features.Messages.Worker.Azure
 
         [Function(EventNames.ResolveMessage)]
         public async Task ResolveMessageHandler(
-            [QueueTrigger("%ENVIRONMENT%-" + EventNames.ResolveMessage, Connection = "StorageConnection")] string message,
+            [QueueTrigger("%ENVIRONMENT%-" + EventNames.ResolveMessage, Connection = "StorageConnection")] byte[] message,
             FunctionContext executionContext
         ) {
             LogExecution(executionContext, EventNames.ResolveMessage);
-            await CampaignJobHandlerFactory.Create<ResolveMessageEvent>().Process(JsonSerializer.Deserialize<ResolveMessageEvent>(message, JsonSerializerOptions));
+            var originalMessage = await CompressionUtils.Decompress(message);
+            var @event = JsonSerializer.Deserialize<ResolveMessageEvent>(originalMessage, JsonSerializerOptions);
+            await CampaignJobHandlerFactory.Create<ResolveMessageEvent>().Process(@event);
         }
 
         [Function(EventNames.SendPushNotification)]
         public async Task SendPushNotificationHandler(
-            [QueueTrigger("%ENVIRONMENT%-" + EventNames.SendPushNotification, Connection = "StorageConnection")] string message,
+            [QueueTrigger("%ENVIRONMENT%-" + EventNames.SendPushNotification, Connection = "StorageConnection")] byte[] message,
             FunctionContext executionContext
         ) {
             LogExecution(executionContext, EventNames.SendPushNotification);
-            await CampaignJobHandlerFactory.Create<SendPushNotificationEvent>().Process(JsonSerializer.Deserialize<SendPushNotificationEvent>(message, JsonSerializerOptions));
+            var originalMessage = await CompressionUtils.Decompress(message);
+            var @event = JsonSerializer.Deserialize<SendPushNotificationEvent>(originalMessage, JsonSerializerOptions);
+            await CampaignJobHandlerFactory.Create<SendPushNotificationEvent>().Process(@event);
         }
 
         [Function(EventNames.SendEmail)]
         public async Task SendEmailHandler(
-            [QueueTrigger("%ENVIRONMENT%-" + EventNames.SendEmail, Connection = "StorageConnection")] string message,
+            [QueueTrigger("%ENVIRONMENT%-" + EventNames.SendEmail, Connection = "StorageConnection")] byte[] message,
             FunctionContext executionContext
         ) {
             LogExecution(executionContext, EventNames.SendEmail);
-            await CampaignJobHandlerFactory.Create<SendEmailEvent>().Process(JsonSerializer.Deserialize<SendEmailEvent>(message, JsonSerializerOptions));
+            var originalMessage = await CompressionUtils.Decompress(message);
+            var @event = JsonSerializer.Deserialize<SendEmailEvent>(originalMessage, JsonSerializerOptions);
+            await CampaignJobHandlerFactory.Create<SendEmailEvent>().Process(@event);
         }
 
         [Function(EventNames.SendSms)]
         public async Task SendSmsHandler(
-            [QueueTrigger("%ENVIRONMENT%-" + EventNames.SendSms, Connection = "StorageConnection")] string message,
+            [QueueTrigger("%ENVIRONMENT%-" + EventNames.SendSms, Connection = "StorageConnection")] byte[] message,
             FunctionContext executionContext
         ) {
             LogExecution(executionContext, EventNames.SendSms);
-            await CampaignJobHandlerFactory.Create<SendSmsEvent>().Process(JsonSerializer.Deserialize<SendSmsEvent>(message, JsonSerializerOptions));
+            var originalMessage = await CompressionUtils.Decompress(message);
+            var @event = JsonSerializer.Deserialize<SendSmsEvent>(originalMessage, JsonSerializerOptions);
+            await CampaignJobHandlerFactory.Create<SendSmsEvent>().Process(@event);
         }
 
         private static void LogExecution(FunctionContext executionContext, string eventName) {

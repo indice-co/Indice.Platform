@@ -1,4 +1,5 @@
-﻿using Indice.Features.Messages.Core;
+﻿using System.Security.Claims;
+using Indice.Features.Messages.Core;
 using Indice.Features.Messages.Core.Data;
 using Indice.Features.Messages.Core.Events;
 using Indice.Features.Messages.Core.Handlers;
@@ -80,8 +81,23 @@ namespace Microsoft.Extensions.Hosting
         /// <summary>Adds <see cref="IEventDispatcher"/> using Azure Storage as a queuing mechanism.</summary>
         /// <param name="options">Options used when configuring campaign Azure Functions.</param>
         /// <param name="configure">Configure the available options. Null to use defaults.</param>
-        public static MessageOptions UseEventDispatcherAzure(this MessageOptions options, Action<IServiceProvider, EventDispatcherAzureOptions> configure = null) {
-            options.Services.AddEventDispatcherAzure(KeyedServiceNames.EventDispatcherServiceKey, configure);
+        public static MessageOptions UseEventDispatcherAzure(this MessageOptions options, Action<IServiceProvider, MessagesEventDispatcherAzureOptions> configure = null) {
+            options.Services.AddEventDispatcherAzure(KeyedServiceNames.EventDispatcherServiceKey, (serviceProvider, options) => {
+                var eventDispatcherOptions = new MessagesEventDispatcherAzureOptions {
+                    ConnectionString = serviceProvider.GetRequiredService<IConfiguration>().GetConnectionString(EventDispatcherAzure.CONNECTION_STRING_NAME),
+                    Enabled = true,
+                    EnvironmentName = serviceProvider.GetRequiredService<IHostEnvironment>().EnvironmentName,
+                    ClaimsPrincipalSelector = ClaimsPrincipal.ClaimsPrincipalSelector ?? (() => ClaimsPrincipal.Current)
+                };
+                configure?.Invoke(serviceProvider, eventDispatcherOptions);
+                options.ClaimsPrincipalSelector = eventDispatcherOptions.ClaimsPrincipalSelector;
+                options.ConnectionString = eventDispatcherOptions.ConnectionString;
+                options.Enabled = eventDispatcherOptions.Enabled;
+                options.EnvironmentName = eventDispatcherOptions.EnvironmentName;
+                options.QueueMessageEncoding = eventDispatcherOptions.QueueMessageEncoding;
+                options.TenantIdSelector = eventDispatcherOptions.TenantIdSelector;
+                options.UseCompression = true;
+            });
             return options;
         }
 
