@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 
-import { ValidationProblemDetails } from '../core/services/campaigns-api.services';
+import { ValidationProblemDetails } from '../core/services/messages-api.service';
 
 @Injectable({
   providedIn: 'root'

@@ -13,6 +13,7 @@ import { CampaignsManageComponent } from './features/campaigns/manage/campaigns-
 import { CampaignsDetailsComponent } from './features/campaigns/manage/details/campaigns-details.component';
 import { MessageTypesComponent } from './features/message-types/message-types.component';
 import { MessageTypeCreateComponent } from './features/message-types/create/message-type-create.component';
+import { MessageTypeEditComponent } from './features/message-types/edit/message-type-edit.component';
 
 const routes: Routes = [
   { path: 'auth-callback', component: AuthCallbackComponent },
@@ -36,6 +37,7 @@ const routes: Routes = [
   },
   { path: 'create-campaign', canActivate: [AuthGuardService], component: CampaignCreateComponent, outlet: 'rightpane', pathMatch: 'prefix' },
   { path: 'create-message-type', canActivate: [AuthGuardService], component: MessageTypeCreateComponent, outlet: 'rightpane', pathMatch: 'prefix' },
+  { path: 'edit-message-type/:messageTypeId', canActivate: [AuthGuardService], component: MessageTypeEditComponent, outlet: 'rightpane', pathMatch: 'prefix' },
   { path: 'logout', component: LogOutComponent, data: { shell: { fluid: true, showHeader: false, showFooter: false } } },
   { path: '**', component: PageNotFoundComponent, data: { shell: { fluid: true, showHeader: false, showFooter: false } } }
 ];

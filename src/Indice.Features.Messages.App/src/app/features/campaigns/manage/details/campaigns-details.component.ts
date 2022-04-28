@@ -5,7 +5,7 @@ import { Location } from '@angular/common';
 
 import { map } from 'rxjs/operators';
 import { MenuOption, Modal, ToasterService, ToastType } from '@indice/ng-components';
-import { Campaign, MessagesApiClient, MessageType, MessageTypeResultSet, UpdateCampaignRequest, ValidationProblemDetails } from 'src/app/core/services/campaigns-api.services';
+import { Campaign, MessagesApiClient, MessageType, MessageTypeResultSet, UpdateCampaignRequest, ValidationProblemDetails } from 'src/app/core/services/messages-api.service';
 import { UtilitiesService } from 'src/app/shared/utilities.service';
 
 @Component({

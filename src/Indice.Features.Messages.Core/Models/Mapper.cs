@@ -202,7 +202,6 @@ namespace Indice.Features.Messages.Core.Models
                 return expando;
             }
             if (value is JsonElement json) {
-
 #if NET5_0
                 var bufferWriter = new ArrayBufferWriter<byte>();
                 using (var writer = new Utf8JsonWriter(bufferWriter)) {
@@ -216,7 +215,7 @@ namespace Indice.Features.Messages.Core.Models
 
             var dataType = value.GetType();
             var obj = new ExpandoObject() as IDictionary<string, object>;
-            foreach (var property in dataType.GetProperties(BindingFlags.Public | BindingFlags.Instance).Where(p => p.GetIndexParameters().Length == 0)) {
+            foreach (var property in dataType.GetProperties(BindingFlags.Public | BindingFlags.Instance).Where(x => x.GetIndexParameters().Length == 0)) {
                 obj.Add(property.Name, property.GetValue(value, null));
             }
             return obj as ExpandoObject;

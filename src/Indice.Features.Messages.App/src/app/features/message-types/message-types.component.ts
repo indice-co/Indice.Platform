@@ -4,7 +4,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { BaseListComponent, Icons, IResultSet, ListViewType, MenuOption, ViewAction } from '@indice/ng-components';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { MessagesApiClient, MessageType, MessageTypeResultSet } from 'src/app/core/services/campaigns-api.services';
+import { MessagesApiClient, MessageType, MessageTypeResultSet } from 'src/app/core/services/messages-api.service';
 
 @Component({
     selector: 'app-message-types',

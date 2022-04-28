@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Params } from '@angular/router';
 
-import { Campaign, MessagesApiClient } from '../../../core/services/campaigns-api.services';
+import { Campaign, MessagesApiClient } from '../../../core/services/messages-api.service';
 @Component({
   selector: 'app-campaigns',
   templateUrl: './campaigns-manage.component.html'

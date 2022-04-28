@@ -3,10 +3,10 @@
 // The list of file replacements can be found in `angular.json`.
 
 export const environment = {
-  api_url: 'https://localhost:2001',
+  api_url: 'https://indice-notifications.azurewebsites.net',
   auth_settings: {
     accessTokenExpiringNotificationTime: 60,
-    authority: 'https://indice-idsrv.azurewebsites.net',
+    authority: 'https://indice-identity.azurewebsites.net',
     automaticSilentRenew: true,
     client_id: 'backoffice-ui',
     filterProtocolClaims: true,

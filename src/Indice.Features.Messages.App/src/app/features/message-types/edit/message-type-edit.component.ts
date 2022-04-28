@@ -1,32 +1,45 @@
-import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, Inject, OnInit, ViewChild } from '@angular/core';
-import { Router } from '@angular/router';
+import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, Inject, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { ActivatedRoute, Params, Router } from '@angular/router';
 
 import { ToasterService, ToastType } from '@indice/ng-components';
+import { Subscription } from 'rxjs';
+import { map, mergeMap } from 'rxjs/operators';
 import { MessagesApiClient, MessageType, UpsertMessageTypeRequest, ValidationProblemDetails } from 'src/app/core/services/messages-api.service';
 import { UtilitiesService } from 'src/app/shared/utilities.service';
 
 @Component({
-    selector: 'app-message-type-create',
-    templateUrl: './message-type-create.component.html'
+    selector: 'app-message-type-edit',
+    templateUrl: './message-type-edit.component.html'
 })
-export class MessageTypeCreateComponent implements OnInit, AfterViewInit {
-    @ViewChild('submitBtn', { static: false }) public submitButton!: ElementRef;
+export class MessageTypeEditComponent implements OnInit, AfterViewInit, OnDestroy {
+    private _getTypeSubscription!: Subscription;
 
     constructor(
         private _changeDetector: ChangeDetectorRef,
         private _api: MessagesApiClient,
         private _router: Router,
+        private _activatedRoute: ActivatedRoute,
         @Inject(ToasterService) private _toaster: ToasterService,
         private _utilities: UtilitiesService
     ) { }
 
+    @ViewChild('submitBtn', { static: false }) public submitButton!: ElementRef;
     public submitInProgress = false;
     public model = new UpsertMessageTypeRequest({ name: '' });
 
-    public ngOnInit(): void { }
+    public ngOnInit(): void {
+        this._getTypeSubscription = this._api
+            .getMessageTypeById(this._activatedRoute.snapshot.params['messageTypeId'])
+            .subscribe((messageType: MessageType) => this.model.name = messageType.name);
+    }
 
     public ngAfterViewInit(): void {
         this._changeDetector.detectChanges();
+    }
+
+
+    public ngOnDestroy(): void {
+        this._getTypeSubscription?.unsubscribe();
     }
 
     public onSubmit(): void {

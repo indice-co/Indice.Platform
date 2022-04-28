@@ -1,16 +1,13 @@
 <lib-view-layout title="Τύποι Μηνυμάτων" [busy]="!items" [actions]="actions" [meta-items]="metaItems" (onAction)="actionHandler($event)" (onSearch)="searchChanged($event)">
     <lib-list-view [items]="items" [page]="page" [page-size]="pageSize" [count]="count" [sort-options]="sortOptions" [sort]="sort" [sort-dir]="sortdir" [busy]="!items" (pageChanged)="pageChanged($event)"
         (pageSizeChanged)="pageSizeChanged($event)" (sortChanged)="sortChanged($event)" (sortdirChanged)="sortdirChanged($event)">
-        <!-- <lib-list-column title="ΤΙΤΛΟΣ" [full-width]="true">
+        <lib-list-column title="Id">
             <ng-template let-item>
-                <a href="#" [routerLinkActive]="['nav-link-profile-active']" [routerLinkActiveOptions]="{ exact: true }" [routerLink]="[item.id]" class="nav-link-profile" class="text-gray-600 hover:text-gray-900"
-                    style="word-break: break-word;" title="Λεπτομέρειες">
-                    <span [title]="item.title">{{ item.title }}</span>
+                <a href="#" [routerLinkActive]="['']" [routerLinkActiveOptions]="{ exact: true }" [routerLink]="['', { outlets: { rightpane: ['edit-message-type', item.id] } }]" class="nav-link-profile"
+                    class="text-gray-600 hover:text-gray-900" style="word-break: break-word;" title="Λεπτομέρειες">
+                    <span [title]="item.id">{{ item.id }}</span>
                 </a>
             </ng-template>
-        </lib-list-column> -->
-        <lib-list-column title="Id">
-            <ng-template let-item>{{ item.id }}</ng-template>
         </lib-list-column>
         <lib-list-column title="ΟΝΟΜΑ">
             <ng-template let-item>{{ item.name }}</ng-template>

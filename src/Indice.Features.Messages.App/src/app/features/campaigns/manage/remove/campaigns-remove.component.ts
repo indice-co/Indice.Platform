@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { ToasterService, ToastType } from '@indice/ng-components';
 
-import { Campaign, MessagesApiClient, ValidationProblemDetails } from 'src/app/core/services/campaigns-api.services';
+import { Campaign, MessagesApiClient, ValidationProblemDetails } from 'src/app/core/services/messages-api.service';
 import { UtilitiesService } from 'src/app/shared/utilities.service';
 
 @Component({

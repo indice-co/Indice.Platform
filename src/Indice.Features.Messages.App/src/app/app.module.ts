@@ -18,8 +18,9 @@ import { CampaignsRemoveComponent } from './features/campaigns/manage/remove/cam
 import { DashboardComponent } from './features/dashboard/dashboard.component';
 import { HomeComponent } from './features/home/home.component';
 import { LogOutComponent } from './core/services/logout/logout.component';
-import { MESSAGES_API_BASE_URL } from './core/services/campaigns-api.services';
+import { MESSAGES_API_BASE_URL } from './core/services/messages-api.service';
 import { MessageTypeCreateComponent } from './features/message-types/create/message-type-create.component';
+import { MessageTypeEditComponent } from './features/message-types/edit/message-type-edit.component';
 import { MessageTypesComponent } from './features/message-types/message-types.component';
 import { PageIllustrationComponent } from './shared/components/page-illustration/page-illustration.component';
 import { RadioButtonsListComponent } from './shared/components/radio-buttons-list/radio-buttons-list.component';
@@ -41,6 +42,7 @@ import * as app from 'src/app/core/models/settings';
     LogOutComponent,
     MessageTypesComponent,
     MessageTypeCreateComponent,
+    MessageTypeEditComponent,
     PageIllustrationComponent,
     RadioButtonsListComponent,
     ToggleButtonComponent

@@ -35,9 +35,7 @@ namespace Indice.Features.Messages.AspNetCore.Controllers
         public ICampaignService CampaignService { get; }
         public IMessageTypeService MessageTypeService { get; }
 
-        /// <summary>
-        /// Gets the list of available message types.
-        /// </summary>
+        /// <summary>Gets the list of available message types.</summary>
         /// <param name="options">List parameters used to navigate through collections. Contains parameters such as sort, search, page number and page size.</param>
         /// <response code="200">OK</response>
         [HttpGet]
@@ -47,23 +45,35 @@ namespace Indice.Features.Messages.AspNetCore.Controllers
             return Ok(messageTypes);
         }
 
-        /// <summary>
-        /// Creates a new message type.
-        /// </summary>
-        /// <param name="request">Contains info about the message type to be created.</param>
+        /// <summary>Gets a message type by it's unique id.</summary>
+        /// <param name="typeId">The id of the message type.</param>
         /// <response code="200">OK</response>
-        /// <response code="400">Bad Request</response>
-        [HttpPost]
+        /// <response code="404">Not Found</response>
+        [HttpGet("{typeId:guid}")]
+        [Produces(MediaTypeNames.Application.Json)]
         [ProducesResponseType(typeof(MessageType), StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> CreateMessageType([FromBody] UpsertMessageTypeRequest request) {
-            var messageType = await MessageTypeService.Create(request);
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> GetMessageTypeById([FromRoute] Guid typeId) {
+            var messageType = await MessageTypeService.GetById(typeId);
+            if (messageType is null) {
+                return NotFound();
+            }
             return Ok(messageType);
         }
 
-        /// <summary>
-        /// Updates an existing message type.
-        /// </summary>
+        /// <summary>Creates a new message type.</summary>
+        /// <param name="request">Contains info about the message type to be created.</param>
+        /// <response code="201">Created</response>
+        /// <response code="400">Bad Request</response>
+        [HttpPost]
+        [ProducesResponseType(typeof(MessageType), StatusCodes.Status201Created)]
+        [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> CreateMessageType([FromBody] UpsertMessageTypeRequest request) {
+            var messageType = await MessageTypeService.Create(request);
+            return CreatedAtAction(nameof(GetMessageTypeById), new { typeId = messageType.Id }, messageType);
+        }
+
+        /// <summary>Updates an existing message type.</summary>
         /// <param name="campaignTypeId">The id of the message type.</param>
         /// <param name="request">Contains info about the message type to update.</param>
         /// <response code="204">No Content</response>
@@ -76,9 +86,7 @@ namespace Indice.Features.Messages.AspNetCore.Controllers
             return NoContent();
         }
 
-        /// <summary>
-        /// Permanently deletes a message type.
-        /// </summary>
+        /// <summary>Permanently deletes a message type.</summary>
         /// <param name="campaignTypeId">The id of the message type.</param>
         /// <response code="204">No Content</response>
         /// <response code="400">Bad Request</response>

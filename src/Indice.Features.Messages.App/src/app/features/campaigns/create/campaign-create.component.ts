@@ -5,7 +5,7 @@ import { Router } from '@angular/router';
 import { MenuOption, Modal, ToasterService, ToastType } from '@indice/ng-components';
 import { map } from 'rxjs/operators';
 import * as app from 'src/app/core/models/settings';
-import { Campaign, CreateCampaignRequest, Period, ValidationProblemDetails, MessagesApiClient, MessageChannelKind, MessageTypeResultSet, MessageContent, Hyperlink } from 'src/app/core/services/campaigns-api.services';
+import { Campaign, CreateCampaignRequest, Period, ValidationProblemDetails, MessagesApiClient, MessageChannelKind, MessageTypeResultSet, MessageContent, Hyperlink } from 'src/app/core/services/messages-api.service';
 import { UtilitiesService } from 'src/app/shared/utilities.service';
 
 @Component({
@@ -32,7 +32,8 @@ export class CampaignCreateComponent implements OnInit, AfterViewInit {
         messageChannelKind: [MessageChannelKind.Inbox],
         title: '',
         content: { 'inbox': new MessageContent() },
-        actionLink: new Hyperlink({ href: '', text: '' })
+        actionLink: new Hyperlink({ href: '', text: '' }),
+        templateId: undefined
     });
     public messageTypes: MenuOption[] = [];
     public campaignTypesModalRef: Modal | undefined;
