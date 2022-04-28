@@ -1,6 +1,8 @@
-﻿using System.Dynamic;
+﻿using System.Buffers;
+using System.Dynamic;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Text.Json;
 using Indice.Features.Messages.Core.Data.Models;
 using Indice.Features.Messages.Core.Manager.Commands;
 using Indice.Features.Messages.Core.Models.Requests;
@@ -196,9 +198,25 @@ namespace Indice.Features.Messages.Core.Models
             if (value is null) {
                 return default;
             }
+            if (value is ExpandoObject expando) {
+                return expando;
+            }
+            if (value is JsonElement json) {
+
+#if NET5_0
+                var bufferWriter = new ArrayBufferWriter<byte>();
+                using (var writer = new Utf8JsonWriter(bufferWriter)) {
+                    json.WriteTo(writer);
+                }
+                return (ExpandoObject)JsonSerializer.Deserialize(bufferWriter.WrittenSpan, typeof(ExpandoObject));
+#else 
+                return json.Deserialize<ExpandoObject>();
+#endif
+            }
+
             var dataType = value.GetType();
             var obj = new ExpandoObject() as IDictionary<string, object>;
-            foreach (var property in dataType.GetProperties(BindingFlags.Public | BindingFlags.Instance)) {
+            foreach (var property in dataType.GetProperties(BindingFlags.Public | BindingFlags.Instance).Where(p => p.GetIndexParameters().Length == 0)) {
                 obj.Add(property.Name, property.GetValue(value, null));
             }
             return obj as ExpandoObject;

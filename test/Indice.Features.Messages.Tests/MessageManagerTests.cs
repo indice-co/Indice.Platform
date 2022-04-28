@@ -1,6 +1,8 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
+using System.Dynamic;
 using System.IO;
+using System.Text.Json;
 using System.Threading.Tasks;
 using Indice.Features.Messages.Core;
 using Indice.Features.Messages.Core.Data;
@@ -138,6 +140,53 @@ namespace Indice.Features.Messages.Tests
         public ValueTask DisposeAsync() {
             GC.SuppressFinalize(this);
             return ServiceProvider.DisposeAsync();
+        }
+
+
+        public class Container { 
+            public dynamic Data { get; set; } 
+        }
+
+        [Fact]
+        public void ToExpandoBug() {
+            var data = new {
+                uid = Guid.NewGuid(),
+                nubmer = new int?(),
+                currency = new decimal?(20.8M),
+                currency2 = new decimal?(),
+                title = "Σας ευχαριστούμε!",
+                subTitle = "Δέσμευση φορτιστή",
+                invoicePdfLink = "reservationTransaction.InvoiceAttachmentLink",
+                invoiceLink = "reservationTransaction.InvoiceLink",
+                charger = "reservation.ChargePointName",
+                chargerImage = "reservation.ChargePointImage",
+                connector = $"Θύρα φόρτισης 1",
+                when = "dd/M/yyyy HH:mm",
+                duration = "",
+                expiration = "dd/M/yyyy HH:mm",
+                netCost = "reservation.TotalPriceNet",
+                vatCost = "reservation.TotalPriceVat",
+                totalCost = "reservation.TotalPrice",
+                publicNotes = "reservation.GetInvoicePublicNotes()",
+                paymentInfo = "walletTransaction.GetInvoicePaymentNotes(paymentMethod)",
+                locationName = "reservation.LocationName",
+                locationAddress = "reservation.LocationAddress",
+                locationMap = "https://www.evpulse.eu/image-assets/location-map/{reservation.LocationId}",
+                locationMapLink = "",
+                footer = "Σας ευχαριστούμε που επιλέξατε την υπηρεσία EVPulse",
+                list = new[] { 
+                    new Contact { FullName ="Kvnst"  }
+                }
+            };
+            var container = new Container() { Data = data };
+            var data2 = JsonSerializer.Deserialize<Container>( JsonSerializer.Serialize(container));
+
+            var result = ExpandoTest(data2.Data);
+            Assert.True(true);
+        }
+
+        private ExpandoObject ExpandoTest(dynamic data) {
+            return Mapper.ToExpandoObject(data);
         }
     }
 }
