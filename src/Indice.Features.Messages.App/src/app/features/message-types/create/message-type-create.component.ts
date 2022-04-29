@@ -37,7 +37,6 @@ export class MessageTypeCreateComponent implements OnInit, AfterViewInit {
                 next: (messageType: MessageType) => {
                     this.submitInProgress = false;
                     this._toaster.show(ToastType.Success, 'Επιτυχής αποθήκευση', `Ο τύπος με όνομα '${messageType.name}' δημιουργήθηκε με επιτυχία.`);
-                    // This is to force reload message types page when a new campaign is successfully saved.
                     this._router.navigateByUrl('/', { skipLocationChange: true }).then(() => this._router.navigate(['message-types']));
                 },
                 error: (problemDetails: ValidationProblemDetails) => {

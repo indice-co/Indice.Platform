@@ -182,24 +182,24 @@ export interface IMessagesApiClient {
      */
     createMessageType(body?: UpsertMessageTypeRequest | undefined): Observable<MessageType>;
     /**
-     * Permanently deletes a message type.
-     * @param campaignTypeId The id of the message type.
-     * @return No Content
-     */
-    deleteMessageType(campaignTypeId: string): Observable<void>;
-    /**
-     * Updates an existing message type.
-     * @param campaignTypeId The id of the message type.
-     * @param body (optional) Contains info about the message type to update.
-     * @return No Content
-     */
-    updateMessageType(campaignTypeId: string, body?: UpsertMessageTypeRequest | undefined): Observable<void>;
-    /**
      * Gets a message type by it's unique id.
      * @param typeId The id of the message type.
      * @return OK
      */
     getMessageTypeById(typeId: string): Observable<MessageType>;
+    /**
+     * Updates an existing message type.
+     * @param typeId The id of the message type.
+     * @param body (optional) Contains info about the message type to update.
+     * @return No Content
+     */
+    updateMessageType(typeId: string, body?: UpsertMessageTypeRequest | undefined): Observable<void>;
+    /**
+     * Permanently deletes a message type.
+     * @param typeId The id of the message type.
+     * @return No Content
+     */
+    deleteMessageType(typeId: string): Observable<void>;
     /**
      * Gets the list of all user messages using the provided Indice.Types.ListOptions.
      * @param filter_TypeId (optional) The id of a campaign type.
@@ -2215,39 +2215,40 @@ export class MessagesApiClient implements IMessagesApiClient {
     }
 
     /**
-     * Permanently deletes a message type.
-     * @param campaignTypeId The id of the message type.
-     * @return No Content
+     * Gets a message type by it's unique id.
+     * @param typeId The id of the message type.
+     * @return OK
      */
-    deleteMessageType(campaignTypeId: string): Observable<void> {
-        let url_ = this.baseUrl + "/api/message-types";
-        if (campaignTypeId === undefined || campaignTypeId === null)
-            throw new Error("The parameter 'campaignTypeId' must be defined.");
-        url_ = url_.replace("{campaignTypeId}", encodeURIComponent("" + campaignTypeId));
+    getMessageTypeById(typeId: string): Observable<MessageType> {
+        let url_ = this.baseUrl + "/api/message-types/{typeId}";
+        if (typeId === undefined || typeId === null)
+            throw new Error("The parameter 'typeId' must be defined.");
+        url_ = url_.replace("{typeId}", encodeURIComponent("" + typeId));
         url_ = url_.replace(/[?&]$/, "");
 
         let options_ : any = {
             observe: "response",
             responseType: "blob",
             headers: new HttpHeaders({
+                "Accept": "application/json"
             })
         };
 
-        return this.http.request("delete", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processDeleteMessageType(response_);
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetMessageTypeById(response_);
         })).pipe(_observableCatch((response_: any) => {
             if (response_ instanceof HttpResponseBase) {
                 try {
-                    return this.processDeleteMessageType(response_ as any);
+                    return this.processGetMessageTypeById(response_ as any);
                 } catch (e) {
-                    return _observableThrow(e) as any as Observable<void>;
+                    return _observableThrow(e) as any as Observable<MessageType>;
                 }
             } else
-                return _observableThrow(response_) as any as Observable<void>;
+                return _observableThrow(response_) as any as Observable<MessageType>;
         }));
     }
 
-    protected processDeleteMessageType(response: HttpResponseBase): Observable<void> {
+    protected processGetMessageTypeById(response: HttpResponseBase): Observable<MessageType> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -2268,16 +2269,19 @@ export class MessagesApiClient implements IMessagesApiClient {
             result403 = ProblemDetails.fromJS(resultData403);
             return throwException("Forbidden", status, _responseText, _headers, result403);
             }));
-        } else if (status === 204) {
+        } else if (status === 200) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            return _observableOf(null as any);
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = MessageType.fromJS(resultData200);
+            return _observableOf(result200);
             }));
-        } else if (status === 400) {
+        } else if (status === 404) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            let result400: any = null;
-            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result400 = ValidationProblemDetails.fromJS(resultData400);
-            return throwException("Bad Request", status, _responseText, _headers, result400);
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = ProblemDetails.fromJS(resultData404);
+            return throwException("Not Found", status, _responseText, _headers, result404);
             }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
@@ -2289,15 +2293,15 @@ export class MessagesApiClient implements IMessagesApiClient {
 
     /**
      * Updates an existing message type.
-     * @param campaignTypeId The id of the message type.
+     * @param typeId The id of the message type.
      * @param body (optional) Contains info about the message type to update.
      * @return No Content
      */
-    updateMessageType(campaignTypeId: string, body?: UpsertMessageTypeRequest | undefined): Observable<void> {
-        let url_ = this.baseUrl + "/api/message-types/{campaignTypeId}";
-        if (campaignTypeId === undefined || campaignTypeId === null)
-            throw new Error("The parameter 'campaignTypeId' must be defined.");
-        url_ = url_.replace("{campaignTypeId}", encodeURIComponent("" + campaignTypeId));
+    updateMessageType(typeId: string, body?: UpsertMessageTypeRequest | undefined): Observable<void> {
+        let url_ = this.baseUrl + "/api/message-types/{typeId}";
+        if (typeId === undefined || typeId === null)
+            throw new Error("The parameter 'typeId' must be defined.");
+        url_ = url_.replace("{typeId}", encodeURIComponent("" + typeId));
         url_ = url_.replace(/[?&]$/, "");
 
         const content_ = JSON.stringify(body);
@@ -2366,11 +2370,11 @@ export class MessagesApiClient implements IMessagesApiClient {
     }
 
     /**
-     * Gets a message type by it's unique id.
+     * Permanently deletes a message type.
      * @param typeId The id of the message type.
-     * @return OK
+     * @return No Content
      */
-    getMessageTypeById(typeId: string): Observable<MessageType> {
+    deleteMessageType(typeId: string): Observable<void> {
         let url_ = this.baseUrl + "/api/message-types/{typeId}";
         if (typeId === undefined || typeId === null)
             throw new Error("The parameter 'typeId' must be defined.");
@@ -2381,25 +2385,24 @@ export class MessagesApiClient implements IMessagesApiClient {
             observe: "response",
             responseType: "blob",
             headers: new HttpHeaders({
-                "Accept": "application/json"
             })
         };
 
-        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processGetMessageTypeById(response_);
+        return this.http.request("delete", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processDeleteMessageType(response_);
         })).pipe(_observableCatch((response_: any) => {
             if (response_ instanceof HttpResponseBase) {
                 try {
-                    return this.processGetMessageTypeById(response_ as any);
+                    return this.processDeleteMessageType(response_ as any);
                 } catch (e) {
-                    return _observableThrow(e) as any as Observable<MessageType>;
+                    return _observableThrow(e) as any as Observable<void>;
                 }
             } else
-                return _observableThrow(response_) as any as Observable<MessageType>;
+                return _observableThrow(response_) as any as Observable<void>;
         }));
     }
 
-    protected processGetMessageTypeById(response: HttpResponseBase): Observable<MessageType> {
+    protected processDeleteMessageType(response: HttpResponseBase): Observable<void> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -2420,19 +2423,16 @@ export class MessagesApiClient implements IMessagesApiClient {
             result403 = ProblemDetails.fromJS(resultData403);
             return throwException("Forbidden", status, _responseText, _headers, result403);
             }));
-        } else if (status === 200) {
+        } else if (status === 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            let result200: any = null;
-            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = MessageType.fromJS(resultData200);
-            return _observableOf(result200);
+            return _observableOf(null as any);
             }));
-        } else if (status === 404) {
+        } else if (status === 400) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            let result404: any = null;
-            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result404 = ProblemDetails.fromJS(resultData404);
-            return throwException("Not Found", status, _responseText, _headers, result404);
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ValidationProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
             }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {

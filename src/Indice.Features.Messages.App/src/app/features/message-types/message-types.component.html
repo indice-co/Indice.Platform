@@ -12,5 +12,13 @@
         <lib-list-column title="ΟΝΟΜΑ">
             <ng-template let-item>{{ item.name }}</ng-template>
         </lib-list-column>
+        <lib-list-column title="ΕΝΕΡΓΕΙΕΣ">
+            <ng-template let-item>
+                <button type="button" (click)="deleteConfirmation(item)"
+                    class="inline-flex items-center justify-center px-4 py-2 border border-transparent font-medium rounded-md text-red-700 bg-red-100 hover:bg-red-200 focus:outline-none focus:ring-1 focus:ring-offset-1 focus:ring-red-500 sm:text-sm">
+                    Διαγραφή
+                </button>
+            </ng-template>
+        </lib-list-column>
     </lib-list-view>
 </lib-view-layout>

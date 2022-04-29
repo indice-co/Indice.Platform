@@ -74,14 +74,19 @@ namespace Indice.Features.Messages.Core.Services
         }
 
         /// <inheritdoc />
-        public Task<ResultSet<MessageType>> GetList(ListOptions options) =>
-            DbContext.MessageTypes
-                     .AsNoTracking()
-                     .Select(campaignType => new MessageType {
-                         Id = campaignType.Id,
-                         Name = campaignType.Name
-                     })
-                     .ToResultSetAsync(options);
+        public Task<ResultSet<MessageType>> GetList(ListOptions options) {
+            var query = DbContext
+                .MessageTypes
+                .AsNoTracking()
+                .Select(campaignType => new MessageType {
+                    Id = campaignType.Id,
+                    Name = campaignType.Name
+                });
+            if (!string.IsNullOrWhiteSpace(options.Search)) {
+                query = query.Where(x => x.Name.ToLower().Contains(options.Search.ToLower()));
+            }
+            return query.ToResultSetAsync(options);
+        }
 
         /// <inheritdoc />
         public async Task Update(Guid id, UpsertMessageTypeRequest request) {

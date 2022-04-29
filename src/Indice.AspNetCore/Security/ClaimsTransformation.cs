@@ -18,7 +18,7 @@ namespace Microsoft.Extensions.DependencyInjection
     }
 
     /// <summary>
-    /// Contains the Logic for normalizing claims types comming from external identity providers to the Jwt standard ones.    
+    /// Contains the Logic for normalizing claims types coming from external identity providers to the JWT standard ones.    
     /// </summary>
     internal class ExternalIdentityProviderClaimsTransformation : IClaimsTransformation
     {
@@ -33,7 +33,7 @@ namespace Microsoft.Extensions.DependencyInjection
     }
 
     /// <summary>
-    /// Extensions on the aspnet core authentication regarding <see cref="ClaimsTransformation"/>.
+    /// Extensions on the ASP.NET Core authentication regarding <see cref="ClaimsTransformation"/>.
     /// </summary>
     public static class ClaimTransformationConfigurationExtensions
     {
@@ -46,7 +46,7 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddSingleton<IClaimsTransformation, ClaimsTransformation>();
 
         /// <summary>
-        /// Adds a claim transformation that contains the Logic for normalizing claims types comming from external identity providers to the Jwt standard ones.
+        /// Adds a claim transformation that contains the Logic for normalizing claims types coming from external identity providers to the JWT standard ones.
         /// </summary>
         /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
         /// <param name="claimTypesToIgnore">Types to ignore</param>

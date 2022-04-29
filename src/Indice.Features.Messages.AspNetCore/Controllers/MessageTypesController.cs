@@ -74,27 +74,27 @@ namespace Indice.Features.Messages.AspNetCore.Controllers
         }
 
         /// <summary>Updates an existing message type.</summary>
-        /// <param name="campaignTypeId">The id of the message type.</param>
+        /// <param name="typeId">The id of the message type.</param>
         /// <param name="request">Contains info about the message type to update.</param>
         /// <response code="204">No Content</response>
         /// <response code="400">Bad Request</response>
-        [HttpPut("{campaignTypeId}")]
+        [HttpPut("{typeId}")]
         [ProducesResponseType(typeof(void), StatusCodes.Status204NoContent)]
         [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> UpdateMessageType([FromRoute] Guid campaignTypeId, [FromBody] UpsertMessageTypeRequest request) {
-            await MessageTypeService.Update(campaignTypeId, request);
+        public async Task<IActionResult> UpdateMessageType([FromRoute] Guid typeId, [FromBody] UpsertMessageTypeRequest request) {
+            await MessageTypeService.Update(typeId, request);
             return NoContent();
         }
 
         /// <summary>Permanently deletes a message type.</summary>
-        /// <param name="campaignTypeId">The id of the message type.</param>
+        /// <param name="typeId">The id of the message type.</param>
         /// <response code="204">No Content</response>
         /// <response code="400">Bad Request</response>
-        [HttpDelete]
+        [HttpDelete("{typeId}")]
         [ProducesResponseType(typeof(void), StatusCodes.Status204NoContent)]
         [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> DeleteMessageType([FromRoute] Guid campaignTypeId) {
-            await MessageTypeService.Delete(campaignTypeId);
+        public async Task<IActionResult> DeleteMessageType([FromRoute] Guid typeId) {
+            await MessageTypeService.Delete(typeId);
             return NoContent();
         }
     }

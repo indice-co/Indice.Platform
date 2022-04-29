@@ -1,9 +1,8 @@
 import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, Inject, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { ActivatedRoute, Params, Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 
 import { ToasterService, ToastType } from '@indice/ng-components';
 import { Subscription } from 'rxjs';
-import { map, mergeMap } from 'rxjs/operators';
 import { MessagesApiClient, MessageType, UpsertMessageTypeRequest, ValidationProblemDetails } from 'src/app/core/services/messages-api.service';
 import { UtilitiesService } from 'src/app/shared/utilities.service';
 
@@ -13,6 +12,8 @@ import { UtilitiesService } from 'src/app/shared/utilities.service';
 })
 export class MessageTypeEditComponent implements OnInit, AfterViewInit, OnDestroy {
     private _getTypeSubscription!: Subscription;
+    private _updateTypeSubscription!: Subscription;
+    private _messageTypeId: string = '';
 
     constructor(
         private _changeDetector: ChangeDetectorRef,
@@ -28,8 +29,9 @@ export class MessageTypeEditComponent implements OnInit, AfterViewInit, OnDestro
     public model = new UpsertMessageTypeRequest({ name: '' });
 
     public ngOnInit(): void {
+        this._messageTypeId = this._activatedRoute.snapshot.params['messageTypeId'];
         this._getTypeSubscription = this._api
-            .getMessageTypeById(this._activatedRoute.snapshot.params['messageTypeId'])
+            .getMessageTypeById(this._messageTypeId)
             .subscribe((messageType: MessageType) => this.model.name = messageType.name);
     }
 
@@ -40,17 +42,17 @@ export class MessageTypeEditComponent implements OnInit, AfterViewInit, OnDestro
 
     public ngOnDestroy(): void {
         this._getTypeSubscription?.unsubscribe();
+        this._updateTypeSubscription?.unsubscribe();
     }
 
     public onSubmit(): void {
         this.submitInProgress = true;
-        this._api
-            .createMessageType(this.model)
+        this._updateTypeSubscription = this._api
+            .updateMessageType(this._messageTypeId, this.model)
             .subscribe({
-                next: (messageType: MessageType) => {
+                next: () => {
                     this.submitInProgress = false;
-                    this._toaster.show(ToastType.Success, 'Επιτυχής αποθήκευση', `Ο τύπος με όνομα '${messageType.name}' δημιουργήθηκε με επιτυχία.`);
-                    // This is to force reload message types page when a new campaign is successfully saved.
+                    this._toaster.show(ToastType.Success, 'Επιτυχής αποθήκευση', `Ο τύπος με όνομα '${this.model.name}' δημιουργήθηκε με επιτυχία.`);
                     this._router.navigateByUrl('/', { skipLocationChange: true }).then(() => this._router.navigate(['message-types']));
                 },
                 error: (problemDetails: ValidationProblemDetails) => {

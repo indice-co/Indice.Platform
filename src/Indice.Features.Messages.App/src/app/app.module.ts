@@ -27,10 +27,12 @@ import { RadioButtonsListComponent } from './shared/components/radio-buttons-lis
 import { ShellConfig } from './shell.config';
 import { ToggleButtonComponent } from './shared/components/toggle-button/toggle-button.component';
 import * as app from 'src/app/core/models/settings';
+import { BasicModalComponent } from './shared/components/basic-modal/basic-modal.component';
 
 @NgModule({
   declarations: [
     AppComponent,
+    BasicModalComponent,
     BeautifyBooleanPipe,
     CampaignCreateComponent,
     CampaignsComponent,
