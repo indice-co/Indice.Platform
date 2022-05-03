@@ -1,4 +1,4 @@
-<lib-view-layout title="Τύποι Μηνυμάτων" [busy]="!items" [actions]="actions" [meta-items]="metaItems" (onAction)="actionHandler($event)" (onSearch)="searchChanged($event)">
+<lib-view-layout title="Λίστες Διανομής" [busy]="!items" [actions]="actions" [meta-items]="metaItems" (onAction)="actionHandler($event)" (onSearch)="searchChanged($event)">
     <lib-list-view [items]="items" [page]="page" [page-size]="pageSize" [count]="count" [sort-options]="sortOptions" [sort]="sort" [sort-dir]="sortdir" [busy]="!items" (pageChanged)="pageChanged($event)"
         (pageSizeChanged)="pageSizeChanged($event)" (sortChanged)="sortChanged($event)" (sortdirChanged)="sortdirChanged($event)">
         <lib-list-column title="Id">
@@ -7,9 +7,12 @@
         <lib-list-column title="ΟΝΟΜΑ">
             <ng-template let-item>{{ item.name }}</ng-template>
         </lib-list-column>
+        <lib-list-column title="ΔΗΜΙΟΥΡΓΗΘΗΚΕ">
+            <ng-template let-item>{{ item.createdAt | date: 'medium' }}</ng-template>
+        </lib-list-column>
         <lib-list-column title="ΕΝΕΡΓΕΙΕΣ">
             <ng-template let-item>
-                <a href="#" [routerLinkActive]="['']" [routerLinkActiveOptions]="{ exact: true }" [routerLink]="['', { outlets: { rightpane: ['edit-message-type', item.id] } }]" class="nav-link-profile"
+                <a href="#" [routerLinkActive]="['']" [routerLinkActiveOptions]="{ exact: true }" [routerLink]="['', { outlets: { rightpane: ['edit-distribution-list', item.id] } }]" class="nav-link-profile"
                     class="inline-flex items-center justify-center px-4 py-2 border border-transparent font-medium rounded-md text-green-700 bg-green-100 hover:bg-green-200 focus:outline-none focus:ring-1 focus:ring-offset-1 focus:ring-green-500 sm:text-sm">
                     <span>Λεπτομέρειες</span>
                 </a>

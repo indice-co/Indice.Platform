@@ -72,12 +72,18 @@ namespace Indice.Features.Messages.Core.Services
 
         /// <inheritdoc />
         public Task<ResultSet<DistributionList>> GetList(ListOptions options) {
-            var query = DbContext.DistributionLists.AsNoTracking().Select(list => new DistributionList {
-                CreatedAt = list.CreatedAt,
-                CreatedBy = list.CreatedBy,
-                Id = list.Id,
-                Name = list.Name
-            });
+            var query = DbContext
+                .DistributionLists
+                .AsNoTracking()
+                .Select(list => new DistributionList {
+                    CreatedAt = list.CreatedAt,
+                    CreatedBy = list.CreatedBy,
+                    Id = list.Id,
+                    Name = list.Name
+                });
+            if (!string.IsNullOrWhiteSpace(options.Search)) {
+                query = query.Where(x => x.Name.ToLower().Contains(options.Search.ToLower()));
+            }
             return query.ToResultSetAsync(options);
         }
     }

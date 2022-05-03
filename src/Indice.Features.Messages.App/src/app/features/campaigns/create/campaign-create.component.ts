@@ -1,4 +1,5 @@
-import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, Inject, OnInit, ViewChild } from '@angular/core';
+import { DOCUMENT } from '@angular/common';
+import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, Inject, OnInit, Renderer2, ViewChild } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { Router } from '@angular/router';
 
@@ -21,7 +22,8 @@ export class CampaignCreateComponent implements OnInit, AfterViewInit {
         private _router: Router,
         private _utilities: UtilitiesService,
         private _changeDetector: ChangeDetectorRef,
-        @Inject(ToasterService) private _toaster: ToasterService
+        @Inject(ToasterService) private _toaster: ToasterService,
+        @Inject(DOCUMENT) private _document: Document
     ) { }
 
     public now: Date = new Date();
@@ -32,7 +34,7 @@ export class CampaignCreateComponent implements OnInit, AfterViewInit {
         messageChannelKind: [MessageChannelKind.Inbox],
         title: '',
         content: { 'inbox': new MessageContent() },
-        actionLink: new Hyperlink({ href: '', text: '' }),
+        actionLink: new Hyperlink({ href: undefined, text: undefined }),
         templateId: undefined
     });
     public messageTypes: MenuOption[] = [];
@@ -45,6 +47,11 @@ export class CampaignCreateComponent implements OnInit, AfterViewInit {
     public targetOptions: MenuOption[] = [new MenuOption('Όλους τους χρήστες', true), new MenuOption('Ομάδα χρηστών', false)];
 
     public ngOnInit(): void {
+        // Did not find any better way to do this.
+        setTimeout(() => {
+            const sidePane = this._document.getElementsByClassName('side-pane-box-size')[0] as HTMLElement;
+            sidePane.style.maxWidth = '84rem';
+        }, 0);
         this.loadMessageTypes();
     }
 
@@ -100,9 +107,6 @@ export class CampaignCreateComponent implements OnInit, AfterViewInit {
     }
 
     public toggleMessageChannelKind(messageChannelKind: MessageChannelKind): void {
-        if (messageChannelKind !== MessageChannelKind.Inbox) {
-            this.model.messageChannelKind = this.model.messageChannelKind!.filter(x => x === MessageChannelKind.Inbox || x === messageChannelKind);
-        }
         const index = this.model.messageChannelKind!.findIndex(channel => channel === messageChannelKind);
         if (index > -1) {
             this.model.messageChannelKind!.splice(index, 1);

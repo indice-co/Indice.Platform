@@ -9,13 +9,13 @@
                 </a>
             </ng-template>
         </lib-list-column>
-        <lib-list-column title="ΗΜ. ΔΗΜΙΟΥΡΓΙΑΣ">
+        <lib-list-column title="ΔΗΜΙΟΥΡΓΗΘΗΚΕ">
             <ng-template let-item>{{ item.createdAt | date: 'medium' }}</ng-template>
         </lib-list-column>
-        <lib-list-column title="ΕΝΕΡΓΗ ΑΠΟ">
+        <lib-list-column title="ΑΠΟ">
             <ng-template let-item>{{ item.activePeriod.from | date: 'medium' }}</ng-template>
         </lib-list-column>
-        <lib-list-column title="ΕΝΕΡΓΗ ΕΩΣ">
+        <lib-list-column title="ΕΩΣ">
             <ng-template let-item>{{ item.activePeriod?.to ? (item.activePeriod?.to | date: 'medium') : '-' }}</ng-template>
         </lib-list-column>
         <lib-list-column title="ΔΗΜΟΣΙΕΥΜΕΝΗ">

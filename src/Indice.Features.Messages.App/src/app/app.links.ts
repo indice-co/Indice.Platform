@@ -12,6 +12,7 @@ export class AppLinks implements IAppLinks {
         new NavLink('Αρχική', '/dashboard', false),
         new NavLink('Campaigns', '/campaigns', false),
         new NavLink('Τύποι Μηνυμάτων', '/message-types', false),
+        new NavLink('Λίστες Διανομής', '/distribution-lists', false),
         new NavLink('Templates', '/templates', false)
     ]);
 

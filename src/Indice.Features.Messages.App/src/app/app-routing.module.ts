@@ -6,14 +6,16 @@ import { AuthCallbackComponent, AuthRenewComponent, PageNotFoundComponent } from
 import { AuthGuardService } from '@indice/ng-auth';
 import { CampaignCreateComponent } from './features/campaigns/create/campaign-create.component';
 import { CampaignsComponent } from './features/campaigns/campaigns.component';
+import { CampaignsDetailsComponent } from './features/campaigns/manage/details/campaigns-details.component';
+import { CampaignsManageComponent } from './features/campaigns/manage/campaigns-manage.component';
 import { DashboardComponent } from './features/dashboard/dashboard.component';
+import { DistributionListCreateComponent } from './features/distribution-lists/create/distribution-list-create.component';
+import { DistributionListsComponent } from './features/distribution-lists/distribution-lists.component';
 import { HomeComponent } from './features/home/home.component';
 import { LogOutComponent } from './core/services/logout/logout.component';
-import { CampaignsManageComponent } from './features/campaigns/manage/campaigns-manage.component';
-import { CampaignsDetailsComponent } from './features/campaigns/manage/details/campaigns-details.component';
-import { MessageTypesComponent } from './features/message-types/message-types.component';
 import { MessageTypeCreateComponent } from './features/message-types/create/message-type-create.component';
 import { MessageTypeEditComponent } from './features/message-types/edit/message-type-edit.component';
+import { MessageTypesComponent } from './features/message-types/message-types.component';
 
 const routes: Routes = [
   { path: 'auth-callback', component: AuthCallbackComponent },
@@ -32,12 +34,14 @@ const routes: Routes = [
           { path: 'manage', component: CampaignsRemoveComponent, data: { animation: 'three' } }
         ]
       },
-      { path: 'message-types', component: MessageTypesComponent }
+      { path: 'message-types', component: MessageTypesComponent },
+      { path: 'distribution-lists', component: DistributionListsComponent }
     ]
   },
   { path: 'create-campaign', canActivate: [AuthGuardService], component: CampaignCreateComponent, outlet: 'rightpane', pathMatch: 'prefix' },
   { path: 'create-message-type', canActivate: [AuthGuardService], component: MessageTypeCreateComponent, outlet: 'rightpane', pathMatch: 'prefix' },
   { path: 'edit-message-type/:messageTypeId', canActivate: [AuthGuardService], component: MessageTypeEditComponent, outlet: 'rightpane', pathMatch: 'prefix' },
+  { path: 'create-distribution-list', canActivate: [AuthGuardService], component: DistributionListCreateComponent, outlet: 'rightpane', pathMatch: 'prefix' },
   { path: 'logout', component: LogOutComponent, data: { shell: { fluid: true, showHeader: false, showFooter: false } } },
   { path: '**', component: PageNotFoundComponent, data: { shell: { fluid: true, showHeader: false, showFooter: false } } }
 ];

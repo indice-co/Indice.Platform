@@ -1,4 +1,5 @@
-<lib-side-view-layout title="Δημιουργία νέας καμπάνιας" [ok-close-dialog]="false" [ok-label]="'Δημιουργία'" [cancel-label]="'Κλείσιμο'" (ok)="submitButton.nativeElement.click()" [disabled]="!canSubmit() || submitInProgress" #sideViewLayout>
+<lib-side-view-layout title="Δημιουργία νέας καμπάνιας" class="large" [ok-close-dialog]="false" [ok-label]="'Δημιουργία'" [cancel-label]="'Κλείσιμο'" (ok)="submitButton.nativeElement.click()" [disabled]="!canSubmit() || submitInProgress"
+    #sideViewLayout>
     <div class="mt-4">
         <form #campaignForm="ngForm" (ngSubmit)="onSubmit()">
             <div class="px-4 space-y-2 pb-4">
@@ -37,7 +38,7 @@
                     <div class="col-span-4 sm:col-span-2">
                         <label for="campaignStart" class="field-label">Ημ. Έναρξης</label>
                         <div class="mt-1 flex rounded-sm col-span-3">
-                            <input type="datetime-local" name="campaignStart" id="campaignStart" [value]="model.activePeriod!.from | date: 'yyyy-MM-ddThh:mm'" (input)="model.activePeriod!.from = toDate($event)"
+                            <input class="w-full" type="datetime-local" name="campaignStart" id="campaignStart" [value]="model.activePeriod!.from | date: 'yyyy-MM-ddThh:mm'" (input)="model.activePeriod!.from = toDate($event)"
                                 [min]="now | date: 'yyyy-MM-ddTHH:mm'" [max]="model.activePeriod!.to | date: 'yyyy-MM-ddTHH:mm'">
                         </div>
                         <p class="field-info">Η ημέρα και ώρα έναρξης της καμπάνιας.</p>
@@ -46,7 +47,7 @@
                     <div class="col-span-4 sm:col-span-2">
                         <label for="campaignEnd" class="field-label">Ημ. Λήξης</label>
                         <div class="mt-1 flex rounded-sm col-span-3">
-                            <input type="datetime-local" name="campaignEnd" id="campaignEnd" [value]="model.activePeriod!.to | date: 'yyyy-MM-ddTHH:mm'" (input)="model.activePeriod!.to = toDate($event)"
+                            <input class="w-full" type="datetime-local" name="campaignEnd" id="campaignEnd" [value]="model.activePeriod!.to | date: 'yyyy-MM-ddTHH:mm'" (input)="model.activePeriod!.to = toDate($event)"
                                 [min]="model.activePeriod!.from | date: 'yyyy-MM-ddTHH:mm'" [disabled]="model.activePeriod!.from === undefined">
                         </div>
                         <p class="field-info">Η ημέρα και ώρα λήξης της καμπάνιας.</p>

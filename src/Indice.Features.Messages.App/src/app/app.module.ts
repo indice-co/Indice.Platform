@@ -9,6 +9,7 @@ import { APP_LINKS, IndiceComponentsModule, ModalService, SHELL_CONFIG } from '@
 import { AppComponent } from './app.component';
 import { AppLinks } from './app.links';
 import { AppRoutingModule } from './app-routing.module';
+import { BasicModalComponent } from './shared/components/basic-modal/basic-modal.component';
 import { BeautifyBooleanPipe } from './shared/pipes.services';
 import { CampaignCreateComponent } from './features/campaigns/create/campaign-create.component';
 import { CampaignsComponent } from './features/campaigns/campaigns.component';
@@ -16,6 +17,7 @@ import { CampaignsDetailsComponent } from './features/campaigns/manage/details/c
 import { CampaignsManageComponent } from './features/campaigns/manage/campaigns-manage.component';
 import { CampaignsRemoveComponent } from './features/campaigns/manage/remove/campaigns-remove.component';
 import { DashboardComponent } from './features/dashboard/dashboard.component';
+import { DistributionListsComponent } from './features/distribution-lists/distribution-lists.component';
 import { HomeComponent } from './features/home/home.component';
 import { LogOutComponent } from './core/services/logout/logout.component';
 import { MESSAGES_API_BASE_URL } from './core/services/messages-api.service';
@@ -27,7 +29,7 @@ import { RadioButtonsListComponent } from './shared/components/radio-buttons-lis
 import { ShellConfig } from './shell.config';
 import { ToggleButtonComponent } from './shared/components/toggle-button/toggle-button.component';
 import * as app from 'src/app/core/models/settings';
-import { BasicModalComponent } from './shared/components/basic-modal/basic-modal.component';
+import { DistributionListCreateComponent } from './features/distribution-lists/create/distribution-list-create.component';
 
 @NgModule({
   declarations: [
@@ -39,7 +41,9 @@ import { BasicModalComponent } from './shared/components/basic-modal/basic-modal
     CampaignsDetailsComponent,
     CampaignsManageComponent,
     CampaignsRemoveComponent,
+    DistributionListCreateComponent,
     DashboardComponent,
+    DistributionListsComponent,
     HomeComponent,
     LogOutComponent,
     MessageTypesComponent,
