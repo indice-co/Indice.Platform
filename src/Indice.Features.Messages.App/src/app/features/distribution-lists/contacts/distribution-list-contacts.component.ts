@@ -3,41 +3,47 @@ import { ActivatedRoute, Router } from '@angular/router';
 
 import { BaseListComponent, Icons, IResultSet, ListViewType, MenuOption, ModalService, ToasterService, ToastType, ViewAction } from '@indice/ng-components';
 import { map, Observable } from 'rxjs';
-import { DistributionList, DistributionListResultSet, MessagesApiClient } from 'src/app/core/services/messages-api.service';
+import { Contact, ContactResultSet, DistributionList, MessagesApiClient } from 'src/app/core/services/messages-api.service';
 import { BasicModalComponent } from 'src/app/shared/components/basic-modal/basic-modal.component';
 
 @Component({
-    selector: 'app-distribution-lists',
-    templateUrl: './distribution-lists.component.html'
+    selector: 'app-distribution-list-contacts',
+    templateUrl: './distribution-list-contacts.component.html'
 })
-export class DistributionListsComponent extends BaseListComponent<DistributionList> implements OnInit {
+export class DistributionListContactsComponent extends BaseListComponent<Contact> implements OnInit {
+    private _distributionListId: string = '';
+
     constructor(
         route: ActivatedRoute,
         private _router: Router,
         private _api: MessagesApiClient,
         @Inject(ToasterService) private _toaster: ToasterService,
-        private _modalService: ModalService
+        private _modalService: ModalService,
+        private _activatedRoute: ActivatedRoute
     ) {
         super(route, _router);
         this.view = ListViewType.Table;
         this.pageSize = 10;
-        this.sort = 'name';
+        this.sort = 'updatedAt';
         this.sortdir = 'asc';
         this.search = '';
         this.sortOptions = [new MenuOption('Όνομα', 'name')];
     }
 
-    public newItemLink: string | null = 'create-distribution-list';
+    public newItemLink: string | null = 'create-distribution-list-contact';
     public full = true;
+    public distributionList = new DistributionList({ name: '' });
 
     public ngOnInit(): void {
+        this._distributionListId = this._activatedRoute.snapshot.params['distributionListId'];
         super.ngOnInit();
+
     }
 
-    public loadItems(): Observable<IResultSet<DistributionList> | null | undefined> {
+    public loadItems(): Observable<IResultSet<Contact> | null | undefined> {
         return this._api
-            .getDistributionLists(this.page, this.pageSize, this.sortdir === 'asc' ? this.sort! : this.sort + '-', this.search || undefined)
-            .pipe(map((result: DistributionListResultSet) => (result as IResultSet<DistributionList>)));
+            .getDistributionListContacts(this._distributionListId, this.page, this.pageSize, this.sortdir === 'asc' ? this.sort! : this.sort + '-', this.search || undefined)
+            .pipe(map((result: ContactResultSet) => (result as IResultSet<Contact>)));
     }
 
     public deleteConfirmation(list: DistributionList): void {

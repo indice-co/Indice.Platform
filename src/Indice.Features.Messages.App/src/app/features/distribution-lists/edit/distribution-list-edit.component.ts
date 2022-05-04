@@ -3,17 +3,17 @@ import { ActivatedRoute, Router } from '@angular/router';
 
 import { ToasterService, ToastType } from '@indice/ng-components';
 import { Subscription } from 'rxjs';
-import { MessagesApiClient, MessageType, UpdateMessageTypeRequest, ValidationProblemDetails } from 'src/app/core/services/messages-api.service';
+import { DistributionList, MessagesApiClient, UpdateDistributionListRequest, ValidationProblemDetails } from 'src/app/core/services/messages-api.service';
 import { UtilitiesService } from 'src/app/shared/utilities.service';
 
 @Component({
-    selector: 'app-message-type-edit',
-    templateUrl: './message-type-edit.component.html'
+    selector: 'app-distribution-list-edit',
+    templateUrl: './distribution-list-edit.component.html'
 })
-export class MessageTypeEditComponent implements OnInit, AfterViewInit, OnDestroy {
-    private _getTypeSubscription!: Subscription;
-    private _updateTypeSubscription!: Subscription;
-    private _messageTypeId: string = '';
+export class DistributionListEditComponent implements OnInit, AfterViewInit, OnDestroy {
+    private _getListSubscription!: Subscription;
+    private _updateListSubscription!: Subscription;
+    private _distributionListId: string = '';
 
     constructor(
         private _changeDetector: ChangeDetectorRef,
@@ -26,13 +26,13 @@ export class MessageTypeEditComponent implements OnInit, AfterViewInit, OnDestro
 
     @ViewChild('submitBtn', { static: false }) public submitButton!: ElementRef;
     public submitInProgress = false;
-    public model = new UpdateMessageTypeRequest({ name: '' });
+    public model = new UpdateDistributionListRequest({ name: '' });
 
     public ngOnInit(): void {
-        this._messageTypeId = this._activatedRoute.snapshot.params['messageTypeId'];
-        this._getTypeSubscription = this._api
-            .getMessageTypeById(this._messageTypeId)
-            .subscribe((messageType: MessageType) => this.model.name = messageType.name);
+        this._distributionListId = this._activatedRoute.snapshot.params['distributionListId'];
+        this._getListSubscription = this._api
+            .getDistributionListById(this._distributionListId)
+            .subscribe((list: DistributionList) => this.model.name = list.name);
     }
 
     public ngAfterViewInit(): void {
@@ -40,19 +40,19 @@ export class MessageTypeEditComponent implements OnInit, AfterViewInit, OnDestro
     }
 
     public ngOnDestroy(): void {
-        this._getTypeSubscription?.unsubscribe();
-        this._updateTypeSubscription?.unsubscribe();
+        this._getListSubscription?.unsubscribe();
+        this._updateListSubscription?.unsubscribe();
     }
 
     public onSubmit(): void {
         this.submitInProgress = true;
-        this._updateTypeSubscription = this._api
-            .updateMessageType(this._messageTypeId, this.model)
+        this._updateListSubscription = this._api
+            .updateDistributionList(this._distributionListId, this.model)
             .subscribe({
                 next: () => {
                     this.submitInProgress = false;
-                    this._toaster.show(ToastType.Success, 'Επιτυχής αποθήκευση', `Ο τύπος με όνομα '${this.model.name}' αποθηκεύτηκε με επιτυχία.`);
-                    this._router.navigateByUrl('/', { skipLocationChange: true }).then(() => this._router.navigate(['message-types']));
+                    this._toaster.show(ToastType.Success, 'Επιτυχής αποθήκευση', `Η λίστα με όνομα '${this.model.name}' αποθηκεύτηκε με επιτυχία.`);
+                    this._router.navigateByUrl('/', { skipLocationChange: true }).then(() => this._router.navigate(['distribution-lists']));
                 },
                 error: (problemDetails: ValidationProblemDetails) => {
                     this._toaster.show(ToastType.Error, 'Αποτυχία αποθήκευσης', `${this._utilities.getValidationProblemDetails(problemDetails)}`, 6000);

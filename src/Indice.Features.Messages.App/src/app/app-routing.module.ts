@@ -16,6 +16,8 @@ import { LogOutComponent } from './core/services/logout/logout.component';
 import { MessageTypeCreateComponent } from './features/message-types/create/message-type-create.component';
 import { MessageTypeEditComponent } from './features/message-types/edit/message-type-edit.component';
 import { MessageTypesComponent } from './features/message-types/message-types.component';
+import { DistributionListEditComponent } from './features/distribution-lists/edit/distribution-list-edit.component';
+import { DistributionListContactsComponent } from './features/distribution-lists/contacts/distribution-list-contacts.component';
 
 const routes: Routes = [
   { path: 'auth-callback', component: AuthCallbackComponent },
@@ -35,13 +37,15 @@ const routes: Routes = [
         ]
       },
       { path: 'message-types', component: MessageTypesComponent },
-      { path: 'distribution-lists', component: DistributionListsComponent }
+      { path: 'distribution-lists', component: DistributionListsComponent },
+      { path: 'distribution-lists/:distributionListId/contacts', component: DistributionListContactsComponent }
     ]
   },
   { path: 'create-campaign', canActivate: [AuthGuardService], component: CampaignCreateComponent, outlet: 'rightpane', pathMatch: 'prefix' },
   { path: 'create-message-type', canActivate: [AuthGuardService], component: MessageTypeCreateComponent, outlet: 'rightpane', pathMatch: 'prefix' },
   { path: 'edit-message-type/:messageTypeId', canActivate: [AuthGuardService], component: MessageTypeEditComponent, outlet: 'rightpane', pathMatch: 'prefix' },
   { path: 'create-distribution-list', canActivate: [AuthGuardService], component: DistributionListCreateComponent, outlet: 'rightpane', pathMatch: 'prefix' },
+  { path: 'edit-distribution-list/:distributionListId', canActivate: [AuthGuardService], component: DistributionListEditComponent, outlet: 'rightpane', pathMatch: 'prefix' },
   { path: 'logout', component: LogOutComponent, data: { shell: { fluid: true, showHeader: false, showFooter: false } } },
   { path: '**', component: PageNotFoundComponent, data: { shell: { fluid: true, showHeader: false, showFooter: false } } }
 ];

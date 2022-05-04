@@ -137,9 +137,28 @@ export interface IMessagesApiClient {
     /**
      * Creates a new distribution list.
      * @param body (optional) Contains info about the distribution list to be created.
-     * @return OK
+     * @return Created
      */
     createDistributionList(body?: CreateDistributionListRequest | undefined): Observable<DistributionList>;
+    /**
+     * Gets a distribution list by it's unique id.
+     * @param distributionListId The id of the message type.
+     * @return OK
+     */
+    getDistributionListById(distributionListId: string): Observable<MessageType>;
+    /**
+     * Permanently deletes a distribution list.
+     * @param distributionListId The id of the distribution list.
+     * @return No Content
+     */
+    deleteDistributionList(distributionListId: string): Observable<void>;
+    /**
+     * Updates an existing distribution list.
+     * @param distributionListId The id of the distribution list.
+     * @param body (optional) Models a request when updating a distribution list.
+     * @return No Content
+     */
+    updateDistributionList(distributionListId: string, body?: UpdateDistributionListRequest | undefined): Observable<DistributionList>;
     /**
      * Gets the contacts of a given distribution list.
      * @param distributionListId The id of the distribution list.
@@ -180,7 +199,7 @@ export interface IMessagesApiClient {
      * @param body (optional) Contains info about the message type to be created.
      * @return Created
      */
-    createMessageType(body?: UpsertMessageTypeRequest | undefined): Observable<MessageType>;
+    createMessageType(body?: CreateMessageTypeRequest | undefined): Observable<MessageType>;
     /**
      * Gets a message type by it's unique id.
      * @param typeId The id of the message type.
@@ -193,7 +212,7 @@ export interface IMessagesApiClient {
      * @param body (optional) Contains info about the message type to update.
      * @return No Content
      */
-    updateMessageType(typeId: string, body?: UpsertMessageTypeRequest | undefined): Observable<void>;
+    updateMessageType(typeId: string, body?: UpdateMessageTypeRequest | undefined): Observable<void>;
     /**
      * Permanently deletes a message type.
      * @param typeId The id of the message type.
@@ -1721,7 +1740,7 @@ export class MessagesApiClient implements IMessagesApiClient {
     /**
      * Creates a new distribution list.
      * @param body (optional) Contains info about the distribution list to be created.
-     * @return OK
+     * @return Created
      */
     createDistributionList(body?: CreateDistributionListRequest | undefined): Observable<DistributionList> {
         let url_ = this.baseUrl + "/api/distribution-lists";
@@ -1774,12 +1793,244 @@ export class MessagesApiClient implements IMessagesApiClient {
             result403 = ProblemDetails.fromJS(resultData403);
             return throwException("Forbidden", status, _responseText, _headers, result403);
             }));
+        } else if (status === 201) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result201: any = null;
+            let resultData201 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result201 = DistributionList.fromJS(resultData201);
+            return _observableOf(result201);
+            }));
+        } else if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ValidationProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * Gets a distribution list by it's unique id.
+     * @param distributionListId The id of the message type.
+     * @return OK
+     */
+    getDistributionListById(distributionListId: string): Observable<MessageType> {
+        let url_ = this.baseUrl + "/api/distribution-lists/{distributionListId}";
+        if (distributionListId === undefined || distributionListId === null)
+            throw new Error("The parameter 'distributionListId' must be defined.");
+        url_ = url_.replace("{distributionListId}", encodeURIComponent("" + distributionListId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetDistributionListById(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetDistributionListById(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<MessageType>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<MessageType>;
+        }));
+    }
+
+    protected processGetDistributionListById(response: HttpResponseBase): Observable<MessageType> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            }));
         } else if (status === 200) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = DistributionList.fromJS(resultData200);
+            result200 = MessageType.fromJS(resultData200);
             return _observableOf(result200);
+            }));
+        } else if (status === 404) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = ProblemDetails.fromJS(resultData404);
+            return throwException("Not Found", status, _responseText, _headers, result404);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * Permanently deletes a distribution list.
+     * @param distributionListId The id of the distribution list.
+     * @return No Content
+     */
+    deleteDistributionList(distributionListId: string): Observable<void> {
+        let url_ = this.baseUrl + "/api/distribution-lists/{distributionListId}";
+        if (distributionListId === undefined || distributionListId === null)
+            throw new Error("The parameter 'distributionListId' must be defined.");
+        url_ = url_.replace("{distributionListId}", encodeURIComponent("" + distributionListId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+            })
+        };
+
+        return this.http.request("delete", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processDeleteDistributionList(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processDeleteDistributionList(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
+    }
+
+    protected processDeleteDistributionList(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            }));
+        } else if (status === 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
+            }));
+        } else if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ValidationProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * Updates an existing distribution list.
+     * @param distributionListId The id of the distribution list.
+     * @param body (optional) Models a request when updating a distribution list.
+     * @return No Content
+     */
+    updateDistributionList(distributionListId: string, body?: UpdateDistributionListRequest | undefined): Observable<DistributionList> {
+        let url_ = this.baseUrl + "/api/distribution-lists/{distributionListId}";
+        if (distributionListId === undefined || distributionListId === null)
+            throw new Error("The parameter 'distributionListId' must be defined.");
+        url_ = url_.replace("{distributionListId}", encodeURIComponent("" + distributionListId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("put", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processUpdateDistributionList(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processUpdateDistributionList(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<DistributionList>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<DistributionList>;
+        }));
+    }
+
+    protected processUpdateDistributionList(response: HttpResponseBase): Observable<DistributionList> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            }));
+        } else if (status === 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result204: any = null;
+            let resultData204 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result204 = DistributionList.fromJS(resultData204);
+            return _observableOf(result204);
             }));
         } else if (status === 400) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
@@ -2141,7 +2392,7 @@ export class MessagesApiClient implements IMessagesApiClient {
      * @param body (optional) Contains info about the message type to be created.
      * @return Created
      */
-    createMessageType(body?: UpsertMessageTypeRequest | undefined): Observable<MessageType> {
+    createMessageType(body?: CreateMessageTypeRequest | undefined): Observable<MessageType> {
         let url_ = this.baseUrl + "/api/message-types";
         url_ = url_.replace(/[?&]$/, "");
 
@@ -2297,7 +2548,7 @@ export class MessagesApiClient implements IMessagesApiClient {
      * @param body (optional) Contains info about the message type to update.
      * @return No Content
      */
-    updateMessageType(typeId: string, body?: UpsertMessageTypeRequest | undefined): Observable<void> {
+    updateMessageType(typeId: string, body?: UpdateMessageTypeRequest | undefined): Observable<void> {
         let url_ = this.baseUrl + "/api/message-types/{typeId}";
         if (typeId === undefined || typeId === null)
             throw new Error("The parameter 'typeId' must be defined.");
@@ -3975,6 +4226,46 @@ export interface ICreateDistributionListRequest {
     name: string | undefined;
 }
 
+/** The request model used to create a new campaign type. */
+export class CreateMessageTypeRequest implements ICreateMessageTypeRequest {
+    /** The name of a campaign type. */
+    name: string | undefined;
+
+    constructor(data?: ICreateMessageTypeRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.name = _data["name"];
+        }
+    }
+
+    static fromJS(data: any): CreateMessageTypeRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new CreateMessageTypeRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["name"] = this.name;
+        return data;
+    }
+}
+
+/** The request model used to create a new campaign type. */
+export interface ICreateMessageTypeRequest {
+    /** The name of a campaign type. */
+    name: string | undefined;
+}
+
 /** The request model used to create a new template. */
 export class CreateTemplateRequest implements ICreateTemplateRequest {
     /** The name of the template. */
@@ -4777,12 +5068,12 @@ export interface IUpdateCampaignRequest {
     data?: any | undefined;
 }
 
-/** The request model used to create a new campaign type. */
-export class UpsertMessageTypeRequest implements IUpsertMessageTypeRequest {
-    /** The name of a campaign type. */
+/** Models a request when updating a distribution list. */
+export class UpdateDistributionListRequest implements IUpdateDistributionListRequest {
+    /** The name of the distribution list. */
     name: string | undefined;
 
-    constructor(data?: IUpsertMessageTypeRequest) {
+    constructor(data?: IUpdateDistributionListRequest) {
         if (data) {
             for (var property in data) {
                 if (data.hasOwnProperty(property))
@@ -4797,9 +5088,9 @@ export class UpsertMessageTypeRequest implements IUpsertMessageTypeRequest {
         }
     }
 
-    static fromJS(data: any): UpsertMessageTypeRequest {
+    static fromJS(data: any): UpdateDistributionListRequest {
         data = typeof data === 'object' ? data : {};
-        let result = new UpsertMessageTypeRequest();
+        let result = new UpdateDistributionListRequest();
         result.init(data);
         return result;
     }
@@ -4811,8 +5102,48 @@ export class UpsertMessageTypeRequest implements IUpsertMessageTypeRequest {
     }
 }
 
-/** The request model used to create a new campaign type. */
-export interface IUpsertMessageTypeRequest {
+/** Models a request when updating a distribution list. */
+export interface IUpdateDistributionListRequest {
+    /** The name of the distribution list. */
+    name: string | undefined;
+}
+
+/** The request model used to update a campaign type. */
+export class UpdateMessageTypeRequest implements IUpdateMessageTypeRequest {
+    /** The name of a campaign type. */
+    name: string | undefined;
+
+    constructor(data?: IUpdateMessageTypeRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.name = _data["name"];
+        }
+    }
+
+    static fromJS(data: any): UpdateMessageTypeRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new UpdateMessageTypeRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["name"] = this.name;
+        return data;
+    }
+}
+
+/** The request model used to update a campaign type. */
+export interface IUpdateMessageTypeRequest {
     /** The name of a campaign type. */
     name: string | undefined;
 }

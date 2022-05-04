@@ -17,6 +17,9 @@ import { CampaignsDetailsComponent } from './features/campaigns/manage/details/c
 import { CampaignsManageComponent } from './features/campaigns/manage/campaigns-manage.component';
 import { CampaignsRemoveComponent } from './features/campaigns/manage/remove/campaigns-remove.component';
 import { DashboardComponent } from './features/dashboard/dashboard.component';
+import { DistributionListContactsComponent } from './features/distribution-lists/contacts/distribution-list-contacts.component';
+import { DistributionListCreateComponent } from './features/distribution-lists/create/distribution-list-create.component';
+import { DistributionListEditComponent } from './features/distribution-lists/edit/distribution-list-edit.component';
 import { DistributionListsComponent } from './features/distribution-lists/distribution-lists.component';
 import { HomeComponent } from './features/home/home.component';
 import { LogOutComponent } from './core/services/logout/logout.component';
@@ -29,7 +32,6 @@ import { RadioButtonsListComponent } from './shared/components/radio-buttons-lis
 import { ShellConfig } from './shell.config';
 import { ToggleButtonComponent } from './shared/components/toggle-button/toggle-button.component';
 import * as app from 'src/app/core/models/settings';
-import { DistributionListCreateComponent } from './features/distribution-lists/create/distribution-list-create.component';
 
 @NgModule({
   declarations: [
@@ -41,14 +43,16 @@ import { DistributionListCreateComponent } from './features/distribution-lists/c
     CampaignsDetailsComponent,
     CampaignsManageComponent,
     CampaignsRemoveComponent,
-    DistributionListCreateComponent,
     DashboardComponent,
+    DistributionListCreateComponent,
+    DistributionListEditComponent,
     DistributionListsComponent,
+    DistributionListContactsComponent,
     HomeComponent,
     LogOutComponent,
-    MessageTypesComponent,
     MessageTypeCreateComponent,
     MessageTypeEditComponent,
+    MessageTypesComponent,
     PageIllustrationComponent,
     RadioButtonsListComponent,
     ToggleButtonComponent

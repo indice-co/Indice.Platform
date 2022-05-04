@@ -19,11 +19,11 @@ namespace Indice.Features.Messages.Core.Services.Abstractions
         Task<MessageType> GetByName(string name);
         /// <summary>Creates a new contact.</summary>
         /// <param name="request">The data for the message type to create.</param>
-        Task<MessageType> Create(UpsertMessageTypeRequest request);
+        Task<MessageType> Create(CreateMessageTypeRequest request);
         /// <summary>Updates an existing message type.</summary>
         /// <param name="id">The id of the message type.</param>
         /// <param name="request">The data for the message type to update.</param>
-        Task Update(Guid id, UpsertMessageTypeRequest request);
+        Task Update(Guid id, UpdateMessageTypeRequest request);
         /// <summary>Deletes an existing message type.</summary>
         /// <param name="id">The id of the message type.</param>
         Task Delete(Guid id);

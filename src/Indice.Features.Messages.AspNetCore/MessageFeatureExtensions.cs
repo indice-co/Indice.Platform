@@ -98,7 +98,7 @@ namespace Microsoft.Extensions.DependencyInjection
             services.TryAddTransient<ICampaignService, CampaignService>();
             services.TryAddTransient<IMessageTypeService, MessageTypeService>();
             services.TryAddTransient<CreateCampaignRequestValidator>();
-            services.TryAddTransient<UpsertMessageTypeRequestValidator>();
+            services.TryAddTransient<CreateMessageTypeRequestValidator>();
             // Configure authorization.
             services.AddAuthorizationCore(authOptions => {
                 authOptions.AddPolicy(MessagesApi.Policies.BeCampaignManager, policy => {

@@ -26,7 +26,7 @@ namespace Indice.Features.Messages.Core.Services
         private CampaignsDbContext DbContext { get; }
 
         /// <inheritdoc />
-        public async Task<MessageType> Create(UpsertMessageTypeRequest request) {
+        public async Task<MessageType> Create(CreateMessageTypeRequest request) {
             var messageType = new DbMessageType {
                 Id = Guid.NewGuid(),
                 Name = request.Name
@@ -45,7 +45,7 @@ namespace Indice.Features.Messages.Core.Services
             if (messageType is null) {
                 throw MessageException.MessageTypeNotFound(id);
             }
-            DbContext.Remove(messageType);
+            DbContext.MessageTypes.Remove(messageType);
             await DbContext.SaveChangesAsync();
         }
 
@@ -89,7 +89,7 @@ namespace Indice.Features.Messages.Core.Services
         }
 
         /// <inheritdoc />
-        public async Task Update(Guid id, UpsertMessageTypeRequest request) {
+        public async Task Update(Guid id, UpdateMessageTypeRequest request) {
             var messageType = await DbContext.MessageTypes.FindAsync(id);
             if (messageType is null) {
                 throw MessageException.MessageTypeNotFound(id);

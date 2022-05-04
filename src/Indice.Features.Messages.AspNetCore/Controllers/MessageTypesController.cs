@@ -68,7 +68,7 @@ namespace Indice.Features.Messages.AspNetCore.Controllers
         [HttpPost]
         [ProducesResponseType(typeof(MessageType), StatusCodes.Status201Created)]
         [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> CreateMessageType([FromBody] UpsertMessageTypeRequest request) {
+        public async Task<IActionResult> CreateMessageType([FromBody] CreateMessageTypeRequest request) {
             var messageType = await MessageTypeService.Create(request);
             return CreatedAtAction(nameof(GetMessageTypeById), new { typeId = messageType.Id }, messageType);
         }
@@ -78,10 +78,10 @@ namespace Indice.Features.Messages.AspNetCore.Controllers
         /// <param name="request">Contains info about the message type to update.</param>
         /// <response code="204">No Content</response>
         /// <response code="400">Bad Request</response>
-        [HttpPut("{typeId}")]
+        [HttpPut("{typeId:guid}")]
         [ProducesResponseType(typeof(void), StatusCodes.Status204NoContent)]
         [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> UpdateMessageType([FromRoute] Guid typeId, [FromBody] UpsertMessageTypeRequest request) {
+        public async Task<IActionResult> UpdateMessageType([FromRoute] Guid typeId, [FromBody] UpdateMessageTypeRequest request) {
             await MessageTypeService.Update(typeId, request);
             return NoContent();
         }
@@ -90,7 +90,7 @@ namespace Indice.Features.Messages.AspNetCore.Controllers
         /// <param name="typeId">The id of the message type.</param>
         /// <response code="204">No Content</response>
         /// <response code="400">Bad Request</response>
-        [HttpDelete("{typeId}")]
+        [HttpDelete("{typeId:guid}")]
         [ProducesResponseType(typeof(void), StatusCodes.Status204NoContent)]
         [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> DeleteMessageType([FromRoute] Guid typeId) {

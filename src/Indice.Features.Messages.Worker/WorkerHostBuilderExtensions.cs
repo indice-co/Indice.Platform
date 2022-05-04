@@ -89,7 +89,7 @@ namespace Microsoft.Extensions.DependencyInjection
             services.TryAddTransient<IMessageTypeService, MessageTypeService>();
             services.TryAddTransient<ITemplateService, TemplateService>();
             services.TryAddTransient<CreateCampaignRequestValidator>();
-            services.TryAddTransient<UpsertMessageTypeRequestValidator>();
+            services.TryAddTransient<CreateMessageTypeRequestValidator>();
             services.TryAddTransient<NotificationsManager>();
             services.TryAddSingleton(new DatabaseSchemaNameResolver(options.DatabaseSchema));
         }

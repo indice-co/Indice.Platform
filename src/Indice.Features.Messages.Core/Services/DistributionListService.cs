@@ -1,5 +1,6 @@
 ﻿using Indice.Features.Messages.Core.Data;
 using Indice.Features.Messages.Core.Data.Models;
+using Indice.Features.Messages.Core.Exceptions;
 using Indice.Features.Messages.Core.Models;
 using Indice.Features.Messages.Core.Models.Requests;
 using Indice.Features.Messages.Core.Services.Abstractions;
@@ -40,6 +41,16 @@ namespace Indice.Features.Messages.Core.Services
                 Id = list.Id,
                 Name = list.Name
             };
+        }
+
+        /// <inheritdoc />
+        public async Task Delete(Guid id) {
+            var list = await DbContext.DistributionLists.FindAsync(id);
+            if (list is null) {
+                throw MessageException.MessageTypeNotFound(id);
+            }
+            DbContext.DistributionLists.Remove(list);
+            await DbContext.SaveChangesAsync();
         }
 
         /// <inheritdoc />
@@ -85,6 +96,16 @@ namespace Indice.Features.Messages.Core.Services
                 query = query.Where(x => x.Name.ToLower().Contains(options.Search.ToLower()));
             }
             return query.ToResultSetAsync(options);
+        }
+
+        /// <inheritdoc />
+        public async Task Update(Guid id, UpdateDistributionListRequest request) {
+            var list = await DbContext.DistributionLists.FindAsync(id);
+            if (list is null) {
+                throw MessageException.MessageTypeNotFound(id);
+            }
+            list.Name = request.Name;
+            await DbContext.SaveChangesAsync();
         }
     }
 }

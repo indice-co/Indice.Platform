@@ -33,9 +33,7 @@ namespace Indice.Features.Messages.AspNetCore.Controllers
         public IDistributionListService DistributionListService { get; }
         public IContactService ContactService { get; }
 
-        /// <summary>
-        /// Gets the list of available campaign types.
-        /// </summary>
+        /// <summary>Gets the list of available campaign types.</summary>
         /// <param name="options">List parameters used to navigate through collections. Contains parameters such as sort, search, page number and page size.</param>
         /// <response code="200">OK</response>
         [HttpGet]
@@ -45,31 +43,81 @@ namespace Indice.Features.Messages.AspNetCore.Controllers
             return Ok(lists);
         }
 
-        /// <summary>
-        /// Gets the contacts of a given distribution list.
-        /// </summary>
+        /// <summary>Gets a distribution list by it's unique id.</summary>
+        /// <param name="distributionListId">The id of the message type.</param>
+        /// <response code="200">OK</response>
+        /// <response code="404">Not Found</response>
+        [HttpGet("{distributionListId:guid}")]
+        [Produces(MediaTypeNames.Application.Json)]
+        [ProducesResponseType(typeof(MessageType), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> GetDistributionListById([FromRoute] Guid distributionListId) {
+            var list = await DistributionListService.GetById(distributionListId);
+            if (list is null) {
+                return NotFound();
+            }
+            return Ok(list);
+        }
+
+        /// <summary>Creates a new distribution list.</summary>
+        /// <param name="request">Contains info about the distribution list to be created.</param>
+        /// <response code="201">Created</response>
+        /// <response code="400">Bad Request</response>
+        [HttpPost]
+        [ProducesResponseType(typeof(DistributionList), StatusCodes.Status201Created)]
+        [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> CreateDistributionList([FromBody] CreateDistributionListRequest request) {
+            request.CreatedBy = CreatedBy.User;
+            var list = await DistributionListService.Create(request);
+            return CreatedAtAction(nameof(GetDistributionListById), new { distributionListId = list.Id }, list);
+        }
+
+        /// <summary>Permanently deletes a distribution list.</summary>
+        /// <param name="distributionListId">The id of the distribution list.</param>
+        /// <response code="204">No Content</response>
+        /// <response code="400">Bad Request</response>
+        [HttpDelete("{distributionListId:guid}")]
+        [ProducesResponseType(typeof(void), StatusCodes.Status204NoContent)]
+        [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> DeleteDistributionList([FromRoute] Guid distributionListId) {
+            await DistributionListService.Delete(distributionListId);
+            return NoContent();
+        }
+
+        /// <summary>Updates an existing distribution list.</summary>
+        /// <param name="distributionListId">The id of the distribution list.</param>
+        /// <param name="request">Models a request when updating a distribution list.</param>
+        /// <response code="204">No Content</response>
+        /// <response code="400">Bad Request</response>
+        [HttpPut("{distributionListId:guid}")]
+        [ProducesResponseType(typeof(DistributionList), StatusCodes.Status204NoContent)]
+        [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> UpdateDistributionList([FromRoute] Guid distributionListId, [FromBody] UpdateDistributionListRequest request) {
+            await DistributionListService.Update(distributionListId, request);
+            return NoContent();
+        }
+
+        /// <summary>Gets the contacts of a given distribution list.</summary>
         /// <param name="options">List parameters used to navigate through collections. Contains parameters such as sort, search, page number and page size.</param>
         /// <param name="distributionListId">The id of the distribution list.</param>
         /// <response code="200">OK</response>
         [HttpGet("{distributionListId:guid}/contacts")]
         [ProducesResponseType(typeof(ResultSet<Contact>), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetDistributionListContacts([FromRoute] Guid distributionListId, [FromQuery] ListOptions options) {
-            var listOptions = new ListOptions<ContactListFilter> { 
+            var listOptions = new ListOptions<ContactListFilter> {
                 Page = options.Page,
                 Size = options.Size,
                 Sort = options.Sort,
                 Search = options.Search,
-                Filter = new ContactListFilter { 
-                    DistributionListId = distributionListId 
+                Filter = new ContactListFilter {
+                    DistributionListId = distributionListId
                 }
             };
             var contacts = await ContactService.GetList(listOptions);
             return Ok(contacts);
         }
 
-        /// <summary>
-        /// Adds a new or existing contact in the specified distribution list.
-        /// </summary>
+        /// <summary>Adds a new or existing contact in the specified distribution list.</summary>
         /// <param name="distributionListId">The id of the distribution list.</param>
         /// <param name="request">Contains info about the contact to be assigned to the distribution list.</param>
         /// <response code="204">No Content</response>
@@ -80,21 +128,6 @@ namespace Indice.Features.Messages.AspNetCore.Controllers
         public async Task<IActionResult> AddContactToDistributionList([FromRoute] Guid distributionListId, [FromBody] CreateDistributionListContactRequest request) {
             await ContactService.AddToDistributionList(distributionListId, request);
             return NoContent();
-        }
-
-        /// <summary>
-        /// Creates a new distribution list.
-        /// </summary>
-        /// <param name="request">Contains info about the distribution list to be created.</param>
-        /// <response code="200">OK</response>
-        /// <response code="400">Bad Request</response>
-        [HttpPost]
-        [ProducesResponseType(typeof(DistributionList), StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> CreateDistributionList([FromBody] CreateDistributionListRequest request) {
-            request.CreatedBy = CreatedBy.User;
-            var list = await DistributionListService.Create(request);
-            return Ok(list);
         }
     }
 }

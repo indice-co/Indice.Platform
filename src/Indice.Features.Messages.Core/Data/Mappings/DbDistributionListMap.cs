@@ -30,7 +30,7 @@ namespace Indice.Features.Messages.Core.Data.Mappings
             // Configure properties.
             builder.Property(x => x.Name).HasMaxLength(TextSizePresets.M128).IsRequired();
             // Configure indexes.
-            builder.HasIndex(x => x.Name);
+            builder.HasIndex(x => x.Name).IsUnique();
         }
     }
 }

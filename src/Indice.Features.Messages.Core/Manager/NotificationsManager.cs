@@ -24,7 +24,7 @@ namespace Indice.Features.Messages.Core.Manager
             IDistributionListService distributionListService,
             ITemplateService templateService,
             CreateCampaignRequestValidator createCampaignValidator,
-            UpsertMessageTypeRequestValidator messageTypeValidator,
+            CreateMessageTypeRequestValidator messageTypeValidator,
             Func<string, IEventDispatcher> getEventDispatcher
         ) {
             CampaignService = campaignService ?? throw new ArgumentNullException(nameof(campaignService));
@@ -41,7 +41,7 @@ namespace Indice.Features.Messages.Core.Manager
         private IDistributionListService DistributionListService { get; }
         private ITemplateService TemplateService { get; }
         private CreateCampaignRequestValidator CreateCampaignValidator { get; }
-        private UpsertMessageTypeRequestValidator MessageTypeValidator { get; }
+        private CreateMessageTypeRequestValidator MessageTypeValidator { get; }
         private IEventDispatcher EventDispatcher { get; }
 
         /// <summary>Creates a new campaign.</summary>
@@ -207,7 +207,7 @@ namespace Indice.Features.Messages.Core.Manager
         /// <summary>Creates a new campaign type.</summary>
         /// <param name="name">The name used to create a new campaign type.</param>
         public async Task<CreateMessageTypeResult> CreateMessageType(string name) {
-            var campaignType = new UpsertMessageTypeRequest { Name = name };
+            var campaignType = new CreateMessageTypeRequest { Name = name };
             var validationResult = MessageTypeValidator.Validate(campaignType);
             if (!validationResult.IsValid) {
                 var errorMessages = validationResult.Errors.Select(x => x.ErrorMessage).ToArray();

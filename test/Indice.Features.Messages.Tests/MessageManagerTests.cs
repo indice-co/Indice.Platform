@@ -50,7 +50,7 @@ namespace Indice.Features.Messages.Tests
                 .AddTransient<IDistributionListService, DistributionListService>()
                 .AddTransient<ITemplateService, TemplateService>()
                 .AddTransient<CreateCampaignRequestValidator>()
-                .AddTransient<UpsertMessageTypeRequestValidator>()
+                .AddTransient<CreateMessageTypeRequestValidator>()
                 .AddTransient<Func<string, IEventDispatcher>>(serviceProvider => key => new EventDispatcherNoop())
                 .AddTransient(serviceProvider => new DatabaseSchemaNameResolver("cmp"))
                 //.AddKeyedService<IFileService, FileServiceInMemory, string>(KeyedServiceNames.FileServiceKey, ServiceLifetime.Singleton)

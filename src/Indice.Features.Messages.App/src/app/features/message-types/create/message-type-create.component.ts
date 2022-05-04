@@ -2,7 +2,7 @@ import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, Inject, OnInit
 import { Router } from '@angular/router';
 
 import { ToasterService, ToastType } from '@indice/ng-components';
-import { MessagesApiClient, MessageType, UpsertMessageTypeRequest, ValidationProblemDetails } from 'src/app/core/services/messages-api.service';
+import { CreateMessageTypeRequest, MessagesApiClient, MessageType, ValidationProblemDetails } from 'src/app/core/services/messages-api.service';
 import { UtilitiesService } from 'src/app/shared/utilities.service';
 
 @Component({
@@ -21,7 +21,7 @@ export class MessageTypeCreateComponent implements OnInit, AfterViewInit {
     ) { }
 
     public submitInProgress = false;
-    public model = new UpsertMessageTypeRequest({ name: '' });
+    public model = new CreateMessageTypeRequest({ name: '' });
 
     public ngOnInit(): void { }
 
