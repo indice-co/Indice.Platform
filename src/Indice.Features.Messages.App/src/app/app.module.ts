@@ -17,6 +17,7 @@ import { CampaignsDetailsComponent } from './features/campaigns/manage/details/c
 import { CampaignsManageComponent } from './features/campaigns/manage/campaigns-manage.component';
 import { CampaignsRemoveComponent } from './features/campaigns/manage/remove/campaigns-remove.component';
 import { DashboardComponent } from './features/dashboard/dashboard.component';
+import { DistributionListContactCreateComponent } from './features/distribution-lists/contacts/create/distribution-list-contact-create.component';
 import { DistributionListContactsComponent } from './features/distribution-lists/contacts/distribution-list-contacts.component';
 import { DistributionListCreateComponent } from './features/distribution-lists/create/distribution-list-create.component';
 import { DistributionListEditComponent } from './features/distribution-lists/edit/distribution-list-edit.component';
@@ -44,10 +45,11 @@ import * as app from 'src/app/core/models/settings';
     CampaignsManageComponent,
     CampaignsRemoveComponent,
     DashboardComponent,
+    DistributionListContactCreateComponent,
+    DistributionListContactsComponent,
     DistributionListCreateComponent,
     DistributionListEditComponent,
     DistributionListsComponent,
-    DistributionListContactsComponent,
     HomeComponent,
     LogOutComponent,
     MessageTypeCreateComponent,

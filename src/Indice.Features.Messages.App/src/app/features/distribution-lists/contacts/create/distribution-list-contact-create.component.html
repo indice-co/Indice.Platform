@@ -1,0 +1,27 @@
+<lib-side-view-layout title="Εισαγωγή επαφής" [ok-close-dialog]="false" [ok-label]="'Δημιουργία'" [cancel-label]="'Κλείσιμο'" (ok)="submitButton.nativeElement.click()" [disabled]="!distributionListContactForm.valid || submitInProgress"
+    #sideViewLayout>
+    <div class="mt-4">
+        <form #distributionListContactForm="ngForm" (ngSubmit)="onSubmit()">
+            <div class="px-4 space-y-2 pb-4">
+                <div class="grid grid-cols-4 gap-4">
+                    <div class="col-span-4">
+                        <label for="distributionListContactName" class="field-label">Όνομα (*)</label>
+                        <div class="mt-1 flex rounded-sm">
+                            <input type="text" name="distributionListContactName" id="distributionListContactName" placeholder="Το όνομα της λίστας..." maxlength="128" required>
+                        </div>
+                        <ul *ngFor="let contact of contacts" role="list" class="bg-slate-300 p-1 divide-y divide-slate-200">
+                            <li class="flex py-4 first:pt-0 last:pb-0 border-red-200">
+                                <!-- <img class="h-10 w-10 rounded-full" src="{person.imageUrl}" alt="" /> -->
+                                <div class="ml-3 overflow-hidden">
+                                    <p class="text-sm font-medium text-slate-900">{{ contact.fullName }}</p>
+                                    <p class="text-sm text-slate-500 truncate">{{ contact.email }}</p>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <button type="submit" [style.visibility]="'hidden'" #submitBtn>Submit</button>
+        </form>
+    </div>
+</lib-side-view-layout>

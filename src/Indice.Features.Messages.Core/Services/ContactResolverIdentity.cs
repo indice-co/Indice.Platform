@@ -1,10 +1,9 @@
 ﻿using System.Net;
 using System.Net.Http.Headers;
 using System.Text.Json;
+using System.Web;
 using IdentityModel.Client;
-using Indice.Features.Messages.Core;
 using Indice.Features.Messages.Core.Models;
-using Indice.Features.Messages.Core.Models.Requests;
 using Indice.Features.Messages.Core.Services.Abstractions;
 using Indice.Security;
 using Indice.Serialization;
@@ -14,16 +13,12 @@ using Microsoft.Extensions.Options;
 
 namespace Indice.Features.Messages.Core.Services
 {
-    /// <summary>
-    /// An implementation of <see cref="IContactService"/> that gets contact information from Indice API for IdentityServer4.
-    /// </summary>
+    /// <summary>An implementation of <see cref="IContactService"/> that gets contact information from Indice API for IdentityServer4.</summary>
     public class ContactResolverIdentity : IContactResolver
     {
         private const string TOKEN_CACHE_KEY = "campaigns_id_contact_resolver_token";
 
-        /// <summary>
-        /// Creates a new instance of <see cref="ContactResolverIdentity"/>.
-        /// </summary>
+        /// <summary>Creates a new instance of <see cref="ContactResolverIdentity"/>.</summary>
         public ContactResolverIdentity(
             HttpClient httpClient,
             IOptions<ContactResolverIdentityOptions> options,
@@ -39,13 +34,35 @@ namespace Indice.Features.Messages.Core.Services
         private IDistributedCache Cache { get; }
 
         /// <inheritdoc />
-        public async Task<ResultSet<Contact>> Find(ListOptions<ContactSearchFilter> options) {
+        public async Task<ResultSet<Contact>> Find(ListOptions options) {
             var accessToken = await GetAccessToken();
             HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
-            var response = await HttpClient.GetAsync($"api/users");
+            var uriBuilder = new UriBuilder("api/users") { 
+                Port = -1,
+                Scheme = string.Empty
+            };
+            var queryString = HttpUtility.ParseQueryString(uriBuilder.Query);
+            queryString[nameof(ListOptions.Page)] = options.Page.ToString();
+            queryString[nameof(ListOptions.Search)] = options.Search;
+            queryString[nameof(ListOptions.Size)] = options.Size.ToString();
+            queryString[nameof(ListOptions.Sort)] = options.Sort;
+            uriBuilder.Query = queryString.ToString();
+            var response = await HttpClient.GetAsync($"/{uriBuilder}");
             response.EnsureSuccessStatusCode();
             var responseJson = await response.Content.ReadAsStringAsync();
-            return null;
+            var identityUserList = JsonSerializer.Deserialize<ResultSet<IdentityUserListItemResponse>>(responseJson, JsonSerializerOptionDefaults.GetDefaultSettings());
+            return new ResultSet<Contact> {
+                Count = identityUserList.Count,
+                Items = identityUserList.Items.Select(identityUser => new Contact {
+                    RecipientId = identityUser.Id,
+                    Email = identityUser.Email,
+                    PhoneNumber = identityUser.PhoneNumber,
+                    FirstName = identityUser.FirstName,
+                    LastName = identityUser.LastName,
+                    FullName = !string.IsNullOrEmpty(identityUser.FirstName) && !string.IsNullOrEmpty(identityUser.LastName) ? $"{identityUser.FirstName} {identityUser.LastName}" : null
+                })
+                .ToArray()
+            };
         }
 
         /// <inheritdoc />
@@ -61,7 +78,7 @@ namespace Indice.Features.Messages.Core.Services
             }
             response.EnsureSuccessStatusCode();
             var responseJson = await response.Content.ReadAsStringAsync();
-            var identityUser = JsonSerializer.Deserialize<IdentityUserResponse>(responseJson, JsonSerializerOptionDefaults.GetDefaultSettings());
+            var identityUser = JsonSerializer.Deserialize<IdentityUserSingleResponse>(responseJson, JsonSerializerOptionDefaults.GetDefaultSettings());
             var contact = new Contact {
                 RecipientId = identityUser.Id,
                 Email = identityUser.Email,
@@ -96,12 +113,21 @@ namespace Indice.Features.Messages.Core.Services
             return accessToken;
         }
 
-        private class IdentityUserResponse
+        private class IdentityUserSingleResponse
         {
             public string Id { get; set; }
             public string Email { get; set; }
             public string PhoneNumber { get; set; }
             public IEnumerable<IdentityUserClaimResponse> Claims { get; set; } = new List<IdentityUserClaimResponse>();
+        }
+
+        private class IdentityUserListItemResponse 
+        {
+            public string Id { get; set; }
+            public string FirstName { get; set; }
+            public string LastName { get; set; }
+            public string Email { get; set; }
+            public string PhoneNumber { get; set; }
         }
 
         private class IdentityUserClaimResponse

@@ -8,7 +8,7 @@
                     <div class="col-span-4">
                         <label for="distributionListName" class="field-label">Όνομα (*)</label>
                         <div class="mt-1 flex rounded-sm">
-                            <input type="text" name="distributionListName" id="messageTypeName" [(ngModel)]="model.name" placeholder="Το όνομα της λίστας..." maxlength="128" required #distributionListName="ngModel">
+                            <input type="text" name="distributionListName" id="distributionListName" [(ngModel)]="model.name" placeholder="Το όνομα της λίστας..." maxlength="128" required #distributionListName="ngModel">
                         </div>
                         <p *ngIf="distributionListName.invalid && (distributionListName.dirty || distributionListName.touched)" class="mt-2 text-sm text-red-600">
                             <span *ngIf="distributionListName.errors!['required']">Παρακαλώ συμπληρώστε ένα όνομα.</span>

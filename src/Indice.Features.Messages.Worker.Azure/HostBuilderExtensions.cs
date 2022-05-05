@@ -16,14 +16,10 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Microsoft.Extensions.Hosting
 {
-    /// <summary>
-    /// Extension methods on <see cref="IHostBuilder"/> used to configure Azure Functions for campaign management system.
-    /// </summary>
+    /// <summary>Extension methods on <see cref="IHostBuilder"/> used to configure Azure Functions for campaign management system.</summary>
     public static class HostBuilderExtensions
     {
-        /// <summary>
-        /// Configures services used by the queue triggers used for campaign management system.
-        /// </summary>
+        /// <summary>Configures services used by the queue triggers used for campaign management system.</summary>
         /// <param name="hostBuilder">A program initialization abstraction.</param>
         /// <param name="configure">Configure action for <see cref="MessageOptions"/>.</param>
         public static IHostBuilder ConfigureMessages(this IHostBuilder hostBuilder, Action<IConfiguration, MessageOptions> configure = null) {
@@ -68,9 +64,7 @@ namespace Microsoft.Extensions.Hosting
             return services;
         }
 
-        /// <summary>
-        /// Adds an Azure specific implementation of <see cref="IPushNotificationService"/> for sending push notifications.
-        /// </summary>
+        /// <summary>Adds an Azure specific implementation of <see cref="IPushNotificationService"/> for sending push notifications.</summary>
         /// <param name="options">Options used when configuring campaign Azure Functions.</param>
         /// <param name="configure">Configure the available options for push notifications. Null to use defaults.</param>
         public static MessageOptions UsePushNotificationServiceAzure(this MessageOptions options, Action<IServiceProvider, PushNotificationAzureOptions> configure = null) {
@@ -158,9 +152,7 @@ namespace Microsoft.Extensions.Hosting
             return options;
         }
 
-        /// <summary>
-        /// Configures that campaign contact information will be resolved by contacting the Identity Server instance. 
-        /// </summary>
+        /// <summary>Configures that campaign contact information will be resolved by contacting the Identity Server instance.</summary>
         /// <param name="options">Options for configuring internal campaign jobs used by the worker host.</param>
         /// <param name="configure">Delegate used to configure <see cref="ContactResolverIdentity"/> service.</param>
         public static MessageOptions UseIdentityContactResolver(this MessageOptions options, Action<ContactResolverIdentityOptions> configure) {
@@ -178,9 +170,7 @@ namespace Microsoft.Extensions.Hosting
             return options;
         }
 
-        /// <summary>
-        /// Adds a custom contact resolver that discovers contact information from a third-party system.
-        /// </summary>
+        /// <summary>Adds a custom contact resolver that discovers contact information from a third-party system.</summary>
         /// <typeparam name="TContactResolver">The concrete type of <see cref="IContactResolver"/>.</typeparam>
         /// <param name="options">Options for configuring internal campaign jobs used by the worker host.</param>
         public static MessageOptions UseContactResolver<TContactResolver>(this MessageOptions options) where TContactResolver : IContactResolver {

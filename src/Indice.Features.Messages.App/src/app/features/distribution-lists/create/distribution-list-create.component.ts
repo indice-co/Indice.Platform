@@ -6,7 +6,7 @@ import { CreateDistributionListRequest, MessagesApiClient, MessageType, Validati
 import { UtilitiesService } from 'src/app/shared/utilities.service';
 
 @Component({
-    selector: 'app-create-distribution-list',
+    selector: 'app-distribution-list-create',
     templateUrl: './distribution-list-create.component.html'
 })
 export class DistributionListCreateComponent implements OnInit, AfterViewInit {

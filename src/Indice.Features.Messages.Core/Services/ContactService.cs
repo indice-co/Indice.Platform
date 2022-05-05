@@ -9,14 +9,10 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Indice.Features.Messages.Core.Services
 {
-    /// <summary>
-    /// An implementation of <see cref="IContactService"/> for Entity Framework Core.
-    /// </summary>
+    /// <summary>An implementation of <see cref="IContactService"/> for Entity Framework Core.</summary>
     public class ContactService : IContactService
     {
-        /// <summary>
-        /// Creates a new instance of <see cref="ContactService"/>.
-        /// </summary>
+        /// <summary>Creates a new instance of <see cref="ContactService"/>.</summary>
         /// <param name="dbContext">The <see cref="Microsoft.EntityFrameworkCore.DbContext"/> for Campaigns API feature.</param>
         /// <exception cref="ArgumentNullException"></exception>
         public ContactService(CampaignsDbContext dbContext) {
@@ -101,6 +97,16 @@ namespace Indice.Features.Messages.Core.Services
                 query = query.Where(x => x.ContactDistributionLists.Any(y => y.DistributionListId == filter.DistributionListId.Value));
             }
             return await query.Select(Mapper.ProjectToContact).ToResultSetAsync(options);
+        }
+
+        /// <inheritdoc />
+        public async Task RemoveFromDistributionList(Guid id, Guid contactId) {
+            var association = await DbContext.DbContactDistributionLists.SingleOrDefaultAsync(x => x.ContactId == contactId && x.DistributionListId == id);
+            if (association is null) {
+                throw MessageException.DistributionListContactAssociationNotFound(id, contactId);
+            }
+            DbContext.DbContactDistributionLists.Remove(association);
+            await DbContext.SaveChangesAsync();
         }
 
         /// <inheritdoc />

@@ -1,8 +1,8 @@
-﻿using System.Text.Json;
+﻿using System;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 using IdentityModel;
 using Indice.Features.Messages.Core;
-using Indice.Features.Messages.Worker.Azure;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -24,6 +24,11 @@ namespace Microsoft.Extensions.DependencyInjection
                     //options.UseFilesLocal(fileOptions => fileOptions.Path = "uploads");
                     options.UseEventDispatcherHosting();
                     //options.UseEventDispatcherAzure();
+                    options.UseIdentityContactResolver(resolverOptions => {
+                        resolverOptions.BaseAddress = new Uri(configuration["IdentityServer:BaseAddress"]);
+                        resolverOptions.ClientId = configuration["IdentityServer:ClientId"];
+                        resolverOptions.ClientSecret = configuration["IdentityServer:ClientSecret"];
+                    });
                 })
                 .AddSettingsApiEndpoints(options => {
                     options.ApiPrefix = "api";

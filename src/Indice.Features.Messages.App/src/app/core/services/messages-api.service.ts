@@ -116,9 +116,10 @@ export interface IMessagesApiClient {
      * @param size (optional) 
      * @param sort (optional) 
      * @param search (optional) 
+     * @param resolve (optional) 
      * @return OK
      */
-    getContacts(filter_DistributionListId?: string | undefined, page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined): Observable<ContactResultSet>;
+    getContacts(filter_DistributionListId?: string | undefined, page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, resolve?: boolean | undefined): Observable<ContactResultSet>;
     /**
      * Creates a new contact in the store.
      * @param body (optional) The request model used to create a new contact.
@@ -145,7 +146,7 @@ export interface IMessagesApiClient {
      * @param distributionListId The id of the message type.
      * @return OK
      */
-    getDistributionListById(distributionListId: string): Observable<MessageType>;
+    getDistributionListById(distributionListId: string): Observable<DistributionList>;
     /**
      * Permanently deletes a distribution list.
      * @param distributionListId The id of the distribution list.
@@ -176,6 +177,13 @@ export interface IMessagesApiClient {
      * @return Bad Request
      */
     addContactToDistributionList(distributionListId: string, body?: CreateDistributionListContactRequest | undefined): Observable<void>;
+    /**
+     * Removes an existing contact from the specified distribution list.
+     * @param distributionListId The id of the distribution list.
+     * @param contactId The unique id of the contact.
+     * @return Bad Request
+     */
+    removeContactFromDistributionList(distributionListId: string, contactId: string): Observable<void>;
     /**
      * Gets the list of available campaign types.
      * @param page (optional) 
@@ -1489,9 +1497,10 @@ export class MessagesApiClient implements IMessagesApiClient {
      * @param size (optional) 
      * @param sort (optional) 
      * @param search (optional) 
+     * @param resolve (optional) 
      * @return OK
      */
-    getContacts(filter_DistributionListId?: string | undefined, page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined): Observable<ContactResultSet> {
+    getContacts(filter_DistributionListId?: string | undefined, page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, resolve?: boolean | undefined): Observable<ContactResultSet> {
         let url_ = this.baseUrl + "/api/contacts?";
         if (filter_DistributionListId === null)
             throw new Error("The parameter 'filter_DistributionListId' cannot be null.");
@@ -1513,6 +1522,10 @@ export class MessagesApiClient implements IMessagesApiClient {
             throw new Error("The parameter 'search' cannot be null.");
         else if (search !== undefined)
             url_ += "Search=" + encodeURIComponent("" + search) + "&";
+        if (resolve === null)
+            throw new Error("The parameter 'resolve' cannot be null.");
+        else if (resolve !== undefined)
+            url_ += "resolve=" + encodeURIComponent("" + resolve) + "&";
         url_ = url_.replace(/[?&]$/, "");
 
         let options_ : any = {
@@ -1820,7 +1833,7 @@ export class MessagesApiClient implements IMessagesApiClient {
      * @param distributionListId The id of the message type.
      * @return OK
      */
-    getDistributionListById(distributionListId: string): Observable<MessageType> {
+    getDistributionListById(distributionListId: string): Observable<DistributionList> {
         let url_ = this.baseUrl + "/api/distribution-lists/{distributionListId}";
         if (distributionListId === undefined || distributionListId === null)
             throw new Error("The parameter 'distributionListId' must be defined.");
@@ -1842,14 +1855,14 @@ export class MessagesApiClient implements IMessagesApiClient {
                 try {
                     return this.processGetDistributionListById(response_ as any);
                 } catch (e) {
-                    return _observableThrow(e) as any as Observable<MessageType>;
+                    return _observableThrow(e) as any as Observable<DistributionList>;
                 }
             } else
-                return _observableThrow(response_) as any as Observable<MessageType>;
+                return _observableThrow(response_) as any as Observable<DistributionList>;
         }));
     }
 
-    protected processGetDistributionListById(response: HttpResponseBase): Observable<MessageType> {
+    protected processGetDistributionListById(response: HttpResponseBase): Observable<DistributionList> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -1874,7 +1887,7 @@ export class MessagesApiClient implements IMessagesApiClient {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = MessageType.fromJS(resultData200);
+            result200 = DistributionList.fromJS(resultData200);
             return _observableOf(result200);
             }));
         } else if (status === 404) {
@@ -2176,6 +2189,83 @@ export class MessagesApiClient implements IMessagesApiClient {
     }
 
     protected processAddContactToDistributionList(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            }));
+        } else if (status === 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
+            }));
+        } else if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ValidationProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * Removes an existing contact from the specified distribution list.
+     * @param distributionListId The id of the distribution list.
+     * @param contactId The unique id of the contact.
+     * @return Bad Request
+     */
+    removeContactFromDistributionList(distributionListId: string, contactId: string): Observable<void> {
+        let url_ = this.baseUrl + "/api/distribution-lists/{distributionListId}/contacts/{contactId}";
+        if (distributionListId === undefined || distributionListId === null)
+            throw new Error("The parameter 'distributionListId' must be defined.");
+        url_ = url_.replace("{distributionListId}", encodeURIComponent("" + distributionListId));
+        if (contactId === undefined || contactId === null)
+            throw new Error("The parameter 'contactId' must be defined.");
+        url_ = url_.replace("{contactId}", encodeURIComponent("" + contactId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+            })
+        };
+
+        return this.http.request("delete", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processRemoveContactFromDistributionList(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processRemoveContactFromDistributionList(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
+    }
+
+    protected processRemoveContactFromDistributionList(response: HttpResponseBase): Observable<void> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :

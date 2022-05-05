@@ -23,14 +23,10 @@ using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
-    /// <summary>
-    /// Contains extension methods on <see cref="IMvcBuilder"/> for configuring Campaigns API feature.
-    /// </summary>
+    /// <summary>Contains extension methods on <see cref="IMvcBuilder"/> for configuring Campaigns API feature.</summary>
     public static class MessageFeatureExtensions
     {
-        /// <summary>
-        /// Add all Campaigns (both management and self-service) API endpoints in the MVC project.
-        /// </summary>
+        /// <summary>Add all Campaigns (both management and self-service) API endpoints in the MVC project.</summary>
         /// <param name="mvcBuilder">An interface for configuring MVC services.</param>
         /// <param name="configureAction">Configuration for several options of Campaigns API feature.</param>
         public static IMvcBuilder AddMessageEndpoints(this IMvcBuilder mvcBuilder, Action<MessageEndpointOptions> configureAction = null) {
@@ -55,9 +51,7 @@ namespace Microsoft.Extensions.DependencyInjection
             });
         }
 
-        /// <summary>
-        /// Add Campaigns management API endpoints in the MVC project.
-        /// </summary>
+        /// <summary>Add Campaigns management API endpoints in the MVC project.</summary>
         /// <param name="mvcBuilder">An interface for configuring MVC services.</param>
         /// <param name="configureAction">Configuration for several options of Campaigns management API feature.</param>
         public static IMvcBuilder AddMessageManagementEndpoints(this IMvcBuilder mvcBuilder, Action<MessageManagementOptions> configureAction = null) {
@@ -110,9 +104,7 @@ namespace Microsoft.Extensions.DependencyInjection
             return mvcBuilder;
         }
 
-        /// <summary>
-        /// Add Campaigns inbox API endpoints in the MVC project.
-        /// </summary>
+        /// <summary>Add messages inbox API endpoints in the MVC project.</summary>
         /// <param name="mvcBuilder">An interface for configuring MVC services.</param>
         /// <param name="configureAction">Configuration for several options of Campaigns inbox API feature.</param>
         public static IMvcBuilder AddMessageInboxEndpoints(this IMvcBuilder mvcBuilder, Action<MessageInboxOptions> configureAction = null) {
@@ -179,20 +171,68 @@ namespace Microsoft.Extensions.DependencyInjection
             return mvcBuilder;
         }
 
-        /// <summary>
-        /// Adds <see cref="IFileService"/> using local file system as the backing store.
-        /// </summary>
+        /// <summary>Adds <see cref="IFileService"/> using local file system as the backing store.</summary>
         /// <param name="options">Options used to configure the Campaigns API feature.</param>
         /// <param name="configure">Configure the available options. Null to use defaults.</param>
         public static void UseFilesLocal(this CampaignOptionsBase options, Action<FileServiceLocalOptions> configure = null) => 
             options.Services.AddFiles(options => options.AddFileSystem(KeyedServiceNames.FileServiceKey, configure));
 
-        /// <summary>
-        /// Adds <see cref="IFileService"/> using Azure Blob Storage as the backing store.
-        /// </summary>
+        /// <summary>Adds <see cref="IFileService"/> using Azure Blob Storage as the backing store.</summary>
         /// <param name="options">Options used to configure the Campaigns API feature.</param>
         /// <param name="configure">Configure the available options. Null to use defaults.</param>
         public static void UseFilesAzure(this CampaignOptionsBase options, Action<FileServiceAzureOptions> configure = null) =>
             options.Services.AddFiles(options => options.AddAzureStorage(KeyedServiceNames.FileServiceKey, configure));
+
+        /// <summary>Configures that campaign contact information will be resolved by contacting the Identity Server instance.</summary>
+        /// <param name="options">Options for configuring internal campaign jobs used by the worker host.</param>
+        /// <param name="configure">Delegate used to configure <see cref="ContactResolverIdentity"/> service.</param>
+        public static MessageEndpointOptions UseIdentityContactResolver(this MessageEndpointOptions options, Action<ContactResolverIdentityOptions> configure) {
+            var serviceOptions = new ContactResolverIdentityOptions();
+            configure.Invoke(serviceOptions);
+            options.Services.Configure<ContactResolverIdentityOptions>(config => {
+                config.BaseAddress = serviceOptions.BaseAddress;
+                config.ClientId = serviceOptions.ClientId;
+                config.ClientSecret = serviceOptions.ClientSecret;
+            });
+            options.Services.AddDistributedMemoryCache();
+            options.Services.AddHttpClient<IContactResolver, ContactResolverIdentity>(httpClient => {
+                httpClient.BaseAddress = serviceOptions.BaseAddress;
+            });
+            return options;
+        }
+
+        /// <summary>Adds a custom contact resolver that discovers contact information from a third-party system.</summary>
+        /// <typeparam name="TContactResolver">The concrete type of <see cref="IContactResolver"/>.</typeparam>
+        /// <param name="options">Options for configuring internal campaign jobs used by the worker host.</param>
+        public static MessageEndpointOptions UseContactResolver<TContactResolver>(this MessageEndpointOptions options) where TContactResolver : IContactResolver {
+            options.Services.AddTransient(typeof(IContactResolver), typeof(TContactResolver));
+            return options;
+        }
+
+        /// <summary>Configures that campaign contact information will be resolved by contacting the Identity Server instance.</summary>
+        /// <param name="options">Options for configuring internal campaign jobs used by the worker host.</param>
+        /// <param name="configure">Delegate used to configure <see cref="ContactResolverIdentity"/> service.</param>
+        public static MessageManagementOptions UseIdentityContactResolver(this MessageManagementOptions options, Action<ContactResolverIdentityOptions> configure) {
+            var serviceOptions = new ContactResolverIdentityOptions();
+            configure.Invoke(serviceOptions);
+            options.Services.Configure<ContactResolverIdentityOptions>(config => {
+                config.BaseAddress = serviceOptions.BaseAddress;
+                config.ClientId = serviceOptions.ClientId;
+                config.ClientSecret = serviceOptions.ClientSecret;
+            });
+            options.Services.AddDistributedMemoryCache();
+            options.Services.AddHttpClient<IContactResolver, ContactResolverIdentity>(httpClient => {
+                httpClient.BaseAddress = serviceOptions.BaseAddress;
+            });
+            return options;
+        }
+
+        /// <summary>Adds a custom contact resolver that discovers contact information from a third-party system.</summary>
+        /// <typeparam name="TContactResolver">The concrete type of <see cref="IContactResolver"/>.</typeparam>
+        /// <param name="options">Options for configuring internal campaign jobs used by the worker host.</param>
+        public static MessageManagementOptions UseContactResolver<TContactResolver>(this MessageManagementOptions options) where TContactResolver : IContactResolver {
+            options.Services.AddTransient(typeof(IContactResolver), typeof(TContactResolver));
+            return options;
+        }
     }
 }

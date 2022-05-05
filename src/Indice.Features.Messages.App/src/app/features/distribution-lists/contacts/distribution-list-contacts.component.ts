@@ -1,8 +1,8 @@
-import { Component, Inject, OnInit } from '@angular/core';
+import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 
 import { BaseListComponent, Icons, IResultSet, ListViewType, MenuOption, ModalService, ToasterService, ToastType, ViewAction } from '@indice/ng-components';
-import { map, Observable } from 'rxjs';
+import { map, Observable, Subscription } from 'rxjs';
 import { Contact, ContactResultSet, DistributionList, MessagesApiClient } from 'src/app/core/services/messages-api.service';
 import { BasicModalComponent } from 'src/app/shared/components/basic-modal/basic-modal.component';
 
@@ -10,8 +10,9 @@ import { BasicModalComponent } from 'src/app/shared/components/basic-modal/basic
     selector: 'app-distribution-list-contacts',
     templateUrl: './distribution-list-contacts.component.html'
 })
-export class DistributionListContactsComponent extends BaseListComponent<Contact> implements OnInit {
+export class DistributionListContactsComponent extends BaseListComponent<Contact> implements OnInit, OnDestroy {
     private _distributionListId: string = '';
+    private _getListSubscription!: Subscription;
 
     constructor(
         route: ActivatedRoute,
@@ -27,7 +28,12 @@ export class DistributionListContactsComponent extends BaseListComponent<Contact
         this.sort = 'updatedAt';
         this.sortdir = 'asc';
         this.search = '';
-        this.sortOptions = [new MenuOption('Όνομα', 'name')];
+        this.sortOptions = [
+            new MenuOption('Όνομα', 'firstName'),
+            new MenuOption('Επίθετο', 'lastName'),
+            new MenuOption('Email', 'email'),
+            new MenuOption('Δημιουργήθηκε', 'updatedAt')
+        ];
     }
 
     public newItemLink: string | null = 'create-distribution-list-contact';
@@ -37,7 +43,9 @@ export class DistributionListContactsComponent extends BaseListComponent<Contact
     public ngOnInit(): void {
         this._distributionListId = this._activatedRoute.snapshot.params['distributionListId'];
         super.ngOnInit();
-
+        this._getListSubscription = this._api.getDistributionListById(this._distributionListId).subscribe((list: DistributionList) => {
+            this.distributionList = list;
+        });
     }
 
     public loadItems(): Observable<IResultSet<Contact> | null | undefined> {
@@ -46,23 +54,28 @@ export class DistributionListContactsComponent extends BaseListComponent<Contact
             .pipe(map((result: ContactResultSet) => (result as IResultSet<Contact>)));
     }
 
-    public deleteConfirmation(list: DistributionList): void {
+    public deleteConfirmation(contact: Contact): void {
         const modal = this._modalService.show(BasicModalComponent, {
             animated: true,
             initialState: {
-                title: `Είστε σίγουρος ότι θέλετε να διαγράψετε τη λίστα ${list.name};`,
-                data: list
+                title: `Είστε σίγουρος ότι θέλετε να διαγράψετε την επαφή '${contact.fullName || contact.email}' από τη λίστα '${this.distributionList.name}';`,
+                data: contact
             },
             keyboard: true
         });
         modal.onHidden?.subscribe((response: any) => {
             if (response.result?.answer) {
-                this._api.deleteDistributionList(response.result.data.id).subscribe(() => {
-                    this._toaster.show(ToastType.Success, 'Επιτυχής διαγραφή', `Η λίστα με όνομα '${response.result.data.name}' διαγράφηκε με επιτυχία.`);
-                    this._router.navigateByUrl('/', { skipLocationChange: true }).then(() => this._router.navigate(['distribution-lists']));
+                const contact = response.result.data;
+                this._api.removeContactFromDistributionList(this._distributionListId, contact.id).subscribe(() => {
+                    this._toaster.show(ToastType.Success, 'Επιτυχής διαγραφή', `Η επαφή '${contact.fullName || contact.email}' αφαιρέθηκε από τη λίστα.`);
+                    this._router.navigateByUrl('/', { skipLocationChange: true }).then(() => this._router.navigate(['distribution-lists', this._distributionListId, 'contacts']));
                 });
             }
         });
+    }
+
+    public ngOnDestroy(): void {
+        this._getListSubscription?.unsubscribe();
     }
 
     public actionHandler(action: ViewAction): void {

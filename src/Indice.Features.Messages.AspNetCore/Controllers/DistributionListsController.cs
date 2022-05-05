@@ -49,7 +49,7 @@ namespace Indice.Features.Messages.AspNetCore.Controllers
         /// <response code="404">Not Found</response>
         [HttpGet("{distributionListId:guid}")]
         [Produces(MediaTypeNames.Application.Json)]
-        [ProducesResponseType(typeof(MessageType), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(DistributionList), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetDistributionListById([FromRoute] Guid distributionListId) {
             var list = await DistributionListService.GetById(distributionListId);
@@ -127,6 +127,19 @@ namespace Indice.Features.Messages.AspNetCore.Controllers
         [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> AddContactToDistributionList([FromRoute] Guid distributionListId, [FromBody] CreateDistributionListContactRequest request) {
             await ContactService.AddToDistributionList(distributionListId, request);
+            return NoContent();
+        }
+
+        /// <summary>Removes an existing contact from the specified distribution list.</summary>
+        /// <param name="distributionListId">The id of the distribution list.</param>
+        /// <param name="contactId">The unique id of the contact.</param>
+        /// <response code="204">No Content</response>
+        /// <response code="204">Bad Request</response>
+        [HttpDelete("{distributionListId:guid}/contacts/{contactId:guid}")]
+        [ProducesResponseType(typeof(void), StatusCodes.Status204NoContent)]
+        [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> RemoveContactFromDistributionList([FromRoute] Guid distributionListId, [FromRoute] Guid contactId) {
+            await ContactService.RemoveFromDistributionList(distributionListId, contactId);
             return NoContent();
         }
     }

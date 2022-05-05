@@ -24,28 +24,37 @@ namespace Indice.Features.Messages.AspNetCore.Controllers
     [Route($"{ApiPrefixes.CampaignManagementEndpoints}/contacts")]
     internal class ContactsController : ControllerBase
     {
-        public ContactsController(IContactService contactService) {
+        public ContactsController(IContactService contactService, IContactResolver contactResolver) {
             ContactService = contactService ?? throw new ArgumentNullException(nameof(contactService));
+            ContactResolver = contactResolver ?? throw new ArgumentNullException(nameof(contactResolver));
         }
 
         public IContactService ContactService { get; }
+        public IContactResolver ContactResolver { get; }
 
-        /// <summary>
-        /// Gets the list of all contacts using the provided <see cref="ListOptions"/>.
-        /// </summary>
+        /// <summary>Gets the list of all contacts using the provided <see cref="ListOptions"/>.</summary>
         /// <param name="options">List parameters used to navigate through collections. Contains parameters such as sort, search, page number and page size.</param>
+        /// <param name="resolve"></param>
         /// <response code="200">OK</response>
         [HttpGet]
         [Produces(MediaTypeNames.Application.Json)]
         [ProducesResponseType(typeof(ResultSet<Contact>), StatusCodes.Status200OK)]
-        public async Task<IActionResult> GetContacts([FromQuery] ListOptions<ContactListFilter> options) {
-            var contacts = await ContactService.GetList(options);
+        public async Task<IActionResult> GetContacts([FromQuery] ListOptions<ContactListFilter> options, [FromQuery] bool resolve) {
+            ResultSet<Contact> contacts;
+            if (resolve) {
+                contacts = await ContactResolver.Find(new ListOptions {
+                    Page = options.Page,
+                    Search = options.Search,
+                    Size = options.Size,
+                    Sort = options.Sort
+                });
+            } else {
+                contacts = await ContactService.GetList(options);
+            }
             return Ok(contacts);
         }
 
-        /// <summary>
-        /// Creates a new contact in the store.
-        /// </summary>
+        /// <summary>Creates a new contact in the store.</summary>
         /// <param name="request">The request model used to create a new contact.</param>
         /// <response code="200">OK</response>
         [HttpPost]
