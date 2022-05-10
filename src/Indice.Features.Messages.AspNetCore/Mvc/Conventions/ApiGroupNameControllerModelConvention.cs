@@ -36,7 +36,7 @@ namespace Indice.AspNetCore.Mvc.ApplicationModels
             var index = selector.EndpointMetadata.IndexOf(apiExplorerSettingsObj);
             var apiExplorerSettings = (ApiExplorerSettingsAttribute)selector.EndpointMetadata[index];
             var currentGroupName = apiExplorerSettings.GroupName;
-            if (!currentGroupName.Contains(_groupNamePlaceholder)) {
+            if (string.IsNullOrWhiteSpace(currentGroupName) || !currentGroupName.Contains(_groupNamePlaceholder)) {
                 return;
             }
             var newGroupName = string.IsNullOrWhiteSpace(_replacementValue) ? null : currentGroupName.Replace(_groupNamePlaceholder, _replacementValue);

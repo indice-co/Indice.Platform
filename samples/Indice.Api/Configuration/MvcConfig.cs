@@ -41,7 +41,8 @@ namespace Microsoft.Extensions.DependencyInjection
                     options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
                     options.JsonSerializerOptions.WriteIndented = true;
                     options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
-                });
+                })
+                .AddAvatars();
             return mvcBuilder;
         }
     }

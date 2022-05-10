@@ -24,14 +24,24 @@ export class DistributionListContactCreateComponent implements OnInit, AfterView
 
     public submitInProgress = false;
     public contacts: Contact[] = [];
+    public isLoading: boolean = false;
 
     public ngOnInit(): void {
         this._distributionListId = this._router.url.split('/')[2];
+    }
+
+    public onContactsSearch(searchTerm: string | undefined): void {
+        this.isLoading = true;
         this._api
-            .getContacts(undefined, 1, 10, 'email', undefined, true)
+            .getContacts(undefined, 1, 10, 'email', searchTerm, true)
             .subscribe((contacts: ContactResultSet) => {
                 this.contacts = contacts.items!;
+                this.isLoading = false;
             });
+    }
+
+    public onContactSelected(contact: Contact): void {
+        console.log(contact);
     }
 
     public ngAfterViewInit(): void {
