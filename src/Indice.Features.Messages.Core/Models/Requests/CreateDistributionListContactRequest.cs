@@ -5,9 +5,7 @@ namespace Indice.Features.Messages.Core.Models.Requests
     /// <inheritdoc />
     public class CreateDistributionListContactRequest : CreateContactRequest
     {
-        /// <summary>
-        /// The id of the existing contact.
-        /// </summary>
+        /// <summary>The id of the existing contact.</summary>
         public Guid? Id { get; set; }
     }
 }

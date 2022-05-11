@@ -53,6 +53,10 @@
         /// <summary>Distribution list not associated with contact exception.</summary>
         /// <param name="id">The id of the distribution list.</param>
         /// <param name="contactId">The id of the contact.</param>
-        public static MessageException DistributionListContactAssociationNotFound(Guid id, Guid contactId) => new($"Distribution list with id '{id}' does not contain contact with id '{contactId}'", nameof(id));
+        public static MessageException DistributionListContactAssociationNotFound(Guid id, Guid contactId) => new($"Distribution list with id '{id}' does not contain contact with id '{contactId}'.", nameof(id));
+        /// <summary>Contact already in distribution list exception.</summary>
+        /// <param name="id">The id of the distribution list.</param>
+        /// <param name="contactId">The id of the contact.</param>
+        public static MessageException ContactAlreadyInDistributionList(Guid id, Guid contactId) => new($"Contact with id '{contactId}' already belongs to distribution list with id '{id}'.", nameof(id));
     }
 }

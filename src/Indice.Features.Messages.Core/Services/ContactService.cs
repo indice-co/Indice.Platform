@@ -29,27 +29,40 @@ namespace Indice.Features.Messages.Core.Services
                 throw MessageException.DistributionListNotFound(id);
             }
             if (request.Id.HasValue) {
-                contact = await DbContext.Contacts.FindAsync(request.Id.Value);
+                contact = await DbContext.Contacts.SingleOrDefaultAsync(x => x.Id == request.Id.Value);
                 if (contact is null) {
                     throw MessageException.ContactNotFound(id);
                 }
-                contact.ContactDistributionLists.Add(new DbContactDistributionList {
-                    ContactId = request.Id.Value,
+                var associationExists = await DbContext.ContactDistributionLists.AnyAsync(x => x.ContactId == contact.Id && x.DistributionListId == id);
+                if (associationExists) {
+                    throw MessageException.ContactAlreadyInDistributionList(id, contact.Id);
+                }
+                contact.DistributionListContacts.Add(new DbDistributionListContact {
+                    ContactId = contact.Id,
                     DistributionListId = list.Id
                 });
-                contact.Email = request.Email;
-                contact.FirstName = request.FirstName;
-                contact.FullName = request.FullName;
-                contact.LastName = request.LastName;
-                contact.PhoneNumber = request.PhoneNumber;
-                contact.RecipientId = request.RecipientId;
-                contact.Salutation = request.Salutation;
-                contact.UpdatedAt = DateTimeOffset.UtcNow;
+                contact.MapFromCreateDistributionListContactRequest(request);
                 await DbContext.SaveChangesAsync();
                 return;
             }
+            if (!string.IsNullOrWhiteSpace(request.RecipientId)) {
+                contact = await DbContext.Contacts.SingleOrDefaultAsync(x => x.RecipientId == request.RecipientId);
+                if (contact is not null) {
+                    var associationExists = await DbContext.ContactDistributionLists.AnyAsync(x => x.ContactId == contact.Id && x.DistributionListId == id);
+                    if (associationExists) {
+                        throw MessageException.ContactAlreadyInDistributionList(id, contact.Id);
+                    }
+                    contact.DistributionListContacts.Add(new DbDistributionListContact {
+                        ContactId = contact.Id,
+                        DistributionListId = list.Id
+                    });
+                    contact.MapFromCreateDistributionListContactRequest(request);
+                    await DbContext.SaveChangesAsync();
+                    return;
+                }
+            }
             contact = Mapper.ToDbContact(request);
-            contact.ContactDistributionLists.Add(new DbContactDistributionList {
+            contact.DistributionListContacts.Add(new DbDistributionListContact {
                 ContactId = Guid.NewGuid(),
                 DistributionListId = list.Id
             });
@@ -94,18 +107,18 @@ namespace Indice.Features.Messages.Core.Services
             var query = DbContext.Contacts.AsNoTracking();
             var filter = options.Filter;
             if (filter?.DistributionListId is not null) {
-                query = query.Where(x => x.ContactDistributionLists.Any(y => y.DistributionListId == filter.DistributionListId.Value));
+                query = query.Where(x => x.DistributionListContacts.Any(y => y.DistributionListId == filter.DistributionListId.Value));
             }
             return await query.Select(Mapper.ProjectToContact).ToResultSetAsync(options);
         }
 
         /// <inheritdoc />
         public async Task RemoveFromDistributionList(Guid id, Guid contactId) {
-            var association = await DbContext.DbContactDistributionLists.SingleOrDefaultAsync(x => x.ContactId == contactId && x.DistributionListId == id);
+            var association = await DbContext.ContactDistributionLists.SingleOrDefaultAsync(x => x.ContactId == contactId && x.DistributionListId == id);
             if (association is null) {
                 throw MessageException.DistributionListContactAssociationNotFound(id, contactId);
             }
-            DbContext.DbContactDistributionLists.Remove(association);
+            DbContext.ContactDistributionLists.Remove(association);
             await DbContext.SaveChangesAsync();
         }
 

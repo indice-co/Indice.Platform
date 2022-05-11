@@ -44,6 +44,6 @@
         /// <summary>
         /// Contact - Distribution list join entity type.
         /// </summary>
-        public List<DbContactDistributionList> ContactDistributionLists { get; set; } = new List<DbContactDistributionList>();
+        public List<DbDistributionListContact> DistributionListContacts { get; set; } = new List<DbDistributionListContact>();
     }
 }

@@ -1,10 +1,17 @@
 <lib-side-view-layout title="Δημιουργία νέας καμπάνιας" class="large" [ok-close-dialog]="false" [ok-label]="'Δημιουργία'" [cancel-label]="'Κλείσιμο'" (ok)="submitButton.nativeElement.click()" [disabled]="!canSubmit() || submitInProgress"
     #sideViewLayout>
     <div class="mt-4">
-        <form #campaignForm="ngForm" (ngSubmit)="onSubmit()">
+        <lib-stepper #createCampaignStepper>
+            <lib-step>
+                <p>This is step 1</p>
+            </lib-step>
+            <lib-step>
+                <p>This is step 2</p>
+            </lib-step>
+        </lib-stepper>
+        <!-- <form #campaignForm="ngForm" (ngSubmit)="onSubmit()">
             <div class="px-4 space-y-2 pb-4">
                 <div class="grid grid-cols-4 gap-4">
-                    <!-- Δημοσιευμένη -->
                     <div class="col-span-4">
                         <label for="campaignActive" class="field-label">Δημοσιευμένη</label>
                         <div class="mt-1 flex rounded-sm">
@@ -12,7 +19,6 @@
                         </div>
                         <p class="field-info col-span-3">Μία μη-δημοσιευμένη καμπάνια δεν θα εμφανιστεί στους χρήστες του συστήματος.</p>
                     </div>
-                    <!-- Τίτλος -->
                     <div class="col-span-4">
                         <label for="campaignTitle" class="field-label">Τίτλος (*)</label>
                         <div class="mt-1 flex rounded-sm">
@@ -24,7 +30,6 @@
                         </p>
                         <p class="field-info col-span-3">Η ονομασία η οποία θα εμφανίζεται για την καμπάνια.</p>
                     </div>
-                    <!-- Περιεχόμενο -->
                     <div class="col-span-4">
                         <label for="campaignContent" class="field-label">Περιεχόμενο (*)</label>
                         <div class="mt-1 flex rounded-sm">
@@ -34,7 +39,6 @@
                             <span *ngIf="campaignContent.errors!['required']">Παρακαλώ συμπληρώστε το περιεχόμενο.</span>
                         </p>
                     </div>
-                    <!-- Ημ. Έναρξης -->
                     <div class="col-span-4 sm:col-span-2">
                         <label for="campaignStart" class="field-label">Ημ. Έναρξης</label>
                         <div class="mt-1 flex rounded-sm col-span-3">
@@ -43,7 +47,6 @@
                         </div>
                         <p class="field-info">Η ημέρα και ώρα έναρξης της καμπάνιας.</p>
                     </div>
-                    <!-- Ημ. Λήξης -->
                     <div class="col-span-4 sm:col-span-2">
                         <label for="campaignEnd" class="field-label">Ημ. Λήξης</label>
                         <div class="mt-1 flex rounded-sm col-span-3">
@@ -52,21 +55,18 @@
                         </div>
                         <p class="field-info">Η ημέρα και ώρα λήξης της καμπάνιας.</p>
                     </div>
-                    <!-- Τύπος -->
                     <div class="col-span-4">
                         <label for="campaignType" class="field-label">Τύπος</label>
                         <div class="mt-1 flex rounded-sm">
                             <lib-drop-down-menu id="campaignType" class="w-full" [selected]="model.typeId" [options]="messageTypes" (selectedChanged)="model.typeId = $event"></lib-drop-down-menu>
                         </div>
                     </div>
-                    <!-- Click to action text -->
                     <div class="col-span-4">
                         <label for="campaignClickToActionText" class="field-label">Call-to-action κείμενο</label>
                         <div class="mt-1 flex rounded-sm">
                             <input type="text" name="campaignClickToActionText" id="campaignClickToActionText" [(ngModel)]="model.actionLink!.text" placeholder="Πατήστε εδώ για να..." maxlength="128" #campaignClickToActionText="ngModel">
                         </div>
                     </div>
-                    <!-- Click to action link -->
                     <div class="col-span-4">
                         <label for="campaignClickToActionLink" class="field-label">Call-to-action σύνδεσμος</label>
                         <div class="mt-1 flex rounded-sm">
@@ -77,7 +77,6 @@
                             <span *ngIf="campaignClickToActionLink.errors!['pattern']">Παρακαλώ συμπληρώστε έναν έγκυρο σύνδεσμο.</span>
                         </p>
                     </div>
-                    <!-- Τρόπος Αποστολής -->
                     <div class="col-span-4">
                         <label class="field-label">Τροπος Αποστολής (*)</label>
                         <lib-toggle-button id="inbox" [value]="containsMessageChannelKind(MessageChannelKind.Inbox)" (valueChange)="toggleMessageChannelKind(MessageChannelKind.Inbox)" [true-label]="'Η καμπάνια θα εμφανιστεί στο Inbox'"
@@ -102,7 +101,6 @@
                             <span>Παρακαλώ επιλέξτε τρόπο αποστολής.</span>
                         </p>
                     </div>
-                    <!-- Κωδικοί χρηστών -->
                     <div class="col-span-4">
                         <div class="mt-1 flex rounded-sm">
                             <lib-radio-buttons-list id="setAsGlobal" [options]="targetOptions" [value]="model.isGlobal" (valueChange)="setIsGlobal($event)" title="Προς"></lib-radio-buttons-list>
@@ -137,7 +135,7 @@
                 </div>
             </div>
             <button type="submit" [style.visibility]="'hidden'" #submitBtn>Submit</button>
-        </form>
-        <pre class="mb-3 code-editor" *ngIf="isDevelopment">{{ model | json }}</pre>
+        </form> -->
+        <!-- <pre class="mb-3 code-editor" *ngIf="isDevelopment">{{ model | json }}</pre> -->
     </div>
 </lib-side-view-layout>

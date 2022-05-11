@@ -10,7 +10,7 @@ using Indice.Types;
 
 namespace Indice.Features.Messages.Core.Models
 {
-    internal class Mapper
+    internal static class Mapper
     {
         public static Expression<Func<DbCampaign, Campaign>> ProjectToCampaign = campaign => new() {
             ActionLink = campaign.ActionLink,
@@ -152,6 +152,17 @@ namespace Indice.Features.Messages.Core.Models
             Salutation = request.Salutation,
             UpdatedAt = DateTimeOffset.UtcNow
         };
+
+        public static void MapFromCreateDistributionListContactRequest(this DbContact contact, CreateDistributionListContactRequest request) {
+            contact.Email = request.Email;
+            contact.FirstName = request.FirstName;
+            contact.FullName = request.FullName;
+            contact.LastName = request.LastName;
+            contact.PhoneNumber = request.PhoneNumber;
+            contact.RecipientId = request.RecipientId;
+            contact.Salutation = request.Salutation;
+            contact.UpdatedAt = DateTimeOffset.UtcNow;
+        }
 
         public static DbAttachment ToDbAttachment(FileAttachment fileAttachment) => new() {
             ContentLength = fileAttachment.ContentLength,

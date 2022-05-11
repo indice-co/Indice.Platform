@@ -35,14 +35,14 @@ namespace Indice.Features.Messages.Core.Data
         /// <summary>Contacts table.</summary>
         public DbSet<DbContact> Contacts { get; set; }
         /// <summary>A table that associates contacts and distribution lists.</summary>
-        public DbSet<DbContactDistributionList> DbContactDistributionLists { get; set; }
+        public DbSet<DbDistributionListContact> ContactDistributionLists { get; set; }
 
         /// <inheritdoc />
         protected override void OnModelCreating(ModelBuilder builder) {
             var schemaName = Database.GetService<DatabaseSchemaNameResolver>().GetSchemaName();
             builder.ApplyConfiguration(new DbAttachmentMap(schemaName));
             builder.ApplyConfiguration(new DbCampaignMap(schemaName));
-            builder.ApplyConfiguration(new DbContactDistributionListMap(schemaName));
+            builder.ApplyConfiguration(new DbDistributionListContactMap(schemaName));
             builder.ApplyConfiguration(new DbContactMap(schemaName));
             builder.ApplyConfiguration(new DbDistributionListMap(schemaName));
             builder.ApplyConfiguration(new DbHitMap(schemaName));

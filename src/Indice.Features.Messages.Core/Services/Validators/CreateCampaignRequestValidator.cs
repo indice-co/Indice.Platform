@@ -1,21 +1,17 @@
 ﻿using FluentValidation;
 using Indice.Configuration;
+using Indice.Extensions;
 using Indice.Features.Messages.Core.Models;
 using Indice.Features.Messages.Core.Models.Requests;
 using Indice.Features.Messages.Core.Services.Abstractions;
 using Microsoft.Extensions.DependencyInjection;
-using Indice.Extensions;
 
 namespace Indice.Features.Messages.Core.Services.Validators
 {
-    /// <summary>
-    /// Contains validation logic for <see cref="CreateCampaignRequest"/>.
-    /// </summary>
+    /// <summary>Contains validation logic for <see cref="CreateCampaignRequest"/>.</summary>
     public class CreateCampaignRequestValidator : AbstractValidator<CreateCampaignRequest>
     {
-        /// <summary>
-        /// Creates a new instance of <see cref="CreateCampaignRequestValidator"/>.
-        /// </summary>
+        /// <summary>Creates a new instance of <see cref="CreateCampaignRequestValidator"/>.</summary>
         public CreateCampaignRequestValidator(IServiceProvider serviceProvider) {
             MessageTypeService = serviceProvider.GetRequiredService<IMessageTypeService>();
             DistributionListService = serviceProvider.GetRequiredService<IDistributionListService>();

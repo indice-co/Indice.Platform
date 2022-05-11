@@ -1,6 +1,6 @@
 <div class="relative mt-1">
     <form autocomplete="off" [id]="id + '-form'">
-        <input [id]="id" type="text" (click)="onInputClick()" (clickOutside)="onInputClickOutside()" (keyup)="onInputKeyUp($event)"
+        <input [id]="id + '-input'" type="text" (click)="onInputClick()" (clickOutside)="onInputClickOutside()" (keyup)="onInputKeyUp($event)"
             class="w-full rounded-md border border-gray-300 bg-white py-2 pl-3 pr-12 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 sm:text-sm" role="combobox" aria-controls="options"
             aria-expanded="false" autocomplete="off" list="autocomplete">
     </form>
@@ -28,5 +28,24 @@
     <span class="hover:bg-gray-100 relative cursor-pointer select-none py-2 pl-3 pr-3 block truncate">{{ item }}</span>
 </ng-template>
 <ng-template #defaultSelectedItemTemplate let-item>
-    <span class="hover:bg-gray-100 relative cursor-pointer select-none py-2 pl-3 pr-3 block truncate">{{ item }}</span>
+    <div class="grid grid-cols-1">
+        <div class="relative rounded-lg border border-gray-300 bg-white px-6 py-5 shadow-sm flex items-center space-x-3 hover:border-gray-400">
+            <div class="flex-1 min-w-0">
+                <div class="focus:outline-none">
+                    <span class="absolute" aria-hidden="true"></span>
+                    <p class="text-sm font-medium text-gray-900">{{ item }}</p>
+                </div>
+            </div>
+            <div class="ml-4 flex-shrink-0 flex">
+                <button type="button" (click)="removeSelectedItem(item)" class="cursor-pointer bg-white rounded-md inline-flex text-gray-400 hover:text-gray-500">
+                    <span class="sr-only">Close</span>
+                    <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                        <path fill-rule="evenodd"
+                            d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                            clip-rule="evenodd" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </div>
 </ng-template>

@@ -14,6 +14,6 @@ namespace Indice.Features.Messages.Core.Data.Models
         /// <summary>Describes who created the record.</summary>
         public CreatedBy CreatedBy { get; set; }
         /// <summary>Contact - Distribution list join entity type.</summary>
-        public List<DbContactDistributionList> ContactDistributionLists { get; set; }
+        public List<DbDistributionListContact> ContactDistributionLists { get; set; }
     }
 }

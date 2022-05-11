@@ -2,7 +2,9 @@ import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, Inject, OnInit
 import { ActivatedRoute, Router } from '@angular/router';
 
 import { ToasterService, ToastType } from '@indice/ng-components';
-import { Contact, ContactResultSet, CreateDistributionListRequest, MessagesApiClient, MessageType, ValidationProblemDetails } from 'src/app/core/services/messages-api.service';
+import { forkJoin } from 'rxjs';
+import { Contact, ContactResultSet, CreateDistributionListContactRequest, MessagesApiClient, ValidationProblemDetails } from 'src/app/core/services/messages-api.service';
+import { ComboboxComponent } from 'src/app/shared/components/combobox/combobox.component';
 import { UtilitiesService } from 'src/app/shared/utilities.service';
 
 @Component({
@@ -11,6 +13,7 @@ import { UtilitiesService } from 'src/app/shared/utilities.service';
 })
 export class DistributionListContactCreateComponent implements OnInit, AfterViewInit {
     @ViewChild('submitBtn', { static: false }) public submitButton!: ElementRef;
+    @ViewChild('contactsCombobox', { static: false }) public contactsCombobox!: ComboboxComponent;
     private _distributionListId: string = '';
 
     constructor(
@@ -40,9 +43,7 @@ export class DistributionListContactCreateComponent implements OnInit, AfterView
             });
     }
 
-    public onContactSelected(contact: Contact): void {
-        console.log(contact);
-    }
+    public onContactSelected(contact: Contact): void { }
 
     public ngAfterViewInit(): void {
         this._changeDetector.detectChanges();
@@ -50,17 +51,27 @@ export class DistributionListContactCreateComponent implements OnInit, AfterView
 
     public onSubmit(): void {
         this.submitInProgress = true;
-        // this._api
-        //     .createDistributionList(this.model)
-        //     .subscribe({
-        //         next: (messageType: MessageType) => {
-        //             this.submitInProgress = false;
-        //             this._toaster.show(ToastType.Success, 'Επιτυχής αποθήκευση', `Η λίστα με όνομα '${messageType.name}' δημιουργήθηκε με επιτυχία.`);
-        //             this._router.navigateByUrl('/', { skipLocationChange: true }).then(() => this._router.navigate(['distribution-lists']));
-        //         },
-        //         error: (problemDetails: ValidationProblemDetails) => {
-        //             this._toaster.show(ToastType.Error, 'Αποτυχία αποθήκευσης', `${this._utilities.getValidationProblemDetails(problemDetails)}`, 6000);
-        //         }
-        //     });
+        console.log(this.contactsCombobox.selectedItems);
+        var tasks = this.contactsCombobox.selectedItems.map((contact: Contact) => {
+            const body = new CreateDistributionListContactRequest({
+                email: contact.email,
+                firstName: contact.firstName,
+                fullName: contact.fullName,
+                id: contact.id,
+                lastName: contact.lastName,
+                phoneNumber: contact.phoneNumber,
+                recipientId: contact.recipientId,
+                salutation: contact.salutation
+            });
+            return this._api.addContactToDistributionList(this._distributionListId, body);
+        });
+        forkJoin(tasks).subscribe({
+            next: () => { },
+            error: (problemDetails: ValidationProblemDetails) => {
+                this._toaster.show(ToastType.Warning, 'Αποτυχία αποθήκευσης', `${this._utilities.getValidationProblemDetails(problemDetails)}`, 6000);
+            }
+        }).add(() => {
+            this._router.navigateByUrl('/', { skipLocationChange: true }).then(() => this._router.navigate(['distribution-lists', this._distributionListId, 'contacts']));
+        });
     }
 }

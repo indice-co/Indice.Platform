@@ -6,7 +6,7 @@
                 <div class="col-span-4">
                     <label for="distribution-list-contact-name" class="field-label">Όνομα (*)</label>
                     <lib-combobox id="distribution-list-contact-name" [items]="contacts" [itemTemplate]="itemTemplate" [selectedItemTemplate]="selectedItemTemplate" [busy]="isLoading" (onSearch)="onContactsSearch($event)"
-                        (onItemSelected)="onContactSelected($event)">
+                        (onItemSelected)="onContactSelected($event)" #contactsCombobox>
                     </lib-combobox>
                 </div>
             </div>
@@ -18,34 +18,40 @@
     <span class="hover:bg-gray-100 relative cursor-pointer select-none py-2 pl-3 pr-3 block truncate">{{ item.fullName || (item.firstName + ' ' + item.lastName) }}</span>
 </ng-template>
 <ng-template let-item #selectedItemTemplate>
-    <div class="w-full flex items-center justify-between p-4 space-x-4 mr bg-gray-100">
-        <div class="flex-1 truncate">
-            <div class="flex items-center space-x-3">
-                <h3 class="text-gray-900 text-sm font-medium truncate">{{ item.fullName }}</h3>
-                <span *ngIf="item.salutation" class="flex-shrink-0 inline-block px-2 py-0.5 text-green-800 text-xs font-medium bg-green-100 rounded-full">{{ item.salutation }}</span>
+    <div class="grid grid-cols-1">
+        <div class="relative rounded-lg border border-gray-300 bg-white px-6 py-5 shadow-sm flex items-center space-x-3 hover:border-gray-400">
+            <div class="flex-shrink-0">
+                <img class="h-10 w-10 rounded-full" [src]="'https://indice-notifications.azurewebsites.net/avatar/' + item.fullName + '?circular=true'" alt="">
             </div>
-        </div>
-        <img class="w-10 h-10 bg-gray-300 rounded-full flex-shrink-0" [src]="'https://indice-notifications.azurewebsites.net/avatar/' + item.fullName + '?circular=true'" alt="">
-    </div>
-    <div>
-        <div class="-mt-px flex divide-x divide-gray-200 bg-gray-100">
-            <div class="w-0 flex-1 flex">
-                <span class="relative -mr-px w-0 flex-1 inline-flex items-center justify-center py-4 text-sm text-gray-700 font-medium border border-transparent rounded-bl-lg hover:text-gray-500">
-                    <svg class="w-5 h-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                        <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
-                        <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
-                    </svg>
-                    <span class="ml-3">{{ item.email || '-' }}</span>
-                </span>
+            <div class="flex-1 min-w-0">
+                <div class="focus:outline-none">
+                    <span class="absolute" aria-hidden="true"></span>
+                    <p class="text-sm font-medium text-gray-900">{{ item.salutation }} {{ item.fullName || (item.firstName + ' ' + item.lastName) }}</p>
+                    <p class="text-sm text-gray-500 truncate">
+                        <svg class="w-5 h-5 text-gray-500 inline" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                            <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
+                            <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
+                        </svg>
+                        <span class="ml-2">{{ item.email || '-' }}</span>
+                    </p>
+                    <p class="text-sm text-gray-500 truncate">
+                        <svg class="w-5 h-5 text-gray-500 inline" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                            <path
+                                d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z" />
+                        </svg>
+                        <span class="ml-2">{{ item.phoneNumber || '-' }}</span>
+                    </p>
+                </div>
             </div>
-            <div class="-ml-px w-0 flex-1 flex">
-                <span href="tel:+1-202-555-0170" class="relative w-0 flex-1 inline-flex items-center justify-center py-4 text-sm text-gray-700 font-medium border border-transparent rounded-br-lg hover:text-gray-500">
-                    <svg class="w-5 h-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                        <path
-                            d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z" />
+            <div class="ml-4 flex-shrink-0 flex">
+                <button type="button" (click)="contactsCombobox.removeSelectedItem(item)" class="cursor-pointer bg-white rounded-md inline-flex text-gray-400 hover:text-gray-500">
+                    <span class="sr-only">Close</span>
+                    <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                        <path fill-rule="evenodd"
+                            d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                            clip-rule="evenodd" />
                     </svg>
-                    <span class="ml-3">{{ item.phoneNumber || '-' }}</span>
-                </span>
+                </button>
             </div>
         </div>
     </div>

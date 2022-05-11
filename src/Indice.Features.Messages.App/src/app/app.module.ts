@@ -34,6 +34,8 @@ import { RadioButtonsListComponent } from './shared/components/radio-buttons-lis
 import { ShellConfig } from './shell.config';
 import { ToggleButtonComponent } from './shared/components/toggle-button/toggle-button.component';
 import * as app from 'src/app/core/models/settings';
+import { LibStepperComponent } from './shared/components/stepper/lib-stepper.component';
+import { LibStepComponent } from './shared/components/stepper/lib-step.component';
 
 @NgModule({
   declarations: [
@@ -53,6 +55,8 @@ import * as app from 'src/app/core/models/settings';
     DistributionListEditComponent,
     DistributionListsComponent,
     HomeComponent,
+    LibStepComponent,
+    LibStepperComponent,
     LogOutComponent,
     MessageTypeCreateComponent,
     MessageTypeEditComponent,
