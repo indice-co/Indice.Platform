@@ -3,10 +3,22 @@
     <div class="mt-4">
         <lib-stepper #createCampaignStepper>
             <lib-step>
-                <p>This is step 1</p>
+                <ng-template libStepLabel>Step 1 label</ng-template>
+                <p>This is step 1 - Viola</p>
+                <button (click)="createCampaignStepper.goToPreviousStep()">prev</button>
+                <button (click)="createCampaignStepper.goToNextStep()">next</button>
             </lib-step>
             <lib-step>
+                <ng-template libStepLabel>Step 2 label</ng-template>
                 <p>This is step 2</p>
+                <button (click)="createCampaignStepper.goToPreviousStep()">prev</button>
+                <button (click)="createCampaignStepper.goToNextStep()">next</button>
+            </lib-step>
+            <lib-step>
+                <ng-template libStepLabel>Final step label</ng-template>
+                <p>This is step the final step</p>
+                <button (click)="createCampaignStepper.goToPreviousStep()">prev</button>
+                <button (click)="createCampaignStepper.goToNextStep()">next</button>
             </lib-step>
         </lib-stepper>
         <!-- <form #campaignForm="ngForm" (ngSubmit)="onSubmit()">

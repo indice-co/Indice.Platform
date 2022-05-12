@@ -8,7 +8,7 @@ import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
 })
 export class ComboboxComponent implements OnInit {
     private _debouncer: Subject<string> = new Subject<string>();
-    private _itemsValueChange: EventEmitter<any[]> = new EventEmitter<any[]>();
+    // private _itemsValueChange: EventEmitter<any[]> = new EventEmitter<any[]>();
     private _items: any[] = [];
 
     private _selectedItemsFilter = (item: any) => {
@@ -22,7 +22,7 @@ export class ComboboxComponent implements OnInit {
 
     @Input('items') public set items(items: any[]) {
         this._items = items.filter(this._selectedItemsFilter);
-        this._itemsValueChange.emit(this._items);
+        // this._itemsValueChange.emit(this._items);
     }
 
     public get items(): any[] {

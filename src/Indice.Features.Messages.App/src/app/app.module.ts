@@ -36,6 +36,7 @@ import { ToggleButtonComponent } from './shared/components/toggle-button/toggle-
 import * as app from 'src/app/core/models/settings';
 import { LibStepperComponent } from './shared/components/stepper/lib-stepper.component';
 import { LibStepComponent } from './shared/components/stepper/lib-step.component';
+import { LibStepLabel } from './shared/components/stepper/lib-step-label.directive';
 
 @NgModule({
   declarations: [
@@ -56,6 +57,7 @@ import { LibStepComponent } from './shared/components/stepper/lib-step.component
     DistributionListsComponent,
     HomeComponent,
     LibStepComponent,
+    LibStepLabel,
     LibStepperComponent,
     LogOutComponent,
     MessageTypeCreateComponent,
