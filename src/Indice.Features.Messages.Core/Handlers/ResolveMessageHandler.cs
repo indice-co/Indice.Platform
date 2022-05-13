@@ -45,31 +45,33 @@ namespace Indice.Features.Messages.Core.Handlers
         /// </summary>
         /// <param name="event">The event model used when a contact is resolved from an external system.</param>
         public async Task Process(ResolveMessageEvent @event) {
-            Contact contact;
             var recipientId = @event.Contact.RecipientId;
+            var contactId = @event.Contact.Id;
             var needsUpdate = false;
-            contact = await ContactService.GetByRecipientId(recipientId);
-            needsUpdate = contact?.UpdatedAt.HasValue == true && (DateTimeOffset.UtcNow - contact.UpdatedAt.Value) > TimeSpan.FromDays(5);
-            if (contact is null) {
-                contact = await ContactResolver.GetById(recipientId);
+            if (!string.IsNullOrWhiteSpace(recipientId)) {
+                var contact = await ContactService.GetByRecipientId(recipientId);
+                needsUpdate = contact?.UpdatedAt.HasValue == true && (DateTimeOffset.UtcNow - contact.UpdatedAt.Value) > TimeSpan.FromDays(5);
+                if (contact is null) {
+                    contact = await ContactResolver.GetById(recipientId);
+                }
+                if (contact is null) {
+                    return;
+                }
+                @event.Contact = contact;
+                if (@event.Campaign.IsNewDistributionList) {
+                    await ContactService.AddToDistributionList(@event.Campaign.DistributionListId.Value, Mapper.ToCreateDistributionListContactRequest(@event.Contact));
+                }
+                if (needsUpdate) {
+                    await ContactService.Update(@event.Contact.Id.Value, Mapper.ToUpdateContactRequest(@event.Contact, @event.Campaign.DistributionListId));
+                }
             }
-            if (contact is null) {
-                return;
-            }
-            @event.Contact = contact;
             var campaign = @event.Campaign;
-            if (campaign.IsNewDistributionList) {
-                await ContactService.AddToDistributionList(@event.Campaign.DistributionListId.Value, Mapper.ToCreateDistributionListContactRequest(contact));
-            }
-            if (needsUpdate) {
-                await ContactService.Update(contact.Id.Value, Mapper.ToUpdateContactRequest(contact, @event.Campaign.DistributionListId));
-            }
             // Make substitution to message content using contact resolved data.
             var handlebars = Handlebars.Create();
             handlebars.Configuration.TextEncoder = new HtmlEncoder();
             foreach (var content in @event.Campaign.Content) {
                 dynamic templateData = new {
-                    contact = JsonSerializer.Deserialize<ExpandoObject>(JsonSerializer.Serialize(contact, JsonSerializerOptionDefaults.GetDefaultSettings()), JsonSerializerOptionDefaults.GetDefaultSettings()),
+                    contact = JsonSerializer.Deserialize<ExpandoObject>(JsonSerializer.Serialize(@event.Contact, JsonSerializerOptionDefaults.GetDefaultSettings()), JsonSerializerOptionDefaults.GetDefaultSettings()),
                     data = JsonSerializer.Deserialize<ExpandoObject>(JsonSerializer.Serialize(@event.Campaign.Data, JsonSerializerOptionDefaults.GetDefaultSettings()), JsonSerializerOptionDefaults.GetDefaultSettings())
                 };
                 var messageContent = campaign.Content[content.Key];
@@ -80,7 +82,7 @@ namespace Indice.Features.Messages.Core.Handlers
             await MessageService.Create(new CreateMessageRequest {
                 CampaignId = campaign.Id,
                 Content = campaign.Content,
-                RecipientId = contact.RecipientId
+                RecipientId = @event.Contact.RecipientId
             });
             var eventDispatcher = GetEventDispatcher(KeyedServiceNames.EventDispatcherServiceKey);
             if (campaign.MessageChannelKind.HasFlag(MessageChannelKind.PushNotification)) {
