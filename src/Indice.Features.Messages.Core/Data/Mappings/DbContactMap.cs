@@ -5,14 +5,10 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Indice.Features.Messages.Core.Data.Mappings
 {
-    /// <summary>
-    /// Configuration for <see cref="DbContact"/> entity.
-    /// </summary>
+    /// <summary>Configuration for <see cref="DbContact"/> entity.</summary>
     public class DbContactMap : IEntityTypeConfiguration<DbContact>
     {
-        /// <summary>
-        /// Creates a new instance of <see cref="DbContactMap"/>.
-        /// </summary>
+        /// <summary>Creates a new instance of <see cref="DbContactMap"/>.</summary>
         /// <param name="schemaName">The schema name.</param>
         /// <exception cref="ArgumentNullException"></exception>
         public DbContactMap(string schemaName) {
@@ -33,9 +29,9 @@ namespace Indice.Features.Messages.Core.Data.Mappings
             builder.Property(x => x.FullName).HasMaxLength(TextSizePresets.M256);
             builder.Property(x => x.PhoneNumber).HasMaxLength(TextSizePresets.S64);
             builder.Property(x => x.Email).HasMaxLength(TextSizePresets.S64);
-            builder.Property(x => x.RecipientId).HasMaxLength(TextSizePresets.S64).IsRequired();
+            builder.Property(x => x.RecipientId).HasMaxLength(TextSizePresets.S64);
             // Configure indexes.
-            builder.HasIndex(x => x.RecipientId);
+            builder.HasIndex(x => x.RecipientId).IsUnique(true);
         }
     }
 }

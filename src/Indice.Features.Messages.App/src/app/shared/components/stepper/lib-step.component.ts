@@ -21,13 +21,17 @@ export enum StepState {
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class LibStepComponent implements OnInit, OnChanges {
+    private _interacted: boolean = false;
+
     constructor(
         @Inject(forwardRef(() => LibStepperComponent)) public _stepper: LibStepperComponent
     ) { }
 
+    /** The content provided for the step. */
     @ViewChild(TemplateRef, { static: true }) public content!: TemplateRef<any>;
+    /** The label of the step displayed in header. */
     @ContentChild(LibStepLabel) public stepLabel: LibStepLabel | undefined;
-    /** An optional CSS class for the step header. Defaults to 'bg-blue-300 group-hover:bg-blue-500'. */
+    /** An optional CSS class for the step header. */
     @Input() public class: string | undefined;
     /** The abstract control of the step. */
     @Input() public stepControl: AbstractControl | undefined;
@@ -42,7 +46,12 @@ export class LibStepComponent implements OnInit, OnChanges {
         return this._stepper.steps.length - 1 === this.index;
     }
 
-    /** Shows the state of the step. */
+    /** Indicates whether you can navigate to the step or not. */
+    public get isValid(): boolean {
+        return this.stepControl?.valid === true;
+    }
+
+    /** Shows the current state of the step. */
     public get state(): StepState {
         const currentIndex = this._stepper.currentStepIndex;
         if (currentIndex === this.index) {
@@ -55,8 +64,6 @@ export class LibStepComponent implements OnInit, OnChanges {
     }
 
     public ngOnInit(): void { }
-
-    public selectStep(): void { }
 
     public ngOnChanges(changes: SimpleChanges): void { }
 }

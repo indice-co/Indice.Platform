@@ -1,10 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using FluentValidation;
+using Indice.Features.Messages.Core.Models.Requests;
 
 namespace Indice.Features.Messages.Core.Services.Validators
 {
-    internal class CreateDistributionListContactRequestValidator
+    /// <summary>Contains validation logic for <see cref="CreateDistributionListContactRequest"/>.</summary>
+    public class CreateDistributionListContactRequestValidator : AbstractValidator<CreateDistributionListContactRequest>
     {
+        /// <summary>Creates a new instance of <see cref="CreateDistributionListRequestValidator"/>.</summary>
+        public CreateDistributionListContactRequestValidator() {
+            RuleFor(x => x.FirstName).NotEmpty();
+        }
     }
 }

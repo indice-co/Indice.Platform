@@ -122,6 +122,7 @@ namespace Indice.Features.Messages.AspNetCore.Controllers
         /// <param name="request">Contains info about the contact to be assigned to the distribution list.</param>
         /// <response code="204">No Content</response>
         /// <response code="204">Bad Request</response>
+        /// <remarks>If <paramref name="request"/> contains the Id of the contact, then a new contact is not created in the system. Otherwise the details contained in the <paramref name="request"/> are used to create a new contact.</remarks>
         [HttpPost("{distributionListId:guid}/contacts")]
         [ProducesResponseType(typeof(void), StatusCodes.Status204NoContent)]
         [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]

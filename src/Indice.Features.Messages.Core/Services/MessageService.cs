@@ -25,6 +25,7 @@ namespace Indice.Features.Messages.Core.Services
         public async Task Create(CreateMessageRequest request) {
             var dbMessage = new DbMessage {
                 CampaignId = request.CampaignId,
+                ContactId = request.ContactId,
                 Content = request.Content,
                 Id = Guid.NewGuid(),
                 RecipientId = request.RecipientId

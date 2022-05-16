@@ -226,6 +226,6 @@ namespace Indice.Features.Messages.Core.Manager
         /// </summary>
         /// <param name="options">List parameters used to navigate through collections. Contains parameters such as sort, search, page number and page size.</param>
         /// <returns></returns>
-        public Task<ResultSet<Template>> GetTemplates(ListOptions options) => TemplateService.GetList(options);
+        public Task<ResultSet<TemplateBase>> GetTemplates(ListOptions options) => TemplateService.GetList(options);
     }
 }

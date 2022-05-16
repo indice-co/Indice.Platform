@@ -48,31 +48,33 @@ namespace Indice.Features.Messages.Core.Handlers
             var recipientId = @event.Contact.RecipientId;
             var contactId = @event.Contact.Id;
             var needsUpdate = false;
+            var campaign = @event.Campaign;
+            Contact contact = null;
             if (!string.IsNullOrWhiteSpace(recipientId)) {
-                var contact = await ContactService.GetByRecipientId(recipientId);
-                needsUpdate = contact?.UpdatedAt.HasValue == true && (DateTimeOffset.UtcNow - contact.UpdatedAt.Value) > TimeSpan.FromDays(5);
+                contact = await ContactService.GetByRecipientId(recipientId);
                 if (contact is null) {
                     contact = await ContactResolver.GetById(recipientId);
                 }
-                if (contact is null) {
-                    return;
-                }
-                @event.Contact = contact;
-                if (@event.Campaign.IsNewDistributionList) {
-                    await ContactService.AddToDistributionList(@event.Campaign.DistributionListId.Value, Mapper.ToCreateDistributionListContactRequest(@event.Contact));
-                }
-                if (needsUpdate) {
-                    await ContactService.Update(@event.Contact.Id.Value, Mapper.ToUpdateContactRequest(@event.Contact, @event.Campaign.DistributionListId));
-                }
+            } else if (contactId.HasValue) {
+                contact = await ContactService.GetById(contactId.Value);
             }
-            var campaign = @event.Campaign;
+            if (contact is not null && campaign.IsNewDistributionList) {
+                await ContactService.AddToDistributionList(campaign.DistributionListId.Value, Mapper.ToCreateDistributionListContactRequest(contact));
+            }
+            needsUpdate = contact?.UpdatedAt.HasValue == true && (DateTimeOffset.UtcNow - contact.UpdatedAt.Value) > TimeSpan.FromDays(5);
+            if (needsUpdate) {
+                await ContactService.Update(contact.Id.Value, Mapper.ToUpdateContactRequest(contact, campaign.DistributionListId));
+            }
+            if (contact is null) {
+                contact = @event.Contact;
+            }
             // Make substitution to message content using contact resolved data.
             var handlebars = Handlebars.Create();
             handlebars.Configuration.TextEncoder = new HtmlEncoder();
-            foreach (var content in @event.Campaign.Content) {
+            foreach (var content in campaign.Content) {
                 dynamic templateData = new {
-                    contact = JsonSerializer.Deserialize<ExpandoObject>(JsonSerializer.Serialize(@event.Contact, JsonSerializerOptionDefaults.GetDefaultSettings()), JsonSerializerOptionDefaults.GetDefaultSettings()),
-                    data = JsonSerializer.Deserialize<ExpandoObject>(JsonSerializer.Serialize(@event.Campaign.Data, JsonSerializerOptionDefaults.GetDefaultSettings()), JsonSerializerOptionDefaults.GetDefaultSettings())
+                    contact = JsonSerializer.Deserialize<ExpandoObject>(JsonSerializer.Serialize(contact, JsonSerializerOptionDefaults.GetDefaultSettings()), JsonSerializerOptionDefaults.GetDefaultSettings()),
+                    data = JsonSerializer.Deserialize<ExpandoObject>(JsonSerializer.Serialize(campaign.Data, JsonSerializerOptionDefaults.GetDefaultSettings()), JsonSerializerOptionDefaults.GetDefaultSettings())
                 };
                 var messageContent = campaign.Content[content.Key];
                 messageContent.Title = handlebars.Compile(content.Value.Title)(templateData);
@@ -81,8 +83,9 @@ namespace Indice.Features.Messages.Core.Handlers
             // Persist message with merged contents.
             await MessageService.Create(new CreateMessageRequest {
                 CampaignId = campaign.Id,
+                ContactId = contact.Id,
                 Content = campaign.Content,
-                RecipientId = @event.Contact.RecipientId
+                RecipientId = contact.RecipientId
             });
             var eventDispatcher = GetEventDispatcher(KeyedServiceNames.EventDispatcherServiceKey);
             if (campaign.MessageChannelKind.HasFlag(MessageChannelKind.PushNotification)) {

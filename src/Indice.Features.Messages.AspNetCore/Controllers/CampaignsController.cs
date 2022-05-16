@@ -61,9 +61,7 @@ namespace Indice.Features.Messages.AspNetCore.Controllers
         public GeneralSettings GeneralSettings { get; }
         public IEventDispatcher EventDispatcher { get; }
 
-        /// <summary>
-        /// Gets the list of all campaigns using the provided <see cref="ListOptions"/>.
-        /// </summary>
+        /// <summary>Gets the list of all campaigns using the provided <see cref="ListOptions"/>.</summary>
         /// <param name="options">List parameters used to navigate through collections. Contains parameters such as sort, search, page number and page size.</param>
         /// <response code="200">OK</response>
         [HttpGet]
@@ -74,9 +72,7 @@ namespace Indice.Features.Messages.AspNetCore.Controllers
             return Ok(campaigns);
         }
 
-        /// <summary>
-        /// Gets a campaign with the specified id.
-        /// </summary>
+        /// <summary>Gets a campaign with the specified id.</summary>
         /// <param name="campaignId">The id of the campaign.</param>
         /// <response code="200">OK</response>
         /// <response code="404">Not Found</response>
@@ -92,9 +88,7 @@ namespace Indice.Features.Messages.AspNetCore.Controllers
             return Ok(campaign);
         }
 
-        /// <summary>
-        /// Publishes a campaign.
-        /// </summary>
+        /// <summary>Publishes a campaign.</summary>
         /// <param name="campaignId">The id of the campaign.</param>
         /// <response code="204">No Content</response>
         /// <response code="400">Bad Request</response>
@@ -112,24 +106,7 @@ namespace Indice.Features.Messages.AspNetCore.Controllers
             return NoContent();
         }
 
-        /// <summary>
-        /// Gets the status of a campaign. 
-        /// </summary>
-        /// <param name="campaignId">The id of the campaign.</param>
-        /// <response code="200">OK</response>
-        /// <response code="404">Not Found</response>
-        [HttpGet("{campaignId:guid}/status")]
-        [Produces(MediaTypeNames.Application.Json)]
-        [ProducesResponseType(typeof(void), StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> GetCampaignStatus([FromRoute] Guid campaignId) {
-            await Task.CompletedTask;
-            return Ok();
-        }
-
-        /// <summary>
-        /// Gets the statistics for a specified campaign.
-        /// </summary>
+        /// <summary>Gets the statistics for a specified campaign.</summary>
         /// <param name="campaignId">The id of the campaign.</param>
         /// <response code="200">OK</response>
         /// <response code="404">Not Found</response>
@@ -146,9 +123,7 @@ namespace Indice.Features.Messages.AspNetCore.Controllers
             return Ok(statistics);
         }
 
-        /// <summary>
-        /// Gets the statistics for a specified campaign in the form of an Excel file.
-        /// </summary>
+        /// <summary>Gets the statistics for a specified campaign in the form of an Excel file.</summary>
         /// <param name="campaignId">The id of the campaign.</param>
         /// <response code="200">OK</response>
         /// <response code="404">Not Found</response>
@@ -164,9 +139,7 @@ namespace Indice.Features.Messages.AspNetCore.Controllers
             return statistics;
         }
 
-        /// <summary>
-        /// Creates a new campaign.
-        /// </summary>
+        /// <summary>Creates a new campaign.</summary>
         /// <param name="request">Contains info about the campaign to be created.</param>
         /// <response code="201">Created</response>
         /// <response code="400">Bad Request</response>
@@ -180,9 +153,7 @@ namespace Indice.Features.Messages.AspNetCore.Controllers
             return CreatedAtAction(nameof(GetCampaignById), new { campaignId = result.CampaignId }, result.Campaign);
         }
 
-        /// <summary>
-        /// Updates an existing campaign.
-        /// </summary>
+        /// <summary>Updates an existing unpublished campaign.</summary>
         /// <param name="campaignId">The id of the campaign to update.</param>
         /// <param name="request">Contains info about the campaign to update.</param>
         /// <response code="204">No Content</response>
@@ -197,9 +168,7 @@ namespace Indice.Features.Messages.AspNetCore.Controllers
             return NoContent();
         }
 
-        /// <summary>
-        /// Permanently deletes a campaign.
-        /// </summary>
+        /// <summary>Permanently deletes a campaign.</summary>
         /// <param name="campaignId">The id of the campaign.</param>
         /// <response code="204">No Content</response>
         /// <response code="400">Bad Request</response>
@@ -212,9 +181,7 @@ namespace Indice.Features.Messages.AspNetCore.Controllers
             return NoContent();
         }
 
-        /// <summary>
-        /// Uploads an attachment for the specified campaign.
-        /// </summary>
+        /// <summary>Uploads an attachment for the specified campaign.</summary>
         /// <param name="campaignId">The id of the campaign.</param>
         /// <param name="file">Contains the stream of the attachment to be uploaded.</param>
         /// <response code="200">OK</response>
@@ -237,9 +204,7 @@ namespace Indice.Features.Messages.AspNetCore.Controllers
             return Ok(attachmentLink);
         }
 
-        /// <summary>
-        /// Gets the attachment associated with a campaign.
-        /// </summary>
+        /// <summary>Gets the attachment associated with a campaign.</summary>
         /// <param name="fileGuid">Contains the photo's Id.</param>
         /// <param name="format">Contains the format of the uploaded attachment extension.</param>
         /// <response code="200">OK</response>

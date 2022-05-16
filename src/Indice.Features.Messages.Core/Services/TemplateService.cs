@@ -27,6 +27,7 @@ namespace Indice.Features.Messages.Core.Services
         public async Task<Template> Create(CreateTemplateRequest request) {
             var template = new DbTemplate {
                 Content = request.Content,
+                CreatedAt = DateTimeOffset.UtcNow,
                 Id = Guid.NewGuid(),
                 Name = request.Name
             };
@@ -34,6 +35,7 @@ namespace Indice.Features.Messages.Core.Services
             await DbContext.SaveChangesAsync();
             return new Template {
                 Content = template.Content,
+                CreatedAt = template.CreatedAt,
                 Id = template.Id,
                 Name = template.Name
             };
@@ -47,17 +49,18 @@ namespace Indice.Features.Messages.Core.Services
             }
             return new Template {
                 Content = template.Content,
+                CreatedAt = template.CreatedAt,
                 Id = template.Id,
                 Name = template.Name
             };
         }
 
         /// <inheritdoc />
-        public async Task<ResultSet<Template>> GetList(ListOptions options) {
-            var query = DbContext.Templates.Select(x => new Template {
-                Content = x.Content,
-                Id = x.Id,
-                Name = x.Name
+        public async Task<ResultSet<TemplateBase>> GetList(ListOptions options) {
+            var query = DbContext.Templates.Select(template => new TemplateBase {
+                Id = template.Id,
+                CreatedAt = template.CreatedAt,
+                Name = template.Name
             });
             if (!string.IsNullOrWhiteSpace(options.Search)) {
                 query = query.Where(x => x.Name.ToLower().Contains(options.Search.ToLower()));

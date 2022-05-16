@@ -1,8 +1,8 @@
 import { NgModule } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, DatePipe } from '@angular/common';
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { BrowserModule } from '@angular/platform-browser';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 import { AuthHttpInterceptor, AUTH_SETTINGS, IndiceAuthModule } from '@indice/ng-auth';
 import { APP_LINKS, IndiceComponentsModule, ModalService, SHELL_CONFIG } from '@indice/ng-components';
@@ -74,9 +74,11 @@ import { LibStepLabel } from './shared/components/stepper/lib-step-label.directi
     FormsModule,
     HttpClientModule,
     IndiceAuthModule.forRoot(),
-    IndiceComponentsModule.forRoot()
+    IndiceComponentsModule.forRoot(),
+    ReactiveFormsModule
   ],
   providers: [
+    DatePipe,
     ModalService,
     { provide: APP_LINKS, useFactory: () => new AppLinks() },
     { provide: AUTH_SETTINGS, useFactory: () => app.settings.auth_settings },

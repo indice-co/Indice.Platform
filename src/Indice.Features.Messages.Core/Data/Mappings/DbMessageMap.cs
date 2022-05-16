@@ -9,9 +9,7 @@ namespace Indice.Features.Messages.Core.Data.Mappings
     /// </summary>
     public class DbMessageMap : IEntityTypeConfiguration<DbMessage>
     {
-        /// <summary>
-        /// Creates a new instance of <see cref="DbMessageMap"/>.
-        /// </summary>
+        /// <summary>Creates a new instance of <see cref="DbMessageMap"/>.</summary>
         /// <param name="schemaName">The schema name.</param>
         /// <exception cref="ArgumentNullException"></exception>
         public DbMessageMap(string schemaName) {
@@ -26,11 +24,11 @@ namespace Indice.Features.Messages.Core.Data.Mappings
             builder.ToTable("Message", SchemaName);
             // Configure primary keys.
             builder.HasKey(x => x.Id);
-            builder.HasAlternateKey(x => new { x.CampaignId, x.RecipientId });
             // Configure properties.
             builder.Property(x => x.Content).HasJsonConversion().IsRequired();
+            builder.Property(x => x.RecipientId).IsRequired(false);
             // Configure indexes.
-            builder.HasIndex(x => x.RecipientId);
+            builder.HasIndex(x => x.RecipientId).IsUnique(false);
         }
     }
 }
