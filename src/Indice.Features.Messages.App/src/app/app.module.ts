@@ -1,5 +1,5 @@
 import { NgModule } from '@angular/core';
-import { CommonModule, DatePipe } from '@angular/common';
+import { CommonModule, DatePipe, JsonPipe } from '@angular/common';
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { BrowserModule } from '@angular/platform-browser';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -37,6 +37,7 @@ import * as app from 'src/app/core/models/settings';
 import { LibStepperComponent } from './shared/components/stepper/lib-stepper.component';
 import { LibStepComponent } from './shared/components/stepper/lib-step.component';
 import { LibStepLabel } from './shared/components/stepper/lib-step-label.directive';
+import { LocalDropDownMenuComponent } from './shared/components/drop-down-menu/drop-down-menu.component';
 
 @NgModule({
   declarations: [
@@ -59,6 +60,7 @@ import { LibStepLabel } from './shared/components/stepper/lib-step-label.directi
     LibStepComponent,
     LibStepLabel,
     LibStepperComponent,
+    LocalDropDownMenuComponent,
     LogOutComponent,
     MessageTypeCreateComponent,
     MessageTypeEditComponent,
@@ -80,6 +82,7 @@ import { LibStepLabel } from './shared/components/stepper/lib-step-label.directi
   providers: [
     DatePipe,
     ModalService,
+    JsonPipe,
     { provide: APP_LINKS, useFactory: () => new AppLinks() },
     { provide: AUTH_SETTINGS, useFactory: () => app.settings.auth_settings },
     { provide: MESSAGES_API_BASE_URL, useFactory: () => app.settings.api_url },

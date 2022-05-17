@@ -22,7 +22,6 @@ export class ComboboxComponent implements OnInit {
 
     @Input('items') public set items(items: any[]) {
         this._items = items.filter(this._selectedItemsFilter);
-        // this._itemsValueChange.emit(this._items);
     }
 
     public get items(): any[] {

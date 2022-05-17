@@ -1,14 +1,19 @@
-<lib-side-view-layout title="Δημιουργία νέας καμπάνιας" class="large" [ok-close-dialog]="false" [ok-label]="'Επόμενο'" [cancel-label]="'Κλείσιμο'" (ok)="createCampaignStepper.goToNextStep()"
-    [disabled]="createCampaignStepper.currentStep?.isValid === false" #sideViewLayout>
+<lib-side-view-layout title="Δημιουργία νέας καμπάνιας" class="large" [cancel-show]="false" [ok-close-dialog]="false" [ok-label]="okLabel" (ok)="onSideViewOk()" [disabled]="createCampaignStepper.currentStep?.isValid === false"
+    #sideViewLayout>
+    <span>Stepper is valid: {{ createCampaignStepper.currentStep?.isValid }}</span>
+    <br>
+    <span>Form is valid: {{ basicDetailsForm.valid }}</span>
+    <br>
+    <span>Template id: {{ templateId.value ? (templateId.value | json) : 'N/A' }}</span>
     <div class="mt-4">
         <lib-stepper [linear]="true" #createCampaignStepper>
             <!-- Γενικά -->
             <lib-step [stepControl]="basicDetailsForm">
                 <ng-template libStepLabel>Γενικά</ng-template>
-                <form [formGroup]="basicDetailsForm" (ngSubmit)="onSubmit()">
-                    <div class="px-4 space-y-2 pb-4">
+                <form [formGroup]="basicDetailsForm">
+                    <div class="px-4 space-y-2 pb-4 mt-4">
                         <!-- Τίτλος -->
-                        <fieldset class="mt-4">
+                        <fieldset>
                             <legend class="sr-only">Τίτλος</legend>
                             <div class="text-base font-medium text-gray-900" aria-hidden="true">Τίτλος (*)</div>
                             <label for="campaignTitle" class="field-label hidden">Τίτλος (*)</label>
@@ -22,17 +27,21 @@
                             <p class="field-info col-span-3">Η ονομασία η οποία θα εμφανίζεται για την καμπάνια.</p>
                         </fieldset>
                         <!-- Τύπος -->
-                        <!-- <div class="col-span-4">
-                                <label for="campaignType" class="field-label">Τύπος</label>
-                                <div class="mt-1 flex rounded-sm">
-                                    <lib-drop-down-menu id="campaignType" class="w-full" [selected]="model.typeId" [options]="messageTypes" (selectedChanged)="model.typeId = $event"></lib-drop-down-menu>
-                                </div>
-                            </div> -->
+                        <fieldset>
+                            <legend class="sr-only">Τύπος</legend>
+                            <div class="text-base font-medium text-gray-900" aria-hidden="true">Τύπος</div>
+                            <label for="campaignType" class="field-label hidden" aria-hidden="true">Τύπος</label>
+                            <div class="mt-1 flex rounded-sm">
+                                <lib-local-drop-down-menu id="campaignType" class="w-full" formControlName="typeId" [value]="typeId.value" [options]="messageTypes" (change)="typeId.setValue($event.value ? $event : null)">
+                                </lib-local-drop-down-menu>
+                            </div>
+                        </fieldset>
                         <!-- Διάρκεια -->
                         <fieldset>
                             <legend class="sr-only">Διάρκεια</legend>
                             <div class="text-base font-medium text-gray-900" aria-hidden="true">Διάρκεια</div>
                             <div class="grid grid-cols-2 gap-4">
+                                <!-- Από -->
                                 <div class="col-span-2 sm:col-span-1">
                                     <label for="campaignStart" class="field-label hidden" aria-hidden="true">Ημ. Έναρξης</label>
                                     <div class="mt-1 flex rounded-sm col-span-3">
@@ -41,6 +50,7 @@
                                     </div>
                                     <p class="field-info">Η ημέρα και ώρα έναρξης της καμπάνιας</p>
                                 </div>
+                                <!-- Έως -->
                                 <div class="col-span-2 sm:col-span-1">
                                     <label for="campaignEnd" class="field-label hidden" aria-hidden="true">Ημ. Λήξης</label>
                                     <div class="mt-1 flex rounded-sm col-span-3">
@@ -56,6 +66,7 @@
                             <legend class="sr-only">Call to action</legend>
                             <div class="text-base font-medium text-gray-900" aria-hidden="true">Call to action</div>
                             <div class="grid grid-cols-2 gap-4">
+                                <!-- Call to action κείμενο -->
                                 <div class="col-span-2 sm:col-span-1">
                                     <label for="campaignClickToActionText" class="field-label hidden" aria-hidden="true">Call to action</label>
                                     <div class="mt-1 flex rounded-sm">
@@ -76,54 +87,56 @@
                                 </div>
                             </div>
                         </fieldset>
-                        <!-- Να επιλέγεις από template ή όχι -->
-                        <!-- Να πάει στο επόμενο βήμα (επιλογές ανάλογα με τον αν έχεις επιλέξει template) -->
-                        <div class="grid grid-cols-4 gap-4">
-                            <div class="col-span-4">
-                                <label class="field-label">Τροπος Αποστολής (*)</label>
-                                <lib-toggle-button id="inbox" [value]="containsMessageChannelKind(MessageChannelKind.Inbox)" (valueChange)="toggleMessageChannelKind(MessageChannelKind.Inbox)" true-label="Μέσω Inbox"
-                                    false-label="Μέσω Inbox">
-                                </lib-toggle-button>
-                            </div>
-                            <div class="col-span-4">
-                                <lib-toggle-button id="pushNotification" [value]="containsMessageChannelKind(MessageChannelKind.PushNotification)" (valueChange)="toggleMessageChannelKind(MessageChannelKind.PushNotification)"
-                                    true-label="Μέσω Push Notification" false-label="Μέσω Push Notification">
-                                </lib-toggle-button>
-                            </div>
-                            <div class="col-span-4">
-                                <lib-toggle-button id="email" [value]="containsMessageChannelKind(MessageChannelKind.Email)" (valueChange)="toggleMessageChannelKind(MessageChannelKind.Email)" true-label="Μέσω Email"
-                                    false-label="Μέσω Email">
-                                </lib-toggle-button>
-                            </div>
-                            <div class="col-span-4">
-                                <lib-toggle-button id="sms" [value]="containsMessageChannelKind(MessageChannelKind.SMS)" (valueChange)="toggleMessageChannelKind(MessageChannelKind.SMS)" true-label="Μέσω SMS" false-label="Μέσω SMS">
-                                </lib-toggle-button>
-                                <p *ngIf="!hasMessageChannelKind()" class="mt-2 text-sm text-red-600">
-                                    <span>Παρακαλώ επιλέξτε τρόπο αποστολής.</span>
-                                </p>
-                            </div>
-                            <!-- <div class="col-span-4">
-                                <label for="campaignMetadata" class="field-label">Μεταδεδομένα</label>
-                                <div class="mt-1 flex rounded-sm">
-                                    <textarea id="campaignMetadata" name="campaignMetadata" [ngModel]="model.data | json" (ngModelChange)="setCampaignCustomData($event)" rows="6"
-                                        placeholder="Επιπρόσθετα δεδομένα της καμπάνιας σε JSON μορφή" (focusout)="onCustomDataFocusOut()" class="code-editor" #campaignMetadata="ngModel">
-                                    </textarea>
+                        <!-- Template -->
+                        <fieldset>
+                            <legend class="sr-only">Template</legend>
+                            <div class="text-base font-medium text-gray-900" aria-hidden="true">Template</div>
+                            <div class="mt-1 grid grid-cols-2 gap-4">
+                                <div class="col-span-2 sm:col-span-1">
+                                    <div class="flex items-center h-full">
+                                        <input id="template-no" name="needsTemplate" type="radio" value="no" (change)="onNeedsTemplateChanged($event)" formControlName="needsTemplate"
+                                            class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300">
+                                        <label for="template-no" class="ml-3 block text-sm font-medium text-gray-700">Όχι</label>
+                                        <input id="template-yes" name="needsTemplate" type="radio" value="yes" (change)="onNeedsTemplateChanged($event)" formControlName="needsTemplate"
+                                            class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 ml-4">
+                                        <label for="template-yes" class="ml-3 block text-sm font-medium text-gray-700">Ναι</label>
+                                    </div>
                                 </div>
-                                <p *ngIf="showCustomDataValidation && !customDataValid" class="mt-2 text-sm text-red-600">
-                                    <span>Η μορφή του JSON δεν είναι έγκυρη.</span>
-                                </p>
-                            </div> -->
-                        </div>
+                                <div class="col-span-2 sm:col-span-1" [class.invisible]="needsTemplate.value === 'no'">
+                                    <label for="templateId" class="field-label hidden" aria-hidden="true">Template id</label>
+                                    <div class="flex rounded-sm">
+                                        <lib-local-drop-down-menu id="templateId" name="templateId" class="w-full" formControlName="templateId" [value]="templateId.value" [options]="templates" (change)="onTemplateSelectedChanged($event)">
+                                        </lib-local-drop-down-menu>
+                                    </div>
+                                    <p *ngIf="templateId.invalid && (templateId.dirty || templateId.touched)" class="mt-2 text-sm text-red-600">
+                                        <span *ngIf="templateId.errors!['required']">Παρακαλώ επιλέξτε ένα template.</span>
+                                    </p>
+                                </div>
+                            </div>
+                        </fieldset>
                     </div>
-                    <button type="submit" [style.visibility]="'hidden'" #submitBtn>Submit</button>
                 </form>
             </lib-step>
             <!-- Περιεχόμενο -->
-            <lib-step>
-                <ng-template libStepLabel>Γενικά</ng-template>
-                <p>This is step 2</p>
-                <button (click)="createCampaignStepper.goToPreviousStep()">prev</button>
-                <button (click)="createCampaignStepper.goToNextStep()">next</button>
+            <lib-step [stepControl]="contentForm">
+                <ng-template libStepLabel>Περιεχόμενο</ng-template>
+                <form [formGroup]="contentForm">
+                    <div class="px-4 space-y-2 pb-4 mt-4">
+                        <!-- Μεταδεδομένα -->
+                        <fieldset>
+                            <legend class="sr-only">Μεταδεδομένα</legend>
+                            <div class="text-base font-medium text-gray-900" aria-hidden="true">Μεταδεδομένα</div>
+                            <label for="campaignMetadata" class="field-label hidden" aria-hidden="true">Μεταδεδομένα</label>
+                            <div class="mt-1 flex rounded-sm">
+                                <textarea id="campaignMetadata" name="campaignMetadata" formControlName="data" rows="6" placeholder="Επιπρόσθετα δεδομένα της καμπάνιας σε JSON μορφή" class="code-editor">
+                                </textarea>
+                            </div>
+                            <p *ngIf="data.invalid && (data.dirty || data.touched)" class="mt-2 text-sm text-red-600">
+                                <span *ngIf="data.errors!['invalidJson']">Η μορφή του JSON δεν είναι έγκυρη.</span>
+                            </p>
+                        </fieldset>
+                    </div>
+                </form>
             </lib-step>
             <!-- Παραλήπτες -->
             <lib-step>

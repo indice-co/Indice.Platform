@@ -1,11 +1,12 @@
-import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, Inject, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, Inject, OnInit, ViewChild } from '@angular/core';
 import { DatePipe, DOCUMENT } from '@angular/common';
 import { AbstractControl, FormControl, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 
-import { MenuOption, ToasterService } from '@indice/ng-components';
+import { MenuOption, ToasterService, ToastType } from '@indice/ng-components';
 import { map } from 'rxjs/operators';
-import { CreateCampaignRequest, MessagesApiClient, MessageChannelKind, MessageTypeResultSet, Period, Hyperlink } from 'src/app/core/services/messages-api.service';
+import { CreateCampaignRequest, MessagesApiClient, MessageChannelKind, MessageTypeResultSet, Period, Hyperlink, TemplateResultSet, Campaign, ValidationProblemDetails } from 'src/app/core/services/messages-api.service';
+import { invalidJsonValidator } from 'src/app/shared/validators/jsonValidator';
 import { UtilitiesService } from 'src/app/shared/utilities.service';
 import { LibStepperComponent } from 'src/app/shared/components/stepper/lib-stepper.component';
 
@@ -14,6 +15,8 @@ import { LibStepperComponent } from 'src/app/shared/components/stepper/lib-stepp
     templateUrl: './campaign-create.component.html'
 })
 export class CampaignCreateComponent implements OnInit, AfterViewInit {
+    @ViewChild('createCampaignStepper', { static: true }) public _stepper!: LibStepperComponent;
+
     constructor(
         private _api: MessagesApiClient,
         private _router: Router,
@@ -23,15 +26,13 @@ export class CampaignCreateComponent implements OnInit, AfterViewInit {
         @Inject(ToasterService) private _toaster: ToasterService,
         @Inject(DOCUMENT) private _document: Document
     ) { }
-    
+
     public now: Date = new Date();
     public basicDetailsForm!: FormGroup;
-    public messageTypes: MenuOption[] = [];
-    public MessageChannelKind = MessageChannelKind;
-    public customDataValid = true;
-    public showCustomDataValidation = false;
+    public contentForm!: FormGroup;
+    public messageTypes: MenuOption[] = [new MenuOption('Παρακαλώ επιλέξτε...', null)];
+    public templates: MenuOption[] = [new MenuOption('Παρακαλώ επιλέξτε...', null)];
     public submitInProgress = false;
-    public targetOptions: MenuOption[] = [new MenuOption('Όλους τους χρήστες', true), new MenuOption('Ομάδα χρηστών', false)];
 
     public get title(): AbstractControl {
         return this.basicDetailsForm.get('title')!;
@@ -53,23 +54,44 @@ export class CampaignCreateComponent implements OnInit, AfterViewInit {
         return this.basicDetailsForm.get('actionLinkHref')!;
     }
 
+    public get typeId(): AbstractControl {
+        return this.basicDetailsForm.get('typeId')!;
+    }
+
+    public get templateId(): AbstractControl {
+        return this.basicDetailsForm.get('templateId')!;
+    }
+
+    public get needsTemplate(): AbstractControl {
+        return this.basicDetailsForm.get('needsTemplate')!;
+    }
+
+    public get data(): AbstractControl {
+        return this.contentForm.get('data')!;
+    }
+
+    public get okLabel(): string {
+        return this._stepper.currentStep?.isLast ? 'Αποθήκευση' : 'Επόμενο';
+    }
+
     public ngOnInit(): void {
-        // Did not find any better way to do this.
         setTimeout(() => {
             const sidePane = this._document.getElementsByClassName('side-pane-box-size')[0] as HTMLElement;
             sidePane.style.maxWidth = '84rem';
         }, 0);
-        this.loadMessageTypes();
-        this.initBasicDetailsFormGroup();
+        this._initFormGroups();
+        this._loadMessageTypes();
+        this._loadTemplates();
     }
 
     public ngAfterViewInit(): void {
         this._changeDetector.detectChanges();
     }
 
-    public onSubmit(): void {
-        debugger;
-        if (!this.basicDetailsForm.valid) {
+    public onSideViewOk(): void {
+        const isLastStep = this._stepper.currentStep?.isLast;
+        if (!isLastStep) {
+            this._stepper.goToNextStep();
             return;
         }
         this.submitInProgress = true;
@@ -86,21 +108,22 @@ export class CampaignCreateComponent implements OnInit, AfterViewInit {
             messageChannelKind: [MessageChannelKind.Inbox],
             published: false,
             templateId: undefined,
-            title: this.title.value
+            title: this.title.value,
+            data: this.data.value
         });
-        // this._api
-        //     .createCampaign(this.model)
-        //     .subscribe({
-        //         next: (campaign: Campaign) => {
-        //             this.submitInProgress = false;
-        //             // This is to force reload campaigns page when a new campaign is successfully saved. 
-        //             this._router.navigateByUrl('/', { skipLocationChange: true }).then(() => this._router.navigate(['campaigns']));
-        //             this._toaster.show(ToastType.Success, 'Επιτυχής αποθήκευση', `Η καμπάνια με τίτλο '${campaign.title}' δημιουργήθηκε με επιτυχία.`);
-        //         },
-        //         error: (problemDetails: ValidationProblemDetails) => {
-        //             this._toaster.show(ToastType.Error, 'Αποτυχής αποθήκευση', `${this._utilities.getValidationProblemDetails(problemDetails)}`, 6000);
-        //         }
-        //     });
+        this._api
+            .createCampaign(data)
+            .subscribe({
+                next: (campaign: Campaign) => {
+                    this.submitInProgress = false;
+                    // This is to force reload campaigns page when a new campaign is successfully saved. 
+                    this._router.navigateByUrl('/', { skipLocationChange: true }).then(() => this._router.navigate(['campaigns']));
+                    this._toaster.show(ToastType.Success, 'Επιτυχής αποθήκευση', `Η καμπάνια με τίτλο '${campaign.title}' δημιουργήθηκε με επιτυχία.`);
+                },
+                error: (problemDetails: ValidationProblemDetails) => {
+                    this._toaster.show(ToastType.Error, 'Αποτυχής αποθήκευση', `${this._utilities.getValidationProblemDetails(problemDetails)}`, 6000);
+                }
+            });
     }
 
     public onCampaignStartInput(event: any): void {
@@ -111,11 +134,19 @@ export class CampaignCreateComponent implements OnInit, AfterViewInit {
         this.to.setValue(this._datePipe.transform(event.target.value, 'yyyy-MM-ddThh:mm'));
     }
 
-    public setIsGlobal(isGlobal: boolean): void {
-        // this.model.isGlobal = isGlobal;
-        // if (isGlobal) {
-        //     delete this.model.recipientIds;
-        // }
+    public onNeedsTemplateChanged(event: any): void {
+        const value = event.target.value;
+        if (value === 'yes') {
+            this.templateId.setValidators(Validators.required);
+        } else {
+            this.templateId.removeValidators(Validators.required);
+        }
+        this.templateId.updateValueAndValidity();
+        this.needsTemplate.setValue(value);
+    }
+
+    public onTemplateSelectedChanged(event: MenuOption): void {
+        this.templateId.setValue(event.value !== null ? event : null);
     }
 
     public toRecipientIdsArray(recipientIds: string | undefined): string[] {
@@ -126,59 +157,29 @@ export class CampaignCreateComponent implements OnInit, AfterViewInit {
         return recipientIds ? recipientIds.join('\n') : '';
     }
 
-    public toggleMessageChannelKind(messageChannelKind: MessageChannelKind): void {
-        // const index = this.model.messageChannelKind!.findIndex(channel => channel === messageChannelKind);
-        // if (index > -1) {
-        //     this.model.messageChannelKind!.splice(index, 1);
-        // } else {
-        //     this.model.messageChannelKind!.push(messageChannelKind);
-        // }
-    }
-
-    public hasMessageChannelKind(): boolean {
-        //return this.model.messageChannelKind!.length > 0;
-        return true;
-    }
-
-    public containsMessageChannelKind(messageChannelKind: MessageChannelKind): boolean {
-        //return this.model.messageChannelKind!.indexOf(messageChannelKind) > -1;
-        return true;
-    }
-
-    public setCampaignCustomData(metadataJson: string): void {
-        // if (!metadataJson || metadataJson === '') {
-        //     if ('data' in this.model) {
-        //         delete this.model.data;
-        //     }
-        //     return;
-        // }
-        // try {
-        //     const data = JSON.parse(metadataJson);
-        //     this.customDataValid = true;
-        //     this.model.data = data;
-        // } catch (error) {
-        //     this.customDataValid = false;
-        // }
-    }
-
-    public onCustomDataFocusOut(): void {
-        this.showCustomDataValidation = true;
-    }
-
-    private loadMessageTypes(): void {
-        this.messageTypes = [];
+    private _loadMessageTypes(): void {
         this._api
             .getMessageTypes()
             .pipe(map((messageTypes: MessageTypeResultSet) => {
                 if (messageTypes.items) {
-                    this.messageTypes = messageTypes.items.map(type => new MenuOption(type.name || '', type.id));
-                    this.messageTypes.unshift(new MenuOption('Παρακαλώ επιλέξτε...', null));
+                    this.messageTypes.push(...messageTypes.items.map(type => new MenuOption(type.name || '', type.id)));
                 }
             }))
             .subscribe();
     }
 
-    private initBasicDetailsFormGroup(): void {
+    private _loadTemplates(): void {
+        this._api
+            .getTemplates()
+            .pipe(map((templates: TemplateResultSet) => {
+                if (templates.items) {
+                    this.templates.push(...templates.items.map(template => new MenuOption(template.name || '', template.id)))
+                }
+            }))
+            .subscribe();
+    }
+
+    private _initFormGroups(): void {
         this.basicDetailsForm = new FormGroup({
             title: new FormControl(undefined, [
                 Validators.required,
@@ -190,7 +191,13 @@ export class CampaignCreateComponent implements OnInit, AfterViewInit {
             actionLinkHref: new FormControl(undefined, [
                 Validators.pattern(/^(?:http(s)?:\/\/)?[\w.-]+(?:\.[\w\.-]+)+[\w\-\._~:?#[\]@!\$&'\(\)\*\+,;=.]+$/),
                 Validators.maxLength(2048)
-            ])
+            ]),
+            typeId: new FormControl(),
+            templateId: new FormControl(),
+            needsTemplate: new FormControl('no')
+        });
+        this.contentForm = new FormGroup({
+            data: new FormControl(undefined, invalidJsonValidator())
         });
     }
 }

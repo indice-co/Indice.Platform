@@ -48,7 +48,10 @@ export class LibStepComponent implements OnInit, OnChanges {
 
     /** Indicates whether you can navigate to the step or not. */
     public get isValid(): boolean {
-        return this.stepControl?.valid === true;
+        if (!this.stepControl) {
+            return true;
+        }
+        return this.stepControl.valid;
     }
 
     /** Shows the current state of the step. */

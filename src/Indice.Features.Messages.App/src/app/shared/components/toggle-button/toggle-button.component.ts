@@ -4,13 +4,11 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 @Component({
     selector: 'lib-toggle-button',
     templateUrl: './toggle-button.component.html',
-    providers: [
-        {
-            provide: NG_VALUE_ACCESSOR,
-            useExisting: forwardRef(() => ToggleButtonComponent),
-            multi: true
-        }
-    ]
+    providers: [{
+        provide: NG_VALUE_ACCESSOR,
+        useExisting: forwardRef(() => ToggleButtonComponent),
+        multi: true
+    }]
 })
 export class ToggleButtonComponent implements OnInit, ControlValueAccessor {
     private _onChange$: any | undefined = undefined;
@@ -23,9 +21,9 @@ export class ToggleButtonComponent implements OnInit, ControlValueAccessor {
     @Input('true-label') trueLabel = '';
     @Input('false-label') falseLabel = '';
 
-    public writeValue(obj: any): void {
-        if (obj) {
-            this.value = obj || false;
+    public writeValue(value: any): void {
+        if (value) {
+            this.value = value || false;
         }
     }
 

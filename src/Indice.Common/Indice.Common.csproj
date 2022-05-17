@@ -16,7 +16,7 @@
     <IsPackable>true</IsPackable>
     <PackageId>Indice.Common</PackageId>
     <PackageTags>AspNet;Api;Utilities</PackageTags>
-    <PackageReleaseNotes>Fix minor bug for EnumFlagsJsonConverter.</PackageReleaseNotes>
+    <PackageReleaseNotes>Fix bug in CreditorReference.</PackageReleaseNotes>
     <PackageIcon>icon-310.png</PackageIcon>
     <PackageProjectUrl>https://github.com/indice-co/Indice.AspNet</PackageProjectUrl>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
