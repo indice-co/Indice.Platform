@@ -17,14 +17,12 @@ export class ToggleButtonComponent implements OnInit, ControlValueAccessor {
     constructor() { }
 
     @Input() value: boolean = false;
-    @Output() valueChange: EventEmitter<boolean> = new EventEmitter(false);
+    @Output() change: EventEmitter<boolean> = new EventEmitter(false);
     @Input('true-label') trueLabel = '';
     @Input('false-label') falseLabel = '';
 
     public writeValue(value: any): void {
-        if (value) {
-            this.value = value || false;
-        }
+        this.value = value || false;
     }
 
     public registerOnChange(fn: any): void {
@@ -39,7 +37,7 @@ export class ToggleButtonComponent implements OnInit, ControlValueAccessor {
 
     public toggleValue(): void {
         this.value = !this.value;
-        this.valueChange.emit(this.value);
+        this.change.emit(this.value);
         if (this._onChange$) {
             this._onChange$(this.value);
         }

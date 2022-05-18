@@ -1,12 +1,7 @@
 <lib-side-view-layout title="Δημιουργία νέας καμπάνιας" class="large" [cancel-show]="false" [ok-close-dialog]="false" [ok-label]="okLabel" (ok)="onSideViewOk()" [disabled]="createCampaignStepper.currentStep?.isValid === false"
     #sideViewLayout>
-    <span>Stepper is valid: {{ createCampaignStepper.currentStep?.isValid }}</span>
-    <br>
-    <span>Form is valid: {{ basicDetailsForm.valid }}</span>
-    <br>
-    <span>Template id: {{ templateId.value ? (templateId.value | json) : 'N/A' }}</span>
     <div class="mt-4">
-        <lib-stepper [linear]="true" #createCampaignStepper>
+        <lib-stepper [linear]="true" (stepChanged)="onStepperStepChanged($event)" #createCampaignStepper>
             <!-- Γενικά -->
             <lib-step [stepControl]="basicDetailsForm">
                 <ng-template libStepLabel>Γενικά</ng-template>
@@ -32,7 +27,7 @@
                             <div class="text-base font-medium text-gray-900" aria-hidden="true">Τύπος</div>
                             <label for="campaignType" class="field-label hidden" aria-hidden="true">Τύπος</label>
                             <div class="mt-1 flex rounded-sm">
-                                <lib-local-drop-down-menu id="campaignType" class="w-full" formControlName="typeId" [value]="typeId.value" [options]="messageTypes" (change)="typeId.setValue($event.value ? $event : null)">
+                                <lib-local-drop-down-menu id="campaignType" class="w-full" formControlName="type" [value]="type.value" [options]="messageTypes" (change)="type.setValue($event.value ? $event : null)">
                                 </lib-local-drop-down-menu>
                             </div>
                         </fieldset>
@@ -93,7 +88,7 @@
                             <div class="text-base font-medium text-gray-900" aria-hidden="true">Template</div>
                             <div class="mt-1 grid grid-cols-2 gap-4">
                                 <div class="col-span-2 sm:col-span-1">
-                                    <div class="flex items-center h-full">
+                                    <div class="flex items-center mt-1">
                                         <input id="template-no" name="needsTemplate" type="radio" value="no" (change)="onNeedsTemplateChanged($event)" formControlName="needsTemplate"
                                             class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300">
                                         <label for="template-no" class="ml-3 block text-sm font-medium text-gray-700">Όχι</label>
@@ -103,15 +98,16 @@
                                     </div>
                                 </div>
                                 <div class="col-span-2 sm:col-span-1" [class.invisible]="needsTemplate.value === 'no'">
-                                    <label for="templateId" class="field-label hidden" aria-hidden="true">Template id</label>
+                                    <label for="template" class="field-label hidden" aria-hidden="true">Template id</label>
                                     <div class="flex rounded-sm">
-                                        <lib-local-drop-down-menu id="templateId" name="templateId" class="w-full" formControlName="templateId" [value]="templateId.value" [options]="templates" (change)="onTemplateSelectedChanged($event)">
+                                        <lib-local-drop-down-menu id="template" name="template" class="w-full" formControlName="template" [value]="template.value" [options]="templates"
+                                            (change)="template.setValue($event.value !== null ? $event : null)">
                                         </lib-local-drop-down-menu>
                                     </div>
-                                    <p *ngIf="templateId.invalid && (templateId.dirty || templateId.touched)" class="mt-2 text-sm text-red-600">
-                                        <span *ngIf="templateId.errors!['required']">Παρακαλώ επιλέξτε ένα template.</span>
-                                    </p>
                                 </div>
+                                <p *ngIf="template.invalid && (template.dirty || template.touched)" class="mt-2 text-sm text-red-600">
+                                    <span *ngIf="template.errors!['required']">Παρακαλώ επιλέξτε ένα template.</span>
+                                </p>
                             </div>
                         </fieldset>
                     </div>
@@ -139,18 +135,113 @@
                 </form>
             </lib-step>
             <!-- Παραλήπτες -->
-            <lib-step>
+            <lib-step [stepControl]="recipientsForm">
                 <ng-template libStepLabel>Παραλήπτες</ng-template>
-                <p>This is step the final step</p>
-                <button (click)="createCampaignStepper.goToPreviousStep()">prev</button>
-                <button (click)="createCampaignStepper.goToNextStep()">next</button>
+                <form [formGroup]="recipientsForm">
+                    <div class="px-4 space-y-2 pb-4 mt-4">
+                        <fieldset>
+                            <legend class="sr-only">Αποστολή από</legend>
+                            <div class="text-base font-medium text-gray-900" aria-hidden="true">Αποστολή από</div>
+                            <div class="mt-1 grid grid-cols-2 gap-4">
+                                <div class="col-span-2 sm:col-span-1">
+                                    <div class="flex items-center mt-1">
+                                        <input id="distribution-list" name="sendVia" type="radio" value="distribution-list" (change)="onSendViaChanged($event)" formControlName="sendVia"
+                                            class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300">
+                                        <label for="distribution-list" class="ml-3 block text-sm font-medium text-gray-700">Λίστα διανομής</label>
+                                        <input id="recipient-ids" name="sendVia" type="radio" value="recipient-ids" (change)="onSendViaChanged($event)" formControlName="sendVia"
+                                            class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 ml-4">
+                                        <label for="recipient-ids" class="ml-3 block text-sm font-medium text-gray-700">Λίστα κωδικών</label>
+                                    </div>
+                                </div>
+                                <div class="col-span-2 sm:col-span-1" *ngIf="sendVia.value === 'distribution-list'">
+                                    <label for="distributionList" class="field-label hidden" aria-hidden="true">distribution list id</label>
+                                    <div class="flex rounded-sm">
+                                        <lib-local-drop-down-menu id="distributionList" name="distributionList" class="w-full" formControlName="distributionList" [value]="distributionList.value" [options]="distributionLists"
+                                            (change)="distributionList.setValue($event.value !== null ? $event : null)">
+                                        </lib-local-drop-down-menu>
+                                    </div>
+                                </div>
+                                <div class="col-span-2 sm:col-span-1" *ngIf="sendVia.value === 'recipient-ids'">
+                                    <label for="recipientIds" class="field-label hidden" aria-hidden="true">Τύπος</label>
+                                    <div class="mt-1 flex rounded-sm">
+                                        <textarea id="recipientIds" name="recipientIds" rows="6" formControlName="recipientIds" placeholder="Η λίστα χρηστών της καμπάνιας...&#10;κωδικός_χρήστη_1&#10;κωδικός_χρήστη_2"></textarea>
+                                    </div>
+                                    <p class="field-info">{{ recipientsCount }} παραλήπτες</p>
+                                </div>
+                                <p *ngIf="distributionList.invalid && (distributionList.dirty || distributionList.touched)" class="mt-2 text-sm text-red-600">
+                                    <span *ngIf="distributionList.errors!['required']">Παρακαλώ επιλέξτε μία λίστα διανομής.</span>
+                                </p>
+                                <p *ngIf="recipientIds.invalid && (recipientIds.dirty || recipientIds.touched)" class="mt-2 text-sm text-red-600">
+                                    <span *ngIf="recipientIds.errors!['required']">Παρακαλώ εισάγετε τουλάχιστον ένα κωδικό.</span>
+                                </p>
+                            </div>
+                        </fieldset>
+                    </div>
+                </form>
             </lib-step>
             <!-- Επισκόπηση -->
-            <lib-step>
+            <lib-step [stepControl]="previewForm">
                 <ng-template libStepLabel>Επισκόπηση</ng-template>
-                <p>This is step the final step</p>
-                <button (click)="createCampaignStepper.goToPreviousStep()">prev</button>
-                <button (click)="createCampaignStepper.goToNextStep()">next</button>
+                <div class="bg-white shadow overflow-hidden sm:rounded-lg  mt-4">
+                    <div class="border-t border-gray-200">
+                        <dl>
+                            <form [formGroup]="previewForm">
+                                <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                                    <dt class="text-sm font-medium text-gray-500">Τίτλος</dt>
+                                    <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                                        <lib-toggle-button id="published" formControlName="published" true-label="Ναι" false-label="Όχι"></lib-toggle-button>
+                                    </dd>
+                                </div>
+                                <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                                    <dt class="text-sm font-medium text-gray-500">Τίτλος</dt>
+                                    <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                                        <b>{{ title.value }}</b>
+                                    </dd>
+                                </div>
+                                <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                                    <dt class="text-sm font-medium text-gray-500">Τύπος</dt>
+                                    <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                                        <b>{{ type.value?.text || '-' }}</b>
+                                    </dd>
+                                </div>
+                                <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                                    <dt class="text-sm font-medium text-gray-500">Διάρκεια</dt>
+                                    <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                                        <span>
+                                            <b>{{ from.value ? (from.value | date: 'medium') : '' }} - </b>
+                                        </span>
+                                        <span *ngIf="to.value">
+                                            <b>{{ to.value | date: 'medium' }}</b>
+                                        </span>
+                                        <span *ngIf="!to.value" class="text-lg">
+                                            <b>∞</b>
+                                        </span>
+                                    </dd>
+                                </div>
+                                <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                                    <dt class="text-sm font-medium text-gray-500">Call to action</dt>
+                                    <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                                        <a *ngIf="actionLinkText.value && actionLinkHref.value" target="_blank" class="text-indigo-600 hover:text-indigo-500" [href]="actionLinkHref.value">{{ actionLinkText.value }}</a>
+                                        <span *ngIf="actionLinkText.value && !actionLinkHref.value">{{ actionLinkText.value }}</span>
+                                        <span *ngIf="!actionLinkText.value && !actionLinkHref.value">-</span>
+                                    </dd>
+                                </div>
+                                <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                                    <dt class="text-sm font-medium text-gray-500">Template</dt>
+                                    <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                                        <b>{{ template.value?.text || '-' }}</b>
+                                    </dd>
+                                </div>
+                                <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                                    <dt class="text-sm font-medium text-gray-500">Λίστα διανομής</dt>
+                                    <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                                        <b>{{ distributionList.value?.text || '-' }}</b>
+                                    </dd>
+                                </div>
+                            </form>
+                        </dl>
+                    </div>
+                </div>
             </lib-step>
         </lib-stepper>
     </div>

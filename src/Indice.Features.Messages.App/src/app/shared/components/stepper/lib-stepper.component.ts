@@ -57,7 +57,7 @@ export class LibStepperComponent implements OnInit {
     private updateCurrentStepIndex(newIndex: number): void {
         const arrayOfSteps = this.steps.toArray();
         const currentStep = arrayOfSteps[this.currentStepIndex];
-        if (this.linear && !currentStep.isValid) {
+        if (this.linear && !currentStep.isValid && newIndex >= this.currentStepIndex) {
             return;
         }
         this.stepChanged.emit({
