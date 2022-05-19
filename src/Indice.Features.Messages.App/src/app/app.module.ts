@@ -9,6 +9,7 @@ import { APP_LINKS, IndiceComponentsModule, ModalService, SHELL_CONFIG } from '@
 import { AppComponent } from './app.component';
 import { AppLinks } from './app.links';
 import { AppRoutingModule } from './app-routing.module';
+import { BadRequestInterceptor } from './core/bad-request-interceptor';
 import { BasicModalComponent } from './shared/components/basic-modal/basic-modal.component';
 import { BeautifyBooleanPipe } from './shared/pipes.services';
 import { CampaignCreateComponent } from './features/campaigns/create/campaign-create.component';
@@ -24,6 +25,11 @@ import { DistributionListCreateComponent } from './features/distribution-lists/c
 import { DistributionListEditComponent } from './features/distribution-lists/edit/distribution-list-edit.component';
 import { DistributionListsComponent } from './features/distribution-lists/distribution-lists.component';
 import { HomeComponent } from './features/home/home.component';
+import { LibStepComponent } from './shared/components/stepper/lib-step.component';
+import { LibStepInfo } from './shared/components/stepper/lib-step-info.directive';
+import { LibStepLabel } from './shared/components/stepper/lib-step-label.directive';
+import { LibStepperComponent } from './shared/components/stepper/lib-stepper.component';
+import { LocalDropDownMenuComponent } from './shared/components/drop-down-menu/drop-down-menu.component';
 import { LogOutComponent } from './core/services/logout/logout.component';
 import { MESSAGES_API_BASE_URL } from './core/services/messages-api.service';
 import { MessageTypeCreateComponent } from './features/message-types/create/message-type-create.component';
@@ -32,12 +38,9 @@ import { MessageTypesComponent } from './features/message-types/message-types.co
 import { PageIllustrationComponent } from './shared/components/page-illustration/page-illustration.component';
 import { RadioButtonsListComponent } from './shared/components/radio-buttons-list/radio-buttons-list.component';
 import { ShellConfig } from './shell.config';
+import { TemplatesComponent } from './features/templates/templates.component';
 import { ToggleButtonComponent } from './shared/components/toggle-button/toggle-button.component';
 import * as app from 'src/app/core/models/settings';
-import { LibStepperComponent } from './shared/components/stepper/lib-stepper.component';
-import { LibStepComponent } from './shared/components/stepper/lib-step.component';
-import { LibStepLabel } from './shared/components/stepper/lib-step-label.directive';
-import { LocalDropDownMenuComponent } from './shared/components/drop-down-menu/drop-down-menu.component';
 
 @NgModule({
   declarations: [
@@ -58,6 +61,7 @@ import { LocalDropDownMenuComponent } from './shared/components/drop-down-menu/d
     DistributionListsComponent,
     HomeComponent,
     LibStepComponent,
+    LibStepInfo,
     LibStepLabel,
     LibStepperComponent,
     LocalDropDownMenuComponent,
@@ -67,6 +71,7 @@ import { LocalDropDownMenuComponent } from './shared/components/drop-down-menu/d
     MessageTypesComponent,
     PageIllustrationComponent,
     RadioButtonsListComponent,
+    TemplatesComponent,
     ToggleButtonComponent
   ],
   imports: [
@@ -85,8 +90,9 @@ import { LocalDropDownMenuComponent } from './shared/components/drop-down-menu/d
     JsonPipe,
     { provide: APP_LINKS, useFactory: () => new AppLinks() },
     { provide: AUTH_SETTINGS, useFactory: () => app.settings.auth_settings },
-    { provide: MESSAGES_API_BASE_URL, useFactory: () => app.settings.api_url },
     { provide: HTTP_INTERCEPTORS, useClass: AuthHttpInterceptor, multi: true },
+    { provide: HTTP_INTERCEPTORS, useClass: BadRequestInterceptor, multi: true },
+    { provide: MESSAGES_API_BASE_URL, useFactory: () => app.settings.api_url },
     { provide: SHELL_CONFIG, useFactory: () => new ShellConfig() }
   ],
   bootstrap: [AppComponent]

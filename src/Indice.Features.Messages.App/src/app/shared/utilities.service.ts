@@ -32,7 +32,7 @@ export class UtilitiesService {
 
   public getValidationProblemDetails(problemDetails: ValidationProblemDetails): string[] {
     this.problemDetails = problemDetails;
-    if (this.validationErrors.length === 0 && this.problemDetails.title !== null && this.problemDetails.title !== undefined) {
+    if (this.validationErrors.length === 0 && this.problemDetails.title) {
       return new Array<string>(1).fill(this.problemDetails.title);
     }
     return this.validationErrors;

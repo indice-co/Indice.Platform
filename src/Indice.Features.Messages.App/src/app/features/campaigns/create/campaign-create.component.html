@@ -1,10 +1,11 @@
 <lib-side-view-layout title="Δημιουργία νέας καμπάνιας" class="large" [cancel-show]="false" [ok-close-dialog]="false" [ok-label]="okLabel" (ok)="onSideViewOk()" [disabled]="createCampaignStepper.currentStep?.isValid === false"
     #sideViewLayout>
     <div class="mt-4">
-        <lib-stepper [linear]="true" (stepChanged)="onStepperStepChanged($event)" #createCampaignStepper>
+        <lib-stepper [linear]="false" [type]="StepperType.PanelsWithBorder" (stepChanged)="onStepperStepChanged($event)" #createCampaignStepper>
             <!-- Γενικά -->
             <lib-step [stepControl]="basicDetailsForm">
-                <ng-template libStepLabel>Γενικά</ng-template>
+                <ng-template libStepLabel>Γενικα</ng-template>
+                <ng-template libStepInfo>Βασικές πληροφορίες</ng-template>
                 <form [formGroup]="basicDetailsForm">
                     <div class="px-4 space-y-2 pb-4 mt-4">
                         <!-- Τίτλος -->
@@ -115,7 +116,8 @@
             </lib-step>
             <!-- Περιεχόμενο -->
             <lib-step [stepControl]="contentForm">
-                <ng-template libStepLabel>Περιεχόμενο</ng-template>
+                <ng-template libStepLabel>Περιεχομενο</ng-template>
+                <ng-template libStepInfo>Aνά κανάλι επικοινωνίας</ng-template>
                 <form [formGroup]="contentForm">
                     <div class="px-4 space-y-2 pb-4 mt-4">
                         <!-- Μεταδεδομένα -->
@@ -136,7 +138,8 @@
             </lib-step>
             <!-- Παραλήπτες -->
             <lib-step [stepControl]="recipientsForm">
-                <ng-template libStepLabel>Παραλήπτες</ng-template>
+                <ng-template libStepLabel>Παραληπτες</ng-template>
+                <ng-template libStepInfo>Παραλήπτες της καμπάνιας</ng-template>
                 <form [formGroup]="recipientsForm">
                     <div class="px-4 space-y-2 pb-4 mt-4">
                         <fieldset>
@@ -181,13 +184,14 @@
             </lib-step>
             <!-- Επισκόπηση -->
             <lib-step [stepControl]="previewForm">
-                <ng-template libStepLabel>Επισκόπηση</ng-template>
+                <ng-template libStepLabel>Επισκοπηση</ng-template>
+                <ng-template libStepInfo>Επισκόπηση στοιχείων</ng-template>
                 <div class="bg-white shadow overflow-hidden sm:rounded-lg  mt-4">
                     <div class="border-t border-gray-200">
                         <dl>
                             <form [formGroup]="previewForm">
                                 <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-                                    <dt class="text-sm font-medium text-gray-500">Τίτλος</dt>
+                                    <dt class="text-sm font-medium text-gray-500">Δημοσιευμένη</dt>
                                     <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
                                         <lib-toggle-button id="published" formControlName="published" true-label="Ναι" false-label="Όχι"></lib-toggle-button>
                                     </dd>
@@ -221,7 +225,7 @@
                                 <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
                                     <dt class="text-sm font-medium text-gray-500">Call to action</dt>
                                     <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                                        <a *ngIf="actionLinkText.value && actionLinkHref.value" target="_blank" class="text-indigo-600 hover:text-indigo-500" [href]="actionLinkHref.value">{{ actionLinkText.value }}</a>
+                                        <a *ngIf="actionLinkText.value && actionLinkHref.value" target="_blank" class="text-blue-600 hover:text-blue-500" [href]="actionLinkHref.value">{{ actionLinkText.value }}</a>
                                         <span *ngIf="actionLinkText.value && !actionLinkHref.value">{{ actionLinkText.value }}</span>
                                         <span *ngIf="!actionLinkText.value && !actionLinkHref.value">-</span>
                                     </dd>

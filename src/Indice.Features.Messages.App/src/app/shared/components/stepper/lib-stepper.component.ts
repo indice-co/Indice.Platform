@@ -2,6 +2,7 @@ import { Component, ContentChildren, EventEmitter, Input, OnInit, Output, QueryL
 
 import { LibStepComponent, StepState } from './lib-step.component';
 import { StepSelectedEvent } from './types/step-selected-event';
+import { StepperType } from './types/stepper-type';
 
 @Component({
     selector: 'lib-stepper',
@@ -19,7 +20,10 @@ export class LibStepperComponent implements OnInit {
     @Output() public readonly stepChanged = new EventEmitter<StepSelectedEvent>();
     /** Indicates whether each step has to be validated before proceeding to the next. */
     @Input() public linear: boolean = false;
+    /** The type of the stepper. */
+    @Input() public type: StepperType = StepperType.Panels;
     public StepState = StepState;
+    public StepperType = StepperType;
 
     /** The index (starting from zero) of the current wizard step. */
     public get currentStepIndex(): number {

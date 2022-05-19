@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, ContentChild, forwardRef, Inject, Input, OnChanges, OnInit, SimpleChanges, TemplateRef, ViewChild, ViewEncapsulation } from '@angular/core';
 import { AbstractControl } from '@angular/forms';
+import { LibStepInfo } from './lib-step-info.directive';
 
 import { LibStepLabel } from './lib-step-label.directive';
 import { LibStepperComponent } from './lib-stepper.component';
@@ -29,8 +30,10 @@ export class LibStepComponent implements OnInit, OnChanges {
 
     /** The content provided for the step. */
     @ViewChild(TemplateRef, { static: true }) public content!: TemplateRef<any>;
-    /** The label of the step displayed in header. */
+    /** The label of the step displayed in header, if applicable. */
     @ContentChild(LibStepLabel) public stepLabel: LibStepLabel | undefined;
+    /** The info of the step displayed in header, if applicable. */
+    @ContentChild(LibStepInfo) public stepInfo: LibStepInfo | undefined;
     /** An optional CSS class for the step header. */
     @Input() public class: string | undefined;
     /** The abstract control of the step. */

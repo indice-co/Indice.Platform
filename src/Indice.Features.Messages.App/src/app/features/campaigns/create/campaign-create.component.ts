@@ -5,10 +5,10 @@ import { Router } from '@angular/router';
 
 import { MenuOption, ToasterService, ToastType } from '@indice/ng-components';
 import { map } from 'rxjs/operators';
-import { CreateCampaignRequest, MessagesApiClient, MessageChannelKind, MessageTypeResultSet, Period, Hyperlink, TemplateResultSet, Campaign, ValidationProblemDetails, DistributionListResultSet } from 'src/app/core/services/messages-api.service';
+import { CreateCampaignRequest, MessagesApiClient, MessageChannelKind, MessageTypeResultSet, Period, Hyperlink, TemplateResultSet, Campaign, DistributionListResultSet } from 'src/app/core/services/messages-api.service';
 import { invalidJsonValidator } from 'src/app/shared/validators/jsonValidator';
-import { UtilitiesService } from 'src/app/shared/utilities.service';
 import { LibStepperComponent } from 'src/app/shared/components/stepper/lib-stepper.component';
+import { StepperType } from 'src/app/shared/components/stepper/types/stepper-type';
 import { StepSelectedEvent } from 'src/app/shared/components/stepper/types/step-selected-event';
 
 @Component({
@@ -19,7 +19,6 @@ export class CampaignCreateComponent implements OnInit, AfterViewInit {
     constructor(
         private _api: MessagesApiClient,
         private _router: Router,
-        private _utilities: UtilitiesService,
         private _changeDetector: ChangeDetectorRef,
         private _datePipe: DatePipe,
         @Inject(ToasterService) private _toaster: ToasterService,
@@ -50,6 +49,7 @@ export class CampaignCreateComponent implements OnInit, AfterViewInit {
     public get recipientIds(): AbstractControl { return this.recipientsForm.get('recipientIds')!; }
     public get published(): AbstractControl { return this.previewForm.get('published')!; }
     @ViewChild('createCampaignStepper', { static: true }) private _stepper!: LibStepperComponent;
+    public StepperType = StepperType;
 
     public get okLabel(): string {
         return this._stepper.currentStep?.isLast
@@ -106,8 +106,7 @@ export class CampaignCreateComponent implements OnInit, AfterViewInit {
                     this.submitInProgress = false;
                     this._router.navigateByUrl('/', { skipLocationChange: true }).then(() => this._router.navigate(['campaigns']));
                     this._toaster.show(ToastType.Success, 'Επιτυχής αποθήκευση', `Η καμπάνια με τίτλο '${campaign.title}' δημιουργήθηκε με επιτυχία.`);
-                },
-                error: (problemDetails: ValidationProblemDetails) => this._toaster.show(ToastType.Error, 'Αποτυχής αποθήκευση', `${this._utilities.getValidationProblemDetails(problemDetails)}`, 6000)
+                }
             });
     }
 

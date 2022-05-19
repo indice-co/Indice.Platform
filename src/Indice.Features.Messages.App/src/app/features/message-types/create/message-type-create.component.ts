@@ -2,8 +2,7 @@ import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, Inject, OnInit
 import { Router } from '@angular/router';
 
 import { ToasterService, ToastType } from '@indice/ng-components';
-import { CreateMessageTypeRequest, MessagesApiClient, MessageType, ValidationProblemDetails } from 'src/app/core/services/messages-api.service';
-import { UtilitiesService } from 'src/app/shared/utilities.service';
+import { CreateMessageTypeRequest, MessagesApiClient, MessageType } from 'src/app/core/services/messages-api.service';
 
 @Component({
     selector: 'app-message-type-create',
@@ -16,8 +15,7 @@ export class MessageTypeCreateComponent implements OnInit, AfterViewInit {
         private _changeDetector: ChangeDetectorRef,
         private _api: MessagesApiClient,
         private _router: Router,
-        @Inject(ToasterService) private _toaster: ToasterService,
-        private _utilities: UtilitiesService
+        @Inject(ToasterService) private _toaster: ToasterService
     ) { }
 
     public submitInProgress = false;
@@ -38,9 +36,6 @@ export class MessageTypeCreateComponent implements OnInit, AfterViewInit {
                     this.submitInProgress = false;
                     this._toaster.show(ToastType.Success, 'Επιτυχής αποθήκευση', `Ο τύπος με όνομα '${messageType.name}' δημιουργήθηκε με επιτυχία.`);
                     this._router.navigateByUrl('/', { skipLocationChange: true }).then(() => this._router.navigate(['message-types']));
-                },
-                error: (problemDetails: ValidationProblemDetails) => {
-                    this._toaster.show(ToastType.Error, 'Αποτυχία αποθήκευσης', `${this._utilities.getValidationProblemDetails(problemDetails)}`, 6000);
                 }
             });
     }

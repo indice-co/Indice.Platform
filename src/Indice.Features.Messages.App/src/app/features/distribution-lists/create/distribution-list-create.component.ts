@@ -2,8 +2,7 @@ import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, Inject, OnInit
 import { Router } from '@angular/router';
 
 import { ToasterService, ToastType } from '@indice/ng-components';
-import { CreateDistributionListRequest, MessagesApiClient, MessageType, ValidationProblemDetails } from 'src/app/core/services/messages-api.service';
-import { UtilitiesService } from 'src/app/shared/utilities.service';
+import { CreateDistributionListRequest, MessagesApiClient, MessageType } from 'src/app/core/services/messages-api.service';
 
 @Component({
     selector: 'app-distribution-list-create',
@@ -16,8 +15,7 @@ export class DistributionListCreateComponent implements OnInit, AfterViewInit {
         private _changeDetector: ChangeDetectorRef,
         private _api: MessagesApiClient,
         private _router: Router,
-        @Inject(ToasterService) private _toaster: ToasterService,
-        private _utilities: UtilitiesService
+        @Inject(ToasterService) private _toaster: ToasterService
     ) { }
 
     public submitInProgress = false;
@@ -38,9 +36,6 @@ export class DistributionListCreateComponent implements OnInit, AfterViewInit {
                     this.submitInProgress = false;
                     this._toaster.show(ToastType.Success, 'Επιτυχής αποθήκευση', `Η λίστα με όνομα '${messageType.name}' δημιουργήθηκε με επιτυχία.`);
                     this._router.navigateByUrl('/', { skipLocationChange: true }).then(() => this._router.navigate(['distribution-lists']));
-                },
-                error: (problemDetails: ValidationProblemDetails) => {
-                    this._toaster.show(ToastType.Error, 'Αποτυχία αποθήκευσης', `${this._utilities.getValidationProblemDetails(problemDetails)}`, 6000);
                 }
             });
     }

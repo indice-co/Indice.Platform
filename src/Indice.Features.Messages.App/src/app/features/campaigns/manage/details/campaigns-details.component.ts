@@ -5,8 +5,7 @@ import { Location } from '@angular/common';
 
 import { map } from 'rxjs/operators';
 import { MenuOption, Modal, ToasterService, ToastType } from '@indice/ng-components';
-import { Campaign, MessagesApiClient, MessageType, MessageTypeResultSet, UpdateCampaignRequest, ValidationProblemDetails } from 'src/app/core/services/messages-api.service';
-import { UtilitiesService } from 'src/app/shared/utilities.service';
+import { Campaign, MessagesApiClient, MessageType, MessageTypeResultSet, UpdateCampaignRequest } from 'src/app/core/services/messages-api.service';
 
 @Component({
   selector: 'app-campaigns-details',
@@ -19,7 +18,6 @@ export class CampaignsDetailsComponent implements OnInit {
     private _api: MessagesApiClient,
     private _route: ActivatedRoute,
     private _toaster: ToasterService,
-    public _utilities: UtilitiesService,
     private _location: Location) {
   }
 
@@ -56,9 +54,6 @@ export class CampaignsDetailsComponent implements OnInit {
         next: _ => {
           this._toaster.show(ToastType.Success, 'Επιτυχής επεξεργασία', `Η καμπάνια με τίτλο '${this.model?.title}' υπέστη επεξεργασία με επιτυχία.`, 5000);
           this._location.back();
-        },
-        error: (problemDetails: ValidationProblemDetails) => {
-          this._toaster.show(ToastType.Error, 'Αποτυχία επεξεργασίας', `${this._utilities.getValidationProblemDetails(problemDetails)}`, 6000);
         }
       });
   }

@@ -58,5 +58,10 @@
         /// <param name="id">The id of the distribution list.</param>
         /// <param name="contactId">The id of the contact.</param>
         public static MessageException ContactAlreadyInDistributionList(Guid id, Guid contactId) => new($"Contact with id '{contactId}' already belongs to distribution list with id '{id}'.", nameof(id));
+        /// <summary>Distribution list associated with one or more campaigns exception.</summary>
+        /// <param name="name">The name of the distribution list.</param>
+        /// <param name="campaignNames">The name of the campaigns.</param>
+        public static MessageException DistributionListAssociatedWithCampaigns(string name, params string[] campaignNames) => 
+            new($"Distribution list '{name}' is associated with campaigns '{string.Join(", ", campaignNames)}'. Please remove any association, if possible, and try again.", nameof(name));
     }
 }

@@ -49,6 +49,10 @@ namespace Indice.Features.Messages.Core.Services
             if (list is null) {
                 throw MessageException.MessageTypeNotFound(id);
             }
+            var associatedCampaigns = await DbContext.Campaigns.Where(x => x.DistributionListId == list.Id).Select(x => x.Title).ToArrayAsync();
+            if (associatedCampaigns.Any()) {
+                throw MessageException.DistributionListAssociatedWithCampaigns(list.Name, associatedCampaigns);
+            }
             DbContext.DistributionLists.Remove(list);
             await DbContext.SaveChangesAsync();
         }

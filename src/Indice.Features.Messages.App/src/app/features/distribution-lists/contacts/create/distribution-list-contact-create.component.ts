@@ -1,11 +1,9 @@
-import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, Inject, OnInit, ViewChild } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { Router } from '@angular/router';
 
-import { ToasterService, ToastType } from '@indice/ng-components';
 import { forkJoin } from 'rxjs';
-import { Contact, ContactResultSet, CreateDistributionListContactRequest, MessagesApiClient, ValidationProblemDetails } from 'src/app/core/services/messages-api.service';
+import { Contact, ContactResultSet, CreateDistributionListContactRequest, MessagesApiClient } from 'src/app/core/services/messages-api.service';
 import { ComboboxComponent } from 'src/app/shared/components/combobox/combobox.component';
-import { UtilitiesService } from 'src/app/shared/utilities.service';
 
 @Component({
     selector: 'app-distribution-list-contact-create',
@@ -19,10 +17,7 @@ export class DistributionListContactCreateComponent implements OnInit, AfterView
     constructor(
         private _changeDetector: ChangeDetectorRef,
         private _api: MessagesApiClient,
-        private _router: Router,
-        @Inject(ToasterService) private _toaster: ToasterService,
-        private _utilities: UtilitiesService,
-        private _activatedRoute: ActivatedRoute
+        private _router: Router
     ) { }
 
     public submitInProgress = false;
@@ -65,12 +60,7 @@ export class DistributionListContactCreateComponent implements OnInit, AfterView
             });
             return this._api.addContactToDistributionList(this._distributionListId, body);
         });
-        forkJoin(tasks).subscribe({
-            next: () => { },
-            error: (problemDetails: ValidationProblemDetails) => {
-                this._toaster.show(ToastType.Warning, 'Αποτυχία αποθήκευσης', `${this._utilities.getValidationProblemDetails(problemDetails)}`, 6000);
-            }
-        }).add(() => {
+        forkJoin(tasks).subscribe().add(() => {
             this._router.navigateByUrl('/', { skipLocationChange: true }).then(() => this._router.navigate(['distribution-lists', this._distributionListId, 'contacts']));
         });
     }
