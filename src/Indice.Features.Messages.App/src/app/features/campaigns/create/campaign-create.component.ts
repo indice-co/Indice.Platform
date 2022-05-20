@@ -1,15 +1,16 @@
 import { AfterViewInit, ChangeDetectorRef, Component, Inject, OnInit, ViewChild } from '@angular/core';
-import { DatePipe, DOCUMENT } from '@angular/common';
+import { DatePipe, DOCUMENT, JsonPipe } from '@angular/common';
 import { AbstractControl, FormControl, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 
 import { MenuOption, ToasterService, ToastType } from '@indice/ng-components';
 import { map } from 'rxjs/operators';
 import { CreateCampaignRequest, MessagesApiClient, MessageChannelKind, MessageTypeResultSet, Period, Hyperlink, TemplateResultSet, Campaign, DistributionListResultSet } from 'src/app/core/services/messages-api.service';
-import { invalidJsonValidator } from 'src/app/shared/validators/jsonValidator';
 import { LibStepperComponent } from 'src/app/shared/components/stepper/lib-stepper.component';
 import { StepperType } from 'src/app/shared/components/stepper/types/stepper-type';
 import { StepSelectedEvent } from 'src/app/shared/components/stepper/types/step-selected-event';
+import { UtilitiesService } from 'src/app/shared/utilities.service';
+import { ValidationService } from 'src/app/core/services/validation.service';
 
 @Component({
     selector: 'app-campaign-create',
@@ -21,11 +22,25 @@ export class CampaignCreateComponent implements OnInit, AfterViewInit {
         private _router: Router,
         private _changeDetector: ChangeDetectorRef,
         private _datePipe: DatePipe,
+        private _validationService: ValidationService,
+        private _utilities: UtilitiesService,
         @Inject(ToasterService) private _toaster: ToasterService,
         @Inject(DOCUMENT) private _document: Document
     ) { }
 
-
+    private _currentValidDataObject: any = undefined;
+    private _samplePayload: any = {
+        contact: {
+            id: 'FA24F7D6-332F-4E17-8E43-A111DB32E7CC',
+            recipientId: '05B7B29D-8969-425A-A1FC-D5222553336F',
+            salutation: 'Mr.',
+            firstName: 'John',
+            lastName: 'Doe',
+            fullName: 'John Doe',
+            email: 'email@john-doe.com',
+            phoneNumber: '(212)-456-7890'
+        }
+    };
     public now: Date = new Date();
     public basicDetailsForm!: FormGroup;
     public contentForm!: FormGroup;
@@ -61,6 +76,13 @@ export class CampaignCreateComponent implements OnInit, AfterViewInit {
 
     public get recipientsCount(): number {
         return this.recipientIds.value?.split('\n').filter((x: string) => x !== '').length || 0;
+    }
+
+    public get samplePayload(): any {
+        return {
+            ...this._samplePayload,
+            data: this._currentValidDataObject ? { ...this._currentValidDataObject } : null
+        };
     }
 
     public ngOnInit(): void {
@@ -116,6 +138,13 @@ export class CampaignCreateComponent implements OnInit, AfterViewInit {
 
     public onCampaignEndInput(event: any): void {
         this.to.setValue(this._datePipe.transform(event.target.value, 'yyyy-MM-ddThh:mm'));
+    }
+
+    public onCampaignMetadataInput(event: any): void {
+        const value = event.target.value;
+        if (this._utilities.isValidJson(value)) {
+            this._currentValidDataObject = JSON.parse(value);
+        }
     }
 
     public onStepperStepChanged(event: StepSelectedEvent) {
@@ -218,7 +247,7 @@ export class CampaignCreateComponent implements OnInit, AfterViewInit {
             needsTemplate: new FormControl('no')
         });
         this.contentForm = new FormGroup({
-            data: new FormControl(undefined, invalidJsonValidator())
+            data: new FormControl(undefined, this._validationService.invalidJsonValidator())
         });
         this.recipientsForm = new FormGroup({
             sendVia: new FormControl('distribution-list'),
