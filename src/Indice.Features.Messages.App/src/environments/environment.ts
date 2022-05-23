@@ -18,7 +18,8 @@ export const environment = {
     revokeAccessTokenOnSignout: true,
     scope: 'openid profile role email phone backoffice backoffice:messages',
     silent_redirect_uri: 'http://localhost:4200/auth-renew',
-    useRefreshToken: true
+    useRefreshToken: true,
+    prompt: 'login'
   },
   culture: 'el-GR',
   isTemplate: false,

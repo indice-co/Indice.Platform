@@ -8,33 +8,39 @@ import { ValidationProblemDetails } from '../core/services/messages-api.service'
 export class UtilitiesService {
   constructor() { }
 
-  public problemDetails?: ValidationProblemDetails;
+  public isValidJson(value: string): boolean {
+    if (!value || value === '') {
+      return true;
+    }
+    try {
+      JSON.parse(value);
+      return true;
+    } catch {
+      return false;
+    }
+  }
 
-  public get validationErrors() {
-    const messages: string[] = [];
-    const errors = this.problemDetails && this.problemDetails.errors;
+  public getValidationErrors(problemDetails: ValidationProblemDetails): string[] {
+    const errors = this._getValidationErrors(problemDetails);
+    if (errors.length === 0 && problemDetails.title) {
+      return new Array<string>(1).fill(problemDetails.title);
+    }
+    return errors;
+  }
+
+  private _getValidationErrors(problemDetails: ValidationProblemDetails): string[] {
+    const errorMessages: string[] = [];
+    const errors = problemDetails && problemDetails.errors;
     for (const property in errors) {
       if (property) {
         const propertyMessages = errors[property];
-        propertyMessages.forEach((message: string) => {
-          messages.push(message);
-        });
+        propertyMessages.forEach((message: string) => errorMessages.push(message));
       } else {
-        Object.values(errors || {}).forEach(message => {
-          message.forEach(x => {
-            messages.push(x);
-          });
+        Object.values(errors || {}).forEach((messages: string[]) => {
+          messages.forEach((message: string) => messages.push(message));
         });
       }
     }
-    return messages;
-  }
-
-  public getValidationProblemDetails(problemDetails: ValidationProblemDetails): string[] {
-    this.problemDetails = problemDetails;
-    if (this.validationErrors.length === 0 && this.problemDetails.title) {
-      return new Array<string>(1).fill(this.problemDetails.title);
-    }
-    return this.validationErrors;
+    return errorMessages;
   }
 }
