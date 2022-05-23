@@ -1,6 +1,6 @@
 import { AfterViewInit, ChangeDetectorRef, Component, Inject, OnInit, ViewChild } from '@angular/core';
 import { DatePipe, DOCUMENT, JsonPipe } from '@angular/common';
-import { AbstractControl, FormControl, FormGroup, Validators } from '@angular/forms';
+import { AbstractControl, FormArray, FormControl, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 
 import { MenuOption, ToasterService, ToastType } from '@indice/ng-components';
@@ -58,6 +58,7 @@ export class CampaignCreateComponent implements OnInit, AfterViewInit {
     public get type(): AbstractControl { return this.basicDetailsForm.get('type')!; }
     public get template(): AbstractControl { return this.basicDetailsForm.get('template')!; }
     public get needsTemplate(): AbstractControl { return this.basicDetailsForm.get('needsTemplate')!; }
+    public get channels(): AbstractControl { return this.basicDetailsForm.get('channels')!; }
     public get data(): AbstractControl { return this.contentForm.get('data')!; }
     public get sendVia(): AbstractControl { return this.recipientsForm.get('sendVia')!; }
     public get distributionList(): AbstractControl { return this.recipientsForm.get('distributionList')!; }
@@ -65,6 +66,12 @@ export class CampaignCreateComponent implements OnInit, AfterViewInit {
     public get published(): AbstractControl { return this.previewForm.get('published')!; }
     @ViewChild('createCampaignStepper', { static: true }) private _stepper!: LibStepperComponent;
     public StepperType = StepperType;
+    public channelsArray = [
+        { name: 'Inbox', description: 'Ειδοποίηση μέσω πρoσωπικού μήνυμα.', value: MessageChannelKind.Inbox },
+        { name: 'Push Notification', description: 'Ειδοποίηση μέσω push notification στις εγγεγραμμένες συσκευές.', value: MessageChannelKind.PushNotification },
+        { name: 'Email', description: 'Ειδοποίηση μέσω ηλεκτρονικού ταχυδρομείου', value: MessageChannelKind.Email },
+        { name: 'SMS', description: 'Ειδοποίηση μέσω σύντομου γραπτού μηνύματος.', value: MessageChannelKind.SMS }
+    ];
 
     public get okLabel(): string {
         return this._stepper.currentStep?.isLast
@@ -115,12 +122,13 @@ export class CampaignCreateComponent implements OnInit, AfterViewInit {
                 to: this.to.value
             }),
             isGlobal: true,
-            messageChannelKind: [MessageChannelKind.Inbox],
+            messageChannelKind: this.channels.value,
             published: false,
             templateId: undefined,
             title: this.title.value,
             data: this.data.value
         });
+        debugger
         this._api
             .createCampaign(data)
             .subscribe({
@@ -172,6 +180,22 @@ export class CampaignCreateComponent implements OnInit, AfterViewInit {
         this.needsTemplate.setValue(value);
     }
 
+    public onChannelCheckboxChange(event: any): void {
+        const channelsFormArray: FormArray = this.channels as FormArray;
+        if (event.target.checked) {
+            channelsFormArray.push(new FormControl(event.target.value));
+        } else {
+            let i: number = 0;
+            channelsFormArray.controls.forEach((control: AbstractControl) => {
+                if (control.value == event.target.value) {
+                    channelsFormArray.removeAt(i);
+                    return;
+                }
+                i++;
+            });
+        }
+    }
+
     public onSendViaChanged(event: any): void {
         const value = event.target.value;
         if (value === 'distribution-list') {
@@ -186,6 +210,14 @@ export class CampaignCreateComponent implements OnInit, AfterViewInit {
         this.distributionList.updateValueAndValidity();
         this.recipientIds.updateValueAndValidity();
         this.sendVia.setValue(value);
+    }
+
+    public onTemplateSelectionChanged(event: any): void {
+        if (event.value) {
+            this.template.setValue(event);
+        } else {
+            this.template.setValue(null);
+        }
     }
 
     public toRecipientIdsArray(recipientIds: string | undefined): string[] {
@@ -244,7 +276,8 @@ export class CampaignCreateComponent implements OnInit, AfterViewInit {
             ]),
             type: new FormControl(),
             template: new FormControl(),
-            needsTemplate: new FormControl('no')
+            needsTemplate: new FormControl('no'),
+            channels: new FormArray([new FormControl('Inbox')], [Validators.required])
         });
         this.contentForm = new FormGroup({
             data: new FormControl(undefined, this._validationService.invalidJsonValidator())
