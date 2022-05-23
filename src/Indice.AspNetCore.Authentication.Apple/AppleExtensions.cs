@@ -91,7 +91,8 @@ namespace Microsoft.Extensions.DependencyInjection
                     context.HandleResponse(); // Apple does not support EndSessionEndpoint.
                     return Task.CompletedTask;
                 };
-                options.Events.OnRedirectToIdentityProvider ??= context => {  // handle prompt
+                // Handle redirect to identity provider for prompt parameter.
+                options.Events.OnRedirectToIdentityProvider ??= context => {
                     if (context.Properties.Items.TryGetValue("prompt", out var prompt)) {
                         context.ProtocolMessage.Prompt = prompt;
                     }

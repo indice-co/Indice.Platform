@@ -178,7 +178,7 @@ namespace Indice.AspNetCore.Identity
             }
             return new ClaimsPrincipal(identity);
         }
-        
+
         /// <inheritdoc/>
         public override async Task<SignInResult> CheckPasswordSignInAsync(TUser user, string password, bool lockoutOnFailure) {
             var attempt = await base.CheckPasswordSignInAsync(user, password, lockoutOnFailure);
@@ -197,11 +197,10 @@ namespace Indice.AspNetCore.Identity
         public override AuthenticationProperties ConfigureExternalAuthenticationProperties(string provider, string redirectUrl, string userId = null) {
             var props = base.ConfigureExternalAuthenticationProperties(provider, redirectUrl, userId);
             var queryString = QueryHelpers.ParseNullableQuery(redirectUrl);
-            // Make available the 'prompt' parameter to the downstream identity provider
-            // so that the client can have control over the re-authentication process.
-            // This marely adds the item to the authentication properties.
-            // The next thing todo is to configure the OpenIdConnect middleware to pass it on.
-            if (queryString.ContainsKey("prompt")) { 
+            // Make available the 'prompt' parameter to the downstream identity provider so that the client can have control over the re-authentication process.
+            // This merely adds the item to the authentication properties.
+            // The next thing to do is to configure the OpenIdConnect middleware to pass it on.
+            if (queryString.ContainsKey("prompt")) {
                 props.Items.Add("prompt", queryString["prompt"]);
             }
             return props;
