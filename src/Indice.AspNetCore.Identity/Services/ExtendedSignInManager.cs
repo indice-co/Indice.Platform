@@ -9,6 +9,7 @@ using Indice.Security;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -190,6 +191,20 @@ namespace Indice.AspNetCore.Identity
                 }
             }
             return attempt;
+        }
+
+        /// <inheritdoc/>
+        public override AuthenticationProperties ConfigureExternalAuthenticationProperties(string provider, string redirectUrl, string userId = null) {
+            var props = base.ConfigureExternalAuthenticationProperties(provider, redirectUrl, userId);
+            var queryString = QueryHelpers.ParseNullableQuery(redirectUrl);
+            // Make available the 'prompt' parameter to the downstream identity provider
+            // so that the client can have control over the re-authentication process.
+            // This marely adds the item to the authentication properties.
+            // The next thing todo is to configure the OpenIdConnect middleware to pass it on.
+            if (queryString.ContainsKey("prompt")) { 
+                props.Items.Add("prompt", queryString["prompt"]);
+            }
+            return props;
         }
     }
 
