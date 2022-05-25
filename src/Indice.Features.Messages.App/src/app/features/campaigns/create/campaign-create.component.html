@@ -1,7 +1,7 @@
 <lib-side-view-layout title="Δημιουργία νέας καμπάνιας" class="large" [cancel-show]="false" [ok-close-dialog]="false" [ok-label]="okLabel" (ok)="onSideViewOk()" [disabled]="createCampaignStepper.currentStep?.isValid === false"
     #sideViewLayout>
     <div class="mt-4">
-        <lib-stepper [linear]="false" [type]="StepperType.PanelsWithBorder" (stepChanged)="onStepperStepChanged($event)" #createCampaignStepper>
+        <lib-stepper [linear]="true" [type]="StepperType.PanelsWithBorder" (stepChanged)="onStepperStepChanged($event)" #createCampaignStepper>
             <!-- Γενικά -->
             <lib-step [stepControl]="basicDetailsForm">
                 <ng-template libStepLabel>Γενικα</ng-template>
@@ -83,11 +83,11 @@
                                 </div>
                             </div>
                         </fieldset>
-                        <!-- Template -->
+                        <!-- Χρήση template -->
                         <fieldset>
-                            <legend class="sr-only">Template</legend>
-                            <div class="text-base font-medium text-gray-900" aria-hidden="true">Template</div>
-                            <div class="mt-1 grid grid-cols-2 gap-4">
+                            <legend class="sr-only">Χρήση template</legend>
+                            <div class="text-base font-medium text-gray-900" aria-hidden="true">Χρήση template</div>
+                            <div class="grid grid-cols-2 gap-4">
                                 <div class="col-span-2 sm:col-span-1">
                                     <div class="flex items-center mt-1">
                                         <input id="template-no" name="needsTemplate" type="radio" value="no" (change)="onNeedsTemplateChanged($event)" formControlName="needsTemplate"
@@ -101,14 +101,38 @@
                                 <div class="col-span-2 sm:col-span-1" [class.invisible]="needsTemplate.value === 'no'">
                                     <label for="template" class="field-label hidden" aria-hidden="true">Template id</label>
                                     <div class="flex rounded-sm">
-                                        <lib-local-drop-down-menu id="template" name="template" class="w-full" formControlName="template" [value]="template.value" [options]="templates"
-                                            (change)="template.setValue($event.value !== null ? $event : null)">
+                                        <lib-local-drop-down-menu id="template" name="template" class="w-full" formControlName="template" [value]="template.value" [options]="templates" (change)="onTemplateSelectionChanged($event)">
                                         </lib-local-drop-down-menu>
                                     </div>
+                                    <p *ngIf="template.invalid && (template.dirty || template.touched)" class="mt-2 text-sm text-red-600">
+                                        <span *ngIf="template.errors!['required']">Παρακαλώ επιλέξτε ένα template.</span>
+                                    </p>
                                 </div>
-                                <p *ngIf="template.invalid && (template.dirty || template.touched)" class="mt-2 text-sm text-red-600">
-                                    <span *ngIf="template.errors!['required']">Παρακαλώ επιλέξτε ένα template.</span>
-                                </p>
+                            </div>
+                        </fieldset>
+                        <!-- Κανάλια επικοινωνίας -->
+                        <fieldset>
+                            <legend class="sr-only">Κανάλια επικοινωνίας (*)</legend>
+                            <div class="text-base font-medium text-gray-900" aria-hidden="true">Κανάλια επικοινωνίας (*)</div>
+                            <label for="campaignType" class="field-label hidden" aria-hidden="true">Κανάλια επικοινωνίας (*)</label>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div class="col-span-2 sm:col-span-1">
+                                    <div class="divide-y divide-gray-200">
+                                        <div *ngFor="let channel of channelsArray; let i = index" class="relative flex items-start py-4">
+                                            <div class="min-w-0 flex-1 text-sm">
+                                                <label [for]="'channel-' + i" class="font-medium text-gray-700">{{ channel.name }}</label>
+                                                <p [id]="'channel-' + i + '-description'" class="text-gray-500">{{ channel.description }}</p>
+                                            </div>
+                                            <div class="ml-3 flex items-center h-5">
+                                                <input [id]="'channel-' + i" [value]="channel.value" [attr.aria-describedby]="'channel-' + i + '-description'" (change)="onChannelCheckboxChange($event)" name="channels" type="checkbox"
+                                                    class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 rounded" [checked]="i === 0">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <p *ngIf="channels.invalid" class="mt-2 text-sm text-red-600">
+                                        <span *ngIf="channels.errors!['required']">Παρακαλώ επιλέξτε τουλάχιστον ένα κανάλι επικοινωνίας.</span>
+                                    </p>
+                                </div>
                             </div>
                         </fieldset>
                     </div>
