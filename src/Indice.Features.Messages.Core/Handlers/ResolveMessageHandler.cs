@@ -7,6 +7,8 @@ using Indice.Features.Messages.Core.Models.Requests;
 using Indice.Features.Messages.Core.Services.Abstractions;
 using Indice.Serialization;
 using Indice.Services;
+using Indice.Types;
+using Microsoft.Extensions.Logging;
 
 namespace Indice.Features.Messages.Core.Handlers
 {
@@ -22,44 +24,63 @@ namespace Indice.Features.Messages.Core.Handlers
         /// <param name="contactResolver">Contains information that help gather contact information from other systems.</param>
         /// <param name="contactService">A service that contains contact related operations.</param>
         /// <param name="messageService">A service that contains message related operations.</param>
+        /// <param name="logger">A logger</param>
         /// <exception cref="ArgumentNullException"></exception>
         public ResolveMessageHandler(
             Func<string, IEventDispatcher> getEventDispatcher,
             IContactResolver contactResolver,
             IContactService contactService,
-            IMessageService messageService
+            IMessageService messageService,
+            ILogger<ResolveMessageHandler> logger
         ) {
             GetEventDispatcher = getEventDispatcher ?? throw new ArgumentNullException(nameof(getEventDispatcher));
             ContactResolver = contactResolver ?? throw new ArgumentNullException(nameof(contactResolver));
             ContactService = contactService ?? throw new ArgumentNullException(nameof(contactService));
             MessageService = messageService ?? throw new ArgumentNullException(nameof(messageService));
+            Logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
         private Func<string, IEventDispatcher> GetEventDispatcher { get; }
         private IContactResolver ContactResolver { get; }
         private IContactService ContactService { get; }
         private IMessageService MessageService { get; }
+        private ILogger<ResolveMessageHandler> Logger { get; }
 
         /// <summary>
         /// Decides whether to insert or update a resolved contact.
         /// </summary>
         /// <param name="event">The event model used when a contact is resolved from an external system.</param>
         public async Task Process(ResolveMessageEvent @event) {
-            var recipientId = @event.Contact.RecipientId;
-            var contactId = @event.Contact.Id;
             var needsUpdate = false;
             var campaign = @event.Campaign;
             Contact contact = null;
-            if (!string.IsNullOrWhiteSpace(recipientId)) {
-                contact = await ContactService.GetByRecipientId(recipientId);
+            if (!@event.Contact.IsAnonymous) {
+                contact = await ContactService.FindByRecipientId(@event.Contact.RecipientId);
                 if (contact is null) {
-                    contact = await ContactResolver.GetById(recipientId);
+                    contact = await ContactResolver.GetById(@event.Contact.RecipientId);
                 }
-            } else if (contactId.HasValue) {
-                contact = await ContactService.GetById(contactId.Value);
+            } else {
+                // anonymous contact should find by email or phonenumber.
+                if (@event.Contact.HasEmail) {
+                    contact = await ContactService.FindByEmail(@event.Contact.Email);
+                } else if (@event.Contact.HasPhoneNuber) {
+                    contact = await ContactService.FindByPhoneNumber(@event.Contact.PhoneNumber);
+                }
+                // if found but is already anonymous try to patch with filled data.
+                if (contact is not null && contact.IsAnonymous) {
+                    contact.LastName = string.IsNullOrEmpty(contact.LastName) ? @event.Contact.LastName : contact.LastName;
+                    contact.FirstName = string.IsNullOrEmpty(contact.FirstName) ? @event.Contact.FirstName : contact.FirstName;
+                    contact.FullName = string.IsNullOrEmpty(contact.FullName) ? @event.Contact.FullName : contact.FullName;
+                    contact.PhoneNumber = string.IsNullOrEmpty(contact.PhoneNumber) ? @event.Contact.PhoneNumber : contact.PhoneNumber;
+                    contact.Email = string.IsNullOrEmpty(contact.Email) ? @event.Contact.Email : contact.Email;
+                }
             }
             if (contact is not null && campaign.IsNewDistributionList) {
-                await ContactService.AddToDistributionList(campaign.DistributionListId.Value, Mapper.ToCreateDistributionListContactRequest(contact));
+                try {
+                    await ContactService.AddToDistributionList(campaign.DistributionListId.Value, Mapper.ToCreateDistributionListContactRequest(contact));
+                } catch (BusinessException){
+                   // this is fine...
+                }
             }
             needsUpdate = contact?.UpdatedAt.HasValue == true && (DateTimeOffset.UtcNow - contact.UpdatedAt.Value) > TimeSpan.FromDays(5);
             if (needsUpdate) {

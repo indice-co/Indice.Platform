@@ -185,6 +185,7 @@ namespace Indice.Features.Messages.Core.Models
             MessageChannelKind = request.MessageChannelKind,
             Published = request.Published,
             RecipientIds = request.RecipientIds,
+            Recipients = request.Recipients,
             TemplateId = request.TemplateId,
             Title = request.Title,
             Type = request.TypeId.HasValue ? new MessageType { Id = request.TypeId.Value } : null
@@ -200,6 +201,7 @@ namespace Indice.Features.Messages.Core.Models
             MessageChannelKind = command.MessageChannelKind,
             Published = command.Published,
             RecipientIds = command.RecipientIds,
+            Recipients = command.Recipients,
             TemplateId = command.TemplateId,
             Title = command.Title,
             TypeId = command.Type?.Id

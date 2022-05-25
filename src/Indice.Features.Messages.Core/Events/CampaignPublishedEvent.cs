@@ -34,12 +34,18 @@ namespace Indice.Features.Messages.Core.Events
         public MessageType Type { get; set; }
         /// <summary>Defines a list of user identifiers that constitutes the audience of the campaign.</summary>
         public List<string> RecipientIds { get; set; } = new List<string>();
+        /// <summary>
+        /// List of anonymous contacts not available through any of the existing contact resolvers.
+        /// Use this list if recipient id is not known/available or the message will be fire and forget.
+        /// </summary>
+        public List<ContactAnonymous> Recipients { get; set; } = new List<ContactAnonymous>();
 
         /// <summary>Creates a <see cref="CampaignPublishedEvent"/> instance from a <see cref="Campaign"/> instance.</summary>
         /// <param name="campaign">Models a campaign.</param>
         /// <param name="recipientIds">Defines a list of user identifiers that constitutes the audience of the campaign.</param>
+        /// <param name="recipients">Defines a list of aditional anonymous contacts to be also audience of the campaign.</param>
         /// <param name="isNewDistributionList">Determines whether the distribution list already exists or is new.</param>
-        public static CampaignPublishedEvent FromCampaign(Campaign campaign, List<string> recipientIds = null, bool isNewDistributionList = true) => new() {
+        public static CampaignPublishedEvent FromCampaign(Campaign campaign, List<string> recipientIds = null, List<ContactAnonymous> recipients = null, bool isNewDistributionList = true) => new() {
             ActivePeriod = campaign.ActivePeriod,
             Content = campaign.Content,
             Data = campaign.Data,
@@ -49,7 +55,8 @@ namespace Indice.Features.Messages.Core.Events
             IsGlobal = campaign.IsGlobal,
             IsNewDistributionList = isNewDistributionList,
             Published = campaign.Published,
-            RecipientIds = recipientIds ?? new List<string>()
+            RecipientIds = recipientIds ?? new List<string>(),
+            Recipients = recipients ?? new List<ContactAnonymous>()
         };
     }
 }

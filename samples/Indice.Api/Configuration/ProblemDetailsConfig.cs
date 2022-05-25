@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Net.Http;
 using Hellang.Middleware.ProblemDetails;
-using Indice.Features.Messages.Core.Exceptions;
+using Indice.Types;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -15,7 +15,7 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddProblemDetails(options => {
                 // This is the default behavior; only include exception details in a development environment.
                 options.IncludeExceptionDetails = (httpContext, exception) => environment.IsDevelopment();
-                options.Map<MessageException>(exception => {
+                options.Map<BusinessException>(exception => {
                     var response = new ValidationProblemDetails(exception.Errors) {
                         Title = exception.Message,
                         Status = StatusCodes.Status400BadRequest

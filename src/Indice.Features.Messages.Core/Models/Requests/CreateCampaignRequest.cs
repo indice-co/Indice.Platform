@@ -12,6 +12,11 @@ namespace Indice.Features.Messages.Core.Models.Requests
         public bool IsGlobal { get; set; } = true;
         /// <summary>Defines a list of user identifiers that constitutes the audience of the campaign.</summary>
         public List<string> RecipientIds { get; set; } = new List<string>();
+        /// <summary>
+        /// List of anonymous contacts not available through any of the existing contact resolvers.
+        /// Use this list if recipient id is not known/available or the message will be fire and forget.
+        /// </summary>
+        public List<ContactAnonymous> Recipients { get; set; } = new List<ContactAnonymous>();
         /// <summary>The delivery channel of a campaign. Default is <see cref="MessageChannelKind.Inbox"/>.</summary>
         public MessageChannelKind MessageChannelKind { get; set; } = MessageChannelKind.Inbox;
         /// <summary>The title of the campaign.</summary>

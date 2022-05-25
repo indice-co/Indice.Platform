@@ -193,7 +193,7 @@ namespace Indice.Features.Messages.Core.Manager
             var createdCampaign = await CampaignService.Create(request);
             if (createdCampaign.Published) {
                 // Dispatch event that the campaign was created.
-                await EventDispatcher.RaiseEventAsync(CampaignPublishedEvent.FromCampaign(createdCampaign, request.RecipientIds, isNewDistributionList),
+                await EventDispatcher.RaiseEventAsync(CampaignPublishedEvent.FromCampaign(createdCampaign, request.RecipientIds, request.Recipients, isNewDistributionList),
                     options => options.WrapInEnvelope(false).At(request.ActivePeriod?.From?.DateTime ?? DateTime.UtcNow).WithQueueName(EventNames.CampaignPublished));
             }
             return CreateCampaignResult.Success(createdCampaign);

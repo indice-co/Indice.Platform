@@ -55,7 +55,7 @@ namespace Indice.Features.Messages.Core.Services
         public async Task Associate(Guid id, Guid attachmentId) {
             var campaign = await DbContext.Campaigns.FindAsync(id);
             if (campaign is null) {
-                throw MessageException.CampaignNotFound(id);
+                throw MessageExceptions.CampaignNotFound(id);
             }
             campaign.AttachmentId = attachmentId;
             await DbContext.SaveChangesAsync();

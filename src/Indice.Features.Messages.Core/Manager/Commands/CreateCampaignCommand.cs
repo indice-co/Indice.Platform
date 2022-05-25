@@ -53,6 +53,11 @@ namespace Indice.Features.Messages.Core.Manager.Commands
         /// </summary>
         public List<string> RecipientIds { get; set; } = new List<string>();
         /// <summary>
+        /// List of anonymous contacts not available through any of the existing contact resolvers.
+        /// Use this list if recipient id is not known/available or the message will be fire and forget.
+        /// </summary>
+        public List<ContactAnonymous> Recipients { get; set; } = new List<ContactAnonymous>();
+        /// <summary>
         /// The delivery channel of a campaign.
         /// </summary>
         public MessageChannelKind MessageChannelKind { get; set; }

@@ -47,11 +47,11 @@ namespace Indice.Features.Messages.Core.Services
         public async Task Delete(Guid id) {
             var list = await DbContext.DistributionLists.FindAsync(id);
             if (list is null) {
-                throw MessageException.MessageTypeNotFound(id);
+                throw MessageExceptions.MessageTypeNotFound(id);
             }
             var associatedCampaigns = await DbContext.Campaigns.Where(x => x.DistributionListId == list.Id).Select(x => x.Title).ToArrayAsync();
             if (associatedCampaigns.Any()) {
-                throw MessageException.DistributionListAssociatedWithCampaigns(list.Name, associatedCampaigns);
+                throw MessageExceptions.DistributionListAssociatedWithCampaigns(list.Name, associatedCampaigns);
             }
             DbContext.DistributionLists.Remove(list);
             await DbContext.SaveChangesAsync();
@@ -106,7 +106,7 @@ namespace Indice.Features.Messages.Core.Services
         public async Task Update(Guid id, UpdateDistributionListRequest request) {
             var list = await DbContext.DistributionLists.FindAsync(id);
             if (list is null) {
-                throw MessageException.MessageTypeNotFound(id);
+                throw MessageExceptions.MessageTypeNotFound(id);
             }
             list.Name = request.Name;
             await DbContext.SaveChangesAsync();

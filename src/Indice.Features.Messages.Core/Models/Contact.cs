@@ -21,5 +21,21 @@
         public string PhoneNumber { get; set; }
         /// <summary>Indicates when contact info were last updated.</summary>
         public DateTimeOffset? UpdatedAt { get; set; }
+
+        /// <summary>
+        /// Determines if there is an <see cref="Email"/> assigned to this contact
+        /// </summary>
+        /// <returns></returns>
+        internal bool HasEmail => !string.IsNullOrWhiteSpace(Email);
+        /// <summary>
+        /// Determines if there is a <see cref="PhoneNumber"/> assigned to this contact
+        /// </summary>
+        /// <returns></returns>
+        internal bool HasPhoneNuber => !string.IsNullOrWhiteSpace(PhoneNumber);
+        /// <summary>
+        /// Determines if there is a <see cref="RecipientId"/> invoilved.
+        /// </summary>
+        /// <returns></returns>
+        internal bool IsAnonymous => string.IsNullOrWhiteSpace(RecipientId);
     }
 }

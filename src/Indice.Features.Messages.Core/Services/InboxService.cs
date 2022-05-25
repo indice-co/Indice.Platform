@@ -46,7 +46,7 @@ namespace Indice.Features.Messages.Core.Services
             var message = await DbContext.Messages.SingleOrDefaultAsync(x => x.CampaignId == id && x.RecipientId == recipientId);
             if (message is not null) {
                 if (message.IsDeleted) {
-                    throw MessageException.MessageAlreadyRead(id);
+                    throw MessageExceptions.MessageAlreadyRead(id);
                 }
                 message.IsDeleted = true;
                 message.DeleteDate = DateTime.UtcNow;
@@ -67,7 +67,7 @@ namespace Indice.Features.Messages.Core.Services
             var message = await DbContext.Messages.SingleOrDefaultAsync(x => x.CampaignId == id && x.RecipientId == recipientId);
             if (message is not null) {
                 if (message.IsRead) {
-                    throw MessageException.MessageAlreadyRead(id);
+                    throw MessageExceptions.MessageAlreadyRead(id);
                 }
                 message.IsRead = true;
                 message.ReadDate = DateTime.UtcNow;

@@ -54,6 +54,9 @@ namespace Indice.Features.Messages.Core.Handlers
                 if (campaign.RecipientIds.Any()) {
                     contacts.AddRange(campaign.RecipientIds.Select(id => new Contact { RecipientId = id }));
                 }
+                if (campaign.Recipients.Any()) {
+                    contacts.AddRange(campaign.Recipients.Select(x => x.ToContact()));
+                }
                 var eventDispatcher = GetEventDispatcher(KeyedServiceNames.EventDispatcherServiceKey);
                 foreach (var contact in contacts) {
                     await eventDispatcher.RaiseEventAsync(ResolveMessageEvent.FromCampaignCreatedEvent(campaign, contact), options => options.WrapInEnvelope(false).WithQueueName(EventNames.ResolveMessage));

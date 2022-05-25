@@ -45,7 +45,10 @@ namespace Indice.Types
             if (size == 0) {
                 return new ResultSet<T>(Array.Empty<T>(), await source.CountAsync());
             }
-            return new ResultSet<T>(await source.Skip(index * size).Take(size).ToListAsync(), await source.CountAsync());
+            var items = await source.Skip(index * size).Take(size).ToListAsync();
+            var isLastPage = items.Count < size && items.Count > 0;
+            var count = isLastPage ? ((index * size) + items.Count) : await source.CountAsync();
+            return new ResultSet<T>(items, count);
         }
     }
 }

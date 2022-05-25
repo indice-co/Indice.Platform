@@ -43,7 +43,7 @@ namespace Indice.Features.Messages.Core.Services
         public async Task Delete(Guid id) {
             var messageType = await DbContext.MessageTypes.FindAsync(id);
             if (messageType is null) {
-                throw MessageException.MessageTypeNotFound(id);
+                throw MessageExceptions.MessageTypeNotFound(id);
             }
             DbContext.MessageTypes.Remove(messageType);
             await DbContext.SaveChangesAsync();
@@ -92,7 +92,7 @@ namespace Indice.Features.Messages.Core.Services
         public async Task Update(Guid id, UpdateMessageTypeRequest request) {
             var messageType = await DbContext.MessageTypes.FindAsync(id);
             if (messageType is null) {
-                throw MessageException.MessageTypeNotFound(id);
+                throw MessageExceptions.MessageTypeNotFound(id);
             }
             messageType.Name = request.Name;
             await DbContext.SaveChangesAsync();

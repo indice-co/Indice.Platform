@@ -84,10 +84,10 @@ namespace Indice.Features.Messages.Core.Services
         public async Task Update(Guid id, UpdateCampaignRequest request) {
             var campaign = await DbContext.Campaigns.SingleOrDefaultAsync(x => x.Id == id);
             if (campaign is null) {
-                throw MessageException.CampaignNotFound(id);
+                throw MessageExceptions.CampaignNotFound(id);
             }
             if (campaign.Published) {
-                throw MessageException.CampaignAlreadyPublished(id);
+                throw MessageExceptions.CampaignAlreadyPublished(id);
             }
             campaign.ActionLink = request.ActionLink;
             campaign.ActivePeriod = request.ActivePeriod;
@@ -100,7 +100,7 @@ namespace Indice.Features.Messages.Core.Services
         public async Task Delete(Guid id) {
             var campaign = await DbContext.Campaigns.FindAsync(id);
             if (campaign is null) {
-                throw MessageException.CampaignNotFound(id);
+                throw MessageExceptions.CampaignNotFound(id);
             }
             DbContext.Remove(campaign);
             await DbContext.SaveChangesAsync();
@@ -146,10 +146,10 @@ namespace Indice.Features.Messages.Core.Services
                 .Include(x => x.DistributionList)
                 .SingleOrDefaultAsync(x => x.Id == id);
             if (campaign is null) {
-                throw MessageException.CampaignNotFound(id);
+                throw MessageExceptions.CampaignNotFound(id);
             }
             if (campaign.Published) {
-                throw MessageException.CampaignAlreadyPublished(id);
+                throw MessageExceptions.CampaignAlreadyPublished(id);
             }
             campaign.Published = true;
             await DbContext.SaveChangesAsync();

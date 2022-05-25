@@ -26,16 +26,16 @@ namespace Indice.Features.Messages.Core.Services
             DbContact contact;
             var list = await DbContext.DistributionLists.FindAsync(id);
             if (list is null) {
-                throw MessageException.DistributionListNotFound(id);
+                throw MessageExceptions.DistributionListNotFound(id);
             }
             if (request.Id.HasValue) {
                 contact = await DbContext.Contacts.SingleOrDefaultAsync(x => x.Id == request.Id.Value);
                 if (contact is null) {
-                    throw MessageException.ContactNotFound(id);
+                    throw MessageExceptions.ContactNotFound(id);
                 }
                 var associationExists = await DbContext.ContactDistributionLists.AnyAsync(x => x.ContactId == contact.Id && x.DistributionListId == id);
                 if (associationExists) {
-                    throw MessageException.ContactAlreadyInDistributionList(id, contact.Id);
+                    throw MessageExceptions.ContactAlreadyInDistributionList(id, contact.Id);
                 }
                 contact.DistributionListContacts.Add(new DbDistributionListContact {
                     ContactId = contact.Id,
@@ -50,7 +50,7 @@ namespace Indice.Features.Messages.Core.Services
                 if (contact is not null) {
                     var associationExists = await DbContext.ContactDistributionLists.AnyAsync(x => x.ContactId == contact.Id && x.DistributionListId == id);
                     if (associationExists) {
-                        throw MessageException.ContactAlreadyInDistributionList(id, contact.Id);
+                        throw MessageExceptions.ContactAlreadyInDistributionList(id, contact.Id);
                     }
                     contact.DistributionListContacts.Add(new DbDistributionListContact {
                         ContactId = contact.Id,
@@ -94,20 +94,20 @@ namespace Indice.Features.Messages.Core.Services
         }
 
         /// <inheritdoc />
-        public async Task<Contact> GetByRecipientId(string id) {
-            var contact = await DbContext.Contacts.SingleOrDefaultAsync(x => x.RecipientId == id);
-            if (contact is null) {
-                return default;
-            }
-            return Mapper.ToContact(contact);
-        }
-
-        /// <inheritdoc />
         public async Task<ResultSet<Contact>> GetList(ListOptions<ContactListFilter> options) {
             var query = DbContext.Contacts.AsNoTracking();
             var filter = options.Filter;
             if (filter?.DistributionListId is not null) {
                 query = query.Where(x => x.DistributionListContacts.Any(y => y.DistributionListId == filter.DistributionListId.Value));
+            }
+            if (filter?.Email is not null) {
+                query = query.Where(x => x.Email.ToLower() == filter.Email.ToLower());
+            }
+            if (filter?.PhoneNumber is not null) {
+                query = query.Where(x => x.PhoneNumber.ToLower() == filter.PhoneNumber.ToLower());
+            }
+            if (filter?.RecipientId is not null) {
+                query = query.Where(x => x.RecipientId.ToLower() == filter.RecipientId.ToLower());
             }
             return await query.Select(Mapper.ProjectToContact).ToResultSetAsync(options);
         }
@@ -116,7 +116,7 @@ namespace Indice.Features.Messages.Core.Services
         public async Task RemoveFromDistributionList(Guid id, Guid contactId) {
             var association = await DbContext.ContactDistributionLists.SingleOrDefaultAsync(x => x.ContactId == contactId && x.DistributionListId == id);
             if (association is null) {
-                throw MessageException.DistributionListContactAssociationNotFound(id, contactId);
+                throw MessageExceptions.DistributionListContactAssociationNotFound(id, contactId);
             }
             DbContext.ContactDistributionLists.Remove(association);
             await DbContext.SaveChangesAsync();
@@ -126,7 +126,7 @@ namespace Indice.Features.Messages.Core.Services
         public async Task Update(Guid id, UpdateContactRequest request) {
             var contact = await DbContext.Contacts.FindAsync(id);
             if (contact is null) {
-                throw MessageException.ContactNotFound(id);
+                throw MessageExceptions.ContactNotFound(id);
             }
             contact.Email = request.Email;
             contact.FirstName = request.FirstName;
