@@ -75,20 +75,26 @@ namespace Indice.Features.Messages.Core.Handlers
                     contact.Email = string.IsNullOrEmpty(contact.Email) ? @event.Contact.Email : contact.Email;
                 }
             }
-            if (contact is not null /*&& campaign.IsNewDistributionList*/) { // TODO: consider always adding the contact to the distribution list.
+            if (contact is null) {
+                contact = @event.Contact;
+            }
+            //if (campaign.IsNewDistributionList) { // TODO: consider always adding the contact to the distribution list.
                 try {
                     await ContactService.AddToDistributionList(campaign.DistributionListId.Value, Mapper.ToCreateDistributionListContactRequest(contact));
                 } catch (BusinessException){
                    // this is fine...
                 }
-            }
+            //}
             needsUpdate = contact?.UpdatedAt.HasValue == true && (DateTimeOffset.UtcNow - contact.UpdatedAt.Value) > TimeSpan.FromDays(5);
             if (needsUpdate) {
                 await ContactService.Update(contact.Id.Value, Mapper.ToUpdateContactRequest(contact, campaign.DistributionListId));
             }
-            if (contact is null) {
-                contact = @event.Contact;
+            if (!@event.Campaign.Published) {
+                // in case this is not yet published we should stop here
+                // so no messages get sent yet.
+                return;
             }
+
             // Make substitution to message content using contact resolved data.
             var handlebars = Handlebars.Create();
             handlebars.Configuration.TextEncoder = new HtmlEncoder();
@@ -96,7 +102,11 @@ namespace Indice.Features.Messages.Core.Handlers
                 dynamic templateData = new {
                     id = campaign.Id,
                     title = campaign.Title,
-                    type = campaign.Type,
+                    type = campaign.Type?.Name,
+                    actionLink = new {
+                        href = campaign.ActionLink?.Href,
+                        text = campaign.ActionLink?.Text,
+                    },
                     now = DateTimeOffset.UtcNow,
                     contact = JsonSerializer.Deserialize<ExpandoObject>(JsonSerializer.Serialize(contact, JsonSerializerOptionDefaults.GetDefaultSettings()), JsonSerializerOptionDefaults.GetDefaultSettings()),
                     data = JsonSerializer.Deserialize<ExpandoObject>(JsonSerializer.Serialize(campaign.Data, JsonSerializerOptionDefaults.GetDefaultSettings()), JsonSerializerOptionDefaults.GetDefaultSettings())
@@ -114,15 +124,15 @@ namespace Indice.Features.Messages.Core.Handlers
             });
             var eventDispatcher = GetEventDispatcher(KeyedServiceNames.EventDispatcherServiceKey);
             if (campaign.MessageChannelKind.HasFlag(MessageChannelKind.PushNotification)) {
-                await eventDispatcher.RaiseEventAsync(SendPushNotificationEvent.FromContactResolutionEvent(@event, broadcast: false),
+                await eventDispatcher.RaiseEventAsync(SendPushNotificationEvent.FromContactResolutionEvent(@event, contact, broadcast: false),
                     options => options.WrapInEnvelope(false).At(campaign.ActivePeriod?.From?.DateTime ?? DateTime.UtcNow).WithQueueName(EventNames.SendPushNotification));
             }
             if (campaign.MessageChannelKind.HasFlag(MessageChannelKind.Email)) {
-                await eventDispatcher.RaiseEventAsync(SendEmailEvent.FromContactResolutionEvent(@event, broadcast: false),
+                await eventDispatcher.RaiseEventAsync(SendEmailEvent.FromContactResolutionEvent(@event, contact, broadcast: false),
                     options => options.WrapInEnvelope(false).At(campaign.ActivePeriod?.From?.DateTime ?? DateTime.UtcNow).WithQueueName(EventNames.SendEmail));
             }
             if (campaign.MessageChannelKind.HasFlag(MessageChannelKind.SMS)) {
-                await eventDispatcher.RaiseEventAsync(SendSmsEvent.FromContactResolutionEvent(@event, broadcast: false),
+                await eventDispatcher.RaiseEventAsync(SendSmsEvent.FromContactResolutionEvent(@event, contact, broadcast: false),
                     options => options.WrapInEnvelope(false).At(campaign.ActivePeriod?.From?.DateTime ?? DateTime.UtcNow).WithQueueName(EventNames.SendSms));
             }
         }

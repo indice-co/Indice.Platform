@@ -32,7 +32,7 @@ namespace Indice.Features.Messages.Worker.Azure
         ) {
             LogExecution(executionContext, EventNames.CampaignPublished);
             var originalMessage = await CompressionUtils.Decompress(message);
-            var @event = JsonSerializer.Deserialize<CampaignPublishedEvent>(originalMessage, JsonSerializerOptions);
+            var @event = JsonSerializer.Deserialize<CampaignCreatedEvent>(originalMessage, JsonSerializerOptions);
             var campaignStart = @event.ActivePeriod?.From;
             // Azure queues can store a queue message with a visibility window up to 7 days. So if a campaign must start (appear on queue) after more than 7 days then we should check the campaign start date and re-enqueue the message.
             if (campaignStart > DateTimeOffset.UtcNow) {
@@ -42,7 +42,7 @@ namespace Indice.Features.Messages.Worker.Azure
                 await GetEventDispatcher(KeyedServiceNames.EventDispatcherServiceKey).RaiseEventAsync(@event, options => options.WrapInEnvelope(false).Delay(visibilityWindow).WithQueueName(EventNames.CampaignPublished));
                 return;
             }
-            await CampaignJobHandlerFactory.Create<CampaignPublishedEvent>().Process(@event);
+            await CampaignJobHandlerFactory.Create<CampaignCreatedEvent>().Process(@event);
         }
 
         [Function(EventNames.ResolveMessage)]

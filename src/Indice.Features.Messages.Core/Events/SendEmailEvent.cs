@@ -44,17 +44,18 @@ namespace Indice.Features.Messages.Core.Events
         /// <summary>
         /// Creates a <see cref="SendEmailEvent"/> instance from a <see cref="ResolveMessageEvent"/> instance.
         /// </summary>
-        /// <param name="contact">The event model used when a contact is resolved from an external system.</param>
+        /// <param name="messageEvent">The event model used when a contact is resolved from an external system.</param>
+        /// <param name="contact">The resolved contact</param>
         /// <param name="broadcast">Defines if push notification is sent to all registered user devices.</param>
-        public static SendEmailEvent FromContactResolutionEvent(ResolveMessageEvent contact, bool broadcast) => new() {
-            Body = contact.Campaign.Content[nameof(MessageChannelKind.Email)].Body,
+        public static SendEmailEvent FromContactResolutionEvent(ResolveMessageEvent messageEvent, Contact contact, bool broadcast) => new() {
+            Body = messageEvent.Campaign.Content[nameof(MessageChannelKind.Email)].Body,
             Broadcast = broadcast,
-            CampaignId = contact.Campaign.Id,
-            Data = contact.Campaign.Data,
-            MessageType = contact.Campaign.Type,
-            RecipientEmail = contact.Contact.Email,
-            RecipientId = contact.Contact.RecipientId,
-            Title = contact.Campaign.Content[nameof(MessageChannelKind.Email)].Title
+            CampaignId = messageEvent.Campaign.Id,
+            Data = messageEvent.Campaign.Data,
+            MessageType = messageEvent.Campaign.Type,
+            RecipientEmail = contact.Email,
+            RecipientId = contact.RecipientId,
+            Title = messageEvent.Campaign.Content[nameof(MessageChannelKind.Email)].Title
         };
     }
 }

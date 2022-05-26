@@ -8,8 +8,8 @@ namespace Indice.Features.Messages.Core.Models.Requests
     {
         private Dictionary<string, MessageContent> _content = new(StringComparer.OrdinalIgnoreCase);
 
-        /// <summary>Determines if campaign targets all user base. Defaults to true.</summary>
-        public bool IsGlobal { get; set; } = true;
+        /// <summary>Determines if campaign targets all user base. Defaults to false.</summary>
+        public bool IsGlobal { get; set; }
         /// <summary>Defines a list of user identifiers that constitutes the audience of the campaign.</summary>
         public List<string> RecipientIds { get; set; } = new List<string>();
         /// <summary>
@@ -35,7 +35,7 @@ namespace Indice.Features.Messages.Core.Models.Requests
         /// <summary>The id of the type this campaign belongs.</summary>
         public Guid? TypeId { get; set; }
         /// <summary>The id of the distribution list.</summary>
-        public Guid? DistributionListId { get; set; }
+        public Guid? RecipientListId { get; set; }
         /// <summary>Optional data for the campaign.</summary>
         public ExpandoObject Data { get; set; }
         /// <summary>The id of the template to use.</summary>

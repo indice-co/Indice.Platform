@@ -46,14 +46,14 @@ namespace Indice.Features.Messages.Core.Services.Validators
                 .When(campaign => campaign.IsGlobal) // RecipientIds property must be empty when campaign is global.
                 .WithMessage("Cannot provide a list of recipients since the campaign global.")
                 .Must(recipientIds => recipientIds?.Count > 0)
-                .When(campaign => !campaign.DistributionListId.HasValue && !campaign.IsGlobal) // RecipientIds property must not be empty when a DistributionListId is not provided.
+                .When(campaign => !campaign.RecipientListId.HasValue && !campaign.IsGlobal) // RecipientIds property must not be empty when a DistributionListId is not provided.
                 .WithMessage("Please provide either recipient ids or a distribution list id.");
-            RuleFor(campaign => campaign.DistributionListId)
+            RuleFor(campaign => campaign.RecipientListId)
                 .Must(id => id is null)
                 .When(campaign => campaign.IsGlobal) // DistributionListId property must not be provided when campaign is global.
                 .WithMessage("Cannot provide a distribution list id since the campaign global.")
                 .MustAsync(BeExistingDistributionListId)
-                .When(campaign => campaign.DistributionListId is not null) // Check that DistributionListId is valid, when it is provided.
+                .When(campaign => campaign.RecipientListId is not null) // Check that DistributionListId is valid, when it is provided.
                 .WithMessage("Specified distribution list id is not valid.")
                 .Must(id => id is not null)
                 .When(campaign => campaign.RecipientIds?.Count == 0 && !campaign.IsGlobal)

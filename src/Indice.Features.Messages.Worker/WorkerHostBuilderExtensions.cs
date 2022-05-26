@@ -39,7 +39,7 @@ namespace Microsoft.Extensions.DependencyInjection
         }
 
         private static void AddJobHandlers(this WorkerHostBuilder workerHostBuilder) {
-            workerHostBuilder.AddJob<CampaignPublishedJobHandler>().WithQueueTrigger<CampaignPublishedEvent>(options => {
+            workerHostBuilder.AddJob<CampaignPublishedJobHandler>().WithQueueTrigger<CampaignCreatedEvent>(options => {
                 options.QueueName = EventNames.CampaignPublished;
                 options.PollingInterval = TimeSpan.FromSeconds(5).TotalMilliseconds;
                 options.InstanceCount = 1;
@@ -67,7 +67,7 @@ namespace Microsoft.Extensions.DependencyInjection
         }
 
         private static void AddJobHandlerServices(this IServiceCollection services) {
-            services.TryAddTransient<ICampaignJobHandler<CampaignPublishedEvent>, CampaignPublishedHandler>();
+            services.TryAddTransient<ICampaignJobHandler<CampaignCreatedEvent>, CampaignCreatedHandler>();
             services.TryAddTransient<ICampaignJobHandler<ResolveMessageEvent>, ResolveMessageHandler>();
             services.TryAddTransient<ICampaignJobHandler<SendPushNotificationEvent>, SendPushNotificationHandler>();
             services.TryAddTransient<ICampaignJobHandler<SendEmailEvent>, SendEmailHandler>();

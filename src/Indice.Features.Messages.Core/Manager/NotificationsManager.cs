@@ -177,12 +177,12 @@ namespace Indice.Features.Messages.Core.Manager
             var timestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
             var isNewDistributionList = false;
             // If a distribution list id is not set, then we create a new list.
-            if (!request.DistributionListId.HasValue && !request.IsGlobal) {
+            if (!request.RecipientListId.HasValue && !request.IsGlobal) {
                 var createdList = await DistributionListService.Create(new CreateDistributionListRequest {
                     CreatedBy = CreatedBy.Worker,
                     Name = $"{request.Title} - {timestamp}"
                 });
-                request.DistributionListId = createdList.Id;
+                request.RecipientListId = createdList.Id;
                 isNewDistributionList = true;
             }
             if (request.TemplateId.HasValue) {
@@ -193,7 +193,7 @@ namespace Indice.Features.Messages.Core.Manager
             var createdCampaign = await CampaignService.Create(request);
             if (createdCampaign.Published) {
                 // Dispatch event that the campaign was created.
-                await EventDispatcher.RaiseEventAsync(CampaignPublishedEvent.FromCampaign(createdCampaign, request.RecipientIds, request.Recipients, isNewDistributionList),
+                await EventDispatcher.RaiseEventAsync(CampaignCreatedEvent.FromCampaign(createdCampaign, request.RecipientIds, request.Recipients, isNewDistributionList),
                     options => options.WrapInEnvelope(false).At(request.ActivePeriod?.From?.DateTime ?? DateTime.UtcNow).WithQueueName(EventNames.CampaignPublished));
             }
             return CreateCampaignResult.Success(createdCampaign);

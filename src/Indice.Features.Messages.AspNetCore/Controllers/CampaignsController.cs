@@ -92,7 +92,7 @@ namespace Indice.Features.Messages.AspNetCore.Controllers
         /// <param name="campaignId">The id of the campaign.</param>
         /// <response code="204">No Content</response>
         /// <response code="400">Bad Request</response>
-        [HttpPost("{campaignId:guid}/publish")]
+        [HttpPut("{campaignId:guid}/publish")]
         [Produces(MediaTypeNames.Application.Json)]
         [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(void), StatusCodes.Status204NoContent)]
@@ -100,7 +100,7 @@ namespace Indice.Features.Messages.AspNetCore.Controllers
             var publishedCampaign = await CampaignService.Publish(campaignId);
             // Dispatch event that the campaign was created.
             await EventDispatcher.RaiseEventAsync(
-                payload: CampaignPublishedEvent.FromCampaign(publishedCampaign),
+                payload: CampaignCreatedEvent.FromCampaign(publishedCampaign),
                 configure: options => options.WrapInEnvelope(false).WithQueueName(EventNames.CampaignPublished)
             );
             return NoContent();

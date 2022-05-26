@@ -38,12 +38,12 @@ namespace Indice.Features.Messages.Core.Events
         public MessageType MessageType { get; set; }
 
         /// <summary>
-        /// Creates a <see cref="SendPushNotificationEvent"/> instance from a <see cref="CampaignPublishedEvent"/> instance.
+        /// Creates a <see cref="SendPushNotificationEvent"/> instance from a <see cref="CampaignCreatedEvent"/> instance.
         /// </summary>
         /// <param name="campaign">Models a contact in the system as a member of a distribution list.</param>
         /// <param name="broadcast">Defines if push notification is sent to all registered user devices.</param>
         /// <param name="recipientId">The id of the recipient.</param>
-        public static SendPushNotificationEvent FromCampaignCreatedEvent(CampaignPublishedEvent campaign, bool broadcast, string recipientId = null) => new() {
+        public static SendPushNotificationEvent FromCampaignCreatedEvent(CampaignCreatedEvent campaign, bool broadcast, string recipientId = null) => new() {
             Body = campaign.Content[nameof(MessageChannelKind.PushNotification)].Body,
             Broadcast = broadcast,
             CampaignId = campaign.Id,
@@ -57,14 +57,15 @@ namespace Indice.Features.Messages.Core.Events
         /// Creates a <see cref="SendPushNotificationEvent"/> instance from a <see cref="ResolveMessageEvent"/> instance.
         /// </summary>
         /// <param name="event">The event model used when a contact is resolved from an external system.</param>
+        /// <param name="contact">The resolved contact</param>
         /// <param name="broadcast">Defines if push notification is sent to all registered user devices.</param>
-        public static SendPushNotificationEvent FromContactResolutionEvent(ResolveMessageEvent @event, bool broadcast) => new() {
+        public static SendPushNotificationEvent FromContactResolutionEvent(ResolveMessageEvent @event, Contact contact, bool broadcast) => new() {
             Body = @event.Campaign.Content[nameof(MessageChannelKind.PushNotification)].Body,
             Broadcast = broadcast,
             CampaignId = @event.Campaign.Id,
             Data = @event.Campaign.Data,
             MessageType = @event.Campaign.Type,
-            RecipientId = @event.Contact.RecipientId,
+            RecipientId = contact.RecipientId,
             Title = @event.Campaign.Content[nameof(MessageChannelKind.PushNotification)].Title
         };
     }

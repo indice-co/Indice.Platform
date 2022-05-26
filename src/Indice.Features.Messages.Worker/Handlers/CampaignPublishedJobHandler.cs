@@ -17,8 +17,8 @@ namespace Indice.Features.Messages.Worker.Handlers
         public ILogger<CampaignPublishedJobHandler> Logger { get; }
         public MessageJobHandlerFactory MessageJobHandlerFactory { get; }
 
-        public async Task Process(CampaignPublishedEvent campaign) {
-            var handler = MessageJobHandlerFactory.Create<CampaignPublishedEvent>();
+        public async Task Process(CampaignCreatedEvent campaign) {
+            var handler = MessageJobHandlerFactory.Create<CampaignCreatedEvent>();
             await handler.Process(campaign);
         }
     }

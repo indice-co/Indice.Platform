@@ -8,17 +8,17 @@ using Indice.Types;
 namespace Indice.Features.Messages.Core.Handlers
 {
     /// <summary>
-    /// Job handler for <see cref="CampaignPublishedEvent"/>.
+    /// Job handler for <see cref="CampaignCreatedEvent"/>.
     /// </summary>
-    public sealed class CampaignPublishedHandler : ICampaignJobHandler<CampaignPublishedEvent>
+    public sealed class CampaignCreatedHandler : ICampaignJobHandler<CampaignCreatedEvent>
     {
         /// <summary>
-        /// Creates a new instance of <see cref="CampaignPublishedHandler"/>.
+        /// Creates a new instance of <see cref="CampaignCreatedHandler"/>.
         /// </summary>
         /// <param name="getEventDispatcher">Provides methods that allow application components to communicate with each other by dispatching events.</param>
         /// <param name="contactService">A service that contains contact related operations.</param>
         /// <exception cref="ArgumentNullException"></exception>
-        public CampaignPublishedHandler(
+        public CampaignCreatedHandler(
             Func<string, IEventDispatcher> getEventDispatcher,
             IContactService contactService
         ) {
@@ -30,10 +30,10 @@ namespace Indice.Features.Messages.Core.Handlers
         private IContactService ContactService { get; }
 
         /// <summary>
-        /// Distributes a campaign for further processing base on the <see cref="CampaignPublishedEvent.MessageChannelKind"/>.
+        /// Distributes a campaign for further processing base on the <see cref="CampaignCreatedEvent.MessageChannelKind"/>.
         /// </summary>
         /// <param name="campaign">The event model used when a new campaign is created.</param>
-        public async Task Process(CampaignPublishedEvent campaign) {
+        public async Task Process(CampaignCreatedEvent campaign) {
             // If campaign is global and has push notification as delivery channel, then we short-circuit the flow and we immediately broadcast the message.
             if (campaign.IsGlobal && campaign.MessageChannelKind.HasFlag(MessageChannelKind.PushNotification)) {
                 var eventDispatcher = GetEventDispatcher(KeyedServiceNames.EventDispatcherServiceKey);

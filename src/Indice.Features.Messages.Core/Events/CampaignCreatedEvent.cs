@@ -4,8 +4,8 @@ using Indice.Types;
 
 namespace Indice.Features.Messages.Core.Events
 {
-    /// <summary>The event model used when a new campaign is created.</summary>
-    public class CampaignPublishedEvent
+    /// <summary>The event model used when a new campaign is published.</summary>
+    public class CampaignCreatedEvent
     {
         private Dictionary<string, MessageContent> _content = new(StringComparer.OrdinalIgnoreCase);
 
@@ -34,6 +34,8 @@ namespace Indice.Features.Messages.Core.Events
         public bool IsNewDistributionList { get; set; }
         /// <summary>The type details of the campaign.</summary>
         public MessageType Type { get; set; }
+        /// <summary>The call to action <see cref="Hyperlink"/> of the campaign.</summary>
+        public Hyperlink ActionLink { get; set; }
         /// <summary>Defines a list of user identifiers that constitutes the audience of the campaign.</summary>
         public List<string> RecipientIds { get; set; } = new List<string>();
         /// <summary>
@@ -42,12 +44,12 @@ namespace Indice.Features.Messages.Core.Events
         /// </summary>
         public List<ContactAnonymous> Recipients { get; set; } = new List<ContactAnonymous>();
 
-        /// <summary>Creates a <see cref="CampaignPublishedEvent"/> instance from a <see cref="Campaign"/> instance.</summary>
+        /// <summary>Creates a <see cref="CampaignCreatedEvent"/> instance from a <see cref="Campaign"/> instance.</summary>
         /// <param name="campaign">Models a campaign.</param>
         /// <param name="recipientIds">Defines a list of user identifiers that constitutes the audience of the campaign.</param>
         /// <param name="recipients">Defines a list of aditional anonymous contacts to be also audience of the campaign.</param>
         /// <param name="isNewDistributionList">Determines whether the distribution list already exists or is new.</param>
-        public static CampaignPublishedEvent FromCampaign(Campaign campaign, List<string> recipientIds = null, List<ContactAnonymous> recipients = null, bool isNewDistributionList = true) => new() {
+        public static CampaignCreatedEvent FromCampaign(Campaign campaign, List<string> recipientIds = null, List<ContactAnonymous> recipients = null, bool isNewDistributionList = true) => new() {
             ActivePeriod = campaign.ActivePeriod,
             Content = campaign.Content,
             Data = campaign.Data,
@@ -56,6 +58,7 @@ namespace Indice.Features.Messages.Core.Events
             Id = campaign.Id,
             Title = campaign.Title,
             Type = campaign.Type,
+            ActionLink = campaign.ActionLink,
             IsGlobal = campaign.IsGlobal,
             IsNewDistributionList = isNewDistributionList,
             Published = campaign.Published,

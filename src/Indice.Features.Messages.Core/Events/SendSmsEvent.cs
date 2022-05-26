@@ -44,17 +44,18 @@ namespace Indice.Features.Messages.Core.Events
         /// <summary>
         /// Creates a <see cref="SendSmsEvent"/> instance from a <see cref="ResolveMessageEvent"/> instance.
         /// </summary>
-        /// <param name="contact">The event model used when a contact is resolved from an external system.</param>
+        /// <param name="messageEvent">The event model used when a contact is resolved from an external system.</param>
+        /// <param name="contact">The resolved contact</param>
         /// <param name="broadcast">Defines if push notification is sent to all registered user devices.</param>
-        public static SendSmsEvent FromContactResolutionEvent(ResolveMessageEvent contact, bool broadcast) => new() {
-            Body = contact.Campaign.Content[nameof(MessageChannelKind.SMS)].Body,
+        public static SendSmsEvent FromContactResolutionEvent(ResolveMessageEvent messageEvent, Contact contact, bool broadcast) => new() {
+            Body = messageEvent.Campaign.Content[nameof(MessageChannelKind.SMS)].Body,
             Broadcast = broadcast,
-            CampaignId = contact.Campaign.Id,
-            Data = contact.Campaign.Data,
-            MessageType = contact.Campaign.Type,
-            RecipientId = contact.Contact.RecipientId,
-            RecipientPhoneNumber = contact.Contact.PhoneNumber,
-            Title = contact.Campaign.Content[nameof(MessageChannelKind.SMS)].Title
+            CampaignId = messageEvent.Campaign.Id,
+            Data = messageEvent.Campaign.Data,
+            MessageType = messageEvent.Campaign.Type,
+            RecipientId = contact.RecipientId,
+            RecipientPhoneNumber = contact.PhoneNumber,
+            Title = messageEvent.Campaign.Content[nameof(MessageChannelKind.SMS)].Title
         };
     }
 }
