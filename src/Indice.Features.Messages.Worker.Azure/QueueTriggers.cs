@@ -25,12 +25,12 @@ namespace Indice.Features.Messages.Worker.Azure
         private MessageJobHandlerFactory CampaignJobHandlerFactory { get; }
         private Func<string, IEventDispatcher> GetEventDispatcher { get; }
 
-        [Function(EventNames.CampaignPublished)]
+        [Function(EventNames.CampaignCreated)]
         public async Task CampaignPublishedHandler(
-            [QueueTrigger("%ENVIRONMENT%-" + EventNames.CampaignPublished, Connection = "StorageConnection")] byte[] message,
+            [QueueTrigger("%ENVIRONMENT%-" + EventNames.CampaignCreated, Connection = "StorageConnection")] byte[] message,
             FunctionContext executionContext
         ) {
-            LogExecution(executionContext, EventNames.CampaignPublished);
+            LogExecution(executionContext, EventNames.CampaignCreated);
             var originalMessage = await CompressionUtils.Decompress(message);
             var @event = JsonSerializer.Deserialize<CampaignCreatedEvent>(originalMessage, JsonSerializerOptions);
             var campaignStart = @event.ActivePeriod?.From;
@@ -39,7 +39,7 @@ namespace Indice.Features.Messages.Worker.Azure
                 var nextExecutionTimeSpan = campaignStart.Value - DateTimeOffset.UtcNow;
                 var visibilityWindow = nextExecutionTimeSpan > TimeSpan.FromDays(5) ? TimeSpan.FromDays(5) : nextExecutionTimeSpan;
                 var eventDispatcher = GetEventDispatcher(KeyedServiceNames.EventDispatcherServiceKey);
-                await GetEventDispatcher(KeyedServiceNames.EventDispatcherServiceKey).RaiseEventAsync(@event, options => options.WrapInEnvelope(false).Delay(visibilityWindow).WithQueueName(EventNames.CampaignPublished));
+                await GetEventDispatcher(KeyedServiceNames.EventDispatcherServiceKey).RaiseEventAsync(@event, options => options.WrapInEnvelope(false).Delay(visibilityWindow).WithQueueName(EventNames.CampaignCreated));
                 return;
             }
             await CampaignJobHandlerFactory.Create<CampaignCreatedEvent>().Process(@event);

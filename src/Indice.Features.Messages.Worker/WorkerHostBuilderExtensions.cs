@@ -40,7 +40,7 @@ namespace Microsoft.Extensions.DependencyInjection
 
         private static void AddJobHandlers(this WorkerHostBuilder workerHostBuilder) {
             workerHostBuilder.AddJob<CampaignPublishedJobHandler>().WithQueueTrigger<CampaignCreatedEvent>(options => {
-                options.QueueName = EventNames.CampaignPublished;
+                options.QueueName = EventNames.CampaignCreated;
                 options.PollingInterval = TimeSpan.FromSeconds(5).TotalMilliseconds;
                 options.InstanceCount = 1;
             })

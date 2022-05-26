@@ -45,7 +45,7 @@ namespace Indice.Features.Messages.Core
         /// <summary>
         /// Name for the event that is raised when a campaign event is published.
         /// </summary>
-        public const string CampaignPublished = "campaign-published";
+        public const string CampaignCreated = "campaign-created";
         /// <summary>
         /// Name for the queue that stores events for resolving contacts from external systems.
         /// </summary>

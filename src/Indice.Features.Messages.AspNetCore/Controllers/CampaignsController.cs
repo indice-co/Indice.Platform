@@ -101,7 +101,7 @@ namespace Indice.Features.Messages.AspNetCore.Controllers
             // Dispatch event that the campaign was created.
             await EventDispatcher.RaiseEventAsync(
                 payload: CampaignCreatedEvent.FromCampaign(publishedCampaign),
-                configure: options => options.WrapInEnvelope(false).WithQueueName(EventNames.CampaignPublished)
+                configure: options => options.WrapInEnvelope(false).WithQueueName(EventNames.CampaignCreated)
             );
             return NoContent();
         }
