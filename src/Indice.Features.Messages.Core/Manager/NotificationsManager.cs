@@ -177,7 +177,7 @@ namespace Indice.Features.Messages.Core.Manager
             var timestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
             var isNewDistributionList = false;
             // If a distribution list id is not set, then we create a new list.
-            if (!request.DistributionListId.HasValue) {
+            if (!request.DistributionListId.HasValue && !request.IsGlobal) {
                 var createdList = await DistributionListService.Create(new CreateDistributionListRequest {
                     CreatedBy = CreatedBy.Worker,
                     Name = $"{request.Title} - {timestamp}"
