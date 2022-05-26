@@ -28,12 +28,12 @@ namespace Indice.Features.Messages.Core.Services
             if (list is null) {
                 throw MessageExceptions.DistributionListNotFound(id);
             }
-            if (request.Id.HasValue) {
-                contact = await DbContext.Contacts.SingleOrDefaultAsync(x => x.Id == request.Id.Value);
+            if (request.ContactId.HasValue) {
+                contact = await DbContext.Contacts.Where(x => x.Id == request.ContactId.Value).SingleOrDefaultAsync();
                 if (contact is null) {
                     throw MessageExceptions.ContactNotFound(id);
                 }
-                var associationExists = await DbContext.ContactDistributionLists.AnyAsync(x => x.ContactId == contact.Id && x.DistributionListId == id);
+                var associationExists = await DbContext.ContactDistributionLists.Where(x => x.ContactId == contact.Id && x.DistributionListId == id).AnyAsync();
                 if (associationExists) {
                     throw MessageExceptions.ContactAlreadyInDistributionList(id, contact.Id);
                 }
@@ -46,9 +46,9 @@ namespace Indice.Features.Messages.Core.Services
                 return;
             }
             if (!string.IsNullOrWhiteSpace(request.RecipientId)) {
-                contact = await DbContext.Contacts.SingleOrDefaultAsync(x => x.RecipientId == request.RecipientId);
+                contact = await DbContext.Contacts.Where(x => x.RecipientId == request.RecipientId).FirstOrDefaultAsync();
                 if (contact is not null) {
-                    var associationExists = await DbContext.ContactDistributionLists.AnyAsync(x => x.ContactId == contact.Id && x.DistributionListId == id);
+                    var associationExists = await DbContext.ContactDistributionLists.Where(x => x.ContactId == contact.Id && x.DistributionListId == id).AnyAsync();
                     if (associationExists) {
                         throw MessageExceptions.ContactAlreadyInDistributionList(id, contact.Id);
                     }

@@ -75,7 +75,7 @@ namespace Indice.Features.Messages.Core.Handlers
                     contact.Email = string.IsNullOrEmpty(contact.Email) ? @event.Contact.Email : contact.Email;
                 }
             }
-            if (contact is not null && campaign.IsNewDistributionList) {
+            if (contact is not null /*&& campaign.IsNewDistributionList*/) { // TODO: consider always adding the contact to the distribution list.
                 try {
                     await ContactService.AddToDistributionList(campaign.DistributionListId.Value, Mapper.ToCreateDistributionListContactRequest(contact));
                 } catch (BusinessException){
@@ -94,6 +94,10 @@ namespace Indice.Features.Messages.Core.Handlers
             handlebars.Configuration.TextEncoder = new HtmlEncoder();
             foreach (var content in campaign.Content) {
                 dynamic templateData = new {
+                    id = campaign.Id,
+                    title = campaign.Title,
+                    type = campaign.Type,
+                    now = DateTimeOffset.UtcNow,
                     contact = JsonSerializer.Deserialize<ExpandoObject>(JsonSerializer.Serialize(contact, JsonSerializerOptionDefaults.GetDefaultSettings()), JsonSerializerOptionDefaults.GetDefaultSettings()),
                     data = JsonSerializer.Deserialize<ExpandoObject>(JsonSerializer.Serialize(campaign.Data, JsonSerializerOptionDefaults.GetDefaultSettings()), JsonSerializerOptionDefaults.GetDefaultSettings())
                 };

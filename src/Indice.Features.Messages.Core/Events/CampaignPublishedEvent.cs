@@ -11,6 +11,8 @@ namespace Indice.Features.Messages.Core.Events
 
         /// <summary>The unique identifier of the campaign.</summary>
         public Guid Id { get; set; }
+        /// <summary>The title of the campaign.</summary>
+        public string Title { get; set; }
         /// <summary>The content of the campaign.</summary>
         public Dictionary<string, MessageContent> Content {
             get { return _content; }
@@ -52,6 +54,8 @@ namespace Indice.Features.Messages.Core.Events
             MessageChannelKind = campaign.MessageChannelKind,
             DistributionListId = campaign.DistributionList?.Id,
             Id = campaign.Id,
+            Title = campaign.Title,
+            Type = campaign.Type,
             IsGlobal = campaign.IsGlobal,
             IsNewDistributionList = isNewDistributionList,
             Published = campaign.Published,
