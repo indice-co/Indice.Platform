@@ -51,13 +51,14 @@ namespace Indice.Features.Messages.Core.Handlers
         /// </summary>
         /// <param name="event">The event model used when a contact is resolved from an external system.</param>
         public async Task Process(ResolveMessageEvent @event) {
-            var needsUpdate = false;
             var campaign = @event.Campaign;
             Contact contact = null;
             if (!@event.Contact.IsAnonymous) {
                 contact = await ContactService.FindByRecipientId(@event.Contact.RecipientId);
                 if (contact is null) {
-                    contact = await ContactResolver.GetById(@event.Contact.RecipientId);
+                    contact = await ContactResolver.Resolve(@event.Contact.RecipientId);
+                } else if (@event.Contact.IsEmpty) {
+                    contact = await ContactResolver.Patch(@event.Contact.RecipientId, contact);
                 }
             } else {
                 // anonymous contact should find by email or phonenumber.
@@ -78,15 +79,14 @@ namespace Indice.Features.Messages.Core.Handlers
             if (contact is null) {
                 contact = @event.Contact;
             }
-            //if (campaign.IsNewDistributionList) { // TODO: consider always adding the contact to the distribution list.
+            if (campaign.IsNewDistributionList) { // TODO: consider always adding the contact to the distribution list.
                 try {
                     await ContactService.AddToDistributionList(campaign.DistributionListId.Value, Mapper.ToCreateDistributionListContactRequest(contact));
                 } catch (BusinessException){
                    // this is fine...
                 }
-            //}
-            needsUpdate = contact?.UpdatedAt.HasValue == true && (DateTimeOffset.UtcNow - contact.UpdatedAt.Value) > TimeSpan.FromDays(5);
-            if (needsUpdate) {
+            }
+            if (@event.Contact.NotUpdatedAWhileNow || @event.Contact.IsEmpty) {
                 await ContactService.Update(contact.Id.Value, Mapper.ToUpdateContactRequest(contact, campaign.DistributionListId));
             }
             if (!@event.Campaign.Published) {

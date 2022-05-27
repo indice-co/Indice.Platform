@@ -66,7 +66,7 @@ namespace Indice.Features.Messages.Core.Services
         }
 
         /// <inheritdoc />
-        public async Task<Contact> GetById(string id) {
+        public async Task<Contact> Resolve(string id) {
             if (string.IsNullOrWhiteSpace(id)) {
                 return default;
             }

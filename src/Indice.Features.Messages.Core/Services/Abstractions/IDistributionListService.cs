@@ -9,7 +9,8 @@ namespace Indice.Features.Messages.Core.Services.Abstractions
     {
         /// <summary>Creates a new distribution list.</summary>
         /// <param name="request">The data for the distribution list to create.</param>
-        Task<DistributionList> Create(CreateDistributionListRequest request);
+        /// <param name="contacts">Add some contacts to the List on the fly</param>
+        Task<DistributionList> Create(CreateDistributionListRequest request, IEnumerable<Contact> contacts = null);
         /// <summary>Gets a distribution list by it's unique id.</summary>
         /// <param name="id">The id of the distribution list.</param>
         Task<DistributionList> GetById(Guid id);

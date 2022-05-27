@@ -181,7 +181,7 @@ namespace Indice.Features.Messages.Core.Manager
                 var createdList = await DistributionListService.Create(new CreateDistributionListRequest {
                     CreatedBy = CreatedBy.Worker,
                     Name = $"{request.Title} - {timestamp}"
-                });
+                }, request.GetIncludedContacts());
                 request.RecipientListId = createdList.Id;
                 isNewDistributionList = true;
             }

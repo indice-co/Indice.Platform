@@ -13,6 +13,6 @@ namespace Indice.Features.Messages.Core.Services
         public Task<ResultSet<Contact>> Find(ListOptions options) => Task.FromResult(new ResultSet<Contact>());
 
         /// <inheritdoc />
-        public Task<Contact> GetById(string id) => Task.FromResult<Contact>(null);
+        public Task<Contact> Resolve(string id) => Task.FromResult<Contact>(null);
     }
 }

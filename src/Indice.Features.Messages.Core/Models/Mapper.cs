@@ -129,6 +129,17 @@ namespace Indice.Features.Messages.Core.Models
             Salutation = request.Salutation,
             UpdatedAt = DateTimeOffset.UtcNow
         };
+        public static DbContact ToDbContact(Contact contact) => new() {
+            Email = contact.Email,
+            FirstName = contact.FirstName,
+            FullName = contact.FullName,
+            Id = contact.Id ?? Guid.NewGuid(),
+            LastName = contact.LastName,
+            PhoneNumber = contact.PhoneNumber,
+            RecipientId = contact.RecipientId,
+            Salutation = contact.Salutation,
+            UpdatedAt = DateTimeOffset.UtcNow
+        };
 
         public static CreateDistributionListContactRequest ToCreateDistributionListContactRequest(Contact contact) => new() {
             Email = contact.Email,

@@ -40,5 +40,16 @@ namespace Indice.Features.Messages.Core.Models.Requests
         public ExpandoObject Data { get; set; }
         /// <summary>The id of the template to use.</summary>
         public Guid? TemplateId { get; set; }
+
+        internal IEnumerable<Contact> GetIncludedContacts() {
+            if (RecipientIds is not null)
+                foreach (var item in RecipientIds) {
+                    yield return new Contact { RecipientId = item };
+                }
+            if (Recipients is not null)
+                foreach (var item in Recipients) {
+                    yield return item.ToContact();
+                }
+        }
     }
 }
