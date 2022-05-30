@@ -31,7 +31,7 @@ export class DistributionListContactCreateComponent implements OnInit, AfterView
     public onContactsSearch(searchTerm: string | undefined): void {
         this.isLoading = true;
         this._api
-            .getContacts(undefined, 1, 10, 'email', searchTerm, true)
+            .getContacts(undefined, undefined, undefined, undefined, 1, 10, 'email', searchTerm, true)
             .subscribe((contacts: ContactResultSet) => {
                 this.contacts = contacts.items!;
                 this.isLoading = false;
@@ -52,7 +52,7 @@ export class DistributionListContactCreateComponent implements OnInit, AfterView
                 email: contact.email,
                 firstName: contact.firstName,
                 fullName: contact.fullName,
-                id: contact.id,
+                contactId: contact.id,
                 lastName: contact.lastName,
                 phoneNumber: contact.phoneNumber,
                 recipientId: contact.recipientId,

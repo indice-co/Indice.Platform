@@ -1,12 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Indice.Features.Messages.Core.Models
+﻿namespace Indice.Features.Messages.Core.Models
 {
-    /// <summary>
-    /// An anonymous contact not originating from any the existing connected resolvers.
-    /// </summary>
+    /// <summary>An anonymous contact not originating from any the existing connected resolvers.</summary>
     public class ContactAnonymous
     {
         /// <summary>Contact salutation (Mr, Mrs etc).</summary>
@@ -22,17 +16,14 @@ namespace Indice.Features.Messages.Core.Models
         /// <summary>The phone number.</summary>
         public string PhoneNumber { get; set; }
 
-        /// <summary>
-        /// Convert the anonymous contact to a concrete one
-        /// </summary>
-        /// <returns></returns>
+        /// <summary>Convert the anonymous contact to a concrete one.</summary>
         public Contact ToContact() => new() {
             Salutation = Salutation,
             Email = Email,
             FirstName = FirstName,
             LastName = LastName,
             FullName = FullName,
-            PhoneNumber = PhoneNumber,
+            PhoneNumber = PhoneNumber
         };
     }
 }

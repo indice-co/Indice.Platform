@@ -14,9 +14,7 @@ namespace Indice.Features.Messages.Core.Services
     /// </summary>
     public class DistributionListService : IDistributionListService
     {
-        /// <summary>
-        /// Creates a new instance of <see cref="DistributionListService"/>.
-        /// </summary>
+        /// <summary>Creates a new instance of <see cref="DistributionListService"/>.</summary>
         /// <param name="dbContext">The <see cref="Microsoft.EntityFrameworkCore.DbContext"/> for Campaigns API feature.</param>
         /// <exception cref="ArgumentNullException"></exception>
         public DistributionListService(CampaignsDbContext dbContext) {
@@ -33,11 +31,10 @@ namespace Indice.Features.Messages.Core.Services
                 Id = Guid.NewGuid(),
                 Name = request.Name
             };
-            // the following code will try at its best effort to create contacts
-            // without making duplicates.
-            // external contact resolution by recipient id is not need here.
+            // The following code will try at its best effort to create contacts without making duplicates.
+            // External contact resolution by recipient id is not needed here.
             // It will happen down the line when this is published.
-            if (contacts?.Any() == true) { 
+            if (contacts?.Any() == true) {
                 var recipientIds = contacts.Where(x => !string.IsNullOrEmpty(x.RecipientId)).Select(x => x.RecipientId).ToArray();
                 var emails = contacts.Where(x => !string.IsNullOrEmpty(x.Email)).Select(x => x.Email).ToArray();
                 var phones = contacts.Where(x => !string.IsNullOrEmpty(x.PhoneNumber)).Select(x => x.PhoneNumber).ToArray();
@@ -49,8 +46,7 @@ namespace Indice.Features.Messages.Core.Services
                             existingContacts[nameof(item.RecipientId)] = await DbContext.Contacts.Where(x => recipientIds.Contains(x.RecipientId)).ToListAsync();
                         }
                         dbContact = existingContacts[nameof(item.RecipientId)].Where(x => x.RecipientId == item.RecipientId).FirstOrDefault();
-                    }
-                    else if (!string.IsNullOrWhiteSpace(item.Email)) {
+                    } else if (!string.IsNullOrWhiteSpace(item.Email)) {
                         if (!existingContacts.ContainsKey(nameof(item.Email))) {
                             existingContacts[nameof(item.Email)] = await DbContext.Contacts.Where(x => emails.Contains(x.Email)).ToListAsync();
                         }
@@ -65,7 +61,7 @@ namespace Indice.Features.Messages.Core.Services
                         dbContact = Mapper.ToDbContact(item);
                         DbContext.Contacts.Add(dbContact);
                     }
-                    list.ContactDistributionLists.Add(new DbDistributionListContact { 
+                    list.ContactDistributionLists.Add(new DbDistributionListContact {
                         Contact = dbContact,
                         ContactId = dbContact.Id
                     });

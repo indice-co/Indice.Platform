@@ -5,7 +5,7 @@ import { Router } from '@angular/router';
 
 import { MenuOption, ToasterService, ToastType } from '@indice/ng-components';
 import { map } from 'rxjs/operators';
-import { CreateCampaignRequest, MessagesApiClient, MessageChannelKind, MessageTypeResultSet, Period, Hyperlink, TemplateResultSet, Campaign, DistributionListResultSet } from 'src/app/core/services/messages-api.service';
+import { CreateCampaignRequest, MessagesApiClient, MessageChannelKind, MessageTypeResultSet, Period, Hyperlink, Campaign, DistributionListResultSet, TemplateListItemResultSet } from 'src/app/core/services/messages-api.service';
 import { LibStepperComponent } from 'src/app/shared/components/stepper/lib-stepper.component';
 import { StepperType } from 'src/app/shared/components/stepper/types/stepper-type';
 import { StepSelectedEvent } from 'src/app/shared/components/stepper/types/step-selected-event';
@@ -67,10 +67,10 @@ export class CampaignCreateComponent implements OnInit, AfterViewInit {
     @ViewChild('createCampaignStepper', { static: true }) private _stepper!: LibStepperComponent;
     public StepperType = StepperType;
     public channelsArray = [
-        { name: 'Inbox', description: 'Ειδοποίηση μέσω πρoσωπικού μήνυμα.', value: MessageChannelKind.Inbox },
-        { name: 'Push Notification', description: 'Ειδοποίηση μέσω push notification στις εγγεγραμμένες συσκευές.', value: MessageChannelKind.PushNotification },
-        { name: 'Email', description: 'Ειδοποίηση μέσω ηλεκτρονικού ταχυδρομείου', value: MessageChannelKind.Email },
-        { name: 'SMS', description: 'Ειδοποίηση μέσω σύντομου γραπτού μηνύματος.', value: MessageChannelKind.SMS }
+        { name: 'Inbox', description: 'Ειδοποίηση μέσω πρoσωπικού μήνυμα.', value: MessageChannelKind.Inbox, checked: true },
+        { name: 'Push Notification', description: 'Ειδοποίηση μέσω push notification στις εγγεγραμμένες συσκευές.', value: MessageChannelKind.PushNotification, checked: false },
+        { name: 'Email', description: 'Ειδοποίηση μέσω ηλεκτρονικού ταχυδρομείου', value: MessageChannelKind.Email, checked: false },
+        { name: 'SMS', description: 'Ειδοποίηση μέσω σύντομου γραπτού μηνύματος.', value: MessageChannelKind.SMS, checked: false }
     ];
 
     public get okLabel(): string {
@@ -157,11 +157,10 @@ export class CampaignCreateComponent implements OnInit, AfterViewInit {
 
     public onStepperStepChanged(event: StepSelectedEvent) {
         if (event.selectedIndex === 2 && this.distributionLists.length <= 1) {
-            this._loadDistributionList();
+            this._loadDistributionLists();
         }
         if (event.selectedIndex == 3) {
             const x = { ...this.basicDetailsForm.value, ...this.contentForm.value, ...this.recipientsForm.value };
-            // debugger;
         }
     }
 
@@ -182,13 +181,17 @@ export class CampaignCreateComponent implements OnInit, AfterViewInit {
 
     public onChannelCheckboxChange(event: any): void {
         const channelsFormArray: FormArray = this.channels as FormArray;
+        const value = event.target.value;
+        const checkbox = this.channelsArray.find(x => x.value === value);
         if (event.target.checked) {
-            channelsFormArray.push(new FormControl(event.target.value));
+            channelsFormArray.push(new FormControl(value));
+            checkbox!.checked = true;
         } else {
             let i: number = 0;
             channelsFormArray.controls.forEach((control: AbstractControl) => {
-                if (control.value == event.target.value) {
+                if (control.value == value) {
                     channelsFormArray.removeAt(i);
+                    checkbox!.checked = false;
                     return;
                 }
                 i++;
@@ -215,6 +218,10 @@ export class CampaignCreateComponent implements OnInit, AfterViewInit {
     public onTemplateSelectionChanged(event: any): void {
         if (event.value) {
             this.template.setValue(event);
+            const channelsFormArray: FormArray = this.channels as FormArray;
+            channelsFormArray.clear();
+            event.data.forEach((channel: string) => channelsFormArray.push(new FormControl(channel)));
+            this.channelsArray.forEach((channel: any) => channel.checked = this.channels.value.indexOf(channel.value) > -1);
         } else {
             this.template.setValue(null);
         }
@@ -239,7 +246,7 @@ export class CampaignCreateComponent implements OnInit, AfterViewInit {
             .subscribe();
     }
 
-    private _loadDistributionList(): void {
+    private _loadDistributionLists(): void {
         this._api
             .getDistributionLists()
             .pipe(map((distributionLists: DistributionListResultSet) => {
@@ -253,9 +260,9 @@ export class CampaignCreateComponent implements OnInit, AfterViewInit {
     private _loadTemplates(): void {
         this._api
             .getTemplates()
-            .pipe(map((templates: TemplateResultSet) => {
+            .pipe(map((templates: TemplateListItemResultSet) => {
                 if (templates.items) {
-                    this.templates.push(...templates.items.map(template => new MenuOption(template.name || '', template.id)))
+                    this.templates.push(...templates.items.map(template => new MenuOption(template.name || '', template.id, undefined, template.channels)))
                 }
             }))
             .subscribe();

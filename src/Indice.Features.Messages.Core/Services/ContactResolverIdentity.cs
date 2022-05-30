@@ -37,7 +37,7 @@ namespace Indice.Features.Messages.Core.Services
         public async Task<ResultSet<Contact>> Find(ListOptions options) {
             var accessToken = await GetAccessToken();
             HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
-            var uriBuilder = new UriBuilder("api/users") { 
+            var uriBuilder = new UriBuilder("api/users") {
                 Port = -1,
                 Scheme = string.Empty
             };
@@ -121,7 +121,7 @@ namespace Indice.Features.Messages.Core.Services
             public IEnumerable<IdentityUserClaimResponse> Claims { get; set; } = new List<IdentityUserClaimResponse>();
         }
 
-        private class IdentityUserListItemResponse 
+        private class IdentityUserListItemResponse
         {
             public string Id { get; set; }
             public string FirstName { get; set; }

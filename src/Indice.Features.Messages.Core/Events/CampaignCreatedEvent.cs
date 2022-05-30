@@ -47,7 +47,7 @@ namespace Indice.Features.Messages.Core.Events
         /// <summary>Creates a <see cref="CampaignCreatedEvent"/> instance from a <see cref="Campaign"/> instance.</summary>
         /// <param name="campaign">Models a campaign.</param>
         /// <param name="recipientIds">Defines a list of user identifiers that constitutes the audience of the campaign.</param>
-        /// <param name="recipients">Defines a list of aditional anonymous contacts to be also audience of the campaign.</param>
+        /// <param name="recipients">Defines a list of additional anonymous contacts to be also audience of the campaign.</param>
         /// <param name="isNewDistributionList">Determines whether the distribution list already exists or is new.</param>
         public static CampaignCreatedEvent FromCampaign(Campaign campaign, List<string> recipientIds = null, List<ContactAnonymous> recipients = null, bool isNewDistributionList = true) => new() {
             ActivePeriod = campaign.ActivePeriod,

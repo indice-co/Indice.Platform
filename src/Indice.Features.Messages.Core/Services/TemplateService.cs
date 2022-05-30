@@ -1,4 +1,5 @@
-﻿using Indice.Features.Messages.Core.Data;
+﻿using Indice.EntityFrameworkCore.Functions;
+using Indice.Features.Messages.Core.Data;
 using Indice.Features.Messages.Core.Data.Models;
 using Indice.Features.Messages.Core.Models;
 using Indice.Features.Messages.Core.Models.Requests;
@@ -56,16 +57,19 @@ namespace Indice.Features.Messages.Core.Services
         }
 
         /// <inheritdoc />
-        public async Task<ResultSet<TemplateBase>> GetList(ListOptions options) {
-            var query = DbContext.Templates.Select(template => new TemplateBase {
-                Id = template.Id,
-                CreatedAt = template.CreatedAt,
-                Name = template.Name
-            });
+        public async Task<ResultSet<TemplateListItem>> GetList(ListOptions options) {
+            var query = DbContext.Templates.AsQueryable();
             if (!string.IsNullOrWhiteSpace(options.Search)) {
                 query = query.Where(x => x.Name.ToLower().Contains(options.Search.ToLower()));
             }
-            return await query.ToResultSetAsync(options);
+            var result = await query.ToResultSetAsync(options);
+            var templateItems = result.Items.Select(x => new TemplateListItem {
+                Channels = Enum.Parse<MessageChannelKind>(string.Join(',', x.Content.Select(x => x.Key)), ignoreCase: true),
+                CreatedAt = x.CreatedAt,
+                Id = x.Id,
+                Name = x.Name
+            });
+            return new ResultSet<TemplateListItem>(templateItems, result.Count);
         }
     }
 }

@@ -15,6 +15,6 @@ namespace Indice.Features.Messages.Core.Services.Abstractions
         Task<Template> GetById(Guid id);
         /// <summary>Gets a list of all available templates.</summary>
         /// <param name="options">List parameters used to navigate through collections. Contains parameters such as sort, search, page number and page size.</param>
-        Task<ResultSet<TemplateBase>> GetList(ListOptions options);
+        Task<ResultSet<TemplateListItem>> GetList(ListOptions options);
     }
 }

@@ -106,6 +106,9 @@ export interface IMessagesApiClient {
     /**
      * Gets the list of all contacts using the provided Indice.Types.ListOptions.
      * @param filter_DistributionListId (optional) The id of a distribution list.
+     * @param filter_RecipientId (optional) The recipientid associated with the contact.
+     * @param filter_Email (optional) The email for the contact to search.
+     * @param filter_PhoneNumber (optional) The phone number for the contact to search.
      * @param page (optional) 
      * @param size (optional) 
      * @param sort (optional) 
@@ -113,7 +116,7 @@ export interface IMessagesApiClient {
      * @param resolve (optional) 
      * @return OK
      */
-    getContacts(filter_DistributionListId?: string | undefined, page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, resolve?: boolean | undefined): Observable<ContactResultSet>;
+    getContacts(filter_DistributionListId?: string | undefined, filter_RecipientId?: string | undefined, filter_Email?: string | undefined, filter_PhoneNumber?: string | undefined, page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, resolve?: boolean | undefined): Observable<ContactResultSet>;
     /**
      * Creates a new contact in the store.
      * @param body (optional) The request model used to create a new contact.
@@ -179,15 +182,6 @@ export interface IMessagesApiClient {
      */
     removeContactFromDistributionList(distributionListId: string, contactId: string): Observable<void>;
     /**
-     * Gets the list of available campaign types.
-     * @param page (optional) 
-     * @param size (optional) 
-     * @param sort (optional) 
-     * @param search (optional) 
-     * @return OK
-     */
-    getInboxMessageTypes(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined): Observable<MessageTypeResultSet>;
-    /**
      * Gets the list of available message types.
      * @param page (optional) 
      * @param size (optional) 
@@ -221,6 +215,15 @@ export interface IMessagesApiClient {
      * @return No Content
      */
     deleteMessageType(typeId: string): Observable<void>;
+    /**
+     * Gets the list of available campaign types.
+     * @param page (optional) 
+     * @param size (optional) 
+     * @param sort (optional) 
+     * @param search (optional) 
+     * @return OK
+     */
+    getInboxMessageTypes(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined): Observable<MessageTypeResultSet>;
     /**
      * Gets the list of all user messages using the provided Indice.Types.ListOptions.
      * @param filter_TypeId (optional) The id of a campaign type.
@@ -267,7 +270,7 @@ export interface IMessagesApiClient {
      * @param search (optional) 
      * @return OK
      */
-    getTemplates(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined): Observable<TemplateBaseResultSet>;
+    getTemplates(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined): Observable<TemplateListItemResultSet>;
     /**
      * Gets a template by it's unique id.
      * @param templateId The id of the template.
@@ -1211,7 +1214,7 @@ export class MessagesApiClient implements IMessagesApiClient {
             })
         };
 
-        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+        return this.http.request("put", url_, options_).pipe(_observableMergeMap((response_ : any) => {
             return this.processPublishCampaign(response_);
         })).pipe(_observableCatch((response_: any) => {
             if (response_ instanceof HttpResponseBase) {
@@ -1420,6 +1423,9 @@ export class MessagesApiClient implements IMessagesApiClient {
     /**
      * Gets the list of all contacts using the provided Indice.Types.ListOptions.
      * @param filter_DistributionListId (optional) The id of a distribution list.
+     * @param filter_RecipientId (optional) The recipientid associated with the contact.
+     * @param filter_Email (optional) The email for the contact to search.
+     * @param filter_PhoneNumber (optional) The phone number for the contact to search.
      * @param page (optional) 
      * @param size (optional) 
      * @param sort (optional) 
@@ -1427,12 +1433,24 @@ export class MessagesApiClient implements IMessagesApiClient {
      * @param resolve (optional) 
      * @return OK
      */
-    getContacts(filter_DistributionListId?: string | undefined, page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, resolve?: boolean | undefined): Observable<ContactResultSet> {
+    getContacts(filter_DistributionListId?: string | undefined, filter_RecipientId?: string | undefined, filter_Email?: string | undefined, filter_PhoneNumber?: string | undefined, page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, resolve?: boolean | undefined): Observable<ContactResultSet> {
         let url_ = this.baseUrl + "/api/contacts?";
         if (filter_DistributionListId === null)
             throw new Error("The parameter 'filter_DistributionListId' cannot be null.");
         else if (filter_DistributionListId !== undefined)
             url_ += "Filter.DistributionListId=" + encodeURIComponent("" + filter_DistributionListId) + "&";
+        if (filter_RecipientId === null)
+            throw new Error("The parameter 'filter_RecipientId' cannot be null.");
+        else if (filter_RecipientId !== undefined)
+            url_ += "Filter.RecipientId=" + encodeURIComponent("" + filter_RecipientId) + "&";
+        if (filter_Email === null)
+            throw new Error("The parameter 'filter_Email' cannot be null.");
+        else if (filter_Email !== undefined)
+            url_ += "Filter.Email=" + encodeURIComponent("" + filter_Email) + "&";
+        if (filter_PhoneNumber === null)
+            throw new Error("The parameter 'filter_PhoneNumber' cannot be null.");
+        else if (filter_PhoneNumber !== undefined)
+            url_ += "Filter.PhoneNumber=" + encodeURIComponent("" + filter_PhoneNumber) + "&";
         if (page === null)
             throw new Error("The parameter 'page' cannot be null.");
         else if (page !== undefined)
@@ -2233,92 +2251,6 @@ export class MessagesApiClient implements IMessagesApiClient {
     }
 
     /**
-     * Gets the list of available campaign types.
-     * @param page (optional) 
-     * @param size (optional) 
-     * @param sort (optional) 
-     * @param search (optional) 
-     * @return OK
-     */
-    getInboxMessageTypes(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined): Observable<MessageTypeResultSet> {
-        let url_ = this.baseUrl + "/api/messages/types?";
-        if (page === null)
-            throw new Error("The parameter 'page' cannot be null.");
-        else if (page !== undefined)
-            url_ += "Page=" + encodeURIComponent("" + page) + "&";
-        if (size === null)
-            throw new Error("The parameter 'size' cannot be null.");
-        else if (size !== undefined)
-            url_ += "Size=" + encodeURIComponent("" + size) + "&";
-        if (sort === null)
-            throw new Error("The parameter 'sort' cannot be null.");
-        else if (sort !== undefined)
-            url_ += "Sort=" + encodeURIComponent("" + sort) + "&";
-        if (search === null)
-            throw new Error("The parameter 'search' cannot be null.");
-        else if (search !== undefined)
-            url_ += "Search=" + encodeURIComponent("" + search) + "&";
-        url_ = url_.replace(/[?&]$/, "");
-
-        let options_ : any = {
-            observe: "response",
-            responseType: "blob",
-            headers: new HttpHeaders({
-                "Accept": "application/json"
-            })
-        };
-
-        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processGetInboxMessageTypes(response_);
-        })).pipe(_observableCatch((response_: any) => {
-            if (response_ instanceof HttpResponseBase) {
-                try {
-                    return this.processGetInboxMessageTypes(response_ as any);
-                } catch (e) {
-                    return _observableThrow(e) as any as Observable<MessageTypeResultSet>;
-                }
-            } else
-                return _observableThrow(response_) as any as Observable<MessageTypeResultSet>;
-        }));
-    }
-
-    protected processGetInboxMessageTypes(response: HttpResponseBase): Observable<MessageTypeResultSet> {
-        const status = response.status;
-        const responseBlob =
-            response instanceof HttpResponse ? response.body :
-            (response as any).error instanceof Blob ? (response as any).error : undefined;
-
-        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
-        if (status === 401) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            let result401: any = null;
-            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result401 = ProblemDetails.fromJS(resultData401);
-            return throwException("Unauthorized", status, _responseText, _headers, result401);
-            }));
-        } else if (status === 403) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            let result403: any = null;
-            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result403 = ProblemDetails.fromJS(resultData403);
-            return throwException("Forbidden", status, _responseText, _headers, result403);
-            }));
-        } else if (status === 200) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            let result200: any = null;
-            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = MessageTypeResultSet.fromJS(resultData200);
-            return _observableOf(result200);
-            }));
-        } else if (status !== 200 && status !== 204) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            }));
-        }
-        return _observableOf(null as any);
-    }
-
-    /**
      * Gets the list of available message types.
      * @param page (optional) 
      * @param size (optional) 
@@ -2701,6 +2633,92 @@ export class MessagesApiClient implements IMessagesApiClient {
             let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result400 = ValidationProblemDetails.fromJS(resultData400);
             return throwException("Bad Request", status, _responseText, _headers, result400);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * Gets the list of available campaign types.
+     * @param page (optional) 
+     * @param size (optional) 
+     * @param sort (optional) 
+     * @param search (optional) 
+     * @return OK
+     */
+    getInboxMessageTypes(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined): Observable<MessageTypeResultSet> {
+        let url_ = this.baseUrl + "/api/messages/types?";
+        if (page === null)
+            throw new Error("The parameter 'page' cannot be null.");
+        else if (page !== undefined)
+            url_ += "Page=" + encodeURIComponent("" + page) + "&";
+        if (size === null)
+            throw new Error("The parameter 'size' cannot be null.");
+        else if (size !== undefined)
+            url_ += "Size=" + encodeURIComponent("" + size) + "&";
+        if (sort === null)
+            throw new Error("The parameter 'sort' cannot be null.");
+        else if (sort !== undefined)
+            url_ += "Sort=" + encodeURIComponent("" + sort) + "&";
+        if (search === null)
+            throw new Error("The parameter 'search' cannot be null.");
+        else if (search !== undefined)
+            url_ += "Search=" + encodeURIComponent("" + search) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetInboxMessageTypes(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetInboxMessageTypes(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<MessageTypeResultSet>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<MessageTypeResultSet>;
+        }));
+    }
+
+    protected processGetInboxMessageTypes(response: HttpResponseBase): Observable<MessageTypeResultSet> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            }));
+        } else if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = MessageTypeResultSet.fromJS(resultData200);
+            return _observableOf(result200);
             }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
@@ -3134,7 +3152,7 @@ export class MessagesApiClient implements IMessagesApiClient {
      * @param search (optional) 
      * @return OK
      */
-    getTemplates(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined): Observable<TemplateBaseResultSet> {
+    getTemplates(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined): Observable<TemplateListItemResultSet> {
         let url_ = this.baseUrl + "/api/templates?";
         if (page === null)
             throw new Error("The parameter 'page' cannot be null.");
@@ -3169,14 +3187,14 @@ export class MessagesApiClient implements IMessagesApiClient {
                 try {
                     return this.processGetTemplates(response_ as any);
                 } catch (e) {
-                    return _observableThrow(e) as any as Observable<TemplateBaseResultSet>;
+                    return _observableThrow(e) as any as Observable<TemplateListItemResultSet>;
                 }
             } else
-                return _observableThrow(response_) as any as Observable<TemplateBaseResultSet>;
+                return _observableThrow(response_) as any as Observable<TemplateListItemResultSet>;
         }));
     }
 
-    protected processGetTemplates(response: HttpResponseBase): Observable<TemplateBaseResultSet> {
+    protected processGetTemplates(response: HttpResponseBase): Observable<TemplateListItemResultSet> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -3201,7 +3219,7 @@ export class MessagesApiClient implements IMessagesApiClient {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = TemplateBaseResultSet.fromJS(resultData200);
+            result200 = TemplateListItemResultSet.fromJS(resultData200);
             return _observableOf(result200);
             }));
         } else if (status !== 200 && status !== 204) {
@@ -3829,6 +3847,8 @@ export class Contact implements IContact {
     phoneNumber?: string | undefined;
     /** Indicates when contact info were last updated. */
     updatedAt?: Date | undefined;
+    /** Determines if there is a Indice.Features.Messages.Core.Models.Contact.RecipientId involved. */
+    readonly isAnonymous?: boolean;
 
     constructor(data?: IContact) {
         if (data) {
@@ -3850,6 +3870,7 @@ export class Contact implements IContact {
             this.email = _data["email"];
             this.phoneNumber = _data["phoneNumber"];
             this.updatedAt = _data["updatedAt"] ? new Date(_data["updatedAt"].toString()) : <any>undefined;
+            (<any>this).isAnonymous = _data["isAnonymous"];
         }
     }
 
@@ -3871,6 +3892,7 @@ export class Contact implements IContact {
         data["email"] = this.email;
         data["phoneNumber"] = this.phoneNumber;
         data["updatedAt"] = this.updatedAt ? this.updatedAt.toISOString() : <any>undefined;
+        data["isAnonymous"] = this.isAnonymous;
         return data;
     }
 }
@@ -3895,6 +3917,78 @@ export interface IContact {
     phoneNumber?: string | undefined;
     /** Indicates when contact info were last updated. */
     updatedAt?: Date | undefined;
+    /** Determines if there is a Indice.Features.Messages.Core.Models.Contact.RecipientId involved. */
+    isAnonymous?: boolean;
+}
+
+/** An anonymous contact not originating from any the existing connected resolvers. */
+export class ContactAnonymous implements IContactAnonymous {
+    /** Contact salutation (Mr, Mrs etc). */
+    salutation?: string | undefined;
+    /** The first name. */
+    firstName?: string | undefined;
+    /** The last name. */
+    lastName?: string | undefined;
+    /** The full name. */
+    fullName?: string | undefined;
+    /** The email. */
+    email?: string | undefined;
+    /** The phone number. */
+    phoneNumber?: string | undefined;
+
+    constructor(data?: IContactAnonymous) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.salutation = _data["salutation"];
+            this.firstName = _data["firstName"];
+            this.lastName = _data["lastName"];
+            this.fullName = _data["fullName"];
+            this.email = _data["email"];
+            this.phoneNumber = _data["phoneNumber"];
+        }
+    }
+
+    static fromJS(data: any): ContactAnonymous {
+        data = typeof data === 'object' ? data : {};
+        let result = new ContactAnonymous();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["salutation"] = this.salutation;
+        data["firstName"] = this.firstName;
+        data["lastName"] = this.lastName;
+        data["fullName"] = this.fullName;
+        data["email"] = this.email;
+        data["phoneNumber"] = this.phoneNumber;
+        return data;
+    }
+}
+
+/** An anonymous contact not originating from any the existing connected resolvers. */
+export interface IContactAnonymous {
+    /** Contact salutation (Mr, Mrs etc). */
+    salutation?: string | undefined;
+    /** The first name. */
+    firstName?: string | undefined;
+    /** The last name. */
+    lastName?: string | undefined;
+    /** The full name. */
+    fullName?: string | undefined;
+    /** The email. */
+    email?: string | undefined;
+    /** The phone number. */
+    phoneNumber?: string | undefined;
 }
 
 export class ContactResultSet implements IContactResultSet {
@@ -3987,10 +4081,13 @@ export interface ICreateAppSettingRequest {
 
 /** The request model used to create a new campaign. */
 export class CreateCampaignRequest implements ICreateCampaignRequest {
-    /** Determines if campaign targets all user base. Defaults to true. */
+    /** Determines if campaign targets all user base. Defaults to false. */
     isGlobal?: boolean;
     /** Defines a list of user identifiers that constitutes the audience of the campaign. */
     recipientIds?: string[] | undefined;
+    /** List of anonymous contacts not available through any of the existing contact resolvers.
+Use this list if recipient id is not known/available or the message will be fire and forget. */
+    recipients?: ContactAnonymous[] | undefined;
     messageChannelKind?: MessageChannelKind[];
     /** The title of the campaign. */
     title!: string | undefined;
@@ -4003,7 +4100,7 @@ export class CreateCampaignRequest implements ICreateCampaignRequest {
     /** The id of the type this campaign belongs. */
     typeId?: string | undefined;
     /** The id of the distribution list. */
-    distributionListId?: string | undefined;
+    recipientListId?: string | undefined;
     /** Optional data for the campaign. */
     data?: { [key: string]: any; } | undefined;
     /** The id of the template to use. */
@@ -4026,6 +4123,11 @@ export class CreateCampaignRequest implements ICreateCampaignRequest {
                 for (let item of _data["recipientIds"])
                     this.recipientIds!.push(item);
             }
+            if (Array.isArray(_data["recipients"])) {
+                this.recipients = [] as any;
+                for (let item of _data["recipients"])
+                    this.recipients!.push(ContactAnonymous.fromJS(item));
+            }
             if (Array.isArray(_data["messageChannelKind"])) {
                 this.messageChannelKind = [] as any;
                 for (let item of _data["messageChannelKind"])
@@ -4043,7 +4145,7 @@ export class CreateCampaignRequest implements ICreateCampaignRequest {
             this.published = _data["published"];
             this.activePeriod = _data["activePeriod"] ? Period.fromJS(_data["activePeriod"]) : <any>undefined;
             this.typeId = _data["typeId"];
-            this.distributionListId = _data["distributionListId"];
+            this.recipientListId = _data["recipientListId"];
             if (_data["data"]) {
                 this.data = {} as any;
                 for (let key in _data["data"]) {
@@ -4070,6 +4172,11 @@ export class CreateCampaignRequest implements ICreateCampaignRequest {
             for (let item of this.recipientIds)
                 data["recipientIds"].push(item);
         }
+        if (Array.isArray(this.recipients)) {
+            data["recipients"] = [];
+            for (let item of this.recipients)
+                data["recipients"].push(item.toJSON());
+        }
         if (Array.isArray(this.messageChannelKind)) {
             data["messageChannelKind"] = [];
             for (let item of this.messageChannelKind)
@@ -4087,7 +4194,7 @@ export class CreateCampaignRequest implements ICreateCampaignRequest {
         data["published"] = this.published;
         data["activePeriod"] = this.activePeriod ? this.activePeriod.toJSON() : <any>undefined;
         data["typeId"] = this.typeId;
-        data["distributionListId"] = this.distributionListId;
+        data["recipientListId"] = this.recipientListId;
         if (this.data) {
             data["data"] = {};
             for (let key in this.data) {
@@ -4102,10 +4209,13 @@ export class CreateCampaignRequest implements ICreateCampaignRequest {
 
 /** The request model used to create a new campaign. */
 export interface ICreateCampaignRequest {
-    /** Determines if campaign targets all user base. Defaults to true. */
+    /** Determines if campaign targets all user base. Defaults to false. */
     isGlobal?: boolean;
     /** Defines a list of user identifiers that constitutes the audience of the campaign. */
     recipientIds?: string[] | undefined;
+    /** List of anonymous contacts not available through any of the existing contact resolvers.
+Use this list if recipient id is not known/available or the message will be fire and forget. */
+    recipients?: ContactAnonymous[] | undefined;
     messageChannelKind?: MessageChannelKind[];
     /** The title of the campaign. */
     title: string | undefined;
@@ -4118,7 +4228,7 @@ export interface ICreateCampaignRequest {
     /** The id of the type this campaign belongs. */
     typeId?: string | undefined;
     /** The id of the distribution list. */
-    distributionListId?: string | undefined;
+    recipientListId?: string | undefined;
     /** Optional data for the campaign. */
     data?: { [key: string]: any; } | undefined;
     /** The id of the template to use. */
@@ -4217,7 +4327,7 @@ export class CreateDistributionListContactRequest implements ICreateDistribution
     /** The phone number. */
     phoneNumber?: string | undefined;
     /** The id of the existing contact. */
-    id?: string | undefined;
+    contactId?: string | undefined;
 
     constructor(data?: ICreateDistributionListContactRequest) {
         if (data) {
@@ -4237,7 +4347,7 @@ export class CreateDistributionListContactRequest implements ICreateDistribution
             this.fullName = _data["fullName"];
             this.email = _data["email"];
             this.phoneNumber = _data["phoneNumber"];
-            this.id = _data["id"];
+            this.contactId = _data["contactId"];
         }
     }
 
@@ -4257,7 +4367,7 @@ export class CreateDistributionListContactRequest implements ICreateDistribution
         data["fullName"] = this.fullName;
         data["email"] = this.email;
         data["phoneNumber"] = this.phoneNumber;
-        data["id"] = this.id;
+        data["contactId"] = this.contactId;
         return data;
     }
 }
@@ -4278,7 +4388,7 @@ export interface ICreateDistributionListContactRequest {
     /** The phone number. */
     phoneNumber?: string | undefined;
     /** The id of the existing contact. */
-    id?: string | undefined;
+    contactId?: string | undefined;
 }
 
 /** Models a request when creating a distribution list. */
@@ -5059,11 +5169,75 @@ export interface ITemplateBase {
     createdAt?: Date;
 }
 
-export class TemplateBaseResultSet implements ITemplateBaseResultSet {
-    count?: number;
-    items?: TemplateBase[] | undefined;
+/** Models a template when retrieved on a list. */
+export class TemplateListItem implements ITemplateListItem {
+    /** The unique id of the template. */
+    id?: string;
+    /** The name of the template. */
+    name?: string | undefined;
+    /** When the template was created. */
+    createdAt?: Date;
+    channels?: MessageChannelKind[];
 
-    constructor(data?: ITemplateBaseResultSet) {
+    constructor(data?: ITemplateListItem) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.name = _data["name"];
+            this.createdAt = _data["createdAt"] ? new Date(_data["createdAt"].toString()) : <any>undefined;
+            if (Array.isArray(_data["channels"])) {
+                this.channels = [] as any;
+                for (let item of _data["channels"])
+                    this.channels!.push(item);
+            }
+        }
+    }
+
+    static fromJS(data: any): TemplateListItem {
+        data = typeof data === 'object' ? data : {};
+        let result = new TemplateListItem();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["name"] = this.name;
+        data["createdAt"] = this.createdAt ? this.createdAt.toISOString() : <any>undefined;
+        if (Array.isArray(this.channels)) {
+            data["channels"] = [];
+            for (let item of this.channels)
+                data["channels"].push(item);
+        }
+        return data;
+    }
+}
+
+/** Models a template when retrieved on a list. */
+export interface ITemplateListItem {
+    /** The unique id of the template. */
+    id?: string;
+    /** The name of the template. */
+    name?: string | undefined;
+    /** When the template was created. */
+    createdAt?: Date;
+    channels?: MessageChannelKind[];
+}
+
+export class TemplateListItemResultSet implements ITemplateListItemResultSet {
+    count?: number;
+    items?: TemplateListItem[] | undefined;
+
+    constructor(data?: ITemplateListItemResultSet) {
         if (data) {
             for (var property in data) {
                 if (data.hasOwnProperty(property))
@@ -5078,14 +5252,14 @@ export class TemplateBaseResultSet implements ITemplateBaseResultSet {
             if (Array.isArray(_data["items"])) {
                 this.items = [] as any;
                 for (let item of _data["items"])
-                    this.items!.push(TemplateBase.fromJS(item));
+                    this.items!.push(TemplateListItem.fromJS(item));
             }
         }
     }
 
-    static fromJS(data: any): TemplateBaseResultSet {
+    static fromJS(data: any): TemplateListItemResultSet {
         data = typeof data === 'object' ? data : {};
-        let result = new TemplateBaseResultSet();
+        let result = new TemplateListItemResultSet();
         result.init(data);
         return result;
     }
@@ -5102,9 +5276,9 @@ export class TemplateBaseResultSet implements ITemplateBaseResultSet {
     }
 }
 
-export interface ITemplateBaseResultSet {
+export interface ITemplateListItemResultSet {
     count?: number;
-    items?: TemplateBase[] | undefined;
+    items?: TemplateListItem[] | undefined;
 }
 
 export class TemplateResultSet implements ITemplateResultSet {

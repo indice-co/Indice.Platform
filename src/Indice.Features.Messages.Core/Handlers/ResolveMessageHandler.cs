@@ -12,9 +12,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Indice.Features.Messages.Core.Handlers
 {
-    /// <summary>
-    /// Job handler for <see cref="ResolveMessageEvent"/>.
-    /// </summary>
+    /// <summary>Job handler for <see cref="ResolveMessageEvent"/>.</summary>
     public class ResolveMessageHandler : ICampaignJobHandler<ResolveMessageEvent>
     {
         /// <summary>
@@ -46,9 +44,7 @@ namespace Indice.Features.Messages.Core.Handlers
         private IMessageService MessageService { get; }
         private ILogger<ResolveMessageHandler> Logger { get; }
 
-        /// <summary>
-        /// Decides whether to insert or update a resolved contact.
-        /// </summary>
+        /// <summary>Decides whether to insert or update a resolved contact.</summary>
         /// <param name="event">The event model used when a contact is resolved from an external system.</param>
         public async Task Process(ResolveMessageEvent @event) {
             var campaign = @event.Campaign;
@@ -61,13 +57,13 @@ namespace Indice.Features.Messages.Core.Handlers
                     contact = await ContactResolver.Patch(@event.Contact.RecipientId, contact);
                 }
             } else {
-                // anonymous contact should find by email or phonenumber.
+                // Anonymous contact should find by email or phone number.
                 if (@event.Contact.HasEmail) {
                     contact = await ContactService.FindByEmail(@event.Contact.Email);
                 } else if (@event.Contact.HasPhoneNuber) {
                     contact = await ContactService.FindByPhoneNumber(@event.Contact.PhoneNumber);
                 }
-                // if found but is already anonymous try to patch with filled data.
+                // If found but is already anonymous try to patch with filled data.
                 if (contact is not null && contact.IsAnonymous) {
                     contact.LastName = string.IsNullOrEmpty(contact.LastName) ? @event.Contact.LastName : contact.LastName;
                     contact.FirstName = string.IsNullOrEmpty(contact.FirstName) ? @event.Contact.FirstName : contact.FirstName;
@@ -82,19 +78,17 @@ namespace Indice.Features.Messages.Core.Handlers
             if (campaign.IsNewDistributionList) { // TODO: consider always adding the contact to the distribution list.
                 try {
                     await ContactService.AddToDistributionList(campaign.DistributionListId.Value, Mapper.ToCreateDistributionListContactRequest(contact));
-                } catch (BusinessException){
-                   // this is fine...
+                } catch (BusinessException) {
+                    // This is fine.
                 }
             }
             if (@event.Contact.NotUpdatedAWhileNow || @event.Contact.IsEmpty) {
                 await ContactService.Update(contact.Id.Value, Mapper.ToUpdateContactRequest(contact, campaign.DistributionListId));
             }
+            // In case this is not yet published we should stop here so no messages get sent yet.
             if (!@event.Campaign.Published) {
-                // in case this is not yet published we should stop here
-                // so no messages get sent yet.
                 return;
             }
-
             // Make substitution to message content using contact resolved data.
             var handlebars = Handlebars.Create();
             handlebars.Configuration.TextEncoder = new HtmlEncoder();

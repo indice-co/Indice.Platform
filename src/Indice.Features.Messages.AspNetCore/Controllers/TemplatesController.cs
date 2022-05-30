@@ -45,7 +45,7 @@ namespace Indice.Features.Messages.AspNetCore.Controllers
         /// <param name="options">List parameters used to navigate through collections. Contains parameters such as sort, search, page number and page size.</param>
         /// <response code="200">OK</response>
         [HttpGet]
-        [ProducesResponseType(typeof(ResultSet<TemplateBase>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ResultSet<TemplateListItem>), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetTemplates([FromQuery] ListOptions options) {
             var templates = await TemplateService.GetList(options);
             return Ok(templates);

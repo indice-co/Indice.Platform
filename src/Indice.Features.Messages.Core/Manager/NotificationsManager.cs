@@ -10,14 +10,10 @@ using Indice.Types;
 
 namespace Indice.Features.Messages.Core.Manager
 {
-    /// <summary>
-    /// A manager class that helps work with the Campaigns API infrastructure.
-    /// </summary>
+    /// <summary>A manager class that helps work with the Campaigns API infrastructure.</summary>
     public class NotificationsManager
     {
-        /// <summary>
-        /// Creates a new instance of <see cref="NotificationsManager"/>.
-        /// </summary>
+        /// <summary>Creates a new instance of <see cref="NotificationsManager"/>.</summary>
         public NotificationsManager(
             ICampaignService campaignService,
             IMessageTypeService messageTypeService,
@@ -103,9 +99,7 @@ namespace Indice.Features.Messages.Core.Manager
             Hyperlink actionLink = null, string type = null, dynamic data = null) =>
             SendMessageToRecipients(title, channels, templates, period, actionLink, type, data, recipientId);
 
-        /// <summary>
-        /// Creates a new message for the specified recipient.
-        /// </summary>
+        /// <summary>Creates a new message for the specified recipient.</summary>
         /// <param name="recipientId">The id of the recipient.</param>
         /// <param name="title">The title of the campaign.</param>
         /// <param name="channels">The delivery channels of a campaign.</param>
@@ -118,9 +112,7 @@ namespace Indice.Features.Messages.Core.Manager
             Hyperlink actionLink = null, string type = null, dynamic data = null) =>
             SendMessageToRecipients(title, channels, channels.GetFlagValues().ToDictionary(x => x, y => template), period, actionLink, type, data, recipientId);
 
-        /// <summary>
-        /// Creates a new message for the specified recipient.
-        /// </summary>
+        /// <summary>Creates a new message for the specified recipient.</summary>
         /// <param name="recipientId">The id of the recipient.</param>
         /// <param name="title">The title of the campaign.</param>
         /// <param name="channels">The delivery channels of a campaign.</param>
@@ -133,9 +125,7 @@ namespace Indice.Features.Messages.Core.Manager
             Hyperlink actionLink = null, string type = null, dynamic data = null) =>
             SendMessageToRecipients(title, channels, templateId, period, actionLink, type, data, recipientId);
 
-        /// <summary>
-        /// Creates a new message for the specified recipients.
-        /// </summary>
+        /// <summary>Creates a new message for the specified recipients.</summary>
         /// <param name="title">The title of the campaign.</param>
         /// <param name="channels">The delivery channels of a campaign.</param>
         /// <param name="templateId">The content of the campaign. If handlebars are found, then data binding will occur between content and <paramref name="data"/>.</param>
@@ -150,9 +140,7 @@ namespace Indice.Features.Messages.Core.Manager
             return await SendMessageToRecipients(title, channels, template.Content.ToDictionary(x => Enum.Parse<MessageChannelKind>(x.Key), x => x.Value), period, actionLink, type, data, recipientIds);
         }
 
-        /// <summary>
-        /// Creates a new message for the specified recipients.
-        /// </summary>
+        /// <summary>Creates a new message for the specified recipients.</summary>
         /// <param name="title">The title of the campaign.</param>
         /// <param name="channels">The delivery channels of a campaign.</param>
         /// <param name="template">The content of the campaign. If handlebars are found, then data binding will occur between content and <paramref name="data"/>.</param>
@@ -224,6 +212,6 @@ namespace Indice.Features.Messages.Core.Manager
         /// </summary>
         /// <param name="options">List parameters used to navigate through collections. Contains parameters such as sort, search, page number and page size.</param>
         /// <returns></returns>
-        public Task<ResultSet<TemplateBase>> GetTemplates(ListOptions options) => TemplateService.GetList(options);
+        public Task<ResultSet<TemplateListItem>> GetTemplates(ListOptions options) => TemplateService.GetList(options);
     }
 }
