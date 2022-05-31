@@ -346,7 +346,6 @@
             </li>
         </ol>
     </nav>
-
 </ng-container>
 <ng-container *ngFor="let step of steps">
     <ng-container *ngIf="step.state === StepState.Active" [ngTemplateOutlet]="step.content"></ng-container>

@@ -80,8 +80,8 @@ import * as app from 'src/app/core/models/settings';
     CommonModule,
     FormsModule,
     HttpClientModule,
-    IndiceAuthModule.forRoot(),
-    IndiceComponentsModule.forRoot(),
+    IndiceAuthModule,
+    IndiceComponentsModule,
     ReactiveFormsModule
   ],
   providers: [
