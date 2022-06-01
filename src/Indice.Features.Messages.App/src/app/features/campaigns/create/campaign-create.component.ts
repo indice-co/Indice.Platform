@@ -1,5 +1,5 @@
 import { AfterViewInit, ChangeDetectorRef, Component, Inject, OnInit, ViewChild } from '@angular/core';
-import { DatePipe, DOCUMENT, JsonPipe } from '@angular/common';
+import { DatePipe, DOCUMENT } from '@angular/common';
 import { AbstractControl, FormArray, FormControl, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 

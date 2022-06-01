@@ -29,6 +29,8 @@ import { LibStepComponent } from './shared/components/stepper/lib-step.component
 import { LibStepInfo } from './shared/components/stepper/lib-step-info.directive';
 import { LibStepLabel } from './shared/components/stepper/lib-step-label.directive';
 import { LibStepperComponent } from './shared/components/stepper/lib-stepper.component';
+import { LibTabComponent } from './shared/components/tabs/lib-tab.component';
+import { LibTabGroupComponent } from './shared/components/tabs/lib-tab-group.component';
 import { LocalDropDownMenuComponent } from './shared/components/drop-down-menu/drop-down-menu.component';
 import { LogOutComponent } from './core/services/logout/logout.component';
 import { MESSAGES_API_BASE_URL } from './core/services/messages-api.service';
@@ -64,6 +66,8 @@ import * as app from 'src/app/core/models/settings';
     LibStepInfo,
     LibStepLabel,
     LibStepperComponent,
+    LibTabComponent,
+    LibTabGroupComponent,
     LocalDropDownMenuComponent,
     LogOutComponent,
     MessageTypeCreateComponent,

@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, ContentChild, forwardRef, Inject, Input, OnChanges, OnInit, SimpleChanges, TemplateRef, ViewChild, ViewEncapsulation } from '@angular/core';
+import { ChangeDetectionStrategy, Component, ContentChild, forwardRef, Inject, Input, TemplateRef, ViewChild, ViewEncapsulation } from '@angular/core';
 import { AbstractControl } from '@angular/forms';
 import { LibStepInfo } from './lib-step-info.directive';
 
@@ -21,11 +21,9 @@ export enum StepState {
     encapsulation: ViewEncapsulation.None,
     changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class LibStepComponent implements OnInit, OnChanges {
-    private _interacted: boolean = false;
-
+export class LibStepComponent {
     constructor(
-        @Inject(forwardRef(() => LibStepperComponent)) public _stepper: LibStepperComponent
+        @Inject(forwardRef(() => LibStepperComponent)) private _stepper: LibStepperComponent
     ) { }
 
     /** The content provided for the step. */
@@ -68,8 +66,4 @@ export class LibStepComponent implements OnInit, OnChanges {
         }
         return StepState.Upcoming;
     }
-
-    public ngOnInit(): void { }
-
-    public ngOnChanges(changes: SimpleChanges): void { }
 }
