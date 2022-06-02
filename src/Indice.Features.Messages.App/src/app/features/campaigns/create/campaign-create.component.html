@@ -145,12 +145,48 @@
                 <form [formGroup]="contentForm">
                     <div class="px-4 space-y-2 pb-4 mt-4">
                         <fieldset>
-                            <legend class="sr-only">Μεταδεδομένα</legend>
-                            <div class="text-base font-medium text-gray-900" aria-hidden="true">Μεταδεδομένα</div>
+                            <div class="mt-1 relative rounded-md shadow-sm">
+                                <legend class="sr-only">Περιεχόμενο</legend>
+                                <div class="text-base font-medium text-gray-900" aria-hidden="true">Περιεχόμενο</div>
+                                <div class="absolute inset-y-0 right-0 pr-3 flex items-center">
+                                    <svg class="h-5 w-5 text-gray-400 cursor-pointer" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" (click)="onInfoIconClicked()">
+                                        <path fill-rule="evenodd" clip-rule="evenodd"
+                                            d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z" />
+                                    </svg>
+                                </div>
+                            </div>
                             <lib-tab-group>
                                 <lib-tab label="Inbox">This is tab 1</lib-tab>
                                 <lib-tab label="Push Notification">This is tab 2</lib-tab>
-                                <lib-tab label="Email">This is tab 3</lib-tab>
+                                <lib-tab label="Email">
+                                    <div class="space-y-2 pb-4 mt-4">
+                                        <fieldset>
+                                            <legend class="sr-only">Θέμα</legend>
+                                            <div class="text-base font-medium text-gray-900" aria-hidden="true">Θέμα (*)</div>
+                                            <label for="contentEmailSubject" class="field-label hidden">Θέμα (*)</label>
+                                            <div class="mt-1 flex rounded-sm">
+                                                <input type="text" name="contentEmailSubject" id="contentEmailSubject" formControlName="emailSubject" placeholder="Το θέμα του email">
+                                            </div>
+                                            <!-- <p *ngIf="title.invalid && (title.dirty || title.touched)" class="mt-2 text-sm text-red-600">
+                                                <span *ngIf="title.errors!['required']">Παρακαλώ συμπληρώστε ένα τίτλο.</span>
+                                                <span *ngIf="title.errors!['maxlength']">Παρακαλώ συμπληρώστε ένα μικρότερο τίτλο.</span>
+                                            </p> -->
+                                        </fieldset>
+                                        <fieldset>
+                                            <legend class="sr-only">Σώμα</legend>
+                                            <div class="text-base font-medium text-gray-900" aria-hidden="true">Σώμα (*)</div>
+                                            <label for="contentEmailBody" class="field-label hidden">Σώμα (*)</label>
+                                            <div class="mt-1 relative rounded-md shadow-sm">
+                                                <textarea id="contentEmailSubject" name="contentEmailSubject" formControlName="emailSubject" (input)="onEmailBodyInput($event)" rows="16" class="code-editor" placeholder="Το σώμα του email"></textarea>
+                                            </div>
+                                            <!-- <p *ngIf="title.invalid && (title.dirty || title.touched)" class="mt-2 text-sm text-red-600">
+                                                <span *ngIf="title.errors!['required']">Παρακαλώ συμπληρώστε ένα τίτλο.</span>
+                                                <span *ngIf="title.errors!['maxlength']">Παρακαλώ συμπληρώστε ένα μικρότερο τίτλο.</span>
+                                            </p> -->
+                                        </fieldset>
+                                        <iframe *ngIf="bodyPreview" [srcdoc]="bodyPreview | safe: 'html'"></iframe>
+                                    </div>
+                                </lib-tab>
                                 <lib-tab label="SMS">This is tab 4</lib-tab>
                             </lib-tab-group>
                         </fieldset>

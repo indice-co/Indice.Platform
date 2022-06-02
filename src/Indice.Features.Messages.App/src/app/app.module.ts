@@ -43,6 +43,7 @@ import { ShellConfig } from './shell.config';
 import { TemplatesComponent } from './features/templates/templates.component';
 import { ToggleButtonComponent } from './shared/components/toggle-button/toggle-button.component';
 import * as app from 'src/app/core/models/settings';
+import { SafePipe } from './shared/pipes/safe.pipe';
 
 @NgModule({
   declarations: [
@@ -75,6 +76,7 @@ import * as app from 'src/app/core/models/settings';
     MessageTypesComponent,
     PageIllustrationComponent,
     RadioButtonsListComponent,
+    SafePipe,
     TemplatesComponent,
     ToggleButtonComponent
   ],

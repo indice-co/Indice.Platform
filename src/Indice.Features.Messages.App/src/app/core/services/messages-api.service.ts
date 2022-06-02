@@ -104,6 +104,12 @@ export interface IMessagesApiClient {
      */
     exportCampaignStatistics(campaignId: string): Observable<FileResponse>;
     /**
+     * Receives a list of
+     * @param body (optional) 
+     * @return Success
+     */
+    previewCampaign(body?: PreviewItem[] | undefined): Observable<PreviewItemResult[]>;
+    /**
      * Gets the list of all contacts using the provided Indice.Types.ListOptions.
      * @param filter_DistributionListId (optional) The id of a distribution list.
      * @param filter_RecipientId (optional) The recipientid associated with the contact.
@@ -1411,6 +1417,84 @@ export class MessagesApiClient implements IMessagesApiClient {
             let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result404 = ProblemDetails.fromJS(resultData404);
             return throwException("Not Found", status, _responseText, _headers, result404);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * Receives a list of
+     * @param body (optional) 
+     * @return Success
+     */
+    previewCampaign(body?: PreviewItem[] | undefined): Observable<PreviewItemResult[]> {
+        let url_ = this.baseUrl + "/api/campaigns/preview";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processPreviewCampaign(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processPreviewCampaign(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<PreviewItemResult[]>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<PreviewItemResult[]>;
+        }));
+    }
+
+    protected processPreviewCampaign(response: HttpResponseBase): Observable<PreviewItemResult[]> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            }));
+        } else if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(PreviewItemResult.fromJS(item));
+            }
+            else {
+                result200 = <any>null;
+            }
+            return _observableOf(result200);
             }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
@@ -4993,6 +5077,98 @@ export class Period implements IPeriod {
 export interface IPeriod {
     from?: Date | undefined;
     to?: Date | undefined;
+}
+
+export class PreviewItem implements IPreviewItem {
+    /** A correllation code. */
+    code?: string | undefined;
+    /** The template text. */
+    text?: string | undefined;
+    /** The data to supply in the template. */
+    data?: any | undefined;
+
+    constructor(data?: IPreviewItem) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.code = _data["code"];
+            this.text = _data["text"];
+            this.data = _data["data"];
+        }
+    }
+
+    static fromJS(data: any): PreviewItem {
+        data = typeof data === 'object' ? data : {};
+        let result = new PreviewItem();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["code"] = this.code;
+        data["text"] = this.text;
+        data["data"] = this.data;
+        return data;
+    }
+}
+
+export interface IPreviewItem {
+    /** A correllation code. */
+    code?: string | undefined;
+    /** The template text. */
+    text?: string | undefined;
+    /** The data to supply in the template. */
+    data?: any | undefined;
+}
+
+export class PreviewItemResult implements IPreviewItemResult {
+    /** A correllation code. */
+    code?: string | undefined;
+    text?: string | undefined;
+
+    constructor(data?: IPreviewItemResult) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.code = _data["code"];
+            this.text = _data["text"];
+        }
+    }
+
+    static fromJS(data: any): PreviewItemResult {
+        data = typeof data === 'object' ? data : {};
+        let result = new PreviewItemResult();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["code"] = this.code;
+        data["text"] = this.text;
+        return data;
+    }
+}
+
+export interface IPreviewItemResult {
+    /** A correllation code. */
+    code?: string | undefined;
+    text?: string | undefined;
 }
 
 export class ProblemDetails implements IProblemDetails {

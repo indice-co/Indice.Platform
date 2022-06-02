@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Net.Mime;
 using System.Threading.Tasks;
+using HandlebarsDotNet;
 using Indice.AspNetCore.Filters;
 using Indice.Configuration;
 using Indice.Features.Messages.AspNetCore.Extensions;
@@ -70,6 +72,27 @@ namespace Indice.Features.Messages.AspNetCore.Controllers
         public async Task<IActionResult> GetCampaigns([FromQuery] ListOptions<CampaignListFilter> options) {
             var campaigns = await CampaignService.GetList(options);
             return Ok(campaigns);
+        }
+
+        /// <summary>Receives a list of </summary>
+        /// <param name="items"></param>
+        [ApiExplorerSettings(IgnoreApi = false)]
+        [Consumes(MediaTypeNames.Application.Json)]
+        [HttpPost("preview")]
+        [Produces(MediaTypeNames.Application.Json)]
+        [ProducesResponseType(typeof(IEnumerable<PreviewItemResult>), StatusCodes.Status200OK)]
+        public IActionResult PreviewCampaign([FromBody] IEnumerable<PreviewItem> items) {
+            var itemsResult = new List<PreviewItemResult>();
+            var handlebars = Handlebars.Create();
+            handlebars.Configuration.TextEncoder = new HtmlEncoder();
+            foreach (var item in items) {
+                var resultText = handlebars.Compile(item.Text)(item.Data);
+                itemsResult.Add(new PreviewItemResult { 
+                    Code = item.Code,
+                    Text = resultText
+                });
+            }
+            return Ok(itemsResult);
         }
 
         /// <summary>Gets a campaign with the specified id.</summary>

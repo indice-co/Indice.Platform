@@ -15,9 +15,7 @@ namespace Indice.Features.Messages.Core.Handlers
     /// <summary>Job handler for <see cref="ResolveMessageEvent"/>.</summary>
     public class ResolveMessageHandler : ICampaignJobHandler<ResolveMessageEvent>
     {
-        /// <summary>
-        /// Creates a new instance of <see cref="ResolveMessageHandler"/>.
-        /// </summary>
+        /// <summary>Creates a new instance of <see cref="ResolveMessageHandler"/>.</summary>
         /// <param name="getEventDispatcher">Provides methods that allow application components to communicate with each other by dispatching events.</param>
         /// <param name="contactResolver">Contains information that help gather contact information from other systems.</param>
         /// <param name="contactService">A service that contains contact related operations.</param>

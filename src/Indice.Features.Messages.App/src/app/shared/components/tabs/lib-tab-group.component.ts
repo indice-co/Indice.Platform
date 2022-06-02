@@ -7,6 +7,8 @@ import { LibTabComponent } from './lib-tab.component';
     templateUrl: './lib-tab-group.component.html'
 })
 export class LibTabGroupComponent implements OnInit, AfterContentInit {
+    public ngOnInit(): void { }
+
     public ngAfterContentInit(): void {
         if (!this.tabs) {
             console.warn('Please specify some tabs for lib-tab-group component');
@@ -14,8 +16,6 @@ export class LibTabGroupComponent implements OnInit, AfterContentInit {
         }
         this.tabs.get(0)!.isActive = true;
     }
-
-    public ngOnInit(): void { }
 
     /** The inner tabs of the group. */
     @ContentChildren(LibTabComponent, { descendants: true }) public tabs: QueryList<LibTabComponent> | undefined = undefined;

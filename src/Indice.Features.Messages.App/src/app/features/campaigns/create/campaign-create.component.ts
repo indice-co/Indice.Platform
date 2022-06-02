@@ -3,9 +3,9 @@ import { DatePipe, DOCUMENT } from '@angular/common';
 import { AbstractControl, FormArray, FormControl, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 
-import { MenuOption, ToasterService, ToastType } from '@indice/ng-components';
 import { map } from 'rxjs/operators';
-import { CreateCampaignRequest, MessagesApiClient, MessageChannelKind, MessageTypeResultSet, Period, Hyperlink, Campaign, DistributionListResultSet, TemplateListItemResultSet } from 'src/app/core/services/messages-api.service';
+import { MenuOption, ToasterService, ToastType } from '@indice/ng-components';
+import { CreateCampaignRequest, MessagesApiClient, MessageChannelKind, MessageTypeResultSet, Period, Hyperlink, Campaign, DistributionListResultSet, TemplateListItemResultSet, PreviewItem, PreviewItemResult } from 'src/app/core/services/messages-api.service';
 import { LibStepperComponent } from 'src/app/shared/components/stepper/lib-stepper.component';
 import { StepperType } from 'src/app/shared/components/stepper/types/stepper-type';
 import { StepSelectedEvent } from 'src/app/shared/components/stepper/types/step-selected-event';
@@ -50,6 +50,7 @@ export class CampaignCreateComponent implements OnInit, AfterViewInit {
     public templates: MenuOption[] = [new MenuOption('Παρακαλώ επιλέξτε...', null)];
     public distributionLists: MenuOption[] = [new MenuOption('Παρακαλώ επιλέξτε...', null)];
     public submitInProgress = false;
+    public bodyPreview: string | undefined;
     public get title(): AbstractControl { return this.basicDetailsForm.get('title')!; }
     public get from(): AbstractControl { return this.basicDetailsForm.get('from')!; }
     public get to(): AbstractControl { return this.basicDetailsForm.get('to')!; }
@@ -64,6 +65,7 @@ export class CampaignCreateComponent implements OnInit, AfterViewInit {
     public get distributionList(): AbstractControl { return this.recipientsForm.get('distributionList')!; }
     public get recipientIds(): AbstractControl { return this.recipientsForm.get('recipientIds')!; }
     public get published(): AbstractControl { return this.previewForm.get('published')!; }
+    public get emailBody(): AbstractControl { return this.contentForm.get('emailBody')!; }
     @ViewChild('createCampaignStepper', { static: true }) private _stepper!: LibStepperComponent;
     public StepperType = StepperType;
     public channelsArray = [
@@ -144,6 +146,19 @@ export class CampaignCreateComponent implements OnInit, AfterViewInit {
         this.from.setValue(this._datePipe.transform(event.target.value, 'yyyy-MM-ddThh:mm'));
     }
 
+    public onEmailBodyInput(event: any): void {
+        const value = event.target.value;
+        this.emailBody.setValue(value);
+        const emailData = new PreviewItem({
+            code: '1',
+            text: value,
+            data: this.samplePayload
+        });
+        this._api.previewCampaign([emailData]).subscribe((results: PreviewItemResult[]) => {
+            this.bodyPreview = results[0].text;
+        });
+    }
+
     public onCampaignEndInput(event: any): void {
         this.to.setValue(this._datePipe.transform(event.target.value, 'yyyy-MM-ddThh:mm'));
     }
@@ -178,6 +193,8 @@ export class CampaignCreateComponent implements OnInit, AfterViewInit {
         this.template.updateValueAndValidity();
         this.needsTemplate.setValue(value);
     }
+
+    public onInfoIconClicked() { }
 
     public onChannelCheckboxChange(event: any): void {
         const channelsFormArray: FormArray = this.channels as FormArray;
@@ -287,7 +304,9 @@ export class CampaignCreateComponent implements OnInit, AfterViewInit {
             channels: new FormArray([new FormControl('Inbox')], [Validators.required])
         });
         this.contentForm = new FormGroup({
-            data: new FormControl(undefined, this._validationService.invalidJsonValidator())
+            data: new FormControl(undefined, this._validationService.invalidJsonValidator()),
+            emailSubject: new FormControl(''),
+            emailBody: new FormControl('')
         });
         this.recipientsForm = new FormGroup({
             sendVia: new FormControl('distribution-list'),
