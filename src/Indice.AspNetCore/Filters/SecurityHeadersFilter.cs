@@ -73,7 +73,6 @@ namespace Indice.AspNetCore.Filters
                     }
                     return Task.CompletedTask;
                 });
-                
             }
         }
     }

@@ -3,9 +3,10 @@ import { DatePipe, DOCUMENT } from '@angular/common';
 import { AbstractControl, FormArray, FormControl, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 
+import * as Handlebars from 'handlebars/dist/cjs/handlebars';
 import { map } from 'rxjs/operators';
 import { MenuOption, ToasterService, ToastType } from '@indice/ng-components';
-import { CreateCampaignRequest, MessagesApiClient, MessageChannelKind, MessageTypeResultSet, Period, Hyperlink, Campaign, DistributionListResultSet, TemplateListItemResultSet, PreviewItem, PreviewItemResult } from 'src/app/core/services/messages-api.service';
+import { CreateCampaignRequest, MessagesApiClient, MessageChannelKind, MessageTypeResultSet, Period, Hyperlink, Campaign, DistributionListResultSet, TemplateListItemResultSet } from 'src/app/core/services/messages-api.service';
 import { LibStepperComponent } from 'src/app/shared/components/stepper/lib-stepper.component';
 import { StepperType } from 'src/app/shared/components/stepper/types/stepper-type';
 import { StepSelectedEvent } from 'src/app/shared/components/stepper/types/step-selected-event';
@@ -50,7 +51,8 @@ export class CampaignCreateComponent implements OnInit, AfterViewInit {
     public templates: MenuOption[] = [new MenuOption('Παρακαλώ επιλέξτε...', null)];
     public distributionLists: MenuOption[] = [new MenuOption('Παρακαλώ επιλέξτε...', null)];
     public submitInProgress = false;
-    public bodyPreview: string | undefined;
+    public subjectPreview: string = '';
+    public bodyPreview: string = '';
     public get title(): AbstractControl { return this.basicDetailsForm.get('title')!; }
     public get from(): AbstractControl { return this.basicDetailsForm.get('from')!; }
     public get to(): AbstractControl { return this.basicDetailsForm.get('to')!; }
@@ -66,8 +68,14 @@ export class CampaignCreateComponent implements OnInit, AfterViewInit {
     public get recipientIds(): AbstractControl { return this.recipientsForm.get('recipientIds')!; }
     public get published(): AbstractControl { return this.previewForm.get('published')!; }
     public get emailBody(): AbstractControl { return this.contentForm.get('emailBody')!; }
+    public get emailSubject(): AbstractControl { return this.contentForm.get('emailSubject')!; }
+    public showInboxTab = false;
+    public showPushNotificationTab = false;
+    public showEmailTab = false;
+    public showSmsTab = false;
     @ViewChild('createCampaignStepper', { static: true }) private _stepper!: LibStepperComponent;
     public StepperType = StepperType;
+    public MessageChannelKind = MessageChannelKind;
     public channelsArray = [
         { name: 'Inbox', description: 'Ειδοποίηση μέσω πρoσωπικού μήνυμα.', value: MessageChannelKind.Inbox, checked: true },
         { name: 'Push Notification', description: 'Ειδοποίηση μέσω push notification στις εγγεγραμμένες συσκευές.', value: MessageChannelKind.PushNotification, checked: false },
@@ -90,7 +98,13 @@ export class CampaignCreateComponent implements OnInit, AfterViewInit {
     public get samplePayload(): any {
         return {
             ...this._samplePayload,
-            data: this._currentValidDataObject ? { ...this._currentValidDataObject } : null
+            data: this._currentValidDataObject ? { ...this._currentValidDataObject } : null,
+            actionLink: {
+                href: this.actionLinkHref.value || null,
+                text: this.actionLinkText.value || null
+            },
+            title: this.title.value,
+            type: this.type.value?.text || null
         };
     }
 
@@ -130,7 +144,6 @@ export class CampaignCreateComponent implements OnInit, AfterViewInit {
             title: this.title.value,
             data: this.data.value
         });
-        debugger
         this._api
             .createCampaign(data)
             .subscribe({
@@ -146,17 +159,32 @@ export class CampaignCreateComponent implements OnInit, AfterViewInit {
         this.from.setValue(this._datePipe.transform(event.target.value, 'yyyy-MM-ddThh:mm'));
     }
 
-    public onEmailBodyInput(event: any): void {
+    public onSubjectInput(event: any, channel: MessageChannelKind): void {
         const value = event.target.value;
-        this.emailBody.setValue(value);
-        const emailData = new PreviewItem({
-            code: '1',
-            text: value,
-            data: this.samplePayload
-        });
-        this._api.previewCampaign([emailData]).subscribe((results: PreviewItemResult[]) => {
-            this.bodyPreview = results[0].text;
-        });
+        const template = Handlebars.compile(value);
+        try {
+            this.subjectPreview = template(this.samplePayload);
+        } catch (error) { }
+        switch (channel) {
+            case MessageChannelKind.Email:
+                this.emailSubject.setValue(value);
+                break;
+            default:
+                break;
+        }
+    }
+
+    public onBodyInput(event: any, channel: MessageChannelKind): void {
+        const value = event.target.value;
+        const template = Handlebars.compile(value);
+        this.bodyPreview = template(this.samplePayload);
+        switch (channel) {
+            case MessageChannelKind.Email:
+                this.emailBody.setValue(value);
+                break;
+            default:
+                break;
+        }
     }
 
     public onCampaignEndInput(event: any): void {
@@ -171,6 +199,18 @@ export class CampaignCreateComponent implements OnInit, AfterViewInit {
     }
 
     public onStepperStepChanged(event: StepSelectedEvent) {
+        if (event.selectedIndex === 1) {
+            this.showInboxTab = this.channelsArray.find(x => x.value === MessageChannelKind.Inbox)!.checked;
+            this.showPushNotificationTab = this.channelsArray.find(x => x.value === MessageChannelKind.PushNotification)!.checked;
+            this.emailSubject.removeValidators(Validators.required);
+            this.emailBody.removeValidators(Validators.required);
+            if (this.channelsArray.find(x => x.value === MessageChannelKind.Email)!.checked) {
+                this.showEmailTab = this.channelsArray.find(x => x.value === MessageChannelKind.Email)!.checked;
+                this.emailSubject.setValidators(Validators.required);
+                this.emailBody.setValidators(Validators.required);
+            }
+            this.showSmsTab = this.channelsArray.find(x => x.value === MessageChannelKind.SMS)!.checked;
+        }
         if (event.selectedIndex === 2 && this.distributionLists.length <= 1) {
             this._loadDistributionLists();
         }
@@ -193,8 +233,6 @@ export class CampaignCreateComponent implements OnInit, AfterViewInit {
         this.template.updateValueAndValidity();
         this.needsTemplate.setValue(value);
     }
-
-    public onInfoIconClicked() { }
 
     public onChannelCheckboxChange(event: any): void {
         const channelsFormArray: FormArray = this.channels as FormArray;
