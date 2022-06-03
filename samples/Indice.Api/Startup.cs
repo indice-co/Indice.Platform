@@ -3,6 +3,7 @@ using System.Globalization;
 using System.Linq;
 using Hellang.Middleware.ProblemDetails;
 using Indice.Api.Data;
+using Indice.AspNetCore.Middleware;
 using Indice.Configuration;
 using Indice.Features.Messages.Core;
 using Microsoft.AspNetCore.Builder;
@@ -33,6 +34,7 @@ namespace Indice.Api
         public void ConfigureServices(IServiceCollection services) {
             services.AddMvcConfig(Configuration);
             services.AddCorsConfig(Configuration)
+                    .AddSecurityHeaders()
                     .AddSwaggerConfig(Settings)
                     .AddProblemDetailsConfig(HostingEnvironment)
                     .AddDistributedMemoryCache()
@@ -58,8 +60,8 @@ namespace Indice.Api
                     context.Context.Response.Headers.Append(HeaderNames.Expires, DateTime.UtcNow.AddSeconds(durationInSeconds).ToString("R", CultureInfo.InvariantCulture));
                 }
             };
+            app.UseSecurityHeaders();
             app.UseStaticFiles(staticFileOptions);
-            app.UseHttpsRedirection();
             app.UseCors();
             app.UseRouting();
             app.UseResponseCaching();
@@ -67,6 +69,13 @@ namespace Indice.Api
             app.UseAuthentication();
             app.UseAuthorization();
             if (Configuration.EnableSwaggerUi()) {
+                app.UseWhen(ctx => ctx.Request.Path.StartsWithSegments("/docs"), docsBuilder => {
+                    docsBuilder.UseSecurityHeaders(policy => {
+                        policy.ContentSecurityPolicy.AddScriptSrc(CSP.UnsafeInline)
+                                                    .AddConnectSrc(CSP.Self)
+                                                    .AddConnectSrc("wss:");
+                    });
+                });
                 app.UseSwaggerUI(options => {
                     options.RoutePrefix = "docs";
                     options.SwaggerEndpoint($"/swagger/{MessagesApi.Scope}/swagger.json", MessagesApi.Scope);

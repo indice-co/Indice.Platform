@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Security.Cryptography;
 using System.Text;
 using Indice.AspNetCore.Filters;
+using Indice.AspNetCore.Middleware;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Razor.TagHelpers;
 using Org.BouncyCastle.Crypto.Prng;
@@ -43,9 +44,9 @@ namespace Indice.AspNetCore.TagHelpers
                 List<string> nonceList;
                 var key = string.Empty;
                 if (string.Equals(context.TagName, "script", StringComparison.OrdinalIgnoreCase)) {
-                    key = SecurityHeadersAttribute.CSP_SCRIPT_NONCE_HTTPCONTEXT_KEY;
+                    key = CSP.CSP_SCRIPT_NONCE_HTTPCONTEXT_KEY;
                 } else if (string.Equals(context.TagName, "style", StringComparison.OrdinalIgnoreCase)) {
-                    key = SecurityHeadersAttribute.CSP_STYLE_NONCE_HTTPCONTEXT_KEY;
+                    key = CSP.CSP_STYLE_NONCE_HTTPCONTEXT_KEY;
                 }
                 if (httpContext.Items.ContainsKey(key)) {
                     nonceList = (List<string>)httpContext.Items[key];

@@ -3,6 +3,7 @@ using System.IO;
 using System.Text.RegularExpressions;
 using Azure.Storage.Blobs;
 using Indice.AspNetCore.Filters;
+using Indice.AspNetCore.Middleware;
 using Indice.AspNetCore.TagHelpers;
 using Indice.Configuration;
 using Indice.Services;
@@ -21,14 +22,34 @@ namespace Microsoft.Extensions.DependencyInjection
     public static class ServiceCollectionExtensions
     {
         /// <summary>
-        /// Adds content security policy. See also <see cref="SecurityHeadersAttribute"/> that enables the policy on a specific action.
+        /// Configures content security policy (<strong>Content-Security-Policy</strong> header).<br />
+        /// Configures the use of <see cref="SecurityHeadersMiddleware"/> as well as <br />
+        /// the <seealso cref="SecurityHeadersAttribute"/> (mvc filter that enables the policy on a specific action).
         /// </summary>
         /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
         /// <param name="configureAction"></param>
+        /// <remarks>Better use the more complete version <see cref="AddSecurityHeaders(IServiceCollection, Action{SecurityHeadersPolicy})"/></remarks>
         public static IServiceCollection AddCsp(this IServiceCollection services, Action<CSP> configureAction = null) {
-            var policy = CSP.DefaultPolicy.Clone();
+            var cspPolicy = CSP.DefaultPolicy.Clone();
+            configureAction?.Invoke(cspPolicy);
+            services.AddSecurityHeaders(policy => {
+                policy.ContentSecurityPolicy = cspPolicy;
+            });
+            return services;
+        }
+
+        /// <summary>
+        /// Configures the following header options: <br />
+        /// <strong>Content-Security-Policy</strong>, <strong>X-Frame-Options</strong>, <strong>Referrer-Policy</strong>, <strong>X-Content-Type-Options</strong>. <br />
+        /// Configures the use of <see cref="SecurityHeadersMiddleware"/> as well as <br />
+        /// the <seealso cref="SecurityHeadersAttribute"/> (mvc filter that enables the policy on a specific action).
+        /// </summary>
+        /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
+        /// <param name="configureAction"></param>
+        public static IServiceCollection AddSecurityHeaders(this IServiceCollection services, Action<SecurityHeadersPolicy> configureAction = null) {
+            var policy = new SecurityHeadersPolicy();
             configureAction?.Invoke(policy);
-            services.AddSingleton(policy);
+            services.TryAddSingleton(policy);
             return services;
         }
 
