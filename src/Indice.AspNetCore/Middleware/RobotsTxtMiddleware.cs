@@ -12,7 +12,7 @@ namespace Indice.AspNetCore.Middleware
     /// If not specific file is found it defaults to plain old <em>robots.txt</em>.
     /// </summary>
     /// <remarks>This code is taken from https://khalidabuhakmeh.com/robotstxt-middleware-aspnet-core</remarks>.
-    public class RobotsTxtMiddleware
+    internal class RobotsTxtMiddleware
     {
         const string Default = @"User-Agent: *\nAllow: /";
         private readonly RequestDelegate _next;
