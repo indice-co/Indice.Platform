@@ -6,7 +6,7 @@ import { Router } from '@angular/router';
 import * as Handlebars from 'handlebars/dist/cjs/handlebars';
 import { map } from 'rxjs/operators';
 import { MenuOption, ToasterService, ToastType } from '@indice/ng-components';
-import { CreateCampaignRequest, MessagesApiClient, MessageChannelKind, MessageTypeResultSet, Period, Hyperlink, Campaign, DistributionListResultSet, TemplateListItemResultSet } from 'src/app/core/services/messages-api.service';
+import { CreateCampaignRequest, MessagesApiClient, MessageChannelKind, MessageTypeResultSet, Period, Hyperlink, Campaign, DistributionListResultSet, TemplateListItemResultSet, Template } from 'src/app/core/services/messages-api.service';
 import { LibStepperComponent } from 'src/app/shared/components/stepper/lib-stepper.component';
 import { StepperType } from 'src/app/shared/components/stepper/types/stepper-type';
 import { StepSelectedEvent } from 'src/app/shared/components/stepper/types/step-selected-event';
@@ -200,22 +200,33 @@ export class CampaignCreateComponent implements OnInit, AfterViewInit {
 
     public onStepperStepChanged(event: StepSelectedEvent) {
         if (event.selectedIndex === 1) {
-            this.showInboxTab = this.channelsArray.find(x => x.value === MessageChannelKind.Inbox)!.checked;
-            this.showPushNotificationTab = this.channelsArray.find(x => x.value === MessageChannelKind.PushNotification)!.checked;
-            this.emailSubject.removeValidators(Validators.required);
-            this.emailBody.removeValidators(Validators.required);
-            if (this.channelsArray.find(x => x.value === MessageChannelKind.Email)!.checked) {
-                this.showEmailTab = this.channelsArray.find(x => x.value === MessageChannelKind.Email)!.checked;
+            const selectedTemplate = this.template.value;
+            this._resetTabs();
+            this._resetContentValidators();
+            const showInboxTab = this.channelsArray.find(x => x.value === MessageChannelKind.Inbox)!.checked;
+            const showPushNotificationTab = this.channelsArray.find(x => x.value === MessageChannelKind.PushNotification)!.checked;
+            const showSmsTab = this.channelsArray.find(x => x.value === MessageChannelKind.SMS)!.checked;
+            const showEmailTab = this.channelsArray.find(x => x.value === MessageChannelKind.Email)!.checked;
+            if (selectedTemplate) {
+                this._api.getTemplateById(selectedTemplate.value).subscribe((template: Template) => { });
+            }
+            if (showInboxTab) {
+                this.showInboxTab = true;
+            }
+            if (showPushNotificationTab) {
+                this.showPushNotificationTab = true;
+            }
+            if (showSmsTab) {
+                this.showSmsTab = true;
+            }
+            if (showEmailTab) {
+                this.showEmailTab = true;
                 this.emailSubject.setValidators(Validators.required);
                 this.emailBody.setValidators(Validators.required);
             }
-            this.showSmsTab = this.channelsArray.find(x => x.value === MessageChannelKind.SMS)!.checked;
         }
         if (event.selectedIndex === 2 && this.distributionLists.length <= 1) {
             this._loadDistributionLists();
-        }
-        if (event.selectedIndex == 3) {
-            const x = { ...this.basicDetailsForm.value, ...this.contentForm.value, ...this.recipientsForm.value };
         }
     }
 
@@ -355,4 +366,18 @@ export class CampaignCreateComponent implements OnInit, AfterViewInit {
             published: new FormControl(false)
         })
     }
+
+    private _resetTabs(): void {
+        this.showInboxTab = false;
+        this.showEmailTab = false;
+        this.showPushNotificationTab = false;
+        this.showSmsTab = false;
+    }
+
+    private _resetContentValidators(): void {
+        this.emailSubject.removeValidators(Validators.required);
+        this.emailBody.removeValidators(Validators.required);
+    }
+
+    private _initSecondStep(): void { }
 }
