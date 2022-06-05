@@ -276,7 +276,7 @@ export interface IMessagesApiClient {
      * @param templateId The id of the template.
      * @return OK
      */
-    getTemplateById(templateId: string): Observable<TemplateResultSet>;
+    getTemplateById(templateId: string): Observable<Template>;
 }
 
 @Injectable({
@@ -3235,7 +3235,7 @@ export class MessagesApiClient implements IMessagesApiClient {
      * @param templateId The id of the template.
      * @return OK
      */
-    getTemplateById(templateId: string): Observable<TemplateResultSet> {
+    getTemplateById(templateId: string): Observable<Template> {
         let url_ = this.baseUrl + "/api/templates/{templateId}";
         if (templateId === undefined || templateId === null)
             throw new Error("The parameter 'templateId' must be defined.");
@@ -3257,14 +3257,14 @@ export class MessagesApiClient implements IMessagesApiClient {
                 try {
                     return this.processGetTemplateById(response_ as any);
                 } catch (e) {
-                    return _observableThrow(e) as any as Observable<TemplateResultSet>;
+                    return _observableThrow(e) as any as Observable<Template>;
                 }
             } else
-                return _observableThrow(response_) as any as Observable<TemplateResultSet>;
+                return _observableThrow(response_) as any as Observable<Template>;
         }));
     }
 
-    protected processGetTemplateById(response: HttpResponseBase): Observable<TemplateResultSet> {
+    protected processGetTemplateById(response: HttpResponseBase): Observable<Template> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -3289,7 +3289,7 @@ export class MessagesApiClient implements IMessagesApiClient {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = TemplateResultSet.fromJS(resultData200);
+            result200 = Template.fromJS(resultData200);
             return _observableOf(result200);
             }));
         } else if (status === 404) {
@@ -5279,54 +5279,6 @@ export class TemplateListItemResultSet implements ITemplateListItemResultSet {
 export interface ITemplateListItemResultSet {
     count?: number;
     items?: TemplateListItem[] | undefined;
-}
-
-export class TemplateResultSet implements ITemplateResultSet {
-    count?: number;
-    items?: Template[] | undefined;
-
-    constructor(data?: ITemplateResultSet) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.count = _data["count"];
-            if (Array.isArray(_data["items"])) {
-                this.items = [] as any;
-                for (let item of _data["items"])
-                    this.items!.push(Template.fromJS(item));
-            }
-        }
-    }
-
-    static fromJS(data: any): TemplateResultSet {
-        data = typeof data === 'object' ? data : {};
-        let result = new TemplateResultSet();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["count"] = this.count;
-        if (Array.isArray(this.items)) {
-            data["items"] = [];
-            for (let item of this.items)
-                data["items"].push(item.toJSON());
-        }
-        return data;
-    }
-}
-
-export interface ITemplateResultSet {
-    count?: number;
-    items?: Template[] | undefined;
 }
 
 export class UpdateAppSettingRequest implements IUpdateAppSettingRequest {

@@ -1,4 +1,4 @@
-import { AfterViewInit, ChangeDetectorRef, Component, Inject, OnInit, ViewChild } from '@angular/core';
+import { AfterViewChecked, AfterViewInit, ChangeDetectorRef, Component, Inject, OnInit, ViewChild } from '@angular/core';
 import { DatePipe, DOCUMENT } from '@angular/common';
 import { AbstractControl, FormArray, FormControl, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -12,24 +12,18 @@ import { StepperType } from 'src/app/shared/components/stepper/types/stepper-typ
 import { StepSelectedEvent } from 'src/app/shared/components/stepper/types/step-selected-event';
 import { UtilitiesService } from 'src/app/shared/utilities.service';
 import { ValidationService } from 'src/app/core/services/validation.service';
+import { LibTabComponent } from 'src/app/shared/components/tabs/lib-tab.component';
+import { LibTabGroupComponent } from 'src/app/shared/components/tabs/lib-tab-group.component';
 
 @Component({
     selector: 'app-campaign-create',
     templateUrl: './campaign-create.component.html'
 })
-export class CampaignCreateComponent implements OnInit, AfterViewInit {
-    constructor(
-        private _api: MessagesApiClient,
-        private _router: Router,
-        private _changeDetector: ChangeDetectorRef,
-        private _datePipe: DatePipe,
-        private _validationService: ValidationService,
-        private _utilities: UtilitiesService,
-        @Inject(ToasterService) private _toaster: ToasterService,
-        @Inject(DOCUMENT) private _document: Document
-    ) { }
-
+export class CampaignCreateComponent implements OnInit, AfterViewChecked {
+    @ViewChild('createCampaignStepper', { static: true }) private _stepper!: LibStepperComponent;
+    @ViewChild('tabGroup', { static: true }) private _tabGroup!: LibTabGroupComponent;
     private _currentValidDataObject: any = undefined;
+    private _contentStepInitialized: boolean = false;
     private _samplePayload: any = {
         contact: {
             id: 'FA24F7D6-332F-4E17-8E43-A111DB32E7CC',
@@ -42,6 +36,18 @@ export class CampaignCreateComponent implements OnInit, AfterViewInit {
             phoneNumber: '(212)-456-7890'
         }
     };
+
+    constructor(
+        private _api: MessagesApiClient,
+        private _router: Router,
+        private _changeDetector: ChangeDetectorRef,
+        private _datePipe: DatePipe,
+        private _validationService: ValidationService,
+        private _utilities: UtilitiesService,
+        @Inject(ToasterService) private _toaster: ToasterService,
+        @Inject(DOCUMENT) private _document: Document
+    ) { }
+
     public now: Date = new Date();
     public basicDetailsForm!: FormGroup;
     public contentForm!: FormGroup;
@@ -67,13 +73,18 @@ export class CampaignCreateComponent implements OnInit, AfterViewInit {
     public get distributionList(): AbstractControl { return this.recipientsForm.get('distributionList')!; }
     public get recipientIds(): AbstractControl { return this.recipientsForm.get('recipientIds')!; }
     public get published(): AbstractControl { return this.previewForm.get('published')!; }
+    public get inboxBody(): AbstractControl { return this.contentForm.get('inboxBody')!; }
+    public get inboxSubject(): AbstractControl { return this.contentForm.get('inboxSubject')!; }
     public get emailBody(): AbstractControl { return this.contentForm.get('emailBody')!; }
     public get emailSubject(): AbstractControl { return this.contentForm.get('emailSubject')!; }
+    public get pushNotificationBody(): AbstractControl { return this.contentForm.get('pushNotificationBody')!; }
+    public get pushNotificationSubject(): AbstractControl { return this.contentForm.get('pushNotificationSubject')!; }
+    public get smsBody(): AbstractControl { return this.contentForm.get('smsBody')!; }
+    public get smsSubject(): AbstractControl { return this.contentForm.get('smsSubject')!; }
     public showInboxTab = false;
     public showPushNotificationTab = false;
     public showEmailTab = false;
     public showSmsTab = false;
-    @ViewChild('createCampaignStepper', { static: true }) private _stepper!: LibStepperComponent;
     public StepperType = StepperType;
     public MessageChannelKind = MessageChannelKind;
     public channelsArray = [
@@ -117,7 +128,7 @@ export class CampaignCreateComponent implements OnInit, AfterViewInit {
         this._loadMessageTypes();
     }
 
-    public ngAfterViewInit(): void {
+    public ngAfterViewChecked(): void {
         this._changeDetector.detectChanges();
     }
 
@@ -160,31 +171,11 @@ export class CampaignCreateComponent implements OnInit, AfterViewInit {
     }
 
     public onSubjectInput(event: any, channel: MessageChannelKind): void {
-        const value = event.target.value;
-        const template = Handlebars.compile(value);
-        try {
-            this.subjectPreview = template(this.samplePayload);
-        } catch (error) { }
-        switch (channel) {
-            case MessageChannelKind.Email:
-                this.emailSubject.setValue(value);
-                break;
-            default:
-                break;
-        }
+        this._setContentSubject(event.target.value, channel, true);
     }
 
     public onBodyInput(event: any, channel: MessageChannelKind): void {
-        const value = event.target.value;
-        const template = Handlebars.compile(value);
-        this.bodyPreview = template(this.samplePayload);
-        switch (channel) {
-            case MessageChannelKind.Email:
-                this.emailBody.setValue(value);
-                break;
-            default:
-                break;
-        }
+        this._setContentBody(event.target.value, channel, true);
     }
 
     public onCampaignEndInput(event: any): void {
@@ -200,34 +191,35 @@ export class CampaignCreateComponent implements OnInit, AfterViewInit {
 
     public onStepperStepChanged(event: StepSelectedEvent) {
         if (event.selectedIndex === 1) {
-            const selectedTemplate = this.template.value;
-            this._resetTabs();
-            this._resetContentValidators();
-            const showInboxTab = this.channelsArray.find(x => x.value === MessageChannelKind.Inbox)!.checked;
-            const showPushNotificationTab = this.channelsArray.find(x => x.value === MessageChannelKind.PushNotification)!.checked;
-            const showSmsTab = this.channelsArray.find(x => x.value === MessageChannelKind.SMS)!.checked;
-            const showEmailTab = this.channelsArray.find(x => x.value === MessageChannelKind.Email)!.checked;
-            if (selectedTemplate) {
-                this._api.getTemplateById(selectedTemplate.value).subscribe((template: Template) => { });
-            }
-            if (showInboxTab) {
-                this.showInboxTab = true;
-            }
-            if (showPushNotificationTab) {
-                this.showPushNotificationTab = true;
-            }
-            if (showSmsTab) {
-                this.showSmsTab = true;
-            }
-            if (showEmailTab) {
-                this.showEmailTab = true;
-                this.emailSubject.setValidators(Validators.required);
-                this.emailBody.setValidators(Validators.required);
-            }
+            this._initSecondStep();
         }
         if (event.selectedIndex === 2 && this.distributionLists.length <= 1) {
             this._loadDistributionLists();
         }
+    }
+
+    public onContentTabChanged(tab: LibTabComponent): void {
+        let subject, body = '';
+        switch (tab.id) {
+            case 'inbox-tab':
+                subject = this.inboxSubject.value;
+                body = this.inboxBody.value;
+                break;
+            case 'push-notification-tab':
+                subject = this.pushNotificationSubject.value;
+                body = this.pushNotificationBody.value;
+                break;
+            case 'email-tab':
+                subject = this.emailSubject.value;
+                body = this.emailBody.value;
+                break;
+            case 'sms-tab':
+                subject = this.smsSubject.value;
+                body = this.smsBody.value;
+                break;
+        }
+        this._setContentSubjectPreview(subject);
+        this._setContentBodyPreview(body);
     }
 
     public onNeedsTemplateChanged(event: any): void {
@@ -301,6 +293,176 @@ export class CampaignCreateComponent implements OnInit, AfterViewInit {
         return recipientIds ? recipientIds.join('\n') : '';
     }
 
+    private _initForms(): void {
+        this.basicDetailsForm = new FormGroup({
+            title: new FormControl(undefined, [
+                Validators.required,
+                Validators.maxLength(128)
+            ]),
+            from: new FormControl(this._datePipe.transform(this.now, 'yyyy-MM-ddThh:mm')),
+            to: new FormControl(),
+            actionLinkText: new FormControl(undefined, [Validators.maxLength(128)]),
+            actionLinkHref: new FormControl(undefined, [
+                Validators.pattern(/^(?:http(s)?:\/\/)?[\w.-]+(?:\.[\w\.-]+)+[\w\-\._~:?#[\]@!\$&'\(\)\*\+,;=.]+$/),
+                Validators.maxLength(2048)
+            ]),
+            type: new FormControl(),
+            template: new FormControl(),
+            needsTemplate: new FormControl('no'),
+            channels: new FormArray([new FormControl('Inbox')], [Validators.required])
+        });
+        this.contentForm = new FormGroup({
+            data: new FormControl(undefined, this._validationService.invalidJsonValidator()),
+            emailSubject: new FormControl(''),
+            emailBody: new FormControl(''),
+            inboxSubject: new FormControl(''),
+            inboxBody: new FormControl(''),
+            smsSubject: new FormControl(''),
+            smsBody: new FormControl(''),
+            pushNotificationSubject: new FormControl(''),
+            pushNotificationBody: new FormControl('')
+        });
+        this.recipientsForm = new FormGroup({
+            sendVia: new FormControl('distribution-list'),
+            distributionList: new FormControl(undefined, [Validators.required]),
+            recipientIds: new FormControl()
+        });
+        this.previewForm = new FormGroup({
+            published: new FormControl(false)
+        })
+    }
+
+    private _initSecondStep(): void {
+        if (this._contentStepInitialized) {
+            return;
+        }
+        this._contentStepInitialized = true;
+        const selectedTemplate = this.template.value;
+        this._resetTabs();
+        this._resetContentValidators();
+        const showInboxTab = this.channelsArray.find(x => x.value === MessageChannelKind.Inbox)!.checked;
+        const showPushNotificationTab = this.channelsArray.find(x => x.value === MessageChannelKind.PushNotification)!.checked;
+        const showSmsTab = this.channelsArray.find(x => x.value === MessageChannelKind.SMS)!.checked;
+        const showEmailTab = this.channelsArray.find(x => x.value === MessageChannelKind.Email)!.checked;
+        if (selectedTemplate) {
+            this._api.getTemplateById(selectedTemplate.value).subscribe((template: Template) => {
+                this._setContent(template);
+            });
+        }
+        if (showInboxTab) {
+            this.showInboxTab = true;
+            this.inboxSubject.setValidators(Validators.required);
+            this.inboxBody.setValidators(Validators.required);
+        }
+        if (showPushNotificationTab) {
+            this.showPushNotificationTab = true;
+            this.pushNotificationSubject.setValidators(Validators.required);
+            this.pushNotificationBody.setValidators(Validators.required);
+        }
+        if (showSmsTab) {
+            this.showSmsTab = true;
+            this.smsSubject.setValidators(Validators.required);
+            this.smsBody.setValidators(Validators.required);
+        }
+        if (showEmailTab) {
+            this.showEmailTab = true;
+            this.emailSubject.setValidators(Validators.required);
+            this.emailBody.setValidators(Validators.required);
+        }
+    }
+
+    private _setContent(template: Template | undefined): void {
+        if (!template) {
+            return;
+        }
+        this._setContentSubject(template.content?.inbox?.title, MessageChannelKind.Inbox, this._tabGroup.currentTab?.id === 'inbox-tab');
+        this._setContentBody(template.content?.inbox?.body, MessageChannelKind.Inbox, this._tabGroup.currentTab?.id === 'inbox-tab');
+        this._setContentSubject(template.content?.email?.title, MessageChannelKind.Email, this._tabGroup.currentTab?.id === 'email-tab');
+        this._setContentBody(template.content?.email?.body, MessageChannelKind.Email, this._tabGroup.currentTab?.id === 'email-tab');
+        this._setContentSubject(template.content?.sms?.title, MessageChannelKind.SMS, this._tabGroup.currentTab?.id === 'sms-tab');
+        this._setContentBody(template.content?.sms?.body, MessageChannelKind.SMS, this._tabGroup.currentTab?.id === 'sms-tab');
+        this._setContentSubject(template.content?.pushNotification?.title, MessageChannelKind.PushNotification, this._tabGroup.currentTab?.id === 'push-notification-tab');
+        this._setContentBody(template.content?.pushNotification?.body, MessageChannelKind.PushNotification, this._tabGroup.currentTab?.id === 'push-notification-tab');
+    }
+
+    private _setContentSubject(value: string | undefined, channel: MessageChannelKind, preview: boolean = false): void {
+        if (!value) {
+            return;
+        }
+        if (preview) {
+            this._setContentSubjectPreview(value);
+        }
+        switch (channel) {
+            case MessageChannelKind.Email:
+                this.emailSubject.setValue(value);
+                break;
+            case MessageChannelKind.SMS:
+                this.smsSubject.setValue(value);
+                break;
+            case MessageChannelKind.PushNotification:
+                this.pushNotificationSubject.setValue(value);
+                break;
+            case MessageChannelKind.Inbox:
+                this.inboxSubject.setValue(value);
+                break;
+        }
+    }
+
+    private _setContentBody(value: string | undefined, channel: MessageChannelKind, preview: boolean = false): void {
+        if (!value) {
+            return;
+        }
+        if (preview) {
+            this._setContentBodyPreview(value);
+        }
+        switch (channel) {
+            case MessageChannelKind.Email:
+                this.emailBody.setValue(value);
+                break;
+            case MessageChannelKind.SMS:
+                this.smsBody.setValue(value);
+                break;
+            case MessageChannelKind.PushNotification:
+                this.pushNotificationBody.setValue(value);
+                break;
+            case MessageChannelKind.Inbox:
+                this.inboxBody.setValue(value);
+                break;
+        }
+    }
+
+    private _setContentSubjectPreview(value: string | undefined): void {
+        try {
+            const template = Handlebars.compile(value);
+            this.subjectPreview = template(this.samplePayload);
+        } catch (error) { }
+    }
+
+    private _setContentBodyPreview(value: string | undefined): void {
+        try {
+            const template = Handlebars.compile(value);
+            this.bodyPreview = template(this.samplePayload);
+        } catch (error) { }
+    }
+
+    private _resetTabs(): void {
+        this.showInboxTab = false;
+        this.showEmailTab = false;
+        this.showPushNotificationTab = false;
+        this.showSmsTab = false;
+    }
+
+    private _resetContentValidators(): void {
+        this.smsSubject.removeValidators(Validators.required);
+        this.smsBody.removeValidators(Validators.required);
+        this.emailSubject.removeValidators(Validators.required);
+        this.emailBody.removeValidators(Validators.required);
+        this.pushNotificationSubject.removeValidators(Validators.required);
+        this.pushNotificationBody.removeValidators(Validators.required);
+        this.inboxSubject.removeValidators(Validators.required);
+        this.inboxBody.removeValidators(Validators.required);
+    }
+
     private _loadMessageTypes(): void {
         this._api
             .getMessageTypes()
@@ -333,51 +495,4 @@ export class CampaignCreateComponent implements OnInit, AfterViewInit {
             }))
             .subscribe();
     }
-
-    private _initForms(): void {
-        this.basicDetailsForm = new FormGroup({
-            title: new FormControl(undefined, [
-                Validators.required,
-                Validators.maxLength(128)
-            ]),
-            from: new FormControl(this._datePipe.transform(this.now, 'yyyy-MM-ddThh:mm')),
-            to: new FormControl(),
-            actionLinkText: new FormControl(undefined, [Validators.maxLength(128)]),
-            actionLinkHref: new FormControl(undefined, [
-                Validators.pattern(/^(?:http(s)?:\/\/)?[\w.-]+(?:\.[\w\.-]+)+[\w\-\._~:?#[\]@!\$&'\(\)\*\+,;=.]+$/),
-                Validators.maxLength(2048)
-            ]),
-            type: new FormControl(),
-            template: new FormControl(),
-            needsTemplate: new FormControl('no'),
-            channels: new FormArray([new FormControl('Inbox')], [Validators.required])
-        });
-        this.contentForm = new FormGroup({
-            data: new FormControl(undefined, this._validationService.invalidJsonValidator()),
-            emailSubject: new FormControl(''),
-            emailBody: new FormControl('')
-        });
-        this.recipientsForm = new FormGroup({
-            sendVia: new FormControl('distribution-list'),
-            distributionList: new FormControl(undefined, [Validators.required]),
-            recipientIds: new FormControl()
-        });
-        this.previewForm = new FormGroup({
-            published: new FormControl(false)
-        })
-    }
-
-    private _resetTabs(): void {
-        this.showInboxTab = false;
-        this.showEmailTab = false;
-        this.showPushNotificationTab = false;
-        this.showSmsTab = false;
-    }
-
-    private _resetContentValidators(): void {
-        this.emailSubject.removeValidators(Validators.required);
-        this.emailBody.removeValidators(Validators.required);
-    }
-
-    private _initSecondStep(): void { }
 }

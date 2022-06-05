@@ -1,13 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using Indice.AspNetCore.Middleware;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.AspNetCore.Builder
 {
     /// <summary>
-    ///Extension methods On the <see cref="IApplicationBuilder"/>.
+    /// Extension methods on the <see cref="IApplicationBuilder"/>.
     /// Adds the Security Headers Policy for the following headers in the response.<br />
     /// <strong>Content-Security-Policy</strong>, <strong>X-Frame-Options</strong>, <strong>Referrer-Policy</strong>, <strong>X-Content-Type-Options</strong>.
     /// </summary>
@@ -20,15 +18,15 @@ namespace Microsoft.AspNetCore.Builder
         public static IApplicationBuilder UseSecurityHeaders(this IApplicationBuilder builder, Action<SecurityHeadersPolicy> configurePolicy = null) {
             var policy = builder.ApplicationServices.GetService<SecurityHeadersPolicy>();
             policy = policy is not null ? new SecurityHeadersPolicy {
-                    ContentSecurityPolicy = policy.ContentSecurityPolicy.Clone(),
-                    ReferrerPolicy = policy.ReferrerPolicy,
-                    XContentTypeOptions = policy.XContentTypeOptions,
-                    XFrameOptions = policy.XFrameOptions,
-                } : new SecurityHeadersPolicy();
+                ContentSecurityPolicy = policy.ContentSecurityPolicy.Clone(),
+                ReferrerPolicy = policy.ReferrerPolicy,
+                XContentTypeOptions = policy.XContentTypeOptions,
+                XFrameOptions = policy.XFrameOptions,
+            } : new SecurityHeadersPolicy();
             configurePolicy?.Invoke(policy);
             builder.UseMiddleware<SecurityHeadersMiddleware>(policy);
             return builder;
         }
-            
+
     }
 }

@@ -15,30 +15,34 @@ import { LibTabGroupComponent } from './lib-tab-group.component';
 })
 export class LibTabComponent implements OnInit {
     private _isActive: boolean = false;
-    private _uuid: string;
 
     constructor(
         @Inject(forwardRef(() => LibTabGroupComponent)) private _tabGroup: LibTabGroupComponent
-    ) {
-        this._uuid = uuid.v4();
-    }
+    ) { }
 
     /** The content provided for the tab. */
     @ViewChild(TemplateRef, { static: true }) public content!: TemplateRef<any>;
     /** A label for the tab header. */
     @Input() public label: string | undefined;
+    /** Indicates the unique id assigned in the tab. */
+    @Input() public id!: string;
 
-    public get id(): string {
-        return this._uuid;
+    /** Indicates the index of the tab. */
+    public get index(): number | undefined {
+        return this._tabGroup.tabs?.toArray().indexOf(this) || undefined;
     }
 
+    /** Indicates whether the tab is active. */
     public get isActive(): boolean {
         return this._isActive;
     }
 
+    /** Setter for LibTabComponent isActive property. */
     public set isActive(isActive: boolean) {
         this._isActive = isActive;
     }
 
-    public ngOnInit(): void { }
+    public ngOnInit(): void {
+        this.id = this.id || uuid.v4();
+    }
 }

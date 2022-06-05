@@ -4,7 +4,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { BaseListComponent, Icons, IResultSet, ListViewType, MenuOption, ModalService, ToasterService, ToastType, ViewAction } from '@indice/ng-components';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { MessagesApiClient, Template, TemplateResultSet } from 'src/app/core/services/messages-api.service';
+import { MessagesApiClient, Template, TemplateListItemResultSet } from 'src/app/core/services/messages-api.service';
 import { BasicModalComponent } from 'src/app/shared/components/basic-modal/basic-modal.component';
 
 @Component({
@@ -38,7 +38,7 @@ export class TemplatesComponent extends BaseListComponent<Template> implements O
     public loadItems(): Observable<IResultSet<Template> | null | undefined> {
         return this._api
             .getTemplates(this.page, this.pageSize, this.sortdir === 'asc' ? this.sort! : this.sort + '-', this.search || undefined)
-            .pipe(map((result: TemplateResultSet) => (result as IResultSet<Template>)));
+            .pipe(map((result: TemplateListItemResultSet) => (result as IResultSet<Template>)));
     }
 
     public deleteConfirmation(template: Template): void {
