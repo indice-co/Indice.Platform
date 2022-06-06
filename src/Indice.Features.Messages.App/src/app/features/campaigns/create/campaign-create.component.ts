@@ -6,7 +6,7 @@ import { Router } from '@angular/router';
 import * as Handlebars from 'handlebars/dist/cjs/handlebars';
 import { map } from 'rxjs/operators';
 import { MenuOption, ToasterService, ToastType } from '@indice/ng-components';
-import { CreateCampaignRequest, MessagesApiClient, MessageChannelKind, MessageTypeResultSet, Period, Hyperlink, Campaign, DistributionListResultSet, TemplateListItemResultSet, Template } from 'src/app/core/services/messages-api.service';
+import { CreateCampaignRequest, MessagesApiClient, MessageChannelKind, MessageTypeResultSet, Period, Hyperlink, Campaign, DistributionListResultSet, TemplateListItemResultSet, Template, MessageContent } from 'src/app/core/services/messages-api.service';
 import { LibStepperComponent } from 'src/app/shared/components/stepper/lib-stepper.component';
 import { StepperType } from 'src/app/shared/components/stepper/types/stepper-type';
 import { StepSelectedEvent } from 'src/app/shared/components/stepper/types/step-selected-event';
@@ -139,22 +139,8 @@ export class CampaignCreateComponent implements OnInit, AfterViewChecked {
             return;
         }
         this.submitInProgress = true;
-        const data = new CreateCampaignRequest({
-            actionLink: new Hyperlink({
-                href: this.actionLinkHref.value,
-                text: this.actionLinkText.value
-            }),
-            activePeriod: new Period({
-                from: this.from.value,
-                to: this.to.value
-            }),
-            isGlobal: true,
-            messageChannelKind: this.channels.value,
-            published: false,
-            templateId: undefined,
-            title: this.title.value,
-            data: this.data.value
-        });
+        const data = this._prepareDataToSubmit();
+        debugger
         this._api
             .createCampaign(data)
             .subscribe({
@@ -164,6 +150,58 @@ export class CampaignCreateComponent implements OnInit, AfterViewChecked {
                     this._toaster.show(ToastType.Success, 'Επιτυχής αποθήκευση', `Η καμπάνια με τίτλο '${campaign.title}' δημιουργήθηκε με επιτυχία.`);
                 }
             });
+    }
+
+    private _prepareDataToSubmit(): CreateCampaignRequest {
+        const data = new CreateCampaignRequest({
+            actionLink: new Hyperlink({
+                href: this.actionLinkHref.value,
+                text: this.actionLinkText.value
+            }),
+            activePeriod: new Period({
+                from: this.from.value ? new Date(this.from.value) : undefined,
+                to: this.to.value ? new Date(this.to.value) : undefined
+            }),
+            isGlobal: this.sendVia.value === 'user-base',
+            messageChannelKind: this.channels.value,
+            published: this.published.value,
+            templateId: undefined,
+            title: this.title.value,
+            data: this.data.value,
+            typeId: this.type.value?.value || undefined,
+            recipientIds: this.recipientIds.value,
+            recipientListId: this.distributionList.value?.value || undefined,
+            content: {}
+        });
+        for (const channel of this.channels.value) {
+            switch (channel) {
+                case MessageChannelKind.Inbox:
+                    data.content![channel] = new MessageContent({
+                        title: this.inboxSubject.value,
+                        body: this.inboxBody.value
+                    });
+                    break;
+                case MessageChannelKind.Email:
+                    data.content![channel] = new MessageContent({
+                        title: this.emailSubject.value,
+                        body: this.emailBody.value
+                    });
+                    break;
+                case MessageChannelKind.PushNotification:
+                    data.content![channel] = new MessageContent({
+                        title: this.pushNotificationSubject.value,
+                        body: this.pushNotificationBody.value
+                    });
+                    break;
+                case MessageChannelKind.SMS:
+                    data.content![channel] = new MessageContent({
+                        title: this.smsSubject.value,
+                        body: this.smsBody.value
+                    });
+                    break;
+            }
+        }
+        return data;
     }
 
     public onCampaignStartInput(event: any): void {
@@ -259,13 +297,13 @@ export class CampaignCreateComponent implements OnInit, AfterViewChecked {
 
     public onSendViaChanged(event: any): void {
         const value = event.target.value;
+        this.recipientIds.removeValidators(Validators.required);
+        this.distributionList.removeValidators(Validators.required);
         if (value === 'distribution-list') {
             this.distributionList.setValidators(Validators.required);
-            this.recipientIds.removeValidators(Validators.required);
             this.recipientIds.setValue(null);
-        } else {
+        } else if (value === 'recipient-ids') {
             this.recipientIds.setValidators(Validators.required);
-            this.distributionList.removeValidators(Validators.required);
             this.distributionList.setValue(null);
         }
         this.distributionList.updateValueAndValidity();

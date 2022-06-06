@@ -93,6 +93,20 @@ namespace Indice.Api
                     options.OAuthScopeSeparator(" ");
                 });
             }
+            app.UseWhen(httpContext => httpContext.Request.Path.StartsWithSegments("/messages"), messagesBuilder => {
+                messagesBuilder.UseSecurityHeaders(policy => {
+                    var csp = policy.ContentSecurityPolicy
+                                    .AddScriptSrc(CSP.UnsafeInline)
+                                    .AddConnectSrc(CSP.Self)
+                                    .AddConnectSrc("https://indice-identity.azurewebsites.net")
+                                    .AddFrameSrc("https://indice-identity.azurewebsites.net")
+                                    .AddSandbox("allow-popups")
+                                    .AddFontSrc("data:");
+                    if (HostingEnvironment.IsDevelopment()) {
+                        csp.AddConnectSrc("wss:");
+                    }
+                });
+            });
             app.UseCampaignsUI(options => {
                 options.Path = "messages";
                 options.ClientId = "backoffice-ui";

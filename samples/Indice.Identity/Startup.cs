@@ -112,7 +112,7 @@ namespace Indice.Identity
                        .AddFontSrc(CSP.Data)
                        .AddConnectSrc(CSP.Self)
                        .AddConnectSrc("https://dc.services.visualstudio.com")
-                       .AddConnectSrc("https://switzerlandnorth-0.in.applicationinsights.azure.com//v2/track")
+                       .AddConnectSrc("https://switzerlandnorth-0.in.applicationinsights.azure.com")
                        .AddFrameAncestors("https://localhost:2002");
             });
             services.AddPlatformEventHandler<DeviceDeletedEvent, DeviceDeletedEventHandler>();
