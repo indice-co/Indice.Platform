@@ -40,6 +40,7 @@ namespace Indice.Services.Tests
                 (FilterClause)"data.displayName::contains::κων",
                 (FilterClause)$"data.period.to::gt::(DateTime){DateTime.Now:yyyy-MM-dd}",
                 (FilterClause)"metadata.NAME::eq::Thanos",
+                //(FilterClause)"data.enabled::eq::(boolean)true",
                 //(FilterClause)"name::eq::Κωνσταντίνος",
             };
             var query = dbContext.Dummies.Where(filters);
@@ -57,6 +58,7 @@ namespace Indice.Services.Tests
             results = await query.ToResultSetAsync(new ListOptions { Sort = "(datetime)data.period.from+" });
             results = await query.ToResultSetAsync(new ListOptions { Sort = "(datetime)data.birthDate-" });
             results = await query.ToResultSetAsync(new ListOptions { Sort = "(number)data.Balance-" });
+            results = await query.ToResultSetAsync(new ListOptions { Sort = "(boolean)data.enabled-" });
             Assert.True(true);
         }
 
