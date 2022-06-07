@@ -56,7 +56,7 @@ namespace Indice.Features.Messages.AspNetCore.Controllers
         /// <response code="200">OK</response>
         /// <response code="404">Not Found</response>
         [HttpGet("{templateId:guid}")]
-        [ProducesResponseType(typeof(ResultSet<Template>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(Template), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(void), StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetTemplateById([FromRoute] Guid templateId) {
             var template = await TemplateService.GetById(templateId);

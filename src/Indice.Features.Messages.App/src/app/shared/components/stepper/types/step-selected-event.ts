@@ -1,6 +1,6 @@
 import { LibStepComponent } from '../lib-step.component';
 
-/** Change event emitted on selection changes. */
+/** Change event emitted on step changes. */
 export class StepSelectedEvent {
     /** Index of the step now selected. */
     public selectedIndex!: number;

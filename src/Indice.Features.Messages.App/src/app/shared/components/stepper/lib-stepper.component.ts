@@ -25,13 +25,14 @@ export class LibStepperComponent implements OnInit {
     public StepState = StepState;
     public StepperType = StepperType;
 
+    /** The current wizard step. */
+    public get currentStep(): LibStepComponent | undefined {
+        return this.steps?.get(this._currentStepIndex);
+    }
+
     /** The index (starting from zero) of the current wizard step. */
     public get currentStepIndex(): number {
         return this._currentStepIndex;
-    }
-
-    public get currentStep(): LibStepComponent | undefined {
-        return this.steps?.get(this._currentStepIndex);
     }
 
     public ngOnInit(): void { }

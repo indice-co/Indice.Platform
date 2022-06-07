@@ -1,34 +1,27 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
+using System.Net.Mime;
 using System.Threading.Tasks;
 using Indice.AspNetCore.Middleware;
 
 namespace Microsoft.AspNetCore.Http
 {
-    /// <summary>
-    /// Extension methods on <see cref="HttpContext"/> regarding the application of <see cref="SecurityHeadersPolicy"/>
-    /// </summary>
+    /// <summary>Extension methods on <see cref="HttpContext"/> regarding the application of <see cref="SecurityHeadersPolicy"/>.</summary>
     public static class SecurityHeadersHttpContextExtensions
     {
-
-        /// <summary>
-        /// Applies the security headers policy for 
-        /// </summary>
+        /// <summary>Applies the security headers policy for the current request.</summary>
         /// <param name="httpContext"></param>
         /// <param name="requestPolicy"></param>
-        /// <returns></returns>
         public static HttpContext ApplySecurityHeaders(this HttpContext httpContext, SecurityHeadersPolicy requestPolicy = null) {
             requestPolicy ??= (SecurityHeadersPolicy)httpContext.RequestServices.GetService(typeof(SecurityHeadersPolicy));
             httpContext.Response.OnStarting(() => {
-                var isHtmlDocument = httpContext.Response.ContentType.StartsWith("text/html");
                 if (requestPolicy.HasXContentTypeOptions && !httpContext.Response.Headers.ContainsKey("X-Content-Type-Options")) {
                     httpContext.Response.Headers.Add("X-Content-Type-Options", requestPolicy.XContentTypeOptions);
                 }
                 if (requestPolicy.HasXFrameOptions && !httpContext.Response.Headers.ContainsKey("X-Frame-Options")) {
                     httpContext.Response.Headers.Add("X-Frame-Options", requestPolicy.XFrameOptions);
                 }
-                if (isHtmlDocument) {
+                var isHtmlDocument = httpContext.Response.ContentType?.StartsWith(MediaTypeNames.Text.Html);
+                if (isHtmlDocument == true) {
                     var cspPolicy = requestPolicy.ContentSecurityPolicy?.Clone() ?? CSP.DefaultPolicy.Clone();
                     if (httpContext.Items.ContainsKey(CSP.CSP_SCRIPT_NONCE_HTTPCONTEXT_KEY)) {
                         var nonceList = (List<string>)httpContext.Items[CSP.CSP_SCRIPT_NONCE_HTTPCONTEXT_KEY];
@@ -56,7 +49,6 @@ namespace Microsoft.AspNetCore.Http
                 }
                 return Task.CompletedTask;
             });
-
             return httpContext;
         }
     }

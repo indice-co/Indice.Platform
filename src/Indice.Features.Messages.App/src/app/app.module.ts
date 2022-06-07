@@ -39,11 +39,11 @@ import { MessageTypeEditComponent } from './features/message-types/edit/message-
 import { MessageTypesComponent } from './features/message-types/message-types.component';
 import { PageIllustrationComponent } from './shared/components/page-illustration/page-illustration.component';
 import { RadioButtonsListComponent } from './shared/components/radio-buttons-list/radio-buttons-list.component';
+import { SafePipe } from './shared/pipes/safe.pipe';
 import { ShellConfig } from './shell.config';
 import { TemplatesComponent } from './features/templates/templates.component';
 import { ToggleButtonComponent } from './shared/components/toggle-button/toggle-button.component';
 import * as app from 'src/app/core/models/settings';
-import { SafePipe } from './shared/pipes/safe.pipe';
 
 @NgModule({
   declarations: [
