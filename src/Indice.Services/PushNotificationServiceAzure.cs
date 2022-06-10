@@ -89,9 +89,11 @@ namespace Indice.Services
                 throw new ArgumentNullException(nameof(title));
             }
             var notification = new Dictionary<string, string> {
-                { "message", title },
-                { "body", body }
+                { "message", title }
             };
+            if (string.IsNullOrWhiteSpace(body)) {
+                notification.Add("body", body);
+            }
             if (!string.IsNullOrEmpty(data)) {
                 notification.Add("data", data);
             }

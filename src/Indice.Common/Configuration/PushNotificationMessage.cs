@@ -49,7 +49,7 @@ namespace Indice.Services
         /// <param name="classification">The type of the push notification.</param>
         public PushNotificationMessage(string title, string body, string token, string data, string userTag, string[] tags, string classification) {
             Title = title ?? throw new ArgumentNullException(nameof(title));
-            Body = body ?? throw new ArgumentNullException(nameof(body));
+            Body = body;
             Token = token;
             Data = data;
             UserTag = userTag ?? throw new ArgumentNullException(nameof(userTag));
