@@ -1,9 +1,9 @@
 import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
 
+import { ComboboxComponent } from '@indice/ng-components';
 import { forkJoin } from 'rxjs';
 import { Contact, ContactResultSet, CreateDistributionListContactRequest, MessagesApiClient } from 'src/app/core/services/messages-api.service';
-import { ComboboxComponent } from 'src/app/shared/components/combobox/combobox.component';
 
 @Component({
     selector: 'app-distribution-list-contact-create',

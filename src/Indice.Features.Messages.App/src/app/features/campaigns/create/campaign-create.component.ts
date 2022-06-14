@@ -5,15 +5,13 @@ import { Router } from '@angular/router';
 
 import * as Handlebars from 'handlebars/dist/cjs/handlebars';
 import { map } from 'rxjs/operators';
-import { MenuOption, ToasterService, ToastType } from '@indice/ng-components';
+import { LibTabComponent, LibTabGroupComponent, MenuOption, ToasterService, ToastType } from '@indice/ng-components';
 import { CreateCampaignRequest, MessagesApiClient, MessageChannelKind, MessageTypeResultSet, Period, Hyperlink, Campaign, DistributionListResultSet, TemplateListItemResultSet, Template, MessageContent } from 'src/app/core/services/messages-api.service';
+import { UtilitiesService } from 'src/app/shared/utilities.service';
+import { ValidationService } from 'src/app/core/services/validation.service';
 import { LibStepperComponent } from 'src/app/shared/components/stepper/lib-stepper.component';
 import { StepperType } from 'src/app/shared/components/stepper/types/stepper-type';
 import { StepSelectedEvent } from 'src/app/shared/components/stepper/types/step-selected-event';
-import { UtilitiesService } from 'src/app/shared/utilities.service';
-import { ValidationService } from 'src/app/core/services/validation.service';
-import { LibTabComponent } from 'src/app/shared/components/tabs/lib-tab.component';
-import { LibTabGroupComponent } from 'src/app/shared/components/tabs/lib-tab-group.component';
 
 @Component({
     selector: 'app-campaign-create',

@@ -17,7 +17,6 @@ import { CampaignsComponent } from './features/campaigns/campaigns.component';
 import { CampaignsDetailsComponent } from './features/campaigns/manage/details/campaigns-details.component';
 import { CampaignsManageComponent } from './features/campaigns/manage/campaigns-manage.component';
 import { CampaignsRemoveComponent } from './features/campaigns/manage/remove/campaigns-remove.component';
-import { ComboboxComponent } from './shared/components/combobox/combobox.component';
 import { DashboardComponent } from './features/dashboard/dashboard.component';
 import { DistributionListContactCreateComponent } from './features/distribution-lists/contacts/create/distribution-list-contact-create.component';
 import { DistributionListContactsComponent } from './features/distribution-lists/contacts/distribution-list-contacts.component';
@@ -29,8 +28,6 @@ import { LibStepComponent } from './shared/components/stepper/lib-step.component
 import { LibStepInfo } from './shared/components/stepper/lib-step-info.directive';
 import { LibStepLabel } from './shared/components/stepper/lib-step-label.directive';
 import { LibStepperComponent } from './shared/components/stepper/lib-stepper.component';
-import { LibTabComponent } from './shared/components/tabs/lib-tab.component';
-import { LibTabGroupComponent } from './shared/components/tabs/lib-tab-group.component';
 import { LocalDropDownMenuComponent } from './shared/components/drop-down-menu/drop-down-menu.component';
 import { LogOutComponent } from './core/services/logout/logout.component';
 import { MESSAGES_API_BASE_URL } from './core/services/messages-api.service';
@@ -55,7 +52,6 @@ import * as app from 'src/app/core/models/settings';
     CampaignsDetailsComponent,
     CampaignsManageComponent,
     CampaignsRemoveComponent,
-    ComboboxComponent,
     DashboardComponent,
     DistributionListContactCreateComponent,
     DistributionListContactsComponent,
@@ -67,8 +63,6 @@ import * as app from 'src/app/core/models/settings';
     LibStepInfo,
     LibStepLabel,
     LibStepperComponent,
-    LibTabComponent,
-    LibTabGroupComponent,
     LocalDropDownMenuComponent,
     LogOutComponent,
     MessageTypeCreateComponent,
@@ -87,7 +81,7 @@ import * as app from 'src/app/core/models/settings';
     FormsModule,
     HttpClientModule,
     IndiceAuthModule,
-    IndiceComponentsModule,
+    IndiceComponentsModule.forRoot(),
     ReactiveFormsModule
   ],
   providers: [
