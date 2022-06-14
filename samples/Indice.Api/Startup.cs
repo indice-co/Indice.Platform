@@ -74,7 +74,7 @@ namespace Indice.Api
                         var csp = policy.ContentSecurityPolicy
                                         .AddScriptSrc(CSP.UnsafeInline)
                                         .AddConnectSrc(CSP.Self)
-                                        .AddConnectSrc("https://indice-identity.azurewebsites.net")
+                                        .AddConnectSrc(Settings.Authority)
                                         .AddSandbox("allow-popups");
                         if (HostingEnvironment.IsDevelopment()) {
                             csp.AddConnectSrc("wss:");
@@ -98,8 +98,8 @@ namespace Indice.Api
                     var csp = policy.ContentSecurityPolicy
                                     .AddScriptSrc(CSP.UnsafeInline)
                                     .AddConnectSrc(CSP.Self)
-                                    .AddConnectSrc("https://indice-identity.azurewebsites.net")
-                                    .AddFrameSrc("https://indice-identity.azurewebsites.net")
+                                    .AddConnectSrc(Settings.Authority)
+                                    .AddFrameSrc(Settings.Authority)
                                     .AddSandbox("allow-popups")
                                     .AddFontSrc("data:");
                     if (HostingEnvironment.IsDevelopment()) {

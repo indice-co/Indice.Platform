@@ -6,7 +6,7 @@ export const environment = {
   api_url: 'https://localhost:2001', // https://indice-notifications.azurewebsites.net
   auth_settings: {
     accessTokenExpiringNotificationTime: 60,
-    authority: 'https://indice-identity.azurewebsites.net',
+    authority: 'https://identity.indice.gr',
     automaticSilentRenew: true,
     client_id: 'backoffice-ui',
     filterProtocolClaims: true,
