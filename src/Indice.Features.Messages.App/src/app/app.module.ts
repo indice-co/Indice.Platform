@@ -24,10 +24,6 @@ import { DistributionListCreateComponent } from './features/distribution-lists/c
 import { DistributionListEditComponent } from './features/distribution-lists/edit/distribution-list-edit.component';
 import { DistributionListsComponent } from './features/distribution-lists/distribution-lists.component';
 import { HomeComponent } from './features/home/home.component';
-import { LibStepComponent } from './shared/components/stepper/lib-step.component';
-import { LibStepInfo } from './shared/components/stepper/lib-step-info.directive';
-import { LibStepLabel } from './shared/components/stepper/lib-step-label.directive';
-import { LibStepperComponent } from './shared/components/stepper/lib-stepper.component';
 import { LocalDropDownMenuComponent } from './shared/components/drop-down-menu/drop-down-menu.component';
 import { LogOutComponent } from './core/services/logout/logout.component';
 import { MESSAGES_API_BASE_URL } from './core/services/messages-api.service';
@@ -59,10 +55,6 @@ import * as app from 'src/app/core/models/settings';
     DistributionListEditComponent,
     DistributionListsComponent,
     HomeComponent,
-    LibStepComponent,
-    LibStepInfo,
-    LibStepLabel,
-    LibStepperComponent,
     LocalDropDownMenuComponent,
     LogOutComponent,
     MessageTypeCreateComponent,

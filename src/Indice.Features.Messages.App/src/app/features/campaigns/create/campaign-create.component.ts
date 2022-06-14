@@ -1,17 +1,15 @@
-import { AfterViewChecked, AfterViewInit, ChangeDetectorRef, Component, Inject, OnInit, ViewChild } from '@angular/core';
+import { AfterViewChecked, ChangeDetectorRef, Component, Inject, OnInit, ViewChild } from '@angular/core';
 import { DatePipe, DOCUMENT } from '@angular/common';
-import { AbstractControl, FormArray, FormControl, FormGroup, Validators } from '@angular/forms';
+import { AbstractControl, UntypedFormArray, UntypedFormControl, UntypedFormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 
-import * as Handlebars from 'handlebars/dist/cjs/handlebars';
+import { LibStepperComponent, LibTabComponent, LibTabGroupComponent, MenuOption, StepperType, ToasterService, ToastType } from '@indice/ng-components';
 import { map } from 'rxjs/operators';
-import { LibTabComponent, LibTabGroupComponent, MenuOption, ToasterService, ToastType } from '@indice/ng-components';
+import { StepSelectedEvent } from '@indice/ng-components/lib/controls/stepper/types/step-selected-event';
+import * as Handlebars from 'handlebars/dist/cjs/handlebars';
 import { CreateCampaignRequest, MessagesApiClient, MessageChannelKind, MessageTypeResultSet, Period, Hyperlink, Campaign, DistributionListResultSet, TemplateListItemResultSet, Template, MessageContent } from 'src/app/core/services/messages-api.service';
 import { UtilitiesService } from 'src/app/shared/utilities.service';
 import { ValidationService } from 'src/app/core/services/validation.service';
-import { LibStepperComponent } from 'src/app/shared/components/stepper/lib-stepper.component';
-import { StepperType } from 'src/app/shared/components/stepper/types/stepper-type';
-import { StepSelectedEvent } from 'src/app/shared/components/stepper/types/step-selected-event';
 
 @Component({
     selector: 'app-campaign-create',
@@ -47,10 +45,10 @@ export class CampaignCreateComponent implements OnInit, AfterViewChecked {
     ) { }
 
     public now: Date = new Date();
-    public basicDetailsForm!: FormGroup;
-    public contentForm!: FormGroup;
-    public recipientsForm!: FormGroup;
-    public previewForm!: FormGroup;
+    public basicDetailsForm!: UntypedFormGroup;
+    public contentForm!: UntypedFormGroup;
+    public recipientsForm!: UntypedFormGroup;
+    public previewForm!: UntypedFormGroup;
     public messageTypes: MenuOption[] = [new MenuOption('Παρακαλώ επιλέξτε...', null)];
     public templates: MenuOption[] = [new MenuOption('Παρακαλώ επιλέξτε...', null)];
     public distributionLists: MenuOption[] = [new MenuOption('Παρακαλώ επιλέξτε...', null)];
@@ -274,11 +272,11 @@ export class CampaignCreateComponent implements OnInit, AfterViewChecked {
     }
 
     public onChannelCheckboxChange(event: any): void {
-        const channelsFormArray: FormArray = this.channels as FormArray;
+        const channelsFormArray: UntypedFormArray = this.channels as UntypedFormArray;
         const value = event.target.value;
         const checkbox = this.channelsArray.find(x => x.value === value);
         if (event.target.checked) {
-            channelsFormArray.push(new FormControl(value));
+            channelsFormArray.push(new UntypedFormControl(value));
             checkbox!.checked = true;
         } else {
             let i: number = 0;
@@ -312,9 +310,9 @@ export class CampaignCreateComponent implements OnInit, AfterViewChecked {
     public onTemplateSelectionChanged(event: any): void {
         if (event.value) {
             this.template.setValue(event);
-            const channelsFormArray: FormArray = this.channels as FormArray;
+            const channelsFormArray: UntypedFormArray = this.channels as UntypedFormArray;
             channelsFormArray.clear();
-            event.data.forEach((channel: string) => channelsFormArray.push(new FormControl(channel)));
+            event.data.forEach((channel: string) => channelsFormArray.push(new UntypedFormControl(channel)));
             this.channelsArray.forEach((channel: any) => channel.checked = this.channels.value.indexOf(channel.value) > -1);
         } else {
             this.template.setValue(null);
@@ -330,41 +328,41 @@ export class CampaignCreateComponent implements OnInit, AfterViewChecked {
     }
 
     private _initForms(): void {
-        this.basicDetailsForm = new FormGroup({
-            title: new FormControl(undefined, [
+        this.basicDetailsForm = new UntypedFormGroup({
+            title: new UntypedFormControl(undefined, [
                 Validators.required,
                 Validators.maxLength(128)
             ]),
-            from: new FormControl(this._datePipe.transform(this.now, 'yyyy-MM-ddThh:mm')),
-            to: new FormControl(),
-            actionLinkText: new FormControl(undefined, [Validators.maxLength(128)]),
-            actionLinkHref: new FormControl(undefined, [
+            from: new UntypedFormControl(this._datePipe.transform(this.now, 'yyyy-MM-ddThh:mm')),
+            to: new UntypedFormControl(),
+            actionLinkText: new UntypedFormControl(undefined, [Validators.maxLength(128)]),
+            actionLinkHref: new UntypedFormControl(undefined, [
                 Validators.pattern(/^(?:http(s)?:\/\/)?[\w.-]+(?:\.[\w\.-]+)+[\w\-\._~:?#[\]@!\$&'\(\)\*\+,;=.]+$/),
                 Validators.maxLength(2048)
             ]),
-            type: new FormControl(),
-            template: new FormControl(),
-            needsTemplate: new FormControl('no'),
-            channels: new FormArray([new FormControl('Inbox')], [Validators.required])
+            type: new UntypedFormControl(),
+            template: new UntypedFormControl(),
+            needsTemplate: new UntypedFormControl('no'),
+            channels: new UntypedFormArray([new UntypedFormControl('Inbox')], [Validators.required])
         });
-        this.contentForm = new FormGroup({
-            data: new FormControl(undefined, this._validationService.invalidJsonValidator()),
-            emailSubject: new FormControl(''),
-            emailBody: new FormControl(''),
-            inboxSubject: new FormControl(''),
-            inboxBody: new FormControl(''),
-            smsSubject: new FormControl(''),
-            smsBody: new FormControl(''),
-            pushNotificationSubject: new FormControl(''),
-            pushNotificationBody: new FormControl('')
+        this.contentForm = new UntypedFormGroup({
+            data: new UntypedFormControl(undefined, this._validationService.invalidJsonValidator()),
+            emailSubject: new UntypedFormControl(''),
+            emailBody: new UntypedFormControl(''),
+            inboxSubject: new UntypedFormControl(''),
+            inboxBody: new UntypedFormControl(''),
+            smsSubject: new UntypedFormControl(''),
+            smsBody: new UntypedFormControl(''),
+            pushNotificationSubject: new UntypedFormControl(''),
+            pushNotificationBody: new UntypedFormControl('')
         });
-        this.recipientsForm = new FormGroup({
-            sendVia: new FormControl('distribution-list'),
-            distributionList: new FormControl(undefined, [Validators.required]),
-            recipientIds: new FormControl()
+        this.recipientsForm = new UntypedFormGroup({
+            sendVia: new UntypedFormControl('distribution-list'),
+            distributionList: new UntypedFormControl(undefined, [Validators.required]),
+            recipientIds: new UntypedFormControl()
         });
-        this.previewForm = new FormGroup({
-            published: new FormControl(false)
+        this.previewForm = new UntypedFormGroup({
+            published: new UntypedFormControl(false)
         })
     }
 
