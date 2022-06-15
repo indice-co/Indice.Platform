@@ -1,4 +1,4 @@
-<lib-side-view-layout title="Δημιουργία νέας καμπάνιας" class="large" [cancel-show]="false" [ok-close-dialog]="false" [ok-label]="okLabel" (ok)="onSideViewOk()" [disabled]="createCampaignStepper.currentStep?.isValid === false"
+<lib-side-view-layout title="Δημιουργία νέας καμπάνιας" [cancel-show]="false" [ok-close-dialog]="false" [ok-label]="okLabel" (ok)="onSideViewOk()" [disabled]="createCampaignStepper.currentStep?.isValid === false"
     #sideViewLayout>
     <div class="mt-4">
         <lib-stepper [linear]="true" [type]="StepperType.PanelsWithBorder" (stepChanged)="onStepperStepChanged($event)" #createCampaignStepper>
