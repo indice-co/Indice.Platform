@@ -57,6 +57,23 @@ namespace Indice.AspNetCore.Tests
                 It.Is<EmailAttachment[]>(attachments => attachments.Count() == 0)
             ), Times.Once);
         }
+
+        [Fact]
+        public async Task Can_Send_Email_Without_Template() {
+            const string STATIC_BODY = "<!DOCTYPE html><html><head><title>Page Title</title></head><body><p>Hello my friend!</p></body></html>";
+            var emailServiceMock = new Mock<IEmailService>();
+            await emailServiceMock.Object.SendAsync(messageBuilder => messageBuilder
+                .To("g.manoltzas@indice.gr")
+                .WithSubject("Verification")
+                .WithBody(STATIC_BODY)
+            );
+            emailServiceMock.Verify(p => p.SendAsync(
+                It.Is<string[]>(recipients => recipients[0] == "g.manoltzas@indice.gr"),
+                It.Is<string>(subject => subject == "Verification"),
+                It.Is<string>(body => body == STATIC_BODY),
+                It.Is<EmailAttachment[]>(attachments => attachments.Count() == 0)
+            ), Times.Once);
+        }
     }
 
     public class EmailModel
