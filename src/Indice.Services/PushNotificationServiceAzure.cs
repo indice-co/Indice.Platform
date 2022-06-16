@@ -91,7 +91,7 @@ namespace Indice.Services
             var notification = new Dictionary<string, string> {
                 { "message", title }
             };
-            if (string.IsNullOrWhiteSpace(body)) {
+            if (!string.IsNullOrWhiteSpace(body)) {
                 notification.Add("body", body);
             }
             if (!string.IsNullOrEmpty(data)) {
