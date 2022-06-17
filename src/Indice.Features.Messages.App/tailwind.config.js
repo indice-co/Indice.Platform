@@ -2,13 +2,10 @@ const enablePurge = process.env.ENABLE_PURGE || true;
 
 module.exports = {
     mode: 'jit',
-    purge: {
-        enabled: enablePurge,
-        content: [
-            './src/**/*.{html,ts,css,scss}',
-            './node_modules/@indice/ng-components/_styles.css'
-        ]
-    },
+    content: [
+        './src/**/*.{html,ts,css,scss}',
+        './node_modules/@indice/ng-components/_styles.css'
+    ],
     theme: {
         extend: {},
     },

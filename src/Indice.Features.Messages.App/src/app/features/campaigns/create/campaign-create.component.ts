@@ -367,10 +367,6 @@ export class CampaignCreateComponent implements OnInit, AfterViewChecked {
     }
 
     private _initSecondStep(): void {
-        if (this._contentStepInitialized) {
-            return;
-        }
-        this._contentStepInitialized = true;
         const selectedTemplate = this.template.value;
         this._resetTabs();
         this._resetContentValidators();
@@ -378,11 +374,6 @@ export class CampaignCreateComponent implements OnInit, AfterViewChecked {
         const showPushNotificationTab = this.channelsArray.find(x => x.value === MessageChannelKind.PushNotification)!.checked;
         const showSmsTab = this.channelsArray.find(x => x.value === MessageChannelKind.SMS)!.checked;
         const showEmailTab = this.channelsArray.find(x => x.value === MessageChannelKind.Email)!.checked;
-        if (selectedTemplate) {
-            this._api.getTemplateById(selectedTemplate.value).subscribe((template: Template) => {
-                this._setContent(template);
-            });
-        }
         if (showInboxTab) {
             this.showInboxTab = true;
             this.inboxSubject.setValidators(Validators.required);
@@ -402,6 +393,16 @@ export class CampaignCreateComponent implements OnInit, AfterViewChecked {
             this.showEmailTab = true;
             this.emailSubject.setValidators(Validators.required);
             this.emailBody.setValidators(Validators.required);
+        }
+        debugger
+        if (this._contentStepInitialized) {
+            return;
+        }
+        this._contentStepInitialized = true;
+        if (selectedTemplate) {
+            this._api.getTemplateById(selectedTemplate.value).subscribe((template: Template) => {
+                this._setContent(template);
+            });
         }
     }
 

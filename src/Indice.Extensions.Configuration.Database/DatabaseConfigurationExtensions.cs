@@ -35,7 +35,6 @@ namespace Indice.Extensions.Configuration
                 if (!result.Succedded) {
                     throw new ArgumentException(result.Error);
                 }
-
                 configurationBuilder.Add(new EntityConfigurationSource<TContext>(options));
             })
             .ConfigureServices((context, services) => {
