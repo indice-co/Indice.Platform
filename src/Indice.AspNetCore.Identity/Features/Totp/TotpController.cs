@@ -1,8 +1,8 @@
 ﻿using System;
-using System.ComponentModel.DataAnnotations;
 using System.Net.Mime;
 using System.Threading.Tasks;
 using Indice.AspNetCore.Identity.Api.Security;
+using Indice.AspNetCore.Identity.Features.Totp.Models;
 using Indice.Security;
 using Indice.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -12,19 +12,9 @@ using Microsoft.Extensions.Localization;
 
 namespace Indice.AspNetCore.Identity.Features
 {
-    /// <response code="204">No Content</response>
-    /// <response code="400">Bad Request</response>
     /// <response code="401">Unauthorized</response>
     /// <response code="403">Forbidden</response>
-    /// <response code="404">Not found</response>
-    /// <response code="405">Method Not Allowed</response>
-    /// <response code="406">Not Acceptable</response>
-    /// <response code="408">Request Timeout</response>
-    /// <response code="409">Conflict</response>
-    /// <response code="415">Unsupported Media Type</response>
-    /// <response code="429">Too Many Requests</response>
     /// <response code="500">Internal Server Error</response>
-    /// <response code="503">Service Unavailable</response>
     [Route("totp")]
     [ApiController]
     [Authorize(Policy = IdentityServerApi.Scope)]
@@ -43,10 +33,8 @@ namespace Indice.AspNetCore.Identity.Features
         public ITotpService TotpService { get; }
         public IStringLocalizer<TotpController> Localizer { get; }
 
-        /// <summary>
-        /// Sends a new code via the selected channel.
-        /// </summary>
-        /// <param name="request"></param>
+        /// <summary>Sends a new code via the selected channel.</summary>
+        /// <param name="request">The request object.</param>
         [HttpPost]
         [ProducesResponseType(statusCode: StatusCodes.Status204NoContent, type: typeof(void))]
         [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest, type: typeof(ValidationProblemDetails))]
@@ -95,10 +83,8 @@ namespace Indice.AspNetCore.Identity.Features
             return NoContent();
         }
 
-        /// <summary>
-        /// Verify the code received.
-        /// </summary>
-        /// <param name="request"></param>
+        /// <summary>Verify the code received.</summary>
+        /// <param name="request">The request object.</param>
         [HttpPut]
         [ProducesResponseType(statusCode: StatusCodes.Status204NoContent, type: typeof(void))]
         [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest, type: typeof(ValidationProblemDetails))]
@@ -117,56 +103,5 @@ namespace Indice.AspNetCore.Identity.Features
             }
             return NoContent();
         }
-    }
-
-    /// <summary>
-    /// Request object used by an authenticated user in order to get a new Time base one time access token via one of the supported MFA mechanisms
-    /// </summary>
-    public class TotpRequest
-    {
-        /// <summary>
-        /// Delivery channel. 
-        /// </summary>
-        [Required]
-        public TotpDeliveryChannel Channel { get; set; }
-        /// <summary>
-        /// Optionally pass the reason to generate the TOTP.
-        /// </summary>
-        public string Purpose { get; set; }
-        /// <summary>
-        /// The message to be sent in the SMS/Viber or PushNotification. It's important for the message to contain the {0} placeholder in the position where the OTP should be placed.
-        /// In the case of <see cref="TotpDeliveryChannel.PushNotification"/> the {0} placeholder can be avoided so the message will be User Friendly in the Push Notification. The
-        /// {0} placeholder should be placed inside the <see cref="Data"/>.
-        /// </summary>
-        public string Message { get; set; }
-        /// <summary>
-        /// The payload data in json string to be sent in the Push Notification.It's important for the data to contain the {0} placeholder in the position where the OTP should be placed.
-        /// </summary>
-        public string Data { get; set; }
-        /// <summary>
-        /// The type of the Push Notification.
-        /// <remarks>This applies only for <see cref="TotpDeliveryChannel.PushNotification"/>.</remarks>
-        /// </summary>
-        public string Classification { get; set; }
-    }
-
-    /// <summary>
-    /// Verification request object.
-    /// </summary>
-    public class TotpVerificationRequest
-    {
-        /// <summary>
-        /// The Totp code.
-        /// </summary>
-        [Required]
-        public string Code { get; set; }
-        /// <summary>
-        /// Optionaly pass the provider to use to verify. Defaults to DefaultPhoneProvider.
-        /// </summary>
-        public TotpProviderType? Provider { get; set; }
-        /// <summary>
-        /// Optionaly pass the reason used to generate the TOTP.
-        /// </summary>
-        public string Purpose { get; set; }
     }
 }

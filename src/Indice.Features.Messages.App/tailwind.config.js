@@ -7,7 +7,10 @@ module.exports = {
         './node_modules/@indice/ng-components/_styles.css'
     ],
     theme: {
-        extend: {},
+        extend: {
+            border: ['focus'],
+            opacity: ['disabled']
+        }
     },
     variants: {},
     plugins: [

@@ -3,9 +3,7 @@ using Indice.Types;
 
 namespace Indice.Features.Messages.Core.Manager.Commands
 {
-    /// <summary>
-    /// The command model used to create a new campaign using <see cref="NotificationsManager"/>.
-    /// </summary>
+    /// <summary>The command model used to create a new campaign using <see cref="NotificationsManager"/>.</summary>
     public class CreateCampaignCommand
     {
         /// <summary>
