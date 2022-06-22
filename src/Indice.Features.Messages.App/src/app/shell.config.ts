@@ -1,4 +1,4 @@
-import { IShellConfig } from '@indice/ng-components';
+import { IShellConfig, ShellLayoutType } from '@indice/ng-components';
 
 export class ShellConfig implements IShellConfig {
     public appLogo = 'assets/images/branding/indice.png';
@@ -10,4 +10,5 @@ export class ShellConfig implements IShellConfig {
     public showHeader = true;
     public showNotifications = false;
     public showUserNameOnHeader = false;
+    public layout = ShellLayoutType.Stacked;
 }

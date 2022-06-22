@@ -195,7 +195,7 @@ namespace Indice.Features.Messages.Core.Models
             Published = request.Published,
             RecipientIds = request.RecipientIds,
             Recipients = request.Recipients,
-            TemplateId = request.TemplateId,
+            //TemplateId = request.TemplateId,
             Title = request.Title,
             Type = request.TypeId.HasValue ? new MessageType { Id = request.TypeId.Value } : null
         };
@@ -211,7 +211,7 @@ namespace Indice.Features.Messages.Core.Models
             Published = command.Published,
             RecipientIds = command.RecipientIds,
             Recipients = command.Recipients,
-            TemplateId = command.TemplateId,
+            //TemplateId = command.TemplateId,
             Title = command.Title,
             TypeId = command.Type?.Id
         };

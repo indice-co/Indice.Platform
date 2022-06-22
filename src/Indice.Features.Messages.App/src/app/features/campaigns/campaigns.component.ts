@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 
-import { BaseListComponent, Icons, IResultSet, ListViewType, MenuOption, ViewAction } from '@indice/ng-components';
+import { BaseListComponent, Icons, IResultSet, ListViewType, MenuOption, RouterViewAction, ViewAction } from '@indice/ng-components';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { Campaign, CampaignResultSet, MessagesApiClient } from 'src/app/core/services/messages-api.service';
@@ -29,11 +29,12 @@ export class CampaignsComponent extends BaseListComponent<Campaign> implements O
         ];
     }
 
-    public newItemLink: string | null = 'create-campaign';
+    public newItemLink: string | null = null;
     public full = true;
 
     public ngOnInit(): void {
         super.ngOnInit();
+        this.actions.push(new RouterViewAction(Icons.Add, 'campaigns/add', null, null));
     }
 
     public loadItems(): Observable<IResultSet<Campaign> | null | undefined> {

@@ -2,7 +2,7 @@ import { CampaignsRemoveComponent } from './features/campaigns/manage/remove/cam
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 
-import { AuthCallbackComponent, AuthRenewComponent, PageNotFoundComponent, SidePaneSize } from '@indice/ng-components';
+import { AuthCallbackComponent, AuthRenewComponent, PageNotFoundComponent } from '@indice/ng-components';
 import { AuthGuardService } from '@indice/ng-auth';
 import { CampaignCreateComponent } from './features/campaigns/create/campaign-create.component';
 import { CampaignsComponent } from './features/campaigns/campaigns.component';
@@ -31,6 +31,7 @@ const routes: Routes = [
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
       { path: 'dashboard', component: DashboardComponent },
       { path: 'campaigns', component: CampaignsComponent },
+      { path: 'campaigns/add', component: CampaignCreateComponent },
       {
         path: 'campaigns/:campaignId', component: CampaignsManageComponent, pathMatch: 'prefix', children: [
           { path: '', pathMatch: 'full', redirectTo: 'details' },
@@ -44,7 +45,6 @@ const routes: Routes = [
       { path: 'templates', component: TemplatesComponent }
     ]
   },
-  { path: 'create-campaign', canActivate: [AuthGuardService], component: CampaignCreateComponent, outlet: 'rightpane', pathMatch: 'prefix' },
   { path: 'create-message-type', canActivate: [AuthGuardService], component: MessageTypeCreateComponent, outlet: 'rightpane', pathMatch: 'prefix' },
   { path: 'edit-message-type/:messageTypeId', canActivate: [AuthGuardService], component: MessageTypeEditComponent, outlet: 'rightpane', pathMatch: 'prefix' },
   { path: 'create-distribution-list', canActivate: [AuthGuardService], component: DistributionListCreateComponent, outlet: 'rightpane', pathMatch: 'prefix' },

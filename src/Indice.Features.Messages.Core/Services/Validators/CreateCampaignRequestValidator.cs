@@ -27,20 +27,20 @@ namespace Indice.Features.Messages.Core.Services.Validators
             RuleFor(campaign => campaign.Content)
                 .Must(content => content.Count > 0)
                 .WithMessage("Please provide content for the campaign.")
-                .When(campaign => !campaign.TemplateId.HasValue && campaign.Published) // Content property must not be empty when the campaign is Published and a TemplateId is not provided at the same time.
+                //.When(campaign => !campaign.TemplateId.HasValue && campaign.Published) // Content property must not be empty when the campaign is Published and a TemplateId is not provided at the same time.
                 .Must(HaveContentAccordingToChannelKind)
                 .WithMessage("Please provide content for all defined channels of the campaign.")
                 .When(campaign => campaign.Content.Count > 0);
-            RuleFor(campaign => campaign.TemplateId)
-                .NotNull()
-                .WithMessage("Please provide a template for the campaign.")
-                .When(campaign => campaign.Content?.Count == 0 && campaign.Published) // TemplateId property must not be empty when the campaign is Published and Content is not provided at the same time.
-                .MustAsync(BeExistingTemplateId)
-                .When(campaign => campaign.TemplateId.HasValue) // Check that TemplateId is valid, when it is provided.
-                .WithMessage("Specified template id is not valid.")
-                .MustAsync(HaveTemplateAccordingToChannelKind)
-                .WithMessage("Please select a template that has content for all defined channels of the campaign.")
-                .When(campaign => campaign.TemplateId.HasValue);
+            //RuleFor(campaign => campaign.TemplateId)
+            //    .NotNull()
+            //    .WithMessage("Please provide a template for the campaign.")
+            //    .When(campaign => campaign.Content?.Count == 0 && campaign.Published) // TemplateId property must not be empty when the campaign is Published and Content is not provided at the same time.
+            //    .MustAsync(BeExistingTemplateId)
+            //    .When(campaign => campaign.TemplateId.HasValue) // Check that TemplateId is valid, when it is provided.
+            //    .WithMessage("Specified template id is not valid.")
+            //    .MustAsync(HaveTemplateAccordingToChannelKind)
+            //    .WithMessage("Please select a template that has content for all defined channels of the campaign.")
+            //    .When(campaign => campaign.TemplateId.HasValue);
             RuleFor(campaign => campaign.RecipientIds)
                 .Must(recipientIds => recipientIds?.Count == 0)
                 .When(campaign => campaign.IsGlobal) // RecipientIds property must be empty when campaign is global.

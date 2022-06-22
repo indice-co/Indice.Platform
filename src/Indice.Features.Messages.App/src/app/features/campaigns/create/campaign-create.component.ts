@@ -1,5 +1,5 @@
 import { AfterViewChecked, ChangeDetectorRef, Component, Inject, OnInit, ViewChild } from '@angular/core';
-import { DatePipe, DOCUMENT } from '@angular/common';
+import { DatePipe } from '@angular/common';
 import { AbstractControl, UntypedFormArray, UntypedFormControl, UntypedFormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 
@@ -40,8 +40,7 @@ export class CampaignCreateComponent implements OnInit, AfterViewChecked {
         private _datePipe: DatePipe,
         private _validationService: ValidationService,
         private _utilities: UtilitiesService,
-        @Inject(ToasterService) private _toaster: ToasterService,
-        @Inject(DOCUMENT) private _document: Document
+        @Inject(ToasterService) private _toaster: ToasterService
     ) { }
 
     public now: Date = new Date();
@@ -116,10 +115,6 @@ export class CampaignCreateComponent implements OnInit, AfterViewChecked {
     }
 
     public ngOnInit(): void {
-        setTimeout(() => {
-            const sidePane = this._document.getElementsByClassName('side-pane-box-size')[0] as HTMLElement;
-            sidePane.style.maxWidth = '84rem';
-        }, 0);
         this._initForms();
         this._loadMessageTypes();
     }
@@ -136,7 +131,7 @@ export class CampaignCreateComponent implements OnInit, AfterViewChecked {
         }
         this.submitInProgress = true;
         const data = this._prepareDataToSubmit();
-        debugger
+        debugger;
         this._api
             .createCampaign(data)
             .subscribe({
@@ -161,7 +156,6 @@ export class CampaignCreateComponent implements OnInit, AfterViewChecked {
             isGlobal: this.sendVia.value === 'user-base',
             messageChannelKind: this.channels.value,
             published: this.published.value,
-            templateId: undefined,
             title: this.title.value,
             data: this.data.value,
             typeId: this.type.value?.value || undefined,
@@ -394,7 +388,6 @@ export class CampaignCreateComponent implements OnInit, AfterViewChecked {
             this.emailSubject.setValidators(Validators.required);
             this.emailBody.setValidators(Validators.required);
         }
-        debugger
         if (this._contentStepInitialized) {
             return;
         }

@@ -4103,8 +4103,6 @@ Use this list if recipient id is not known/available or the message will be fire
     recipientListId?: string | undefined;
     /** Optional data for the campaign. */
     data?: { [key: string]: any; } | undefined;
-    /** The id of the template to use. */
-    templateId!: string | undefined;
 
     constructor(data?: ICreateCampaignRequest) {
         if (data) {
@@ -4153,7 +4151,6 @@ Use this list if recipient id is not known/available or the message will be fire
                         (<any>this.data)![key] = _data["data"][key];
                 }
             }
-            this.templateId = _data["templateId"];
         }
     }
 
@@ -4202,7 +4199,6 @@ Use this list if recipient id is not known/available or the message will be fire
                     (<any>data["data"])[key] = (<any>this.data)[key];
             }
         }
-        data["templateId"] = this.templateId;
         return data;
     }
 }
@@ -4231,8 +4227,6 @@ Use this list if recipient id is not known/available or the message will be fire
     recipientListId?: string | undefined;
     /** Optional data for the campaign. */
     data?: { [key: string]: any; } | undefined;
-    /** The id of the template to use. */
-    templateId: string | undefined;
 }
 
 /** The request model used to create a new contact. */

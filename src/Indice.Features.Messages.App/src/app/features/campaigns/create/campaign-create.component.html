@@ -1,12 +1,11 @@
-<lib-side-view-layout title="Δημιουργία νέας καμπάνιας" [cancel-show]="false" [ok-close-dialog]="false" [ok-label]="okLabel" (ok)="onSideViewOk()" [disabled]="createCampaignStepper.currentStep?.isValid === false"
-    #sideViewLayout>
-    <div class="mt-4">
-        <lib-stepper [linear]="true" [type]="StepperType.PanelsWithBorder" (stepChanged)="onStepperStepChanged($event)" #createCampaignStepper>
+<lib-view-layout title="Δημιουργία νέας καμπάνιας" (ok)="onSideViewOk()" #sideViewLayout>
+    <div class="mt-4 bg-white">
+        <lib-stepper class="mt-4" [linear]="true" [type]="StepperType.PanelsWithBorder" (stepChanged)="onStepperStepChanged($event)" #createCampaignStepper>
             <!-- Γενικά -->
             <lib-step [stepControl]="basicDetailsForm">
                 <ng-template libStepLabel>Γενικα</ng-template>
                 <ng-template libStepInfo>Βασικές πληροφορίες</ng-template>
-                <form [formGroup]="basicDetailsForm">
+                <form [formGroup]="basicDetailsForm" class="">
                     <div class="px-4 space-y-2 pb-4 mt-4">
                         <!-- Τίτλος -->
                         <fieldset>
@@ -484,4 +483,5 @@
             </lib-step>
         </lib-stepper>
     </div>
-</lib-side-view-layout>
+</lib-view-layout>
+<!--[cancel-show]="false" [ok-close-dialog]="false" [ok-label]="okLabel" [disabled]="createCampaignStepper.currentStep?.isValid === false"-->
