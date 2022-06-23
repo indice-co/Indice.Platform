@@ -19,6 +19,10 @@
   .btn-error {
     @apply inline-flex items-center px-2.5 py-1.5 border border-transparent text-xs font-medium rounded shadow-sm text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-1 focus:ring-offset-1 focus:ring-red-500;
   }
+
+  .panels-with-border-container {
+    @apply border-t border-b border-gray-200 mt-4;
+  }
 }
 
 .sr-only {

@@ -166,28 +166,16 @@ export class CampaignCreateComponent implements OnInit, AfterViewChecked {
         for (const channel of this.channels.value) {
             switch (channel) {
                 case MessageChannelKind.Inbox:
-                    data.content![channel] = new MessageContent({
-                        title: this.inboxSubject.value,
-                        body: this.inboxBody.value
-                    });
+                    data.content![channel] = new MessageContent({ title: this.inboxSubject.value, body: this.inboxBody.value });
                     break;
                 case MessageChannelKind.Email:
-                    data.content![channel] = new MessageContent({
-                        title: this.emailSubject.value,
-                        body: this.emailBody.value
-                    });
+                    data.content![channel] = new MessageContent({ title: this.emailSubject.value, body: this.emailBody.value });
                     break;
                 case MessageChannelKind.PushNotification:
-                    data.content![channel] = new MessageContent({
-                        title: this.pushNotificationSubject.value,
-                        body: this.pushNotificationBody.value
-                    });
+                    data.content![channel] = new MessageContent({ title: this.pushNotificationSubject.value, body: this.pushNotificationBody.value });
                     break;
                 case MessageChannelKind.SMS:
-                    data.content![channel] = new MessageContent({
-                        title: this.smsSubject.value,
-                        body: this.smsBody.value
-                    });
+                    data.content![channel] = new MessageContent({ title: this.smsSubject.value, body: this.smsBody.value });
                     break;
             }
         }
