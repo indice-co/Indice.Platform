@@ -14,9 +14,6 @@ import { BasicModalComponent } from './shared/components/basic-modal/basic-modal
 import { BeautifyBooleanPipe } from './shared/pipes.services';
 import { CampaignCreateComponent } from './features/campaigns/create/campaign-create.component';
 import { CampaignsComponent } from './features/campaigns/campaigns.component';
-import { CampaignsDetailsComponent } from './features/campaigns/manage/details/campaigns-details.component';
-import { CampaignsManageComponent } from './features/campaigns/manage/campaigns-manage.component';
-import { CampaignsRemoveComponent } from './features/campaigns/manage/remove/campaigns-remove.component';
 import { DashboardComponent } from './features/dashboard/dashboard.component';
 import { DistributionListContactCreateComponent } from './features/distribution-lists/contacts/create/distribution-list-contact-create.component';
 import { DistributionListContactsComponent } from './features/distribution-lists/contacts/distribution-list-contacts.component';
@@ -45,9 +42,6 @@ import * as app from 'src/app/core/models/settings';
     BeautifyBooleanPipe,
     CampaignCreateComponent,
     CampaignsComponent,
-    CampaignsDetailsComponent,
-    CampaignsManageComponent,
-    CampaignsRemoveComponent,
     DashboardComponent,
     DistributionListContactCreateComponent,
     DistributionListContactsComponent,

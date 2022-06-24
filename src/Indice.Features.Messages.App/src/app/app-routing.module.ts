@@ -1,4 +1,3 @@
-import { CampaignsRemoveComponent } from './features/campaigns/manage/remove/campaigns-remove.component';
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 
@@ -6,8 +5,6 @@ import { AuthCallbackComponent, AuthRenewComponent, PageNotFoundComponent } from
 import { AuthGuardService } from '@indice/ng-auth';
 import { CampaignCreateComponent } from './features/campaigns/create/campaign-create.component';
 import { CampaignsComponent } from './features/campaigns/campaigns.component';
-import { CampaignsDetailsComponent } from './features/campaigns/manage/details/campaigns-details.component';
-import { CampaignsManageComponent } from './features/campaigns/manage/campaigns-manage.component';
 import { DashboardComponent } from './features/dashboard/dashboard.component';
 import { DistributionListContactCreateComponent } from './features/distribution-lists/contacts/create/distribution-list-contact-create.component';
 import { DistributionListContactsComponent } from './features/distribution-lists/contacts/distribution-list-contacts.component';
@@ -32,13 +29,6 @@ const routes: Routes = [
       { path: 'dashboard', component: DashboardComponent },
       { path: 'campaigns', component: CampaignsComponent },
       { path: 'campaigns/add', component: CampaignCreateComponent },
-      {
-        path: 'campaigns/:campaignId', component: CampaignsManageComponent, pathMatch: 'prefix', children: [
-          { path: '', pathMatch: 'full', redirectTo: 'details' },
-          { path: 'details', component: CampaignsDetailsComponent, data: { animation: 'three' } },
-          { path: 'manage', component: CampaignsRemoveComponent, data: { animation: 'three' } }
-        ]
-      },
       { path: 'message-types', component: MessageTypesComponent },
       { path: 'distribution-lists', component: DistributionListsComponent },
       { path: 'distribution-lists/:distributionListId/contacts', component: DistributionListContactsComponent },

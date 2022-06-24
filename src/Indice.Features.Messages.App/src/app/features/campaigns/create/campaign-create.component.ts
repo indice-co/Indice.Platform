@@ -123,7 +123,7 @@ export class CampaignCreateComponent implements OnInit, AfterViewChecked {
         this._changeDetector.detectChanges();
     }
 
-    public onSideViewOk(): void {
+    public onSubmitCampaign(): void {
         const isLastStep = this._stepper.currentStep?.isLast;
         if (!isLastStep) {
             this._stepper.goToNextStep();
@@ -137,7 +137,7 @@ export class CampaignCreateComponent implements OnInit, AfterViewChecked {
             .subscribe({
                 next: (campaign: Campaign) => {
                     this.submitInProgress = false;
-                    this._router.navigateByUrl('/', { skipLocationChange: true }).then(() => this._router.navigate(['campaigns']));
+                    this._router.navigate(['campaigns']);
                     this._toaster.show(ToastType.Success, 'Επιτυχής αποθήκευση', `Η καμπάνια με τίτλο '${campaign.title}' δημιουργήθηκε με επιτυχία.`);
                 }
             });
