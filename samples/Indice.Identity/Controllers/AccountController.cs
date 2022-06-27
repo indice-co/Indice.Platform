@@ -81,11 +81,9 @@ namespace Indice.Identity.Controllers
             var viewModel = await _accountService.BuildLoginViewModelAsync(returnUrl);
             if (viewModel.IsExternalLoginOnly) {
                 // We only have one option for logging in and it's an external provider.
-                return RedirectToAction(nameof(ExternalController.Challenge), ExternalController.Name, new {
-                    provider = viewModel.ExternalLoginScheme,
-                    returnUrl
-                });
+                return RedirectToAction(nameof(ExternalController.Challenge), ExternalController.Name, new { provider = viewModel.ExternalLoginScheme, returnUrl });
             }
+            if (viewModel.PromptRegister()) { }
 #if DEBUG
             viewModel.UserName = "company@indice.gr";
 #endif

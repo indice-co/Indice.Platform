@@ -12,9 +12,7 @@ using Microsoft.AspNetCore.Http;
 
 namespace Indice.AspNetCore.Identity
 {
-    /// <summary>
-    /// Account service wraps account controllers operations regarding creating and validating viewmodels.
-    /// </summary>
+    /// <summary>Account service wraps account controllers operations regarding creating and validating view models.</summary>
     public class AccountService
     {
         private readonly IClientStore _clientStore;
@@ -22,13 +20,11 @@ namespace Indice.AspNetCore.Identity
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IAuthenticationSchemeProvider _schemeProvider;
 
-        /// <summary>
-        /// Constructs the <see cref="AccountService"/>.
-        /// </summary>
-        /// <param name="interaction"></param>
-        /// <param name="httpContextAccessor"></param>
-        /// <param name="schemeProvider"></param>
-        /// <param name="clientStore"></param>
+        /// <summary>Constructs the <see cref="AccountService"/>.</summary>
+        /// <param name="interaction">Provide services be used by the user interface to communicate with IdentityServer.</param>
+        /// <param name="httpContextAccessor">Provides access to the current <see cref="HttpContext"/>.</param>
+        /// <param name="schemeProvider">Responsible for managing what authenticationSchemes are supported.</param>
+        /// <param name="clientStore">Retrieval of client configuration.</param>
         public AccountService(
             IIdentityServerInteractionService interaction,
             IHttpContextAccessor httpContextAccessor,
@@ -41,9 +37,7 @@ namespace Indice.AspNetCore.Identity
             _clientStore = clientStore ?? throw new ArgumentNullException(nameof(clientStore));
         }
 
-        /// <summary>
-        /// Builds the <see cref="LoginViewModel"/>.
-        /// </summary>
+        /// <summary>Builds the <see cref="LoginViewModel"/>.</summary>
         /// <param name="returnUrl">The return url to go to after successful login</param>
         public async Task<LoginViewModel> BuildLoginViewModelAsync(string returnUrl) {
             var context = await _interaction.GetAuthorizationContextAsync(returnUrl);
@@ -89,9 +83,7 @@ namespace Indice.AspNetCore.Identity
             };
         }
 
-        /// <summary>
-        /// Builds the <see cref="LoginViewModel"/> from the posted request <see cref="LoginInputModel"/>.
-        /// </summary>
+        /// <summary>Builds the <see cref="LoginViewModel"/> from the posted request <see cref="LoginInputModel"/>.</summary>
         /// <param name="model">The request model.</param>
         public async Task<LoginViewModel> BuildLoginViewModelAsync(LoginInputModel model) {
             var viewModel = await BuildLoginViewModelAsync(model.ReturnUrl);
@@ -100,17 +92,13 @@ namespace Indice.AspNetCore.Identity
             return viewModel;
         }
 
-        /// <summary>
-        /// Builds the <see cref="RegisterViewModel"/>.
-        /// </summary>
+        /// <summary>Builds the <see cref="RegisterViewModel"/>.</summary>
         /// <param name="returnUrl"></param>
         public async Task<RegisterViewModel> BuildRegisterViewModelAsync(string returnUrl) => await BuildRegisterViewModelAsync<RegisterViewModel>(returnUrl);
 
-        /// <summary>
-        /// Generic counterpart in case someone extends the basic <see cref="RegisterViewModel"/> with extra properties.
-        /// </summary>
-        /// <typeparam name="TRegisterViewModel"></typeparam>
-        /// <param name="returnUrl"></param>
+        /// <summary>Generic counterpart in case someone extends the basic <see cref="RegisterViewModel"/> with extra properties.</summary>
+        /// <typeparam name="TRegisterViewModel">The type of <see cref="RegisterViewModel"/>.</typeparam>
+        /// <param name="returnUrl">The return URL.</param>
         public async Task<TRegisterViewModel> BuildRegisterViewModelAsync<TRegisterViewModel>(string returnUrl) where TRegisterViewModel : RegisterViewModel, new() {
             var context = await _interaction.GetAuthorizationContextAsync(returnUrl);
             if (context?.IdP != null && await _schemeProvider.GetSchemeAsync(context.IdP) != null) {
@@ -151,15 +139,13 @@ namespace Indice.AspNetCore.Identity
             };
         }
 
-        /// <summary>
-        /// Builds the <see cref="RegisterViewModel"/> from the posted request <see cref="RegisterRequest"/>.
-        /// </summary>
+        /// <summary>Builds the <see cref="RegisterViewModel"/> from the posted request <see cref="RegisterRequest"/>.</summary>
         /// <param name="model"></param>
         public async Task<RegisterViewModel> BuildRegisterViewModelAsync(RegisterRequest model) => await BuildRegisterViewModelAsync<RegisterViewModel>(model);
 
         /// <summary>
-        ///  Builds the <see cref="RegisterViewModel"/> from the posted request <see cref="RegisterRequest"/>.
-        ///  Generic counterpart in case someone extends the basic <see cref="RegisterViewModel"/> with extra properties.
+        /// Builds the <see cref="RegisterViewModel"/> from the posted request <see cref="RegisterRequest"/>.
+        /// Generic counterpart in case someone extends the basic <see cref="RegisterViewModel"/> with extra properties.
         /// </summary>
         /// <typeparam name="TRegisterViewModel"></typeparam>
         /// <param name="model"></param>
@@ -173,9 +159,7 @@ namespace Indice.AspNetCore.Identity
             return viewModel;
         }
 
-        /// <summary>
-        /// Builds the logout viewmodel.
-        /// </summary>
+        /// <summary>Builds the logout viewmodel.</summary>
         /// <param name="logoutId">The logout id.</param>
         public async Task<LogoutViewModel> BuildLogoutViewModelAsync(string logoutId) {
             var viewModel = new LogoutViewModel {
@@ -193,9 +177,7 @@ namespace Indice.AspNetCore.Identity
             return viewModel;
         }
 
-        /// <summary>
-        /// Build the post logout viewmodel. <see cref="LoggedOutViewModel"/>.
-        /// </summary>
+        /// <summary>Build the post logout viewmodel. <see cref="LoggedOutViewModel"/>.</summary>
         /// <param name="logoutId">The logout id.</param>
         public async Task<LoggedOutViewModel> BuildLoggedOutViewModelAsync(string logoutId) {
             // Get context information (client name, post logout redirect URI and iframe for federated signout).
