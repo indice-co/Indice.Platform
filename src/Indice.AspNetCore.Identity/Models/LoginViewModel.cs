@@ -32,6 +32,6 @@ namespace Indice.AspNetCore.Identity.Models
     {
         /// <summary>Decides whether to prompt user for registration instead of login.</summary>
         /// <param name="loginViewModel">Login view model.</param>
-        public static bool PromptRegister(this LoginViewModel loginViewModel) => loginViewModel.Operation.Equals("register", StringComparison.OrdinalIgnoreCase);
+        public static bool PromptRegister(this LoginViewModel loginViewModel) => loginViewModel.Operation?.Equals("register", StringComparison.OrdinalIgnoreCase) == true;
     }
 }

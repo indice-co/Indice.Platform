@@ -183,10 +183,9 @@ namespace Indice.AspNetCore.Identity
         public override async Task<SignInResult> CheckPasswordSignInAsync(TUser user, string password, bool lockoutOnFailure) {
             var attempt = await base.CheckPasswordSignInAsync(user, password, lockoutOnFailure);
             if (attempt.Succeeded && ExpireBlacklistedPasswordsOnSignIn) {
-                // not sure the following is correct.
                 var blacklistPasswordValidator = UserManager.PasswordValidators.OfType<NonCommonPasswordValidator<TUser>>().FirstOrDefault();
                 if (blacklistPasswordValidator is not null && await blacklistPasswordValidator.IsBlacklistedAsync(password)) {
-                    // if blacklisted then expire users password before proceeding.
+                    // If blacklisted then expire users password before proceeding.
                     await ExtendedUserManager.SetPasswordExpiredAsync(user, true);
                 }
             }
