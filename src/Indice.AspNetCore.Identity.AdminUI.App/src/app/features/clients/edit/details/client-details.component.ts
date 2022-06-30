@@ -42,18 +42,17 @@ export class ClientDetailsComponent implements OnInit, OnDestroy {
         const clientId = this._route.parent.snapshot.params.id;
         const getClient$ = this._clientStore.getClient(clientId);
         const getExternalProviders$ = this._identityApi.getExternalProviders();
-        this._getDataSubscription = forkJoin([getClient$, getExternalProviders$])
-            .subscribe((result: [SingleClientInfo, ExternalProvider[]]) => {
-                this.client = result[0];
-                this.externalProviders = result[1].map((provider: ExternalProvider) =>
-                    new SelectableExternalProvider(this.client.identityProviderRestrictions.indexOf(provider.authenticationScheme) > -1 ? false : true, provider.displayName, provider.authenticationScheme));
-                if (!this.client.translations) {
-                    this.client.translations = {} as { [key: string]: ClientTranslation; };
-                    return;
-                }
-                this.nameTranslations = this._translateInputService.getPropertyTranslations('clientName', this.client);
-                this.descriptionTranslations = this._translateInputService.getPropertyTranslations('description', this.client);
-            });
+        this._getDataSubscription = forkJoin([getClient$, getExternalProviders$]).subscribe((result: [SingleClientInfo, ExternalProvider[]]) => {
+            this.client = result[0];
+            this.externalProviders = result[1].map((provider: ExternalProvider) =>
+                new SelectableExternalProvider(this.client.identityProviderRestrictions.indexOf(provider.authenticationScheme) > -1 ? false : true, provider.displayName, provider.authenticationScheme));
+            if (!this.client.translations) {
+                this.client.translations = {} as { [key: string]: ClientTranslation; };
+                return;
+            }
+            this.nameTranslations = this._translateInputService.getPropertyTranslations('clientName', this.client);
+            this.descriptionTranslations = this._translateInputService.getPropertyTranslations('description', this.client);
+        });
     }
 
     public ngOnDestroy(): void {

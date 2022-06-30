@@ -4,9 +4,7 @@
             <div class="row align-items-center">
                 <div class="col-md-8">
                     <h4 class="page-title m-0">Clients List ({{ count }})</h4>
-                    <p class="text-muted font-14">
-                        Get a list of all system clients.
-                    </p>
+                    <p class="text-muted font-14">Get a list of all system clients.</p>
                 </div>
             </div>
         </div>
@@ -14,35 +12,14 @@
 </div>
 <div class="row">
     <div class="col-12">
-        <app-list-view [clientSide]="false"
-                       [columns]="columns"
-                       [rows]="rows"
-                       [count]="count"
-                       [rowsPerPage]="15"
-                       [defaultSortField]="'clientId'"
-                       [defaultSortDirection]="'Asc'"
-                       (search)="getClients($event)"
-                       #clientsList>
-        </app-list-view>
+        <app-list-view [clientSide]="false" [columns]="columns" [rows]="rows" [count]="count" [rowsPerPage]="15" [defaultSortField]="'clientId'" [defaultSortDirection]="'Asc'" (search)="getClients($event)" #clientsList></app-list-view>
     </div>
 </div>
-<ng-template let-row="row"
-             let-value="value"
-             #actionsTemplate>
-    <a class="btn btn-success"
-       href="#"
-       role="button"
-       [routerLink]="value + '/details'">
-        {{ canEditClient ? 'Edit' : 'View' }}
-    </a>
+<ng-template let-row="row" let-value="value" #actionsTemplate>
+    <a class="btn btn-success" href="#" role="button" [routerLink]="value + '/details'">{{ canEditClient ? 'Edit' : 'View' }}</a>
 </ng-template>
-<ng-template let-row="row"
-             let-value="value"
-             #clientIdTemplate>
+<ng-template let-row="row" let-value="value" #clientIdTemplate>
     <span [title]="value">{{ value }}</span>
     &nbsp;
-    <span *ngIf="row.nonEditable"
-          class="badge badge-warning">
-        reserved
-    </span>
+    <span *ngIf="row.nonEditable" class="badge badge-warning">reserved</span>
 </ng-template>

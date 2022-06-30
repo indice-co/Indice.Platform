@@ -180,7 +180,7 @@ namespace Indice.Security
         }
 
         /// <summary>
-        /// Logic for normalizing claims types comming from external identity providers to the Jwt standard ones.
+        /// Logic for normalizing claims types coming from external identity providers to the JWT standard ones.
         /// </summary>
         /// <param name="principal">The current principal.</param>
         /// <param name="typesToIgnore">These claims will be excluded.</param>

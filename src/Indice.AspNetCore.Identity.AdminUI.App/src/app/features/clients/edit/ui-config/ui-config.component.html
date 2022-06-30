@@ -1,0 +1,3 @@
+<div class="form-container" *ngIf="settings">
+    <json-schema-form [schema]="settings.schema" [(ngModel)]="settings.data" [layout]="settings.layout" [options]="schemaFormOptions" framework="bootstrap-4" (onSubmit)="onSubmitSettings($event)"></json-schema-form>
+</div>
