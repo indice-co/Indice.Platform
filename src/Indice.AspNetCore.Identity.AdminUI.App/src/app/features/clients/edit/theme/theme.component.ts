@@ -1,11 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
-import { ClientUiConfigRequest, ClientUiConfigResponse, IdentityApiService } from 'src/app/core/services/identity-api.service';
+import { ClientThemeConfigRequest, ClientThemeConfigResponse, IdentityApiService } from 'src/app/core/services/identity-api.service';
 
 @Component({
-    selector: 'app-client-ui-config',
-    templateUrl: './ui-config.component.html'
+    selector: 'app-client-theme-config',
+    templateUrl: './theme.component.html'
 })
 export class ClientUiConfigComponent implements OnInit {
     private _clientId: string;
@@ -22,13 +22,13 @@ export class ClientUiConfigComponent implements OnInit {
         debug: false,
         loadExternalAssets: false,
         returnEmptyFields: false,
-        setSchemaDefaults: true,
+        setSchemaDefaults: false,
         defautWidgetOptions: { feedback: true }
     };
 
     public ngOnInit(): void {
         this._clientId = this._route.parent.snapshot.params.id;
-        this._identityApi.getClientUiConfig(this._clientId).subscribe((response: ClientUiConfigResponse) => {
+        this._identityApi.getClientTheme(this._clientId).subscribe((response: ClientThemeConfigResponse) => {
             this.settings = {
                 schema: response.schema,
                 layout: [
@@ -43,7 +43,7 @@ export class ClientUiConfigComponent implements OnInit {
         });
     }
 
-    public onSubmitSettings(event: ClientUiConfigRequest): void {
-        this._identityApi.createOrUpdateClientUiConfig(this._clientId, event).subscribe();
+    public onSubmitSettings(event: ClientThemeConfigRequest): void {
+        this._identityApi.createOrUpdateClientTheme(this._clientId, event).subscribe();
     }
 }

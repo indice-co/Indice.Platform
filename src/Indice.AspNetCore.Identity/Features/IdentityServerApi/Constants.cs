@@ -19,7 +19,7 @@ namespace Indice.AspNetCore.Identity.Api.Security
             /// <summary>Key used in properties table for keeping translations for an object.</summary>
             public const string Translation = "translations";
             /// <summary>Key used in properties table for keeping translations for an object.</summary>
-            public const string UiConfig = "ui-config";
+            public const string ThemeConfig = "ui-config";
         }
         
         /// <summary>Identity API sub-scopes.</summary>

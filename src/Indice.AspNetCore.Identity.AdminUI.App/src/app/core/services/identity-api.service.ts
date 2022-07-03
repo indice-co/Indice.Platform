@@ -208,14 +208,14 @@ export interface IIdentityApiService {
      * @param clientId The id of the client.
      * @return Success
      */
-    getClientUiConfig(clientId: string): Observable<ClientUiConfigResponse>;
+    getClientTheme(clientId: string): Observable<ClientThemeConfigResponse>;
     /**
      * Creates or updates the ui configuration for the specified client.
      * @param clientId The id of the client.
      * @param body (optional) The request data describing the configuration.
      * @return No Content
      */
-    createOrUpdateClientUiConfig(clientId: string, body?: ClientUiConfigRequest | undefined): Observable<void>;
+    createOrUpdateClientTheme(clientId: string, body?: ClientThemeConfigRequest | undefined): Observable<void>;
     /**
      * Renews the list of
      * @param clientId The id of the client.
@@ -3179,8 +3179,8 @@ export class IdentityApiService implements IIdentityApiService {
      * @param clientId The id of the client.
      * @return Success
      */
-    getClientUiConfig(clientId: string): Observable<ClientUiConfigResponse> {
-        let url_ = this.baseUrl + "/api/clients/{clientId}/ui-config";
+    getClientTheme(clientId: string): Observable<ClientThemeConfigResponse> {
+        let url_ = this.baseUrl + "/api/clients/{clientId}/theme";
         if (clientId === undefined || clientId === null)
             throw new Error("The parameter 'clientId' must be defined.");
         url_ = url_.replace("{clientId}", encodeURIComponent("" + clientId));
@@ -3195,20 +3195,20 @@ export class IdentityApiService implements IIdentityApiService {
         };
 
         return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processGetClientUiConfig(response_);
+            return this.processGetClientTheme(response_);
         })).pipe(_observableCatch((response_: any) => {
             if (response_ instanceof HttpResponseBase) {
                 try {
-                    return this.processGetClientUiConfig(response_ as any);
+                    return this.processGetClientTheme(response_ as any);
                 } catch (e) {
-                    return _observableThrow(e) as any as Observable<ClientUiConfigResponse>;
+                    return _observableThrow(e) as any as Observable<ClientThemeConfigResponse>;
                 }
             } else
-                return _observableThrow(response_) as any as Observable<ClientUiConfigResponse>;
+                return _observableThrow(response_) as any as Observable<ClientThemeConfigResponse>;
         }));
     }
 
-    protected processGetClientUiConfig(response: HttpResponseBase): Observable<ClientUiConfigResponse> {
+    protected processGetClientTheme(response: HttpResponseBase): Observable<ClientThemeConfigResponse> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -3240,7 +3240,7 @@ export class IdentityApiService implements IIdentityApiService {
             return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = ClientUiConfigResponse.fromJS(resultData200);
+            result200 = ClientThemeConfigResponse.fromJS(resultData200);
             return _observableOf(result200);
             }));
         } else if (status === 404) {
@@ -3255,7 +3255,7 @@ export class IdentityApiService implements IIdentityApiService {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             }));
         }
-        return _observableOf<ClientUiConfigResponse>(null as any);
+        return _observableOf<ClientThemeConfigResponse>(null as any);
     }
 
     /**
@@ -3264,8 +3264,8 @@ export class IdentityApiService implements IIdentityApiService {
      * @param body (optional) The request data describing the configuration.
      * @return No Content
      */
-    createOrUpdateClientUiConfig(clientId: string, body?: ClientUiConfigRequest | undefined): Observable<void> {
-        let url_ = this.baseUrl + "/api/clients/{clientId}/ui-config";
+    createOrUpdateClientTheme(clientId: string, body?: ClientThemeConfigRequest | undefined): Observable<void> {
+        let url_ = this.baseUrl + "/api/clients/{clientId}/theme";
         if (clientId === undefined || clientId === null)
             throw new Error("The parameter 'clientId' must be defined.");
         url_ = url_.replace("{clientId}", encodeURIComponent("" + clientId));
@@ -3283,11 +3283,11 @@ export class IdentityApiService implements IIdentityApiService {
         };
 
         return this.http.request("put", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processCreateOrUpdateClientUiConfig(response_);
+            return this.processCreateOrUpdateClientTheme(response_);
         })).pipe(_observableCatch((response_: any) => {
             if (response_ instanceof HttpResponseBase) {
                 try {
-                    return this.processCreateOrUpdateClientUiConfig(response_ as any);
+                    return this.processCreateOrUpdateClientTheme(response_ as any);
                 } catch (e) {
                     return _observableThrow(e) as any as Observable<void>;
                 }
@@ -3296,7 +3296,7 @@ export class IdentityApiService implements IIdentityApiService {
         }));
     }
 
-    protected processCreateOrUpdateClientUiConfig(response: HttpResponseBase): Observable<void> {
+    protected processCreateOrUpdateClientTheme(response: HttpResponseBase): Observable<void> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -11016,6 +11016,166 @@ export interface IClientSecretInfo {
     isExpired?: boolean;
 }
 
+/** Identity Server UI configuration for the specified client. */
+export class ClientThemeConfig implements IClientThemeConfig {
+    /** The URL of the background image. */
+    backgroundImage?: string | undefined;
+    /** The background color. */
+    accentColor?: string | undefined;
+    /** A primary color. */
+    primaryColor?: string | undefined;
+    /** A secondary color. */
+    secondaryColor?: string | undefined;
+
+    constructor(data?: IClientThemeConfig) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.backgroundImage = _data["backgroundImage"];
+            this.accentColor = _data["accentColor"];
+            this.primaryColor = _data["primaryColor"];
+            this.secondaryColor = _data["secondaryColor"];
+        }
+    }
+
+    static fromJS(data: any): ClientThemeConfig {
+        data = typeof data === 'object' ? data : {};
+        let result = new ClientThemeConfig();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["backgroundImage"] = this.backgroundImage;
+        data["accentColor"] = this.accentColor;
+        data["primaryColor"] = this.primaryColor;
+        data["secondaryColor"] = this.secondaryColor;
+        return data;
+    }
+}
+
+/** Identity Server UI configuration for the specified client. */
+export interface IClientThemeConfig {
+    /** The URL of the background image. */
+    backgroundImage?: string | undefined;
+    /** The background color. */
+    accentColor?: string | undefined;
+    /** A primary color. */
+    primaryColor?: string | undefined;
+    /** A secondary color. */
+    secondaryColor?: string | undefined;
+}
+
+/** Identity Server UI configuration for the specified client. */
+export class ClientThemeConfigRequest implements IClientThemeConfigRequest {
+    /** The URL of the background image. */
+    backgroundImage?: string | undefined;
+    /** The background color. */
+    accentColor?: string | undefined;
+    /** A primary color. */
+    primaryColor?: string | undefined;
+    /** A secondary color. */
+    secondaryColor?: string | undefined;
+
+    constructor(data?: IClientThemeConfigRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.backgroundImage = _data["backgroundImage"];
+            this.accentColor = _data["accentColor"];
+            this.primaryColor = _data["primaryColor"];
+            this.secondaryColor = _data["secondaryColor"];
+        }
+    }
+
+    static fromJS(data: any): ClientThemeConfigRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new ClientThemeConfigRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["backgroundImage"] = this.backgroundImage;
+        data["accentColor"] = this.accentColor;
+        data["primaryColor"] = this.primaryColor;
+        data["secondaryColor"] = this.secondaryColor;
+        return data;
+    }
+}
+
+/** Identity Server UI configuration for the specified client. */
+export interface IClientThemeConfigRequest {
+    /** The URL of the background image. */
+    backgroundImage?: string | undefined;
+    /** The background color. */
+    accentColor?: string | undefined;
+    /** A primary color. */
+    primaryColor?: string | undefined;
+    /** A secondary color. */
+    secondaryColor?: string | undefined;
+}
+
+/** Identity Server UI configuration for the specified client. */
+export class ClientThemeConfigResponse implements IClientThemeConfigResponse {
+    /** JSON schema describing the properties to configure for the UI. */
+    schema?: any | undefined;
+    data?: ClientThemeConfig;
+
+    constructor(data?: IClientThemeConfigResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.schema = _data["schema"];
+            this.data = _data["data"] ? ClientThemeConfig.fromJS(_data["data"]) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): ClientThemeConfigResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new ClientThemeConfigResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["schema"] = this.schema;
+        data["data"] = this.data ? this.data.toJSON() : <any>undefined;
+        return data;
+    }
+}
+
+/** Identity Server UI configuration for the specified client. */
+export interface IClientThemeConfigResponse {
+    /** JSON schema describing the properties to configure for the UI. */
+    schema?: any | undefined;
+    data?: ClientThemeConfig;
+}
+
 /** Translation object for type Indice.AspNetCore.Identity.Api.Models.SingleClientInfo. */
 export class ClientTranslation implements IClientTranslation {
     /** The name of the client. */
@@ -11070,166 +11230,6 @@ export enum ClientType {
     Machine = "Machine",
     Device = "Device",
     SPALegacy = "SPALegacy",
-}
-
-/** Identity Server UI configuration for the specified client. */
-export class ClientUiConfig implements IClientUiConfig {
-    /** The URL of the background image. */
-    backgroundImage?: string | undefined;
-    /** The background color. */
-    accentColor?: string | undefined;
-    /** A primary color. */
-    primaryColor?: string | undefined;
-    /** A secondary color. */
-    secondaryColor?: string | undefined;
-
-    constructor(data?: IClientUiConfig) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.backgroundImage = _data["backgroundImage"];
-            this.accentColor = _data["accentColor"];
-            this.primaryColor = _data["primaryColor"];
-            this.secondaryColor = _data["secondaryColor"];
-        }
-    }
-
-    static fromJS(data: any): ClientUiConfig {
-        data = typeof data === 'object' ? data : {};
-        let result = new ClientUiConfig();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["backgroundImage"] = this.backgroundImage;
-        data["accentColor"] = this.accentColor;
-        data["primaryColor"] = this.primaryColor;
-        data["secondaryColor"] = this.secondaryColor;
-        return data;
-    }
-}
-
-/** Identity Server UI configuration for the specified client. */
-export interface IClientUiConfig {
-    /** The URL of the background image. */
-    backgroundImage?: string | undefined;
-    /** The background color. */
-    accentColor?: string | undefined;
-    /** A primary color. */
-    primaryColor?: string | undefined;
-    /** A secondary color. */
-    secondaryColor?: string | undefined;
-}
-
-/** Identity Server UI configuration for the specified client. */
-export class ClientUiConfigRequest implements IClientUiConfigRequest {
-    /** The URL of the background image. */
-    backgroundImage?: string | undefined;
-    /** The background color. */
-    accentColor?: string | undefined;
-    /** A primary color. */
-    primaryColor?: string | undefined;
-    /** A secondary color. */
-    secondaryColor?: string | undefined;
-
-    constructor(data?: IClientUiConfigRequest) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.backgroundImage = _data["backgroundImage"];
-            this.accentColor = _data["accentColor"];
-            this.primaryColor = _data["primaryColor"];
-            this.secondaryColor = _data["secondaryColor"];
-        }
-    }
-
-    static fromJS(data: any): ClientUiConfigRequest {
-        data = typeof data === 'object' ? data : {};
-        let result = new ClientUiConfigRequest();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["backgroundImage"] = this.backgroundImage;
-        data["accentColor"] = this.accentColor;
-        data["primaryColor"] = this.primaryColor;
-        data["secondaryColor"] = this.secondaryColor;
-        return data;
-    }
-}
-
-/** Identity Server UI configuration for the specified client. */
-export interface IClientUiConfigRequest {
-    /** The URL of the background image. */
-    backgroundImage?: string | undefined;
-    /** The background color. */
-    accentColor?: string | undefined;
-    /** A primary color. */
-    primaryColor?: string | undefined;
-    /** A secondary color. */
-    secondaryColor?: string | undefined;
-}
-
-/** Identity Server UI configuration for the specified client. */
-export class ClientUiConfigResponse implements IClientUiConfigResponse {
-    /** JSON schema describing the properties to configure for the UI. */
-    schema?: any | undefined;
-    data?: ClientUiConfig;
-
-    constructor(data?: IClientUiConfigResponse) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.schema = _data["schema"];
-            this.data = _data["data"] ? ClientUiConfig.fromJS(_data["data"]) : <any>undefined;
-        }
-    }
-
-    static fromJS(data: any): ClientUiConfigResponse {
-        data = typeof data === 'object' ? data : {};
-        let result = new ClientUiConfigResponse();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["schema"] = this.schema;
-        data["data"] = this.data ? this.data.toJSON() : <any>undefined;
-        return data;
-    }
-}
-
-/** Identity Server UI configuration for the specified client. */
-export interface IClientUiConfigResponse {
-    /** JSON schema describing the properties to configure for the UI. */
-    schema?: any | undefined;
-    data?: ClientUiConfig;
 }
 
 /** Models the request of a user for email confirmation. */

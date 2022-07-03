@@ -1,7 +1,7 @@
-﻿namespace Indice.AspNetCore.Identity.Api.Models
+﻿namespace Indice.AspNetCore.Identity.Models
 {
     /// <summary>Identity Server UI configuration for the specified client.</summary>
-    public class ClientUiConfigRequest
+    public class ClientThemeConfig
     {
         /// <summary>The URL of the background image.</summary>
         public string BackgroundImage { get; set; }

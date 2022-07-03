@@ -21,6 +21,7 @@ using Indice.AspNetCore.Identity.Api.Models;
 using Indice.AspNetCore.Identity.Api.Security;
 using Indice.AspNetCore.Identity.Data;
 using Indice.AspNetCore.Identity.Data.Models;
+using Indice.AspNetCore.Identity.Models;
 using Indice.Configuration;
 using Indice.Extensions;
 using Indice.Security;
@@ -787,12 +788,12 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
         /// <response code="404">No Content</response>
         [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme, Policy = IdentityServerApi.Policies.BeClientsWriter)]
         [Consumes(MediaTypeNames.Application.Json)]
-        [HttpGet("{clientId}/ui-config")]
+        [HttpGet("{clientId}/theme")]
         [Produces(MediaTypeNames.Application.Json)]
-        [ProducesResponseType(statusCode: StatusCodes.Status200OK, type: typeof(ClientUiConfigResponse))]
+        [ProducesResponseType(statusCode: StatusCodes.Status200OK, type: typeof(ClientThemeConfigResponse))]
         [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest, type: typeof(ValidationProblemDetails))]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
-        public async Task<IActionResult> GetClientUiConfig([FromRoute] string clientId) {
+        public async Task<IActionResult> GetClientTheme([FromRoute] string clientId) {
             var client = await _configurationDbContext
                 .Clients
                 .Include(x => x.Properties)
@@ -802,13 +803,10 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
                 ModelState.AddModelError(nameof(Client.Id), "Requested client does not exist.");
                 return BadRequest(new ValidationProblemDetails(ModelState));
             }
-            var uiConfig = client.Properties.Where(x => x.Key == IdentityServerApi.PropertyKeys.UiConfig).FirstOrDefault();
-            if (uiConfig is null) {
-                return NotFound();
-            }
-            return Ok(new ClientUiConfigResponse {
-                Schema = JsonSerializer.Deserialize<ExpandoObject>(typeof(ClientUiConfigRequest).ToJsonSchema()),
-                Data = uiConfig is not null ? JsonSerializer.Deserialize<ClientUiConfig>(uiConfig.Value, JsonSerializerOptionDefaults.GetDefaultSettings()) : null
+            var themeConfig = client.Properties.Where(x => x.Key == IdentityServerApi.PropertyKeys.ThemeConfig).FirstOrDefault();
+            return Ok(new ClientThemeConfigResponse {
+                Schema = JsonSerializer.Deserialize<ExpandoObject>(typeof(ClientThemeConfigRequest).ToJsonSchema()),
+                Data = themeConfig is not null ? JsonSerializer.Deserialize<ClientThemeConfig>(themeConfig.Value, JsonSerializerOptionDefaults.GetDefaultSettings()) : null
             });
         }
 
@@ -819,11 +817,11 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
         /// <response code="400">Bad Request</response>
         [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme, Policy = IdentityServerApi.Policies.BeClientsWriter)]
         [Consumes(MediaTypeNames.Application.Json)]
-        [HttpPut("{clientId}/ui-config")]
+        [HttpPut("{clientId}/theme")]
         [Produces(MediaTypeNames.Application.Json)]
         [ProducesResponseType(statusCode: StatusCodes.Status204NoContent, type: typeof(void))]
         [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest, type: typeof(ValidationProblemDetails))]
-        public async Task<IActionResult> CreateOrUpdateClientUiConfig([FromRoute] string clientId, [FromBody] ClientUiConfigRequest request) {
+        public async Task<IActionResult> CreateOrUpdateClientTheme([FromRoute] string clientId, [FromBody] ClientThemeConfigRequest request) {
             var client = await _configurationDbContext
                 .Clients
                 .Include(x => x.Properties)
@@ -833,17 +831,17 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
                 ModelState.AddModelError(nameof(Client.Id), "Requested client does not exist.");
                 return BadRequest(new ValidationProblemDetails(ModelState));
             }
-            var uiConfig = client.Properties.Where(x => x.Key == IdentityServerApi.PropertyKeys.UiConfig).FirstOrDefault();
-            var uiConfigValue = JsonSerializer.Serialize(request, JsonSerializerOptionDefaults.GetDefaultSettings());
-            if (uiConfig is null) {
+            var themeConfig = client.Properties.Where(x => x.Key == IdentityServerApi.PropertyKeys.ThemeConfig).FirstOrDefault();
+            var themeConfigValue = JsonSerializer.Serialize(request, JsonSerializerOptionDefaults.GetDefaultSettings());
+            if (themeConfig is null) {
                 client.Properties.Add(new ClientProperty {
                     Client = client,
                     ClientId = client.Id,
-                    Key = IdentityServerApi.PropertyKeys.UiConfig,
-                    Value = uiConfigValue
+                    Key = IdentityServerApi.PropertyKeys.ThemeConfig,
+                    Value = themeConfigValue
                 });
             } else {
-                uiConfig.Value = uiConfigValue;
+                themeConfig.Value = themeConfigValue;
             }
             await _configurationDbContext.SaveChangesAsync();
             return NoContent();

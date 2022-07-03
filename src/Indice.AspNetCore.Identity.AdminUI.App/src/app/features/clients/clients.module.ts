@@ -20,7 +20,7 @@ import { ClientsComponent } from './clients.component';
 import { ClientSecretsComponent } from './edit/secrets/client-secrets.component';
 import { ClientsRoutingModule } from './clients-routing.module';
 import { ClientTokensComponent } from './edit/advanced/tokens/client-tokens.component';
-import { ClientUiConfigComponent } from './edit/ui-config/ui-config.component';
+import { ClientUiConfigComponent } from './edit/theme/theme.component';
 import { ClientUrlsComponent } from './edit/urls/client-urls.component';
 import { ExtendedInfoStepComponent } from './add/wizard/steps/extended-info/extended-info-step.component';
 import { IdentityResourcesStepComponent } from './add/wizard/steps/identity-resources/identity-resources-step.component';

@@ -13,7 +13,7 @@ import { ClientResourcesComponent } from './edit/resources/client-resources.comp
 import { ClientsComponent } from './clients.component';
 import { ClientSecretsComponent } from './edit/secrets/client-secrets.component';
 import { ClientTokensComponent } from './edit/advanced/tokens/client-tokens.component';
-import { ClientUiConfigComponent } from './edit/ui-config/ui-config.component';
+import { ClientUiConfigComponent } from './edit/theme/theme.component';
 import { ClientUrlsComponent } from './edit/urls/client-urls.component';
 
 const routes: Routes = [
