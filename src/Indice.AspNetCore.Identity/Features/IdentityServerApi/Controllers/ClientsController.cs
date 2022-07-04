@@ -32,6 +32,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Client = IdentityServer4.EntityFramework.Entities.Client;
 using ClientClaim = IdentityServer4.EntityFramework.Entities.ClientClaim;
@@ -57,14 +58,10 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
         private readonly GeneralSettings _generalSettings;
         private readonly IPlatformEventService _eventService;
         private readonly IdentityServerApiEndpointsOptions _apiEndpointsOptions;
-        /// <summary>
-        /// The name of the controller.
-        /// </summary>
+        /// <summary>The name of the controller.</summary>
         public const string Name = "Clients";
 
-        /// <summary>
-        /// Creates an instance of <see cref="ClientsController"/>.
-        /// </summary>
+        /// <summary>Creates an instance of <see cref="ClientsController"/>.</summary>
         /// <param name="configurationDbContext">Abstraction for the configuration context.</param>
         /// <param name="generalSettings">Applications general settings.</param>
         /// <param name="eventService">Models the event mechanism used to raise events inside the IdentityServer API.</param>
@@ -803,10 +800,11 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
                 ModelState.AddModelError(nameof(Client.Id), "Requested client does not exist.");
                 return BadRequest(new ValidationProblemDetails(ModelState));
             }
+            var themeConfigResolver = HttpContext.RequestServices.GetRequiredService<ClientThemeConfigTypeResolver>();
             var themeConfig = client.Properties.Where(x => x.Key == IdentityServerApi.PropertyKeys.ThemeConfig).FirstOrDefault();
             return Ok(new ClientThemeConfigResponse {
-                Schema = JsonSerializer.Deserialize<ExpandoObject>(typeof(ClientThemeConfigRequest).ToJsonSchema()),
-                Data = themeConfig is not null ? JsonSerializer.Deserialize<ClientThemeConfig>(themeConfig.Value, JsonSerializerOptionDefaults.GetDefaultSettings()) : null
+                Schema = JsonSerializer.Deserialize<ExpandoObject>(themeConfigResolver.ResolveType().ToJsonSchema()),
+                Data = themeConfig is not null ? JsonSerializer.Deserialize<DefaultClientThemeConfig>(themeConfig.Value, JsonSerializerOptionDefaults.GetDefaultSettings()) : null
             });
         }
 

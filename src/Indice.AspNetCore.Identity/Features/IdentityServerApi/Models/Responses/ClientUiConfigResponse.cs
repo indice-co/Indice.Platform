@@ -8,6 +8,6 @@ namespace Indice.AspNetCore.Identity.Api.Models
         /// <summary>JSON schema describing the properties to configure for the UI.</summary>
         public dynamic Schema { get; set; }
         /// <summary>Identity Server UI configuration for the specified client.</summary>
-        public ClientThemeConfig Data { get; set; }
+        public DefaultClientThemeConfig Data { get; set; }
     }
 }

@@ -4,7 +4,6 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using Indice.AspNetCore.Identity.Api.Security;
 using Indice.AspNetCore.Identity.Data;
-using Indice.AspNetCore.Identity.Models;
 using Indice.Serialization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
@@ -12,12 +11,12 @@ using Microsoft.EntityFrameworkCore;
 namespace Indice.AspNetCore.Identity
 {
     /// <summary>Loads the theme configuration for the current client in the context.</summary>
-    public class ClientThemingService : IClientThemingService
+    public class ClientThemingService<TThemeConfig> : IClientThemingService<TThemeConfig> where TThemeConfig : class
     {
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly ExtendedConfigurationDbContext _configurationDbContext;
 
-        /// <summary>Creates a new instance of <see cref="ClientThemingService"/>.</summary>
+        /// <summary>Creates a new instance of <see cref="ClientThemingService{T}"/>.</summary>
         /// <param name="httpContextAccessor">Provides access to the current HTTP context.</param>
         /// <param name="configurationDbContext"><see cref="DbContext"/> for the IdentityServer configuration data.</param>
         public ClientThemingService(
@@ -29,7 +28,7 @@ namespace Indice.AspNetCore.Identity
         }
 
         /// <inheritdoc />
-        public async Task<ClientThemeConfig> GetClientTheme() {
+        public async Task<TThemeConfig> GetClientTheme() {
             var clientId = _httpContextAccessor.HttpContext.GetClientIdFromReturnUrl();
             if (string.IsNullOrWhiteSpace(clientId)) {
                 return default;
@@ -47,16 +46,18 @@ namespace Indice.AspNetCore.Identity
                 .Where(x => x.Key == IdentityServerApi.PropertyKeys.ThemeConfig)
                 .FirstOrDefault();
             if (themeConfig is not null) {
-                return JsonSerializer.Deserialize<ClientThemeConfig>(themeConfig.Value, JsonSerializerOptionDefaults.GetDefaultSettings());
+                return JsonSerializer.Deserialize<TThemeConfig>(themeConfig.Value, JsonSerializerOptionDefaults.GetDefaultSettings());
             }
             return default;
         }
     }
 
     /// <summary>Contains operation to load the theme configuration for the current client in the context.</summary>
-    public interface IClientThemingService
+    public interface IClientThemingService<TThemeConfig> where TThemeConfig : class
     {
+        /// <summary>The type that describes the theme configuration.</summary>
+        public Type ThemeConfigType { get => typeof(TThemeConfig); }
         /// <summary>Gets the theme configuration for the current client.</summary>
-        Task<ClientThemeConfig> GetClientTheme();
+        Task<TThemeConfig> GetClientTheme();
     }
 }

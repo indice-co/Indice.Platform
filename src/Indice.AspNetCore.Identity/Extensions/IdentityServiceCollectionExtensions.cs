@@ -3,6 +3,7 @@ using System.Linq;
 using System.Security;
 using Indice.AspNetCore.Identity;
 using Indice.AspNetCore.Identity.Authorization;
+using Indice.AspNetCore.Identity.Models;
 using Indice.AspNetCore.Mvc.Localization;
 using Indice.AspNetCore.Mvc.Razor;
 using Indice.Configuration;
@@ -32,14 +33,17 @@ namespace Microsoft.Extensions.DependencyInjection
             return services;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="services"></param>
-        /// <returns></returns>
-        public static IServiceCollection AddClientThemingService(this IServiceCollection services) {
+        /// <summary>Adds the required services in order to access client theme data in the Views.</summary>
+        /// <param name="services">The services available in the application.</param>
+        public static IServiceCollection AddClientThemingService<TThemeConfig>(this IServiceCollection services) where TThemeConfig : class {
+            services.AddScoped<IClientThemingService<TThemeConfig>, ClientThemingService<TThemeConfig>>();
+            services.AddSingleton(serviceProvider => new ClientThemeConfigTypeResolver(typeof(TThemeConfig)));
             return services;
         }
+
+        /// <summary>Adds the required services in order to access client theme data in the Views.</summary>
+        /// <param name="services">The services available in the application.</param>
+        public static IServiceCollection AddClientThemingService(this IServiceCollection services) => services.AddClientThemingService<DefaultClientThemeConfig>();
 
         internal static IServiceCollection AddDefaultTotpService(this IServiceCollection services, Action<TotpOptions> configure = null) {
             var serviceProvider = services.BuildServiceProvider();

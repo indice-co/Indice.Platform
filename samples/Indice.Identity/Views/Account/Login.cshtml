@@ -1,9 +1,11 @@
 @inject IViewLocalizer Localizer
+@inject IClientThemingService<DefaultClientThemeConfig> ThemeService
 
 @model LoginViewModel
 
 @{
     LoginTempData loginTempData = TempData.Get<LoginTempData>(nameof(loginTempData));
+    var x = await ThemeService.GetClientTheme();
 }
 
 <div class="login-page">

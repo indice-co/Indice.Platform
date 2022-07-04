@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
 import { ClientThemeConfigRequest, ClientThemeConfigResponse, IdentityApiService } from 'src/app/core/services/identity-api.service';
+import { ToastService } from 'src/app/layout/services/app-toast.service';
 
 @Component({
     selector: 'app-client-theme-config',
@@ -12,7 +13,8 @@ export class ClientUiConfigComponent implements OnInit {
 
     constructor(
         private _route: ActivatedRoute,
-        private _identityApi: IdentityApiService
+        private _identityApi: IdentityApiService,
+        private _toast: ToastService
     ) { }
 
     public settings: any;
@@ -31,12 +33,6 @@ export class ClientUiConfigComponent implements OnInit {
         this._identityApi.getClientTheme(this._clientId).subscribe((response: ClientThemeConfigResponse) => {
             this.settings = {
                 schema: response.schema,
-                layout: [
-                    { "key": "backgroundImage", "title": "Background Image", "placeholder": "Image URL" },
-                    { "key": "accentColor", "title": "Accent Color", "type": "color" },
-                    { "key": "primaryColor", "title": "Primary Color", "type": "color" },
-                    { "key": "secondaryColor", "title": "Secondary Color", "type": "color" }
-                ],
                 data: response.data
             };
             setTimeout(() => document.querySelectorAll('submit-widget > div > input')[0].className = 'btn btn-primary', 0);
@@ -44,6 +40,8 @@ export class ClientUiConfigComponent implements OnInit {
     }
 
     public onSubmitSettings(event: ClientThemeConfigRequest): void {
-        this._identityApi.createOrUpdateClientTheme(this._clientId, event).subscribe();
+        this._identityApi.createOrUpdateClientTheme(this._clientId, event).subscribe(() => {
+            this._toast.showSuccess(`Client theme configuration was saved successfully.`);
+        });
     }
 }

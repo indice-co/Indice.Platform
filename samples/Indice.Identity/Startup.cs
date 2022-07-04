@@ -103,6 +103,7 @@ namespace Indice.Identity
 #endif
             services.AddResponseCaching();
             services.AddDataProtectionLocal(options => options.FromConfiguration());
+            services.AddClientThemingService();
             services.AddEmailServiceSmtp(Configuration)
                     .WithMvcRazorRendering();
             services.AddCsp(options => {

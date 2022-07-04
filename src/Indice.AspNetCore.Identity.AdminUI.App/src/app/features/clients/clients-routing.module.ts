@@ -40,7 +40,7 @@ const routes: Routes = [
           { path: 'grant-types', component: ClientGrantTypesComponent }
         ]
       },
-      { path: 'ui-config', component: ClientUiConfigComponent }
+      { path: 'theme', component: ClientUiConfigComponent }
     ]
   }
 ];
