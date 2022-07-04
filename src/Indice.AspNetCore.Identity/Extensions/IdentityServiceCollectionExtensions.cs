@@ -15,26 +15,29 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
-    /// <summary>
-    /// Extensions to configure the <see cref="IServiceCollection"/> of an ASP.NET Core application.
-    /// </summary>
+    /// <summary>Extensions to configure the <see cref="IServiceCollection"/> of an ASP.NET Core application.</summary>
     public static class IdentityServiceCollectionExtensions
     {
-        /// <summary>
-        /// Configures the cookie used by <see cref="ExtendedIdentityConstants.ExtendedValidationUserIdScheme"/>.
-        /// </summary>
+        /// <summary>Configures the cookie used by <see cref="ExtendedIdentityConstants.ExtendedValidationUserIdScheme"/>.</summary>
         /// <param name="services">The services available in the application.</param>
         /// <param name="configure">An action to configure the <see cref="CookieAuthenticationOptions"/>.</param>
         public static IServiceCollection ConfigureExtendedValidationCookie(this IServiceCollection services, Action<CookieAuthenticationOptions> configure)
             => services.Configure(ExtendedIdentityConstants.ExtendedValidationUserIdScheme, configure);
 
-        /// <summary>
-        /// Configures <see cref="RazorViewEngineOptions"/> by adding the <see cref="ClientAwareViewLocationExpander"/> in the list of available <see cref="IViewLocationExpander"/>.
-        /// </summary>
+        /// <summary>Configures <see cref="RazorViewEngineOptions"/> by adding the <see cref="ClientAwareViewLocationExpander"/> in the list of available <see cref="IViewLocationExpander"/>.</summary>
         /// <param name="services">The services available in the application.</param>
         public static IServiceCollection AddClientAwareViewLocationExpander(this IServiceCollection services) {
             services.Configure<RazorViewEngineOptions>(options => options.ViewLocationExpanders.Add(new ClientAwareViewLocationExpander()));
             services.AddSingleton<IHtmlLocalizerFactory, ClientAwareHtmlLocalizerFactory>();
+            return services;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="services"></param>
+        /// <returns></returns>
+        public static IServiceCollection AddClientThemingService(this IServiceCollection services) {
             return services;
         }
 

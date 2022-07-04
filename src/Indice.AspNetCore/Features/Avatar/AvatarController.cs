@@ -28,51 +28,51 @@ namespace Indice.AspNetCore.Features
 
         public AvatarGenerator AvatarGenerator { get; }
         /// <summary>
-        /// Creates an avatar using random background color based on fullname and optional size.
+        /// Creates an avatar using random background color based on full name and optional size.
         /// </summary>
-        /// <param name="fullname">The fullname to use when creating the avatar.</param>
+        /// <param name="fullname">The full name to use when creating the avatar.</param>
         /// <param name="ext">The desired size of the avatar. Possible values are 16, 24, 32, 48, 64, 128, 192, 256 and 512.</param>
         /// <param name="foreground">The foreground color to use.</param>
-        /// <param name="circular">Determines whether the tile will be circular or sqare. Defaults to false (sqare)</param>
+        /// <param name="circular">Determines whether the tile will be circular or square. Defaults to false (square)</param>
         /// <returns></returns>
         [HttpGet("{fullname}.{ext?}"), ResponseCache(Duration = 345600, Location = ResponseCacheLocation.Any, VaryByQueryKeys = new[] { "foreground", "circular", "v" })]
         [AllowAnonymous]
         public IActionResult GetAvatar([FromRoute] string fullname, [FromRoute] string ext, [FromQuery] string foreground, [FromQuery] bool circular) => GetAvatar(fullname, size:null, background:null, ext, foreground: null, circular);
 
         /// <summary>
-        /// Creates an avatar using random background color based on fullname and optional size.
+        /// Creates an avatar using random background color based on full name and optional size.
         /// </summary>
-        /// <param name="fullname">The fullname to use when creating the avatar.</param>
+        /// <param name="fullname">The full name to use when creating the avatar.</param>
         /// <param name="size">The desired size of the avatar. Possible values are 16, 24, 32, 48, 64, 128, 192, 256 and 512.</param>
         /// <param name="foreground">The foreground color to use.</param>
-        /// <param name="circular">Determines whether the tile will be circular or sqare. Defaults to false (sqare)</param>
+        /// <param name="circular">Determines whether the tile will be circular or square. Defaults to false (square)</param>
         /// <returns></returns>
         [HttpGet("{fullname}/{size?}"), ResponseCache(Duration = 345600, Location = ResponseCacheLocation.Any, VaryByQueryKeys = new[] { "foreground", "circular", "v" })]
         [AllowAnonymous]
         public IActionResult GetAvatar([FromRoute] string fullname, [FromRoute] int? size, [FromQuery] string foreground, [FromQuery] bool circular) => GetAvatar(fullname, size, background:null, ext:null, foreground: null, circular);
 
         /// <summary>
-        /// Creates an avatar using random background color based on fullname and optional size and extension.
+        /// Creates an avatar using random background color based on full name and optional size and extension.
         /// </summary>
-        /// <param name="fullname">The fullname to use when creating the avatar.</param>
+        /// <param name="fullname">The full name to use when creating the avatar.</param>
         /// <param name="size">The desired size of the avatar. Possible values are 16, 24, 32, 48, 64, 128, 192, 256 and 512.</param>
         /// <param name="ext">The file extension (.png or .jpg).</param>
         /// <param name="foreground">The foreground color to use.</param>
-        /// <param name="circular">Determines whether the tile will be circular or sqare. Defaults to false (sqare)</param>
+        /// <param name="circular">Determines whether the tile will be circular or square. Defaults to false (square)</param>
         /// <returns></returns>
         [HttpGet("{fullname}/{size}.{ext?}"), ResponseCache(Duration = 345600, Location = ResponseCacheLocation.Any, VaryByQueryKeys = new[] { "foreground", "circular", "v" })]
         [AllowAnonymous]
         public IActionResult GetAvatar([FromRoute] string fullname, [FromRoute] int? size, [FromRoute] string ext, [FromQuery] string foreground, [FromQuery] bool circular) => GetAvatar(fullname, size, background: null, ext, foreground: null, circular);
 
         /// <summary>
-        /// Creates an avatar using fullname, size, background color and optional extension.
+        /// Creates an avatar using full name, size, background color and optional extension.
         /// </summary>
-        /// <param name="fullname">The fullname to use when creating the avatar.</param>
+        /// <param name="fullname">The full name to use when creating the avatar.</param>
         /// <param name="size">The desired size of the avatar. Possible values are 16, 24, 32, 48, 64, 128, 192, 256 and 512.</param>
         /// <param name="background">The background color to use.</param>
         /// <param name="ext">The file extension (.png or .jpg).</param>
         /// <param name="foreground">The foreground color to use.</param>
-        /// <param name="circular">Determines whether the tile will be circular or sqare. Defaults to false (sqare)</param>
+        /// <param name="circular">Determines whether the tile will be circular or square. Defaults to false (square)</param>
         /// <returns></returns>
         [HttpGet("{fullname}/{size}/{background}.{ext?}"), ResponseCache(Duration = 345600, Location = ResponseCacheLocation.Any, VaryByQueryKeys = new[] { "foreground", "circular", "v" })]
         [AllowAnonymous]
@@ -105,7 +105,7 @@ namespace Indice.AspNetCore.Features
         /// <param name="ext">The file extension (.png or .jpg).</param>
         /// <param name="background">The background color to use.</param>
         /// <param name="foreground">The foreground color to use.</param>
-        /// <param name="circular">Determines whether the tile will be circular or sqare. Defaults to false (sqare)</param>
+        /// <param name="circular">Determines whether the tile will be circular or square. Defaults to false (square)</param>
         /// <param name="v">Use for cache busting.</param>
         /// <returns></returns>
         [HttpGet, ResponseCache(Duration = 345600, Location = ResponseCacheLocation.Any, VaryByQueryKeys = new[] { "firstname", "lastname", "size", "ext", "background", "foreground", "circular", "v" })]

@@ -159,7 +159,7 @@ namespace Indice.AspNetCore.Identity
             return viewModel;
         }
 
-        /// <summary>Builds the logout viewmodel.</summary>
+        /// <summary>Builds the logout view model.</summary>
         /// <param name="logoutId">The logout id.</param>
         public async Task<LogoutViewModel> BuildLogoutViewModelAsync(string logoutId) {
             var viewModel = new LogoutViewModel {
@@ -177,10 +177,10 @@ namespace Indice.AspNetCore.Identity
             return viewModel;
         }
 
-        /// <summary>Build the post logout viewmodel. <see cref="LoggedOutViewModel"/>.</summary>
+        /// <summary>Build the post logout view model. <see cref="LoggedOutViewModel"/>.</summary>
         /// <param name="logoutId">The logout id.</param>
         public async Task<LoggedOutViewModel> BuildLoggedOutViewModelAsync(string logoutId) {
-            // Get context information (client name, post logout redirect URI and iframe for federated signout).
+            // Get context information (client name, post logout redirect URI and iframe for federated sign out).
             var logout = await _interaction.GetLogoutContextAsync(logoutId);
             var viewModel = new LoggedOutViewModel {
                 AutomaticRedirectAfterSignOut = AccountOptions.AutomaticRedirectAfterSignOut,
@@ -197,7 +197,7 @@ namespace Indice.AspNetCore.Identity
                     var providerSupportsSignout = await _httpContextAccessor.HttpContext.GetSchemeSupportsSignOutAsync(idp);
                     if (providerSupportsSignout) {
                         if (viewModel.LogoutId == null) {
-                            // If there's no current logout context, we need to create one. This captures necessary info from the current logged in user before we signout and redirect away to the external IdP for signout
+                            // If there's no current logout context, we need to create one. This captures necessary info from the current logged in user before we sign out and redirect away to the external IdP for sign out.
                             viewModel.LogoutId = await _interaction.CreateLogoutContextAsync();
                         }
                         viewModel.ExternalAuthenticationScheme = idp;

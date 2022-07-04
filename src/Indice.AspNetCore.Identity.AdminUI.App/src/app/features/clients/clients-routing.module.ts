@@ -1,19 +1,20 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 
-import { ClientsComponent } from './clients.component';
 import { ClientAddComponent } from './add/client-add.component';
-import { ClientEditComponent } from './edit/client-edit.component';
-import { ClientDetailsComponent } from './edit/details/client-details.component';
-import { ClientUrlsComponent } from './edit/urls/client-urls.component';
-import { ClientApiResourcesComponent } from './edit/resources/api/client-api-resources.component';
-import { ClientResourcesComponent } from './edit/resources/client-resources.component';
-import { ClientIdentityResourcesComponent } from './edit/resources/identity/client-identity-resources.component';
 import { ClientAdvancedComponent } from './edit/advanced/client-advanced.component';
-import { ClientTokensComponent } from './edit/advanced/tokens/client-tokens.component';
+import { ClientApiResourcesComponent } from './edit/resources/api/client-api-resources.component';
 import { ClientClaimsComponent } from './edit/advanced/claims/client-claims.component';
+import { ClientDetailsComponent } from './edit/details/client-details.component';
+import { ClientEditComponent } from './edit/client-edit.component';
 import { ClientGrantTypesComponent } from './edit/advanced/grant-types/client-grant-types.component';
+import { ClientIdentityResourcesComponent } from './edit/resources/identity/client-identity-resources.component';
+import { ClientResourcesComponent } from './edit/resources/client-resources.component';
+import { ClientsComponent } from './clients.component';
 import { ClientSecretsComponent } from './edit/secrets/client-secrets.component';
+import { ClientTokensComponent } from './edit/advanced/tokens/client-tokens.component';
+import { ClientUiConfigComponent } from './edit/theme/theme.component';
+import { ClientUrlsComponent } from './edit/urls/client-urls.component';
 
 const routes: Routes = [
   { path: '', component: ClientsComponent },
@@ -38,7 +39,8 @@ const routes: Routes = [
           { path: 'claims', component: ClientClaimsComponent },
           { path: 'grant-types', component: ClientGrantTypesComponent }
         ]
-      }
+      },
+      { path: 'ui-config', component: ClientUiConfigComponent }
     ]
   }
 ];
