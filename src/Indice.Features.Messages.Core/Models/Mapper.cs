@@ -195,7 +195,6 @@ namespace Indice.Features.Messages.Core.Models
             Published = request.Published,
             RecipientIds = request.RecipientIds,
             Recipients = request.Recipients,
-            //TemplateId = request.TemplateId,
             Title = request.Title,
             Type = request.TypeId.HasValue ? new MessageType { Id = request.TypeId.Value } : null
         };
@@ -203,7 +202,7 @@ namespace Indice.Features.Messages.Core.Models
         public static CreateCampaignRequest ToCreateCampaignRequest(CreateCampaignCommand command) => new() {
             ActionLink = command.ActionLink,
             ActivePeriod = command.ActivePeriod,
-            Content = command.Content.ToDictionary(x => x.Key.ToString(), y => y.Value),
+            Content = command.Content.ToDictionary(x => x.Key.ToString(), y => y.Value, StringComparer.OrdinalIgnoreCase),
             Data = ToExpandoObject(command.Data),
             RecipientListId = command.DistributionListId,
             IsGlobal = command.IsGlobal,
@@ -211,7 +210,6 @@ namespace Indice.Features.Messages.Core.Models
             Published = command.Published,
             RecipientIds = command.RecipientIds,
             Recipients = command.Recipients,
-            //TemplateId = command.TemplateId,
             Title = command.Title,
             TypeId = command.Type?.Id
         };

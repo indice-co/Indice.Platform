@@ -38,8 +38,6 @@ namespace Indice.Features.Messages.Core.Models.Requests
         public Guid? RecipientListId { get; set; }
         /// <summary>Optional data for the campaign.</summary>
         public ExpandoObject Data { get; set; }
-        /// <summary>The id of the template to use.</summary>
-        //public Guid? TemplateId { get; set; }
 
         internal IEnumerable<Contact> GetIncludedContacts() {
             if (RecipientIds is not null) {

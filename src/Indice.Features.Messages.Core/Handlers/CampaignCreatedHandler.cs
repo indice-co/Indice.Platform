@@ -7,14 +7,10 @@ using Indice.Types;
 
 namespace Indice.Features.Messages.Core.Handlers
 {
-    /// <summary>
-    /// Job handler for <see cref="CampaignCreatedEvent"/>.
-    /// </summary>
+    /// <summary>Job handler for <see cref="CampaignCreatedEvent"/>.</summary>
     public sealed class CampaignCreatedHandler : ICampaignJobHandler<CampaignCreatedEvent>
     {
-        /// <summary>
-        /// Creates a new instance of <see cref="CampaignCreatedHandler"/>.
-        /// </summary>
+        /// <summary>Creates a new instance of <see cref="CampaignCreatedHandler"/>.</summary>
         /// <param name="getEventDispatcher">Provides methods that allow application components to communicate with each other by dispatching events.</param>
         /// <param name="contactService">A service that contains contact related operations.</param>
         /// <exception cref="ArgumentNullException"></exception>
@@ -29,9 +25,7 @@ namespace Indice.Features.Messages.Core.Handlers
         private Func<string, IEventDispatcher> GetEventDispatcher { get; }
         private IContactService ContactService { get; }
 
-        /// <summary>
-        /// Distributes a campaign for further processing base on the <see cref="CampaignCreatedEvent.MessageChannelKind"/>.
-        /// </summary>
+        /// <summary>Distributes a campaign for further processing base on the <see cref="CampaignCreatedEvent.MessageChannelKind"/>.</summary>
         /// <param name="campaign">The event model used when a new campaign is created.</param>
         public async Task Process(CampaignCreatedEvent campaign) {
             // If campaign is global and has push notification as delivery channel, then we short-circuit the flow and we immediately broadcast the message.
@@ -51,9 +45,9 @@ namespace Indice.Features.Messages.Core.Handlers
                     });
                     contacts.AddRange(contactsResultSet.Items);
                 }
-                if (campaign.RecipientIds.Any()) {
-                    contacts.AddRange(campaign.RecipientIds.Select(id => new Contact { RecipientId = id }));
-                }
+                //if (campaign.RecipientIds.Any()) {
+                //    contacts.AddRange(campaign.RecipientIds.Select(id => new Contact { RecipientId = id }));
+                //}
                 if (campaign.Recipients.Any()) {
                     contacts.AddRange(campaign.Recipients.Select(x => x.ToContact()));
                 }

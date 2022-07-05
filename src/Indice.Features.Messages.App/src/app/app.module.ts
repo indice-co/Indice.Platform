@@ -34,12 +34,14 @@ import { ShellConfig } from './shell.config';
 import { TemplatesComponent } from './features/templates/templates.component';
 import { ToggleButtonComponent } from './shared/components/toggle-button/toggle-button.component';
 import * as app from 'src/app/core/models/settings';
+import { CampaignBasicInfoComponent } from './features/campaigns/steps/basic-info/campaign-basic-info.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     BasicModalComponent,
     BeautifyBooleanPipe,
+    CampaignBasicInfoComponent,
     CampaignCreateComponent,
     CampaignsComponent,
     DashboardComponent,

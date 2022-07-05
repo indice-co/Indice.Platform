@@ -173,10 +173,6 @@ namespace Indice.Features.Messages.Core.Manager
                 request.RecipientListId = createdList.Id;
                 isNewDistributionList = true;
             }
-            //if (request.TemplateId.HasValue) {
-            //    var template = await TemplateService.GetById(request.TemplateId.Value);
-            //    request.Content = template.Content;
-            //}
             // Create campaign in the store.
             var createdCampaign = await CampaignService.Create(request);
             // Dispatch event that the campaign was created.

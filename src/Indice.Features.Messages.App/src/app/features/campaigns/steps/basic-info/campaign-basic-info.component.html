@@ -1,0 +1,128 @@
+<form [formGroup]="form" class="">
+    <div class="px-4 space-y-2 pb-4 mt-4">
+        <!-- Τίτλος -->
+        <fieldset>
+            <legend class="sr-only">Τίτλος</legend>
+            <div class="text-base font-medium text-gray-900" aria-hidden="true">Τίτλος (*)</div>
+            <label for="campaignTitle" class="field-label hidden">Τίτλος (*)</label>
+            <div class="mt-1 flex rounded-sm">
+                <input type="text" name="campaignTitle" id="campaignTitle" formControlName="title" placeholder="Ο τίτλος της καμπάνιας...">
+            </div>
+            <p *ngIf="title.invalid && (title.dirty || title.touched)" class="mt-2 text-sm text-red-600">
+                <span *ngIf="title.errors!['required']">Παρακαλώ συμπληρώστε ένα τίτλο.</span>
+                <span *ngIf="title.errors!['maxlength']">Παρακαλώ συμπληρώστε ένα μικρότερο τίτλο.</span>
+            </p>
+            <p class="field-info col-span-3">Η ονομασία η οποία θα εμφανίζεται για την καμπάνια.</p>
+        </fieldset>
+        <!-- Τύπος -->
+        <fieldset>
+            <legend class="sr-only">Τύπος</legend>
+            <div class="text-base font-medium text-gray-900" aria-hidden="true">Τύπος</div>
+            <label for="campaignType" class="field-label hidden" aria-hidden="true">Τύπος</label>
+            <div class="mt-1 flex rounded-sm">
+                <lib-local-drop-down-menu id="campaignType" class="w-full" formControlName="type" [value]="type.value" [options]="messageTypes" (change)="type.setValue($event.value ? $event : null)">
+                </lib-local-drop-down-menu>
+            </div>
+        </fieldset>
+        <!-- Διάρκεια -->
+        <fieldset>
+            <legend class="sr-only">Διάρκεια</legend>
+            <div class="text-base font-medium text-gray-900" aria-hidden="true">Διάρκεια</div>
+            <div class="grid grid-cols-2 gap-4">
+                <!-- Από -->
+                <div class="col-span-2 sm:col-span-1">
+                    <label for="campaignStart" class="field-label hidden" aria-hidden="true">Ημ. Έναρξης</label>
+                    <div class="mt-1 flex rounded-sm col-span-3">
+                        <input class="w-full" type="datetime-local" name="campaignStart" id="campaignStart" formControlName="from" (input)="onCampaignStartInput($event)" [min]="now | date: 'yyyy-MM-ddTHH:mm'"
+                            [max]="to.value | date: 'yyyy-MM-ddTHH:mm'">
+                    </div>
+                    <p class="field-info">Η ημέρα και ώρα έναρξης της καμπάνιας</p>
+                </div>
+                <!-- Έως -->
+                <div class="col-span-2 sm:col-span-1">
+                    <label for="campaignEnd" class="field-label hidden" aria-hidden="true">Ημ. Λήξης</label>
+                    <div class="mt-1 flex rounded-sm col-span-3">
+                        <input class="w-full" type="datetime-local" name="campaignEnd" id="campaignEnd" formControlName="to" (input)="onCampaignEndInput($event)" [min]="from.value | date: 'yyyy-MM-ddTHH:mm'" [readonly]="!from.value">
+                    </div>
+                    <p class="field-info">Η ημέρα και ώρα λήξης της καμπάνιας</p>
+                </div>
+            </div>
+        </fieldset>
+        <!-- Call to action -->
+        <fieldset>
+            <legend class="sr-only">Call to action</legend>
+            <div class="text-base font-medium text-gray-900" aria-hidden="true">Call to action</div>
+            <div class="grid grid-cols-2 gap-4">
+                <!-- Call to action κείμενο -->
+                <div class="col-span-2 sm:col-span-1">
+                    <label for="campaignClickToActionText" class="field-label hidden" aria-hidden="true">Call to action</label>
+                    <div class="mt-1 flex rounded-sm">
+                        <input type="text" name="campaignClickToActionText" id="campaignClickToActionText" formControlName="actionLinkText" placeholder="Πατήστε εδώ για να...">
+                    </div>
+                    <p class="field-info">Κείμενο υπερσυνδέσμου</p>
+                </div>
+                <!-- Call to action σύνδεσμος -->
+                <div class="col-span-2 sm:col-span-1">
+                    <label for="campaignClickToActionLink" class="field-label hidden" aria-hidden="true">Call-to-action σύνδεσμος</label>
+                    <div class="mt-1 flex rounded-sm">
+                        <input type="text" name="campaignClickToActionLink" id="campaignClickToActionLink" formControlName="actionLinkHref" placeholder="https://example.com">
+                    </div>
+                    <p class="field-info">URL υπερσυνδέσμου</p>
+                    <p *ngIf="actionLinkHref.invalid && (actionLinkHref.dirty || actionLinkHref.touched)" class="mt-2 text-sm text-red-600">
+                        <span *ngIf="actionLinkHref.errors!['pattern']">Παρακαλώ συμπληρώστε έναν έγκυρο σύνδεσμο.</span>
+                    </p>
+                </div>
+            </div>
+        </fieldset>
+        <!-- Χρήση template -->
+        <fieldset>
+            <legend class="sr-only">Χρήση template</legend>
+            <div class="text-base font-medium text-gray-900" aria-hidden="true">Χρήση template</div>
+            <div class="grid grid-cols-2 gap-4">
+                <div class="col-span-2 sm:col-span-1">
+                    <div class="flex items-center mt-1">
+                        <input id="template-no" name="needsTemplate" type="radio" value="no" (change)="onNeedsTemplateChanged($event)" formControlName="needsTemplate" class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300">
+                        <label for="template-no" class="ml-3 block text-sm font-medium text-gray-700">Όχι</label>
+                        <input id="template-yes" name="needsTemplate" type="radio" value="yes" (change)="onNeedsTemplateChanged($event)" formControlName="needsTemplate" class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 ml-4">
+                        <label for="template-yes" class="ml-3 block text-sm font-medium text-gray-700">Ναι</label>
+                    </div>
+                </div>
+                <div class="col-span-2 sm:col-span-1" [class.invisible]="needsTemplate.value === 'no'">
+                    <label for="template" class="field-label hidden" aria-hidden="true">Template id</label>
+                    <div class="flex rounded-sm">
+                        <lib-local-drop-down-menu id="template" name="template" class="w-full" formControlName="template" [value]="template.value" [options]="templates" (change)="onTemplateSelectionChanged($event)">
+                        </lib-local-drop-down-menu>
+                    </div>
+                    <p *ngIf="template.invalid && (template.dirty || template.touched)" class="mt-2 text-sm text-red-600">
+                        <span *ngIf="template.errors!['required']">Παρακαλώ επιλέξτε ένα template.</span>
+                    </p>
+                </div>
+            </div>
+        </fieldset>
+        <!-- Κανάλια επικοινωνίας -->
+        <fieldset>
+            <legend class="sr-only">Κανάλια επικοινωνίας (*)</legend>
+            <div class="text-base font-medium text-gray-900" aria-hidden="true">Κανάλια επικοινωνίας (*)</div>
+            <label for="campaignType" class="field-label hidden" aria-hidden="true">Κανάλια επικοινωνίας (*)</label>
+            <div class="grid grid-cols-2 gap-4">
+                <div class="col-span-2 sm:col-span-1">
+                    <div class="divide-y divide-gray-200">
+                        <div *ngFor="let channel of channelsArray; let i = index" class="relative flex items-start py-4">
+                            <div class="min-w-0 flex-1 text-sm">
+                                <label [for]="'channel-' + i" class="font-medium text-gray-700">{{ channel.name }}</label>
+                                <p [id]="'channel-' + i + '-description'" class="text-gray-500">{{ channel.description }}</p>
+                            </div>
+                            <div class="ml-3 flex items-center h-5">
+                                <input [id]="'channel-' + i" [value]="channel.value" [attr.aria-describedby]="'channel-' + i + '-description'" (change)="onChannelCheckboxChange($event)" name="channels" type="checkbox"
+                                    class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 rounded" [checked]="channel.checked">
+                            </div>
+                        </div>
+                    </div>
+                    <p *ngIf="channels.invalid" class="mt-2 text-sm text-red-600">
+                        <span *ngIf="channels.errors!['required']">Παρακαλώ επιλέξτε τουλάχιστον ένα κανάλι επικοινωνίας.</span>
+                    </p>
+                </div>
+            </div>
+        </fieldset>
+    </div>
+</form>
