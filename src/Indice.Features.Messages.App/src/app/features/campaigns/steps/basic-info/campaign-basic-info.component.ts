@@ -11,14 +11,13 @@ import { MessageChannelKind, MessagesApiClient, MessageTypeResultSet, TemplateLi
     templateUrl: './campaign-basic-info.component.html'
 })
 export class CampaignBasicInfoComponent implements OnInit {
-    // Input & Output parameters
-    @Input() public form!: UntypedFormGroup;
-
     constructor(
         private _api: MessagesApiClient,
         private _datePipe: DatePipe
     ) { }
 
+    // Input & Output parameters
+    @Input() public form!: UntypedFormGroup;
     // Form Controls
     public get title(): AbstractControl { return this.form.get('title')!; }
     public get from(): AbstractControl { return this.form.get('from')!; }

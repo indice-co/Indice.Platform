@@ -12,7 +12,10 @@ import { AppRoutingModule } from './app-routing.module';
 import { BadRequestInterceptor } from './core/bad-request-interceptor';
 import { BasicModalComponent } from './shared/components/basic-modal/basic-modal.component';
 import { BeautifyBooleanPipe } from './shared/pipes.services';
+import { CampaignBasicInfoComponent } from './features/campaigns/steps/basic-info/campaign-basic-info.component';
 import { CampaignCreateComponent } from './features/campaigns/create/campaign-create.component';
+import { CampaignPreviewComponent } from './features/campaigns/steps/preview/campaign-preview.component';
+import { CampaignRecipientsComponent } from './features/campaigns/steps/recipients/campaign-recipients.component';
 import { CampaignsComponent } from './features/campaigns/campaigns.component';
 import { DashboardComponent } from './features/dashboard/dashboard.component';
 import { DistributionListContactCreateComponent } from './features/distribution-lists/contacts/create/distribution-list-contact-create.component';
@@ -34,7 +37,6 @@ import { ShellConfig } from './shell.config';
 import { TemplatesComponent } from './features/templates/templates.component';
 import { ToggleButtonComponent } from './shared/components/toggle-button/toggle-button.component';
 import * as app from 'src/app/core/models/settings';
-import { CampaignBasicInfoComponent } from './features/campaigns/steps/basic-info/campaign-basic-info.component';
 
 @NgModule({
   declarations: [
@@ -43,6 +45,8 @@ import { CampaignBasicInfoComponent } from './features/campaigns/steps/basic-inf
     BeautifyBooleanPipe,
     CampaignBasicInfoComponent,
     CampaignCreateComponent,
+    CampaignPreviewComponent,
+    CampaignRecipientsComponent,
     CampaignsComponent,
     DashboardComponent,
     DistributionListContactCreateComponent,

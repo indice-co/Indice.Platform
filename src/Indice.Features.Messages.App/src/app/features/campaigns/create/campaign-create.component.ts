@@ -2,14 +2,16 @@ import { AfterViewChecked, ChangeDetectorRef, Component, Inject, OnInit, ViewChi
 import { AbstractControl, UntypedFormControl, UntypedFormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 
-import { LibStepperComponent, LibTabComponent, LibTabGroupComponent, MenuOption, StepperType, ToasterService, ToastType } from '@indice/ng-components';
-import { map } from 'rxjs/operators';
+import { LibStepperComponent, LibTabComponent, LibTabGroupComponent, StepperType, ToasterService, ToastType } from '@indice/ng-components';
 import { StepSelectedEvent } from '@indice/ng-components/lib/controls/stepper/types/step-selected-event';
 import * as Handlebars from 'handlebars/dist/cjs/handlebars';
 import { CampaignBasicInfoComponent } from '../steps/basic-info/campaign-basic-info.component';
-import { CreateCampaignRequest, MessagesApiClient, MessageChannelKind, Period, Hyperlink, Campaign, DistributionListResultSet, Template, MessageContent } from 'src/app/core/services/messages-api.service';
+import { CreateCampaignRequest, MessagesApiClient, MessageChannelKind, Period, Hyperlink, Campaign, Template, MessageContent } from 'src/app/core/services/messages-api.service';
 import { UtilitiesService } from 'src/app/shared/utilities.service';
 import { ValidationService } from 'src/app/core/services/validation.service';
+import { CampaignPreviewComponent } from '../steps/preview/campaign-preview.component';
+import { CampaignPreview } from '../steps/preview/campaign-preview';
+import { CampaignRecipientsComponent } from '../steps/recipients/campaign-recipients.component';
 
 @Component({
     selector: 'app-campaign-create',
@@ -18,9 +20,12 @@ import { ValidationService } from 'src/app/core/services/validation.service';
 export class CampaignCreateComponent implements OnInit, AfterViewChecked {
     @ViewChild('createCampaignStepper', { static: true }) private _stepper!: LibStepperComponent;
     @ViewChild('basicInfoStep', { static: true }) private _basicInfoStep!: CampaignBasicInfoComponent;
+    @ViewChild('previewStep', { static: true }) private _previewStep!: CampaignPreviewComponent;
+    @ViewChild('recipientsStep', { static: true }) private _recipientsStep!: CampaignRecipientsComponent;
     @ViewChild('tabGroup', { static: true }) private _tabGroup!: LibTabGroupComponent;
     private _currentValidDataObject: any = undefined;
     private _contentStepInitialized: boolean = false;
+
     private _samplePayload: any = {
         contact: {
             id: 'FA24F7D6-332F-4E17-8E43-A111DB32E7CC',
@@ -48,15 +53,10 @@ export class CampaignCreateComponent implements OnInit, AfterViewChecked {
     public contentForm!: UntypedFormGroup;
     public recipientsForm!: UntypedFormGroup;
     public previewForm!: UntypedFormGroup;
-    public distributionLists: MenuOption[] = [new MenuOption('Παρακαλώ επιλέξτε...', null)];
     public submitInProgress = false;
     public subjectPreview: string = '';
     public bodyPreview: string = '';
     public get data(): AbstractControl { return this.contentForm.get('data')!; }
-    public get sendVia(): AbstractControl { return this.recipientsForm.get('sendVia')!; }
-    public get distributionList(): AbstractControl { return this.recipientsForm.get('distributionList')!; }
-    public get recipientIds(): AbstractControl { return this.recipientsForm.get('recipientIds')!; }
-    public get published(): AbstractControl { return this.previewForm.get('published')!; }
     public get inboxBody(): AbstractControl { return this.contentForm.get('inboxBody')!; }
     public get inboxSubject(): AbstractControl { return this.contentForm.get('inboxSubject')!; }
     public get emailBody(): AbstractControl { return this.contentForm.get('emailBody')!; }
@@ -71,17 +71,14 @@ export class CampaignCreateComponent implements OnInit, AfterViewChecked {
     public showSmsTab = false;
     public StepperType = StepperType;
     public MessageChannelKind = MessageChannelKind;
+    public previewData = new CampaignPreview();
 
     public get okLabel(): string {
         return this._stepper.currentStep?.isLast
-            ? this.published.value === true
+            ? this._previewStep.published.value === true
                 ? 'Αποθήκευση & Δημοσίευση'
                 : 'Αποθήκευση'
             : 'Επόμενο';
-    }
-
-    public get recipientsCount(): number {
-        return this.recipientIds.value?.split('\n').filter((x: string) => x !== '').length || 0;
     }
 
     public get samplePayload(): any {
@@ -134,14 +131,14 @@ export class CampaignCreateComponent implements OnInit, AfterViewChecked {
                 from: this._basicInfoStep.from.value ? new Date(this._basicInfoStep.from.value) : undefined,
                 to: this._basicInfoStep.to.value ? new Date(this._basicInfoStep.to.value) : undefined
             }),
-            isGlobal: this.sendVia.value === 'user-base',
+            isGlobal: this._recipientsStep.sendVia.value === 'user-base',
             messageChannelKind: this._basicInfoStep.channels.value,
-            published: this.published.value,
+            published: this._previewStep.published.value,
             title: this._basicInfoStep.title.value,
             data: this.data.value,
             typeId: this._basicInfoStep.type.value?.value || undefined,
-            recipientIds: this.recipientIds.value ? this.recipientIds.value.split('\n') : null,
-            recipientListId: this.distributionList.value?.value || undefined,
+            recipientIds: this._recipientsStep.recipientIds.value ? this._recipientsStep.recipientIds.value.split('\n') : null,
+            recipientListId: this._recipientsStep.distributionList.value?.value || undefined,
             content: {}
         });
         for (const channel of this._basicInfoStep.channels.value) {
@@ -182,9 +179,21 @@ export class CampaignCreateComponent implements OnInit, AfterViewChecked {
         if (event.selectedIndex === 1) {
             this._initSecondStep();
         }
-        if (event.selectedIndex === 2 && this.distributionLists.length <= 1) {
-            this._loadDistributionLists();
-        }
+        // if (event.selectedIndex === 2 && this.distributionLists.length <= 1) {
+        //     this._loadDistributionLists();
+        // }
+        this.previewData.title = this._basicInfoStep.title.value;
+        this.previewData.type = this._basicInfoStep.type.value?.text;
+        this.previewData.template = this._basicInfoStep.template.value?.text;
+        this.previewData.distributionList = this._recipientsStep.distributionList.value?.text;
+        this.previewData.period = new Period({
+            from: this._basicInfoStep.from.value,
+            to: this._basicInfoStep.to.value
+        });
+        this.previewData.actionLink = new Hyperlink({
+            text: this._basicInfoStep.actionLinkText.value,
+            href: this._basicInfoStep.actionLinkHref.value
+        });
     }
 
     public onContentTabChanged(tab: LibTabComponent): void {
@@ -209,22 +218,6 @@ export class CampaignCreateComponent implements OnInit, AfterViewChecked {
         }
         this._setContentSubjectPreview(subject);
         this._setContentBodyPreview(body);
-    }
-
-    public onSendViaChanged(event: any): void {
-        const value = event.target.value;
-        this.recipientIds.removeValidators(Validators.required);
-        this.distributionList.removeValidators(Validators.required);
-        if (value === 'distribution-list') {
-            this.distributionList.setValidators(Validators.required);
-            this.recipientIds.setValue(null);
-        } else if (value === 'recipient-ids') {
-            this.recipientIds.setValidators(Validators.required);
-            this.distributionList.setValue(null);
-        }
-        this.distributionList.updateValueAndValidity();
-        this.recipientIds.updateValueAndValidity();
-        this.sendVia.setValue(value);
     }
 
     public toRecipientIdsArray(recipientIds: string | undefined): string[] {
@@ -252,9 +245,6 @@ export class CampaignCreateComponent implements OnInit, AfterViewChecked {
             distributionList: new UntypedFormControl(undefined, [Validators.required]),
             recipientIds: new UntypedFormControl()
         });
-        this.previewForm = new UntypedFormGroup({
-            published: new UntypedFormControl(false)
-        })
     }
 
     private _initSecondStep(): void {
@@ -386,16 +376,5 @@ export class CampaignCreateComponent implements OnInit, AfterViewChecked {
         this.pushNotificationBody.removeValidators(Validators.required);
         this.inboxSubject.removeValidators(Validators.required);
         this.inboxBody.removeValidators(Validators.required);
-    }
-
-    private _loadDistributionLists(): void {
-        this._api
-            .getDistributionLists()
-            .pipe(map((distributionLists: DistributionListResultSet) => {
-                if (distributionLists.items) {
-                    this.distributionLists.push(...distributionLists.items.map(list => new MenuOption(list.name || '', list.id)));
-                }
-            }))
-            .subscribe();
     }
 }
