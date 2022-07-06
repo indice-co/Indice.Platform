@@ -1,0 +1,54 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>netcoreapp3.1;net5.0;net6.0</TargetFrameworks>
+    <Nullable>enable</Nullable>
+    <GenerateDocumentationFile>True</GenerateDocumentationFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Elsa" Version="2.8.2" />
+    <PackageReference Include="Elsa.Activities.Http" Version="2.8.2" />
+    <PackageReference Include="Elsa.Activities.Temporal.Quartz" Version="2.8.2" />
+    <PackageReference Include="Elsa.Designer.Components.Web" Version="2.8.2" />
+    <PackageReference Include="Elsa.Persistence.EntityFramework.SqlServer" Version="2.8.2" />
+    <PackageReference Include="Elsa.Server.Api" Version="2.8.2" />
+    <PackageReference Include="IdentityModel" Version="4.5.0" />
+    <PackageReference Include="Indice.AspNetCore" Version="6.1.7" />
+    <PackageReference Include="Indice.EntityFrameworkCore" Version="6.1.1" />
+
+    <PackageReference Include="JsonSchema.Net" Version="2.4.0" />
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
+    <PackageReference Include="Indice.EntityFrameworkCore" Version="6.1.1" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)' == 'net5.0'">
+    <PackageReference Include="Indice.EntityFrameworkCore" Version="6.1.1" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="5.0.16" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="5.0.16" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)' == 'net6.0'">
+    <PackageReference Include="Indice.EntityFrameworkCore" Version="6.1.1" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="6.0.5" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="6.0.5" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\icon\icon-310.png" Pack="true" Visible="false" PackagePath="" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Update="CasesResources.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>CasesResources.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Update="CasesResources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>CasesResources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+
+
+</Project>

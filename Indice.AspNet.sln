@@ -77,7 +77,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Indice.AspNetCore.Tests", "
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Indice.AspNetCore.Views", "test\Indice.AspNetCore.Views\Indice.AspNetCore.Views.csproj", "{A1E3CF4C-271D-4FC7-86A2-604B41DA8CAB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Indice.Features.Messages.Tests", "test\Indice.Features.Messages.Tests\Indice.Features.Messages.Tests.csproj", "{C30917BF-E72B-4BED-8782-3CE246D556ED}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Indice.Features.Messages.Tests", "test\Indice.Features.Messages.Tests\Indice.Features.Messages.Tests.csproj", "{C30917BF-E72B-4BED-8782-3CE246D556ED}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Indice.Features.Cases", "src\Indice.Features.Cases\Indice.Features.Cases.csproj", "{010D9BD8-C9A3-47B7-BE12-25BFE78A4293}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Indice.Features.Cases.Tests", "test\Indice.Features.Cases.Tests\Indice.Features.Cases.Tests.csproj", "{3417917B-2666-4354-8983-3F93FA1615CD}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -209,6 +213,14 @@ Global
 		{C30917BF-E72B-4BED-8782-3CE246D556ED}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C30917BF-E72B-4BED-8782-3CE246D556ED}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C30917BF-E72B-4BED-8782-3CE246D556ED}.Release|Any CPU.Build.0 = Release|Any CPU
+		{010D9BD8-C9A3-47B7-BE12-25BFE78A4293}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{010D9BD8-C9A3-47B7-BE12-25BFE78A4293}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{010D9BD8-C9A3-47B7-BE12-25BFE78A4293}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{010D9BD8-C9A3-47B7-BE12-25BFE78A4293}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3417917B-2666-4354-8983-3F93FA1615CD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3417917B-2666-4354-8983-3F93FA1615CD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3417917B-2666-4354-8983-3F93FA1615CD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3417917B-2666-4354-8983-3F93FA1615CD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -245,6 +257,8 @@ Global
 		{10DDF041-7564-4009-B108-E87427CFC524} = {613A1373-9A47-42DD-A076-7F310D0440B9}
 		{A1E3CF4C-271D-4FC7-86A2-604B41DA8CAB} = {613A1373-9A47-42DD-A076-7F310D0440B9}
 		{C30917BF-E72B-4BED-8782-3CE246D556ED} = {613A1373-9A47-42DD-A076-7F310D0440B9}
+		{010D9BD8-C9A3-47B7-BE12-25BFE78A4293} = {643960D9-48C5-4EA3-BED5-486CCC694947}
+		{3417917B-2666-4354-8983-3F93FA1615CD} = {613A1373-9A47-42DD-A076-7F310D0440B9}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {C2B9151E-8A85-444E-93A9-78264FD0FE4A}
