@@ -1,0 +1,51 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>netcoreapp3.1;net5.0;net6.0</TargetFrameworks>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <GenerateEmbeddedFilesManifest>true</GenerateEmbeddedFilesManifest>
+    <SpaDistFolder>..\Indice.Features.Cases.App\dist\cases-app</SpaDistFolder>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="cases-ui-dist\index.html" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Indice.AspNetCore.EmbeddedUI" Version="6.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Indice.AspNetCore.EmbeddedUI\Indice.AspNetCore.EmbeddedUI.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="cases-ui-dist/**/*" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <SpaSourceFolder Include="..\Indice.Features.Cases.App" />
+  </ItemGroup>
+
+  <!-- Run 'npm install' command to download node modules for admin ui. -->
+  <Target Name="NpmInstall" BeforeTargets="DispatchToInnerBuilds">
+    <Exec Command="npm install --force" WorkingDirectory="@(SpaSourceFolder)" EnvironmentVariables="PATH=$(Path.Replace(';', '%3B'))" ContinueOnError="true">
+      <Output TaskParameter="ExitCode" PropertyName="ErrorCode" />
+    </Exec>
+    <Error Condition="'$(ErrorCode)' != '0'" Text="Node.js/npm is required to build this project. To continue, please install Node.js from https://nodejs.org/ or Visual Studio Installer, and then restart your command prompt or IDE." />
+  </Target>
+  <!--Run 'npm run build:template' in order to build the admin ui app.-->
+  <Target Name="SpaBuild" BeforeTargets="DispatchToInnerBuilds" Condition="!Exists('$(SpaDistFolder)')">
+    <Exec Command="npm run build:template" WorkingDirectory="@(SpaSourceFolder)" EnvironmentVariables="PATH=$(Path.Replace(';', '%3B'))" ContinueOnError="true">
+      <Output TaskParameter="ExitCode" PropertyName="ErrorCode" />
+    </Exec>
+  </Target>
+  <!--Copy artifacts from dist folder inside the project, so they can be used as embedded resources.-->
+  <Target Name="CopyFiles" BeforeTargets="Build">
+    <ItemGroup>
+      <SpaDistFolderGlob Include="$(SpaDistFolder)\**\*" Exclude="$(SpaDistFolder)\index.html" />
+    </ItemGroup>
+    <Copy SourceFiles="@(SpaDistFolderGlob)" DestinationFiles="@(SpaDistFolderGlob->'$(ProjectDir)\cases-ui-dist\%(RecursiveDir)%(Filename)%(Extension)')" />
+  </Target>
+</Project>
