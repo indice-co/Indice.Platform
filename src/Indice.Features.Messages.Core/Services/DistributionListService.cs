@@ -26,8 +26,6 @@ namespace Indice.Features.Messages.Core.Services
         /// <inheritdoc />
         public async Task<DistributionList> Create(CreateDistributionListRequest request, IEnumerable<Contact> contacts = null) {
             var list = new DbDistributionList {
-                CreatedAt = DateTimeOffset.UtcNow,
-                CreatedBy = request.CreatedBy,
                 Id = Guid.NewGuid(),
                 Name = request.Name
             };
@@ -127,6 +125,8 @@ namespace Indice.Features.Messages.Core.Services
                 .Select(list => new DistributionList {
                     CreatedAt = list.CreatedAt,
                     CreatedBy = list.CreatedBy,
+                    UpdatedBy = list.UpdatedBy,
+                    UpdatedAt = list.UpdatedAt,
                     Id = list.Id,
                     Name = list.Name
                 });

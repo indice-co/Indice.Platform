@@ -13,7 +13,9 @@ import { BadRequestInterceptor } from './core/bad-request-interceptor';
 import { BasicModalComponent } from './shared/components/basic-modal/basic-modal.component';
 import { BeautifyBooleanPipe } from './shared/pipes.services';
 import { CampaignBasicInfoComponent } from './features/campaigns/steps/basic-info/campaign-basic-info.component';
+import { CampaignContentComponent } from './features/campaigns/steps/content/campaign-content.component';
 import { CampaignCreateComponent } from './features/campaigns/create/campaign-create.component';
+import { CampaignEditComponent } from './features/campaigns/edit/campaign-edit.component';
 import { CampaignPreviewComponent } from './features/campaigns/steps/preview/campaign-preview.component';
 import { CampaignRecipientsComponent } from './features/campaigns/steps/recipients/campaign-recipients.component';
 import { CampaignsComponent } from './features/campaigns/campaigns.component';
@@ -44,7 +46,9 @@ import * as app from 'src/app/core/models/settings';
     BasicModalComponent,
     BeautifyBooleanPipe,
     CampaignBasicInfoComponent,
+    CampaignContentComponent,
     CampaignCreateComponent,
+    CampaignEditComponent,
     CampaignPreviewComponent,
     CampaignRecipientsComponent,
     CampaignsComponent,

@@ -15,11 +15,16 @@ namespace Indice.Features.Messages.Core.Models
             ActivePeriod = campaign.ActivePeriod,
             Content = campaign.Content ?? new Dictionary<string, MessageContent>(),
             CreatedAt = campaign.CreatedAt,
+            CreatedBy = campaign.CreatedBy,
+            UpdatedAt = campaign.UpdatedAt,
+            UpdatedBy = campaign.UpdatedBy,
             Data = campaign.Data,
             MessageChannelKind = campaign.MessageChannelKind,
             DistributionList = campaign.DistributionList != null ? new DistributionList {
                 CreatedAt = campaign.DistributionList.CreatedAt,
                 CreatedBy = campaign.DistributionList.CreatedBy,
+                UpdatedAt = campaign.DistributionList.UpdatedAt,
+                UpdatedBy = campaign.DistributionList.UpdatedBy,
                 Id = campaign.DistributionList.Id,
                 Name = campaign.DistributionList.Name
             } : null,
@@ -81,6 +86,9 @@ namespace Indice.Features.Messages.Core.Models
             } : null,
             Content = campaign.Content ?? new Dictionary<string, MessageContent>(),
             CreatedAt = campaign.CreatedAt,
+            CreatedBy = campaign.CreatedBy,
+            UpdatedAt = campaign.UpdatedAt,
+            UpdatedBy = campaign.UpdatedBy,
             Data = campaign.Data,
             MessageChannelKind = campaign.MessageChannelKind,
             DistributionList = campaign.DistributionList != null ? new DistributionList {

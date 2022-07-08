@@ -1,5 +1,5 @@
-import { Component, Input, OnInit } from '@angular/core';
-import { AbstractControl, UntypedFormGroup, Validators } from '@angular/forms';
+import { Component, OnInit } from '@angular/core';
+import { AbstractControl, UntypedFormControl, UntypedFormGroup, Validators } from '@angular/forms';
 
 import { MenuOption } from '@indice/ng-components';
 import { map } from 'rxjs/operators';
@@ -12,8 +12,6 @@ import { DistributionListResultSet, MessagesApiClient } from 'src/app/core/servi
 export class CampaignRecipientsComponent implements OnInit {
     constructor(private _api: MessagesApiClient) { }
 
-    // Input & Output parameters
-    @Input() public form!: UntypedFormGroup;
     // Form Controls
     public get sendVia(): AbstractControl { return this.form.get('sendVia')!; }
     public get distributionList(): AbstractControl { return this.form.get('distributionList')!; }
@@ -24,8 +22,10 @@ export class CampaignRecipientsComponent implements OnInit {
     }
 
     public distributionLists: MenuOption[] = [new MenuOption('Παρακαλώ επιλέξτε...', null)];
+    public form!: UntypedFormGroup;
 
     public ngOnInit(): void {
+        this._initForm();
         this._loadDistributionLists();
     }
 
@@ -54,5 +54,13 @@ export class CampaignRecipientsComponent implements OnInit {
                 }
             }))
             .subscribe();
+    }
+
+    private _initForm(): void {
+        this.form = new UntypedFormGroup({
+            sendVia: new UntypedFormControl('distribution-list'),
+            distributionList: new UntypedFormControl(undefined, [Validators.required]),
+            recipientIds: new UntypedFormControl()
+        });
     }
 }

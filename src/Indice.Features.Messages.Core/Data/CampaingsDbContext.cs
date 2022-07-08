@@ -2,8 +2,10 @@
 using Indice.Features.Messages.Core.Data.Mappings;
 using Indice.Features.Messages.Core.Data.Models;
 using Indice.Features.Messages.Core.Services;
+using Indice.Features.Messages.Core.Services.Abstractions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Indice.Features.Messages.Core.Data
 {
@@ -49,6 +51,32 @@ namespace Indice.Features.Messages.Core.Data
             builder.ApplyConfiguration(new DbMessageMap(schemaName));
             builder.ApplyConfiguration(new DbMessageTypeMap(schemaName));
             builder.ApplyConfiguration(new DbTemplateMap(schemaName));
+        }
+
+        /// <inheritdoc />
+        public override Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = default) {
+            OnBeforeSaving();
+            return base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
+        }
+
+        /// <summary>Runs code before persisting entities to the database.</summary>
+        protected void OnBeforeSaving() {
+            var userNameAccessor = Database.GetService<IUserNameAccessor>();
+            if (userNameAccessor is null) {
+                return;
+            }
+            var auditableEntries = ChangeTracker.Entries().Where(entry => typeof(DbAuditableEntity).IsAssignableFrom(entry.Metadata.ClrType));
+            foreach (var entry in auditableEntries) {
+                var auditableEntry = (DbAuditableEntity)entry.Entity;
+                if (entry.State == EntityState.Added) {
+                    auditableEntry.CreatedAt = DateTimeOffset.UtcNow;
+                    auditableEntry.CreatedBy = userNameAccessor.Resolve();
+                }
+                if (entry.State == EntityState.Modified) {
+                    auditableEntry.UpdatedAt = DateTimeOffset.UtcNow;
+                    auditableEntry.UpdatedBy = userNameAccessor.Resolve();
+                }
+            }
         }
     }
 }

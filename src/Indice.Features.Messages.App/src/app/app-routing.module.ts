@@ -4,6 +4,7 @@ import { RouterModule, Routes } from '@angular/router';
 import { AuthCallbackComponent, AuthRenewComponent, PageNotFoundComponent } from '@indice/ng-components';
 import { AuthGuardService } from '@indice/ng-auth';
 import { CampaignCreateComponent } from './features/campaigns/create/campaign-create.component';
+import { CampaignEditComponent } from './features/campaigns/edit/campaign-edit.component';
 import { CampaignsComponent } from './features/campaigns/campaigns.component';
 import { DashboardComponent } from './features/dashboard/dashboard.component';
 import { DistributionListContactCreateComponent } from './features/distribution-lists/contacts/create/distribution-list-contact-create.component';
@@ -29,6 +30,7 @@ const routes: Routes = [
       { path: 'dashboard', component: DashboardComponent },
       { path: 'campaigns', component: CampaignsComponent },
       { path: 'campaigns/add', component: CampaignCreateComponent },
+      { path: 'campaigns/:campaignId/edit', component: CampaignEditComponent },
       { path: 'message-types', component: MessageTypesComponent },
       { path: 'distribution-lists', component: DistributionListsComponent },
       { path: 'distribution-lists/:distributionListId/contacts', component: DistributionListContactsComponent },

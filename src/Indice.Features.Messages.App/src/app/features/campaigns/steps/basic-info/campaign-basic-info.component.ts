@@ -1,10 +1,11 @@
 import { DatePipe } from '@angular/common';
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { AbstractControl, UntypedFormArray, UntypedFormControl, UntypedFormGroup, Validators } from '@angular/forms';
 
 import { MenuOption } from '@indice/ng-components';
 import { map } from 'rxjs/operators';
 import { MessageChannelKind, MessagesApiClient, MessageTypeResultSet, TemplateListItemResultSet } from 'src/app/core/services/messages-api.service';
+import { ChannelState } from '../content/channel-state';
 
 @Component({
     selector: 'app-campaign-basic-info',
@@ -17,7 +18,7 @@ export class CampaignBasicInfoComponent implements OnInit {
     ) { }
 
     // Input & Output parameters
-    @Input() public form!: UntypedFormGroup;
+    @Output() public templateSelected: EventEmitter<string | undefined> = new EventEmitter<string | undefined>();
     // Form Controls
     public get title(): AbstractControl { return this.form.get('title')!; }
     public get from(): AbstractControl { return this.form.get('from')!; }
@@ -29,11 +30,12 @@ export class CampaignBasicInfoComponent implements OnInit {
     public get needsTemplate(): AbstractControl { return this.form.get('needsTemplate')!; }
     public get channels(): AbstractControl { return this.form.get('channels')!; }
     // Properties
+    public form!: UntypedFormGroup;
     public messageTypes: MenuOption[] = [new MenuOption('Παρακαλώ επιλέξτε...', null)];
     public templates: MenuOption[] = [new MenuOption('Παρακαλώ επιλέξτε...', null)];
     public now: Date = new Date();
 
-    public channelsArray = [
+    public channelsState: ChannelState[] = [
         { name: 'Inbox', description: 'Ειδοποίηση μέσω πρoσωπικού μήνυμα.', value: MessageChannelKind.Inbox, checked: true },
         { name: 'Push Notification', description: 'Ειδοποίηση μέσω push notification στις εγγεγραμμένες συσκευές.', value: MessageChannelKind.PushNotification, checked: false },
         { name: 'Email', description: 'Ειδοποίηση μέσω ηλεκτρονικού ταχυδρομείου', value: MessageChannelKind.Email, checked: false },
@@ -74,16 +76,17 @@ export class CampaignBasicInfoComponent implements OnInit {
             const channelsFormArray: UntypedFormArray = this.channels as UntypedFormArray;
             channelsFormArray.clear();
             event.data.forEach((channel: string) => channelsFormArray.push(new UntypedFormControl(channel)));
-            this.channelsArray.forEach((channel: any) => channel.checked = this.channels.value.indexOf(channel.value) > -1);
+            this.channelsState.forEach((channel: any) => channel.checked = this.channels.value.indexOf(channel.value) > -1);
         } else {
             this.template.setValue(null);
         }
+        this.templateSelected.emit(event.value);
     }
 
     public onChannelCheckboxChange(event: any): void {
         const channelsFormArray: UntypedFormArray = this.channels as UntypedFormArray;
         const value = event.target.value;
-        const checkbox = this.channelsArray.find(x => x.value === value);
+        const checkbox = this.channelsState.find(x => x.value === value);
         if (event.target.checked) {
             channelsFormArray.push(new UntypedFormControl(value));
             checkbox!.checked = true;

@@ -11,10 +11,11 @@ export class CampaignPreviewComponent implements OnInit {
     constructor() { }
     
     // Input & Output parameters
-    @Input() public form!: UntypedFormGroup;
     @Input() public data!: CampaignPreview;
     // Form Controls
     public get published(): AbstractControl { return this.form.get('published')!; }
+    // Properties
+    public form!: UntypedFormGroup;
 
     public ngOnInit(): void {
         this._initForm();

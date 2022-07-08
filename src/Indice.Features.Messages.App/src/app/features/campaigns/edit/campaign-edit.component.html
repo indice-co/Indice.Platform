@@ -1,0 +1,8 @@
+<lib-model-view-layout [title]="'Campaign - ' + campaign.title!" [primary-links]="primary" [secondary-links]="secondary" [meta-items]="metaItems" *ngIf="campaign">
+    <div class="flex items-center p-5">
+        <div>
+            <p class="text-md leading-none mb-2">{{ campaign.title || '-' }}</p>
+            <p class="text-xs text-grey-dark mb-2">{{ campaign.title || '-' }}</p>
+        </div>
+    </div>
+</lib-model-view-layout>

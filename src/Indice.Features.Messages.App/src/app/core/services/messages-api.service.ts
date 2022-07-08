@@ -3472,8 +3472,6 @@ export class Campaign implements ICampaign {
     /** The content of the campaign. */
     content?: { [key: string]: MessageContent; } | undefined;
     actionLink?: Hyperlink;
-    /** Specifies when a campaign was created. */
-    createdAt?: Date;
     /** Determines if a campaign is published. */
     published?: boolean;
     activePeriod?: Period;
@@ -3484,6 +3482,14 @@ export class Campaign implements ICampaign {
     messageChannelKind?: MessageChannelKind[];
     /** Optional data for the campaign. */
     data?: { [key: string]: any; } | undefined;
+    /** Specifies the principal that created the campaign. */
+    createdBy?: string | undefined;
+    /** Specifies when a campaign was created. */
+    createdAt?: Date;
+    /** Specifies the principal that update the campaign. */
+    updatedBy?: string | undefined;
+    /** Specifies when a campaign was updated. */
+    updatedAt?: Date | undefined;
 
     constructor(data?: ICampaign) {
         if (data) {
@@ -3506,7 +3512,6 @@ export class Campaign implements ICampaign {
                 }
             }
             this.actionLink = _data["actionLink"] ? Hyperlink.fromJS(_data["actionLink"]) : <any>undefined;
-            this.createdAt = _data["createdAt"] ? new Date(_data["createdAt"].toString()) : <any>undefined;
             this.published = _data["published"];
             this.activePeriod = _data["activePeriod"] ? Period.fromJS(_data["activePeriod"]) : <any>undefined;
             this.isGlobal = _data["isGlobal"];
@@ -3524,6 +3529,10 @@ export class Campaign implements ICampaign {
                         (<any>this.data)![key] = _data["data"][key];
                 }
             }
+            this.createdBy = _data["createdBy"];
+            this.createdAt = _data["createdAt"] ? new Date(_data["createdAt"].toString()) : <any>undefined;
+            this.updatedBy = _data["updatedBy"];
+            this.updatedAt = _data["updatedAt"] ? new Date(_data["updatedAt"].toString()) : <any>undefined;
         }
     }
 
@@ -3546,7 +3555,6 @@ export class Campaign implements ICampaign {
             }
         }
         data["actionLink"] = this.actionLink ? this.actionLink.toJSON() : <any>undefined;
-        data["createdAt"] = this.createdAt ? this.createdAt.toISOString() : <any>undefined;
         data["published"] = this.published;
         data["activePeriod"] = this.activePeriod ? this.activePeriod.toJSON() : <any>undefined;
         data["isGlobal"] = this.isGlobal;
@@ -3564,6 +3572,10 @@ export class Campaign implements ICampaign {
                     (<any>data["data"])[key] = (<any>this.data)[key];
             }
         }
+        data["createdBy"] = this.createdBy;
+        data["createdAt"] = this.createdAt ? this.createdAt.toISOString() : <any>undefined;
+        data["updatedBy"] = this.updatedBy;
+        data["updatedAt"] = this.updatedAt ? this.updatedAt.toISOString() : <any>undefined;
         return data;
     }
 }
@@ -3577,8 +3589,6 @@ export interface ICampaign {
     /** The content of the campaign. */
     content?: { [key: string]: MessageContent; } | undefined;
     actionLink?: Hyperlink;
-    /** Specifies when a campaign was created. */
-    createdAt?: Date;
     /** Determines if a campaign is published. */
     published?: boolean;
     activePeriod?: Period;
@@ -3589,6 +3599,14 @@ export interface ICampaign {
     messageChannelKind?: MessageChannelKind[];
     /** Optional data for the campaign. */
     data?: { [key: string]: any; } | undefined;
+    /** Specifies the principal that created the campaign. */
+    createdBy?: string | undefined;
+    /** Specifies when a campaign was created. */
+    createdAt?: Date;
+    /** Specifies the principal that update the campaign. */
+    updatedBy?: string | undefined;
+    /** Specifies when a campaign was updated. */
+    updatedAt?: Date | undefined;
 }
 
 /** Models a campaign. */
@@ -3600,8 +3618,6 @@ export class CampaignDetails implements ICampaignDetails {
     /** The content of the campaign. */
     content?: { [key: string]: MessageContent; } | undefined;
     actionLink?: Hyperlink;
-    /** Specifies when a campaign was created. */
-    createdAt?: Date;
     /** Determines if a campaign is published. */
     published?: boolean;
     activePeriod?: Period;
@@ -3612,6 +3628,14 @@ export class CampaignDetails implements ICampaignDetails {
     messageChannelKind?: MessageChannelKind[];
     /** Optional data for the campaign. */
     data?: { [key: string]: any; } | undefined;
+    /** Specifies the principal that created the campaign. */
+    createdBy?: string | undefined;
+    /** Specifies when a campaign was created. */
+    createdAt?: Date;
+    /** Specifies the principal that update the campaign. */
+    updatedBy?: string | undefined;
+    /** Specifies when a campaign was updated. */
+    updatedAt?: Date | undefined;
     attachment?: AttachmentLink;
 
     constructor(data?: ICampaignDetails) {
@@ -3635,7 +3659,6 @@ export class CampaignDetails implements ICampaignDetails {
                 }
             }
             this.actionLink = _data["actionLink"] ? Hyperlink.fromJS(_data["actionLink"]) : <any>undefined;
-            this.createdAt = _data["createdAt"] ? new Date(_data["createdAt"].toString()) : <any>undefined;
             this.published = _data["published"];
             this.activePeriod = _data["activePeriod"] ? Period.fromJS(_data["activePeriod"]) : <any>undefined;
             this.isGlobal = _data["isGlobal"];
@@ -3653,6 +3676,10 @@ export class CampaignDetails implements ICampaignDetails {
                         (<any>this.data)![key] = _data["data"][key];
                 }
             }
+            this.createdBy = _data["createdBy"];
+            this.createdAt = _data["createdAt"] ? new Date(_data["createdAt"].toString()) : <any>undefined;
+            this.updatedBy = _data["updatedBy"];
+            this.updatedAt = _data["updatedAt"] ? new Date(_data["updatedAt"].toString()) : <any>undefined;
             this.attachment = _data["attachment"] ? AttachmentLink.fromJS(_data["attachment"]) : <any>undefined;
         }
     }
@@ -3676,7 +3703,6 @@ export class CampaignDetails implements ICampaignDetails {
             }
         }
         data["actionLink"] = this.actionLink ? this.actionLink.toJSON() : <any>undefined;
-        data["createdAt"] = this.createdAt ? this.createdAt.toISOString() : <any>undefined;
         data["published"] = this.published;
         data["activePeriod"] = this.activePeriod ? this.activePeriod.toJSON() : <any>undefined;
         data["isGlobal"] = this.isGlobal;
@@ -3694,6 +3720,10 @@ export class CampaignDetails implements ICampaignDetails {
                     (<any>data["data"])[key] = (<any>this.data)[key];
             }
         }
+        data["createdBy"] = this.createdBy;
+        data["createdAt"] = this.createdAt ? this.createdAt.toISOString() : <any>undefined;
+        data["updatedBy"] = this.updatedBy;
+        data["updatedAt"] = this.updatedAt ? this.updatedAt.toISOString() : <any>undefined;
         data["attachment"] = this.attachment ? this.attachment.toJSON() : <any>undefined;
         return data;
     }
@@ -3708,8 +3738,6 @@ export interface ICampaignDetails {
     /** The content of the campaign. */
     content?: { [key: string]: MessageContent; } | undefined;
     actionLink?: Hyperlink;
-    /** Specifies when a campaign was created. */
-    createdAt?: Date;
     /** Determines if a campaign is published. */
     published?: boolean;
     activePeriod?: Period;
@@ -3720,6 +3748,14 @@ export interface ICampaignDetails {
     messageChannelKind?: MessageChannelKind[];
     /** Optional data for the campaign. */
     data?: { [key: string]: any; } | undefined;
+    /** Specifies the principal that created the campaign. */
+    createdBy?: string | undefined;
+    /** Specifies when a campaign was created. */
+    createdAt?: Date;
+    /** Specifies the principal that update the campaign. */
+    updatedBy?: string | undefined;
+    /** Specifies when a campaign was updated. */
+    updatedAt?: Date | undefined;
     attachment?: AttachmentLink;
 }
 
@@ -4523,21 +4559,20 @@ export interface ICreateTemplateRequest {
     content?: { [key: string]: MessageContent; } | undefined;
 }
 
-/** Describes who created the record. */
-export enum CreatedBy {
-    User = "User",
-    Worker = "Worker",
-}
-
 /** Models a distribution list. */
 export class DistributionList implements IDistributionList {
     /** The unique id. */
     id?: string;
     /** The name of the distribution list. */
     name?: string | undefined;
-    /** When the distribution list was created. */
+    /** Specifies the principal that created the list. */
+    createdBy?: string | undefined;
+    /** Specifies when a list was created. */
     createdAt?: Date;
-    createdBy?: CreatedBy;
+    /** Specifies the principal that update the list. */
+    updatedBy?: string | undefined;
+    /** Specifies when a list was updated. */
+    updatedAt?: Date | undefined;
 
     constructor(data?: IDistributionList) {
         if (data) {
@@ -4552,8 +4587,10 @@ export class DistributionList implements IDistributionList {
         if (_data) {
             this.id = _data["id"];
             this.name = _data["name"];
-            this.createdAt = _data["createdAt"] ? new Date(_data["createdAt"].toString()) : <any>undefined;
             this.createdBy = _data["createdBy"];
+            this.createdAt = _data["createdAt"] ? new Date(_data["createdAt"].toString()) : <any>undefined;
+            this.updatedBy = _data["updatedBy"];
+            this.updatedAt = _data["updatedAt"] ? new Date(_data["updatedAt"].toString()) : <any>undefined;
         }
     }
 
@@ -4568,8 +4605,10 @@ export class DistributionList implements IDistributionList {
         data = typeof data === 'object' ? data : {};
         data["id"] = this.id;
         data["name"] = this.name;
-        data["createdAt"] = this.createdAt ? this.createdAt.toISOString() : <any>undefined;
         data["createdBy"] = this.createdBy;
+        data["createdAt"] = this.createdAt ? this.createdAt.toISOString() : <any>undefined;
+        data["updatedBy"] = this.updatedBy;
+        data["updatedAt"] = this.updatedAt ? this.updatedAt.toISOString() : <any>undefined;
         return data;
     }
 }
@@ -4580,9 +4619,14 @@ export interface IDistributionList {
     id?: string;
     /** The name of the distribution list. */
     name?: string | undefined;
-    /** When the distribution list was created. */
+    /** Specifies the principal that created the list. */
+    createdBy?: string | undefined;
+    /** Specifies when a list was created. */
     createdAt?: Date;
-    createdBy?: CreatedBy;
+    /** Specifies the principal that update the list. */
+    updatedBy?: string | undefined;
+    /** Specifies when a list was updated. */
+    updatedAt?: Date | undefined;
 }
 
 export class DistributionListResultSet implements IDistributionListResultSet {
@@ -5047,8 +5091,14 @@ export class Template implements ITemplate {
     id?: string;
     /** The name of the template. */
     name?: string | undefined;
-    /** When the template was created. */
+    /** Specifies the principal that created the template. */
+    createdBy?: string | undefined;
+    /** Specifies when a template was created. */
     createdAt?: Date;
+    /** Specifies the principal that update the template. */
+    updatedBy?: string | undefined;
+    /** Specifies when a template was updated. */
+    updatedAt?: Date | undefined;
     /** The content of the template. */
     content?: { [key: string]: MessageContent; } | undefined;
 
@@ -5065,7 +5115,10 @@ export class Template implements ITemplate {
         if (_data) {
             this.id = _data["id"];
             this.name = _data["name"];
+            this.createdBy = _data["createdBy"];
             this.createdAt = _data["createdAt"] ? new Date(_data["createdAt"].toString()) : <any>undefined;
+            this.updatedBy = _data["updatedBy"];
+            this.updatedAt = _data["updatedAt"] ? new Date(_data["updatedAt"].toString()) : <any>undefined;
             if (_data["content"]) {
                 this.content = {} as any;
                 for (let key in _data["content"]) {
@@ -5087,7 +5140,10 @@ export class Template implements ITemplate {
         data = typeof data === 'object' ? data : {};
         data["id"] = this.id;
         data["name"] = this.name;
+        data["createdBy"] = this.createdBy;
         data["createdAt"] = this.createdAt ? this.createdAt.toISOString() : <any>undefined;
+        data["updatedBy"] = this.updatedBy;
+        data["updatedAt"] = this.updatedAt ? this.updatedAt.toISOString() : <any>undefined;
         if (this.content) {
             data["content"] = {};
             for (let key in this.content) {
@@ -5105,8 +5161,14 @@ export interface ITemplate {
     id?: string;
     /** The name of the template. */
     name?: string | undefined;
-    /** When the template was created. */
+    /** Specifies the principal that created the template. */
+    createdBy?: string | undefined;
+    /** Specifies when a template was created. */
     createdAt?: Date;
+    /** Specifies the principal that update the template. */
+    updatedBy?: string | undefined;
+    /** Specifies when a template was updated. */
+    updatedAt?: Date | undefined;
     /** The content of the template. */
     content?: { [key: string]: MessageContent; } | undefined;
 }
@@ -5117,8 +5179,14 @@ export class TemplateBase implements ITemplateBase {
     id?: string;
     /** The name of the template. */
     name?: string | undefined;
-    /** When the template was created. */
+    /** Specifies the principal that created the template. */
+    createdBy?: string | undefined;
+    /** Specifies when a template was created. */
     createdAt?: Date;
+    /** Specifies the principal that update the template. */
+    updatedBy?: string | undefined;
+    /** Specifies when a template was updated. */
+    updatedAt?: Date | undefined;
 
     constructor(data?: ITemplateBase) {
         if (data) {
@@ -5133,7 +5201,10 @@ export class TemplateBase implements ITemplateBase {
         if (_data) {
             this.id = _data["id"];
             this.name = _data["name"];
+            this.createdBy = _data["createdBy"];
             this.createdAt = _data["createdAt"] ? new Date(_data["createdAt"].toString()) : <any>undefined;
+            this.updatedBy = _data["updatedBy"];
+            this.updatedAt = _data["updatedAt"] ? new Date(_data["updatedAt"].toString()) : <any>undefined;
         }
     }
 
@@ -5148,7 +5219,10 @@ export class TemplateBase implements ITemplateBase {
         data = typeof data === 'object' ? data : {};
         data["id"] = this.id;
         data["name"] = this.name;
+        data["createdBy"] = this.createdBy;
         data["createdAt"] = this.createdAt ? this.createdAt.toISOString() : <any>undefined;
+        data["updatedBy"] = this.updatedBy;
+        data["updatedAt"] = this.updatedAt ? this.updatedAt.toISOString() : <any>undefined;
         return data;
     }
 }
@@ -5159,8 +5233,14 @@ export interface ITemplateBase {
     id?: string;
     /** The name of the template. */
     name?: string | undefined;
-    /** When the template was created. */
+    /** Specifies the principal that created the template. */
+    createdBy?: string | undefined;
+    /** Specifies when a template was created. */
     createdAt?: Date;
+    /** Specifies the principal that update the template. */
+    updatedBy?: string | undefined;
+    /** Specifies when a template was updated. */
+    updatedAt?: Date | undefined;
 }
 
 /** Models a template when retrieved on a list. */
@@ -5169,8 +5249,14 @@ export class TemplateListItem implements ITemplateListItem {
     id?: string;
     /** The name of the template. */
     name?: string | undefined;
-    /** When the template was created. */
+    /** Specifies the principal that created the template. */
+    createdBy?: string | undefined;
+    /** Specifies when a template was created. */
     createdAt?: Date;
+    /** Specifies the principal that update the template. */
+    updatedBy?: string | undefined;
+    /** Specifies when a template was updated. */
+    updatedAt?: Date | undefined;
     channels?: MessageChannelKind[];
 
     constructor(data?: ITemplateListItem) {
@@ -5186,7 +5272,10 @@ export class TemplateListItem implements ITemplateListItem {
         if (_data) {
             this.id = _data["id"];
             this.name = _data["name"];
+            this.createdBy = _data["createdBy"];
             this.createdAt = _data["createdAt"] ? new Date(_data["createdAt"].toString()) : <any>undefined;
+            this.updatedBy = _data["updatedBy"];
+            this.updatedAt = _data["updatedAt"] ? new Date(_data["updatedAt"].toString()) : <any>undefined;
             if (Array.isArray(_data["channels"])) {
                 this.channels = [] as any;
                 for (let item of _data["channels"])
@@ -5206,7 +5295,10 @@ export class TemplateListItem implements ITemplateListItem {
         data = typeof data === 'object' ? data : {};
         data["id"] = this.id;
         data["name"] = this.name;
+        data["createdBy"] = this.createdBy;
         data["createdAt"] = this.createdAt ? this.createdAt.toISOString() : <any>undefined;
+        data["updatedBy"] = this.updatedBy;
+        data["updatedAt"] = this.updatedAt ? this.updatedAt.toISOString() : <any>undefined;
         if (Array.isArray(this.channels)) {
             data["channels"] = [];
             for (let item of this.channels)
@@ -5222,8 +5314,14 @@ export interface ITemplateListItem {
     id?: string;
     /** The name of the template. */
     name?: string | undefined;
-    /** When the template was created. */
+    /** Specifies the principal that created the template. */
+    createdBy?: string | undefined;
+    /** Specifies when a template was created. */
     createdAt?: Date;
+    /** Specifies the principal that update the template. */
+    updatedBy?: string | undefined;
+    /** Specifies when a template was updated. */
+    updatedAt?: Date | undefined;
     channels?: MessageChannelKind[];
 }
 

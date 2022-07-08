@@ -36,7 +36,6 @@ namespace Indice.Features.Messages.Core.Services
             await DbContext.SaveChangesAsync();
             return new Template {
                 Content = template.Content,
-                CreatedAt = template.CreatedAt,
                 Id = template.Id,
                 Name = template.Name
             };
@@ -51,6 +50,9 @@ namespace Indice.Features.Messages.Core.Services
             return new Template {
                 Content = template.Content,
                 CreatedAt = template.CreatedAt,
+                UpdatedAt = template.UpdatedAt,
+                UpdatedBy = template.UpdatedBy,
+                CreatedBy = template.CreatedBy,
                 Id = template.Id,
                 Name = template.Name
             };
@@ -66,6 +68,9 @@ namespace Indice.Features.Messages.Core.Services
             var templateItems = result.Items.Select(x => new TemplateListItem {
                 Channels = Enum.Parse<MessageChannelKind>(string.Join(',', x.Content.Select(x => x.Key)), ignoreCase: true),
                 CreatedAt = x.CreatedAt,
+                UpdatedAt = x.UpdatedAt,
+                UpdatedBy = x.UpdatedBy,
+                CreatedBy = x.CreatedBy,
                 Id = x.Id,
                 Name = x.Name
             });

@@ -38,6 +38,8 @@ namespace Indice.Features.Messages.Core.Data.Mappings
             builder.Property(x => x.IsGlobal).IsRequired();
             builder.Property(x => x.Data).HasJsonConversion();
             builder.Property(x => x.Content).HasJsonConversion();
+            builder.Property(x => x.CreatedBy).HasMaxLength(TextSizePresets.M128).IsRequired();
+            builder.Property(x => x.UpdatedBy).HasMaxLength(TextSizePresets.M128);
             // Owned properties
             builder.OwnsOne(x => x.ActionLink, actionLinkBuilder => {
                 actionLinkBuilder.Property(x => x.Text).HasMaxLength(TextSizePresets.M128).HasColumnName("ActionText");

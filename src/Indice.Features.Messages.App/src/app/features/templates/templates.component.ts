@@ -45,7 +45,7 @@ export class TemplatesComponent extends BaseListComponent<Template> implements O
         const modal = this._modalService.show(BasicModalComponent, {
             animated: true,
             initialState: {
-                title: `Είστε σίγουρος ότι θέλετε να διαγράψετε το template ${template.name};`,
+                title: `Είστε σίγουρος ότι θέλετε να διαγράψετε το template '${template.name}';`,
                 data: template
             },
             keyboard: true

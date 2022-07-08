@@ -5,6 +5,5 @@
     {
         /// <summary>The name of the distribution list.</summary>
         public string Name { get; set; }
-        internal CreatedBy CreatedBy { get; set; }
     }
 }

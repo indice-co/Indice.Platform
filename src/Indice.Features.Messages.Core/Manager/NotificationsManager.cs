@@ -167,7 +167,6 @@ namespace Indice.Features.Messages.Core.Manager
             // If a distribution list id is not set, then we create a new list.
             if (!request.RecipientListId.HasValue && !request.IsGlobal) {
                 var createdList = await DistributionListService.Create(new CreateDistributionListRequest {
-                    CreatedBy = CreatedBy.Worker,
                     Name = $"{request.Title} - {timestamp}"
                 }, request.GetIncludedContacts());
                 request.RecipientListId = createdList.Id;

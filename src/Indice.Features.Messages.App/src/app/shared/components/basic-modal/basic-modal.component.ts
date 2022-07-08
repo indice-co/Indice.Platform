@@ -13,9 +13,6 @@ export class BasicModalComponent {
     public data: any;
 
     public answer(answer: boolean): void {
-        this.modal.hide({
-            answer,
-            data: this.data
-        });
+        this.modal.hide({ answer, data: this.data });
     }
 }

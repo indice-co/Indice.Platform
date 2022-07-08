@@ -107,7 +107,7 @@
             <div class="grid grid-cols-2 gap-4">
                 <div class="col-span-2 sm:col-span-1">
                     <div class="divide-y divide-gray-200">
-                        <div *ngFor="let channel of channelsArray; let i = index" class="relative flex items-start py-4">
+                        <div *ngFor="let channel of channelsState; let i = index" class="relative flex items-start py-4">
                             <div class="min-w-0 flex-1 text-sm">
                                 <label [for]="'channel-' + i" class="font-medium text-gray-700">{{ channel.name }}</label>
                                 <p [id]="'channel-' + i + '-description'" class="text-gray-500">{{ channel.description }}</p>
