@@ -59,7 +59,7 @@ namespace Indice.AspNetCore.Identity
         /// </summary>
         public virtual string PasswordRecentlyUsed => string.Format(IdentityResources.Culture, IdentityResources.PasswordRecentlyUsed);
         /// <summary>
-        /// Password cannot contain non latin characters.
+        /// Password cannot contain non Latin characters.
         /// </summary>
         public virtual string PasswordHasNonLatinChars => string.Format(IdentityResources.Culture, IdentityResources.PasswordHasNonLatinChars);
         /// <summary>

@@ -39,6 +39,8 @@ namespace Microsoft.Extensions.DependencyInjection
                                          options.AddPlatformEventHandler<ClientCreatedEvent, ClientCreatedEventHandler>();
                                          options.AddPlatformEventHandler<UserEmailConfirmedEvent, UserEmailConfirmedEventHandler>();
                                          options.Email.SendEmailOnUpdate = true;
+                                         options.Email.UpdateEmailTemplate = "Email";
+                                         options.Email.ForgotPasswordTemplate = "Email";
                                          options.PhoneNumber.SendOtpOnUpdate = true;
                                          options.SeedDummyUsers = false;
                                          options.InitialUsers = GetInitialUsers();
