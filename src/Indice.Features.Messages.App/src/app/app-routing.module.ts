@@ -18,6 +18,7 @@ import { MessageTypeCreateComponent } from './features/message-types/create/mess
 import { MessageTypeEditComponent } from './features/message-types/edit/message-type-edit.component';
 import { MessageTypesComponent } from './features/message-types/message-types.component';
 import { TemplatesComponent } from './features/templates/templates.component';
+import { CampaignDetailsEditComponent } from './features/campaigns/edit/details/campaign-edit-details.component';
 
 const routes: Routes = [
   { path: 'auth-callback', component: AuthCallbackComponent },
@@ -30,7 +31,12 @@ const routes: Routes = [
       { path: 'dashboard', component: DashboardComponent },
       { path: 'campaigns', component: CampaignsComponent },
       { path: 'campaigns/add', component: CampaignCreateComponent },
-      { path: 'campaigns/:campaignId/edit', component: CampaignEditComponent },
+      {
+        path: 'campaigns/:campaignId', component: CampaignEditComponent, children: [
+          { path: '', redirectTo: 'details', pathMatch: 'full' },
+          { path: 'details', component: CampaignDetailsEditComponent }
+        ]
+      },
       { path: 'message-types', component: MessageTypesComponent },
       { path: 'distribution-lists', component: DistributionListsComponent },
       { path: 'distribution-lists/:distributionListId/contacts', component: DistributionListContactsComponent },

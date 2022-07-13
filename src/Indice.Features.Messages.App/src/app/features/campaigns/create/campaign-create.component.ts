@@ -1,13 +1,13 @@
 import { AfterViewChecked, ChangeDetectorRef, Component, Inject, OnInit, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
 
-import { LibStepperComponent, StepperType, ToasterService, ToastType } from '@indice/ng-components';
+import { HeaderMetaItem, Icons, LibStepperComponent, StepperType, ToasterService, ToastType } from '@indice/ng-components';
 import { StepSelectedEvent } from '@indice/ng-components/lib/controls/stepper/types/step-selected-event';
-import { CampaignBasicInfoComponent } from '../steps/basic-info/campaign-basic-info.component';
-import { CampaignContentComponent } from '../steps/content/campaign-content.component';
-import { CampaignPreview } from '../steps/preview/campaign-preview';
-import { CampaignPreviewComponent } from '../steps/preview/campaign-preview.component';
-import { CampaignRecipientsComponent } from '../steps/recipients/campaign-recipients.component';
+import { CampaignBasicInfoComponent } from './steps/basic-info/campaign-basic-info.component';
+import { CampaignContentComponent } from './steps/content/campaign-content.component';
+import { CampaignPreview } from './steps/preview/campaign-preview';
+import { CampaignPreviewComponent } from './steps/preview/campaign-preview.component';
+import { CampaignRecipientsComponent } from './steps/recipients/campaign-recipients.component';
 import { CreateCampaignRequest, MessagesApiClient, MessageChannelKind, Period, Hyperlink, Campaign, MessageContent } from 'src/app/core/services/messages-api.service';
 
 @Component({
@@ -34,6 +34,7 @@ export class CampaignCreateComponent implements OnInit, AfterViewChecked {
     public previewData = new CampaignPreview();
     public basicInfoData: any = {};
     public templateId: string | undefined;
+    public metaItems: HeaderMetaItem[] | null = [];
 
     public get okLabel(): string {
         return this._stepper.currentStep?.isLast
@@ -43,7 +44,11 @@ export class CampaignCreateComponent implements OnInit, AfterViewChecked {
             : 'Επόμενο';
     }
 
-    public ngOnInit(): void { }
+    public ngOnInit(): void {
+        this.metaItems = [
+            { key: 'info', icon: Icons.Details, text: 'Ακολουθήστε τα παρακάτω βήματα για να δημιουργήσετε ένα νέο campaign.' }
+        ];
+    }
 
     public ngAfterViewChecked(): void {
         this._changeDetector.detectChanges();

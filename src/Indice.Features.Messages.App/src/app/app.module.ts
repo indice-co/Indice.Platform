@@ -12,12 +12,13 @@ import { AppRoutingModule } from './app-routing.module';
 import { BadRequestInterceptor } from './core/bad-request-interceptor';
 import { BasicModalComponent } from './shared/components/basic-modal/basic-modal.component';
 import { BeautifyBooleanPipe } from './shared/pipes.services';
-import { CampaignBasicInfoComponent } from './features/campaigns/steps/basic-info/campaign-basic-info.component';
-import { CampaignContentComponent } from './features/campaigns/steps/content/campaign-content.component';
+import { CampaignBasicInfoComponent } from './features/campaigns/create/steps/basic-info/campaign-basic-info.component';
+import { CampaignContentComponent } from './features/campaigns/create/steps/content/campaign-content.component';
 import { CampaignCreateComponent } from './features/campaigns/create/campaign-create.component';
+import { CampaignDetailsEditComponent } from './features/campaigns/edit/details/campaign-edit-details.component';
 import { CampaignEditComponent } from './features/campaigns/edit/campaign-edit.component';
-import { CampaignPreviewComponent } from './features/campaigns/steps/preview/campaign-preview.component';
-import { CampaignRecipientsComponent } from './features/campaigns/steps/recipients/campaign-recipients.component';
+import { CampaignPreviewComponent } from './features/campaigns/create/steps/preview/campaign-preview.component';
+import { CampaignRecipientsComponent } from './features/campaigns/create/steps/recipients/campaign-recipients.component';
 import { CampaignsComponent } from './features/campaigns/campaigns.component';
 import { DashboardComponent } from './features/dashboard/dashboard.component';
 import { DistributionListContactCreateComponent } from './features/distribution-lists/contacts/create/distribution-list-contact-create.component';
@@ -68,7 +69,8 @@ import * as app from 'src/app/core/models/settings';
     RadioButtonsListComponent,
     SafePipe,
     TemplatesComponent,
-    ToggleButtonComponent
+    ToggleButtonComponent,
+    CampaignDetailsEditComponent
   ],
   imports: [
     AppRoutingModule,
