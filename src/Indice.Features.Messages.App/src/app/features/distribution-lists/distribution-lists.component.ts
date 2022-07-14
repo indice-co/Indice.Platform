@@ -45,7 +45,8 @@ export class DistributionListsComponent extends BaseListComponent<DistributionLi
         const modal = this._modalService.show(BasicModalComponent, {
             animated: true,
             initialState: {
-                title: `Είστε σίγουρος ότι θέλετε να διαγράψετε τη λίστα ${list.name};`,
+                title: 'Διαγραφή',
+                message: `Είστε σίγουρος ότι θέλετε να διαγράψετε τη λίστα ${list.name};`,
                 data: list
             },
             keyboard: true

@@ -14,6 +14,7 @@ import { BasicModalComponent } from './shared/components/basic-modal/basic-modal
 import { BeautifyBooleanPipe } from './shared/pipes.services';
 import { CampaignBasicInfoComponent } from './features/campaigns/create/steps/basic-info/campaign-basic-info.component';
 import { CampaignContentComponent } from './features/campaigns/create/steps/content/campaign-content.component';
+import { CampaignContentEditComponent } from './features/campaigns/edit/content/campaign-edit-content.component';
 import { CampaignCreateComponent } from './features/campaigns/create/campaign-create.component';
 import { CampaignDetailsEditComponent } from './features/campaigns/edit/details/campaign-edit-details.component';
 import { CampaignEditComponent } from './features/campaigns/edit/campaign-edit.component';
@@ -48,7 +49,9 @@ import * as app from 'src/app/core/models/settings';
     BeautifyBooleanPipe,
     CampaignBasicInfoComponent,
     CampaignContentComponent,
+    CampaignContentEditComponent,
     CampaignCreateComponent,
+    CampaignDetailsEditComponent,
     CampaignEditComponent,
     CampaignPreviewComponent,
     CampaignRecipientsComponent,
@@ -69,8 +72,7 @@ import * as app from 'src/app/core/models/settings';
     RadioButtonsListComponent,
     SafePipe,
     TemplatesComponent,
-    ToggleButtonComponent,
-    CampaignDetailsEditComponent
+    ToggleButtonComponent
   ],
   imports: [
     AppRoutingModule,

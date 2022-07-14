@@ -8,7 +8,7 @@ import { CampaignContentComponent } from './steps/content/campaign-content.compo
 import { CampaignPreview } from './steps/preview/campaign-preview';
 import { CampaignPreviewComponent } from './steps/preview/campaign-preview.component';
 import { CampaignRecipientsComponent } from './steps/recipients/campaign-recipients.component';
-import { CreateCampaignRequest, MessagesApiClient, MessageChannelKind, Period, Hyperlink, Campaign, MessageContent } from 'src/app/core/services/messages-api.service';
+import { CreateCampaignRequest, MessagesApiClient, MessageChannelKind, Period, Hyperlink, Campaign, MessageContent, Template } from 'src/app/core/services/messages-api.service';
 
 @Component({
     selector: 'app-campaign-create',
@@ -73,6 +73,35 @@ export class CampaignCreateComponent implements OnInit, AfterViewChecked {
             });
     }
 
+    public onStepperStepChanged(event: StepSelectedEvent) {
+        if (event.selectedIndex === 1) {
+            if (this.templateId) {
+                this._api.getTemplateById(this.templateId).subscribe((template: Template) => {
+                    debugger
+                    this._contentStep.init(this._basicInfoStep.channelsState.map(x => ({ channel: x.value, checked: x.checked })), template.content);
+                });
+            }
+        }
+        this.previewData.title = this._basicInfoStep.title.value;
+        this.previewData.type = this._basicInfoStep.type.value?.text;
+        this.previewData.template = this._basicInfoStep.template.value?.text;
+        this.previewData.distributionList = this._recipientsStep.distributionList.value?.text;
+        this.previewData.period = new Period({
+            from: this._basicInfoStep.from.value,
+            to: this._basicInfoStep.to.value
+        });
+        this.previewData.actionLink = new Hyperlink({
+            text: this._basicInfoStep.actionLinkText.value,
+            href: this._basicInfoStep.actionLinkHref.value
+        });
+        this.basicInfoData.title = this._basicInfoStep.title.value;
+        this.basicInfoData.type = this._basicInfoStep.type.value?.text;
+        this.basicInfoData.actionLink = new Hyperlink({
+            text: this._basicInfoStep.actionLinkText.value,
+            href: this._basicInfoStep.actionLinkHref.value
+        });
+    }
+
     private _prepareDataToSubmit(): CreateCampaignRequest {
         const data = new CreateCampaignRequest({
             actionLink: new Hyperlink({
@@ -110,29 +139,5 @@ export class CampaignCreateComponent implements OnInit, AfterViewChecked {
             }
         }
         return data;
-    }
-
-    public onStepperStepChanged(event: StepSelectedEvent) {
-        if (event.selectedIndex === 1) {
-            this._contentStep.initStep(this._basicInfoStep.channelsState, this.templateId);
-        }
-        this.previewData.title = this._basicInfoStep.title.value;
-        this.previewData.type = this._basicInfoStep.type.value?.text;
-        this.previewData.template = this._basicInfoStep.template.value?.text;
-        this.previewData.distributionList = this._recipientsStep.distributionList.value?.text;
-        this.previewData.period = new Period({
-            from: this._basicInfoStep.from.value,
-            to: this._basicInfoStep.to.value
-        });
-        this.previewData.actionLink = new Hyperlink({
-            text: this._basicInfoStep.actionLinkText.value,
-            href: this._basicInfoStep.actionLinkHref.value
-        });
-        this.basicInfoData.title = this._basicInfoStep.title.value;
-        this.basicInfoData.type = this._basicInfoStep.type.value?.text;
-        this.basicInfoData.actionLink = new Hyperlink({
-            text: this._basicInfoStep.actionLinkText.value,
-            href: this._basicInfoStep.actionLinkHref.value
-        });
     }
 }

@@ -23,6 +23,18 @@
   .panels-with-border-container {
     @apply border-t border-b border-gray-200 mt-4;
   }
+
+  .vertical-navigation-link-base {
+    @apply flex items-center px-3 py-2 text-sm font-medium rounded-md;
+  }
+  
+  .vertical-navigation-link {
+    @apply text-gray-600 hover:bg-gray-50 hover:text-gray-900;
+  }
+
+  .vertical-navigation-link-active {
+    @apply text-gray-900 bg-gray-200;
+  }
 }
 
 .sr-only {

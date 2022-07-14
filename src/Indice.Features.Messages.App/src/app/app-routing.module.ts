@@ -3,7 +3,9 @@ import { RouterModule, Routes } from '@angular/router';
 
 import { AuthCallbackComponent, AuthRenewComponent, PageNotFoundComponent } from '@indice/ng-components';
 import { AuthGuardService } from '@indice/ng-auth';
+import { CampaignContentEditComponent } from './features/campaigns/edit/content/campaign-edit-content.component';
 import { CampaignCreateComponent } from './features/campaigns/create/campaign-create.component';
+import { CampaignDetailsEditComponent } from './features/campaigns/edit/details/campaign-edit-details.component';
 import { CampaignEditComponent } from './features/campaigns/edit/campaign-edit.component';
 import { CampaignsComponent } from './features/campaigns/campaigns.component';
 import { DashboardComponent } from './features/dashboard/dashboard.component';
@@ -18,7 +20,6 @@ import { MessageTypeCreateComponent } from './features/message-types/create/mess
 import { MessageTypeEditComponent } from './features/message-types/edit/message-type-edit.component';
 import { MessageTypesComponent } from './features/message-types/message-types.component';
 import { TemplatesComponent } from './features/templates/templates.component';
-import { CampaignDetailsEditComponent } from './features/campaigns/edit/details/campaign-edit-details.component';
 
 const routes: Routes = [
   { path: 'auth-callback', component: AuthCallbackComponent },
@@ -34,7 +35,8 @@ const routes: Routes = [
       {
         path: 'campaigns/:campaignId', component: CampaignEditComponent, children: [
           { path: '', redirectTo: 'details', pathMatch: 'full' },
-          { path: 'details', component: CampaignDetailsEditComponent }
+          { path: 'details', component: CampaignDetailsEditComponent },
+          { path: 'content', component: CampaignContentEditComponent }
         ]
       },
       { path: 'message-types', component: MessageTypesComponent },

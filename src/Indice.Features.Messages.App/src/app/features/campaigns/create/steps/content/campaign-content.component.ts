@@ -3,10 +3,9 @@ import { AbstractControl, UntypedFormControl, UntypedFormGroup, Validators } fro
 
 import * as Handlebars from 'handlebars/dist/cjs/handlebars';
 import { LibTabComponent, LibTabGroupComponent } from '@indice/ng-components';
-import { MessageChannelKind, MessagesApiClient, Template } from 'src/app/core/services/messages-api.service';
+import { MessageChannelKind, MessageContent } from 'src/app/core/services/messages-api.service';
 import { ValidationService } from 'src/app/core/services/validation.service';
 import { UtilitiesService } from 'src/app/shared/utilities.service';
-import { ChannelState } from './channel-state';
 
 @Component({
     selector: 'app-campaign-content',
@@ -31,8 +30,7 @@ export class CampaignContentComponent implements OnInit {
 
     constructor(
         private _validationService: ValidationService,
-        private _utilities: UtilitiesService,
-        private _api: MessagesApiClient
+        private _utilities: UtilitiesService
     ) { }
 
     // Input & Output parameters
@@ -108,13 +106,14 @@ export class CampaignContentComponent implements OnInit {
         }
     }
 
-    public initStep(channelsState: ChannelState[], templateId: string | undefined): void {
+    public init(channelsState: { channel: MessageChannelKind, checked: boolean }[], content?: { [key: string]: MessageContent; } | undefined): void {
+        this._initForm();
         this._resetTabs();
         this._resetContentValidators();
-        const showInboxTab = channelsState.find(x => x.value === MessageChannelKind.Inbox)!.checked;
-        const showPushNotificationTab = channelsState.find(x => x.value === MessageChannelKind.PushNotification)!.checked;
-        const showSmsTab = channelsState.find(x => x.value === MessageChannelKind.SMS)!.checked;
-        const showEmailTab = channelsState.find(x => x.value === MessageChannelKind.Email)!.checked;
+        const showInboxTab = channelsState.find(x => x.channel === MessageChannelKind.Inbox)?.checked;
+        const showPushNotificationTab = channelsState.find(x => x.channel === MessageChannelKind.PushNotification)?.checked;
+        const showSmsTab = channelsState.find(x => x.channel === MessageChannelKind.SMS)?.checked;
+        const showEmailTab = channelsState.find(x => x.channel === MessageChannelKind.Email)?.checked;
         if (showInboxTab) {
             this.showInboxTab = true;
             this.inboxSubject.setValidators(Validators.required);
@@ -135,10 +134,8 @@ export class CampaignContentComponent implements OnInit {
             this.emailSubject.setValidators(Validators.required);
             this.emailBody.setValidators(Validators.required);
         }
-        if (templateId) {
-            this._api.getTemplateById(templateId).subscribe((template: Template) => {
-                this._setContent(template);
-            });
+        if (content) {
+            this._setContent(content);
         }
     }
 
@@ -203,6 +200,9 @@ export class CampaignContentComponent implements OnInit {
     }
 
     private _initForm(): void {
+        if (this.form) {
+            return;
+        }
         this.form = new UntypedFormGroup({
             data: new UntypedFormControl(null, this._validationService.invalidJsonValidator()),
             emailSubject: new UntypedFormControl(''),
@@ -216,18 +216,18 @@ export class CampaignContentComponent implements OnInit {
         });
     }
 
-    private _setContent(template: Template | undefined): void {
-        if (!template) {
+    private _setContent(content?: { [key: string]: MessageContent; } | undefined): void {
+        if (!content) {
             return;
         }
-        this._setContentSubject(template.content?.inbox?.title, MessageChannelKind.Inbox, this._tabGroup.currentTab?.id === 'inbox-tab');
-        this._setContentBody(template.content?.inbox?.body, MessageChannelKind.Inbox, this._tabGroup.currentTab?.id === 'inbox-tab');
-        this._setContentSubject(template.content?.email?.title, MessageChannelKind.Email, this._tabGroup.currentTab?.id === 'email-tab');
-        this._setContentBody(template.content?.email?.body, MessageChannelKind.Email, this._tabGroup.currentTab?.id === 'email-tab');
-        this._setContentSubject(template.content?.sms?.title, MessageChannelKind.SMS, this._tabGroup.currentTab?.id === 'sms-tab');
-        this._setContentBody(template.content?.sms?.body, MessageChannelKind.SMS, this._tabGroup.currentTab?.id === 'sms-tab');
-        this._setContentSubject(template.content?.pushNotification?.title, MessageChannelKind.PushNotification, this._tabGroup.currentTab?.id === 'push-notification-tab');
-        this._setContentBody(template.content?.pushNotification?.body, MessageChannelKind.PushNotification, this._tabGroup.currentTab?.id === 'push-notification-tab');
+        this._setContentSubject(content?.inbox?.title, MessageChannelKind.Inbox, this._tabGroup.currentTab?.id === 'inbox-tab');
+        this._setContentBody(content?.inbox?.body, MessageChannelKind.Inbox, this._tabGroup.currentTab?.id === 'inbox-tab');
+        this._setContentSubject(content?.email?.title, MessageChannelKind.Email, this._tabGroup.currentTab?.id === 'email-tab');
+        this._setContentBody(content?.email?.body, MessageChannelKind.Email, this._tabGroup.currentTab?.id === 'email-tab');
+        this._setContentSubject(content?.sms?.title, MessageChannelKind.SMS, this._tabGroup.currentTab?.id === 'sms-tab');
+        this._setContentBody(content?.sms?.body, MessageChannelKind.SMS, this._tabGroup.currentTab?.id === 'sms-tab');
+        this._setContentSubject(content?.pushNotification?.title, MessageChannelKind.PushNotification, this._tabGroup.currentTab?.id === 'push-notification-tab');
+        this._setContentBody(content?.pushNotification?.body, MessageChannelKind.PushNotification, this._tabGroup.currentTab?.id === 'push-notification-tab');
     }
 
     private _resetTabs(): void {
