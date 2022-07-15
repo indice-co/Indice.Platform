@@ -32,10 +32,7 @@ export class CampaignContentEditComponent implements OnInit {
                     text: campaign.actionLink?.text,
                     href: campaign.actionLink?.href
                 });
-                setTimeout(() => {
-                    debugger
-                    this._contentStep.init([{ channel: MessageChannelKind.Inbox, checked: true }, { channel: MessageChannelKind.Email, checked: true }], campaign.content);
-                }, 2000);
+                this._contentStep.init([{ channel: MessageChannelKind.Inbox, checked: true }, { channel: MessageChannelKind.Email, checked: true }], campaign.content);
             });
         }
     }

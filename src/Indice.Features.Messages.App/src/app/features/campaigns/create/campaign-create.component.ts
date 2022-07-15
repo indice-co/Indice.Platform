@@ -9,6 +9,7 @@ import { CampaignPreview } from './steps/preview/campaign-preview';
 import { CampaignPreviewComponent } from './steps/preview/campaign-preview.component';
 import { CampaignRecipientsComponent } from './steps/recipients/campaign-recipients.component';
 import { CreateCampaignRequest, MessagesApiClient, MessageChannelKind, Period, Hyperlink, Campaign, MessageContent, Template } from 'src/app/core/services/messages-api.service';
+import { UtilitiesService } from 'src/app/shared/utilities.service';
 
 @Component({
     selector: 'app-campaign-create',
@@ -25,6 +26,7 @@ export class CampaignCreateComponent implements OnInit, AfterViewChecked {
         private _api: MessagesApiClient,
         private _router: Router,
         private _changeDetector: ChangeDetectorRef,
+        private _utilities: UtilitiesService,
         @Inject(ToasterService) private _toaster: ToasterService
     ) { }
 
@@ -77,9 +79,10 @@ export class CampaignCreateComponent implements OnInit, AfterViewChecked {
         if (event.selectedIndex === 1) {
             if (this.templateId) {
                 this._api.getTemplateById(this.templateId).subscribe((template: Template) => {
-                    debugger
                     this._contentStep.init(this._basicInfoStep.channelsState.map(x => ({ channel: x.value, checked: x.checked })), template.content);
                 });
+            } else {
+                this._contentStep.init(this._basicInfoStep.channelsState.map(x => ({ channel: x.value, checked: x.checked })), undefined);
             }
         }
         this.previewData.title = this._basicInfoStep.title.value;
@@ -125,16 +128,16 @@ export class CampaignCreateComponent implements OnInit, AfterViewChecked {
         for (const channel of this._basicInfoStep.channels.value) {
             switch (channel) {
                 case MessageChannelKind.Inbox:
-                    data.content![channel] = new MessageContent({ title: this._contentStep.inboxSubject.value, body: this._contentStep.inboxBody.value });
+                    data.content![this._utilities.toCamelCase(channel)] = new MessageContent({ title: this._contentStep.inboxSubject.value, body: this._contentStep.inboxBody.value });
                     break;
                 case MessageChannelKind.Email:
-                    data.content![channel] = new MessageContent({ title: this._contentStep.emailSubject.value, body: this._contentStep.emailBody.value });
+                    data.content![this._utilities.toCamelCase(channel)] = new MessageContent({ title: this._contentStep.emailSubject.value, body: this._contentStep.emailBody.value });
                     break;
                 case MessageChannelKind.PushNotification:
-                    data.content![channel] = new MessageContent({ title: this._contentStep.pushNotificationSubject.value, body: this._contentStep.pushNotificationBody.value });
+                    data.content![this._utilities.toCamelCase(channel)] = new MessageContent({ title: this._contentStep.pushNotificationSubject.value, body: this._contentStep.pushNotificationBody.value });
                     break;
                 case MessageChannelKind.SMS:
-                    data.content![channel] = new MessageContent({ title: this._contentStep.smsSubject.value, body: this._contentStep.smsBody.value });
+                    data.content![this._utilities.toCamelCase(channel)] = new MessageContent({ title: this._contentStep.smsSubject.value, body: this._contentStep.smsBody.value });
                     break;
             }
         }

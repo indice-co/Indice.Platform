@@ -20,6 +20,7 @@ import { CampaignDetailsEditComponent } from './features/campaigns/edit/details/
 import { CampaignEditComponent } from './features/campaigns/edit/campaign-edit.component';
 import { CampaignPreviewComponent } from './features/campaigns/create/steps/preview/campaign-preview.component';
 import { CampaignRecipientsComponent } from './features/campaigns/create/steps/recipients/campaign-recipients.component';
+import { CampaignReportsComponent } from './features/campaigns/edit/reports/campaign-reports.component';
 import { CampaignsComponent } from './features/campaigns/campaigns.component';
 import { DashboardComponent } from './features/dashboard/dashboard.component';
 import { DistributionListContactCreateComponent } from './features/distribution-lists/contacts/create/distribution-list-contact-create.component';
@@ -55,6 +56,7 @@ import * as app from 'src/app/core/models/settings';
     CampaignEditComponent,
     CampaignPreviewComponent,
     CampaignRecipientsComponent,
+    CampaignReportsComponent,
     CampaignsComponent,
     DashboardComponent,
     DistributionListContactCreateComponent,

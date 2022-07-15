@@ -7,6 +7,7 @@ import { CampaignContentEditComponent } from './features/campaigns/edit/content/
 import { CampaignCreateComponent } from './features/campaigns/create/campaign-create.component';
 import { CampaignDetailsEditComponent } from './features/campaigns/edit/details/campaign-edit-details.component';
 import { CampaignEditComponent } from './features/campaigns/edit/campaign-edit.component';
+import { CampaignReportsComponent } from './features/campaigns/edit/reports/campaign-reports.component';
 import { CampaignsComponent } from './features/campaigns/campaigns.component';
 import { DashboardComponent } from './features/dashboard/dashboard.component';
 import { DistributionListContactCreateComponent } from './features/distribution-lists/contacts/create/distribution-list-contact-create.component';
@@ -36,7 +37,8 @@ const routes: Routes = [
         path: 'campaigns/:campaignId', component: CampaignEditComponent, children: [
           { path: '', redirectTo: 'details', pathMatch: 'full' },
           { path: 'details', component: CampaignDetailsEditComponent },
-          { path: 'content', component: CampaignContentEditComponent }
+          { path: 'content', component: CampaignContentEditComponent },
+          { path: 'reports', component: CampaignReportsComponent }
         ]
       },
       { path: 'message-types', component: MessageTypesComponent },

@@ -220,8 +220,8 @@ export class CampaignContentComponent implements OnInit {
         if (!content) {
             return;
         }
-        this._setContentSubject(content?.inbox?.title, MessageChannelKind.Inbox, this._tabGroup.currentTab?.id === 'inbox-tab');
-        this._setContentBody(content?.inbox?.body, MessageChannelKind.Inbox, this._tabGroup.currentTab?.id === 'inbox-tab');
+        this._setContentSubject(content?.inbox?.title, MessageChannelKind.Inbox, !this._tabGroup.currentTab || this._tabGroup.currentTab?.id === 'inbox-tab');
+        this._setContentBody(content?.inbox?.body, MessageChannelKind.Inbox, !this._tabGroup.currentTab || this._tabGroup.currentTab?.id === 'inbox-tab');
         this._setContentSubject(content?.email?.title, MessageChannelKind.Email, this._tabGroup.currentTab?.id === 'email-tab');
         this._setContentBody(content?.email?.body, MessageChannelKind.Email, this._tabGroup.currentTab?.id === 'email-tab');
         this._setContentSubject(content?.sms?.title, MessageChannelKind.SMS, this._tabGroup.currentTab?.id === 'sms-tab');

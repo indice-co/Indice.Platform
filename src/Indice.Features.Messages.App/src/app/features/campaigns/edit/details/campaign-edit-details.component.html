@@ -1,7 +1,9 @@
-<section aria-labelledby="applicant-information-title" *ngIf="campaign">
+<section aria-labelledby="applicant-information-title"
+         *ngIf="campaign">
     <div class="bg-white shadow sm:rounded-lg">
         <div class="px-4 py-5 sm:px-6">
-            <h2 id="applicant-information-title" class="text-lg leading-6 font-medium text-gray-900">Βασικές Πληροφορίες</h2>
+            <h2 id="applicant-information-title"
+                class="text-lg leading-6 font-medium text-gray-900">Βασικές Πληροφορίες</h2>
             <p class="mt-1 max-w-2xl text-sm text-gray-500">Οι βασικές πληροφορίες της καμπάνιας.</p>
         </div>
         <div class="border-t border-gray-200 px-4 py-5 sm:px-6">
@@ -21,7 +23,10 @@
                 <div class="sm:col-span-1">
                     <dt class="text-sm font-medium text-gray-500">Call to action</dt>
                     <dd class="mt-1 text-sm text-gray-900">
-                        <a *ngIf="campaign.actionLink?.text && campaign.actionLink?.href" target="_blank" class="text-blue-600 hover:text-blue-500" [href]="campaign.actionLink?.href">
+                        <a *ngIf="campaign.actionLink?.text && campaign.actionLink?.href"
+                           target="_blank"
+                           class="text-blue-600 hover:text-blue-500"
+                           [href]="campaign.actionLink?.href">
                             {{ campaign.actionLink?.text }}
                         </a>
                         <span *ngIf="campaign.actionLink?.text && !campaign.actionLink?.href">{{ campaign.actionLink?.text }}</span>
@@ -35,7 +40,9 @@
                 <div class="sm:col-span-1">
                     <dt class="text-sm font-medium text-gray-500">Λίστα διανομής</dt>
                     <dd class="mt-1 text-sm text-gray-900">
-                        <a class="text-blue-600 hover:text-blue-500" *ngIf="campaign.distributionList" [routerLink]="['/distribution-lists/' + campaign.distributionList.id +'/contacts']">{{ campaign.distributionList.name }}</a>
+                        <a class="text-blue-600 hover:text-blue-500"
+                           *ngIf="campaign.distributionList"
+                           [routerLink]="['/distribution-lists/' + campaign.distributionList.id +'/contacts']">{{ campaign.distributionList.name }}</a>
                         <span *ngIf="!campaign.distributionList">-</span>
                     </dd>
                 </div>
