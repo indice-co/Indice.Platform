@@ -2,6 +2,7 @@
 @import 'tailwindcss/components';
 @import 'tailwindcss/utilities';
 @import '../node_modules/@indice/ng-components/_styles.css';
+@import '~highlight.js/styles/github.css';
 
 @layer components {
   .btn-info {

@@ -299,46 +299,52 @@
                 </lib-tab>
             </lib-tab-group>
         </fieldset>
-        <!-- Sample Payload -->
-        <fieldset>
-            <legend class="sr-only">Δεδομένα μηνύματος</legend>
-            <div class="text-base font-medium text-gray-900"
-                 aria-hidden="true">Δεδομένα μηνύματος</div>
-            <label for="campaignSamplePayload"
-                   class="field-label hidden"
-                   aria-hidden="true">Δεδομένα μηνύματος</label>
-            <div class="mt-1 flex rounded-sm">
-                <textarea id="campaignSamplePayload"
-                          name="campaignSamplePayload"
-                          [value]="samplePayload | json"
-                          rows="16"
-                          class="code-editor"
-                          readonly>
-                </textarea>
+        <div class="grid grid-cols-2 gap-4">
+            <div class="col-span-2 sm:col-span-1">
+                <!-- Μεταδεδομένα -->
+                <fieldset>
+                    <legend class="sr-only">Μεταδεδομένα</legend>
+                    <div class="text-base font-medium text-gray-900"
+                         aria-hidden="true">Μεταδεδομένα</div>
+                    <label for="campaignMetadata"
+                           class="field-label hidden"
+                           aria-hidden="true">Μεταδεδομένα</label>
+                    <div class="mt-1 flex rounded-sm">
+                        <textarea id="campaignMetadata"
+                                  name="campaignMetadata"
+                                  formControlName="data"
+                                  rows="6"
+                                  (input)="onCampaignMetadataInput($event)"
+                                  placeholder="Επιπρόσθετα δεδομένα της καμπάνιας σε JSON μορφή"
+                                  class="code-editor">
+                        </textarea>
+                    </div>
+                    <p *ngIf="data.invalid && (data.dirty || data.touched)"
+                       class="mt-2 text-sm text-red-600">
+                        <span *ngIf="data.errors!['invalidJson']">Η μορφή του JSON δεν είναι έγκυρη.</span>
+                    </p>
+                </fieldset>
             </div>
-        </fieldset>
-        <!-- Μεταδεδομένα -->
-        <fieldset>
-            <legend class="sr-only">Μεταδεδομένα</legend>
-            <div class="text-base font-medium text-gray-900"
-                 aria-hidden="true">Μεταδεδομένα</div>
-            <label for="campaignMetadata"
-                   class="field-label hidden"
-                   aria-hidden="true">Μεταδεδομένα</label>
-            <div class="mt-1 flex rounded-sm">
-                <textarea id="campaignMetadata"
-                          name="campaignMetadata"
-                          formControlName="data"
-                          rows="6"
-                          (input)="onCampaignMetadataInput($event)"
-                          placeholder="Επιπρόσθετα δεδομένα της καμπάνιας σε JSON μορφή"
-                          class="code-editor">
-                </textarea>
+            <div class="col-span-2 sm:col-span-1">
+                <!-- Sample Payload -->
+                <fieldset>
+                    <legend class="sr-only">Δεδομένα μηνύματος</legend>
+                    <div class="text-base font-medium text-gray-900"
+                         aria-hidden="true">Δεδομένα μηνύματος</div>
+                    <label for="campaignSamplePayload"
+                           class="field-label hidden"
+                           aria-hidden="true">Δεδομένα μηνύματος</label>
+                    <div class="mt-2 flex rounded-sm border">
+                        <pre>
+                            <code [highlight]="samplePayload | json" 
+                                  [languages]="['json']" 
+                                  [lineNumbers]="true"
+                                  style="padding-top: 0;">
+                            </code>
+                        </pre>
+                    </div>
+                </fieldset>
             </div>
-            <p *ngIf="data.invalid && (data.dirty || data.touched)"
-               class="mt-2 text-sm text-red-600">
-                <span *ngIf="data.errors!['invalidJson']">Η μορφή του JSON δεν είναι έγκυρη.</span>
-            </p>
-        </fieldset>
+        </div>
     </div>
 </form>

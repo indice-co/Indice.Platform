@@ -1,0 +1,145 @@
+<lib-side-view-layout title="Επεξεργασία καμπάνιας"
+                      [ok-close-dialog]="false"
+                      [ok-label]="'Αποθήκευση'"
+                      [cancel-label]="'Κλείσιμο'"
+                      (ok)="submitButton.nativeElement.click()"
+                      [disabled]="!editCampaignForm.valid || submitInProgress"
+                      #sideViewLayout>
+    <div class="mt-4">
+        <form #editCampaignForm="ngForm"
+              (ngSubmit)="onSubmit()">
+            <div class="px-4 space-y-2 pb-4">
+                <div class="grid grid-cols-4 gap-4">
+                    <div class="col-span-4">
+                        <ng-container [ngTemplateOutlet]="templateOutlet"></ng-container>
+                    </div>
+                </div>
+            </div>
+            <button type="submit"
+                    [style.visibility]="'hidden'"
+                    #submitBtn>
+                Submit
+            </button>
+        </form>
+    </div>
+</lib-side-view-layout>
+<ng-template #editTitleTemplate>
+    <label for="campaignTitle"
+           class="field-label">
+        Τίτλος (*)
+    </label>
+    <div class="mt-1 flex rounded-sm">
+        <input type="text"
+               name="campaignTitle"
+               id="campaignTitle"
+               [(ngModel)]="model.title"
+               placeholder="Ο τίτλος της καμπάνιας..."
+               required
+               #campaignTitle="ngModel">
+    </div>
+    <p *ngIf="campaignTitle.invalid && (campaignTitle.dirty || campaignTitle.touched)"
+       class="mt-2 text-sm text-red-600">
+        <span *ngIf="campaignTitle.errors!['required']">Παρακαλώ συμπληρώστε ένα τίτλο.</span>
+        <span *ngIf="campaignTitle.errors!['maxlength']">Παρακαλώ συμπληρώστε ένα μικρότερο τίτλο.</span>
+    </p>
+    <p class="field-info col-span-3">Η ονομασία η οποία θα εμφανίζεται για την καμπάνια.</p>
+</ng-template>
+<ng-template #editTypeTemplate>
+    <label for="campaignType"
+           class="field-label">
+        Τύπος
+    </label>
+    <div class="mt-1 flex rounded-sm">
+        <lib-local-drop-down-menu id="campaignType"
+                                  name="campaignType"
+                                  class="w-full"
+                                  [value]="selectedTypeId"
+                                  [options]="messageTypes"
+                                  (change)="typeSelectionChanged($event)">
+        </lib-local-drop-down-menu>
+    </div>
+    <p class="field-info col-span-3">Ο τύπος στον οποίο ανατίθεται η καμπάνια.</p>
+</ng-template>
+<ng-template #editActivePeriodTemplate>
+    <label for="campaignStart"
+           class="field-label">
+        Ημ. Έναρξης
+    </label>
+    <div class="mt-1 flex rounded-sm">
+        <input class="w-full"
+               type="datetime-local"
+               name="campaignStart"
+               id="campaignStart"
+               (input)="onCampaignStartInput($event)"
+               [value]="activePeriodFrom"
+               [min]="now | date: 'yyyy-MM-ddTHH:mm'"
+               [max]="model.activePeriod?.to | date: 'yyyy-MM-ddTHH:mm'">
+    </div>
+    <p class="field-info">Η ημέρα και ώρα έναρξης της καμπάνιας</p>
+    <label for="campaignEnd"
+           class="field-label">
+        Ημ. Λήξης
+    </label>
+    <div class="mt-1 flex rounded-sm">
+        <input class="w-full"
+               type="datetime-local"
+               name="campaignEnd"
+               id="campaignEnd"
+               (input)="onCampaignEndInput($event)"
+               [value]="activePeriodTo"
+               [min]="model.activePeriod?.from | date: 'yyyy-MM-ddTHH:mm'"
+               [readonly]="!model.activePeriod?.from">
+    </div>
+    <p class="field-info">Η ημέρα και ώρα λήξης της καμπάνιας</p>
+</ng-template>
+<ng-template #editCtaTemplate>
+    <label for="ctaText"
+           class="field-label">
+        Call-to-action
+    </label>
+    <div class="mt-1 flex rounded-sm"
+         *ngIf="model.actionLink">
+        <input type="text"
+               name="ctaText"
+               id="ctaText"
+               [(ngModel)]="model.actionLink.text"
+               maxlength="128"
+               #campaignCtaText="ngModel">
+    </div>
+    <p class="field-info">Κείμενο υπερσυνδέσμου</p>
+    <label for="ctaLink"
+           class="field-label">
+        Call-to-action σύνδεσμος
+    </label>
+    <ng-container *ngIf="model.actionLink">
+        <div class="mt-1 flex rounded-sm">
+            <input type="text"
+                   name="ctaLink"
+                   id="ctaLink"
+                   [(ngModel)]="model.actionLink.href"
+                   maxlength="2048"
+                   pattern="^(?:http(s)?:\/\/)?[\w.-]+(?:\.[\w\.-]+)+[\w\-\._~:?#[\]@!\$&'\(\)\*\+,;=.]+$"
+                   #campaignCtaLink="ngModel">
+        </div>
+        <p *ngIf="campaignCtaLink.invalid && (campaignCtaLink.dirty || campaignCtaLink.touched)"
+           class="mt-2 text-sm text-red-600">
+            <span *ngIf="campaignCtaLink.errors!['pattern']">Παρακαλώ συμπληρώστε έναν έγκυρο σύνδεσμο.</span>
+        </p>
+        <p class="field-info">URL υπερσυνδέσμου</p>
+    </ng-container>
+</ng-template>
+<ng-template #editListTemplate>
+    <div class="col-span-4">
+        <label for="campaignDistributionList"
+               class="field-label">Λίστα διανομής</label>
+        <lib-combobox id="campaignDistributionList"
+                      [items]="distributionLists"
+                      [busy]="distributionListsLoading"
+                      (onSearch)="onDistributionListsSearch($event)"
+                      (onItemSelected)="onDistributionListSelected($event)"
+                      [multiple]="false"
+                      #distributionListCombobox>
+        </lib-combobox>
+        <p class="field-info col-span-3">Η λίστα διανομής της καμπάνιας.</p>
+    </div>
+</ng-template>

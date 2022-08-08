@@ -1,5 +1,5 @@
-import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
 
 import { CampaignDetails } from 'src/app/core/services/messages-api.service';
 import { CampaignEditStore } from '../campaign-edit-store.service';
@@ -13,7 +13,9 @@ export class CampaignDetailsEditComponent implements OnInit {
 
     constructor(
         private _campaignStore: CampaignEditStore,
-        private _activatedRoute: ActivatedRoute
+        private _activatedRoute: ActivatedRoute,
+        private _changeDetector: ChangeDetectorRef,
+        private _router: Router
     ) { }
 
     public campaign: CampaignDetails | undefined;
@@ -29,5 +31,13 @@ export class CampaignDetailsEditComponent implements OnInit {
                 }
             });
         }
+    }
+
+    public openEditPane(action: string): void {
+        this._router.navigate(['', { outlets: { rightpane: ['edit-campaign'] } }], { queryParams: { action: action } });
+    }
+
+    public ngAfterViewInit(): void {
+        this._changeDetector.detectChanges();
     }
 }

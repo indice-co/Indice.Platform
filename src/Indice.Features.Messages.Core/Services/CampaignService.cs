@@ -93,6 +93,8 @@ namespace Indice.Features.Messages.Core.Services
             campaign.ActivePeriod = request.ActivePeriod;
             campaign.Content = request.Content;
             campaign.Title = request.Title;
+            campaign.TypeId = request.TypeId;
+            campaign.DistributionListId = request.RecipientListId;
             await DbContext.SaveChangesAsync();
         }
 

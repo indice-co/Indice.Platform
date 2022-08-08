@@ -6,6 +6,7 @@ import { AuthGuardService } from '@indice/ng-auth';
 import { CampaignContentEditComponent } from './features/campaigns/edit/content/campaign-edit-content.component';
 import { CampaignCreateComponent } from './features/campaigns/create/campaign-create.component';
 import { CampaignDetailsEditComponent } from './features/campaigns/edit/details/campaign-edit-details.component';
+import { CampaignDetailsEditRightpaneComponent } from './features/campaigns/edit/details/rightpane/campaign-edit-details-rightpane.component';
 import { CampaignEditComponent } from './features/campaigns/edit/campaign-edit.component';
 import { CampaignReportsComponent } from './features/campaigns/edit/reports/campaign-reports.component';
 import { CampaignsComponent } from './features/campaigns/campaigns.component';
@@ -47,6 +48,7 @@ const routes: Routes = [
       { path: 'templates', component: TemplatesComponent }
     ]
   },
+  { path: 'edit-campaign', canActivate: [AuthGuardService], component: CampaignDetailsEditRightpaneComponent, outlet: 'rightpane', pathMatch: 'prefix' },
   { path: 'create-message-type', canActivate: [AuthGuardService], component: MessageTypeCreateComponent, outlet: 'rightpane', pathMatch: 'prefix' },
   { path: 'edit-message-type/:messageTypeId', canActivate: [AuthGuardService], component: MessageTypeEditComponent, outlet: 'rightpane', pathMatch: 'prefix' },
   { path: 'create-distribution-list', canActivate: [AuthGuardService], component: DistributionListCreateComponent, outlet: 'rightpane', pathMatch: 'prefix' },

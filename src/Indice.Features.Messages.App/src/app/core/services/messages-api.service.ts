@@ -4119,26 +4119,26 @@ export interface ICreateAppSettingRequest {
 export class CreateCampaignRequest implements ICreateCampaignRequest {
     /** Determines if campaign targets all user base. Defaults to false. */
     isGlobal?: boolean;
-    /** Defines a list of user identifiers that constitutes the audience of the campaign. */
-    recipientIds?: string[] | undefined;
-    /** List of anonymous contacts not available through any of the existing contact resolvers.
-Use this list if recipient id is not known/available or the message will be fire and forget. */
-    recipients?: ContactAnonymous[] | undefined;
     messageChannelKind?: MessageChannelKind[];
     /** The title of the campaign. */
     title!: string | undefined;
     /** The contents of the campaign. */
     content?: { [key: string]: MessageContent; } | undefined;
     actionLink?: Hyperlink;
-    /** Determines if a campaign is published. */
-    published?: boolean;
     activePeriod?: Period;
     /** The id of the type this campaign belongs. */
     typeId?: string | undefined;
     /** The id of the distribution list. */
     recipientListId?: string | undefined;
     /** Optional data for the campaign. */
-    data?: { [key: string]: any; } | undefined;
+    data?: any | undefined;
+    /** Determines if a campaign is published. */
+    published?: boolean;
+    /** Defines a list of user identifiers that constitutes the audience of the campaign. */
+    recipientIds?: string[] | undefined;
+    /** List of anonymous contacts not available through any of the existing contact resolvers.
+Use this list if recipient id is not known/available or the message will be fire and forget. */
+    recipients?: ContactAnonymous[] | undefined;
 
     constructor(data?: ICreateCampaignRequest) {
         if (data) {
@@ -4152,16 +4152,6 @@ Use this list if recipient id is not known/available or the message will be fire
     init(_data?: any) {
         if (_data) {
             this.isGlobal = _data["isGlobal"];
-            if (Array.isArray(_data["recipientIds"])) {
-                this.recipientIds = [] as any;
-                for (let item of _data["recipientIds"])
-                    this.recipientIds!.push(item);
-            }
-            if (Array.isArray(_data["recipients"])) {
-                this.recipients = [] as any;
-                for (let item of _data["recipients"])
-                    this.recipients!.push(ContactAnonymous.fromJS(item));
-            }
             if (Array.isArray(_data["messageChannelKind"])) {
                 this.messageChannelKind = [] as any;
                 for (let item of _data["messageChannelKind"])
@@ -4176,16 +4166,20 @@ Use this list if recipient id is not known/available or the message will be fire
                 }
             }
             this.actionLink = _data["actionLink"] ? Hyperlink.fromJS(_data["actionLink"]) : <any>undefined;
-            this.published = _data["published"];
             this.activePeriod = _data["activePeriod"] ? Period.fromJS(_data["activePeriod"]) : <any>undefined;
             this.typeId = _data["typeId"];
             this.recipientListId = _data["recipientListId"];
-            if (_data["data"]) {
-                this.data = {} as any;
-                for (let key in _data["data"]) {
-                    if (_data["data"].hasOwnProperty(key))
-                        (<any>this.data)![key] = _data["data"][key];
-                }
+            this.data = _data["data"];
+            this.published = _data["published"];
+            if (Array.isArray(_data["recipientIds"])) {
+                this.recipientIds = [] as any;
+                for (let item of _data["recipientIds"])
+                    this.recipientIds!.push(item);
+            }
+            if (Array.isArray(_data["recipients"])) {
+                this.recipients = [] as any;
+                for (let item of _data["recipients"])
+                    this.recipients!.push(ContactAnonymous.fromJS(item));
             }
         }
     }
@@ -4200,16 +4194,6 @@ Use this list if recipient id is not known/available or the message will be fire
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
         data["isGlobal"] = this.isGlobal;
-        if (Array.isArray(this.recipientIds)) {
-            data["recipientIds"] = [];
-            for (let item of this.recipientIds)
-                data["recipientIds"].push(item);
-        }
-        if (Array.isArray(this.recipients)) {
-            data["recipients"] = [];
-            for (let item of this.recipients)
-                data["recipients"].push(item.toJSON());
-        }
         if (Array.isArray(this.messageChannelKind)) {
             data["messageChannelKind"] = [];
             for (let item of this.messageChannelKind)
@@ -4224,16 +4208,20 @@ Use this list if recipient id is not known/available or the message will be fire
             }
         }
         data["actionLink"] = this.actionLink ? this.actionLink.toJSON() : <any>undefined;
-        data["published"] = this.published;
         data["activePeriod"] = this.activePeriod ? this.activePeriod.toJSON() : <any>undefined;
         data["typeId"] = this.typeId;
         data["recipientListId"] = this.recipientListId;
-        if (this.data) {
-            data["data"] = {};
-            for (let key in this.data) {
-                if (this.data.hasOwnProperty(key))
-                    (<any>data["data"])[key] = (<any>this.data)[key];
-            }
+        data["data"] = this.data;
+        data["published"] = this.published;
+        if (Array.isArray(this.recipientIds)) {
+            data["recipientIds"] = [];
+            for (let item of this.recipientIds)
+                data["recipientIds"].push(item);
+        }
+        if (Array.isArray(this.recipients)) {
+            data["recipients"] = [];
+            for (let item of this.recipients)
+                data["recipients"].push(item.toJSON());
         }
         return data;
     }
@@ -4243,26 +4231,26 @@ Use this list if recipient id is not known/available or the message will be fire
 export interface ICreateCampaignRequest {
     /** Determines if campaign targets all user base. Defaults to false. */
     isGlobal?: boolean;
-    /** Defines a list of user identifiers that constitutes the audience of the campaign. */
-    recipientIds?: string[] | undefined;
-    /** List of anonymous contacts not available through any of the existing contact resolvers.
-Use this list if recipient id is not known/available or the message will be fire and forget. */
-    recipients?: ContactAnonymous[] | undefined;
     messageChannelKind?: MessageChannelKind[];
     /** The title of the campaign. */
     title: string | undefined;
     /** The contents of the campaign. */
     content?: { [key: string]: MessageContent; } | undefined;
     actionLink?: Hyperlink;
-    /** Determines if a campaign is published. */
-    published?: boolean;
     activePeriod?: Period;
     /** The id of the type this campaign belongs. */
     typeId?: string | undefined;
     /** The id of the distribution list. */
     recipientListId?: string | undefined;
     /** Optional data for the campaign. */
-    data?: { [key: string]: any; } | undefined;
+    data?: any | undefined;
+    /** Determines if a campaign is published. */
+    published?: boolean;
+    /** Defines a list of user identifiers that constitutes the audience of the campaign. */
+    recipientIds?: string[] | undefined;
+    /** List of anonymous contacts not available through any of the existing contact resolvers.
+Use this list if recipient id is not known/available or the message will be fire and forget. */
+    recipients?: ContactAnonymous[] | undefined;
 }
 
 /** The request model used to create a new contact. */
@@ -5411,14 +5399,19 @@ export interface IUpdateAppSettingRequest {
 
 /** The request model used to update an existing campaign. */
 export class UpdateCampaignRequest implements IUpdateCampaignRequest {
+    /** Determines if campaign targets all user base. Defaults to false. */
+    isGlobal?: boolean;
+    messageChannelKind?: MessageChannelKind[];
     /** The title of the campaign. */
-    title?: string | undefined;
-    /** The content of the campaign. */
+    title!: string | undefined;
+    /** The contents of the campaign. */
     content?: { [key: string]: MessageContent; } | undefined;
     actionLink?: Hyperlink;
     activePeriod?: Period;
     /** The id of the type this campaign belongs. */
     typeId?: string | undefined;
+    /** The id of the distribution list. */
+    recipientListId?: string | undefined;
     /** Optional data for the campaign. */
     data?: any | undefined;
 
@@ -5433,6 +5426,12 @@ export class UpdateCampaignRequest implements IUpdateCampaignRequest {
 
     init(_data?: any) {
         if (_data) {
+            this.isGlobal = _data["isGlobal"];
+            if (Array.isArray(_data["messageChannelKind"])) {
+                this.messageChannelKind = [] as any;
+                for (let item of _data["messageChannelKind"])
+                    this.messageChannelKind!.push(item);
+            }
             this.title = _data["title"];
             if (_data["content"]) {
                 this.content = {} as any;
@@ -5444,6 +5443,7 @@ export class UpdateCampaignRequest implements IUpdateCampaignRequest {
             this.actionLink = _data["actionLink"] ? Hyperlink.fromJS(_data["actionLink"]) : <any>undefined;
             this.activePeriod = _data["activePeriod"] ? Period.fromJS(_data["activePeriod"]) : <any>undefined;
             this.typeId = _data["typeId"];
+            this.recipientListId = _data["recipientListId"];
             this.data = _data["data"];
         }
     }
@@ -5457,6 +5457,12 @@ export class UpdateCampaignRequest implements IUpdateCampaignRequest {
 
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
+        data["isGlobal"] = this.isGlobal;
+        if (Array.isArray(this.messageChannelKind)) {
+            data["messageChannelKind"] = [];
+            for (let item of this.messageChannelKind)
+                data["messageChannelKind"].push(item);
+        }
         data["title"] = this.title;
         if (this.content) {
             data["content"] = {};
@@ -5468,6 +5474,7 @@ export class UpdateCampaignRequest implements IUpdateCampaignRequest {
         data["actionLink"] = this.actionLink ? this.actionLink.toJSON() : <any>undefined;
         data["activePeriod"] = this.activePeriod ? this.activePeriod.toJSON() : <any>undefined;
         data["typeId"] = this.typeId;
+        data["recipientListId"] = this.recipientListId;
         data["data"] = this.data;
         return data;
     }
@@ -5475,14 +5482,19 @@ export class UpdateCampaignRequest implements IUpdateCampaignRequest {
 
 /** The request model used to update an existing campaign. */
 export interface IUpdateCampaignRequest {
+    /** Determines if campaign targets all user base. Defaults to false. */
+    isGlobal?: boolean;
+    messageChannelKind?: MessageChannelKind[];
     /** The title of the campaign. */
-    title?: string | undefined;
-    /** The content of the campaign. */
+    title: string | undefined;
+    /** The contents of the campaign. */
     content?: { [key: string]: MessageContent; } | undefined;
     actionLink?: Hyperlink;
     activePeriod?: Period;
     /** The id of the type this campaign belongs. */
     typeId?: string | undefined;
+    /** The id of the distribution list. */
+    recipientListId?: string | undefined;
     /** Optional data for the campaign. */
     data?: any | undefined;
 }

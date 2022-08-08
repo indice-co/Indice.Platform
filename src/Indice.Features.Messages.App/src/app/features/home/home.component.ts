@@ -24,7 +24,9 @@ export class HomeComponent implements OnInit {
                     this._router.navigate(['/dashboard']);
                     return;
                 }
-                this._authService.signinRedirect('/dashboard');
+                this._authService.signinRedirect({
+                    location: '/dashboard'
+                });
             }))
             .subscribe();
     }

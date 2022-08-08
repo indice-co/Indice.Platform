@@ -20,10 +20,10 @@
             <ng-template let-item>{{ item.title }}</ng-template>
         </lib-list-column>
         <lib-list-column title="ΑΠΟ">
-            <ng-template let-item>{{ item.activePeriod.from | date: 'medium' }}</ng-template>
+            <ng-template let-item>{{ item.activePeriod?.from ? (item.activePeriod.from | date: 'medium') : '-' }}</ng-template>
         </lib-list-column>
         <lib-list-column title="ΕΩΣ">
-            <ng-template let-item>{{ item.activePeriod?.to ? (item.activePeriod?.to | date: 'medium') : '-' }}</ng-template>
+            <ng-template let-item>{{ item.activePeriod?.to ? (item.activePeriod.to | date: 'medium') : '-' }}</ng-template>
         </lib-list-column>
         <lib-list-column title="ΔΗΜΙΟΥΡΓΗΘΗΚΕ ΑΠΟ">
             <ng-template let-item>{{ item.createdBy }}</ng-template>

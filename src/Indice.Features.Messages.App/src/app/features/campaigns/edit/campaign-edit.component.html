@@ -1,7 +1,7 @@
 <lib-view-layout [meta-items]="metaItems"
+                 title="Φόρτωση δεδομένων"
                  #layout>
-    <div class="min-h-full"
-         *ngIf="campaign">
+    <div class="min-h-full">
         <main>
             <div class="mx-auto px-4 sm:px-6 md:flex md:items-center md:justify-between md:space-x-5 lg:px-8">
                 <div class="flex items-center space-x-5"></div>
@@ -13,7 +13,7 @@
                     </button>
                     <button type="button"
                             (click)="publishCampaign()"
-                            *ngIf="!campaign.published"
+                            *ngIf="!campaign?.published"
                             class="side-view-layout-action-button-submit">
                         Δημοσίευση
                     </button>
@@ -27,7 +27,7 @@
                              aria-label="Sidebar">
                             <a [routerLink]="['details']"
                                class="vertical-navigation-link-base"
-                               [ngClass]="isActive(['campaigns', campaign.id!, 'details']) ? 'vertical-navigation-link-active' : 'vertical-navigation-link'"
+                               [ngClass]="isActive(['campaigns', campaign?.id || '', 'details']) ? 'vertical-navigation-link-active' : 'vertical-navigation-link'"
                                aria-current="page">
                                 <svg xmlns="http://www.w3.org/2000/svg"
                                      class="text-gray-500 flex-shrink-0 -ml-1 mr-3 h-6 w-6"
@@ -42,7 +42,7 @@
                                 <span class="truncate">Βασικές πληροφορίες</span>
                             </a>
                             <a [routerLink]="['content']"
-                               [ngClass]="isActive(['campaigns', campaign.id!, 'content']) ? 'vertical-navigation-link-active' : 'vertical-navigation-link'"
+                               [ngClass]="isActive(['campaigns', campaign?.id || '', 'content']) ? 'vertical-navigation-link-active' : 'vertical-navigation-link'"
                                class="vertical-navigation-link-base">
                                 <svg xmlns="http://www.w3.org/2000/svg"
                                      class="text-gray-400 flex-shrink-0 -ml-1 mr-3 h-6 w-6"
@@ -57,7 +57,7 @@
                                 <span class="truncate">Περιεχόμενο</span>
                             </a>
                             <a [routerLink]="['reports']"
-                               [ngClass]="isActive(['campaigns', campaign.id!, 'reports']) ? 'vertical-navigation-link-active' : 'vertical-navigation-link'"
+                               [ngClass]="isActive(['campaigns', campaign?.id || '', 'reports']) ? 'vertical-navigation-link-active' : 'vertical-navigation-link'"
                                class="vertical-navigation-link-base">
                                 <svg class="text-gray-400 flex-shrink-0 -ml-1 mr-3 h-6 w-6"
                                      xmlns="http://www.w3.org/2000/svg"

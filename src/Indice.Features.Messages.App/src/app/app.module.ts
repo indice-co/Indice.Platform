@@ -1,11 +1,12 @@
-import { NgModule } from '@angular/core';
-import { CommonModule, DatePipe, JsonPipe } from '@angular/common';
+import { LOCALE_ID, NgModule } from '@angular/core';
+import { CommonModule, DatePipe, JsonPipe, registerLocaleData } from '@angular/common';
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { BrowserModule } from '@angular/platform-browser';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
-import { AuthHttpInterceptor, AUTH_SETTINGS, IndiceAuthModule } from '@indice/ng-auth';
 import { APP_LINKS, IndiceComponentsModule, ModalService, SHELL_CONFIG } from '@indice/ng-components';
+import { AuthHttpInterceptor, AUTH_SETTINGS, IndiceAuthModule } from '@indice/ng-auth';
+import { HighlightModule, HIGHLIGHT_OPTIONS } from 'ngx-highlightjs';
 import { AppComponent } from './app.component';
 import { AppLinks } from './app.links';
 import { AppRoutingModule } from './app-routing.module';
@@ -17,6 +18,7 @@ import { CampaignContentComponent } from './features/campaigns/create/steps/cont
 import { CampaignContentEditComponent } from './features/campaigns/edit/content/campaign-edit-content.component';
 import { CampaignCreateComponent } from './features/campaigns/create/campaign-create.component';
 import { CampaignDetailsEditComponent } from './features/campaigns/edit/details/campaign-edit-details.component';
+import { CampaignDetailsEditRightpaneComponent } from './features/campaigns/edit/details/rightpane/campaign-edit-details-rightpane.component';
 import { CampaignEditComponent } from './features/campaigns/edit/campaign-edit.component';
 import { CampaignPreviewComponent } from './features/campaigns/create/steps/preview/campaign-preview.component';
 import { CampaignRecipientsComponent } from './features/campaigns/create/steps/recipients/campaign-recipients.component';
@@ -42,6 +44,8 @@ import { ShellConfig } from './shell.config';
 import { TemplatesComponent } from './features/templates/templates.component';
 import { ToggleButtonComponent } from './shared/components/toggle-button/toggle-button.component';
 import * as app from 'src/app/core/models/settings';
+import localeGreek from '@angular/common/locales/el';
+registerLocaleData(localeGreek);
 
 @NgModule({
   declarations: [
@@ -53,6 +57,7 @@ import * as app from 'src/app/core/models/settings';
     CampaignContentEditComponent,
     CampaignCreateComponent,
     CampaignDetailsEditComponent,
+    CampaignDetailsEditRightpaneComponent,
     CampaignEditComponent,
     CampaignPreviewComponent,
     CampaignRecipientsComponent,
@@ -81,6 +86,7 @@ import * as app from 'src/app/core/models/settings';
     BrowserModule,
     CommonModule,
     FormsModule,
+    HighlightModule,
     HttpClientModule,
     IndiceAuthModule,
     IndiceComponentsModule.forRoot(),
@@ -95,7 +101,18 @@ import * as app from 'src/app/core/models/settings';
     { provide: HTTP_INTERCEPTORS, useClass: AuthHttpInterceptor, multi: true },
     { provide: HTTP_INTERCEPTORS, useClass: BadRequestInterceptor, multi: true },
     { provide: MESSAGES_API_BASE_URL, useFactory: () => app.settings.api_url },
-    { provide: SHELL_CONFIG, useFactory: () => new ShellConfig() }
+    { provide: SHELL_CONFIG, useFactory: () => new ShellConfig() },
+    { provide: LOCALE_ID, useValue: 'el-GR' },
+    {
+      provide: HIGHLIGHT_OPTIONS,
+      useValue: {
+        lineNumbers: false,
+        coreLibraryLoader: () => import('highlight.js/lib/core'),
+        languages: {
+          json: () => import('highlight.js/lib/languages/json')
+        }
+      }
+    }
   ],
   bootstrap: [AppComponent]
 })
