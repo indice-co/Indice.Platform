@@ -60,7 +60,6 @@ namespace Indice.Api
                     context.Context.Response.Headers.Append(HeaderNames.Expires, DateTime.UtcNow.AddSeconds(durationInSeconds).ToString("R", CultureInfo.InvariantCulture));
                 }
             };
-            app.UseSecurityHeaders();
             app.UseStaticFiles(staticFileOptions);
             app.UseCors();
             app.UseRouting();
@@ -93,20 +92,22 @@ namespace Indice.Api
                     options.OAuthScopeSeparator(" ");
                 });
             }
-            app.UseWhen(httpContext => httpContext.Request.Path.StartsWithSegments("/messages"), messagesBuilder => {
-                messagesBuilder.UseSecurityHeaders(policy => {
-                    var csp = policy.ContentSecurityPolicy
-                                    .AddScriptSrc(CSP.UnsafeInline)
-                                    .AddConnectSrc(CSP.Self)
-                                    .AddConnectSrc(Settings.Authority)
-                                    .AddFrameSrc(Settings.Authority)
-                                    .AddSandbox("allow-popups")
-                                    .AddFontSrc("data:");
-                    if (HostingEnvironment.IsDevelopment()) {
-                        csp.AddConnectSrc("wss:");
-                    }
-                });
-            });
+            //app.UseWhen(httpContext => httpContext.Request.Path.StartsWithSegments("/messages"), messagesBuilder => {
+            //    messagesBuilder.UseSecurityHeaders(policy => {
+            //        var csp = policy.ContentSecurityPolicy
+            //                        .AddScriptSrc(CSP.UnsafeInline)
+            //                        .AddConnectSrc(CSP.Self)
+            //                        .AddConnectSrc(Settings.Authority)
+            //                        .AddFrameSrc(Settings.Authority)
+            //                        .AddFrameSrc(CSP.Self)
+            //                        .AddFrameAncestors(CSP.Self)
+            //                        .AddSandbox("allow-popups")
+            //                        .AddFontSrc("data:");
+            //        if (HostingEnvironment.IsDevelopment()) {
+            //            csp.AddConnectSrc("wss:");
+            //        }
+            //    });
+            //});
             app.UseCampaignsUI(options => {
                 options.Path = "messages";
                 options.ClientId = "backoffice-ui";
