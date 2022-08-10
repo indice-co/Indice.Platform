@@ -11,4 +11,5 @@ export class ShellConfig implements IShellConfig {
     public showNotifications = false;
     public showUserNameOnHeader = false;
     public layout = ShellLayoutType.Sidebar;
+    public breadcrumb = false;
 }

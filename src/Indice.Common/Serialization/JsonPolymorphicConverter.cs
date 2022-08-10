@@ -116,11 +116,7 @@ namespace Indice.Serialization
                 DefaultBufferSize = options.DefaultBufferSize,
                 DictionaryKeyPolicy = options.DictionaryKeyPolicy,
                 Encoder = options.Encoder,
-#if NET5_0_OR_GREATER
                 DefaultIgnoreCondition = options.DefaultIgnoreCondition,
-#else          
-                IgnoreNullValues = options.IgnoreNullValues,
-#endif
                 IgnoreReadOnlyProperties = options.IgnoreReadOnlyProperties,
                 MaxDepth = options.MaxDepth,
                 PropertyNameCaseInsensitive = options.PropertyNameCaseInsensitive,

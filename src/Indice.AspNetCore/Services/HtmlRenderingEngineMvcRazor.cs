@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.ViewEngines;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Routing;
+using Indice.Extensions;
 
 namespace Indice.Services
 {
@@ -53,7 +54,7 @@ namespace Indice.Services
             viewDataDictionary.Model = data switch {
                 string text => text,
                 null => null,
-                _ => ToExpandoObject(dataType, data)
+                _ => dataType.IsAnonymousType() ? ToExpandoObject(dataType, data) : data
             };
             var actionContext = GetActionContext();
             var tempDataDictionary = new TempDataDictionary(actionContext.HttpContext, _tempDataProvider);

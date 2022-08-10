@@ -51,7 +51,7 @@ namespace Indice.AspNetCore.Middleware
         private readonly Dictionary<string, string> _values = new Dictionary<string, string>();
 
         /// <summary>
-        /// Wildcard, allows any URL except data: blob: filesystem: schemes.
+        /// Wild-card, allows any URL except data: blob: filesystem: schemes.
         /// </summary>
         public const string Wildcard = "*";
         /// <summary>
@@ -73,22 +73,21 @@ namespace Indice.AspNetCore.Middleware
         /// </summary>
         public const string UnsafeEval = "'unsafe-eval'";
         /// <summary>
-        /// Allows the use of inline resources, such as inline &lt;script&gt; elements, javascript: URLs, inline event handlers, and inline &lt;style&gt; elements. <br/>
+        /// Allows the use of in-line resources, such as in-line &lt;script&gt; elements, JavaScript: URLs, in-line event handlers, and in-line &lt;style&gt; elements. <br/>
         /// The single quotes are required.
         /// </summary>
         public const string UnsafeInline = "'unsafe-inline'";
         /// <summary>
-        /// Allows enabling specific inline event handlers. If you only need to allow inline event handlers and not inline &lt;script&gt; elements or javascript: URLs,<br/>
+        /// Allows enabling specific in-line event handlers. If you only need to allow in-line event handlers and not in-line &lt;script&gt; elements or JavaScript: URLs,<br/>
         /// this is a safer method than using the unsafe-inline expression.
         /// </summary>
         public const string UnsafeHashes = "'unsafe-hashes'";
         /// <summary>
         /// The strict-dynamic source expression specifies that the trust explicitly given to a script present in the markup, by accompanying it with a nonce or a hash, <br/>
         /// shall be propagated to all the scripts loaded by that root script. <br/>
-        /// At the same time, any whitelist or source expressions such as 'self' or 'unsafe-inline' will be ignored. See script-src for an example.
+        /// At the same time, any white-list or source expressions such as 'self' or 'unsafe-inline' will be ignored. See script-src for an example.
         /// </summary>
         public const string StrictDynamic = "'strict-dynamic'";
-
 
         /// <summary>
         /// <em>[CSP Level 1]</em><br/>
@@ -488,6 +487,7 @@ namespace Indice.AspNetCore.Middleware
         }
 
         private string GetUrlCasing(string pascalCasing) => Regex.Replace(pascalCasing, "([A-Z][a-z]+)", "-$1", RegexOptions.Compiled).Trim().ToLowerInvariant().TrimStart('-');
+        
         private string GetPascalCasing(string urlCasing) => string.Join("", urlCasing.ToLowerInvariant().Split('-').Select(x => char.ToUpperInvariant(x[0]) + x.Substring(1)));
 
         /// <summary>

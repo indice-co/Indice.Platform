@@ -87,7 +87,9 @@ namespace Indice.Identity
             services.AddIdentityServerConfig(HostingEnvironment, Configuration, Settings);
             services.AddProblemDetailsConfig(HostingEnvironment);
             services.ConfigureNonBreakingSameSiteCookies();
-            services.AddSmsServiceYuboto(Configuration);
+            services.AddSmsServiceYubotoOmni(Configuration);
+            services.AddEmailServiceSparkpost(Configuration)
+                    .WithMvcRazorRendering();
             services.AddSwaggerGen(options => {
                 options.IndiceDefaults(Settings);
                 options.AddFluentValidationSupport();
@@ -104,8 +106,6 @@ namespace Indice.Identity
             services.AddResponseCaching();
             services.AddDataProtectionLocal(options => options.FromConfiguration());
             services.AddClientThemingService();
-            services.AddEmailServiceSmtp(Configuration)
-                    .WithMvcRazorRendering();
             services.AddCsp(options => {
                 options.ScriptSrc = CSP.Self;
                 options.AddSandbox("allow-popups")

@@ -45,7 +45,8 @@ export class MessageTypesComponent extends BaseListComponent<MessageType> implem
         const modal = this._modalService.show(BasicModalComponent, {
             animated: true,
             initialState: {
-                title: `Είστε σίγουρος ότι θέλετε να διαγράψετε τον τύπο ${type.name};`,
+                title: 'Διαγραφή',
+                message: `Είστε σίγουρος ότι θέλετε να διαγράψετε τον τύπο ${type.name};`,
                 data: type
             },
             keyboard: true

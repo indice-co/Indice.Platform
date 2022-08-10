@@ -167,16 +167,11 @@ namespace Indice.Features.Messages.Core.Manager
             // If a distribution list id is not set, then we create a new list.
             if (!request.RecipientListId.HasValue && !request.IsGlobal) {
                 var createdList = await DistributionListService.Create(new CreateDistributionListRequest {
-                    CreatedBy = CreatedBy.Worker,
                     Name = $"{request.Title} - {timestamp}"
                 }, request.GetIncludedContacts());
                 request.RecipientListId = createdList.Id;
                 isNewDistributionList = true;
             }
-            //if (request.TemplateId.HasValue) {
-            //    var template = await TemplateService.GetById(request.TemplateId.Value);
-            //    request.Content = template.Content;
-            //}
             // Create campaign in the store.
             var createdCampaign = await CampaignService.Create(request);
             // Dispatch event that the campaign was created.

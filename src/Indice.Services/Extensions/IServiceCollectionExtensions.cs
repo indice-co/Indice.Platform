@@ -42,9 +42,7 @@ namespace Microsoft.Extensions.DependencyInjection
             });
         }
 
-        /// <summary>
-        /// Adds Indice's common services.
-        /// </summary>
+        /// <summary>Adds Indice's common services.</summary>
         /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
         /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
         public static IServiceCollection AddGeneralSettings(this IServiceCollection services, IConfiguration configuration) {
@@ -53,9 +51,7 @@ namespace Microsoft.Extensions.DependencyInjection
             return services;
         }
 
-        /// <summary>
-        /// The factory that creates the default instance and configuration for <see cref="PushNotificationServiceAzure"/>.
-        /// </summary>
+        /// <summary>The factory that creates the default instance and configuration for <see cref="PushNotificationServiceAzure"/>.</summary>
         public static readonly Func<IServiceProvider, Action<IServiceProvider, PushNotificationAzureOptions>, PushNotificationServiceAzure> GetPushNotificationServiceAzure = (serviceProvider, configure) => {
             var configuration = serviceProvider.GetRequiredService<IConfiguration>();
             var options = new PushNotificationAzureOptions {
@@ -68,9 +64,7 @@ namespace Microsoft.Extensions.DependencyInjection
             return new PushNotificationServiceAzure(options);
         };
 
-        /// <summary>
-        /// Adds an Azure specific implementation of <see cref="IPushNotificationService"/> for sending push notifications.
-        /// </summary>
+        /// <summary>Adds an Azure specific implementation of <see cref="IPushNotificationService"/> for sending push notifications.</summary>
         /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
         /// <param name="configure">Configure the available options for push notifications. Null to use defaults.</param>
         public static IServiceCollection AddPushNotificationServiceAzure(this IServiceCollection services, Action<IServiceProvider, PushNotificationAzureOptions> configure = null) =>

@@ -10,12 +10,10 @@ export class BasicModalComponent {
     constructor(public modal: Modal) { }
 
     public title: string = '';
+    public message: string = '';
     public data: any;
 
     public answer(answer: boolean): void {
-        this.modal.hide({
-            answer,
-            data: this.data
-        });
+        this.modal.hide({ answer, data: this.data });
     }
 }

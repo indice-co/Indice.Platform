@@ -21,7 +21,13 @@
         public Guid Id { get; set; }
         /// <summary>The name of the template.</summary>
         public string Name { get; set; }
-        /// <summary>When the template was created.</summary>
+        /// <summary>Specifies the principal that created the template.</summary>
+        public string CreatedBy { get; set; }
+        /// <summary>Specifies when a template was created.</summary>
         public DateTimeOffset CreatedAt { get; set; }
+        /// <summary>Specifies the principal that update the template.</summary>
+        public string UpdatedBy { get; set; }
+        /// <summary>Specifies when a template was updated.</summary>
+        public DateTimeOffset? UpdatedAt { get; set; }
     }
 }

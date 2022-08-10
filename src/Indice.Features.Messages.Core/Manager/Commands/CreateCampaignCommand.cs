@@ -60,10 +60,6 @@ namespace Indice.Features.Messages.Core.Manager.Commands
         /// </summary>
         public MessageChannelKind MessageChannelKind { get; set; }
         /// <summary>
-        /// The template of the campaign.
-        /// </summary>
-        public Guid? TemplateId { get; set; }
-        /// <summary>
         /// Optional data for the campaign.
         /// </summary>
         public dynamic Data { get; set; }

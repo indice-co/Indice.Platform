@@ -92,6 +92,7 @@ namespace Microsoft.Extensions.DependencyInjection
             services.TryAddTransient<CreateMessageTypeRequestValidator>();
             services.TryAddTransient<NotificationsManager>();
             services.TryAddSingleton(new DatabaseSchemaNameResolver(options.DatabaseSchema));
+            services.TryAddTransient<IUserNameAccessor>(serviceProvider => new UserNameStaticAccessor("worker"));
         }
 
         /// <summary>Adds an Azure specific implementation of <see cref="IPushNotificationService"/> for sending push notifications.</summary>

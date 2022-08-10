@@ -59,7 +59,8 @@ export class DistributionListContactsComponent extends BaseListComponent<Contact
         const modal = this._modalService.show(BasicModalComponent, {
             animated: true,
             initialState: {
-                title: `Είστε σίγουρος ότι θέλετε να διαγράψετε την επαφή '${contact.fullName || contact.email}' από τη λίστα '${this.distributionList.name}';`,
+                title: 'Διαγραφή',
+                message: `Είστε σίγουρος ότι θέλετε να διαγράψετε την επαφή '${contact.fullName || contact.email}' από τη λίστα '${this.distributionList.name}';`,
                 data: contact
             },
             keyboard: true

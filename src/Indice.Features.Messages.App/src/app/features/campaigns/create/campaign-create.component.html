@@ -1,498 +1,64 @@
-<lib-view-layout title="Δημιουργία νέας καμπάνιας" #createCampaignViewLayout>
-    <div class="bg-white">
-        <lib-stepper class="mt-4" [linear]="true" [type]="StepperType.PanelsWithBorder" (stepChanged)="onStepperStepChanged($event)" (completed)="onSubmitCampaign()" #createCampaignStepper>
-            <!-- Γενικά -->
-            <lib-step [stepControl]="basicDetailsForm">
-                <ng-template libStepLabel>Γενικα</ng-template>
-                <ng-template libStepInfo>Βασικές πληροφορίες</ng-template>
-                <form [formGroup]="basicDetailsForm" class="">
-                    <div class="px-4 space-y-2 pb-4 mt-4">
-                        <!-- Τίτλος -->
-                        <fieldset>
-                            <legend class="sr-only">Τίτλος</legend>
-                            <div class="text-base font-medium text-gray-900" aria-hidden="true">Τίτλος (*)</div>
-                            <label for="campaignTitle" class="field-label hidden">Τίτλος (*)</label>
-                            <div class="mt-1 flex rounded-sm">
-                                <input type="text" name="campaignTitle" id="campaignTitle" formControlName="title" placeholder="Ο τίτλος της καμπάνιας...">
-                            </div>
-                            <p *ngIf="title.invalid && (title.dirty || title.touched)" class="mt-2 text-sm text-red-600">
-                                <span *ngIf="title.errors!['required']">Παρακαλώ συμπληρώστε ένα τίτλο.</span>
-                                <span *ngIf="title.errors!['maxlength']">Παρακαλώ συμπληρώστε ένα μικρότερο τίτλο.</span>
-                            </p>
-                            <p class="field-info col-span-3">Η ονομασία η οποία θα εμφανίζεται για την καμπάνια.</p>
-                        </fieldset>
-                        <!-- Τύπος -->
-                        <fieldset>
-                            <legend class="sr-only">Τύπος</legend>
-                            <div class="text-base font-medium text-gray-900" aria-hidden="true">Τύπος</div>
-                            <label for="campaignType" class="field-label hidden" aria-hidden="true">Τύπος</label>
-                            <div class="mt-1 flex rounded-sm">
-                                <lib-local-drop-down-menu id="campaignType" class="w-full" formControlName="type" [value]="type.value" [options]="messageTypes" (change)="type.setValue($event.value ? $event : null)">
-                                </lib-local-drop-down-menu>
-                            </div>
-                        </fieldset>
-                        <!-- Διάρκεια -->
-                        <fieldset>
-                            <legend class="sr-only">Διάρκεια</legend>
-                            <div class="text-base font-medium text-gray-900" aria-hidden="true">Διάρκεια</div>
-                            <div class="grid grid-cols-2 gap-4">
-                                <!-- Από -->
-                                <div class="col-span-2 sm:col-span-1">
-                                    <label for="campaignStart" class="field-label hidden" aria-hidden="true">Ημ. Έναρξης</label>
-                                    <div class="mt-1 flex rounded-sm col-span-3">
-                                        <input class="w-full" type="datetime-local" name="campaignStart" id="campaignStart" formControlName="from" (input)="onCampaignStartInput($event)" [min]="now | date: 'yyyy-MM-ddTHH:mm'"
-                                            [max]="to.value | date: 'yyyy-MM-ddTHH:mm'">
-                                    </div>
-                                    <p class="field-info">Η ημέρα και ώρα έναρξης της καμπάνιας</p>
-                                </div>
-                                <!-- Έως -->
-                                <div class="col-span-2 sm:col-span-1">
-                                    <label for="campaignEnd" class="field-label hidden" aria-hidden="true">Ημ. Λήξης</label>
-                                    <div class="mt-1 flex rounded-sm col-span-3">
-                                        <input class="w-full" type="datetime-local" name="campaignEnd" id="campaignEnd" formControlName="to" (input)="onCampaignEndInput($event)" [min]="from.value | date: 'yyyy-MM-ddTHH:mm'"
-                                            [readonly]="!from.value">
-                                    </div>
-                                    <p class="field-info">Η ημέρα και ώρα λήξης της καμπάνιας</p>
-                                </div>
-                            </div>
-                        </fieldset>
-                        <!-- Call to action -->
-                        <fieldset>
-                            <legend class="sr-only">Call to action</legend>
-                            <div class="text-base font-medium text-gray-900" aria-hidden="true">Call to action</div>
-                            <div class="grid grid-cols-2 gap-4">
-                                <!-- Call to action κείμενο -->
-                                <div class="col-span-2 sm:col-span-1">
-                                    <label for="campaignClickToActionText" class="field-label hidden" aria-hidden="true">Call to action</label>
-                                    <div class="mt-1 flex rounded-sm">
-                                        <input type="text" name="campaignClickToActionText" id="campaignClickToActionText" formControlName="actionLinkText" placeholder="Πατήστε εδώ για να...">
-                                    </div>
-                                    <p class="field-info">Κείμενο υπερσυνδέσμου</p>
-                                </div>
-                                <!-- Call to action σύνδεσμος -->
-                                <div class="col-span-2 sm:col-span-1">
-                                    <label for="campaignClickToActionLink" class="field-label hidden" aria-hidden="true">Call-to-action σύνδεσμος</label>
-                                    <div class="mt-1 flex rounded-sm">
-                                        <input type="text" name="campaignClickToActionLink" id="campaignClickToActionLink" formControlName="actionLinkHref" placeholder="https://example.com">
-                                    </div>
-                                    <p class="field-info">URL υπερσυνδέσμου</p>
-                                    <p *ngIf="actionLinkHref.invalid && (actionLinkHref.dirty || actionLinkHref.touched)" class="mt-2 text-sm text-red-600">
-                                        <span *ngIf="actionLinkHref.errors!['pattern']">Παρακαλώ συμπληρώστε έναν έγκυρο σύνδεσμο.</span>
-                                    </p>
-                                </div>
-                            </div>
-                        </fieldset>
-                        <!-- Χρήση template -->
-                        <fieldset>
-                            <legend class="sr-only">Χρήση template</legend>
-                            <div class="text-base font-medium text-gray-900" aria-hidden="true">Χρήση template</div>
-                            <div class="grid grid-cols-2 gap-4">
-                                <div class="col-span-2 sm:col-span-1">
-                                    <div class="flex items-center mt-1">
-                                        <input id="template-no" name="needsTemplate" type="radio" value="no" (change)="onNeedsTemplateChanged($event)" formControlName="needsTemplate"
-                                            class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300">
-                                        <label for="template-no" class="ml-3 block text-sm font-medium text-gray-700">Όχι</label>
-                                        <input id="template-yes" name="needsTemplate" type="radio" value="yes" (change)="onNeedsTemplateChanged($event)" formControlName="needsTemplate"
-                                            class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 ml-4">
-                                        <label for="template-yes" class="ml-3 block text-sm font-medium text-gray-700">Ναι</label>
-                                    </div>
-                                </div>
-                                <div class="col-span-2 sm:col-span-1" [class.invisible]="needsTemplate.value === 'no'">
-                                    <label for="template" class="field-label hidden" aria-hidden="true">Template id</label>
-                                    <div class="flex rounded-sm">
-                                        <lib-local-drop-down-menu id="template" name="template" class="w-full" formControlName="template" [value]="template.value" [options]="templates" (change)="onTemplateSelectionChanged($event)">
-                                        </lib-local-drop-down-menu>
-                                    </div>
-                                    <p *ngIf="template.invalid && (template.dirty || template.touched)" class="mt-2 text-sm text-red-600">
-                                        <span *ngIf="template.errors!['required']">Παρακαλώ επιλέξτε ένα template.</span>
-                                    </p>
-                                </div>
-                            </div>
-                        </fieldset>
-                        <!-- Κανάλια επικοινωνίας -->
-                        <fieldset>
-                            <legend class="sr-only">Κανάλια επικοινωνίας (*)</legend>
-                            <div class="text-base font-medium text-gray-900" aria-hidden="true">Κανάλια επικοινωνίας (*)</div>
-                            <label for="campaignType" class="field-label hidden" aria-hidden="true">Κανάλια επικοινωνίας (*)</label>
-                            <div class="grid grid-cols-2 gap-4">
-                                <div class="col-span-2 sm:col-span-1">
-                                    <div class="divide-y divide-gray-200">
-                                        <div *ngFor="let channel of channelsArray; let i = index" class="relative flex items-start py-4">
-                                            <div class="min-w-0 flex-1 text-sm">
-                                                <label [for]="'channel-' + i" class="font-medium text-gray-700">{{ channel.name }}</label>
-                                                <p [id]="'channel-' + i + '-description'" class="text-gray-500">{{ channel.description }}</p>
-                                            </div>
-                                            <div class="ml-3 flex items-center h-5">
-                                                <input [id]="'channel-' + i" [value]="channel.value" [attr.aria-describedby]="'channel-' + i + '-description'" (change)="onChannelCheckboxChange($event)" name="channels" type="checkbox"
-                                                    class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 rounded" [checked]="channel.checked">
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <p *ngIf="channels.invalid" class="mt-2 text-sm text-red-600">
-                                        <span *ngIf="channels.errors!['required']">Παρακαλώ επιλέξτε τουλάχιστον ένα κανάλι επικοινωνίας.</span>
-                                    </p>
-                                </div>
-                            </div>
-                        </fieldset>
-                    </div>
-                </form>
-            </lib-step>
-            <!-- Περιεχόμενο -->
-            <lib-step [stepControl]="contentForm">
-                <ng-template libStepLabel>Περιεχομενο</ng-template>
-                <ng-template libStepInfo>Aνά κανάλι επικοινωνίας</ng-template>
-                <form [formGroup]="contentForm">
-                    <div class="px-4 space-y-2 pb-4 mt-4">
-                        <fieldset>
-                            <div class="mt-1 relative rounded-md shadow-sm">
-                                <legend class="sr-only">Περιεχόμενο</legend>
-                                <div class="text-base font-medium text-gray-900" aria-hidden="true">Περιεχόμενο</div>
-                            </div>
-                            <lib-tab-group (tabChanged)="onContentTabChanged($event)" #tabGroup>
-                                <lib-tab id="inbox-tab" *ngIf="showInboxTab" label="Inbox">
-                                    <div class="space-y-2 pb-4 mt-4">
-                                        <fieldset>
-                                            <legend class="sr-only">Θέμα (*)</legend>
-                                            <div class="text-base font-medium text-gray-900" aria-hidden="true">Θέμα (*)</div>
-                                            <div class="grid grid-cols-2 gap-4">
-                                                <div class="col-span-2 sm:col-span-1">
-                                                    <label for="contentInboxSubject" class="field-label hidden" aria-hidden="true">Θέμα (*)</label>
-                                                    <div class="mt-1 flex rounded-sm col-span-3">
-                                                        <input type="text" name="contentInboxSubject" id="contentInboxSubject" formControlName="inboxSubject" (input)="onSubjectInput($event, MessageChannelKind.Inbox)"
-                                                            placeholder="Το θέμα του μήνυματος">
-                                                    </div>
-                                                    <p *ngIf="inboxSubject.invalid && (inboxSubject.dirty || inboxSubject.touched)" class="mt-2 text-sm text-red-600">
-                                                        <span *ngIf="inboxSubject.errors!['required']">Παρακαλώ συμπληρώστε το θέμα του μήνυματος.</span>
-                                                    </p>
-                                                </div>
-                                                <div class="col-span-2 sm:col-span-1">
-                                                    <label class="field-label hidden" aria-hidden="true">Προεπισκόπηση</label>
-                                                    <div class="mt-2 flex rounded-sm col-span-3">
-                                                        <p>{{ subjectPreview }}</p>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </fieldset>
-                                        <fieldset>
-                                            <legend class="sr-only">Σώμα (*)</legend>
-                                            <div class="text-base font-medium text-gray-900" aria-hidden="true">Σώμα (*)</div>
-                                            <div class="grid grid-cols-2 gap-4">
-                                                <div class="col-span-2 sm:col-span-1">
-                                                    <label for="contentInboxBody" class="field-label hidden" aria-hidden="true">Σώμα (*)</label>
-                                                    <div class="mt-1 flex rounded-sm col-span-3">
-                                                        <textarea id="contentInboxBody" name="contentInboxBody" formControlName="inboxBody" (input)="onBodyInput($event, MessageChannelKind.Inbox)" class="code-editor"
-                                                            placeholder="Το σώμα του μηνύματος" style="height: 50vh;"></textarea>
-                                                    </div>
-                                                    <p *ngIf="inboxBody.invalid && (inboxBody.dirty || inboxBody.touched)" class="mt-2 text-sm text-red-600">
-                                                        <span *ngIf="inboxBody.errors!['required']">Παρακαλώ συμπληρώστε το σώμα του μηνύματος.</span>
-                                                    </p>
-                                                </div>
-                                                <div class="col-span-2 sm:col-span-1">
-                                                    <label class="field-label hidden" aria-hidden="true">Προεπισκόπηση</label>
-                                                    <div class="mt-2 flex rounded-sm col-span-3">
-                                                        <iframe class="w-full" [srcdoc]="bodyPreview | safe: 'html'" style="height: 50vh;"></iframe>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </fieldset>
-                                    </div>
-                                </lib-tab>
-                                <lib-tab id="push-notification-tab" *ngIf="showPushNotificationTab" label="Push Notification">
-                                    <div class="space-y-2 pb-4 mt-4">
-                                        <fieldset>
-                                            <legend class="sr-only">Θέμα (*)</legend>
-                                            <div class="text-base font-medium text-gray-900" aria-hidden="true">Θέμα (*)</div>
-                                            <div class="grid grid-cols-2 gap-4">
-                                                <div class="col-span-2 sm:col-span-1">
-                                                    <label for="contentPushNotificationSubject" class="field-label hidden" aria-hidden="true">Θέμα (*)</label>
-                                                    <div class="mt-1 flex rounded-sm col-span-3">
-                                                        <input type="text" name="contentPushNotificationSubject" id="contentPushNotificationSubject" formControlName="pushNotificationSubject"
-                                                            (input)="onSubjectInput($event, MessageChannelKind.PushNotification)" placeholder="Το θέμα του push notification">
-                                                    </div>
-                                                    <p *ngIf="pushNotificationSubject.invalid && (pushNotificationSubject.dirty || pushNotificationSubject.touched)" class="mt-2 text-sm text-red-600">
-                                                        <span *ngIf="pushNotificationSubject.errors!['required']">Παρακαλώ συμπληρώστε το θέμα του push notification.</span>
-                                                    </p>
-                                                </div>
-                                                <div class="col-span-2 sm:col-span-1">
-                                                    <label class="field-label hidden" aria-hidden="true">Προεπισκόπηση</label>
-                                                    <div class="mt-2 flex rounded-sm col-span-3">
-                                                        <p>{{ subjectPreview }}</p>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </fieldset>
-                                        <fieldset>
-                                            <legend class="sr-only">Σώμα (*)</legend>
-                                            <div class="text-base font-medium text-gray-900" aria-hidden="true">Σώμα (*)</div>
-                                            <div class="grid grid-cols-2 gap-4">
-                                                <div class="col-span-2 sm:col-span-1">
-                                                    <label for="contentPushNotificationBody" class="field-label hidden" aria-hidden="true">Σώμα (*)</label>
-                                                    <div class="mt-1 flex rounded-sm col-span-3">
-                                                        <textarea id="contentPushNotificationBody" name="contentPushNotificationBody" formControlName="pushNotificationBody" (input)="onBodyInput($event, MessageChannelKind.PushNotification)"
-                                                            class="code-editor" placeholder="Το σώμα του push notification" style="height: 50vh;"></textarea>
-                                                    </div>
-                                                    <p *ngIf="pushNotificationBody.invalid && (pushNotificationBody.dirty || pushNotificationBody.touched)" class="mt-2 text-sm text-red-600">
-                                                        <span *ngIf="pushNotificationBody.errors!['required']">Παρακαλώ συμπληρώστε το σώμα του push notification.</span>
-                                                    </p>
-                                                </div>
-                                                <div class="col-span-2 sm:col-span-1">
-                                                    <label class="field-label hidden" aria-hidden="true">Προεπισκόπηση</label>
-                                                    <div class="mt-2 flex rounded-sm col-span-3">
-                                                        <iframe class="w-full" [srcdoc]="bodyPreview | safe: 'html'" style="height: 50vh;"></iframe>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </fieldset>
-                                    </div>
-                                </lib-tab>
-                                <lib-tab id="email-tab" *ngIf="showEmailTab" label="Email">
-                                    <div class="space-y-2 pb-4 mt-4">
-                                        <fieldset>
-                                            <legend class="sr-only">Θέμα (*)</legend>
-                                            <div class="text-base font-medium text-gray-900" aria-hidden="true">Θέμα (*)</div>
-                                            <div class="grid grid-cols-2 gap-4">
-                                                <div class="col-span-2 sm:col-span-1">
-                                                    <label for="contentEmailSubject" class="field-label hidden" aria-hidden="true">Θέμα (*)</label>
-                                                    <div class="mt-1 flex rounded-sm col-span-3">
-                                                        <input type="text" name="contentEmailSubject" id="contentEmailSubject" formControlName="emailSubject" (input)="onSubjectInput($event, MessageChannelKind.Email)"
-                                                            placeholder="Το θέμα του email">
-                                                    </div>
-                                                    <p *ngIf="emailSubject.invalid && (emailSubject.dirty || emailSubject.touched)" class="mt-2 text-sm text-red-600">
-                                                        <span *ngIf="emailSubject.errors!['required']">Παρακαλώ συμπληρώστε το θέμα του email.</span>
-                                                    </p>
-                                                </div>
-                                                <div class="col-span-2 sm:col-span-1">
-                                                    <label for="contentEmailSubjectPreviw" class="field-label hidden" aria-hidden="true">Προεπισκόπηση</label>
-                                                    <div class="mt-2 flex rounded-sm col-span-3">
-                                                        <p>{{ subjectPreview }}</p>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </fieldset>
-                                        <fieldset>
-                                            <legend class="sr-only">Σώμα (*)</legend>
-                                            <div class="text-base font-medium text-gray-900" aria-hidden="true">Σώμα (*)</div>
-                                            <div class="grid grid-cols-2 gap-4">
-                                                <div class="col-span-2 sm:col-span-1">
-                                                    <label for="contentEmailBody" class="field-label hidden" aria-hidden="true">Σώμα (*)</label>
-                                                    <div class="mt-1 flex rounded-sm col-span-3">
-                                                        <textarea id="contentEmailBody" name="contentEmailBody" formControlName="emailBody" (input)="onBodyInput($event, MessageChannelKind.Email)" class="code-editor"
-                                                            placeholder="Το σώμα του email" style="height: 50vh;"></textarea>
-                                                    </div>
-                                                    <p *ngIf="emailBody.invalid && (emailBody.dirty || emailBody.touched)" class="mt-2 text-sm text-red-600">
-                                                        <span *ngIf="emailBody.errors!['required']">Παρακαλώ συμπληρώστε το σώμα του email.</span>
-                                                    </p>
-                                                </div>
-                                                <div class="col-span-2 sm:col-span-1">
-                                                    <label class="field-label hidden" aria-hidden="true">Προεπισκόπηση</label>
-                                                    <div class="mt-2 flex rounded-sm col-span-3">
-                                                        <iframe class="w-full" [srcdoc]="bodyPreview | safe: 'html'" style="height: 50vh;"></iframe>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </fieldset>
-                                    </div>
-                                </lib-tab>
-                                <lib-tab id="sms-tab" *ngIf="showSmsTab" label="SMS">
-                                    <div class="space-y-2 pb-4 mt-4">
-                                        <fieldset>
-                                            <legend class="sr-only">Θέμα (*)</legend>
-                                            <div class="text-base font-medium text-gray-900" aria-hidden="true">Θέμα (*)</div>
-                                            <div class="grid grid-cols-2 gap-4">
-                                                <div class="col-span-2 sm:col-span-1">
-                                                    <label for="contentSmsSubject" class="field-label hidden" aria-hidden="true">Θέμα (*)</label>
-                                                    <div class="mt-1 flex rounded-sm col-span-3">
-                                                        <input type="text" name="contentSmsSubject" id="contentSmsSubject" formControlName="smsSubject" (input)="onSubjectInput($event, MessageChannelKind.SMS)" placeholder="Το θέμα του SMS">
-                                                    </div>
-                                                    <p *ngIf="smsSubject.invalid && (smsSubject.dirty || smsSubject.touched)" class="mt-2 text-sm text-red-600">
-                                                        <span *ngIf="smsSubject.errors!['required']">Παρακαλώ συμπληρώστε το θέμα του SMS.</span>
-                                                    </p>
-                                                </div>
-                                                <div class="col-span-2 sm:col-span-1">
-                                                    <label class="field-label hidden" aria-hidden="true">Προεπισκόπηση</label>
-                                                    <div class="mt-2 flex rounded-sm col-span-3">
-                                                        <p>{{ subjectPreview }}</p>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </fieldset>
-                                        <fieldset>
-                                            <legend class="sr-only">Σώμα (*)</legend>
-                                            <div class="text-base font-medium text-gray-900" aria-hidden="true">Σώμα (*)</div>
-                                            <div class="grid grid-cols-2 gap-4">
-                                                <div class="col-span-2 sm:col-span-1">
-                                                    <label for="contentSmsBody" class="field-label hidden" aria-hidden="true">Σώμα (*)</label>
-                                                    <div class="mt-1 flex rounded-sm col-span-3">
-                                                        <textarea id="contentEmailBody" name="contentSmsBody" formControlName="smsBody" (input)="onBodyInput($event, MessageChannelKind.SMS)" class="code-editor" placeholder="Το σώμα του SMS"
-                                                            style="height: 50vh;"></textarea>
-                                                    </div>
-                                                    <p *ngIf="smsBody.invalid && (smsBody.dirty || smsBody.touched)" class="mt-2 text-sm text-red-600">
-                                                        <span *ngIf="smsBody.errors!['required']">Παρακαλώ συμπληρώστε το σώμα του SMS.</span>
-                                                    </p>
-                                                </div>
-                                                <div class="col-span-2 sm:col-span-1">
-                                                    <label class="field-label hidden" aria-hidden="true">Προεπισκόπηση</label>
-                                                    <div class="mt-2 flex rounded-sm col-span-3">
-                                                        <iframe class="w-full" [srcdoc]="bodyPreview | safe: 'html'" style="height: 50vh;"></iframe>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </fieldset>
-                                    </div>
-                                </lib-tab>
-                            </lib-tab-group>
-                        </fieldset>
-                        <!-- Sample Payload -->
-                        <fieldset>
-                            <legend class="sr-only">Δεδομένα μηνύματος</legend>
-                            <div class="text-base font-medium text-gray-900" aria-hidden="true">Δεδομένα μηνύματος</div>
-                            <label for="campaignSamplePayload" class="field-label hidden" aria-hidden="true">Δεδομένα μηνύματος</label>
-                            <div class="mt-1 flex rounded-sm">
-                                <textarea id="campaignSamplePayload" name="campaignSamplePayload" [value]="samplePayload | json" rows="16" class="code-editor" readonly></textarea>
-                            </div>
-                        </fieldset>
-                        <!-- Μεταδεδομένα -->
-                        <fieldset>
-                            <legend class="sr-only">Μεταδεδομένα</legend>
-                            <div class="text-base font-medium text-gray-900" aria-hidden="true">Μεταδεδομένα</div>
-                            <label for="campaignMetadata" class="field-label hidden" aria-hidden="true">Μεταδεδομένα</label>
-                            <div class="mt-1 flex rounded-sm">
-                                <textarea id="campaignMetadata" name="campaignMetadata" formControlName="data" rows="6" (input)="onCampaignMetadataInput($event)" placeholder="Επιπρόσθετα δεδομένα της καμπάνιας σε JSON μορφή"
-                                    class="code-editor"></textarea>
-                            </div>
-                            <p *ngIf="data.invalid && (data.dirty || data.touched)" class="mt-2 text-sm text-red-600">
-                                <span *ngIf="data.errors!['invalidJson']">Η μορφή του JSON δεν είναι έγκυρη.</span>
-                            </p>
-                        </fieldset>
-                    </div>
-                </form>
-            </lib-step>
-            <!-- Παραλήπτες -->
-            <lib-step [stepControl]="recipientsForm">
-                <ng-template libStepLabel>Παραληπτες</ng-template>
-                <ng-template libStepInfo>Παραλήπτες της καμπάνιας</ng-template>
-                <form [formGroup]="recipientsForm">
-                    <div class="px-4 space-y-2 pb-4 mt-4">
-                        <fieldset>
-                            <legend class="sr-only">Αποστολή προς</legend>
-                            <div class="text-base font-medium text-gray-900" aria-hidden="true">Αποστολή από</div>
-                            <div class="mt-1 grid grid-cols-2 gap-4">
-                                <div class="col-span-2 sm:col-span-1">
-                                    <div class="flex items-center mt-1">
-                                        <input id="distribution-list" name="sendVia" type="radio" value="distribution-list" (change)="onSendViaChanged($event)" formControlName="sendVia"
-                                            class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300">
-                                        <label for="distribution-list" class="ml-3 block text-sm font-medium text-gray-700">Λίστα διανομής</label>
-                                        <input id="recipient-ids" name="sendVia" type="radio" value="recipient-ids" (change)="onSendViaChanged($event)" formControlName="sendVia"
-                                            class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 ml-4">
-                                        <label for="recipient-ids" class="ml-3 block text-sm font-medium text-gray-700">Λίστα κωδικών</label>
-                                        <input id="user-base" name="sendVia" type="radio" value="user-base" (change)="onSendViaChanged($event)" formControlName="sendVia"
-                                            class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 ml-4">
-                                        <label for="user-base" class="ml-3 block text-sm font-medium text-gray-700">Όλους</label>
-                                    </div>
-                                </div>
-                                <div class="col-span-2 sm:col-span-1" *ngIf="sendVia.value === 'distribution-list'">
-                                    <label for="distributionList" class="field-label hidden" aria-hidden="true">distribution list id</label>
-                                    <div class="flex rounded-sm">
-                                        <lib-local-drop-down-menu id="distributionList" name="distributionList" class="w-full" formControlName="distributionList" [value]="distributionList.value" [options]="distributionLists"
-                                            (change)="distributionList.setValue($event.value !== null ? $event : null)">
-                                        </lib-local-drop-down-menu>
-                                    </div>
-                                </div>
-                                <div class="col-span-2 sm:col-span-1" *ngIf="sendVia.value === 'recipient-ids'">
-                                    <label for="recipientIds" class="field-label hidden" aria-hidden="true">Τύπος</label>
-                                    <div class="mt-1 flex rounded-sm">
-                                        <textarea id="recipientIds" name="recipientIds" rows="6" formControlName="recipientIds" placeholder="Η λίστα χρηστών της καμπάνιας...&#10;κωδικός_χρήστη_1&#10;κωδικός_χρήστη_2"></textarea>
-                                    </div>
-                                    <p class="field-info">{{ recipientsCount }} παραλήπτες</p>
-                                </div>
-                                <p *ngIf="distributionList.invalid && (distributionList.dirty || distributionList.touched)" class="mt-2 text-sm text-red-600">
-                                    <span *ngIf="distributionList.errors!['required']">Παρακαλώ επιλέξτε μία λίστα διανομής.</span>
-                                </p>
-                                <p *ngIf="recipientIds.invalid && (recipientIds.dirty || recipientIds.touched)" class="mt-2 text-sm text-red-600">
-                                    <span *ngIf="recipientIds.errors!['required']">Παρακαλώ εισάγετε τουλάχιστον ένα κωδικό.</span>
-                                </p>
-                            </div>
-                        </fieldset>
-                    </div>
-                </form>
-            </lib-step>
-            <!-- Επισκόπηση -->
-            <lib-step [stepControl]="previewForm">
-                <ng-template libStepLabel>Επισκοπηση</ng-template>
-                <ng-template libStepInfo>Επισκόπηση στοιχείων</ng-template>
-                <div class="bg-white shadow overflow-hidden sm:rounded-lg  mt-4">
-                    <div class="border-t border-gray-200">
-                        <dl>
-                            <form [formGroup]="previewForm">
-                                <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-                                    <dt class="text-sm font-medium text-gray-500">Δημοσιευμένη</dt>
-                                    <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                                        <lib-toggle-button id="published" formControlName="published" true-label="Ναι" false-label="Όχι"></lib-toggle-button>
-                                    </dd>
-                                </div>
-                                <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-                                    <dt class="text-sm font-medium text-gray-500">Τίτλος</dt>
-                                    <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                                        <b>{{ title.value }}</b>
-                                    </dd>
-                                </div>
-                                <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-                                    <dt class="text-sm font-medium text-gray-500">Τύπος</dt>
-                                    <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                                        <b>{{ type.value?.text || '-' }}</b>
-                                    </dd>
-                                </div>
-                                <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-                                    <dt class="text-sm font-medium text-gray-500">Διάρκεια</dt>
-                                    <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                                        <span>
-                                            <b>{{ from.value ? (from.value | date: 'medium') : '' }} - </b>
-                                        </span>
-                                        <span *ngIf="to.value">
-                                            <b>{{ to.value | date: 'medium' }}</b>
-                                        </span>
-                                        <span *ngIf="!to.value" class="text-lg">
-                                            <b>∞</b>
-                                        </span>
-                                    </dd>
-                                </div>
-                                <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-                                    <dt class="text-sm font-medium text-gray-500">Call to action</dt>
-                                    <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                                        <a *ngIf="actionLinkText.value && actionLinkHref.value" target="_blank" class="text-blue-600 hover:text-blue-500" [href]="actionLinkHref.value">{{ actionLinkText.value }}</a>
-                                        <span *ngIf="actionLinkText.value && !actionLinkHref.value">{{ actionLinkText.value }}</span>
-                                        <span *ngIf="!actionLinkText.value && !actionLinkHref.value">-</span>
-                                    </dd>
-                                </div>
-                                <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-                                    <dt class="text-sm font-medium text-gray-500">Template</dt>
-                                    <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                                        <b>{{ template.value?.text || '-' }}</b>
-                                    </dd>
-                                </div>
-                                <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-                                    <dt class="text-sm font-medium text-gray-500">Λίστα διανομής</dt>
-                                    <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                                        <b>{{ distributionList.value?.text || '-' }}</b>
-                                    </dd>
-                                </div>
-                            </form>
-                        </dl>
-                    </div>
+<lib-view-layout title="Δημιουργία Campaign"
+                 [meta-items]="metaItems">
+    <div class="min-h-full">
+        <main>
+            <div class="mx-auto px-4 sm:px-6 md:flex md:items-center md:justify-between md:space-x-5 lg:px-8">
+                <div class="flex items-center space-x-5"></div>
+                <div class="mt-6 flex flex-col-reverse justify-stretch space-y-4 space-y-reverse sm:flex-row-reverse sm:justify-end sm:space-x-reverse sm:space-y-0 sm:space-x-3 md:mt-0 md:flex-row md:space-x-3">
+                    <button type="button"
+                            (click)="createCampaignStepper.goToPreviousStep()"
+                            *ngIf="createCampaignStepper.canGoBack"
+                            class="side-view-layout-action-button-cancel">
+                        Προηγούμενο
+                    </button>
+                    <button type="button"
+                            (click)="createCampaignStepper.goToNextStep()"
+                            *ngIf="createCampaignStepper.canGoForward || createCampaignStepper.currentStep?.isLast"
+                            class="side-view-layout-action-button-submit">
+                        {{ createCampaignStepper.currentStep?.isLast ? 'Αποθήκευση' : 'Επόμενο' }}
+                    </button>
                 </div>
-            </lib-step>
-        </lib-stepper>
-        <div class="p-5">
-            <div class="flex justify-end">
-                <button type="button" (click)="createCampaignStepper.goToPreviousStep()" *ngIf="createCampaignStepper.canGoBack"
-                    class="bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-                    Προηγούμενο
-                </button>
-                <button type="submit" (click)="createCampaignStepper.goToNextStep()" *ngIf="createCampaignStepper.canGoForward || createCampaignStepper.currentStep?.isLast"
-                    class="ml-3 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-                    {{ createCampaignStepper.currentStep?.isLast ? 'Αποθήκευση' : 'Επόμενο' }}
-                </button>
             </div>
-        </div>
+            <div class="mt-8 mx-auto grid grid-cols-1 sm:px-6 lg:grid-flow-col-dense lg:grid-cols-1">
+                <div class="space-y-6 lg:col-start-1 lg:col-span-2">
+                    <section aria-labelledby="create-campaign-wizard">
+                        <div class="bg-white shadow sm:rounded-lg pt-4">
+                            <lib-stepper [linear]="true"
+                                         [type]="StepperType.PanelsWithBorder"
+                                         (stepChanged)="onStepperStepChanged($event)"
+                                         (completed)="onSubmitCampaign()"
+                                         #createCampaignStepper>
+                                <lib-step [stepControl]="basicInfoStep.form">
+                                    <ng-template libStepLabel>Γενικα</ng-template>
+                                    <ng-template libStepInfo>Βασικές πληροφορίες</ng-template>
+                                    <app-campaign-basic-info (templateSelected)="templateId = $event"
+                                                             #basicInfoStep>
+                                    </app-campaign-basic-info>
+                                </lib-step>
+                                <lib-step [stepControl]="contentStep.form">
+                                    <ng-template libStepLabel>Περιεχομενο</ng-template>
+                                    <ng-template libStepInfo>Aνά κανάλι επικοινωνίας</ng-template>
+                                    <app-campaign-content [externalData]="basicInfoData"
+                                                          #contentStep>
+                                    </app-campaign-content>
+                                </lib-step>
+                                <lib-step [stepControl]="recipientsStep.form">
+                                    <ng-template libStepLabel>Παραληπτες</ng-template>
+                                    <ng-template libStepInfo>Παραλήπτες της καμπάνιας</ng-template>
+                                    <app-campaign-recipients #recipientsStep></app-campaign-recipients>
+                                </lib-step>
+                                <lib-step [stepControl]="previewStep.form">
+                                    <ng-template libStepLabel>Επισκοπηση</ng-template>
+                                    <ng-template libStepInfo>Επισκόπηση στοιχείων</ng-template>
+                                    <app-campaign-preview [data]="previewData"
+                                                          #previewStep>
+                                    </app-campaign-preview>
+                                </lib-step>
+                            </lib-stepper>
+                        </div>
+                    </section>
+                </div>
+            </div>
+        </main>
     </div>
 </lib-view-layout>

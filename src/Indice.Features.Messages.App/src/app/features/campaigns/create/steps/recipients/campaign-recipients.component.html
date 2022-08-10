@@ -1,0 +1,80 @@
+<form [formGroup]="form">
+    <div class="px-4 space-y-2 pb-4 mt-4">
+        <fieldset>
+            <legend class="sr-only">Αποστολή προς</legend>
+            <div class="text-base font-medium text-gray-900"
+                 aria-hidden="true">Αποστολή προς</div>
+            <div class="mt-1 grid grid-cols-2 gap-4">
+                <div class="col-span-2 sm:col-span-1">
+                    <div class="flex items-center mt-1">
+                        <input id="distribution-list"
+                               name="sendVia"
+                               type="radio"
+                               value="distribution-list"
+                               (change)="onSendViaChanged($event)"
+                               formControlName="sendVia"
+                               class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300">
+                        <label for="distribution-list"
+                               class="ml-3 block text-sm font-medium text-gray-700">Λίστα διανομής</label>
+                        <input id="recipient-ids"
+                               name="sendVia"
+                               type="radio"
+                               value="recipient-ids"
+                               (change)="onSendViaChanged($event)"
+                               formControlName="sendVia"
+                               class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 ml-4">
+                        <label for="recipient-ids"
+                               class="ml-3 block text-sm font-medium text-gray-700">Λίστα κωδικών</label>
+                        <input id="user-base"
+                               name="sendVia"
+                               type="radio"
+                               value="user-base"
+                               (change)="onSendViaChanged($event)"
+                               formControlName="sendVia"
+                               class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 ml-4">
+                        <label for="user-base"
+                               class="ml-3 block text-sm font-medium text-gray-700">Όλους</label>
+                    </div>
+                </div>
+                <div class="col-span-2 sm:col-span-1"
+                     *ngIf="sendVia.value === 'distribution-list'">
+                    <label for="distributionList"
+                           class="field-label hidden"
+                           aria-hidden="true">distribution list id</label>
+                    <div class="flex rounded-sm">
+                        <lib-local-drop-down-menu id="distributionList"
+                                                  name="distributionList"
+                                                  class="w-full"
+                                                  formControlName="distributionList"
+                                                  [value]="distributionList.value"
+                                                  [options]="distributionLists"
+                                                  (change)="distributionList.setValue($event.value !== null ? $event : null)">
+                        </lib-local-drop-down-menu>
+                    </div>
+                </div>
+                <div class="col-span-2 sm:col-span-1"
+                     *ngIf="sendVia.value === 'recipient-ids'">
+                    <label for="recipientIds"
+                           class="field-label hidden"
+                           aria-hidden="true">Τύπος</label>
+                    <div class="mt-1 flex rounded-sm">
+                        <textarea id="recipientIds"
+                                  name="recipientIds"
+                                  rows="6"
+                                  formControlName="recipientIds"
+                                  placeholder="Η λίστα χρηστών της καμπάνιας...&#10;κωδικός_χρήστη_1&#10;κωδικός_χρήστη_2"></textarea>
+                    </div>
+                    <p class="field-info">{{ recipientsCount }} παραλήπτες</p>
+                </div>
+                <p *ngIf="distributionList.invalid && (distributionList.dirty || distributionList.touched)"
+                   class="mt-2 text-sm text-red-600">
+                    <span *ngIf="distributionList.errors!['required']">Παρακαλώ επιλέξτε μία λίστα διανομής.</span>
+                </p>
+                <p *ngIf="recipientIds.invalid && (recipientIds.dirty || recipientIds.touched)"
+                   class="mt-2 text-sm text-red-600">
+                    <span *ngIf="recipientIds.errors!['required']">Παρακαλώ εισάγετε τουλάχιστον ένα κωδικό.</span>
+                </p>
+            </div>
+        </fieldset>
+    </div>
+</form>

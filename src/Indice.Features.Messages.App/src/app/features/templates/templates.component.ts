@@ -45,7 +45,8 @@ export class TemplatesComponent extends BaseListComponent<Template> implements O
         const modal = this._modalService.show(BasicModalComponent, {
             animated: true,
             initialState: {
-                title: `Είστε σίγουρος ότι θέλετε να διαγράψετε το template ${template.name};`,
+                title: 'Διαγραφή',
+                message: `Είστε σίγουρος ότι θέλετε να διαγράψετε το πρότυπο '${template.name}';`,
                 data: template
             },
             keyboard: true
@@ -53,7 +54,7 @@ export class TemplatesComponent extends BaseListComponent<Template> implements O
         modal.onHidden?.subscribe((response: any) => {
             if (response.result?.answer) {
                 this._api.deleteMessageType(response.result.data.id).subscribe(() => {
-                    this._toaster.show(ToastType.Success, 'Επιτυχής διαγραφή', `Ο τύπος με όνομα '${response.result.data.name}' διαγράφηκε με επιτυχία.`);
+                    this._toaster.show(ToastType.Success, 'Επιτυχής διαγραφή', `Το πρότυπο με όνομα '${response.result.data.name}' διαγράφηκε με επιτυχία.`);
                     this._router.navigateByUrl('/', { skipLocationChange: true }).then(() => this._router.navigate(['message-types']));
                 });
             }

@@ -14,8 +14,6 @@ namespace Indice.Features.Messages.Core.Models
         public Dictionary<string, MessageContent> Content { get; set; } = new Dictionary<string, MessageContent>(StringComparer.OrdinalIgnoreCase);
         /// <summary>Defines a (call-to-action) link.</summary>
         public Hyperlink ActionLink { get; set; }
-        /// <summary>Specifies when a campaign was created.</summary>
-        public DateTimeOffset CreatedAt { get; set; }
         /// <summary>Determines if a campaign is published.</summary>
         public bool Published { get; set; }
         /// <summary>Specifies the time period that a campaign is active.</summary>
@@ -30,5 +28,13 @@ namespace Indice.Features.Messages.Core.Models
         public MessageChannelKind MessageChannelKind { get; set; }
         /// <summary>Optional data for the campaign.</summary>
         public ExpandoObject Data { get; set; }
+        /// <summary>Specifies the principal that created the campaign.</summary>
+        public string CreatedBy { get; set; }
+        /// <summary>Specifies when a campaign was created.</summary>
+        public DateTimeOffset CreatedAt { get; set; }
+        /// <summary>Specifies the principal that update the campaign.</summary>
+        public string UpdatedBy { get; set; }
+        /// <summary>Specifies when a campaign was updated.</summary>
+        public DateTimeOffset? UpdatedAt { get; set; }
     }
 }

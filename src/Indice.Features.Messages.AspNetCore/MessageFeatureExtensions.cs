@@ -6,6 +6,7 @@ using Indice.AspNetCore.Mvc.ApplicationModels;
 using Indice.AspNetCore.Swagger;
 using Indice.Features.Messages.AspNetCore;
 using Indice.Features.Messages.AspNetCore.Mvc.Formatters;
+using Indice.Features.Messages.AspNetCore.Services;
 using Indice.Features.Messages.Core;
 using Indice.Features.Messages.Core.Data;
 using Indice.Features.Messages.Core.Manager;
@@ -165,6 +166,7 @@ namespace Microsoft.Extensions.DependencyInjection
             services.TryAddTransient<ICampaignService, CampaignService>();
             services.TryAddTransient<IMessageTypeService, MessageTypeService>();
             services.TryAddTransient<IDistributionListService, DistributionListService>();
+            services.TryAddTransient<IUserNameAccessor, UserNameFromClaimsAccessor>();
             // Register application DbContext.
             Action<DbContextOptionsBuilder> sqlServerConfiguration = (builder) => builder.UseSqlServer(configuration.GetConnectionString("MessagesDbConnection"));
             services.AddDbContext<CampaignsDbContext>(baseOptions.ConfigureDbContext ?? sqlServerConfiguration);

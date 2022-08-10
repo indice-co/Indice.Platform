@@ -7,7 +7,6 @@ using Indice.Features.Messages.Core.Models.Requests;
 using Indice.Features.Messages.Core.Services.Abstractions;
 using Indice.Serialization;
 using Indice.Services;
-using Indice.Types;
 using Microsoft.Extensions.Logging;
 
 namespace Indice.Features.Messages.Core.Handlers
@@ -73,13 +72,14 @@ namespace Indice.Features.Messages.Core.Handlers
             if (contact is null) {
                 contact = @event.Contact;
             }
-            if (campaign.IsNewDistributionList) { // TODO: consider always adding the contact to the distribution list.
-                try {
-                    await ContactService.AddToDistributionList(campaign.DistributionListId.Value, Mapper.ToCreateDistributionListContactRequest(contact));
-                } catch (BusinessException) {
-                    // This is fine.
-                }
-            }
+            // Keep it for a while to make sure it is not needed.
+            //if (campaign.IsNewDistributionList) {
+            //    try {
+            //        await ContactService.AddToDistributionList(campaign.DistributionListId.Value, Mapper.ToCreateDistributionListContactRequest(contact));
+            //    } catch (BusinessException) {
+            //        // This is fine.
+            //    }
+            //}
             if (@event.Contact.NotUpdatedAWhileNow || @event.Contact.IsEmpty) {
                 await ContactService.Update(contact.Id.Value, Mapper.ToUpdateContactRequest(contact, campaign.DistributionListId));
             }

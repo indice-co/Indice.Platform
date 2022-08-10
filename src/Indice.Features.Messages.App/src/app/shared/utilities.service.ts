@@ -28,6 +28,15 @@ export class UtilitiesService {
     return errors;
   }
 
+  public toCamelCase(input: string) {
+    return input.replace(/(?:^\w|[A-Z]|\b\w|\s+)/g, function (match, index) {
+      if (+match === 0) {
+        return ''
+      };
+      return index === 0 ? match.toLowerCase() : match.toUpperCase();
+    });
+  }
+
   private _getValidationErrors(problemDetails: ValidationProblemDetails): string[] {
     const errorMessages: string[] = [];
     const errors = problemDetails && problemDetails.errors;

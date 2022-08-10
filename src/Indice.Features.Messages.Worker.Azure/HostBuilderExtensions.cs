@@ -51,6 +51,7 @@ namespace Microsoft.Extensions.Hosting
             services.TryAddTransient<CreateMessageTypeRequestValidator>();
             services.TryAddTransient<NotificationsManager>();
             services.TryAddSingleton(new DatabaseSchemaNameResolver(options.DatabaseSchema));
+            services.TryAddTransient<IUserNameAccessor>(serviceProvider => new UserNameStaticAccessor("worker"));
             return services;
         }
 

@@ -1,4 +1,5 @@
-﻿using Indice.Services;
+﻿using Indice.AspNetCore.Views.Models;
+using Indice.Services;
 using Moq;
 using Xunit;
 
@@ -22,6 +23,24 @@ namespace Indice.AspNetCore.Tests
                 Message = "Good for you to write some tests. Be a man!"
             };
             var output = await renderingEngine.RenderAsync("Simple", model);
+            var outputFilePath = Path.Combine(Directory.GetCurrentDirectory(), "Outputs\\simple.html");
+            if (!File.Exists(outputFilePath)) {
+                throw new FileNotFoundException($"Output file '{outputFilePath}' does not exist");
+            }
+            var expectedOutput = await File.ReadAllTextAsync(outputFilePath);
+            Assert.Equal(expectedOutput, output);
+        }
+
+        [Fact]
+        public async Task Can_Render_Simple_Template_With_Anonymous_Model() {
+            var renderingEngine = TestServer.GetRequiredService<IHtmlRenderingEngine>();
+            Assert.IsType<HtmlRenderingEngineMvcRazor>(renderingEngine);
+            var model = new {
+                Salutation = "Mr.",
+                FullName = "Georgios",
+                Message = "Good for you to write some tests. Be a man!"
+            };
+            var output = await renderingEngine.RenderAsync("SimpleWithAnonymousModel", model);
             var outputFilePath = Path.Combine(Directory.GetCurrentDirectory(), "Outputs\\simple.html");
             if (!File.Exists(outputFilePath)) {
                 throw new FileNotFoundException($"Output file '{outputFilePath}' does not exist");
@@ -74,12 +93,5 @@ namespace Indice.AspNetCore.Tests
                 It.Is<EmailAttachment[]>(attachments => attachments.Count() == 0)
             ), Times.Once);
         }
-    }
-
-    public class EmailModel
-    {
-        public string Salutation { get; set; }
-        public string FullName { get; set; }
-        public string Message { get; set; }
     }
 }
