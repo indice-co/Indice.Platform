@@ -9,6 +9,7 @@ using Indice.Features.Messages.Core;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Rewrite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -50,8 +51,17 @@ namespace Indice.Api
             if (HostingEnvironment.IsDevelopment()) {
                 app.UseDeveloperExceptionPage();
             } else {
-                app.UseHsts();
-                app.UseHttpsRedirection();
+                if (Configuration.UseRedirectToHost()) {
+                    var rewrite = new RewriteOptions();
+                    rewrite.Rules.Add(new RedirectToHostRewriteRule(Settings.Host));
+                    app.UseRewriter(rewrite);
+                }
+                if (Configuration.UseHttpsRedirection()) {
+                    app.UseHttpsRedirection();
+                }
+                if (Configuration.HstsEnabled()) {
+                    app.UseHsts();
+                }
             }
             var staticFileOptions = new StaticFileOptions {
                 OnPrepareResponse = context => {
@@ -92,22 +102,23 @@ namespace Indice.Api
                     options.OAuthScopeSeparator(" ");
                 });
             }
-            //app.UseWhen(httpContext => httpContext.Request.Path.StartsWithSegments("/messages"), messagesBuilder => {
-            //    messagesBuilder.UseSecurityHeaders(policy => {
-            //        var csp = policy.ContentSecurityPolicy
-            //                        .AddScriptSrc(CSP.UnsafeInline)
-            //                        .AddConnectSrc(CSP.Self)
-            //                        .AddConnectSrc(Settings.Authority)
-            //                        .AddFrameSrc(Settings.Authority)
-            //                        .AddFrameSrc(CSP.Self)
-            //                        .AddFrameAncestors(CSP.Self)
-            //                        .AddSandbox("allow-popups")
-            //                        .AddFontSrc("data:");
-            //        if (HostingEnvironment.IsDevelopment()) {
-            //            csp.AddConnectSrc("wss:");
-            //        }
-            //    });
-            //});
+            app.UseWhen(httpContext => httpContext.Request.Path.StartsWithSegments("/messages"), messagesBuilder => {
+                messagesBuilder.UseSecurityHeaders(policy => {
+                    var csp = policy.ContentSecurityPolicy
+                                    .AddScriptSrc(CSP.UnsafeInline)
+                                    .AddConnectSrc(CSP.Self)
+                                    .AddConnectSrc(Settings.Authority)
+                                    .AddFrameSrc(Settings.Authority)
+                                    .AddFrameSrc(CSP.Self)
+                                    .AddFrameSrc(CSP.Data) // check this out for <iframe src="data:text/html....">
+                                    .AddFrameAncestors(CSP.Self)
+                                    .AddSandbox("allow-popups")
+                                    .AddFontSrc(CSP.Data);
+                    if (HostingEnvironment.IsDevelopment()) {
+                        csp.AddConnectSrc("wss:");
+                    }
+                });
+            });
             app.UseCampaignsUI(options => {
                 options.Path = "messages";
                 options.ClientId = "backoffice-ui";
