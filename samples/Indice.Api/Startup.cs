@@ -105,6 +105,7 @@ namespace Indice.Api
             app.UseWhen(httpContext => httpContext.Request.Path.StartsWithSegments("/messages"), messagesBuilder => {
                 messagesBuilder.UseSecurityHeaders(policy => {
                     var csp = policy.ContentSecurityPolicy
+                                    .AddScriptSrc(CSP.UnsafeEval)
                                     .AddScriptSrc(CSP.UnsafeInline)
                                     .AddConnectSrc(CSP.Self)
                                     .AddConnectSrc(Settings.Authority)
