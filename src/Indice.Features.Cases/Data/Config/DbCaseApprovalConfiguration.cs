@@ -42,6 +42,9 @@ namespace Indice.Features.Cases.Data.Config
                             .Property(p => p.When)
                             .HasColumnName($"{prefix}{nameof(DbCaseApproval.CreatedBy.When)}");
                     });
+            builder
+                .Property(p => p.Reason)
+                .HasMaxLength(TextSizePresets.M128);
         }
     }
 }

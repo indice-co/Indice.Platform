@@ -9,6 +9,9 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Indice.Features.Cases.Controllers
 {
+    /// <summary>
+    /// Case types from the customer's perspective.
+    /// </summary>
     [ApiController]
     [ApiExplorerSettings(GroupName = CasesApiConstants.Scope)]
     [Authorize(AuthenticationSchemes = CasesApiConstants.AuthenticationScheme, Policy = CasesApiConstants.Policies.BeCasesUser)]
@@ -19,16 +22,14 @@ namespace Indice.Features.Cases.Controllers
     {
         private readonly IMyCaseService _myCaseService;
 
-        public MyCaseTypesController(
-            IMyCaseService myCaseService
-            ) {
+        public MyCaseTypesController(IMyCaseService myCaseService) {
             _myCaseService = myCaseService ?? throw new ArgumentNullException(nameof(myCaseService));
         }
 
         /// <summary>
-        /// Gets a case type
+        /// Gets a case type by its code.
         /// </summary>
-        /// <param name="caseTypeCode"></param>
+        /// <param name="caseTypeCode">The case type code.</param>
         [ProducesResponseType(200, Type = typeof(CaseType))]
         [ProducesResponseType(400, Type = typeof(ValidationProblemDetails))]
         [ProducesResponseType(401, Type = typeof(ProblemDetails))]

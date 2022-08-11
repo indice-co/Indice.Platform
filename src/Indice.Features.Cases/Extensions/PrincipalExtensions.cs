@@ -7,11 +7,6 @@ namespace Indice.Features.Cases.Extensions
 {
     internal static class PrincipalExtensions
     {
-        public static bool IsVendor(this ClaimsPrincipal user) =>
-            user.IsAdmin()
-            //|| (user.FindFirstValue(JwtClaimTypes.Email)?.ToLowerInvariant().EndsWith("vendoremail-from config") ?? false)
-            ;
-
         public static ClaimsPrincipal SystemUser() {
             var claims = new List<Claim> {
                     new Claim(JwtClaimTypes.Scope, CasesApiConstants.Scope),

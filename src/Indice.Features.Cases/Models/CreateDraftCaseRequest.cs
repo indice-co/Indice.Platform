@@ -3,6 +3,9 @@ using Indice.Features.Cases.Data.Models;
 
 namespace Indice.Features.Cases.Models
 {
+    /// <summary>
+    /// The request payload for creating a new draft case.
+    /// </summary>
     public class CreateDraftCaseRequest
     {
         /// <summary>
@@ -15,6 +18,9 @@ namespace Indice.Features.Cases.Models
         /// </summary>
         public string? GroupId { get; set; }
 
+        /// <summary>
+        /// The Customer metadata.
+        /// </summary>
         public CustomerMeta Customer { get; set; }
 
         /// <summary>

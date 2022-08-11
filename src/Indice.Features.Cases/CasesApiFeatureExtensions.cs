@@ -7,6 +7,7 @@ using Indice.Features.Cases.Events;
 using Indice.Features.Cases.Handlers;
 using Indice.Features.Cases.Interfaces;
 using Indice.Features.Cases.Mvc.Conventions;
+using Indice.Features.Cases.Resources;
 using Indice.Features.Cases.Services;
 using Indice.Features.Cases.Services.CaseMessageService;
 using Indice.Features.Cases.Workflows.Activities;
@@ -22,11 +23,19 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Indice.Features.Cases
 {
+    /// <summary>
+    /// Register Case Api Features.
+    /// </summary>
     public static class CasesApiFeatureExtensions
     {
+        /// <summary>
+        /// Add case management Api endpoints for Customer (api/my prefix).
+        /// </summary>
+        /// <param name="mvcBuilder">The <see cref="IMvcBuilder"/>.</param>
+        /// <param name="configureAction">The <see cref="IConfiguration"/>.</param>
         public static IMvcBuilder AddCasesApiEndpoints(this IMvcBuilder mvcBuilder, Action<CasesApiOptions>? configureAction = null) {
             // Add
-            mvcBuilder.ConfigureApplicationPartManager(x => x.FeatureProviders.Add(new CasesApiFeatureProvider()));
+            mvcBuilder.ConfigureApplicationPartManager(x => x.FeatureProviders.Add(new CasesApiFeatureProviderMyCases()));
             var services = mvcBuilder.Services;
 
             // Build service provider and get IConfiguration instance.
@@ -50,9 +59,6 @@ namespace Indice.Features.Cases
 
             // Post configure MVC options.
             services.PostConfigure<MvcOptions>(options => {
-                //options.FormatterMappings.SetMediaTypeMappingForFormat("json", MediaTypeNames.Application.Json);
-                //options.FormatterMappings.SetMediaTypeMappingForFormat("xlsx", FileExtensions.GetMimeType("xlsx"));
-                //options.OutputFormatters.Add(new XlsxCampaignStatisticsOutputFormatter());
                 options.Conventions.Add(new ApiPrefixControllerModelConvention(casesApiOptions));
             });
 
@@ -68,6 +74,7 @@ namespace Indice.Features.Cases
             services.AddTransient<ICaseTemplateService, CaseTemplateService>();
             services.AddTransient<IMyCaseMessageService, MyCaseMessageService>();
             services.AddTransient<IJsonTranslationService, JsonTranslationService>();
+            services.AddSingleton<CaseSharedResourceService>(); // Add the service even if there is no resx file, so the runtime will not throw exception
 
             // Register events.
             services.AddTransient<ICaseEventService, CaseEventService>();
@@ -75,31 +82,24 @@ namespace Indice.Features.Cases
             // Register internal handlers
             services.AddCaseEventHandler<CaseSubmittedEvent, StartWorkflowHandler>();
 
-            // Register validators.
-            // mvcBuilder.AddFluentValidation(options => options.RegisterValidatorsFromAssemblyContaining<CampaignsController>());
-
             // Register application DbContext.
             if (casesApiOptions.ConfigureDbContext != null) {
                 services.AddDbContext<CasesDbContext>(casesApiOptions.ConfigureDbContext);
             } else {
                 services.AddDbContext<CasesDbContext>(builder => builder.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
             }
-
-            // Configure authorization.
-            //services.AddAuthorizationCore(authOptions => {
-            //    authOptions.AddPolicy(CasesApiConstants.Policies.BeCasesManager, policy => {
-            //        policy.AddAuthenticationSchemes(CasesApiConstants.AuthenticationScheme)
-            //            .RequireAuthenticatedUser()
-            //            .RequireAssertion(x => x.User.HasScopeClaim(casesApiOptions.ExpectedScope ?? CasesApiConstants.Scope) && x.User.CanManageCampaigns());
-            //    });
-            //});
-
+            
             return mvcBuilder;
         }
 
+        /// <summary>
+        /// Add case management Api endpoints for manage cases from back-office (api/manage prefix).
+        /// </summary>
+        /// <param name="mvcBuilder">The <see cref="IMvcBuilder"/>.</param>
+        /// <param name="configureAction">The <see cref="IConfiguration"/>.</param>
         public static IMvcBuilder AddAdminCasesApiEndpoints(this IMvcBuilder mvcBuilder, Action<CasesApiOptions>? configureAction = null) {
             // Add
-            mvcBuilder.ConfigureApplicationPartManager(x => x.FeatureProviders.Add(new AdminCasesApiFeatureProvider()));
+            mvcBuilder.ConfigureApplicationPartManager(x => x.FeatureProviders.Add(new CasesApiFeatureProviderAdminCases()));
             var services = mvcBuilder.Services;
 
             // Build service provider and get IConfiguration instance.
@@ -132,17 +132,18 @@ namespace Indice.Features.Cases
             // Register custom services.
             services.AddTransient<IAdminCaseService, DbAdminCaseService>();
             services.AddTransient<ICaseAuthorizationService, DbRoleCaseTypeService>();
-            services.AddTransient<ICaseWorkflowService, CaseWorkflowService>();
             services.AddTransient<ICaseActionsService, CaseActionsService>();
             services.AddTransient<IAdminCaseMessageService, AdminCaseMessageService>();
             services.AddTransient<ISchemaValidator, SchemaValidator>();
             services.AddTransient<ICaseApprovalService, CaseApprovalService>();
+            services.AddTransient<ICaseTypeNotificationSubscriptionService, CaseTypeNotificationSubscriptionService>();
             services.AddSmsServiceYubotoOmni(configuration)
                 .AddViberServiceYubotoOmni(configuration)
                 .AddEmailServiceSparkpost(configuration)
                 .WithMvcRazorRendering();
             services.AddTransient<CasesMessageDescriber>();
             services.AddTransient<IJsonTranslationService, JsonTranslationService>();
+            services.AddSingleton<CaseSharedResourceService>(); // Add the service even if there is no resx file, so the runtime will not throw exception
 
             //add the provider that filters through all available ICaseAuthorizationServices
             services.AddTransient<ICaseAuthorizationProvider, AggregateCaseAuthorizationProvider>();
@@ -190,6 +191,12 @@ namespace Indice.Features.Cases
             return services;
         }
 
+        /// <summary>
+        /// Add workflow services to the case management.
+        /// </summary>
+        /// <param name="services">The <see cref="IServiceCollection"/>.</param>
+        /// <param name="configuration">The <see cref="IConfiguration"/>.</param>
+        /// <param name="workflowAssembly">The assembly with the workflow activities and definitions to register.</param>
         public static void AddWorkflow(this IServiceCollection services, IConfiguration configuration, Assembly? workflowAssembly) {
             services.AddElsa(elsa => {
                 elsa.UseEntityFrameworkPersistence(ef => ef.UseSqlServer(configuration.GetConnectionString("WorkflowDb")), false)
@@ -224,6 +231,10 @@ namespace Indice.Features.Cases
             services.AddScoped<IAwaitAssignmentInvoker, AwaitAssignmentInvoker>();
         }
 
+        /// <summary>
+        /// Add workflow services to middleware.
+        /// </summary>
+        /// <param name="app"></param>
         public static void UseWorkflow(this IApplicationBuilder app) {
             app.UseHttpActivities();
         }

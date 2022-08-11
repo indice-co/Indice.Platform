@@ -69,5 +69,16 @@ namespace Indice.Features.Cases
             /// </summary>
             public const string Agent = nameof(Agent);
         }
+
+        /// <summary>
+        /// Global Workflow variables
+        /// </summary>
+        public static class WorkflowVariables
+        {
+            /// <summary>
+            /// The reject reasons for an approval workflow.
+            /// </summary>
+            public const string RejectReasons = nameof(RejectReasons);
+        }
     }
 }

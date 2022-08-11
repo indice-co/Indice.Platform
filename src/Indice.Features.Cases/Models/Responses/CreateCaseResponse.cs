@@ -3,18 +3,18 @@
 namespace Indice.Features.Cases.Models.Responses
 {
     /// <summary>
-    /// The checkpoint model.
+    /// The response payload when creating a case.
     /// </summary>
-    internal class CheckpointType
+    public class CreateCaseResponse
     {
         /// <summary>
-        /// The Id of the checkpoint.
+        /// The Id of the case that created.
         /// </summary>
         public Guid Id { get; set; }
 
         /// <summary>
-        /// The code of the checkpoint.
+        /// The created date of the case that created.
         /// </summary>
-        public string? Code { get; set; }
+        public DateTime Created { get; set; }
     }
 }

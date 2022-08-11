@@ -7,6 +7,9 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Indice.Features.Cases.Controllers
 {
+    /// <summary>
+    /// Manage attachments for a case.
+    /// </summary>
     [ApiController]
     [ApiExplorerSettings(GroupName = CasesApiConstants.Scope)]
     [Authorize(AuthenticationSchemes = CasesApiConstants.AuthenticationScheme, Policy = CasesApiConstants.Policies.BeCasesManager)]
@@ -22,7 +25,7 @@ namespace Indice.Features.Cases.Controllers
         }
 
         /// <summary>
-        /// Download attachment in a PDF format for backoffice users
+        /// Download attachment in a PDF format for back-office users.
         /// </summary>
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IFormFile))]
         [Produces("application/octet-stream", Type = typeof(IFormFile))]

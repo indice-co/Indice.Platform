@@ -10,21 +10,22 @@ namespace Indice.Features.Cases.Services
 {
     internal class AggregateCaseAuthorizationProvider : ICaseAuthorizationProvider
     {
-        private readonly IEnumerable<ICaseAuthorizationService> listOfServices;
+        private readonly IEnumerable<ICaseAuthorizationService> _listOfServices;
 
         public AggregateCaseAuthorizationProvider(IEnumerable<ICaseAuthorizationService> listOfServices) {
-            this.listOfServices = listOfServices ?? throw new ArgumentNullException(nameof(listOfServices));
+            _listOfServices = listOfServices ?? throw new ArgumentNullException(nameof(listOfServices));
         }
+
         public async Task<GetCasesListFilter> Filter(ClaimsPrincipal user, GetCasesListFilter filter) {
-            foreach(var authzService in listOfServices) {
-                filter = await authzService.ApplyFilterFor(user, filter);
+            foreach (var authorizationService in _listOfServices) {
+                filter = await authorizationService.ApplyFilterFor(user, filter);
             }
             return filter;
         }
 
-        public async Task<bool> IsValid(ClaimsPrincipal user, CaseDetails theCase) {
-            foreach (var authzService in listOfServices) {
-                if(!await authzService.IsValid(user, theCase)) {
+        public async Task<bool> IsValid(ClaimsPrincipal user, CaseDetails caseDetails) {
+            foreach (var authorizationService in _listOfServices) {
+                if (!await authorizationService.IsValid(user, caseDetails)) {
                     return false;
                 }
             }

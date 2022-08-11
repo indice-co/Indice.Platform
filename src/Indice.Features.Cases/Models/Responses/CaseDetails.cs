@@ -7,6 +7,9 @@ namespace Indice.Features.Cases.Models.Responses
     /// </summary>
     public class CaseDetails : CasePartial
     {
+        /// <summary>
+        /// The attachments of the case.
+        /// </summary>
         public List<CaseAttachment> Attachments { get; set; } = new List<CaseAttachment>();
     }
 }

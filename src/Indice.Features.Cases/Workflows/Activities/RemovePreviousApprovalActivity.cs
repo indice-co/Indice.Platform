@@ -9,16 +9,16 @@ using Indice.Features.Cases.Interfaces;
 namespace Indice.Features.Cases.Workflows.Activities
 {
     [Activity(
-        Category = "Cases",
-        DisplayName = "Rollback Approval Action",
-        Description = "Rollback the previous approval action",
+        Category = "Cases - Approvals",
+        DisplayName = "Remove previous approval",
+        Description = "Remove the previous approval action.",
         Outcomes = new[] { OutcomeNames.Done }
     )]
-    internal class RollbackApprovalActivity : BaseCaseActivity
+    internal class RemovePreviousApprovalActivity : BaseCaseActivity
     {
         private readonly ICaseApprovalService _caseApprovalService;
 
-        public RollbackApprovalActivity(
+        public RemovePreviousApprovalActivity(
             IAdminCaseMessageService caseMessageService,
             ICaseApprovalService caseApprovalService) : base(caseMessageService) {
             _caseApprovalService = caseApprovalService ?? throw new ArgumentNullException(nameof(caseApprovalService));

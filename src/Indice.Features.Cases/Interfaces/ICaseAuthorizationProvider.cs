@@ -16,7 +16,20 @@ namespace Indice.Features.Cases.Interfaces
     /// </summary>
     internal interface ICaseAuthorizationProvider
     {
+        /// <summary>
+        /// Apply filtering against a user according to his <see cref="ClaimsPrincipal"/> and .
+        /// </summary>
+        /// <param name="user">The user.</param>
+        /// <param name="filter">The filter to apply.</param>
+        /// <returns></returns>
         public Task<GetCasesListFilter> Filter(ClaimsPrincipal user, GetCasesListFilter filter);
-        public Task<bool> IsValid(ClaimsPrincipal user, CaseDetails theCase);
+
+        /// <summary>
+        /// Validates that a user is authorized against a list of <see cref="ICaseAuthorizationService"/> for a <see cref="CaseDetails"/>.
+        /// </summary>
+        /// <param name="user">The user.</param>
+        /// <param name="caseDetails">The case details.</param>
+        /// <returns></returns>
+        public Task<bool> IsValid(ClaimsPrincipal user, CaseDetails caseDetails);
     }
 }

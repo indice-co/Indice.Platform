@@ -4,6 +4,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Indice.Features.Cases
 {
+    /// <summary>
+    /// The options for the initialization of the Case Api.
+    /// </summary>
     public class CasesApiOptions
     {
         /// <summary>
@@ -31,6 +34,7 @@ namespace Indice.Features.Cases
         /// Schema name used for tables. Defaults to <i>case</i>.
         /// </summary>
         public string DatabaseSchema { get; set; } = CasesApiConstants.DatabaseSchema;
+
         /// <summary>
         /// The claim type groupid name
         /// </summary>

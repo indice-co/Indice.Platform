@@ -13,6 +13,9 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Indice.Features.Cases.Controllers
 {
+    /// <summary>
+    /// Manage cases, attachments and everything related to cases for back-office users.
+    /// </summary>
     [ApiController]
     [ApiExplorerSettings(GroupName = CasesApiConstants.Scope)]
     [Authorize(AuthenticationSchemes = CasesApiConstants.AuthenticationScheme, Policy = CasesApiConstants.Policies.BeCasesManager)]
@@ -26,18 +29,21 @@ namespace Indice.Features.Cases.Controllers
         private readonly ICaseTemplateService _caseTemplateService;
         private readonly ICaseActionsService _caseBookmarkService;
         private readonly IAdminCaseMessageService _adminCaseMessageService;
+        private readonly ICaseApprovalService _caseApprovalService;
 
         public AdminCasesController(
             IAdminCaseService adminCaseService,
             ICasePdfService casePdfService,
             ICaseTemplateService caseTemplateService,
             ICaseActionsService caseBookmarkService,
-            IAdminCaseMessageService adminCaseMessageService) {
+            IAdminCaseMessageService adminCaseMessageService, 
+            ICaseApprovalService caseApprovalService) {
             _adminCaseService = adminCaseService ?? throw new ArgumentNullException(nameof(adminCaseService));
             _casePdfService = casePdfService ?? throw new ArgumentNullException(nameof(casePdfService));
             _caseTemplateService = caseTemplateService ?? throw new ArgumentNullException(nameof(caseTemplateService));
             _caseBookmarkService = caseBookmarkService ?? throw new ArgumentNullException(nameof(caseBookmarkService));
             _adminCaseMessageService = adminCaseMessageService ?? throw new ArgumentNullException(nameof(adminCaseMessageService));
+            _caseApprovalService = caseApprovalService ?? throw new ArgumentNullException(nameof(caseApprovalService));
         }
 
         /// <summary>
@@ -50,6 +56,20 @@ namespace Indice.Features.Cases.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ValidationProblemDetails))]
         public async Task<IActionResult> CreateDraftAdminCase([FromBody] CreateDraftCaseRequest request) {
             return Ok(await _adminCaseService.CreateDraft(User, request.CaseTypeCode, request.GroupId, request.Customer, request.Metadata));
+        }
+
+        /// <summary>
+        /// Get a list of Attachments for a CaseId
+        /// </summary>
+        /// <param name="caseId"></param>
+        /// <returns></returns>
+        [HttpGet("{caseId:guid}/attachments")]
+        [Produces(MediaTypeNames.Application.Json)]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ResultSet<CaseAttachment>))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ValidationProblemDetails))]
+        public async Task<IActionResult> GetCaseAttachments([FromRoute] Guid caseId) {
+            var attachments = await _adminCaseService.GetAttachments(caseId);
+            return Ok(attachments);
         }
 
         /// <summary>
@@ -73,6 +93,25 @@ namespace Indice.Features.Cases.Controllers
             }
             var attachmentId = await _adminCaseMessageService.Send(caseId, User, new Message { File = file });
             return Ok(new CasesAttachmentLink { Id = attachmentId.GetValueOrDefault() });
+        }
+
+        /// <summary>
+        /// Get an Case Attachment
+        /// </summary>
+        /// <param name="caseId"></param>
+        /// <param name="attachmentId"></param>
+        /// <returns></returns>
+        [HttpGet("{caseId:guid}/attachments/{attachmentId:guid}")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IFormFile))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ValidationProblemDetails))]
+        [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(void))]
+        [Produces(typeof(IFormFile))]
+        public async Task<IActionResult> GetCaseAttachment([FromRoute] Guid caseId, [FromRoute] Guid attachmentId) {
+            var attachment = await _adminCaseService.GetAttachment(caseId, attachmentId);
+            if (attachment is null) {
+                return NotFound();
+            }
+            return File(attachment.Data, attachment.ContentType, attachment.Name);
         }
 
         /// <summary>
@@ -137,6 +176,21 @@ namespace Indice.Features.Cases.Controllers
                 return NotFound();
             }
             return Ok(@case);
+        }   
+        
+        /// <summary>
+        /// Deletes a draft case.
+        /// </summary>
+        /// <param name="caseId">The id of the case.</param>
+        /// <response code="204">No Content</response>
+        /// <response code="404">Not Found</response>
+        [HttpDelete("{caseId:guid}")]
+        [Produces(MediaTypeNames.Application.Json)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ProblemDetails))]
+        public async Task<IActionResult> DeleteDraftCase([FromRoute] Guid caseId) {
+            await _adminCaseService.DeleteDraft(User, caseId);
+            return NoContent();
         }
 
         /// <summary>
@@ -164,6 +218,17 @@ namespace Indice.Features.Cases.Controllers
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CaseActions))]
         public async Task<IActionResult> GetCaseActions([FromRoute] Guid caseId) {
             return Ok(await _caseBookmarkService.GeUserActions(HttpContext.User, caseId));
+        }
+
+        /// <summary>
+        /// Get the reject reasons for a case.
+        /// </summary>
+        /// <param name="caseId">The Id of the case.</param>
+        /// <returns></returns>
+        [HttpGet("{caseId:guid}/reject-reasons")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<RejectReason>))]
+        public async Task<IActionResult> GetCaseRejectReasons([FromRoute] Guid caseId) {
+            return Ok(await _caseApprovalService.GetRejectReasons(caseId));
         }
 
         /// <summary>

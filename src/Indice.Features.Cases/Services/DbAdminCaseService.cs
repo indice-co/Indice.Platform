@@ -12,9 +12,9 @@ using Indice.Features.Cases.Exceptions;
 using Indice.Features.Cases.Interfaces;
 using Indice.Features.Cases.Models;
 using Indice.Features.Cases.Models.Responses;
+using Indice.Security;
 using Indice.Types;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 
 namespace Indice.Features.Cases.Services
 {
@@ -26,20 +26,18 @@ namespace Indice.Features.Cases.Services
         private readonly ICaseTypeService _caseTypeService;
         private readonly IAdminCaseMessageService _adminCaseMessageService;
         private readonly ICaseEventService _caseEventService;
-        private readonly CasesApiOptions _casesApiOptions;
+
         public DbAdminCaseService(
             CasesDbContext dbContext,
             ICaseAuthorizationProvider roleCaseTypeProv,
             ICaseTypeService caseTypeService,
             IAdminCaseMessageService adminCaseMessageService,
-            ICaseEventService caseEventService,
-            CasesApiOptions casesApiOptions) : base(dbContext) {
+            ICaseEventService caseEventService) : base(dbContext) {
             _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
             _roleCaseTypeProvider = roleCaseTypeProv ?? throw new ArgumentNullException(nameof(roleCaseTypeProv));
             _caseTypeService = caseTypeService ?? throw new ArgumentNullException(nameof(caseTypeService));
             _adminCaseMessageService = adminCaseMessageService ?? throw new ArgumentNullException(nameof(adminCaseMessageService));
             _caseEventService = caseEventService ?? throw new ArgumentNullException(nameof(caseEventService));
-            _casesApiOptions = casesApiOptions ?? throw new ArgumentNullException(nameof(casesApiOptions));
         }
 
         public async Task<Guid> CreateDraft(ClaimsPrincipal user,
@@ -55,7 +53,8 @@ namespace Indice.Features.Cases.Services
                 groupId,
                 customer,
                 metadata,
-                CasesApiConstants.Channels.Agent);
+                CasesApiConstants.Channels.Agent,
+                user);
             return entity.Id;
         }
 
@@ -93,7 +92,7 @@ namespace Indice.Features.Cases.Services
             try {
                 options.Filter = await _roleCaseTypeProvider.Filter(user, options.Filter);
             } catch (ResourceUnauthorizedException rue) {
-                return new ResultSet<CasePartial>();
+                return new List<CasePartial>().ToResultSet();
             }
 
             // TODO: optimize query
@@ -189,6 +188,24 @@ namespace Indice.Features.Cases.Services
             return caseDetails;
         }
 
+        public async Task DeleteDraft(ClaimsPrincipal user, Guid caseId) {
+            var @case = await _dbContext.Cases.FindAsync(caseId);
+            if (@case is null) {
+                throw new CaseNotFoundException();
+            }
+
+            if (@case.CreatedBy.Id != user.FindSubjectId()) {
+                throw new ResourceUnauthorizedException();
+            }
+
+            if (!@case.Draft) {
+                throw new Exception("Cannot delete a submitted case.");
+            }
+
+            _dbContext.Remove(@case);
+            await _dbContext.SaveChangesAsync();
+        }
+
         public async Task<DbAttachment> GetDbAttachmentById(ClaimsPrincipal user, Guid attachmentId) {
             var attachment = await _dbContext.Attachments
                 .AsNoTracking()
@@ -200,6 +217,34 @@ namespace Indice.Features.Cases.Services
             return attachment;
         }
 
+        public async Task<ResultSet<CaseAttachment>> GetAttachments(Guid caseId) {
+            var attachments = await _dbContext.Attachments
+                .AsNoTracking()
+                .Where(x => x.CaseId == caseId)
+                .Select(db => new CaseAttachment() {
+                    Id = db.Id,
+                    ContentType = db.ContentType,
+                    Name = db.Name,
+                    Extension = db.FileExtension
+                })
+                .ToListAsync();
+            return attachments.ToResultSet();
+        }
+        
+        public async Task<CaseAttachment> GetAttachment(Guid caseId, Guid attachmentId) {
+            var attachment = await _dbContext.Attachments
+                .AsNoTracking()
+                .Select(db => new CaseAttachment() {
+                    Id = db.Id,
+                    ContentType = db.ContentType,
+                    Name = db.Name,
+                    Extension = db.FileExtension,
+                    Data = db.Data
+                })
+                .SingleOrDefaultAsync(x => x.Id == attachmentId);
+            return attachment;
+        }
+        
         public async Task<AuditMeta> AssignCase(ClaimsPrincipal user, Guid caseId) {
             var assignedTo = AuditMeta.Create(user);
             var @case = await _dbContext.Cases.FindAsync(caseId);
@@ -274,35 +319,6 @@ namespace Indice.Features.Cases.Services
                 .ThenBy(c => c.IsCheckpoint);
 
             return timeline;
-        }
-
-        public async Task<IEnumerable<DbCaseTypeNotificationSubscription>> GetCaseTypeUsersByGroupId(string groupId) {
-            return await _dbContext.CaseTypeNotificationSubscription
-                .AsQueryable()
-                .Where(user => user.GroupId == groupId)
-                .ToListAsync();
-        }
-
-        public async Task CreateCaseTypeNotificationSubscription(ClaimsPrincipal user) {
-            var groupId = user.FindFirstValue(_casesApiOptions.GroupIdClaimType);
-            if (string.IsNullOrEmpty(groupId)) {
-                throw new Exception($"No Group found for user: {user?.Identity?.Name}");
-            }
-            var email = user.FindFirstValue(JwtClaimTypes.Email);
-            var entitiesToRemove = await _dbContext.CaseTypeNotificationSubscription
-                .AsQueryable()
-                .Where(u => u.Email == email)
-                .ToListAsync();
-            if (entitiesToRemove != null && entitiesToRemove.Count() > 0) {
-                _dbContext.RemoveRange(entitiesToRemove);
-            }
-            var entity = new DbCaseTypeNotificationSubscription {
-                Id = Guid.NewGuid(),
-                GroupId = groupId,
-                Email = email
-            };
-            await _dbContext.AddAsync(entity);
-            await _dbContext.SaveChangesAsync();
         }
     }
 }

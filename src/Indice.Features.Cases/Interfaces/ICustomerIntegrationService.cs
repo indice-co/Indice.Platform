@@ -16,5 +16,12 @@ namespace Indice.Features.Cases.Interfaces
         /// <param name="criteria">The criteria to search for.</param>
         /// <returns></returns>
         Task<IEnumerable<CustomerDetails>> GetCustomers(SearchCustomerCriteria criteria);
+        /// <summary>
+        /// Get Customer Data for a specific case type.
+        /// </summary>
+        /// <param name="customerId">The Id of the customer.</param>
+        /// <param name="caseTypeCode">The case type code.</param>
+        /// <returns></returns>
+        Task<CustomerData> GetCustomerData(string customerId, string caseTypeCode);
     }
 }

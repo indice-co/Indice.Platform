@@ -69,6 +69,7 @@ namespace Indice.Features.Cases.Services
                 Id = @case.Id,
                 PublicStatus = latestCheckpoint.CheckpointType.PublicStatus,
                 CreatedByWhen = @case.CreatedBy.When,
+                CreatedById = @case.CreatedBy.Id,
                 CaseType = new CaseType {
                     Code = @case.CaseType.Code,
                     Title = @case.CaseType.Title,
@@ -99,7 +100,7 @@ namespace Indice.Features.Cases.Services
 
             return caseDetails;
         }
-        
+
         /// <summary>
         /// Get the case as requested by a Customer. Case must match <see cref="DbCase.CreatedBy"/> with the <see cref="ClaimsPrincipal"/> of the customer.
         /// </summary>
@@ -129,6 +130,7 @@ namespace Indice.Features.Cases.Services
         /// <param name="customer">The customer metadata that initiated the case.</param>
         /// <param name="metadata">The metadata the case might have.</param>
         /// <param name="channel">The channel the case was created from.</param>
+        /// <param name="assignee">The assigned of the case (optional).</param>
         /// <returns></returns>
         protected async Task<DbCase> CreateDraftInternal(
             ICaseMessageService caseMessageService,
@@ -137,7 +139,8 @@ namespace Indice.Features.Cases.Services
             string groupId,
             CustomerMeta customer,
             Dictionary<string, string> metadata,
-            string channel) {
+            string channel,
+            ClaimsPrincipal? assignee = null) {
             if (user is null) throw new ArgumentNullException(nameof(user));
             if (caseType == null) throw new ArgumentNullException(nameof(caseType));
             if (string.IsNullOrEmpty(channel)) throw new ArgumentNullException(nameof(channel));
@@ -153,7 +156,8 @@ namespace Indice.Features.Cases.Services
                 CreatedBy = userMeta,
                 Metadata = metadata,
                 Draft = true,
-                Channel = channel
+                Channel = channel,
+                AssignedTo = assignee == null ? null : AuditMeta.Create(assignee)
             };
 
             // Create entity

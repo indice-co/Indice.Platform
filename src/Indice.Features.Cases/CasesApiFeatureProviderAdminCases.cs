@@ -7,17 +7,20 @@ using Microsoft.AspNetCore.Mvc.Controllers;
 
 namespace Indice.Features.Cases
 {
-    internal class AdminCasesApiFeatureProvider : IApplicationFeatureProvider<ControllerFeature>
+    /// <summary>
+    /// Provider for registering admin-cases features.
+    /// </summary>
+    internal class CasesApiFeatureProviderAdminCases : IApplicationFeatureProvider<ControllerFeature>
     {
-        private static IReadOnlyList<TypeInfo> ControllerTypes => new List<TypeInfo>() {
+        private static IReadOnlyList<TypeInfo> ControllerTypes => new List<TypeInfo> {
             typeof(AdminCasesController).GetTypeInfo(),
-            typeof(AdminApprovalsController).GetTypeInfo(),
-            typeof(AdminEditController).GetTypeInfo(),
-            typeof(AdminAssignmentsController).GetTypeInfo(),
+            typeof(AdminWorkflowInvokerController).GetTypeInfo(),
             typeof(AdminAttachmentsController).GetTypeInfo(),
             typeof(AdminUsersController).GetTypeInfo(),
             typeof(AdminCaseTypesController).GetTypeInfo(),
+            typeof(AdminCheckpointTypesController).GetTypeInfo(),
             typeof(AdminIntegrationController).GetTypeInfo(),
+            typeof(LookupController).GetTypeInfo(),
         };
 
         public void PopulateFeature(IEnumerable<ApplicationPart> parts, ControllerFeature feature) {

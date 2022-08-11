@@ -65,7 +65,7 @@ namespace Indice.Features.Cases.Services
             if (user is null) throw new ArgumentNullException(nameof(user));
 
             // if client is systemic, then bypass checks
-            if ((user.HasClaim(JwtClaimTypes.Scope, CasesApiConstants.Scope) && user.IsSystemClient()) || user.IsAdmin()) {
+            if ((user.HasClaim(JwtClaimTypes.Scope, CasesApiConstants.Scope) && user.IsSystemClient()) || user.IsAdmin() || IsOwnerOfCase(user, caseDetails)) {
                 return true;
             }
 
@@ -80,13 +80,20 @@ namespace Indice.Features.Cases.Services
                 .Any(x => x.CaseTypeId == caseDetails.CaseType!.Id && x.CheckpointTypeId == caseDetails.CheckpointTypeId);
         }
 
+        private bool IsOwnerOfCase(ClaimsPrincipal user, CaseDetails caseDetails) {
+            return user.FindSubjectId().Equals(caseDetails.CreatedById);
+        }
+
         private List<string>? ApplyCheckpointTypeFilter(List<string>? checkpointTypeCodes, List<string> roleClaims, List<RoleCaseType> roleCaseTypes) {
             var allowedCheckpointTypeCodes = roleCaseTypes
                 .Where(c => roleClaims.Contains(c.RoleName!))
                 .Select(x => x.CheckpointType.Code)
                 .ToList();
-
-            return checkpointTypeCodes is null ? allowedCheckpointTypeCodes : allowedCheckpointTypeCodes.Intersect(checkpointTypeCodes).ToList();
+            // fuzzy match the CheckPointType Code
+            var allowedRelativeCheckpointTypeCodes = checkpointTypeCodes != null
+                ? allowedCheckpointTypeCodes.Where(a => checkpointTypeCodes.Any(a.Contains)).ToList()
+                : Enumerable.Empty<string>();
+            return checkpointTypeCodes is null ? allowedCheckpointTypeCodes : allowedCheckpointTypeCodes.Intersect(allowedRelativeCheckpointTypeCodes).ToList();
         }
 
         private List<string>? ApplyCaseTypeFilter(List<string>? caseTypeCodes, List<string> roleClaims, List<RoleCaseType> roleCaseTypes) {

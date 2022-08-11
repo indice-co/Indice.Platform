@@ -7,9 +7,12 @@ using Microsoft.AspNetCore.Mvc.Controllers;
 
 namespace Indice.Features.Cases
 {
-    internal class CasesApiFeatureProvider : IApplicationFeatureProvider<ControllerFeature>
+    /// <summary>
+    /// Provider for registering my-cases features.
+    /// </summary>
+    internal class CasesApiFeatureProviderMyCases : IApplicationFeatureProvider<ControllerFeature>
     {
-        private static IReadOnlyList<TypeInfo> ControllerTypes => new List<TypeInfo>() {
+        private static IReadOnlyList<TypeInfo> ControllerTypes => new List<TypeInfo> {
             typeof(MyCasesController).GetTypeInfo(),
             typeof(MyCaseTypesController).GetTypeInfo(),
         };

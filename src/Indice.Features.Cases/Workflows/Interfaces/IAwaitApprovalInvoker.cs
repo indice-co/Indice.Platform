@@ -22,7 +22,6 @@ namespace Indice.Features.Cases.Workflows.Interfaces
         /// <param name="caseId">The Id of the case.</param>
         /// <param name="approvalRequest">The approval request.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns></returns>
         Task<IEnumerable<CollectedWorkflow>> DispatchWorkflowsAsync(Guid caseId, ApprovalRequest approvalRequest, CancellationToken cancellationToken = default);
 
         /// <summary>
@@ -31,7 +30,6 @@ namespace Indice.Features.Cases.Workflows.Interfaces
         /// <param name="caseId">The Id of the case.</param>
         /// <param name="approvalRequest">The approval request.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns></returns>
         Task<IEnumerable<CollectedWorkflow>> ExecuteWorkflowsAsync(Guid caseId, ApprovalRequest approvalRequest, CancellationToken cancellationToken = default);
     }
 }

@@ -2,6 +2,10 @@
 
 namespace Indice.Features.Cases.Interfaces
 {
+    /// <summary>
+    /// The Case Event handler for <see cref="ICaseEvent"/>.
+    /// </summary>
+    /// <typeparam name="TEvent"></typeparam>
     public interface ICaseEventHandler<in TEvent> 
         where TEvent :ICaseEvent
     {

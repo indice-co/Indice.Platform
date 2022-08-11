@@ -16,7 +16,7 @@ namespace Indice.Features.Cases.Workflows.Activities
     /// Block the previous approver if it is the same user and prevent from continuing the workflow.
     /// </summary>
     [Activity(
-        Category = "Cases",
+        Category = "Cases - Approvals",
         DisplayName = "Block previous approver",
         Description = "Block the previous approver if it is the same user and prevent from continuing the workflow.",
         Outcomes = new[] { OutcomeNames.True, OutcomeNames.False }

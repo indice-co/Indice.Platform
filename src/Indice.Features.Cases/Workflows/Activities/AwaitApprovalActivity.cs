@@ -9,6 +9,7 @@ using Elsa.Expressions;
 using Elsa.Services.Models;
 using Indice.Features.Cases.Interfaces;
 using Indice.Features.Cases.Models;
+using Indice.Features.Cases.Resources;
 using Indice.Features.Cases.Workflows.Extensions;
 using Indice.Security;
 
@@ -19,7 +20,7 @@ namespace Indice.Features.Cases.Workflows.Activities
     /// <remarks>See: <a href="https://elsa-workflows.github.io/elsa-core/docs/next/guides/guides-blocking-activities">Elsa Blocking Activities</a></remarks>
     /// </summary>
     [Trigger(
-        Category = "Cases",
+        Category = "Cases - Approvals",
         DisplayName = "Await Approval",
         Description = "Handles the approval or rejection of a case.",
         Outcomes = new[] { nameof(Approval.Approve), nameof(Approval.Reject) }
@@ -28,13 +29,16 @@ namespace Indice.Features.Cases.Workflows.Activities
     {
         private readonly IAdminCaseMessageService _caseMessageService;
         private readonly ICaseApprovalService _caseApprovalService;
+        private readonly CaseSharedResourceService _caseSharedResourceService;
 
         public AwaitApprovalActivity(
             IAdminCaseMessageService caseMessageService,
-            ICaseApprovalService caseApprovalService)
+            ICaseApprovalService caseApprovalService,
+            CaseSharedResourceService caseSharedResourceService)
             : base(caseMessageService) {
             _caseMessageService = caseMessageService;
             _caseApprovalService = caseApprovalService ?? throw new ArgumentNullException(nameof(caseApprovalService));
+            _caseSharedResourceService = caseSharedResourceService ?? throw new ArgumentNullException(nameof(caseSharedResourceService));
         }
 
         [ActivityInput(
@@ -113,11 +117,11 @@ namespace Indice.Features.Cases.Workflows.Activities
                 CaseId!.Value,
                 context.TryGetUser()!,
                 new Message {
-                    Comment = approval.Comment!,
+                    Comment = _caseSharedResourceService.GetLocalizedHtmlString(approval.Comment ?? string.Empty).Value,
                     PrivateComment = !PublicActions.Contains(approval.Action.ToString())
                 });
 
-            await _caseApprovalService.AddApproval(CaseId!.Value, null, context.TryGetUser()!, approval.Action);
+            await _caseApprovalService.AddApproval(CaseId!.Value, null, context.TryGetUser()!, approval.Action, approval.Comment);
 
             return Outcome(approval.Action.ToString(), approval);
         }

@@ -5,6 +5,9 @@ using Indice.Features.Cases.Models;
 
 namespace Indice.Features.Cases.Interfaces
 {
+    /// <summary>
+    /// The case message service for sending <see cref="Message"/> to a case.
+    /// </summary>
     public interface ICaseMessageService
     {
         ///  <summary>

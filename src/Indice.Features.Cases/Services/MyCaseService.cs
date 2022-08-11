@@ -10,6 +10,7 @@ using Indice.Features.Cases.Events;
 using Indice.Features.Cases.Interfaces;
 using Indice.Features.Cases.Models;
 using Indice.Features.Cases.Models.Responses;
+using Indice.Features.Cases.Resources;
 using Indice.Security;
 using Indice.Types;
 using Microsoft.EntityFrameworkCore;
@@ -24,18 +25,21 @@ namespace Indice.Features.Cases.Services
         private readonly ICaseEventService _caseEventService;
         private readonly IMyCaseMessageService _caseMessageService;
         private readonly IJsonTranslationService _jsonTranslationService;
+        private readonly CaseSharedResourceService _caseSharedResourceService;
 
         public MyCaseService(
             CasesDbContext dbContext,
             ICaseTypeService caseTypeService,
             ICaseEventService caseEventService,
             IMyCaseMessageService caseMessageService,
-            IJsonTranslationService jsonTranslationService) : base(dbContext) {
+            IJsonTranslationService jsonTranslationService,
+            CaseSharedResourceService caseSharedResourceService) : base(dbContext) {
             _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
             _caseTypeService = caseTypeService ?? throw new ArgumentNullException(nameof(caseTypeService));
             _caseEventService = caseEventService ?? throw new ArgumentNullException(nameof(caseEventService));
             _caseMessageService = caseMessageService ?? throw new ArgumentNullException(nameof(caseMessageService));
             _jsonTranslationService = jsonTranslationService ?? throw new ArgumentNullException(nameof(jsonTranslationService));
+            _caseSharedResourceService = caseSharedResourceService;
         }
 
         public async Task<CreateCaseResponse> CreateDraft(ClaimsPrincipal user,
@@ -172,10 +176,10 @@ namespace Indice.Features.Cases.Services
                         .OrderByDescending(c => c.CreatedBy.When)
                         .FirstOrDefault(c => !c.CheckpointType.Private)!
                         .CheckpointType.Name,
-                    Message = p.Comments
+                    Message = _caseSharedResourceService.GetLocalizedHtmlString(p.Comments // get the translated version of the comment (if exist)
                         .OrderByDescending(p => p.CreatedBy.When)
                         .FirstOrDefault(c => !c.Private)
-                        .Text,
+                        .Text ?? string.Empty),
                     Translations = TranslationDictionary<MyCasePartialTranslation>.FromJson(p.CaseType.Translations)
                 })
                 .Where(p => p.PublicStatus != CasePublicStatus.Deleted);// Do not fetch cases in deleted checkpoint

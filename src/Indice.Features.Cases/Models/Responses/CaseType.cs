@@ -3,15 +3,38 @@ using Indice.Types;
 
 namespace Indice.Features.Cases.Models.Responses
 {
+    /// <summary>
+    /// The case type model.
+    /// </summary>
     public class CaseType
     {
-        public Guid Id { get; set; }
-        public string? Code { get; set; }
-        public string? Title { get; set; }
-        public string? DataSchema { get; set; }
-        public string? Layout { get; set; }
         /// <summary>
-        /// Translations.
+        /// The Id of the case type.
+        /// </summary>
+        public Guid Id { get; set; }
+
+        /// <summary>
+        /// The case type code.
+        /// </summary>
+        public string? Code { get; set; }
+
+        /// <summary>
+        /// The case type title.
+        /// </summary>
+        public string? Title { get; set; }
+
+        /// <summary>
+        /// The case type json schema.
+        /// </summary>
+        public string? DataSchema { get; set; }
+
+        /// <summary>
+        /// The layout for the data schema.
+        /// </summary>
+        public string? Layout { get; set; }
+        
+        /// <summary>
+        /// The translations for the case type metadata (eg title).
         /// </summary>
         public TranslationDictionary<CaseTypeTranslation>? Translations { get; set; }
 

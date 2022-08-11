@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Threading.Tasks;
+using Indice.Features.Cases.Exceptions;
 using Indice.Features.Cases.Interfaces;
 using Indice.Features.Cases.Models.Responses;
 using Microsoft.AspNetCore.Http;
@@ -33,6 +34,7 @@ namespace Indice.Features.Cases.Services
         public async Task<string> RenderTemplateAsync(CaseDetails @case) {
             return await RenderTemplateAsync($"Cases/Pdf/{@case.CaseType.Code}", @case);
         }
+
         public async Task<string> RenderTemplateAsync<T>(string viewName, T viewModel) {
             var httpContext = _httpContextAccessor.HttpContext;
             var actionContext = new ActionContext(httpContext, new RouteData(), new ActionDescriptor());
@@ -65,15 +67,6 @@ namespace Indice.Features.Cases.Services
 
                 return outputWriter.ToString();
             };
-        }
-
-        public class RenderTemplateServiceException : Exception
-        {
-            public RenderTemplateServiceException(string message) : base(message) {
-            }
-
-            public RenderTemplateServiceException(string message, Exception innerException) : base(message, innerException) {
-            }
         }
     }
 }

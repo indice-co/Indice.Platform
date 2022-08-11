@@ -5,6 +5,9 @@ using Indice.Features.Cases.Models;
 
 namespace Indice.Features.Cases.Interfaces
 {
+    /// <summary>
+    /// The case action interface.
+    /// </summary>
     internal interface ICaseActionsService
     {
         /// <summary>

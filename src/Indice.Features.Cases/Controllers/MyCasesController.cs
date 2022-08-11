@@ -12,6 +12,9 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Indice.Features.Cases.Controllers
 {
+    /// <summary>
+    /// Manage customer cases.
+    /// </summary>
     [ApiController]
     [ApiExplorerSettings(GroupName = CasesApiConstants.Scope)]
     [Authorize(AuthenticationSchemes = CasesApiConstants.AuthenticationScheme, Policy = CasesApiConstants.Policies.BeCasesUser)]
@@ -38,6 +41,13 @@ namespace Indice.Features.Cases.Controllers
             _caseMessageService = caseMessageService ?? throw new ArgumentNullException(nameof(caseMessageService));
         }
 
+        /// <summary>
+        /// Get the list of the customer's cases.
+        /// </summary>
+        /// <param name="page">The current page of the list. Default is 1</param>
+        /// <param name="pageSize">The size of the list. Default is 10.</param>
+        /// <param name="sort">The property name used to sort the list.</param>
+        /// <returns></returns>
         [HttpGet]
         [Produces(MediaTypeNames.Application.Json)]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ResultSet<MyCasePartial>))]

@@ -9,6 +9,9 @@ using Indice.Types;
 
 namespace Indice.Features.Cases.Interfaces
 {
+    /// <summary>
+    /// The services regarding Customer's perspective on case management.
+    /// </summary>
     public interface IMyCaseService
     {
         /// <summary>

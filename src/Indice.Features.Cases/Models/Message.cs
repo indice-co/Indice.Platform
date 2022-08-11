@@ -13,22 +13,27 @@ namespace Indice.Features.Cases.Models
         /// The Id of the Checkpoint the message is replying to.
         /// </summary>
         public Guid? ReplyToCommentId { get; set; }
+        
         /// <summary>
         /// The name of the checkpoint the case must proceed.
         /// </summary>
         public string? CheckpointTypeName { get; set; }
+        
         /// <summary>
         /// Indicates if the comment should be visible to the customer.
         /// </summary>
         public bool? PrivateComment { get; set; } = true;
+        
         /// <summary>
         /// The comment to add to the checkpoint.
         /// </summary>
         public string Comment { get; set; }
+        
         /// <summary>
         /// The file that is attached with the checkpoint.
         /// </summary>
         public IFormFile File { get; set; }
+
         /// <summary>
         /// The data related with the message.
         /// </summary>

@@ -1,4 +1,5 @@
 ﻿using Indice.Features.Cases.Data.Models;
+using Indice.Features.Cases.Workflows.Interfaces;
 
 namespace Indice.Features.Cases.Models
 {

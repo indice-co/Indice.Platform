@@ -9,6 +9,9 @@ using Indice.Types;
 
 namespace Indice.Features.Cases.Interfaces
 {
+    /// <summary>
+    /// The admin/manage service regarding a Case and its related domain models.
+    /// </summary>
     public interface IAdminCaseService
     {
         /// <summary>
@@ -58,6 +61,14 @@ namespace Indice.Features.Cases.Interfaces
         Task<CaseDetails> GetCaseById(ClaimsPrincipal user, Guid caseId, bool? includeAttachmentData = null);
 
         /// <summary>
+        /// Performs a physical delete for a draft case.
+        /// </summary>
+        /// <param name="user">The user that created the case.</param>
+        /// <param name="caseId">The Id of the case.</param>
+        /// <returns></returns>
+        Task DeleteDraft(ClaimsPrincipal user, Guid caseId);
+
+        /// <summary>
         /// Get an attachment for a user by its Id
         /// </summary>
         /// <param name="user">The user that creates the request.</param>
@@ -89,18 +100,18 @@ namespace Indice.Features.Cases.Interfaces
         Task<IEnumerable<TimelineEntry>> GetTimeline(ClaimsPrincipal user, Guid caseId);
 
         /// <summary>
-        /// Get users that have opted in for notifications for their branch
+        /// Get a list of attachments by CaseId
         /// </summary>
-        /// <param name="groupId"></param>
+        /// <param name="caseId"></param>
         /// <returns></returns>
-        Task<IEnumerable<DbCaseTypeNotificationSubscription>> GetCaseTypeUsersByGroupId(string groupId);
-
+        Task<ResultSet<CaseAttachment>> GetAttachments(Guid caseId);
+        
         /// <summary>
-        /// Create a new notification subscription for a user and a groupId.
-        /// <remarks>If a subscription already exists, this service will force delete the previous subscription.</remarks>
+        /// Get single Case Attachment data
         /// </summary>
-        /// <param name="user">The user to create the subscription</param>
+        /// <param name="caseId"></param>
+        /// <param name="attachmentId"></param>
         /// <returns></returns>
-        Task CreateCaseTypeNotificationSubscription(ClaimsPrincipal user);
+        Task<CaseAttachment> GetAttachment(Guid caseId, Guid attachmentId);
     }
 }
