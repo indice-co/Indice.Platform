@@ -1,4 +1,4 @@
-import { JsonSchemaFormModule } from "@ajsf/core";
+import { JsonSchemaFormModule } from "@ajsf-extended/core";
 import { CommonModule } from "@angular/common";
 import { HttpClientModule } from "@angular/common/http";
 import { NgModule } from "@angular/core";
@@ -14,6 +14,8 @@ import { CaseUnassignmentComponent } from "./case-detail-page/case-unassignment/
 import { CaseDetailPageComponent } from './case-detail-page/case-detail-page.component';
 import { CaseFormComponent } from './case-detail-page/case-form/case-form.component';
 import { CaseCreatePageComponent } from './case-create-page/case-create-page.component';
+import { CaseDiscardDraftComponent } from './case-detail-page/case-discard-draft/case-discard-draft.component';
+import { CasePrintPdfComponent } from './case-detail-page/case-print-pdf/case-print-pdf.component';
 
 @NgModule({
     declarations: [
@@ -23,7 +25,9 @@ import { CaseCreatePageComponent } from './case-create-page/case-create-page.com
         CaseTimelineComponent,
         CaseDetailPageComponent,
         CaseFormComponent,
-        CaseCreatePageComponent
+        CaseCreatePageComponent,
+        CaseDiscardDraftComponent,
+        CasePrintPdfComponent
     ],
     imports: [
         BrowserModule,

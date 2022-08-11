@@ -1,6 +1,6 @@
 import { AbstractControl } from '@angular/forms';
 import { Component, Input, OnInit } from '@angular/core';
-import { hasOwn, JsonSchemaFormService } from '@ajsf/core';
+import { hasOwn, JsonSchemaFormService } from '@ajsf-extended/core';
 
 @Component({
   // tslint:disable-next-line:component-selector

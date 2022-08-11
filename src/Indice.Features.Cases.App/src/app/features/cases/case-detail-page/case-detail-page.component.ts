@@ -1,7 +1,8 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
-import { Observable, ReplaySubject } from 'rxjs';
-import { takeUntil, tap } from 'rxjs/operators';
+import { ActivatedRoute, Router } from '@angular/router';
+import { ToasterService, ToastType } from '@indice/ng-components';
+import { iif, Observable, ReplaySubject, of } from 'rxjs';
+import { map, switchMap, takeUntil, tap } from 'rxjs/operators';
 import { CaseActions, CaseDetails, CasesApiService, TimelineEntry } from 'src/app/core/services/cases-api.service';
 
 @Component({
@@ -18,6 +19,9 @@ export class CaseDetailPageComponent implements OnInit, OnDestroy {
 
   public timelineEntries$: Observable<TimelineEntry[]> | undefined;
 
+  public formValid: boolean = false;
+  public formUnSavedChanges: boolean = false;
+
   private componentDestroy$ = new ReplaySubject<void>(1);
 
   private caseId = '';
@@ -28,7 +32,9 @@ export class CaseDetailPageComponent implements OnInit, OnDestroy {
 
   constructor(
     private api: CasesApiService,
-    private route: ActivatedRoute) { }
+    private route: ActivatedRoute,
+    private router: Router,
+    private toaster: ToasterService) { }
 
   ngOnInit(): void {
     this.route.params.subscribe(p => {
@@ -43,24 +49,55 @@ export class CaseDetailPageComponent implements OnInit, OnDestroy {
     this.componentDestroy$.complete();
   }
 
-  public updateData(): void {
-    this.requestModel();
+  public updateData(event: { draft: boolean }): void {
+    if (event.draft){
+      this.getCaseActionsAndThenRequestModel();      
+    }
     this.getTimeline();
+  }
+
+  public isValid(event: boolean): void {
+    this.formValid = event;
+  }
+
+  public formDataHasChanged(event: boolean): void {
+    this.formUnSavedChanges = event;
   }
 
   public requestModel(): void {
     this.api
       .getCaseById(this.caseId)
       .pipe(
-        tap(response => this._model.next(response)),
+        switchMap(caseDetails => {
+          return iif(
+            () => caseDetails.draft === true,
+            this.getCustomerData$(caseDetails), // draft mode, we need to prefill the form with customer data (if any)
+            of(caseDetails))
+        }),
+        tap((response: CaseDetails) => this._model.next(response)),
         takeUntil(this.componentDestroy$)
-      )
-      .subscribe();
+      ).subscribe();
+
+  }
+  private getCustomerData$(caseDetails: CaseDetails): Observable<CaseDetails> {
+    return this.api
+      .getCustomerData(caseDetails.customerId ?? "", caseDetails.caseType?.code ?? "")
+      .pipe(
+        map(customerDetails => {
+          caseDetails.data = customerDetails.formData;
+          return caseDetails;
+        }));
+
   }
 
   onActionsChanged() {
     this.getCaseActionsAndThenRequestModel();
     this.getTimeline();
+  }
+
+  onCaseDiscarded() {
+    this.toaster.show(ToastType.Info, 'Ακύρωση αίτησης', 'Η αίτηση έχει ακυρωθεί')
+    this.router.navigate(['/cases']);
   }
 
   private getCaseActions() {

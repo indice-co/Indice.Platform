@@ -8,4 +8,7 @@ export class UploadFileWidgetService {
 
   constructor() { }
 
+  reset() {
+    this.files = undefined;
+  }
 }

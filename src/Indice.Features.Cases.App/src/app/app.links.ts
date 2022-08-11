@@ -27,6 +27,6 @@ export class AppLinks implements IAppLinks {
     ]);
 
     public brand: Observable<NavLink[]> = of([
-        new ExternalNavLink('Indice', 'https://www.indice.gr')
+        new ExternalNavLink('ChaniaBank', 'https://www.chaniabank.gr')
     ]);
 }

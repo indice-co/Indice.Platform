@@ -9,12 +9,16 @@ import { ToggleButtonComponent } from './components/toggle-button/toggle-button.
 import { BeautifyBooleanPipe, RemovePrefixPipe } from './pipes.services';
 import { JSFFileWidgetComponent } from './ajsf/jsf-file-widget.component';
 import { TailwindFrameworkComponent } from './ajsf/json-schema-frameworks/tailwind-framework/tailwind-framework.component';
-import { JsonSchemaFormModule } from '@ajsf/core';
+import { JsonSchemaFormModule } from '@ajsf-extended/core';
 import { TailwindSubmitWidgetComponent } from './ajsf/json-schema-frameworks/tailwind-framework/submit-widget/submit-widget.component';
 import { SelectCaseTypeComponent } from './components/select-case-type/select-case-type.component';
 import { SearchCustomerComponent } from './components/search-customer/search-customer.component';
 import { IndiceComponentsModule } from '@indice/ng-components';
 import { SelectWidgetComponent } from './ajsf/json-schema-frameworks/tailwind-framework/select-widget/select-widget.component';
+import { CurrencyWidgetComponent } from './ajsf/json-schema-frameworks/tailwind-framework/currency-widget/currency-widget.component';
+import { NgxMaskModule } from 'ngx-mask'
+import { DateWidgetComponent } from './ajsf/json-schema-frameworks/tailwind-framework/date-widget/date-widget.component';
+import { LookupWidgetComponent } from './ajsf/json-schema-frameworks/tailwind-framework/lookup-widget/lookup-widget.component';
 
 
 
@@ -32,6 +36,9 @@ import { SelectWidgetComponent } from './ajsf/json-schema-frameworks/tailwind-fr
     TailwindFrameworkComponent,
     SelectWidgetComponent,
     TailwindSubmitWidgetComponent,
+    CurrencyWidgetComponent,
+    DateWidgetComponent,
+    LookupWidgetComponent,
     // pipes
     BeautifyBooleanPipe,
     RemovePrefixPipe
@@ -42,7 +49,8 @@ import { SelectWidgetComponent } from './ajsf/json-schema-frameworks/tailwind-fr
     ReactiveFormsModule,
     HttpClientModule,
     JsonSchemaFormModule,
-    IndiceComponentsModule
+    IndiceComponentsModule,
+    NgxMaskModule.forRoot()
   ],
   exports: [
     // components

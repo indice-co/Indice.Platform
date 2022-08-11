@@ -6,7 +6,7 @@ import {
   OnInit
 } from '@angular/core';
 
-import { JsonSchemaFormService, addClasses, inArray } from '@ajsf/core';
+import { JsonSchemaFormService, addClasses, inArray } from '@ajsf-extended/core';
 import { cloneDeep, map } from 'lodash';
 
 /**

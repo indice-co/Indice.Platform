@@ -12,16 +12,18 @@
                            [false-label]="'Η αίτηση θα απορριφθεί!'">
         </lib-toggle-button>
     </div>
-    <div class="col-span-4"
-         *ngIf="approveButtonDisabled">
-        <div class="mt-1 flex rounded-sm">
-            <lib-radio-buttons-list id="rejection-options"
-                                    [options]="rejectionOptions"
-                                    [value]="this.rejectionOptions[0].text"
-                                    (valueChange)="onOptionChange($event)"
-                                    title="Αιτιολογία Απόρριψης"></lib-radio-buttons-list>
+    <ng-container *ngIf="rejectionOptions$ | async as rejectionOptions">
+        <div class="col-span-4"
+             *ngIf="approveButtonDisabled">
+            <div class="mt-1 flex rounded-sm">
+                <lib-radio-buttons-list id="rejection-options"
+                                        [options]="rejectionOptions"
+                                        [(value)]="selectedRejectReason"
+                                        (valueChange)="onOptionChange($event)"
+                                        title="Αιτιολογία Απόρριψης"></lib-radio-buttons-list>
+            </div>
         </div>
-    </div>
+    </ng-container>
     <div *ngIf="!approveButtonDisabled">
         <label for="comment-textarea"
                class="field-label">Σχόλιο</label>
@@ -36,10 +38,10 @@
     <div>
         <button href="#"
                 class="btn-success mr-1"
-                [ngClass]="{'opacity-50 cursor-not-allowed': approveButtonDisabled === true || buttonsDisabled === true}"
+                [ngClass]="{'opacity-50 cursor-not-allowed': formValid === false || approveButtonDisabled === true || buttonsDisabled === true}"
                 title="Έγκριση Αίτησης"
                 (click)="approveCase()"
-                [disabled]="approveButtonDisabled || buttonsDisabled">
+                [disabled]="!formValid || approveButtonDisabled || buttonsDisabled">
             <p>Έγκριση</p>&nbsp;
             <i class="ms-Icon ms-Icon--Accept"></i>
         </button>

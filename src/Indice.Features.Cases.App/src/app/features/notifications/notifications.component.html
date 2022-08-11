@@ -1,36 +1,38 @@
-<div class="bg-white shadow-sm rounded-sm">
-  <div class="px-4 py-5 sm:px-6">
-    <h3 class="text-lg leading-6 font-medium text-gray-900">
-      Εγγραφείτε στις ειδοποιήσεις μέσω email
-    </h3>
-    <p class="mt-1 max-w-2xl text-sm text-gray-500">
-      Θα λαμβάνετε email για υποβολή νέων αιτήσεων
-    </p>
-  </div>
-  <form #notificationsForm="ngForm"
-        class="border-t border-gray-200 px-4 py-5 sm:p-0"
-        (ngSubmit)="onSubmit()">
-    <div class="px-4 py-5 bg-white space-y-6 sm:p-6 grid grid-cols-2 sm:grid-cols-4">
-      <!-- Εγγραφή -->
-      <div class="col-span-2 sm:col-span-4">
-        <label for="notificationsActive"
-               class="field-label">Εγγραφή στις ειδοποιήσεις για το κατάστημά μου μέσω email (*)</label>
-        <div class="mt-1 flex rounded-sm shadow-sm">
-          <input type="checkbox"
-                 name="notificationsActive"
-                 id="notificationsActive"
-                 [(ngModel)]="notificationsAccepted"
-                 #notificationsActive="ngModel">
+<lib-view-layout [title]="'Ειδοποιήσεις'">
+  <div class="bg-white shadow-sm rounded-sm">
+    <div class="px-4 py-5 sm:px-6">
+      <h3 class="text-lg leading-6 font-medium text-gray-900">
+        Εγγραφείτε στις ειδοποιήσεις μέσω email
+      </h3>
+      <p class="mt-1 max-w-2xl text-sm text-gray-500">
+        Θα λαμβάνετε email για υποβολή νέων αιτήσεων
+      </p>
+    </div>
+    <form #notificationsForm="ngForm"
+          class="border-t border-gray-200 px-4 py-5 sm:p-0"
+          (ngSubmit)="onSubmit()">
+      <div class="px-4 py-5 bg-white space-y-6 sm:p-6 grid grid-cols-2 sm:grid-cols-4">
+        <!-- Εγγραφή -->
+        <div class="col-span-2 sm:col-span-4">
+          <label for="notificationsActive"
+                 class="field-label">Εγγραφή στις ειδοποιήσεις για το κατάστημά μου μέσω email (*)</label>
+          <div class="mt-1 flex rounded-sm shadow-sm">
+            <input type="checkbox"
+                   name="notificationsActive"
+                   id="notificationsActive"
+                   [(ngModel)]="notificationsAccepted"
+                   #notificationsActive="ngModel">
+          </div>
         </div>
       </div>
-    </div>
-    <div class="form-actions">
-      <button type="submit"
-              class="inline-flex justify-center btn-outline"
-              [disabled]="notificationsForm.form.invalid || !notificationsForm.form.dirty"
-              #submitBtn>
-        Αποθήκευση
-      </button>
-    </div>
-  </form>
-</div>
+      <div class="form-actions">
+        <button type="submit"
+                class="inline-flex justify-center btn-outline"
+                [disabled]="notificationsForm.form.invalid || !notificationsForm.form.dirty"
+                #submitBtn>
+          Αποθήκευση
+        </button>
+      </div>
+    </form>
+  </div>
+</lib-view-layout>

@@ -18,5 +18,6 @@ export const environment = {
   },
   culture: 'el-GR',
   isTemplate: false,
-  production: true
+  production: true,
+  appBrandName: "ChaniaBank - NBE Back Office"
 };

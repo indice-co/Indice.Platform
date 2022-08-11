@@ -1,5 +1,5 @@
 import { NotificationsComponent } from './notifications.component';
-import { JsonSchemaFormModule } from "@ajsf/core";
+import { JsonSchemaFormModule } from "@ajsf-extended/core";
 import { CommonModule } from "@angular/common";
 import { HttpClientModule } from "@angular/common/http";
 import { NgModule } from "@angular/core";

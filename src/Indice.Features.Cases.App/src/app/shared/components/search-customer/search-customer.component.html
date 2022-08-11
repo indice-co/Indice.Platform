@@ -21,8 +21,11 @@ dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
         <input [(ngModel)]="searchValue" name="searchValue"
             class="appearance-none block w-full text-gray-700 border border-gray-200 rounded leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
             id="searchValue" type="number" placeholder="Εισάγετε αριθμό πελάτη">
+        <label class="block tracking-wide text-gray-700 text-xs font-bold mb-2" for="searchValue">
+            Αφορά μόνο φυσικά πρόσωπα
+        </label>
     </div>
-    <div class="place-self-end">
+    <div class="place-self-center">
         <button (click)="onSearch()" class="btn-submit">
             <svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="search" class="w-4" role="img"
                 xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">

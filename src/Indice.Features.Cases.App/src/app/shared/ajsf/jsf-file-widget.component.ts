@@ -1,4 +1,4 @@
-import { JsonSchemaFormService } from "@ajsf/core";
+import { JsonSchemaFormService } from "@ajsf-extended/core";
 import { Component, Input, OnInit } from "@angular/core";
 import { AbstractControl } from "@angular/forms";
 import { tap } from "rxjs/operators";

@@ -26,6 +26,8 @@
                                             }}</p>
                                         <p class="text-s text-grey-dark mb-2">Α.Φ.Μ. Πελάτη: {{ model?.metadata?.TaxId
                                             }}</p>
+                                        <p class="text-s text-grey-dark mb-2">Κατάστημα Πελάτη: {{ model?.groupId
+                                            }}</p>
                                         <p class="text-s text-grey-dark mb-2">Τρέχον Σημείο Ελέγχου: {{
                                             model?.checkpointTypeCode | removePrefix }}</p>
                                         <p class="text-s text-grey-dark mb-2">Ανάθεση σε: {{ model?.assignedToName || '
@@ -34,14 +36,22 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="bg-white shadow rounded-sm"
-                             *ngIf="caseActions.hasAssignment || caseActions.hasUnassignment">
+                        <div class="bg-white shadow rounded-sm">
                             <div class="mt-2 px-4 py-4 flow-root">
                                 <app-case-assignment [caseId]="model.id"
                                                      [enabled]="caseActions.hasAssignment"
                                                      (caseAssigned)="onActionsChanged()"></app-case-assignment>
+
                                 <!-- TODO: will we add unassignment button? -->
                                 <!-- <app-case-unassignment [enabled]="caseActions.hasUnassignment"></app-case-unassignment> -->
+                                <app-case-discard-draft [caseId]="model.id"
+                                                        [enabled]="model.draft"
+                                                        (caseDiscarded)="onCaseDiscarded()">
+                                </app-case-discard-draft>
+                                <app-case-print-pdf [caseId]="model.id"
+                                                    [enabled]="!model.draft"
+                                                    [buttonDisabled]="!formValid || formUnSavedChanges">
+                                </app-case-print-pdf>
                             </div>
                         </div>
                         <div class="bg-white shadow rounded-sm">
@@ -59,8 +69,12 @@
                         <div class="px-4 py-5 sm:px-6">
                             <app-case-form [case]="model"
                                            [formEditable]="caseActions.hasEdit"
-                                           (updateDataEvent)="updateData()"></app-case-form>
-                            <app-approval-buttons [caseId]="model.id"
+                                           (updateDataEvent)="updateData($event)"
+                                           (formIsValid)="isValid($event)"
+                                           (unSavedChanges)="formDataHasChanged($event)"></app-case-form>
+                            <app-approval-buttons [formUnSavedChanges]="formUnSavedChanges"
+                                                  [formValid]="formValid"
+                                                  [caseId]="model.id"
                                                   [enabled]="caseActions.hasApproval">
                             </app-approval-buttons>
                         </div>

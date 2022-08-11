@@ -1,5 +1,6 @@
 <div *ngIf="case"
-     class="form-container">
+     class="form-container"
+     #formContainer>
     <div *ngIf="case.draft"
          class="bg-blue-100 border-t-4 border-blue-500 rounded-b text-blue-900 px-4 py-3 shadow-md mb-4"
          role="alert">
@@ -29,12 +30,26 @@
                   d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
         </svg>
     </h3>
-    <json-schema-form [form]="formObject"
+    <json-schema-form *ngIf="showForm"
+                      (keydown.enter)="$event.preventDefault()"
+                      [schema]="schema"
+                      [(data)]="data"
+                      [layout]="layout"
                       [framework]="framework"
                       [options]="jsonFormOptions"
                       [widgets]="widgets"
-                      (onChanges)="onChanges($event)"
+                      (onChanges)="onFormChanges($event)"
                       (isValid)="isValid($event)"
                       (onSubmit)="onSubmit($event)">
     </json-schema-form>
+    <button *ngIf="!this.case?.draft && formEditable"
+            href="#"
+            class="btn-error mt-2 mr-1 text-white font-bold"
+            title="Ακύρωση"
+            (click)="onCancel()"
+            [ngClass]="{'opacity-50 cursor-not-allowed': formIsDirty === false}"
+            [disabled]="!formIsDirty">
+        <p>Ακύρωση</p>&nbsp;
+        <i class="ms-Icon ms-Icon--Cancel"></i>
+    </button>
 </div>

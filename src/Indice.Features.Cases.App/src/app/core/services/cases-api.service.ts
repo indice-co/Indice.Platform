@@ -17,7 +17,7 @@ export const CASES_API_BASE_URL = new InjectionToken<string>('CASES_API_BASE_URL
 
 export interface ICasesApiService {
     /**
-     * Download attachment in a PDF format for backoffice users
+     * Download attachment in a PDF format for back-office users.
      * @param api_version (optional) 
      * @return Success
      */
@@ -31,14 +31,14 @@ export interface ICasesApiService {
     createDraftAdminCase(api_version?: string | undefined, body?: CreateDraftCaseRequest | undefined): Observable<string>;
     /**
      * Gets the list of all cases using the provided Indice.Types.ListOptions.
-     * @param filter_CustomerId (optional) 
-     * @param filter_CustomerName (optional) 
-     * @param filter_From (optional) 
-     * @param filter_To (optional) 
-     * @param filter_CaseTypeCodes (optional) 
-     * @param filter_CheckpointTypeCodes (optional) 
-     * @param filter_GroupIds (optional) 
-     * @param filter_Metadata (optional) construct filter clauses based on the metadata you are adding to the cases in your installation
+     * @param filter_CustomerId (optional) The Id of the customer to filter.
+     * @param filter_CustomerName (optional) The name of the customer to filter.
+     * @param filter_From (optional) The created date of the case, starting from, to filter.
+     * @param filter_To (optional) The create date of the case, ending to, to filter.
+     * @param filter_CaseTypeCodes (optional) The list of case type codes to filter.
+     * @param filter_CheckpointTypeCodes (optional) The list of checkpoint type codes to filter.
+     * @param filter_GroupIds (optional) The list of groupIds to filter.
+     * @param filter_Metadata (optional) Construct filter clauses based on the metadata you are adding to the cases in your installation.
      * @param page (optional) 
      * @param size (optional) 
      * @param sort (optional) 
@@ -63,11 +63,12 @@ export interface ICasesApiService {
      */
     getCaseById(caseId: string, api_version?: string | undefined): Observable<CaseDetails>;
     /**
+     * Deletes a draft case.
+     * @param caseId The id of the case.
      * @param api_version (optional) 
-     * @param body (optional) 
      * @return No Content
      */
-    editCase(caseId: string, api_version?: string | undefined, body?: EditCaseRequest | undefined): Observable<void>;
+    deleteDraftCase(caseId: string, api_version?: string | undefined): Observable<void>;
     /**
      * Download case in a PDF format for backoffice users
      * @param api_version (optional) 
@@ -82,16 +83,26 @@ export interface ICasesApiService {
      */
     getCaseActions(caseId: string, api_version?: string | undefined): Observable<CaseActions>;
     /**
+     * Invoke the approval activity to approve or reject the case.
+     * @param caseId The Id of the case.
      * @param api_version (optional) 
-     * @param body (optional) 
+     * @param body (optional) The approval request.
      * @return No Content
      */
     submitApproval(caseId: string, api_version?: string | undefined, body?: ApprovalRequest | undefined): Observable<void>;
     /**
+     * Invoke the assign activity to assign the case to the caller user.
+     * @param caseId The Id of the case.
      * @param api_version (optional) 
      * @return No Content
      */
     assignCase(caseId: string, api_version?: string | undefined): Observable<void>;
+    /**
+     * Get a list of Attachments for a CaseId
+     * @param api_version (optional) 
+     * @return Success
+     */
+    getCaseAttachments(caseId: string, api_version?: string | undefined): Observable<CaseAttachmentResultSet>;
     /**
      * Add an attachment to an existing case regardless of its status and mode (draft or not).
      * @param caseId The Id of the case.
@@ -100,6 +111,27 @@ export interface ICasesApiService {
      * @return Success
      */
     uploadAdminCaseAttachment(caseId: string, api_version?: string | undefined, file?: FileParameter | undefined): Observable<CasesAttachmentLink>;
+    /**
+     * Get an Case Attachment
+     * @param api_version (optional) 
+     * @return Success
+     */
+    getCaseAttachment(caseId: string, attachmentId: string, api_version?: string | undefined): Observable<FileResponse>;
+    /**
+     * Invoke the edit activity to edit the data of the case.
+     * @param caseId The Id of the case.
+     * @param api_version (optional) 
+     * @param body (optional) The case data in json format.
+     * @return No Content
+     */
+    editCase(caseId: string, api_version?: string | undefined, body?: EditCaseRequest | undefined): Observable<void>;
+    /**
+     * Get the reject reasons for a case.
+     * @param caseId The Id of the case.
+     * @param api_version (optional) 
+     * @return Success
+     */
+    getCaseRejectReasons(caseId: string, api_version?: string | undefined): Observable<RejectReason[]>;
     /**
      * Submit the case by removing the draft mode.
      * @param caseId The Id of the case.
@@ -122,17 +154,58 @@ export interface ICasesApiService {
      */
     getCaseTypes(api_version?: string | undefined): Observable<CaseType[]>;
     /**
+     * Get Checkpoint types
+     * @param api_version (optional) 
+     * @return Success
+     */
+    getDistinctCheckpointNames(api_version?: string | undefined): Observable<string[]>;
+    /**
+     * Fetch customers.
      * @param customerId (optional) The Id of the customer as provided by the consumer/integrator.
      * @param taxId (optional) The tax identification of the customer.
      * @param api_version (optional) 
      * @return Success
      */
     getCustomers(customerId?: string | undefined, taxId?: string | undefined, api_version?: string | undefined): Observable<CustomerDetails[]>;
+    /**
+     * Fetch customer data for a specific case type code.
+     * @param customerId The Id of the customer to the integrator's system.
+     * @param caseTypeCode The case type code.
+     * @param api_version (optional) 
+     * @return Success
+     */
+    getCustomerData(customerId: string, caseTypeCode: string, api_version?: string | undefined): Observable<CustomerData>;
+    /**
+     * Get a lookup by lookupName.
+     * @param lookupName The lookup name to retrieve.
+     * @param searchValues (optional) Any search values to filter the lookup results.
+     * @param api_version (optional) 
+     * @return Success
+     */
+    getLookup(lookupName: string, searchValues?: string | undefined, api_version?: string | undefined): Observable<LookupItemResultSet>;
+    /**
+     * Get the case type subscriptions of a user.
+     * @param api_version (optional) 
+     * @return Success
+     */
+    getCaseTypeNotificationSubscription(api_version?: string | undefined): Observable<CaseTypeSubscription>;
+    /**
+     * Create new case type subscription for a user.
+     * @param api_version (optional) 
+     * @return No Content
+     */
     createCaseTypeNotificationSubscription(api_version?: string | undefined): Observable<void>;
     /**
-     * @param page (optional) 
-     * @param pageSize (optional) 
-     * @param sort (optional) 
+     * Remove a case type subscription for a user.
+     * @param api_version (optional) 
+     * @return No Content
+     */
+    deleteCaseTypeNotificationSubscription(api_version?: string | undefined): Observable<void>;
+    /**
+     * Get the list of the customer's cases.
+     * @param page (optional) The current page of the list. Default is 1
+     * @param pageSize (optional) The size of the list. Default is 10.
+     * @param sort (optional) The property name used to sort the list.
      * @param api_version (optional) 
      * @return Success
      */
@@ -186,7 +259,8 @@ export interface ICasesApiService {
      */
     submitMyCase(caseId: string, api_version?: string | undefined): Observable<void>;
     /**
-     * Gets a case type
+     * Gets a case type by its code.
+     * @param caseTypeCode The case type code.
      * @param api_version (optional) 
      * @return Success
      */
@@ -212,7 +286,7 @@ export class CasesApiService implements ICasesApiService {
     }
 
     /**
-     * Download attachment in a PDF format for backoffice users
+     * Download attachment in a PDF format for back-office users.
      * @param api_version (optional) 
      * @return Success
      */
@@ -369,14 +443,14 @@ export class CasesApiService implements ICasesApiService {
 
     /**
      * Gets the list of all cases using the provided Indice.Types.ListOptions.
-     * @param filter_CustomerId (optional) 
-     * @param filter_CustomerName (optional) 
-     * @param filter_From (optional) 
-     * @param filter_To (optional) 
-     * @param filter_CaseTypeCodes (optional) 
-     * @param filter_CheckpointTypeCodes (optional) 
-     * @param filter_GroupIds (optional) 
-     * @param filter_Metadata (optional) construct filter clauses based on the metadata you are adding to the cases in your installation
+     * @param filter_CustomerId (optional) The Id of the customer to filter.
+     * @param filter_CustomerName (optional) The name of the customer to filter.
+     * @param filter_From (optional) The created date of the case, starting from, to filter.
+     * @param filter_To (optional) The create date of the case, ending to, to filter.
+     * @param filter_CaseTypeCodes (optional) The list of case type codes to filter.
+     * @param filter_CheckpointTypeCodes (optional) The list of checkpoint type codes to filter.
+     * @param filter_GroupIds (optional) The list of groupIds to filter.
+     * @param filter_Metadata (optional) Construct filter clauses based on the metadata you are adding to the cases in your installation.
      * @param page (optional) 
      * @param size (optional) 
      * @param sort (optional) 
@@ -671,11 +745,12 @@ export class CasesApiService implements ICasesApiService {
     }
 
     /**
+     * Deletes a draft case.
+     * @param caseId The id of the case.
      * @param api_version (optional) 
-     * @param body (optional) 
      * @return No Content
      */
-    editCase(caseId: string, api_version?: string | undefined, body?: EditCaseRequest | undefined): Observable<void> {
+    deleteDraftCase(caseId: string, api_version?: string | undefined): Observable<void> {
         let url_ = this.baseUrl + "/api/manage/cases/{caseId}?";
         if (caseId === undefined || caseId === null)
             throw new Error("The parameter 'caseId' must be defined.");
@@ -686,23 +761,19 @@ export class CasesApiService implements ICasesApiService {
             url_ += "api-version=" + encodeURIComponent("" + api_version) + "&";
         url_ = url_.replace(/[?&]$/, "");
 
-        const content_ = JSON.stringify(body);
-
         let options_ : any = {
-            body: content_,
             observe: "response",
             responseType: "blob",
             headers: new HttpHeaders({
-                "Content-Type": "application/json-patch+json",
             })
         };
 
-        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processEditCase(response_);
+        return this.http.request("delete", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processDeleteDraftCase(response_);
         })).pipe(_observableCatch((response_: any) => {
             if (response_ instanceof HttpResponseBase) {
                 try {
-                    return this.processEditCase(response_ as any);
+                    return this.processDeleteDraftCase(response_ as any);
                 } catch (e) {
                     return _observableThrow(e) as any as Observable<void>;
                 }
@@ -711,7 +782,7 @@ export class CasesApiService implements ICasesApiService {
         }));
     }
 
-    protected processEditCase(response: HttpResponseBase): Observable<void> {
+    protected processDeleteDraftCase(response: HttpResponseBase): Observable<void> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -903,8 +974,10 @@ export class CasesApiService implements ICasesApiService {
     }
 
     /**
+     * Invoke the approval activity to approve or reject the case.
+     * @param caseId The Id of the case.
      * @param api_version (optional) 
-     * @param body (optional) 
+     * @param body (optional) The approval request.
      * @return No Content
      */
     submitApproval(caseId: string, api_version?: string | undefined, body?: ApprovalRequest | undefined): Observable<void> {
@@ -984,6 +1057,8 @@ export class CasesApiService implements ICasesApiService {
     }
 
     /**
+     * Invoke the assign activity to assign the case to the caller user.
+     * @param caseId The Id of the case.
      * @param api_version (optional) 
      * @return No Content
      */
@@ -1057,6 +1132,87 @@ export class CasesApiService implements ICasesApiService {
             }));
         }
         return _observableOf<void>(null as any);
+    }
+
+    /**
+     * Get a list of Attachments for a CaseId
+     * @param api_version (optional) 
+     * @return Success
+     */
+    getCaseAttachments(caseId: string, api_version?: string | undefined): Observable<CaseAttachmentResultSet> {
+        let url_ = this.baseUrl + "/api/manage/cases/{caseId}/attachments?";
+        if (caseId === undefined || caseId === null)
+            throw new Error("The parameter 'caseId' must be defined.");
+        url_ = url_.replace("{caseId}", encodeURIComponent("" + caseId));
+        if (api_version === null)
+            throw new Error("The parameter 'api_version' cannot be null.");
+        else if (api_version !== undefined)
+            url_ += "api-version=" + encodeURIComponent("" + api_version) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetCaseAttachments(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetCaseAttachments(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<CaseAttachmentResultSet>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<CaseAttachmentResultSet>;
+        }));
+    }
+
+    protected processGetCaseAttachments(response: HttpResponseBase): Observable<CaseAttachmentResultSet> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            }));
+        } else if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = CaseAttachmentResultSet.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ValidationProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<CaseAttachmentResultSet>(null as any);
     }
 
     /**
@@ -1154,6 +1310,260 @@ export class CasesApiService implements ICasesApiService {
             }));
         }
         return _observableOf<CasesAttachmentLink>(null as any);
+    }
+
+    /**
+     * Get an Case Attachment
+     * @param api_version (optional) 
+     * @return Success
+     */
+    getCaseAttachment(caseId: string, attachmentId: string, api_version?: string | undefined): Observable<FileResponse> {
+        let url_ = this.baseUrl + "/api/manage/cases/{caseId}/attachments/{attachmentId}?";
+        if (caseId === undefined || caseId === null)
+            throw new Error("The parameter 'caseId' must be defined.");
+        url_ = url_.replace("{caseId}", encodeURIComponent("" + caseId));
+        if (attachmentId === undefined || attachmentId === null)
+            throw new Error("The parameter 'attachmentId' must be defined.");
+        url_ = url_.replace("{attachmentId}", encodeURIComponent("" + attachmentId));
+        if (api_version === null)
+            throw new Error("The parameter 'api_version' cannot be null.");
+        else if (api_version !== undefined)
+            url_ += "api-version=" + encodeURIComponent("" + api_version) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetCaseAttachment(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetCaseAttachment(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<FileResponse>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<FileResponse>;
+        }));
+    }
+
+    protected processGetCaseAttachment(response: HttpResponseBase): Observable<FileResponse> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            }));
+        } else if (status === 200 || status === 206) {
+            const contentDisposition = response.headers ? response.headers.get("content-disposition") : undefined;
+            const fileNameMatch = contentDisposition ? /filename="?([^"]*?)"?(;|$)/g.exec(contentDisposition) : undefined;
+            const fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[1] : undefined;
+            return _observableOf({ fileName: fileName, data: responseBlob as any, status: status, headers: _headers });
+        } else if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ValidationProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            }));
+        } else if (status === 404) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = ProblemDetails.fromJS(resultData404);
+            return throwException("Not Found", status, _responseText, _headers, result404);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<FileResponse>(null as any);
+    }
+
+    /**
+     * Invoke the edit activity to edit the data of the case.
+     * @param caseId The Id of the case.
+     * @param api_version (optional) 
+     * @param body (optional) The case data in json format.
+     * @return No Content
+     */
+    editCase(caseId: string, api_version?: string | undefined, body?: EditCaseRequest | undefined): Observable<void> {
+        let url_ = this.baseUrl + "/api/manage/cases/{caseId}/edit?";
+        if (caseId === undefined || caseId === null)
+            throw new Error("The parameter 'caseId' must be defined.");
+        url_ = url_.replace("{caseId}", encodeURIComponent("" + caseId));
+        if (api_version === null)
+            throw new Error("The parameter 'api_version' cannot be null.");
+        else if (api_version !== undefined)
+            url_ += "api-version=" + encodeURIComponent("" + api_version) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json-patch+json",
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processEditCase(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processEditCase(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
+    }
+
+    protected processEditCase(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            }));
+        } else if (status === 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return _observableOf<void>(null as any);
+            }));
+        } else if (status === 404) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = ProblemDetails.fromJS(resultData404);
+            return throwException("Not Found", status, _responseText, _headers, result404);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<void>(null as any);
+    }
+
+    /**
+     * Get the reject reasons for a case.
+     * @param caseId The Id of the case.
+     * @param api_version (optional) 
+     * @return Success
+     */
+    getCaseRejectReasons(caseId: string, api_version?: string | undefined): Observable<RejectReason[]> {
+        let url_ = this.baseUrl + "/api/manage/cases/{caseId}/reject-reasons?";
+        if (caseId === undefined || caseId === null)
+            throw new Error("The parameter 'caseId' must be defined.");
+        url_ = url_.replace("{caseId}", encodeURIComponent("" + caseId));
+        if (api_version === null)
+            throw new Error("The parameter 'api_version' cannot be null.");
+        else if (api_version !== undefined)
+            url_ += "api-version=" + encodeURIComponent("" + api_version) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetCaseRejectReasons(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetCaseRejectReasons(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<RejectReason[]>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<RejectReason[]>;
+        }));
+    }
+
+    protected processGetCaseRejectReasons(response: HttpResponseBase): Observable<RejectReason[]> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            }));
+        } else if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(RejectReason.fromJS(item));
+            }
+            else {
+                result200 = <any>null;
+            }
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<RejectReason[]>(null as any);
     }
 
     /**
@@ -1428,6 +1838,99 @@ export class CasesApiService implements ICasesApiService {
     }
 
     /**
+     * Get Checkpoint types
+     * @param api_version (optional) 
+     * @return Success
+     */
+    getDistinctCheckpointNames(api_version?: string | undefined): Observable<string[]> {
+        let url_ = this.baseUrl + "/api/manage/checkpoint-types?";
+        if (api_version === null)
+            throw new Error("The parameter 'api_version' cannot be null.");
+        else if (api_version !== undefined)
+            url_ += "api-version=" + encodeURIComponent("" + api_version) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetDistinctCheckpointNames(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetDistinctCheckpointNames(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<string[]>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<string[]>;
+        }));
+    }
+
+    protected processGetDistinctCheckpointNames(response: HttpResponseBase): Observable<string[]> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            }));
+        } else if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(item);
+            }
+            else {
+                result200 = <any>null;
+            }
+            return _observableOf(result200);
+            }));
+        } else if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ValidationProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            }));
+        } else if (status === 404) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = ProblemDetails.fromJS(resultData404);
+            return throwException("Not Found", status, _responseText, _headers, result404);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<string[]>(null as any);
+    }
+
+    /**
+     * Fetch customers.
      * @param customerId (optional) The Id of the customer as provided by the consumer/integrator.
      * @param taxId (optional) The tax identification of the customer.
      * @param api_version (optional) 
@@ -1514,6 +2017,255 @@ export class CasesApiService implements ICasesApiService {
         return _observableOf<CustomerDetails[]>(null as any);
     }
 
+    /**
+     * Fetch customer data for a specific case type code.
+     * @param customerId The Id of the customer to the integrator's system.
+     * @param caseTypeCode The case type code.
+     * @param api_version (optional) 
+     * @return Success
+     */
+    getCustomerData(customerId: string, caseTypeCode: string, api_version?: string | undefined): Observable<CustomerData> {
+        let url_ = this.baseUrl + "/api/manage/integrations/customers/{customerId}/data/{caseTypeCode}?";
+        if (customerId === undefined || customerId === null)
+            throw new Error("The parameter 'customerId' must be defined.");
+        url_ = url_.replace("{customerId}", encodeURIComponent("" + customerId));
+        if (caseTypeCode === undefined || caseTypeCode === null)
+            throw new Error("The parameter 'caseTypeCode' must be defined.");
+        url_ = url_.replace("{caseTypeCode}", encodeURIComponent("" + caseTypeCode));
+        if (api_version === null)
+            throw new Error("The parameter 'api_version' cannot be null.");
+        else if (api_version !== undefined)
+            url_ += "api-version=" + encodeURIComponent("" + api_version) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetCustomerData(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetCustomerData(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<CustomerData>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<CustomerData>;
+        }));
+    }
+
+    protected processGetCustomerData(response: HttpResponseBase): Observable<CustomerData> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            }));
+        } else if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = CustomerData.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<CustomerData>(null as any);
+    }
+
+    /**
+     * Get a lookup by lookupName.
+     * @param lookupName The lookup name to retrieve.
+     * @param searchValues (optional) Any search values to filter the lookup results.
+     * @param api_version (optional) 
+     * @return Success
+     */
+    getLookup(lookupName: string, searchValues?: string | undefined, api_version?: string | undefined): Observable<LookupItemResultSet> {
+        let url_ = this.baseUrl + "/api/manage/lookups/{lookupName}?";
+        if (lookupName === undefined || lookupName === null)
+            throw new Error("The parameter 'lookupName' must be defined.");
+        url_ = url_.replace("{lookupName}", encodeURIComponent("" + lookupName));
+        if (searchValues === null)
+            throw new Error("The parameter 'searchValues' cannot be null.");
+        else if (searchValues !== undefined)
+            url_ += "searchValues=" + encodeURIComponent("" + searchValues) + "&";
+        if (api_version === null)
+            throw new Error("The parameter 'api_version' cannot be null.");
+        else if (api_version !== undefined)
+            url_ += "api-version=" + encodeURIComponent("" + api_version) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetLookup(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetLookup(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<LookupItemResultSet>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<LookupItemResultSet>;
+        }));
+    }
+
+    protected processGetLookup(response: HttpResponseBase): Observable<LookupItemResultSet> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            }));
+        } else if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = LookupItemResultSet.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status === 404) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = ProblemDetails.fromJS(resultData404);
+            return throwException("Not Found", status, _responseText, _headers, result404);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<LookupItemResultSet>(null as any);
+    }
+
+    /**
+     * Get the case type subscriptions of a user.
+     * @param api_version (optional) 
+     * @return Success
+     */
+    getCaseTypeNotificationSubscription(api_version?: string | undefined): Observable<CaseTypeSubscription> {
+        let url_ = this.baseUrl + "/api/manage/users/subscriptions?";
+        if (api_version === null)
+            throw new Error("The parameter 'api_version' cannot be null.");
+        else if (api_version !== undefined)
+            url_ += "api-version=" + encodeURIComponent("" + api_version) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetCaseTypeNotificationSubscription(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetCaseTypeNotificationSubscription(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<CaseTypeSubscription>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<CaseTypeSubscription>;
+        }));
+    }
+
+    protected processGetCaseTypeNotificationSubscription(response: HttpResponseBase): Observable<CaseTypeSubscription> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("Server Error", status, _responseText, _headers, result500);
+            }));
+        } else if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = CaseTypeSubscription.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<CaseTypeSubscription>(null as any);
+    }
+
+    /**
+     * Create new case type subscription for a user.
+     * @param api_version (optional) 
+     * @return No Content
+     */
     createCaseTypeNotificationSubscription(api_version?: string | undefined): Observable<void> {
         let url_ = this.baseUrl + "/api/manage/users/subscriptions?";
         if (api_version === null)
@@ -1571,6 +2323,10 @@ export class CasesApiService implements ICasesApiService {
             result500 = ProblemDetails.fromJS(resultData500);
             return throwException("Server Error", status, _responseText, _headers, result500);
             }));
+        } else if (status === 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return _observableOf<void>(null as any);
+            }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
@@ -1580,9 +2336,84 @@ export class CasesApiService implements ICasesApiService {
     }
 
     /**
-     * @param page (optional) 
-     * @param pageSize (optional) 
-     * @param sort (optional) 
+     * Remove a case type subscription for a user.
+     * @param api_version (optional) 
+     * @return No Content
+     */
+    deleteCaseTypeNotificationSubscription(api_version?: string | undefined): Observable<void> {
+        let url_ = this.baseUrl + "/api/manage/users/subscriptions?";
+        if (api_version === null)
+            throw new Error("The parameter 'api_version' cannot be null.");
+        else if (api_version !== undefined)
+            url_ += "api-version=" + encodeURIComponent("" + api_version) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+            })
+        };
+
+        return this.http.request("delete", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processDeleteCaseTypeNotificationSubscription(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processDeleteCaseTypeNotificationSubscription(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
+    }
+
+    protected processDeleteCaseTypeNotificationSubscription(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("Server Error", status, _responseText, _headers, result500);
+            }));
+        } else if (status === 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return _observableOf<void>(null as any);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<void>(null as any);
+    }
+
+    /**
+     * Get the list of the customer's cases.
+     * @param page (optional) The current page of the list. Default is 1
+     * @param pageSize (optional) The size of the list. Default is 10.
+     * @param sort (optional) The property name used to sort the list.
      * @param api_version (optional) 
      * @return Success
      */
@@ -2234,7 +3065,8 @@ export class CasesApiService implements ICasesApiService {
     }
 
     /**
-     * Gets a case type
+     * Gets a case type by its code.
+     * @param caseTypeCode The case type code.
      * @param api_version (optional) 
      * @return Success
      */
@@ -2394,6 +3226,7 @@ export enum Approval {
     Reject = "Reject",
 }
 
+/** The approval request to trigger the Indice.Features.Cases.Workflows.Activities.AwaitApprovalActivity */
 export class ApprovalRequest implements IApprovalRequest {
     action?: Approval;
     /** User comment related to the action. */
@@ -2430,6 +3263,7 @@ export class ApprovalRequest implements IApprovalRequest {
     }
 }
 
+/** The approval request to trigger the Indice.Features.Cases.Workflows.Activities.AwaitApprovalActivity */
 export interface IApprovalRequest {
     action?: Approval;
     /** User comment related to the action. */
@@ -2486,10 +3320,15 @@ export interface IAuditMeta {
     when?: Date | undefined;
 }
 
+/** The available actions for a user, depending on his role and checkpoint of the case. */
 export class CaseActions implements ICaseActions {
+    /** User can assign the case to himself. */
     hasAssignment?: boolean;
+    /** User can remove the assignment of the case. */
     hasUnassignment?: boolean;
+    /** User can edit the case data. */
     hasEdit?: boolean;
+    /** User can approve/reject the case. */
     hasApproval?: boolean;
 
     constructor(data?: ICaseActions) {
@@ -2527,10 +3366,15 @@ export class CaseActions implements ICaseActions {
     }
 }
 
+/** The available actions for a user, depending on his role and checkpoint of the case. */
 export interface ICaseActions {
+    /** User can assign the case to himself. */
     hasAssignment?: boolean;
+    /** User can remove the assignment of the case. */
     hasUnassignment?: boolean;
+    /** User can edit the case data. */
     hasEdit?: boolean;
+    /** User can approve/reject the case. */
     hasApproval?: boolean;
 }
 
@@ -2598,23 +3442,87 @@ export interface ICaseAttachment {
     data?: string | undefined;
 }
 
+export class CaseAttachmentResultSet implements ICaseAttachmentResultSet {
+    count?: number;
+    items?: CaseAttachment[] | undefined;
+
+    constructor(data?: ICaseAttachmentResultSet) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.count = _data["count"];
+            if (Array.isArray(_data["items"])) {
+                this.items = [] as any;
+                for (let item of _data["items"])
+                    this.items!.push(CaseAttachment.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): CaseAttachmentResultSet {
+        data = typeof data === 'object' ? data : {};
+        let result = new CaseAttachmentResultSet();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["count"] = this.count;
+        if (Array.isArray(this.items)) {
+            data["items"] = [];
+            for (let item of this.items)
+                data["items"].push(item.toJSON());
+        }
+        return data;
+    }
+}
+
+export interface ICaseAttachmentResultSet {
+    count?: number;
+    items?: CaseAttachment[] | undefined;
+}
+
 /** Models case details. */
 export class CaseDetails implements ICaseDetails {
+    /** The Id of the case. */
     id?: string;
+    /** The current checkpoint of the case. */
     checkpointTypeId?: string;
     publicStatus?: CasePublicStatus;
+    /** The Id of the customer as provided from integration services (core or 3rd party). */
     customerId?: string | undefined;
+    /** The Id of the user as provided from our Identity server. */
     userId?: string | undefined;
+    /** The full name of the customer. */
     customerName?: string | undefined;
+    /** The created date of the case. */
     createdByWhen?: Date | undefined;
+    /** The Id of the user that created the case. */
+    createdById?: string | undefined;
     caseType?: CaseType;
+    /** The case metadata as provided from the client or integrator. */
     metadata?: { [key: string]: string; } | undefined;
+    /** The Id of the group the case belongs. */
     groupId?: string | undefined;
+    /** The current checkpoint type code for the case. */
     checkpointTypeCode?: string | undefined;
+    /** The json data of the case. */
     data?: string | undefined;
+    /** The name of the user that has the case assigned. */
     assignedToName?: string | undefined;
+    /** The channel of th case. */
     channel?: string | undefined;
+    /** Indicate if the case is in draft mode. */
     draft?: boolean;
+    /** The attachments of the case. */
     attachments?: CaseAttachment[] | undefined;
 
     constructor(data?: ICaseDetails) {
@@ -2635,6 +3543,7 @@ export class CaseDetails implements ICaseDetails {
             this.userId = _data["userId"];
             this.customerName = _data["customerName"];
             this.createdByWhen = _data["createdByWhen"] ? new Date(_data["createdByWhen"].toString()) : <any>undefined;
+            this.createdById = _data["createdById"];
             this.caseType = _data["caseType"] ? CaseType.fromJS(_data["caseType"]) : <any>undefined;
             if (_data["metadata"]) {
                 this.metadata = {} as any;
@@ -2673,6 +3582,7 @@ export class CaseDetails implements ICaseDetails {
         data["userId"] = this.userId;
         data["customerName"] = this.customerName;
         data["createdByWhen"] = this.createdByWhen ? this.createdByWhen.toISOString() : <any>undefined;
+        data["createdById"] = this.createdById;
         data["caseType"] = this.caseType ? this.caseType.toJSON() : <any>undefined;
         if (this.metadata) {
             data["metadata"] = {};
@@ -2698,21 +3608,37 @@ export class CaseDetails implements ICaseDetails {
 
 /** Models case details. */
 export interface ICaseDetails {
+    /** The Id of the case. */
     id?: string;
+    /** The current checkpoint of the case. */
     checkpointTypeId?: string;
     publicStatus?: CasePublicStatus;
+    /** The Id of the customer as provided from integration services (core or 3rd party). */
     customerId?: string | undefined;
+    /** The Id of the user as provided from our Identity server. */
     userId?: string | undefined;
+    /** The full name of the customer. */
     customerName?: string | undefined;
+    /** The created date of the case. */
     createdByWhen?: Date | undefined;
+    /** The Id of the user that created the case. */
+    createdById?: string | undefined;
     caseType?: CaseType;
+    /** The case metadata as provided from the client or integrator. */
     metadata?: { [key: string]: string; } | undefined;
+    /** The Id of the group the case belongs. */
     groupId?: string | undefined;
+    /** The current checkpoint type code for the case. */
     checkpointTypeCode?: string | undefined;
+    /** The json data of the case. */
     data?: string | undefined;
+    /** The name of the user that has the case assigned. */
     assignedToName?: string | undefined;
+    /** The channel of th case. */
     channel?: string | undefined;
+    /** Indicate if the case is in draft mode. */
     draft?: boolean;
+    /** The attachments of the case. */
     attachments?: CaseAttachment[] | undefined;
 }
 
@@ -2756,21 +3682,37 @@ export interface ICaseImage {
     mimeType?: string | undefined;
 }
 
+/** The partial model of a case. */
 export class CasePartial implements ICasePartial {
+    /** The Id of the case. */
     id?: string;
+    /** The current checkpoint of the case. */
     checkpointTypeId?: string;
     publicStatus?: CasePublicStatus;
+    /** The Id of the customer as provided from integration services (core or 3rd party). */
     customerId?: string | undefined;
+    /** The Id of the user as provided from our Identity server. */
     userId?: string | undefined;
+    /** The full name of the customer. */
     customerName?: string | undefined;
+    /** The created date of the case. */
     createdByWhen?: Date | undefined;
+    /** The Id of the user that created the case. */
+    createdById?: string | undefined;
     caseType?: CaseType;
+    /** The case metadata as provided from the client or integrator. */
     metadata?: { [key: string]: string; } | undefined;
+    /** The Id of the group the case belongs. */
     groupId?: string | undefined;
+    /** The current checkpoint type code for the case. */
     checkpointTypeCode?: string | undefined;
+    /** The json data of the case. */
     data?: string | undefined;
+    /** The name of the user that has the case assigned. */
     assignedToName?: string | undefined;
+    /** The channel of th case. */
     channel?: string | undefined;
+    /** Indicate if the case is in draft mode. */
     draft?: boolean;
 
     constructor(data?: ICasePartial) {
@@ -2791,6 +3733,7 @@ export class CasePartial implements ICasePartial {
             this.userId = _data["userId"];
             this.customerName = _data["customerName"];
             this.createdByWhen = _data["createdByWhen"] ? new Date(_data["createdByWhen"].toString()) : <any>undefined;
+            this.createdById = _data["createdById"];
             this.caseType = _data["caseType"] ? CaseType.fromJS(_data["caseType"]) : <any>undefined;
             if (_data["metadata"]) {
                 this.metadata = {} as any;
@@ -2824,6 +3767,7 @@ export class CasePartial implements ICasePartial {
         data["userId"] = this.userId;
         data["customerName"] = this.customerName;
         data["createdByWhen"] = this.createdByWhen ? this.createdByWhen.toISOString() : <any>undefined;
+        data["createdById"] = this.createdById;
         data["caseType"] = this.caseType ? this.caseType.toJSON() : <any>undefined;
         if (this.metadata) {
             data["metadata"] = {};
@@ -2842,21 +3786,37 @@ export class CasePartial implements ICasePartial {
     }
 }
 
+/** The partial model of a case. */
 export interface ICasePartial {
+    /** The Id of the case. */
     id?: string;
+    /** The current checkpoint of the case. */
     checkpointTypeId?: string;
     publicStatus?: CasePublicStatus;
+    /** The Id of the customer as provided from integration services (core or 3rd party). */
     customerId?: string | undefined;
+    /** The Id of the user as provided from our Identity server. */
     userId?: string | undefined;
+    /** The full name of the customer. */
     customerName?: string | undefined;
+    /** The created date of the case. */
     createdByWhen?: Date | undefined;
+    /** The Id of the user that created the case. */
+    createdById?: string | undefined;
     caseType?: CaseType;
+    /** The case metadata as provided from the client or integrator. */
     metadata?: { [key: string]: string; } | undefined;
+    /** The Id of the group the case belongs. */
     groupId?: string | undefined;
+    /** The current checkpoint type code for the case. */
     checkpointTypeCode?: string | undefined;
+    /** The json data of the case. */
     data?: string | undefined;
+    /** The name of the user that has the case assigned. */
     assignedToName?: string | undefined;
+    /** The channel of th case. */
     channel?: string | undefined;
+    /** Indicate if the case is in draft mode. */
     draft?: boolean;
 }
 
@@ -2908,7 +3868,7 @@ export interface ICasePartialResultSet {
     items?: CasePartial[] | undefined;
 }
 
-/** Define the status for the customer. It is defined at the Indice.AspNetCore.Features.Cases.Data.Models.DbCheckpointType.PublicStatus. */
+/** Define the status for the customer. It is defined at the Indice.Features.Cases.Data.Models.DbCheckpointType.PublicStatus. */
 export enum CasePublicStatus {
     Submitted = "Submitted",
     InProgress = "InProgress",
@@ -2916,13 +3876,19 @@ export enum CasePublicStatus {
     Deleted = "Deleted",
 }
 
+/** The case type model. */
 export class CaseType implements ICaseType {
+    /** The Id of the case type. */
     id?: string;
+    /** The case type code. */
     code?: string | undefined;
+    /** The case type title. */
     title?: string | undefined;
+    /** The case type json schema. */
     dataSchema?: string | undefined;
+    /** The layout for the data schema. */
     layout?: string | undefined;
-    /** Translations. */
+    /** The translations for the case type metadata (eg title). */
     translations?: { [key: string]: CaseTypeTranslation; } | undefined;
 
     constructor(data?: ICaseType) {
@@ -2976,14 +3942,60 @@ export class CaseType implements ICaseType {
     }
 }
 
+/** The case type model. */
 export interface ICaseType {
+    /** The Id of the case type. */
     id?: string;
+    /** The case type code. */
     code?: string | undefined;
+    /** The case type title. */
     title?: string | undefined;
+    /** The case type json schema. */
     dataSchema?: string | undefined;
+    /** The layout for the data schema. */
     layout?: string | undefined;
-    /** Translations. */
+    /** The translations for the case type metadata (eg title). */
     translations?: { [key: string]: CaseTypeTranslation; } | undefined;
+}
+
+/** The DTO for the CaseTypeSubscriptions for a user. */
+export class CaseTypeSubscription implements ICaseTypeSubscription {
+    /** Indicates if the user is subscribed to the current group. */
+    subscribed?: boolean;
+
+    constructor(data?: ICaseTypeSubscription) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.subscribed = _data["subscribed"];
+        }
+    }
+
+    static fromJS(data: any): CaseTypeSubscription {
+        data = typeof data === 'object' ? data : {};
+        let result = new CaseTypeSubscription();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["subscribed"] = this.subscribed;
+        return data;
+    }
+}
+
+/** The DTO for the CaseTypeSubscriptions for a user. */
+export interface ICaseTypeSubscription {
+    /** Indicates if the user is subscribed to the current group. */
+    subscribed?: boolean;
 }
 
 export class CaseTypeTranslation implements ICaseTypeTranslation {
@@ -3234,8 +4246,11 @@ export interface IComment {
     replyToComment?: Comment;
 }
 
+/** The response payload when creating a case. */
 export class CreateCaseResponse implements ICreateCaseResponse {
+    /** The Id of the case that created. */
     id?: string;
+    /** The created date of the case that created. */
     created?: Date;
 
     constructor(data?: ICreateCaseResponse) {
@@ -3269,11 +4284,15 @@ export class CreateCaseResponse implements ICreateCaseResponse {
     }
 }
 
+/** The response payload when creating a case. */
 export interface ICreateCaseResponse {
+    /** The Id of the case that created. */
     id?: string;
+    /** The created date of the case that created. */
     created?: Date;
 }
 
+/** The request payload for creating a new draft case. */
 export class CreateDraftCaseRequest implements ICreateDraftCaseRequest {
     /** The Case type code of the case. */
     caseTypeCode?: string | undefined;
@@ -3334,6 +4353,7 @@ export class CreateDraftCaseRequest implements ICreateDraftCaseRequest {
     }
 }
 
+/** The request payload for creating a new draft case. */
 export interface ICreateDraftCaseRequest {
     /** The Case type code of the case. */
     caseTypeCode?: string | undefined;
@@ -3346,7 +4366,47 @@ export interface ICreateDraftCaseRequest {
     channel?: string | undefined;
 }
 
-/** The customer response object that contains information from the integration system. Properties that have no direct mapping to this model can be added to Indice.AspNetCore.Features.Cases.Models.Responses.CustomerDetails.Metadata dictionary. */
+/** Customer Data as Json string */
+export class CustomerData implements ICustomerData {
+    /** The json data as string. */
+    formData?: string | undefined;
+
+    constructor(data?: ICustomerData) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.formData = _data["formData"];
+        }
+    }
+
+    static fromJS(data: any): CustomerData {
+        data = typeof data === 'object' ? data : {};
+        let result = new CustomerData();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["formData"] = this.formData;
+        return data;
+    }
+}
+
+/** Customer Data as Json string */
+export interface ICustomerData {
+    /** The json data as string. */
+    formData?: string | undefined;
+}
+
+/** The customer response object that contains information from the integration system. Properties that have no direct mapping to this model can be added to Indice.Features.Cases.Models.Responses.CustomerDetails.Metadata dictionary. */
 export class CustomerDetails implements ICustomerDetails {
     /** The Id of the customer as created to our Identity provider. */
     userId?: string | undefined;
@@ -3412,7 +4472,7 @@ export class CustomerDetails implements ICustomerDetails {
     }
 }
 
-/** The customer response object that contains information from the integration system. Properties that have no direct mapping to this model can be added to Indice.AspNetCore.Features.Cases.Models.Responses.CustomerDetails.Metadata dictionary. */
+/** The customer response object that contains information from the integration system. Properties that have no direct mapping to this model can be added to Indice.Features.Cases.Models.Responses.CustomerDetails.Metadata dictionary. */
 export interface ICustomerDetails {
     /** The Id of the customer as created to our Identity provider. */
     userId?: string | undefined;
@@ -3482,7 +4542,9 @@ export interface ICustomerMeta {
     fullName?: string | undefined;
 }
 
+/** The request payload with the edited data. */
 export class EditCaseRequest implements IEditCaseRequest {
+    /** The data in json string. */
     data?: string | undefined;
 
     constructor(data?: IEditCaseRequest) {
@@ -3514,8 +4576,104 @@ export class EditCaseRequest implements IEditCaseRequest {
     }
 }
 
+/** The request payload with the edited data. */
 export interface IEditCaseRequest {
+    /** The data in json string. */
     data?: string | undefined;
+}
+
+/** The lookup item model. */
+export class LookupItem implements ILookupItem {
+    /** The name or the key of the look up item */
+    name?: string | undefined;
+    /** The value of the lookup item */
+    value?: string | undefined;
+
+    constructor(data?: ILookupItem) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.name = _data["name"];
+            this.value = _data["value"];
+        }
+    }
+
+    static fromJS(data: any): LookupItem {
+        data = typeof data === 'object' ? data : {};
+        let result = new LookupItem();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["name"] = this.name;
+        data["value"] = this.value;
+        return data;
+    }
+}
+
+/** The lookup item model. */
+export interface ILookupItem {
+    /** The name or the key of the look up item */
+    name?: string | undefined;
+    /** The value of the lookup item */
+    value?: string | undefined;
+}
+
+export class LookupItemResultSet implements ILookupItemResultSet {
+    count?: number;
+    items?: LookupItem[] | undefined;
+
+    constructor(data?: ILookupItemResultSet) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.count = _data["count"];
+            if (Array.isArray(_data["items"])) {
+                this.items = [] as any;
+                for (let item of _data["items"])
+                    this.items!.push(LookupItem.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): LookupItemResultSet {
+        data = typeof data === 'object' ? data : {};
+        let result = new LookupItemResultSet();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["count"] = this.count;
+        if (Array.isArray(this.items)) {
+            data["items"] = [];
+            for (let item of this.items)
+                data["items"].push(item.toJSON());
+        }
+        return data;
+    }
+}
+
+export interface ILookupItemResultSet {
+    count?: number;
+    items?: LookupItem[] | undefined;
 }
 
 /** The model for the customer with the minimum required properties. */
@@ -3746,6 +4904,52 @@ export interface IProblemDetails {
     instance?: string | undefined;
 }
 
+/** The reject reason dto. */
+export class RejectReason implements IRejectReason {
+    /** The key of the reject reason. This key will be used in resources. */
+    key?: string | undefined;
+    /** The value of the reject reason. This will be translated into request language. */
+    value?: string | undefined;
+
+    constructor(data?: IRejectReason) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.key = _data["key"];
+            this.value = _data["value"];
+        }
+    }
+
+    static fromJS(data: any): RejectReason {
+        data = typeof data === 'object' ? data : {};
+        let result = new RejectReason();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["key"] = this.key;
+        data["value"] = this.value;
+        return data;
+    }
+}
+
+/** The reject reason dto. */
+export interface IRejectReason {
+    /** The key of the reject reason. This key will be used in resources. */
+    key?: string | undefined;
+    /** The value of the reject reason. This will be translated into request language. */
+    value?: string | undefined;
+}
+
 /** A class that represents a timeline entry for a case. */
 export class TimelineEntry implements ITimelineEntry {
     /** The timestamp. */
@@ -3804,7 +5008,9 @@ export interface ITimelineEntry {
     comment?: Comment;
 }
 
+/** The request to update the data of the case. */
 export class UpdateCaseRequest implements IUpdateCaseRequest {
+    /** The data in json string. */
     data?: string | undefined;
 
     constructor(data?: IUpdateCaseRequest) {
@@ -3836,7 +5042,9 @@ export class UpdateCaseRequest implements IUpdateCaseRequest {
     }
 }
 
+/** The request to update the data of the case. */
 export interface IUpdateCaseRequest {
+    /** The data in json string. */
     data?: string | undefined;
 }
 
