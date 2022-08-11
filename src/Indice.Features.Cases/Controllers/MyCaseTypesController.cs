@@ -30,7 +30,7 @@ namespace Indice.Features.Cases.Controllers
         /// Gets a case type by its code.
         /// </summary>
         /// <param name="caseTypeCode">The case type code.</param>
-        [ProducesResponseType(200, Type = typeof(CaseType))]
+        [ProducesResponseType(200, Type = typeof(CaseTypePartial))]
         [ProducesResponseType(400, Type = typeof(ValidationProblemDetails))]
         [ProducesResponseType(401, Type = typeof(ProblemDetails))]
         [ProducesResponseType(403, Type = typeof(ProblemDetails))]

@@ -4,9 +4,9 @@ using Indice.Types;
 namespace Indice.Features.Cases.Models.Responses
 {
     /// <summary>
-    /// The case type model.
+    /// The case type partial model.
     /// </summary>
-    public class CaseType
+    public class CaseTypePartial
     {
         /// <summary>
         /// The Id of the case type.
@@ -46,8 +46,8 @@ namespace Indice.Features.Cases.Models.Responses
         /// <param name="culture"></param>
         /// <param name="includeTranslations"></param>
         /// <returns></returns>
-        public CaseType Translate(string culture, bool includeTranslations) {
-            var type = (CaseType)MemberwiseClone();
+        public CaseTypePartial Translate(string culture, bool includeTranslations) {
+            var type = (CaseTypePartial)MemberwiseClone();
             if (!string.IsNullOrEmpty(culture) && Translations != null && Translations.TryGetValue(culture, out var translation)) {
                 type.Title = translation.Title;
             }

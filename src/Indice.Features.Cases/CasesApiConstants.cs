@@ -52,6 +52,11 @@ namespace Indice.Features.Cases
             /// A user must have the BeCasesUser role to be authorized for MyCases Feature 
             /// </summary>
             public const string BeCasesUser = nameof(BeCasesUser);
+
+            /// <summary>
+            /// A user must have the BeAdministrator role to be authorized for AdminCaseTypes Feature 
+            /// </summary>
+            public const string BeAdministrator = nameof(BeAdministrator);
         }
 
         /// <summary>

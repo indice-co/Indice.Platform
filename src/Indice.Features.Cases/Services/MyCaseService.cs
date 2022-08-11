@@ -196,13 +196,13 @@ namespace Indice.Features.Cases.Services
             return result;
         }
 
-        public async Task<CaseType> GetCaseType(string caseTypeCode) {
+        public async Task<CaseTypePartial> GetCaseType(string caseTypeCode) {
             var dbCaseType = await GetCaseTypeInternal(caseTypeCode);
             if (dbCaseType == null) {
                 throw new Exception("Case type not found."); // todo  proper exception & handle from problemConfig (NotFound)
             }
 
-            var caseType = new CaseType {
+            var caseType = new CaseTypePartial {
                 Code = dbCaseType.Code,
                 DataSchema = GetSingleOrMultiple(SchemaSelector, dbCaseType.DataSchema),
                 Layout = GetSingleOrMultiple(SchemaSelector, dbCaseType.Layout),

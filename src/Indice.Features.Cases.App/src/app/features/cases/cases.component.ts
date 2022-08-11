@@ -4,7 +4,7 @@ import { BaseListComponent, Icons, IResultSet, ListViewType, MenuOption, RouterV
 import { SearchOption } from '@indice/ng-components/lib/controls/advanced-search/models';
 import { forkJoin, Observable } from 'rxjs';
 import { map, take } from 'rxjs/operators';
-import { CasePartial, CasePartialResultSet, CasesApiService, CaseType } from 'src/app/core/services/cases-api.service';
+import { CasePartial, CasePartialResultSet, CasesApiService } from 'src/app/core/services/cases-api.service';
 
 @Component({
     selector: 'app-cases',
@@ -42,8 +42,9 @@ export class CasesComponent extends BaseListComponent<CasePartial> implements On
                     dataType: 'array',
                     options: [],
                     multiTerm: true
+
                 }
-                for (let caseType of caseTypes) { // fill caseTypeSearchOption's SelectInputOptions
+                for (let caseType of caseTypes.items!) { // fill caseTypeSearchOption's SelectInputOptions
                     caseTypeSearchOption.options?.push({ value: caseType.code, label: caseType?.title! })
                 }
                 const checkpointTypeSearchOption: SearchOption = {

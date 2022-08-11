@@ -52,7 +52,7 @@ namespace Indice.Features.Cases.Models.Responses
         /// <summary>
         /// The <see cref="CaseType"/> of the case.
         /// </summary>
-        public CaseType? CaseType { get; set; }
+        public CaseTypePartial? CaseType { get; set; }
 
         /// <summary>
         /// The case metadata as provided from the client or integrator.

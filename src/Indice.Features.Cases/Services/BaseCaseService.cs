@@ -70,7 +70,7 @@ namespace Indice.Features.Cases.Services
                 PublicStatus = latestCheckpoint.CheckpointType.PublicStatus,
                 CreatedByWhen = @case.CreatedBy.When,
                 CreatedById = @case.CreatedBy.Id,
-                CaseType = new CaseType {
+                CaseType = new CaseTypePartial {
                     Code = @case.CaseType.Code,
                     Title = @case.CaseType.Title,
                     Id = @case.CaseType.Id,

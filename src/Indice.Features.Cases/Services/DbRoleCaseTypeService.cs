@@ -117,7 +117,7 @@ namespace Indice.Features.Cases.Services
                        RoleName = c.RoleName,
                        CaseTypeId = c.CaseTypeId,
                        CheckpointTypeId = c.CheckpointTypeId,
-                       CaseType = new CaseType {
+                       CaseType = new CaseTypePartial {
                            Id = c.CaseTypeId,
                            Code = c.CaseType!.Code
                        },

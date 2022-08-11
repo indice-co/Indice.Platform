@@ -10,6 +10,10 @@ import { CasesComponent } from './features/cases/cases.component';
 import { CaseDetailPageComponent } from './features/cases/case-detail-page/case-detail-page.component';
 import { NotificationsComponent } from './features/notifications/notifications.component';
 import { CaseCreatePageComponent } from './features/cases/case-create-page/case-create-page.component';
+import { CaseTypesComponent } from './features/case-types/case-types.component';
+import { AdminGuardService } from './core/services/admin-guard.service';
+import { CaseTypeCreateComponent } from './features/case-types/case-type-create/case-type-create.component';
+import { CaseTypeEditComponent } from './features/case-types/case-type-edit/case-type-edit.component';
 
 const routes: Routes = [
   { path: 'auth-callback', component: AuthCallbackComponent },
@@ -28,7 +32,14 @@ const routes: Routes = [
           { path: 'details', component: CaseDetailPageComponent, data: { animation: 'three' } }
         ]
       },
-      
+      {
+        path: 'case-types', pathMatch: 'prefix', canActivate: [AdminGuardService],
+        children : [
+          { path: '', component: CaseTypesComponent },
+          { path: 'create', component: CaseTypeCreateComponent, pathMatch: 'full' },
+          { path: ':caseTypeId/edit', component: CaseTypeEditComponent, pathMatch: 'full'  }
+        ]
+      }
     ]
   },
   { path: 'notifications', canActivate: [AuthGuardService], component: NotificationsComponent }, 

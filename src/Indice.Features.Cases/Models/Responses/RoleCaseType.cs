@@ -28,9 +28,9 @@ namespace Indice.Features.Cases.Models.Responses
         public Guid CheckpointTypeId { get; set; }
 
         /// <summary>
-        /// The <see cref="CaseType"/> model.
+        /// The <see cref="CaseTypePartial"/> model.
         /// </summary>
-        public CaseType CaseType { get; set; }
+        public CaseTypePartial CaseType { get; set; }
 
         /// <summary>
         /// The <see cref="CheckpointType"/> model.

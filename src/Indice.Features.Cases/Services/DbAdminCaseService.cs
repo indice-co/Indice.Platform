@@ -109,7 +109,7 @@ namespace Indice.Features.Cases.Services
                     CustomerName = @case.Customer.FirstName + " " + @case.Customer.LastName, // concat like this to enable searching with "contains"
                     PublicStatus = @case.Checkpoints.OrderByDescending(ch => ch.CreatedBy.When).FirstOrDefault().CheckpointType.PublicStatus,
                     CreatedByWhen = @case.CreatedBy.When,
-                    CaseType = new CaseType {
+                    CaseType = new CaseTypePartial {
                         Id = @case.CaseType.Id,
                         Code = @case.CaseType.Code,
                         Title = @case.CaseType.Title,

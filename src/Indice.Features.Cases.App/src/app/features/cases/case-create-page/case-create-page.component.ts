@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { tap } from 'rxjs/operators';
-import { CasesApiService, CreateDraftCaseRequest, CustomerDetails, CustomerMeta, ICaseType } from 'src/app/core/services/cases-api.service';
+import { CasesApiService, CreateDraftCaseRequest, CustomerDetails, CustomerMeta } from 'src/app/core/services/cases-api.service';
 
 @Component({
   selector: 'app-case-create-page',

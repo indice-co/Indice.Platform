@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Indice.Features.Cases.Data.Models;
+using Indice.Features.Cases.Models;
 using Indice.Features.Cases.Models.Responses;
+using Indice.Types;
 
 namespace Indice.Features.Cases.Interfaces
 {
@@ -23,11 +25,13 @@ namespace Indice.Features.Cases.Interfaces
         /// </summary>
         /// <param name="id">The Id of the case type.</param>
         Task<DbCaseType> Get(Guid id);
-
+        
         /// <summary>
         /// Get the case type a user is authorized for.
         /// </summary>
-        /// <param name="user">The user.</param>
-        Task<List<CaseType>> Get(ClaimsPrincipal user);
+        Task<ResultSet<CaseTypePartial>> Get(ClaimsPrincipal user);
+        Task<CaseTypeDetails> GetCaseTypeDetailsById(Guid id);
+        Task<CaseTypeDetails> Update(CaseTypeRequest caseType);
+        Task Create(CaseTypeRequest caseType);
     }
 }

@@ -67,7 +67,7 @@ namespace Indice.Features.Cases.Services.CaseMessageService
             // Create a case details just for the authorization, with the min required properties
             var caseDetails = new CaseDetails {
                 Id = @case.Id,
-                CaseType = new CaseType {
+                CaseType = new CaseTypePartial {
                     Id = @case.CaseTypeId
                 },
                 GroupId = @case.GroupId,
