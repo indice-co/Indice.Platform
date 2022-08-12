@@ -1,0 +1,109 @@
+<div class="mt-auto pt-1 space-y-1 pl-1">
+    <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">Ιστορικό</h3>
+    <ol class="relative border-l border-gray-200 dark:border-gray-700">
+        <li *ngFor="let entry of timelineEntries"
+            class="mb-10 ml-6">
+            <span
+                  class="flex absolute -left-3 justify-center items-center w-6 h-6 bg-blue-200 rounded-full ring-8 ring-white dark:ring-gray-900 dark:bg-blue-900">
+                <svg *ngIf="entry.checkpoint"
+                     xmlns="http://www.w3.org/2000/svg"
+                     class="w-4 h-4"
+                     fill="currentColor"
+                     viewBox="0 0 24 24"
+                     stroke="currentColor"
+                     stroke-width="2">
+                    <path stroke-linecap="round"
+                          stroke-linejoin="round"
+                          d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+                </svg>
+                <svg *ngIf="entry.comment && !entry.comment?.attachment?.id"
+                     xmlns="http://www.w3.org/2000/svg"
+                     class="h-4 w-4"
+                     fill="none"
+                     viewBox="0 0 24 24"
+                     stroke="currentColor"
+                     stroke-width="2">
+                    <path stroke-linecap="round"
+                          stroke-linejoin="round"
+                          d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" />
+                </svg>
+                <svg *ngIf="entry.comment && entry.comment?.attachment?.id"
+                     xmlns="http://www.w3.org/2000/svg"
+                     class="h-4 w-4"
+                     fill="none"
+                     viewBox="0 0 24 24"
+                     stroke="currentColor"
+                     stroke-width="2">
+                    <path stroke-linecap="round"
+                          stroke-linejoin="round"
+                          d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
+                </svg>
+            </span>
+            <h3 class="flex items-center mb-1 text-lg font-semibold text-gray-900 dark:text-white">
+                <span *ngIf="entry.isCheckpoint">{{entry.checkpoint?.checkpointTypeCode | removePrefix}}</span>
+                <span *ngIf="entry.comment && !entry.comment?.attachment?.id">Σχόλιο</span>
+                <span *ngIf="entry.comment && entry.comment?.attachment?.id">Επισύναψη Αρχείου</span>
+                <span *ngIf="entry.checkpoint?.private"
+                      class="bg-blue-100 text-blue-800 text-sm font-medium mr-2 px-2.5 py-0.5 rounded dark:bg-blue-200 dark:text-blue-800 ml-3">Private</span>
+                <span *ngIf="entry.comment?.isCustomer"
+                      class="bg-blue-100 text-blue-800 text-sm font-medium mr-2 px-2.5 py-0.5 rounded dark:bg-blue-200 dark:text-blue-800 ml-3">Πελάτης</span>
+
+                <ng-container *ngTemplateOutlet="publicStatus;context:{status: entry.checkpoint?.publicStatus}">
+                </ng-container>
+            </h3>
+            <time class="block mb-2 text-sm font-normal leading-none text-gray-400 dark:text-gray-500"><span
+                      data-tooltip-target="tooltip-user"
+                      title=" {{entry.createdBy?.email}}">
+                    {{entry.createdBy?.name}} </span> @ {{entry.timestamp
+                | date:'dd/MM/yy, HH:mm'}}
+                <div id="tooltip-user"
+                     role="tooltip"
+                     class="inline-block absolute invisible z-10 py-2 px-3 text-sm font-medium text-white bg-dark-green rounded-lg shadow-sm opacity-0 transition-opacity duration-300 tooltip dark:bg-gray-700">
+                    {{entry.createdBy?.email}}
+                    <div class="tooltip-arrow"
+                         data-popper-arrow></div>
+                </div>
+            </time>
+            <div *ngIf="entry.comment?.text && !entry.comment?.attachment?.id"
+                 class="p-3 text-xs italic font-normal text-gray-500 bg-gray-50 rounded-lg border border-gray-200 dark:bg-gray-600 dark:border-gray-500 dark:text-gray-300">
+                {{entry.comment?.text}}
+            </div>
+            <div *ngIf="entry.comment?.attachment?.id">
+                <div>
+                    <button (click)="onAttachmentClick(entry.comment?.attachment?.id!)"
+                            class="inline-flex items-center py-2 px-4 text-sm font-medium text-gray-900 bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:outline-none focus:ring-gray-200 focus:text-blue-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700 dark:focus:ring-gray-700"><svg
+                             class="mr-2 w-4 h-4"
+                             fill="currentColor"
+                             viewBox="0 0 20 20"
+                             xmlns="http://www.w3.org/2000/svg">
+                            <path fill-rule="evenodd"
+                                  d="M6 2a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V7.414A2 2 0 0015.414 6L12 2.586A2 2 0 0010.586 2H6zm5 6a1 1 0 10-2 0v3.586l-1.293-1.293a1 1 0 10-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L11 11.586V8z"
+                                  clip-rule="evenodd"></path>
+                        </svg> Download </button>
+                </div>
+            </div>
+        </li>
+    </ol>
+</div>
+
+<ng-template #publicStatus
+             let-status="status">
+    <ng-container *ngIf="status !== null">
+        <span [ngClass]="{
+            'bg-blue-100 text-blue-800 rounded dark:bg-blue-200 dark:text-blue-800': status === 'Submitted',
+            'bg-yellow-100 text-yellow-800 dark:bg-yellow-200 dark:text-yellow-900': status === 'InProgress',
+            'bg-green-100 text-green-800 dark:bg-green-200 dark:text-green-900': status === 'Completed',
+            'bg-red-100 text-red-800 dark:bg-red-200 dark:text-red-900': status === 'Deleted'            
+        }"
+              class="ml-2 text-xs font-semibold mr-2 px-2.5 py-0.5 rounded"
+              data-tooltip-target="tooltip-public-status"
+              title="Status Πελάτη">{{status}}</span>
+        <div id="tooltip-public status"
+             role="tooltip"
+             class="inline-block absolute invisible z-10 py-2 px-3 text-sm font-medium text-white bg-dark-green rounded-lg shadow-sm opacity-0 transition-opacity duration-300 tooltip dark:bg-gray-700">
+            Status πελάτη
+            <div class="tooltip-arrow"
+                 data-popper-arrow></div>
+        </div>
+    </ng-container>
+</ng-template>

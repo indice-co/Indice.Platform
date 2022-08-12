@@ -1,0 +1,65 @@
+<div class="flex gap-6 mb-6 ">
+    <!-- <div>
+            <label class="block tracking-wide text-gray-700 text-xs font-bold mb-2"
+                   for="searchType">
+                Αναζήτηση με
+            </label>
+            <select [(ngModel)]="searchType"
+                    (ngModelChange)="searchValue = undefined"
+                    name="searchType"
+                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm
+focus:ring-blue-500 focus:border-blue-500 block w-full dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 
+dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                <option [ngValue]="'taxId'">ΑΦΜ</option>
+                <option [ngValue]="'customerId'">Αριθμό πελάτη</option>
+            </select>
+        </div> -->
+    <div>
+        <label class="block tracking-wide text-gray-700 text-xs font-bold mb-2" for="searchValue">
+            Αναζήτηση με Αριθμό Πελάτη
+        </label>
+        <input [(ngModel)]="searchValue" name="searchValue"
+            class="appearance-none block w-full text-gray-700 border border-gray-200 rounded leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
+            id="searchValue" type="number" placeholder="Εισάγετε αριθμό πελάτη">
+        <label class="block tracking-wide text-gray-700 text-xs font-bold mb-2" for="searchValue">
+            Αφορά μόνο φυσικά πρόσωπα
+        </label>
+    </div>
+    <div class="place-self-center">
+        <button (click)="onSearch()" class="btn-submit">
+            <svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="search" class="w-4" role="img"
+                xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+                <path fill="currentColor"
+                    d="M505 442.7L405.3 343c-4.5-4.5-10.6-7-17-7H372c27.6-35.3 44-79.7 44-128C416 93.1 322.9 0 208 0S0 93.1 0 208s93.1 208 208 208c48.3 0 92.7-16.4 128-44v16.3c0 6.4 2.5 12.5 7 17l99.7 99.7c9.4 9.4 24.6 9.4 33.9 0l28.3-28.3c9.4-9.4 9.4-24.6.1-34zM208 336c-70.7 0-128-57.2-128-128 0-70.7 57.2-128 128-128 70.7 0 128 57.2 128 128 0 70.7-57.2 128-128 128z">
+                </path>
+            </svg>
+            Αναζήτηση</button>
+    </div>
+</div>
+<ng-container *ngIf="results$ | async as results">
+    <fieldset >
+        <legend class="sr-only">Πελάτης</legend>
+        <div class="bg-white rounded-md -space-y-px">
+            <!-- Checked: "bg-gray-50 border-gray-200 z-10", Not Checked: "border-gray-200" -->
+            <label *ngFor="let customer of results; first as isFirst; last as isLast"
+                [ngClass]="{ 'relative border p-4 flex cursor-pointer focus:outline-none': true,  
+                             'bg-gray-50 border-gray-200 z-10': customer.selected,
+                             'focus:outline-none border-gray-200': !customer.selected, 
+                             'rounded-tl-md rounded-tr-md':isFirst,
+                             'rounded-bl-md rounded-br-md': isLast}">
+                <input type="radio" [name]="'customer'+customer.item.customerId" value="customer"
+                    (change)="onSelect(customer, results)" [checked]="customer.selected"
+                    class="h-4 w-4 mt-0.5 cursor-pointer shrink-0 text-gray-600 border-gray-300 focus:ring-gray-500"
+                    aria-labelledby="privacy-setting-0-label" aria-describedby="privacy-setting-0-description">
+                <span class="ml-3 flex flex-col">
+                    <span id="privacy-setting-0-label"
+                        [class]="customer.selected ? 'block text-sm font-medium text-gray-900' : 'block text-sm font-medium'">{{
+                        customer.item.firstName }} {{ customer.item.lastName }}</span>
+                    <span id="privacy-setting-0-description"
+                        [class]="customer.selected ? 'block text-sm text-gray-700' : 'block text-sm'"> Αριθμός πελάτη:
+                        {{customer.item.customerId}}, ΑΦΜ: {{customer.item.metadata?.TaxId}} </span>
+                </span>
+            </label>
+        </div>
+    </fieldset>
+</ng-container>

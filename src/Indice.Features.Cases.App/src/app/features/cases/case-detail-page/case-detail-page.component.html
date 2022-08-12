@@ -1,0 +1,86 @@
+<lib-view-layout [title]="'Λεπτομέρειες Αίτησης'"
+                 *ngIf="model$ | async as model">
+    <ng-container *ngIf="caseActions$ | async as caseActions">
+        <main class="details-view-container">
+            <div class="lg:grid lg:grid-cols-12 lg:gap-x-5">
+                <aside class="py-6 px-2 sm:px-6 lg:py-0 lg:px-0 lg:col-span-4 md:col-span-3">
+                    <section aria-labelledby="menu"
+                             class="min-w-full">
+                        <div class="bg-white shadow rounded-sm">
+                            <div class="flex flex-col justify-stretch bg-gray-50 border-b">
+                                <!-- model goes here-->
+                                <div class="flex items-center p-5">
+                                    <div class="whitespace-normal break-word">
+                                        <h3 class="text-lg leading-6 font-medium text-gray-900 mb-2">
+                                            Βασικά στοιχεία αίτησης
+                                        </h3>
+                                        <p class="text-s leading-none mb-2">Κωδικός Αίτησης: {{ model?.id }}</p>
+                                        <p class="text-s text-grey-dark mb-2">Ημ. Υποβολής: {{ model?.createdByWhen |
+                                            date:'dd/MM/YYYY' }}</p>
+                                        <p class="text-s text-grey-dark mb-2">Τύπος Αίτησης: {{ model?.caseType?.title
+                                            }}</p>
+                                        <p class="text-s text-grey-dark mb-2">Κανάλι: {{model?.channel}}</p>
+                                        <p class="text-s text-grey-dark mb-2">Κωδικός Πελάτη: {{ model?.customerId}}
+                                        </p>
+                                        <p class="text-s text-grey-dark mb-2">Όνομα Πελάτη: {{ model?.customerName
+                                            }}</p>
+                                        <p class="text-s text-grey-dark mb-2">Α.Φ.Μ. Πελάτη: {{ model?.metadata?.TaxId
+                                            }}</p>
+                                        <p class="text-s text-grey-dark mb-2">Κατάστημα Πελάτη: {{ model?.groupId
+                                            }}</p>
+                                        <p class="text-s text-grey-dark mb-2">Τρέχον Σημείο Ελέγχου: {{
+                                            model?.checkpointTypeCode | removePrefix }}</p>
+                                        <p class="text-s text-grey-dark mb-2">Ανάθεση σε: {{ model?.assignedToName || '
+                                            - ' }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-white shadow rounded-sm">
+                            <div class="mt-2 px-4 py-4 flow-root">
+                                <app-case-assignment [caseId]="model.id"
+                                                     [enabled]="caseActions.hasAssignment"
+                                                     (caseAssigned)="onActionsChanged()"></app-case-assignment>
+
+                                <!-- TODO: will we add unassignment button? -->
+                                <!-- <app-case-unassignment [enabled]="caseActions.hasUnassignment"></app-case-unassignment> -->
+                                <app-case-discard-draft [caseId]="model.id"
+                                                        [enabled]="model.draft"
+                                                        (caseDiscarded)="onCaseDiscarded()">
+                                </app-case-discard-draft>
+                                <app-case-print-pdf [caseId]="model.id"
+                                                    [enabled]="!model.draft"
+                                                    [buttonDisabled]="!formValid || formUnSavedChanges">
+                                </app-case-print-pdf>
+                            </div>
+                        </div>
+                        <div class="bg-white shadow rounded-sm">
+                            <ng-container *ngIf="timelineEntries$ | async as timelineEntries">
+                                <div class="mt-2 px-4 py-1 flow-root">
+                                    <app-case-timeline [timelineEntries]="timelineEntries"></app-case-timeline>
+                                </div>
+                            </ng-container>
+                        </div>
+                    </section>
+                </aside>
+                <div class="space-y-6 sm:px-6 lg:px-0 lg:col-span-8 md:col-span-9">
+                    <div class="bg-white shadow-sm rounded-sm"
+                         *ngIf="model">
+                        <div class="px-4 py-5 sm:px-6">
+                            <app-case-form [case]="model"
+                                           [formEditable]="caseActions.hasEdit"
+                                           (updateDataEvent)="updateData($event)"
+                                           (formIsValid)="isValid($event)"
+                                           (unSavedChanges)="formDataHasChanged($event)"></app-case-form>
+                            <app-approval-buttons [formUnSavedChanges]="formUnSavedChanges"
+                                                  [formValid]="formValid"
+                                                  [caseId]="model.id"
+                                                  [enabled]="caseActions.hasApproval">
+                            </app-approval-buttons>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </ng-container>
+</lib-view-layout>
