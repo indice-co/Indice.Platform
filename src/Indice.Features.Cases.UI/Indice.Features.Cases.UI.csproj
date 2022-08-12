@@ -42,7 +42,7 @@
     <None Remove="cases-ui-dist\index.html" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Indice.AspNetCore.EmbeddedUI" Version="6.0.0" />
+    <PackageReference Include="Indice.AspNetCore.EmbeddedUI" Version="6.0.1" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Indice.AspNetCore.EmbeddedUI\Indice.AspNetCore.EmbeddedUI.csproj" />

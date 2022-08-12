@@ -41,19 +41,20 @@
     <PackageReference Include="Elsa.Persistence.EntityFramework.SqlServer" Version="2.8.2" />
     <PackageReference Include="Elsa.Server.Api" Version="2.8.2" />
     <PackageReference Include="IdentityModel" Version="4.5.0" />
-    <PackageReference Include="Indice.AspNetCore" Version="6.1.7" />
-    <PackageReference Include="Indice.EntityFrameworkCore" Version="6.1.1" />
+    <PackageReference Include="Indice.AspNetCore" Version="6.1.12" />
+    <PackageReference Include="Indice.EntityFrameworkCore" Version="6.1.2" />
 
     <PackageReference Include="JsonSchema.Net" Version="2.4.0" />
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="5.0.17" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'net5.0'">
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="5.0.16" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="5.0.17" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'net6.0'">
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="6.0.5" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="6.0.8" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\icon\icon-310.png" Pack="true" Visible="false" PackagePath="" />
