@@ -1,0 +1,55 @@
+<lib-view-layout title="Αιτήσεις"
+                 [busy]="!items"
+                 [actions]="formActions"
+                 [meta-items]="metaItems"
+                 (onAction)="actionHandler($event)"
+                 (onSearch)="searchChanged($event)">
+    <lib-list-view [items]="items"
+                   [search-options]="searchOptions"
+                   [filters]="filters"
+                   [page]="page"
+                   [page-size]="pageSize"
+                   [count]="count"
+                   [sort-options]="sortOptions"
+                   [sort]="sort"
+                   [sort-dir]="sortdir"
+                   [busy]="!items"
+                   (advancedSearchChanged)="advancedSearchChanged($event)"
+                   (pageChanged)="pageChanged($event)"
+                   (pageSizeChanged)="pageSizeChanged($event)"
+                   (sortChanged)="sortChanged($event)"
+                   (sortdirChanged)="sortdirChanged($event)">
+        <lib-list-column title="ΚΩΔΙΚΟΣ ΠΕΛΑΤΗ">
+            <ng-template let-item>{{ item.customerId }}</ng-template>
+        </lib-list-column>
+        <lib-list-column title="ΟΝΟΜΑ ΠΕΛΑΤΗ">
+            <ng-template let-item>{{ item.customerName }}</ng-template>
+        </lib-list-column>
+        <lib-list-column title="Α.Φ.Μ. ΠΕΛΑΤΗ">
+            <ng-template let-item>{{ item.metadata?.TaxId }}</ng-template>
+        </lib-list-column>
+        <lib-list-column title="ΤΥΠΟΣ ΑΙΤΗΣΗΣ">
+            <ng-template let-item>{{ item.caseType.title }}</ng-template>
+        </lib-list-column>
+        <lib-list-column title="ΤΡΕΧΟΝ ΣΗΜΕΙΟ ΕΛΕΓΧΟΥ">
+            <ng-template let-item>{{ item.checkpointTypeCode | removePrefix }}</ng-template>
+        </lib-list-column>
+        <lib-list-column title="ΑΝΑΤΕΘΕΙΜΕΝΟ ΣΕ">
+            <ng-template let-item>{{ item.assignedToName || ' - '}}</ng-template>
+        </lib-list-column>
+        <lib-list-column title="ΗΜ. ΥΠΟΒΟΛΗΣ">
+            <ng-template let-item>{{ item.createdByWhen | date: 'dd/MM/yy, HH:mm' }}</ng-template>
+        </lib-list-column>
+        <lib-list-column>
+            <ng-template let-item>
+                <a href="#"
+                   [routerLinkActive]="['nav-link-profile-active']"
+                   [routerLinkActiveOptions]="{ exact: true }"
+                   [routerLink]="[item.id]"
+                   class="bg-dusty-orange hover:bg-dusty-orange-opacity text-white font-bold p-2 inline-flex rounded text-xs">
+                    <span>Επιλογή</span>
+                </a>
+            </ng-template>
+        </lib-list-column>
+    </lib-list-view>
+</lib-view-layout>

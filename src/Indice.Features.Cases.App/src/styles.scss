@@ -1,0 +1,171 @@
+@import "tailwindcss/base";
+@import "tailwindcss/components";
+@import "tailwindcss/utilities";
+@import "../node_modules/@indice/ng-components/_styles.css";
+
+@layer components {
+  .btn-submit {
+    @apply ml-3 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-gray-600 hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500;
+  }
+  // extend class that comes from our library in order to add padding for fluid display
+  .shell-content-container-inner-fluid {
+    @apply px-6;
+  }
+
+  .btn-info {
+    @apply inline-flex items-center px-2.5 py-1.5 border border-transparent text-xs font-medium rounded shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-1 focus:ring-offset-1 focus:ring-blue-500;
+  }
+
+  .btn-success {
+    @apply inline-flex items-center px-2.5 py-1.5 border border-transparent text-xs font-medium rounded shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-1 focus:ring-offset-1 focus:ring-green-500;
+  }
+
+  .btn-warning {
+    @apply inline-flex items-center px-2.5 py-1.5 border border-transparent text-xs font-medium rounded shadow-sm text-white bg-yellow-600 hover:bg-yellow-700 focus:outline-none focus:ring-1 focus:ring-offset-1 focus:ring-yellow-500;
+  }
+
+  .btn-error {
+    @apply inline-flex items-center px-2.5 py-1.5 border border-transparent text-xs font-medium rounded shadow-sm text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-1 focus:ring-offset-1 focus:ring-red-500;
+  }
+
+  .form-container {
+    input[type="text"] {
+      @apply appearance-none border rounded w-full mb-2 py-2 px-3 text-gray-700 leading-tight focus:outline-none ring-transparent focus:border-blue-300;
+    }
+
+    input[type="checkbox"] {
+      @apply appearance-none h-4 w-4 border border-gray-300 rounded-sm bg-white checked:bg-blue-600 checked:border-blue-600 focus:outline-none transition duration-200 mt-1 align-top bg-no-repeat bg-center bg-contain float-left mr-2 cursor-pointer;
+    }
+
+    input[type="submit"] {
+      @apply mt-3 btn-info;
+    }
+
+    input[type="submit"][disabled] {
+      @apply mt-3 btn-info opacity-50 cursor-not-allowed;
+    }
+
+    .hideContent {
+      display: none;
+    }
+
+    select[readonly] {
+      pointer-events: none;
+    }
+
+    // when we pass this for a boolean property (checkbox) in ajsf layout, the field will be "readonly", even in edit mode
+    .disableCheckbox {
+      pointer-events: none;
+    }
+  }
+}
+
+// "disableCheckbox" class is used so that ALL checkboxes of the case (booleans in schema) will be "disabled" in VIEW-ONLY mode
+div.form-container.disableCheckbox {
+  input[type="checkbox"] {
+    pointer-events: none;
+  }
+}
+
+.ng-invalid.ng-touched {
+  border: 1px solid #f44336;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+.code-editor {
+  background: #f4f4f4;
+  border: 1px solid #ddd;
+  border-left: 3px solid #f36d33;
+  color: #666;
+  page-break-inside: avoid;
+  font-family: monospace;
+  font-size: 15px;
+  line-height: 1.6;
+  max-width: 100%;
+  overflow: auto;
+  padding: 1em 1.5em;
+  display: block;
+  word-wrap: break-word;
+}
+
+.code-editor:focus {
+  outline: none;
+}
+
+.field-info {
+  margin-top: 0.2rem !important;
+  padding-top: 0.2rem !important;
+}
+
+.p-1 {
+  padding: 1rem;
+}
+
+.modal-actions-container {
+  display: flex;
+  flex-shrink: 0;
+  justify-content: flex-end;
+  --tw-bg-opacity: 1;
+  background-color: rgba(243, 244, 246, var(--tw-bg-opacity));
+  padding-left: 1rem;
+  padding-right: 1rem;
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.shell-header-container,
+.side-view-layout-container-inner {
+  background-image: unset;
+  background: theme("colors.darker-green");
+}
+.nav-link {
+  &:hover {
+    background-color: theme("colors.dark-green");
+  }
+}
+.nav-link-active {
+  background-color: theme("colors.dark-green");
+  color: theme("colors.white");
+  &:hover {
+    background-color: theme("colors.dark-green");
+  }
+}
+.avatar-text {
+  color: theme("colors.white");
+}
+.avatar-container {
+  --tw-ring-color: theme("colors.white");
+}
+
+.close {
+  &.pull-right {
+    padding-right: 1rem;
+    padding-left: 1rem;
+    border: 1;
+    border: #000;
+    border-style: solid;
+    border-width: 1px;
+  }
+}
+.list-group {
+  &.schema-form-array {
+    .legend {
+      display: none;
+    }
+  }
+}

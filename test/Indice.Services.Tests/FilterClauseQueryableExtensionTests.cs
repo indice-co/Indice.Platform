@@ -37,6 +37,7 @@ namespace Indice.Services.Tests
             var dbContext = ServiceProvider.GetRequiredService<DummyDbContext>();
 
             var filters = new List<FilterClause> {
+                //(FilterClause)"extras.id::eq::(integer)15",
                 (FilterClause)"data.displayName::contains::κων",
                 (FilterClause)$"data.period.to::gt::(DateTime){DateTime.Now:yyyy-MM-dd}",
                 (FilterClause)"metadata.NAME::eq::Thanos",
@@ -74,9 +75,9 @@ namespace Indice.Services.Tests
         public DummyDbContext(DbContextOptions<DummyDbContext> options) : base(options) {
             if (Database.EnsureCreated()) {
                 Dummies.AddRange(
-                    new Dummy { Name = "Κωνσταντίνος", Metadata = new Dictionary<string, string> { ["NAME"] = "Thanos", ["Surname"] = "Panos" } , Data = new DummyItem { DisplayName = "Κωνσταντίνος Θέρης", Enabled = true, Order = 7, BirthDate = new DateTime(1981, 01, 28), Balance = 100.0, Period = new Period { From = DateTime.Now.AddDays(-10), To = DateTime.Now.AddDays(10) } } },
-                    new Dummy { Name = "Γιώργος", Data = new DummyItem { DisplayName = "Γιώργος Τζάς", Enabled = false, Order = -14, BirthDate = new DateTime(1989, 10, 24), Balance = 360.23 } },
-                    new Dummy { Name = "Γιάννης", Metadata = new Dictionary<string, string> { ["NAME"] = "Thanos" }, Data = new DummyItem { DisplayName = "Γιάννης Νές", Enabled = true, Order = 2, BirthDate = new DateTime(1971, 12, 1), Balance = 1260.23 } }
+                    new Dummy { Name = "Κωνσταντίνος", Extras = new { Id = 5 }, Metadata = new Dictionary<string, string> { ["NAME"] = "Thanos", ["Surname"] = "Panos" } , Data = new DummyItem { DisplayName = "Κωνσταντίνος Θέρης", Enabled = true, Order = 7, BirthDate = new DateTime(1981, 01, 28), Balance = 100.0, Period = new Period { From = DateTime.Now.AddDays(-10), To = DateTime.Now.AddDays(10) } } },
+                    new Dummy { Name = "Γιώργος", Extras = new { Id = 15 }, Data = new DummyItem { DisplayName = "Γιώργος Τζάς", Enabled = false, Order = -14, BirthDate = new DateTime(1989, 10, 24), Balance = 360.23 } },
+                    new Dummy { Name = "Γιάννης", Extras = new { Id = 7 }, Metadata = new Dictionary<string, string> { ["NAME"] = "Thanos" }, Data = new DummyItem { DisplayName = "Γιάννης Νές", Enabled = true, Order = 2, BirthDate = new DateTime(1971, 12, 1), Balance = 1260.23 } }
                     );
                 SaveChanges();
             }
@@ -87,6 +88,7 @@ namespace Indice.Services.Tests
         protected override void OnModelCreating(ModelBuilder modelBuilder) {
             modelBuilder.Entity<Dummy>().HasKey(x => x.Id);
             modelBuilder.Entity<Dummy>().Property(x => x.Data).HasJsonConversion();
+            modelBuilder.Entity<Dummy>().Property(x => x.Extras).HasJsonConversion();
             modelBuilder.Entity<Dummy>().Property(x => x.Metadata).HasJsonConversion();
             modelBuilder.ApplyJsonFunctions();
             base.OnModelCreating(modelBuilder);
@@ -108,6 +110,7 @@ namespace Indice.Services.Tests
     {
         public Guid Id { get; set; }
         public string Name { get; set; }
+        public dynamic Extras { get; set; }
         public DummyItem Data { get; set; }
         public Dictionary<string, string> Metadata { get; set; }
     }

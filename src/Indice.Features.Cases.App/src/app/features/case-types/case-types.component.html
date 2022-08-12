@@ -1,0 +1,27 @@
+<lib-view-layout title="Λίστα Τύπων Αιτήσεων"
+                 [busy]="!items"
+                 [actions]="formActions"
+                 [meta-items]="metaItems">
+    <lib-list-view [items]="items"
+                   [count]="count"
+                   [busy]="!items"
+                   (pageSizeChanged)="pageSizeChanged($event)">
+        <lib-list-column title="ΤΙΤΛΟΣ">
+            <ng-template let-item>{{ item.title }}</ng-template>
+        </lib-list-column>
+        <lib-list-column title="ΚΩΔΙΚΟΣ">
+            <ng-template let-item>{{ item.code }}</ng-template>
+        </lib-list-column>
+        <lib-list-column>
+            <ng-template let-item>
+                <a href="#"
+                   [routerLinkActive]="['nav-link-profile-active']"
+                   [routerLinkActiveOptions]="{ exact: true }"
+                   [routerLink]="[item.id + '/edit']"
+                   class="bg-dusty-orange hover:bg-dusty-orange-opacity text-white font-bold p-2 inline-flex rounded text-xs">
+                    <span>Επεξεργασία</span>
+                </a>
+            </ng-template>
+        </lib-list-column>
+    </lib-list-view>
+</lib-view-layout>
