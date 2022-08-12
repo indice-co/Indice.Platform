@@ -5,8 +5,8 @@
     <LangVersion>Latest</LangVersion>
     <Nullable>disable</Nullable>
     <TargetFrameworks>netstandard2.1;net5.0;net6.0</TargetFrameworks>
-    <VersionPrefix>6.1.0</VersionPrefix>
-    <VersionSuffix>beta-08</VersionSuffix>
+    <VersionPrefix>6.1.3</VersionPrefix>
+    <!--<VersionSuffix>beta-10</VersionSuffix>-->
   </PropertyGroup>
   <PropertyGroup Label="Package">
     <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
@@ -32,8 +32,8 @@
     <PackageReference Include="FluentValidation" Version="10.4.0" />
     <PackageReference Include="Handlebars.Net" Version="2.1.2" />
     <PackageReference Include="IdentityModel" Version="6.0.0" />
-    <PackageReference Include="Indice.EntityFrameworkCore" Version="6.0.1" />
-    <PackageReference Include="Indice.Services" Version="6.1.1" />
+    <PackageReference Include="Indice.EntityFrameworkCore" Version="6.1.2" />
+    <PackageReference Include="Indice.Services" Version="6.1.9" />
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
   </ItemGroup>
   <ItemGroup>
@@ -41,13 +41,13 @@
     <ProjectReference Include="..\Indice.Services\Indice.Services.csproj" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'net6.0'">
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="6.0.4" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="6.0.8" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'net5.0'">
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="5.0.16" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="5.0.17" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.1'">
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="3.1.24" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="3.1.28" />
   </ItemGroup>
   <ItemGroup>
     <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
