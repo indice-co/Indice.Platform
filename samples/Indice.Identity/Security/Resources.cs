@@ -102,7 +102,7 @@ namespace Indice.Identity.Security
             new ApiScope("backoffice", "Backoffice API", _userClaims) {
                 Description = "Provides access to the backoffice operations."
             },
-            new ApiScope("backoffice:campaigns", "Campaigns API", _userClaims) {
+            new ApiScope("backoffice:messages", "Messages API", _userClaims) {
                 Description = "Provides access to campaign management operations."
             }
         };
@@ -123,7 +123,7 @@ namespace Indice.Identity.Security
                     new Secret("exTyrC9cVADKp5T8g24hEKVjpUsf9S8KQ7Zz4q7grPbd6JvNKzaZxPwzNbpcfHVP".ToSha256())
                 },
                 Description = "APIs backing the backoffice tool.",
-                Scopes = { "backoffice", "backoffice:campaigns" }
+                Scopes = { "backoffice", "backoffice:messages" }
             };
             return new[] { identityApi, backofficeApi };
         }

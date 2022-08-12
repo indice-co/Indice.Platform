@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Dynamic;
 using System.IO;
 using System.Linq;
 using System.Net.Mime;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
+using System.Text.Json;
 using System.Threading.Tasks;
 using IdentityModel;
 using IdentityServer4;
@@ -19,14 +21,18 @@ using Indice.AspNetCore.Identity.Api.Models;
 using Indice.AspNetCore.Identity.Api.Security;
 using Indice.AspNetCore.Identity.Data;
 using Indice.AspNetCore.Identity.Data.Models;
+using Indice.AspNetCore.Identity.Models;
 using Indice.Configuration;
+using Indice.Extensions;
 using Indice.Security;
+using Indice.Serialization;
 using Indice.Services;
 using Indice.Types;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Client = IdentityServer4.EntityFramework.Entities.Client;
 using ClientClaim = IdentityServer4.EntityFramework.Entities.ClientClaim;
@@ -52,14 +58,10 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
         private readonly GeneralSettings _generalSettings;
         private readonly IPlatformEventService _eventService;
         private readonly IdentityServerApiEndpointsOptions _apiEndpointsOptions;
-        /// <summary>
-        /// The name of the controller.
-        /// </summary>
+        /// <summary>The name of the controller.</summary>
         public const string Name = "Clients";
 
-        /// <summary>
-        /// Creates an instance of <see cref="ClientsController"/>.
-        /// </summary>
+        /// <summary>Creates an instance of <see cref="ClientsController"/>.</summary>
         /// <param name="configurationDbContext">Abstraction for the configuration context.</param>
         /// <param name="generalSettings">Applications general settings.</param>
         /// <param name="eventService">Models the event mechanism used to raise events inside the IdentityServer API.</param>
@@ -81,7 +83,7 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
         /// <summary>
         /// Returns a list of <see cref="ClientInfo"/> objects containing the total number of clients in the database and the data filtered according to the provided <see cref="ListOptions"/>.
         /// </summary>
-        /// <param name="options">List params used to navigate through collections. Contains parameters such as sort, search, page number and page size.</param>
+        /// <param name="options">List parameters used to navigate through collections. Contains parameters such as sort, search, page number and page size.</param>
         /// <response code="200">OK</response>
         [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme, Policy = IdentityServerApi.Policies.BeClientsReader)]
         [Consumes(MediaTypeNames.Application.Json)]
@@ -195,8 +197,8 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
                         Description = x.Description,
                         Expiration = x.Expiration
                     }),
-                    Translations = TranslationDictionary<ClientTranslation>.FromJson(x.Properties.Any(clientProperty => clientProperty.Key == IdentityServerApi.ObjectTranslationKey)
-                        ? x.Properties.Single(clientProperty => clientProperty.Key == IdentityServerApi.ObjectTranslationKey).Value
+                    Translations = TranslationDictionary<ClientTranslation>.FromJson(x.Properties.Any(clientProperty => clientProperty.Key == IdentityServerApi.PropertyKeys.Translation)
+                        ? x.Properties.Single(clientProperty => clientProperty.Key == IdentityServerApi.PropertyKeys.Translation).Value
                         : string.Empty)
                 })
                 .SingleOrDefaultAsync(x => x.ClientId == clientId);
@@ -293,11 +295,11 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
                 client.EnableLocalLogin = request.EnableLocalLogin.Value;
             }
             client.IdentityProviderRestrictions.RemoveAll(x => true);
-            client.IdentityProviderRestrictions.AddRange(request.IdentityProviderRestrictions.Select(provider => new ClientIdPRestriction { 
+            client.IdentityProviderRestrictions.AddRange(request.IdentityProviderRestrictions.Select(provider => new ClientIdPRestriction {
                 Provider = provider,
                 Client = client
             }));
-            var clientTranslations = client.Properties?.SingleOrDefault(x => x.Key == IdentityServerApi.ObjectTranslationKey);
+            var clientTranslations = client.Properties?.SingleOrDefault(x => x.Key == IdentityServerApi.PropertyKeys.Translation);
             if (clientTranslations is null) {
                 AddClientTranslations(client, request.Translations.ToJson());
             } else {
@@ -564,7 +566,7 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
         public async Task<IActionResult> AddClientSecret([FromRoute] string clientId, [FromBody] CreateSecretRequest request) {
             var client = await _configurationDbContext.Clients.SingleOrDefaultAsync(x => x.ClientId == clientId);
-            if (client == null) {
+            if (client is null) {
                 return NotFound();
             }
             var newSecret = new ClientSecret {
@@ -756,9 +758,7 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
             return NoContent();
         }
 
-        /// <summary>
-        /// Permanently deletes an existing client.
-        /// </summary>
+        /// <summary>Permanently deletes an existing client.</summary>
         /// <param name="clientId">The id of the client to delete.</param>
         /// <response code="204">No Content</response>
         /// <response code="404">Not Found</response>
@@ -775,6 +775,72 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
                 return NotFound();
             }
             _configurationDbContext.Clients.Remove(client);
+            await _configurationDbContext.SaveChangesAsync();
+            return NoContent();
+        }
+
+        /// <summary>Gets the UI configuration for the specified client.</summary>
+        /// <param name="clientId">The id of the client.</param>
+        /// <response code="400">Bad Request</response>
+        /// <response code="404">No Content</response>
+        [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme, Policy = IdentityServerApi.Policies.BeClientsWriter)]
+        [Consumes(MediaTypeNames.Application.Json)]
+        [HttpGet("{clientId}/theme")]
+        [Produces(MediaTypeNames.Application.Json)]
+        [ProducesResponseType(statusCode: StatusCodes.Status200OK, type: typeof(ClientThemeConfigResponse))]
+        [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest, type: typeof(ValidationProblemDetails))]
+        [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
+        public async Task<IActionResult> GetClientTheme([FromRoute] string clientId) {
+            var client = await _configurationDbContext
+                .Clients
+                .Include(x => x.Properties)
+                .Where(x => x.ClientId == clientId)
+                .SingleOrDefaultAsync();
+            if (client is null) {
+                ModelState.AddModelError(nameof(Client.Id), "Requested client does not exist.");
+                return BadRequest(new ValidationProblemDetails(ModelState));
+            }
+            var themeConfigResolver = HttpContext.RequestServices.GetRequiredService<ClientThemeConfigTypeResolver>();
+            var themeConfig = client.Properties.Where(x => x.Key == IdentityServerApi.PropertyKeys.ThemeConfig).FirstOrDefault();
+            return Ok(new ClientThemeConfigResponse {
+                Schema = themeConfigResolver.ResolveType().ToJsonSchema().AsJsonElement(),
+                Data = themeConfig is not null ? JsonSerializer.Deserialize<DefaultClientThemeConfig>(themeConfig.Value, JsonSerializerOptionDefaults.GetDefaultSettings()) : null
+            });
+        }
+
+        /// <summary>Creates or updates the ui configuration for the specified client.</summary>
+        /// <param name="clientId">The id of the client.</param>
+        /// <param name="request">The request data describing the configuration.</param>
+        /// <response code="204">No Content</response>
+        /// <response code="400">Bad Request</response>
+        [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme, Policy = IdentityServerApi.Policies.BeClientsWriter)]
+        [Consumes(MediaTypeNames.Application.Json)]
+        [HttpPut("{clientId}/theme")]
+        [Produces(MediaTypeNames.Application.Json)]
+        [ProducesResponseType(statusCode: StatusCodes.Status204NoContent, type: typeof(void))]
+        [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest, type: typeof(ValidationProblemDetails))]
+        public async Task<IActionResult> CreateOrUpdateClientTheme([FromRoute] string clientId, [FromBody] ClientThemeConfigRequest request) {
+            var client = await _configurationDbContext
+                .Clients
+                .Include(x => x.Properties)
+                .Where(x => x.ClientId == clientId)
+                .SingleOrDefaultAsync();
+            if (client is null) {
+                ModelState.AddModelError(nameof(Client.Id), "Requested client does not exist.");
+                return BadRequest(new ValidationProblemDetails(ModelState));
+            }
+            var themeConfig = client.Properties.Where(x => x.Key == IdentityServerApi.PropertyKeys.ThemeConfig).FirstOrDefault();
+            var themeConfigValue = JsonSerializer.Serialize(request, JsonSerializerOptionDefaults.GetDefaultSettings());
+            if (themeConfig is null) {
+                client.Properties.Add(new ClientProperty {
+                    Client = client,
+                    ClientId = client.Id,
+                    Key = IdentityServerApi.PropertyKeys.ThemeConfig,
+                    Value = themeConfigValue
+                });
+            } else {
+                themeConfig.Value = themeConfigValue;
+            }
             await _configurationDbContext.SaveChangesAsync();
             return NoContent();
         }
@@ -915,7 +981,7 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
         private static void AddClientTranslations(Client client, string translations) {
             client.Properties ??= new List<ClientProperty>();
             client.Properties.Add(new ClientProperty {
-                Key = IdentityServerApi.ObjectTranslationKey,
+                Key = IdentityServerApi.PropertyKeys.Translation,
                 Value = translations ?? string.Empty,
                 Client = client
             });

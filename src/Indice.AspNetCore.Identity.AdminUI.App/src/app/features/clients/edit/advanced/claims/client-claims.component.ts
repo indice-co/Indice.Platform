@@ -28,7 +28,7 @@ export class ClientClaimsComponent implements OnInit, OnDestroy {
         private _route: ActivatedRoute,
         private _clientStore: ClientStore,
         public utilities: UtilitiesService,
-        public _toast: ToastService,
+        private _toast: ToastService,
         private _authService: AuthService
     ) { }
 

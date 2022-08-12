@@ -1,0 +1,65 @@
+<lib-view-layout title="Campaigns"
+                 [busy]="!items"
+                 [actions]="actions"
+                 [meta-items]="metaItems"
+                 (onAction)="actionHandler($event)"
+                 (onSearch)="searchChanged($event)">
+    <lib-list-view [items]="items"
+                   [page]="page"
+                   [page-size]="pageSize"
+                   [count]="count"
+                   [sort-options]="sortOptions"
+                   [sort]="sort"
+                   [sort-dir]="sortdir"
+                   [busy]="!items"
+                   (pageChanged)="pageChanged($event)"
+                   (pageSizeChanged)="pageSizeChanged($event)"
+                   (sortChanged)="sortChanged($event)"
+                   (sortdirChanged)="sortdirChanged($event)">
+        <lib-list-column title="ΤΙΤΛΟΣ">
+            <ng-template let-item>{{ item.title }}</ng-template>
+        </lib-list-column>
+        <lib-list-column title="ΑΠΟ">
+            <ng-template let-item>{{ item.activePeriod?.from ? (item.activePeriod.from | date: 'medium') : '-' }}</ng-template>
+        </lib-list-column>
+        <lib-list-column title="ΕΩΣ">
+            <ng-template let-item>{{ item.activePeriod?.to ? (item.activePeriod.to | date: 'medium') : '-' }}</ng-template>
+        </lib-list-column>
+        <lib-list-column title="ΔΗΜΙΟΥΡΓΗΘΗΚΕ ΑΠΟ">
+            <ng-template let-item>{{ item.createdBy }}</ng-template>
+        </lib-list-column>
+        <lib-list-column title="ΔΗΜΙΟΥΡΓΗΘΗΚΕ">
+            <ng-template let-item>{{ item.createdAt | date: 'medium' }}</ng-template>
+        </lib-list-column>
+        <lib-list-column title="ΤΡΟΠΟΠΟΙΗΘΗΚΕ ΑΠΟ">
+            <ng-template let-item>{{ item.updatedBy || '-' }}</ng-template>
+        </lib-list-column>
+        <lib-list-column title="ΤΡΟΠΟΠΟΙΗΘΗΚΕ">
+            <ng-template let-item>{{ !item.updatedAt ? '-' : (item.updatedAt | date: 'medium') }}</ng-template>
+        </lib-list-column>
+        <lib-list-column title="ΔΗΜΟΣΙΕΥΜΕΝΗ"
+                         [full-width]="true">
+            <ng-template let-item>
+                <span [innerHtml]="item.published | beautifyBoolean"></span>
+            </ng-template>
+        </lib-list-column>
+        <lib-list-column title="ΕΝΕΡΓΕΙΕΣ">
+            <ng-template let-item>
+                <a title="Επεξεργασία campaign"
+                   [routerLink]="[item.id]"
+                   class="nav-link-profile"
+                   class="inline-flex items-center justify-center px-4 py-2 font-medium rounded-md sm:text-sm">
+                    <svg xmlns="http://www.w3.org/2000/svg"
+                         class="h-5 w-5"
+                         viewBox="0 0 20 20"
+                         fill="currentColor">
+                        <path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z" />
+                        <path fill-rule="evenodd"
+                              d="M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z"
+                              clip-rule="evenodd" />
+                    </svg>
+                </a>
+            </ng-template>
+        </lib-list-column>
+    </lib-list-view>
+</lib-view-layout>

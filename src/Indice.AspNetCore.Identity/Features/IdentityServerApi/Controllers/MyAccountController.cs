@@ -26,16 +26,13 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Microsoft.FeatureManagement.Mvc;
 using static IdentityServer4.IdentityServerConstants;
 
 namespace Indice.AspNetCore.Identity.Api.Controllers
 {
-    /// <summary>
-    /// Contains operations for managing a user's account.
-    /// </summary>
+    /// <summary>Contains operations for managing a user's account.</summary>
     /// <response code="401">Unauthorized</response>
     /// <response code="403">Forbidden</response>
     /// <response code="500">Internal Server Error</response>
@@ -63,9 +60,7 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
         private readonly IPersistedGrantStore _persistedGrantStore;
         private readonly IPersistentGrantSerializer _serializer;
 
-        /// <summary>
-        /// The name of the controller.
-        /// </summary>
+        /// <summary>The name of the controller.</summary>
         public const string Name = "MyAccount";
 
         public MyAccountController(
@@ -96,9 +91,7 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
             _serializer = serializer ?? throw new ArgumentNullException(nameof(serializer));
         }
 
-        /// <summary>
-        /// Updates the email of the current user.
-        /// </summary>
+        /// <summary>Updates the email of the current user.</summary>
         /// <param name="request">Models a request for changing the email address.</param>
         /// <response code="204">No Content</response>
         /// <response code="400">Bad Request</response>
@@ -124,28 +117,29 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
             if (!_identityServerApiEndpointsOptions.Email.SendEmailOnUpdate) {
                 return NoContent();
             }
-            if (_emailService == null) {
-                var message = $"No concrete implementation of {nameof(IEmailService)} is registered. " +
-                              $"Check {nameof(IndiceServicesServiceCollectionExtensions.AddEmailService)}, {nameof(ServiceCollectionExtensions.AddEmailServiceSmtpRazor)} or " +
-                              $"{nameof(ServiceCollectionExtensions.AddEmailServiceSparkpost)} extensions on {nameof(IServiceCollection)} or provide your own implementation.";
-                throw new Exception(message);
-            }
             var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-            var data = new User {
-                UserName = User.FindDisplayName() ?? user.UserName
-            };
-            await _emailService.SendAsync(message =>
-                message.To(user.Email)
-                       .WithSubject(_userManager.MessageDescriber.UpdateEmailMessageSubject)
-                       .WithBody(_userManager.MessageDescriber.UpdateEmailMessageBody(user, token, request.ReturnUrl))
-                       .UsingTemplate(_identityServerApiEndpointsOptions.Email.TemplateName)
-                       .WithData(data));
+            await _emailService.SendAsync(message => {
+                var builder = message
+                    .To(user.Email)
+                    .WithSubject(_userManager.MessageDescriber.UpdateEmailMessageSubject);
+                if (!string.IsNullOrWhiteSpace(_identityServerApiEndpointsOptions.Email.UpdateEmailTemplate)) {
+                    var data = new IdentityApiEmailData {
+                        DisplayName = User.FindDisplayName() ?? user.UserName,
+                        ReturnUrl = request.ReturnUrl,
+                        Subject = _userManager.MessageDescriber.UpdateEmailMessageSubject,
+                        Token = token,
+                        User = user
+                    };
+                    builder.UsingTemplate(_identityServerApiEndpointsOptions.Email.UpdateEmailTemplate)
+                           .WithData(data);
+                } else {
+                    builder.WithBody(_userManager.MessageDescriber.UpdateEmailMessageBody(user, token, request.ReturnUrl));
+                }
+            });
             return NoContent();
         }
 
-        /// <summary>
-        /// Confirms the email address of a given user.
-        /// </summary>
+        /// <summary>Confirms the email address of a given user.</summary>
         /// <param name="request"></param>
         /// <response code="204">No Content</response>
         /// <response code="400">Bad Request</response>
@@ -173,9 +167,7 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
             return NoContent();
         }
 
-        /// <summary>
-        /// Requests a phone number change for the current user.
-        /// </summary>
+        /// <summary>Requests a phone number change for the current user.</summary>
         /// <param name="request">Models a request for changing the phone number.</param>
         /// <response code="204">No Content</response>
         /// <response code="400">Bad Request</response>
@@ -210,9 +202,7 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
             return NoContent();
         }
 
-        /// <summary>
-        /// Confirms the phone number of the user, using the OTP token.
-        /// </summary>
+        /// <summary>Confirms the phone number of the user, using the OTP token.</summary>
         /// <param name="request">Models the request of a user for phone number confirmation.</param>
         /// <response code="204">No Content</response>
         /// <response code="400">Bad Request</response>
@@ -240,9 +230,7 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
             return NoContent();
         }
 
-        /// <summary>
-        /// Changes the username for the current user.
-        /// </summary>
+        /// <summary>Changes the username for the current user.</summary>
         /// <param name="request">Models a request for changing the username.</param>
         /// <response code="200">OK</response>
         /// <response code="400">Bad Request</response>
@@ -265,9 +253,7 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
             return Ok();
         }
 
-        /// <summary>
-        /// Changes the password for the current user, but requires the old password to be present.
-        /// </summary>
+        /// <summary>Changes the password for the current user, but requires the old password to be present.</summary>
         /// <param name="request">Contains info about the user password to change.</param>
         /// <response code="204">No Content</response>
         /// <response code="400">Bad Request</response>
@@ -309,13 +295,28 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
                 return NoContent();
             }
             var code = await _userManager.GeneratePasswordResetTokenAsync(user);
-            await _emailService.SendAsync(user.Email, _userManager.MessageDescriber.ForgotPasswordMessageSubject, _userManager.MessageDescriber.ForgotPasswordMessageBody(user, code));
+            var data = new IdentityApiEmailData {
+                DisplayName = User.FindDisplayName() ?? user.UserName,
+                ReturnUrl = request.ReturnUrl,
+                Subject = _userManager.MessageDescriber.ForgotPasswordMessageSubject,
+                Token = code,
+                User = user
+            };
+            await _emailService.SendAsync(message => {
+                var builder = message
+                    .To(user.Email)
+                    .WithSubject(_userManager.MessageDescriber.ForgotPasswordMessageSubject);
+                if (!string.IsNullOrWhiteSpace(_identityServerApiEndpointsOptions.Email.ForgotPasswordTemplate)) {
+                    builder.UsingTemplate(_identityServerApiEndpointsOptions.Email.ForgotPasswordTemplate)
+                           .WithData(data);
+                } else {
+                    builder.WithBody(_userManager.MessageDescriber.ForgotPasswordMessageBody(user, code));
+                }
+            });
             return NoContent();
         }
 
-        /// <summary>
-        /// Changes the password of the user confirming the code received during forgot password process.
-        /// </summary>
+        /// <summary>Changes the password of the user confirming the code received during forgot password process.</summary>
         /// <param name="request">Contains info about the user password to change.</param>
         /// <response code="204">No Content</response>
         /// <response code="400">Bad Request</response>
@@ -339,9 +340,7 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
             return NoContent();
         }
 
-        /// <summary>
-        /// Update the password expiration policy.
-        /// </summary>
+        /// <summary>Update the password expiration policy.</summary>
         /// <param name="request">Contains info about the chosen expiration policy.</param>
         /// <response code="204">No Content</response>
         /// <response code="404">Not Found</response>
@@ -357,9 +356,7 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
             return NoContent();
         }
 
-        /// <summary>
-        /// Gets the claims of the user.
-        /// </summary>
+        /// <summary>Gets the claims of the user.</summary>
         /// <response code="200">OK</response>
         /// <response code="404">Not Found</response>
         [HttpGet("my/account/claims")]
@@ -379,9 +376,7 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
             return Ok(new ResultSet<ClaimInfo>(response, response.Count()));
         }
 
-        /// <summary>
-        /// Gets the consents given by the user.
-        /// </summary>
+        /// <summary>Gets the consents given by the user.</summary>
         /// <response code="200">OK</response>
         /// <response code="404">Not Found</response>
         [HttpGet("my/account/grants")]
@@ -396,9 +391,7 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
             return Ok(consents.AsQueryable().ToResultSet(options));
         }
 
-        /// <summary>
-        /// Adds the requested claims on the current user's account.
-        /// </summary>
+        /// <summary>Adds the requested claims on the current user's account.</summary>
         /// <param name="claims">Contains info about the claims to create.</param>
         /// <response code="200">OK</response>
         /// <response code="400">Bad Request</response>
@@ -443,9 +436,7 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
             }));
         }
 
-        /// <summary>
-        /// Upserts the requested claims on the current user's account.
-        /// </summary>
+        /// <summary>Upserts the requested claims on the current user's account.</summary>
         /// <param name="claims">Contains info about the claims to create.</param>
         /// <response code="200">OK</response>
         /// <response code="400">Bad Request</response>
@@ -495,9 +486,7 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
             }));
         }
 
-        /// <summary>
-        /// Updates the specified claim for the current user.
-        /// </summary>
+        /// <summary>Updates the specified claim for the current user.</summary>
         /// <param name="claimId">The id of the user claim.</param>
         /// <param name="request">Contains info about the claims to update.</param>
         /// <response code="200">OK</response>
@@ -532,9 +521,7 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
             });
         }
 
-        /// <summary>
-        /// Permanently deletes current user's account.
-        /// </summary>
+        /// <summary>Permanently deletes current user's account.</summary>
         /// <response code="204">No Content</response>
         [HttpDelete("my/account")]
         [ProducesResponseType(statusCode: StatusCodes.Status204NoContent, type: typeof(void))]
@@ -544,9 +531,7 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
             return NoContent();
         }
 
-        /// <summary>
-        /// Gets the password options that are applied when the user creates an account.
-        /// </summary>
+        /// <summary>Gets the password options that are applied when the user creates an account.</summary>
         /// <response code="200">OK</response>
         [AllowAnonymous]
         [ResponseCache(Duration = 3600, Location = ResponseCacheLocation.Client)]
@@ -554,9 +539,7 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
         [ProducesResponseType(statusCode: StatusCodes.Status200OK, type: typeof(PasswordOptions))]
         public IActionResult GetPasswordOptions() => Ok(_identityOptions.Password);
 
-        /// <summary>
-        /// Checks if a username already exists in the database.
-        /// </summary>
+        /// <summary>Checks if a username already exists in the database.</summary>
         /// <response code="302">Found</response>
         /// <response code="400">Bad Request</response>
         /// <response code="404">Not Found</response>
@@ -579,9 +562,7 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
             return user == null ? NotFound() : StatusCode(StatusCodes.Status302Found);
         }
 
-        /// <summary>
-        /// Validates a user's password against one or more configured <see cref="IPasswordValidator{TUser}"/>.
-        /// </summary>
+        /// <summary>Validates a user's password against one or more configured <see cref="IPasswordValidator{TUser}"/>.</summary>
         /// <response code="200">OK</response>
         /// <response code="400">Bad Request</response>
         [AllowAnonymous]
@@ -618,9 +599,7 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
             return Ok(new CredentialsValidationInfo { PasswordRules = availableRules.Values.ToList() });
         }
 
-        /// <summary>
-        /// Self-service user registration endpoint.
-        /// </summary>
+        /// <summary>Self-service user registration endpoint.</summary>
         /// <response code="204">No Content</response>
         /// <response code="400">Bad Request</response>
         [FeatureGate(IdentityServerApiFeatures.PublicRegistration)]

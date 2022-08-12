@@ -1,12 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Dynamic;
 using System.Globalization;
 using System.Linq;
 using System.Security;
 using System.Security.Claims;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 using Indice.AspNetCore.Identity.Data.Models;
+using Indice.Serialization;
 using Indice.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Caching.Distributed;
@@ -15,9 +18,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Indice.AspNetCore.Identity
 {
-    /// <summary>
-    /// Used to generate, send and verify time based one time passwords.
-    /// </summary>
+    /// <summary>Used to generate, send and verify time based one time passwords.</summary>
     public class TotpService : ITotpService
     {
         private const int CacheExpirationInSeconds = 30;
@@ -29,9 +30,7 @@ namespace Indice.AspNetCore.Identity
         private readonly ILogger<TotpService> _logger;
         private readonly Rfc6238AuthenticationService _rfc6238AuthenticationService;
 
-        /// <summary>
-        /// Constructs the <see cref="TotpService"/>.
-        /// </summary>
+        /// <summary>Constructs the <see cref="TotpService"/>.</summary>
         /// <param name="userManager">Provides the APIs for managing user in a persistence store.</param>
         /// <param name="smsServiceFactory">Sms Service Factory</param>
         /// <param name="pushNotificationService">Push Notification service</param>
@@ -103,6 +102,14 @@ namespace Indice.AspNetCore.Identity
                     if (_pushNotificationService == null) {
                         throw new ArgumentNullException(nameof(_pushNotificationService), $"Cannot send push notification since there is no implementation of {nameof(IPushNotificationService)}.");
                     }
+                    var jsonSerializerOptions = JsonSerializerOptionDefaults.GetDefaultSettings();
+                    if (!string.IsNullOrWhiteSpace(data)) {
+                        var dataObject = JsonSerializer.Deserialize<ExpandoObject>(data, jsonSerializerOptions);
+                        dataObject.TryAdd("otp", token);
+                        data = JsonSerializer.Serialize(dataObject, jsonSerializerOptions);
+                    } else {
+                        data = JsonSerializer.Serialize(new { otp = token }, jsonSerializerOptions);
+                    }
                     await _pushNotificationService.SendAsync(builder =>
                         builder.To(user?.Id)
                                .WithToken(token)
@@ -147,9 +154,7 @@ namespace Indice.AspNetCore.Identity
             return totpResult;
         }
 
-        /// <summary>
-        /// Gets list of available providers for the given claims principal.
-        /// </summary>
+        /// <summary>Gets list of available providers for the given claims principal.</summary>
         /// <param name="principal">The user.</param>
         /// <exception cref="TotpServiceException">used to pass errors between service and the caller</exception>
         public async Task<Dictionary<string, TotpProviderMetadata>> GetProviders(ClaimsPrincipal principal) {

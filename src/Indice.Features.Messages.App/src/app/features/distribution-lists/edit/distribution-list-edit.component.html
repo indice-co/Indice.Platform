@@ -1,0 +1,24 @@
+<lib-side-view-layout title="Επεξεργασία λίστας" [ok-close-dialog]="false" [ok-label]="'Αποθήκευση'" [cancel-label]="'Κλείσιμο'" (ok)="submitButton.nativeElement.click()" [disabled]="!distributionListForm.valid || submitInProgress"
+    #sideViewLayout>
+    <div class="mt-4">
+        <form #distributionListForm="ngForm" (ngSubmit)="onSubmit()">
+            <div class="px-4 space-y-2 pb-4">
+                <div class="grid grid-cols-4 gap-4">
+                    <!-- Όνομα -->
+                    <div class="col-span-4">
+                        <label for="distributionListName" class="field-label">Όνομα (*)</label>
+                        <div class="mt-1 flex rounded-sm">
+                            <input type="text" name="distributionListName" id="distributionListName" [(ngModel)]="model.name" placeholder="Το όνομα του τύπου..." maxlength="128" required #distributionListName="ngModel">
+                        </div>
+                        <p *ngIf="distributionListName.invalid && (distributionListName.dirty || distributionListName.touched)" class="mt-2 text-sm text-red-600">
+                            <span *ngIf="distributionListName.errors!['required']">Παρακαλώ συμπληρώστε ένα όνομα.</span>
+                            <span *ngIf="distributionListName.errors!['maxlength']">Παρακαλώ συμπληρώστε ένα μικρότερο όνομα.</span>
+                        </p>
+                        <p class="field-info col-span-3">Η ονομασία με την οποία θα εμφανίζεται η λίστα διανομής.</p>
+                    </div>
+                </div>
+            </div>
+            <button type="submit" [style.visibility]="'hidden'" #submitBtn>Submit</button>
+        </form>
+    </div>
+</lib-side-view-layout>

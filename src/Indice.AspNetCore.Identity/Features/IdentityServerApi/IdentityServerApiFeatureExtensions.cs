@@ -6,6 +6,7 @@ using Indice.AspNetCore.Identity.Api.Filters;
 using Indice.AspNetCore.Identity.Api.Security;
 using Indice.AspNetCore.Identity.Data;
 using Indice.AspNetCore.Identity.Data.Models;
+using Indice.AspNetCore.Identity.Models;
 using Indice.Configuration;
 using Indice.Security;
 using Indice.Services;
@@ -53,12 +54,13 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddSingleton(apiEndpointsOptions);
             services.AddGeneralSettings(configuration);
             services.TryAddTransient<IPlatformEventService, PlatformEventService>();
+            services.TryAddScoped<IClientThemingService<DefaultClientThemeConfig>, ClientThemingService<DefaultClientThemeConfig>>();
             // Register validation filters.
             services.AddScoped<CreateClaimTypeRequestValidationFilter>();
             services.AddScoped<CreateRoleRequestValidationFilter>();
             // Add authorization policies that are used by the IdentityServer API.
             services.AddIdentityApiAuthorization();
-            // Configure antiforgery token options.
+            // Configure anti-forgery token options.
             services.Configure<AntiforgeryOptions>(options => options.HeaderName = CustomHeaderNames.AntiforgeryHeaderName);
             services.TryAddScoped<IdentityMessageDescriber>();
             // Try register the extended version of UserManager<User>.

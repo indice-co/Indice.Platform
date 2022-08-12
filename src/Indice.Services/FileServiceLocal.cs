@@ -8,7 +8,7 @@ using Indice.Extensions;
 namespace Indice.Services
 {
     /// <summary>
-    /// Local Filesystem implementation for <see cref="IFileService"/>
+    /// Local file system implementation for <see cref="IFileService"/>
     /// </summary>
     public class FileServiceLocal : IFileService
     {
@@ -87,7 +87,7 @@ namespace Indice.Services
         }
 
         /// <summary>
-        /// Gets the file metadata
+        /// Gets the file meta-data.
         /// </summary>
         /// <param name="filepath"></param>
         /// <returns></returns>
@@ -129,16 +129,16 @@ namespace Indice.Services
             }
             return exists;
         }
+    }
 
+    /// <summary>
+    /// File service options specific to File System local.
+    /// </summary>
+    public class FileServiceLocalOptions
+    {
         /// <summary>
-        /// File service options specific to File System local.
+        /// The path to use for storing the images. Can be a relative path or absolute. 
         /// </summary>
-        public class FileServiceOptions
-        {
-            /// <summary>
-            /// The path to use for storing the images. Can be a relative path or absolute. 
-            /// </summary>
-            public string Path { get; set; }
-        }
+        public string Path { get; set; } = "App_Data";
     }
 }

@@ -1,6 +1,6 @@
 ﻿using System;
-using Indice.Hosting.Tasks.Data;
-using Indice.Hosting.Tasks.Data.Models;
+using Indice.Hosting.Data;
+using Indice.Hosting.Data.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 

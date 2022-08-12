@@ -39,8 +39,7 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <param name="key"></param>
         /// <param name="implementationFactory"></param>
         /// <param name="serviceLifetime">Specifies the lifetime of a service in an <see cref="IServiceCollection"/>.</param>
-        public static IServiceCollection AddKeyedService<TService, TImplementation, TKey>(this IServiceCollection services, TKey key,
-            Func<IServiceProvider, TImplementation> implementationFactory, ServiceLifetime serviceLifetime)
+        public static IServiceCollection AddKeyedService<TService, TImplementation, TKey>(this IServiceCollection services, TKey key, Func<IServiceProvider, TImplementation> implementationFactory, ServiceLifetime serviceLifetime)
             where TService : class
             where TImplementation : class, TService {
             services.AddTransient(implementationFactory);
@@ -60,8 +59,7 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <param name="key"></param>
         /// <param name="serviceFactory"></param>
         /// <param name="serviceLifetime">Specifies the lifetime of a service in an <see cref="IServiceCollection"/>.</param>
-        public static IServiceCollection AddKeyedService<TService, TImplementation, TKey, TInjection>(this IServiceCollection services, TKey key,
-            Func<IServiceProvider, Func<TKey, TService>, TInjection> serviceFactory, ServiceLifetime serviceLifetime)
+        public static IServiceCollection AddKeyedService<TService, TImplementation, TKey, TInjection>(this IServiceCollection services, TKey key, Func<IServiceProvider, Func<TKey, TService>, TInjection> serviceFactory, ServiceLifetime serviceLifetime)
             where TService : class
             where TImplementation : class, TService
             where TInjection : class {
@@ -83,8 +81,7 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <param name="implementationFactory"></param>
         /// <param name="serviceFactory"></param>
         /// <param name="serviceLifetime">Specifies the lifetime of a service in an <see cref="IServiceCollection"/>.</param>
-        public static IServiceCollection AddKeyedService<TService, TImplementation, TKey, TInjection>(this IServiceCollection services, TKey key,
-            Func<IServiceProvider, TImplementation> implementationFactory, Func<IServiceProvider, Func<TKey, TService>, TInjection> serviceFactory, ServiceLifetime serviceLifetime)
+        public static IServiceCollection AddKeyedService<TService, TImplementation, TKey, TInjection>(this IServiceCollection services, TKey key, Func<IServiceProvider, TImplementation> implementationFactory, Func<IServiceProvider, Func<TKey, TService>, TInjection> serviceFactory, ServiceLifetime serviceLifetime)
             where TService : class
             where TImplementation : class, TService
             where TInjection : class {

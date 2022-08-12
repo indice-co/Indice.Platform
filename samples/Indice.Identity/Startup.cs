@@ -5,11 +5,11 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using Hellang.Middleware.ProblemDetails;
-using Indice.AspNetCore.Filters;
 using Indice.AspNetCore.Identity.Api.Events;
 using Indice.AspNetCore.Identity.Api.Security;
 using Indice.AspNetCore.Identity.Data;
 using Indice.AspNetCore.Identity.Localization;
+using Indice.AspNetCore.Middleware;
 using Indice.AspNetCore.Swagger;
 using Indice.Configuration;
 using Indice.Identity.Configuration;
@@ -87,7 +87,9 @@ namespace Indice.Identity
             services.AddIdentityServerConfig(HostingEnvironment, Configuration, Settings);
             services.AddProblemDetailsConfig(HostingEnvironment);
             services.ConfigureNonBreakingSameSiteCookies();
-            services.AddSmsServiceYuboto(Configuration);
+            services.AddSmsServiceYubotoOmni(Configuration);
+            services.AddEmailServiceSparkpost(Configuration)
+                    .WithMvcRazorRendering();
             services.AddSwaggerGen(options => {
                 options.IndiceDefaults(Settings);
                 options.AddFluentValidationSupport();
@@ -103,7 +105,7 @@ namespace Indice.Identity
 #endif
             services.AddResponseCaching();
             services.AddDataProtectionLocal(options => options.FromConfiguration());
-            services.AddEmailServiceSmtpRazor(Configuration);
+            services.AddClientThemingService();
             services.AddCsp(options => {
                 options.ScriptSrc = CSP.Self;
                 options.AddSandbox("allow-popups")
@@ -111,11 +113,11 @@ namespace Indice.Identity
                        .AddFontSrc(CSP.Data)
                        .AddConnectSrc(CSP.Self)
                        .AddConnectSrc("https://dc.services.visualstudio.com")
-                       .AddConnectSrc("https://switzerlandnorth-0.in.applicationinsights.azure.com//v2/track")
+                       .AddConnectSrc("https://switzerlandnorth-0.in.applicationinsights.azure.com")
                        .AddFrameAncestors("https://localhost:2002");
             });
             services.AddPlatformEventHandler<DeviceDeletedEvent, DeviceDeletedEventHandler>();
-            services.AddClientIpRestrinctions();
+            //services.AddClientIpRestrinctions();
             //services.AddClientIpRestrinctions(options => {
             //    options.StatusCodeOnAccessDenied = System.Net.HttpStatusCode.NotFound;
             //    options.AddIpAddressList("MyWhiteList", "127.0.0.1;192.168.1.5;::1");
@@ -137,7 +139,7 @@ namespace Indice.Identity
                 app.UseHsts();
                 app.UseHttpsRedirection();
             }
-            app.UseClientIpRestrictions();
+            //app.UseClientIpRestrictions();
             var staticFileOptions = new StaticFileOptions {
                 OnPrepareResponse = context => {
                     const int durationInSeconds = 60 * 60 * 24;

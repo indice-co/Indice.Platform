@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
+using Indice.Features.Messages.Worker.Azure;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 
@@ -17,9 +19,18 @@ namespace Indice.Functions
             })
             .ConfigureFunctionsWorkerDefaults(builder => { })
             .ConfigureServices(services => { })
-            .ConfigureCampaigns(options => {
-                //options.UsePushNotificationServiceAzure();
-                options.UseEventDispatcherAzure();
+            .ConfigureMessages((configuration, options) => {
+                options.ConfigureDbContext = builder => builder.UseSqlServer(configuration.GetConnectionString("MessagesDb"));
+                options.DatabaseSchema = "cmp";
+                options.UseEventDispatcherAzure()
+                       .UsePushNotificationServiceAzure()
+                       .UseEmailServiceSparkpost(configuration)
+                       .UseSmsServiceYubotoOmni(configuration)
+                       .UseIdentityContactResolver(resolverOptions => {
+                           resolverOptions.BaseAddress = new Uri(configuration["IdentityServer:BaseAddress"]);
+                           resolverOptions.ClientId = configuration["IdentityServer:ClientId"];
+                           resolverOptions.ClientSecret = configuration["IdentityServer:ClientSecret"];
+                       });
             })
             .UseEnvironment(Environment.GetEnvironmentVariable("ENVIRONMENT"));
             // Build host and run.

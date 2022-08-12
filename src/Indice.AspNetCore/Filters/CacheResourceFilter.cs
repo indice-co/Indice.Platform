@@ -1,9 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Security.Claims;
 using System.Text.Json;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using Indice.Configuration;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -14,53 +16,59 @@ using Microsoft.Extensions.Options;
 
 namespace Indice.AspNetCore.Filters
 {
-    /// <summary>
-    /// A resource filter used to short-circuit most of the pipeline if the response is already cached.
-    /// </summary>
-    public sealed class CacheResourceFilter : IResourceFilter
+    /// <summary>A resource filter used to short-circuit most of the pipeline if the response is already cached.</summary>
+    public sealed class CacheResourceFilter : IAsyncResourceFilter
     {
         private readonly IDistributedCache _cache;
         // Invoke the same JSON serializer settings that are used by the output formatter, so we can save objects in the cache in the exact same manner.
         private readonly JsonSerializerOptions _jsonSerializerOptions;
         private readonly CacheResourceFilterOptions _cacheResourceFilterOptions;
+        private readonly ICacheResourceFilterKeyExtensionResolver _keyExtensionResolver;
         private readonly string[] _dependentPaths;
         private readonly string[] _dependentStaticPaths;
         private readonly int _expiration;
         private readonly string[] _varyByClaimType;
         private string _cacheKey;
 
-        /// <summary>
-        /// Constructs a <see cref="CacheResourceFilter"/>.
-        /// </summary>
+        /// <summary>Constructs a <see cref="CacheResourceFilter"/>.</summary>
         /// <param name="cache">Represents a distributed cache of serialized values.</param>
         /// <param name="jsonOptions">Provides programmatic configuration for JSON in the MVC framework.</param>
         /// <param name="cacheResourceFilterOptions">Options for the <see cref="CacheResourceFilter"/>.</param>
+        /// <param name="keyExtensionResolver">An optional extension to the cache key discriminator that will be created inside on th <see cref="CacheResourceFilter"/>.</param>
         /// <param name="dependentPaths">Parent paths of the current method that must be invalidated. Path template variables must match by name.</param>
         /// <param name="dependentStaticPaths">Dependent static path that must be invalidated along with this resource.</param>
         /// <param name="expiration">The absolute expiration in minutes of the cache item, expressed as an <see cref="int"/>. Defaults to 60 minutes.</param>
         /// <param name="varyByClaimType">The claim to use which value is included in the cache key.</param>
-        public CacheResourceFilter(IDistributedCache cache, IOptions<JsonOptions> jsonOptions, IOptions<CacheResourceFilterOptions> cacheResourceFilterOptions, string[] dependentPaths, string[] dependentStaticPaths, int expiration, string[] varyByClaimType) {
+        public CacheResourceFilter(
+            IDistributedCache cache,
+            IOptions<JsonOptions> jsonOptions,
+            IOptions<CacheResourceFilterOptions> cacheResourceFilterOptions,
+            IEnumerable<ICacheResourceFilterKeyExtensionResolver> keyExtensionResolver,
+            string[] dependentPaths,
+            string[] dependentStaticPaths,
+            int expiration,
+            string[] varyByClaimType
+        ) {
             _cache = cache ?? throw new ArgumentNullException(nameof(cache));
             _jsonSerializerOptions = jsonOptions?.Value?.JsonSerializerOptions ?? throw new ArgumentNullException(nameof(jsonOptions));
             _cacheResourceFilterOptions = cacheResourceFilterOptions?.Value ?? throw new ArgumentNullException(nameof(cacheResourceFilterOptions));
+            _keyExtensionResolver = keyExtensionResolver?.FirstOrDefault(); // this is optional do not throw argument null exception!
             _dependentPaths = dependentPaths ?? Array.Empty<string>();
             _dependentStaticPaths = dependentStaticPaths ?? Array.Empty<string>();
             _expiration = expiration;
             _varyByClaimType = varyByClaimType;
         }
 
-        /// <summary>
-        /// Can run code before the rest of the filter pipeline. For example, <see cref="OnResourceExecuting(ResourceExecutingContext)"/> can run code before model binding.
-        /// </summary>
-        /// <param name="context">A context for resource filters, specifically <see cref="OnResourceExecuting(ResourceExecutingContext)"/> calls.</param>
-        public void OnResourceExecuting(ResourceExecutingContext context) {
+        /// <summary>Can run code before the rest of the filter pipeline. For example, <see cref="OnResourceExecutingAsync(ResourceExecutingContext)"/> can run code before model binding.</summary>
+        /// <param name="context">A context for resource filters, specifically <see cref="OnResourceExecutingAsync(ResourceExecutingContext)"/> calls.</param>
+        public async Task OnResourceExecutingAsync(ResourceExecutingContext context) {
             if (_cacheResourceFilterOptions.DisableCache) {
                 return;
             }
             var httpContext = context.HttpContext;
             var request = httpContext.Request;
             _cacheKey = $"{request.Path}{(request.QueryString.HasValue ? request.QueryString.Value : string.Empty)}";
-            _cacheKey = AddCacheKeyDiscriminator(context.HttpContext, _cacheKey);
+            _cacheKey = await AddCacheKeyDiscriminatorAsync(context.HttpContext, _cacheKey);
             var requestMethod = request.Method;
             var cachedValue = _cache.GetString(_cacheKey);
             // If there is a cached response for this path and the request method is of type 'GET', then break the pipeline and send the cached response.
@@ -69,11 +77,9 @@ namespace Indice.AspNetCore.Filters
             }
         }
 
-        /// <summary>
-        /// Can run code after the rest of the pipeline has completed.
-        /// </summary>
-        /// <param name="context">A context for resource filters, specifically <see cref="OnResourceExecuted(ResourceExecutedContext)"/> calls.</param>
-        public void OnResourceExecuted(ResourceExecutedContext context) {
+        /// <summary>Can run code after the rest of the pipeline has completed.</summary>
+        /// <param name="context">A context for resource filters, specifically <see cref="OnResourceExecutedAsync(ResourceExecutedContext)"/> calls.</param>
+        public async Task OnResourceExecutedAsync(ResourceExecutedContext context) {
             if (_cacheResourceFilterOptions.DisableCache) {
                 return;
             }
@@ -124,44 +130,53 @@ namespace Indice.AspNetCore.Filters
                             nextMatch = nextMatch.NextMatch();
                             hasNextMatch = nextMatch.Success;
                         }
-                        _cache.Remove(AddCacheKeyDiscriminator(context.HttpContext, dependentKey));
+                        _cache.Remove(await AddCacheKeyDiscriminatorAsync(context.HttpContext, dependentKey));
                     }
                     foreach (var path in _dependentStaticPaths) {
                         var dependentKey = path.StartsWith("/") ? path : $"/{path}";
-                        _cache.Remove(AddCacheKeyDiscriminator(context.HttpContext, dependentKey));
+                        _cache.Remove(await AddCacheKeyDiscriminatorAsync(context.HttpContext, dependentKey));
                     }
                 }
             }
         }
 
-        private string AddCacheKeyDiscriminator(HttpContext httpContext, string keyMainPart) {
+        /// <inheritdoc/>
+        public async Task OnResourceExecutionAsync(ResourceExecutingContext context, ResourceExecutionDelegate next) {
+            await OnResourceExecutingAsync(context);
+            if (context.Result is null) {
+                var executedContext = await next();
+                await OnResourceExecutedAsync(executedContext);
+            }
+        }
+
+        private async Task<string> AddCacheKeyDiscriminatorAsync(HttpContext httpContext, string keyMainPart) {
             if (_varyByClaimType.Length > 0) {
-                var claimValues = _varyByClaimType.Select(claim => httpContext.User.FindFirstValue(claim));
+                var claimValues = _varyByClaimType.Select(claim => $"{claim}:{httpContext.User.FindFirstValue(claim)}");
                 if (claimValues.Any()) {
-                    return $"{keyMainPart}|{string.Join('|', claimValues)}";
+                    keyMainPart = $"{keyMainPart}|{string.Join('|', claimValues)}";
+                }
+            }
+            if (_keyExtensionResolver is not null) {
+                var keyExtension = await _keyExtensionResolver.ResolveCacheKeyExtensionAsync(httpContext, keyMainPart);
+                if (keyExtension is not null) {
+                    keyMainPart = $"{keyMainPart}|{keyExtension}";
                 }
             }
             return keyMainPart;
         }
     }
 
-    /// <summary>
-    /// An attribute that is used to indicate that a controller or method should not cache the response.
-    /// </summary>
+    /// <summary>An attribute that is used to indicate that a controller or method should not cache the response.</summary>
     /// <remarks>Do not use this attribute together with <see cref="CacheResourceFilterAttribute"/> since the latter will have no effect.</remarks>
     [AttributeUsage(validOn: AttributeTargets.Method)]
     public sealed class NoCacheAttribute : Attribute { }
 
-    /// <summary>
-    /// A type filter attribute for <see cref="CacheResourceFilter"/>.
-    /// </summary>
+    /// <summary>A type filter attribute for <see cref="CacheResourceFilter"/>.</summary>
     /// <remarks>https://docs.microsoft.com/en-us/aspnet/core/mvc/controllers/filters#typefilterattribute</remarks>
     [AttributeUsage(validOn: AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = false)]
     public sealed class CacheResourceFilterAttribute : TypeFilterAttribute
     {
-        /// <summary>
-        /// Creates a new instance of <see cref="CacheResourceFilterAttribute"/>.
-        /// </summary>
+        /// <summary>Creates a new instance of <see cref="CacheResourceFilterAttribute"/>.</summary>
         public CacheResourceFilterAttribute() : base(typeof(CacheResourceFilter)) {
             Arguments = new object[4];
             DependentPaths = Array.Empty<string>();
@@ -170,33 +185,38 @@ namespace Indice.AspNetCore.Filters
             VaryByClaimType = Array.Empty<string>();
         }
 
-        /// <summary>
-        /// Parent paths of the current method that must be invalidated. Path template variables must match by name.
-        /// </summary>
+        /// <summary>Parent paths of the current method that must be invalidated. Path template variables must match by name.</summary>
         public string[] DependentPaths {
             get => (string[])Arguments[0];
             set => Arguments[0] = value;
         }
-        /// <summary>
-        /// Dependent static path that must be invalidated along with this resource.
-        /// </summary>
+        /// <summary>Dependent static path that must be invalidated along with this resource.</summary>
         public string[] DependentStaticPaths {
             get => (string[])Arguments[1];
             set => Arguments[1] = value;
         }
-        /// <summary>
-        /// The absolute expiration in minutes of the cache item, expressed as an <see cref="int"/>. Defaults to 60 minutes.
-        /// </summary>
+        /// <summary>The absolute expiration in minutes of the cache item, expressed as an <see cref="int"/>. Defaults to 60 minutes.</summary>
         public int Expiration {
             get => (int)(Arguments[2] ?? 0);
             set => Arguments[2] = value;
         }
-        /// <summary>
-        /// The claim to use which value is included in the cache key.
-        /// </summary>
+        /// <summary>The claim to use which value is included in the cache key.</summary>
         public string[] VaryByClaimType {
             get => (string[])Arguments[3];
             set => Arguments[3] = value;
         }
+    }
+
+    /// <summary>An optional extension to the cache key discriminator that will be created inside on th <see cref="CacheResourceFilter"/>.</summary>
+    /// <remarks>Use only in case the default functionality is not enough.</remarks>
+    public interface ICacheResourceFilterKeyExtensionResolver
+    {
+        /// <summary>
+        /// Will return custom cache key extension based on the current request or null.
+        /// </summary>
+        /// <param name="httpContext">The current request <see cref="HttpContext"/></param>
+        /// <param name="cacheKey">The current key</param>
+        /// <remarks>Only return the custom/extension part of the key <b>do not recreate the whole thing</b>.</remarks>
+        public Task<string> ResolveCacheKeyExtensionAsync(HttpContext httpContext, string cacheKey);
     }
 }

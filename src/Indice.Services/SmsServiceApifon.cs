@@ -113,11 +113,7 @@ namespace Indice.Services
         /// Get default Json Serializer Options: CamelCase, ignore null values.
         /// </summary>
         protected static JsonSerializerOptions GetJsonSerializerOptions() => new JsonSerializerOptions {
-#if NET5_0_OR_GREATER
-                DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
-#else
-            IgnoreNullValues = true,
-#endif
+            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase
         };
     }
@@ -211,11 +207,7 @@ namespace Indice.Services
         /// </summary>
         public string ToJson() => JsonSerializer.Serialize(this, new JsonSerializerOptions {
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-#if NET5_0_OR_GREATER
             DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
-#else
-            IgnoreNullValues = true
-#endif
         });
 
         public string Sign(string secretKey, string method, string uri) {

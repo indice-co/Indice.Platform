@@ -24,9 +24,9 @@ namespace Indice.Hosting
         /// <summary>
         /// Creates a new instance of <see cref="WorkerHostedService"/>.
         /// </summary>
-        /// <param name="schedulerFactory">rovides a mechanism for obtaining client-usable handles to <see cref="IScheduler"/> instances.</param>
+        /// <param name="schedulerFactory">Provides a mechanism for obtaining client-usable handles to <see cref="IScheduler"/> instances.</param>
         /// <param name="logger">Represents a type used to perform logging.</param>
-        /// <param name="dequeueJobSettings">Contains medata about the <see cref="DequeueJob{TWorkItem}"/> instances that have been configured.</param>
+        /// <param name="dequeueJobSettings">Contains meta-data about the <see cref="DequeueJob{TWorkItem}"/> instances that have been configured.</param>
         /// <param name="scheduledJobSettings">Job schedule settings. Describes what to execute and when.</param>
         /// <param name="jobFactory">A JobFactory is responsible for producing instances of <see cref="IJob"/> classes.</param>
         public WorkerHostedService(ISchedulerFactory schedulerFactory, ILogger<WorkerHostedService> logger, IEnumerable<DequeueJobSettings> dequeueJobSettings, IEnumerable<ScheduledJobSettings> scheduledJobSettings, IJobFactory jobFactory) {
@@ -78,7 +78,7 @@ namespace Indice.Hosting
                                                [JobDataKeys.CleanUpBatchSize] = dequeueJobSchedule.CleanupBatchSize,
                                            } as IDictionary<string, object>))
                                            .Build();
-                await Scheduler.AddJob(cleanUpJob, replace: true);
+                await Scheduler.AddJob(cleanUpJob, replace: true, cancellationToken);
                 var cleanUpTrigger = TriggerBuilder.Create()
                                                    .ForJob(cleanUpJob)
                                                    .WithIdentity(name: $"{cleanUpJob.Key.Name}Trigger", group: JobGroups.InternalJobsGroup)

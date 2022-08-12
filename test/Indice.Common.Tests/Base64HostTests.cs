@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using Indice.Types;
+﻿using Indice.Types;
 using Xunit;
 
 namespace Indice.Common.Tests

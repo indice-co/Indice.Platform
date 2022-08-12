@@ -44,5 +44,11 @@ namespace Indice.Common.Tests
             Assert.False(CreditorReference.IsValid(creditorReference));
             Assert.Throws<FormatException>(() => CreditorReference.Parse(creditorReference));
         }
+
+        [Fact]
+        public void CanAddPaddingToChecksum() {
+            var rf = CreditorReference.Create(new string[] { "912648", "1", "790774".PadLeft(14, '0') });
+            Assert.Equal("RF08912648100000000790774", rf.ElectronicFormat);
+        }
     }
 }

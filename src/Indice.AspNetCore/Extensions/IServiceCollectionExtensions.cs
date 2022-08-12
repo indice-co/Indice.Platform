@@ -3,6 +3,7 @@ using System.IO;
 using System.Text.RegularExpressions;
 using Azure.Storage.Blobs;
 using Indice.AspNetCore.Filters;
+using Indice.AspNetCore.Middleware;
 using Indice.AspNetCore.TagHelpers;
 using Indice.Configuration;
 using Indice.Services;
@@ -12,7 +13,6 @@ using Microsoft.AspNetCore.DataProtection.AuthenticatedEncryption.ConfigurationM
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using Microsoft.Extensions.Options;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
@@ -21,42 +21,54 @@ namespace Microsoft.Extensions.DependencyInjection
     /// </summary>
     public static class ServiceCollectionExtensions
     {
-
         /// <summary>
-        /// Adds content security policy. See also <see cref="SecurityHeadersAttribute"/> that enables the policy on a specific action.
+        /// Configures content security policy (<strong>Content-Security-Policy</strong> header).<br />
+        /// Configures the use of <see cref="SecurityHeadersMiddleware"/> as well as <br />
+        /// the <seealso cref="SecurityHeadersAttribute"/> (mvc filter that enables the policy on a specific action).
         /// </summary>
         /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
         /// <param name="configureAction"></param>
-        /// <returns></returns>
+        /// <remarks>Better use the more complete version <see cref="AddSecurityHeaders(IServiceCollection, Action{SecurityHeadersPolicy})"/></remarks>
         public static IServiceCollection AddCsp(this IServiceCollection services, Action<CSP> configureAction = null) {
-            var policy = CSP.DefaultPolicy.Clone();
+            var cspPolicy = CSP.DefaultPolicy.Clone();
+            configureAction?.Invoke(cspPolicy);
+            services.AddSecurityHeaders(policy => {
+                policy.ContentSecurityPolicy = cspPolicy;
+            });
+            return services;
+        }
+
+        /// <summary>
+        /// Configures the following header options: <br />
+        /// <strong>Content-Security-Policy</strong>, <strong>X-Frame-Options</strong>, <strong>Referrer-Policy</strong>, <strong>X-Content-Type-Options</strong>. <br />
+        /// Configures the use of <see cref="SecurityHeadersMiddleware"/> as well as <br />
+        /// the <seealso cref="SecurityHeadersAttribute"/> (mvc filter that enables the policy on a specific action).
+        /// </summary>
+        /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
+        /// <param name="configureAction"></param>
+        public static IServiceCollection AddSecurityHeaders(this IServiceCollection services, Action<SecurityHeadersPolicy> configureAction = null) {
+            var policy = new SecurityHeadersPolicy();
             configureAction?.Invoke(policy);
-            services.AddSingleton(policy);
+            services.TryAddSingleton(policy);
             return services;
         }
 
         /// <summary>
-        /// Adds an instance of <see cref="IEmailService"/> that uses Sparkpost to send and Razor templates.
+        /// Adds an instance of <see cref="IHtmlRenderingEngine"/> for generating HTML content for use cases like email sending and other non HTTP related operations.
         /// </summary>
         /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
-        /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
-        public static IServiceCollection AddEmailServiceSparkpost(this IServiceCollection services, IConfiguration configuration) {
-            services.Configure<EmailServiceSparkPostSettings>(configuration.GetSection(EmailServiceSparkPostSettings.Name));
-            services.AddTransient(serviceProvider => serviceProvider.GetRequiredService<IOptions<EmailServiceSparkPostSettings>>().Value);
-            services.AddHttpClient<IEmailService, EmailServiceSparkpost>().SetHandlerLifetime(TimeSpan.FromMinutes(5));
+        public static IServiceCollection AddHtmlRenderingEngineRazorMvc(this IServiceCollection services) {
+            services.AddTransient<IHtmlRenderingEngine, HtmlRenderingEngineMvcRazor>();
             return services;
         }
 
         /// <summary>
-        /// Adds an instance of <see cref="IEmailService"/> using SMTP settings in configuration plus Razor email templates.
+        /// Registers <see cref="HtmlRenderingEngineMvcRazor"/> to be used by the <see cref="IEmailService"/> implementation.
         /// </summary>
-        /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
-        /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
-        public static IServiceCollection AddEmailServiceSmtpRazor(this IServiceCollection services, IConfiguration configuration) {
-            services.Configure<EmailServiceSettings>(configuration.GetSection(EmailServiceSettings.Name));
-            services.AddTransient(serviceProvider => serviceProvider.GetRequiredService<IOptions<EmailServiceSettings>>().Value);
-            services.AddTransient<IEmailService, EmailServiceSmtpRazor>();
-            return services;
+        /// <param name="builder">Builder class for <see cref="IEmailService"/>.</param>
+        public static IServiceCollection WithMvcRazorRendering(this EmailServiceBuilder builder) {
+            builder.WithHtmlRenderingEngine<HtmlRenderingEngineMvcRazor>();
+            return builder.Services;
         }
 
         /// <summary>

@@ -16,7 +16,7 @@ namespace Indice.Types
                                                                    string.Join("|", Enum.GetNames(typeof(JsonDataType))).ToLowerInvariant()
                                                      ), RegexOptions.IgnoreCase);
         /// <summary>
-        /// Sort by assending reserved constant
+        /// Sort by ascending reserved constant
         /// </summary>
         public const string ASC = nameof(ASC);
 
@@ -65,7 +65,7 @@ namespace Indice.Types
         }
 
         /// <summary>
-        /// Returnes a hash code for the value of this instance.
+        /// Returns a hash code for the value of this instance.
         /// </summary>
         /// <returns>An integer representing the hash code for the value of this instance.</returns>
         public override int GetHashCode() => (Path ?? string.Empty).GetHashCode() ^

@@ -280,7 +280,7 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
         /// <summary>
         /// Returns a list of <see cref="ApiScopeInfo"/> objects containing the total number of API scopes in the database and the data filtered according to the provided <see cref="ListOptions"/>.
         /// </summary>
-        /// <param name="options">List params used to navigate through collections. Contains parameters such as sort, search, page number and page size.</param>
+        /// <param name="options">List parameters used to navigate through collections. Contains parameters such as sort, search, page number and page size.</param>
         /// <response code="200">OK</response>
         [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme, Policy = IdentityServerApi.Policies.BeClientsReader)]
         [HttpGet("protected/scopes")]
@@ -299,8 +299,8 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
                 Emphasize = apiScope.Emphasize,
                 UserClaims = apiScope.UserClaims.Select(apiScopeClaim => apiScopeClaim.Type),
                 ShowInDiscoveryDocument = apiScope.ShowInDiscoveryDocument,
-                Translations = TranslationDictionary<ApiScopeTranslation>.FromJson(apiScope.Properties.Any(x => x.Key == IdentityServerApi.ObjectTranslationKey)
-                    ? apiScope.Properties.Single(x => x.Key == IdentityServerApi.ObjectTranslationKey).Value
+                Translations = TranslationDictionary<ApiScopeTranslation>.FromJson(apiScope.Properties.Any(x => x.Key == IdentityServerApi.PropertyKeys.Translation)
+                    ? apiScope.Properties.Single(x => x.Key == IdentityServerApi.PropertyKeys.Translation).Value
                     : string.Empty
                 )
             })
@@ -349,8 +349,8 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
                         Emphasize = result.ApiScope.Emphasize,
                         UserClaims = result.ApiScope.UserClaims.Select(apiScopeClaim => apiScopeClaim.Type),
                         ShowInDiscoveryDocument = result.ApiScope.ShowInDiscoveryDocument,
-                        Translations = TranslationDictionary<ApiScopeTranslation>.FromJson(result.ApiScope.Properties.Any(x => x.Key == IdentityServerApi.ObjectTranslationKey)
-                            ? result.ApiScope.Properties.Single(x => x.Key == IdentityServerApi.ObjectTranslationKey).Value
+                        Translations = TranslationDictionary<ApiScopeTranslation>.FromJson(result.ApiScope.Properties.Any(x => x.Key == IdentityServerApi.PropertyKeys.Translation)
+                            ? result.ApiScope.Properties.Single(x => x.Key == IdentityServerApi.PropertyKeys.Translation).Value
                             : string.Empty
                         )
                     }) : default,
@@ -616,8 +616,8 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
                 UserClaims = apiScopeToAdd.UserClaims.Select(x => x.Type),
                 Emphasize = apiScopeToAdd.Emphasize,
                 ShowInDiscoveryDocument = apiScopeToAdd.ShowInDiscoveryDocument,
-                Translations = TranslationDictionary<ApiScopeTranslation>.FromJson(apiScope.Properties.Any(x => x.Key == IdentityServerApi.ObjectTranslationKey)
-                    ? apiScope.Properties.Single(x => x.Key == IdentityServerApi.ObjectTranslationKey).Value
+                Translations = TranslationDictionary<ApiScopeTranslation>.FromJson(apiScope.Properties.Any(x => x.Key == IdentityServerApi.PropertyKeys.Translation)
+                    ? apiScope.Properties.Single(x => x.Key == IdentityServerApi.PropertyKeys.Translation).Value
                     : string.Empty
                 )
             });
@@ -647,7 +647,7 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
             apiScope.Required = request.Required;
             apiScope.ShowInDiscoveryDocument = request.ShowInDiscoveryDocument;
             apiScope.Emphasize = request.Emphasize;
-            var apiScoreTranslations = apiScope.Properties?.SingleOrDefault(x => x.Key == IdentityServerApi.ObjectTranslationKey);
+            var apiScoreTranslations = apiScope.Properties?.SingleOrDefault(x => x.Key == IdentityServerApi.PropertyKeys.Translation);
             if (apiScoreTranslations == null) {
                 AddTranslationsToApiScope(apiScope, request.Translations.ToJson());
             } else {
@@ -789,7 +789,7 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
         private void AddTranslationsToApiScope(ApiScope apiScope, string translations) {
             apiScope.Properties ??= new List<ApiScopeProperty>();
             apiScope.Properties.Add(new ApiScopeProperty {
-                Key = IdentityServerApi.ObjectTranslationKey,
+                Key = IdentityServerApi.PropertyKeys.Translation,
                 Value = translations ?? string.Empty,
                 Scope = apiScope
             });

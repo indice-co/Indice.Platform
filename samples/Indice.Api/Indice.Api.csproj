@@ -4,20 +4,21 @@
     <UserSecretsId>bcf160ad-5384-417a-bb7c-e17caa9c35ae</UserSecretsId>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="Hellang.Middleware.ProblemDetails" Version="6.4.0" />
     <PackageReference Include="IdentityModel.AspNetCore.OAuth2Introspection" Version="6.0.0" />
-    <!--<PackageReference Include="Indice.AspNetCore.Features.Campaigns" Version="5.0.9" />
-    <PackageReference Include="Indice.AspNetCore.Features.Campaigns.UI" Version="5.2.4" />-->
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.2" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="6.0.3" />   
-    <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" Version="6.2.3" />
+    <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" Version="6.3.0" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\src\Indice.AspNetCore.Features.Campaigns.UI\Indice.AspNetCore.Features.Campaigns.UI.csproj" />
-    <ProjectReference Include="..\..\src\Indice.AspNetCore.Features.Campaigns.Workers\Indice.AspNetCore.Features.Campaigns.Workers.csproj" />
-    <ProjectReference Include="..\..\src\Indice.AspNetCore.Features.Campaigns\Indice.AspNetCore.Features.Campaigns.csproj" />
+    <ProjectReference Include="..\..\src\Indice.Features.Messages.UI\Indice.Features.Messages.UI.csproj" />
+    <ProjectReference Include="..\..\src\Indice.Features.Messages.Worker.Azure\Indice.Features.Messages.Worker.Azure.csproj" />
+    <ProjectReference Include="..\..\src\Indice.Features.Messages.Worker\Indice.Features.Messages.Worker.csproj" />
+    <ProjectReference Include="..\..\src\Indice.Features.Messages.AspNetCore\Indice.Features.Messages.AspNetCore.csproj" />
     <ProjectReference Include="..\..\src\Indice.Extensions.Configuration.Database\Indice.Extensions.Configuration.Database.csproj" />
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="App_Data\" />
     <Folder Include="uploads\" />
   </ItemGroup>
 </Project>

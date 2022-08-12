@@ -49,9 +49,9 @@ namespace Indice.AspNetCore.Features.Settings.Controllers
         }
 
         /// <summary>
-        /// Returns a list of <see cref="AppSettingInfo"/> objects containing the total number of app settings in the database and the data filtered according to the provided <see cref="ListOptions"/>.
+        /// Returns a list of <see cref="AppSettingInfo"/> objects containing the total number of application settings in the database and the data filtered according to the provided <see cref="ListOptions"/>.
         /// </summary>
-        /// <param name="options">List params used to navigate through collections. Contains parameters such as sort, search, page number and page size.</param>
+        /// <param name="options">List parameters used to navigate through collections. Contains parameters such as sort, search, page number and page size.</param>
         /// <response code="200">OK</response>
         [HttpGet]
         [ProducesResponseType(statusCode: StatusCodes.Status200OK, type: typeof(ResultSet<AppSettingInfo>))]

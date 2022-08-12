@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using Indice.Hosting.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Quartz;
@@ -20,14 +21,14 @@ namespace Indice.Hosting.Tasks
         }
 
         public async Task Execute(IJobExecutionContext context) {
-            _logger.LogInformation("Queue cleanup job run at: {Timestamp}", DateTime.UtcNow);
+            _logger.LogInformation("Queue cleanup job run at: {TimeStamp}", DateTime.UtcNow);
             var jobDataMap = context.JobDetail.JobDataMap;
             var queueName = jobDataMap.GetString(JobDataKeys.QueueName);
             var cleanUpBatchSize = jobDataMap.GetInt(JobDataKeys.CleanUpBatchSize);
             try {
                 await _workItemQueue.Cleanup(cleanUpBatchSize);
             } catch (Exception exception) {
-                _logger.LogError("An error occured while Cleaning up queue '{Queuename}'. Exception is: {Exception}", queueName, exception);
+                _logger.LogError("An error occurred while Cleaning up queue '{QueueName}'. Exception is: {Exception}", queueName, exception);
             }
         }
     }

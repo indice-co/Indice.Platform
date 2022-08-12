@@ -91,6 +91,13 @@ namespace Microsoft.Extensions.DependencyInjection
                     context.HandleResponse(); // Apple does not support EndSessionEndpoint.
                     return Task.CompletedTask;
                 };
+                // Handle redirect to identity provider for prompt parameter.
+                options.Events.OnRedirectToIdentityProvider ??= context => {
+                    if (context.Properties.Items.TryGetValue("prompt", out var prompt)) {
+                        context.ProtocolMessage.Prompt = prompt;
+                    }
+                    return Task.CompletedTask;
+                };
                 options.UsePkce = false; // Apple does not currently support PKCE (April 2021).
             });
     }

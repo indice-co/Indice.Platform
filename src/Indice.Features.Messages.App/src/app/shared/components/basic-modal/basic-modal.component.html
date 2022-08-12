@@ -1,0 +1,27 @@
+<div class="p-1 modal-content">
+    <h2 class="modal-title pull-left">{{ title }}</h2>
+    <hr class="mb-2">
+    <div class="pt-5 pb-5 sm:pt-0">
+        <dl class="space-y-8 sm:space-y-6">
+            <div>
+                <dd class="mt-1 text-sm text-gray-900 sm:col-span-2">
+                    <p>{{ message }}</p>
+                </dd>
+            </div>
+        </dl>
+    </div>
+    <div class="modal-actions-container mt-2"
+         role="group">
+        <button type="button"
+                class="inline-flex items-center justify-center px-4 py-2 border border-transparent font-medium rounded-md text-gray-700 bg-gray-100 hover:bg-gray-200 focus:outline-none focus:ring-1 focus:ring-offset-1 focus:ring-gray-500 sm:text-sm"
+                (click)="answer(false)">
+            Κλείσιμο
+        </button>
+        &nbsp;
+        <button type="button"
+                class="inline-flex items-center justify-center px-4 py-2 border border-transparent font-medium rounded-md text-red-700 bg-red-100 hover:bg-red-200 focus:outline-none focus:ring-1 focus:ring-offset-1 focus:ring-red-500 sm:text-sm"
+                (click)="answer(true)">
+            Διαγραφή
+        </button>
+    </div>
+</div>

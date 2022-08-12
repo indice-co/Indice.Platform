@@ -22,14 +22,18 @@
     font-size: 20px;
 }
 
-.was-validated .custom-control-input:valid ~ .custom-control-label, .custom-control-input.is-valid ~ .custom-control-label {
+.was-validated .custom-control-input:valid~.custom-control-label,
+.custom-control-input.is-valid~.custom-control-label {
     color: #212529;
 }
-.was-validated .custom-control-input:valid ~ .custom-control-label::before, .custom-control-input.is-valid ~ .custom-control-label::before {
+
+.was-validated .custom-control-input:valid~.custom-control-label::before,
+.custom-control-input.is-valid~.custom-control-label::before {
     border-color: rgb(173, 181, 189);
 }
 
-.was-validated .custom-control-input:valid:checked ~ .custom-control-label::before, .custom-control-input.is-valid:checked ~ .custom-control-label::before {
+.was-validated .custom-control-input:valid:checked~.custom-control-label::before,
+.custom-control-input.is-valid:checked~.custom-control-label::before {
     background: #5985ee;
     border: #adb5bd solid 1px;
     border-color: rgb(173, 181, 189);
@@ -61,4 +65,12 @@
 .deleted-url {
     text-decoration: line-through;
     font-weight: bold;
+}
+
+.form-container {
+    width: 25vw;
+}
+
+input-widget>div>input {
+    margin-bottom: 10px;
 }

@@ -2,7 +2,6 @@
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using Indice.Configuration;
 using Indice.Extensions;
 using MailKit.Net.Smtp;
 using MimeKit;
@@ -15,24 +14,30 @@ namespace Indice.Services
     /// </summary>
     public class EmailServiceSmtp : IEmailService
     {
-        private readonly EmailServiceSettings _settings;
-
         /// <summary>
-        /// Cconstructs the service.
+        /// Creates a new instance of <see cref="EmailServiceSmtp"/>.
         /// </summary>
         /// <param name="settings">The SMTP settings to use.</param>
-        public EmailServiceSmtp(EmailServiceSettings settings) => _settings = settings ?? throw new ArgumentNullException(nameof(settings));
+        /// <param name="htmlRenderingEngine">This is an abstraction for the rendering engine.</param>
+        public EmailServiceSmtp(
+            EmailServiceSettings settings,
+            IHtmlRenderingEngine htmlRenderingEngine
+        ) {
+            Settings = settings ?? throw new ArgumentNullException(nameof(settings));
+            HtmlRenderingEngine = htmlRenderingEngine ?? throw new ArgumentNullException(nameof(htmlRenderingEngine));
+        }
+
+        private EmailServiceSettings Settings { get; }
+        /// <inheritdoc/>
+        public IHtmlRenderingEngine HtmlRenderingEngine { get; }
 
         /// <inheritdoc/>
-        public async Task SendAsync(string[] recipients, string subject, string body, FileAttachment[] attachments = null) => await SendAsync<object>(recipients, subject, body, null, null, attachments);
-
-        /// <inheritdoc/>
-        public async Task SendAsync<TModel>(string[] recipients, string subject, string body, string template, TModel data, FileAttachment[] attachments = null) where TModel : class {
+        public async Task SendAsync(string[] recipients, string subject, string body, EmailAttachment[] attachments = null) {
             var message = new MimeMessage();
-            message.From.Add(new MailboxAddress(_settings.SenderName, _settings.Sender));
+            message.From.Add(new MailboxAddress(Settings.SenderName, Settings.Sender));
             message.To.AddRange(recipients.Select(recipient => InternetAddress.Parse(recipient)));
-            if (!string.IsNullOrWhiteSpace(_settings.BccRecipients)) {
-                var bccRecipients = _settings.BccRecipients.Split(',', ';');
+            if (!string.IsNullOrWhiteSpace(Settings.BccRecipients)) {
+                var bccRecipients = Settings.BccRecipients.Split(',', ';');
                 message.Bcc.AddRange(bccRecipients.Select(recipient => InternetAddress.Parse(recipient)));
             }
             message.Subject = subject;
@@ -60,18 +65,18 @@ namespace Indice.Services
             }
             using (var client = new SmtpClient()) {
                 // If UseSSL = true then you need to provide certificate in order to send the email, or else you get security exception.
-                var useSSL = _settings.UseSSL && client.ClientCertificates != null && client.ClientCertificates.Count > 0;
+                var useSSL = Settings.UseSSL && client.ClientCertificates != null && client.ClientCertificates.Count > 0;
                 // For demo-purposes, accept all SSL certificates (in case the server supports STARTTLS).
                 client.ServerCertificateValidationCallback = (s, c, h, e) => true;
-                client.CheckCertificateRevocation = _settings.CheckCertificateRevocation;
+                client.CheckCertificateRevocation = Settings.CheckCertificateRevocation;
                 // Since we don't have an OAuth2 token, disable the XOAUTH2 authentication mechanism.
                 client.AuthenticationMechanisms.Remove("XOAUTH2");
                 // https://www.stevejgordon.co.uk/how-to-send-emails-in-asp-net-core-1-0
                 // https://portal.smartertools.com/kb/a2862/smtp-settings-for-outlook365-and-gmail.aspx
                 // Only needed if the SMTP server requires authentication.
-                await client.ConnectAsync(_settings.SmtpHost, _settings.SmtpPort, (MailKit.Security.SecureSocketOptions)(int)_settings.SecureSocket);
-                if (!string.IsNullOrEmpty(_settings.Username)) {
-                    client.Authenticate(_settings.Username, _settings.Password);
+                await client.ConnectAsync(Settings.SmtpHost, Settings.SmtpPort, (MailKit.Security.SecureSocketOptions)(int)Settings.SecureSocket);
+                if (!string.IsNullOrEmpty(Settings.Username)) {
+                    client.Authenticate(Settings.Username, Settings.Password);
                 }
                 await client.SendAsync(message);
                 await client.DisconnectAsync(true);

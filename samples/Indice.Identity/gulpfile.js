@@ -1,10 +1,11 @@
 ﻿'use strict';
-
-var gulp = require('gulp'),
-    sass = require('gulp-sass'),
-    del = require('del'),
-    cssbeautify = require('gulp-cssbeautify'),
-    npmDist = require('gulp-npm-dist')
+import gulp from "gulp";
+import dartSass from 'sass';
+import gulpSass from 'gulp-sass';
+import del from "del";
+import cssbeautify from "gulp-cssbeautify";
+import npmDist from "gulp-npm-dist";
+const sass = gulpSass(dartSass);
 
 var webroot = './wwwroot/',
     lib = './wwwroot/lib/';

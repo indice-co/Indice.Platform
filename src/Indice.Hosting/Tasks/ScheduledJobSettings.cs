@@ -16,7 +16,7 @@ namespace Indice.Hosting.Tasks
         /// <param name="name">The job name.</param>
         /// <param name="group">The job group.</param>
         /// <param name="description">The job description.</param>
-        /// <param name="singleton">The job alowes only one instance to run at any given time.</param>
+        /// <param name="singleton">The job allows only one instance to run at any given time.</param>
         public ScheduledJobSettings(Type jobHandlerType, Type jobDataStateType, string cronExpression, string name, string group, string description, bool singleton = false) {
             JobHandlerType = jobHandlerType;
             JobStateType = jobDataStateType;
@@ -52,7 +52,7 @@ namespace Indice.Hosting.Tasks
         /// </summary>
         public string Group { get; }
         /// <summary>
-        /// The job alowes only one instance to run at any given time.
+        /// The job allows only one instance to run at any given time.
         /// </summary>
         public bool Singleton { get; }
     }

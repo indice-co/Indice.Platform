@@ -2,7 +2,6 @@
 using IdentityServer4.EntityFramework.DbContexts;
 using IdentityServer4.EntityFramework.Options;
 using Indice.AspNetCore.Identity.Api.Configuration;
-using Indice.AspNetCore.Identity.Data;
 using Indice.AspNetCore.Identity.Data.Models;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;

@@ -87,6 +87,12 @@ namespace Indice.Services
         /// <returns>The builder to construct the <see cref="EventDispatcherRaiseOptions"/> instance.</returns>
         IEventDispatcherRaiseOptionsBuilder Delay(TimeSpan delay);
         /// <summary>
+        /// Defines a delay when sending the payload to the queue.
+        /// </summary>
+        /// <param name="dateTime">The <see cref="DateTime"/> value that the event is dispatched.</param>
+        /// <returns>The builder to construct the <see cref="EventDispatcherRaiseOptions"/> instance.</returns>
+        IEventDispatcherRaiseOptionsBuilder At(DateTime dateTime);
+        /// <summary>
         /// Defines whether to wrap payload around an envelope object or not. Defaults to true.
         /// </summary>
         /// <param name="wrap">Wrap.</param>
@@ -150,6 +156,13 @@ namespace Indice.Services
         /// <inheritdoc />
         public IEventDispatcherRaiseOptionsBuilder PrependEnvironmentInQueueName(bool prepend = true) {
             Options.PrependEnvironmentInQueueName = prepend;
+            return this;
+        }
+
+        /// <inheritdoc />
+        public IEventDispatcherRaiseOptionsBuilder At(DateTime dateTime) {
+            var visibilityTimeout = dateTime - DateTime.UtcNow;
+            Options.VisibilityTimeout = visibilityTimeout <= TimeSpan.Zero ? null : visibilityTimeout;
             return this;
         }
     }

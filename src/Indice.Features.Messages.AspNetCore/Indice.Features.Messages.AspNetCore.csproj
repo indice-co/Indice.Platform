@@ -1,0 +1,46 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <Authors>Constantinos Leftheris, Georgios Manoltzas</Authors>
+    <Copyright>Copyright (c) 2021 Indice</Copyright>
+    <Description>Indice.AspNetCore.Features.Campaigns Class Library</Description>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <LangVersion>Latest</LangVersion>
+    <TargetFrameworks>netcoreapp3.1;net5.0;net6.0</TargetFrameworks>
+    <VersionPrefix>6.1.3</VersionPrefix>
+    <!--<VersionSuffix>beta-10</VersionSuffix>-->
+  </PropertyGroup>
+  <PropertyGroup Label="Package">
+    <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
+    <Company>Indice</Company>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+    <PackageIcon>icon-310.png</PackageIcon>
+    <PackageId>Indice.Features.Messages.AspNetCore</PackageId>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/indice-co/Indice.AspNet</PackageProjectUrl>
+    <PackageReleaseNotes>Update Indice.Features.Messages.Core.</PackageReleaseNotes>
+    <PackageTags>AspNetCore;CampaignManagement;</PackageTags>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <RepositoryUrl>https://github.com/indice-co/Indice.AspNet</RepositoryUrl>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="EPPlus" Version="4.5.3.3" />
+    <PackageReference Include="Indice.AspNetCore" Version="6.1.12" />
+    <PackageReference Include="Indice.Features.Messages.Core" Version="6.1.0-beta-08" />
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)' == 'net6.0'">
+  </ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)' == 'net5.0'">
+  </ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\icon\icon-310.png" Pack="true" Visible="false" PackagePath="" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Indice.Features.Messages.Core\Indice.Features.Messages.Core.csproj" />
+    <ProjectReference Include="..\Indice.AspNetCore\Indice.AspNetCore.csproj" />
+  </ItemGroup>
+</Project>

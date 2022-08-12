@@ -4,9 +4,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using FluentValidation.AspNetCore;
 using Indice.AspNetCore.Identity.Api.Events;
-using Indice.AspNetCore.Identity.Data;
 using Indice.AspNetCore.Identity.Data.Models;
-using Indice.Extensions.Configuration.Database;
 using Indice.Identity;
 using Indice.Identity.Services;
 using Indice.Security;
@@ -41,6 +39,8 @@ namespace Microsoft.Extensions.DependencyInjection
                                          options.AddPlatformEventHandler<ClientCreatedEvent, ClientCreatedEventHandler>();
                                          options.AddPlatformEventHandler<UserEmailConfirmedEvent, UserEmailConfirmedEventHandler>();
                                          options.Email.SendEmailOnUpdate = true;
+                                         options.Email.UpdateEmailTemplate = "Email";
+                                         options.Email.ForgotPasswordTemplate = "Email";
                                          options.PhoneNumber.SendOtpOnUpdate = true;
                                          options.SeedDummyUsers = false;
                                          options.InitialUsers = GetInitialUsers();
@@ -81,10 +81,8 @@ namespace Microsoft.Extensions.DependencyInjection
                                          options.RegisterValidatorsFromAssemblyContaining<Startup>();
                                          options.ConfigureClientsideValidation();
                                      })
-                                     .AddAvatars(o => {
-                                         o.TileSizes = new [] { 
-                                             129
-                                         };
+                                     .AddAvatars(options => {
+                                         options.TileSizes = new [] { 129 };
                                      })
                                      .AddViewLocalization(LanguageViewLocationExpanderFormat.Suffix, options => {
                                          options.ResourcesPath = "Resources";

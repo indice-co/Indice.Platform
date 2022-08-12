@@ -44,7 +44,7 @@ namespace Indice.Types
         #endregion
 
         internal CreditorReference(string creditorReference) {
-            CheckDigits = int.Parse(creditorReference.Substring(2, 2));
+            CheckDigits = creditorReference.Substring(2, 2);
             Reference = Regex.Replace(creditorReference.Substring(4, creditorReference.Length - 4), @"\s+", string.Empty).ToUpper();
         }
 
@@ -57,32 +57,22 @@ namespace Indice.Types
             }
         }
 
-        /// <summary>
-        /// Creates a new instance of <see cref="CreditorReference"/>.
-        /// </summary>
+        /// <summary>Creates a new instance of <see cref="CreditorReference"/>.</summary>
         /// <param name="references">
-        /// The creditor reference may consist e.g. of the combination of a customer number and an invoice number. It may additionally include an identification code for the entity concerned, 
-        /// in order to facilitate the selection of the correct ledger for reconciliation.
+        /// The creditor reference may consist e.g. of the combination of a customer number and an invoice number. 
+        /// It may additionally include an identification code for the entity concerned, in order to facilitate the selection of the correct ledger for reconciliation.
         /// </param>
         public static CreditorReference Create(params string[] references) => new(references);
 
-        /// <summary>
-        /// Two check digits calculated using algorithm ISO/IEC 7064.
-        /// </summary>
+        /// <summary>Two check digits calculated using algorithm ISO/IEC 7064.</summary>
         /// <remarks>https://www.iso.org/standard/31531.html</remarks>
-        public int CheckDigits { get; }
-        /// <summary>
-        /// Proprietary creditor reference information.
-        /// </summary>
+        public string CheckDigits { get; }
+        /// <summary>Proprietary creditor reference information.</summary>
         public string Reference { get; }
-        /// <summary>
-        /// Creditor reference in electronic format.
-        /// </summary>
+        /// <summary>Creditor reference in electronic format.</summary>
         public string ElectronicFormat => $"RF{CheckDigits}{Reference}";
 
-        /// <summary>
-        /// Tries to parse a given string as a creditor reference.
-        /// </summary>
+        /// <summary>Tries to parse a given string as a creditor reference.</summary>
         /// <param name="creditorReference">The creditor reference to parse.</param>
         /// <param name="result">The creditor reference as a <see cref="CreditorReference"/> object.</param>
         /// <returns>Returns true if given string is valid, otherwise false.</returns>
@@ -95,9 +85,7 @@ namespace Indice.Types
             return false;
         }
 
-        /// <summary>
-        /// Tries to parse a given string as a creditor reference.
-        /// </summary>
+        /// <summary>Tries to parse a given string as a creditor reference.</summary>
         /// <param name="creditorReference">The creditor reference to parse.</param>
         /// <returns>The creditor reference as a <see cref="CreditorReference"/> object.</returns>
         /// <exception cref="FormatException">Parameter <paramref name="creditorReference"/> is not in the correct format.</exception>
@@ -109,9 +97,7 @@ namespace Indice.Types
             throw new FormatException("Creditor reference is not in a valid format.");
         }
 
-        /// <summary>
-        /// Validates a creditor reference.
-        /// </summary>
+        /// <summary>Validates a creditor reference.</summary>
         /// <param name="creditorReference">The creditor reference to validate.</param>
         public static bool IsValid(string creditorReference) {
             creditorReference = Regex.Replace(creditorReference, @"\s+", string.Empty).ToUpper();
@@ -122,9 +108,7 @@ namespace Indice.Types
             return BigInteger.TryParse(creditorReference, out var referenceNumber) && referenceNumber % 97 == 1;
         }
 
-        /// <summary>
-        /// Displays the creditor reference in it's print format, i.e RF78 MMKI DHR7 3738 3MLA KSI
-        /// </summary>
+        /// <summary>Displays the creditor reference in it's print format, i.e RF78 MMKI DHR7 3738 3MLA KSI</summary>
         public override string ToString() => ElectronicFormat
             .Select((character, index) => (Character: character, Index: index))
             .GroupBy(x => x.Index / 4)
@@ -132,9 +116,7 @@ namespace Indice.Types
             .Select(characters => new string(characters.ToArray()))
             .Aggregate((current, next) => $"{current} {next}");
 
-        /// <summary>
-        /// Tries to validate and extract the creditor reference from user input.
-        /// </summary>
+        /// <summary>Tries to validate and extract the creditor reference from user input.</summary>
         /// <param name="reference">The extracted creditor reference.</param>
         /// <param name="references">The input references.</param>
         /// <returns>Returns true if input references are valid, otherwise false.</returns>
@@ -149,12 +131,12 @@ namespace Indice.Types
         }
 
         /// <remarks>https://docs.microsoft.com/en-us/dotnet/api/system.numerics.biginteger</remarks>
-        private static int CalculateCheckDigits(string reference) {
+        private static string CalculateCheckDigits(string reference) {
             reference = reference.Select(x => x.IsLatinUpper() ? CharToNumberMapping[x] : x.ToString())
                                  .Aggregate((current, next) => current + next);
             reference = $"{reference}271500";
             var referenceNumber = BigInteger.Parse(reference);
-            return Convert.ToInt32(98 - (int)(referenceNumber % 97));
+            return Convert.ToInt32(98 - (int)(referenceNumber % 97)).ToString().PadLeft(2, '0');
         }
     }
 }

@@ -53,9 +53,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CodeFlowMvc", "samples\Code
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Indice.Api", "samples\Indice.Api\Indice.Api.csproj", "{916421F9-5705-448F-AD75-108F00008B06}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Indice.AspNetCore.Features.Campaigns", "src\Indice.AspNetCore.Features.Campaigns\Indice.AspNetCore.Features.Campaigns.csproj", "{6E025904-03D4-4010-A9AD-02B2A0F95200}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Indice.Features.Messages.AspNetCore", "src\Indice.Features.Messages.AspNetCore\Indice.Features.Messages.AspNetCore.csproj", "{6E025904-03D4-4010-A9AD-02B2A0F95200}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Indice.AspNetCore.Features.Campaigns.UI", "src\Indice.AspNetCore.Features.Campaigns.UI\Indice.AspNetCore.Features.Campaigns.UI.csproj", "{C2CD0301-195C-4780-9BAF-0DCA9357BB76}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Indice.Features.Messages.UI", "src\Indice.Features.Messages.UI\Indice.Features.Messages.UI.csproj", "{C2CD0301-195C-4780-9BAF-0DCA9357BB76}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Indice.AspNetCore.Authentication.GovGr", "src\Indice.AspNetCore.Authentication.GovGr\Indice.AspNetCore.Authentication.GovGr.csproj", "{433CA241-B811-4079-9C3C-5DF9726CC7F8}"
 EndProject
@@ -65,9 +65,19 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Indice.Extensions.Configura
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Indice.Functions", "samples\Indice.Functions\Indice.Functions.csproj", "{BA0577DB-5B44-462B-811B-B0909B6C8606}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Indice.AspNetCore.Features.Campaigns.Workers", "src\Indice.AspNetCore.Features.Campaigns.Workers\Indice.AspNetCore.Features.Campaigns.Workers.csproj", "{CF1AA972-0F9F-4FEB-BF54-519D0067B3C1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Indice.Features.Messages.Worker", "src\Indice.Features.Messages.Worker\Indice.Features.Messages.Worker.csproj", "{CF1AA972-0F9F-4FEB-BF54-519D0067B3C1}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Indice.AspNetCore.Features.Campaigns.Workers.Azure", "src\Indice.AspNetCore.Features.Campaigns.Workers.Azure\Indice.AspNetCore.Features.Campaigns.Workers.Azure.csproj", "{B7AA6019-53F8-4239-BA70-36675267B24E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Indice.Features.Messages.Worker.Azure", "src\Indice.Features.Messages.Worker.Azure\Indice.Features.Messages.Worker.Azure.csproj", "{B7AA6019-53F8-4239-BA70-36675267B24E}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Indice.Features.Messages.Core", "src\Indice.Features.Messages.Core\Indice.Features.Messages.Core.csproj", "{D260ADF3-9C2F-40BE-821D-859938E15EB4}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Indice.WorkerHost", "samples\Indice.WorkerHost\Indice.WorkerHost.csproj", "{7ABDA4B1-FF9B-4BF9-B11A-DE12032760D1}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Indice.AspNetCore.Tests", "test\Indice.AspNetCore.Tests\Indice.AspNetCore.Tests.csproj", "{10DDF041-7564-4009-B108-E87427CFC524}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Indice.AspNetCore.Views", "test\Indice.AspNetCore.Views\Indice.AspNetCore.Views.csproj", "{A1E3CF4C-271D-4FC7-86A2-604B41DA8CAB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Indice.Features.Messages.Tests", "test\Indice.Features.Messages.Tests\Indice.Features.Messages.Tests.csproj", "{C30917BF-E72B-4BED-8782-3CE246D556ED}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -179,6 +189,26 @@ Global
 		{B7AA6019-53F8-4239-BA70-36675267B24E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B7AA6019-53F8-4239-BA70-36675267B24E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B7AA6019-53F8-4239-BA70-36675267B24E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D260ADF3-9C2F-40BE-821D-859938E15EB4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D260ADF3-9C2F-40BE-821D-859938E15EB4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D260ADF3-9C2F-40BE-821D-859938E15EB4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D260ADF3-9C2F-40BE-821D-859938E15EB4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7ABDA4B1-FF9B-4BF9-B11A-DE12032760D1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7ABDA4B1-FF9B-4BF9-B11A-DE12032760D1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7ABDA4B1-FF9B-4BF9-B11A-DE12032760D1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7ABDA4B1-FF9B-4BF9-B11A-DE12032760D1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{10DDF041-7564-4009-B108-E87427CFC524}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{10DDF041-7564-4009-B108-E87427CFC524}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{10DDF041-7564-4009-B108-E87427CFC524}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{10DDF041-7564-4009-B108-E87427CFC524}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A1E3CF4C-271D-4FC7-86A2-604B41DA8CAB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A1E3CF4C-271D-4FC7-86A2-604B41DA8CAB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A1E3CF4C-271D-4FC7-86A2-604B41DA8CAB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A1E3CF4C-271D-4FC7-86A2-604B41DA8CAB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C30917BF-E72B-4BED-8782-3CE246D556ED}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C30917BF-E72B-4BED-8782-3CE246D556ED}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C30917BF-E72B-4BED-8782-3CE246D556ED}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C30917BF-E72B-4BED-8782-3CE246D556ED}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -210,6 +240,11 @@ Global
 		{BA0577DB-5B44-462B-811B-B0909B6C8606} = {09C5F009-8096-498D-A578-511456E53E65}
 		{CF1AA972-0F9F-4FEB-BF54-519D0067B3C1} = {643960D9-48C5-4EA3-BED5-486CCC694947}
 		{B7AA6019-53F8-4239-BA70-36675267B24E} = {643960D9-48C5-4EA3-BED5-486CCC694947}
+		{D260ADF3-9C2F-40BE-821D-859938E15EB4} = {643960D9-48C5-4EA3-BED5-486CCC694947}
+		{7ABDA4B1-FF9B-4BF9-B11A-DE12032760D1} = {09C5F009-8096-498D-A578-511456E53E65}
+		{10DDF041-7564-4009-B108-E87427CFC524} = {613A1373-9A47-42DD-A076-7F310D0440B9}
+		{A1E3CF4C-271D-4FC7-86A2-604B41DA8CAB} = {613A1373-9A47-42DD-A076-7F310D0440B9}
+		{C30917BF-E72B-4BED-8782-3CE246D556ED} = {613A1373-9A47-42DD-A076-7F310D0440B9}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {C2B9151E-8A85-444E-93A9-78264FD0FE4A}

@@ -7,6 +7,12 @@
     <IsPackable>false</IsPackable>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Remove="wwwroot\admin\**" />
+    <Content Remove="wwwroot\admin\**" />
+    <EmbeddedResource Remove="wwwroot\admin\**" />
+    <None Remove="wwwroot\admin\**" />
+  </ItemGroup>
+  <ItemGroup>
     <Content Remove="bundleconfig.json" />
   </ItemGroup>
   <ItemGroup>
@@ -19,7 +25,7 @@
     <PackageReference Include="Microsoft.AspNetCore.Authentication.MicrosoftAccount" Version="6.0.2" />
     <PackageReference Include="Microsoft.AspNetCore.AzureAppServices.HostingStartup" Version="6.0.2" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="6.0.2" />
-    <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" Version="6.2.3" />
+    <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" Version="6.3.0" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\Indice.AspNetCore.Authentication.Apple\Indice.AspNetCore.Authentication.Apple.csproj" />
@@ -40,6 +46,5 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
-    <Folder Include="wwwroot\admin\assets\img\" />
   </ItemGroup>
 </Project>

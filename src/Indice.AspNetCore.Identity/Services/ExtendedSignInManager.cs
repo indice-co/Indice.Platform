@@ -9,15 +9,14 @@ using Indice.Security;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace Indice.AspNetCore.Identity
 {
-    /// <summary>
-    /// Provides the APIs for user sign in.
-    /// </summary>
+    /// <summary>Provides the APIs for user sign in.</summary>
     /// <typeparam name="TUser">The type encapsulating a user.</typeparam>
     public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : User
     {
@@ -25,9 +24,7 @@ namespace Indice.AspNetCore.Identity
         private const string XsrfKey = "XsrfId";
         private readonly IAuthenticationSchemeProvider _authenticationSchemeProvider;
 
-        /// <summary>
-        /// Creates a new instance of <see cref="SignInManager{TUser}" />
-        /// </summary>
+        /// <summary>Creates a new instance of <see cref="SignInManager{TUser}" /></summary>
         /// <param name="userManager">An instance of <see cref="UserManager{TUser}"/> used to retrieve users from and persist users.</param>
         /// <param name="contextAccessor">The accessor used to access the <see cref="HttpContext"/>.</param>
         /// <param name="claimsFactory">The factory to use to create claims principals for a user.</param>
@@ -52,28 +49,24 @@ namespace Indice.AspNetCore.Identity
                                               configuration.GetSection(nameof(SignInOptions)).GetValue<bool?>(nameof(RequirePostSignInConfirmedEmail)) == true;
             RequirePostSignInConfirmedPhoneNumber = configuration.GetSection($"{nameof(IdentityOptions)}:{nameof(IdentityOptions.SignIn)}").GetValue<bool?>(nameof(RequirePostSignInConfirmedPhoneNumber)) == true ||
                                                     configuration.GetSection(nameof(SignInOptions)).GetValue<bool?>(nameof(RequirePostSignInConfirmedPhoneNumber)) == true;
+            ExpireBlacklistedPasswordsOnSignIn = configuration.GetSection($"{nameof(IdentityOptions)}:{nameof(IdentityOptions.SignIn)}").GetValue<bool?>(nameof(ExpireBlacklistedPasswordsOnSignIn)) == true ||
+                                                 configuration.GetSection(nameof(SignInOptions)).GetValue<bool?>(nameof(ExpireBlacklistedPasswordsOnSignIn)) == true;
             ExternalScheme = configuration.GetSection($"{nameof(IdentityOptions)}:{nameof(IdentityOptions.SignIn)}").GetValue<string>(nameof(ExternalScheme)) ?? IdentityConstants.ExternalScheme;
             _authenticationSchemeProvider = authenticationSchemeProvider ?? throw new ArgumentNullException(nameof(authenticationSchemeProvider));
         }
 
-        /// <summary>
-        /// Enables the feature post login email confirmation.
-        /// </summary>
+        /// <summary>Enables the feature post login email confirmation.</summary>
         public bool RequirePostSignInConfirmedEmail { get; }
-        /// <summary>
-        /// Enables the feature post login phone number confirmation.
-        /// </summary>
+        /// <summary>Enables the feature post login phone number confirmation.</summary>
         public bool RequirePostSignInConfirmedPhoneNumber { get; }
-        /// <summary>
-        /// The scheme used to identify external authentication cookies.
-        /// </summary>
+        /// <summary>If enabled then users with blacklisted passwords will be forced to change their password upon sign-in instead of waiting for the next time they need to change it.</summary>
+        public bool ExpireBlacklistedPasswordsOnSignIn { get; }
+        /// <summary>The scheme used to identify external authentication cookies.</summary>
         public string ExternalScheme { get; }
+        /// <summary>The <see cref="ExtendedUserManager{TUser}"/> used.</summary>
+        private ExtendedUserManager<TUser> ExtendedUserManager => (ExtendedUserManager<TUser>)UserManager;
 
-        /// <summary>
-        /// Gets the external login information for the current login, as an asynchronous operation.
-        /// </summary>
-        /// <param name="expectedXsrf">Flag indication whether a Cross Site Request Forgery token was expected in the current request.</param>
-        /// <returns>The task object representing the asynchronous operation containing the <see name="ExternalLoginInfo"/> for the sign-in attempt.</returns>
+        /// <inheritdoc/>
         public override async Task<ExternalLoginInfo> GetExternalLoginInfoAsync(string expectedXsrf = null) {
             var auth = await Context.AuthenticateAsync(ExternalScheme);
             var items = auth?.Properties?.Items;
@@ -99,13 +92,7 @@ namespace Indice.AspNetCore.Identity
             };
         }
 
-        /// <summary>
-        /// Signs in the specified user.
-        /// </summary>
-        /// <param name="user"></param>
-        /// <param name="authenticationProperties"></param>
-        /// <param name="authenticationMethod"></param>
-        /// <returns></returns>
+        /// <inheritdoc/>
         public override async Task SignInAsync(TUser user, AuthenticationProperties authenticationProperties, string authenticationMethod = null) {
             await base.SignInAsync(user, authenticationProperties, authenticationMethod);
             if (user is User) {
@@ -114,11 +101,7 @@ namespace Indice.AspNetCore.Identity
             }
         }
 
-        /// <summary>
-        /// Returns a flag indicating whether the specified user can sign in.
-        /// </summary>
-        /// <param name="user">The user whose sign-in status should be returned.</param>
-        /// <returns>The task object representing the asynchronous operation, containing a flag that is true if the specified user can sign-in, otherwise false.</returns>
+        /// <inheritdoc/>
         public override async Task<bool> CanSignInAsync(TUser user) {
             if (user is User && user.Blocked) {
                 Logger.LogWarning(0, "User {userId} cannot sign in. User is blocked by the administrator.", await UserManager.GetUserIdAsync(user));
@@ -127,15 +110,7 @@ namespace Indice.AspNetCore.Identity
             return await base.CanSignInAsync(user);
         }
 
-        /// <summary>
-        /// Signs in the specified <paramref name="user"/> if <paramref name="bypassTwoFactor"/> is set to false.
-        /// Otherwise stores the <paramref name="user"/> for use after a two factor check.
-        /// </summary>
-        /// <param name="user">The user to sign in.</param>
-        /// <param name="isPersistent">Flag indicating whether the sign-in cookie should persist after the browser is closed.</param>
-        /// <param name="loginProvider">The login provider to use. Default is null</param>
-        /// <param name="bypassTwoFactor">Flag indicating whether to bypass two factor authentication. Default is false.</param>
-        /// <returns>Returns a <see cref="SignInResult"/>.</returns>
+        /// <inheritdoc/>
         protected override async Task<SignInResult> SignInOrTwoFactorAsync(TUser user, bool isPersistent, string loginProvider = null, bool bypassTwoFactor = false) {
             var isEmailConfirmed = await UserManager.IsEmailConfirmedAsync(user);
             var isPhoneConfirmed = await UserManager.IsPhoneNumberConfirmedAsync(user);
@@ -167,9 +142,7 @@ namespace Indice.AspNetCore.Identity
             return signInResult;
         }
 
-        /// <summary>
-        /// Signs the current user out of the application.
-        /// </summary>
+        /// <inheritdoc/>
         public async override Task SignOutAsync() {
             var schemes = await _authenticationSchemeProvider.GetAllSchemesAsync();
             // Check if authentication scheme is registered before trying to sign out, to avoid errors.
@@ -182,12 +155,6 @@ namespace Indice.AspNetCore.Identity
             await base.SignOutAsync();
         }
 
-        /// <summary>
-        /// Creates a claims principal for the specified 2fa information.
-        /// </summary>
-        /// <param name="userId">The user whose is logging in via 2fa.</param>
-        /// <param name="loginProvider">The 2fa provider.</param>
-        /// <returns>A <see cref="ClaimsPrincipal"/> containing the user 2fa information.</returns>
         internal ClaimsPrincipal StoreTwoFactorInfo(string userId, string loginProvider) {
             var identity = new ClaimsIdentity(IdentityConstants.TwoFactorUserIdScheme);
             identity.AddClaim(new Claim(ClaimTypes.Name, userId));
@@ -197,16 +164,6 @@ namespace Indice.AspNetCore.Identity
             return new ClaimsPrincipal(identity);
         }
 
-        /// <summary>
-        /// Creates a claims principal for the specified validation information.
-        /// </summary>
-        /// <param name="userId">The user whose is logging in.</param>
-        /// <param name="isEmailConfirmed">Flag indicating whether the user has confirmed his email address.</param>
-        /// <param name="isPhoneConfirmed">Flag indicating whether the user has confirmed his phone number.</param>
-        /// <param name="isPasswordExpired">Flag indicating whether the user has an expired password.</param>
-        /// <param name="firstName">User's first name.</param>
-        /// <param name="lastName">User's last name.</param>
-        /// <returns>A <see cref="ClaimsPrincipal"/> containing the user 2fa information.</returns>
         internal ClaimsPrincipal StoreValidationInfo(string userId, bool isEmailConfirmed, bool isPhoneConfirmed, bool isPasswordExpired, string firstName, string lastName) {
             var identity = new ClaimsIdentity(ExtendedIdentityConstants.ExtendedValidationUserIdScheme);
             identity.AddClaim(new Claim(JwtClaimTypes.Subject, userId));
@@ -220,6 +177,32 @@ namespace Indice.AspNetCore.Identity
                 identity.AddClaim(new Claim(JwtClaimTypes.FamilyName, lastName));
             }
             return new ClaimsPrincipal(identity);
+        }
+
+        /// <inheritdoc/>
+        public override async Task<SignInResult> CheckPasswordSignInAsync(TUser user, string password, bool lockoutOnFailure) {
+            var attempt = await base.CheckPasswordSignInAsync(user, password, lockoutOnFailure);
+            if (attempt.Succeeded && ExpireBlacklistedPasswordsOnSignIn) {
+                var blacklistPasswordValidator = UserManager.PasswordValidators.OfType<NonCommonPasswordValidator<TUser>>().FirstOrDefault();
+                if (blacklistPasswordValidator is not null && await blacklistPasswordValidator.IsBlacklistedAsync(password)) {
+                    // If blacklisted then expire users password before proceeding.
+                    await ExtendedUserManager.SetPasswordExpiredAsync(user, true);
+                }
+            }
+            return attempt;
+        }
+
+        /// <inheritdoc/>
+        public override AuthenticationProperties ConfigureExternalAuthenticationProperties(string provider, string redirectUrl, string userId = null) {
+            var props = base.ConfigureExternalAuthenticationProperties(provider, redirectUrl, userId);
+            var queryString = QueryHelpers.ParseNullableQuery(redirectUrl);
+            // Make available the 'prompt' parameter to the downstream identity provider so that the client can have control over the re-authentication process.
+            // This merely adds the item to the authentication properties.
+            // The next thing to do is to configure the OpenIdConnect middleware to pass it on.
+            if (queryString.ContainsKey("prompt")) {
+                props.Items.Add("prompt", queryString["prompt"]);
+            }
+            return props;
         }
     }
 

@@ -36,6 +36,6 @@
         /// <summary>
         /// A user that can manage campaigns.
         /// </summary>
-        public const string AdminUICampaignsManager = nameof(AdminUICampaignsManager);
+        public const string CampaignManager = nameof(CampaignManager);
     }
 }

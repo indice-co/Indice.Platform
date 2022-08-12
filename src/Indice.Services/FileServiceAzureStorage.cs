@@ -54,9 +54,9 @@ namespace Indice.Services
             var extension = Path.GetExtension(filepath);
             stream.Position = 0;
             if (!string.IsNullOrEmpty(extension)) {
-                var result = await blob.UploadAsync(stream, new BlobHttpHeaders { ContentType = FileExtensions.GetMimeType(extension) });
+                await blob.UploadAsync(stream, new BlobHttpHeaders { ContentType = FileExtensions.GetMimeType(extension) });
             } else {
-                var result = await blob.UploadAsync(stream, overwrite: true);
+                await blob.UploadAsync(stream, overwrite: true);
             }
         }
 
@@ -152,8 +152,7 @@ namespace Indice.Services
                     ETag = response.Value.ETag.GetHttpSafeETag(),
                     LastModified = response.Value.LastModified
                 };
-            } catch (RequestFailedException ex)
-                  when (ex.ErrorCode == BlobErrorCode.BlobNotFound) {
+            } catch (RequestFailedException exception) when (exception.ErrorCode == BlobErrorCode.BlobNotFound) {
                 throw new FileNotFoundServiceException($"File {filename} not found.");
             }
         }
@@ -185,20 +184,20 @@ namespace Indice.Services
             }
             return deleted;
         }
+    }
 
+    /// <summary>
+    /// File service options specific to Azure.
+    /// </summary>
+    public class FileServiceAzureOptions
+    {
         /// <summary>
-        /// File service options specific to Azure.
+        /// The connection string setting name pointing to the to the Azure Storage account.
         /// </summary>
-        public class FileServiceOptions
-        {
-            /// <summary>
-            /// The connection string setting name pointing to the to the Azure Storage account.
-            /// </summary>
-            public string ConnectionStringName { get; set; }
-            /// <summary>
-            /// Usually the environment name (ex. Development, Production).
-            /// </summary>
-            public string ContainerName { get; set; }
-        }
+        public string ConnectionStringName { get; set; }
+        /// <summary>
+        /// Usually the environment name (ex. Development, Production).
+        /// </summary>
+        public string ContainerName { get; set; }
     }
 }
