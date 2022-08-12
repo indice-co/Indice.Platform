@@ -803,7 +803,7 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
             var themeConfigResolver = HttpContext.RequestServices.GetRequiredService<ClientThemeConfigTypeResolver>();
             var themeConfig = client.Properties.Where(x => x.Key == IdentityServerApi.PropertyKeys.ThemeConfig).FirstOrDefault();
             return Ok(new ClientThemeConfigResponse {
-                Schema = JsonSerializer.Deserialize<ExpandoObject>(themeConfigResolver.ResolveType().ToJsonSchema()),
+                Schema = themeConfigResolver.ResolveType().ToJsonSchema().AsJsonElement(),
                 Data = themeConfig is not null ? JsonSerializer.Deserialize<DefaultClientThemeConfig>(themeConfig.Value, JsonSerializerOptionDefaults.GetDefaultSettings()) : null
             });
         }

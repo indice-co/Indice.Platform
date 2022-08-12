@@ -7,8 +7,8 @@
     <GenerateEmbeddedFilesManifest>true</GenerateEmbeddedFilesManifest>
     <SpaDistFolder>..\Indice.Features.Messages.App\dist\campaigns-app</SpaDistFolder>
     <TargetFrameworks>netcoreapp3.1;net5.0;net6.0;</TargetFrameworks>
-    <VersionPrefix>6.0.1</VersionPrefix>
-    <!--<VersionSuffix>beta-02</VersionSuffix>-->
+    <VersionPrefix>6.1.3</VersionPrefix>
+    <!--<VersionSuffix>beta-10</VersionSuffix>-->
     <LangVersion>Latest</LangVersion>
   </PropertyGroup>
   <PropertyGroup Label="Package">
@@ -44,7 +44,7 @@
     <None Remove="campaigns-ui-dist\index.html" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Indice.AspNetCore.EmbeddedUI" Version="6.0.0" />
+    <PackageReference Include="Indice.AspNetCore.EmbeddedUI" Version="6.0.1" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Indice.AspNetCore.EmbeddedUI\Indice.AspNetCore.EmbeddedUI.csproj" />
