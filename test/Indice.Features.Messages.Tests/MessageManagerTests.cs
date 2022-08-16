@@ -53,6 +53,7 @@ namespace Indice.Features.Messages.Tests
                 .AddTransient<CreateMessageTypeRequestValidator>()
                 .AddTransient<Func<string, IEventDispatcher>>(serviceProvider => key => new EventDispatcherNoop())
                 .AddTransient(serviceProvider => new DatabaseSchemaNameResolver("cmp"))
+                .AddTransient<IUserNameAccessor, UserNameAccessorNoop>()
                 //.AddKeyedService<IFileService, FileServiceInMemory, string>(KeyedServiceNames.FileServiceKey, ServiceLifetime.Singleton)
                 //.AddFiles(x => x.AddFilesInMemory())
                 .AddOptions()
@@ -137,16 +138,6 @@ namespace Indice.Features.Messages.Tests
             Assert.NotEqual(default, result.CampaignId);
         }
 
-        public ValueTask DisposeAsync() {
-            GC.SuppressFinalize(this);
-            return ServiceProvider.DisposeAsync();
-        }
-
-
-        public class Container { 
-            public dynamic Data { get; set; } 
-        }
-
         [Fact]
         public void ToExpandoBug() {
             var data = new {
@@ -174,19 +165,31 @@ namespace Indice.Features.Messages.Tests
                 locationMap = "https://www.evpulse.eu/image-assets/location-map/{reservation.LocationId}",
                 locationMapLink = "",
                 footer = "Σας ευχαριστούμε που επιλέξατε την υπηρεσία EVPulse",
-                list = new[] { 
+                list = new[] {
                     new Contact { FullName ="Kvnst"  }
                 }
             };
             var container = new Container() { Data = data };
-            var data2 = JsonSerializer.Deserialize<Container>( JsonSerializer.Serialize(container));
-
+            var data2 = JsonSerializer.Deserialize<Container>(JsonSerializer.Serialize(container));
             var result = ExpandoTest(data2.Data);
             Assert.True(true);
         }
 
-        private ExpandoObject ExpandoTest(dynamic data) {
-            return Mapper.ToExpandoObject(data);
+        private static ExpandoObject ExpandoTest(dynamic data) => Mapper.ToExpandoObject(data);
+
+        public class Container
+        {
+            public dynamic Data { get; set; }
+        }
+
+        public class UserNameAccessorNoop : IUserNameAccessor
+        {
+            public string Resolve() => "static";
+        }
+
+        public ValueTask DisposeAsync() {
+            GC.SuppressFinalize(this);
+            return ServiceProvider.DisposeAsync();
         }
     }
 }

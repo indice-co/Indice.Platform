@@ -106,7 +106,7 @@ export class CampaignDetailsEditRightpaneComponent implements OnInit, AfterViewI
     }
 
     public onDistributionListSelected(name: string): void {
-        if (!this.model.distributionList) { 
+        if (!this.model.distributionList) {
             this.model.distributionList = new DistributionList();
         }
         this.model.distributionList.id = this._distributionLists.find(x => x.name === name)?.id;
@@ -134,7 +134,9 @@ export class CampaignDetailsEditRightpaneComponent implements OnInit, AfterViewI
             }
             this.activePeriodFrom = this._datePipe.transform(campaign.activePeriod?.from || this.now, 'yyyy-MM-ddThh:mm');
             this.activePeriodTo = campaign.activePeriod?.to ? this._datePipe.transform(campaign.activePeriod.to, 'yyyy-MM-ddThh:mm') : null;
-            this._distributionListCombobox.value = campaign.distributionList?.name || '';
+            if (this._distributionListCombobox) {
+                this._distributionListCombobox.value = campaign.distributionList?.name || '';
+            }
         });
     }
 
