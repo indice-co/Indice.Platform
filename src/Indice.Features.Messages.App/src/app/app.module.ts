@@ -41,6 +41,7 @@ import { PageIllustrationComponent } from './shared/components/page-illustration
 import { RadioButtonsListComponent } from './shared/components/radio-buttons-list/radio-buttons-list.component';
 import { SafePipe } from './shared/pipes/safe.pipe';
 import { ShellConfig } from './shell.config';
+import { TemplateCreateComponent } from './features/templates/create/template-create.component';
 import { TemplatesComponent } from './features/templates/templates.component';
 import { ToggleButtonComponent } from './shared/components/toggle-button/toggle-button.component';
 import * as app from 'src/app/core/models/settings';
@@ -79,6 +80,7 @@ registerLocaleData(localeGreek);
     RadioButtonsListComponent,
     SafePipe,
     TemplatesComponent,
+    TemplateCreateComponent,
     ToggleButtonComponent
   ],
   imports: [

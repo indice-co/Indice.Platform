@@ -1,0 +1,28 @@
+<lib-view-layout title="Δημιουργία Προτύπου"
+                 [meta-items]="metaItems">
+    <div class="min-h-full">
+        <main>
+            <div class="mx-auto px-4 sm:px-6 md:flex md:items-center md:justify-between md:space-x-5 lg:px-8">
+                <div class="flex items-center space-x-5"></div>
+                <div class="mt-6 flex flex-col-reverse justify-stretch space-y-4 space-y-reverse sm:flex-row-reverse sm:justify-end sm:space-x-reverse sm:space-y-0 sm:space-x-3 md:mt-0 md:flex-row md:space-x-3">
+                    <button type="button"
+                            class="side-view-layout-action-button-submit"
+                            [disabled]="!contentStep.form.valid || saveInProgress">
+                        Αποθήκευση
+                    </button>
+                </div>
+            </div>
+            <div class="mt-8 mb-8 mx-auto grid grid-cols-1 sm:px-6 lg:grid-flow-col-dense lg:grid-cols-1">
+                <div class="space-y-6 lg:col-start-1 lg:col-span-2">
+                    <section aria-labelledby="create-campaign-wizard">
+                        <div class="bg-white shadow sm:rounded-lg pt-4">
+                            <app-campaign-content [externalData]="basicInfoData"
+                                                  #contentStep>
+                            </app-campaign-content>
+                        </div>
+                    </section>
+                </div>
+            </div>
+        </main>
+    </div>
+</lib-view-layout>

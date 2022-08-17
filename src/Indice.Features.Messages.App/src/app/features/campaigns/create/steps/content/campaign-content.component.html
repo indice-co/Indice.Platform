@@ -29,10 +29,10 @@
                                         <span *ngIf="inboxSubject.errors!['required']">Παρακαλώ συμπληρώστε το θέμα του μήνυματος.</span>
                                     </p>
                                 </div>
-                                <div class="col-span-2 sm:col-span-1">
+                                <div class="mt-1 col-span-2 sm:col-span-1 border border-dashed">
                                     <label class="field-label hidden"
                                            aria-hidden="true">Προεπισκόπηση</label>
-                                    <div class="mt-2 flex rounded-sm col-span-3">
+                                    <div class="flex rounded-sm col-span-3">
                                         <p>{{ subjectPreview }}</p>
                                     </div>
                                 </div>
@@ -62,12 +62,12 @@
                                         <span *ngIf="inboxBody.errors!['required']">Παρακαλώ συμπληρώστε το σώμα του μηνύματος.</span>
                                     </p>
                                 </div>
-                                <div class="col-span-2 sm:col-span-1">
+                                <div class="mt-2 col-span-2 sm:col-span-1 border border-dashed">
                                     <label class="field-label hidden"
                                            aria-hidden="true">
                                         Προεπισκόπηση
                                     </label>
-                                    <div class="mt-2 flex rounded-sm col-span-3">
+                                    <div class="flex rounded-sm col-span-3">
                                         <iframe class="w-full"
                                                 [srcdoc]="bodyPreview | safe: 'html'"
                                                 style="height: 50vh;">
@@ -104,10 +104,10 @@
                                         <span *ngIf="pushNotificationSubject.errors!['required']">Παρακαλώ συμπληρώστε το θέμα του push notification.</span>
                                     </p>
                                 </div>
-                                <div class="col-span-2 sm:col-span-1">
+                                <div class="mt-1 col-span-2 sm:col-span-1 border border-dashed">
                                     <label class="field-label hidden"
                                            aria-hidden="true">Προεπισκόπηση</label>
-                                    <div class="mt-2 flex rounded-sm col-span-3">
+                                    <div class="flex rounded-sm col-span-3">
                                         <p>{{ subjectPreview }}</p>
                                     </div>
                                 </div>
@@ -137,10 +137,10 @@
                                         <span *ngIf="pushNotificationBody.errors!['required']">Παρακαλώ συμπληρώστε το σώμα του push notification.</span>
                                     </p>
                                 </div>
-                                <div class="col-span-2 sm:col-span-1">
+                                <div class="mt-2 col-span-2 sm:col-span-1 border border-dashed">
                                     <label class="field-label hidden"
                                            aria-hidden="true">Προεπισκόπηση</label>
-                                    <div class="mt-2 flex rounded-sm col-span-3">
+                                    <div class="flex rounded-sm col-span-3">
                                         <iframe class="w-full"
                                                 [srcdoc]="bodyPreview | safe: 'html'"
                                                 style="height: 50vh;">
@@ -177,11 +177,11 @@
                                         <span *ngIf="emailSubject.errors!['required']">Παρακαλώ συμπληρώστε το θέμα του email.</span>
                                     </p>
                                 </div>
-                                <div class="col-span-2 sm:col-span-1">
+                                <div class="mt-1 col-span-2 sm:col-span-1 border border-dashed">
                                     <label for="contentEmailSubjectPreviw"
                                            class="field-label hidden"
                                            aria-hidden="true">Προεπισκόπηση</label>
-                                    <div class="mt-2 flex rounded-sm col-span-3">
+                                    <div class="flex rounded-sm col-span-3">
                                         <p>{{ subjectPreview }}</p>
                                     </div>
                                 </div>
@@ -210,10 +210,10 @@
                                         <span *ngIf="emailBody.errors!['required']">Παρακαλώ συμπληρώστε το σώμα του email.</span>
                                     </p>
                                 </div>
-                                <div class="col-span-2 sm:col-span-1">
+                                <div class="mt-2 col-span-2 sm:col-span-1 border border-dashed">
                                     <label class="field-label hidden"
                                            aria-hidden="true">Προεπισκόπηση</label>
-                                    <div class="mt-2 flex rounded-sm col-span-3">
+                                    <div class="flex rounded-sm col-span-3">
                                         <iframe class="w-full"
                                                 [srcdoc]="bodyPreview | safe: 'html'"
                                                 style="height: 50vh;">
@@ -250,10 +250,10 @@
                                         <span *ngIf="smsSubject.errors!['required']">Παρακαλώ συμπληρώστε το θέμα του SMS.</span>
                                     </p>
                                 </div>
-                                <div class="col-span-2 sm:col-span-1">
+                                <div class="mt-1 col-span-2 sm:col-span-1 border border-dashed">
                                     <label class="field-label hidden"
                                            aria-hidden="true">Προεπισκόπηση</label>
-                                    <div class="mt-2 flex rounded-sm col-span-3">
+                                    <div class="flex rounded-sm col-span-3">
                                         <p>{{ subjectPreview }}</p>
                                     </div>
                                 </div>
@@ -283,10 +283,10 @@
                                         <span *ngIf="smsBody.errors!['required']">Παρακαλώ συμπληρώστε το σώμα του SMS.</span>
                                     </p>
                                 </div>
-                                <div class="col-span-2 sm:col-span-1">
+                                <div class="mt-2 col-span-2 sm:col-span-1 border border-dashed">
                                     <label class="field-label hidden"
                                            aria-hidden="true">Προεπισκόπηση</label>
-                                    <div class="mt-2 flex rounded-sm col-span-3">
+                                    <div class="flex rounded-sm col-span-3">
                                         <iframe class="w-full"
                                                 [srcdoc]="bodyPreview | safe: 'html'"
                                                 style="height: 50vh;">

@@ -21,6 +21,7 @@ import { LogOutComponent } from './core/services/logout/logout.component';
 import { MessageTypeCreateComponent } from './features/message-types/create/message-type-create.component';
 import { MessageTypeEditComponent } from './features/message-types/edit/message-type-edit.component';
 import { MessageTypesComponent } from './features/message-types/message-types.component';
+import { TemplateCreateComponent } from './features/templates/create/template-create.component';
 import { TemplatesComponent } from './features/templates/templates.component';
 
 const routes: Routes = [
@@ -45,7 +46,8 @@ const routes: Routes = [
       { path: 'message-types', component: MessageTypesComponent },
       { path: 'distribution-lists', component: DistributionListsComponent },
       { path: 'distribution-lists/:distributionListId/contacts', component: DistributionListContactsComponent },
-      { path: 'templates', component: TemplatesComponent }
+      { path: 'templates', component: TemplatesComponent },
+      { path: 'templates/add', component: TemplateCreateComponent }
     ]
   },
   { path: 'edit-campaign', canActivate: [AuthGuardService], component: CampaignDetailsEditRightpaneComponent, outlet: 'rightpane', pathMatch: 'prefix' },
