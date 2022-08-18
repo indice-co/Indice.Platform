@@ -38,7 +38,8 @@
                                 <lib-step [stepControl]="contentStep.form">
                                     <ng-template libStepLabel>Περιεχομενο</ng-template>
                                     <ng-template libStepInfo>Aνά κανάλι επικοινωνίας</ng-template>
-                                    <app-campaign-content [externalData]="basicInfoData"
+                                    <app-campaign-content [additionalData]="basicInfoData"
+                                                          [content]="content"
                                                           #contentStep>
                                     </app-campaign-content>
                                 </lib-step>

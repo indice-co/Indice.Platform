@@ -27,11 +27,11 @@ namespace Indice.Features.Messages.Core.Services.Validators
                 .Must(channel => channel != MessageChannelKind.None)
                 .WithMessage($"Please specify the campaign channel.");
             RuleFor(campaign => campaign.Content)
-                .Must(content => content.Count > 0)
-                .WithMessage("Please provide content for the campaign.")
                 .Must(HaveContentAccordingToChannelKind)
                 .WithMessage("Please provide content for all defined channels of the campaign.")
-                .When(campaign => campaign.Content.Count > 0);
+                .When(campaign => campaign.Content.Count > 0)
+                .Must(content => content.Count > 0)
+                .WithMessage("Please provide content for the campaign.");
             RuleFor(campaign => campaign.RecipientListId)
                 .Must(id => id is null)
                 .When(campaign => campaign.IsGlobal) // DistributionListId property must not be provided when campaign is global.
@@ -43,10 +43,6 @@ namespace Indice.Features.Messages.Core.Services.Validators
                 .MustAsync(BeExistingTypeId)
                 .When(campaign => campaign.TypeId.HasValue) // Check that TypeId is valid, when it is provided.
                 .WithMessage("Specified type id is not valid.");
-            RuleFor(campaign => campaign.ActivePeriod.From)
-                .Must(from => from.Value.Date >= DateTimeOffset.UtcNow.Date)
-                .When(campaign => campaign.ActivePeriod?.From is not null)
-                .WithMessage("Campaign should start now or in a future date.");
             RuleFor(campaign => campaign.ActivePeriod)
                 .Must(campaign => campaign.To > campaign.From)
                 .When(campaign => campaign.ActivePeriod?.From is not null && campaign.ActivePeriod?.To is not null)

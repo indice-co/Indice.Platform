@@ -1,7 +1,7 @@
 import { AfterViewChecked, ChangeDetectorRef, Component, OnInit, ViewChild } from '@angular/core';
 
 import { HeaderMetaItem, Icons } from '@indice/ng-components';
-import { MessageChannelKind } from 'src/app/core/services/messages-api.service';
+import { MessageChannelKind, MessageContent } from 'src/app/core/services/messages-api.service';
 import { CampaignContentComponent } from '../../campaigns/create/steps/content/campaign-content.component';
 
 @Component({
@@ -18,15 +18,14 @@ export class TemplateCreateComponent implements OnInit, AfterViewChecked {
     public metaItems: HeaderMetaItem[] | null = [];
     public basicInfoData: any = {};
     public saveInProgress = false;
+    public content: { [key: string]: MessageContent; } | undefined = {
+        'inbox': new MessageContent()
+    };
 
     public ngOnInit(): void {
         this.metaItems = [
             { key: 'info', icon: Icons.Details, text: 'Ακολουθήστε τα παρακάτω βήματα για να δημιουργήσετε ένα νέο πρότυπο.' }
         ];
-        this._contentStep.init([
-            { channel: MessageChannelKind.Inbox, checked: true },
-            { channel: MessageChannelKind.Email, checked: true }
-        ]);
     }
 
     public ngAfterViewChecked(): void {

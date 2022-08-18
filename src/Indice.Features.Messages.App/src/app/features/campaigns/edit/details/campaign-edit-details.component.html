@@ -1,11 +1,33 @@
 <section aria-labelledby="applicant-information-title">
     <div class="bg-white shadow sm:rounded-lg">
         <div class="px-4 py-5 sm:px-6">
-            <h2 id="applicant-information-title"
-                class="text-lg leading-6 font-medium text-gray-900">
-                Βασικές Πληροφορίες
-            </h2>
-            <p class="mt-1 max-w-2xl text-sm text-gray-500">Οι βασικές πληροφορίες της καμπάνιας.</p>
+            <div class="grid grid-cols-1 gap-x-4 gap-y-8 sm:grid-cols-2">
+                <div class="sm:col-span-1">
+                    <h2 id="applicant-information-title"
+                        class="text-lg leading-6 font-medium text-gray-900">
+                        Βασικές Πληροφορίες
+                    </h2>
+                    <p class="mt-1 max-w-2xl text-sm text-gray-500">Οι βασικές πληροφορίες της καμπάνιας.</p>
+                </div>
+                <div class="sm:col-span-1">
+                    <div class="mx-auto md:flex md:items-center md:justify-between md:space-x-5">
+                        <div class="flex items-center space-x-5"></div>
+                        <div class="flex flex-col-reverse justify-stretch space-y-4 space-y-reverse sm:flex-row-reverse sm:justify-end sm:space-x-reverse sm:space-y-0 sm:space-x-3 md:mt-0 md:flex-row md:space-x-3">
+                            <button type="button"
+                                    (click)="deleteCampaign()"
+                                    class="inline-flex items-center justify-center px-4 py-2 border border-transparent font-medium rounded-md text-red-700 bg-red-100 hover:bg-red-200 focus:outline-none focus:ring-1 focus:ring-offset-1 focus:ring-red-500 sm:text-sm">
+                                Διαγραφή
+                            </button>
+                            <button type="button"
+                                    (click)="publishCampaign()"
+                                    *ngIf="!campaign?.published"
+                                    class="side-view-layout-action-button-submit">
+                                Δημοσίευση
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
         <div class="border-t border-gray-200 px-4 py-5 sm:px-6">
             <dl class="grid grid-cols-1 gap-x-4 gap-y-8 sm:grid-cols-2">

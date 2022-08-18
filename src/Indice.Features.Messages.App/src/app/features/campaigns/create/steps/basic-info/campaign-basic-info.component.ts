@@ -1,6 +1,6 @@
 import { DatePipe } from '@angular/common';
 import { Component, EventEmitter, OnInit, Output } from '@angular/core';
-import { AbstractControl, UntypedFormArray, UntypedFormControl, UntypedFormGroup, Validators } from '@angular/forms';
+import { AbstractControl, FormGroup, FormArray, FormControl, Validators } from '@angular/forms';
 
 import { MenuOption } from '@indice/ng-components';
 import { map } from 'rxjs/operators';
@@ -30,7 +30,7 @@ export class CampaignBasicInfoComponent implements OnInit {
     public get needsTemplate(): AbstractControl { return this.form.get('needsTemplate')!; }
     public get channels(): AbstractControl { return this.form.get('channels')!; }
     // Properties
-    public form!: UntypedFormGroup;
+    public form!: FormGroup;
     public messageTypes: MenuOption[] = [new MenuOption('Παρακαλώ επιλέξτε...', null)];
     public templates: MenuOption[] = [new MenuOption('Παρακαλώ επιλέξτε...', null)];
     public now: Date = new Date();
@@ -73,9 +73,9 @@ export class CampaignBasicInfoComponent implements OnInit {
     public onTemplateSelectionChanged(event: any): void {
         if (event.value) {
             this.template.setValue(event);
-            const channelsFormArray: UntypedFormArray = this.channels as UntypedFormArray;
+            const channelsFormArray: FormArray = this.channels as FormArray;
             channelsFormArray.clear();
-            event.data.forEach((channel: string) => channelsFormArray.push(new UntypedFormControl(channel)));
+            event.data.forEach((channel: string) => channelsFormArray.push(new FormControl(channel)));
             this.channelsState.forEach((channel: any) => channel.checked = this.channels.value.indexOf(channel.value) > -1);
         } else {
             this.template.setValue(null);
@@ -84,11 +84,11 @@ export class CampaignBasicInfoComponent implements OnInit {
     }
 
     public onChannelCheckboxChange(event: any): void {
-        const channelsFormArray: UntypedFormArray = this.channels as UntypedFormArray;
+        const channelsFormArray: FormArray = this.channels as FormArray;
         const value = event.target.value;
         const checkbox = this.channelsState.find(x => x.value === value);
         if (event.target.checked) {
-            channelsFormArray.push(new UntypedFormControl(value));
+            channelsFormArray.push(new FormControl(value));
             checkbox!.checked = true;
         } else {
             let i: number = 0;
@@ -126,22 +126,22 @@ export class CampaignBasicInfoComponent implements OnInit {
     }
 
     private _initForm(): void {
-        this.form = new UntypedFormGroup({
-            title: new UntypedFormControl(undefined, [
+        this.form = new FormGroup({
+            title: new FormControl(undefined, [
                 Validators.required,
                 Validators.maxLength(128)
             ]),
-            from: new UntypedFormControl(this._datePipe.transform(this.now, 'yyyy-MM-ddThh:mm')),
-            to: new UntypedFormControl(),
-            actionLinkText: new UntypedFormControl(undefined, [Validators.maxLength(128)]),
-            actionLinkHref: new UntypedFormControl(undefined, [
+            from: new FormControl(this._datePipe.transform(this.now, 'yyyy-MM-ddThh:mm')),
+            to: new FormControl(),
+            actionLinkText: new FormControl(undefined, [Validators.maxLength(128)]),
+            actionLinkHref: new FormControl(undefined, [
                 Validators.pattern(/^(?:http(s)?:\/\/)?[\w.-]+(?:\.[\w\.-]+)+[\w\-\._~:?#[\]@!\$&'\(\)\*\+,;=.]+$/),
                 Validators.maxLength(2048)
             ]),
-            type: new UntypedFormControl(),
-            template: new UntypedFormControl(),
-            needsTemplate: new UntypedFormControl('no'),
-            channels: new UntypedFormArray([new UntypedFormControl('Inbox')], [Validators.required])
+            type: new FormControl(),
+            template: new FormControl(),
+            needsTemplate: new FormControl('no'),
+            channels: new FormArray([new FormControl('Inbox')], [Validators.required])
         });
     }
 }

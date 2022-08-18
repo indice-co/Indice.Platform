@@ -16,7 +16,8 @@
                 <div class="space-y-6 lg:col-start-1 lg:col-span-2">
                     <section aria-labelledby="create-campaign-wizard">
                         <div class="bg-white shadow sm:rounded-lg pt-4">
-                            <app-campaign-content [externalData]="basicInfoData"
+                            <app-campaign-content [additionalData]="basicInfoData"
+                                                  [content]="content"
                                                   #contentStep>
                             </app-campaign-content>
                         </div>
