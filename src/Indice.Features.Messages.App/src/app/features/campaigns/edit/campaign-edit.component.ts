@@ -1,8 +1,8 @@
 import { AfterViewChecked, ChangeDetectorRef, Component, Inject, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 
-import { HeaderMetaItem, Icons, ModalService, ToasterService, ViewLayoutComponent } from '@indice/ng-components';
-import { CampaignDetails, MessagesApiClient } from 'src/app/core/services/messages-api.service';
+import { HeaderMetaItem, Icons, ViewLayoutComponent } from '@indice/ng-components';
+import { CampaignDetails } from 'src/app/core/services/messages-api.service';
 import { CampaignEditStore } from './campaign-edit-store.service';
 
 @Component({
@@ -17,10 +17,7 @@ export class CampaignEditComponent implements OnInit, AfterViewChecked {
         private _activatedRoute: ActivatedRoute,
         private _campaignStore: CampaignEditStore,
         private _router: Router,
-        private _changeDetector: ChangeDetectorRef,
-        @Inject(ToasterService) private _toaster: ToasterService,
-        private _modalService: ModalService,
-        private _api: MessagesApiClient
+        private _changeDetector: ChangeDetectorRef
     ) { }
 
     public submitInProgress = false;

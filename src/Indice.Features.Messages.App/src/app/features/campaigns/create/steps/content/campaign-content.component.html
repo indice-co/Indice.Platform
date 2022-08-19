@@ -3,10 +3,74 @@
         <fieldset>
             <lib-tab-group (tabChanged)="onContentTabChanged($event)"
                            #tabGroup>
-                <lib-tab [id]="'tab-' + i"
-                         [label]="contentForm.value.channel"
+                <lib-tab [labelText]="channelsState[contentForm.value.channel].name"
                          *ngFor="let contentForm of channelsContent.controls; let i = index">
                     <ng-container *ngTemplateOutlet="contentTemplate; context: { $implicit: contentForm }"></ng-container>
+                </lib-tab>
+                <lib-tab labelText="Edit">
+                    <ng-template libTabLabel>
+                        <span class="inline-flex items-center">
+                            <button class="px-2"
+                                    type="button"
+                                    title="Επεξεργασία">
+                                <svg xmlns="http://www.w3.org/2000/svg"
+                                     class="h-4 w-4 stroke-slate-400 transition group-hover:rotate-[-4deg] group-hover:stroke-slate-600"
+                                     fill="none"
+                                     viewBox="0 0 24 24"
+                                     stroke="currentColor"
+                                     stroke-width="2">
+                                    <path stroke-linecap="round"
+                                          stroke-linejoin="round"
+                                          d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                                </svg>
+                            </button>
+                        </span>
+                    </ng-template>
+                    <div class="px-4 space-y-2 pb-4 mt-4">
+                        <fieldset>
+                            <legend class="sr-only">Κανάλια επικοινωνίας (*)</legend>
+                            <div class="text-base font-medium text-gray-900"
+                                 aria-hidden="true">
+                                Κανάλια επικοινωνίας (*)
+                            </div>
+                            <label for="campaignType"
+                                   class="field-label hidden"
+                                   aria-hidden="true">
+                                Κανάλια επικοινωνίας (*)
+                            </label>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div class="col-span-2 sm:col-span-1">
+                                    <div class="divide-y divide-gray-200">
+                                        <div *ngFor="let channel of channelsState | keyvalue; let i = index;"
+                                             class="relative flex items-start py-4">
+                                            <div class="min-w-0 flex-1 text-sm">
+                                                <label [for]="'channel-' + i"
+                                                       class="font-medium text-gray-700">
+                                                    {{ channel.value.name }}
+                                                </label>
+                                                <p [id]="'channel-' + i + '-description'"
+                                                   class="text-gray-500">
+                                                    {{ channel.value.description }}
+                                                </p>
+                                            </div>
+                                            <div class="ml-3 flex items-center h-5">
+                                                <input [id]="'channel-' + i"
+                                                       [value]="channel.key"
+                                                       [attr.aria-describedby]="'channel-' + i + '-description'"
+                                                       (change)="onChannelCheckboxChange($event)"
+                                                       name="channels"
+                                                       type="checkbox"
+                                                       class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 rounded"
+                                                       [disabled]="cannotRemoveChannel && channel.value.checked"
+                                                       [style.opacity]="cannotRemoveChannel && channel.value.checked ? '0.5' : '1'"
+                                                       [checked]="channel.value.checked">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </fieldset>
+                    </div>
                 </lib-tab>
             </lib-tab-group>
         </fieldset>

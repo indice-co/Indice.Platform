@@ -6,6 +6,7 @@ import { LibTabComponent } from '@indice/ng-components';
 import { MessageChannelKind, MessageContent } from 'src/app/core/services/messages-api.service';
 import { ValidationService } from 'src/app/core/services/validation.service';
 import { UtilitiesService } from 'src/app/shared/utilities.service';
+import { ChannelState } from './channel-state';
 
 @Component({
     selector: 'app-campaign-content',
@@ -62,6 +63,24 @@ export class CampaignContentComponent implements OnInit, OnChanges {
         };
     }
 
+    public get cannotRemoveChannel(): boolean {
+        return this.channelsContent.value.length <= 1;
+    }
+
+    // public channelsState: ChannelState[] = [
+    //     { name: 'Inbox', description: 'Ειδοποίηση μέσω πρoσωπικού μήνυμα.', value: MessageChannelKind.Inbox, checked: false },
+    //     { name: 'Push Notification', description: 'Ειδοποίηση μέσω push notification στις εγγεγραμμένες συσκευές.', value: MessageChannelKind.PushNotification, checked: false },
+    //     { name: 'Email', description: 'Ειδοποίηση μέσω ηλεκτρονικού ταχυδρομείου', value: MessageChannelKind.Email, checked: false },
+    //     { name: 'SMS', description: 'Ειδοποίηση μέσω σύντομου γραπτού μηνύματος.', value: MessageChannelKind.SMS, checked: false }
+    // ];
+
+    public channelsState: { [key: string]: ChannelState; } = {
+        'inbox': { name: 'Inbox', description: 'Ειδοποίηση μέσω πρoσωπικού μήνυμα.', value: MessageChannelKind.Inbox, checked: false },
+        'pushNotification': { name: 'Push Notification', description: 'Ειδοποίηση μέσω push notification στις εγγεγραμμένες συσκευές.', value: MessageChannelKind.PushNotification, checked: false },
+        'email': { name: 'Email', description: 'Ειδοποίηση μέσω ηλεκτρονικού ταχυδρομείου', value: MessageChannelKind.Email, checked: false },
+        'sms': { name: 'SMS', description: 'Ειδοποίηση μέσω σύντομου γραπτού μηνύματος.', value: MessageChannelKind.SMS, checked: false }
+    };
+
     public ngOnInit(): void { }
 
     public ngOnChanges(changes: SimpleChanges): void {
@@ -77,6 +96,10 @@ export class CampaignContentComponent implements OnInit, OnChanges {
                         subject: [content.title, Validators.required],
                         body: [content.body, Validators.required]
                     });
+                    const channelState = this.channelsState[channel];
+                    if (channelState) {
+                        channelState.checked = true;
+                    }
                     this.channelsContent.push(channelForm);
                     if (index === 0) {
                         this._setSubjectPreview(content.title);
@@ -88,9 +111,37 @@ export class CampaignContentComponent implements OnInit, OnChanges {
         }
     }
 
+    public onChannelCheckboxChange(event: any): void {
+        const channelsFormArray: FormArray = this.channelsContent as FormArray;
+        const messageKind = event.target.value;
+        const checkbox = this.channelsState[messageKind];
+        if (event.target.checked) {
+            const channelForm = this._formBuilder.group({
+                channel: messageKind,
+                subject: ['', Validators.required],
+                body: ['', Validators.required]
+            });
+            channelsFormArray.push(channelForm);
+            checkbox!.checked = true;
+        } else {
+            let i: number = 0;
+            channelsFormArray.controls.forEach((control: AbstractControl) => {
+                if (control.value.channel.toLowerCase() == messageKind.toLowerCase()) {
+                    channelsFormArray.removeAt(i);
+                    checkbox!.checked = false;
+                    return;
+                }
+                i++;
+            });
+        }
+    }
+
     public onContentTabChanged(tab: LibTabComponent): void {
         const index = tab.index || 0;
         const formGroup = <FormGroup>this.channelsContent.controls[index];
+        if (!formGroup) {
+            return;
+        }
         const subject = formGroup.controls['subject'].value;
         const body = formGroup.controls['body'].value;
         this._setSubjectPreview(subject);
