@@ -28,6 +28,8 @@ import { DashboardComponent } from './features/dashboard/dashboard.component';
 import { DistributionListContactCreateComponent } from './features/distribution-lists/contacts/create/distribution-list-contact-create.component';
 import { DistributionListContactsComponent } from './features/distribution-lists/contacts/distribution-list-contacts.component';
 import { DistributionListCreateComponent } from './features/distribution-lists/create/distribution-list-create.component';
+import { DistributionListDetailsEditComponent } from './features/distribution-lists/edit/details/distribution-list-edit-details.component';
+import { DistributionListDetailsEditRightpaneComponent } from './features/distribution-lists/edit/details/rightpane/distribution-list-edit-details-rightpane.component';
 import { DistributionListEditComponent } from './features/distribution-lists/edit/distribution-list-edit.component';
 import { DistributionListsComponent } from './features/distribution-lists/distribution-lists.component';
 import { HomeComponent } from './features/home/home.component';
@@ -41,7 +43,11 @@ import { PageIllustrationComponent } from './shared/components/page-illustration
 import { RadioButtonsListComponent } from './shared/components/radio-buttons-list/radio-buttons-list.component';
 import { SafePipe } from './shared/pipes/safe.pipe';
 import { ShellConfig } from './shell.config';
+import { TemplateContentEditComponent } from './features/templates/edit/content/template-edit-content.component';
 import { TemplateCreateComponent } from './features/templates/create/template-create.component';
+import { TemplateDetailsEditComponent } from './features/templates/edit/details/template-edit-details.component';
+import { TemplateDetailsEditRightpaneComponent } from './features/templates/edit/details/rightpane/template-edit-details-rightpane.component';
+import { TemplateEditComponent } from './features/templates/edit/template-edit.component';
 import { TemplatesComponent } from './features/templates/templates.component';
 import { ToggleButtonComponent } from './shared/components/toggle-button/toggle-button.component';
 import * as app from 'src/app/core/models/settings';
@@ -68,6 +74,8 @@ registerLocaleData(localeGreek);
     DistributionListContactCreateComponent,
     DistributionListContactsComponent,
     DistributionListCreateComponent,
+    DistributionListDetailsEditComponent,
+    DistributionListDetailsEditRightpaneComponent,
     DistributionListEditComponent,
     DistributionListsComponent,
     HomeComponent,
@@ -79,8 +87,12 @@ registerLocaleData(localeGreek);
     PageIllustrationComponent,
     RadioButtonsListComponent,
     SafePipe,
-    TemplatesComponent,
+    TemplateContentEditComponent,
     TemplateCreateComponent,
+    TemplateDetailsEditComponent,
+    TemplateDetailsEditRightpaneComponent,
+    TemplateEditComponent,
+    TemplatesComponent,
     ToggleButtonComponent
   ],
   imports: [

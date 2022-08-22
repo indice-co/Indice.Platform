@@ -1,8 +1,8 @@
-import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
+import { Component, Input, OnChanges, OnInit, SimpleChanges, ViewChild } from '@angular/core';
 import { AbstractControl, FormGroup, FormControl, Validators, FormBuilder, FormArray } from '@angular/forms';
 
 import * as Handlebars from 'handlebars/dist/cjs/handlebars';
-import { LibTabComponent } from '@indice/ng-components';
+import { LibTabComponent, LibTabGroupComponent } from '@indice/ng-components';
 import { MessageChannelKind, MessageContent } from 'src/app/core/services/messages-api.service';
 import { ValidationService } from 'src/app/core/services/validation.service';
 import { UtilitiesService } from 'src/app/shared/utilities.service';
@@ -27,6 +27,7 @@ export class CampaignContentComponent implements OnInit, OnChanges {
     };
 
     private _currentValidDataObject: any = undefined;
+    @ViewChild('tabGroup', { static: true }) private _tabGroup: LibTabGroupComponent | undefined;
 
     constructor(
         private _validationService: ValidationService,
@@ -54,6 +55,7 @@ export class CampaignContentComponent implements OnInit, OnChanges {
     public subjectPreview: string = '';
     public bodyPreview: string = '';
     public MessageChannelKind = MessageChannelKind;
+    public hideMetadata = false;
 
     public get samplePayload(): any {
         return {
@@ -66,13 +68,6 @@ export class CampaignContentComponent implements OnInit, OnChanges {
     public get cannotRemoveChannel(): boolean {
         return this.channelsContent.value.length <= 1;
     }
-
-    // public channelsState: ChannelState[] = [
-    //     { name: 'Inbox', description: 'Ειδοποίηση μέσω πρoσωπικού μήνυμα.', value: MessageChannelKind.Inbox, checked: false },
-    //     { name: 'Push Notification', description: 'Ειδοποίηση μέσω push notification στις εγγεγραμμένες συσκευές.', value: MessageChannelKind.PushNotification, checked: false },
-    //     { name: 'Email', description: 'Ειδοποίηση μέσω ηλεκτρονικού ταχυδρομείου', value: MessageChannelKind.Email, checked: false },
-    //     { name: 'SMS', description: 'Ειδοποίηση μέσω σύντομου γραπτού μηνύματος.', value: MessageChannelKind.SMS, checked: false }
-    // ];
 
     public channelsState: { [key: string]: ChannelState; } = {
         'inbox': { name: 'Inbox', description: 'Ειδοποίηση μέσω πρoσωπικού μήνυμα.', value: MessageChannelKind.Inbox, checked: false },
@@ -138,6 +133,7 @@ export class CampaignContentComponent implements OnInit, OnChanges {
 
     public onContentTabChanged(tab: LibTabComponent): void {
         const index = tab.index || 0;
+        this.hideMetadata = index + 1 === this._tabGroup?.tabs?.toArray().length;
         const formGroup = <FormGroup>this.channelsContent.controls[index];
         if (!formGroup) {
             return;

@@ -92,6 +92,22 @@
                     <dt class="text-sm font-medium text-gray-500">Κανάλια επικοινωνίας</dt>
                     <dd class="mt-1 text-sm text-gray-900">{{ deliveryChannels || '-' }}</dd>
                 </div>
+                <div class="sm:col-span-1">
+                    <dt class="text-sm font-medium text-gray-500">Δημιουργήθηκε από</dt>
+                    <dd class="mt-1 text-sm text-gray-900">{{ campaign?.createdBy || '-' }}</dd>
+                </div>
+                <div class="sm:col-span-1">
+                    <dt class="text-sm font-medium text-gray-500">Δημιουργήθηκε στις</dt>
+                    <dd class="mt-1 text-sm text-gray-900">{{ campaign?.createdAt ? (campaign?.createdAt | date: 'medium') : '-' }}</dd>
+                </div>
+                <div class="sm:col-span-1">
+                    <dt class="text-sm font-medium text-gray-500">Τροποποιήθηκε από</dt>
+                    <dd class="mt-1 text-sm text-gray-900">{{ campaign?.updatedBy || '-' }}</dd>
+                </div>
+                <div class="sm:col-span-1">
+                    <dt class="text-sm font-medium text-gray-500">Τροποποιήθηκε στις</dt>
+                    <dd class="mt-1 text-sm text-gray-900">{{ campaign?.updatedAt ? (campaign?.updatedAt | date: 'medium') : '-' }}</dd>
+                </div>
             </dl>
         </div>
     </div>

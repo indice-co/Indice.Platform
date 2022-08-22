@@ -2,34 +2,34 @@ import { AfterViewChecked, ChangeDetectorRef, Component, OnInit, ViewChild } fro
 import { ActivatedRoute, Router } from '@angular/router';
 
 import { HeaderMetaItem, ViewLayoutComponent } from '@indice/ng-components';
-import { DistributionList } from 'src/app/core/services/messages-api.service';
-import { DistributionListEditStore } from './distribution-list-edit-store.service';
+import { Template } from 'src/app/core/services/messages-api.service';
+import { TemplateEditStore } from './template-edit-store.service';
 
 @Component({
-    selector: 'app-distribution-list',
-    templateUrl: './distribution-list-edit.component.html'
+    selector: 'app-template-edit',
+    templateUrl: './template-edit.component.html'
 })
-export class DistributionListEditComponent implements OnInit, AfterViewChecked {
+export class TemplateEditComponent implements OnInit, AfterViewChecked {
     @ViewChild('layout', { static: true }) private _layout!: ViewLayoutComponent;
-    private _distributionListId?: string;
+    private _templateId?: string;
 
     constructor(
         private _activatedRoute: ActivatedRoute,
         private _router: Router,
         private _changeDetector: ChangeDetectorRef,
-        private _distributionListStore: DistributionListEditStore
+        private _templateStore: TemplateEditStore
     ) { }
 
     public submitInProgress = false;
-    public distributionList: DistributionList | undefined;
+    public template: Template | undefined;
     public metaItems: HeaderMetaItem[] = [];
 
     public ngOnInit(): void {
-        this._distributionListId = this._activatedRoute.snapshot.params['distributionListId'];
-        if (this._distributionListId) {
-            this._distributionListStore.getDistributionList(this._distributionListId!).subscribe((distributionList: DistributionList) => {
-                this.distributionList = distributionList;
-                this._layout.title = `Λίστα διανομής - ${distributionList.name}`;
+        this._templateId = this._activatedRoute.snapshot.params['templateId'];
+        if (this._templateId) {
+            this._templateStore.getTemplate(this._templateId!).subscribe((template: Template) => {
+                this.template = template;
+                this._layout.title = `Πρότυπο - ${template.name}`;
             });
         }
     }

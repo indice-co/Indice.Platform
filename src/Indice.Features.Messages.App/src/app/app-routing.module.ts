@@ -12,8 +12,9 @@ import { CampaignReportsComponent } from './features/campaigns/edit/reports/camp
 import { CampaignsComponent } from './features/campaigns/campaigns.component';
 import { DashboardComponent } from './features/dashboard/dashboard.component';
 import { DistributionListContactCreateComponent } from './features/distribution-lists/contacts/create/distribution-list-contact-create.component';
-import { DistributionListContactsComponent } from './features/distribution-lists/contacts/distribution-list-contacts.component';
 import { DistributionListCreateComponent } from './features/distribution-lists/create/distribution-list-create.component';
+import { DistributionListDetailsEditComponent } from './features/distribution-lists/edit/details/distribution-list-edit-details.component';
+import { DistributionListDetailsEditRightpaneComponent } from './features/distribution-lists/edit/details/rightpane/distribution-list-edit-details-rightpane.component';
 import { DistributionListEditComponent } from './features/distribution-lists/edit/distribution-list-edit.component';
 import { DistributionListsComponent } from './features/distribution-lists/distribution-lists.component';
 import { HomeComponent } from './features/home/home.component';
@@ -21,7 +22,11 @@ import { LogOutComponent } from './core/services/logout/logout.component';
 import { MessageTypeCreateComponent } from './features/message-types/create/message-type-create.component';
 import { MessageTypeEditComponent } from './features/message-types/edit/message-type-edit.component';
 import { MessageTypesComponent } from './features/message-types/message-types.component';
+import { TemplateContentEditComponent } from './features/templates/edit/content/template-edit-content.component';
 import { TemplateCreateComponent } from './features/templates/create/template-create.component';
+import { TemplateDetailsEditComponent } from './features/templates/edit/details/template-edit-details.component';
+import { TemplateDetailsEditRightpaneComponent } from './features/templates/edit/details/rightpane/template-edit-details-rightpane.component';
+import { TemplateEditComponent } from './features/templates/edit/template-edit.component';
 import { TemplatesComponent } from './features/templates/templates.component';
 
 const routes: Routes = [
@@ -45,16 +50,31 @@ const routes: Routes = [
       },
       { path: 'message-types', component: MessageTypesComponent },
       { path: 'distribution-lists', component: DistributionListsComponent },
-      { path: 'distribution-lists/:distributionListId/contacts', component: DistributionListContactsComponent },
+      {
+        path: 'distribution-lists/:distributionListId', component: DistributionListEditComponent, children: [
+          { path: '', redirectTo: 'details', pathMatch: 'full' },
+          { path: 'details', component: DistributionListDetailsEditComponent },
+          { path: 'contacts', component: TemplateContentEditComponent }
+        ]
+      },
       { path: 'templates', component: TemplatesComponent },
-      { path: 'templates/add', component: TemplateCreateComponent }
+      { path: 'templates/add', component: TemplateCreateComponent },
+      {
+        path: 'templates/:templateId', component: TemplateEditComponent, children: [
+          { path: '', redirectTo: 'details', pathMatch: 'full' },
+          { path: 'details', component: TemplateDetailsEditComponent },
+          { path: 'content', component: TemplateContentEditComponent }
+        ]
+      },
     ]
   },
   { path: 'edit-campaign', canActivate: [AuthGuardService], component: CampaignDetailsEditRightpaneComponent, outlet: 'rightpane', pathMatch: 'prefix' },
+  { path: 'edit-distribution-list', canActivate: [AuthGuardService], component: DistributionListDetailsEditRightpaneComponent, outlet: 'rightpane', pathMatch: 'prefix' },
+  { path: 'edit-template', canActivate: [AuthGuardService], component: TemplateDetailsEditRightpaneComponent, outlet: 'rightpane', pathMatch: 'prefix' },
   { path: 'create-message-type', canActivate: [AuthGuardService], component: MessageTypeCreateComponent, outlet: 'rightpane', pathMatch: 'prefix' },
   { path: 'edit-message-type/:messageTypeId', canActivate: [AuthGuardService], component: MessageTypeEditComponent, outlet: 'rightpane', pathMatch: 'prefix' },
   { path: 'create-distribution-list', canActivate: [AuthGuardService], component: DistributionListCreateComponent, outlet: 'rightpane', pathMatch: 'prefix' },
-  { path: 'edit-distribution-list/:distributionListId', canActivate: [AuthGuardService], component: DistributionListEditComponent, outlet: 'rightpane', pathMatch: 'prefix' },
+  //{ path: 'edit-distribution-list/:distributionListId', canActivate: [AuthGuardService], component: DistributionListEditComponent, outlet: 'rightpane', pathMatch: 'prefix' },
   { path: 'create-distribution-list-contact', canActivate: [AuthGuardService], component: DistributionListContactCreateComponent, outlet: 'rightpane', pathMatch: 'prefix' },
   { path: 'logout', component: LogOutComponent, data: { shell: { fluid: true, showHeader: false, showFooter: false } } },
   { path: '**', component: PageNotFoundComponent, data: { shell: { fluid: true, showHeader: false, showFooter: false } } }

@@ -1,0 +1,46 @@
+<lib-side-view-layout title="Επεξεργασία καμπάνιας"
+                      [ok-close-dialog]="false"
+                      [ok-label]="'Αποθήκευση'"
+                      [cancel-label]="'Κλείσιμο'"
+                      (ok)="submitButton.nativeElement.click()"
+                      [disabled]="!editCampaignForm.valid || submitInProgress"
+                      #sideViewLayout>
+    <div class="mt-4">
+        <form #editCampaignForm="ngForm"
+              (ngSubmit)="onSubmit()">
+            <div class="px-4 space-y-2 pb-4">
+                <div class="grid grid-cols-4 gap-4">
+                    <div class="col-span-4">
+                        <ng-container [ngTemplateOutlet]="templateOutlet"></ng-container>
+                    </div>
+                </div>
+            </div>
+            <button type="submit"
+                    [style.visibility]="'hidden'"
+                    #submitBtn>
+                Submit
+            </button>
+        </form>
+    </div>
+</lib-side-view-layout>
+<ng-template #editNameTemplate>
+    <label for="templateName"
+           class="field-label">
+        Τίτλος (*)
+    </label>
+    <div class="mt-1 flex rounded-sm">
+        <input type="text"
+               name="templateName"
+               id="templateName"
+               [(ngModel)]="model.name"
+               placeholder="Το όνομα του προτύπου..."
+               required
+               #templateName="ngModel">
+    </div>
+    <p *ngIf="templateName.invalid && (templateName.dirty || templateName.touched)"
+       class="mt-2 text-sm text-red-600">
+        <span *ngIf="templateName.errors!['required']">Παρακαλώ συμπληρώστε ένα τίτλο.</span>
+        <span *ngIf="templateName.errors!['maxlength']">Παρακαλώ συμπληρώστε ένα μικρότερο τίτλο.</span>
+    </p>
+    <p class="field-info col-span-3">Η ονομασία η οποία θα εμφανίζεται για την καμπάνια.</p>
+</ng-template>

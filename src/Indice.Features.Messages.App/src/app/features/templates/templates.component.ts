@@ -54,9 +54,9 @@ export class TemplatesComponent extends BaseListComponent<Template> implements O
         });
         modal.onHidden?.subscribe((response: any) => {
             if (response.result?.answer) {
-                this._api.deleteMessageType(response.result.data.id).subscribe(() => {
+                this._api.deleteTemplate(response.result.data.id).subscribe(() => {
                     this._toaster.show(ToastType.Success, 'Επιτυχής διαγραφή', `Το πρότυπο με όνομα '${response.result.data.name}' διαγράφηκε με επιτυχία.`);
-                    this._router.navigateByUrl('/', { skipLocationChange: true }).then(() => this._router.navigate(['message-types']));
+                    this._router.navigateByUrl('/', { skipLocationChange: true }).then(() => this._router.navigate(['templates']));
                 });
             }
         });

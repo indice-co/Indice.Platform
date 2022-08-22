@@ -12,17 +12,21 @@ export class CampaignEditStore {
     private _idChanged = false;
     private _currentId = '';
 
-    constructor(private _api: MessagesApiClient) { }
+    constructor(
+        private _api: MessagesApiClient
+    ) { }
 
     public getCampaign(campaignId: string): Observable<CampaignDetails> {
         this._idChanged = this._currentId !== campaignId;
         this._currentId = campaignId;
         if (!this._campaign || this._idChanged) {
             this._campaign = new AsyncSubject<CampaignDetails>();
-            this._api.getCampaignById(campaignId).subscribe((campaign: CampaignDetails) => {
-                this._campaign?.next(campaign);
-                this._campaign?.complete();
-            });
+            this._api
+                .getCampaignById(campaignId)
+                .subscribe((campaign: CampaignDetails) => {
+                    this._campaign?.next(campaign);
+                    this._campaign?.complete();
+                });
         }
         return this._campaign;
     }
@@ -38,8 +42,10 @@ export class CampaignEditStore {
             isGlobal: campaign.isGlobal,
             recipientListId: campaign.distributionList?.id
         });
-        return this._api.updateCampaign(campaignId, body).pipe(
-            map(_ => this._campaign = undefined)
-        );
+        return this._api
+            .updateCampaign(campaignId, body)
+            .pipe(
+                map(_ => this._campaign = undefined)
+            );
     }
 }

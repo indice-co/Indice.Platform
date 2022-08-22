@@ -30,17 +30,6 @@ namespace Indice.Features.Messages.AspNetCore.Controllers
 
         public ITemplateService TemplateService { get; }
 
-        /// <summary>Creates a new template in the store.</summary>
-        /// <param name="request">The request model used to create a new template.</param>
-        /// <response code="201">Created</response>
-        [HttpPost]
-        [ProducesResponseType(typeof(TemplateBase), StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> CreateTemplate([FromBody] CreateTemplateRequest request) {
-            var createdTemplate = await TemplateService.Create(request);
-            return CreatedAtAction(nameof(GetTemplateById), new { templateId = createdTemplate.Id }, createdTemplate);
-        }
-
         /// <summary>Gets the list of all templates using the provided <see cref="ListOptions"/>.</summary>
         /// <param name="options">List parameters used to navigate through collections. Contains parameters such as sort, search, page number and page size.</param>
         /// <response code="200">OK</response>
@@ -64,6 +53,40 @@ namespace Indice.Features.Messages.AspNetCore.Controllers
                 return NotFound();
             }
             return Ok(template);
+        }
+
+        /// <summary>Creates a new template in the store.</summary>
+        /// <param name="request">The request model used to create a new template.</param>
+        /// <response code="201">Created</response>
+        [HttpPost]
+        [ProducesResponseType(typeof(Template), StatusCodes.Status201Created)]
+        [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> CreateTemplate([FromBody] CreateTemplateRequest request) {
+            var createdTemplate = await TemplateService.Create(request);
+            return CreatedAtAction(nameof(GetTemplateById), new { templateId = createdTemplate.Id }, createdTemplate);
+        }
+
+        /// <summary>Updates an existing template.</summary>
+        /// <param name="templateId">The id of the template.</param>
+        /// <param name="request">Contains info about the template to update.</param>
+        /// <response code="204">No Content</response>
+        /// <response code="400">Bad Request</response>
+        [HttpPut("{templateId:guid}")]
+        [ProducesResponseType(typeof(void), StatusCodes.Status204NoContent)]
+        [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> UpdateTemplate([FromRoute] Guid templateId, [FromBody] UpdateTemplateRequest request) {
+            await TemplateService.Update(templateId, request);
+            return NoContent();
+        }
+
+        /// <summary>Permanently deletes a template from the store.</summary>
+        /// <param name="templateId">The id of the template.</param>
+        /// <response code="204">No Content</response>
+        [HttpDelete("{templateId:guid}")]
+        [ProducesResponseType(typeof(Template), StatusCodes.Status204NoContent)]
+        public async Task<IActionResult> DeleteTemplate([FromRoute] Guid templateId) {
+            await TemplateService.Delete(templateId);
+            return NoContent();
         }
     }
 }

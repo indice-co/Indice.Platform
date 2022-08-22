@@ -11,7 +11,7 @@
                              aria-label="Sidebar">
                             <a [routerLink]="['details']"
                                class="vertical-navigation-link-base"
-                               [ngClass]="isActive(['distribution-lists', distributionList?.id || '', 'details']) ? 'vertical-navigation-link-active' : 'vertical-navigation-link'"
+                               [ngClass]="isActive(['templates', template?.id || '', 'details']) ? 'vertical-navigation-link-active' : 'vertical-navigation-link'"
                                aria-current="page">
                                 <svg xmlns="http://www.w3.org/2000/svg"
                                      class="text-gray-500 flex-shrink-0 -ml-1 mr-3 h-6 w-6"
@@ -25,17 +25,20 @@
                                 </svg>
                                 <span class="truncate">Βασικές πληροφορίες</span>
                             </a>
-                            <a [routerLink]="['contacts']"
-                               [ngClass]="isActive(['distribution-lists', distributionList?.id || '', 'contacts']) ? 'vertical-navigation-link-active' : 'vertical-navigation-link'"
+                            <a [routerLink]="['content']"
+                               [ngClass]="isActive(['templates', template?.id || '', 'content']) ? 'vertical-navigation-link-active' : 'vertical-navigation-link'"
                                class="vertical-navigation-link-base">
-                                <svg class="text-gray-500 flex-shrink-0 -ml-1 mr-3 h-6 w-6"
+                                <svg xmlns="http://www.w3.org/2000/svg"
+                                     class="text-gray-400 flex-shrink-0 -ml-1 mr-3 h-6 w-6"
                                      fill="none"
                                      viewBox="0 0 24 24"
                                      stroke="currentColor"
                                      stroke-width="2">
-                                    <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z" />
+                                    <path stroke-linecap="round"
+                                          stroke-linejoin="round"
+                                          d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z" />
                                 </svg>
-                                <span class="truncate">Επαφές</span>
+                                <span class="truncate">Περιεχόμενο</span>
                             </a>
                         </nav>
                     </div>

@@ -35,9 +35,7 @@
         <lib-list-column title="ΕΝΕΡΓΕΙΕΣ">
             <ng-template let-item>
                 <a href="#"
-                   [routerLinkActive]="['']"
-                   [routerLinkActiveOptions]="{ exact: true }"
-                   [routerLink]="['', { outlets: { rightpane: ['edit-template', item.id] } }]"
+                   [routerLink]="[item.id]"
                    class="nav-link-profile"
                    class="inline-flex items-center justify-center px-4 py-2 font-medium rounded-md sm:text-sm">
                     <svg xmlns="http://www.w3.org/2000/svg"
