@@ -11,7 +11,8 @@
                              aria-label="Sidebar">
                             <a [routerLink]="['details']"
                                class="vertical-navigation-link-base"
-                               [ngClass]="isActive(['templates', template?.id || '', 'details']) ? 'vertical-navigation-link-active' : 'vertical-navigation-link'"
+                               routerLinkActive="vertical-navigation-link-active"
+                               [routerLinkActiveOptions]="{ exact: true }"
                                aria-current="page">
                                 <svg xmlns="http://www.w3.org/2000/svg"
                                      class="text-gray-500 flex-shrink-0 -ml-1 mr-3 h-6 w-6"
@@ -26,7 +27,8 @@
                                 <span class="truncate">Βασικές πληροφορίες</span>
                             </a>
                             <a [routerLink]="['content']"
-                               [ngClass]="isActive(['templates', template?.id || '', 'content']) ? 'vertical-navigation-link-active' : 'vertical-navigation-link'"
+                               routerLinkActive="vertical-navigation-link-active"
+                               [routerLinkActiveOptions]="{ exact: true }"
                                class="vertical-navigation-link-base">
                                 <svg xmlns="http://www.w3.org/2000/svg"
                                      class="text-gray-400 flex-shrink-0 -ml-1 mr-3 h-6 w-6"

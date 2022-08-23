@@ -25,8 +25,8 @@ import { CampaignRecipientsComponent } from './features/campaigns/create/steps/r
 import { CampaignReportsComponent } from './features/campaigns/edit/reports/campaign-reports.component';
 import { CampaignsComponent } from './features/campaigns/campaigns.component';
 import { DashboardComponent } from './features/dashboard/dashboard.component';
-import { DistributionListContactCreateComponent } from './features/distribution-lists/contacts/create/distribution-list-contact-create.component';
-import { DistributionListContactsComponent } from './features/distribution-lists/contacts/distribution-list-contacts.component';
+import { DistributionListContactCreateComponent } from './features/distribution-lists/edit/contacts/create/distribution-list-contact-create.component';
+import { DistributionListContactsComponent } from './features/distribution-lists/edit/contacts/distribution-list-contacts.component';
 import { DistributionListCreateComponent } from './features/distribution-lists/create/distribution-list-create.component';
 import { DistributionListDetailsEditComponent } from './features/distribution-lists/edit/details/distribution-list-edit-details.component';
 import { DistributionListDetailsEditRightpaneComponent } from './features/distribution-lists/edit/details/rightpane/distribution-list-edit-details-rightpane.component';

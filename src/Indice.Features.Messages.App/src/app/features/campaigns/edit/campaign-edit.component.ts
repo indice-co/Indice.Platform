@@ -31,16 +31,16 @@ export class CampaignEditComponent implements OnInit, AfterViewChecked {
                 this.campaign = campaign;
                 this._layout.title = `Καμπάνια - ${campaign.title}`;
                 if (campaign.published) {
-                    this.metaItems.push({ 
-                        key: 'status', 
-                        icon: Icons.Heart, 
-                        text: `Δημοσιεύτηκε στις ${new Date()}` 
+                    this.metaItems.push({
+                        key: 'status',
+                        icon: Icons.Heart,
+                        text: `Δημοσιεύτηκε στις ${new Date()}`
                     });
                 } else {
-                    this.metaItems.push({ 
-                        key: 'status', 
-                        icon: Icons.HeartBroken, 
-                        text: `Μη δημοσιευμένη` 
+                    this.metaItems.push({
+                        key: 'status',
+                        icon: Icons.HeartBroken,
+                        text: `Μη δημοσιευμένη`
                     });
                 }
             });
@@ -49,15 +49,5 @@ export class CampaignEditComponent implements OnInit, AfterViewChecked {
 
     public ngAfterViewChecked(): void {
         this._changeDetector.detectChanges();
-    }
-
-    public isActive(commands: string[]): boolean {
-        const url = this._router.createUrlTree(commands);
-        return this._router.isActive(url, { 
-            paths: 'exact', 
-            queryParams: 'exact', 
-            fragment: 'ignored', 
-            matrixParams: 'ignored' 
-        });
     }
 }

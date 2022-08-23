@@ -10,8 +10,9 @@
                         <nav class="space-y-1"
                              aria-label="Sidebar">
                             <a [routerLink]="['details']"
+                               routerLinkActive="vertical-navigation-link-active"
+                               [routerLinkActiveOptions]="{ exact: true }"
                                class="vertical-navigation-link-base"
-                               [ngClass]="isActive(['distribution-lists', distributionList?.id || '', 'details']) ? 'vertical-navigation-link-active' : 'vertical-navigation-link'"
                                aria-current="page">
                                 <svg xmlns="http://www.w3.org/2000/svg"
                                      class="text-gray-500 flex-shrink-0 -ml-1 mr-3 h-6 w-6"
@@ -26,8 +27,10 @@
                                 <span class="truncate">Βασικές πληροφορίες</span>
                             </a>
                             <a [routerLink]="['contacts']"
-                               [ngClass]="isActive(['distribution-lists', distributionList?.id || '', 'contacts']) ? 'vertical-navigation-link-active' : 'vertical-navigation-link'"
-                               class="vertical-navigation-link-base">
+                               routerLinkActive="vertical-navigation-link-active"
+                               [routerLinkActiveOptions]="{ exact: true }"
+                               class="vertical-navigation-link-base"
+                               aria-current="page">
                                 <svg class="text-gray-500 flex-shrink-0 -ml-1 mr-3 h-6 w-6"
                                      fill="none"
                                      viewBox="0 0 24 24"

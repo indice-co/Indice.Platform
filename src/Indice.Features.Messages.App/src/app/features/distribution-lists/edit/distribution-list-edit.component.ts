@@ -37,14 +37,4 @@ export class DistributionListEditComponent implements OnInit, AfterViewChecked {
     public ngAfterViewChecked(): void {
         this._changeDetector.detectChanges();
     }
-
-    public isActive(commands: string[]): boolean {
-        const url = this._router.createUrlTree(commands);
-        return this._router.isActive(url, {
-            paths: 'exact',
-            queryParams: 'exact',
-            fragment: 'ignored',
-            matrixParams: 'ignored'
-        });
-    }
 }
