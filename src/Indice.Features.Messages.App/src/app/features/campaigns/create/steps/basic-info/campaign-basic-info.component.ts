@@ -4,8 +4,7 @@ import { AbstractControl, FormGroup, FormArray, FormControl, Validators } from '
 
 import { MenuOption } from '@indice/ng-components';
 import { map } from 'rxjs/operators';
-import { MessageChannelKind, MessagesApiClient, MessageTypeResultSet, TemplateListItemResultSet } from 'src/app/core/services/messages-api.service';
-import { ChannelState } from '../content/channel-state';
+import { MessagesApiClient, MessageTypeResultSet, TemplateListItemResultSet } from 'src/app/core/services/messages-api.service';
 
 @Component({
     selector: 'app-campaign-basic-info',
@@ -34,13 +33,6 @@ export class CampaignBasicInfoComponent implements OnInit {
     public messageTypes: MenuOption[] = [new MenuOption('Παρακαλώ επιλέξτε...', null)];
     public templates: MenuOption[] = [new MenuOption('Παρακαλώ επιλέξτε...', null)];
     public now: Date = new Date();
-
-    public channelsState: ChannelState[] = [
-        { name: 'Inbox', description: 'Ειδοποίηση μέσω πρoσωπικού μήνυμα.', value: MessageChannelKind.Inbox, checked: true },
-        { name: 'Push Notification', description: 'Ειδοποίηση μέσω push notification στις εγγεγραμμένες συσκευές.', value: MessageChannelKind.PushNotification, checked: false },
-        { name: 'Email', description: 'Ειδοποίηση μέσω ηλεκτρονικού ταχυδρομείου', value: MessageChannelKind.Email, checked: false },
-        { name: 'SMS', description: 'Ειδοποίηση μέσω σύντομου γραπτού μηνύματος.', value: MessageChannelKind.SMS, checked: false }
-    ];
 
     public ngOnInit(): void {
         this._initForm();
@@ -76,31 +68,10 @@ export class CampaignBasicInfoComponent implements OnInit {
             const channelsFormArray: FormArray = this.channels as FormArray;
             channelsFormArray.clear();
             event.data.forEach((channel: string) => channelsFormArray.push(new FormControl(channel)));
-            this.channelsState.forEach((channel: any) => channel.checked = this.channels.value.indexOf(channel.value) > -1);
         } else {
             this.template.setValue(null);
         }
         this.templateSelected.emit(event.value);
-    }
-
-    public onChannelCheckboxChange(event: any): void {
-        const channelsFormArray: FormArray = this.channels as FormArray;
-        const value = event.target.value;
-        const checkbox = this.channelsState.find(x => x.value === value);
-        if (event.target.checked) {
-            channelsFormArray.push(new FormControl(value));
-            checkbox!.checked = true;
-        } else {
-            let i: number = 0;
-            channelsFormArray.controls.forEach((control: AbstractControl) => {
-                if (control.value == value) {
-                    channelsFormArray.removeAt(i);
-                    checkbox!.checked = false;
-                    return;
-                }
-                i++;
-            });
-        }
     }
 
     private _loadMessageTypes(): void {
@@ -135,7 +106,7 @@ export class CampaignBasicInfoComponent implements OnInit {
             to: new FormControl(),
             actionLinkText: new FormControl(undefined, [Validators.maxLength(128)]),
             actionLinkHref: new FormControl(undefined, [
-                Validators.pattern(/^(?:http(s)?:\/\/)?[\w.-]+(?:\.[\w\.-]+)+[\w\-\._~:?#[\]@!\$&'\(\)\*\+,;=.]+$/),
+                Validators.pattern(/https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&\/\/=]*)(\/?)*$/),
                 Validators.maxLength(2048)
             ]),
             type: new FormControl(),

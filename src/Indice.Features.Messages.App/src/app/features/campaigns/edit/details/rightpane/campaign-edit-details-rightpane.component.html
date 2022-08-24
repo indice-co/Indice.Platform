@@ -118,7 +118,7 @@
                    id="ctaLink"
                    [(ngModel)]="model.actionLink.href"
                    maxlength="2048"
-                   pattern="^(?:http(s)?:\/\/)?[\w.-]+(?:\.[\w\.-]+)+[\w\-\._~:?#[\]@!\$&'\(\)\*\+,;=.]+$"
+                   pattern="https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&\/\/=]*)(\/?)*$"
                    #campaignCtaLink="ngModel">
         </div>
         <p *ngIf="campaignCtaLink.invalid && (campaignCtaLink.dirty || campaignCtaLink.touched)"
