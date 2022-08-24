@@ -53,10 +53,9 @@ namespace Indice.Features.Messages.Core.Services.Validators
                 .WithMessage($"Campaign action text cannot exceed {TextSizePresets.M128} characters.");
             RuleFor(campaign => campaign.ActionLink.Href)
                 .MaximumLength(TextSizePresets.L1024)
-                .WithMessage($"Campaign action URL cannot exceed {TextSizePresets.L1024} characters.")
-                .Matches(@"^(?:http(s)?:\/\/)?[\w.-]+(?:\.[\w\.-]+)+[\w\-\._~:/?#[\]@!\$&'\(\)\*\+,;=.]+$")
-                .WithMessage($"Campaign action URL is not valid.")
-                .When(x => !string.IsNullOrWhiteSpace(x.ActionLink?.Href));
+                .Matches(@"https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&\/\/=]*)(\/?)*$")
+                .When(x => !string.IsNullOrWhiteSpace(x.ActionLink?.Href))
+                .WithMessage($"Campaign action URL is not valid.");
         }
 
         private bool HaveContentAccordingToChannelKind(CampaignRequestBase campaign, Dictionary<string, MessageContent> content) {

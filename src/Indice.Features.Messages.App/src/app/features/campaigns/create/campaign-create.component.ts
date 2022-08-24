@@ -9,7 +9,6 @@ import { CampaignPreview } from './steps/preview/campaign-preview';
 import { CampaignPreviewComponent } from './steps/preview/campaign-preview.component';
 import { CampaignRecipientsComponent } from './steps/recipients/campaign-recipients.component';
 import { CreateCampaignRequest, MessagesApiClient, Period, Hyperlink, Campaign, MessageContent, Template } from 'src/app/core/services/messages-api.service';
-import { ChannelState } from './steps/content/channel-state';
 
 @Component({
     selector: 'app-campaign-create',
@@ -83,14 +82,14 @@ export class CampaignCreateComponent implements OnInit, AfterViewChecked {
                 this._api.getTemplateById(this.templateId).subscribe((template: Template) => {
                     this.content = template.content;
                 });
-            } else {
+            } /*else {
                 const selectedChannels = this._basicInfoStep.channelsState.filter((channel: ChannelState) => channel.checked);
                 const content: { [key: string]: MessageContent; } = {};
                 for (const iterator of selectedChannels) {
                     content[iterator.value] = new MessageContent();
                 }
                 this.content = content;
-            }
+            }*/
         }
         this.previewData.title = this._basicInfoStep.title.value;
         this.previewData.type = this._basicInfoStep.type.value?.text;

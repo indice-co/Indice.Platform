@@ -28,7 +28,6 @@ namespace Indice.AspNetCore.Identity.Localization
                 exists = queryString.TryGetValue("returnUrl", out var returnUrl);
                 if (exists) {
                     var request = returnUrl.ToArray()[0];
-                    //var uri = new Uri("https://example.com" + request);
 #if NET6_0_OR_GREATER
                     if (!Uri.TryCreate("https://example.com" + request.TrimStart('~'), new UriCreationOptions { }, out var uri)) {
                         return NullProviderCultureResult;
