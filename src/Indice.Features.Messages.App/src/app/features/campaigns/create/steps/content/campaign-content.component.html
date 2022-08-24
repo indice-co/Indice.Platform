@@ -3,294 +3,69 @@
         <fieldset>
             <lib-tab-group (tabChanged)="onContentTabChanged($event)"
                            #tabGroup>
-                <lib-tab id="inbox-tab"
-                         *ngIf="showInboxTab"
-                         label="Inbox">
-                    <div class="space-y-2 pb-4 mt-4">
-                        <fieldset>
-                            <legend class="sr-only">Θέμα (*)</legend>
-                            <div class="text-base font-medium text-gray-900"
-                                 aria-hidden="true">Θέμα (*)</div>
-                            <div class="grid grid-cols-2 gap-4">
-                                <div class="col-span-2 sm:col-span-1">
-                                    <label for="contentInboxSubject"
-                                           class="field-label hidden"
-                                           aria-hidden="true">Θέμα (*)</label>
-                                    <div class="mt-1 flex rounded-sm col-span-3">
-                                        <input type="text"
-                                               name="contentInboxSubject"
-                                               id="contentInboxSubject"
-                                               formControlName="inboxSubject"
-                                               (input)="onSubjectInput($event, MessageChannelKind.Inbox)"
-                                               placeholder="Το θέμα του μήνυματος">
-                                    </div>
-                                    <p *ngIf="inboxSubject.invalid && (inboxSubject.dirty || inboxSubject.touched)"
-                                       class="mt-2 text-sm text-red-600">
-                                        <span *ngIf="inboxSubject.errors!['required']">Παρακαλώ συμπληρώστε το θέμα του μήνυματος.</span>
-                                    </p>
-                                </div>
-                                <div class="col-span-2 sm:col-span-1">
-                                    <label class="field-label hidden"
-                                           aria-hidden="true">Προεπισκόπηση</label>
-                                    <div class="mt-2 flex rounded-sm col-span-3">
-                                        <p>{{ subjectPreview }}</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </fieldset>
-                        <fieldset>
-                            <legend class="sr-only">Σώμα (*)</legend>
-                            <div class="text-base font-medium text-gray-900"
-                                 aria-hidden="true">Σώμα (*)</div>
-                            <div class="grid grid-cols-2 gap-4">
-                                <div class="col-span-2 sm:col-span-1">
-                                    <label for="contentInboxBody"
-                                           class="field-label hidden"
-                                           aria-hidden="true">Σώμα (*)</label>
-                                    <div class="mt-1 flex rounded-sm col-span-3">
-                                        <textarea id="contentInboxBody"
-                                                  name="contentInboxBody"
-                                                  formControlName="inboxBody"
-                                                  (input)="onBodyInput($event, MessageChannelKind.Inbox)"
-                                                  class="code-editor"
-                                                  placeholder="Το σώμα του μηνύματος"
-                                                  style="height: 50vh;">
-                                        </textarea>
-                                    </div>
-                                    <p *ngIf="inboxBody.invalid && (inboxBody.dirty || inboxBody.touched)"
-                                       class="mt-2 text-sm text-red-600">
-                                        <span *ngIf="inboxBody.errors!['required']">Παρακαλώ συμπληρώστε το σώμα του μηνύματος.</span>
-                                    </p>
-                                </div>
-                                <div class="col-span-2 sm:col-span-1">
-                                    <label class="field-label hidden"
-                                           aria-hidden="true">
-                                        Προεπισκόπηση
-                                    </label>
-                                    <div class="mt-2 flex rounded-sm col-span-3">
-                                        <iframe class="w-full"
-                                                [srcdoc]="bodyPreview | safe: 'html'"
-                                                style="height: 50vh;">
-                                        </iframe>
-                                    </div>
-                                </div>
-                            </div>
-                        </fieldset>
-                    </div>
+                <lib-tab [labelText]="channelsState[contentForm.value.channel].name"
+                         *ngFor="let contentForm of channelsContent.controls; let i = index">
+                    <ng-container *ngTemplateOutlet="contentTemplate; context: { $implicit: contentForm }"></ng-container>
                 </lib-tab>
-                <lib-tab id="push-notification-tab"
-                         *ngIf="showPushNotificationTab"
-                         label="Push Notification">
-                    <div class="space-y-2 pb-4 mt-4">
+                <lib-tab labelText="Edit">
+                    <ng-template libTabLabel>
+                        <span class="inline-flex items-center">
+                            <button class="px-2"
+                                    type="button"
+                                    title="Επεξεργασία">
+                                <svg xmlns="http://www.w3.org/2000/svg"
+                                     class="h-4 w-4 stroke-slate-400 transition group-hover:rotate-[-4deg] group-hover:stroke-slate-600"
+                                     fill="none"
+                                     viewBox="0 0 24 24"
+                                     stroke="currentColor"
+                                     stroke-width="2">
+                                    <path stroke-linecap="round"
+                                          stroke-linejoin="round"
+                                          d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                                </svg>
+                            </button>
+                        </span>
+                    </ng-template>
+                    <div class="px-4 space-y-2 pb-4 mt-4">
                         <fieldset>
-                            <legend class="sr-only">Θέμα (*)</legend>
+                            <legend class="sr-only">Κανάλια επικοινωνίας (*)</legend>
                             <div class="text-base font-medium text-gray-900"
-                                 aria-hidden="true">Θέμα (*)</div>
-                            <div class="grid grid-cols-2 gap-4">
-                                <div class="col-span-2 sm:col-span-1">
-                                    <label for="contentPushNotificationSubject"
-                                           class="field-label hidden"
-                                           aria-hidden="true">Θέμα (*)</label>
-                                    <div class="mt-1 flex rounded-sm col-span-3">
-                                        <input type="text"
-                                               name="contentPushNotificationSubject"
-                                               id="contentPushNotificationSubject"
-                                               formControlName="pushNotificationSubject"
-                                               (input)="onSubjectInput($event, MessageChannelKind.PushNotification)"
-                                               placeholder="Το θέμα του push notification">
-                                    </div>
-                                    <p *ngIf="pushNotificationSubject.invalid && (pushNotificationSubject.dirty || pushNotificationSubject.touched)"
-                                       class="mt-2 text-sm text-red-600">
-                                        <span *ngIf="pushNotificationSubject.errors!['required']">Παρακαλώ συμπληρώστε το θέμα του push notification.</span>
-                                    </p>
-                                </div>
-                                <div class="col-span-2 sm:col-span-1">
-                                    <label class="field-label hidden"
-                                           aria-hidden="true">Προεπισκόπηση</label>
-                                    <div class="mt-2 flex rounded-sm col-span-3">
-                                        <p>{{ subjectPreview }}</p>
-                                    </div>
-                                </div>
+                                 aria-hidden="true">
+                                Κανάλια επικοινωνίας (*)
                             </div>
-                        </fieldset>
-                        <fieldset>
-                            <legend class="sr-only">Σώμα (*)</legend>
-                            <div class="text-base font-medium text-gray-900"
-                                 aria-hidden="true">Σώμα (*)</div>
+                            <label for="campaignType"
+                                   class="field-label hidden"
+                                   aria-hidden="true">
+                                Κανάλια επικοινωνίας (*)
+                            </label>
                             <div class="grid grid-cols-2 gap-4">
                                 <div class="col-span-2 sm:col-span-1">
-                                    <label for="contentPushNotificationBody"
-                                           class="field-label hidden"
-                                           aria-hidden="true">Σώμα (*)</label>
-                                    <div class="mt-1 flex rounded-sm col-span-3">
-                                        <textarea id="contentPushNotificationBody"
-                                                  name="contentPushNotificationBody"
-                                                  formControlName="pushNotificationBody"
-                                                  (input)="onBodyInput($event, MessageChannelKind.PushNotification)"
-                                                  class="code-editor"
-                                                  placeholder="Το σώμα του push notification"
-                                                  style="height: 50vh;">
-                                        </textarea>
-                                    </div>
-                                    <p *ngIf="pushNotificationBody.invalid && (pushNotificationBody.dirty || pushNotificationBody.touched)"
-                                       class="mt-2 text-sm text-red-600">
-                                        <span *ngIf="pushNotificationBody.errors!['required']">Παρακαλώ συμπληρώστε το σώμα του push notification.</span>
-                                    </p>
-                                </div>
-                                <div class="col-span-2 sm:col-span-1">
-                                    <label class="field-label hidden"
-                                           aria-hidden="true">Προεπισκόπηση</label>
-                                    <div class="mt-2 flex rounded-sm col-span-3">
-                                        <iframe class="w-full"
-                                                [srcdoc]="bodyPreview | safe: 'html'"
-                                                style="height: 50vh;">
-                                        </iframe>
-                                    </div>
-                                </div>
-                            </div>
-                        </fieldset>
-                    </div>
-                </lib-tab>
-                <lib-tab id="email-tab"
-                         *ngIf="showEmailTab"
-                         label="Email">
-                    <div class="space-y-2 pb-4 mt-4">
-                        <fieldset>
-                            <legend class="sr-only">Θέμα (*)</legend>
-                            <div class="text-base font-medium text-gray-900"
-                                 aria-hidden="true">Θέμα (*)</div>
-                            <div class="grid grid-cols-2 gap-4">
-                                <div class="col-span-2 sm:col-span-1">
-                                    <label for="contentEmailSubject"
-                                           class="field-label hidden"
-                                           aria-hidden="true">Θέμα (*)</label>
-                                    <div class="mt-1 flex rounded-sm col-span-3">
-                                        <input type="text"
-                                               name="contentEmailSubject"
-                                               id="contentEmailSubject"
-                                               formControlName="emailSubject"
-                                               (input)="onSubjectInput($event, MessageChannelKind.Email)"
-                                               placeholder="Το θέμα του email">
-                                    </div>
-                                    <p *ngIf="emailSubject.invalid && (emailSubject.dirty || emailSubject.touched)"
-                                       class="mt-2 text-sm text-red-600">
-                                        <span *ngIf="emailSubject.errors!['required']">Παρακαλώ συμπληρώστε το θέμα του email.</span>
-                                    </p>
-                                </div>
-                                <div class="col-span-2 sm:col-span-1">
-                                    <label for="contentEmailSubjectPreviw"
-                                           class="field-label hidden"
-                                           aria-hidden="true">Προεπισκόπηση</label>
-                                    <div class="mt-2 flex rounded-sm col-span-3">
-                                        <p>{{ subjectPreview }}</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </fieldset>
-                        <fieldset>
-                            <legend class="sr-only">Σώμα (*)</legend>
-                            <div class="text-base font-medium text-gray-900"
-                                 aria-hidden="true">Σώμα (*)</div>
-                            <div class="grid grid-cols-2 gap-4">
-                                <div class="col-span-2 sm:col-span-1">
-                                    <label for="contentEmailBody"
-                                           class="field-label hidden"
-                                           aria-hidden="true">Σώμα (*)</label>
-                                    <div class="mt-1 flex rounded-sm col-span-3">
-                                        <textarea id="contentEmailBody"
-                                                  name="contentEmailBody"
-                                                  formControlName="emailBody"
-                                                  (input)="onBodyInput($event, MessageChannelKind.Email)"
-                                                  class="code-editor"
-                                                  placeholder="Το σώμα του email"
-                                                  style="height: 50vh;"></textarea>
-                                    </div>
-                                    <p *ngIf="emailBody.invalid && (emailBody.dirty || emailBody.touched)"
-                                       class="mt-2 text-sm text-red-600">
-                                        <span *ngIf="emailBody.errors!['required']">Παρακαλώ συμπληρώστε το σώμα του email.</span>
-                                    </p>
-                                </div>
-                                <div class="col-span-2 sm:col-span-1">
-                                    <label class="field-label hidden"
-                                           aria-hidden="true">Προεπισκόπηση</label>
-                                    <div class="mt-2 flex rounded-sm col-span-3">
-                                        <iframe class="w-full"
-                                                [srcdoc]="bodyPreview | safe: 'html'"
-                                                style="height: 50vh;">
-                                        </iframe>
-                                    </div>
-                                </div>
-                            </div>
-                        </fieldset>
-                    </div>
-                </lib-tab>
-                <lib-tab id="sms-tab"
-                         *ngIf="showSmsTab"
-                         label="SMS">
-                    <div class="space-y-2 pb-4 mt-4">
-                        <fieldset>
-                            <legend class="sr-only">Θέμα (*)</legend>
-                            <div class="text-base font-medium text-gray-900"
-                                 aria-hidden="true">Θέμα (*)</div>
-                            <div class="grid grid-cols-2 gap-4">
-                                <div class="col-span-2 sm:col-span-1">
-                                    <label for="contentSmsSubject"
-                                           class="field-label hidden"
-                                           aria-hidden="true">Θέμα (*)</label>
-                                    <div class="mt-1 flex rounded-sm col-span-3">
-                                        <input type="text"
-                                               name="contentSmsSubject"
-                                               id="contentSmsSubject"
-                                               formControlName="smsSubject"
-                                               (input)="onSubjectInput($event, MessageChannelKind.SMS)"
-                                               placeholder="Το θέμα του SMS">
-                                    </div>
-                                    <p *ngIf="smsSubject.invalid && (smsSubject.dirty || smsSubject.touched)"
-                                       class="mt-2 text-sm text-red-600">
-                                        <span *ngIf="smsSubject.errors!['required']">Παρακαλώ συμπληρώστε το θέμα του SMS.</span>
-                                    </p>
-                                </div>
-                                <div class="col-span-2 sm:col-span-1">
-                                    <label class="field-label hidden"
-                                           aria-hidden="true">Προεπισκόπηση</label>
-                                    <div class="mt-2 flex rounded-sm col-span-3">
-                                        <p>{{ subjectPreview }}</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </fieldset>
-                        <fieldset>
-                            <legend class="sr-only">Σώμα (*)</legend>
-                            <div class="text-base font-medium text-gray-900"
-                                 aria-hidden="true">Σώμα (*)</div>
-                            <div class="grid grid-cols-2 gap-4">
-                                <div class="col-span-2 sm:col-span-1">
-                                    <label for="contentSmsBody"
-                                           class="field-label hidden"
-                                           aria-hidden="true">Σώμα (*)</label>
-                                    <div class="mt-1 flex rounded-sm col-span-3">
-                                        <textarea id="contentEmailBody"
-                                                  name="contentSmsBody"
-                                                  formControlName="smsBody"
-                                                  (input)="onBodyInput($event, MessageChannelKind.SMS)"
-                                                  class="code-editor"
-                                                  placeholder="Το σώμα του SMS"
-                                                  style="height: 50vh;">
-                                        </textarea>
-                                    </div>
-                                    <p *ngIf="smsBody.invalid && (smsBody.dirty || smsBody.touched)"
-                                       class="mt-2 text-sm text-red-600">
-                                        <span *ngIf="smsBody.errors!['required']">Παρακαλώ συμπληρώστε το σώμα του SMS.</span>
-                                    </p>
-                                </div>
-                                <div class="col-span-2 sm:col-span-1">
-                                    <label class="field-label hidden"
-                                           aria-hidden="true">Προεπισκόπηση</label>
-                                    <div class="mt-2 flex rounded-sm col-span-3">
-                                        <iframe class="w-full"
-                                                [srcdoc]="bodyPreview | safe: 'html'"
-                                                style="height: 50vh;">
-                                        </iframe>
+                                    <div class="divide-y divide-gray-200">
+                                        <div *ngFor="let channel of channelsState | keyvalue; let i = index;"
+                                             class="relative flex items-start py-4">
+                                            <div class="min-w-0 flex-1 text-sm">
+                                                <label [for]="'channel-' + i"
+                                                       class="font-medium text-gray-700">
+                                                    {{ channel.value.name }}
+                                                </label>
+                                                <p [id]="'channel-' + i + '-description'"
+                                                   class="text-gray-500">
+                                                    {{ channel.value.description }}
+                                                </p>
+                                            </div>
+                                            <div class="ml-3 flex items-center h-5">
+                                                <input [id]="'channel-' + i"
+                                                       [value]="channel.key"
+                                                       [attr.aria-describedby]="'channel-' + i + '-description'"
+                                                       (change)="onChannelCheckboxChange($event)"
+                                                       name="channels"
+                                                       type="checkbox"
+                                                       class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 rounded"
+                                                       [disabled]="cannotRemoveChannel && channel.value.checked"
+                                                       [style.opacity]="cannotRemoveChannel && channel.value.checked ? '0.5' : '1'"
+                                                       [checked]="channel.value.checked">
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -299,7 +74,8 @@
                 </lib-tab>
             </lib-tab-group>
         </fieldset>
-        <div class="grid grid-cols-2 gap-4">
+        <div class="grid grid-cols-2 gap-4"
+             [ngClass]="{ 'hidden': hideMetadata }">
             <div class="col-span-2 sm:col-span-1">
                 <!-- Μεταδεδομένα -->
                 <fieldset>
@@ -321,7 +97,7 @@
                     </div>
                     <p *ngIf="data.invalid && (data.dirty || data.touched)"
                        class="mt-2 text-sm text-red-600">
-                        <span *ngIf="data.errors!['invalidJson']">Η μορφή του JSON δεν είναι έγκυρη.</span>
+                        <span *ngIf="data.errors && data.errors['invalidJson']">Η μορφή του JSON δεν είναι έγκυρη.</span>
                     </p>
                 </fieldset>
             </div>
@@ -348,3 +124,88 @@
         </div>
     </div>
 </form>
+<ng-template let-contentForm
+             #contentTemplate>
+    <div class="space-y-2 pb-4 mt-4"
+         [formGroup]="contentForm">
+        <fieldset>
+            <legend class="sr-only">Θέμα (*)</legend>
+            <div class="text-base font-medium text-gray-900"
+                 aria-hidden="true">
+                Θέμα (*)
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+                <div class="col-span-2 sm:col-span-1">
+                    <label for="subject"
+                           class="field-label hidden"
+                           aria-hidden="true">
+                        Θέμα (*)
+                    </label>
+                    <div class="mt-1 flex rounded-sm col-span-3">
+                        <input type="text"
+                               name="subject"
+                               id="subject"
+                               formControlName="subject"
+                               placeholder="Το θέμα του μήνυματος"
+                               (input)="onSubjectInput(contentForm)">
+                    </div>
+                    <p *ngIf="contentForm.controls['subject'].invalid && (contentForm.controls['subject'].dirty || contentForm.controls['subject'].touched)"
+                       class="mt-2 text-sm text-red-600">
+                        <span *ngIf="contentForm.controls['subject'].errors!['required']">Παρακαλώ συμπληρώστε το θέμα.</span>
+                    </p>
+                </div>
+                <div class="mt-1 col-span-2 sm:col-span-1 border border-dashed">
+                    <label class="field-label hidden"
+                           aria-hidden="true">
+                        Προεπισκόπηση
+                    </label>
+                    <div class="flex rounded-sm col-span-3">
+                        <p>{{ subjectPreview }}</p>
+                    </div>
+                </div>
+            </div>
+        </fieldset>
+        <fieldset>
+            <legend class="sr-only">Σώμα (*)</legend>
+            <div class="text-base font-medium text-gray-900"
+                 aria-hidden="true">
+                Σώμα (*)
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+                <div class="col-span-2 sm:col-span-1">
+                    <label for="body"
+                           class="field-label hidden"
+                           aria-hidden="true">
+                        Σώμα (*)
+                    </label>
+                    <div class="mt-1 flex rounded-sm col-span-3">
+                        <textarea id="body"
+                                  name="body"
+                                  formControlName="body"
+                                  class="code-editor"
+                                  placeholder="Το σώμα του μηνύματος"
+                                  style="height: 50vh;"
+                                  (input)="onBodyInput(contentForm)">
+                        </textarea>
+                    </div>
+                    <p *ngIf="contentForm.controls['body'].invalid && (contentForm.controls['body'].dirty || contentForm.controls['body'].touched)"
+                       class="mt-2 text-sm text-red-600">
+                        <span *ngIf="contentForm.controls['body'].errors!['required']">Παρακαλώ συμπληρώστε το σώμα του μηνύματος.</span>
+                    </p>
+                </div>
+                <div class="mt-2 col-span-2 sm:col-span-1 border border-dashed">
+                    <label class="field-label hidden"
+                           aria-hidden="true">
+                        Προεπισκόπηση
+                    </label>
+                    <div class="flex rounded-sm col-span-3">
+                        <iframe class="w-full"
+                                [srcdoc]="bodyPreview | safe: 'html'"
+                                style="height: 50vh;">
+                        </iframe>
+                    </div>
+                </div>
+            </div>
+        </fieldset>
+    </div>
+</ng-template>

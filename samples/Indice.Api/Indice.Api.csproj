@@ -4,18 +4,23 @@
     <UserSecretsId>bcf160ad-5384-417a-bb7c-e17caa9c35ae</UserSecretsId>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Hellang.Middleware.ProblemDetails" Version="6.4.0" />
-    <PackageReference Include="IdentityModel.AspNetCore.OAuth2Introspection" Version="6.0.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.2" />
-    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="6.0.3" />   
-    <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" Version="6.3.0" />
+    <PackageReference Include="Hellang.Middleware.ProblemDetails" Version="6.5.1" />
+    <PackageReference Include="IdentityModel.AspNetCore.OAuth2Introspection" Version="6.1.0" />
+    <!--<PackageReference Include="Indice.Extensions.Configuration.Database" Version="6.1.1" />
+    <PackageReference Include="Indice.Features.Messages.AspNetCore" Version="6.1.4" />
+    <PackageReference Include="Indice.Features.Messages.UI" Version="6.1.3" />
+    <PackageReference Include="Indice.Features.Messages.Worker" Version="6.1.4" />
+    <PackageReference Include="Indice.Features.Messages.Worker.Azure" Version="6.1.4" />-->
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.8" />
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="6.0.6" />
+    <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" Version="6.4.0" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\src\Indice.Extensions.Configuration.Database\Indice.Extensions.Configuration.Database.csproj" />
+    <ProjectReference Include="..\..\src\Indice.Features.Messages.AspNetCore\Indice.Features.Messages.AspNetCore.csproj" />
     <ProjectReference Include="..\..\src\Indice.Features.Messages.UI\Indice.Features.Messages.UI.csproj" />
     <ProjectReference Include="..\..\src\Indice.Features.Messages.Worker.Azure\Indice.Features.Messages.Worker.Azure.csproj" />
     <ProjectReference Include="..\..\src\Indice.Features.Messages.Worker\Indice.Features.Messages.Worker.csproj" />
-    <ProjectReference Include="..\..\src\Indice.Features.Messages.AspNetCore\Indice.Features.Messages.AspNetCore.csproj" />
-    <ProjectReference Include="..\..\src\Indice.Extensions.Configuration.Database\Indice.Extensions.Configuration.Database.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

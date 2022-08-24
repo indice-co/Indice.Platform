@@ -40,8 +40,11 @@ namespace Indice.Features.Messages.Core.Exceptions
         public static BusinessException ContactAlreadyInDistributionList(Guid id, Guid contactId) => new($"Contact with id '{contactId}' already belongs to distribution list with id '{id}'.", nameof(ContactAlreadyInDistributionList));
         /// <summary>Distribution list associated with one or more campaigns exception.</summary>
         /// <param name="name">The name of the distribution list.</param>
-        /// <param name="campaignNames">The name of the campaigns.</param>
-        public static BusinessException DistributionListAssociatedWithCampaigns(string name, params string[] campaignNames) => 
-            new($"Distribution list '{name}' is associated with campaigns '{string.Join(", ", campaignNames)}'. Please remove any association, if possible, and try again.", nameof(DistributionListAssociatedWithCampaigns));
+        /// <param name="campaignsCount">The number of associated campaigns.</param>
+        public static BusinessException DistributionListAssociatedWithCampaigns(string name, int campaignsCount) =>
+            new($"Distribution list '{name}' is associated with {campaignsCount} campaign(s). Please remove any association, if possible, and try again.", nameof(DistributionListAssociatedWithCampaigns));
+        /// <summary>Template not found exception.</summary>
+        /// <param name="id">The template id.</param>
+        public static BusinessException TemplateNotFound(Guid id) => new($"Template with id '{id}' does not exist.", nameof(TemplateNotFound));
     }
 }

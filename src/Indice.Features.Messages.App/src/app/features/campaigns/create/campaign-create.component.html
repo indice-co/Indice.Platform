@@ -1,6 +1,6 @@
 <lib-view-layout title="Δημιουργία Campaign"
                  [meta-items]="metaItems">
-    <div class="min-h-full">
+    <div class="min-h-full mb-8">
         <main>
             <div class="mx-auto px-4 sm:px-6 md:flex md:items-center md:justify-between md:space-x-5 lg:px-8">
                 <div class="flex items-center space-x-5"></div>
@@ -38,7 +38,8 @@
                                 <lib-step [stepControl]="contentStep.form">
                                     <ng-template libStepLabel>Περιεχομενο</ng-template>
                                     <ng-template libStepInfo>Aνά κανάλι επικοινωνίας</ng-template>
-                                    <app-campaign-content [externalData]="basicInfoData"
+                                    <app-campaign-content [additionalData]="basicInfoData"
+                                                          [content]="content"
                                                           #contentStep>
                                     </app-campaign-content>
                                 </lib-step>

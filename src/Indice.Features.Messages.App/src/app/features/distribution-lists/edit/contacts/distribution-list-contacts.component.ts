@@ -42,7 +42,7 @@ export class DistributionListContactsComponent extends BaseListComponent<Contact
     public distributionList = new DistributionList({ name: '' });
 
     public ngOnInit(): void {
-        this._distributionListId = this._activatedRoute.snapshot.params['distributionListId'];
+        this._distributionListId = this._activatedRoute.parent?.snapshot.params['distributionListId'];
         super.ngOnInit();
         this._getListSubscription = this._api.getDistributionListById(this._distributionListId).subscribe((list: DistributionList) => {
             this.distributionList = list;
