@@ -37,19 +37,9 @@
         <span class="block truncate grow">
             {{ item.fullName || (item.firstName + ' ' + item.lastName) }}
         </span>
-        <span [ngClass]="{ 'invisible': !item.email }"
-              [title]="item.email">
-            <svg xmlns="http://www.w3.org/2000/svg"
-                 viewBox="0 0 20 20"
-                 fill="currentColor"
-                 class="w-4 h-4">
-                <path d="M3 4a2 2 0 00-2 2v1.161l8.441 4.221a1.25 1.25 0 001.118 0L19 7.162V6a2 2 0 00-2-2H3z" />
-                <path d="M19 8.839l-7.77 3.885a2.75 2.75 0 01-2.46 0L1 8.839V14a2 2 0 002 2h14a2 2 0 002-2V8.839z" />
-            </svg>
-        </span>
         <span [ngClass]="{ 'invisible': !item.phoneNumber }"
               [title]="item.phoneNumber"
-              class="ml-1">
+              class="text-gray-400">
             <svg xmlns="http://www.w3.org/2000/svg"
                  viewBox="0 0 20 20"
                  fill="currentColor"
@@ -59,9 +49,20 @@
                       clip-rule="evenodd" />
             </svg>
         </span>
+        <span [ngClass]="{ 'invisible': !item.email }"
+              [title]="item.email"
+              class="ml-1 text-gray-400">
+            <svg xmlns="http://www.w3.org/2000/svg"
+                 viewBox="0 0 20 20"
+                 fill="currentColor"
+                 class="w-4 h-4">
+                <path d="M3 4a2 2 0 00-2 2v1.161l8.441 4.221a1.25 1.25 0 001.118 0L19 7.162V6a2 2 0 00-2-2H3z" />
+                <path d="M19 8.839l-7.77 3.885a2.75 2.75 0 01-2.46 0L1 8.839V14a2 2 0 002 2h14a2 2 0 002-2V8.839z" />
+            </svg>
+        </span>
         <span [ngClass]="{ 'invisible': !item.recipientId }"
               title="Can receive inbox"
-              class="ml-1">
+              class="ml-1 text-gray-400">
             <svg xmlns="http://www.w3.org/2000/svg"
                  viewBox="0 0 20 20"
                  fill="currentColor"
@@ -77,49 +78,130 @@
          (mouseenter)="item.hover = true"
          (mouseleave)="item.hover = false">
         <div class="relative rounded-lg border border-gray-300 bg-white px-6 py-5 shadow-sm flex items-start space-x-3 hover:border-gray-400">
-            <div class="flex-shrink-0">
-                <img class="h-10 w-10 rounded-full"
-                     [src]="'https://indice-notifications.azurewebsites.net/avatar/' + item.fullName + '?circular=true'"
-                     alt="">
-            </div>
-            <div class="flex-1 min-w-0">
-                <div class="focus:outline-none">
-                    <span class="absolute"
-                          aria-hidden="true"></span>
-                    <p class="text-sm font-medium text-gray-900">
-                        {{ item.salutation }} {{ item.fullName || (item.firstName + ' ' + item.lastName) }}
-                    </p>
-                    <p class="text-sm text-gray-500 truncate">
-                        <svg class="w-5 h-5 text-gray-500 inline"
-                             xmlns="http://www.w3.org/2000/svg"
-                             viewBox="0 0 20 20"
-                             fill="currentColor"
-                             aria-hidden="true">
-                            <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
-                            <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
-                        </svg>
-                        <span class="ml-2">{{ item.email || '-' }}</span>
-                    </p>
-                    <p class="text-sm text-gray-500 truncate">
-                        <svg class="w-5 h-5 text-gray-500 inline"
-                             xmlns="http://www.w3.org/2000/svg"
-                             viewBox="0 0 20 20"
-                             fill="currentColor"
-                             aria-hidden="true">
-                            <path
-                                  d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z" />
-                        </svg>
-                        <span class="ml-2">{{ item.phoneNumber || '-' }}</span>
-                    </p>
+            <ng-container *ngIf="!item.edit">
+                <div class="flex-shrink-0">
+                    <img class="h-10 w-10 rounded-full"
+                         [src]="'https://indice-notifications.azurewebsites.net/avatar/' + item.fullName + '?circular=true'"
+                         alt="">
                 </div>
-            </div>
+                <div class="flex-1 min-w-0">
+                    <div class="focus:outline-none">
+                        <span class="absolute"
+                              aria-hidden="true">
+                        </span>
+                        <p class="text-sm font-medium text-gray-900">
+                            {{ item.salutation }} {{ item.fullName || (item.firstName + ' ' + item.lastName) }}
+                        </p>
+                        <p class="text-sm text-gray-500 truncate">
+                            <svg class="w-5 h-5 text-gray-500 inline"
+                                 xmlns="http://www.w3.org/2000/svg"
+                                 viewBox="0 0 20 20"
+                                 fill="currentColor"
+                                 aria-hidden="true">
+                                <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
+                                <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
+                            </svg>
+                            <span class="ml-2">{{ item.email || '-' }}</span>
+                        </p>
+                        <p class="text-sm text-gray-500 truncate">
+                            <svg class="w-5 h-5 text-gray-500 inline"
+                                 xmlns="http://www.w3.org/2000/svg"
+                                 viewBox="0 0 20 20"
+                                 fill="currentColor"
+                                 aria-hidden="true">
+                                <path
+                                      d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z" />
+                            </svg>
+                            <span class="ml-2">{{ item.phoneNumber || '-' }}</span>
+                        </p>
+                    </div>
+                </div>
+            </ng-container>
+            <ng-container *ngIf="item.edit">
+                <div class="flex-1 min-w-0">
+                    <div class="focus:outline-none">
+                        <form #editCampaignForm="ngForm"
+                              (ngSubmit)="onSubmit()">
+                            <div class="px-4 space-y-2">
+                                <fieldset>
+                                    <legend class="sr-only">Επαφή</legend>
+                                    <div class="text-base font-medium text-gray-900"
+                                         aria-hidden="true">
+                                        Προσφώνηση
+                                    </div>
+                                    <label [for]="item.id"
+                                           class="field-label hidden">
+                                        Προσφώνηση
+                                    </label>
+                                    <div class="mt-1 flex rounded-sm">
+                                        <input type="text"
+                                               name="salutation"
+                                               [id]="item.id"
+                                               placeholder="Προσφώνηση..."
+                                               [(ngModel)]="item.salutation"
+                                               #salutation="ngModel">
+                                    </div>
+                                    <p class="field-info col-span-3">Η προσφώνηση (π.χ κύριε ή κ.).</p>
+                                    <div class="text-base font-medium text-gray-900"
+                                         aria-hidden="true">
+                                        Όνομα
+                                    </div>
+                                    <label [for]="item.id"
+                                           class="field-label hidden">
+                                        Όνομα
+                                    </label>
+                                    <div class="mt-1 flex rounded-sm">
+                                        <input type="text"
+                                               name="firstName"
+                                               [id]="item.id"
+                                               placeholder="Όνομα..."
+                                               [(ngModel)]="item.firstName"
+                                               #salutation="ngModel">
+                                    </div>
+                                    <!-- <p *ngIf="title.invalid && (title.dirty || title.touched)"
+                                       class="mt-2 text-sm text-red-600">
+                                        <span *ngIf="title.errors!['required']">Παρακαλώ συμπληρώστε ένα τίτλο.</span>
+                                        <span *ngIf="title.errors!['maxlength']">Παρακαλώ συμπληρώστε ένα μικρότερο τίτλο.</span>
+                                    </p> -->
+                                    <div class="text-base font-medium text-gray-900"
+                                         aria-hidden="true">
+                                        Επώνυμο
+                                    </div>
+                                    <label [for]="item.id"
+                                           class="field-label hidden">
+                                        Επώνυμο
+                                    </label>
+                                    <div class="mt-1 flex rounded-sm">
+                                        <input type="text"
+                                               name="lastName"
+                                               [id]="item.id"
+                                               placeholder="Επώνυμο..."
+                                               [(ngModel)]="item.lastName"
+                                               #salutation="ngModel">
+                                    </div>
+                                    <!-- <p *ngIf="title.invalid && (title.dirty || title.touched)"
+                                       class="mt-2 text-sm text-red-600">
+                                        <span *ngIf="title.errors!['required']">Παρακαλώ συμπληρώστε ένα τίτλο.</span>
+                                        <span *ngIf="title.errors!['maxlength']">Παρακαλώ συμπληρώστε ένα μικρότερο τίτλο.</span>
+                                    </p> -->
+                                </fieldset>
+                            </div>
+                            <button type="submit"
+                                    [style.visibility]="'hidden'"
+                                    #submitBtn>
+                                Submit
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </ng-container>
             <div class="ml-4 flex-shrink-0 flex flex-col"
-                 *ngIf="item.hover">
+                 [ngClass]="{ 'invisible': !item.hover && !item.edit }">
                 <button type="button"
                         (click)="contactsCombobox.removeSelectedItem(item)"
                         class="cursor-pointer bg-white rounded-md inline-flex text-gray-400 hover:text-gray-500 mb-1">
-                    <span class="sr-only">Close</span>
-                    <svg class="h-5 w-5"
+                    <span class="sr-only">Remove</span>
+                    <svg class="w-4 h-4"
                          xmlns="http://www.w3.org/2000/svg"
                          viewBox="0 0 20 20"
                          fill="currentColor"
@@ -130,14 +212,29 @@
                     </svg>
                 </button>
                 <button type="button"
-                        (click)="contactsCombobox.removeSelectedItem(item)"
-                        class="cursor-pointer bg-white rounded-md inline-flex text-gray-400 hover:text-gray-500">
-                    <span class="sr-only">Close</span>
+                        (click)="item.edit = true"
+                        class="cursor-pointer bg-white rounded-md inline-flex text-gray-400 hover:text-gray-500"
+                        *ngIf="!item.edit">
+                    <span class="sr-only">Edit</span>
                     <svg xmlns="http://www.w3.org/2000/svg"
                          viewBox="0 0 20 20"
                          fill="currentColor"
                          class="w-4 h-4">
                         <path d="M2.695 14.763l-1.262 3.154a.5.5 0 00.65.65l3.155-1.262a4 4 0 001.343-.885L17.5 5.5a2.121 2.121 0 00-3-3L3.58 13.42a4 4 0 00-.885 1.343z" />
+                    </svg>
+                </button>
+                <button type="button"
+                        (click)="onContactSaveChanges(item)"
+                        class="cursor-pointer bg-white rounded-md inline-flex text-green-400 hover:text-green-500"
+                        *ngIf="item.edit">
+                    <span class="sr-only">Save</span>
+                    <svg xmlns="http://www.w3.org/2000/svg"
+                         viewBox="0 0 20 20"
+                         fill="currentColor"
+                         class="w-4 h-4">
+                        <path fill-rule="evenodd"
+                              d="M17.776 3.294c.296.29.3.765.01 1.061a39.55 39.55 0 00-8.35 12.672.75.75 0 01-1.224.246L2.22 11.281a.75.75 0 111.06-1.061l5.208 5.207a41.072 41.072 0 018.227-12.122.75.75 0 011.061-.01z"
+                              clip-rule="evenodd" />
                     </svg>
                 </button>
             </div>

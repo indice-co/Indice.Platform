@@ -2,6 +2,7 @@ import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, OnInit, ViewCh
 import { Router } from '@angular/router';
 
 import { ComboboxComponent } from '@indice/ng-components';
+import { environment } from 'src/environments/environment';
 import { forkJoin } from 'rxjs';
 import { Contact, ContactResultSet, CreateDistributionListContactRequest, MessagesApiClient } from 'src/app/core/services/messages-api.service';
 
@@ -42,6 +43,10 @@ export class DistributionListContactCreateComponent implements OnInit, AfterView
 
     public ngAfterViewInit(): void {
         this._changeDetector.detectChanges();
+    }
+
+    public onContactSaveChanges(item: any): void {
+        delete item.edit;
     }
 
     public onSubmit(): void {
