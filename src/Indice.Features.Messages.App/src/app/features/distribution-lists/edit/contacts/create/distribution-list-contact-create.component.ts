@@ -24,6 +24,7 @@ export class DistributionListContactCreateComponent implements OnInit, AfterView
     public submitInProgress = false;
     public contacts: Contact[] = [];
     public isLoading: boolean = false;
+    public apiUrl = environment.api_url;
 
     public ngOnInit(): void {
         this._distributionListId = this._router.url.split('/')[2];
@@ -34,7 +35,10 @@ export class DistributionListContactCreateComponent implements OnInit, AfterView
         this._api
             .getContacts(undefined, undefined, undefined, undefined, 1, 10, 'email', searchTerm, true)
             .subscribe((contacts: ContactResultSet) => {
-                this.contacts = contacts.items!;
+                this.contacts = contacts.items || [];
+                this.contacts.forEach((contact: Contact, index: number) => { 
+                    (<any>contact)['_index'] = index;
+                });
                 this.isLoading = false;
             });
     }
@@ -69,4 +73,6 @@ export class DistributionListContactCreateComponent implements OnInit, AfterView
             this._router.navigateByUrl('/', { skipLocationChange: true }).then(() => this._router.navigate(['distribution-lists', this._distributionListId, 'contacts']));
         });
     }
+
+    public onContactChangesSubmit(): void { }
 }
