@@ -119,15 +119,15 @@ namespace Indice.Features.Messages.Core.Services
                 ActionLink = new Hyperlink {
                     Text = x.Campaign.ActionLink.Text,
                     Href = !string.IsNullOrEmpty(x.Campaign.ActionLink.Href)
-                        ? $"{CampaignInboxOptions.ApiPrefix}/messages/cta/{(Base64Id)x.Campaign.Id}"
-                        : null,
+                        ? $"_tracking/messages/cta/{(Base64Id)x.Campaign.Id}"
+                        : null
                 },
                 ActivePeriod = x.Campaign.ActivePeriod,
                 AttachmentUrl = x.Campaign.Attachment != null
                     ? $"{CampaignInboxOptions.ApiPrefix}/messages/attachments/{(Base64Id)x.Campaign.Attachment.Guid}.{Path.GetExtension(x.Campaign.Attachment.Name).TrimStart('.')}"
                     : null,
-                Title = x.Message.Content["Inbox"].Title,
-                Content = x.Message.Content["Inbox"].Body,
+                Title = x.Message.Content["inbox"].Title,
+                Content = x.Message.Content["inbox"].Body,
                 CreatedAt = x.Campaign.CreatedAt,
                 Id = x.Campaign.Id,
                 IsRead = x.Message != null && x.Message.IsRead,

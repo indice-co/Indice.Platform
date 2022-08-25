@@ -17,7 +17,7 @@ namespace Indice.Functions
                 config.AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
                       .AddJsonFile($"appsettings.{context.HostingEnvironment.EnvironmentName}.json", optional: true, reloadOnChange: true);
             })
-            .ConfigureFunctionsWorkerDefaults(builder => { })
+            .ConfigureFunctionsWorkerDefaults()
             .ConfigureServices(services => { })
             .ConfigureMessages((configuration, options) => {
                 options.ConfigureDbContext = builder => builder.UseSqlServer(configuration.GetConnectionString("MessagesDb"));

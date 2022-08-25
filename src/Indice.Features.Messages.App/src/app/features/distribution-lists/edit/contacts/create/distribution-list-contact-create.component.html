@@ -16,6 +16,7 @@
                                   [items]="contacts"
                                   [itemTemplate]="itemTemplate"
                                   [selectedItemTemplate]="selectedItemTemplate"
+                                  [noResultsTemplate]="noResultsTemplate"
                                   [busy]="isLoading"
                                   (onSearch)="onContactsSearch($event)"
                                   (onItemSelected)="onContactSelected($event)"
@@ -31,6 +32,17 @@
         </form>
     </div>
 </lib-side-view-layout>
+<ng-template #noResultsTemplate
+             let-searchTerm>
+    <p class="m-2">
+        Δεν βρέθηκαν αποτελέσματα για '<i>{{ searchTerm }}</i>'. Πατήστε
+        <a href="javascript:void(0)"
+           class="text-blue-500"
+           (click)="onAddNewContact(searchTerm)">
+            εδώ
+        </a> για να προσθέσετε την επαφή.
+    </p>
+</ng-template>
 <ng-template let-item
              #itemTemplate>
     <div class="hover:bg-gray-100 relative cursor-pointer select-none py-2 pl-3 pr-3 flex">
@@ -242,7 +254,7 @@
             <div class="ml-4 flex-shrink-0 flex flex-col"
                  [ngClass]="{ 'invisible': !item.hover && !item.edit }">
                 <button type="button"
-                        (click)="contactsCombobox.removeSelectedItem(item)"
+                        (click)="contactsCombobox.removeItem(item)"
                         class="cursor-pointer bg-white rounded-md inline-flex text-gray-400 hover:text-gray-500 mb-1">
                     <span class="sr-only">Remove</span>
                     <svg class="w-4 h-4"
