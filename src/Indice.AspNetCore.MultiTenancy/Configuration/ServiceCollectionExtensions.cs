@@ -1,27 +1,22 @@
-﻿using Indice.AspNetCore.MultiTenancy;
+﻿/* 
+ * Attribution: https://michael-mckenna.com/multi-tenant-asp-dot-net-core-application-tenant-resolution 
+ */
+
+using Indice.AspNetCore.MultiTenancy;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
-    /* attribution: https://michael-mckenna.com/multi-tenant-asp-dot-net-core-application-tenant-resolution */
-    /// <summary>
-    /// Extensions related to MiltiTenancy on type <see cref="IServiceCollection"/>. 
-    /// </summary>
+    /// <summary>Extensions related to multi-tenancy on type <see cref="IServiceCollection"/>.</summary>
     public static class ServiceCollectionExtensions
     {
-        /// <summary>
-        /// Add the services (application specific tenant class)
-        /// </summary>
-        /// <param name="services"></param>
-        /// <returns></returns>
-        public static TenantBuilder<T> AddMultiTenancy<T>(this IServiceCollection services) where T : Tenant
-            => new(services);
+        /// <summary>Adds the required services, using the specified tenant type.</summary>
+        /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
+        /// <returns>The builder used to configure the multi-tenancy feature.</returns>
+        public static TenantBuilder<TTenant> AddMultiTenancy<TTenant>(this IServiceCollection services) where TTenant : Tenant => new(services);
 
-        /// <summary>
-        /// Add the services (default tenant class)
-        /// </summary>
-        /// <param name="services"></param>
-        /// <returns></returns>
-        public static TenantBuilder<Tenant> AddMultiTenancy(this IServiceCollection services)
-            => new(services);
+        /// <summary>Adds the required services, using the default tenant type.</summary>
+        /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
+        /// <returns>The builder used to configure the multi-tenancy feature.</returns>
+        public static TenantBuilder<Tenant> AddMultiTenancy(this IServiceCollection services) => new(services);
     }
 }

@@ -1,0 +1,18 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <Nullable>disable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.8" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="6.0.8" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Indice.AspNetCore.MultiTenancy\Indice.AspNetCore.MultiTenancy.csproj" />
+    <ProjectReference Include="..\..\src\Indice.Common\Indice.Common.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Data\Configuration\" />
+  </ItemGroup>
+</Project>

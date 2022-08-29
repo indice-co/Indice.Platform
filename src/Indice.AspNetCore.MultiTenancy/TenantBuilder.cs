@@ -1,6 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿/* 
+ * Attribution: https://michael-mckenna.com/multi-tenant-asp-dot-net-core-application-tenant-resolution 
+ */
+
+using System;
 using Indice.AspNetCore.MultiTenancy.Authorization;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -9,18 +11,13 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Indice.AspNetCore.MultiTenancy
 {
-    /* attribution: https://michael-mckenna.com/multi-tenant-asp-dot-net-core-application-tenant-resolution */
-    /// <summary>
-    /// Configure tenant services
-    /// </summary>
+    /// <summary>A builder used to configure the multi-tenancy feature.</summary>
     public class TenantBuilder<T> where T : Tenant
     {
         private readonly IServiceCollection _services;
 
-        /// <summary>
-        /// Contructs the <see cref="TenantBuilder{T}"/>
-        /// </summary>
-        /// <param name="services"></param>
+        /// <summary>Constructs the <see cref="TenantBuilder{T}"/> class.</summary>
+        /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
         public TenantBuilder(IServiceCollection services) {
             if (typeof(T).Equals(typeof(Tenant))) {
                 services.AddTransient<TenantAccessService>();
