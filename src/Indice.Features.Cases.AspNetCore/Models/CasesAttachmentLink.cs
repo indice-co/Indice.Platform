@@ -4,7 +4,7 @@ using Indice.Extensions;
 namespace Indice.Features.Cases.Models
 {
     /// <summary>
-    /// Models an attachment that is associated with a campaign.
+    /// Models an attachment that is associated with a case.
     /// </summary>
     public class CasesAttachmentLink
     {
