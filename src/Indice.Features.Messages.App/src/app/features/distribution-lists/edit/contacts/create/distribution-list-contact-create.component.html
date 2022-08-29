@@ -90,7 +90,7 @@
          (mouseenter)="item.hover = true"
          (mouseleave)="item.hover = false">
         <div class="relative rounded-lg border border-gray-300 bg-white px-6 py-5 shadow-sm flex items-start space-x-3 hover:border-gray-400">
-            <ng-container *ngIf="!item.edit">
+            <ng-container *ngIf="!item._edit">
                 <div class="flex-shrink-0">
                     <img class="h-10 w-10 rounded-full"
                          [src]="apiUrl + '/avatar/' + item.fullName + '?circular=true'"
@@ -129,130 +129,117 @@
                     </div>
                 </div>
             </ng-container>
-            <ng-container *ngIf="item.edit">
+            <ng-container *ngIf="item._edit">
                 <div class="flex-1 min-w-0">
                     <div class="focus:outline-none">
-                        <form #editCampaignForm="ngForm"
-                              (ngSubmit)="onContactChangesSubmit()">
-                            <div class="px-4 space-y-2">
-                                <fieldset>
-                                    <legend class="sr-only">Επαφή</legend>
+                        <form #contactForm="ngForm"
+                              (ngSubmit)="onSubmit()">
+                            <div class="px-4 space-y-2 pb-4">
+                                <div class="grid grid-cols-4 gap-1">
                                     <!-- Προσφώνηση -->
-                                    <div class="text-base font-medium text-gray-900"
-                                         aria-hidden="true">
-                                        Προσφώνηση
+                                    <div class="col-span-4">
+                                        <label [for]="'salutation-' + item._index"
+                                               class="field-label">
+                                            Προσφώνηση
+                                        </label>
+                                        <div class="flex rounded-sm">
+                                            <input type="text"
+                                                   [name]="'salutation-' + item._index"
+                                                   [id]="'salutation-' + item._index"
+                                                   placeholder="Προσφώνηση..."
+                                                   [(ngModel)]="item.salutation"
+                                                   #salutation="ngModel">
+                                        </div>
+                                        <p class="field-info col-span-3">Η προσφώνηση (π.χ κύριε ή κ.).</p>
                                     </div>
-                                    <label [for]="'salutation-' + item._index"
-                                           class="field-label hidden">
-                                        Προσφώνηση
-                                    </label>
-                                    <div class="mt-1 flex rounded-sm">
-                                        <input type="text"
-                                               [name]="'salutation-' + item._index"
-                                               [id]="'salutation-' + item._index"
-                                               placeholder="Προσφώνηση..."
-                                               [(ngModel)]="item.salutation"
-                                               #salutation="ngModel">
-                                    </div>
-                                    <p class="field-info col-span-3">Η προσφώνηση (π.χ κύριε ή κ.).</p>
                                     <!-- Όνομα -->
-                                    <div class="text-base font-medium text-gray-900"
-                                         aria-hidden="true">
-                                        Όνομα
-                                    </div>
-                                    <label [for]="'first-name-' + item._index"
-                                           class="field-label hidden">
-                                        Όνομα
-                                    </label>
-                                    <div class="mt-1 flex rounded-sm">
-                                        <input type="text"
-                                               [name]="'first-name-' + item._index"
-                                               [id]="'first-name-' + item._index"
-                                               placeholder="Όνομα..."
-                                               [(ngModel)]="item.firstName"
-                                               #firstName="ngModel">
+                                    <div class="col-span-4">
+                                        <label [for]="'first-name-' + item._index"
+                                               class="field-label">
+                                            Όνομα
+                                        </label>
+                                        <div class="flex rounded-sm">
+                                            <input type="text"
+                                                   [name]="'first-name-' + item._index"
+                                                   [id]="'first-name-' + item._index"
+                                                   placeholder="Όνομα..."
+                                                   [(ngModel)]="item.firstName"
+                                                   #firstName="ngModel">
+                                        </div>
                                     </div>
                                     <!-- Επώνυμο -->
-                                    <div class="text-base font-medium text-gray-900"
-                                         aria-hidden="true">
-                                        Επώνυμο
-                                    </div>
-                                    <label [for]="'last-name-' + item._index"
-                                           class="field-label hidden">
-                                        Επώνυμο
-                                    </label>
-                                    <div class="mt-1 flex rounded-sm">
-                                        <input type="text"
-                                               [name]="'last-name-' + item._index"
-                                               [id]="'last-name-' + item._index"
-                                               placeholder="Επώνυμο..."
-                                               [(ngModel)]="item.lastName"
-                                               #lastName="ngModel">
+                                    <div class="col-span-4">
+                                        <label [for]="'last-name-' + item._index"
+                                               class="field-label">
+                                            Επώνυμο
+                                        </label>
+                                        <div class="flex rounded-sm">
+                                            <input type="text"
+                                                   [name]="'last-name-' + item._index"
+                                                   [id]="'last-name-' + item._index"
+                                                   placeholder="Επώνυμο..."
+                                                   [(ngModel)]="item.lastName"
+                                                   #lastName="ngModel">
+                                        </div>
                                     </div>
                                     <!-- Όνομα Εμφάνισης -->
-                                    <div class="text-base font-medium text-gray-900"
-                                         aria-hidden="true">
-                                        Όνομα Εμφάνισης
-                                    </div>
-                                    <label [for]="'full-name-' + item._index"
-                                           class="field-label hidden">
-                                        Όνομα Εμφάνισης
-                                    </label>
-                                    <div class="mt-1 flex rounded-sm">
-                                        <input type="text"
-                                               [name]="'full-name-' + item._index"
-                                               [id]="'full-name-' + item._index"
-                                               placeholder="Όνομα Εμφάνισης..."
-                                               [(ngModel)]="item.fullName"
-                                               #fullName="ngModel">
+                                    <div class="col-span-4">
+                                        <label [for]="'full-name-' + item._index"
+                                               class="field-label">
+                                            Όνομα Εμφάνισης
+                                        </label>
+                                        <div class="flex rounded-sm">
+                                            <input type="text"
+                                                   [name]="'full-name-' + item._index"
+                                                   [id]="'full-name-' + item._index"
+                                                   placeholder="Όνομα Εμφάνισης..."
+                                                   [(ngModel)]="item.fullName"
+                                                   #fullName="ngModel">
+                                        </div>
                                     </div>
                                     <!-- Email -->
-                                    <div class="text-base font-medium text-gray-900"
-                                         aria-hidden="true">
-                                        Email
-                                    </div>
-                                    <label [for]="'email-' + item._index"
-                                           class="field-label hidden">
-                                        Email
-                                    </label>
-                                    <div class="mt-1 flex rounded-sm">
-                                        <input type="text"
-                                               [name]="'email-' + item._index"
-                                               [id]="'email-' + item._index"
-                                               placeholder="Email..."
-                                               [(ngModel)]="item.email"
-                                               #email="ngModel">
+                                    <div class="col-span-4">
+                                        <label [for]="'email-' + item._index"
+                                               class="field-label">
+                                            Email
+                                        </label>
+                                        <div class="flex rounded-sm">
+                                            <input type="text"
+                                                   [name]="'email-' + item._index"
+                                                   [id]="'email-' + item._index"
+                                                   placeholder="Email..."
+                                                   [(ngModel)]="item.email"
+                                                   #email="ngModel">
+                                        </div>
                                     </div>
                                     <!-- Email -->
-                                    <div class="text-base font-medium text-gray-900"
-                                         aria-hidden="true">
-                                        Τηλέφωνο
+                                    <div class="col-span-4">
+                                        <label [for]="'phone-number-' + item._index"
+                                               class="field-label">
+                                            Τηλέφωνο
+                                        </label>
+                                        <div class="flex rounded-sm">
+                                            <input type="text"
+                                                   [name]="'phone-number-' + item._index"
+                                                   [id]="'phone-number-' + item._index"
+                                                   placeholder="Τηλέφωνο..."
+                                                   [(ngModel)]="item.phoneNumber"
+                                                   #phoneNumber="ngModel">
+                                        </div>
                                     </div>
-                                    <label [for]="'phone-number-' + item._index"
-                                           class="field-label hidden">
-                                        Τηλέφωνο
-                                    </label>
-                                    <div class="mt-1 flex rounded-sm">
-                                        <input type="text"
-                                               [name]="'phone-number-' + item._index"
-                                               [id]="'phone-number-' + item._index"
-                                               placeholder="Email..."
-                                               [(ngModel)]="item.phoneNumber"
-                                               #phoneNumber="ngModel">
-                                    </div>
-                                </fieldset>
+                                </div>
+                                <button type="submit"
+                                        [style.visibility]="'hidden'"
+                                        #submitBtn>
+                                    Submit
+                                </button>
                             </div>
-                            <button type="submit"
-                                    [style.visibility]="'hidden'"
-                                    #submitBtn>
-                                Submit
-                            </button>
                         </form>
                     </div>
                 </div>
             </ng-container>
             <div class="ml-4 flex-shrink-0 flex flex-col"
-                 [ngClass]="{ 'invisible': !item.hover && !item.edit }">
+                 [ngClass]="{ 'invisible': !item.hover && !item._edit }">
                 <button type="button"
                         (click)="contactsCombobox.removeItem(item)"
                         class="cursor-pointer bg-white rounded-md inline-flex text-gray-400 hover:text-gray-500 mb-1">
@@ -268,9 +255,9 @@
                     </svg>
                 </button>
                 <button type="button"
-                        (click)="item.edit = true"
+                        (click)="item._edit = true"
                         class="cursor-pointer bg-white rounded-md inline-flex text-gray-400 hover:text-gray-500"
-                        *ngIf="!item.edit">
+                        *ngIf="!item._edit">
                     <span class="sr-only">Edit</span>
                     <svg xmlns="http://www.w3.org/2000/svg"
                          viewBox="0 0 20 20"
@@ -282,7 +269,7 @@
                 <button type="button"
                         (click)="onContactSaveChanges(item)"
                         class="cursor-pointer bg-white rounded-md inline-flex text-green-400 hover:text-green-500"
-                        *ngIf="item.edit">
+                        *ngIf="item._edit">
                     <span class="sr-only">Save</span>
                     <svg xmlns="http://www.w3.org/2000/svg"
                          viewBox="0 0 20 20"

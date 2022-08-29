@@ -8,7 +8,7 @@ namespace Indice.Features.Messages.Core.Services.Validators
     {
         /// <summary>Creates a new instance of <see cref="CreateDistributionListRequestValidator"/>.</summary>
         public CreateDistributionListContactRequestValidator() {
-            RuleFor(x => x.FirstName).NotEmpty();
+            RuleFor(x => x.FullName).NotEmpty();
         }
     }
 }

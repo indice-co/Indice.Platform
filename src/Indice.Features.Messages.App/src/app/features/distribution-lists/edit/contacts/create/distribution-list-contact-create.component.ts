@@ -26,7 +26,7 @@ export class DistributionListContactCreateComponent implements OnInit, AfterView
     public isLoading: boolean = false;
     public apiUrl = environment.api_url;
     public get anyContactEditing() {
-        return false; 
+        return false;
     }
 
     public ngOnInit(): void {
@@ -53,13 +53,15 @@ export class DistributionListContactCreateComponent implements OnInit, AfterView
     }
 
     public onContactSaveChanges(item: any): void {
-        delete item.edit;
+        delete item._edit;
     }
 
     public onAddNewContact(searchTerm: string): void {
-        this.contactsCombobox.selectedItems.unshift(new Contact({
+        const contact = new Contact({
             fullName: searchTerm
-        }));
+        });
+        (<any>contact)._edit = true;
+        this.contactsCombobox.selectedItems.unshift(contact);
     }
 
     public onSubmit(): void {

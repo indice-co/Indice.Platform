@@ -37,7 +37,7 @@ export class DistributionListContactsComponent extends BaseListComponent<Contact
         ];
     }
 
-    public newItemLink: string | null = 'create-distribution-list-contact';
+    public newItemLink: string | null = 'create-contact';
     public full = true;
     public distributionList = new DistributionList({ name: '' });
 

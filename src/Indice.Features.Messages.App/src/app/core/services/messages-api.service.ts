@@ -124,6 +124,19 @@ export interface IMessagesApiClient {
      */
     createContact(body?: CreateContactRequest | undefined): Observable<MessageType>;
     /**
+     * Gets the specified contact by it's unique id.
+     * @param contactId The unique id of the contact.
+     * @return OK
+     */
+    getContactById(contactId: string): Observable<Contact>;
+    /**
+     * Updates the specified contact in the store.
+     * @param contactId The unique id of the contact.
+     * @param body (optional) The request model used to update a new contact.
+     * @return No Content
+     */
+    updateContact(contactId: string, body?: UpdateContactRequest | undefined): Observable<void>;
+    /**
      * Gets the list of available campaign types.
      * @param page (optional) 
      * @param size (optional) 
@@ -1613,6 +1626,151 @@ export class MessagesApiClient implements IMessagesApiClient {
             let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result400 = ValidationProblemDetails.fromJS(resultData400);
             return throwException("Bad Request", status, _responseText, _headers, result400);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * Gets the specified contact by it's unique id.
+     * @param contactId The unique id of the contact.
+     * @return OK
+     */
+    getContactById(contactId: string): Observable<Contact> {
+        let url_ = this.baseUrl + "/api/contacts/{contactId}";
+        if (contactId === undefined || contactId === null)
+            throw new Error("The parameter 'contactId' must be defined.");
+        url_ = url_.replace("{contactId}", encodeURIComponent("" + contactId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetContactById(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetContactById(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<Contact>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<Contact>;
+        }));
+    }
+
+    protected processGetContactById(response: HttpResponseBase): Observable<Contact> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            }));
+        } else if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = Contact.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status === 404) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("Not Found", status, _responseText, _headers);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * Updates the specified contact in the store.
+     * @param contactId The unique id of the contact.
+     * @param body (optional) The request model used to update a new contact.
+     * @return No Content
+     */
+    updateContact(contactId: string, body?: UpdateContactRequest | undefined): Observable<void> {
+        let url_ = this.baseUrl + "/api/contacts/{contactId}";
+        if (contactId === undefined || contactId === null)
+            throw new Error("The parameter 'contactId' must be defined.");
+        url_ = url_.replace("{contactId}", encodeURIComponent("" + contactId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+            })
+        };
+
+        return this.http.request("put", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processUpdateContact(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processUpdateContact(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
+    }
+
+    protected processUpdateContact(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            }));
+        } else if (status === 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
             }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
@@ -4492,11 +4650,11 @@ export class CreateDistributionListContactRequest implements ICreateDistribution
     /** Contact salutation (Mr, Mrs etc). */
     salutation?: string | undefined;
     /** The first name. */
-    firstName!: string | undefined;
+    firstName?: string | undefined;
     /** The last name. */
     lastName?: string | undefined;
     /** The full name. */
-    fullName?: string | undefined;
+    fullName!: string | undefined;
     /** The email. */
     email?: string | undefined;
     /** The phone number. */
@@ -4553,11 +4711,11 @@ export interface ICreateDistributionListContactRequest {
     /** Contact salutation (Mr, Mrs etc). */
     salutation?: string | undefined;
     /** The first name. */
-    firstName: string | undefined;
+    firstName?: string | undefined;
     /** The last name. */
     lastName?: string | undefined;
     /** The full name. */
-    fullName?: string | undefined;
+    fullName: string | undefined;
     /** The email. */
     email?: string | undefined;
     /** The phone number. */
@@ -5584,6 +5742,82 @@ export interface IUpdateCampaignRequest {
     recipientListId?: string | undefined;
     /** Optional data for the campaign. */
     data?: any | undefined;
+}
+
+/** The request model used to update an existing contact. */
+export class UpdateContactRequest implements IUpdateContactRequest {
+    /** Contact salutation (Mr, Mrs etc). */
+    salutation?: string | undefined;
+    /** The first name. */
+    firstName?: string | undefined;
+    /** The last name. */
+    lastName?: string | undefined;
+    /** The full name. */
+    fullName?: string | undefined;
+    /** The email. */
+    email?: string | undefined;
+    /** The phone number. */
+    phoneNumber?: string | undefined;
+    /** The id of the distribution list. */
+    distributionListId?: string | undefined;
+
+    constructor(data?: IUpdateContactRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.salutation = _data["salutation"];
+            this.firstName = _data["firstName"];
+            this.lastName = _data["lastName"];
+            this.fullName = _data["fullName"];
+            this.email = _data["email"];
+            this.phoneNumber = _data["phoneNumber"];
+            this.distributionListId = _data["distributionListId"];
+        }
+    }
+
+    static fromJS(data: any): UpdateContactRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new UpdateContactRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["salutation"] = this.salutation;
+        data["firstName"] = this.firstName;
+        data["lastName"] = this.lastName;
+        data["fullName"] = this.fullName;
+        data["email"] = this.email;
+        data["phoneNumber"] = this.phoneNumber;
+        data["distributionListId"] = this.distributionListId;
+        return data;
+    }
+}
+
+/** The request model used to update an existing contact. */
+export interface IUpdateContactRequest {
+    /** Contact salutation (Mr, Mrs etc). */
+    salutation?: string | undefined;
+    /** The first name. */
+    firstName?: string | undefined;
+    /** The last name. */
+    lastName?: string | undefined;
+    /** The full name. */
+    fullName?: string | undefined;
+    /** The email. */
+    email?: string | undefined;
+    /** The phone number. */
+    phoneNumber?: string | undefined;
+    /** The id of the distribution list. */
+    distributionListId?: string | undefined;
 }
 
 /** Models a request when updating a distribution list. */

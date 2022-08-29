@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Indice.Features.Messages.Core.Models.Requests
+﻿namespace Indice.Features.Messages.Core.Models.Requests
 {
     /// <inheritdoc />
     public class CreateDistributionListContactRequest : CreateContactRequest
