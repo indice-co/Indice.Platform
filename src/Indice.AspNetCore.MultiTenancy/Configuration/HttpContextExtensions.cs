@@ -1,34 +1,22 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using Indice.AspNetCore.MultiTenancy;
+﻿using Indice.AspNetCore.MultiTenancy;
 
 namespace Microsoft.AspNetCore.Http
 {
-    /// <summary>
-    /// Extensions to HttpContext to make multi-tenancy easier to use
-    /// </summary>
+    /// <summary>Extensions to <see cref="HttpContext"/> to make multi-tenancy easier to use.</summary>
     public static class HttpContextExtensions
     {
-        /// <summary>
-        /// Returns the current tenant
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="context"></param>
-        /// <returns></returns>
-        public static T GetTenant<T>(this HttpContext context) where T : Tenant {
-            if (!context.Items.ContainsKey(Constants.HttpContextTenantKey))
-                return null;
-            return context.Items[Constants.HttpContextTenantKey] as T;
+        /// <summary>Returns the current tenant.</summary>
+        /// <typeparam name="TTenant">The type of the tenant.</typeparam>
+        /// <param name="context">Encapsulates all HTTP-specific information about an individual HTTP request.</param>
+        public static TTenant GetTenant<TTenant>(this HttpContext context) where TTenant : Tenant {
+            if (!context.Items.ContainsKey(Constants.HttpContextTenantKey)) {
+                return default;
+            }
+            return context.Items[Constants.HttpContextTenantKey] as TTenant;
         }
 
-        /// <summary>
-        /// Returns the current Tenant
-        /// </summary>
-        /// <param name="context"></param>
-        /// <returns></returns>
-        public static Tenant GetTenant(this HttpContext context) {
-            return context.GetTenant<Tenant>();
-        }
+        /// <summary>Returns the current tenant.</summary>
+        /// <param name="context">Encapsulates all HTTP-specific information about an individual HTTP request.</param>
+        public static Tenant GetTenant(this HttpContext context) => context.GetTenant<Tenant>();
     }
 }

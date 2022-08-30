@@ -1,27 +1,22 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 
 namespace Indice.AspNetCore.MultiTenancy
 {
-    internal class TenantMiddleware<T> where T : Tenant
+    internal class TenantMiddleware<TTenant> where TTenant : Tenant
     {
-        private readonly RequestDelegate next;
+        private readonly RequestDelegate _next;
 
         public TenantMiddleware(RequestDelegate next) {
-            this.next = next;
+            _next = next;
         }
 
         public async Task Invoke(HttpContext context) {
             if (!context.Items.ContainsKey(Constants.HttpContextTenantKey)) {
-                var tenantService = context.RequestServices.GetService(typeof(TenantAccessService<T>)) as TenantAccessService<T>;
+                var tenantService = context.RequestServices.GetService(typeof(TenantAccessService<TTenant>)) as TenantAccessService<TTenant>;
                 context.Items.Add(Constants.HttpContextTenantKey, await tenantService.GetTenantAsync());
             }
-
-            // Continue processing
-            await next?.Invoke(context);
+            await _next?.Invoke(context);
         }
     }
 }

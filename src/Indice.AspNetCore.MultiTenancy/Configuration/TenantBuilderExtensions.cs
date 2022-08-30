@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
 using Indice.AspNetCore.MultiTenancy;
 using Indice.AspNetCore.MultiTenancy.Stores;
 using Indice.AspNetCore.MultiTenancy.Strategies;
@@ -8,59 +6,50 @@ using Microsoft.AspNetCore.Http;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
-    /// <summary>
-    /// Extension methods over <see cref="TenantBuilder{T}"/>
-    /// </summary>
+    /// <summary>Extension methods over <see cref="TenantBuilder{T}"/>.</summary>
     public static class TenantBuilderExtensions
     {
-        /// <summary>
-        /// Register the tenant store implementation In memory
-        /// </summary>
-        /// <param name="builder">The builder</param>
-        /// <param name="tenants">Available tenants</param>
-        /// <param name="lifetime"></param>
-        /// <returns></returns>
-        public static TenantBuilder<T> WithInMemoryStore<T>(this TenantBuilder<T> builder, IEnumerable<T> tenants, ServiceLifetime lifetime = ServiceLifetime.Transient) where T : Tenant =>
-            builder.WithStore((sp) => new InMemoryTenantStore<T>(tenants), lifetime);
+        /// <summary>Registers an in-memory implementation of the <see cref="ITenantStore{T}"/>.</summary>
+        /// <typeparam name="TTenant">The type of the tenant.</typeparam>
+        /// <param name="builder">The builder used to configure the multi-tenancy feature.</param>
+        /// <param name="tenants">The collection of tenants to store in-memory.</param>
+        /// <param name="lifetime">Specifies the lifetime of a service in an <see cref="IServiceCollection"/>.</param>
+        /// <returns>The builder used to configure the multi-tenancy feature.</returns>
+        public static TenantBuilder<TTenant> WithInMemoryStore<TTenant>(this TenantBuilder<TTenant> builder, IEnumerable<TTenant> tenants, ServiceLifetime lifetime = ServiceLifetime.Transient) where TTenant : Tenant =>
+            builder.WithStore(serviceProvider => new InMemoryTenantStore<TTenant>(tenants), lifetime);
 
-        /// <summary>
-        /// Will search to find the current tenant identifier from the currently running application Host. For example www.indice.gr
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="builder"></param>
-        /// <param name="lifetime"></param>
-        /// <returns></returns>
-        public static TenantBuilder<T> FromHost<T>(this TenantBuilder<T> builder, ServiceLifetime lifetime = ServiceLifetime.Transient) where T : Tenant =>
+        /// <summary>Will search to find the current tenant identifier from the currently running application host. For example www.indice.gr</summary>
+        /// <typeparam name="TTenant">The type of the tenant.</typeparam>
+        /// <param name="builder">The builder used to configure the multi-tenancy feature.</param>
+        /// <param name="lifetime">Specifies the lifetime of a service in an <see cref="IServiceCollection"/>.</param>
+        /// <returns>The builder used to configure the multi-tenancy feature.</returns>
+        public static TenantBuilder<TTenant> FromHost<TTenant>(this TenantBuilder<TTenant> builder, ServiceLifetime lifetime = ServiceLifetime.Transient) where TTenant : Tenant =>
             builder.WithResolutionStrategy<HostResolutionStrategy>(lifetime);
 
-        /// <summary>
-        /// Will search to find a route parameter in the current <see cref="Microsoft.AspNetCore.Routing.RouteData"/>.
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="builder"></param>
-        /// <param name="routeParameterName">The route parameter name as defined in the attribute or convention based routing. ie: /subscriptions/{tenantId}/documents</param>
-        /// <param name="lifetime"></param>
-        /// <returns></returns>
-        /// <remarks>In order to use this strategy ensure that the UseRouting call precedes the UseMultiTenancy middleware</remarks>
-        public static TenantBuilder<T> FromRoute<T>(this TenantBuilder<T> builder, string routeParameterName = Constants.RouteParameterName, ServiceLifetime lifetime = ServiceLifetime.Transient) where T : Tenant =>
-            builder.WithResolutionStrategy((sp) => {
-                var accessor = sp.GetRequiredService<IHttpContextAccessor>();
-                return new RouteResolutionStrategy(accessor, routeParameterName);
+        /// <summary>Will search to find a route parameter in the current <see cref="AspNetCore.Routing.RouteData"/>.</summary>
+        /// <typeparam name="TTenant">The type of the tenant.</typeparam>
+        /// <param name="builder">The builder used to configure the multi-tenancy feature.</param>
+        /// <param name="routeParameterName">The route parameter name as defined in the attribute or convention based routing. <b>ie: /subscriptions/{tenantId}/documents</b></param>
+        /// <param name="lifetime">Specifies the lifetime of a service in an <see cref="IServiceCollection"/>.</param>
+        /// <returns>The builder used to configure the multi-tenancy feature.</returns>
+        /// <remarks>In order to use this strategy, ensure that the UseRouting call precedes the UseMultiTenancy middleware.</remarks>
+        public static TenantBuilder<TTenant> FromRoute<TTenant>(this TenantBuilder<TTenant> builder, string routeParameterName = Constants.RouteParameterName, ServiceLifetime lifetime = ServiceLifetime.Transient) where TTenant : Tenant =>
+            builder.WithResolutionStrategy(serviceProvider => {
+                var httpContextAccessor = serviceProvider.GetRequiredService<IHttpContextAccessor>();
+                return new RouteResolutionStrategy(httpContextAccessor, routeParameterName);
             }, lifetime);
 
-        /// <summary>
-        /// Will search to find a The http request header in the current http request.
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="builder"></param>
-        /// <param name="headerName">The http request header name from where to extract the tenant id. ie: X-Tenant-Id</param>
-        /// <param name="lifetime"></param>
+        /// <summary>Will search to find a HTTP request header in the current request.</summary>
+        /// <typeparam name="TTenant">The type of the tenant.</typeparam>
+        /// <param name="builder">The builder used to configure the multi-tenancy feature.</param>
+        /// <param name="headerName">The HTTP request header name from where to extract the tenant id. <b>ie: X-Tenant-Id</b></param>
+        /// <param name="lifetime">The builder used to configure the multi-tenancy feature.</param>
         /// <returns></returns>
         /// <remarks>In order to use this strategy ensure that the UseRouting call precedes the UseMultiTenancy middleware</remarks>
-        public static TenantBuilder<T> FromHeader<T>(this TenantBuilder<T> builder, string headerName = Constants.HttpRequestHeaderName, ServiceLifetime lifetime = ServiceLifetime.Transient) where T : Tenant =>
-            builder.WithResolutionStrategy((sp) => {
-                var accessor = sp.GetRequiredService<IHttpContextAccessor>();
-                return new HeaderResolutionStrategy(accessor, headerName);
+        public static TenantBuilder<TTenant> FromHeader<TTenant>(this TenantBuilder<TTenant> builder, string headerName = Constants.HttpRequestHeaderName, ServiceLifetime lifetime = ServiceLifetime.Transient) where TTenant : Tenant =>
+            builder.WithResolutionStrategy(serviceProvider => {
+                var httpContextAccessor = serviceProvider.GetRequiredService<IHttpContextAccessor>();
+                return new HeaderResolutionStrategy(httpContextAccessor, headerName);
             }, lifetime);
     }
 }

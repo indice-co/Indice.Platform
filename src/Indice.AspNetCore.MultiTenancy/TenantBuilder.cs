@@ -12,19 +12,19 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 namespace Indice.AspNetCore.MultiTenancy
 {
     /// <summary>A builder used to configure the multi-tenancy feature.</summary>
-    public class TenantBuilder<T> where T : Tenant
+    public class TenantBuilder<TTenant> where TTenant : Tenant
     {
         private readonly IServiceCollection _services;
 
         /// <summary>Constructs the <see cref="TenantBuilder{T}"/> class.</summary>
         /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
         public TenantBuilder(IServiceCollection services) {
-            if (typeof(T).Equals(typeof(Tenant))) {
+            if (typeof(TTenant).Equals(typeof(Tenant))) {
                 services.AddTransient<TenantAccessService>();
             }
-            services.AddTransient<TenantAccessService<T>>();
-            services.AddTransient<ITenantAccessor<T>, TenantAccessor<T>>();
-            services.AddTransient<IAuthorizationHandler, BeTenantMemberHandler <T>>();
+            services.AddTransient<TenantAccessService<TTenant>>();
+            services.AddTransient<ITenantAccessor<TTenant>, TenantAccessor<TTenant>>();
+            services.AddTransient<IAuthorizationHandler, BeTenantMemberHandler <TTenant>>();
             _services = services;
         }
 
@@ -34,7 +34,7 @@ namespace Indice.AspNetCore.MultiTenancy
         /// <typeparam name="V"></typeparam>
         /// <param name="lifetime"></param>
         /// <returns></returns>
-        public TenantBuilder<T> WithResolutionStrategy<V>(ServiceLifetime lifetime = ServiceLifetime.Transient) where V : class, ITenantResolutionStrategy {
+        public TenantBuilder<TTenant> WithResolutionStrategy<V>(ServiceLifetime lifetime = ServiceLifetime.Transient) where V : class, ITenantResolutionStrategy {
             _services.TryAddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             _services.Add(ServiceDescriptor.Describe(typeof(ITenantResolutionStrategy), typeof(V), lifetime));
             return this;
@@ -47,7 +47,7 @@ namespace Indice.AspNetCore.MultiTenancy
         /// <param name="implementationFactory"></param>
         /// <param name="lifetime"></param>
         /// <returns></returns>
-        public TenantBuilder<T> WithResolutionStrategy<V>(Func<IServiceProvider, V> implementationFactory, ServiceLifetime lifetime = ServiceLifetime.Transient) where V : class, ITenantResolutionStrategy {
+        public TenantBuilder<TTenant> WithResolutionStrategy<V>(Func<IServiceProvider, V> implementationFactory, ServiceLifetime lifetime = ServiceLifetime.Transient) where V : class, ITenantResolutionStrategy {
             _services.TryAddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             _services.Add(ServiceDescriptor.Describe(typeof(ITenantResolutionStrategy), implementationFactory, lifetime));
             return this;
@@ -59,8 +59,8 @@ namespace Indice.AspNetCore.MultiTenancy
         /// <typeparam name="V"></typeparam>
         /// <param name="lifetime"></param>
         /// <returns></returns>
-        public TenantBuilder<T> WithStore<V>(ServiceLifetime lifetime = ServiceLifetime.Transient) where V : class, ITenantStore<T> {
-            _services.Add(ServiceDescriptor.Describe(typeof(ITenantStore<T>), typeof(V), lifetime));
+        public TenantBuilder<TTenant> WithStore<V>(ServiceLifetime lifetime = ServiceLifetime.Transient) where V : class, ITenantStore<TTenant> {
+            _services.Add(ServiceDescriptor.Describe(typeof(ITenantStore<TTenant>), typeof(V), lifetime));
             return this;
         }
 
@@ -71,8 +71,8 @@ namespace Indice.AspNetCore.MultiTenancy
         /// <param name="implementationFactory"></param>
         /// <param name="lifetime"></param>
         /// <returns></returns>
-        public TenantBuilder<T> WithStore<V>(Func<IServiceProvider, V> implementationFactory, ServiceLifetime lifetime = ServiceLifetime.Transient) where V : class, ITenantStore<T> {
-            _services.Add(ServiceDescriptor.Describe(typeof(ITenantStore<T>), implementationFactory, lifetime));
+        public TenantBuilder<TTenant> WithStore<V>(Func<IServiceProvider, V> implementationFactory, ServiceLifetime lifetime = ServiceLifetime.Transient) where V : class, ITenantStore<TTenant> {
+            _services.Add(ServiceDescriptor.Describe(typeof(ITenantStore<TTenant>), implementationFactory, lifetime));
             return this;
         }
     }

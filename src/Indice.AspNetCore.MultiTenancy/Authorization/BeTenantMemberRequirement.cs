@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
-using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Caching.Distributed;
@@ -11,43 +9,31 @@ using Microsoft.Extensions.Logging;
 
 namespace Indice.AspNetCore.MultiTenancy.Authorization
 {
-    /// <summary>
-    /// This authorization requirement specifies that an endpoint must be 
-    /// available only to members. Furthermore, members must have at leat a specific access level and above.
-    /// </summary>
+    /// <summary>This authorization requirement specifies that an endpoint must be available only to members. Furthermore, members must have at leat a specific access level and above.</summary>
     public class BeTenantMemberRequirement : IAuthorizationRequirement
     {
-        /// <summary>
-        /// The policy name corresponding to this requirement
-        /// </summary>
+        /// <summary>The policy name corresponding to this requirement.</summary>
         public const string PolicyName = "BeTenantMember";
 
-        /// <summary>
-        /// constructs the requirement for a minimum level
-        /// </summary>
-        /// <param name="minimumLevel"></param>
-        public BeTenantMemberRequirement(int? minimumLevel = null) {
+        /// <summary>Creates a new instance of <see cref="BeTenantMemberHandler{TTenant}"/>.</summary>
+        /// <param name="minimumLevel">The minimum access Level requirement. Zero means plain member (default).</param>
+        /// <param name="enableApplicationMembership">In case of user absense the policy will fallback and consider the current application (client_id) as the member id.</param>
+        public BeTenantMemberRequirement(int? minimumLevel = null, bool enableApplicationMembership = false) {
             Level = minimumLevel.GetValueOrDefault();
+            EnableApplicationMembership = enableApplicationMembership;
         }
 
-        /// <summary>
-        /// The minimum access Level requirement. Zero means plain member (default)
-        /// </summary>
-        public int Level { get; set; }
-
-        /// <summary>
-        /// In case of user absense the policy will fallback and consider the current application (client_id) as the memberid
-        /// </summary>
-        public bool EnbaleApplicationMembership { get; set; } = false;
+        /// <summary>The minimum access Level requirement. Zero means plain member (default).</summary>
+        public int Level { get; }
+        /// <summary>In case of user absense the policy will fallback and consider the current application (client_id) as the member id.</summary>
+        public bool EnableApplicationMembership { get; }
 
         /// <inheritdoc/>
         public override string ToString() => $"{nameof(BeTenantMemberRequirement)}: Requires access Level '{Level}' for the current user or client.";
     }
 
-    /// <summary>
-    /// Authorization handler corresponding to the <see cref="BeTenantMemberRequirement"/> 
-    /// </summary>
-    /// <typeparam name="TTenant"></typeparam>
+    /// <summary>Authorization handler corresponding to the <see cref="BeTenantMemberRequirement"/>.</summary>
+    /// <typeparam name="TTenant">The type of the tenant.</typeparam>
     public class BeTenantMemberHandler<TTenant> : AuthorizationHandler<BeTenantMemberRequirement> where TTenant : Tenant
     {
         private readonly ITenantStore<TTenant> _tenantStore;
@@ -55,13 +41,11 @@ namespace Indice.AspNetCore.MultiTenancy.Authorization
         private readonly IDistributedCache _cache;
         private readonly ILogger<BeTenantMemberHandler<TTenant>> _logger;
 
-        /// <summary>
-        /// Constructs the handler.
-        /// </summary>
-        /// <param name="tenantStore"></param>
-        /// <param name="tenantAccessor"></param>
-        /// <param name="cache"></param>
-        /// <param name="logger"></param>
+        /// <summary>Creates a new instance of <see cref="BeTenantMemberHandler{TTenant}"/>.</summary>
+        /// <param name="tenantStore">The tenant store.</param>
+        /// <param name="tenantAccessor">The tenant accessor.</param>
+        /// <param name="cache">Represents a distributed cache of serialized values.</param>
+        /// <param name="logger">Represents a type used to perform logging.</param>
         public BeTenantMemberHandler(ITenantStore<TTenant> tenantStore, ITenantAccessor<TTenant> tenantAccessor, IDistributedCache cache, ILogger<BeTenantMemberHandler<TTenant>> logger) {
             _tenantStore = tenantStore ?? throw new ArgumentNullException(nameof(tenantStore));
             _tenantAccessor = tenantAccessor ?? throw new ArgumentNullException(nameof(tenantAccessor));
@@ -77,7 +61,7 @@ namespace Indice.AspNetCore.MultiTenancy.Authorization
             if (userIsAnonymous) {
                 return;
             }
-            var userId = context.User.FindFirstValue(JwtClaimTypesInternal.Subject) ?? (requirement.EnbaleApplicationMembership ? context.User.FindFirstValue(JwtClaimTypesInternal.ClientId) : null);
+            var userId = context.User.FindFirstValue(JwtClaimTypesInternal.Subject) ?? (requirement.EnableApplicationMembership ? context.User.FindFirstValue(JwtClaimTypesInternal.ClientId) : null);
             if (_tenantAccessor.Tenant is null) {
                 // If you cannot determine if requirement succeeded or not, please do nothing.
                 return;
@@ -95,11 +79,10 @@ namespace Indice.AspNetCore.MultiTenancy.Authorization
         }
 
         private async Task<bool> CheckMembershipAsync(string memberId, Guid tenantId, int? level) {
-            var isMember = false;
             var cacheKey = $"m-{memberId}-t-{tenantId}-l-{level}";
             var value = await _cache.GetStringAsync(cacheKey);
-            var entryExists = value != null;
-            if (entryExists) {
+            bool isMember;
+            if (value is not null) {
                 bool.TryParse(value, out isMember);
                 return isMember;
             }

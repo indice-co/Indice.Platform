@@ -10,9 +10,6 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\Indice.AspNetCore.MultiTenancy\Indice.AspNetCore.MultiTenancy.csproj" />
-    <ProjectReference Include="..\..\src\Indice.Common\Indice.Common.csproj" />
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Data\Configuration\" />
+    <ProjectReference Include="..\..\src\Indice.AspNetCore\Indice.AspNetCore.csproj" />
   </ItemGroup>
 </Project>

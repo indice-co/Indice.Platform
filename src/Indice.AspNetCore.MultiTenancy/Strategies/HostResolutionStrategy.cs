@@ -1,19 +1,20 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿/* 
+ * Attribution: https://michael-mckenna.com/multi-tenant-asp-dot-net-core-application-tenant-resolution 
+ */
+
+using System;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 
 namespace Indice.AspNetCore.MultiTenancy.Strategies
 {
-    /* attribution: https://michael-mckenna.com/multi-tenant-asp-dot-net-core-application-tenant-resolution */
     /// <inheritdoc/>
     public class HostResolutionStrategy : ITenantResolutionStrategy
     {
         private readonly IHttpContextAccessor _httpContextAccessor;
 
         /// <summary>
-        /// Contructs the <see cref="HostResolutionStrategy"/> given the <see cref="IHttpContextAccessor"/>
+        /// Contructs a new instance of <see cref="HostResolutionStrategy"/> given the <see cref="IHttpContextAccessor"/>.
         /// </summary>
         /// <param name="httpContextAccessor"></param>
         public HostResolutionStrategy(IHttpContextAccessor httpContextAccessor) {
