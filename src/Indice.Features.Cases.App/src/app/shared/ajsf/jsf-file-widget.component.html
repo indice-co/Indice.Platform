@@ -6,6 +6,7 @@
               [innerHTML]="options?.title"></label>
        <input *ngIf="!controlValue || draft"
               type="file"
+              [accept]="accept"
               [attr.aria-describedby]="'control' + layoutNode?._id + 'Status'"
               [attr.list]="'control' + layoutNode?._id + 'Autocomplete'"
               [attr.maxlength]="options?.maxLength"

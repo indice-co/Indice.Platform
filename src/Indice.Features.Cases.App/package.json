@@ -23,7 +23,7 @@
     "@angular/platform-browser-dynamic": "14.0.4",
     "@angular/router": "14.0.4",
     "@indice/ng-auth": "^0.2.7",
-    "@indice/ng-components": "0.2.160-beta.11",
+    "@indice/ng-components": "0.2.167-beta.34",
     "@tailwindcss/aspect-ratio": "^0.2.0",
     "@tailwindcss/forms": "^0.3.2",
     "@tailwindcss/line-clamp": "^0.2.0",
