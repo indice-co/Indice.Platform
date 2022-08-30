@@ -153,10 +153,18 @@ export class CaseFormComponent implements OnChanges, OnInit, OnDestroy {
                     this.uploadFileWidgetService.reset();
                     this._toaster.show(ToastType.Success, 'Επιτυχής Επεξεργασία', `Η επεξεργασία της αίτησης ολοκληρώθηκε.`, 5000);
                     this.updateDataEvent.emit({ draft: true });
+                  }),
+                  catchError(() => { // error during case submit
+                    this._toaster.show(ToastType.Error, 'Αποτυχία αποθήκευσης', `Δεν κατέστη εφικτή η καταχώριση της αίτησης σας.`, 5000);
+                    return EMPTY;
                   })
                 )
                 .subscribe();
-            }))
+            }),
+          catchError(() => { // error during attachments upload
+            this._toaster.show(ToastType.Error, 'Αποτυχία αποθήκευσης', `Προέκυψε πρόβλημα κατά την αποθήκευση των εγγράφων.`, 5000);
+            return EMPTY;
+          }))
         .subscribe();
     } else {
       const editCaseRequest = new EditCaseRequest({ data: JSON.stringify(event) });

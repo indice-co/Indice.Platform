@@ -16,8 +16,8 @@ namespace Indice.Features.Cases.UI
         /// Creates a new instance <see cref="CasesUIOptions"/>.
         /// </summary>
         public CasesUIOptions() {
-            ConfigureIndexParameters = (args) => {
-                args[nameof(ApiUrl)] = ApiUrl;
+            ConfigureIndexParameters = args => {
+                args[$"%({nameof(ApiUrl)})"] = ApiUrl;
             };
         }
     }
