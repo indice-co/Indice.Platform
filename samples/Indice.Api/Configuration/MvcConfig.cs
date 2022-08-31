@@ -17,7 +17,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 .AddControllers()
                 .AddMessageEndpoints(options => {
                     options.ApiPrefix = "api";
-                    options.ConfigureDbContext = builder => builder.UseSqlServer(configuration.GetConnectionString("MessagesDb"));
+                    options.ConfigureDbContext = (serviceProvider, builder) => builder.UseSqlServer(configuration.GetConnectionString("MessagesDb"));
                     options.DatabaseSchema = "cmp";
                     options.RequiredScope = $"backoffice:{MessagesApi.Scope}";
                     options.UserClaimType = JwtClaimTypes.Subject;

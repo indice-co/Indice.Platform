@@ -1,19 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 
 namespace Indice.AspNetCore.MultiTenancy
 {
-    /// <summary>
-    /// Resolve the host to a tenant identifier
-    /// </summary>
+    /// <summary>Resolves the host to a tenant identifier.</summary>
     public interface ITenantResolutionStrategy
     {
-        /// <summary>
-        /// Get the tenant identifier
-        /// </summary>
-        /// <returns></returns>
+        /// <summary>Gets the tenant identifier.</summary>
         Task<string> GetTenantIdentifierAsync();
     }
 }

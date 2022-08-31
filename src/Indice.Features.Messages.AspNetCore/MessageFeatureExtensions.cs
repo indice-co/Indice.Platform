@@ -168,7 +168,7 @@ namespace Microsoft.Extensions.DependencyInjection
             services.TryAddTransient<IDistributionListService, DistributionListService>();
             services.TryAddTransient<IUserNameAccessor, UserNameFromClaimsAccessor>();
             // Register application DbContext.
-            Action<DbContextOptionsBuilder> sqlServerConfiguration = (builder) => builder.UseSqlServer(configuration.GetConnectionString("MessagesDbConnection"));
+            Action<IServiceProvider, DbContextOptionsBuilder> sqlServerConfiguration = (serviceProvider, builder) => builder.UseSqlServer(configuration.GetConnectionString("MessagesDbConnection"));
             services.AddDbContext<CampaignsDbContext>(baseOptions.ConfigureDbContext ?? sqlServerConfiguration);
             return mvcBuilder;
         }

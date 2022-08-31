@@ -3,13 +3,20 @@
     <TargetFramework>net6.0</TargetFramework>
     <Nullable>disable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>f51185a7-3b1d-4a61-bbef-86f599e8db68</UserSecretsId>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="Hellang.Middleware.ProblemDetails" Version="6.5.1" />
+    <PackageReference Include="IdentityModel.AspNetCore.OAuth2Introspection" Version="6.1.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.8" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.8" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="6.0.8" />
+    <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" Version="6.4.0" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\Indice.AspNetCore.MultiTenancy\Indice.AspNetCore.MultiTenancy.csproj" />
     <ProjectReference Include="..\..\src\Indice.AspNetCore\Indice.AspNetCore.csproj" />
+    <ProjectReference Include="..\..\src\Indice.Features.Messages.AspNetCore\Indice.Features.Messages.AspNetCore.csproj" />
+    <ProjectReference Include="..\..\src\Indice.Features.Messages.Worker.Azure\Indice.Features.Messages.Worker.Azure.csproj" />
   </ItemGroup>
 </Project>

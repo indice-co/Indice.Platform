@@ -111,7 +111,7 @@ namespace Indice.Features.Messages.Core
         /// Configuration <see cref="Action"/> for internal <see cref="DbContext"/>. 
         /// If not provided the underlying store defaults to SQL Server expecting the setting <i>ConnectionStrings:CampaignsDbConnection</i> to be present.
         /// </summary>
-        public Action<DbContextOptionsBuilder> ConfigureDbContext { get; set; }
+        public Action<IServiceProvider, DbContextOptionsBuilder> ConfigureDbContext { get; set; }
         /// <summary>
         /// The claim type used to identify the user. Defaults to <i>sub</i>.
         /// </summary>

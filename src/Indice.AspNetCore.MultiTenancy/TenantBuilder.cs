@@ -25,6 +25,7 @@ namespace Indice.AspNetCore.MultiTenancy
             services.AddTransient<TenantAccessService<TTenant>>();
             services.AddTransient<ITenantAccessor<TTenant>, TenantAccessor<TTenant>>();
             services.AddTransient<IAuthorizationHandler, BeTenantMemberHandler <TTenant>>();
+            services.AddDistributedMemoryCache();
             _services = services;
         }
 

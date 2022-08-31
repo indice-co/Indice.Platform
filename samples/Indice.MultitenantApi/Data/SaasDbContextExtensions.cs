@@ -8,7 +8,7 @@ namespace Indice.MultitenantApi.Data
         public static void Seed(this SaasDbContext dbContext) {
             var subscription = new DbSubscription { 
                 Alias = "contoso-ltd",
-                DatabaseConnection = "Server=(localdb)\\MSSQLLocalDB;Database=Contoso.ApiDb;Trusted_Connection=True;MultipleActiveResultSets=true",
+                DatabaseConnection = "Server=(localdb)\\MSSQLLocalDB;Database=Contoso.Messages;Trusted_Connection=True;MultipleActiveResultSets=true",
                 Id = Guid.NewGuid(),
                 Status = SubscriptionStatus.Enabled
             };
