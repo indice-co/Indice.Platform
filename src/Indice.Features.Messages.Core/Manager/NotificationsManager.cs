@@ -74,7 +74,7 @@ namespace Indice.Features.Messages.Core.Manager
             var request = new CreateCampaignRequest {
                 ActionLink = actionLink,
                 ActivePeriod = period,
-                Content = templates.ToDictionary(x => x.Key.ToString(), y => y.Value),
+                Content = new MessageContentDictionary(templates),
                 Data = Mapper.ToExpandoObject(data),
                 IsGlobal = false,
                 MessageChannelKind = channels,

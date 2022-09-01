@@ -6,6 +6,6 @@
         /// <summary>The name of the template.</summary>
         public string Name { get; set; }
         /// <summary>The content of the template.</summary>
-        public Dictionary<string, MessageContent> Content { get; set; } = new Dictionary<string, MessageContent>(StringComparer.OrdinalIgnoreCase);
+        public MessageContentDictionary Content { get; set; } = new MessageContentDictionary();
     }
 }

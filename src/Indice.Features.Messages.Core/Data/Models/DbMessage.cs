@@ -16,7 +16,7 @@ namespace Indice.Features.Messages.Core.Data.Models
         /// <summary>Determines if a message is read by the user.</summary>
         public bool IsRead { get; set; }
         /// <summary>The contents of the template.</summary>
-        public Dictionary<string, MessageContent> Content { get; set; } = new Dictionary<string, MessageContent>(StringComparer.OrdinalIgnoreCase);
+        public MessageContentDictionary Content { get; set; } = new MessageContentDictionary();
         /// <summary>Defines when the inbox message was read.</summary>
         public DateTimeOffset? ReadDate { get; set; }
         /// <summary>Defines when the inbox message was deleted.</summary>
