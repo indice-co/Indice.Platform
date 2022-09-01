@@ -9,7 +9,7 @@
     <SpaDistFolder>..\Indice.Features.Cases.App\dist\cases-app</SpaDistFolder>
     <TargetFrameworks>netcoreapp3.1;net5.0;net6.0;</TargetFrameworks>
     <VersionPrefix>6.1.0</VersionPrefix>
-    <VersionSuffix>beta-07</VersionSuffix>
+    <VersionSuffix>beta-08</VersionSuffix>
     <LangVersion>Latest</LangVersion>
   </PropertyGroup>
   <PropertyGroup Label="Package">
