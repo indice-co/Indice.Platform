@@ -13,7 +13,7 @@ namespace Indice.Features.Messages.Core.Models
         public static Expression<Func<DbCampaign, Campaign>> ProjectToCampaign = campaign => new() {
             ActionLink = campaign.ActionLink,
             ActivePeriod = campaign.ActivePeriod,
-            Content = campaign.Content ?? new Dictionary<string, MessageContent>(),
+            Content = campaign.Content ?? new MessageContentDictionary(),
             CreatedAt = campaign.CreatedAt,
             CreatedBy = campaign.CreatedBy,
             UpdatedAt = campaign.UpdatedAt,
@@ -84,7 +84,7 @@ namespace Indice.Features.Messages.Core.Models
                 Size = campaign.Attachment.ContentLength,
                 PermaLink = $"/campaigns/attachments/{(Base64Id)campaign.Attachment.Guid}.{Path.GetExtension(campaign.Attachment.Name).TrimStart('.')}"
             } : null,
-            Content = campaign.Content ?? new Dictionary<string, MessageContent>(),
+            Content = campaign.Content ?? new MessageContentDictionary(),
             CreatedAt = campaign.CreatedAt,
             CreatedBy = campaign.CreatedBy,
             UpdatedAt = campaign.UpdatedAt,
@@ -210,7 +210,7 @@ namespace Indice.Features.Messages.Core.Models
         public static CreateCampaignRequest ToCreateCampaignRequest(CreateCampaignCommand command) => new() {
             ActionLink = command.ActionLink,
             ActivePeriod = command.ActivePeriod,
-            Content = command.Content.ToDictionary(x => x.Key.ToString(), y => y.Value, StringComparer.OrdinalIgnoreCase),
+            Content = new MessageContentDictionary(command.Content),
             Data = ToExpandoObject(command.Data),
             RecipientListId = command.DistributionListId,
             IsGlobal = command.IsGlobal,

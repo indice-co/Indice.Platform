@@ -87,12 +87,16 @@ namespace Indice.Features.Messages.Core.Handlers
                     title = campaign.Title,
                     type = campaign.Type?.Name,
                     actionLink = new {
-                        href = !string.IsNullOrEmpty(campaign.ActionLink.Href) ? $"_tracking/messages/cta/{(Base64Id)campaign.Id}" : null,
+                        href = !string.IsNullOrEmpty(campaign.ActionLink?.Href) ? $"_tracking/messages/cta/{(Base64Id)campaign.Id}" : null,
                         text = campaign.ActionLink?.Text,
                     },
                     now = DateTimeOffset.UtcNow,
-                    contact = JsonSerializer.Deserialize<ExpandoObject>(JsonSerializer.Serialize(contact, JsonSerializerOptionDefaults.GetDefaultSettings()), JsonSerializerOptionDefaults.GetDefaultSettings()),
-                    data = JsonSerializer.Deserialize<ExpandoObject>(JsonSerializer.Serialize(campaign.Data, JsonSerializerOptionDefaults.GetDefaultSettings()), JsonSerializerOptionDefaults.GetDefaultSettings())
+                    contact = contact is not null 
+                        ? JsonSerializer.Deserialize<ExpandoObject>(JsonSerializer.Serialize(contact, JsonSerializerOptionDefaults.GetDefaultSettings()), JsonSerializerOptionDefaults.GetDefaultSettings()) 
+                        : null,
+                    data = campaign.Data is not null 
+                        ? JsonSerializer.Deserialize<ExpandoObject>(JsonSerializer.Serialize(campaign.Data, JsonSerializerOptionDefaults.GetDefaultSettings()), JsonSerializerOptionDefaults.GetDefaultSettings()) 
+                        : null
                 };
                 var messageContent = campaign.Content[content.Key];
                 messageContent.Title = handlebars.Compile(content.Value.Title)(templateData);

@@ -127,17 +127,17 @@ namespace Indice.Features.Cases.Services
 
         public async Task<CaseTypeDetails> Update(CaseTypeRequest caseType) {
             if (!caseType.Id.HasValue) {
-                throw new Exception("Case type can not be null");
+                throw new Exception("Case type can not be null.");
             }
             var dbCaseType = await Get(caseType.Id.Value);
             if (dbCaseType.Code != caseType.Code) {
-                throw new Exception("Case type code cannot be changed");
+                throw new Exception("Case type code cannot be changed.");
             }
             dbCaseType.Title = caseType.Title;
             dbCaseType.DataSchema = caseType.DataSchema;
             dbCaseType.Layout = caseType.Layout;
             dbCaseType.Translations = caseType.Translations;
-            dbCaseType.LayoutTranslations = dbCaseType.LayoutTranslations;
+            dbCaseType.LayoutTranslations = caseType.LayoutTranslations;
 
             _dbContext.CaseTypes.Update(dbCaseType);
             await _dbContext.SaveChangesAsync();

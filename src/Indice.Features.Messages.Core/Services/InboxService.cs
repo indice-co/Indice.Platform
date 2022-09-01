@@ -126,8 +126,8 @@ namespace Indice.Features.Messages.Core.Services
                 AttachmentUrl = x.Campaign.Attachment != null
                     ? $"{CampaignInboxOptions.ApiPrefix}/messages/attachments/{(Base64Id)x.Campaign.Attachment.Guid}.{Path.GetExtension(x.Campaign.Attachment.Name).TrimStart('.')}"
                     : null,
-                Title = x.Message.Content["inbox"].Title,
-                Content = x.Message.Content["inbox"].Body,
+                Title = x.Message.Content[nameof(MessageChannelKind.Inbox)].Title,
+                Content = x.Message.Content[nameof(MessageChannelKind.Inbox)].Body,
                 CreatedAt = x.Campaign.CreatedAt,
                 Id = x.Campaign.Id,
                 IsRead = x.Message != null && x.Message.IsRead,
