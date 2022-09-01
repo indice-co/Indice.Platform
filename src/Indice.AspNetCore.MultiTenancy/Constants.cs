@@ -1,12 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Indice.AspNetCore.MultiTenancy
+﻿namespace Indice.AspNetCore.MultiTenancy
 {
-    /// <summary>
-    /// Constants
-    /// </summary>
+    /// <summary>Constants.</summary>
     internal class Constants
     {
         public const string HttpContextTenantKey = "TENANT_KEY";
@@ -14,17 +8,14 @@ namespace Indice.AspNetCore.MultiTenancy
         public const string RouteParameterName = "tenantId";
     }
 
-    /// <summary>
-    /// The Jwt wellknown claim types 
-    /// </summary>
+    /// <summary>The JWT well-known claim types.</summary>
     internal class JwtClaimTypesInternal
     {
+        /// <summary>User id.</summary>
         public const string Subject= "sub";
+        /// <summary>Client application id.</summary>
         public const string ClientId = "client_id";
-
-        /// <summary>
-        /// Identifies a machine (worker) principal as a trusted system account with administrative priviledges.
-        /// </summary>
+        /// <summary>Identifies a machine (worker) principal as a trusted system account with administrative privileges.</summary>
         public const string System = "system";
     }
 }

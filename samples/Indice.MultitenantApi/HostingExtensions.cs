@@ -40,7 +40,7 @@ namespace Indice.MultitenantApi
                             var tenant = serviceProvider.GetRequiredService<IHttpContextAccessor>().HttpContext?.GetTenant();
                             builder.UseSqlServer(tenant?.ConnectionString ?? configuration.GetConnectionString("MultitenantApiDb"));
                         };
-                        options.DatabaseSchema = "cmp";
+                        options.DatabaseSchema = "msg";
                         options.RequiredScope = $"backoffice:{MessagesApi.Scope}";
                         options.UserClaimType = JwtClaimTypes.Subject;
                         options.UseFilesAzure();

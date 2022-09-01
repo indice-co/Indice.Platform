@@ -9,7 +9,7 @@ namespace Microsoft.Extensions.DependencyInjection
     /// <summary>
     /// Extensions on the <see cref="ServiceCollection"/> around <see cref="IFileService"/>.
     /// </summary>
-    public static class IServiceCollectionFilesExtensions
+    public static class IServiceCollectionFileExtensions
     {
         /// <summary>
         /// Adds <see cref="IFileService"/> using Azure Blob Storage as the backing store.

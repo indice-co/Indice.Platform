@@ -167,6 +167,7 @@ namespace Microsoft.Extensions.DependencyInjection
             services.TryAddTransient<IMessageTypeService, MessageTypeService>();
             services.TryAddTransient<IDistributionListService, DistributionListService>();
             services.TryAddTransient<IUserNameAccessor, UserNameFromClaimsAccessor>();
+            services.TryAddSingleton<Func<string, IFileService>>(serviceProvider => serviceKey => new FileServiceNoop());
             // Register application DbContext.
             Action<IServiceProvider, DbContextOptionsBuilder> sqlServerConfiguration = (serviceProvider, builder) => builder.UseSqlServer(configuration.GetConnectionString("MessagesDbConnection"));
             services.AddDbContext<CampaignsDbContext>(baseOptions.ConfigureDbContext ?? sqlServerConfiguration);
@@ -176,7 +177,7 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <summary>Adds <see cref="IFileService"/> using local file system as the backing store.</summary>
         /// <param name="options">Options used to configure the Campaigns API feature.</param>
         /// <param name="configure">Configure the available options. Null to use defaults.</param>
-        public static void UseFilesLocal(this CampaignOptionsBase options, Action<FileServiceLocalOptions> configure = null) => 
+        public static void UseFilesLocal(this CampaignOptionsBase options, Action<FileServiceLocalOptions> configure = null) =>
             options.Services.AddFiles(options => options.AddFileSystem(KeyedServiceNames.FileServiceKey, configure));
 
         /// <summary>Adds <see cref="IFileService"/> using Azure Blob Storage as the backing store.</summary>

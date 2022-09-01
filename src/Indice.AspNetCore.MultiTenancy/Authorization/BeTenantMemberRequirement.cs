@@ -17,7 +17,7 @@ namespace Indice.AspNetCore.MultiTenancy.Authorization
 
         /// <summary>Creates a new instance of <see cref="BeTenantMemberHandler{TTenant}"/>.</summary>
         /// <param name="minimumLevel">The minimum access Level requirement. Zero means plain member (default).</param>
-        /// <param name="enableApplicationMembership">In case of user absense the policy will fallback and consider the current application (client_id) as the member id.</param>
+        /// <param name="enableApplicationMembership">In case of user absence the policy will fall-back and consider the current application (client_id) as the member id.</param>
         public BeTenantMemberRequirement(int? minimumLevel = null, bool enableApplicationMembership = false) {
             Level = minimumLevel.GetValueOrDefault();
             EnableApplicationMembership = enableApplicationMembership;
@@ -25,7 +25,7 @@ namespace Indice.AspNetCore.MultiTenancy.Authorization
 
         /// <summary>The minimum access Level requirement. Zero means plain member (default).</summary>
         public int Level { get; }
-        /// <summary>In case of user absense the policy will fallback and consider the current application (client_id) as the member id.</summary>
+        /// <summary>In case of user absence the policy will fall-back and consider the current application (client_id) as the member id.</summary>
         public bool EnableApplicationMembership { get; }
 
         /// <inheritdoc/>
@@ -55,9 +55,7 @@ namespace Indice.AspNetCore.MultiTenancy.Authorization
 
         /// <inheritdoc/>
         protected override async Task HandleRequirementAsync(AuthorizationHandlerContext context, BeTenantMemberRequirement requirement) {
-            var userIsAnonymous =
-               context.User?.Identity == null ||
-               !context.User.Identities.Any(i => i.IsAuthenticated);
+            var userIsAnonymous = context.User?.Identity == null || !context.User.Identities.Any(identity => identity.IsAuthenticated);
             if (userIsAnonymous) {
                 return;
             }
@@ -86,7 +84,7 @@ namespace Indice.AspNetCore.MultiTenancy.Authorization
                 bool.TryParse(value, out isMember);
                 return isMember;
             }
-            // This is the case that cache is unavalable or this is the first authorization call for this requirement/policy.
+            // This is the case that cache is unavailable or this is the first authorization call for this requirement/policy.
             isMember = await _tenantStore.CheckAccessAsync(tenantId, memberId, level);
             // Add to cache. 
             var cacheEntryOptions = new DistributedCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromMinutes(5));
