@@ -20,6 +20,7 @@ import { SharedModule } from './shared/shared.module';
 import { CasesModule } from './features/cases/cases.module';
 import { NotificationsModule } from './features/notifications/notifications.module';
 import { CaseTypesModule } from './features/case-types/case-types.module';
+import { AcceptLanguageHttpInterceptor } from './core/services/accept-language-http-interceptor.service';
 
 @NgModule({
   declarations: [
@@ -49,6 +50,7 @@ import { CaseTypesModule } from './features/case-types/case-types.module';
     { provide: AUTH_SETTINGS, useFactory: () => app.settings.auth_settings },
     { provide: CASES_API_BASE_URL, useFactory: () => app.settings.api_url },
     { provide: HTTP_INTERCEPTORS, useClass: AuthHttpInterceptor, multi: true },
+    { provide: HTTP_INTERCEPTORS, useClass: AcceptLanguageHttpInterceptor, multi: true },
     { provide: SHELL_CONFIG, useFactory: () => new ShellConfig() }
   ],
   bootstrap: [AppComponent]

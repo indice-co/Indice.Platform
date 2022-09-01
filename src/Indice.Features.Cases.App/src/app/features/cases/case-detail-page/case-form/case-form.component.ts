@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, ElementRef, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, ElementRef, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges, ViewChild, OnDestroy } from '@angular/core';
 import { ToasterService, ToastType } from '@indice/ng-components';
 import { EMPTY, forkJoin, Observable } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
@@ -12,13 +12,14 @@ import { get, isEqual } from 'lodash';
 import { CurrencyWidgetComponent } from 'src/app/shared/ajsf/json-schema-frameworks/tailwind-framework/currency-widget/currency-widget.component';
 import { DateWidgetComponent } from 'src/app/shared/ajsf/json-schema-frameworks/tailwind-framework/date-widget/date-widget.component';
 import { LookupWidgetComponent } from 'src/app/shared/ajsf/json-schema-frameworks/tailwind-framework/lookup-widget/lookup-widget.component';
+import * as _ from 'lodash';
 
 @Component({
   selector: 'app-case-form',
   templateUrl: './case-form.component.html',
   styleUrls: ['./case-form.component.scss']
 })
-export class CaseFormComponent implements OnChanges, OnInit {
+export class CaseFormComponent implements OnChanges, OnInit, OnDestroy {
   private latestModel: any;
   private latestIsValid: boolean = false;
   // form is editable?
@@ -65,6 +66,11 @@ export class CaseFormComponent implements OnChanges, OnInit {
     private uploadFileWidgetService: UploadFileWidgetService,
     private changeDetector: ChangeDetectorRef
   ) { }
+
+  ngOnDestroy(): void {
+    // we should DEFINITELY remove the uploaded/saved for upload files
+    this.uploadFileWidgetService.reset();
+  }
 
   ngOnChanges(changes: SimpleChanges) {
     if (!this.case) { // no case -> no point to continue execution
@@ -118,8 +124,14 @@ export class CaseFormComponent implements OnChanges, OnInit {
       // what is the key of the dictionary here? the dataPointer (e.g. "/homeAddress/attachmentId") that was added in the file-upload widget
       for (const key in this.uploadFileWidgetService.files) {
         if (this.uploadFileWidgetService.files.hasOwnProperty(key)) {
-          const fileParam = { data: this.uploadFileWidgetService.files[key], fileName: this.uploadFileWidgetService.files[key].name };
-          callsDict[key] = this._api.uploadAdminCaseAttachment(this.case.id!, undefined, fileParam);
+          // we may have 'garbage' attachments that we should not send to server!!!
+          let path = key;
+          path = path.replace(/\//g, '.'); // https://stackoverflow.com/a/63616567/19162333
+          path = path.substring(1);
+          if (_.get(event, path)) { // https://lodash.com/docs/4.17.15#get
+            const fileParam = { data: this.uploadFileWidgetService.files[key], fileName: this.uploadFileWidgetService.files[key].name };
+            callsDict[key] = this._api.uploadAdminCaseAttachment(this.case.id!, undefined, fileParam);
+          }
         }
       }
       forkJoin(callsDict)
@@ -141,10 +153,18 @@ export class CaseFormComponent implements OnChanges, OnInit {
                     this.uploadFileWidgetService.reset();
                     this._toaster.show(ToastType.Success, 'Επιτυχής Επεξεργασία', `Η επεξεργασία της αίτησης ολοκληρώθηκε.`, 5000);
                     this.updateDataEvent.emit({ draft: true });
+                  }),
+                  catchError(() => { // error during case submit
+                    this._toaster.show(ToastType.Error, 'Αποτυχία αποθήκευσης', `Δεν κατέστη εφικτή η καταχώριση της αίτησης σας.`, 5000);
+                    return EMPTY;
                   })
                 )
                 .subscribe();
-            }))
+            }),
+          catchError(() => { // error during attachments upload
+            this._toaster.show(ToastType.Error, 'Αποτυχία αποθήκευσης', `Προέκυψε πρόβλημα κατά την αποθήκευση των εγγράφων.`, 5000);
+            return EMPTY;
+          }))
         .subscribe();
     } else {
       const editCaseRequest = new EditCaseRequest({ data: JSON.stringify(event) });

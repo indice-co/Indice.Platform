@@ -3,7 +3,7 @@ import { IAppSettings, IAuthSettings } from './settings.model';
 
 function createAppSettings(): IAppSettings {
     const isTemplate = environment.isTemplate;
-    let authority: string = '', clientId: string = '', host: string = '', baseHref: string = '', culture: string = '', version: string = '', scopes = '';
+    let authority: string = '', clientId: string = '', host: string = '', baseHref: string = '', culture: string = '', version: string = '', scopes = '', apiUrl = '';
     if (isTemplate) {
         const appRoot = document.getElementsByTagName('app-root')[0];
         authority = appRoot.getAttribute('authority') || '';
@@ -13,6 +13,7 @@ function createAppSettings(): IAppSettings {
         culture = appRoot.getAttribute('culture') || '';
         version = appRoot.getAttribute('version') || '';
         scopes = appRoot.getAttribute('scopes') || '';
+        apiUrl = appRoot.getAttribute('apiUrl') || '';
         if (!authority || !clientId || !host) {
             throw new Error('Please provide authority, clientId and baseAddress as properties of app-root element.');
         }
@@ -23,9 +24,10 @@ function createAppSettings(): IAppSettings {
         appRoot.attributes.removeNamedItem('culture');
         appRoot.attributes.removeNamedItem('version');
         appRoot.attributes.removeNamedItem('scopes');
+        appRoot.attributes.removeNamedItem('apiUrl');
     }
     return {
-        api_url: !isTemplate ? environment.api_url : host,
+        api_url: !isTemplate ? environment.api_url : apiUrl,
         auth_settings: {
             accessTokenExpiringNotificationTime: environment.auth_settings.accessTokenExpiringNotificationTime,
             authority: !isTemplate ? environment.auth_settings.authority : authority,

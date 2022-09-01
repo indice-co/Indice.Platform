@@ -11,12 +11,14 @@ import { CaseTypeCreateComponent } from "./case-type-create/case-type-create.com
 import { CaseTypeEditComponent } from "./case-type-edit/case-type-edit.component";
 import { CaseTypesComponent } from "./case-types.component";
 import { CaseTypesService } from "./case-types.service";
+import { CaseTypeDeleteModalComponent } from './case-type-delete-modal/case-type-delete-modal.component';
 
 @NgModule({
     declarations: [
         CaseTypesComponent,
         CaseTypeCreateComponent,
-        CaseTypeEditComponent
+        CaseTypeEditComponent,
+        CaseTypeDeleteModalComponent
     ],
     imports: [
         BrowserModule,

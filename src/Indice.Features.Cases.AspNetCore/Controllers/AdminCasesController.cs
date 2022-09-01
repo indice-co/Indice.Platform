@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using System.Net.Mime;
 using System.Threading.Tasks;
 using Indice.AspNetCore.Filters;
@@ -88,6 +90,12 @@ namespace Indice.Features.Cases.Controllers
             if (file == null) {
                 ModelState.AddModelError(nameof(file), "File is empty.");
                 return BadRequest(new ValidationProblemDetails(ModelState));
+            }
+            // TODO: remove hardcoded values
+            var permittedExtensions = new[] { ".pdf", ".jpeg", ".jpg", ".tif", ".tiff" };
+            var fileExtension = Path.GetExtension(file.FileName).ToLowerInvariant();
+            if (string.IsNullOrEmpty(fileExtension) || !permittedExtensions.Any(s => string.Equals(s, fileExtension))) {
+                throw new Exception("File type is not acceptable.");
             }
             var attachmentId = await _adminCaseMessageService.Send(caseId, User, new Message { File = file });
             return Ok(new CasesAttachmentLink { Id = attachmentId.GetValueOrDefault() });
