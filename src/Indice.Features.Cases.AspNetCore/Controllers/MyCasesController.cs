@@ -45,22 +45,16 @@ namespace Indice.Features.Cases.Controllers
         /// <summary>
         /// Get the list of the customer's cases.
         /// </summary>
-        /// <param name="page">The current page of the list. Default is 1</param>
-        /// <param name="pageSize">The size of the list. Default is 10.</param>
-        /// <param name="sort">The property name used to sort the list.</param>
+        /// <param name="options">The ListOptions for filtering MyCases.</param>
         /// <returns></returns>
         [HttpGet]
         [Produces(MediaTypeNames.Application.Json)]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ResultSet<MyCasePartial>))]
         [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ProblemDetails))]
-        public async Task<IActionResult> GetCases(int? page, int? pageSize, string? sort) {
+        public async Task<IActionResult> GetCases([FromQuery] ListOptions<GetMyCasesListFilter> options) {
             var cases = await _myCaseService.GetCases(
                 User,
-                new ListOptions<GetMyCasesListFilter> {
-                    Page = page ?? 1,
-                    Size = pageSize ?? 10,
-                    Sort = sort
-                });
+                options);
             return Ok(cases);
         }
 
@@ -152,7 +146,7 @@ namespace Indice.Features.Cases.Controllers
             var fileName = $"{@case.CaseType.Code}-{DateTime.UtcNow.Date:dd-MM-yyyy}.pdf";
             return File(file, "application/pdf", fileName);
         }
-        
+
         private async Task<byte[]> CreatePdf(CaseDetails @case) {
             var template = await _caseTemplateService.RenderTemplateAsync(@case);
             return await _casePdfService.HtmlToPdfAsync(template);
