@@ -31,6 +31,8 @@
               [readonly]="options?.readonly ? 'readonly' : null"
               (input)="updateValue($event)"
               [(ngModel)]="displayValue"
+              [min]="min"
+              [max]="max"
               type="date">
        <input *ngIf="!boundControl"
               [attr.aria-describedby]="'control' + layoutNode?._id + 'Status'"
