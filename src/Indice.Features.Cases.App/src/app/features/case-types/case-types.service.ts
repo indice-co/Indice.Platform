@@ -180,7 +180,6 @@ export class CaseTypesService {
             translations: event?.translations,
             layoutTranslations: event?.layoutTranslations
         })
-
         this._api.updateCaseType(caseTypeId, undefined, request).subscribe(_ => {
             this.toaster.show(ToastType.Success, "Επιτυχία!", "Η επεξεργασία του τύπου αίτησης ήταν επιτυχής")
         },

@@ -31,15 +31,14 @@ export class CurrencyWidgetComponent implements OnInit {
     this.jsf.initializeControl(this);
     if (this.formControl.value) {
       const number = parseFloat(this.formControl.value);
-      this.formControl.value = number.toLocaleString('el');
-      this.displayValue = this.formControl.value;
+      this.displayValue = number.toLocaleString('el');
     }
   }
 
   updateValue(event: any) {
     // force replace masked value input into global decimal format (eg 5.125.000,03 --> 5125000.03)
-    const controlValue = parseFloat(event.target.value.replace(/[.]/g, '').replace(/[,]/g, '.'));
+    const controlValue = parseFloat(event.target.value.replace(/[.]/g, '').replace(/[,]/g, '.')); // do we really need to parseFloat?
     this.displayValue = event.target.value;
-    this.jsf.updateValue(this, controlValue);    
+    this.jsf.updateValue(this, controlValue);
   }
 }

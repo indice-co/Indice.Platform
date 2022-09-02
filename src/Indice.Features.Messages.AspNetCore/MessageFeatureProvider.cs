@@ -18,7 +18,8 @@ namespace Indice.Features.Messages.AspNetCore
         };
 
         private static IReadOnlyList<TypeInfo> InboxApiControllerTypes => new List<TypeInfo>() {
-            typeof(InboxController).GetTypeInfo()
+            typeof(InboxController).GetTypeInfo(),
+            typeof(TrackingController).GetTypeInfo()
         };
 
         public MessageFeatureProvider(bool includeManagementApi = true, bool includeInboxApi = true) {

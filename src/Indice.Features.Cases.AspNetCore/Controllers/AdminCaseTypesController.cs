@@ -46,7 +46,7 @@ namespace Indice.Features.Cases.Controllers
         /// </summary>
         /// <param name="caseTypeId">The case type Id. </param>
         [HttpGet("{caseTypeId:guid}")]
-        [Authorize(AuthenticationSchemes = CasesApiConstants.AuthenticationScheme, Policy = CasesApiConstants.Policies.BeAdministrator)]
+        [Authorize(AuthenticationSchemes = CasesApiConstants.AuthenticationScheme, Policy = CasesApiConstants.Policies.BeCasesAdministrator)]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CaseTypeDetails))]
         [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ProblemDetails))]
         public async Task<IActionResult> GetCaseTypeById(Guid caseTypeId) {
@@ -58,7 +58,7 @@ namespace Indice.Features.Cases.Controllers
         /// Create new case type.
         /// </summary>
         [HttpPost]
-        [Authorize(AuthenticationSchemes = CasesApiConstants.AuthenticationScheme, Policy = CasesApiConstants.Policies.BeAdministrator)]
+        [Authorize(AuthenticationSchemes = CasesApiConstants.AuthenticationScheme, Policy = CasesApiConstants.Policies.BeCasesAdministrator)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         public async Task<IActionResult> CreateCaseType([FromBody] CaseTypeRequest request) {
             await _caseTypeService.Create(request);
@@ -68,14 +68,27 @@ namespace Indice.Features.Cases.Controllers
         /// <summary>
         /// Update a specific Case Type.
         /// </summary>
-        /// <param name="request">The case type Id.</param>
+        /// <param name="request">The new case type model.</param>
         [HttpPut("{caseTypeId:guid}")]
-        [Authorize(AuthenticationSchemes = CasesApiConstants.AuthenticationScheme, Policy = CasesApiConstants.Policies.BeAdministrator)]
+        [Authorize(AuthenticationSchemes = CasesApiConstants.AuthenticationScheme, Policy = CasesApiConstants.Policies.BeCasesAdministrator)]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CaseTypeDetails))]
         [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ProblemDetails))]
         public async Task<IActionResult> UpdateCaseType([FromBody] CaseTypeRequest request) {
             var caseTypeDetails = await _caseTypeService.Update(request);
             return Ok(caseTypeDetails);
+        }
+
+        /// <summary>
+        /// Delete a specific Case Type.
+        /// </summary>
+        [HttpDelete("{caseTypeId:guid}")]
+        [Authorize(AuthenticationSchemes = CasesApiConstants.AuthenticationScheme, Policy = CasesApiConstants.Policies.BeCasesAdministrator)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ValidationProblemDetails))]
+        [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ProblemDetails))]
+        public async Task<IActionResult> DeleteCaseType(Guid caseTypeId) {
+            await _caseTypeService.Delete(caseTypeId);
+            return NoContent();
         }
     }
 }

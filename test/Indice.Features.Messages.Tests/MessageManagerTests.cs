@@ -88,8 +88,8 @@ namespace Indice.Features.Messages.Tests
             var manager = ServiceProvider.GetRequiredService<NotificationsManager>();
             var campaign = new CreateCampaignCommand {
                 ActionLink = new Hyperlink {
-                    Href = "https://www.google.com",
-                    Text = "Google"
+                    Href = "https://indice.gr/account/orders/123And",
+                    Text = "Order details"
                 },
                 ActivePeriod = new Period { From = DateTimeOffset.UtcNow },
                 Content = new Dictionary<MessageChannelKind, MessageContent> {

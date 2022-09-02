@@ -1,9 +1,10 @@
 import { map, take } from 'rxjs/operators';
 import { CasesApiService, CaseTypePartial, CaseTypePartialResultSet } from './../../core/services/cases-api.service';
 import { Component, OnInit } from '@angular/core';
-import { BaseListComponent, Icons, IResultSet, RouterViewAction, ViewAction, ListViewType } from '@indice/ng-components';
+import { BaseListComponent, Icons, IResultSet, RouterViewAction, ViewAction, ListViewType, ModalService } from '@indice/ng-components';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Observable, of } from 'rxjs';
+import { Observable } from 'rxjs';
+import { CaseTypeDeleteModalComponent } from './case-type-delete-modal/case-type-delete-modal.component';
 
 @Component({
   selector: 'app-case-types',
@@ -20,7 +21,8 @@ export class CaseTypesComponent extends BaseListComponent<CaseTypePartial> imple
   constructor(
     private _api: CasesApiService,
     private _route: ActivatedRoute,
-    private _router: Router
+    private _router: Router,
+    private ModalService: ModalService
   ) {
     super(_route, _router)
     this.view = ListViewType.Table
@@ -36,5 +38,13 @@ export class CaseTypesComponent extends BaseListComponent<CaseTypePartial> imple
         take(1),
         map((result: CaseTypePartialResultSet) => (result as IResultSet<CaseTypePartial>))
       )
+  }
+
+  openModal(caseTypeId:string): void {
+    this.ModalService.show(CaseTypeDeleteModalComponent, {
+      backdrop: 'static',
+      keyboard: false,
+      initialState: {id: caseTypeId}
+    });
   }
 }

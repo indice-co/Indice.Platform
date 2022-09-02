@@ -74,9 +74,9 @@ export class CampaignDetailsEditComponent implements OnInit {
         });
         modal.onHidden?.subscribe((response: any) => {
             if (response.result?.answer) {
-                this._api.publishCampaign(response.result.data.id).subscribe(() => {
+                this._campaignStore.publishCampaign(response.result.data.id).subscribe(() => {
                     this._toaster.show(ToastType.Success, 'Επιτυχής δημοσίευση', `Η καμπάνια με τίτλο '${response.result.data.title}' δημοσιεύτηκε με επιτυχία.`);
-                    this._router.navigateByUrl('/', { skipLocationChange: true }).then(() => this._router.navigate(['campaigns']));
+                    this._router.navigateByUrl('/', { skipLocationChange: true }).then(() => this._router.navigate(['campaigns', this._campaignId]));
                 });
             }
         });

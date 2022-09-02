@@ -11,7 +11,7 @@ namespace Microsoft.AspNetCore.Builder
     public static class CasesUIMiddlewareExtensions
     {
         /// <summary>
-        /// Registers the Campaigns UI single page application, using the provided options.
+        /// Registers the Cases UI single page application, using the provided options.
         /// </summary>
         /// <param name="builder">Defines a class that provides the mechanisms to configure an application's request pipeline.</param>
         /// <param name="optionsAction">Options for configuring <see cref="SpaUIMiddleware{TOptions}"/> middleware.</param>

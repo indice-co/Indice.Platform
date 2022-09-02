@@ -7,4 +7,5 @@ export class ShellConfig implements IShellConfig {
     public showFooter = false;
     public showHeader = true;
     public showUserNameOnHeader = true;
+    public breadcrumb = true;
 }

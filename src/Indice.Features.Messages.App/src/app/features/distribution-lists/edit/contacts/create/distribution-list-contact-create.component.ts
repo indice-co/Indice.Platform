@@ -2,6 +2,7 @@ import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, OnInit, ViewCh
 import { Router } from '@angular/router';
 
 import { ComboboxComponent } from '@indice/ng-components';
+import { environment } from 'src/environments/environment';
 import { forkJoin } from 'rxjs';
 import { Contact, ContactResultSet, CreateDistributionListContactRequest, MessagesApiClient } from 'src/app/core/services/messages-api.service';
 
@@ -23,6 +24,10 @@ export class DistributionListContactCreateComponent implements OnInit, AfterView
     public submitInProgress = false;
     public contacts: Contact[] = [];
     public isLoading: boolean = false;
+    public apiUrl = environment.api_url;
+    public get anyContactEditing() {
+        return false;
+    }
 
     public ngOnInit(): void {
         this._distributionListId = this._router.url.split('/')[2];
@@ -33,7 +38,10 @@ export class DistributionListContactCreateComponent implements OnInit, AfterView
         this._api
             .getContacts(undefined, undefined, undefined, undefined, 1, 10, 'email', searchTerm, true)
             .subscribe((contacts: ContactResultSet) => {
-                this.contacts = contacts.items!;
+                this.contacts = contacts.items || [];
+                this.contacts.forEach((contact: Contact, index: number) => {
+                    (<any>contact)['_index'] = index;
+                });
                 this.isLoading = false;
             });
     }
@@ -42,6 +50,18 @@ export class DistributionListContactCreateComponent implements OnInit, AfterView
 
     public ngAfterViewInit(): void {
         this._changeDetector.detectChanges();
+    }
+
+    public onContactSaveChanges(item: any): void {
+        delete item._edit;
+    }
+
+    public onAddNewContact(searchTerm: string): void {
+        const contact = new Contact({
+            fullName: searchTerm
+        });
+        (<any>contact)._edit = true;
+        this.contactsCombobox.selectedItems.unshift(contact);
     }
 
     public onSubmit(): void {
@@ -64,4 +84,6 @@ export class DistributionListContactCreateComponent implements OnInit, AfterView
             this._router.navigateByUrl('/', { skipLocationChange: true }).then(() => this._router.navigate(['distribution-lists', this._distributionListId, 'contacts']));
         });
     }
+
+    public onContactChangesSubmit(): void { }
 }

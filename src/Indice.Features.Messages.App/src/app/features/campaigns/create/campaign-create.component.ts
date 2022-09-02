@@ -70,7 +70,7 @@ export class CampaignCreateComponent implements OnInit, AfterViewChecked {
             .subscribe({
                 next: (campaign: Campaign) => {
                     this.submitInProgress = false;
-                    this._router.navigate(['campaigns']);
+                    this._router.navigate(['campaigns', campaign.id]);
                     this._toaster.show(ToastType.Success, 'Επιτυχής αποθήκευση', `Η καμπάνια με τίτλο '${campaign.title}' δημιουργήθηκε με επιτυχία.`);
                 }
             });
@@ -82,14 +82,7 @@ export class CampaignCreateComponent implements OnInit, AfterViewChecked {
                 this._api.getTemplateById(this.templateId).subscribe((template: Template) => {
                     this.content = template.content;
                 });
-            } /*else {
-                const selectedChannels = this._basicInfoStep.channelsState.filter((channel: ChannelState) => channel.checked);
-                const content: { [key: string]: MessageContent; } = {};
-                for (const iterator of selectedChannels) {
-                    content[iterator.value] = new MessageContent();
-                }
-                this.content = content;
-            }*/
+            }
         }
         this.previewData.title = this._basicInfoStep.title.value;
         this.previewData.type = this._basicInfoStep.type.value?.text;

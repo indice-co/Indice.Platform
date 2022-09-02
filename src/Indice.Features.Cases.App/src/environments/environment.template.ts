@@ -12,7 +12,7 @@ export const environment = {
         redirect_uri: 'auth-callback',
         response_type: 'code',
         revokeAccessTokenOnSignout: true,
-        scope: 'openid profile role email phone',
+        scope: '',
         silent_redirect_uri: 'auth-renew'
     },
     culture: '',

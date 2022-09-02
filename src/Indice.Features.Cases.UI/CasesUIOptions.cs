@@ -8,10 +8,17 @@ namespace Indice.Features.Cases.UI
     public class CasesUIOptions : SpaUIOptions
     {
         /// <summary>
-        /// Creates a new instance <see cref="CampaignUIOptions"/>.
+        /// The case management api url.
+        /// </summary>
+        public string ApiUrl { get; set; }
+
+        /// <summary>
+        /// Creates a new instance <see cref="CasesUIOptions"/>.
         /// </summary>
         public CasesUIOptions() {
-            ConfigureIndexParameters = (args) => { };
+            ConfigureIndexParameters = args => {
+                args[$"%({nameof(ApiUrl)})"] = ApiUrl;
+            };
         }
     }
 }

@@ -4,10 +4,11 @@ import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { BrowserModule } from '@angular/platform-browser';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
-import { APP_LINKS, IndiceComponentsModule, ModalService, SHELL_CONFIG } from '@indice/ng-components';
+import { APP_LANGUAGES, APP_LINKS, IndiceComponentsModule, ModalService, SHELL_CONFIG } from '@indice/ng-components';
 import { AuthHttpInterceptor, AUTH_SETTINGS, IndiceAuthModule } from '@indice/ng-auth';
 import { HighlightModule, HIGHLIGHT_OPTIONS } from 'ngx-highlightjs';
 import { AppComponent } from './app.component';
+import { AppLanguagesService } from './shared/services/app-languages.service';
 import { AppLinks } from './app.links';
 import { AppRoutingModule } from './app-routing.module';
 import { BadRequestInterceptor } from './core/bad-request-interceptor';
@@ -26,6 +27,7 @@ import { CampaignReportsComponent } from './features/campaigns/edit/reports/camp
 import { CampaignsComponent } from './features/campaigns/campaigns.component';
 import { DashboardComponent } from './features/dashboard/dashboard.component';
 import { DistributionListContactCreateComponent } from './features/distribution-lists/edit/contacts/create/distribution-list-contact-create.component';
+import { DistributionListContactEditComponent } from './features/distribution-lists/edit/contacts/edit/distribution-list-contact-edit.component';
 import { DistributionListContactsComponent } from './features/distribution-lists/edit/contacts/distribution-list-contacts.component';
 import { DistributionListCreateComponent } from './features/distribution-lists/create/distribution-list-create.component';
 import { DistributionListDetailsEditComponent } from './features/distribution-lists/edit/details/distribution-list-edit-details.component';
@@ -72,6 +74,7 @@ registerLocaleData(localeGreek);
     CampaignsComponent,
     DashboardComponent,
     DistributionListContactCreateComponent,
+    DistributionListContactEditComponent,
     DistributionListContactsComponent,
     DistributionListCreateComponent,
     DistributionListDetailsEditComponent,
@@ -126,7 +129,8 @@ registerLocaleData(localeGreek);
           json: () => import('highlight.js/lib/languages/json')
         }
       }
-    }
+    },
+    { provide: APP_LANGUAGES, useClass: AppLanguagesService }
   ],
   bootstrap: [AppComponent]
 })

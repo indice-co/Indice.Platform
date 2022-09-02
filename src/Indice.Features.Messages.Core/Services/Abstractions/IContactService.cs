@@ -39,43 +39,41 @@ namespace Indice.Features.Messages.Core.Services.Abstractions
     /// </summary>
     public static class IContactServiceExtensions
     {
-        /// <summary>
-        /// Searches and finds the first contact found in the store by its <paramref name="email"/>.
-        /// </summary>
-        /// <param name="contactService">The <see cref="IContactService"/> to extend</param>
+        /// <summary>Searches and finds the first contact found in the store by its <paramref name="email"/>.</summary>
+        /// <param name="contactService">The <see cref="IContactService"/> to extend.</param>
         /// <param name="email">The contact email to search by</param>
         /// <returns></returns>
         public async static Task<Contact> FindByEmail(this IContactService contactService, string email) {
-            if (string.IsNullOrEmpty(email))
+            if (string.IsNullOrEmpty(email)) {
                 throw new ArgumentNullException(nameof(email));
-            var options = new ListOptions<ContactListFilter> { Size = 1 }; // top 1 results equals first or default.
+            }
+            var options = new ListOptions<ContactListFilter> { Size = 1 };
             options.Filter.Email = email;
             return (await contactService.GetList(options)).Items.FirstOrDefault();
         }
-        /// <summary>
-        /// Searches and finds the first contact found in the store by its <paramref name="phoneNumber"/>.
-        /// </summary>
-        /// <param name="contactService">The <see cref="IContactService"/> to extend</param>
+
+        /// <summary>Searches and finds the first contact found in the store by its <paramref name="phoneNumber"/>.</summary>
+        /// <param name="contactService">The <see cref="IContactService"/> to extend.</param>
         /// <param name="phoneNumber">The contact email to search by</param>
         /// <returns></returns>
         public async static Task<Contact> FindByPhoneNumber(this IContactService contactService, string phoneNumber) {
-            if (string.IsNullOrEmpty(phoneNumber))
+            if (string.IsNullOrEmpty(phoneNumber)) {
                 throw new ArgumentNullException(nameof(phoneNumber));
-            var options = new ListOptions<ContactListFilter> { Size = 1 }; // top 1 results equals first or default.
+            }
+            var options = new ListOptions<ContactListFilter> { Size = 1 };
             options.Filter.PhoneNumber = phoneNumber;
             return (await contactService.GetList(options)).Items.FirstOrDefault();
         }
 
-
-
         /// <summary>Gets a contact by it's recipient id.</summary>
-        /// <param name="contactService">The <see cref="IContactService"/> to extend</param>
+        /// <param name="contactService">The <see cref="IContactService"/> to extend.</param>
         /// <param name="recipientId">The id of the recipient.</param>
         /// <returns></returns>
         public async static Task<Contact> FindByRecipientId(this IContactService contactService, string recipientId) {
-            if (string.IsNullOrEmpty(recipientId))
+            if (string.IsNullOrEmpty(recipientId)) {
                 throw new ArgumentNullException(nameof(recipientId));
-            var options = new ListOptions<ContactListFilter> { Size = 1 }; // top 1 results equals first or default.
+            }
+            var options = new ListOptions<ContactListFilter> { Size = 1 };
             options.Filter.RecipientId = recipientId;
             return (await contactService.GetList(options)).Items.FirstOrDefault();
         }

@@ -54,6 +54,21 @@ namespace Indice.Features.Messages.AspNetCore.Controllers
             return Ok(contacts);
         }
 
+        /// <summary>Gets the specified contact by it's unique id.</summary>
+        /// <param name="contactId">The unique id of the contact.</param>
+        /// <response code="200">OK</response>
+        /// <response code="404">Not Found</response>
+        [HttpGet("{contactId:guid}")]
+        [ProducesResponseType(typeof(Contact), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(void), StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> GetContactById([FromRoute] Guid contactId) {
+            var contact = await ContactService.GetById(contactId);
+            if (contact is null) {
+                return NotFound();
+            }
+            return Ok(contact);
+        }
+
         /// <summary>Creates a new contact in the store.</summary>
         /// <param name="request">The request model used to create a new contact.</param>
         /// <response code="200">OK</response>
@@ -63,6 +78,17 @@ namespace Indice.Features.Messages.AspNetCore.Controllers
         public async Task<IActionResult> CreateContact([FromBody] CreateContactRequest request) {
             var contact = await ContactService.Create(request);
             return Ok(contact);
+        }
+
+        /// <summary>Updates the specified contact in the store.</summary>
+        /// <param name="contactId">The unique id of the contact.</param>
+        /// <param name="request">The request model used to update a new contact.</param>
+        /// <response code="204">No Content</response>
+        [HttpPut("{contactId:guid}")]
+        [ProducesResponseType(typeof(void), StatusCodes.Status204NoContent)]
+        public async Task<IActionResult> UpdateContact([FromRoute] Guid contactId, [FromBody] UpdateContactRequest request) {
+            await ContactService.Update(contactId, request);
+            return NoContent();
         }
     }
 }

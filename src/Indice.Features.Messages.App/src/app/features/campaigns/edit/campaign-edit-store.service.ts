@@ -48,4 +48,12 @@ export class CampaignEditStore {
                 map(_ => this._campaign = undefined)
             );
     }
+
+    public publishCampaign(campaignId: string): Observable<void> {
+        return this._api
+            .publishCampaign(campaignId)
+            .pipe(
+                map(_ => this._campaign = undefined)
+            );
+    }
 }

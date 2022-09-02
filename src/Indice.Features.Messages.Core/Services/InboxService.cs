@@ -116,18 +116,19 @@ namespace Indice.Features.Messages.Core.Services
                 }
             }
             return query.Select(x => new Message {
-                ActionLink = new Hyperlink {
+                ActionLink = x.Campaign.ActionLink != null ? new Hyperlink {
                     Text = x.Campaign.ActionLink.Text,
                     Href = !string.IsNullOrEmpty(x.Campaign.ActionLink.Href)
-                        ? $"{CampaignInboxOptions.ApiPrefix}/messages/cta/{(Base64Id)x.Campaign.Id}"
-                        : null,
-                },
+                        ? $"_tracking/messages/cta/{(Base64Id)x.Campaign.Id}"
+                        : null
+                } : null,
                 ActivePeriod = x.Campaign.ActivePeriod,
                 AttachmentUrl = x.Campaign.Attachment != null
                     ? $"{CampaignInboxOptions.ApiPrefix}/messages/attachments/{(Base64Id)x.Campaign.Attachment.Guid}.{Path.GetExtension(x.Campaign.Attachment.Name).TrimStart('.')}"
                     : null,
-                Title = x.Message.Content["Inbox"].Title,
-                Content = x.Message.Content["Inbox"].Body,
+                // TODO: Fix substitution when message is null.
+                Title = x.Message != null ? x.Message.Content[nameof(MessageChannelKind.Inbox)].Title : x.Campaign.Content[nameof(MessageChannelKind.Inbox)].Title,
+                Content = x.Message != null ? x.Message.Content[nameof(MessageChannelKind.Inbox)].Body : x.Campaign.Content[nameof(MessageChannelKind.Inbox)].Body,
                 CreatedAt = x.Campaign.CreatedAt,
                 Id = x.Campaign.Id,
                 IsRead = x.Message != null && x.Message.IsRead,

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Security.Claims;
@@ -81,7 +80,7 @@ namespace Indice.Features.Cases.Services
         public async Task Create(CaseTypeRequest caseType) {
             var codeExists = await CaseTypeCodeExists(caseType.Code);
             if (codeExists) {
-                throw new Exception("Case type code already exists");
+                throw new Exception("Case type code already exists.");
             }
 
             DbCaseType newCaseType = new DbCaseType {
@@ -95,6 +94,19 @@ namespace Indice.Features.Cases.Services
             };
 
             await _dbContext.CaseTypes.AddAsync(newCaseType);
+            await _dbContext.SaveChangesAsync();
+        }
+
+        public async Task Delete(Guid caseTypeId) {
+            if (caseTypeId == null) {
+                throw new Exception("Case Type id not provided.");
+            }
+            var casesWithCaseType = await _dbContext.Cases.AsQueryable().AnyAsync(x => x.CaseTypeId == caseTypeId);
+            if (casesWithCaseType) {
+                throw new Exception("Case type cannot be deleted because there are cases with this type.");
+            }
+            var dbCaseType = await Get(caseTypeId);
+            _dbContext.CaseTypes.Remove(dbCaseType);
             await _dbContext.SaveChangesAsync();
         }
 
@@ -115,17 +127,17 @@ namespace Indice.Features.Cases.Services
 
         public async Task<CaseTypeDetails> Update(CaseTypeRequest caseType) {
             if (!caseType.Id.HasValue) {
-                throw new Exception("Case type can not be null");
+                throw new Exception("Case type can not be null.");
             }
             var dbCaseType = await Get(caseType.Id.Value);
             if (dbCaseType.Code != caseType.Code) {
-                throw new Exception("Case type code cannot be changed");
+                throw new Exception("Case type code cannot be changed.");
             }
             dbCaseType.Title = caseType.Title;
             dbCaseType.DataSchema = caseType.DataSchema;
             dbCaseType.Layout = caseType.Layout;
             dbCaseType.Translations = caseType.Translations;
-            dbCaseType.LayoutTranslations = dbCaseType.LayoutTranslations;
+            dbCaseType.LayoutTranslations = caseType.LayoutTranslations;
 
             _dbContext.CaseTypes.Update(dbCaseType);
             await _dbContext.SaveChangesAsync();
