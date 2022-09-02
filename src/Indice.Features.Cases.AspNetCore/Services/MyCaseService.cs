@@ -217,5 +217,20 @@ namespace Indice.Features.Cases.Services
 
             return caseType;
         }
+
+        public async Task<ResultSet<CaseTypePartial>> GetCaseTypes() {
+            var caseTypes = await _dbContext.CaseTypes
+                .AsQueryable()
+                .Select(c => new CaseTypePartial {
+                    Id = c.Id,
+                    Title = c.Title,
+                    DataSchema = c.DataSchema,
+                    Layout = c.Layout,
+                    Code = c.Code,
+                    Translations = TranslationDictionary<CaseTypeTranslation>.FromJson(c.Translations)
+                })
+                .ToListAsync();
+            return caseTypes.ToResultSet();
+        }
     }
 }

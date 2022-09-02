@@ -3,6 +3,7 @@ using System.Net.Mime;
 using System.Threading.Tasks;
 using Indice.Features.Cases.Interfaces;
 using Indice.Features.Cases.Models.Responses;
+using Indice.Types;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -25,6 +26,16 @@ namespace Indice.Features.Cases.Controllers
 
         public MyCaseTypesController(IMyCaseService myCaseService) {
             _myCaseService = myCaseService ?? throw new ArgumentNullException(nameof(myCaseService));
+        }
+        /// <summary>
+        /// Gets case types
+        /// </summary>
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ResultSet<CaseTypePartial>))]
+        [Produces(MediaTypeNames.Application.Json)]
+        [HttpGet]
+        public async Task<ActionResult> GetCaseTypes() {
+            var results = await _myCaseService.GetCaseTypes();
+            return Ok(results);
         }
 
         /// <summary>

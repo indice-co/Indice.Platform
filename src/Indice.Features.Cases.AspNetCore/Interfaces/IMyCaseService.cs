@@ -67,5 +67,11 @@ namespace Indice.Features.Cases.Interfaces
         /// </summary>
         /// <param name="caseTypeCode"></param>
         Task<CaseTypePartial> GetCaseType(string caseTypeCode);
+
+        /// <summary>
+        /// Get case types
+        /// </summary>
+        /// <returns></returns>
+        Task<ResultSet<CaseTypePartial>> GetCaseTypes();
     }
 }
