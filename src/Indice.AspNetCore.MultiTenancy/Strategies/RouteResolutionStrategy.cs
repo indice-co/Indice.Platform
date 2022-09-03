@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
@@ -13,13 +11,11 @@ namespace Indice.AspNetCore.MultiTenancy.Strategies
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly string _routeParameterName;
 
-        /// <summary>
-        /// Contructs the <see cref="HostResolutionStrategy"/> given the <see cref="IHttpContextAccessor"/>
-        /// </summary>
-        /// <param name="httpContextAccessor"></param>
-        /// <param name="routeParameterName">The name of the route parameter</param>
+        /// <summary>Constructs the <see cref="HostResolutionStrategy"/> given the <see cref="IHttpContextAccessor"/>.</summary>
+        /// <param name="httpContextAccessor">Provides access to the current HTTP context.</param>
+        /// <param name="routeParameterName">The name of the route parameter.</param>
         public RouteResolutionStrategy(IHttpContextAccessor httpContextAccessor, string routeParameterName) {
-            _httpContextAccessor = httpContextAccessor;
+            _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
             _routeParameterName = routeParameterName ?? throw new ArgumentNullException(nameof(routeParameterName));
         }
 

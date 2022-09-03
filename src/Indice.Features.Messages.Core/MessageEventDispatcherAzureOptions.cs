@@ -5,7 +5,7 @@ using Indice.Services;
 namespace Indice.Features.Messages.Core
 {
     /// <summary>Options for configuring <see cref="EventDispatcherAzure"/>.</summary>
-    public class MessagesEventDispatcherAzureOptions
+    public class MessageEventDispatcherAzureOptions
     {
         /// <summary>The connection string to the Azure Storage account. By default it searches for <see cref="EventDispatcherAzure.CONNECTION_STRING_NAME"/> application setting inside ConnectionStrings section.</summary>
         public string ConnectionString { get; set; }

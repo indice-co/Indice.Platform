@@ -29,50 +29,42 @@ namespace Indice.AspNetCore.MultiTenancy
             _services = services;
         }
 
-        /// <summary>
-        /// Register the tenant resolver implementation
-        /// </summary>
-        /// <typeparam name="V"></typeparam>
-        /// <param name="lifetime"></param>
-        /// <returns></returns>
-        public TenantBuilder<TTenant> WithResolutionStrategy<V>(ServiceLifetime lifetime = ServiceLifetime.Transient) where V : class, ITenantResolutionStrategy {
+        /// <summary>Registers the tenant resolver implementation.</summary>
+        /// <typeparam name="TStrategy">The type of tenant resolution strategy.</typeparam>
+        /// <param name="lifetime">Specifies the lifetime of a service in an <see cref="IServiceCollection"/>.</param>
+        /// <returns>A builder used to configure the multi-tenancy feature.</returns>
+        public TenantBuilder<TTenant> WithResolutionStrategy<TStrategy>(ServiceLifetime lifetime = ServiceLifetime.Transient) where TStrategy : class, ITenantResolutionStrategy {
             _services.TryAddSingleton<IHttpContextAccessor, HttpContextAccessor>();
-            _services.Add(ServiceDescriptor.Describe(typeof(ITenantResolutionStrategy), typeof(V), lifetime));
+            _services.Add(ServiceDescriptor.Describe(typeof(ITenantResolutionStrategy), typeof(TStrategy), lifetime));
             return this;
         }
 
-        /// <summary>
-        /// Register the tenant resolver implementation
-        /// </summary>
-        /// <typeparam name="V"></typeparam>
-        /// <param name="implementationFactory"></param>
-        /// <param name="lifetime"></param>
-        /// <returns></returns>
-        public TenantBuilder<TTenant> WithResolutionStrategy<V>(Func<IServiceProvider, V> implementationFactory, ServiceLifetime lifetime = ServiceLifetime.Transient) where V : class, ITenantResolutionStrategy {
+        /// <summary>Registers the tenant resolver implementation.</summary>
+        /// <typeparam name="TStrategy">The type of tenant resolution strategy.</typeparam>
+        /// <param name="implementationFactory">A factory to create new instances of the service implementation.</param>
+        /// <param name="lifetime">Specifies the lifetime of a service in an <see cref="IServiceCollection"/>.</param>
+        /// <returns>A builder used to configure the multi-tenancy feature.</returns>
+        public TenantBuilder<TTenant> WithResolutionStrategy<TStrategy>(Func<IServiceProvider, TStrategy> implementationFactory, ServiceLifetime lifetime = ServiceLifetime.Transient) where TStrategy : class, ITenantResolutionStrategy {
             _services.TryAddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             _services.Add(ServiceDescriptor.Describe(typeof(ITenantResolutionStrategy), implementationFactory, lifetime));
             return this;
         }
 
-        /// <summary>
-        /// Register the tenant store implementation
-        /// </summary>
-        /// <typeparam name="V"></typeparam>
-        /// <param name="lifetime"></param>
-        /// <returns></returns>
-        public TenantBuilder<TTenant> WithStore<V>(ServiceLifetime lifetime = ServiceLifetime.Transient) where V : class, ITenantStore<TTenant> {
-            _services.Add(ServiceDescriptor.Describe(typeof(ITenantStore<TTenant>), typeof(V), lifetime));
+        /// <summary>Registers a tenant store implementation.</summary>
+        /// <typeparam name="TStore">The type of tenant store.</typeparam>
+        /// <param name="lifetime">Specifies the lifetime of a service in an <see cref="IServiceCollection"/>.</param>
+        /// <returns>A builder used to configure the multi-tenancy feature.</returns>
+        public TenantBuilder<TTenant> WithStore<TStore>(ServiceLifetime lifetime = ServiceLifetime.Transient) where TStore : class, ITenantStore<TTenant> {
+            _services.Add(ServiceDescriptor.Describe(typeof(ITenantStore<TTenant>), typeof(TStore), lifetime));
             return this;
         }
 
-        /// <summary>
-        /// Register the tenant store implementation
-        /// </summary>
-        /// <typeparam name="V"></typeparam>
-        /// <param name="implementationFactory"></param>
-        /// <param name="lifetime"></param>
-        /// <returns></returns>
-        public TenantBuilder<TTenant> WithStore<V>(Func<IServiceProvider, V> implementationFactory, ServiceLifetime lifetime = ServiceLifetime.Transient) where V : class, ITenantStore<TTenant> {
+        /// <summary>Registers a tenant store implementation.</summary>
+        /// <typeparam name="TStore">The type of tenant store.</typeparam>
+        /// <param name="implementationFactory">A factory to create new instances of the service implementation.</param>
+        /// <param name="lifetime">Specifies the lifetime of a service in an <see cref="IServiceCollection"/>.</param>
+        /// <returns>A builder used to configure the multi-tenancy feature.</returns>
+        public TenantBuilder<TTenant> WithStore<TStore>(Func<IServiceProvider, TStore> implementationFactory, ServiceLifetime lifetime = ServiceLifetime.Transient) where TStore : class, ITenantStore<TTenant> {
             _services.Add(ServiceDescriptor.Describe(typeof(ITenantStore<TTenant>), implementationFactory, lifetime));
             return this;
         }

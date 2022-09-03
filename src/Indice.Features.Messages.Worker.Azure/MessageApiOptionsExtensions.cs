@@ -13,9 +13,9 @@ namespace Indice.Features.Messages.Worker.Azure
         /// <summary>Adds <see cref="IEventDispatcher"/> using Azure Storage as a queuing mechanism.</summary>
         /// <param name="options">Options used to configure the Campaigns API feature.</param>
         /// <param name="configure">Configure the available options. Null to use defaults.</param>
-        public static void UseEventDispatcherAzure(this MessageEndpointOptions options, Action<IServiceProvider, MessagesEventDispatcherAzureOptions> configure = null) {
+        public static void AddEventDispatcherAzure(this MessageEndpointOptions options, Action<IServiceProvider, MessageEventDispatcherAzureOptions> configure = null) {
             options.Services.AddEventDispatcherAzure(KeyedServiceNames.EventDispatcherServiceKey, (serviceProvider, options) => {
-                var eventDispatcherOptions = new MessagesEventDispatcherAzureOptions {
+                var eventDispatcherOptions = new MessageEventDispatcherAzureOptions {
                     ConnectionString = serviceProvider.GetRequiredService<IConfiguration>().GetConnectionString(EventDispatcherAzure.CONNECTION_STRING_NAME),
                     Enabled = true,
                     EnvironmentName = serviceProvider.GetRequiredService<IHostEnvironment>().EnvironmentName,

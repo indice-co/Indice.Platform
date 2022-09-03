@@ -10,6 +10,7 @@ using Indice.Configuration;
 using Indice.Features.Messages.Core;
 using Indice.Features.Messages.Worker.Azure;
 using Indice.MultitenantApi.Data;
+using Indice.MultitenantApi.Models;
 using Indice.MultitenantApi.Services;
 using Indice.MultitenantApi.Swagger.Filters;
 using Indice.Types;
@@ -32,6 +33,9 @@ namespace Indice.MultitenantApi
             services.AddControllers()
                     .AddMessageEndpoints(options => {
                         options.ApiPrefix = "api";
+                        options.DatabaseSchema = "msg";
+                        options.RequiredScope = $"backoffice:{MessagesApi.Scope}";
+                        options.UserClaimType = JwtClaimTypes.Subject;
                         options.ConfigureDbContext = (serviceProvider, builder) => {
                             if (hostingEnvironment.IsDevelopment()) {
                                 builder.EnableDetailedErrors();
@@ -40,11 +44,9 @@ namespace Indice.MultitenantApi
                             var tenant = serviceProvider.GetRequiredService<IHttpContextAccessor>().HttpContext?.GetTenant();
                             builder.UseSqlServer(tenant?.ConnectionString ?? configuration.GetConnectionString("MultitenantApiDb"));
                         };
-                        options.DatabaseSchema = "msg";
-                        options.RequiredScope = $"backoffice:{MessagesApi.Scope}";
-                        options.UserClaimType = JwtClaimTypes.Subject;
+                        options.UseMultitenancy(accessLevel: (int)MemberAccessLevel.Owner);
                         options.UseFilesAzure();
-                        options.UseEventDispatcherAzure();
+                        options.AddEventDispatcherAzure();
                         options.UseIdentityContactResolver(resolverOptions => {
                             resolverOptions.BaseAddress = new Uri(configuration["IdentityServer:BaseAddress"]);
                             resolverOptions.ClientId = configuration["IdentityServer:ClientId"];
@@ -64,14 +66,6 @@ namespace Indice.MultitenantApi
                     builder.EnableSensitiveDataLogging();
                 }
                 builder.UseSqlServer(configuration.GetConnectionString("SaasDb"));
-            })
-            .AddDbContext<ApiDbContext>((serviceProvider, builder) => {
-                if (hostingEnvironment.IsDevelopment()) {
-                    builder.EnableDetailedErrors();
-                    builder.EnableSensitiveDataLogging();
-                }
-                var tenant = serviceProvider.GetRequiredService<IHttpContextAccessor>().HttpContext?.GetTenant();
-                builder.UseSqlServer(tenant?.ConnectionString ?? configuration.GetConnectionString("ApiDb"));
             })
             .AddProblemDetails(options => {
                 options.IncludeExceptionDetails = (httpContext, exception) => hostingEnvironment.IsDevelopment();

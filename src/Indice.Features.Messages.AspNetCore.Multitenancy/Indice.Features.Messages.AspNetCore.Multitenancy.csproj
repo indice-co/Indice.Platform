@@ -1,13 +1,13 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <Authors>Constantinos Leftheris, Georgios Manoltzas</Authors>
-    <Copyright>Copyright (c) 2021 Indice</Copyright>
-    <Description>Indice.Features.Messages.AspNetCore Class Library</Description>
+    <Copyright>Copyright (c) 2022 Indice</Copyright>
+    <Description>Indice.Features.Messages.AspNetCore.Multitenancy Class Library</Description>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <LangVersion>Latest</LangVersion>
     <TargetFrameworks>netcoreapp3.1;net5.0;net6.0</TargetFrameworks>
-    <VersionPrefix>6.1.9</VersionPrefix>
-    <!--<VersionSuffix>beta-10</VersionSuffix>-->
+    <VersionPrefix>6.0.0</VersionPrefix>
+    <VersionSuffix>beta-01</VersionSuffix>
   </PropertyGroup>
   <PropertyGroup Label="Package">
     <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
@@ -15,32 +15,35 @@
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
     <PackageIcon>icon-310.png</PackageIcon>
-    <PackageId>Indice.Features.Messages.AspNetCore</PackageId>
+    <PackageId>Indice.Features.Messages.AspNetCore.Multitenancy</PackageId>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/indice-co/Indice.AspNet</PackageProjectUrl>
-    <PackageReleaseNotes>Update Indice.Features.Messages.Core.</PackageReleaseNotes>
-    <PackageTags>AspNetCore;CampaignManagement;</PackageTags>
+    <PackageReleaseNotes>Initial Release.</PackageReleaseNotes>
+    <PackageTags>AspNetCore;CampaignManagement;Messages;Multitenancy</PackageTags>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>https://github.com/indice-co/Indice.AspNet</RepositoryUrl>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="EPPlus" Version="4.5.3.3" />
-    <PackageReference Include="Indice.AspNetCore" Version="6.1.14" />
+    <PackageReference Include="Indice.AspNetCore.MultiTenancy" Version="6.0.2" />
     <PackageReference Include="Indice.Features.Messages.Core" Version="6.1.8" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="2.2.5" />
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'net6.0'">
+    <PackageReference Include="Microsoft.AspNetCore.Authorization" Version="6.0.8" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'net5.0'">
+    <PackageReference Include="Microsoft.AspNetCore.Authorization" Version="5.0.17" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
+    <PackageReference Include="Microsoft.AspNetCore.Authorization" Version="3.1.28" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\icon\icon-310.png" Pack="true" Visible="false" PackagePath="" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Indice.AspNetCore.MultiTenancy\Indice.AspNetCore.MultiTenancy.csproj" />
     <ProjectReference Include="..\Indice.Features.Messages.Core\Indice.Features.Messages.Core.csproj" />
-    <ProjectReference Include="..\Indice.AspNetCore\Indice.AspNetCore.csproj" />
   </ItemGroup>
 </Project>

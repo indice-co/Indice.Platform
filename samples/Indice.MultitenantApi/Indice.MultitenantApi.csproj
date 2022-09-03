@@ -16,6 +16,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\Indice.AspNetCore.MultiTenancy\Indice.AspNetCore.MultiTenancy.csproj" />
     <ProjectReference Include="..\..\src\Indice.AspNetCore\Indice.AspNetCore.csproj" />
+    <ProjectReference Include="..\..\src\Indice.Features.Messages.AspNetCore.Multitenancy\Indice.Features.Messages.AspNetCore.Multitenancy.csproj" />
     <ProjectReference Include="..\..\src\Indice.Features.Messages.AspNetCore\Indice.Features.Messages.AspNetCore.csproj" />
     <ProjectReference Include="..\..\src\Indice.Features.Messages.Worker.Azure\Indice.Features.Messages.Worker.Azure.csproj" />
   </ItemGroup>

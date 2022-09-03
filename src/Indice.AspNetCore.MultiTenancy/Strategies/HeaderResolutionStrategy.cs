@@ -10,7 +10,7 @@ namespace Indice.AspNetCore.MultiTenancy.Strategies
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly string _headerName;
 
-        /// <summary>Contructs a new instance of <see cref="HeaderResolutionStrategy"/> given the <see cref="IHttpContextAccessor"/>.</summary>
+        /// <summary>Constructs a new instance of <see cref="HeaderResolutionStrategy"/> given the <see cref="IHttpContextAccessor"/>.</summary>
         /// <param name="httpContextAccessor">Provides access to the current <see cref="HttpContext"/>.</param>
         /// <param name="headerName">The name of the header to look for the tenant identifier.</param>
         public HeaderResolutionStrategy(IHttpContextAccessor httpContextAccessor, string headerName) {

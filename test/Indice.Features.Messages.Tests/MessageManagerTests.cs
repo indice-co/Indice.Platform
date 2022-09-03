@@ -76,7 +76,13 @@ namespace Indice.Features.Messages.Tests
                 IsGlobal = true,
                 MessageChannelKind = MessageChannelKind.Inbox,
                 Published = false,
-                Title = "Welcome"
+                Title = "Welcome",
+                Content = new Dictionary<MessageChannelKind, MessageContent> {
+                    [MessageChannelKind.Inbox] = new MessageContent {
+                        Title = "Welcome",
+                        Body = "Welcome {{ contact.firstname }}"
+                    }
+                }
             };
             var result = await manager.CreateCampaign(campaign);
             Assert.True(result.Succeeded);

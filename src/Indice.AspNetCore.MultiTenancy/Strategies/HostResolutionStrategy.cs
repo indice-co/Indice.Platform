@@ -13,17 +13,14 @@ namespace Indice.AspNetCore.MultiTenancy.Strategies
     {
         private readonly IHttpContextAccessor _httpContextAccessor;
 
-        /// <summary>
-        /// Contructs a new instance of <see cref="HostResolutionStrategy"/> given the <see cref="IHttpContextAccessor"/>.
-        /// </summary>
-        /// <param name="httpContextAccessor"></param>
+        /// <summary>Constructs a new instance of <see cref="HostResolutionStrategy"/> given the <see cref="IHttpContextAccessor"/>.</summary>
+        /// <param name="httpContextAccessor">Provides access to the current HTTP context.</param>
         public HostResolutionStrategy(IHttpContextAccessor httpContextAccessor) {
             _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
         }
 
         /// <inheritdoc/>
-        public async Task<string> GetTenantIdentifierAsync() {
-            return await Task.FromResult(_httpContextAccessor.HttpContext.Request.Host.Host);
-        }
+        public async Task<string> GetTenantIdentifierAsync() => 
+            await Task.FromResult(_httpContextAccessor.HttpContext.Request.Host.Host);
     }
 }
