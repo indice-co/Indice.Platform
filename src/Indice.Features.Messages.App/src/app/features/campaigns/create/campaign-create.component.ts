@@ -115,7 +115,6 @@ export class CampaignCreateComponent implements OnInit, AfterViewChecked {
                 to: this._basicInfoStep.to.value ? new Date(this._basicInfoStep.to.value) : undefined
             }),
             isGlobal: this._recipientsStep.sendVia.value === 'user-base',
-            messageChannelKind: this._basicInfoStep.channels.value,
             published: this._previewStep.published.value,
             title: this._basicInfoStep.title.value,
             data: this._contentStep.data.value,

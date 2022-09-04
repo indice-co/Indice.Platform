@@ -7,8 +7,6 @@ namespace Indice.Features.Messages.Core.Models.Requests
     {
         /// <summary>Determines if campaign targets all user base. Defaults to false.</summary>
         public bool IsGlobal { get; set; }
-        /// <summary>The delivery channel of a campaign. Default is <see cref="MessageChannelKind.Inbox"/>.</summary>
-        public MessageChannelKind MessageChannelKind { get; set; } = MessageChannelKind.Inbox;
         /// <summary>The title of the campaign.</summary>
         public string Title { get; set; }
         /// <summary>The contents of the campaign.</summary>
