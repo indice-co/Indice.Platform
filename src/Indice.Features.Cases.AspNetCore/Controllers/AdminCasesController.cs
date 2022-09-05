@@ -24,6 +24,7 @@ namespace Indice.Features.Cases.Controllers
     [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ValidationProblemDetails))]
     [ProducesResponseType(StatusCodes.Status401Unauthorized, Type = typeof(ProblemDetails))]
     [ProducesResponseType(StatusCodes.Status403Forbidden, Type = typeof(ProblemDetails))]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(ProblemDetails))]
     [Route("[casesApiPrefix]/manage/cases")]
     internal class AdminCasesController : ControllerBase
     {
@@ -39,7 +40,7 @@ namespace Indice.Features.Cases.Controllers
             ICasePdfService casePdfService,
             ICaseTemplateService caseTemplateService,
             ICaseActionsService caseBookmarkService,
-            IAdminCaseMessageService adminCaseMessageService, 
+            IAdminCaseMessageService adminCaseMessageService,
             ICaseApprovalService caseApprovalService) {
             _adminCaseService = adminCaseService ?? throw new ArgumentNullException(nameof(adminCaseService));
             _casePdfService = casePdfService ?? throw new ArgumentNullException(nameof(casePdfService));
@@ -179,8 +180,8 @@ namespace Indice.Features.Cases.Controllers
                 return NotFound();
             }
             return Ok(@case);
-        }   
-        
+        }
+
         /// <summary>
         /// Deletes a draft case.
         /// </summary>

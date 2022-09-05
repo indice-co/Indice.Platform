@@ -2,7 +2,7 @@ import { ChangeDetectorRef, Component, ElementRef, EventEmitter, Input, OnChange
 import { ToasterService, ToastType } from '@indice/ng-components';
 import { EMPTY, forkJoin, Observable } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
-import { CaseDetails, CasesApiService, CasesAttachmentLink, EditCaseRequest } from 'src/app/core/services/cases-api.service';
+import { CaseDetails, CasesApiService, CasesAttachmentLink, EditCaseRequest, ProblemDetails } from 'src/app/core/services/cases-api.service';
 import { UploadFileWidgetService } from 'src/app/core/services/file-upload.service';
 import { JSFFileWidgetComponent } from 'src/app/shared/ajsf/jsf-file-widget.component';
 import { TailwindSubmitWidgetComponent } from 'src/app/shared/ajsf/json-schema-frameworks/tailwind-framework/submit-widget/submit-widget.component';
@@ -13,6 +13,7 @@ import { CurrencyWidgetComponent } from 'src/app/shared/ajsf/json-schema-framewo
 import { DateWidgetComponent } from 'src/app/shared/ajsf/json-schema-frameworks/tailwind-framework/date-widget/date-widget.component';
 import { LookupWidgetComponent } from 'src/app/shared/ajsf/json-schema-frameworks/tailwind-framework/lookup-widget/lookup-widget.component';
 import * as _ from 'lodash';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-case-form',
@@ -61,6 +62,7 @@ export class CaseFormComponent implements OnChanges, OnInit, OnDestroy {
   @ViewChild('formContainer') formContainer: ElementRef | undefined;
 
   constructor(
+    private router: Router,
     private _toaster: ToasterService,
     private _api: CasesApiService,
     private uploadFileWidgetService: UploadFileWidgetService,
@@ -154,8 +156,9 @@ export class CaseFormComponent implements OnChanges, OnInit, OnDestroy {
                     this._toaster.show(ToastType.Success, 'Επιτυχής Επεξεργασία', `Η επεξεργασία της αίτησης ολοκληρώθηκε.`, 5000);
                     this.updateDataEvent.emit({ draft: true });
                   }),
-                  catchError(() => { // error during case submit
-                    this._toaster.show(ToastType.Error, 'Αποτυχία αποθήκευσης', `Δεν κατέστη εφικτή η καταχώριση της αίτησης σας.`, 5000);
+                  catchError((err: ProblemDetails) => { // error during case submit
+                    this._toaster.show(ToastType.Error, 'Αποτυχία αποθήκευσης', err.detail || `Δεν κατέστη εφικτή η καταχώριση της αίτησης σας.`, 5000);
+                    this.router.navigate(['/cases']);
                     return EMPTY;
                   })
                 )
