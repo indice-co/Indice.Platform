@@ -11,6 +11,16 @@
         <lib-list-column title="ΚΩΔΙΚΟΣ">
             <ng-template let-item>{{ item.code }}</ng-template>
         </lib-list-column>
+        <lib-list-column title="ΕΤΙΚΕΤΕΣ">
+            <ng-template let-item>
+                <ng-container *ngIf="item.tags">
+                    <ng-container *ngFor="let tag of item.tags.split(',')">
+                        <span
+                              class="inline-flex items-center rounded bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-800">{{tag}}</span> &nbsp;
+                    </ng-container>
+                </ng-container>
+            </ng-template>
+        </lib-list-column>
         <lib-list-column title="ΕΝΕΡΓΕΙΕΣ">
             <ng-template let-item>
                 <a href="#"

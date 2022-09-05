@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Indice.Features.Cases.Data;
@@ -125,7 +126,7 @@ namespace Indice.Features.Cases.Services
             return caseDetails;
         }
 
-        public async Task<MyCasePartial> GetMyCaseById(ClaimsPrincipal user, Guid caseId) {
+        public async Task<MyCasePartial> GetMyCasePartialById(ClaimsPrincipal user, Guid caseId) {
             var userId = user.FindSubjectId();
             var query = await _dbContext.Cases
                 .Include(c => c.CaseType)
@@ -157,14 +158,28 @@ namespace Indice.Features.Cases.Services
 
         public async Task<ResultSet<MyCasePartial>> GetCases(ClaimsPrincipal user, ListOptions<GetMyCasesListFilter> options) {
             var userId = user.FindSubjectId();
-            var query = _dbContext.Cases
+            var dbCaseQueryable = _dbContext.Cases
                 .Include(c => c.CaseType)
                 .Include(c => c.Comments)
                 .Include(c => c.Checkpoints)
                 .ThenInclude(ch => ch.CheckpointType)
                 .AsQueryable()
-                .Where(p => (p.CreatedBy.Id == userId || p.Customer.UserId == userId) && !p.Draft) // todo na filtrarei kai me CustomerId 
-                .Select(p => new MyCasePartial {
+                .Where(p => (p.CreatedBy.Id == userId || p.Customer.UserId == userId) && !p.Draft);
+
+            // Create a list of Expression<Func<DbCaseType, bool>> that resolves to SQL: tag LIKE %tag%
+            var caseTypeTagsExpressions = options.Filter.CaseTypeTags?.Select(tag =>
+                (Expression<Func<DbCase, bool>>)(dbCase => EF.Functions.Like(dbCase.CaseType.Tags, $"%{tag}%")));
+            if (caseTypeTagsExpressions != null) {
+                // Aggregate the expressions with OR that resolves to SQL: tag LIKE %tag1% OR tag LIKE %tag2% etc
+                var tagExpression = caseTypeTagsExpressions.Aggregate((expression, next) => {
+                    var orExp = Expression.OrElse(expression.Body, Expression.Invoke(next, expression.Parameters));
+                    return Expression.Lambda<Func<DbCase, bool>>(orExp, expression.Parameters);
+                });
+                dbCaseQueryable = dbCaseQueryable.Where(tagExpression);
+            }
+
+            var myCasePartialQueryable =
+                dbCaseQueryable.Select(p => new MyCasePartial {
                     Id = p.Id,
                     Created = p.CreatedBy.When,
                     CaseTypeCode = p.CaseType.Code,
@@ -188,7 +203,7 @@ namespace Indice.Features.Cases.Services
                 options.Sort = $"{nameof(MyCasePartial.Created)}-";
             }
 
-            var result = await query.ToResultSetAsync(options);
+            var result = await myCasePartialQueryable.ToResultSetAsync(options);
             // translate
             for (var i = 0; i < result.Items.Length; i++) {
                 result.Items[i] = result.Items[i].Translate(CultureInfo.CurrentCulture.TwoLetterISOLanguageName, true);
@@ -197,6 +212,7 @@ namespace Indice.Features.Cases.Services
         }
 
         public async Task<CaseTypePartial> GetCaseType(string caseTypeCode) {
+            if (caseTypeCode == null) throw new ArgumentNullException(nameof(caseTypeCode));
             var dbCaseType = await GetCaseTypeInternal(caseTypeCode);
             if (dbCaseType == null) {
                 throw new Exception("Case type not found."); // todo  proper exception & handle from problemConfig (NotFound)
@@ -216,6 +232,34 @@ namespace Indice.Features.Cases.Services
             caseType.DataSchema = _jsonTranslationService.Translate(caseType.DataSchema, dbCaseType.LayoutTranslations, CultureInfo.CurrentCulture.TwoLetterISOLanguageName);
 
             return caseType;
+        }
+
+        public async Task<ResultSet<CaseTypePartial>> GetCaseTypes(ListOptions<GetMyCaseTypesListFilter> options) {
+            var caseTypesQueryable = _dbContext.CaseTypes.AsQueryable();
+
+            // Create a list of Expression<Func<DbCaseType, bool>> that resolves to SQL: tag LIKE %tag%
+            var caseTypeTagsExpressions = options.Filter.CaseTypeTags?.Select(tag =>
+                (Expression<Func<DbCaseType, bool>>)(caseType => EF.Functions.Like(caseType.Tags, $"%{tag}%")));
+            if (caseTypeTagsExpressions != null) {
+                // Aggregate the expressions with OR that resolves to SQL: tag LIKE %tag1% OR tag LIKE %tag2% etc
+                var tagExpression = caseTypeTagsExpressions.Aggregate((expression, next) => {
+                    var orExp = Expression.OrElse(expression.Body, Expression.Invoke(next, expression.Parameters));
+                    return Expression.Lambda<Func<DbCaseType, bool>>(orExp, expression.Parameters);
+                });
+                caseTypesQueryable = caseTypesQueryable.Where(tagExpression);
+            }
+
+            var caseTypes = await caseTypesQueryable
+                .Select(dbCaseType => new CaseTypePartial {
+                    Id = dbCaseType.Id,
+                    Title = dbCaseType.Title,
+                    DataSchema = GetSingleOrMultiple(SchemaSelector, dbCaseType.DataSchema),
+                    Layout = GetSingleOrMultiple(SchemaSelector, dbCaseType.Layout),
+                    Code = dbCaseType.Code,
+                    Translations = TranslationDictionary<CaseTypeTranslation>.FromJson(dbCaseType.Translations)
+                })
+                .ToListAsync();
+            return caseTypes.ToResultSet();
         }
     }
 }

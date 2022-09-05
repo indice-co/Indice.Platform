@@ -38,5 +38,10 @@ namespace Indice.Features.Cases.Models
         /// The Translation for the layout
         /// </summary>
         public string? LayoutTranslations { get; set; }
+
+        /// <summary>
+        /// The case type tags.
+        /// </summary>
+        public string? Tags { get; set; }
     }
 }

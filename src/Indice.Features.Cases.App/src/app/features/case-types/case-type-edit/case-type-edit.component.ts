@@ -36,6 +36,9 @@ export class CaseTypeEditComponent implements OnInit {
       },
       "layoutTranslations": {
         "type": "string"
+      },
+      "tags": {
+        "type": "string"
       }
     },
     "additionalProperties": false,

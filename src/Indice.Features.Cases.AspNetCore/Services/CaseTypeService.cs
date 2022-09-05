@@ -65,6 +65,7 @@ namespace Indice.Features.Cases.Services
                     DataSchema = c.DataSchema,
                     Layout = c.Layout,
                     Code = c.Code,
+                    Tags = c.Tags,
                     Translations = TranslationDictionary<CaseTypeTranslation>.FromJson(c.Translations)
                 })
                 .ToListAsync();
@@ -83,14 +84,15 @@ namespace Indice.Features.Cases.Services
                 throw new Exception("Case type code already exists.");
             }
 
-            DbCaseType newCaseType = new DbCaseType {
+            var newCaseType = new DbCaseType {
                 Id = Guid.NewGuid(),
                 Code = caseType.Code,
                 Title = caseType.Title,
                 DataSchema = caseType.DataSchema,
                 Layout = caseType.Layout,
                 Translations = caseType.Translations,
-                LayoutTranslations = caseType.LayoutTranslations
+                LayoutTranslations = caseType.LayoutTranslations,
+                Tags = caseType.Tags
             };
 
             await _dbContext.CaseTypes.AddAsync(newCaseType);
@@ -119,7 +121,8 @@ namespace Indice.Features.Cases.Services
                 DataSchema = dbCaseType.DataSchema,
                 Layout = dbCaseType.Layout,
                 Translations = dbCaseType.Translations,
-                LayoutTranslations = dbCaseType.LayoutTranslations
+                LayoutTranslations = dbCaseType.LayoutTranslations,
+                Tags = dbCaseType.Tags
             };
 
             return caseType;
@@ -138,6 +141,7 @@ namespace Indice.Features.Cases.Services
             dbCaseType.Layout = caseType.Layout;
             dbCaseType.Translations = caseType.Translations;
             dbCaseType.LayoutTranslations = caseType.LayoutTranslations;
+            dbCaseType.Tags = caseType.Tags;
 
             _dbContext.CaseTypes.Update(dbCaseType);
             await _dbContext.SaveChangesAsync();
@@ -155,11 +159,11 @@ namespace Indice.Features.Cases.Services
                     .Select(c => new CaseTypePartial {
                         Id = c.Id,
                         Title = c.Title,
-                        Code = c.Code
+                        Code = c.Code,
+                        Tags = c.Tags
                     })
                     .ToListAsync();
             return caseTypes.ToResultSet();
         }
-
     }
 }
