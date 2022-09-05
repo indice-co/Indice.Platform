@@ -9,6 +9,8 @@ import { CaseTypesService } from '../case-types.service';
 })
 export class CaseTypeCreateComponent implements OnInit {
 
+  
+
   public widgets = this.caseTypesService.widgets;
 
   public framework = this.caseTypesService.framework;
@@ -17,10 +19,12 @@ export class CaseTypeCreateComponent implements OnInit {
 
   public layout = this.caseTypesService.onLoadLayout();
 
+  public data: any = {};
+
   constructor(private caseTypesService: CaseTypesService) { }
 
   ngOnInit(): void {
-    
+    this.data.requiresCheckpoints = true;
   }
 
   onSubmit(event: any) {
