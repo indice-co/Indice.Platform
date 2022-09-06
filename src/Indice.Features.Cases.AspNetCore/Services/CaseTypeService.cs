@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations;
 using System.Globalization;
 using System.Linq;
 using System.Security.Claims;
@@ -81,7 +82,7 @@ namespace Indice.Features.Cases.Services
         public async Task Create(CaseTypeRequest caseType) {
             var codeExists = await CaseTypeCodeExists(caseType.Code);
             if (codeExists) {
-                throw new Exception("Case type code already exists.");
+                throw new ValidationException("Case type code already exists.");
             }
 
             var newCaseType = new DbCaseType {
@@ -94,6 +95,33 @@ namespace Indice.Features.Cases.Services
                 LayoutTranslations = caseType.LayoutTranslations,
                 Tags = caseType.Tags
             };
+
+            if (caseType.CheckpointTypes is null) {
+                throw new ValidationException("At least one checkpoint type is required.");
+            }
+
+            var checkpointSubmittedExists = caseType.CheckpointTypes.Any(x => x.Name == "Submitted");
+            if (!checkpointSubmittedExists) {
+                throw new ValidationException("At least one checkpoint type with the name 'Submitted' is required.");
+            }
+
+            var checkpointNames = caseType.CheckpointTypes.Select(x => x.Name).ToList();
+            if (checkpointNames.Count != checkpointNames.Distinct().Count()) {
+                throw new ValidationException("You can't have duplicate names in checkpoint types.");
+            }
+
+            foreach (var checkpointType in caseType.CheckpointTypes) {
+                var dbCheckpointType = new DbCheckpointType {
+                    Id = Guid.NewGuid(),
+                    CaseTypeId = newCaseType.Id,
+                    Description = checkpointType.Description,
+                    PublicStatus = checkpointType.PublicStatus,
+                    Private = checkpointType.Private
+                };
+                dbCheckpointType.SetCode(caseType.Code, checkpointType.Name);
+
+                await _dbContext.CheckpointTypes.AddAsync(dbCheckpointType);
+            }
 
             await _dbContext.CaseTypes.AddAsync(newCaseType);
             await _dbContext.SaveChangesAsync();

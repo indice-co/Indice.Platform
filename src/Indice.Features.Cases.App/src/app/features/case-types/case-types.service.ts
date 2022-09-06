@@ -1,9 +1,12 @@
+import { tap, catchError } from 'rxjs/operators';
+import { CheckpointTypeRequest } from './../../core/services/cases-api.service';
 import { Injectable } from "@angular/core";
 import { Router } from "@angular/router";
 import { ToasterService, ToastType } from "@indice/ng-components";
 import { CasesApiService, CaseTypeRequest } from "src/app/core/services/cases-api.service";
 import { TailwindSubmitWidgetComponent } from "src/app/shared/ajsf/json-schema-frameworks/tailwind-framework/submit-widget/submit-widget.component";
 import { TailwindFrameworkComponent } from "src/app/shared/ajsf/json-schema-frameworks/tailwind-framework/tailwind-framework.component";
+import { EMPTY } from 'rxjs';
 
 @Injectable({
     providedIn: 'root'
@@ -46,20 +49,47 @@ export class CaseTypesService {
             },
             "tags": {
                 "type": "string"
-            }
+            },
+            "checkpointTypes": {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "name": { "type": "string" },
+                        "description": { "type": "string" },
+                        "publicStatus": { "type": "string", "enum": ["Submitted", "InProgress", "Completed", "Deleted"] },
+                        "private": { "type": "boolean" }
+                    },
+                    "required": [
+                        "name"
+                    ]
+                },
+            },
+            "requiresCheckpoints": {
+                "type": "boolean"
+            },
         },
         "additionalProperties": false,
         "required": [
             "code",
             "title",
             "dataSchema"
-        ]
+        ],
+        "if": { "properties": { "requiresCheckpoints": { "const": true } } },
+        "then": {
+            "required": [
+                "code",
+                "title",
+                "dataSchema",
+                "checkpointTypes"
+            ]
+        }
     }
 
     public layout: any = [
         {
             "type": "section",
-            "title": "Νέος Τύπος Αίτησης",
+            "title": "Τύπος Αίτησης",
             "labelHtmlClass": "px-2",
             "items": [
                 {
@@ -134,7 +164,42 @@ export class CaseTypesService {
                             "htmlClass": "px-2 my-2"
                         }
                     ]
-                }
+                },
+                {
+                    "key": "checkpointTypes",
+                    "condition": "requiresCheckpoints",
+                    "type": "array",
+                    "listItems": 1,
+                    "items": [{
+                        "type": "div",
+                        "displayFlex": true,
+                        "flex-direction": "row",
+                        "htmlClass": "px-2",
+                        "items": [
+                            {
+                                "key": "checkpointTypes[].name", " flex": " 2 2 100px",
+                                "title": "Όνομα",
+                                "htmlClass": "px-2 my-2"
+                            },
+                            {
+                                "key": "checkpointTypes[].description", " flex": " 2 2 100px",
+                                "title": "Περιγραφή",
+                                "htmlClass": "px-2 my-2"
+                            },
+                            {
+                                "key": "checkpointTypes[].publicStatus", " flex": " 2 2 100px",
+                                "title": "Κατάσταση",
+                                "default": "Submitted",
+                                "htmlClass": "px-2 my-2"
+                            },
+                            {
+                                "key": "checkpointTypes[].private", " flex": " 2 2 100px",
+                                "title": "Private",
+                                "htmlClass": "px-2 mt-12"
+                            }
+                        ]
+                    }],
+                },
             ]
         }
     ]
@@ -173,16 +238,27 @@ export class CaseTypesService {
             layout: event?.layout,
             translations: event?.translations,
             layoutTranslations: event?.layoutTranslations,
-            tags: event?.tags
+            checkpointTypes: []
         })
-        this._api.createCaseType(undefined, request).subscribe(_ => {
-            this.toaster.show(ToastType.Success, "Επιτυχία", "Η δημιουργία τύπου αίτησης ήταν επιτυχής")
-            this.router.navigate(['/case-types']);
-        },
-            (err) => {
-                this.toaster.show(ToastType.Error, "Ουπς!", "Ο κωδικός τύπου αίτησης υπάρχει ήδη")
-            }
-        )
+        for (let checkpointType of event?.checkpointTypes) {
+            var newCheckpointType = new CheckpointTypeRequest({
+                name: checkpointType.name,
+                description: checkpointType.description,
+                publicStatus: checkpointType.publicStatus,
+                private: checkpointType.private
+            });
+            request.checkpointTypes?.push(newCheckpointType);
+        }
+        this._api.createCaseType(undefined, request).pipe(
+            tap(_ => {
+                this.toaster.show(ToastType.Success, "Επιτυχία", "Η δημιουργία τύπου αίτησης ήταν επιτυχής.")
+                this.router.navigate(['/case-types']);
+            }),
+            catchError(err => {
+                this.toaster.show(ToastType.Error, "Whoops!", err.detail)
+                return EMPTY
+            })
+        ).subscribe();
     }
 
     public onEditSubmit(caseTypeId: string, event: any) {

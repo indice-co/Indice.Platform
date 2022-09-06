@@ -13,7 +13,7 @@ import { CasePartial, CasePartialResultSet, CasesApiService } from 'src/app/core
 export class CasesComponent extends BaseListComponent<CasePartial> implements OnInit {
     public newItemLink = 'new-case';
     public formActions: ViewAction[] = [
-        new RouterViewAction(Icons.Add, this.newItemLink, 'rightpane', 'υποβολή νέας αίτησης', 'Νέα Αίτηση')
+        new RouterViewAction(Icons.Add, this.newItemLink, 'rightpane', 'υποβολή νέας αίτησης')
     ];
 
     constructor(

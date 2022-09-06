@@ -161,15 +161,18 @@ div.form-container.disableCheckbox {
 }
 
 .close {
-  &.pull-right {
     padding-right: 1rem;
     padding-left: 1rem;
-    border: 1;
-    border: #000;
+    margin: 0.5rem;
+    background: #f44336;
+    color:white;
+    border-radius:3px;
     border-style: solid;
     border-width: 1px;
-  }
+    float:right;
+    
 }
+
 .list-group {
   &.schema-form-array {
     .legend {
