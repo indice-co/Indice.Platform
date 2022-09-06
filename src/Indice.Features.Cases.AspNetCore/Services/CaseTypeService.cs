@@ -98,14 +98,14 @@ namespace Indice.Features.Cases.Services
                 throw new ValidationException("At least one checkpoint type is required.");
             }
 
-            var statusValidation = caseType.CheckpointTypes.Any(x => x.Name == "Submitted");
-            if (!statusValidation) {
+            var checkpointSubmittedExists = caseType.CheckpointTypes.Any(x => x.Name == "Submitted");
+            if (!checkpointSubmittedExists) {
                 throw new ValidationException("At least one checkpoint type with the name 'Submitted' is required.");
             }
 
             var checkpointNames = caseType.CheckpointTypes.Select(x => x.Name).ToList();
             if (checkpointNames.Count != checkpointNames.Distinct().Count()) {
-                throw new ValidationException("You can't have duplicate checkpoint types.");
+                throw new ValidationException("You can't have duplicate names in checkpoint types.");
             }
 
             foreach (var checkpointType in caseType.CheckpointTypes) {
