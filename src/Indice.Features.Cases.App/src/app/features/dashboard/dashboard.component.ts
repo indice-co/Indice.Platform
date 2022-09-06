@@ -34,9 +34,7 @@ export class DashboardComponent implements OnInit {
         this.userSub$ = this.authService.user$.subscribe((user: any) => {
             this.user = user;
         });
-        this.metaItems = [
-            { key: 'NG-LIB version :', icon: Icons.DateTime, text: new Date().toLocaleTimeString() }
-        ];
+        this.metaItems = [];
         const cases$ = this._api
             .getCases(
                 undefined,
