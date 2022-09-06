@@ -61,7 +61,8 @@ export class CaseTypesService {
                         "private": { "type": "boolean" }
                     },
                     "required": [
-                        "name"
+                        "name",
+                        "publicStatus"
                     ]
                 },
             },
@@ -238,17 +239,8 @@ export class CaseTypesService {
             layout: event?.layout,
             translations: event?.translations,
             layoutTranslations: event?.layoutTranslations,
-            checkpointTypes: []
-        })
-        for (let checkpointType of event?.checkpointTypes) {
-            var newCheckpointType = new CheckpointTypeRequest({
-                name: checkpointType.name,
-                description: checkpointType.description,
-                publicStatus: checkpointType.publicStatus,
-                private: checkpointType.private
-            });
-            request.checkpointTypes?.push(newCheckpointType);
-        }
+            checkpointTypes: (event?.checkpointTypes || []).map((item: any) => new CheckpointTypeRequest(item))
+        });
         this._api.createCaseType(undefined, request).pipe(
             tap(_ => {
                 this.toaster.show(ToastType.Success, "Επιτυχία", "Η δημιουργία τύπου αίτησης ήταν επιτυχής.")
