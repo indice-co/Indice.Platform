@@ -41,7 +41,7 @@ namespace Indice.Features.Cases.Models
         public string? LayoutTranslations { get; set; }
 
         /// <summary>
-        /// The Translation for the layout
+        /// The list of checkpoints for the case type
         /// </summary>
         public List<CheckpointTypeRequest>? CheckpointTypes { get; set; }
     }

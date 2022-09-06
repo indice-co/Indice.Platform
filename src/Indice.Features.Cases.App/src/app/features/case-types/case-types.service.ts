@@ -54,7 +54,7 @@ export class CaseTypesService {
                     "properties": {
                         "name": { "type": "string" },
                         "description": { "type": "string" },
-                        "publicStatus": { "type": "string", "enum": ["Submitted", "Completed", "Deleted"] },
+                        "publicStatus": { "type": "string", "enum": ["Submitted", "InProgress", "Completed", "Deleted"] },
                         "private": { "type": "boolean" }
                     },
                     "required": [
@@ -86,7 +86,7 @@ export class CaseTypesService {
     public layout: any = [
         {
             "type": "section",
-            "title": "Νέος Τύπος Αίτησης",
+            "title": "Τύπος Αίτησης",
             "labelHtmlClass": "px-2",
             "items": [
                 {
@@ -233,10 +233,8 @@ export class CaseTypesService {
                 publicStatus: checkpointType.publicStatus,
                 private: checkpointType.private
             });
-            console.log(newCheckpointType);
             request.checkpointTypes?.push(newCheckpointType);
         }
-        console.log(request);
         this._api.createCaseType(undefined, request).pipe(
             tap(_ => {
                 this.toaster.show(ToastType.Success, "Επιτυχία", "Η δημιουργία τύπου αίτησης ήταν επιτυχής.")
