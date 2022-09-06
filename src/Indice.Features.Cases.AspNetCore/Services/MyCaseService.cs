@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Indice.Features.Cases.Data;
@@ -166,16 +165,9 @@ namespace Indice.Features.Cases.Services
                 .AsQueryable()
                 .Where(p => (p.CreatedBy.Id == userId || p.Customer.UserId == userId) && !p.Draft);
 
-            // Create a list of Expression<Func<DbCaseType, bool>> that resolves to SQL: tag LIKE %tag%
-            var caseTypeTagsExpressions = options.Filter.CaseTypeTags?.Select(tag =>
-                (Expression<Func<DbCase, bool>>)(dbCase => EF.Functions.Like(dbCase.CaseType.Tags, $"%{tag}%")));
-            if (caseTypeTagsExpressions != null) {
-                // Aggregate the expressions with OR that resolves to SQL: tag LIKE %tag1% OR tag LIKE %tag2% etc
-                var tagExpression = caseTypeTagsExpressions.Aggregate((expression, next) => {
-                    var orExp = Expression.OrElse(expression.Body, Expression.Invoke(next, expression.Parameters));
-                    return Expression.Lambda<Func<DbCase, bool>>(orExp, expression.Parameters);
-                });
-                dbCaseQueryable = dbCaseQueryable.Where(tagExpression);
+            foreach (var tag in options.Filter?.CaseTypeTags) {
+                // If there are more than 1 tag, the linq will be translated into "WHERE [Tag] LIKE %tag1% AND [Tag] LIKE %tag2% ..."
+                dbCaseQueryable = dbCaseQueryable.Where(dbCase => EF.Functions.Like(dbCase.CaseType.Tags, $"%{tag}%"));
             }
 
             var myCasePartialQueryable =
@@ -237,16 +229,9 @@ namespace Indice.Features.Cases.Services
         public async Task<ResultSet<CaseTypePartial>> GetCaseTypes(ListOptions<GetMyCaseTypesListFilter> options) {
             var caseTypesQueryable = _dbContext.CaseTypes.AsQueryable();
 
-            // Create a list of Expression<Func<DbCaseType, bool>> that resolves to SQL: tag LIKE %tag%
-            var caseTypeTagsExpressions = options.Filter.CaseTypeTags?.Select(tag =>
-                (Expression<Func<DbCaseType, bool>>)(caseType => EF.Functions.Like(caseType.Tags, $"%{tag}%")));
-            if (caseTypeTagsExpressions != null) {
-                // Aggregate the expressions with OR that resolves to SQL: tag LIKE %tag1% OR tag LIKE %tag2% etc
-                var tagExpression = caseTypeTagsExpressions.Aggregate((expression, next) => {
-                    var orExp = Expression.OrElse(expression.Body, Expression.Invoke(next, expression.Parameters));
-                    return Expression.Lambda<Func<DbCaseType, bool>>(orExp, expression.Parameters);
-                });
-                caseTypesQueryable = caseTypesQueryable.Where(tagExpression);
+            foreach (var tag in options.Filter?.CaseTypeTags) {
+                // If there are more than 1 tag, the linq will be translated into "WHERE [Tag] LIKE %tag1% AND [Tag] LIKE %tag2% ..."
+                caseTypesQueryable = caseTypesQueryable.Where(caseType => EF.Functions.Like(caseType.Tags, $"%{tag}%"));
             }
 
             var caseTypes = await caseTypesQueryable
