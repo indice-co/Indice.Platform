@@ -28,7 +28,7 @@
       <div class="form-actions">
         <button type="submit"
                 class="inline-flex justify-center btn-outline"
-                [disabled]="notificationsForm.form.invalid || !notificationsForm.form.dirty"
+                [disabled]="!notificationsForm.form.dirty || !notificationsForm?.valid || !notificationValueChanged()"
                 #submitBtn>
           Αποθήκευση
         </button>
