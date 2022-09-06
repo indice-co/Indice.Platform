@@ -188,7 +188,7 @@ export class TailwindFrameworkComponent implements OnInit, OnChanges {
         // 'Add' buttons - references
         case '$ref':
           this.widgetOptions.fieldHtmlClass = addClasses(
-            this.widgetOptions.fieldHtmlClass, 'btn pull-right');
+            this.widgetOptions.fieldHtmlClass, 'btn btn-info float-right m-2');
           this.widgetOptions.fieldHtmlClass = addClasses(
             this.widgetOptions.fieldHtmlClass, this.options.style || 'btn-default');
           this.options.icon = 'glyphicon glyphicon-plus';

@@ -16,36 +16,8 @@ export class CaseTypeEditComponent implements OnInit {
 
   public framework = this.caseTypesService.framework;
 
-  public schema: any = {
-    "type": "object",
-    "properties": {
-      "code": {
-        "type": "string"
-      },
-      "title": {
-        "type": "string"
-      },
-      "dataSchema": {
-        "type": "string"
-      },
-      "layout": {
-        "type": "string"
-      },
-      "translations": {
-        "type": "string"
-      },
-      "layoutTranslations": {
-        "type": "string"
-      }
-    },
-    "additionalProperties": false,
-    "required": [
-      "code",
-      "title",
-      "dataSchema"
-    ]
-  }
-  
+  public schema = this.caseTypesService.schema;
+
   public layout = this.caseTypesService.onLoadLayout(this.caseTypeId);
 
   public data: any;
@@ -60,6 +32,7 @@ export class CaseTypeEditComponent implements OnInit {
       this.caseTypeId = params.caseTypeId;
       this._api.getCaseTypeById(this.caseTypeId).subscribe(caseType => {
         this.data = caseType;
+        this.data.requiresCheckpoints = false;
       });
     });
   }
