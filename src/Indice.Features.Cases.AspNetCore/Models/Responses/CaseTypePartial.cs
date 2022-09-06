@@ -32,6 +32,11 @@ namespace Indice.Features.Cases.Models.Responses
         /// The layout for the data schema.
         /// </summary>
         public string? Layout { get; set; }
+
+        /// <summary>
+        /// The case type tags.
+        /// </summary>
+        public string? Tags { get; set; }
         
         /// <summary>
         /// The translations for the case type metadata (eg title).

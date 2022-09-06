@@ -44,5 +44,10 @@ namespace Indice.Features.Cases.Models
         /// The list of checkpoints for the case type
         /// </summary>
         public List<CheckpointTypeRequest>? CheckpointTypes { get; set; }
+
+        /// <summary>
+        /// The case type tags.
+        /// </summary>
+        public string? Tags { get; set; }
     }
 }

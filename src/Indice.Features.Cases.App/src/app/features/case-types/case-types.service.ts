@@ -47,6 +47,9 @@ export class CaseTypesService {
             "layoutTranslations": {
                 "type": "string"
             },
+            "tags": {
+                "type": "string"
+            },
             "checkpointTypes": {
                 "type": "array",
                 "items": {
@@ -147,6 +150,17 @@ export class CaseTypesService {
                             "key": "layoutTranslations",
                             "title": "Μετάφραση Layout",
                             "type": "textarea",
+                            "htmlClass": "px-2 my-2"
+                        }
+                    ]
+                },
+                {
+                    "type": "flex",
+                    "flex-flow": "row wrap",
+                    "items": [
+                        {
+                            "key": "tags",
+                            "title": "Ετικέτες",
                             "htmlClass": "px-2 my-2"
                         }
                     ]
@@ -255,7 +269,8 @@ export class CaseTypesService {
             dataSchema: event.dataSchema,
             layout: event?.layout,
             translations: event?.translations,
-            layoutTranslations: event?.layoutTranslations
+            layoutTranslations: event?.layoutTranslations,
+            tags: event?.tags
         })
         this._api.updateCaseType(caseTypeId, undefined, request).subscribe(_ => {
             this.toaster.show(ToastType.Success, "Επιτυχία!", "Η επεξεργασία του τύπου αίτησης ήταν επιτυχής")

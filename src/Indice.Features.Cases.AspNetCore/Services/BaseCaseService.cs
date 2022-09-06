@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Security.Claims;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -38,7 +37,7 @@ namespace Indice.Features.Cases.Services
         /// <param name="selectorProperty"></param>
         /// <param name="json"></param>
         /// <returns>string schema</returns>
-        protected string GetSingleOrMultiple(string selectorProperty, string json) {
+        protected static string GetSingleOrMultiple(string selectorProperty, string json) {
             if (!string.IsNullOrEmpty(selectorProperty) && !string.IsNullOrEmpty(json)) {
                 using (var document = JsonDocument.Parse(json)) {
                     if (document.RootElement.ValueKind == JsonValueKind.Object && document.RootElement.TryGetProperty(selectorProperty, out var node)) {
