@@ -18,6 +18,7 @@ namespace Indice.Features.Cases.Controllers
     [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ValidationProblemDetails))]
     [ProducesResponseType(StatusCodes.Status401Unauthorized, Type = typeof(ProblemDetails))]
     [ProducesResponseType(StatusCodes.Status403Forbidden, Type = typeof(ProblemDetails))]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(ProblemDetails))]
     [Route("[casesApiPrefix]/manage/checkpoint-types")]
     internal class AdminCheckpointTypesController : ControllerBase
     {

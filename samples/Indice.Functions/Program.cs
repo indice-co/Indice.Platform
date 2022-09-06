@@ -21,7 +21,7 @@ namespace Indice.Functions
             .ConfigureServices(services => { })
             .ConfigureMessages((configuration, options) => {
                 options.ConfigureDbContext = builder => builder.UseSqlServer(configuration.GetConnectionString("MessagesDb"));
-                options.DatabaseSchema = "cmp";
+                options.DatabaseSchema = "msg";
                 options.UseEventDispatcherAzure()
                        .UsePushNotificationServiceAzure()
                        .UseEmailServiceSparkpost(configuration)

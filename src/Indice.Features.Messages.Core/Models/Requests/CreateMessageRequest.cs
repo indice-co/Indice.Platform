@@ -8,7 +8,7 @@
         /// <summary>The id of the contact.</summary>
         public Guid? ContactId { get; set; }
         /// <summary>The contents of the template.</summary>
-        public Dictionary<string, MessageContent> Content { get; set; } = new Dictionary<string, MessageContent>(StringComparer.OrdinalIgnoreCase);
+        public MessageContentDictionary Content { get; set; } = new MessageContentDictionary();
         /// <summary>The unique identifier of the campaign.</summary>
         public Guid CampaignId { get; set; }
     }

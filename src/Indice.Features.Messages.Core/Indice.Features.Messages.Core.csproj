@@ -5,7 +5,7 @@
     <LangVersion>Latest</LangVersion>
     <Nullable>disable</Nullable>
     <TargetFrameworks>netstandard2.1;net5.0;net6.0</TargetFrameworks>
-    <VersionPrefix>6.1.5</VersionPrefix>
+    <VersionPrefix>6.1.8</VersionPrefix>
     <!--<VersionSuffix>beta-10</VersionSuffix>-->
   </PropertyGroup>
   <PropertyGroup Label="Package">
@@ -17,7 +17,7 @@
     <PackageId>Indice.Features.Messages.Core</PackageId>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/indice-co/Indice.AspNet</PackageProjectUrl>
-    <PackageReleaseNotes>Update Indice Packages.</PackageReleaseNotes>
+    <PackageReleaseNotes>Fix bug on CampaignRequestValidator.</PackageReleaseNotes>
     <PackageTags>AspNetCore;CampaignManagement;Messages;Notifications</PackageTags>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <RepositoryType>git</RepositoryType>

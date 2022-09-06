@@ -17,7 +17,8 @@ export class DateWidgetComponent implements OnInit {
   @Input() layoutNode: any;
   @Input() layoutIndex: any[] = [];
   @Input() dataIndex: any[] = [];
-
+  min: string = ''
+  max: string = ''
   displayValue = '';
 
   constructor(
@@ -26,6 +27,12 @@ export class DateWidgetComponent implements OnInit {
 
   ngOnInit() {
     this.options = this.layoutNode.options || {};
+    if (this.options.min !== undefined) {
+      this.min = this.options.min;
+    }
+    if (this.options.max !== undefined) {
+      this.max = this.options.max;
+    }
     this.jsf.initializeControl(this);
     if (this.formControl.value) {
       this.displayValue = this.formControl.value;

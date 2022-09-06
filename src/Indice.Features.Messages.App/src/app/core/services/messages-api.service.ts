@@ -4434,7 +4434,6 @@ export interface ICreateAppSettingRequest {
 export class CreateCampaignRequest implements ICreateCampaignRequest {
     /** Determines if campaign targets all user base. Defaults to false. */
     isGlobal?: boolean;
-    messageChannelKind?: MessageChannelKind[];
     /** The title of the campaign. */
     title!: string | undefined;
     /** The contents of the campaign. */
@@ -4467,11 +4466,6 @@ Use this list if recipient id is not known/available or the message will be fire
     init(_data?: any) {
         if (_data) {
             this.isGlobal = _data["isGlobal"];
-            if (Array.isArray(_data["messageChannelKind"])) {
-                this.messageChannelKind = [] as any;
-                for (let item of _data["messageChannelKind"])
-                    this.messageChannelKind!.push(item);
-            }
             this.title = _data["title"];
             if (_data["content"]) {
                 this.content = {} as any;
@@ -4509,11 +4503,6 @@ Use this list if recipient id is not known/available or the message will be fire
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
         data["isGlobal"] = this.isGlobal;
-        if (Array.isArray(this.messageChannelKind)) {
-            data["messageChannelKind"] = [];
-            for (let item of this.messageChannelKind)
-                data["messageChannelKind"].push(item);
-        }
         data["title"] = this.title;
         if (this.content) {
             data["content"] = {};
@@ -4546,7 +4535,6 @@ Use this list if recipient id is not known/available or the message will be fire
 export interface ICreateCampaignRequest {
     /** Determines if campaign targets all user base. Defaults to false. */
     isGlobal?: boolean;
-    messageChannelKind?: MessageChannelKind[];
     /** The title of the campaign. */
     title: string | undefined;
     /** The contents of the campaign. */
@@ -5646,7 +5634,6 @@ export interface IUpdateAppSettingRequest {
 export class UpdateCampaignRequest implements IUpdateCampaignRequest {
     /** Determines if campaign targets all user base. Defaults to false. */
     isGlobal?: boolean;
-    messageChannelKind?: MessageChannelKind[];
     /** The title of the campaign. */
     title!: string | undefined;
     /** The contents of the campaign. */
@@ -5672,11 +5659,6 @@ export class UpdateCampaignRequest implements IUpdateCampaignRequest {
     init(_data?: any) {
         if (_data) {
             this.isGlobal = _data["isGlobal"];
-            if (Array.isArray(_data["messageChannelKind"])) {
-                this.messageChannelKind = [] as any;
-                for (let item of _data["messageChannelKind"])
-                    this.messageChannelKind!.push(item);
-            }
             this.title = _data["title"];
             if (_data["content"]) {
                 this.content = {} as any;
@@ -5703,11 +5685,6 @@ export class UpdateCampaignRequest implements IUpdateCampaignRequest {
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
         data["isGlobal"] = this.isGlobal;
-        if (Array.isArray(this.messageChannelKind)) {
-            data["messageChannelKind"] = [];
-            for (let item of this.messageChannelKind)
-                data["messageChannelKind"].push(item);
-        }
         data["title"] = this.title;
         if (this.content) {
             data["content"] = {};
@@ -5729,7 +5706,6 @@ export class UpdateCampaignRequest implements IUpdateCampaignRequest {
 export interface IUpdateCampaignRequest {
     /** Determines if campaign targets all user base. Defaults to false. */
     isGlobal?: boolean;
-    messageChannelKind?: MessageChannelKind[];
     /** The title of the campaign. */
     title: string | undefined;
     /** The contents of the campaign. */

@@ -74,9 +74,14 @@ namespace Indice.Features.Messages.Tests
             var manager = ServiceProvider.GetRequiredService<NotificationsManager>();
             var campaign = new CreateCampaignCommand {
                 IsGlobal = true,
-                MessageChannelKind = MessageChannelKind.Inbox,
                 Published = false,
-                Title = "Welcome"
+                Title = "Welcome",
+                Content = new Dictionary<MessageChannelKind, MessageContent> {
+                    [MessageChannelKind.Inbox] = new MessageContent {
+                        Title = "Welcome",
+                        Body = "Welcome {{ contact.firstname }}"
+                    }
+                }
             };
             var result = await manager.CreateCampaign(campaign);
             Assert.True(result.Succeeded);
@@ -88,8 +93,8 @@ namespace Indice.Features.Messages.Tests
             var manager = ServiceProvider.GetRequiredService<NotificationsManager>();
             var campaign = new CreateCampaignCommand {
                 ActionLink = new Hyperlink {
-                    Href = "https://www.google.com",
-                    Text = "Google"
+                    Href = "https://indice.gr/account/orders/123And",
+                    Text = "Order details"
                 },
                 ActivePeriod = new Period { From = DateTimeOffset.UtcNow },
                 Content = new Dictionary<MessageChannelKind, MessageContent> {
@@ -99,7 +104,6 @@ namespace Indice.Features.Messages.Tests
                     Code = "123abc"
                 },
                 IsGlobal = true,
-                MessageChannelKind = MessageChannelKind.Inbox,
                 Published = false,
                 RecipientIds = new List<string> { "ab9769f1-d532-4b7d-9922-3da003157ebd" },
                 Title = "Welcome"
@@ -115,7 +119,6 @@ namespace Indice.Features.Messages.Tests
             var result = await manager.SendMessageToRecipient(
                 recipientId: Guid.NewGuid().ToString(),
                 title: "Welcome",
-                channels: MessageChannelKind.Inbox | MessageChannelKind.PushNotification,
                 templates: new Dictionary<MessageChannelKind, MessageContent> {
                     [MessageChannelKind.Inbox] = new MessageContent("Welcome", "Hello {{contact.Salutation}} {{contact.FullName}} and welcome to our company."),
                     [MessageChannelKind.PushNotification] = new MessageContent("Welcome", "Hello {{contact.Salutation}} {{contact.FullName}} and welcome to our company.")
@@ -136,50 +139,6 @@ namespace Indice.Features.Messages.Tests
             );
             Assert.True(result.Succeeded);
             Assert.NotEqual(default, result.CampaignId);
-        }
-
-        [Fact]
-        public void ToExpandoBug() {
-            var data = new {
-                uid = Guid.NewGuid(),
-                nubmer = new int?(),
-                currency = new decimal?(20.8M),
-                currency2 = new decimal?(),
-                title = "Σας ευχαριστούμε!",
-                subTitle = "Δέσμευση φορτιστή",
-                invoicePdfLink = "reservationTransaction.InvoiceAttachmentLink",
-                invoiceLink = "reservationTransaction.InvoiceLink",
-                charger = "reservation.ChargePointName",
-                chargerImage = "reservation.ChargePointImage",
-                connector = $"Θύρα φόρτισης 1",
-                when = "dd/M/yyyy HH:mm",
-                duration = "",
-                expiration = "dd/M/yyyy HH:mm",
-                netCost = "reservation.TotalPriceNet",
-                vatCost = "reservation.TotalPriceVat",
-                totalCost = "reservation.TotalPrice",
-                publicNotes = "reservation.GetInvoicePublicNotes()",
-                paymentInfo = "walletTransaction.GetInvoicePaymentNotes(paymentMethod)",
-                locationName = "reservation.LocationName",
-                locationAddress = "reservation.LocationAddress",
-                locationMap = "https://www.evpulse.eu/image-assets/location-map/{reservation.LocationId}",
-                locationMapLink = "",
-                footer = "Σας ευχαριστούμε που επιλέξατε την υπηρεσία EVPulse",
-                list = new[] {
-                    new Contact { FullName ="Kvnst"  }
-                }
-            };
-            var container = new Container() { Data = data };
-            var data2 = JsonSerializer.Deserialize<Container>(JsonSerializer.Serialize(container));
-            var result = ExpandoTest(data2.Data);
-            Assert.True(true);
-        }
-
-        private static ExpandoObject ExpandoTest(dynamic data) => Mapper.ToExpandoObject(data);
-
-        public class Container
-        {
-            public dynamic Data { get; set; }
         }
 
         public class UserNameAccessorNoop : IUserNameAccessor

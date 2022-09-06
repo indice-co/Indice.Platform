@@ -7,17 +7,12 @@ namespace Indice.Features.Messages.Core.Events
     /// <summary>The event model used when a new campaign is published.</summary>
     public class CampaignCreatedEvent
     {
-        private Dictionary<string, MessageContent> _content = new(StringComparer.OrdinalIgnoreCase);
-
         /// <summary>The unique identifier of the campaign.</summary>
         public Guid Id { get; set; }
         /// <summary>The title of the campaign.</summary>
         public string Title { get; set; }
         /// <summary>The content of the campaign.</summary>
-        public Dictionary<string, MessageContent> Content {
-            get { return _content; }
-            set { _content = new Dictionary<string, MessageContent>(value, StringComparer.OrdinalIgnoreCase); }
-        }
+        public MessageContentDictionary Content { get; set; } = new MessageContentDictionary();
         /// <summary>Determines if a campaign is published.</summary>
         public bool Published { get; set; }
         /// <summary>Specifies the time period that a campaign is active.</summary>
