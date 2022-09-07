@@ -1,9 +1,10 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { MenuOption, ToasterService, ToastType } from '@indice/ng-components';
+import { MenuOption, ToasterService, ToastType, ModalService } from '@indice/ng-components';
 import { Observable } from 'rxjs';
 import { map, tap } from 'rxjs/operators';
 import { Approval, ApprovalRequest, CasesApiService, RejectReason } from 'src/app/core/services/cases-api.service';
+import { CaseWarningModalComponent } from 'src/app/shared/components/case-warning-modal/case-warning-modal.component';
 
 @Component({
   selector: 'app-approval-buttons',
@@ -14,6 +15,8 @@ export class ApprovalButtonsComponent implements OnInit {
   @Input() formValid: boolean = false;
   @Input() caseId: string | undefined;
   @Input() enabled: boolean | undefined;
+  /** conditionally show a warning modal */
+  @Input() showWarningModal: boolean | undefined;
   public buttonsDisabled: boolean | undefined = false;
   public approveButtonDisabled: boolean | undefined = false;
   public comment: string | undefined;
@@ -24,7 +27,8 @@ export class ApprovalButtonsComponent implements OnInit {
   constructor(
     private _toaster: ToasterService,
     private _api: CasesApiService,
-    private router: Router
+    private router: Router,
+    private modalService: ModalService
   ) { }
 
   ngOnInit() {
@@ -52,7 +56,20 @@ export class ApprovalButtonsComponent implements OnInit {
       this._toaster.show(ToastType.Success, 'Έχετε μη αποθηκευμένες αλλαγές!', `Παρακαλούμε αποθηκεύστε τις αλλαγές σας`, 5000);
       return;
     }
-    this.caseDecision(Approval.Approve);
+    if (this.showWarningModal) {
+      const modal = this.modalService.show(CaseWarningModalComponent, {
+        backdrop: 'static',
+        keyboard: false,
+        initialState: { title: 'Έγκριση αίτησης', description: 'Δεν έχετε τυπώσει το PDF της αίτησης, θέλετε να προχωρήσετε στην έγκρισή της;' }
+      });
+      modal.onHidden?.subscribe((m: any) => {
+        if (m?.result !== undefined && m?.result === true) {
+          this.caseDecision(Approval.Approve);
+        }
+      })
+    } else {
+      this.caseDecision(Approval.Approve);
+    }
   }
 
   public rejectCase(): void {

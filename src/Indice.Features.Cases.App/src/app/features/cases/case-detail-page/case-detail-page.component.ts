@@ -29,7 +29,8 @@ export class CaseDetailPageComponent implements OnInit, OnDestroy {
   public showCustomDataValidation = false;
   public now: Date = new Date();
   public typeId?: string;
-
+  /** shows the warning modal conditionally */
+  public showWarningModal: boolean = false;
   constructor(
     private api: CasesApiService,
     private route: ActivatedRoute,
@@ -50,9 +51,10 @@ export class CaseDetailPageComponent implements OnInit, OnDestroy {
   }
 
   public updateData(event: { draft: boolean }): void {
-    if (event.draft){
-      this.getCaseActionsAndThenRequestModel();      
+    if (event.draft) {
+      this.getCaseActionsAndThenRequestModel();
     }
+    this.showWarningModal = true;
     this.getTimeline();
   }
 
@@ -99,7 +101,18 @@ export class CaseDetailPageComponent implements OnInit, OnDestroy {
     this.toaster.show(ToastType.Info, 'Ακύρωση αίτησης', 'Η αίτηση έχει ακυρωθεί')
     this.router.navigate(['/cases']);
   }
-
+  /**
+   * Event for PDF print action, 
+   * registers the state of the PDF print action
+   * @param printed 
+   * @returns 
+   */
+  onPdfIsPrinted(printed: boolean | undefined) {
+    if (printed === undefined) {
+      return;
+    }
+    this.showWarningModal = !printed;
+  }
   private getCaseActions() {
     this.api.getCaseActions(this.caseId)
       .pipe(

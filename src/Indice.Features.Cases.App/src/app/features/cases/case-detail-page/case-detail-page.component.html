@@ -70,12 +70,14 @@
                                            (unSavedChanges)="formDataHasChanged($event)"></app-case-form>
                             <app-case-print-pdf [caseId]="model.id"
                                                 [enabled]="!model.draft"
-                                                [buttonDisabled]="!formValid || formUnSavedChanges">
+                                                [buttonDisabled]="!formValid || formUnSavedChanges"
+                                                (pdfIsPrinted)="onPdfIsPrinted($event)">
                             </app-case-print-pdf>
                             <app-approval-buttons [formUnSavedChanges]="formUnSavedChanges"
                                                   [formValid]="formValid"
                                                   [caseId]="model.id"
-                                                  [enabled]="caseActions.hasApproval">
+                                                  [enabled]="caseActions.hasApproval"
+                                                  [showWarningModal]="showWarningModal">
                             </app-approval-buttons>
                         </div>
                     </div>
