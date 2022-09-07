@@ -264,11 +264,14 @@ export class CaseTypesService {
             layoutTranslations: event?.layoutTranslations,
             tags: event?.tags
         })
-        this._api.updateCaseType(caseTypeId, undefined, request).subscribe(_ => {
-            this.toaster.show(ToastType.Success, "Επιτυχία!", "Η επεξεργασία του τύπου αίτησης ήταν επιτυχής")
-        },
-            (err) => {
-                this.toaster.show(ToastType.Error, "Ουπς!", "Κάτι πήγε στραβά")
+        this._api.updateCaseType(caseTypeId, undefined, request).pipe(
+            tap(_ => {
+                this.toaster.show(ToastType.Success, "Επιτυχία!", "Η επεξεργασία του τύπου αίτησης ήταν επιτυχής")
+            }),
+            catchError(err => {
+                this.toaster.show(ToastType.Error, "Whoops!", err.detail)
+                return EMPTY
             })
+        ).subscribe();
     }
 }
