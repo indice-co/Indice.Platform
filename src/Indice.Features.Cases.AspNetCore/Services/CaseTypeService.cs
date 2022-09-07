@@ -129,11 +129,19 @@ namespace Indice.Features.Cases.Services
 
         public async Task Delete(Guid caseTypeId) {
             if (caseTypeId == null) {
-                throw new Exception("Case Type id not provided.");
+                throw new ValidationException("Case Type id not provided.");
             }
             var casesWithCaseType = await _dbContext.Cases.AsQueryable().AnyAsync(x => x.CaseTypeId == caseTypeId);
             if (casesWithCaseType) {
-                throw new Exception("Case type cannot be deleted because there are cases with this type.");
+                throw new ValidationException("Case type cannot be deleted because there are cases with this type.");
+            }
+            var roleCaseTypes = await _dbContext.RoleCaseTypes.AsQueryable().Where(x => x.CaseTypeId == caseTypeId).ToListAsync();
+            if (roleCaseTypes.Any()) {
+                roleCaseTypes.ForEach(x => _dbContext.RoleCaseTypes.Remove(x));
+            }
+            var checkpointTypes = await _dbContext.CheckpointTypes.AsQueryable().Where(x => x.CaseTypeId == caseTypeId).ToListAsync();
+            if (checkpointTypes.Any()) {
+                checkpointTypes.ForEach(x => _dbContext.CheckpointTypes.Remove(x));
             }
             var dbCaseType = await Get(caseTypeId);
             _dbContext.CaseTypes.Remove(dbCaseType);
@@ -158,11 +166,11 @@ namespace Indice.Features.Cases.Services
 
         public async Task<CaseTypeDetails> Update(CaseTypeRequest caseType) {
             if (!caseType.Id.HasValue) {
-                throw new Exception("Case type can not be null.");
+                throw new ValidationException("Case type can not be null.");
             }
             var dbCaseType = await Get(caseType.Id.Value);
             if (dbCaseType.Code != caseType.Code) {
-                throw new Exception("Case type code cannot be changed.");
+                throw new ValidationException("Case type code cannot be changed.");
             }
             dbCaseType.Title = caseType.Title;
             dbCaseType.DataSchema = caseType.DataSchema;

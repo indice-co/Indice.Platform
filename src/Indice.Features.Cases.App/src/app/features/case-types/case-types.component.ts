@@ -17,7 +17,6 @@ export class CaseTypesComponent extends BaseListComponent<CaseTypePartial> imple
   public formActions: ViewAction[] = [
     new RouterViewAction(Icons.Add, this.newItemLink, null, null)
   ];
-
   constructor(
     private _api: CasesApiService,
     private _route: ActivatedRoute,
@@ -41,10 +40,16 @@ export class CaseTypesComponent extends BaseListComponent<CaseTypePartial> imple
   }
 
   openModal(caseTypeId:string): void {
-    this.ModalService.show(CaseTypeDeleteModalComponent, {
+    const modal = this.ModalService.show(CaseTypeDeleteModalComponent, {
       backdrop: 'static',
       keyboard: false,
       initialState: {id: caseTypeId}
     });
+    
+    modal.onHidden?.subscribe(_ => {
+      if ((_ as any).result) {
+        this.refresh();
+      }
+    })
   }
 }

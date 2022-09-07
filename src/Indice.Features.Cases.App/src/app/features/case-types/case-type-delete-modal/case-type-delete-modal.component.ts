@@ -1,6 +1,8 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { catchError, tap } from 'rxjs/operators';
+import { Component, OnInit } from '@angular/core';
 import { Modal, ToasterService, ToastType } from '@indice/ng-components';
 import { CasesApiService } from 'src/app/core/services/cases-api.service';
+import { EMPTY } from 'rxjs';
 
 @Component({
   selector: 'app-case-type-delete-modal',
@@ -17,17 +19,20 @@ export class CaseTypeDeleteModalComponent implements OnInit {
   }
 
   deleteCaseType() {
-    this._api.deleteCaseType(this.id).subscribe(_ => {
-      this.toaster.show(ToastType.Success, "Επιτυχία!", "Η διαγραφή του τύπου αίτησης ολοκληρώθηκε");
-      window.location.reload();
-    }, 
-    (err) => {
-      this.toaster.show(ToastType.Error, "Ουπς!", "Δεν μπορεί να διαγραφεί ο τύπος αίτησης καθώς υπάρχουν αιτήσεις με αυτόν");
-      this.closeModal();
-    })
+    this._api.deleteCaseType(this.id).pipe(
+      tap(_ => {
+        this.toaster.show(ToastType.Success, "Επιτυχία!", "Η διαγραφή του τύπου αίτησης ολοκληρώθηκε");
+        this.closeModal(true);
+      }),
+      catchError(err => {
+        this.toaster.show(ToastType.Error, "Whoops!", err.detail);
+        this.closeModal(false);
+        return EMPTY
+      })
+    ).subscribe();
   }
 
-  public closeModal() {
-    this.modal.hide();
+  public closeModal(result: any) {
+    this.modal.hide(result);
   }
 }
