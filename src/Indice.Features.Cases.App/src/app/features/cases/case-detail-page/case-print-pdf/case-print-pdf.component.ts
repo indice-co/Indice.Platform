@@ -21,7 +21,7 @@ export class CasePrintPdfComponent implements OnInit {
   @Input()
   buttonDisabled: boolean | undefined;
   /** emit event when the pdf is printed */
-  @Output() pdfIsPrinted: EventEmitter<boolean> = new EventEmitter(false);
+  @Output() pdfButtonClicked: EventEmitter<boolean> = new EventEmitter(false);
   constructor(private api: CasesApiService) { }
 
   ngOnInit(): void {
@@ -32,7 +32,7 @@ export class CasePrintPdfComponent implements OnInit {
       .pipe(
         tap(results => {
           const fileURL = window.URL.createObjectURL(results.data);
-          this.pdfIsPrinted.emit(true);
+          this.pdfButtonClicked.emit(true);
           window.open(fileURL, '_blank');
         }))
       .subscribe();

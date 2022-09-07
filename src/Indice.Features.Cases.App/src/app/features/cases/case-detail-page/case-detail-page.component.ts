@@ -107,7 +107,7 @@ export class CaseDetailPageComponent implements OnInit, OnDestroy {
    * @param printed 
    * @returns 
    */
-  onPdfIsPrinted(printed: boolean | undefined) {
+  onPdfButtonClicked(printed: boolean | undefined) {
     if (printed === undefined) {
       return;
     }

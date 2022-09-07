@@ -71,7 +71,7 @@
                             <app-case-print-pdf [caseId]="model.id"
                                                 [enabled]="!model.draft"
                                                 [buttonDisabled]="!formValid || formUnSavedChanges"
-                                                (pdfIsPrinted)="onPdfIsPrinted($event)">
+                                                (pdfButtonClicked)="onPdfButtonClicked($event)">
                             </app-case-print-pdf>
                             <app-approval-buttons [formUnSavedChanges]="formUnSavedChanges"
                                                   [formValid]="formValid"
