@@ -22,17 +22,17 @@ export class CaseTypeDeleteModalComponent implements OnInit {
     this._api.deleteCaseType(this.id).pipe(
       tap(_ => {
         this.toaster.show(ToastType.Success, "Επιτυχία!", "Η διαγραφή του τύπου αίτησης ολοκληρώθηκε");
-        window.location.reload();
+        this.closeModal(true);
       }),
       catchError(err => {
         this.toaster.show(ToastType.Error, "Whoops!", err.detail);
-        this.closeModal();
+        this.closeModal(false);
         return EMPTY
       })
     ).subscribe();
   }
 
-  public closeModal() {
-    this.modal.hide();
+  public closeModal(result: any) {
+    this.modal.hide(result);
   }
 }
