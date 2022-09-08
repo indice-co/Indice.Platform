@@ -25,7 +25,7 @@
     <RepositoryUrl>https://github.com/indice-co/Indice.AspNet</RepositoryUrl>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Indice.AspNetCore.MultiTenancy" Version="6.0.2" />
+    <!--<PackageReference Include="Indice.Features.Multitenancy.AspNetCore" Version="6.0.2" />-->
     <PackageReference Include="Indice.Features.Messages.Core" Version="6.1.8" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="2.2.5" />
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
@@ -43,7 +43,8 @@
     <None Include="..\..\icon\icon-310.png" Pack="true" Visible="false" PackagePath="" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Indice.AspNetCore.MultiTenancy\Indice.Features.MultiTenancy.AspNetCore.csproj" />
+    <ProjectReference Include="..\Indice.Features.Multitenancy.AspNetCore\Indice.Features.Multitenancy.AspNetCore.csproj" />
     <ProjectReference Include="..\Indice.Features.Messages.Core\Indice.Features.Messages.Core.csproj" />
+    <ProjectReference Include="..\Indice.Features.Multitenancy.AspNetCore\Indice.Features.Multitenancy.AspNetCore.csproj" />
   </ItemGroup>
 </Project>

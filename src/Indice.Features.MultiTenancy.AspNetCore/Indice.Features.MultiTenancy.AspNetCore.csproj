@@ -1,20 +1,20 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Description>Indice.Features.MultiTenancy.AspNetCore Class Library</Description>
+    <Description>Indice.Features.Multitenancy.AspNetCore Class Library</Description>
     <Copyright>Copyright (c) 2021 Indice</Copyright>
-    <AssemblyTitle>Indice.Features.MultiTenancy.AspNetCore</AssemblyTitle>
+    <AssemblyTitle>Indice.Features.Multitenancy.AspNetCore</AssemblyTitle>
     <VersionPrefix>6.0.2</VersionPrefix>
     <!--<VersionSuffix>beta-01</VersionSuffix>-->
     <Authors>Constantinos Leftheris, Georgios Manoltzas</Authors>
     <TargetFrameworks>netcoreapp3.1;net5.0;net6.0;</TargetFrameworks>
-    <AssemblyName>Indice.Features.MultiTenancy.AspNetCore</AssemblyName>
-    <AssemblyTitle>Indice.Features.MultiTenancy.AspNetCore</AssemblyTitle>
+    <AssemblyName>Indice.Features.Multitenancy.AspNetCore</AssemblyName>
+    <AssemblyTitle>Indice.Features.Multitenancy.AspNetCore</AssemblyTitle>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <LangVersion>Latest</LangVersion>
   </PropertyGroup>
   <PropertyGroup Label="Package">
     <IsPackable>true</IsPackable>
-    <PackageId>Indice.Features.MultiTenancy.AspNetCore</PackageId>
+    <PackageId>Indice.Features.Multitenancy.AspNetCore</PackageId>
     <PackageTags>AspNetCore;Multitenancy</PackageTags>
     <PackageReleaseNotes></PackageReleaseNotes>
     <PackageIcon>icon-310.png</PackageIcon>

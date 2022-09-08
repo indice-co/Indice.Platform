@@ -1,7 +1,7 @@
 ﻿using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 
-namespace Indice.Features.MultiTenancy.AspNetCore
+namespace Indice.Features.Multitenancy.AspNetCore
 {
     internal class TenantMiddleware<TTenant> where TTenant : Tenant
     {

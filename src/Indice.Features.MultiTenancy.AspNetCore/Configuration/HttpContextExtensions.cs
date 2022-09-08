@@ -1,4 +1,4 @@
-﻿using Indice.Features.MultiTenancy.AspNetCore;
+﻿using Indice.Features.Multitenancy.AspNetCore;
 
 namespace Microsoft.AspNetCore.Http
 {

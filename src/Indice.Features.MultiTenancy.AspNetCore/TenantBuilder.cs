@@ -3,13 +3,13 @@
  */
 
 using System;
-using Indice.Features.MultiTenancy.AspNetCore.Authorization;
+using Indice.Features.Multitenancy.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
-namespace Indice.Features.MultiTenancy.AspNetCore
+namespace Indice.Features.Multitenancy.AspNetCore
 {
     /// <summary>A builder used to configure the multi-tenancy feature.</summary>
     public class TenantBuilder<TTenant> where TTenant : Tenant

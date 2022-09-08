@@ -43,7 +43,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Indice.Hosting", "src\Indic
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Indice.AspNetCore.Identity.AdminUI", "src\Indice.AspNetCore.Identity.AdminUI\Indice.AspNetCore.Identity.AdminUI.csproj", "{6C5B31E5-3CAE-4B07-B7EA-5C08AC46D486}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Indice.Features.MultiTenancy.AspNetCore", "src\Indice.Features.MultiTenancy.AspNetCore\Indice.Features.MultiTenancy.AspNetCore.csproj", "{2385A145-8440-4B25-9029-B01576177D2D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Indice.Features.Multitenancy.AspNetCore", "src\Indice.Features.Multitenancy.AspNetCore\Indice.Features.Multitenancy.AspNetCore.csproj", "{2385A145-8440-4B25-9029-B01576177D2D}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Indice.AspNetCore.Identity.Tests", "test\Indice.AspNetCore.Identity.Tests\Indice.AspNetCore.Identity.Tests.csproj", "{5522D3E7-2AF3-4C6D-91D5-2BDA2F860F38}"
 EndProject

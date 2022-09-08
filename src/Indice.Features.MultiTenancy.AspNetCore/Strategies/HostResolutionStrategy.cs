@@ -6,7 +6,7 @@ using System;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 
-namespace Indice.Features.MultiTenancy.AspNetCore.Strategies
+namespace Indice.Features.Multitenancy.AspNetCore.Strategies
 {
     /// <inheritdoc/>
     public class HostResolutionStrategy : ITenantResolutionStrategy

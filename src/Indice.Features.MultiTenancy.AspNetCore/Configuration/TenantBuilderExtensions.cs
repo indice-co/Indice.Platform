@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
-using Indice.Features.MultiTenancy.AspNetCore;
-using Indice.Features.MultiTenancy.AspNetCore.Stores;
-using Indice.Features.MultiTenancy.AspNetCore.Strategies;
+using Indice.Features.Multitenancy.AspNetCore;
+using Indice.Features.Multitenancy.AspNetCore.Stores;
+using Indice.Features.Multitenancy.AspNetCore.Strategies;
 using Microsoft.AspNetCore.Http;
 
 namespace Microsoft.Extensions.DependencyInjection

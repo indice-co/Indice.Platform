@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 
-namespace Indice.Features.MultiTenancy.AspNetCore
+namespace Indice.Features.Multitenancy.AspNetCore
 {
     /// <summary>Provides access to the resolved tenant (cached) for the current operation (request). Similar to the <seealso cref="IHttpContextAccessor"/>.</summary>
     /// <typeparam name="TTenant">The type of tenant.</typeparam>

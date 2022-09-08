@@ -1,4 +1,4 @@
-﻿using Indice.AspNetCore.MultiTenancy;
+﻿using Indice.Features.Multitenancy.AspNetCore;
 using Indice.MultitenantApi.Data;
 using Indice.MultitenantApi.Models;
 using Microsoft.EntityFrameworkCore;

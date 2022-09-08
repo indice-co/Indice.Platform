@@ -5,7 +5,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Indice.Features.MultiTenancy.AspNetCore
+namespace Indice.Features.Multitenancy.AspNetCore
 {
     /// <summary>Tenant model.</summary>
     public class Tenant

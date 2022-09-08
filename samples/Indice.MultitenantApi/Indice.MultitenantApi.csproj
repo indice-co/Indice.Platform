@@ -14,10 +14,10 @@
     <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" Version="6.4.0" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\src\Indice.AspNetCore.MultiTenancy\Indice.Features.MultiTenancy.AspNetCore.csproj" />
     <ProjectReference Include="..\..\src\Indice.AspNetCore\Indice.AspNetCore.csproj" />
     <ProjectReference Include="..\..\src\Indice.Features.Messages.AspNetCore.Multitenancy\Indice.Features.Messages.AspNetCore.Multitenancy.csproj" />
     <ProjectReference Include="..\..\src\Indice.Features.Messages.AspNetCore\Indice.Features.Messages.AspNetCore.csproj" />
     <ProjectReference Include="..\..\src\Indice.Features.Messages.Worker.Azure\Indice.Features.Messages.Worker.Azure.csproj" />
+    <ProjectReference Include="..\..\src\Indice.Features.Multitenancy.AspNetCore\Indice.Features.Multitenancy.AspNetCore.csproj" />
   </ItemGroup>
 </Project>

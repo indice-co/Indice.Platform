@@ -1,4 +1,4 @@
-﻿using Indice.AspNetCore.MultiTenancy;
+﻿using Indice.Features.Multitenancy.AspNetCore;
 
 namespace Indice.MultitenantApi.Models
 {

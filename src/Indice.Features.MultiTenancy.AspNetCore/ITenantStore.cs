@@ -5,7 +5,7 @@
 using System;
 using System.Threading.Tasks;
 
-namespace Indice.Features.MultiTenancy.AspNetCore
+namespace Indice.Features.Multitenancy.AspNetCore
 {
     /// <summary>
     /// If you want to store things like connection strings against a tenant it will need to be somewhere secure and probably 
