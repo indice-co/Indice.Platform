@@ -8,7 +8,7 @@ namespace Indice.Features.Cases.Data.Models
         public string? RoleName { get; set; }
         public Guid CaseTypeId { get; set; }
         public Guid CheckpointTypeId { get; set; }
-        public virtual DbCaseType? CaseType { get; set; }
+        public virtual DbCaseType CaseType { get; set; }
         public virtual DbCheckpointType? CheckpointType { get; set; }
     }
 }

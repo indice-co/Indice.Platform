@@ -1,14 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 using Indice.Features.Cases.Data.Models;
 
 namespace Indice.Features.Cases.Models
 {
-    public class CheckpointTypeRequest
+    /// <summary>
+    /// The checkpoint type request model.
+    /// </summary>
+    public class CheckpointTypeDetails
     {
         /// <summary>
-        /// The name of the checkpoing
+        /// The Id of the checkpoint type.
+        /// </summary>
+        public Guid Id { get; set; }
+
+        /// <summary>
+        /// The name of the checkpoint.
         /// </summary>
         public string Name { get; set; }
 
@@ -26,5 +33,10 @@ namespace Indice.Features.Cases.Models
         /// Boolean for whether the checkpoint is private.
         /// </summary>
         public bool Private { get; set; }
+
+        /// <summary>
+        /// The related roles for this checkpoint.
+        /// </summary>
+        public IEnumerable<string>? Roles { get; set; }
     }
 }
