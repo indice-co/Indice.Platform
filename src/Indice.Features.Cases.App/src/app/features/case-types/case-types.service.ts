@@ -1,9 +1,8 @@
 import { tap, catchError } from 'rxjs/operators';
-import { CheckpointTypeRequest } from './../../core/services/cases-api.service';
 import { Injectable } from "@angular/core";
 import { Router } from "@angular/router";
 import { ToasterService, ToastType } from "@indice/ng-components";
-import { CasesApiService, CaseTypeRequest } from "src/app/core/services/cases-api.service";
+import { CasesApiService, CaseTypeRequest, CheckpointTypeDetails } from "src/app/core/services/cases-api.service";
 import { TailwindSubmitWidgetComponent } from "src/app/shared/ajsf/json-schema-frameworks/tailwind-framework/submit-widget/submit-widget.component";
 import { TailwindFrameworkComponent } from "src/app/shared/ajsf/json-schema-frameworks/tailwind-framework/tailwind-framework.component";
 import { EMPTY } from 'rxjs';
@@ -55,36 +54,36 @@ export class CaseTypesService {
                 "items": {
                     "type": "object",
                     "properties": {
+                        "id": { "type": "string" },
                         "name": { "type": "string" },
                         "description": { "type": "string" },
-                        "publicStatus": { "type": "string", "enum": ["Submitted", "InProgress", "Completed", "Deleted"] },
-                        "private": { "type": "boolean" }
+                        "publicStatus": {
+                            "type": "string",
+                            "enum": ["0", "1", "2", "3"],
+                            "enumNames": ["Submitted", "In Progress", "Completed", "Deleted"]
+                        },
+                        "private": { "type": "boolean" },
+                        "roles": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
                     },
                     "required": [
                         "name",
                         "publicStatus"
                     ]
                 },
-            },
-            "requiresCheckpoints": {
-                "type": "boolean"
-            },
+            }
         },
         "additionalProperties": false,
         "required": [
             "code",
             "title",
-            "dataSchema"
-        ],
-        "if": { "properties": { "requiresCheckpoints": { "const": true } } },
-        "then": {
-            "required": [
-                "code",
-                "title",
-                "dataSchema",
-                "checkpointTypes"
-            ]
-        }
+            "dataSchema",
+            "checkpointTypes"
+        ]
     }
 
     public layout: any = [
@@ -168,38 +167,72 @@ export class CaseTypesService {
                 },
                 {
                     "key": "checkpointTypes",
-                    "condition": "requiresCheckpoints",
                     "type": "array",
                     "listItems": 1,
                     "items": [{
                         "type": "div",
                         "displayFlex": true,
-                        "flex-direction": "row",
-                        "htmlClass": "px-2",
+                        "flex-direction": "column",
+                        "htmlClass": "px-2 my-2",
                         "items": [
                             {
-                                "key": "checkpointTypes[].name", " flex": " 2 2 100px",
-                                "title": "Όνομα",
-                                "htmlClass": "px-2 my-2"
+                                "type": "div",
+                                "displayFlex": true,
+                                "flex-direction": "row",
+                                "htmlClass": "px-2",
+                                "items": [{
+                                    "key": "checkpointTypes[].name", " flex": " 2 2 100px",
+                                    "title": "Όνομα",
+                                    "htmlClass": "px-2 my-2",
+                                    "readonly": "true"
+                                },
+                                {
+                                    "key": "checkpointTypes[].description", " flex": " 2 2 100px",
+                                    "title": "Περιγραφή",
+                                    "htmlClass": "px-2 my-2",
+                                    "readonly": "true"
+                                },
+                                {
+                                    "key": "checkpointTypes[].publicStatus", " flex": " 2 2 100px",
+                                    "title": "Κατάσταση",
+                                    "default": "0",
+                                    "htmlClass": "px-2 my-2",
+                                    "readonly": "true"
+                                },
+                                {
+                                    "key": "checkpointTypes[].private", " flex": " 2 2 100px",
+                                    "title": "Private",
+                                    "htmlClass": "px-2 mt-12",
+                                    "readonly": "true"
+                                }
+                                ]
                             },
                             {
-                                "key": "checkpointTypes[].description", " flex": " 2 2 100px",
-                                "title": "Περιγραφή",
-                                "htmlClass": "px-2 my-2"
-                            },
-                            {
-                                "key": "checkpointTypes[].publicStatus", " flex": " 2 2 100px",
-                                "title": "Κατάσταση",
-                                "default": "Submitted",
-                                "htmlClass": "px-2 my-2"
-                            },
-                            {
-                                "key": "checkpointTypes[].private", " flex": " 2 2 100px",
-                                "title": "Private",
-                                "htmlClass": "px-2 mt-12"
+                                "type": "div",
+                                "displayFlex": true,
+                                "flex-direction": "row",
+                                "htmlClass": "px-2 w-64",
+                                "items": [
+                                    {
+                                        "key": "checkpointTypes[].roles",
+                                        "flex": "flex-initial w-64",
+                                        "title": "Ρόλοι",
+                                        "htmlClass": "px-2 my-2",
+                                        // "listItems": 1,
+                                        "type": "array",
+                                        "items": [
+                                            {
+                                                "title": "Ρόλος",
+                                                "key": "checkpointTypes[].roles[]",
+                                                "htmlClass": "px-2 my-2 w-64"
+                                            }
+                                        ]
+                                    }
+                                ]
                             }
                         ]
-                    }],
+                    }
+                    ],
                 },
             ]
         }
@@ -212,6 +245,7 @@ export class CaseTypesService {
             const activateElement = (element: any) => {
                 delete element.readonly;
             }
+            // TODO with recursion
             createLayout.forEach((element: any) => {
                 activateElement(element);
                 if (element.hasOwnProperty('items')) { // ajsf sections have items!
@@ -220,6 +254,11 @@ export class CaseTypesService {
                         if (item.hasOwnProperty('items')) { // ajsf flex containers have items!
                             item.items.forEach((i: any) => {
                                 activateElement(i);
+                                if (i.hasOwnProperty('items')) {
+                                    i.items.forEach((j: any) => {
+                                        activateElement(j);
+                                    });
+                                }
                             });
                         }
                     });
@@ -239,7 +278,8 @@ export class CaseTypesService {
             layout: event?.layout,
             translations: event?.translations,
             layoutTranslations: event?.layoutTranslations,
-            checkpointTypes: (event?.checkpointTypes || []).map((item: any) => new CheckpointTypeRequest(item))
+            tags: event?.tags,
+            checkpointTypes: (event?.checkpointTypes || []).map((item: any) => new CheckpointTypeDetails(item)),
         });
         this._api.createCaseType(undefined, request).pipe(
             tap(_ => {
@@ -262,7 +302,8 @@ export class CaseTypesService {
             layout: event?.layout,
             translations: event?.translations,
             layoutTranslations: event?.layoutTranslations,
-            tags: event?.tags
+            tags: event?.tags,
+            checkpointTypes: (event?.checkpointTypes || []).map((item: any) => new CheckpointTypeDetails(item)),
         })
         this._api.updateCaseType(caseTypeId, undefined, request).pipe(
             tap(_ => {

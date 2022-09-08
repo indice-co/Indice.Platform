@@ -13,6 +13,10 @@ namespace Indice.Features.Cases.Data.Models
         public string? Translations { get; set; }
         public string? LayoutTranslations { get; set; }
         public string? Tags { get; set; }
-        public virtual List<DbCheckpointType> CheckpointTypes { get; set; } // Available checkpoints for this case
+
+        /// <summary>
+        /// Available checkpoints for this case type
+        /// </summary>
+        public virtual List<DbCheckpointType> CheckpointTypes { get; set; }
     }
 }

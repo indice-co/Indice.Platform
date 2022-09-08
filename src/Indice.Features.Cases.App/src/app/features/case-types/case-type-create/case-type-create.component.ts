@@ -23,9 +23,7 @@ export class CaseTypeCreateComponent implements OnInit {
 
   constructor(private caseTypesService: CaseTypesService) { }
 
-  ngOnInit(): void {
-    this.data.requiresCheckpoints = true;
-  }
+  ngOnInit(): void { }
 
   onSubmit(event: any) {
     this.caseTypesService.onCreateSubmit(event);
