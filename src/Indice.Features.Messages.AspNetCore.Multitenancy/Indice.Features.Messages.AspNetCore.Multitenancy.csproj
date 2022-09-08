@@ -43,7 +43,7 @@
     <None Include="..\..\icon\icon-310.png" Pack="true" Visible="false" PackagePath="" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Indice.AspNetCore.MultiTenancy\Indice.AspNetCore.MultiTenancy.csproj" />
+    <ProjectReference Include="..\Indice.AspNetCore.MultiTenancy\Indice.Features.MultiTenancy.AspNetCore.csproj" />
     <ProjectReference Include="..\Indice.Features.Messages.Core\Indice.Features.Messages.Core.csproj" />
   </ItemGroup>
 </Project>

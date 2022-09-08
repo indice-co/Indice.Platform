@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
 
-namespace Indice.AspNetCore.MultiTenancy
+namespace Indice.Features.MultiTenancy.AspNetCore
 {
     /// <summary>Resolves the host to a tenant identifier.</summary>
     public interface ITenantResolutionStrategy

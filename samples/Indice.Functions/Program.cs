@@ -11,17 +11,31 @@ namespace Indice.Functions
     {
         public async static Task Main(params string[] args) {
             // Create the host builder instance.
-            var host = new HostBuilder();
+            var hostBuilder = new HostBuilder();
             // Configure function host.
-            host.ConfigureAppConfiguration((context, config) => {
+            hostBuilder.ConfigureAppConfiguration((context, config) => {
                 config.AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
                       .AddJsonFile($"appsettings.{context.HostingEnvironment.EnvironmentName}.json", optional: true, reloadOnChange: true);
             })
-            .ConfigureFunctionsWorkerDefaults()
-            .ConfigureServices(services => { })
-            .ConfigureMessages((configuration, options) => {
-                options.ConfigureDbContext = builder => builder.UseSqlServer(configuration.GetConnectionString("MessagesDb"));
-                options.DatabaseSchema = "msg";
+            .ConfigureFunctionsWorkerDefaults(
+                builder => {
+                    builder.UseMiddleware<MessagesMiddleware>();
+                }, 
+                options => {
+                    options.InputConverters.RegisterAt<MessagesInputConverter>(0);
+                }
+            )
+            .ConfigureServices((context, services) => { })
+            .ConfigureMessageFunctions((configuration, hostingEnvironment, options) => {
+                options.DatabaseSchema = "cmp";
+                options.ConfigureDbContext = (serviceProvider, builder) => {
+                    if (hostingEnvironment.IsDevelopment()) {
+                        builder.EnableDetailedErrors();
+                        builder.EnableSensitiveDataLogging();
+                    }
+                    //var tenant = serviceProvider.GetRequiredService<ITenantAccessor<ExtendedTenant>>().Tenant;
+                    builder.UseSqlServer(/*tenant?.ConnectionString ?? */configuration.GetConnectionString("MultitenantApiDb"));
+                };
                 options.UseEventDispatcherAzure()
                        .UsePushNotificationServiceAzure()
                        .UseEmailServiceSparkpost(configuration)
@@ -34,7 +48,8 @@ namespace Indice.Functions
             })
             .UseEnvironment(Environment.GetEnvironmentVariable("ENVIRONMENT"));
             // Build host and run.
-            await host.Build().RunAsync();
+            var host = hostBuilder.Build();
+            await host.RunAsync();
         }
     }
 }

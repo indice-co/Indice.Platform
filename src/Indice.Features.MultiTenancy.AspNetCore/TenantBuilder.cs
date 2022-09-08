@@ -3,13 +3,13 @@
  */
 
 using System;
-using Indice.AspNetCore.MultiTenancy.Authorization;
+using Indice.Features.MultiTenancy.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
-namespace Indice.AspNetCore.MultiTenancy
+namespace Indice.Features.MultiTenancy.AspNetCore
 {
     /// <summary>A builder used to configure the multi-tenancy feature.</summary>
     public class TenantBuilder<TTenant> where TTenant : Tenant
@@ -20,7 +20,7 @@ namespace Indice.AspNetCore.MultiTenancy
         /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
         public TenantBuilder(IServiceCollection services) {
             if (typeof(TTenant).Equals(typeof(Tenant))) {
-                services.AddTransient<TenantAccessService>();
+                services.AddTransient<DefaultTenantAccessService>();
             }
             services.AddTransient<TenantAccessService<TTenant>>();
             services.AddTransient<ITenantAccessor<TTenant>, TenantAccessor<TTenant>>();

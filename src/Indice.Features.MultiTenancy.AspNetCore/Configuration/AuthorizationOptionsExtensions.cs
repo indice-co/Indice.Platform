@@ -1,6 +1,6 @@
 ﻿using System.Security.Claims;
-using Indice.AspNetCore.MultiTenancy;
-using Indice.AspNetCore.MultiTenancy.Authorization;
+using Indice.Features.MultiTenancy.AspNetCore;
+using Indice.Features.MultiTenancy.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authorization;
 
 namespace Microsoft.Extensions.DependencyInjection

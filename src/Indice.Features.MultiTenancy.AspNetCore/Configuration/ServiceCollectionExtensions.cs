@@ -2,7 +2,7 @@
  * Attribution: https://michael-mckenna.com/multi-tenant-asp-dot-net-core-application-tenant-resolution 
  */
 
-using Indice.AspNetCore.MultiTenancy;
+using Indice.Features.MultiTenancy.AspNetCore;
 
 namespace Microsoft.Extensions.DependencyInjection
 {

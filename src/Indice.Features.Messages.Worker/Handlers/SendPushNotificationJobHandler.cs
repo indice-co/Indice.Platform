@@ -18,7 +18,7 @@ namespace Indice.Features.Messages.Worker.Handlers
         public MessageJobHandlerFactory MessageJobHandlerFactory { get; }
 
         public async Task Process(SendPushNotificationEvent pushNotification) {
-            var handler = MessageJobHandlerFactory.Create<SendPushNotificationEvent>();
+            var handler = MessageJobHandlerFactory.CreateFor<SendPushNotificationEvent>();
             await handler.Process(pushNotification);
         }
     }

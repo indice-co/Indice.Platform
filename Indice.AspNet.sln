@@ -43,7 +43,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Indice.Hosting", "src\Indic
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Indice.AspNetCore.Identity.AdminUI", "src\Indice.AspNetCore.Identity.AdminUI\Indice.AspNetCore.Identity.AdminUI.csproj", "{6C5B31E5-3CAE-4B07-B7EA-5C08AC46D486}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Indice.AspNetCore.MultiTenancy", "src\Indice.AspNetCore.MultiTenancy\Indice.AspNetCore.MultiTenancy.csproj", "{2385A145-8440-4B25-9029-B01576177D2D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Indice.Features.MultiTenancy.AspNetCore", "src\Indice.Features.MultiTenancy.AspNetCore\Indice.Features.MultiTenancy.AspNetCore.csproj", "{2385A145-8440-4B25-9029-B01576177D2D}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Indice.AspNetCore.Identity.Tests", "test\Indice.AspNetCore.Identity.Tests\Indice.AspNetCore.Identity.Tests.csproj", "{5522D3E7-2AF3-4C6D-91D5-2BDA2F860F38}"
 EndProject
@@ -87,7 +87,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Indice.Features.Cases.AspNe
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Indice.MultitenantApi", "samples\Indice.MultitenantApi\Indice.MultitenantApi.csproj", "{42C7F689-7836-460B-BFA8-96800F018CFF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Indice.Features.Messages.AspNetCore.Multitenancy", "src\Indice.Features.Messages.AspNetCore.Multitenancy\Indice.Features.Messages.AspNetCore.Multitenancy.csproj", "{69CC7BEE-7190-41D0-9A51-B9F84C8ED3AD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Indice.Features.Messages.AspNetCore.Multitenancy", "src\Indice.Features.Messages.AspNetCore.Multitenancy\Indice.Features.Messages.AspNetCore.Multitenancy.csproj", "{69CC7BEE-7190-41D0-9A51-B9F84C8ED3AD}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

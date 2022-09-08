@@ -7,7 +7,7 @@ using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
-namespace Indice.AspNetCore.MultiTenancy.Authorization
+namespace Indice.Features.MultiTenancy.AspNetCore.Authorization
 {
     /// <summary>This authorization requirement specifies that an endpoint must be available only to members. Furthermore, members must have at leat a specific access level and above.</summary>
     public class BeTenantMemberRequirement : IAuthorizationRequirement

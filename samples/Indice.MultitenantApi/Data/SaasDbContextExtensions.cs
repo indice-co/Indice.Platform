@@ -8,25 +8,25 @@ namespace Indice.MultitenantApi.Data
         public static void Seed(this SaasDbContext dbContext) {
             var subscription1 = new DbSubscription {
                 Alias = "contoso-ltd",
-                DatabaseConnection = "Server=(localdb)\\MSSQLLocalDB;Database=Contoso.Messages;Trusted_Connection=True;MultipleActiveResultSets=true",
+                DatabaseConnectionString = "Server=(localdb)\\MSSQLLocalDB;Database=Contoso.Messages;Trusted_Connection=True;MultipleActiveResultSets=true",
                 Id = Guid.NewGuid(),
                 Status = SubscriptionStatus.Enabled
             };
             var subscription2 = new DbSubscription {
                 Alias = "acme-corp",
-                DatabaseConnection = "Server=(localdb)\\MSSQLLocalDB;Database=Acme.Messages;Trusted_Connection=True;MultipleActiveResultSets=true",
+                DatabaseConnectionString = "Server=(localdb)\\MSSQLLocalDB;Database=Acme.Messages;Trusted_Connection=True;MultipleActiveResultSets=true",
                 Id = Guid.NewGuid(),
                 Status = SubscriptionStatus.Enabled
             };
             var subscription3 = new DbSubscription {
                 Alias = "wayne-enterprises",
-                DatabaseConnection = "Server=(localdb)\\MSSQLLocalDB;Database=Wayne.Messages;Trusted_Connection=True;MultipleActiveResultSets=true",
+                DatabaseConnectionString = "Server=(localdb)\\MSSQLLocalDB;Database=Wayne.Messages;Trusted_Connection=True;MultipleActiveResultSets=true",
                 Id = Guid.NewGuid(),
                 Status = SubscriptionStatus.Enabled
             };
             var subscription4 = new DbSubscription { 
                 Alias = "stark-industries",
-                DatabaseConnection = "Server=(localdb)\\MSSQLLocalDB;Database=Stark.Messages;Trusted_Connection=True;MultipleActiveResultSets=true",
+                DatabaseConnectionString = "Server=(localdb)\\MSSQLLocalDB;Database=Stark.Messages;Trusted_Connection=True;MultipleActiveResultSets=true",
                 Id = Guid.NewGuid(),
                 Status = SubscriptionStatus.Enabled
             };

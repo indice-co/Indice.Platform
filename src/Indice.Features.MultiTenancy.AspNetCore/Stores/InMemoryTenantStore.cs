@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Indice.AspNetCore.MultiTenancy.Stores
+namespace Indice.Features.MultiTenancy.AspNetCore.Stores
 {
     /// <summary>In memory store for testing purposes.</summary>
     public class InMemoryTenantStore<TTenant> : ITenantStore<TTenant> where TTenant : Tenant

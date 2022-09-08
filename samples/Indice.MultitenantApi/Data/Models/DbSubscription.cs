@@ -8,6 +8,7 @@ namespace Indice.MultitenantApi.Data.Models
         public Guid Id { get; set; }
         public string Alias { get; set; }
         public SubscriptionStatus Status { get; set; } = SubscriptionStatus.Enabled;
-        public string DatabaseConnection { get; set; }
+        public string DatabaseConnectionString { get; set; }
+        public string PushNotificationsConnectionString { get; set; }
     }
 }

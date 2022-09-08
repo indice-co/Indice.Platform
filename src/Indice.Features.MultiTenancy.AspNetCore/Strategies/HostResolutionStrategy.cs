@@ -6,7 +6,7 @@ using System;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 
-namespace Indice.AspNetCore.MultiTenancy.Strategies
+namespace Indice.Features.MultiTenancy.AspNetCore.Strategies
 {
     /// <inheritdoc/>
     public class HostResolutionStrategy : ITenantResolutionStrategy
@@ -20,7 +20,6 @@ namespace Indice.AspNetCore.MultiTenancy.Strategies
         }
 
         /// <inheritdoc/>
-        public async Task<string> GetTenantIdentifierAsync() => 
-            await Task.FromResult(_httpContextAccessor.HttpContext.Request.Host.Host);
+        public async Task<string> GetTenantIdentifierAsync() => await Task.FromResult(_httpContextAccessor.HttpContext.Request.Host.Host);
     }
 }

@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 
-namespace Indice.AspNetCore.MultiTenancy.Strategies
+namespace Indice.Features.MultiTenancy.AspNetCore.Strategies
 {
     /// <inheritdoc/>
     public class RouteResolutionStrategy : ITenantResolutionStrategy
@@ -11,7 +11,7 @@ namespace Indice.AspNetCore.MultiTenancy.Strategies
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly string _routeParameterName;
 
-        /// <summary>Constructs the <see cref="HostResolutionStrategy"/> given the <see cref="IHttpContextAccessor"/>.</summary>
+        /// <summary>Constructs the <see cref="RouteResolutionStrategy"/> given the <see cref="IHttpContextAccessor"/>.</summary>
         /// <param name="httpContextAccessor">Provides access to the current HTTP context.</param>
         /// <param name="routeParameterName">The name of the route parameter.</param>
         public RouteResolutionStrategy(IHttpContextAccessor httpContextAccessor, string routeParameterName) {

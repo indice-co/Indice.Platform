@@ -22,7 +22,22 @@ namespace Microsoft.Extensions.Hosting
         /// <summary>Configures services used by the queue triggers used for campaign management system.</summary>
         /// <param name="hostBuilder">A program initialization abstraction.</param>
         /// <param name="configure">Configure action for <see cref="MessageOptions"/>.</param>
-        public static IHostBuilder ConfigureMessages(this IHostBuilder hostBuilder, Action<IConfiguration, MessageOptions> configure = null) {
+        public static IHostBuilder ConfigureMessageFunctions(this IHostBuilder hostBuilder, Action<IConfiguration, IHostEnvironment, MessageOptions> configure = null) {
+            hostBuilder.ConfigureServices((hostBuilderContext, services) => {
+                var options = new MessageOptions {
+                    Services = services
+                };
+                configure?.Invoke(hostBuilderContext.Configuration, hostBuilderContext.HostingEnvironment, options);
+                services.AddCoreServices(options, hostBuilderContext.Configuration);
+                services.AddJobHandlerServices();
+            });
+            return hostBuilder;
+        }
+
+        /// <summary>Configures services used by the queue triggers used for campaign management system.</summary>
+        /// <param name="hostBuilder">A program initialization abstraction.</param>
+        /// <param name="configure">Configure action for <see cref="MessageOptions"/>.</param>
+        public static IHostBuilder ConfigureMessageFunctions(this IHostBuilder hostBuilder, Action<IConfiguration, MessageOptions> configure = null) {
             hostBuilder.ConfigureServices((hostBuilderContext, services) => {
                 var options = new MessageOptions {
                     Services = services
@@ -39,7 +54,7 @@ namespace Microsoft.Extensions.Hosting
             services.TryAddTransient<Func<string, IEventDispatcher>>(serviceProvider => key => new EventDispatcherNoop());
             services.TryAddTransient<IEmailService, EmailServiceNoop>();
             services.TryAddTransient<IContactResolver, ContactResolverNoop>();
-            Action<DbContextOptionsBuilder> sqlServerConfiguration = (builder) => builder.UseSqlServer(configuration.GetConnectionString("MessagesDb"));
+            Action<IServiceProvider, DbContextOptionsBuilder> sqlServerConfiguration = (serviceProvider, builder) => builder.UseSqlServer(configuration.GetConnectionString("MessagesDb"));
             services.AddDbContext<CampaignsDbContext>(options.ConfigureDbContext ?? sqlServerConfiguration);
             services.TryAddTransient<IDistributionListService, DistributionListService>();
             services.TryAddTransient<IMessageService, MessageService>();

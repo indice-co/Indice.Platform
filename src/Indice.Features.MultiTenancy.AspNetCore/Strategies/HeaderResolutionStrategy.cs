@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 
-namespace Indice.AspNetCore.MultiTenancy.Strategies
+namespace Indice.Features.MultiTenancy.AspNetCore.Strategies
 {
     /// <inheritdoc/>
     public class HeaderResolutionStrategy : ITenantResolutionStrategy

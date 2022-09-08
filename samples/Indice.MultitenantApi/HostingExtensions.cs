@@ -5,6 +5,7 @@ using System.Text.Json.Serialization;
 using Hellang.Middleware.ProblemDetails;
 using IdentityModel;
 using Indice.AspNetCore.Middleware;
+using Indice.AspNetCore.MultiTenancy;
 using Indice.AspNetCore.Swagger;
 using Indice.Configuration;
 using Indice.Features.Messages.Core;
@@ -41,12 +42,15 @@ namespace Indice.MultitenantApi
                                 builder.EnableDetailedErrors();
                                 builder.EnableSensitiveDataLogging();
                             }
-                            var tenant = serviceProvider.GetRequiredService<IHttpContextAccessor>().HttpContext?.GetTenant();
+                            var tenant = serviceProvider.GetRequiredService<ITenantAccessor<ExtendedTenant>>().Tenant;
                             builder.UseSqlServer(tenant?.ConnectionString ?? configuration.GetConnectionString("MultitenantApiDb"));
                         };
                         options.UseMultitenancy(accessLevel: (int)MemberAccessLevel.Owner);
                         options.UseFilesAzure();
-                        options.AddEventDispatcherAzure();
+                        options.UseEventDispatcherAzure((serviceProvider, eventDispatcherOptions) => {
+                            var tenant = serviceProvider.GetRequiredService<ITenantAccessor<ExtendedTenant>>().Tenant;
+                            eventDispatcherOptions.TenantIdSelector = () => tenant?.Id;
+                        });
                         options.UseIdentityContactResolver(resolverOptions => {
                             resolverOptions.BaseAddress = new Uri(configuration["IdentityServer:BaseAddress"]);
                             resolverOptions.ClientId = configuration["IdentityServer:ClientId"];
@@ -111,7 +115,7 @@ namespace Indice.MultitenantApi
                 options.ClientSecret = generalSettings?.Api?.Secrets["Introspection"];
                 options.EnableCaching = true;
             });
-            services.AddMultiTenancy()
+            services.AddMultiTenancy<ExtendedTenant>()
                     .FromHeader()
                     .FromRoute()
                     .FromHost()
@@ -142,7 +146,7 @@ namespace Indice.MultitenantApi
             app.UseRouting();
             app.UseResponseCaching();
             app.UseProblemDetails();
-            app.UseMultiTenancy();
+            app.UseMultiTenancy<ExtendedTenant>();
             app.UseAuthentication();
             app.UseAuthorization();
             if (hostingEnvironment.IsDevelopment() || generalSettings.EnableSwagger) {

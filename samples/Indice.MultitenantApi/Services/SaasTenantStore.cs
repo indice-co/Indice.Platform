@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Indice.MultitenantApi.Services
 {
-    public class SaasTenantStore : ITenantStore<Tenant>
+    public class SaasTenantStore : ITenantStore<ExtendedTenant>
     {
         private readonly SaasDbContext _dbContext;
 
@@ -19,14 +19,15 @@ namespace Indice.MultitenantApi.Services
                             .Select(member => (int?)member.AccessLevel)
                             .SingleOrDefaultAsync();
 
-        public async Task<Tenant> GetTenantAsync(string identifier) {
+        public async Task<ExtendedTenant> GetTenantAsync(string identifier) {
             return await _dbContext
                 .Subscriptions
                 .Where(subscription => subscription.Alias == identifier.ToLowerInvariant() && subscription.Status == SubscriptionStatus.Enabled)
-                .Select(subscription => new Tenant {
+                .Select(subscription => new ExtendedTenant {
                     Id = subscription.Id,
                     Identifier = subscription.Alias,
-                    ConnectionString = subscription.DatabaseConnection
+                    ConnectionString = subscription.DatabaseConnectionString,
+                    PushNotificationConnectionString = subscription.PushNotificationsConnectionString
                 })
                 .SingleOrDefaultAsync();
         }

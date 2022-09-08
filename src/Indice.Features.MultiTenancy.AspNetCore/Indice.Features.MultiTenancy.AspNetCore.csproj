@@ -1,22 +1,22 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Description>Indice.AspNetCore.MultiTenancy Class Library</Description>
+    <Description>Indice.Features.MultiTenancy.AspNetCore Class Library</Description>
     <Copyright>Copyright (c) 2021 Indice</Copyright>
-    <AssemblyTitle>Indice.AspNetCore.MultiTenancy</AssemblyTitle>
+    <AssemblyTitle>Indice.Features.MultiTenancy.AspNetCore</AssemblyTitle>
     <VersionPrefix>6.0.2</VersionPrefix>
     <!--<VersionSuffix>beta-01</VersionSuffix>-->
     <Authors>Constantinos Leftheris, Georgios Manoltzas</Authors>
     <TargetFrameworks>netcoreapp3.1;net5.0;net6.0;</TargetFrameworks>
-    <AssemblyName>Indice.AspNetCore.MultiTenancy</AssemblyName>
-    <AssemblyTitle>Indice.AspNetCore.MultiTenancy</AssemblyTitle>
+    <AssemblyName>Indice.Features.MultiTenancy.AspNetCore</AssemblyName>
+    <AssemblyTitle>Indice.Features.MultiTenancy.AspNetCore</AssemblyTitle>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <LangVersion>Latest</LangVersion>
   </PropertyGroup>
   <PropertyGroup Label="Package">
     <IsPackable>true</IsPackable>
-    <PackageId>Indice.AspNetCore.MultiTenancy</PackageId>
+    <PackageId>Indice.Features.MultiTenancy.AspNetCore</PackageId>
     <PackageTags>AspNetCore;Multitenancy</PackageTags>
-    <PackageReleaseNotes>.ΝΕΤ 5.0 upgrade</PackageReleaseNotes>
+    <PackageReleaseNotes></PackageReleaseNotes>
     <PackageIcon>icon-310.png</PackageIcon>
     <PackageProjectUrl>https://github.com/indice-co/Indice.AspNet</PackageProjectUrl>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
