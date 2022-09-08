@@ -3,14 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Indice.Features.Multitenancy.AspNetCore.Stores
+namespace Indice.Features.Multitenancy.Core.Stores
 {
     /// <summary>In memory store for testing purposes.</summary>
-    public class InMemoryTenantStore<TTenant> : ITenantStore<TTenant> where TTenant : Tenant
+    public class TenantStoreInMemory<TTenant> : ITenantStore<TTenant> where TTenant : Tenant
     {
-        /// <summary>Constructs the <see cref="InMemoryTenantStore{T}"/> given a list of available tenants.</summary>
+        /// <summary>Constructs the <see cref="TenantStoreInMemory{T}"/> given a list of available tenants.</summary>
         /// <param name="tenants">The list of tenants.</param>
-        public InMemoryTenantStore(IEnumerable<TTenant> tenants) {
+        public TenantStoreInMemory(IEnumerable<TTenant> tenants) {
             Tenants = tenants ?? throw new ArgumentNullException(nameof(tenants));
         }
 
@@ -21,7 +21,7 @@ namespace Indice.Features.Multitenancy.AspNetCore.Stores
 
         /// <inheritdoc />
         public Task<TTenant> GetTenantAsync(string identifier) {
-            var tenant = Tenants.SingleOrDefault(t => t.Identifier == identifier);
+            var tenant = Tenants.SingleOrDefault(tenant => tenant.Identifier == identifier);
             return Task.FromResult(tenant);
         }
     }

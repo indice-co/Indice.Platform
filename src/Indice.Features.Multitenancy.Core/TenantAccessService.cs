@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace Indice.Features.Multitenancy.AspNetCore
+namespace Indice.Features.Multitenancy.Core
 {
     /// <summary>Tenant access service.</summary>
     /// <typeparam name="TTenant">The type of tenant.</typeparam>
@@ -24,8 +24,9 @@ namespace Indice.Features.Multitenancy.AspNetCore
             string tenantIdentifier = null;
             foreach (var strategy in _tenantResolutionStrategies) {
                 tenantIdentifier = await strategy.GetTenantIdentifierAsync();
-                if (tenantIdentifier != null)
+                if (tenantIdentifier is not null) {
                     break;
+                }
             }
             return await _tenantStore.GetTenantAsync(tenantIdentifier);
         }

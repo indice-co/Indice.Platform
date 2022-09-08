@@ -9,7 +9,7 @@ using Indice.AspNetCore.Swagger;
 using Indice.Configuration;
 using Indice.Features.Messages.Core;
 using Indice.Features.Messages.Worker.Azure;
-using Indice.Features.Multitenancy.AspNetCore;
+using Indice.Features.Multitenancy.Core;
 using Indice.MultitenantApi.Data;
 using Indice.MultitenantApi.Models;
 using Indice.MultitenantApi.Services;

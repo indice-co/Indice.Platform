@@ -3,13 +3,9 @@
  */
 
 using System;
-using Indice.Features.Multitenancy.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
 
-namespace Indice.Features.Multitenancy.AspNetCore
+namespace Indice.Features.Multitenancy.Core
 {
     /// <summary>A builder used to configure the multi-tenancy feature.</summary>
     public class TenantBuilder<TTenant> where TTenant : Tenant
@@ -19,14 +15,7 @@ namespace Indice.Features.Multitenancy.AspNetCore
         /// <summary>Constructs the <see cref="TenantBuilder{T}"/> class.</summary>
         /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
         public TenantBuilder(IServiceCollection services) {
-            if (typeof(TTenant).Equals(typeof(Tenant))) {
-                services.AddTransient<DefaultTenantAccessService>();
-            }
-            services.AddTransient<TenantAccessService<TTenant>>();
-            services.AddTransient<ITenantAccessor<TTenant>, TenantAccessor<TTenant>>();
-            services.AddTransient<IAuthorizationHandler, BeTenantMemberHandler <TTenant>>();
-            services.AddDistributedMemoryCache();
-            _services = services;
+            _services = services ?? throw new ArgumentNullException(nameof(services));
         }
 
         /// <summary>Registers the tenant resolver implementation.</summary>
@@ -34,7 +23,6 @@ namespace Indice.Features.Multitenancy.AspNetCore
         /// <param name="lifetime">Specifies the lifetime of a service in an <see cref="IServiceCollection"/>.</param>
         /// <returns>A builder used to configure the multi-tenancy feature.</returns>
         public TenantBuilder<TTenant> WithResolutionStrategy<TStrategy>(ServiceLifetime lifetime = ServiceLifetime.Transient) where TStrategy : class, ITenantResolutionStrategy {
-            _services.TryAddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             _services.Add(ServiceDescriptor.Describe(typeof(ITenantResolutionStrategy), typeof(TStrategy), lifetime));
             return this;
         }
@@ -45,7 +33,6 @@ namespace Indice.Features.Multitenancy.AspNetCore
         /// <param name="lifetime">Specifies the lifetime of a service in an <see cref="IServiceCollection"/>.</param>
         /// <returns>A builder used to configure the multi-tenancy feature.</returns>
         public TenantBuilder<TTenant> WithResolutionStrategy<TStrategy>(Func<IServiceProvider, TStrategy> implementationFactory, ServiceLifetime lifetime = ServiceLifetime.Transient) where TStrategy : class, ITenantResolutionStrategy {
-            _services.TryAddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             _services.Add(ServiceDescriptor.Describe(typeof(ITenantResolutionStrategy), implementationFactory, lifetime));
             return this;
         }

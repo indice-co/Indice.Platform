@@ -1,6 +1,6 @@
 ﻿using System.Security.Claims;
-using Indice.Features.Multitenancy.AspNetCore;
 using Indice.Features.Multitenancy.AspNetCore.Authorization;
+using Indice.Features.Multitenancy.Core;
 using Microsoft.AspNetCore.Authorization;
 
 namespace Microsoft.Extensions.DependencyInjection
@@ -21,8 +21,7 @@ namespace Microsoft.Extensions.DependencyInjection
         public static AuthorizationPolicyBuilder RequireTenantMembership(this AuthorizationPolicyBuilder builder, int accessLevel = 0) => builder.AddRequirements(new BeTenantMemberRequirement(accessLevel));
 
         internal static bool IsSystemClient(this ClaimsPrincipal principal) {
-            var isSystem = principal.FindFirstValue($"client_{JwtClaimTypesInternal.System}") ?? 
-                           principal.FindFirstValue(JwtClaimTypesInternal.System);
+            var isSystem = principal.FindFirstValue($"client_{JwtClaimTypesInternal.System}") ?? principal.FindFirstValue(JwtClaimTypesInternal.System);
             return isSystem?.ToLower() == bool.TrueString.ToLower();
         }
     }

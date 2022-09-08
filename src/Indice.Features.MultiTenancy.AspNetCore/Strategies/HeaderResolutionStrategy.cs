@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using Indice.Features.Multitenancy.Core;
 using Microsoft.AspNetCore.Http;
 
 namespace Indice.Features.Multitenancy.AspNetCore.Strategies

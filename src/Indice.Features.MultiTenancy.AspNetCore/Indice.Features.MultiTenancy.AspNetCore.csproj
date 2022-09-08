@@ -47,4 +47,7 @@
     <PackageReference Include="Microsoft.Extensions.Http" Version="3.1.22" />
     <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="3.1.22" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Indice.Features.Multitenancy.Core\Indice.Features.Multitenancy.Core.csproj" />
+  </ItemGroup>
 </Project>
