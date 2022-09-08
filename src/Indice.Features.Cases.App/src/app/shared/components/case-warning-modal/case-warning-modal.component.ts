@@ -1,6 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { Modal } from '@indice/ng-components';
-
+export class WarningViewModel {
+  public title: string | undefined;
+  public description: string | undefined;
+}
 @Component({
   selector: 'app-case-warning-modal',
   templateUrl: './case-warning-modal.component.html'
@@ -10,8 +13,7 @@ import { Modal } from '@indice/ng-components';
  * Should be filled with title and description
  */
 export class CaseWarningModalComponent implements OnInit {
-  public title: string | undefined;
-  public description: string | undefined;
+  public warningModalState: WarningViewModel | undefined;
   constructor(private modal: Modal) { }
 
   ngOnInit(): void {

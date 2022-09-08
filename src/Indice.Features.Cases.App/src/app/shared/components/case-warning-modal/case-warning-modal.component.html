@@ -19,12 +19,12 @@
                         </svg>
                     </div>
                     <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
-                        <h3 *ngIf="title"
+                        <h3 *ngIf="warningModalState?.title"
                             class="text-lg leading-6 font-medium text-gray-900"
-                            id="modal-title">{{title}}</h3>
-                        <div *ngIf="description"
+                            id="modal-title">{{warningModalState?.title}}</h3>
+                        <div *ngIf="warningModalState?.description"
                              class="mt-2">
-                            <p class="text-sm text-gray-500">{{description}}</p>
+                            <p class="text-sm text-gray-500">{{warningModalState?.description}}</p>
                         </div>
                     </div>
                 </div>

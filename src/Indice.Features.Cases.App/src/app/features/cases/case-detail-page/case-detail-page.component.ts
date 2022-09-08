@@ -31,6 +31,7 @@ export class CaseDetailPageComponent implements OnInit, OnDestroy {
   public typeId?: string;
   /** shows the warning modal conditionally */
   public showWarningModal: boolean = false;
+  public warningModalState = { title: 'Έγκριση αίτησης', description: 'Δεν έχετε τυπώσει το PDF της αίτησης, θέλετε να προχωρήσετε στην έγκρισή της;' };
   constructor(
     private api: CasesApiService,
     private route: ActivatedRoute,
