@@ -11,20 +11,20 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <summary>Adds multitenancy capabilities in the Messages API endpoints.</summary>
         /// <param name="options">Options used to configure the Messages API feature.</param>
         /// <param name="accessLevel">The minimum access level required.</param>
-        public static MessageEndpointOptions UseMultitenancy(this MessageEndpointOptions options, int accessLevel) {
-            UseMultitenancyInternal(options, accessLevel);
+        public static MessageEndpointOptions UseMultiTenancy(this MessageEndpointOptions options, int accessLevel) {
+            UseMultiTenancyInternal(options, accessLevel);
             return options;
         }
 
         /// <summary>Adds multitenancy capabilities in the Messages API endpoints.</summary>
         /// <param name="options">Options used to configure the Messages management API feature.</param>
         /// <param name="accessLevel">The minimum access level required.</param>
-        public static MessageManagementOptions UseMultitenancy(this MessageManagementOptions options, int accessLevel) {
-            UseMultitenancyInternal(options, accessLevel);
+        public static MessageManagementOptions UseMultiTenancy(this MessageManagementOptions options, int accessLevel) {
+            UseMultiTenancyInternal(options, accessLevel);
             return options;
         }
 
-        private static void UseMultitenancyInternal(CampaignOptionsBase options, int accessLevel) {
+        private static void UseMultiTenancyInternal(CampaignOptionsBase options, int accessLevel) {
             options.Services.AddSingleton<IAuthorizationPolicyProvider, MultitenantCampaignsPolicyProvider>();
             options.Services.Configure<MessageMultitenancyOptions>(options => options.AccessLevel = accessLevel);
         }

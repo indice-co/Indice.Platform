@@ -45,7 +45,7 @@ namespace Indice.MultitenantApi
                             var tenant = serviceProvider.GetRequiredService<ITenantAccessor<ExtendedTenant>>().Tenant;
                             builder.UseSqlServer(tenant?.ConnectionString ?? configuration.GetConnectionString("MultitenantApiDb"));
                         };
-                        options.UseMultitenancy(accessLevel: (int)MemberAccessLevel.Owner);
+                        options.UseMultiTenancy(accessLevel: (int)MemberAccessLevel.Owner);
                         options.UseFilesAzure();
                         options.UseEventDispatcherAzure((serviceProvider, eventDispatcherOptions) => {
                             var tenant = serviceProvider.GetRequiredService<ITenantAccessor<ExtendedTenant>>().Tenant;
