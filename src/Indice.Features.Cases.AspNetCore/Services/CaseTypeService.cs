@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations;
 using System.Globalization;
 using System.Linq;
 using System.Security.Claims;
@@ -65,6 +66,7 @@ namespace Indice.Features.Cases.Services
                     DataSchema = c.DataSchema,
                     Layout = c.Layout,
                     Code = c.Code,
+                    Tags = c.Tags,
                     Translations = TranslationDictionary<CaseTypeTranslation>.FromJson(c.Translations)
                 })
                 .ToListAsync();
@@ -80,18 +82,46 @@ namespace Indice.Features.Cases.Services
         public async Task Create(CaseTypeRequest caseType) {
             var codeExists = await CaseTypeCodeExists(caseType.Code);
             if (codeExists) {
-                throw new Exception("Case type code already exists.");
+                throw new ValidationException("Case type code already exists.");
             }
 
-            DbCaseType newCaseType = new DbCaseType {
+            var newCaseType = new DbCaseType {
                 Id = Guid.NewGuid(),
                 Code = caseType.Code,
                 Title = caseType.Title,
                 DataSchema = caseType.DataSchema,
                 Layout = caseType.Layout,
                 Translations = caseType.Translations,
-                LayoutTranslations = caseType.LayoutTranslations
+                LayoutTranslations = caseType.LayoutTranslations,
+                Tags = caseType.Tags
             };
+
+            if (caseType.CheckpointTypes is null) {
+                throw new ValidationException("At least one checkpoint type is required.");
+            }
+
+            var checkpointSubmittedExists = caseType.CheckpointTypes.Any(x => x.Name == "Submitted");
+            if (!checkpointSubmittedExists) {
+                throw new ValidationException("At least one checkpoint type with the name 'Submitted' is required.");
+            }
+
+            var checkpointNames = caseType.CheckpointTypes.Select(x => x.Name).ToList();
+            if (checkpointNames.Count != checkpointNames.Distinct().Count()) {
+                throw new ValidationException("You can't have duplicate names in checkpoint types.");
+            }
+
+            foreach (var checkpointType in caseType.CheckpointTypes) {
+                var dbCheckpointType = new DbCheckpointType {
+                    Id = Guid.NewGuid(),
+                    CaseTypeId = newCaseType.Id,
+                    Description = checkpointType.Description,
+                    PublicStatus = checkpointType.PublicStatus,
+                    Private = checkpointType.Private
+                };
+                dbCheckpointType.SetCode(caseType.Code, checkpointType.Name);
+
+                await _dbContext.CheckpointTypes.AddAsync(dbCheckpointType);
+            }
 
             await _dbContext.CaseTypes.AddAsync(newCaseType);
             await _dbContext.SaveChangesAsync();
@@ -99,11 +129,19 @@ namespace Indice.Features.Cases.Services
 
         public async Task Delete(Guid caseTypeId) {
             if (caseTypeId == null) {
-                throw new Exception("Case Type id not provided.");
+                throw new ValidationException("Case Type id not provided.");
             }
             var casesWithCaseType = await _dbContext.Cases.AsQueryable().AnyAsync(x => x.CaseTypeId == caseTypeId);
             if (casesWithCaseType) {
-                throw new Exception("Case type cannot be deleted because there are cases with this type.");
+                throw new ValidationException("Case type cannot be deleted because there are cases with this type.");
+            }
+            var roleCaseTypes = await _dbContext.RoleCaseTypes.AsQueryable().Where(x => x.CaseTypeId == caseTypeId).ToListAsync();
+            if (roleCaseTypes.Any()) {
+                roleCaseTypes.ForEach(x => _dbContext.RoleCaseTypes.Remove(x));
+            }
+            var checkpointTypes = await _dbContext.CheckpointTypes.AsQueryable().Where(x => x.CaseTypeId == caseTypeId).ToListAsync();
+            if (checkpointTypes.Any()) {
+                checkpointTypes.ForEach(x => _dbContext.CheckpointTypes.Remove(x));
             }
             var dbCaseType = await Get(caseTypeId);
             _dbContext.CaseTypes.Remove(dbCaseType);
@@ -119,7 +157,8 @@ namespace Indice.Features.Cases.Services
                 DataSchema = dbCaseType.DataSchema,
                 Layout = dbCaseType.Layout,
                 Translations = dbCaseType.Translations,
-                LayoutTranslations = dbCaseType.LayoutTranslations
+                LayoutTranslations = dbCaseType.LayoutTranslations,
+                Tags = dbCaseType.Tags
             };
 
             return caseType;
@@ -127,17 +166,18 @@ namespace Indice.Features.Cases.Services
 
         public async Task<CaseTypeDetails> Update(CaseTypeRequest caseType) {
             if (!caseType.Id.HasValue) {
-                throw new Exception("Case type can not be null.");
+                throw new ValidationException("Case type can not be null.");
             }
             var dbCaseType = await Get(caseType.Id.Value);
             if (dbCaseType.Code != caseType.Code) {
-                throw new Exception("Case type code cannot be changed.");
+                throw new ValidationException("Case type code cannot be changed.");
             }
             dbCaseType.Title = caseType.Title;
             dbCaseType.DataSchema = caseType.DataSchema;
             dbCaseType.Layout = caseType.Layout;
             dbCaseType.Translations = caseType.Translations;
             dbCaseType.LayoutTranslations = caseType.LayoutTranslations;
+            dbCaseType.Tags = caseType.Tags;
 
             _dbContext.CaseTypes.Update(dbCaseType);
             await _dbContext.SaveChangesAsync();
@@ -155,11 +195,11 @@ namespace Indice.Features.Cases.Services
                     .Select(c => new CaseTypePartial {
                         Id = c.Id,
                         Title = c.Title,
-                        Code = c.Code
+                        Code = c.Code,
+                        Tags = c.Tags
                     })
                     .ToListAsync();
             return caseTypes.ToResultSet();
         }
-
     }
 }

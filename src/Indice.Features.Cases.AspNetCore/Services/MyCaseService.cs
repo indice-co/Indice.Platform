@@ -125,7 +125,7 @@ namespace Indice.Features.Cases.Services
             return caseDetails;
         }
 
-        public async Task<MyCasePartial> GetMyCaseById(ClaimsPrincipal user, Guid caseId) {
+        public async Task<MyCasePartial> GetMyCasePartialById(ClaimsPrincipal user, Guid caseId) {
             var userId = user.FindSubjectId();
             var query = await _dbContext.Cases
                 .Include(c => c.CaseType)
@@ -157,14 +157,21 @@ namespace Indice.Features.Cases.Services
 
         public async Task<ResultSet<MyCasePartial>> GetCases(ClaimsPrincipal user, ListOptions<GetMyCasesListFilter> options) {
             var userId = user.FindSubjectId();
-            var query = _dbContext.Cases
+            var dbCaseQueryable = _dbContext.Cases
                 .Include(c => c.CaseType)
                 .Include(c => c.Comments)
                 .Include(c => c.Checkpoints)
                 .ThenInclude(ch => ch.CheckpointType)
                 .AsQueryable()
-                .Where(p => (p.CreatedBy.Id == userId || p.Customer.UserId == userId) && !p.Draft) // todo na filtrarei kai me CustomerId 
-                .Select(p => new MyCasePartial {
+                .Where(p => (p.CreatedBy.Id == userId || p.Customer.UserId == userId) && !p.Draft);
+
+            foreach (var tag in options.Filter?.CaseTypeTags) {
+                // If there are more than 1 tag, the linq will be translated into "WHERE [Tag] LIKE %tag1% AND [Tag] LIKE %tag2% ..."
+                dbCaseQueryable = dbCaseQueryable.Where(dbCase => EF.Functions.Like(dbCase.CaseType.Tags, $"%{tag}%"));
+            }
+
+            var myCasePartialQueryable =
+                dbCaseQueryable.Select(p => new MyCasePartial {
                     Id = p.Id,
                     Created = p.CreatedBy.When,
                     CaseTypeCode = p.CaseType.Code,
@@ -188,7 +195,7 @@ namespace Indice.Features.Cases.Services
                 options.Sort = $"{nameof(MyCasePartial.Created)}-";
             }
 
-            var result = await query.ToResultSetAsync(options);
+            var result = await myCasePartialQueryable.ToResultSetAsync(options);
             // translate
             for (var i = 0; i < result.Items.Length; i++) {
                 result.Items[i] = result.Items[i].Translate(CultureInfo.CurrentCulture.TwoLetterISOLanguageName, true);
@@ -197,6 +204,7 @@ namespace Indice.Features.Cases.Services
         }
 
         public async Task<CaseTypePartial> GetCaseType(string caseTypeCode) {
+            if (caseTypeCode == null) throw new ArgumentNullException(nameof(caseTypeCode));
             var dbCaseType = await GetCaseTypeInternal(caseTypeCode);
             if (dbCaseType == null) {
                 throw new Exception("Case type not found."); // todo  proper exception & handle from problemConfig (NotFound)
@@ -216,6 +224,27 @@ namespace Indice.Features.Cases.Services
             caseType.DataSchema = _jsonTranslationService.Translate(caseType.DataSchema, dbCaseType.LayoutTranslations, CultureInfo.CurrentCulture.TwoLetterISOLanguageName);
 
             return caseType;
+        }
+
+        public async Task<ResultSet<CaseTypePartial>> GetCaseTypes(ListOptions<GetMyCaseTypesListFilter> options) {
+            var caseTypesQueryable = _dbContext.CaseTypes.AsQueryable();
+
+            foreach (var tag in options.Filter?.CaseTypeTags) {
+                // If there are more than 1 tag, the linq will be translated into "WHERE [Tag] LIKE %tag1% AND [Tag] LIKE %tag2% ..."
+                caseTypesQueryable = caseTypesQueryable.Where(caseType => EF.Functions.Like(caseType.Tags, $"%{tag}%"));
+            }
+
+            var caseTypes = await caseTypesQueryable
+                .Select(dbCaseType => new CaseTypePartial {
+                    Id = dbCaseType.Id,
+                    Title = dbCaseType.Title,
+                    DataSchema = GetSingleOrMultiple(SchemaSelector, dbCaseType.DataSchema),
+                    Layout = GetSingleOrMultiple(SchemaSelector, dbCaseType.Layout),
+                    Code = dbCaseType.Code,
+                    Translations = TranslationDictionary<CaseTypeTranslation>.FromJson(dbCaseType.Translations)
+                })
+                .ToListAsync();
+            return caseTypes.ToResultSet();
         }
     }
 }

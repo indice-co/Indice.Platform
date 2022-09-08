@@ -66,7 +66,7 @@ namespace Indice.Features.Cases.Controllers
         [Produces(MediaTypeNames.Application.Json)]
         [HttpGet("{caseId:guid}")]
         public async Task<IActionResult> GetMyCaseById(Guid caseId) {
-            var @case = await _myCaseService.GetMyCaseById(User, caseId);
+            var @case = await _myCaseService.GetMyCasePartialById(User, caseId);
             return Ok(@case);
         }
 

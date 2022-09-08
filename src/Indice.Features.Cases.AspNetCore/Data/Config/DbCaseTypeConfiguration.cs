@@ -22,15 +22,15 @@ namespace Indice.Features.Cases.Data.Config
                 .HasMaxLength(TextSizePresets.M128);
             builder
                 .Property(p => p.Translations);
-            //builder
-            //    .Property(p => p.DataSchema)
-            //    .HasConversion(new JsonStringValueConverter()) // todo fix dynamic/object value conversion
-            //    .IsRequired(false);
             builder
                 .Property(p => p.Layout)
                 .IsRequired(false); 
             builder
                 .Property(p => p.LayoutTranslations)
+                .IsRequired(false);
+            builder
+                .Property(p => p.Tags)
+                .HasMaxLength(TextSizePresets.M256)
                 .IsRequired(false);
         }
     }

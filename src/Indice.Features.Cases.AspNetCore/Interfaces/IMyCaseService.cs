@@ -45,14 +45,20 @@ namespace Indice.Features.Cases.Interfaces
         Task Submit(ClaimsPrincipal user, Guid caseId);
 
         /// <summary>
-        /// Get a case for a user by its Id
+        /// Get <see cref="CaseDetails"/> for a user by its Id.
         /// </summary>
         /// <param name="user">The user that creates the request.</param>
         /// <param name="caseId">The Id of the case.</param>
         /// <returns></returns>
         Task<CaseDetails> GetCaseById(ClaimsPrincipal user, Guid caseId);
 
-        Task<MyCasePartial> GetMyCaseById(ClaimsPrincipal user, Guid caseId);
+        /// <summary>
+        /// Get <see cref="MyCasePartial"/> for a user by its Id.
+        /// </summary>
+        /// <param name="user">The user that creates the request.</param>
+        /// <param name="caseId">The Id of the case.</param>
+        /// <returns></returns>
+        Task<MyCasePartial> GetMyCasePartialById(ClaimsPrincipal user, Guid caseId);
 
         /// <summary>
         /// Get the cases of the User.
@@ -67,5 +73,12 @@ namespace Indice.Features.Cases.Interfaces
         /// </summary>
         /// <param name="caseTypeCode"></param>
         Task<CaseTypePartial> GetCaseType(string caseTypeCode);
+
+        /// <summary>
+        /// Get case types list.
+        /// </summary>
+        /// <param name="options">The <see cref="GetMyCaseTypesListFilter"/> options.</param>
+        /// <returns></returns>
+        Task<ResultSet<CaseTypePartial>> GetCaseTypes(ListOptions<GetMyCaseTypesListFilter> options);
     }
 }

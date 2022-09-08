@@ -12,5 +12,6 @@ namespace Indice.Features.Cases.Exceptions
             : base(message) { }
         public CaseNotFoundException(string message, Exception innerException)
             : base(message, innerException) { }
+
     }
 }

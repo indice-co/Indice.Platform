@@ -36,7 +36,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="bg-white shadow rounded-sm">
+                        <div class="bg-white shadow rounded-sm" *ngIf="caseActions.hasAssignment || model.draft">
                             <div class="mt-2 px-4 py-4 flow-root">
                                 <app-case-assignment [caseId]="model.id"
                                                      [enabled]="caseActions.hasAssignment"
@@ -48,10 +48,6 @@
                                                         [enabled]="model.draft"
                                                         (caseDiscarded)="onCaseDiscarded()">
                                 </app-case-discard-draft>
-                                <app-case-print-pdf [caseId]="model.id"
-                                                    [enabled]="!model.draft"
-                                                    [buttonDisabled]="!formValid || formUnSavedChanges">
-                                </app-case-print-pdf>
                             </div>
                         </div>
                         <div class="bg-white shadow rounded-sm">
@@ -72,10 +68,17 @@
                                            (updateDataEvent)="updateData($event)"
                                            (formIsValid)="isValid($event)"
                                            (unSavedChanges)="formDataHasChanged($event)"></app-case-form>
+                            <app-case-print-pdf [caseId]="model.id"
+                                                [enabled]="!model.draft"
+                                                [buttonDisabled]="!formValid || formUnSavedChanges"
+                                                (pdfButtonClicked)="onPdfButtonClicked($event)">
+                            </app-case-print-pdf>
                             <app-approval-buttons [formUnSavedChanges]="formUnSavedChanges"
                                                   [formValid]="formValid"
                                                   [caseId]="model.id"
-                                                  [enabled]="caseActions.hasApproval">
+                                                  [enabled]="caseActions.hasApproval"
+                                                  [showWarningModal]="showWarningModal"
+                                                  [warningModalState]="warningModalState">
                             </app-approval-buttons>
                         </div>
                     </div>

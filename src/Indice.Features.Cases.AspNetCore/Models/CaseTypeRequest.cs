@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace Indice.Features.Cases.Models
 {
@@ -38,5 +39,15 @@ namespace Indice.Features.Cases.Models
         /// The Translation for the layout
         /// </summary>
         public string? LayoutTranslations { get; set; }
+
+        /// <summary>
+        /// The list of checkpoints for the case type
+        /// </summary>
+        public List<CheckpointTypeRequest>? CheckpointTypes { get; set; }
+
+        /// <summary>
+        /// The case type tags.
+        /// </summary>
+        public string? Tags { get; set; }
     }
 }
