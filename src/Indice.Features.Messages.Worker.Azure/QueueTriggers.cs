@@ -5,7 +5,6 @@ using Indice.Features.Messages.Core.Events;
 using Indice.Features.Messages.Core.Handlers;
 using Indice.Serialization;
 using Indice.Services;
-using Indice.Types;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
 
@@ -28,20 +27,22 @@ namespace Indice.Features.Messages.Worker.Azure
 
         [Function(EventNames.CampaignCreated)]
         public async Task CampaignPublishedHandler(
-            [QueueTrigger("%ENVIRONMENT%-" + EventNames.CampaignCreated, Connection = "StorageConnection")] Envelope<CampaignCreatedEvent> message,
+            [QueueTrigger("%ENVIRONMENT%-" + EventNames.CampaignCreated, Connection = "StorageConnection")] byte[] message,
             FunctionContext functionContext
         ) {
             LogExecution(functionContext, EventNames.CampaignCreated);
-            var campaignStart = message.Payload.ActivePeriod?.From;
+            var originalMessage = await CompressionUtils.Decompress(message);
+            var @event = JsonSerializer.Deserialize<CampaignCreatedEvent>(originalMessage, JsonSerializerOptions);
+            var campaignStart = @event.ActivePeriod?.From;
             // Azure queues can store a queue message with a visibility window up to 7 days. So if a campaign must start (appear on queue) after more than 7 days then we should check the campaign start date and re-enqueue the message.
             if (campaignStart > DateTimeOffset.UtcNow) {
                 var nextExecutionTimeSpan = campaignStart.Value - DateTimeOffset.UtcNow;
                 var visibilityWindow = nextExecutionTimeSpan > TimeSpan.FromDays(5) ? TimeSpan.FromDays(5) : nextExecutionTimeSpan;
                 var eventDispatcher = GetEventDispatcher(KeyedServiceNames.EventDispatcherServiceKey);
-                await GetEventDispatcher(KeyedServiceNames.EventDispatcherServiceKey).RaiseEventAsync(message, options => options.WrapInEnvelope().Delay(visibilityWindow).WithQueueName(EventNames.CampaignCreated));
+                await GetEventDispatcher(KeyedServiceNames.EventDispatcherServiceKey).RaiseEventAsync(@event, options => options.WrapInEnvelope(false).Delay(visibilityWindow).WithQueueName(EventNames.CampaignCreated));
                 return;
             }
-            await CampaignJobHandlerFactory.CreateFor<CampaignCreatedEvent>().Process(message.Payload);
+            await CampaignJobHandlerFactory.CreateFor<CampaignCreatedEvent>().Process(@event);
         }
 
         [Function(EventNames.ResolveMessage)]

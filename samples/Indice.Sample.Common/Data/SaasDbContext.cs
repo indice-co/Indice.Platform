@@ -1,8 +1,8 @@
 ﻿using System.Reflection;
-using Indice.MultitenantApi.Data.Models;
+using Indice.Sample.Common.Data.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace Indice.MultitenantApi.Data
+namespace Indice.Sample.Common.Data
 {
     public class SaasDbContext : DbContext
     {

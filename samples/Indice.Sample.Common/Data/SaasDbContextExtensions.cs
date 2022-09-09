@@ -1,7 +1,7 @@
-﻿using Indice.MultitenantApi.Data.Models;
-using Indice.MultitenantApi.Models;
+﻿using Indice.Sample.Common.Data.Models;
+using Indice.Sample.Common.Models;
 
-namespace Indice.MultitenantApi.Data
+namespace Indice.Sample.Common.Data
 {
     public static class SaasDbContextExtensions
     {

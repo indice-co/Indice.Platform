@@ -9,6 +9,7 @@ using Indice.Features.Messages.Core.Services.Abstractions;
 using Indice.Features.Messages.Core.Services.Validators;
 using Indice.Features.Messages.Worker.Azure;
 using Indice.Services;
+using Microsoft.Azure.Functions.Worker;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -22,32 +23,19 @@ namespace Microsoft.Extensions.Hosting
         /// <summary>Configures services used by the queue triggers used for campaign management system.</summary>
         /// <param name="hostBuilder">A program initialization abstraction.</param>
         /// <param name="configure">Configure action for <see cref="MessageOptions"/>.</param>
-        public static IHostBuilder ConfigureMessageFunctions(this IHostBuilder hostBuilder, Action<IConfiguration, IHostEnvironment, MessageOptions> configure = null) {
+        public static IHostBuilder ConfigureMessageFunctions(this IHostBuilder hostBuilder, Action<IConfiguration, IHostEnvironment, MessageOptions> configure = null) =>
             hostBuilder.ConfigureServices((hostBuilderContext, services) => {
-                var options = new MessageOptions {
-                    Services = services
-                };
-                configure?.Invoke(hostBuilderContext.Configuration, hostBuilderContext.HostingEnvironment, options);
-                services.AddCoreServices(options, hostBuilderContext.Configuration);
-                services.AddJobHandlerServices();
-            });
-            return hostBuilder;
-        }
-
-        /// <summary>Configures services used by the queue triggers used for campaign management system.</summary>
-        /// <param name="hostBuilder">A program initialization abstraction.</param>
-        /// <param name="configure">Configure action for <see cref="MessageOptions"/>.</param>
-        public static IHostBuilder ConfigureMessageFunctions(this IHostBuilder hostBuilder, Action<IConfiguration, MessageOptions> configure = null) {
-            hostBuilder.ConfigureServices((hostBuilderContext, services) => {
-                var options = new MessageOptions {
-                    Services = services
-                };
-                configure?.Invoke(hostBuilderContext.Configuration, options);
-                services.AddCoreServices(options, hostBuilderContext.Configuration);
-                services.AddJobHandlerServices();
-            });
-            return hostBuilder;
-        }
+                           var options = new MessageOptions {
+                               Services = services
+                           };
+                           configure?.Invoke(hostBuilderContext.Configuration, hostBuilderContext.HostingEnvironment, options);
+                           services.AddFunctionContextAccessor();
+                           services.AddCoreServices(options, hostBuilderContext.Configuration);
+                           services.AddJobHandlerServices();
+                           services.Configure<WorkerOptions>(options => {
+                               options.InputConverters.RegisterAt<MessagesInputConverter>(0);
+                           });
+                       });
 
         private static IServiceCollection AddCoreServices(this IServiceCollection services, MessageOptions options, IConfiguration configuration) {
             services.TryAddTransient<Func<string, IPushNotificationService>>(serviceProvider => key => new PushNotificationServiceNoop());

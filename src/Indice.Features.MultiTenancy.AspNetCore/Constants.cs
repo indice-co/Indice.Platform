@@ -1,4 +1,4 @@
-﻿namespace Indice.Features.Multitenancy.Core
+﻿namespace Indice.Features.Multitenancy.AspNetCore
 {
     /// <summary>Constants.</summary>
     internal class Constants

@@ -1,4 +1,5 @@
-﻿using Indice.Features.Multitenancy.AspNetCore.Strategies;
+﻿using Indice.Features.Multitenancy.AspNetCore;
+using Indice.Features.Multitenancy.AspNetCore.Strategies;
 using Indice.Features.Multitenancy.Core;
 using Microsoft.AspNetCore.Http;
 

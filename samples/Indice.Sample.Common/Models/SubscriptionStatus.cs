@@ -1,4 +1,4 @@
-﻿namespace Indice.MultitenantApi.Models
+﻿namespace Indice.Sample.Common.Models
 {
     public enum SubscriptionStatus
     {

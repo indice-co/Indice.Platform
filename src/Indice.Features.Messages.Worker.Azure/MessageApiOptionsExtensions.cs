@@ -28,7 +28,7 @@ namespace Indice.Features.Messages.Worker.Azure
                 options.EnvironmentName = eventDispatcherOptions.EnvironmentName;
                 options.QueueMessageEncoding = eventDispatcherOptions.QueueMessageEncoding;
                 options.TenantIdSelector = eventDispatcherOptions.TenantIdSelector;
-                options.UseCompression = false;
+                options.UseCompression = true;
             });
         }
     }

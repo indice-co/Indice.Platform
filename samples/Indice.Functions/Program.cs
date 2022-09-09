@@ -1,8 +1,14 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Indice.Features.Messages.Worker.Azure;
+using Indice.Features.Multitenancy.Core;
+using Indice.Sample.Common.Data;
+using Indice.Sample.Common.Models;
+using Indice.Sample.Common.Services;
+using Microsoft.Azure.Functions.Worker;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
 namespace Indice.Functions
@@ -17,15 +23,22 @@ namespace Indice.Functions
                 config.AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
                       .AddJsonFile($"appsettings.{context.HostingEnvironment.EnvironmentName}.json", optional: true, reloadOnChange: true);
             })
-            .ConfigureFunctionsWorkerDefaults(
-                builder => {
-                    builder.UseMiddleware<MessagesMiddleware>();
-                }, 
-                options => {
-                    options.InputConverters.RegisterAt<MessagesInputConverter>(0);
-                }
-            )
-            .ConfigureServices((context, services) => { })
+            .ConfigureServices((context, services) => {
+                services.AddDbContext<SaasDbContext>(builder => {
+                    if (context.HostingEnvironment.IsDevelopment()) {
+                        builder.EnableDetailedErrors();
+                        builder.EnableSensitiveDataLogging();
+                    }
+                    builder.UseSqlServer(context.Configuration.GetConnectionString("SaasDb"));
+                });
+                services.AddMultiTenancyCore<ExtendedTenant>()
+                        .FromQueueTriggerPayload()
+                        .WithStore<SaasTenantStore>();
+            })
+            .ConfigureFunctionsWorkerDefaults((context, builder) => {
+                builder.UseFunctionContextAccessor();
+                builder.UseMultiTenancy<ExtendedTenant>();
+            })
             .ConfigureMessageFunctions((configuration, hostingEnvironment, options) => {
                 options.DatabaseSchema = "cmp";
                 options.ConfigureDbContext = (serviceProvider, builder) => {
@@ -33,8 +46,8 @@ namespace Indice.Functions
                         builder.EnableDetailedErrors();
                         builder.EnableSensitiveDataLogging();
                     }
-                    //var tenant = serviceProvider.GetRequiredService<ITenantAccessor<ExtendedTenant>>().Tenant;
-                    builder.UseSqlServer(/*tenant?.ConnectionString ?? */configuration.GetConnectionString("MultitenantApiDb"));
+                    var tenant = serviceProvider.GetRequiredService<ITenantAccessor<Tenant>>().Tenant;
+                    builder.UseSqlServer(tenant?.ConnectionString ?? configuration.GetConnectionString("MultitenantApiDb"));
                 };
                 options.UseEventDispatcherAzure()
                        .UsePushNotificationServiceAzure()

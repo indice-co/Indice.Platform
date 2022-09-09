@@ -1,7 +1,7 @@
-﻿using Indice.MultitenantApi.Models;
+﻿using Indice.Sample.Common.Models;
 using Indice.Security;
 
-namespace Indice.MultitenantApi.Data.Models
+namespace Indice.Sample.Common.Data.Models
 {
     public class DbSubscription : ITenantWithAlias
     {

@@ -1,9 +1,9 @@
 ﻿using Indice.Features.Multitenancy.Core;
-using Indice.MultitenantApi.Data;
-using Indice.MultitenantApi.Models;
+using Indice.Sample.Common.Data;
+using Indice.Sample.Common.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace Indice.MultitenantApi.Services
+namespace Indice.Sample.Common.Services
 {
     public class SaasTenantStore : ITenantStore<ExtendedTenant>
     {

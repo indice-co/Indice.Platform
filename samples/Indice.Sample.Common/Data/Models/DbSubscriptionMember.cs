@@ -1,6 +1,6 @@
-﻿using Indice.MultitenantApi.Models;
+﻿using Indice.Sample.Common.Models;
 
-namespace Indice.MultitenantApi.Data.Models
+namespace Indice.Sample.Common.Data.Models
 {
     public class DbSubscriptionMember
     {

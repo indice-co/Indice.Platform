@@ -1,6 +1,6 @@
 ﻿using Indice.Features.Multitenancy.Core;
 
-namespace Indice.MultitenantApi.Models
+namespace Indice.Sample.Common.Models
 {
     public class ExtendedTenant : Tenant
     {

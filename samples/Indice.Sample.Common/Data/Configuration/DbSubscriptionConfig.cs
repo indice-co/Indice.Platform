@@ -1,9 +1,9 @@
 ﻿using Indice.Configuration;
-using Indice.MultitenantApi.Data.Models;
+using Indice.Sample.Common.Data.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace Indice.MultitenantApi.Data.Configuration
+namespace Indice.Sample.Common.Data.Configuration
 {
     public class DbSubscriptionConfig : IEntityTypeConfiguration<DbSubscription>
     {

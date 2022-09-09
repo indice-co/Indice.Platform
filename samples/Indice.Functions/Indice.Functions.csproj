@@ -13,6 +13,8 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\Indice.Features.Messages.Worker.Azure\Indice.Features.Messages.Worker.Azure.csproj" />
+    <ProjectReference Include="..\..\src\Indice.Features.Multitenancy.Worker.Azure\Indice.Features.Multitenancy.Worker.Azure.csproj" />
+    <ProjectReference Include="..\Indice.Sample.Common\Indice.Sample.Common.csproj" />
   </ItemGroup>
   <ItemGroup>
     <None Update="host.json">
