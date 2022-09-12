@@ -17,7 +17,7 @@ export class ApprovalButtonsComponent implements OnInit {
   @Input() enabled: boolean | undefined;
   /** conditionally show a warning modal */
   @Input() showWarningModal: boolean | undefined;
-  @Input() warningModalState: {} | undefined;
+  @Input() warningModalState: any | undefined;
   public buttonsDisabled: boolean | undefined = false;
   public approveButtonDisabled: boolean | undefined = false;
   public comment: string | undefined;
@@ -61,7 +61,7 @@ export class ApprovalButtonsComponent implements OnInit {
       const modal = this.modalService.show(CaseWarningModalComponent, {
         backdrop: 'static',
         keyboard: false,
-        initialState: this.warningModalState
+        initialState: { warningModalState: this.warningModalState }
       });
       modal.onHidden?.subscribe((m: any) => {
         if (m?.result !== undefined && m?.result === true) {
