@@ -45,12 +45,9 @@ namespace Indice.Features.Messages.Core.Handlers
                     });
                     contacts.AddRange(contactsResultSet.Items);
                 }
-                if (campaign.Recipients.Any()) {
-                    contacts.AddRange(campaign.Recipients.Select(x => x.ToContact()));
-                }
                 var eventDispatcher = GetEventDispatcher(KeyedServiceNames.EventDispatcherServiceKey);
                 foreach (var contact in contacts) {
-                    await eventDispatcher.RaiseEventAsync(ResolveMessageEvent.FromCampaignCreatedEvent(campaign, contact), builder => builder.WrapInEnvelope(false).WithQueueName(EventNames.ResolveMessage));
+                    await eventDispatcher.RaiseEventAsync(ResolveMessageEvent.FromCampaignCreatedEvent(campaign, contact), builder => builder.WrapInEnvelope().WithQueueName(EventNames.ResolveMessage));
                 }
             }
         }

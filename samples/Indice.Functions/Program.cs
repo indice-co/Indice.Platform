@@ -31,7 +31,7 @@ namespace Indice.Functions
                     }
                     builder.UseSqlServer(context.Configuration.GetConnectionString("SaasDb"));
                 });
-                services.AddMultiTenancyCore<ExtendedTenant>()
+                services.AddMultiTenancy<ExtendedTenant>()
                         .FromQueueTriggerPayload()
                         .WithStore<SaasTenantStore>();
             })
@@ -40,24 +40,30 @@ namespace Indice.Functions
                 builder.UseMultiTenancy<ExtendedTenant>();
             })
             .ConfigureMessageFunctions((configuration, hostingEnvironment, options) => {
-                options.DatabaseSchema = "cmp";
+                options.DatabaseSchema = "msg";
                 options.ConfigureDbContext = (serviceProvider, builder) => {
                     if (hostingEnvironment.IsDevelopment()) {
                         builder.EnableDetailedErrors();
                         builder.EnableSensitiveDataLogging();
                     }
-                    var tenant = serviceProvider.GetRequiredService<ITenantAccessor<Tenant>>().Tenant;
+                    var tenant = serviceProvider.GetRequiredService<ITenantAccessor<ExtendedTenant>>().Tenant;
                     builder.UseSqlServer(tenant?.ConnectionString ?? configuration.GetConnectionString("MultitenantApiDb"));
                 };
-                options.UseEventDispatcherAzure()
-                       .UsePushNotificationServiceAzure()
-                       .UseEmailServiceSparkpost(configuration)
-                       .UseSmsServiceYubotoOmni(configuration)
-                       .UseIdentityContactResolver(resolverOptions => {
-                           resolverOptions.BaseAddress = new Uri(configuration["IdentityServer:BaseAddress"]);
-                           resolverOptions.ClientId = configuration["IdentityServer:ClientId"];
-                           resolverOptions.ClientSecret = configuration["IdentityServer:ClientSecret"];
-                       });
+                options.UseEventDispatcherAzure((serviceProvider, eventDispatcherOptions) => {
+                    var tenant = serviceProvider.GetService<ITenantAccessor<ExtendedTenant>>().Tenant;
+                    eventDispatcherOptions.TenantIdSelector = () => tenant?.Identifier;
+                })
+                .UsePushNotificationServiceAzure((serviceProvider, pushNotificationsOptions) => {
+                    var tenant = serviceProvider.GetService<ITenantAccessor<ExtendedTenant>>().Tenant;
+                    pushNotificationsOptions.ConnectionString = tenant?.PushNotificationConnectionString;
+                })
+                .UseEmailServiceSparkpost(configuration)
+                .UseSmsServiceYubotoOmni(configuration)
+                .UseIdentityContactResolver(resolverOptions => {
+                    resolverOptions.BaseAddress = new Uri(configuration["IdentityServer:BaseAddress"]);
+                    resolverOptions.ClientId = configuration["IdentityServer:ClientId"];
+                    resolverOptions.ClientSecret = configuration["IdentityServer:ClientSecret"];
+                });
             })
             .UseEnvironment(Environment.GetEnvironmentVariable("ENVIRONMENT"));
             // Build host and run.

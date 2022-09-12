@@ -29,7 +29,6 @@ namespace Microsoft.Extensions.Hosting
                                Services = services
                            };
                            configure?.Invoke(hostBuilderContext.Configuration, hostBuilderContext.HostingEnvironment, options);
-                           services.AddFunctionContextAccessor();
                            services.AddCoreServices(options, hostBuilderContext.Configuration);
                            services.AddJobHandlerServices();
                            services.Configure<WorkerOptions>(options => {

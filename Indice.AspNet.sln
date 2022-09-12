@@ -87,13 +87,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Indice.Features.Cases.AspNe
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Indice.MultitenantApi", "samples\Indice.MultitenantApi\Indice.MultitenantApi.csproj", "{42C7F689-7836-460B-BFA8-96800F018CFF}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Indice.Features.Messages.AspNetCore.Multitenancy", "src\Indice.Features.Messages.AspNetCore.Multitenancy\Indice.Features.Messages.AspNetCore.Multitenancy.csproj", "{69CC7BEE-7190-41D0-9A51-B9F84C8ED3AD}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Indice.Features.Multitenancy.Core", "src\Indice.Features.Multitenancy.Core\Indice.Features.Multitenancy.Core.csproj", "{3F69A2FA-0DC2-45B7-AA46-6A99CE9CBD53}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Indice.Features.Multitenancy.Worker.Azure", "src\Indice.Features.Multitenancy.Worker.Azure\Indice.Features.Multitenancy.Worker.Azure.csproj", "{F29C9080-A97C-42C7-AB2B-F0D1EA431EC5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Indice.Features.Multitenancy.Worker.Azure", "src\Indice.Features.Multitenancy.Worker.Azure\Indice.Features.Multitenancy.Worker.Azure.csproj", "{F29C9080-A97C-42C7-AB2B-F0D1EA431EC5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Indice.Sample.Common", "samples\Indice.Sample.Common\Indice.Sample.Common.csproj", "{C36E547A-83BE-4320-8E3C-6734C31DB4FD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Indice.Sample.Common", "samples\Indice.Sample.Common\Indice.Sample.Common.csproj", "{C36E547A-83BE-4320-8E3C-6734C31DB4FD}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -241,10 +239,6 @@ Global
 		{42C7F689-7836-460B-BFA8-96800F018CFF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{42C7F689-7836-460B-BFA8-96800F018CFF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{42C7F689-7836-460B-BFA8-96800F018CFF}.Release|Any CPU.Build.0 = Release|Any CPU
-		{69CC7BEE-7190-41D0-9A51-B9F84C8ED3AD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{69CC7BEE-7190-41D0-9A51-B9F84C8ED3AD}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{69CC7BEE-7190-41D0-9A51-B9F84C8ED3AD}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{69CC7BEE-7190-41D0-9A51-B9F84C8ED3AD}.Release|Any CPU.Build.0 = Release|Any CPU
 		{3F69A2FA-0DC2-45B7-AA46-6A99CE9CBD53}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{3F69A2FA-0DC2-45B7-AA46-6A99CE9CBD53}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3F69A2FA-0DC2-45B7-AA46-6A99CE9CBD53}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -297,7 +291,6 @@ Global
 		{27B9E8A1-3CD2-4DCE-A9D9-76ACDBA5A63B} = {613A1373-9A47-42DD-A076-7F310D0440B9}
 		{1E076795-E6B5-4620-B006-6BF5AE9CD5EA} = {643960D9-48C5-4EA3-BED5-486CCC694947}
 		{42C7F689-7836-460B-BFA8-96800F018CFF} = {09C5F009-8096-498D-A578-511456E53E65}
-		{69CC7BEE-7190-41D0-9A51-B9F84C8ED3AD} = {643960D9-48C5-4EA3-BED5-486CCC694947}
 		{3F69A2FA-0DC2-45B7-AA46-6A99CE9CBD53} = {643960D9-48C5-4EA3-BED5-486CCC694947}
 		{F29C9080-A97C-42C7-AB2B-F0D1EA431EC5} = {643960D9-48C5-4EA3-BED5-486CCC694947}
 		{C36E547A-83BE-4320-8E3C-6734C31DB4FD} = {09C5F009-8096-498D-A578-511456E53E65}

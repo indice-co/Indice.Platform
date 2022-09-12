@@ -5,6 +5,7 @@ using Indice.Features.Messages.Core.Events;
 using Indice.Features.Messages.Core.Handlers;
 using Indice.Serialization;
 using Indice.Services;
+using Indice.Types;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
 
@@ -32,17 +33,18 @@ namespace Indice.Features.Messages.Worker.Azure
         ) {
             LogExecution(functionContext, EventNames.CampaignCreated);
             var originalMessage = await CompressionUtils.Decompress(message);
-            var @event = JsonSerializer.Deserialize<CampaignCreatedEvent>(originalMessage, JsonSerializerOptions);
-            var campaignStart = @event.ActivePeriod?.From;
+            var envelope = JsonSerializer.Deserialize<Envelope<CampaignCreatedEvent>>(originalMessage, JsonSerializerOptions);
+            var payload = envelope.Payload;
+            var campaignStart = payload.ActivePeriod?.From;
             // Azure queues can store a queue message with a visibility window up to 7 days. So if a campaign must start (appear on queue) after more than 7 days then we should check the campaign start date and re-enqueue the message.
             if (campaignStart > DateTimeOffset.UtcNow) {
                 var nextExecutionTimeSpan = campaignStart.Value - DateTimeOffset.UtcNow;
                 var visibilityWindow = nextExecutionTimeSpan > TimeSpan.FromDays(5) ? TimeSpan.FromDays(5) : nextExecutionTimeSpan;
                 var eventDispatcher = GetEventDispatcher(KeyedServiceNames.EventDispatcherServiceKey);
-                await GetEventDispatcher(KeyedServiceNames.EventDispatcherServiceKey).RaiseEventAsync(@event, options => options.WrapInEnvelope(false).Delay(visibilityWindow).WithQueueName(EventNames.CampaignCreated));
+                await GetEventDispatcher(KeyedServiceNames.EventDispatcherServiceKey).RaiseEventAsync(envelope, options => options.WrapInEnvelope(false).Delay(visibilityWindow).WithQueueName(EventNames.CampaignCreated));
                 return;
             }
-            await CampaignJobHandlerFactory.CreateFor<CampaignCreatedEvent>().Process(@event);
+            await CampaignJobHandlerFactory.CreateFor<CampaignCreatedEvent>().Process(payload);
         }
 
         [Function(EventNames.ResolveMessage)]
@@ -52,8 +54,9 @@ namespace Indice.Features.Messages.Worker.Azure
         ) {
             LogExecution(functionContext, EventNames.ResolveMessage);
             var originalMessage = await CompressionUtils.Decompress(message);
-            var @event = JsonSerializer.Deserialize<ResolveMessageEvent>(originalMessage, JsonSerializerOptions);
-            await CampaignJobHandlerFactory.CreateFor<ResolveMessageEvent>().Process(@event);
+            var envelope = JsonSerializer.Deserialize<Envelope<ResolveMessageEvent>>(originalMessage, JsonSerializerOptions);
+            var payload = envelope.Payload;
+            await CampaignJobHandlerFactory.CreateFor<ResolveMessageEvent>().Process(payload);
         }
 
         [Function(EventNames.SendPushNotification)]
@@ -63,8 +66,9 @@ namespace Indice.Features.Messages.Worker.Azure
         ) {
             LogExecution(functionContext, EventNames.SendPushNotification);
             var originalMessage = await CompressionUtils.Decompress(message);
-            var @event = JsonSerializer.Deserialize<SendPushNotificationEvent>(originalMessage, JsonSerializerOptions);
-            await CampaignJobHandlerFactory.CreateFor<SendPushNotificationEvent>().Process(@event);
+            var envelope = JsonSerializer.Deserialize<Envelope<SendPushNotificationEvent>>(originalMessage, JsonSerializerOptions);
+            var payload = envelope.Payload;
+            await CampaignJobHandlerFactory.CreateFor<SendPushNotificationEvent>().Process(payload);
         }
 
         [Function(EventNames.SendEmail)]
@@ -74,8 +78,9 @@ namespace Indice.Features.Messages.Worker.Azure
         ) {
             LogExecution(functionContext, EventNames.SendEmail);
             var originalMessage = await CompressionUtils.Decompress(message);
-            var @event = JsonSerializer.Deserialize<SendEmailEvent>(originalMessage, JsonSerializerOptions);
-            await CampaignJobHandlerFactory.CreateFor<SendEmailEvent>().Process(@event);
+            var envelope = JsonSerializer.Deserialize<Envelope<SendEmailEvent>>(originalMessage, JsonSerializerOptions);
+            var payload = envelope.Payload;
+            await CampaignJobHandlerFactory.CreateFor<SendEmailEvent>().Process(payload);
         }
 
         [Function(EventNames.SendSms)]
@@ -85,8 +90,9 @@ namespace Indice.Features.Messages.Worker.Azure
         ) {
             LogExecution(functionContext, EventNames.SendSms);
             var originalMessage = await CompressionUtils.Decompress(message);
-            var @event = JsonSerializer.Deserialize<SendSmsEvent>(originalMessage, JsonSerializerOptions);
-            await CampaignJobHandlerFactory.CreateFor<SendSmsEvent>().Process(@event);
+            var envelope = JsonSerializer.Deserialize<Envelope<SendSmsEvent>>(originalMessage, JsonSerializerOptions);
+            var payload = envelope.Payload;
+            await CampaignJobHandlerFactory.CreateFor<SendSmsEvent>().Process(payload);
         }
 
         private static void LogExecution(FunctionContext functionContext, string eventName) {

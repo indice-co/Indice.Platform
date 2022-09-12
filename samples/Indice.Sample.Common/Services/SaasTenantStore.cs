@@ -13,14 +13,17 @@ namespace Indice.Sample.Common.Services
             _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
         }
 
-        public async Task<int?> GetAccessLevelAsync(Guid tenantId, string userId) => 
-            await _dbContext.SubscriptionMembers
-                            .Where(member => member.MemberId == Guid.Parse(userId) && member.SubscriptionId == tenantId)
-                            .Select(member => (int?)member.AccessLevel)
-                            .SingleOrDefaultAsync();
+        public async Task<int?> GetAccessLevelAsync(Guid tenantId, string userId) {
+            var accessLevel = await _dbContext
+                .SubscriptionMembers
+                .Where(member => member.MemberId == Guid.Parse(userId) && member.SubscriptionId == tenantId)
+                .Select(member => (int?)member.AccessLevel)
+                .SingleOrDefaultAsync();
+            return accessLevel;
+        }
 
         public async Task<ExtendedTenant> GetTenantAsync(string identifier) {
-            return await _dbContext
+            var tenant = await _dbContext
                 .Subscriptions
                 .Where(subscription => subscription.Alias == identifier.ToLowerInvariant() && subscription.Status == SubscriptionStatus.Enabled)
                 .Select(subscription => new ExtendedTenant {
@@ -30,6 +33,7 @@ namespace Indice.Sample.Common.Services
                     PushNotificationConnectionString = subscription.PushNotificationsConnectionString
                 })
                 .SingleOrDefaultAsync();
+            return tenant;
         }
     }
 }

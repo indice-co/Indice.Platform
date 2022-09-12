@@ -1,4 +1,5 @@
 ﻿using Indice.Features.Multitenancy.Worker.Azure;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
@@ -8,7 +9,7 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <summary>Adds the default implementation of <see cref="IFunctionContextAccessor"/>.</summary>
         /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
         public static IServiceCollection AddFunctionContextAccessor(this IServiceCollection services) {
-            services.AddSingleton<IFunctionContextAccessor, FunctionContextAccessor>();
+            services.TryAddSingleton<IFunctionContextAccessor, FunctionContextAccessor>();
             return services;
         }
     }

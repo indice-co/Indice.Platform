@@ -49,7 +49,7 @@ namespace Indice.MultitenantApi
                         options.UseFilesAzure();
                         options.UseEventDispatcherAzure((serviceProvider, eventDispatcherOptions) => {
                             var tenant = serviceProvider.GetRequiredService<ITenantAccessor<ExtendedTenant>>().Tenant;
-                            eventDispatcherOptions.TenantIdSelector = () => tenant?.Id;
+                            eventDispatcherOptions.TenantIdSelector = () => tenant?.Identifier;
                         });
                         options.UseIdentityContactResolver(resolverOptions => {
                             resolverOptions.BaseAddress = new Uri(configuration["IdentityServer:BaseAddress"]);

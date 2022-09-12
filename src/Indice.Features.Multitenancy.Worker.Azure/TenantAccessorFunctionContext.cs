@@ -4,7 +4,7 @@ using Microsoft.Azure.Functions.Worker;
 
 namespace Indice.Features.Multitenancy.Worker.Azure
 {
-    internal class TenantAccessorFunctionContext<TTenant> : ITenantAccessor<TTenant> where TTenant : Tenant
+    public class TenantAccessorFunctionContext<TTenant> : ITenantAccessor<TTenant> where TTenant : Tenant
     {
         private readonly IFunctionContextAccessor _functionContextAccessor;
 

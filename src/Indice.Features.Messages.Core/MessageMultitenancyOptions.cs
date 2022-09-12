@@ -1,4 +1,4 @@
-﻿namespace Indice.Features.Messages.AspNetCore.Multitenancy
+﻿namespace Indice.Features.Messages.Core
 {
     /// <summary>Options used to configure the Messages API feature.</summary>
     public class MessageMultitenancyOptions

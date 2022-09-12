@@ -16,7 +16,7 @@ namespace Indice.Features.Messages.Core
         /// <summary>A function that retrieves the current thread user from the current operation context.</summary>
         public Func<ClaimsPrincipal> ClaimsPrincipalSelector { get; set; }
         /// <summary>A function that retrieves the current tenant id by any means possible. This is optional.</summary>
-        public Func<Guid?> TenantIdSelector { get; set; }
+        public Func<string> TenantIdSelector { get; set; }
         /// <summary>Determines how <see cref="Azure.Storage.Queues.Models.QueueMessage.Body"/> is represented in HTTP requests and responses.</summary>
         public QueueMessageEncoding QueueMessageEncoding { get; set; } = QueueMessageEncoding.Base64;
     }

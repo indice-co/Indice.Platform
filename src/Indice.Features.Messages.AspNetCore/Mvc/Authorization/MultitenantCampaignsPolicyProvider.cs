@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
-namespace Indice.Features.Messages.AspNetCore.Multitenancy.Authorization
+namespace Indice.Features.Messages.AspNetCore.Mvc.Authorization
 {
     internal class MultitenantCampaignsPolicyProvider : IAuthorizationPolicyProvider
     {
