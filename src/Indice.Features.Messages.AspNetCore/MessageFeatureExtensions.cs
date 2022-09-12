@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Net.Mime;
+using System.Security.Claims;
 using FluentValidation.AspNetCore;
 using Indice.AspNetCore.Mvc.ApplicationModels;
 using Indice.AspNetCore.Swagger;
@@ -21,6 +22,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Hosting;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace Microsoft.Extensions.DependencyInjection
@@ -195,6 +197,28 @@ namespace Microsoft.Extensions.DependencyInjection
         public static MessageEndpointOptions UseContactResolver<TContactResolver>(this MessageEndpointOptions options) where TContactResolver : IContactResolver {
             UseContactResolverInternal<TContactResolver>(options);
             return options;
+        }
+
+        /// <summary>Adds <see cref="IEventDispatcher"/> using Azure Storage as a queuing mechanism.</summary>
+        /// <param name="options">Options used to configure the Campaigns API feature.</param>
+        /// <param name="configure">Configure the available options. Null to use defaults.</param>
+        public static void UseEventDispatcherAzure(this MessageEndpointOptions options, Action<IServiceProvider, MessageEventDispatcherAzureOptions> configure = null) {
+            options.Services.AddEventDispatcherAzure(KeyedServiceNames.EventDispatcherServiceKey, (serviceProvider, options) => {
+                var eventDispatcherOptions = new MessageEventDispatcherAzureOptions {
+                    ConnectionString = serviceProvider.GetRequiredService<IConfiguration>().GetConnectionString(EventDispatcherAzure.CONNECTION_STRING_NAME),
+                    Enabled = true,
+                    EnvironmentName = serviceProvider.GetRequiredService<IHostEnvironment>().EnvironmentName,
+                    ClaimsPrincipalSelector = ClaimsPrincipal.ClaimsPrincipalSelector ?? (() => ClaimsPrincipal.Current)
+                };
+                configure?.Invoke(serviceProvider, eventDispatcherOptions);
+                options.ClaimsPrincipalSelector = eventDispatcherOptions.ClaimsPrincipalSelector;
+                options.ConnectionString = eventDispatcherOptions.ConnectionString;
+                options.Enabled = eventDispatcherOptions.Enabled;
+                options.EnvironmentName = eventDispatcherOptions.EnvironmentName;
+                options.QueueMessageEncoding = eventDispatcherOptions.QueueMessageEncoding;
+                options.TenantIdSelector = eventDispatcherOptions.TenantIdSelector;
+                options.UseCompression = true;
+            });
         }
 
         /// <summary>Configures that campaign contact information will be resolved by contacting the Identity Server instance.</summary>

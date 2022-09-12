@@ -8,7 +8,6 @@ using Indice.AspNetCore.Middleware;
 using Indice.AspNetCore.Swagger;
 using Indice.Configuration;
 using Indice.Features.Messages.Core;
-using Indice.Features.Messages.Worker.Azure;
 using Indice.Features.Multitenancy.Core;
 using Indice.MultitenantApi.Swagger.Filters;
 using Indice.Sample.Common.Data;

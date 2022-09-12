@@ -15,7 +15,6 @@
     <ProjectReference Include="..\..\src\Indice.Extensions.Configuration.Database\Indice.Extensions.Configuration.Database.csproj" />
     <ProjectReference Include="..\..\src\Indice.Features.Messages.AspNetCore\Indice.Features.Messages.AspNetCore.csproj" />
     <ProjectReference Include="..\..\src\Indice.Features.Messages.UI\Indice.Features.Messages.UI.csproj" />
-    <ProjectReference Include="..\..\src\Indice.Features.Messages.Worker.Azure\Indice.Features.Messages.Worker.Azure.csproj" />
     <ProjectReference Include="..\..\src\Indice.Features.Messages.Worker\Indice.Features.Messages.Worker.csproj" />
   </ItemGroup>
   <ItemGroup>
