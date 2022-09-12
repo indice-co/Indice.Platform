@@ -18,7 +18,7 @@ namespace Indice.Features.Messages.Worker.Handlers
         public MessageJobHandlerFactory MessageJobHandlerFactory { get; }
 
         public async Task Process(SendSmsEvent sms) {
-            var handler = MessageJobHandlerFactory.Create<SendSmsEvent>();
+            var handler = MessageJobHandlerFactory.CreateFor<SendSmsEvent>();
             await handler.Process(sms);
         }
     }

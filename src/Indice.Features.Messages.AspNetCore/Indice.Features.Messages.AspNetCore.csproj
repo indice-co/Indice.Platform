@@ -2,7 +2,7 @@
   <PropertyGroup>
     <Authors>Constantinos Leftheris, Georgios Manoltzas</Authors>
     <Copyright>Copyright (c) 2021 Indice</Copyright>
-    <Description>Indice.AspNetCore.Features.Campaigns Class Library</Description>
+    <Description>Indice.Features.Messages.AspNetCore Class Library</Description>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <LangVersion>Latest</LangVersion>
     <TargetFrameworks>netcoreapp3.1;net5.0;net6.0</TargetFrameworks>
@@ -42,5 +42,6 @@
   <ItemGroup>
     <ProjectReference Include="..\Indice.Features.Messages.Core\Indice.Features.Messages.Core.csproj" />
     <ProjectReference Include="..\Indice.AspNetCore\Indice.AspNetCore.csproj" />
+    <ProjectReference Include="..\Indice.Features.Multitenancy.AspNetCore\Indice.Features.Multitenancy.AspNetCore.csproj" />
   </ItemGroup>
 </Project>

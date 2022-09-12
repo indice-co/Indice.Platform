@@ -100,11 +100,7 @@ namespace Indice.Features.Messages.AspNetCore.Controllers
         [ProducesResponseType(typeof(void), StatusCodes.Status204NoContent)]
         public async Task<IActionResult> PublishCampaign([FromRoute] Guid campaignId) {
             var publishedCampaign = await CampaignService.Publish(campaignId);
-            // Dispatch event that the campaign was created.
-            await EventDispatcher.RaiseEventAsync(
-                payload: CampaignCreatedEvent.FromCampaign(publishedCampaign),
-                configure: options => options.WrapInEnvelope(false).WithQueueName(EventNames.CampaignCreated)
-            );
+            await EventDispatcher.RaiseEventAsync(CampaignCreatedEvent.FromCampaign(publishedCampaign), builder => builder.WrapInEnvelope().WithQueueName(EventNames.CampaignCreated));
             return NoContent();
         }
 

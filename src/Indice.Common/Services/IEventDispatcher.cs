@@ -4,14 +4,10 @@ using System.Threading.Tasks;
 
 namespace Indice.Services
 {
-    /// <summary>
-    /// Provides methods that allow application components to communicate with each other by dispatching events.
-    /// </summary>
+    /// <summary>Provides methods that allow application components to communicate with each other by dispatching events.</summary>
     public interface IEventDispatcher
     {
-        /// <summary>
-        /// Dispatches an event of the specified type.
-        /// </summary>
+        /// <summary>Dispatches an event of the specified type.</summary>
         /// <typeparam name="TEvent">The concrete type of the payload to send.</typeparam>
         /// <param name="payload">The actual payload data to send.</param>
         /// <param name="actingPrincipal">A <see cref="ClaimsPrincipal"/> instance that contains information about the entity that triggered the event.</param>
@@ -22,14 +18,10 @@ namespace Indice.Services
         Task RaiseEventAsync<TEvent>(TEvent payload, ClaimsPrincipal actingPrincipal = null, TimeSpan? visibilityTimeout = null, bool wrap = true, string queueName = null, bool prependEnvironmentInQueueName = true) where TEvent : class;
     }
 
-    /// <summary>
-    /// Extension methods on <see cref="IEventDispatcher"/>.
-    /// </summary>
+    /// <summary>Extension methods on <see cref="IEventDispatcher"/>.</summary>
     public static class IEventDispatcherExtensions
     {
-        /// <summary>
-        /// Dispatches an event of the specified type.
-        /// </summary>
+        /// <summary>Dispatches an event of the specified type.</summary>
         /// <typeparam name="TEvent">The concrete type of the payload to send.</typeparam>
         /// <param name="eventDispatcher">Provides methods that allow application components to communicate with each other by dispatching events.</param>
         /// <param name="payload">The actual payload data to send.</param>
@@ -47,83 +39,53 @@ namespace Indice.Services
     /// </summary>
     public class EventDispatcherRaiseOptions
     {
-        /// <summary>
-        /// A <see cref="System.Security.Claims.ClaimsPrincipal"/> instance that contains information about the entity that triggered the event.
-        /// </summary>
+        /// <summary>A <see cref="System.Security.Claims.ClaimsPrincipal"/> instance that contains information about the entity that triggered the event.</summary>
         public ClaimsPrincipal ClaimsPrincipal { get; set; }
-        /// <summary>
-        /// Delays the sending of payload to the queue for the specified amount of time. The maximum delay can reach up to 7 days.
-        /// </summary>
+        /// <summary>Delays the sending of payload to the queue for the specified amount of time. The maximum delay can reach up to 7 days.</summary>
         public TimeSpan? VisibilityTimeout { get; set; }
-        /// <summary>
-        /// Wrap around an envelope object. Defaults to true.
-        /// </summary>
+        /// <summary>Wrap around an envelope object. Defaults to true.</summary>
         public bool Wrap { get; set; } = true;
-        /// <summary>
-        /// The name of the queue. If not specified, the name of event in kebab case is used.
-        /// </summary>
+        /// <summary>The name of the queue. If not specified, the name of event in kebab case is used.</summary>
         public string QueueName { get; set; }
-        /// <summary>
-        /// When set to true, it prepends the queue name with the environment name. For example <b>production-my-queue-name</b>. Defaults to true.
-        /// </summary>
+        /// <summary>When set to true, it prepends the queue name with the environment name. For example <b>production-my-queue-name</b>. Defaults to true.</summary>
         public bool PrependEnvironmentInQueueName { get; set; } = true;
     }
 
-    /// <summary>
-    /// An abstraction for implementing a builder for <see cref="EventDispatcherRaiseOptions"/>.
-    /// </summary>
+    /// <summary>An abstraction for implementing a builder for <see cref="EventDispatcherRaiseOptions"/>.</summary>
     public interface IEventDispatcherRaiseOptionsBuilder
     {
-        /// <summary>
-        /// Defines a <see cref="ClaimsPrincipal"/> instance that contains information about the entity that triggered the event.
-        /// </summary>
+        /// <summary>Defines a <see cref="ClaimsPrincipal"/> instance that contains information about the entity that triggered the event.</summary>
         /// <param name="claimsPrincipal">The principal.</param>
         /// <returns>The builder to construct the <see cref="EventDispatcherRaiseOptions"/> instance.</returns>
         IEventDispatcherRaiseOptionsBuilder UsingPrincipal(ClaimsPrincipal claimsPrincipal);
-        /// <summary>
-        /// Defines a delay when sending the payload to the queue. The maximum delay can reach up to 7 days.
-        /// </summary>
+        /// <summary>Defines a delay when sending the payload to the queue. The maximum delay can reach up to 7 days.</summary>
         /// <param name="delay">The delay <see cref="TimeSpan"/>.</param>
         /// <returns>The builder to construct the <see cref="EventDispatcherRaiseOptions"/> instance.</returns>
         IEventDispatcherRaiseOptionsBuilder Delay(TimeSpan delay);
-        /// <summary>
-        /// Defines a delay when sending the payload to the queue.
-        /// </summary>
+        /// <summary>Defines a delay when sending the payload to the queue.</summary>
         /// <param name="dateTime">The <see cref="DateTime"/> value that the event is dispatched.</param>
         /// <returns>The builder to construct the <see cref="EventDispatcherRaiseOptions"/> instance.</returns>
         IEventDispatcherRaiseOptionsBuilder At(DateTime dateTime);
-        /// <summary>
-        /// Defines whether to wrap payload around an envelope object or not. Defaults to true.
-        /// </summary>
+        /// <summary>Defines whether to wrap payload around an envelope object or not. Defaults to true.</summary>
         /// <param name="wrap">Wrap.</param>
         /// <returns>The builder to construct the <see cref="EventDispatcherRaiseOptions"/> instance.</returns>
         IEventDispatcherRaiseOptionsBuilder WrapInEnvelope(bool wrap = true);
-        /// <summary>
-        /// Defines the name of the queue. If not specified, the name of event in kebab case is used.
-        /// </summary>
+        /// <summary>Defines the name of the queue. If not specified, the name of event in kebab case is used.</summary>
         /// <param name="queueName">The queue name.</param>
         /// <returns>The builder to construct the <see cref="EventDispatcherRaiseOptions"/> instance.</returns>
         IEventDispatcherRaiseOptionsBuilder WithQueueName(string queueName);
-        /// <summary>
-        /// Defines whether prepends the queue name with the environment name or not. For example <b>production-my-queue-name</b>. Defaults to true.
-        /// </summary>
+        /// <summary>Defines whether prepends the queue name with the environment name or not. For example <b>production-my-queue-name</b>. Defaults to true.</summary>
         /// <param name="prepend">Prepend.</param>
         /// <returns>The builder to construct the <see cref="EventDispatcherRaiseOptions"/> instance.</returns>
         IEventDispatcherRaiseOptionsBuilder PrependEnvironmentInQueueName(bool prepend = true);
-        /// <summary>
-        /// Creates the actual instance of <see cref="EventDispatcherRaiseOptions"/>.
-        /// </summary>
+        /// <summary>Creates the actual instance of <see cref="EventDispatcherRaiseOptions"/>.</summary>
         EventDispatcherRaiseOptions Build();
     }
 
-    /// <summary>
-    /// A implementation for <see cref="IEventDispatcherRaiseOptionsBuilder"/>.
-    /// </summary>
+    /// <summary>An implementation for <see cref="IEventDispatcherRaiseOptionsBuilder"/>.</summary>
     public class EventDispatcherRaiseOptionsBuilder : IEventDispatcherRaiseOptionsBuilder
     {
-        /// <summary>
-        /// The <see cref="EventDispatcherRaiseOptions"/> instance that the builder creates.
-        /// </summary>
+        /// <summary>The <see cref="EventDispatcherRaiseOptions"/> instance that the builder creates.</summary>
         protected EventDispatcherRaiseOptions Options = new();
 
         /// <inheritdoc />

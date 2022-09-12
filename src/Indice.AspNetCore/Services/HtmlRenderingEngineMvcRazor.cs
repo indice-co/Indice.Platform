@@ -17,9 +17,7 @@ using Indice.Extensions;
 
 namespace Indice.Services
 {
-    /// <summary>
-    /// Rendering engine. This one is using ASP.NET Core MVC Razor native engine. This cannot work without MVC.
-    /// </summary>
+    /// <summary>Rendering engine. This one is using ASP.NET Core MVC Razor native engine. This cannot work without MVC.</summary>
     public class HtmlRenderingEngineMvcRazor : IHtmlRenderingEngine
     {
         private readonly IRazorViewEngine _viewEngine;
@@ -27,9 +25,7 @@ namespace Indice.Services
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IServiceProvider _serviceProvider;
 
-        /// <summary>
-        /// Creates a new instance of <see cref="HtmlRenderingEngineMvcRazor"/>.
-        /// </summary>
+        /// <summary>Creates a new instance of <see cref="HtmlRenderingEngineMvcRazor"/>.</summary>
         /// <param name="viewEngine">Represents an <see cref="IViewEngine"/> that delegates to one of a collection of view engines.</param>
         /// <param name="tempDataProvider">Defines the contract for temporary-data providers that store data that is viewed on the next request.</param>
         /// <param name="httpContextAccessor">Used to access the <see cref="HttpContext"/> through the <see cref="IHttpContextAccessor"/> interface and its default implementation <see cref="HttpContextAccessor"/>.</param>
@@ -50,11 +46,12 @@ namespace Indice.Services
         public async Task<string> RenderAsync(string template, Type dataType, object data) {
             var html = string.Empty;
             var viewName = template;
-            var viewDataDictionary = new ViewDataDictionary(new EmptyModelMetadataProvider(), new ModelStateDictionary()) { };
-            viewDataDictionary.Model = data switch {
-                string text => text,
-                null => null,
-                _ => dataType.IsAnonymousType() ? ToExpandoObject(dataType, data) : data
+            var viewDataDictionary = new ViewDataDictionary(new EmptyModelMetadataProvider(), new ModelStateDictionary()) {
+                Model = data switch {
+                    string text => text,
+                    null => null,
+                    _ => dataType.IsAnonymousType() ? ToExpandoObject(dataType, data) : data
+                }
             };
             var actionContext = GetActionContext();
             var tempDataDictionary = new TempDataDictionary(actionContext.HttpContext, _tempDataProvider);
@@ -82,11 +79,11 @@ namespace Indice.Services
         }
 
         private static ExpandoObject ToExpandoObject(Type dataType, object value) {
-            var obj = new ExpandoObject() as IDictionary<string, object>;
+            var dictionary = new ExpandoObject() as IDictionary<string, object>;
             foreach (var property in dataType.GetProperties(BindingFlags.Public | BindingFlags.Instance)) {
-                obj.Add(property.Name, property.GetValue(value, null));
+                dictionary.Add(property.Name, property.GetValue(value, null));
             }
-            return obj as ExpandoObject;
+            return dictionary as ExpandoObject;
         }
     }
 }

@@ -41,6 +41,8 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Indice.Features.Messages.Core\Indice.Features.Messages.Core.csproj" />
+    <ProjectReference Include="..\Indice.Features.Multitenancy.Core\Indice.Features.Multitenancy.Core.csproj" />
+    <ProjectReference Include="..\Indice.Features.Multitenancy.Worker.Azure\Indice.Features.Multitenancy.Worker.Azure.csproj" />
     <ProjectReference Include="..\Indice.Services\Indice.Services.csproj" />
   </ItemGroup>
 </Project>

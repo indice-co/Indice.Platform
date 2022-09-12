@@ -8,14 +8,10 @@ using Microsoft.Extensions.Options;
 
 namespace Indice.Features.Messages.Core.Services
 {
-    /// <summary>
-    /// An implementation of <see cref="ICampaignAttachmentService"/> for Entity Framework Core.
-    /// </summary>
+    /// <summary>An implementation of <see cref="ICampaignAttachmentService"/> for Entity Framework Core.</summary>
     public class CampaignAttachmentService : ICampaignAttachmentService
     {
-        /// <summary>
-        /// Creates a new instance of <see cref="CampaignService"/>.
-        /// </summary>
+        /// <summary>Creates a new instance of <see cref="CampaignService"/>.</summary>
         /// <param name="getFileService">File storage abstraction.</param>
         /// <param name="dbContext">The <see cref="Microsoft.EntityFrameworkCore.DbContext"/> for Campaigns API feature.</param>
         /// <param name="campaignManagementOptions">Options used to configure the Campaigns management API feature.</param>

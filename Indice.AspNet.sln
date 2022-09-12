@@ -43,7 +43,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Indice.Hosting", "src\Indic
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Indice.AspNetCore.Identity.AdminUI", "src\Indice.AspNetCore.Identity.AdminUI\Indice.AspNetCore.Identity.AdminUI.csproj", "{6C5B31E5-3CAE-4B07-B7EA-5C08AC46D486}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Indice.AspNetCore.MultiTenancy", "src\Indice.AspNetCore.MultiTenancy\Indice.AspNetCore.MultiTenancy.csproj", "{2385A145-8440-4B25-9029-B01576177D2D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Indice.Features.Multitenancy.AspNetCore", "src\Indice.Features.Multitenancy.AspNetCore\Indice.Features.Multitenancy.AspNetCore.csproj", "{2385A145-8440-4B25-9029-B01576177D2D}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Indice.AspNetCore.Identity.Tests", "test\Indice.AspNetCore.Identity.Tests\Indice.AspNetCore.Identity.Tests.csproj", "{5522D3E7-2AF3-4C6D-91D5-2BDA2F860F38}"
 EndProject
@@ -79,11 +79,19 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Indice.AspNetCore.Views", "
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Indice.Features.Messages.Tests", "test\Indice.Features.Messages.Tests\Indice.Features.Messages.Tests.csproj", "{C30917BF-E72B-4BED-8782-3CE246D556ED}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Indice.Features.Cases.UI", "src\Indice.Features.Cases.UI\Indice.Features.Cases.UI.csproj", "{219BD076-9F23-4926-ADC9-8076E5D7A487}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Indice.Features.Cases.UI", "src\Indice.Features.Cases.UI\Indice.Features.Cases.UI.csproj", "{219BD076-9F23-4926-ADC9-8076E5D7A487}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Indice.Features.Cases.Tests", "test\Indice.Features.Cases.AspNetCore.Tests\Indice.Features.Cases.Tests.csproj", "{27B9E8A1-3CD2-4DCE-A9D9-76ACDBA5A63B}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Indice.Features.Cases.AspNetCore", "src\Indice.Features.Cases.AspNetCore\Indice.Features.Cases.AspNetCore.csproj", "{1E076795-E6B5-4620-B006-6BF5AE9CD5EA}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Indice.MultitenantApi", "samples\Indice.MultitenantApi\Indice.MultitenantApi.csproj", "{42C7F689-7836-460B-BFA8-96800F018CFF}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Indice.Features.Multitenancy.Core", "src\Indice.Features.Multitenancy.Core\Indice.Features.Multitenancy.Core.csproj", "{3F69A2FA-0DC2-45B7-AA46-6A99CE9CBD53}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Indice.Features.Multitenancy.Worker.Azure", "src\Indice.Features.Multitenancy.Worker.Azure\Indice.Features.Multitenancy.Worker.Azure.csproj", "{F29C9080-A97C-42C7-AB2B-F0D1EA431EC5}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Indice.Sample.Common", "samples\Indice.Sample.Common\Indice.Sample.Common.csproj", "{C36E547A-83BE-4320-8E3C-6734C31DB4FD}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -227,6 +235,22 @@ Global
 		{1E076795-E6B5-4620-B006-6BF5AE9CD5EA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1E076795-E6B5-4620-B006-6BF5AE9CD5EA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1E076795-E6B5-4620-B006-6BF5AE9CD5EA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{42C7F689-7836-460B-BFA8-96800F018CFF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{42C7F689-7836-460B-BFA8-96800F018CFF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{42C7F689-7836-460B-BFA8-96800F018CFF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{42C7F689-7836-460B-BFA8-96800F018CFF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3F69A2FA-0DC2-45B7-AA46-6A99CE9CBD53}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3F69A2FA-0DC2-45B7-AA46-6A99CE9CBD53}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3F69A2FA-0DC2-45B7-AA46-6A99CE9CBD53}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3F69A2FA-0DC2-45B7-AA46-6A99CE9CBD53}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F29C9080-A97C-42C7-AB2B-F0D1EA431EC5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F29C9080-A97C-42C7-AB2B-F0D1EA431EC5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F29C9080-A97C-42C7-AB2B-F0D1EA431EC5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F29C9080-A97C-42C7-AB2B-F0D1EA431EC5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C36E547A-83BE-4320-8E3C-6734C31DB4FD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C36E547A-83BE-4320-8E3C-6734C31DB4FD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C36E547A-83BE-4320-8E3C-6734C31DB4FD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C36E547A-83BE-4320-8E3C-6734C31DB4FD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -266,6 +290,10 @@ Global
 		{219BD076-9F23-4926-ADC9-8076E5D7A487} = {643960D9-48C5-4EA3-BED5-486CCC694947}
 		{27B9E8A1-3CD2-4DCE-A9D9-76ACDBA5A63B} = {613A1373-9A47-42DD-A076-7F310D0440B9}
 		{1E076795-E6B5-4620-B006-6BF5AE9CD5EA} = {643960D9-48C5-4EA3-BED5-486CCC694947}
+		{42C7F689-7836-460B-BFA8-96800F018CFF} = {09C5F009-8096-498D-A578-511456E53E65}
+		{3F69A2FA-0DC2-45B7-AA46-6A99CE9CBD53} = {643960D9-48C5-4EA3-BED5-486CCC694947}
+		{F29C9080-A97C-42C7-AB2B-F0D1EA431EC5} = {643960D9-48C5-4EA3-BED5-486CCC694947}
+		{C36E547A-83BE-4320-8E3C-6734C31DB4FD} = {09C5F009-8096-498D-A578-511456E53E65}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {C2B9151E-8A85-444E-93A9-78264FD0FE4A}

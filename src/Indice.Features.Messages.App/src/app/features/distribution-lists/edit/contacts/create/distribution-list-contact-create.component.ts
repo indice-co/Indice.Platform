@@ -57,9 +57,22 @@ export class DistributionListContactCreateComponent implements OnInit, AfterView
     }
 
     public onAddNewContact(searchTerm: string): void {
-        const contact = new Contact({
-            fullName: searchTerm
-        });
+        const validateEmail = (email:string) => {
+            return String(email)
+              .toLowerCase()
+              .match(
+                /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+              );
+          };
+          const contact = new Contact();
+          searchTerm = searchTerm.trim()
+          if (validateEmail(searchTerm)) {
+            contact.email = searchTerm;
+         } else {
+            contact.fullName = searchTerm;
+            contact.firstName = searchTerm.split(' ')[0];
+            contact.lastName = searchTerm.slice(contact.firstName.length).trim();
+         }
         (<any>contact)._edit = true;
         this.contactsCombobox.selectedItems.unshift(contact);
     }

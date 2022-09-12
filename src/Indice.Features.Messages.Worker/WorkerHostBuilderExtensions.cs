@@ -76,8 +76,12 @@ namespace Microsoft.Extensions.DependencyInjection
         }
 
         private static void AddCoreServices(this IServiceCollection services, MessageJobsOptions options, IConfiguration configuration) {
+            options.Services.AddKeyedService<IEventDispatcher, EventDispatcherHosting, string>(
+                key: KeyedServiceNames.EventDispatcherServiceKey,
+                serviceProvider => new EventDispatcherHosting(new MessageQueueFactory(serviceProvider)),
+                serviceLifetime: ServiceLifetime.Transient
+            );
             services.TryAddTransient<Func<string, IPushNotificationService>>(serviceProvider => key => new PushNotificationServiceNoop());
-            services.TryAddTransient<Func<string, IEventDispatcher>>(serviceProvider => key => new EventDispatcherNoop());
             services.TryAddTransient<IEmailService, EmailServiceNoop>();
             services.TryAddTransient<IContactResolver, ContactResolverNoop>();
             Action<DbContextOptionsBuilder> sqlServerConfiguration = (builder) => builder.UseSqlServer(configuration.GetConnectionString("MessagesDb"));
@@ -100,17 +104,6 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <param name="configure">Configure the available options for push notifications. Null to use defaults.</param>
         public static MessageJobsOptions UsePushNotificationServiceAzure(this MessageJobsOptions options, Action<IServiceProvider, PushNotificationAzureOptions> configure = null) {
             options.Services.AddPushNotificationServiceAzure(KeyedServiceNames.PushNotificationServiceKey, configure);
-            return options;
-        }
-
-        /// <summary>Adds <see cref="IEventDispatcher"/> using Indice worker host as a queuing mechanism.</summary>
-        /// <param name="options">Options for configuring internal campaign jobs used by the worker host.</param>
-        public static MessageJobsOptions UseEventDispatcherHosting(this MessageJobsOptions options) {
-            options.Services.AddKeyedService<IEventDispatcher, EventDispatcherHosting, string>(
-                key: KeyedServiceNames.EventDispatcherServiceKey,
-                serviceProvider => new EventDispatcherHosting(new MessageQueueFactory(serviceProvider)),
-                serviceLifetime: ServiceLifetime.Transient
-            );
             return options;
         }
 

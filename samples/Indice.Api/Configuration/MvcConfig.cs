@@ -3,7 +3,6 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using IdentityModel;
 using Indice.Features.Messages.Core;
-using Indice.Features.Messages.Worker.Azure;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -17,8 +16,8 @@ namespace Microsoft.Extensions.DependencyInjection
                 .AddControllers()
                 .AddMessageEndpoints(options => {
                     options.ApiPrefix = "api";
-                    options.ConfigureDbContext = builder => builder.UseSqlServer(configuration.GetConnectionString("MessagesDb"));
-                    options.DatabaseSchema = "msg";
+                    options.ConfigureDbContext = (serviceProvider, builder) => builder.UseSqlServer(configuration.GetConnectionString("MessagesDb"));
+                    options.DatabaseSchema = "cmp";
                     options.RequiredScope = $"backoffice:{MessagesApi.Scope}";
                     options.UserClaimType = JwtClaimTypes.Subject;
                     options.UseFilesAzure();

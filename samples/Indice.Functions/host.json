@@ -1,4 +1,15 @@
 {
+  // https://docs.microsoft.com/en-us/azure/azure-functions/functions-bindings-storage-queue?tabs=in-process%2Cextensionv5%2Cextensionv3&pivots=programming-language-csharp#host-json
+  "extensions": {
+    "queues": {
+      "batchSize": 16,
+      "maxDequeueCount": 5,
+      "maxPollingInterval": "00:00:02",
+      "messageEncoding": "base64",
+      "newBatchThreshold": 8,
+      "visibilityTimeout": "00:00:30"
+    }
+  },
   "logging": {
     "applicationInsights": {
       "samplingSettings": {
@@ -6,11 +17,6 @@
         "isEnabled": true
       }
     }
-  },
-  "retry": {
-    "delayInterval": "00:01:00",
-    "maxRetryCount": 1,
-    "strategy": "fixedDelay"
   },
   "version": "2.0"
 }
