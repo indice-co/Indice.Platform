@@ -17,175 +17,220 @@ export const CASES_API_BASE_URL = new InjectionToken<string>('CASES_API_BASE_URL
 
 export interface ICasesApiService {
     /**
+     * Download attachment in a PDF format for back-office users.
      * @param api_version (optional) 
      * @return Success
      */
     downloadAttachment(attachmentId: string, api_version?: string | undefined): Observable<FileResponse>;
     /**
+     * Create a new case in draft mode.
      * @param api_version (optional) 
-     * @param body (optional) 
+     * @param body (optional) The draft.
      * @return Success
      */
     createDraftAdminCase(api_version?: string | undefined, body?: CreateDraftCaseRequest | undefined): Observable<string>;
     /**
-     * @param filter_CustomerId (optional) 
-     * @param filter_CustomerName (optional) 
-     * @param filter_From (optional) 
-     * @param filter_To (optional) 
-     * @param filter_CaseTypeCodes (optional) 
-     * @param filter_CheckpointTypeCodes (optional) 
-     * @param filter_GroupIds (optional) 
-     * @param filter_Metadata (optional) 
+     * Gets the list of all cases using the provided Indice.Types.ListOptions.
+     * @param filter_CustomerId (optional) The Id of the customer to filter.
+     * @param filter_CustomerName (optional) The name of the customer to filter.
+     * @param filter_From (optional) The created date of the case, starting from, to filter.
+     * @param filter_To (optional) The create date of the case, ending to, to filter.
+     * @param filter_CaseTypeCodes (optional) The list of case type codes to filter.
+     * @param filter_CheckpointTypeCodes (optional) The list of checkpoint type codes to filter.
+     * @param filter_GroupIds (optional) The list of groupIds to filter.
+     * @param filter_Metadata (optional) Construct filter clauses based on the metadata you are adding to the cases in your installation.
      * @param page (optional) 
      * @param size (optional) 
      * @param sort (optional) 
      * @param search (optional) 
      * @param api_version (optional) 
-     * @return Success
+     * @return OK
      */
     getCases(filter_CustomerId?: string | undefined, filter_CustomerName?: string | undefined, filter_From?: Date | undefined, filter_To?: Date | undefined, filter_CaseTypeCodes?: string[] | undefined, filter_CheckpointTypeCodes?: string[] | undefined, filter_GroupIds?: string[] | undefined, filter_Metadata?: string[] | undefined, page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, api_version?: string | undefined): Observable<CasePartialResultSet>;
     /**
+     * Update the case with the business data as defined at the specific case type. This action is allowed only for draft cases.
+     * @param caseId The Id of the case.
      * @param api_version (optional) 
-     * @param body (optional) 
+     * @param body (optional) The update request.
      * @return No Content
      */
     updateAdminCase(caseId: string, api_version?: string | undefined, body?: UpdateCaseRequest | undefined): Observable<void>;
     /**
+     * Gets a case with the specified id.
+     * @param caseId The id of the case.
      * @param api_version (optional) 
-     * @return Success
+     * @return OK
      */
     getCaseById(caseId: string, api_version?: string | undefined): Observable<CaseDetails>;
     /**
+     * Deletes a draft case.
+     * @param caseId The id of the case.
      * @param api_version (optional) 
      * @return No Content
      */
     deleteDraftCase(caseId: string, api_version?: string | undefined): Observable<void>;
     /**
+     * Download case in a PDF format for backoffice users
      * @param api_version (optional) 
      * @return Success
      */
     downloadCasePdf(caseId: string, api_version?: string | undefined): Observable<FileResponse>;
     /**
+     * Gets the cases actions (Approval, edit, assignments, etc) for a case Id. Actions differ based on user role.
+     * @param caseId The id of the case.
      * @param api_version (optional) 
-     * @return Success
+     * @return OK
      */
     getCaseActions(caseId: string, api_version?: string | undefined): Observable<CaseActions>;
     /**
+     * Invoke the approval activity to approve or reject the case.
+     * @param caseId The Id of the case.
      * @param api_version (optional) 
-     * @param body (optional) 
+     * @param body (optional) The approval request.
      * @return No Content
      */
     submitApproval(caseId: string, api_version?: string | undefined, body?: ApprovalRequest | undefined): Observable<void>;
     /**
+     * Invoke the assign activity to assign the case to the caller user.
+     * @param caseId The Id of the case.
      * @param api_version (optional) 
      * @return No Content
      */
     assignCase(caseId: string, api_version?: string | undefined): Observable<void>;
     /**
+     * Get a list of Attachments for a CaseId
      * @param api_version (optional) 
      * @return Success
      */
     getCaseAttachments(caseId: string, api_version?: string | undefined): Observable<CaseAttachmentResultSet>;
     /**
+     * Add an attachment to an existing case regardless of its status and mode (draft or not).
+     * @param caseId The Id of the case.
      * @param api_version (optional) 
      * @param file (optional) 
      * @return Success
      */
     uploadAdminCaseAttachment(caseId: string, api_version?: string | undefined, file?: FileParameter | undefined): Observable<CasesAttachmentLink>;
     /**
+     * Get an Case Attachment
      * @param api_version (optional) 
      * @return Success
      */
     getCaseAttachment(caseId: string, attachmentId: string, api_version?: string | undefined): Observable<FileResponse>;
     /**
+     * Invoke the edit activity to edit the data of the case.
+     * @param caseId The Id of the case.
      * @param api_version (optional) 
-     * @param body (optional) 
+     * @param body (optional) The case data in json format.
      * @return No Content
      */
     editCase(caseId: string, api_version?: string | undefined, body?: EditCaseRequest | undefined): Observable<void>;
     /**
+     * Get the reject reasons for a case.
+     * @param caseId The Id of the case.
      * @param api_version (optional) 
      * @return Success
      */
     getCaseRejectReasons(caseId: string, api_version?: string | undefined): Observable<RejectReason[]>;
     /**
-     * @param data (optional) 
+     * Submit the case by removing the draft mode.
+     * @param caseId The Id of the case.
+     * @param data (optional) The data of the case.
      * @param api_version (optional) 
      * @return No Content
      */
     submitAdminCase(caseId: string, data?: string | undefined, api_version?: string | undefined): Observable<void>;
     /**
+     * Gets the timeline entries for a case.
+     * @param caseId The id of the case.
      * @param api_version (optional) 
-     * @return Success
+     * @return OK
      */
     getCaseTimeline(caseId: string, api_version?: string | undefined): Observable<TimelineEntry[]>;
     /**
+     * Get case types.
      * @param api_version (optional) 
      * @return Success
      */
     getCaseTypes(api_version?: string | undefined): Observable<CaseTypePartialResultSet>;
     /**
+     * Create new case type.
      * @param api_version (optional) 
      * @param body (optional) 
      * @return No Content
      */
     createCaseType(api_version?: string | undefined, body?: CaseTypeRequest | undefined): Observable<void>;
     /**
+     * Get a specific Case Type by Id.
+     * @param caseTypeId The case type Id.
      * @param api_version (optional) 
      * @return Success
      */
     getCaseTypeById(caseTypeId: string, api_version?: string | undefined): Observable<CaseTypeDetails>;
     /**
+     * Update a specific Case Type.
      * @param api_version (optional) 
-     * @param body (optional) 
+     * @param body (optional) The new case type model.
      * @return Success
      */
     updateCaseType(caseTypeId: string, api_version?: string | undefined, body?: CaseTypeRequest | undefined): Observable<CaseTypeDetails>;
     /**
+     * Delete a specific Case Type.
      * @param api_version (optional) 
      * @return No Content
      */
     deleteCaseType(caseTypeId: string, api_version?: string | undefined): Observable<void>;
     /**
+     * Get Checkpoint types
      * @param api_version (optional) 
      * @return Success
      */
     getDistinctCheckpointNames(api_version?: string | undefined): Observable<string[]>;
     /**
-     * @param customerId (optional) 
-     * @param taxId (optional) 
+     * Fetch customers.
+     * @param customerId (optional) The Id of the customer as provided by the consumer/integrator.
+     * @param taxId (optional) The tax identification of the customer.
      * @param api_version (optional) 
      * @return Success
      */
     getCustomers(customerId?: string | undefined, taxId?: string | undefined, api_version?: string | undefined): Observable<CustomerDetails[]>;
     /**
+     * Fetch customer data for a specific case type code.
+     * @param customerId The Id of the customer to the integrator's system.
+     * @param caseTypeCode The case type code.
      * @param api_version (optional) 
      * @return Success
      */
     getCustomerData(customerId: string, caseTypeCode: string, api_version?: string | undefined): Observable<CustomerData>;
     /**
-     * @param searchValues (optional) 
+     * Get a lookup by lookupName.
+     * @param lookupName The lookup name to retrieve.
+     * @param searchValues (optional) Any search values to filter the lookup results.
      * @param api_version (optional) 
      * @return Success
      */
     getLookup(lookupName: string, searchValues?: string | undefined, api_version?: string | undefined): Observable<LookupItemResultSet>;
     /**
+     * Get the case type subscriptions of a user.
      * @param api_version (optional) 
      * @return Success
      */
     getCaseTypeNotificationSubscription(api_version?: string | undefined): Observable<CaseTypeSubscription>;
     /**
+     * Create new case type subscription for a user.
      * @param api_version (optional) 
      * @return No Content
      */
     createCaseTypeNotificationSubscription(api_version?: string | undefined): Observable<void>;
     /**
+     * Remove a case type subscription for a user.
      * @param api_version (optional) 
      * @return No Content
      */
     deleteCaseTypeNotificationSubscription(api_version?: string | undefined): Observable<void>;
     /**
-     * @param filter_CaseTypeTags (optional) 
+     * Get the list of the customer's cases.
+     * @param filter_CaseTypeTags (optional) The case type tag filter.
      * @param page (optional) 
      * @param size (optional) 
      * @param sort (optional) 
@@ -195,23 +240,30 @@ export interface ICasesApiService {
      */
     getCases2(filter_CaseTypeTags?: string[] | undefined, page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, api_version?: string | undefined): Observable<MyCasePartialResultSet>;
     /**
+     * Create a new case in draft mode. That means no one will be able to edit it besides the creator of the case.
      * @param api_version (optional) 
-     * @param body (optional) 
+     * @param body (optional) The draft.
      * @return Success
      */
     createDraftCase(api_version?: string | undefined, body?: CreateDraftCaseRequest | undefined): Observable<CreateCaseResponse>;
     /**
+     * Get case by Id.
+     * @param caseId The Id of the case.
      * @param api_version (optional) 
      * @return Success
      */
     getMyCaseById(caseId: string, api_version?: string | undefined): Observable<MyCasePartial>;
     /**
+     * Update the case with the business data as defined at the specific case type
+     * @param caseId The Id of the case.
      * @param api_version (optional) 
-     * @param body (optional) 
+     * @param body (optional) The update request.
      * @return No Content
      */
     updateCase(caseId: string, api_version?: string | undefined, body?: UpdateCaseRequest | undefined): Observable<void>;
     /**
+     * Add an attachment to an existing case regardless of its status and mode (draft or not).
+     * @param caseId The Id of the case.
      * @param api_version (optional) 
      * @param contentType (optional) 
      * @param contentDisposition (optional) 
@@ -223,17 +275,21 @@ export interface ICasesApiService {
      */
     uploadCaseAttachment(caseId: string, api_version?: string | undefined, contentType?: string | undefined, contentDisposition?: string | undefined, headers?: { [key: string]: string[]; } | undefined, length?: number | undefined, name?: string | undefined, fileName?: string | undefined): Observable<CasesAttachmentLink>;
     /**
+     * Download case in a PDF format
      * @param api_version (optional) 
      * @return Success
      */
     downloadMyCasePdf(caseId: string, api_version?: string | undefined): Observable<FileResponse>;
     /**
+     * Submit the case by removing the draft mode.
+     * @param caseId The Id of the case.
      * @param api_version (optional) 
      * @return No Content
      */
     submitMyCase(caseId: string, api_version?: string | undefined): Observable<void>;
     /**
-     * @param filter_CaseTypeTags (optional) 
+     * Gets case types.
+     * @param filter_CaseTypeTags (optional) The case type tag filter.
      * @param page (optional) 
      * @param size (optional) 
      * @param sort (optional) 
@@ -243,6 +299,8 @@ export interface ICasesApiService {
      */
     getCaseTypes2(filter_CaseTypeTags?: string[] | undefined, page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, api_version?: string | undefined): Observable<CaseTypePartialResultSet>;
     /**
+     * Gets a case type by its code.
+     * @param caseTypeCode The case type code.
      * @param api_version (optional) 
      * @return Success
      */
@@ -268,6 +326,7 @@ export class CasesApiService implements ICasesApiService {
     }
 
     /**
+     * Download attachment in a PDF format for back-office users.
      * @param api_version (optional) 
      * @return Success
      */
@@ -353,8 +412,9 @@ export class CasesApiService implements ICasesApiService {
     }
 
     /**
+     * Create a new case in draft mode.
      * @param api_version (optional) 
-     * @param body (optional) 
+     * @param body (optional) The draft.
      * @return Success
      */
     createDraftAdminCase(api_version?: string | undefined, body?: CreateDraftCaseRequest | undefined): Observable<string> {
@@ -443,20 +503,21 @@ export class CasesApiService implements ICasesApiService {
     }
 
     /**
-     * @param filter_CustomerId (optional) 
-     * @param filter_CustomerName (optional) 
-     * @param filter_From (optional) 
-     * @param filter_To (optional) 
-     * @param filter_CaseTypeCodes (optional) 
-     * @param filter_CheckpointTypeCodes (optional) 
-     * @param filter_GroupIds (optional) 
-     * @param filter_Metadata (optional) 
+     * Gets the list of all cases using the provided Indice.Types.ListOptions.
+     * @param filter_CustomerId (optional) The Id of the customer to filter.
+     * @param filter_CustomerName (optional) The name of the customer to filter.
+     * @param filter_From (optional) The created date of the case, starting from, to filter.
+     * @param filter_To (optional) The create date of the case, ending to, to filter.
+     * @param filter_CaseTypeCodes (optional) The list of case type codes to filter.
+     * @param filter_CheckpointTypeCodes (optional) The list of checkpoint type codes to filter.
+     * @param filter_GroupIds (optional) The list of groupIds to filter.
+     * @param filter_Metadata (optional) Construct filter clauses based on the metadata you are adding to the cases in your installation.
      * @param page (optional) 
      * @param size (optional) 
      * @param sort (optional) 
      * @param search (optional) 
      * @param api_version (optional) 
-     * @return Success
+     * @return OK
      */
     getCases(filter_CustomerId?: string | undefined, filter_CustomerName?: string | undefined, filter_From?: Date | undefined, filter_To?: Date | undefined, filter_CaseTypeCodes?: string[] | undefined, filter_CheckpointTypeCodes?: string[] | undefined, filter_GroupIds?: string[] | undefined, filter_Metadata?: string[] | undefined, page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, api_version?: string | undefined): Observable<CasePartialResultSet> {
         let url_ = this.baseUrl + "/api/manage/cases?";
@@ -587,8 +648,10 @@ export class CasesApiService implements ICasesApiService {
     }
 
     /**
+     * Update the case with the business data as defined at the specific case type. This action is allowed only for draft cases.
+     * @param caseId The Id of the case.
      * @param api_version (optional) 
-     * @param body (optional) 
+     * @param body (optional) The update request.
      * @return No Content
      */
     updateAdminCase(caseId: string, api_version?: string | undefined, body?: UpdateCaseRequest | undefined): Observable<void> {
@@ -682,8 +745,10 @@ export class CasesApiService implements ICasesApiService {
     }
 
     /**
+     * Gets a case with the specified id.
+     * @param caseId The id of the case.
      * @param api_version (optional) 
-     * @return Success
+     * @return OK
      */
     getCaseById(caseId: string, api_version?: string | undefined): Observable<CaseDetails> {
         let url_ = this.baseUrl + "/api/manage/cases/{caseId}?";
@@ -776,6 +841,8 @@ export class CasesApiService implements ICasesApiService {
     }
 
     /**
+     * Deletes a draft case.
+     * @param caseId The id of the case.
      * @param api_version (optional) 
      * @return No Content
      */
@@ -866,6 +933,7 @@ export class CasesApiService implements ICasesApiService {
     }
 
     /**
+     * Download case in a PDF format for backoffice users
      * @param api_version (optional) 
      * @return Success
      */
@@ -951,8 +1019,10 @@ export class CasesApiService implements ICasesApiService {
     }
 
     /**
+     * Gets the cases actions (Approval, edit, assignments, etc) for a case Id. Actions differ based on user role.
+     * @param caseId The id of the case.
      * @param api_version (optional) 
-     * @return Success
+     * @return OK
      */
     getCaseActions(caseId: string, api_version?: string | undefined): Observable<CaseActions> {
         let url_ = this.baseUrl + "/api/manage/cases/{caseId}/actions?";
@@ -1029,6 +1099,10 @@ export class CasesApiService implements ICasesApiService {
             result200 = CaseActions.fromJS(resultData200);
             return _observableOf(result200);
             }));
+        } else if (status === 404) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("Not Found", status, _responseText, _headers);
+            }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
@@ -1038,8 +1112,10 @@ export class CasesApiService implements ICasesApiService {
     }
 
     /**
+     * Invoke the approval activity to approve or reject the case.
+     * @param caseId The Id of the case.
      * @param api_version (optional) 
-     * @param body (optional) 
+     * @param body (optional) The approval request.
      * @return No Content
      */
     submitApproval(caseId: string, api_version?: string | undefined, body?: ApprovalRequest | undefined): Observable<void> {
@@ -1133,6 +1209,8 @@ export class CasesApiService implements ICasesApiService {
     }
 
     /**
+     * Invoke the assign activity to assign the case to the caller user.
+     * @param caseId The Id of the case.
      * @param api_version (optional) 
      * @return No Content
      */
@@ -1223,6 +1301,7 @@ export class CasesApiService implements ICasesApiService {
     }
 
     /**
+     * Get a list of Attachments for a CaseId
      * @param api_version (optional) 
      * @return Success
      */
@@ -1310,6 +1389,8 @@ export class CasesApiService implements ICasesApiService {
     }
 
     /**
+     * Add an attachment to an existing case regardless of its status and mode (draft or not).
+     * @param caseId The Id of the case.
      * @param api_version (optional) 
      * @param file (optional) 
      * @return Success
@@ -1412,6 +1493,7 @@ export class CasesApiService implements ICasesApiService {
     }
 
     /**
+     * Get an Case Attachment
      * @param api_version (optional) 
      * @return Success
      */
@@ -1507,8 +1589,10 @@ export class CasesApiService implements ICasesApiService {
     }
 
     /**
+     * Invoke the edit activity to edit the data of the case.
+     * @param caseId The Id of the case.
      * @param api_version (optional) 
-     * @param body (optional) 
+     * @param body (optional) The case data in json format.
      * @return No Content
      */
     editCase(caseId: string, api_version?: string | undefined, body?: EditCaseRequest | undefined): Observable<void> {
@@ -1602,6 +1686,8 @@ export class CasesApiService implements ICasesApiService {
     }
 
     /**
+     * Get the reject reasons for a case.
+     * @param caseId The Id of the case.
      * @param api_version (optional) 
      * @return Success
      */
@@ -1696,7 +1782,9 @@ export class CasesApiService implements ICasesApiService {
     }
 
     /**
-     * @param data (optional) 
+     * Submit the case by removing the draft mode.
+     * @param caseId The Id of the case.
+     * @param data (optional) The data of the case.
      * @param api_version (optional) 
      * @return No Content
      */
@@ -1791,8 +1879,10 @@ export class CasesApiService implements ICasesApiService {
     }
 
     /**
+     * Gets the timeline entries for a case.
+     * @param caseId The id of the case.
      * @param api_version (optional) 
-     * @return Success
+     * @return OK
      */
     getCaseTimeline(caseId: string, api_version?: string | undefined): Observable<TimelineEntry[]> {
         let url_ = this.baseUrl + "/api/manage/cases/{caseId}/timeline?";
@@ -1892,6 +1982,7 @@ export class CasesApiService implements ICasesApiService {
     }
 
     /**
+     * Get case types.
      * @param api_version (optional) 
      * @return Success
      */
@@ -1983,6 +2074,7 @@ export class CasesApiService implements ICasesApiService {
     }
 
     /**
+     * Create new case type.
      * @param api_version (optional) 
      * @param body (optional) 
      * @return No Content
@@ -2068,6 +2160,8 @@ export class CasesApiService implements ICasesApiService {
     }
 
     /**
+     * Get a specific Case Type by Id.
+     * @param caseTypeId The case type Id.
      * @param api_version (optional) 
      * @return Success
      */
@@ -2162,8 +2256,9 @@ export class CasesApiService implements ICasesApiService {
     }
 
     /**
+     * Update a specific Case Type.
      * @param api_version (optional) 
-     * @param body (optional) 
+     * @param body (optional) The new case type model.
      * @return Success
      */
     updateCaseType(caseTypeId: string, api_version?: string | undefined, body?: CaseTypeRequest | undefined): Observable<CaseTypeDetails> {
@@ -2261,6 +2356,7 @@ export class CasesApiService implements ICasesApiService {
     }
 
     /**
+     * Delete a specific Case Type.
      * @param api_version (optional) 
      * @return No Content
      */
@@ -2351,6 +2447,7 @@ export class CasesApiService implements ICasesApiService {
     }
 
     /**
+     * Get Checkpoint types
      * @param api_version (optional) 
      * @return Success
      */
@@ -2449,8 +2546,9 @@ export class CasesApiService implements ICasesApiService {
     }
 
     /**
-     * @param customerId (optional) 
-     * @param taxId (optional) 
+     * Fetch customers.
+     * @param customerId (optional) The Id of the customer as provided by the consumer/integrator.
+     * @param taxId (optional) The tax identification of the customer.
      * @param api_version (optional) 
      * @return Success
      */
@@ -2550,6 +2648,9 @@ export class CasesApiService implements ICasesApiService {
     }
 
     /**
+     * Fetch customer data for a specific case type code.
+     * @param customerId The Id of the customer to the integrator's system.
+     * @param caseTypeCode The case type code.
      * @param api_version (optional) 
      * @return Success
      */
@@ -2640,7 +2741,9 @@ export class CasesApiService implements ICasesApiService {
     }
 
     /**
-     * @param searchValues (optional) 
+     * Get a lookup by lookupName.
+     * @param lookupName The lookup name to retrieve.
+     * @param searchValues (optional) Any search values to filter the lookup results.
      * @param api_version (optional) 
      * @return Success
      */
@@ -2739,6 +2842,7 @@ export class CasesApiService implements ICasesApiService {
     }
 
     /**
+     * Get the case type subscriptions of a user.
      * @param api_version (optional) 
      * @return Success
      */
@@ -2823,6 +2927,7 @@ export class CasesApiService implements ICasesApiService {
     }
 
     /**
+     * Create new case type subscription for a user.
      * @param api_version (optional) 
      * @return No Content
      */
@@ -2903,6 +3008,7 @@ export class CasesApiService implements ICasesApiService {
     }
 
     /**
+     * Remove a case type subscription for a user.
      * @param api_version (optional) 
      * @return No Content
      */
@@ -2983,7 +3089,8 @@ export class CasesApiService implements ICasesApiService {
     }
 
     /**
-     * @param filter_CaseTypeTags (optional) 
+     * Get the list of the customer's cases.
+     * @param filter_CaseTypeTags (optional) The case type tag filter.
      * @param page (optional) 
      * @param size (optional) 
      * @param sort (optional) 
@@ -3099,8 +3206,9 @@ export class CasesApiService implements ICasesApiService {
     }
 
     /**
+     * Create a new case in draft mode. That means no one will be able to edit it besides the creator of the case.
      * @param api_version (optional) 
-     * @param body (optional) 
+     * @param body (optional) The draft.
      * @return Success
      */
     createDraftCase(api_version?: string | undefined, body?: CreateDraftCaseRequest | undefined): Observable<CreateCaseResponse> {
@@ -3188,6 +3296,8 @@ export class CasesApiService implements ICasesApiService {
     }
 
     /**
+     * Get case by Id.
+     * @param caseId The Id of the case.
      * @param api_version (optional) 
      * @return Success
      */
@@ -3275,8 +3385,10 @@ export class CasesApiService implements ICasesApiService {
     }
 
     /**
+     * Update the case with the business data as defined at the specific case type
+     * @param caseId The Id of the case.
      * @param api_version (optional) 
-     * @param body (optional) 
+     * @param body (optional) The update request.
      * @return No Content
      */
     updateCase(caseId: string, api_version?: string | undefined, body?: UpdateCaseRequest | undefined): Observable<void> {
@@ -3370,6 +3482,8 @@ export class CasesApiService implements ICasesApiService {
     }
 
     /**
+     * Add an attachment to an existing case regardless of its status and mode (draft or not).
+     * @param caseId The Id of the case.
      * @param api_version (optional) 
      * @param contentType (optional) 
      * @param contentDisposition (optional) 
@@ -3497,6 +3611,7 @@ export class CasesApiService implements ICasesApiService {
     }
 
     /**
+     * Download case in a PDF format
      * @param api_version (optional) 
      * @return Success
      */
@@ -3582,6 +3697,8 @@ export class CasesApiService implements ICasesApiService {
     }
 
     /**
+     * Submit the case by removing the draft mode.
+     * @param caseId The Id of the case.
      * @param api_version (optional) 
      * @return No Content
      */
@@ -3672,7 +3789,8 @@ export class CasesApiService implements ICasesApiService {
     }
 
     /**
-     * @param filter_CaseTypeTags (optional) 
+     * Gets case types.
+     * @param filter_CaseTypeTags (optional) The case type tag filter.
      * @param page (optional) 
      * @param size (optional) 
      * @param sort (optional) 
@@ -3781,6 +3899,8 @@ export class CasesApiService implements ICasesApiService {
     }
 
     /**
+     * Gets a case type by its code.
+     * @param caseTypeCode The case type code.
      * @param api_version (optional) 
      * @return Success
      */
@@ -3941,13 +4061,16 @@ export class CasesApiService implements ICasesApiService {
     }
 }
 
+/** The Approval action for a Case. */
 export enum Approval {
     Approve = "Approve",
     Reject = "Reject",
 }
 
+/** The approval request to trigger the Indice.Features.Cases.Workflows.Activities.AwaitApprovalActivity */
 export class ApprovalRequest implements IApprovalRequest {
     action?: Approval;
+    /** User comment related to the action. */
     comment?: string | undefined;
 
     constructor(data?: IApprovalRequest) {
@@ -3981,11 +4104,14 @@ export class ApprovalRequest implements IApprovalRequest {
     }
 }
 
+/** The approval request to trigger the Indice.Features.Cases.Workflows.Activities.AwaitApprovalActivity */
 export interface IApprovalRequest {
     action?: Approval;
+    /** User comment related to the action. */
     comment?: string | undefined;
 }
 
+/** Audit metadata related with the user principal that "did" the action. */
 export class AuditMeta implements IAuditMeta {
     id?: string | undefined;
     name?: string | undefined;
@@ -4027,6 +4153,7 @@ export class AuditMeta implements IAuditMeta {
     }
 }
 
+/** Audit metadata related with the user principal that "did" the action. */
 export interface IAuditMeta {
     id?: string | undefined;
     name?: string | undefined;
@@ -4034,10 +4161,15 @@ export interface IAuditMeta {
     when?: Date | undefined;
 }
 
+/** The available actions for a user, depending on his role and checkpoint of the case. */
 export class CaseActions implements ICaseActions {
+    /** User can assign the case to himself. */
     hasAssignment?: boolean;
+    /** User can remove the assignment of the case. */
     hasUnassignment?: boolean;
+    /** User can edit the case data. */
     hasEdit?: boolean;
+    /** User can approve/reject the case. */
     hasApproval?: boolean;
 
     constructor(data?: ICaseActions) {
@@ -4075,18 +4207,29 @@ export class CaseActions implements ICaseActions {
     }
 }
 
+/** The available actions for a user, depending on his role and checkpoint of the case. */
 export interface ICaseActions {
+    /** User can assign the case to himself. */
     hasAssignment?: boolean;
+    /** User can remove the assignment of the case. */
     hasUnassignment?: boolean;
+    /** User can edit the case data. */
     hasEdit?: boolean;
+    /** User can approve/reject the case. */
     hasApproval?: boolean;
 }
 
+/** Minimal Case Attachment response model. */
 export class CaseAttachment implements ICaseAttachment {
+    /** The Id of the attachment. */
     id?: string;
+    /** The name of the attachment. */
     name?: string | undefined;
+    /** The content type of the attachment. */
     contentType?: string | undefined;
+    /** The extension of the attachment. */
     extension?: string | undefined;
+    /** The binary data of the attachment. */
     data?: string | undefined;
 
     constructor(data?: ICaseAttachment) {
@@ -4126,11 +4269,17 @@ export class CaseAttachment implements ICaseAttachment {
     }
 }
 
+/** Minimal Case Attachment response model. */
 export interface ICaseAttachment {
+    /** The Id of the attachment. */
     id?: string;
+    /** The name of the attachment. */
     name?: string | undefined;
+    /** The content type of the attachment. */
     contentType?: string | undefined;
+    /** The extension of the attachment. */
     extension?: string | undefined;
+    /** The binary data of the attachment. */
     data?: string | undefined;
 }
 
@@ -4182,23 +4331,39 @@ export interface ICaseAttachmentResultSet {
     items?: CaseAttachment[] | undefined;
 }
 
+/** Models case details. */
 export class CaseDetails implements ICaseDetails {
+    /** The Id of the case. */
     id?: string;
+    /** The current checkpoint of the case. */
     checkpointTypeId?: string;
     publicStatus?: CasePublicStatus;
+    /** The Id of the customer as provided from integration services (core or 3rd party). */
     customerId?: string | undefined;
+    /** The Id of the user as provided from our Identity server. */
     userId?: string | undefined;
+    /** The full name of the customer. */
     customerName?: string | undefined;
+    /** The created date of the case. */
     createdByWhen?: Date | undefined;
+    /** The Id of the user that created the case. */
     createdById?: string | undefined;
     caseType?: CaseTypePartial;
+    /** The case metadata as provided from the client or integrator. */
     metadata?: { [key: string]: string; } | undefined;
+    /** The Id of the group the case belongs. */
     groupId?: string | undefined;
+    /** The current checkpoint type code for the case. */
     checkpointTypeCode?: string | undefined;
+    /** The json data of the case. */
     data?: string | undefined;
+    /** The name of the user that has the case assigned. */
     assignedToName?: string | undefined;
+    /** The channel of th case. */
     channel?: string | undefined;
+    /** Indicate if the case is in draft mode. */
     draft?: boolean;
+    /** The attachments of the case. */
     attachments?: CaseAttachment[] | undefined;
 
     constructor(data?: ICaseDetails) {
@@ -4282,23 +4447,39 @@ export class CaseDetails implements ICaseDetails {
     }
 }
 
+/** Models case details. */
 export interface ICaseDetails {
+    /** The Id of the case. */
     id?: string;
+    /** The current checkpoint of the case. */
     checkpointTypeId?: string;
     publicStatus?: CasePublicStatus;
+    /** The Id of the customer as provided from integration services (core or 3rd party). */
     customerId?: string | undefined;
+    /** The Id of the user as provided from our Identity server. */
     userId?: string | undefined;
+    /** The full name of the customer. */
     customerName?: string | undefined;
+    /** The created date of the case. */
     createdByWhen?: Date | undefined;
+    /** The Id of the user that created the case. */
     createdById?: string | undefined;
     caseType?: CaseTypePartial;
+    /** The case metadata as provided from the client or integrator. */
     metadata?: { [key: string]: string; } | undefined;
+    /** The Id of the group the case belongs. */
     groupId?: string | undefined;
+    /** The current checkpoint type code for the case. */
     checkpointTypeCode?: string | undefined;
+    /** The json data of the case. */
     data?: string | undefined;
+    /** The name of the user that has the case assigned. */
     assignedToName?: string | undefined;
+    /** The channel of th case. */
     channel?: string | undefined;
+    /** Indicate if the case is in draft mode. */
     draft?: boolean;
+    /** The attachments of the case. */
     attachments?: CaseAttachment[] | undefined;
 }
 
@@ -4342,22 +4523,37 @@ export interface ICaseImage {
     mimeType?: string | undefined;
 }
 
+/** The partial model of a case. */
 export class CasePartial implements ICasePartial {
+    /** The Id of the case. */
     id?: string;
+    /** The current checkpoint of the case. */
     checkpointTypeId?: string;
     publicStatus?: CasePublicStatus;
+    /** The Id of the customer as provided from integration services (core or 3rd party). */
     customerId?: string | undefined;
+    /** The Id of the user as provided from our Identity server. */
     userId?: string | undefined;
+    /** The full name of the customer. */
     customerName?: string | undefined;
+    /** The created date of the case. */
     createdByWhen?: Date | undefined;
+    /** The Id of the user that created the case. */
     createdById?: string | undefined;
     caseType?: CaseTypePartial;
+    /** The case metadata as provided from the client or integrator. */
     metadata?: { [key: string]: string; } | undefined;
+    /** The Id of the group the case belongs. */
     groupId?: string | undefined;
+    /** The current checkpoint type code for the case. */
     checkpointTypeCode?: string | undefined;
+    /** The json data of the case. */
     data?: string | undefined;
+    /** The name of the user that has the case assigned. */
     assignedToName?: string | undefined;
+    /** The channel of th case. */
     channel?: string | undefined;
+    /** Indicate if the case is in draft mode. */
     draft?: boolean;
 
     constructor(data?: ICasePartial) {
@@ -4431,22 +4627,37 @@ export class CasePartial implements ICasePartial {
     }
 }
 
+/** The partial model of a case. */
 export interface ICasePartial {
+    /** The Id of the case. */
     id?: string;
+    /** The current checkpoint of the case. */
     checkpointTypeId?: string;
     publicStatus?: CasePublicStatus;
+    /** The Id of the customer as provided from integration services (core or 3rd party). */
     customerId?: string | undefined;
+    /** The Id of the user as provided from our Identity server. */
     userId?: string | undefined;
+    /** The full name of the customer. */
     customerName?: string | undefined;
+    /** The created date of the case. */
     createdByWhen?: Date | undefined;
+    /** The Id of the user that created the case. */
     createdById?: string | undefined;
     caseType?: CaseTypePartial;
+    /** The case metadata as provided from the client or integrator. */
     metadata?: { [key: string]: string; } | undefined;
+    /** The Id of the group the case belongs. */
     groupId?: string | undefined;
+    /** The current checkpoint type code for the case. */
     checkpointTypeCode?: string | undefined;
+    /** The json data of the case. */
     data?: string | undefined;
+    /** The name of the user that has the case assigned. */
     assignedToName?: string | undefined;
+    /** The channel of th case. */
     channel?: string | undefined;
+    /** Indicate if the case is in draft mode. */
     draft?: boolean;
 }
 
@@ -4498,6 +4709,7 @@ export interface ICasePartialResultSet {
     items?: CasePartial[] | undefined;
 }
 
+/** Define the status for the customer. It is defined at the Indice.Features.Cases.Data.Models.DbCheckpointType.PublicStatus. */
 export enum CasePublicStatus {
     Submitted = "Submitted",
     InProgress = "InProgress",
@@ -4505,15 +4717,26 @@ export enum CasePublicStatus {
     Deleted = "Deleted",
 }
 
+/** The case type details model. */
 export class CaseTypeDetails implements ICaseTypeDetails {
+    /** The Id of the case type. */
     id?: string;
+    /** The case type code. */
     code?: string | undefined;
+    /** The case type title. */
     title?: string | undefined;
+    /** The case type json schema. */
     dataSchema?: string | undefined;
+    /** The layout for the data schema. */
     layout?: string | undefined;
+    /** The case type translations. */
     translations?: string | undefined;
+    /** The layout translations. */
     layoutTranslations?: string | undefined;
+    /** The case type tags. */
     tags?: string | undefined;
+    /** The checkpoints for this case type. */
+    checkpointTypes?: CheckpointTypeDetails[] | undefined;
 
     constructor(data?: ICaseTypeDetails) {
         if (data) {
@@ -4534,6 +4757,11 @@ export class CaseTypeDetails implements ICaseTypeDetails {
             this.translations = _data["translations"];
             this.layoutTranslations = _data["layoutTranslations"];
             this.tags = _data["tags"];
+            if (Array.isArray(_data["checkpointTypes"])) {
+                this.checkpointTypes = [] as any;
+                for (let item of _data["checkpointTypes"])
+                    this.checkpointTypes!.push(CheckpointTypeDetails.fromJS(item));
+            }
         }
     }
 
@@ -4554,28 +4782,52 @@ export class CaseTypeDetails implements ICaseTypeDetails {
         data["translations"] = this.translations;
         data["layoutTranslations"] = this.layoutTranslations;
         data["tags"] = this.tags;
+        if (Array.isArray(this.checkpointTypes)) {
+            data["checkpointTypes"] = [];
+            for (let item of this.checkpointTypes)
+                data["checkpointTypes"].push(item.toJSON());
+        }
         return data;
     }
 }
 
+/** The case type details model. */
 export interface ICaseTypeDetails {
+    /** The Id of the case type. */
     id?: string;
+    /** The case type code. */
     code?: string | undefined;
+    /** The case type title. */
     title?: string | undefined;
+    /** The case type json schema. */
     dataSchema?: string | undefined;
+    /** The layout for the data schema. */
     layout?: string | undefined;
+    /** The case type translations. */
     translations?: string | undefined;
+    /** The layout translations. */
     layoutTranslations?: string | undefined;
+    /** The case type tags. */
     tags?: string | undefined;
+    /** The checkpoints for this case type. */
+    checkpointTypes?: CheckpointTypeDetails[] | undefined;
 }
 
+/** The case type partial model. */
 export class CaseTypePartial implements ICaseTypePartial {
+    /** The Id of the case type. */
     id?: string;
+    /** The case type code. */
     code?: string | undefined;
+    /** The case type title. */
     title?: string | undefined;
+    /** The case type json schema. */
     dataSchema?: string | undefined;
+    /** The layout for the data schema. */
     layout?: string | undefined;
+    /** The case type tags. */
     tags?: string | undefined;
+    /** The translations for the case type metadata (eg title). */
     translations?: { [key: string]: CaseTypeTranslation; } | undefined;
 
     constructor(data?: ICaseTypePartial) {
@@ -4631,13 +4883,21 @@ export class CaseTypePartial implements ICaseTypePartial {
     }
 }
 
+/** The case type partial model. */
 export interface ICaseTypePartial {
+    /** The Id of the case type. */
     id?: string;
+    /** The case type code. */
     code?: string | undefined;
+    /** The case type title. */
     title?: string | undefined;
+    /** The case type json schema. */
     dataSchema?: string | undefined;
+    /** The layout for the data schema. */
     layout?: string | undefined;
+    /** The case type tags. */
     tags?: string | undefined;
+    /** The translations for the case type metadata (eg title). */
     translations?: { [key: string]: CaseTypeTranslation; } | undefined;
 }
 
@@ -4689,15 +4949,25 @@ export interface ICaseTypePartialResultSet {
     items?: CaseTypePartial[] | undefined;
 }
 
+/** The case type request model. */
 export class CaseTypeRequest implements ICaseTypeRequest {
+    /** The Id of the case type. */
     id?: string | undefined;
+    /** The Code of the case type. */
     code?: string | undefined;
+    /** The Title of the case type. */
     title?: string | undefined;
+    /** The Data Schema of the case type */
     dataSchema?: string | undefined;
+    /** the Layout of the case type */
     layout?: string | undefined;
+    /** The Translation for the case type */
     translations?: string | undefined;
+    /** The Translation for the layout */
     layoutTranslations?: string | undefined;
-    checkpointTypes?: CheckpointTypeRequest[] | undefined;
+    /** The list of checkpoints for the case type */
+    checkpointTypes?: CheckpointTypeDetails[] | undefined;
+    /** The case type tags. */
     tags?: string | undefined;
 
     constructor(data?: ICaseTypeRequest) {
@@ -4721,7 +4991,7 @@ export class CaseTypeRequest implements ICaseTypeRequest {
             if (Array.isArray(_data["checkpointTypes"])) {
                 this.checkpointTypes = [] as any;
                 for (let item of _data["checkpointTypes"])
-                    this.checkpointTypes!.push(CheckpointTypeRequest.fromJS(item));
+                    this.checkpointTypes!.push(CheckpointTypeDetails.fromJS(item));
             }
             this.tags = _data["tags"];
         }
@@ -4753,19 +5023,31 @@ export class CaseTypeRequest implements ICaseTypeRequest {
     }
 }
 
+/** The case type request model. */
 export interface ICaseTypeRequest {
+    /** The Id of the case type. */
     id?: string | undefined;
+    /** The Code of the case type. */
     code?: string | undefined;
+    /** The Title of the case type. */
     title?: string | undefined;
+    /** The Data Schema of the case type */
     dataSchema?: string | undefined;
+    /** the Layout of the case type */
     layout?: string | undefined;
+    /** The Translation for the case type */
     translations?: string | undefined;
+    /** The Translation for the layout */
     layoutTranslations?: string | undefined;
-    checkpointTypes?: CheckpointTypeRequest[] | undefined;
+    /** The list of checkpoints for the case type */
+    checkpointTypes?: CheckpointTypeDetails[] | undefined;
+    /** The case type tags. */
     tags?: string | undefined;
 }
 
+/** The DTO for the CaseTypeSubscriptions for a user. */
 export class CaseTypeSubscription implements ICaseTypeSubscription {
+    /** Indicates if the user is subscribed to the current group. */
     subscribed?: boolean;
 
     constructor(data?: ICaseTypeSubscription) {
@@ -4797,11 +5079,14 @@ export class CaseTypeSubscription implements ICaseTypeSubscription {
     }
 }
 
+/** The DTO for the CaseTypeSubscriptions for a user. */
 export interface ICaseTypeSubscription {
+    /** Indicates if the user is subscribed to the current group. */
     subscribed?: boolean;
 }
 
 export class CaseTypeTranslation implements ICaseTypeTranslation {
+    /** The title of the case type. */
     title?: string | undefined;
 
     constructor(data?: ICaseTypeTranslation) {
@@ -4834,16 +5119,25 @@ export class CaseTypeTranslation implements ICaseTypeTranslation {
 }
 
 export interface ICaseTypeTranslation {
+    /** The title of the case type. */
     title?: string | undefined;
 }
 
+/** Models an attachment that is associated with a case. */
 export class CasesAttachmentLink implements ICasesAttachmentLink {
+    /** The id of the attachment. */
     id?: string;
+    /** The unique file identifier. */
     fileGuid?: string;
+    /** The URL to the file. */
     permaLink?: string | undefined;
+    /** The label of the file. */
     label?: string | undefined;
+    /** The file size in bytes. */
     size?: number;
+    /** The file size in readable format. */
     readonly sizeText?: string | undefined;
+    /** The content type of the file. */
     contentType?: string | undefined;
 
     constructor(data?: ICasesAttachmentLink) {
@@ -4887,22 +5181,36 @@ export class CasesAttachmentLink implements ICasesAttachmentLink {
     }
 }
 
+/** Models an attachment that is associated with a case. */
 export interface ICasesAttachmentLink {
+    /** The id of the attachment. */
     id?: string;
+    /** The unique file identifier. */
     fileGuid?: string;
+    /** The URL to the file. */
     permaLink?: string | undefined;
+    /** The label of the file. */
     label?: string | undefined;
+    /** The file size in bytes. */
     size?: number;
+    /** The file size in readable format. */
     sizeText?: string | undefined;
+    /** The content type of the file. */
     contentType?: string | undefined;
 }
 
+/** The checkpoint entry for a case. */
 export class Checkpoint implements ICheckpoint {
+    /** The Id of the checkpoint. */
     id?: string;
+    /** The checkpoint type code. This is the inner status the back-officer can see. */
     checkpointTypeCode?: string | undefined;
     publicStatus?: CasePublicStatus;
+    /** The completed date of the checkpoint. */
     completedDate?: Date | undefined;
+    /** Indicates if the checkpoint is private, which means not visible to the customer. */
     private?: boolean | undefined;
+    /** The due date of the checkpoint. */
     dueDate?: Date | undefined;
 
     constructor(data?: ICheckpoint) {
@@ -4944,22 +5252,36 @@ export class Checkpoint implements ICheckpoint {
     }
 }
 
+/** The checkpoint entry for a case. */
 export interface ICheckpoint {
+    /** The Id of the checkpoint. */
     id?: string;
+    /** The checkpoint type code. This is the inner status the back-officer can see. */
     checkpointTypeCode?: string | undefined;
     publicStatus?: CasePublicStatus;
+    /** The completed date of the checkpoint. */
     completedDate?: Date | undefined;
+    /** Indicates if the checkpoint is private, which means not visible to the customer. */
     private?: boolean | undefined;
+    /** The due date of the checkpoint. */
     dueDate?: Date | undefined;
 }
 
-export class CheckpointTypeRequest implements ICheckpointTypeRequest {
+/** The checkpoint type request model. */
+export class CheckpointTypeDetails implements ICheckpointTypeDetails {
+    /** The Id of the checkpoint type. */
+    id?: string;
+    /** The name of the checkpoint. */
     name?: string | undefined;
+    /** The description of the checkpoint. */
     description?: string | undefined;
     publicStatus?: CasePublicStatus;
+    /** Boolean for whether the checkpoint is private. */
     private?: boolean;
+    /** The related roles for this checkpoint. */
+    roles?: string[] | undefined;
 
-    constructor(data?: ICheckpointTypeRequest) {
+    constructor(data?: ICheckpointTypeDetails) {
         if (data) {
             for (var property in data) {
                 if (data.hasOwnProperty(property))
@@ -4970,41 +5292,66 @@ export class CheckpointTypeRequest implements ICheckpointTypeRequest {
 
     init(_data?: any) {
         if (_data) {
+            this.id = _data["id"];
             this.name = _data["name"];
             this.description = _data["description"];
             this.publicStatus = _data["publicStatus"];
             this.private = _data["private"];
+            if (Array.isArray(_data["roles"])) {
+                this.roles = [] as any;
+                for (let item of _data["roles"])
+                    this.roles!.push(item);
+            }
         }
     }
 
-    static fromJS(data: any): CheckpointTypeRequest {
+    static fromJS(data: any): CheckpointTypeDetails {
         data = typeof data === 'object' ? data : {};
-        let result = new CheckpointTypeRequest();
+        let result = new CheckpointTypeDetails();
         result.init(data);
         return result;
     }
 
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
         data["name"] = this.name;
         data["description"] = this.description;
         data["publicStatus"] = this.publicStatus;
         data["private"] = this.private;
+        if (Array.isArray(this.roles)) {
+            data["roles"] = [];
+            for (let item of this.roles)
+                data["roles"].push(item);
+        }
         return data;
     }
 }
 
-export interface ICheckpointTypeRequest {
+/** The checkpoint type request model. */
+export interface ICheckpointTypeDetails {
+    /** The Id of the checkpoint type. */
+    id?: string;
+    /** The name of the checkpoint. */
     name?: string | undefined;
+    /** The description of the checkpoint. */
     description?: string | undefined;
     publicStatus?: CasePublicStatus;
+    /** Boolean for whether the checkpoint is private. */
     private?: boolean;
+    /** The related roles for this checkpoint. */
+    roles?: string[] | undefined;
 }
 
+/** The comment entry for a case. */
 export class Comment implements IComment {
+    /** The Id of the comment. */
     id?: string;
+    /** The comment text. */
     text?: string | undefined;
+    /** Indicates if the comment is made by customer */
     isCustomer?: boolean | undefined;
+    /** Indicates if the comment is private, which means not visible to the customer. */
     private?: boolean | undefined;
     attachment?: CasesAttachmentLink;
     replyToComment?: Comment;
@@ -5048,17 +5395,25 @@ export class Comment implements IComment {
     }
 }
 
+/** The comment entry for a case. */
 export interface IComment {
+    /** The Id of the comment. */
     id?: string;
+    /** The comment text. */
     text?: string | undefined;
+    /** Indicates if the comment is made by customer */
     isCustomer?: boolean | undefined;
+    /** Indicates if the comment is private, which means not visible to the customer. */
     private?: boolean | undefined;
     attachment?: CasesAttachmentLink;
     replyToComment?: Comment;
 }
 
+/** The response payload when creating a case. */
 export class CreateCaseResponse implements ICreateCaseResponse {
+    /** The Id of the case that created. */
     id?: string;
+    /** The created date of the case that created. */
     created?: Date;
 
     constructor(data?: ICreateCaseResponse) {
@@ -5092,16 +5447,24 @@ export class CreateCaseResponse implements ICreateCaseResponse {
     }
 }
 
+/** The response payload when creating a case. */
 export interface ICreateCaseResponse {
+    /** The Id of the case that created. */
     id?: string;
+    /** The created date of the case that created. */
     created?: Date;
 }
 
+/** The request payload for creating a new draft case. */
 export class CreateDraftCaseRequest implements ICreateDraftCaseRequest {
+    /** The Case type code of the case. */
     caseTypeCode?: string | undefined;
+    /** The group this case belongs to, eg a customer's branch */
     groupId?: string | undefined;
     customer?: CustomerMeta;
+    /** A list of case metadata in key value pairs */
     metadata?: { [key: string]: string; } | undefined;
+    /** The channel that created the draft case */
     channel?: string | undefined;
 
     constructor(data?: ICreateDraftCaseRequest) {
@@ -5153,15 +5516,22 @@ export class CreateDraftCaseRequest implements ICreateDraftCaseRequest {
     }
 }
 
+/** The request payload for creating a new draft case. */
 export interface ICreateDraftCaseRequest {
+    /** The Case type code of the case. */
     caseTypeCode?: string | undefined;
+    /** The group this case belongs to, eg a customer's branch */
     groupId?: string | undefined;
     customer?: CustomerMeta;
+    /** A list of case metadata in key value pairs */
     metadata?: { [key: string]: string; } | undefined;
+    /** The channel that created the draft case */
     channel?: string | undefined;
 }
 
+/** Customer Data as Json string */
 export class CustomerData implements ICustomerData {
+    /** The json data as string. */
     formData?: string | undefined;
 
     constructor(data?: ICustomerData) {
@@ -5193,16 +5563,25 @@ export class CustomerData implements ICustomerData {
     }
 }
 
+/** Customer Data as Json string */
 export interface ICustomerData {
+    /** The json data as string. */
     formData?: string | undefined;
 }
 
+/** The customer response object that contains information from the integration system. Properties that have no direct mapping to this model can be added to Indice.Features.Cases.Models.Responses.CustomerDetails.Metadata dictionary. */
 export class CustomerDetails implements ICustomerDetails {
+    /** The Id of the customer as created to our Identity provider. */
     userId?: string | undefined;
+    /** The Id of the customer as provided by the consumer/integrator. */
     customerId?: string | undefined;
+    /** The first name of the customer. */
     firstName?: string | undefined;
+    /** The last name of the customer. */
     lastName?: string | undefined;
+    /** The Id of the group the customer belongs. */
     groupId?: string | undefined;
+    /** Any extra customer metadata with consumer/integrator business logic. */
     metadata?: { [key: string]: string; } | undefined;
 
     constructor(data?: ICustomerDetails) {
@@ -5256,15 +5635,23 @@ export class CustomerDetails implements ICustomerDetails {
     }
 }
 
+/** The customer response object that contains information from the integration system. Properties that have no direct mapping to this model can be added to Indice.Features.Cases.Models.Responses.CustomerDetails.Metadata dictionary. */
 export interface ICustomerDetails {
+    /** The Id of the customer as created to our Identity provider. */
     userId?: string | undefined;
+    /** The Id of the customer as provided by the consumer/integrator. */
     customerId?: string | undefined;
+    /** The first name of the customer. */
     firstName?: string | undefined;
+    /** The last name of the customer. */
     lastName?: string | undefined;
+    /** The Id of the group the customer belongs. */
     groupId?: string | undefined;
+    /** Any extra customer metadata with consumer/integrator business logic. */
     metadata?: { [key: string]: string; } | undefined;
 }
 
+/** Customer metadata related to the Customer the case is created for. The customer may create the case himself or the case could be created on this customers behalf */
 export class CustomerMeta implements ICustomerMeta {
     userId?: string | undefined;
     customerId?: string | undefined;
@@ -5309,6 +5696,7 @@ export class CustomerMeta implements ICustomerMeta {
     }
 }
 
+/** Customer metadata related to the Customer the case is created for. The customer may create the case himself or the case could be created on this customers behalf */
 export interface ICustomerMeta {
     userId?: string | undefined;
     customerId?: string | undefined;
@@ -5317,7 +5705,9 @@ export interface ICustomerMeta {
     fullName?: string | undefined;
 }
 
+/** The request payload with the edited data. */
 export class EditCaseRequest implements IEditCaseRequest {
+    /** The data in json string. */
     data?: string | undefined;
 
     constructor(data?: IEditCaseRequest) {
@@ -5349,12 +5739,17 @@ export class EditCaseRequest implements IEditCaseRequest {
     }
 }
 
+/** The request payload with the edited data. */
 export interface IEditCaseRequest {
+    /** The data in json string. */
     data?: string | undefined;
 }
 
+/** The lookup item model. */
 export class LookupItem implements ILookupItem {
+    /** The name or the key of the look up item */
     name?: string | undefined;
+    /** The value of the lookup item */
     value?: string | undefined;
 
     constructor(data?: ILookupItem) {
@@ -5388,8 +5783,11 @@ export class LookupItem implements ILookupItem {
     }
 }
 
+/** The lookup item model. */
 export interface ILookupItem {
+    /** The name or the key of the look up item */
     name?: string | undefined;
+    /** The value of the lookup item */
     value?: string | undefined;
 }
 
@@ -5441,14 +5839,21 @@ export interface ILookupItemResultSet {
     items?: LookupItem[] | undefined;
 }
 
+/** The model for the customer with the minimum required properties. */
 export class MyCasePartial implements IMyCasePartial {
+    /** Id of the case. */
     id?: string;
+    /** The date the case was created. */
     created?: Date | undefined;
     publicStatus?: CasePublicStatus;
+    /** The case type code of the case. */
     caseTypeCode?: string | undefined;
     title?: string | undefined;
+    /** The checkpoint name of the case. */
     checkpoint?: string | undefined;
+    /** The message that has been submitted from the backoffice. */
     message?: string | undefined;
+    /** Translations. */
     translations?: { [key: string]: MyCasePartialTranslation; } | undefined;
 
     constructor(data?: IMyCasePartial) {
@@ -5506,14 +5911,21 @@ export class MyCasePartial implements IMyCasePartial {
     }
 }
 
+/** The model for the customer with the minimum required properties. */
 export interface IMyCasePartial {
+    /** Id of the case. */
     id?: string;
+    /** The date the case was created. */
     created?: Date | undefined;
     publicStatus?: CasePublicStatus;
+    /** The case type code of the case. */
     caseTypeCode?: string | undefined;
     title?: string | undefined;
+    /** The checkpoint name of the case. */
     checkpoint?: string | undefined;
+    /** The message that has been submitted from the backoffice. */
     message?: string | undefined;
+    /** Translations. */
     translations?: { [key: string]: MyCasePartialTranslation; } | undefined;
 }
 
@@ -5566,6 +5978,7 @@ export interface IMyCasePartialResultSet {
 }
 
 export class MyCasePartialTranslation implements IMyCasePartialTranslation {
+    /** The title of the case type. */
     title?: string | undefined;
 
     constructor(data?: IMyCasePartialTranslation) {
@@ -5598,6 +6011,7 @@ export class MyCasePartialTranslation implements IMyCasePartialTranslation {
 }
 
 export interface IMyCasePartialTranslation {
+    /** The title of the case type. */
     title?: string | undefined;
 }
 
@@ -5653,8 +6067,11 @@ export interface IProblemDetails {
     instance?: string | undefined;
 }
 
+/** The reject reason dto. */
 export class RejectReason implements IRejectReason {
+    /** The key of the reject reason. This key will be used in resources. */
     key?: string | undefined;
+    /** The value of the reject reason. This will be translated into request language. */
     value?: string | undefined;
 
     constructor(data?: IRejectReason) {
@@ -5688,14 +6105,20 @@ export class RejectReason implements IRejectReason {
     }
 }
 
+/** The reject reason dto. */
 export interface IRejectReason {
+    /** The key of the reject reason. This key will be used in resources. */
     key?: string | undefined;
+    /** The value of the reject reason. This will be translated into request language. */
     value?: string | undefined;
 }
 
+/** A class that represents a timeline entry for a case. */
 export class TimelineEntry implements ITimelineEntry {
+    /** The timestamp. */
     timestamp?: Date;
     createdBy?: AuditMeta;
+    /** Checks if the entry is Checkpoint change. */
     readonly isCheckpoint?: boolean;
     checkpoint?: Checkpoint;
     comment?: Comment;
@@ -5737,15 +6160,20 @@ export class TimelineEntry implements ITimelineEntry {
     }
 }
 
+/** A class that represents a timeline entry for a case. */
 export interface ITimelineEntry {
+    /** The timestamp. */
     timestamp?: Date;
     createdBy?: AuditMeta;
+    /** Checks if the entry is Checkpoint change. */
     isCheckpoint?: boolean;
     checkpoint?: Checkpoint;
     comment?: Comment;
 }
 
+/** The request to update the data of the case. */
 export class UpdateCaseRequest implements IUpdateCaseRequest {
+    /** The data in json string. */
     data?: string | undefined;
 
     constructor(data?: IUpdateCaseRequest) {
@@ -5777,7 +6205,9 @@ export class UpdateCaseRequest implements IUpdateCaseRequest {
     }
 }
 
+/** The request to update the data of the case. */
 export interface IUpdateCaseRequest {
+    /** The data in json string. */
     data?: string | undefined;
 }
 

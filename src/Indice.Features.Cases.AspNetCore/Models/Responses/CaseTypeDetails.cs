@@ -1,7 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace Indice.Features.Cases.Models.Responses
 {
+    /// <summary>
+    /// The case type details model.
+    /// </summary>
     public class CaseTypeDetails
     {
         /// <summary>
@@ -43,5 +47,10 @@ namespace Indice.Features.Cases.Models.Responses
         /// The case type tags.
         /// </summary>
         public string? Tags { get; set; }
+
+        /// <summary>
+        /// The checkpoints for this case type.
+        /// </summary>
+        public IEnumerable<CheckpointTypeDetails> CheckpointTypes { get; set; }
     }
 }

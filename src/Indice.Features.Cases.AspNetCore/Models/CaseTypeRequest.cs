@@ -3,6 +3,9 @@ using System.Collections.Generic;
 
 namespace Indice.Features.Cases.Models
 {
+    /// <summary>
+    /// The case type request model.
+    /// </summary>
     public class CaseTypeRequest
     {
         /// <summary>
@@ -43,7 +46,7 @@ namespace Indice.Features.Cases.Models
         /// <summary>
         /// The list of checkpoints for the case type
         /// </summary>
-        public List<CheckpointTypeRequest>? CheckpointTypes { get; set; }
+        public IEnumerable<CheckpointTypeDetails>? CheckpointTypes { get; set; }
 
         /// <summary>
         /// The case type tags.

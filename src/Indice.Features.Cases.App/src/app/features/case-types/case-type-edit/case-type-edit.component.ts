@@ -31,8 +31,7 @@ export class CaseTypeEditComponent implements OnInit {
     this.route.params.subscribe(params => {
       this.caseTypeId = params.caseTypeId;
       this._api.getCaseTypeById(this.caseTypeId).subscribe(caseType => {
-        this.data = caseType;
-        this.data.requiresCheckpoints = false;
+        this.data = caseType;        
       });
     });
   }
