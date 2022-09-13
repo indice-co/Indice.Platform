@@ -251,7 +251,6 @@ export class CaseTypesService {
                 activateElement(element);
                 if (element.hasOwnProperty('items')) { // ajsf sections have items!
                     element.items.forEach((item: any) => {
-                        console.log(item);
                         activateElement(item);
                         if (item.hasOwnProperty('items')) { // ajsf flex containers have items!
                             item.items.forEach((i: any) => {
