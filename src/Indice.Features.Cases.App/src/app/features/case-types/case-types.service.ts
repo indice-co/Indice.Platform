@@ -209,20 +209,21 @@ export class CaseTypesService {
                             },
                             {
                                 "type": "div",
-                                "displayFlex": true,
-                                "flex-direction": "row",
-                                "htmlClass": "px-2 w-64",
+                                "display": "flex",
+                                "flex-direction": "column",
                                 "items": [
                                     {
                                         "key": "checkpointTypes[].roles",
-                                        "flex": "flex-initial w-64",
                                         "title": "Ρόλοι",
-                                        "htmlClass": "px-2 my-2",
-                                        // "listItems": 1,
+                                        "htmlClass": "px-2 my-2 w-64",
+                                        "display": "flex",
+                                        "flex-direction": "row",
                                         "type": "array",
+                                        "list-items": -1,
                                         "items": [
                                             {
                                                 "title": "Ρόλος",
+                                                "display": "flex",
                                                 "key": "checkpointTypes[].roles[]",
                                                 "htmlClass": "px-2 my-2 w-64"
                                             }
@@ -250,6 +251,7 @@ export class CaseTypesService {
                 activateElement(element);
                 if (element.hasOwnProperty('items')) { // ajsf sections have items!
                     element.items.forEach((item: any) => {
+                        console.log(item);
                         activateElement(item);
                         if (item.hasOwnProperty('items')) { // ajsf flex containers have items!
                             item.items.forEach((i: any) => {
@@ -257,6 +259,11 @@ export class CaseTypesService {
                                 if (i.hasOwnProperty('items')) {
                                     i.items.forEach((j: any) => {
                                         activateElement(j);
+                                        if(j.hasOwnProperty('items')) {
+                                            j.items.forEach((k: any) => {
+                                                activateElement(k);
+                                            })
+                                        }
                                     });
                                 }
                             });
