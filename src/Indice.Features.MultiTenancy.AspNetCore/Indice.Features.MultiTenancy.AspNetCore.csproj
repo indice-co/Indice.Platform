@@ -1,9 +1,9 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <Description>Indice.Features.Multitenancy.AspNetCore Class Library</Description>
     <Copyright>Copyright (c) 2021 Indice</Copyright>
     <AssemblyTitle>Indice.Features.Multitenancy.AspNetCore</AssemblyTitle>
-    <VersionPrefix>6.0.2</VersionPrefix>
+    <VersionPrefix>6.0.0</VersionPrefix>
     <!--<VersionSuffix>beta-01</VersionSuffix>-->
     <Authors>Constantinos Leftheris, Georgios Manoltzas</Authors>
     <TargetFrameworks>netcoreapp3.1;net5.0;net6.0;</TargetFrameworks>
@@ -34,6 +34,9 @@
   </ItemGroup>
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Indice.Features.Multitenancy.Core" Version="6.0.0" />
   </ItemGroup>
   <ItemGroup Condition=" '$(TargetFramework)' == 'net6.0' ">
     <PackageReference Include="Microsoft.Extensions.Http" Version="6.0.0" />

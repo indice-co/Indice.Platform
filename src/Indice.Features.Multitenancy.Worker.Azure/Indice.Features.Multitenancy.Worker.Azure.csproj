@@ -1,9 +1,9 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <Description>Indice.Features.Multitenancy.Worker.Azure Class Library</Description>
     <Copyright>Copyright (c) 2022 Indice</Copyright>
     <AssemblyTitle>Indice.Features.Multitenancy.Worker.Azure</AssemblyTitle>
-    <VersionPrefix>6.1.9</VersionPrefix>
+    <VersionPrefix>6.0.0</VersionPrefix>
     <!--<VersionSuffix>beta-01</VersionSuffix>-->
     <Authors>Constantinos Leftheris, Georgios Manoltzas</Authors>
     <TargetFrameworks>net5.0;net6.0;</TargetFrameworks>
@@ -33,6 +33,8 @@
     <None Include="..\..\icon\icon-310.png" Pack="true" Visible="false" PackagePath="" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="Indice.Features.Multitenancy.Core" Version="6.0.0" />
+    <PackageReference Include="Indice.Services" Version="6.1.11" />
     <PackageReference Include="Microsoft.Azure.Functions.Worker" Version="1.8.0" />
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
   </ItemGroup>
