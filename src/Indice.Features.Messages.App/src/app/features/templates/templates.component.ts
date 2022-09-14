@@ -1,5 +1,6 @@
 import { Component, Inject, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
+import { TenantService } from '@indice/ng-auth';
 
 import { BaseListComponent, Icons, IResultSet, ListViewType, MenuOption, ModalService, RouterViewAction, ToasterService, ToastType, ViewAction } from '@indice/ng-components';
 import { Observable } from 'rxjs';
@@ -17,7 +18,8 @@ export class TemplatesComponent extends BaseListComponent<Template> implements O
         private _router: Router,
         private _api: MessagesApiClient,
         @Inject(ToasterService) private _toaster: ToasterService,
-        private _modalService: ModalService
+        private _modalService: ModalService,
+        private _tenantService: TenantService
     ) {
         super(route, _router);
         this.view = ListViewType.Table;
@@ -33,7 +35,7 @@ export class TemplatesComponent extends BaseListComponent<Template> implements O
 
     public ngOnInit(): void {
         super.ngOnInit();
-        this.actions.push(new RouterViewAction(Icons.Add, 'templates/add', null, null));
+        this.actions.push(new RouterViewAction(Icons.Add, `${this._tenantService.getTenantValue()}/templates/add`, null, null));
     }
 
     public loadItems(): Observable<IResultSet<Template> | null | undefined> {
@@ -56,7 +58,12 @@ export class TemplatesComponent extends BaseListComponent<Template> implements O
             if (response.result?.answer) {
                 this._api.deleteTemplate(response.result.data.id).subscribe(() => {
                     this._toaster.show(ToastType.Success, 'Επιτυχής διαγραφή', `Το πρότυπο με όνομα '${response.result.data.name}' διαγράφηκε με επιτυχία.`);
-                    this._router.navigateByUrl('/', { skipLocationChange: true }).then(() => this._router.navigate(['templates']));
+                    const navigationCommands = ['templates'];
+                    const tenantAlias = this._tenantService.getTenantValue();
+                    if (tenantAlias !== '') {
+                        navigationCommands.unshift(tenantAlias);
+                    }
+                    this._router.navigateByUrl('/', { skipLocationChange: true }).then(() => this._router.navigate(navigationCommands));
                 });
             }
         });

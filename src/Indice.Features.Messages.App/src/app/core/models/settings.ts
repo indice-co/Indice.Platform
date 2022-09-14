@@ -3,7 +3,7 @@ import { IAppSettings, IAuthSettings } from './settings.model';
 
 function createAppSettings(): IAppSettings {
     const isTemplate = environment.isTemplate;
-    let authority: string = '', clientId: string = '', host: string = '', baseHref: string = '', culture: string = '', version: string = '', scopes = '';
+    let authority: string = '', clientId: string = '', host: string = '', baseHref: string = '', culture: string = '', version: string = '', scopes = '', multitenancy = 'false';
     if (isTemplate) {
         const appRoot = document.getElementsByTagName('app-root')[0];
         authority = appRoot.getAttribute('authority') || '';
@@ -13,6 +13,7 @@ function createAppSettings(): IAppSettings {
         culture = appRoot.getAttribute('culture') || '';
         version = appRoot.getAttribute('version') || '';
         scopes = appRoot.getAttribute('scopes') || '';
+        multitenancy = appRoot.getAttribute('multitenancy') || 'false';
         if (!authority || !clientId || !host) {
             throw new Error('Please provide authority, clientId and baseAddress as properties of app-root element.');
         }
@@ -23,6 +24,7 @@ function createAppSettings(): IAppSettings {
         appRoot.attributes.removeNamedItem('culture');
         appRoot.attributes.removeNamedItem('version');
         appRoot.attributes.removeNamedItem('scopes');
+        appRoot.attributes.removeNamedItem('multitenancy');
     }
     return {
         api_url: !isTemplate ? environment.api_url : host,
@@ -43,6 +45,7 @@ function createAppSettings(): IAppSettings {
         } as IAuthSettings,
         culture: !isTemplate ? environment.culture : culture,
         isTemplate: environment.isTemplate,
+        multitenancy: !isTemplate ? environment.multitenancy : (multitenancy === 'false' ? false : true),
         production: environment.production,
         version: version || '1.0.0'
     };

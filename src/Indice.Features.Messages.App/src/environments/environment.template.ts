@@ -17,5 +17,6 @@ export const environment = {
     },
     culture: '',
     isTemplate: true,
+    multitenancy: false,
     production: true
 };

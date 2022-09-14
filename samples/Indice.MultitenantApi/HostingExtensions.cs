@@ -70,6 +70,13 @@ namespace Indice.MultitenantApi
                 }
                 builder.UseSqlServer(configuration.GetConnectionString("SaasDb"));
             })
+            .AddCors(options => options.AddDefaultPolicy(builder => {
+                builder.WithOrigins(configuration.GetSection("AllowedOrigins").Get<string[]>())
+                       .WithMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+                       .WithHeaders("Authorization", "Content-Type", "X-Tenant-Id")
+                       .WithExposedHeaders("Content-Disposition")
+                       .SetPreflightMaxAge(TimeSpan.FromMinutes(10));
+            }))
             .AddProblemDetails(options => {
                 options.IncludeExceptionDetails = (httpContext, exception) => hostingEnvironment.IsDevelopment();
                 options.Map<BusinessException>(exception => {
@@ -142,6 +149,7 @@ namespace Indice.MultitenantApi
                     app.UseHsts();
                 }
             }
+            app.UseCors();
             app.UseRouting();
             app.UseResponseCaching();
             app.UseProblemDetails();

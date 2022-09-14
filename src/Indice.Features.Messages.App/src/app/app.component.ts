@@ -16,5 +16,7 @@ import { IAppSettings } from './core/models/settings.model';
   `
 })
 export class AppComponent {
+  constructor() { }
+
   public settings: IAppSettings = settings;
 }

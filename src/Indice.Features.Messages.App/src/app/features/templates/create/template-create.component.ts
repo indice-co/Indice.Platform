@@ -1,5 +1,6 @@
 import { AfterViewChecked, ChangeDetectorRef, Component, Inject, OnInit, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
+import { TenantService } from '@indice/ng-auth';
 
 import { HeaderMetaItem, Icons, ToasterService, ToastType } from '@indice/ng-components';
 import { CreateTemplateRequest, MessageContent, MessagesApiClient } from 'src/app/core/services/messages-api.service';
@@ -17,6 +18,7 @@ export class TemplateCreateComponent implements OnInit, AfterViewChecked {
         private _api: MessagesApiClient,
         @Inject(ToasterService) private _toaster: ToasterService,
         private _router: Router,
+        private _tenantService: TenantService
     ) { }
 
     public metaItems: HeaderMetaItem[] | null = [];
@@ -54,7 +56,12 @@ export class TemplateCreateComponent implements OnInit, AfterViewChecked {
             .subscribe(_ => {
                 this.saveInProgress = false;
                 this._toaster.show(ToastType.Success, 'Επιτυχής ενημέρωση', `Το πρότυπο με όνομα '${name}' δημιουργήθηκε με επιτυχία.`);
-                this._router.navigate(['templates']);
+                const navigationCommands = ['templates'];
+                const tenantAlias = this._tenantService.getTenantValue();
+                if (tenantAlias !== '') {
+                    navigationCommands.unshift(tenantAlias);
+                }
+                this._router.navigate(navigationCommands);
             });
     }
 }

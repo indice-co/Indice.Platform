@@ -5,8 +5,7 @@ import { BrowserModule } from '@angular/platform-browser';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 import { APP_LANGUAGES, APP_LINKS, IndiceComponentsModule, ModalService, SHELL_CONFIG } from '@indice/ng-components';
-import { AuthHttpInterceptor, AUTH_SETTINGS, IndiceAuthModule } from '@indice/ng-auth';
-import { HighlightModule, HIGHLIGHT_OPTIONS } from 'ngx-highlightjs';
+import { AuthHttpInterceptor, AUTH_SETTINGS, IndiceAuthModule, TenantHeaderInterceptor, TenantService, TENANT_PREFIX_URL } from '@indice/ng-auth';
 import { AppComponent } from './app.component';
 import { AppLanguagesService } from './shared/services/app-languages.service';
 import { AppLinks } from './app.links';
@@ -34,7 +33,9 @@ import { DistributionListDetailsEditComponent } from './features/distribution-li
 import { DistributionListDetailsEditRightpaneComponent } from './features/distribution-lists/edit/details/rightpane/distribution-list-edit-details-rightpane.component';
 import { DistributionListEditComponent } from './features/distribution-lists/edit/distribution-list-edit.component';
 import { DistributionListsComponent } from './features/distribution-lists/distribution-lists.component';
+import { HighlightModule, HIGHLIGHT_OPTIONS } from 'ngx-highlightjs';
 import { HomeComponent } from './features/home/home.component';
+import { HttpStatusComponent } from './shared/components/http-status/http-status.component';
 import { LocalDropDownMenuComponent } from './shared/components/drop-down-menu/drop-down-menu.component';
 import { LogOutComponent } from './core/services/logout/logout.component';
 import { MESSAGES_API_BASE_URL } from './core/services/messages-api.service';
@@ -51,7 +52,6 @@ import { TemplateDetailsEditComponent } from './features/templates/edit/details/
 import { TemplateDetailsEditRightpaneComponent } from './features/templates/edit/details/rightpane/template-edit-details-rightpane.component';
 import { TemplateEditComponent } from './features/templates/edit/template-edit.component';
 import { TemplatesComponent } from './features/templates/templates.component';
-import { ToggleButtonComponent } from './shared/components/toggle-button/toggle-button.component';
 import * as app from 'src/app/core/models/settings';
 import localeGreek from '@angular/common/locales/el';
 registerLocaleData(localeGreek);
@@ -96,7 +96,7 @@ registerLocaleData(localeGreek);
     TemplateDetailsEditRightpaneComponent,
     TemplateEditComponent,
     TemplatesComponent,
-    ToggleButtonComponent
+    HttpStatusComponent
   ],
   imports: [
     AppRoutingModule,
@@ -113,12 +113,14 @@ registerLocaleData(localeGreek);
     DatePipe,
     ModalService,
     JsonPipe,
-    { provide: APP_LINKS, useFactory: () => new AppLinks() },
+    { provide: APP_LINKS, useClass: AppLinks, deps: [TenantService] },
     { provide: AUTH_SETTINGS, useFactory: () => app.settings.auth_settings },
     { provide: HTTP_INTERCEPTORS, useClass: AuthHttpInterceptor, multi: true },
     { provide: HTTP_INTERCEPTORS, useClass: BadRequestInterceptor, multi: true },
+    //{ provide: HTTP_INTERCEPTORS, useClass: TenantHeaderInterceptor, multi: true, deps: [MESSAGES_API_BASE_URL, TenantService] },
     { provide: MESSAGES_API_BASE_URL, useFactory: () => app.settings.api_url },
     { provide: SHELL_CONFIG, useFactory: () => new ShellConfig() },
+    { provide: TENANT_PREFIX_URL, useExisting: MESSAGES_API_BASE_URL },
     { provide: LOCALE_ID, useValue: 'el-GR' },
     {
       provide: HIGHLIGHT_OPTIONS,

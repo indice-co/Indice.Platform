@@ -3,6 +3,7 @@ export interface IAppSettings {
     auth_settings: IAuthSettings;
     culture: string;
     isTemplate: boolean,
+    multitenancy: boolean,
     production: boolean;
     version: string;
 }

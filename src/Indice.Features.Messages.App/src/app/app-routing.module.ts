@@ -10,6 +10,7 @@ import { CampaignDetailsEditRightpaneComponent } from './features/campaigns/edit
 import { CampaignEditComponent } from './features/campaigns/edit/campaign-edit.component';
 import { CampaignReportsComponent } from './features/campaigns/edit/reports/campaign-reports.component';
 import { CampaignsComponent } from './features/campaigns/campaigns.component';
+import { CommonAppShellConfig } from './shell.config';
 import { DashboardComponent } from './features/dashboard/dashboard.component';
 import { DistributionListContactCreateComponent } from './features/distribution-lists/edit/contacts/create/distribution-list-contact-create.component';
 import { DistributionListContactEditComponent } from './features/distribution-lists/edit/contacts/edit/distribution-list-contact-edit.component';
@@ -19,7 +20,9 @@ import { DistributionListDetailsEditComponent } from './features/distribution-li
 import { DistributionListDetailsEditRightpaneComponent } from './features/distribution-lists/edit/details/rightpane/distribution-list-edit-details-rightpane.component';
 import { DistributionListEditComponent } from './features/distribution-lists/edit/distribution-list-edit.component';
 import { DistributionListsComponent } from './features/distribution-lists/distribution-lists.component';
+import { environment } from 'src/environments/environment';
 import { HomeComponent } from './features/home/home.component';
+import { HttpStatusComponent } from './shared/components/http-status/http-status.component';
 import { LogOutComponent } from './core/services/logout/logout.component';
 import { MessageTypeCreateComponent } from './features/message-types/create/message-type-create.component';
 import { MessageTypeEditComponent } from './features/message-types/edit/message-type-edit.component';
@@ -34,10 +37,24 @@ import { TemplatesComponent } from './features/templates/templates.component';
 const routes: Routes = [
   { path: 'auth-callback', component: AuthCallbackComponent },
   { path: 'auth-renew', component: AuthRenewComponent },
-  { path: '', redirectTo: 'home', pathMatch: 'full' },
-  { path: 'home', component: HomeComponent, pathMatch: 'full', data: { shell: { fluid: true, showHeader: false, showFooter: false } } },
   {
-    path: '', canActivate: [AuthGuardService], children: [
+    path: 'not-found', component: HttpStatusComponent, data: {
+      code: '404',
+      title: 'Άγνωστη σελίδα',
+      message: 'Η σελίδα που ζητήσατε δεν βρέθηκε',
+      shell: CommonAppShellConfig
+    }
+  },
+  {
+    path: 'forbidden', component: HttpStatusComponent, data: {
+      code: '403',
+      title: 'Μη εξουσιοδοτημένη πρόσβαση',
+      message: 'Παρακαλώ επικοινωνήστε με την υποστήριξη',
+      shell: CommonAppShellConfig
+    }
+  },
+  {
+    path: environment.multitenancy ? ':tenantAlias' : '', canActivate: [AuthGuardService], children: [
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
       { path: 'dashboard', component: DashboardComponent },
       { path: 'campaigns', component: CampaignsComponent },
@@ -67,7 +84,7 @@ const routes: Routes = [
           { path: 'details', component: TemplateDetailsEditComponent },
           { path: 'content', component: TemplateContentEditComponent }
         ]
-      },
+      }
     ]
   },
   { path: 'edit-campaign', canActivate: [AuthGuardService], component: CampaignDetailsEditRightpaneComponent, outlet: 'rightpane', pathMatch: 'prefix' },
@@ -79,8 +96,20 @@ const routes: Routes = [
   { path: 'create-message-type', canActivate: [AuthGuardService], component: MessageTypeCreateComponent, outlet: 'rightpane', pathMatch: 'prefix' },
   { path: 'edit-message-type/:messageTypeId', canActivate: [AuthGuardService], component: MessageTypeEditComponent, outlet: 'rightpane', pathMatch: 'prefix' },
   { path: 'logout', component: LogOutComponent, data: { shell: { fluid: true, showHeader: false, showFooter: false } } },
-  { path: '**', component: PageNotFoundComponent, data: { shell: { fluid: true, showHeader: false, showFooter: false } } }
+  {
+    path: '**', component: HttpStatusComponent, data: {
+      code: '404',
+      title: 'Άγνωστη σελίδα',
+      message: 'Η σελίδα που ζητήσατε δεν βρέθηκε',
+      shell: CommonAppShellConfig
+    }
+  }
 ];
+
+if (!environment.multitenancy) {
+  routes.splice(2, 0, { path: '', redirectTo: 'home', pathMatch: 'full' });
+  routes.splice(3, 0, { path: 'home', component: HomeComponent, pathMatch: 'full', data: { shell: { fluid: true, showHeader: false, showFooter: false } } });
+}
 
 @NgModule({
   imports: [RouterModule.forRoot(routes)],

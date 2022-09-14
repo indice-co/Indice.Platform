@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Threading.Tasks;
-using Indice.Features.Messages.Worker.Azure;
 using Indice.Features.Multitenancy.Core;
 using Indice.Sample.Common.Data;
 using Indice.Sample.Common.Models;

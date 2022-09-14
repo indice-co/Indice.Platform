@@ -1,5 +1,6 @@
 import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
+import { TenantService } from '@indice/ng-auth';
 
 import { BaseListComponent, Icons, IResultSet, ListViewType, MenuOption, ModalService, ToasterService, ToastType, ViewAction } from '@indice/ng-components';
 import { Observable, Subscription } from 'rxjs';
@@ -21,7 +22,8 @@ export class DistributionListContactsComponent extends BaseListComponent<Contact
         private _api: MessagesApiClient,
         @Inject(ToasterService) private _toaster: ToasterService,
         private _modalService: ModalService,
-        private _activatedRoute: ActivatedRoute
+        private _activatedRoute: ActivatedRoute,
+        private _tenantService: TenantService
     ) {
         super(route, _router);
         this.view = ListViewType.Table;
@@ -70,7 +72,12 @@ export class DistributionListContactsComponent extends BaseListComponent<Contact
                 const contact = response.result.data;
                 this._api.removeContactFromDistributionList(this._distributionListId, contact.id).subscribe(() => {
                     this._toaster.show(ToastType.Success, 'Επιτυχής διαγραφή', `Η επαφή '${contact.fullName || contact.email}' αφαιρέθηκε από τη λίστα.`);
-                    this._router.navigateByUrl('/', { skipLocationChange: true }).then(() => this._router.navigate(['distribution-lists', this._distributionListId, 'contacts']));
+                    const navigationCommands = ['distribution-lists', this._distributionListId, 'contacts'];
+                    const tenantAlias = this._tenantService.getTenantValue();
+                    if (tenantAlias !== '') {
+                        navigationCommands.unshift(tenantAlias);
+                    }
+                    this._router.navigateByUrl('/', { skipLocationChange: true }).then(() => this._router.navigate(navigationCommands));
                 });
             }
         });

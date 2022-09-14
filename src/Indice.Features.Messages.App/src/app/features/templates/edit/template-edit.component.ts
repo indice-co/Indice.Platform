@@ -1,5 +1,5 @@
 import { AfterViewChecked, ChangeDetectorRef, Component, OnInit, ViewChild } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 
 import { HeaderMetaItem, ViewLayoutComponent } from '@indice/ng-components';
 import { Template } from 'src/app/core/services/messages-api.service';
@@ -15,7 +15,6 @@ export class TemplateEditComponent implements OnInit, AfterViewChecked {
 
     constructor(
         private _activatedRoute: ActivatedRoute,
-        private _router: Router,
         private _changeDetector: ChangeDetectorRef,
         private _templateStore: TemplateEditStore
     ) { }

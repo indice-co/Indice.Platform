@@ -1,5 +1,6 @@
 import { Component, Inject, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
+import { TenantService } from '@indice/ng-auth';
 
 import { BaseListComponent, Icons, IResultSet, ListViewType, MenuOption, ModalService, ToasterService, ToastType, ViewAction } from '@indice/ng-components';
 import { Observable } from 'rxjs';
@@ -17,7 +18,8 @@ export class MessageTypesComponent extends BaseListComponent<MessageType> implem
         private _router: Router,
         private _api: MessagesApiClient,
         @Inject(ToasterService) private _toaster: ToasterService,
-        private _modalService: ModalService
+        private _modalService: ModalService,
+        private _tenantService: TenantService
     ) {
         super(route, _router);
         this.view = ListViewType.Table;
@@ -55,7 +57,12 @@ export class MessageTypesComponent extends BaseListComponent<MessageType> implem
             if (response.result?.answer) {
                 this._api.deleteMessageType(response.result.data.id).subscribe(() => {
                     this._toaster.show(ToastType.Success, 'Επιτυχής διαγραφή', `Ο τύπος με όνομα '${response.result.data.name}' διαγράφηκε με επιτυχία.`);
-                    this._router.navigateByUrl('/', { skipLocationChange: true }).then(() => this._router.navigate(['message-types']));
+                    const navigationCommands = ['message-types'];
+                    const tenantAlias = this._tenantService.getTenantValue();
+                    if (tenantAlias !== '') {
+                        navigationCommands.unshift(tenantAlias);
+                    }
+                    this._router.navigateByUrl('/', { skipLocationChange: true }).then(() => this._router.navigate(navigationCommands));
                 });
             }
         });

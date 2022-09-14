@@ -2,9 +2,10 @@ import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, OnInit, ViewCh
 import { Router } from '@angular/router';
 
 import { ComboboxComponent } from '@indice/ng-components';
-import { environment } from 'src/environments/environment';
+import { settings } from 'src/app/core/models/settings';
 import { forkJoin } from 'rxjs';
 import { Contact, ContactResultSet, CreateDistributionListContactRequest, MessagesApiClient } from 'src/app/core/services/messages-api.service';
+import { TenantService } from '@indice/ng-auth';
 
 @Component({
     selector: 'app-distribution-list-contact-create',
@@ -18,19 +19,20 @@ export class DistributionListContactCreateComponent implements OnInit, AfterView
     constructor(
         private _changeDetector: ChangeDetectorRef,
         private _api: MessagesApiClient,
-        private _router: Router
+        private _router: Router,
+        private _tenantService: TenantService
     ) { }
 
     public submitInProgress = false;
     public contacts: Contact[] = [];
     public isLoading: boolean = false;
-    public apiUrl = environment.api_url;
+    public apiUrl = settings.api_url;
     public get anyContactEditing() {
         return false;
     }
 
     public ngOnInit(): void {
-        this._distributionListId = this._router.url.split('/')[2];
+        this._distributionListId = this._router.url.split('/')[settings.multitenancy ? 3 : 2];
     }
 
     public onContactsSearch(searchTerm: string | undefined): void {
@@ -57,22 +59,20 @@ export class DistributionListContactCreateComponent implements OnInit, AfterView
     }
 
     public onAddNewContact(searchTerm: string): void {
-        const validateEmail = (email:string) => {
+        const validateEmail = (email: string) => {
             return String(email)
-              .toLowerCase()
-              .match(
-                /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
-              );
-          };
-          const contact = new Contact();
-          searchTerm = searchTerm.trim()
-          if (validateEmail(searchTerm)) {
+                .toLowerCase()
+                .match(/^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/);
+        };
+        const contact = new Contact();
+        searchTerm = searchTerm.trim()
+        if (validateEmail(searchTerm)) {
             contact.email = searchTerm;
-         } else {
+        } else {
             contact.fullName = searchTerm;
             contact.firstName = searchTerm.split(' ')[0];
             contact.lastName = searchTerm.slice(contact.firstName.length).trim();
-         }
+        }
         (<any>contact)._edit = true;
         this.contactsCombobox.selectedItems.unshift(contact);
     }
@@ -94,7 +94,12 @@ export class DistributionListContactCreateComponent implements OnInit, AfterView
             return this._api.addContactToDistributionList(this._distributionListId, body);
         });
         forkJoin(tasks).subscribe().add(() => {
-            this._router.navigateByUrl('/', { skipLocationChange: true }).then(() => this._router.navigate(['distribution-lists', this._distributionListId, 'contacts']));
+            const navigationCommands = ['distribution-lists', this._distributionListId, 'contacts'];
+            const tenantAlias = this._tenantService.getTenantValue();
+            if (tenantAlias !== '') {
+                navigationCommands.unshift(tenantAlias);
+            }
+            this._router.navigateByUrl('/', { skipLocationChange: true }).then(() => this._router.navigate(navigationCommands));
         });
     }
 

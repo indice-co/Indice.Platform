@@ -5,6 +5,7 @@ import { ModalService, ToasterService, ToastType } from '@indice/ng-components';
 import { BasicModalComponent } from 'src/app/shared/components/basic-modal/basic-modal.component';
 import { MessagesApiClient, Template } from 'src/app/core/services/messages-api.service';
 import { TemplateEditStore } from '../template-edit-store.service';
+import { TenantService } from '@indice/ng-auth';
 
 @Component({
     selector: 'app-campaign-details-edit',
@@ -19,7 +20,8 @@ export class TemplateDetailsEditComponent implements OnInit {
         private _templateStore: TemplateEditStore,
         private _router: Router,
         @Inject(ToasterService) private _toaster: ToasterService,
-        private _activatedRoute: ActivatedRoute
+        private _activatedRoute: ActivatedRoute,
+        private _tenantService: TenantService
     ) { }
 
     public template: Template | undefined;
@@ -47,7 +49,12 @@ export class TemplateDetailsEditComponent implements OnInit {
             if (response.result?.answer) {
                 this._api.deleteCampaign(response.result.data.id).subscribe(() => {
                     this._toaster.show(ToastType.Success, 'Επιτυχής διαγραφή', `Το πρότυπο με όνομα '${response.result.data.name}' διαγράφηκε με επιτυχία.`);
-                    this._router.navigateByUrl('/', { skipLocationChange: true }).then(() => this._router.navigate(['templates']));
+                    const navigationCommands = ['templates'];
+                    const tenantAlias = this._tenantService.getTenantValue();
+                    if (tenantAlias !== '') {
+                        navigationCommands.unshift(tenantAlias);
+                    }
+                    this._router.navigateByUrl('/', { skipLocationChange: true }).then(() => this._router.navigate(navigationCommands));
                 });
             }
         });

@@ -1,10 +1,12 @@
 import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, Inject, OnDestroy, OnInit, TemplateRef, ViewChild } from '@angular/core';
 import { ActivatedRoute, Params, Router } from '@angular/router';
+import { TenantService } from '@indice/ng-auth';
 import { ToasterService, ToastType } from '@indice/ng-components';
 import { Subscription } from 'rxjs';
 
-import { MessagesApiClient, Template } from 'src/app/core/services/messages-api.service';
+import { Template } from 'src/app/core/services/messages-api.service';
 import { TemplateEditStore } from '../../template-edit-store.service';
+import { settings } from 'src/app/core/models/settings';
 
 @Component({
     selector: 'app-campaign-details-edit-rightpane',
@@ -20,7 +22,7 @@ export class TemplateDetailsEditRightpaneComponent implements OnInit, AfterViewI
         private _activatedRoute: ActivatedRoute,
         private _changeDetector: ChangeDetectorRef,
         @Inject(ToasterService) private _toaster: ToasterService,
-        private _api: MessagesApiClient
+        private _tenantService: TenantService
     ) { }
 
     @ViewChild('editNameTemplate', { static: true }) public editNameTemplate!: TemplateRef<any>;
@@ -30,7 +32,7 @@ export class TemplateDetailsEditRightpaneComponent implements OnInit, AfterViewI
     public model = new Template();
 
     public ngOnInit(): void {
-        this._templateId = this._router.url.split('/')[2];
+        this._templateId = this._router.url.split('/')[settings.multitenancy ? 3 : 2];
         this._activatedRoute.queryParams.subscribe((queryParams: Params) => {
             this._selectTemplate(queryParams.action || 'editName');
         });
@@ -55,7 +57,12 @@ export class TemplateDetailsEditRightpaneComponent implements OnInit, AfterViewI
                 next: () => {
                     this.submitInProgress = false;
                     this._toaster.show(ToastType.Success, 'Επιτυχής αποθήκευση', `Το πρότυπο με όνομα '${this.model.name}' αποθηκεύτηκε με επιτυχία.`);
-                    this._router.navigateByUrl('/', { skipLocationChange: true }).then(() => this._router.navigate(['templates', this._templateId]));
+                    const navigationCommands = ['templates', this._templateId];
+                    const tenantAlias = this._tenantService.getTenantValue();
+                    if (tenantAlias !== '') {
+                        navigationCommands.unshift(tenantAlias);
+                    }
+                    this._router.navigateByUrl('/', { skipLocationChange: true }).then(() => this._router.navigate(navigationCommands));
                 }
             });
     }

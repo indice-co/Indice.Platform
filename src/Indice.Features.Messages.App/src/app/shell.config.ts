@@ -14,3 +14,16 @@ export class ShellConfig implements IShellConfig {
     public showNotifications = false;
     public showUserNameOnHeader = true;
 }
+
+export const CommonAppShellConfig: IShellConfig = {
+    appLogo: '/assets/images/branding/evpulse-dark-white.svg',
+    appLogoAlt: 'EVPulse',
+    breadcrumb: false,
+    fluid: true,
+    layout: ShellLayoutType.Stacked,
+    showAlertsOnHeader: false,
+    showFooter: false,
+    showHeader: false,
+    showLangsOnHeader: true,
+    showUserNameOnHeader: false
+};
