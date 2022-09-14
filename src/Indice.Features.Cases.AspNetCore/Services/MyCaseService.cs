@@ -165,7 +165,7 @@ namespace Indice.Features.Cases.Services
                 .AsQueryable()
                 .Where(p => (p.CreatedBy.Id == userId || p.Customer.UserId == userId) && !p.Draft);
 
-            foreach (var tag in options.Filter?.CaseTypeTags) {
+            foreach (var tag in options.Filter?.CaseTypeTags ?? new List<string>()) {
                 // If there are more than 1 tag, the linq will be translated into "WHERE [Tag] LIKE %tag1% AND [Tag] LIKE %tag2% ..."
                 dbCaseQueryable = dbCaseQueryable.Where(dbCase => EF.Functions.Like(dbCase.CaseType.Tags, $"%{tag}%"));
             }
@@ -229,7 +229,7 @@ namespace Indice.Features.Cases.Services
         public async Task<ResultSet<CaseTypePartial>> GetCaseTypes(ListOptions<GetMyCaseTypesListFilter> options) {
             var caseTypesQueryable = _dbContext.CaseTypes.AsQueryable();
 
-            foreach (var tag in options.Filter?.CaseTypeTags) {
+            foreach (var tag in options.Filter?.CaseTypeTags ?? new List<string>()) {
                 // If there are more than 1 tag, the linq will be translated into "WHERE [Tag] LIKE %tag1% AND [Tag] LIKE %tag2% ..."
                 caseTypesQueryable = caseTypesQueryable.Where(caseType => EF.Functions.Like(caseType.Tags, $"%{tag}%"));
             }
