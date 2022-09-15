@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { TenantService } from '@indice/ng-auth';
 
 import { settings } from 'src/app/core/models/settings';
 import { IAppSettings } from './core/models/settings.model';
@@ -16,7 +17,11 @@ import { IAppSettings } from './core/models/settings.model';
   `
 })
 export class AppComponent {
-  constructor() { }
+  constructor(tenantService: TenantService) {
+    if (settings.tenantId && settings.tenantId !== '') {
+      tenantService.storeTenant(settings.tenantId);
+    }
+  }
 
   public settings: IAppSettings = settings;
 }

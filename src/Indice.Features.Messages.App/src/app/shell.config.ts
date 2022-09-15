@@ -1,7 +1,7 @@
 import { IShellConfig, ShellLayoutType } from '@indice/ng-components';
 
 export class ShellConfig implements IShellConfig {
-    public appLogo = 'assets/images/branding/indice.png';
+    public appLogo = 'assets/images/logo.png';
     public appLogoAlt = 'Indice';
     public breadcrumb = false;
     public fluid = false;
@@ -16,8 +16,8 @@ export class ShellConfig implements IShellConfig {
 }
 
 export const CommonAppShellConfig: IShellConfig = {
-    appLogo: '/assets/images/branding/evpulse-dark-white.svg',
-    appLogoAlt: 'EVPulse',
+    appLogo: '',
+    appLogoAlt: '',
     breadcrumb: false,
     fluid: true,
     layout: ShellLayoutType.Stacked,

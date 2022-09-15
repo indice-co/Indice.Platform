@@ -11,9 +11,7 @@ using Microsoft.Extensions.Options;
 
 namespace Indice.AspNetCore.EmbeddedUI
 {
-    /// <summary>
-    /// A middleware used to configure and serve the admin back-office application for an Identity Server instance.
-    /// </summary>
+    /// <summary>A middleware used to configure and serve a back-office application for an API instance.</summary>
     public class SpaUIMiddleware<TOptions> where TOptions : SpaUIOptions, new()
     {
         private readonly TOptions _options;
@@ -21,9 +19,7 @@ namespace Indice.AspNetCore.EmbeddedUI
         private readonly StaticFileMiddleware _staticFileMiddleware;
         private StaticFileOptions _staticFileOptions;
 
-        /// <summary>
-        /// Constructs a new instance of <see cref="SpaUIMiddleware{TOptions}"/>.
-        /// </summary>
+        /// <summary>Constructs a new instance of <see cref="SpaUIMiddleware{TOptions}"/>.</summary>
         /// <param name="options">Options for configuring <see cref="SpaUIMiddleware{TOptions}"/> middleware.</param>
         /// <param name="embeddedUIRoot">Embedded UI root folder name.</param>
         /// <param name="assembly">The assembly containing the embedded resources.</param>
@@ -43,9 +39,7 @@ namespace Indice.AspNetCore.EmbeddedUI
             _staticFileMiddleware = CreateStaticFileMiddleware(hostingEnvironment, loggerFactory, embeddedUIRoot, assembly);
         }
 
-        /// <summary>
-        /// Invokes the <see cref="SpaUIMiddleware{TOptions}"/>.
-        /// </summary>
+        /// <summary>Invokes the <see cref="SpaUIMiddleware{TOptions}"/>.</summary>
         /// <param name="httpContext">Encapsulates all HTTP-specific information about an individual HTTP request.</param>
         public async Task Invoke(HttpContext httpContext) {
             var requestMethod = httpContext.Request.Method;
@@ -60,9 +54,7 @@ namespace Indice.AspNetCore.EmbeddedUI
             await _staticFileMiddleware.Invoke(httpContext);
         }
 
-        /// <summary>
-        /// Configures a <see cref="StaticFileMiddleware"/> in order to serve the back-office application files from embedded resources.
-        /// </summary>
+        /// <summary>Configures a <see cref="StaticFileMiddleware"/> in order to serve the back-office application files from embedded resources.</summary>
         /// <param name="hostingEnvironment">Provides information about the web hosting environment an application is running in.</param>
         /// <param name="loggerFactory">Represents a type used to configure the logging system.</param>
         /// <param name="embeddedUIRoot">Embedded UI root folder name.</param>

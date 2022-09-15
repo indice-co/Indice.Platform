@@ -1,4 +1,5 @@
-﻿using System.IdentityModel.Tokens.Jwt;
+﻿using System.Globalization;
+using System.IdentityModel.Tokens.Jwt;
 using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -15,9 +16,11 @@ using Indice.Sample.Common.Models;
 using Indice.Sample.Common.Services;
 using Indice.Types;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Rewrite;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Net.Http.Headers;
 using Swashbuckle.AspNetCore.SwaggerUI;
 
 namespace Indice.MultitenantApi
@@ -149,6 +152,14 @@ namespace Indice.MultitenantApi
                     app.UseHsts();
                 }
             }
+            var staticFileOptions = new StaticFileOptions {
+                OnPrepareResponse = context => {
+                    const int durationInSeconds = 60 * 60 * 24;
+                    context.Context.Response.Headers[HeaderNames.CacheControl] = $"public,max-age={durationInSeconds}";
+                    context.Context.Response.Headers.Append(HeaderNames.Expires, DateTime.UtcNow.AddSeconds(durationInSeconds).ToString("R", CultureInfo.InvariantCulture));
+                }
+            };
+            app.UseStaticFiles(staticFileOptions);
             app.UseCors();
             app.UseRouting();
             app.UseResponseCaching();
@@ -168,6 +179,20 @@ namespace Indice.MultitenantApi
                     options.OAuthScopeSeparator(" ");
                 });
             }
+            app.UseCampaignsUI(options => {
+                options.Path = "messages";
+                options.ClientId = "backoffice-ui";
+                options.Scope = "backoffice backoffice:messages";
+                options.DocumentTitle = "Campaigns UI";
+                options.Authority = generalSettings.Authority;
+                options.Host = generalSettings.Host;
+                options.Enabled = true;
+                options.OnPrepareResponse = staticFileOptions.OnPrepareResponse;
+                options.InjectStylesheet("/css/campaigns-ui-overrides.css");
+                options.TenantIdAccessor = httpContext => {
+                    return "contoso-ltd";
+                };
+            });
             app.UseEndpoints(endpoints => {
                 endpoints.MapSwagger();
                 endpoints.MapControllers();

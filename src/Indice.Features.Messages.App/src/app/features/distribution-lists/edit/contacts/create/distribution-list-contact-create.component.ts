@@ -5,7 +5,6 @@ import { ComboboxComponent } from '@indice/ng-components';
 import { settings } from 'src/app/core/models/settings';
 import { forkJoin } from 'rxjs';
 import { Contact, ContactResultSet, CreateDistributionListContactRequest, MessagesApiClient } from 'src/app/core/services/messages-api.service';
-import { TenantService } from '@indice/ng-auth';
 
 @Component({
     selector: 'app-distribution-list-contact-create',
@@ -19,8 +18,7 @@ export class DistributionListContactCreateComponent implements OnInit, AfterView
     constructor(
         private _changeDetector: ChangeDetectorRef,
         private _api: MessagesApiClient,
-        private _router: Router,
-        private _tenantService: TenantService
+        private _router: Router
     ) { }
 
     public submitInProgress = false;
@@ -32,7 +30,7 @@ export class DistributionListContactCreateComponent implements OnInit, AfterView
     }
 
     public ngOnInit(): void {
-        this._distributionListId = this._router.url.split('/')[settings.multitenancy ? 3 : 2];
+        this._distributionListId = this._router.url.split('/')[2];
     }
 
     public onContactsSearch(searchTerm: string | undefined): void {
@@ -94,12 +92,7 @@ export class DistributionListContactCreateComponent implements OnInit, AfterView
             return this._api.addContactToDistributionList(this._distributionListId, body);
         });
         forkJoin(tasks).subscribe().add(() => {
-            const navigationCommands = ['distribution-lists', this._distributionListId, 'contacts'];
-            const tenantAlias = this._tenantService.getTenantValue();
-            if (tenantAlias !== '') {
-                navigationCommands.unshift(tenantAlias);
-            }
-            this._router.navigateByUrl('/', { skipLocationChange: true }).then(() => this._router.navigate(navigationCommands));
+            this._router.navigateByUrl('/', { skipLocationChange: true }).then(() => this._router.navigate(['distribution-lists', this._distributionListId, 'contacts']));
         });
     }
 

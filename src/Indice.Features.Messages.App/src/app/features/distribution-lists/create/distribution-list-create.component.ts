@@ -1,6 +1,5 @@
 import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, Inject, OnInit, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
-import { TenantService } from '@indice/ng-auth';
 
 import { ToasterService, ToastType } from '@indice/ng-components';
 import { CreateDistributionListRequest, MessagesApiClient, MessageType } from 'src/app/core/services/messages-api.service';
@@ -16,8 +15,7 @@ export class DistributionListCreateComponent implements OnInit, AfterViewInit {
         private _changeDetector: ChangeDetectorRef,
         private _api: MessagesApiClient,
         private _router: Router,
-        @Inject(ToasterService) private _toaster: ToasterService,
-        private _tenantService: TenantService
+        @Inject(ToasterService) private _toaster: ToasterService
     ) { }
 
     public submitInProgress = false;
@@ -37,12 +35,7 @@ export class DistributionListCreateComponent implements OnInit, AfterViewInit {
                 next: (messageType: MessageType) => {
                     this.submitInProgress = false;
                     this._toaster.show(ToastType.Success, 'Επιτυχής αποθήκευση', `Η λίστα με όνομα '${messageType.name}' δημιουργήθηκε με επιτυχία.`);
-                    const navigationCommands = ['distribution-lists'];
-                    const tenantAlias = this._tenantService.getTenantValue();
-                    if (tenantAlias !== '') {
-                        navigationCommands.unshift(tenantAlias);
-                    }
-                    this._router.navigateByUrl('/', { skipLocationChange: true }).then(() => this._router.navigate(navigationCommands));
+                    this._router.navigateByUrl('/', { skipLocationChange: true }).then(() => this._router.navigate(['distribution-lists']));
                 }
             });
     }

@@ -30,18 +30,14 @@ namespace Indice.AspNetCore.EmbeddedUI
         public IChangeToken Watch(string filter) => _inner.Watch(filter);
     }
 
-    /// <summary>
-    /// Represents the starting point file for a SPA (index.html) in the given file provider.
-    /// </summary>
+    /// <summary>Represents the starting point file for a SPA (index.html) in the given file provider.</summary>
     internal class SpaIndexFileInfo : IFileInfo
     {
         private readonly IFileInfo _fileInfo;
         private readonly SpaUIOptions _options;
         private long? _length;
 
-        /// <summary>
-        /// Creates a new instance of <see cref="SpaIndexFileInfo"/>.
-        /// </summary>
+        /// <summary>Creates a new instance of <see cref="SpaIndexFileInfo"/>.</summary>
         /// <param name="fileInfo">Represents a file in the given file provider.</param>
         /// <param name="options">Options for configuring <see cref="SpaUIMiddleware{TOptions}"/> middleware.</param>
         public SpaIndexFileInfo(IFileInfo fileInfo, SpaUIOptions options) {
@@ -86,21 +82,21 @@ namespace Indice.AspNetCore.EmbeddedUI
             }
         }
 
-        /// <summary>
-        /// Creates a <see cref="Dictionary{TKey, TValue}"/> that is used to replace options in the index.html file.
-        /// </summary>
+        /// <summary>Creates a <see cref="Dictionary{TKey, TValue}"/> that is used to replace options in the index.html file.</summary>
         private IDictionary<string, string> GetIndexArguments() {
             var arguments = new Dictionary<string, string>() {
                 ["%(Authority)"] = _options.Authority.TrimEnd('/'),
                 ["%(ClientId)"] = _options.ClientId,
                 ["%(DocumentTitle)"] = _options.DocumentTitle,
                 ["%(Host)"] = _options.Host.TrimEnd('/'),
+                ["%(BasePath)"] = _options.BasePath.Trim('/'),
                 ["%(Path)"] = _options.Path.Trim('/'),
                 ["%(HeadContent)"] = _options.HeadContent,
                 ["%(Culture)"] = CultureInfo.CurrentCulture.TwoLetterISOLanguageName,
                 ["%(ProductVersion)"] = _options.Version,
                 ["%(Scopes)"] = _options.Scope,
-                ["%(PostLogoutRedirectUri)"] = _options.PostLogoutRedirectUri?.Trim('/') ?? string.Empty
+                ["%(PostLogoutRedirectUri)"] = _options.PostLogoutRedirectUri?.Trim('/') ?? string.Empty,
+                ["%(TenantId)"] = _options.TenantId ?? string.Empty
             };
             _options.ConfigureIndexParameters?.Invoke(arguments);
             return arguments;

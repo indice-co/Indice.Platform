@@ -21,7 +21,7 @@ export class HomeComponent implements OnInit {
             .isLoggedIn()
             .pipe(map((isLoggedIn: Boolean) => {
                 if (isLoggedIn) {
-                    this._router.navigate(['/dashboard']);
+                    this._router.navigate(['dashboard']);
                     return;
                 }
                 this._authService.signinRedirect({

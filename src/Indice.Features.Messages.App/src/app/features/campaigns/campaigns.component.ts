@@ -1,6 +1,5 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { TenantService } from '@indice/ng-auth';
 
 import { BaseListComponent, Icons, IResultSet, ListViewType, MenuOption, RouterViewAction, ViewAction } from '@indice/ng-components';
 import { Observable } from 'rxjs';
@@ -15,8 +14,7 @@ export class CampaignsComponent extends BaseListComponent<Campaign> implements O
     constructor(
         route: ActivatedRoute,
         router: Router,
-        private _api: MessagesApiClient,
-        private _tenantService: TenantService
+        private _api: MessagesApiClient
     ) {
         super(route, router);
         this.view = ListViewType.Table;
@@ -36,7 +34,7 @@ export class CampaignsComponent extends BaseListComponent<Campaign> implements O
 
     public ngOnInit(): void {
         super.ngOnInit();
-        this.actions.push(new RouterViewAction(Icons.Add, `${this._tenantService.getTenantValue()}/campaigns/add`, null, null));
+        this.actions.push(new RouterViewAction(Icons.Add, 'campaigns/add', null, null));
     }
 
     public loadItems(): Observable<IResultSet<Campaign> | null | undefined> {

@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 
-import { AuthCallbackComponent, AuthRenewComponent, PageNotFoundComponent } from '@indice/ng-components';
+import { AuthCallbackComponent, AuthRenewComponent } from '@indice/ng-components';
 import { AuthGuardService } from '@indice/ng-auth';
 import { CampaignContentEditComponent } from './features/campaigns/edit/content/campaign-edit-content.component';
 import { CampaignCreateComponent } from './features/campaigns/create/campaign-create.component';
@@ -20,7 +20,6 @@ import { DistributionListDetailsEditComponent } from './features/distribution-li
 import { DistributionListDetailsEditRightpaneComponent } from './features/distribution-lists/edit/details/rightpane/distribution-list-edit-details-rightpane.component';
 import { DistributionListEditComponent } from './features/distribution-lists/edit/distribution-list-edit.component';
 import { DistributionListsComponent } from './features/distribution-lists/distribution-lists.component';
-import { environment } from 'src/environments/environment';
 import { HomeComponent } from './features/home/home.component';
 import { HttpStatusComponent } from './shared/components/http-status/http-status.component';
 import { LogOutComponent } from './core/services/logout/logout.component';
@@ -37,6 +36,8 @@ import { TemplatesComponent } from './features/templates/templates.component';
 const routes: Routes = [
   { path: 'auth-callback', component: AuthCallbackComponent },
   { path: 'auth-renew', component: AuthRenewComponent },
+  { path: '', redirectTo: 'home', pathMatch: 'full' },
+  { path: 'home', component: HomeComponent, pathMatch: 'full', data: { shell: { fluid: true, showHeader: false, showFooter: false } } },
   {
     path: 'not-found', component: HttpStatusComponent, data: {
       code: '404',
@@ -54,7 +55,7 @@ const routes: Routes = [
     }
   },
   {
-    path: environment.multitenancy ? ':tenantAlias' : '', canActivate: [AuthGuardService], children: [
+    path: '', canActivate: [AuthGuardService], children: [
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
       { path: 'dashboard', component: DashboardComponent },
       { path: 'campaigns', component: CampaignsComponent },
@@ -105,11 +106,6 @@ const routes: Routes = [
     }
   }
 ];
-
-if (!environment.multitenancy) {
-  routes.splice(2, 0, { path: '', redirectTo: 'home', pathMatch: 'full' });
-  routes.splice(3, 0, { path: 'home', component: HomeComponent, pathMatch: 'full', data: { shell: { fluid: true, showHeader: false, showFooter: false } } });
-}
 
 @NgModule({
   imports: [RouterModule.forRoot(routes)],

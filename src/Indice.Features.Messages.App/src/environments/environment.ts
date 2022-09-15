@@ -23,7 +23,6 @@ export const environment = {
   },
   culture: 'el-GR',
   isTemplate: false,
-  multitenancy: false,
   production: false
 };
 

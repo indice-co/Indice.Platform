@@ -1,6 +1,5 @@
 import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, Inject, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { TenantService } from '@indice/ng-auth';
 
 import { ToasterService, ToastType } from '@indice/ng-components';
 import { Subscription } from 'rxjs';
@@ -20,8 +19,7 @@ export class MessageTypeEditComponent implements OnInit, AfterViewInit, OnDestro
         private _api: MessagesApiClient,
         private _router: Router,
         private _activatedRoute: ActivatedRoute,
-        @Inject(ToasterService) private _toaster: ToasterService,
-        private _tenantService: TenantService
+        @Inject(ToasterService) private _toaster: ToasterService
     ) { }
 
     @ViewChild('submitBtn', { static: false }) public submitButton!: ElementRef;
@@ -52,12 +50,7 @@ export class MessageTypeEditComponent implements OnInit, AfterViewInit, OnDestro
                 next: () => {
                     this.submitInProgress = false;
                     this._toaster.show(ToastType.Success, 'Επιτυχής αποθήκευση', `Ο τύπος με όνομα '${this.model.name}' αποθηκεύτηκε με επιτυχία.`);
-                    const navigationCommands = ['message-types'];
-                    const tenantAlias = this._tenantService.getTenantValue();
-                    if (tenantAlias !== '') {
-                        navigationCommands.unshift(tenantAlias);
-                    }
-                    this._router.navigateByUrl('/', { skipLocationChange: true }).then(() => this._router.navigate(navigationCommands));
+                    this._router.navigateByUrl('/', { skipLocationChange: true }).then(() => this._router.navigate(['message-types']));
                 }
             });
     }

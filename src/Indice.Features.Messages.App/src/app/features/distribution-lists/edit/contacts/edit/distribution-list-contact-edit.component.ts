@@ -1,6 +1,5 @@
 import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, Inject, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { TenantService } from '@indice/ng-auth';
 
 import { ToasterService, ToastType } from '@indice/ng-components';
 import { Subscription } from 'rxjs';
@@ -22,8 +21,7 @@ export class DistributionListContactEditComponent implements OnInit, AfterViewIn
         private _api: MessagesApiClient,
         private _router: Router,
         private _activatedRoute: ActivatedRoute,
-        @Inject(ToasterService) private _toaster: ToasterService,
-        private _tenantService: TenantService
+        @Inject(ToasterService) private _toaster: ToasterService
     ) { }
 
     @ViewChild('submitBtn', { static: false }) public submitButton!: ElementRef;
@@ -32,7 +30,7 @@ export class DistributionListContactEditComponent implements OnInit, AfterViewIn
 
     public ngOnInit(): void {
         this._contactId = this._activatedRoute.snapshot.params['contactId'];
-        this._distributionListId = this._router.url.split('/')[settings.multitenancy ? 3 : 2];
+        this._distributionListId = this._router.url.split('/')[2];
         this._getContactSubscription = this
             ._api
             .getContactById(this._contactId)
@@ -56,12 +54,7 @@ export class DistributionListContactEditComponent implements OnInit, AfterViewIn
                 next: () => {
                     this.submitInProgress = false;
                     this._toaster.show(ToastType.Success, 'Επιτυχής αποθήκευση', `Η επαφή '${this.model.fullName || this.model.email}' ενημερώθηκε με επιτυχία.`);
-                    const navigationCommands = ['distribution-lists', this._distributionListId, 'contacts'];
-                    const tenantAlias = this._tenantService.getTenantValue();
-                    if (tenantAlias !== '') {
-                        navigationCommands.unshift(tenantAlias);
-                    }
-                    this._router.navigateByUrl('/', { skipLocationChange: true }).then(() => this._router.navigate(navigationCommands));
+                    this._router.navigateByUrl('/', { skipLocationChange: true }).then(() => this._router.navigate(['distribution-lists', this._distributionListId, 'contacts']));
                 }
             });
     }
