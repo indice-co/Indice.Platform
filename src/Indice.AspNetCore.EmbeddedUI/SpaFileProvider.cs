@@ -8,12 +8,12 @@ using Microsoft.Extensions.Primitives;
 
 namespace Indice.AspNetCore.EmbeddedUI
 {
-    internal class SpaFileProvider<TOptions> : IFileProvider where TOptions : SpaUIOptions
+    internal class SpaFileProvider : IFileProvider
     {
         private readonly EmbeddedFileProvider _inner;
-        private readonly TOptions _options;
+        private readonly SpaUIOptions _options;
 
-        public SpaFileProvider(EmbeddedFileProvider inner, TOptions options) {
+        public SpaFileProvider(EmbeddedFileProvider inner, SpaUIOptions options) {
             _inner = inner ?? throw new ArgumentNullException(nameof(inner));
             _options = options ?? throw new ArgumentNullException(nameof(options));
         }
@@ -89,7 +89,6 @@ namespace Indice.AspNetCore.EmbeddedUI
                 ["%(ClientId)"] = _options.ClientId,
                 ["%(DocumentTitle)"] = _options.DocumentTitle,
                 ["%(Host)"] = _options.Host.TrimEnd('/'),
-                ["%(BasePath)"] = _options.BasePath.Trim('/'),
                 ["%(Path)"] = _options.Path.Trim('/'),
                 ["%(HeadContent)"] = _options.HeadContent,
                 ["%(Culture)"] = CultureInfo.CurrentCulture.TwoLetterISOLanguageName,

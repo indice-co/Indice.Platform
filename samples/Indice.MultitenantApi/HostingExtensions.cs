@@ -16,7 +16,6 @@ using Indice.Sample.Common.Models;
 using Indice.Sample.Common.Services;
 using Indice.Types;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Rewrite;
 using Microsoft.EntityFrameworkCore;
@@ -180,7 +179,7 @@ namespace Indice.MultitenantApi
                 });
             }
             app.UseCampaignsUI(options => {
-                options.Path = "messages";
+                options.UIEndpoint("messages/{tenantId}");
                 options.ClientId = "backoffice-ui";
                 options.Scope = "backoffice backoffice:messages";
                 options.DocumentTitle = "Campaigns UI";
@@ -189,8 +188,9 @@ namespace Indice.MultitenantApi
                 options.Enabled = true;
                 options.OnPrepareResponse = staticFileOptions.OnPrepareResponse;
                 options.InjectStylesheet("/css/campaigns-ui-overrides.css");
-                options.TenantIdAccessor = httpContext => {
-                    return "contoso-ltd";
+                options.TenantIdAccessor = (httpContext, resolvedParameters) => {
+                    var hasTenant = resolvedParameters.TryGetValue("tenantId", out var tenantId);
+                    return hasTenant ? tenantId : default;
                 };
             });
             app.UseEndpoints(endpoints => {
