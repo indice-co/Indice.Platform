@@ -9,7 +9,7 @@ namespace Indice.AspNetCore.EmbeddedUI
     /// <summary>Options for configuring <see cref="SpaUIMiddleware{TOptions}"/> middleware.</summary>
     public class SpaUIOptions
     {
-        private RoutePattern _defaultPath = RoutePatternFactory.Pattern("/");
+        private string _pathPrefix = "/";
 
         /// <summary>The name of the section used in appsettings.json file.</summary>
         public const string SectionName = "SpaUI";
@@ -23,7 +23,7 @@ namespace Indice.AspNetCore.EmbeddedUI
         public string DocumentTitle { get; set; } = "Indice BackOffice UI";
         /// <summary>Gets or sets additional content to place in the head of the SPA page.</summary>
         public string HeadContent { get; set; }
-        /// <summary>Specifies whether the application is served in the specified path, as dictated by the <see cref="PathPattern"/> property. Can be used in scenarios where the application needs to be hidden. Defaults to true.</summary>
+        /// <summary>Specifies whether the application is served in the specified path, as dictated by the <see cref="PathPrefixPattern"/> property. Can be used in scenarios where the application needs to be hidden. Defaults to true.</summary>
         public bool Enabled { get; set; } = true;
         /// <summary>The base address of the application host (i.e. https://example.com).</summary>
         public string Host { get; set; }
@@ -35,26 +35,19 @@ namespace Indice.AspNetCore.EmbeddedUI
         public Action<Dictionary<string, string>> ConfigureIndexParameters { get; set; }
         /// <summary></summary>
         public Func<HttpContext, IDictionary<string, string>, string> TenantIdAccessor { get; set; }
+        /// <summary></summary>
+        public string PathPrefix {
+            get { return _pathPrefix; }
+            set {
+                _pathPrefix = !string.IsNullOrWhiteSpace(value) ? value : _pathPrefix;
+                PathPrefixPattern = RoutePatternFactory.Parse(_pathPrefix);
+            }
+        }
+        
         internal string Version { get; set; }
         internal bool Multitenancy => TenantIdAccessor is not null;
         internal string TenantId { get; set; }
         internal string Path { get; set; }
-
-        internal RoutePattern PathPattern {
-            get => _defaultPath;
-            set => _defaultPath = value ?? _defaultPath;
-        }
-
-        /// <summary></summary>
-        /// <param name="pattern"></param>
-        public void UIEndpoint(string pattern) {
-            PathPattern = RoutePatternFactory.Parse(pattern);
-        }
-
-        /// <summary></summary>
-        /// <param name="pattern"></param>
-        public void UIEndpoint(RoutePattern pattern) {
-            PathPattern = pattern;
-        }
+        internal RoutePattern PathPrefixPattern { get; set; }
     }
 }

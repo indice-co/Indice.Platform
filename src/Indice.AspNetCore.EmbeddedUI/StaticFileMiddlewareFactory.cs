@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Collections.Concurrent;
 using System.Reflection;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -13,7 +13,7 @@ namespace Indice.AspNetCore.EmbeddedUI
 {
     internal class StaticFileMiddlewareFactory
     {
-        private static IDictionary<string, StaticFileMiddleware> _cache = new Dictionary<string, StaticFileMiddleware>();
+        private static readonly ConcurrentDictionary<string, StaticFileMiddleware> _cache = new();
         private readonly IWebHostEnvironment _hostingEnvironment;
         private readonly ILoggerFactory _loggerFactory;
 
@@ -44,7 +44,7 @@ namespace Indice.AspNetCore.EmbeddedUI
                 staticFileOptions.OnPrepareResponse = options.OnPrepareResponse;
             }
             var middleware = new StaticFileMiddleware(next, _hostingEnvironment, Options.Create(staticFileOptions), _loggerFactory);
-            _cache.Add(requestPath, middleware);
+            var _ = _cache.TryAdd(requestPath, middleware);
             return middleware;
         }
     }

@@ -29,7 +29,7 @@ namespace Indice.AspNetCore.EmbeddedUI
             if (requestUriSegments.Count() < patternSegments.Count()) {
                 return false;
             }
-            var isMatch = true;
+            var isMatch = false;
             var patternParameters = pattern.Parameters.Select(parameter => "{" + parameter.Name + "}");
             for (var index = 0; index < requestUriSegments.Count(); index++) {
                 var segment = requestUriSegments.ElementAt(index);

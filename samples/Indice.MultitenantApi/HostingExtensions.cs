@@ -179,7 +179,7 @@ namespace Indice.MultitenantApi
                 });
             }
             app.UseCampaignsUI(options => {
-                options.UIEndpoint("messages/{tenantId}");
+                options.PathPrefix = "messages/{tenantId}";
                 options.ClientId = "backoffice-ui";
                 options.Scope = "backoffice backoffice:messages";
                 options.DocumentTitle = "Campaigns UI";

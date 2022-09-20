@@ -216,7 +216,7 @@ namespace Indice.Identity
                 });
             }
             app.UseAdminUI(options => {
-                options.UIEndpoint("admin");
+                options.PathPrefix = "admin";
                 options.ClientId = "idsrv-admin-ui";
                 options.DocumentTitle = "Admin UI";
                 options.Authority = Settings.Authority;

@@ -46,12 +46,12 @@ namespace Indice.AspNetCore.EmbeddedUI
         /// <param name="httpContext">Encapsulates all HTTP-specific information about an individual HTTP request.</param>
         public async Task Invoke(HttpContext httpContext) {
             var routeMatcher = new RouteMatcher(httpContext);
-            var isMatch = routeMatcher.IsMatch(_options.PathPattern, out var resolvedParameters);
+            var isMatch = routeMatcher.IsMatch(_options.PathPrefixPattern, out var resolvedParameters);
             if (_next is not null && !isMatch) {
                 await _next.Invoke(httpContext);
                 return;
             }
-            var baseRequestPath = _options.PathPattern.GetRequestPath(resolvedParameters);
+            var baseRequestPath = _options.PathPrefixPattern.GetRequestPath(resolvedParameters);
             _options.Path = baseRequestPath;
             if (_options.Multitenancy) {
                 var tenantId = _options.TenantIdAccessor(httpContext, resolvedParameters);

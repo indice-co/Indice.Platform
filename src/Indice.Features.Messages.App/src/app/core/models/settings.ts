@@ -3,13 +3,12 @@ import { IAppSettings, IAuthSettings } from './settings.model';
 
 function createAppSettings(): IAppSettings {
     const isTemplate = environment.isTemplate;
-    let authority: string = '', clientId: string = '', host: string = '', basePath: string = '', culture: string = '', version: string = '', scopes = '', tenantId = '', path = '';
+    let authority: string = '', clientId: string = '', host: string = '', culture: string = '', version: string = '', scopes = '', tenantId = '', path = '';
     if (isTemplate) {
         const appRoot = document.getElementsByTagName('app-root')[0];
         authority = appRoot.getAttribute('authority') || '';
         clientId = appRoot.getAttribute('clientId') || '';
         host = appRoot.getAttribute('host') || '';
-        basePath = appRoot.getAttribute('basePath') || '';
         path = appRoot.getAttribute('path') || '';
         culture = appRoot.getAttribute('culture') || '';
         version = appRoot.getAttribute('version') || '';
@@ -21,7 +20,6 @@ function createAppSettings(): IAppSettings {
         appRoot.attributes.removeNamedItem('authority');
         appRoot.attributes.removeNamedItem('clientId');
         appRoot.attributes.removeNamedItem('host');
-        appRoot.attributes.removeNamedItem('basePath');
         appRoot.attributes.removeNamedItem('path');
         appRoot.attributes.removeNamedItem('culture');
         appRoot.attributes.removeNamedItem('version');
@@ -38,12 +36,12 @@ function createAppSettings(): IAppSettings {
             filterProtocolClaims: environment.auth_settings.filterProtocolClaims,
             loadUserInfo: environment.auth_settings.loadUserInfo,
             monitorSession: environment.auth_settings.monitorSession,
-            post_logout_redirect_uri: !isTemplate ? environment.auth_settings.post_logout_redirect_uri : `${host}/${basePath}/${environment.auth_settings.post_logout_redirect_uri}`,
-            redirect_uri: !isTemplate ? environment.auth_settings.redirect_uri : `${host}/${basePath}/${environment.auth_settings.redirect_uri}`,
+            post_logout_redirect_uri: !isTemplate ? environment.auth_settings.post_logout_redirect_uri : `${host}/${path}/${environment.auth_settings.post_logout_redirect_uri}`,
+            redirect_uri: !isTemplate ? environment.auth_settings.redirect_uri : `${host}/${path}/${environment.auth_settings.redirect_uri}`,
             response_type: environment.auth_settings.response_type,
             revokeAccessTokenOnSignout: environment.auth_settings.revokeAccessTokenOnSignout,
             scope: `${environment.auth_settings.scope} ${scopes}`,
-            silent_redirect_uri: !isTemplate ? environment.auth_settings.silent_redirect_uri : `${host}/${basePath}/${environment.auth_settings.silent_redirect_uri}`
+            silent_redirect_uri: !isTemplate ? environment.auth_settings.silent_redirect_uri : `${host}/${path}/${environment.auth_settings.silent_redirect_uri}`
         } as IAuthSettings,
         culture: !isTemplate ? environment.culture : culture,
         isTemplate: environment.isTemplate,
