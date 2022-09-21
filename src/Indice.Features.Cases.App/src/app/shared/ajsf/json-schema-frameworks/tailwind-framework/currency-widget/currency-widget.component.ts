@@ -1,5 +1,5 @@
 import { JsonSchemaFormService } from '@ajsf-extended/core';
-import { Component, Input, OnInit, OnDestroy } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 
 @Component({
   selector: 'app-currency-widget',

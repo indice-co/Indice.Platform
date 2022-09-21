@@ -12,7 +12,8 @@ import { get, isEqual } from 'lodash';
 import { CurrencyWidgetComponent } from 'src/app/shared/ajsf/json-schema-frameworks/tailwind-framework/currency-widget/currency-widget.component';
 import { DateWidgetComponent } from 'src/app/shared/ajsf/json-schema-frameworks/tailwind-framework/date-widget/date-widget.component';
 import { LookupWidgetComponent } from 'src/app/shared/ajsf/json-schema-frameworks/tailwind-framework/lookup-widget/lookup-widget.component';
-import * as _ from 'lodash';
+import { InputWidgetComponent } from 'src/app/shared/ajsf/json-schema-frameworks/tailwind-framework/input-widget/input-widget.component';
+import { TextAreaWidgetComponent } from 'src/app/shared/ajsf/json-schema-frameworks/tailwind-framework/text-area-widget/text-area-widget.component';
 import { Router } from '@angular/router';
 
 @Component({
@@ -37,7 +38,9 @@ export class CaseFormComponent implements OnChanges, OnInit, OnDestroy {
     "select": SelectWidgetComponent,
     "lookup": LookupWidgetComponent,
     "date": DateWidgetComponent,
-    "currency": CurrencyWidgetComponent
+    "currency": CurrencyWidgetComponent,
+    "text": InputWidgetComponent,
+    "textarea": TextAreaWidgetComponent
   };
   // Add custom framework
   public framework = {
@@ -130,7 +133,7 @@ export class CaseFormComponent implements OnChanges, OnInit, OnDestroy {
           let path = key;
           path = path.replace(/\//g, '.'); // https://stackoverflow.com/a/63616567/19162333
           path = path.substring(1);
-          if (_.get(event, path)) { // https://lodash.com/docs/4.17.15#get
+          if (get(event, path)) { // https://lodash.com/docs/4.17.15#get
             const fileParam = { data: this.uploadFileWidgetService.files[key], fileName: this.uploadFileWidgetService.files[key].name };
             callsDict[key] = this._api.uploadAdminCaseAttachment(this.case.id!, undefined, fileParam);
           }

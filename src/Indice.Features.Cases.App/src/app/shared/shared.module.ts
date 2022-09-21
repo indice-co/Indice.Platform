@@ -19,6 +19,8 @@ import { CurrencyWidgetComponent } from './ajsf/json-schema-frameworks/tailwind-
 import { NgxMaskModule } from 'ngx-mask'
 import { DateWidgetComponent } from './ajsf/json-schema-frameworks/tailwind-framework/date-widget/date-widget.component';
 import { LookupWidgetComponent } from './ajsf/json-schema-frameworks/tailwind-framework/lookup-widget/lookup-widget.component';
+import { InputWidgetComponent } from './ajsf/json-schema-frameworks/tailwind-framework/input-widget/input-widget.component';
+import { TextAreaWidgetComponent } from './ajsf/json-schema-frameworks/tailwind-framework/text-area-widget/text-area-widget.component';
 
 
 
@@ -39,6 +41,8 @@ import { LookupWidgetComponent } from './ajsf/json-schema-frameworks/tailwind-fr
     CurrencyWidgetComponent,
     DateWidgetComponent,
     LookupWidgetComponent,
+    InputWidgetComponent,
+    TextAreaWidgetComponent,
     // pipes
     BeautifyBooleanPipe,
     RemovePrefixPipe
