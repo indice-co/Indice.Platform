@@ -57,7 +57,17 @@ namespace Indice.AspNetCore.Identity
         }
 
         /// <inheritdoc />
-        public async Task<TotpResult> Send(ClaimsPrincipal principal, string message, TotpDeliveryChannel channel = TotpDeliveryChannel.Sms, string purpose = null, string securityToken = null, string phoneNumberOrEmail = null, string data = null, string classification = null, string subject = null) {
+        public async Task<TotpResult> Send(
+            ClaimsPrincipal principal,
+            string message,
+            TotpDeliveryChannel channel = TotpDeliveryChannel.Sms,
+            string purpose = null,
+            string securityToken = null,
+            string phoneNumberOrEmail = null,
+            string data = null,
+            string classification = null,
+            string subject = null
+        ) {
             var totpResult = ValidateParameters(principal, securityToken, phoneNumberOrEmail);
             if (!totpResult.Success) {
                 return totpResult;
@@ -110,12 +120,16 @@ namespace Indice.AspNetCore.Identity
                     } else {
                         data = JsonSerializer.Serialize(new { otp = token }, jsonSerializerOptions);
                     }
-                    await _pushNotificationService.SendAsync(builder =>
-                        builder.To(user?.Id)
-                               .WithToken(token)
-                               .WithTitle(string.Format(message, token))
-                               .WithData(data)
-                               .WithClassification(classification));
+                    var pushNotificationMessageBuilder = new PushNotificationMessageBuilder();
+                    if (string.IsNullOrWhiteSpace(user?.Id)) {
+                        pushNotificationMessageBuilder.To(user?.Id);
+                    }
+                    pushNotificationMessageBuilder
+                        .WithToken(token)
+                        .WithTitle(string.Format(message, token))
+                        .WithData(data)
+                        .WithClassification(classification);
+                    await _pushNotificationService.SendAsync(builder => pushNotificationMessageBuilder);
                     break;
                 default:
                     break;
