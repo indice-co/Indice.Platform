@@ -20,7 +20,7 @@ namespace Indice.Services.Tests
             await totpService.Object.Send(builder => {
                 builder.UsePrincipal(new ClaimsPrincipal(new ClaimsIdentity(new[] { new Claim(BasicClaimTypes.Subject, userId) })))
                        .WithMessage("Your TOTP is {0}")
-                       .UsingDeliveryChannel(TotpDeliveryChannel.Sms)
+                       .UsingSms()
                        .WithPurpose("123abc")
                        .WithData(new TotpData { Name = "John" });
             });

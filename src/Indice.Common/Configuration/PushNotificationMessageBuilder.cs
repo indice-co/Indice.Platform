@@ -2,9 +2,7 @@
 
 namespace Indice.Services
 {
-    /// <summary>
-    /// The builder to construct an instance of <see cref="PushNotificationMessage"/>.
-    /// </summary>
+    /// <summary>The builder to construct an instance of <see cref="PushNotificationMessage"/>.</summary>
     public class PushNotificationMessageBuilder
     {
         /// <summary>
@@ -12,40 +10,24 @@ namespace Indice.Services
         /// If the data is null then only the token will be sent as data.
         /// </summary>
         public string Data { get; set; }
-        /// <summary>
-        /// The message of the push notification.
-        /// </summary>
+        /// <summary>The message of the push notification.</summary>
         public string Title { get; set; }
-        /// <summary>
-        /// The body of the push notification.
-        /// </summary>
+        /// <summary>The body of the push notification.</summary>
         public string Body { get; set; }
-        /// <summary>
-        /// The user identifier that correlates devices with users. This can be any identifier like user id, username, user email, customer code etc.
-        /// </summary>
+        /// <summary>The user identifier that correlates devices with users. This can be any identifier like user id, username, user email, customer code etc.</summary>
         public string UserTag { get; set; }
-        /// <summary>
-        /// The tags of the push notification.
-        /// </summary>
+        /// <summary>The tags of the push notification.</summary>
         public string[] Tags { get; set; } = Array.Empty<string>();
-        /// <summary>
-        /// The type of the push notification.
-        /// </summary>
+        /// <summary>The type of the push notification.</summary>
         public string Classification { get; set; }
-        /// <summary>
-        /// The OTP token that must be passed to the client.
-        /// </summary>
+        /// <summary>The OTP token that must be passed to the client.</summary>
         public string Token { get; set; }
     }
 
-    /// <summary>
-    /// <see cref="PushNotificationMessageBuilder"/> extensions.
-    /// </summary>
+    /// <summary><see cref="PushNotificationMessageBuilder"/> extensions.</summary>
     public static class PushNotificationMessageBuilderExtensions
     {
-        /// <summary>
-        /// Defines the message to the push notification. 
-        /// </summary>
+        /// <summary>Defines the message to the push notification.</summary>
         /// <param name="builder">The builder.</param>
         /// <param name="title">The title to add to the push notification.</param>
         public static PushNotificationMessageBuilder WithTitle(this PushNotificationMessageBuilder builder, string title) {
@@ -56,9 +38,7 @@ namespace Indice.Services
             return builder;
         }
 
-        /// <summary>
-        /// Defines the body of the push notification.
-        /// </summary>
+        /// <summary>Defines the body of the push notification.</summary>
         /// <param name="builder">The builder.</param>
         /// <param name="body">The body of the push notification.</param>
         public static PushNotificationMessageBuilder WithBody(this PushNotificationMessageBuilder builder, string body) {
@@ -69,9 +49,7 @@ namespace Indice.Services
             return builder;
         }
 
-        /// <summary>
-        /// Defines the OTP token that must be passed to the client.
-        /// </summary>
+        /// <summary>Defines the OTP token that must be passed to the client.</summary>
         /// <param name="builder">The builder.</param>
         /// <param name="token">The token.</param>
         public static PushNotificationMessageBuilder WithToken(this PushNotificationMessageBuilder builder, string token) {
@@ -82,9 +60,7 @@ namespace Indice.Services
             return builder;
         }
 
-        /// <summary>
-        /// Defines the data of the push notification. Data is optional.
-        /// </summary>
+        /// <summary>Defines the data of the push notification. Data is optional.</summary>
         /// <param name="builder">The builder.</param>
         /// <param name="data">The data that will be sent to the push notification.</param>
         public static PushNotificationMessageBuilder WithData(this PushNotificationMessageBuilder builder, string data) {
@@ -92,9 +68,7 @@ namespace Indice.Services
             return builder;
         }
 
-        /// <summary>
-        /// Defines the user that will receive the push notification.
-        /// </summary>
+        /// <summary>Defines the user that will receive the push notification.</summary>
         /// <param name="builder">The builder.</param>
         /// <param name="userTag">The Id of the user.</param>
         public static PushNotificationMessageBuilder To(this PushNotificationMessageBuilder builder, string userTag) {
@@ -105,9 +79,7 @@ namespace Indice.Services
             return builder;
         }
 
-        /// <summary>
-        /// Defines the tags that will be sent to the push notification.
-        /// </summary>
+        /// <summary>Defines the tags that will be sent to the push notification.</summary>
         /// <param name="builder">The builder.</param>
         /// <param name="tags">The tags to send.</param>
         public static PushNotificationMessageBuilder WithTags(this PushNotificationMessageBuilder builder, params string[] tags) {
@@ -118,9 +90,7 @@ namespace Indice.Services
             return builder;
         }
 
-        /// <summary>
-        /// Defines the type of the push notification.
-        /// </summary>
+        /// <summary>Defines the type of the push notification.</summary>
         /// <param name="builder">the builder.</param>
         /// <param name="classification">The type of the push notification.</param>
         public static PushNotificationMessageBuilder WithClassification(this PushNotificationMessageBuilder builder, string classification) {
@@ -128,9 +98,7 @@ namespace Indice.Services
             return builder;
         }
 
-        /// <summary>
-        /// Returns the <see cref="PushNotificationMessage"/> instance made by the builder.
-        /// </summary>
+        /// <summary>Returns the <see cref="PushNotificationMessage"/> instance made by the builder.</summary>
         /// <param name="builder">The builder.</param>
         public static PushNotificationMessage Build(this PushNotificationMessageBuilder builder) =>
             new(builder.Title, builder.Body, builder.Token, builder.Data, builder.UserTag, builder.Tags, builder.Classification);

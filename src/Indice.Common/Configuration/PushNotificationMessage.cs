@@ -2,9 +2,7 @@
 
 namespace Indice.Services
 {
-    /// <summary>
-    /// Models the data that are sent in an push notification message.
-    /// </summary>
+    /// <summary>Models the data that are sent in an push notification message.</summary>
     public class PushNotificationMessage
     {
         /// <summary>
@@ -12,34 +10,20 @@ namespace Indice.Services
         /// If the data is null then only the token will be sent as data.
         /// </summary>
         public string Data { get; }
-        /// <summary>
-        /// The title of the push notification.
-        /// </summary>
+        /// <summary>The title of the push notification.</summary>
         public string Title { get; }
-        /// <summary>
-        /// The title of the push notification.
-        /// </summary>
+        /// <summary>The title of the push notification.</summary>
         public string Body { get; set; }
-        /// <summary>
-        /// The user identifier that correlates devices with users. This can be any identifier like user id, username, user email, customer code etc.
-        /// </summary>
+        /// <summary>The user identifier that correlates devices with users. This can be any identifier like user id, username, user email, customer code etc.</summary>
         public string UserTag { get; }
-        /// <summary>
-        /// The tags of the push notification.
-        /// </summary>
+        /// <summary>The tags of the push notification.</summary>
         public string[] Tags { get; }
-        /// <summary>
-        /// The type of the push notification.
-        /// </summary>
+        /// <summary>The type of the push notification.</summary>
         public string Classification { get; }
-        /// <summary>
-        /// The OTP token that must be passed to the client.
-        /// </summary>
+        /// <summary>The OTP token that must be passed to the client.</summary>
         public string Token { get; set; }
 
-        /// <summary>
-        /// Constructs a <see cref="PushNotificationMessage"/>.
-        /// </summary>
+        /// <summary>Constructs a <see cref="PushNotificationMessage"/>.</summary>
         /// <param name="title">The title of the push notification.</param>
         /// <param name="body">The body of the push notification.</param>
         /// <param name="token">The token.</param>
