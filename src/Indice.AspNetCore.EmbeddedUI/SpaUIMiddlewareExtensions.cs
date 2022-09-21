@@ -21,7 +21,6 @@ namespace Microsoft.AspNetCore.Builder
             };
             optionsAction?.Invoke(options);
             if (options.Enabled) {
-                options.Version = assembly.GetName().Version.ToString(fieldCount: 3);
                 builder.UseMiddleware<SpaUIMiddleware<TOptions>>(options, embeddedUIRoot, assembly);
             }
             return builder;

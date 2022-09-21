@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <Authors>Constantinos Leftheris, Georgios Manoltzas</Authors>
     <Copyright>Copyright (c) 2022 Indice</Copyright>
@@ -7,6 +7,7 @@
     <TargetFrameworks>netcoreapp3.1;net5.0;net6.0;</TargetFrameworks>
     <VersionPrefix>6.0.1</VersionPrefix>
     <!--<VersionSuffix>beta-01</VersionSuffix>-->
+    <LangVersion>Latest</LangVersion>
   </PropertyGroup>
   <PropertyGroup Label="Package">
     <IsPackable>true</IsPackable>
@@ -40,6 +41,6 @@
     <PackageReference Include="Microsoft.Extensions.FileProviders.Embedded" Version="5.0.14" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
-    <PackageReference Include="Microsoft.Extensions.FileProviders.Embedded" Version="3.1.22" />
+    <PackageReference Include="Microsoft.Extensions.FileProviders.Embedded" Version="6.0.9" />
   </ItemGroup>
 </Project>
