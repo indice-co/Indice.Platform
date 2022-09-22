@@ -10,15 +10,15 @@ namespace Indice.Features.Cases.Workflows.Activities
 {
     [Activity(
         Category = "Cases",
-        DisplayName = "Get Case",
-        Description = "Get Case.",
+        DisplayName = "Get Case Details",
+        Description = "Get the details of the case.",
         Outcomes = new[] { OutcomeNames.Done, "Failed" }
     )]
-    internal class GetCaseActivity : BaseCaseActivity
+    internal class GetCaseDetailsActivity : BaseCaseActivity
     {
         private readonly IAdminCaseService _adminCaseService;
 
-        public GetCaseActivity(
+        public GetCaseDetailsActivity(
             IAdminCaseMessageService caseMessageService,
             IAdminCaseService adminCaseService)
             : base(caseMessageService) {
@@ -28,7 +28,7 @@ namespace Indice.Features.Cases.Workflows.Activities
         [ActivityOutput]
         public object Output { get; set; }
 
-        public override async ValueTask<IActivityExecutionResult> ExecuteAsync(ActivityExecutionContext context) {
+        public override async ValueTask<IActivityExecutionResult> TryExecuteAsync(ActivityExecutionContext context) {
             CaseId ??= Guid.Parse(context.CorrelationId);
             // Run as systemic user, since this is a system activity for creating conditions at workflow
             var systemUser = Cases.Extensions.PrincipalExtensions.SystemUser();
