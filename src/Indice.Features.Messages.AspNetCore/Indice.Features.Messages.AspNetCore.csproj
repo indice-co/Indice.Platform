@@ -6,7 +6,7 @@
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <LangVersion>Latest</LangVersion>
     <TargetFrameworks>netcoreapp3.1;net5.0;net6.0</TargetFrameworks>
-    <VersionPrefix>6.1.10</VersionPrefix>
+    <VersionPrefix>6.1.11</VersionPrefix>
     <!--<VersionSuffix>beta-10</VersionSuffix>-->
   </PropertyGroup>
   <PropertyGroup Label="Package">
